@@ -591,7 +591,7 @@ export function ShowroomCortai({
       <section id="lembretes" className="showroom-secao showroom-prova">
         <Cabecalho b={c.agenda} />
         <div className="showroom-prova-layout">
-          <Lembrete segmento={segmento} />
+          <Lembrete key={segmento} segmento={segmento} />
         </div>
       </section>
 
@@ -612,7 +612,7 @@ export function ShowroomCortai({
       <section className="showroom-faixa showroom-secretaria-secao">
         <div className="showroom-dividida">
           <div className="showroom-chat-wrap">
-            <Secretaria segmento={segmento} />
+            <Secretaria key={segmento} segmento={segmento} />
           </div>
           <div className="showroom-secao-cabecalho">
             {c.secretaria.etiqueta ? (
@@ -646,7 +646,7 @@ export function ShowroomCortai({
         </div>
         <div className="showroom-caixa-destaque">
           <Cabecalho b={c.caixa} />
-          <Caixa segmento={segmento} />
+          <Caixa key={segmento} segmento={segmento} />
         </div>
       </section>
 
