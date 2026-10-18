@@ -340,20 +340,59 @@ function Caixa({ segmento }: { segmento: Segmento }) {
 
 function Lembrete({ segmento }: { segmento: Segmento }) {
   const servico = SEGMENTOS_CONFIG[segmento].servicosSugeridos[1]?.nome ?? "Atendimento";
+  const [resposta, setResposta] = useState<"aguardando" | "confirmar" | "remarcar">("aguardando");
   return (
     <div className="showroom-chat" aria-label="Demonstração do lembrete automático por WhatsApp">
-      <ChatHeader nome="Lembrete automático" detalhe="WhatsApp" status="Enviado sozinho" />
+      <ChatHeader
+        nome="Lembrete automático"
+        detalhe="WhatsApp"
+        status={resposta === "aguardando" ? "Aguardando resposta" : "Simulação"}
+      />
       <Conversation>
         <ConversationContent className="gap-4 p-4">
           <Balao>Oi, Rafa! Lembrete: amanhã às 11:00, {servico} com Alex. Posso confirmar?</Balao>
-          <div className="grid grid-cols-2 gap-2">
-            <Button variant="outline">Confirmar</Button>
-            <Button variant="outline">Remarcar</Button>
-          </div>
-          <Balao cliente>Confirmar</Balao>
-          <Balao>Confirmado. Até amanhã!</Balao>
+          {resposta === "aguardando" ? (
+            <div className="grid grid-cols-2 gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setResposta("confirmar")}
+                className="h-auto min-h-11 whitespace-normal"
+              >
+                Confirmar
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setResposta("remarcar")}
+                className="h-auto min-h-11 whitespace-normal"
+              >
+                Remarcar
+              </Button>
+            </div>
+          ) : resposta === "confirmar" ? (
+            <>
+              <Balao cliente>Confirmar</Balao>
+              <Balao>Na demonstração, a confirmação seria registrada após validar o agendamento.</Balao>
+            </>
+          ) : (
+            <>
+              <Balao cliente>Quero remarcar</Balao>
+              <Balao>Na experiência real, eu consultaria os horários disponíveis antes de alterar o agendamento.</Balao>
+            </>
+          )}
+          {resposta !== "aguardando" ? (
+            <Button
+              type="button"
+              variant="ghost"
+              className="w-full"
+              onClick={() => setResposta("aguardando")}
+            >
+              Reiniciar demonstração
+            </Button>
+          ) : null}
           <p className="showroom-chat-nota">
-            <Check /> Exemplo ilustrativo. A disponibilidade depende da configuração do estabelecimento.
+            <Check /> Simulação local: nenhuma mensagem foi enviada e nenhum agendamento foi alterado.
           </p>
         </ConversationContent>
       </Conversation>
