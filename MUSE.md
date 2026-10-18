@@ -23,6 +23,10 @@ A estrutura foi pensada para só gerar custo quando houver clientes.
 A branch `main` do Git é só arquivo do período antigo: não alimenta nenhum site.
 Documentos daquela fase ficam em `docs/historico/`.
 
+## Recuperação do Figaro (ativa em 18/10/2026)
+
+O APK reencontrado `Figaroo.apk` é a referência original para layout, cartões, fluxos, agenda e movimento. A decisão do dono e o mapa de escopo estão em `DIARIO.md` e `docs/referencia-ux-figaroo-cortai.md`; o contrato obrigatório está em `docs/contrato-de-design.md`. Preservar a experiência antiga verificável, substituir a marca pela marca atual do Cortaí e integrar funções novas sem redesign. A Agenda tem arquivos reservados pelo Claude conforme o diário; não tocar neles até a reserva ser liberada. Nenhuma mudança de banco ou publicação foi autorizada.
+
 ## Limites (não negociáveis)
 
 - Trabalhar só na branch `cloudflare-workers-migration-2026-10-13`. Nada de push, merge ou PR na `main`.
