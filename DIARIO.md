@@ -111,6 +111,7 @@ teste real na prévia.
 
 | Quem | Desde (UTC) | Tarefa | Arquivos / migração reservada |
 |---|---|---|---|
+| Claude | 2026-10-18 UTC | Ficha do agendamento e tela Reagendar como no Figaro (vídeo do dono de 18/10 08:34) | `src/components/barbeiro/agenda/PainelAtendimento.tsx`, `src/components/barbeiro/agenda/TelaReagendar.tsx` (novo), `src/lib/barbeiro.functions.ts` (nova leitura `getHorariosParaRemarcar`), `src/styles.css` (Agenda) |
 
 | GPT | 2026-10-17 UTC | Auditoria e melhoria mobile-first da home de apresentação | `DIARIO.md`, `MUSE.md`, `src/components/apresentacao/ShowroomCortai.tsx`, `src/components/apresentacao/DemoAgendamento.tsx`, `src/components/apresentacao/NarrativaApresentacao.tsx`, estilos já existentes da apresentação |
 | GPT | 2026-10-17 UTC | Refinar movimento global para animações mais fluidas e perceptíveis | `DIARIO.md`, `src/lib/motion.ts`, `src/components/layout/GlobalDesign.tsx` |
