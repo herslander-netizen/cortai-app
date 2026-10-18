@@ -950,7 +950,9 @@ export function acaoPermitida(nome: string, ctx: ContextoDoCerebro): boolean {
   if (!a) return false;
   if (ehEquipeNoWhatsapp(ctx)) {
     const papel = ctx.papel as Papel;
-    if (a.papeis && !a.papeis.includes(papel)) return false;
+    // Ações exclusivas de papel (agenda da equipe/atraso) usam a própria guarda
+    // de papel e não pertencem ao catálogo do painel.
+    if (a.papeis) return a.papeis.includes(papel);
     if (nome === "encaminhar_humano") return false;
     if (papel === "profissional" && SO_DONO.has(nome)) return false;
     if (!a.canais.includes("painel")) return false;
