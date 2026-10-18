@@ -4,7 +4,12 @@ import { inicioDoDiaNoFuso, inicioDoMesNoFuso } from "@/lib/horarios";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { tenantIdDoMembro, exigirPermissao, type ContextoAutenticado } from "@/lib/tenant";
 import { exigirRecurso } from "@/lib/planos";
-import { hojeNoFuso, isoNoFusoDaBarbearia, slotsDoDia } from "@/lib/horarios";
+import {
+  hojeNoFuso,
+  isoNoFusoDaBarbearia,
+  slotsDoDia,
+  somarDias as somarDiasIso,
+} from "@/lib/horarios";
 import { motivoForaDoHorario } from "@/lib/disponibilidade";
 import { fusoDoTenant } from "@/lib/fuso.server";
 import { DURACAO_MAX_MINUTOS, DURACAO_MIN_MINUTOS, TEXTO_DO_MOTIVO } from "@/lib/remarcacao-regras";
@@ -137,6 +142,69 @@ export type AgendaDia = {
   profissionais?: { id: string; nome: string; avatarUrl?: string | null }[];
 };
 
+/** Atendimentos do negócio num intervalo (início em [de, ate)), no formato da Agenda. */
+async function lerItensDaAgenda(
+  db: Awaited<ReturnType<typeof tenantPadrao>>["db"],
+  tenantId: string,
+  de: Date,
+  ate: Date,
+): Promise<AgendaItem[]> {
+  const agRes = await db
+    .from("agendamentos")
+    .select(
+      "id, inicio, fim, status, forma_pagamento, valor_centavos, cliente_id, profissional_id, arrived_at, started_at, finished_at, confirmado_em, encaixe, origem_fila_id, origem, assistido_por_cortai, clientes(nome, telefone, ficha_tecnica, condicoes_especiais, preferencias), servicos(nome, duracao_min), profissionais(nome)",
+    )
+    .eq("tenant_id", tenantId)
+    .gte("inicio", de.toISOString())
+    .lt("inicio", ate.toISOString())
+    .order("inicio");
+  const itens: AgendaItem[] = (agRes.data ?? []).map((a) => ({
+    id: a.id,
+    inicio: a.inicio,
+    fim: a.fim,
+    status: a.status,
+    forma_pagamento: a.forma_pagamento,
+    valor_centavos: a.valor_centavos,
+    clienteId: a.cliente_id ?? null,
+    cliente: a.clientes?.nome ?? "Cliente",
+    telefone: a.clientes?.telefone ?? null,
+    ficha: a.clientes?.condicoes_especiais ?? a.clientes?.ficha_tecnica ?? null,
+    preferencias: (a.clientes?.preferencias ?? {}) as PreferenciasCliente,
+    servico: a.servicos?.nome ?? "Serviço",
+    duracaoMin:
+      a.servicos?.duracao_min ??
+      Math.max(1, Math.round((new Date(a.fim).getTime() - new Date(a.inicio).getTime()) / 60_000)),
+    profissional: a.profissionais?.nome ?? "—",
+    profissionalId: (a as { profissional_id?: string | null }).profissional_id ?? null,
+    arrivedAt: a.arrived_at ?? null,
+    startedAt: a.started_at ?? null,
+    finishedAt: a.finished_at ?? null,
+    confirmadoEm: (a as { confirmado_em?: string | null }).confirmado_em ?? null,
+    encaixe: Boolean((a as { encaixe?: boolean | null }).encaixe),
+    daListaDeEspera: Boolean((a as { origem_fila_id?: string | null }).origem_fila_id),
+    origem: (a as { origem?: string | null }).origem ?? null,
+    assistidoPorCortai: Boolean((a as { assistido_por_cortai?: boolean }).assistido_por_cortai),
+    telefoneNaoConfirmado: false,
+  }));
+
+  // Marca "telefone não confirmado" (migração 0032): leitura à parte, só dos horários que
+  // vieram do link, e que nunca derruba a agenda se a coluna ainda não existir.
+  const doLink = itens.filter((i) => i.origem === "link_publico").map((i) => i.id);
+  if (doLink.length) {
+    const { data: marcados, error: erroMarca } = await db
+      .from("agendamentos")
+      .select("id")
+      .in("id", doLink)
+      .eq("telefone_nao_confirmado", true);
+    if (!erroMarca) {
+      const ids = new Set((marcados ?? []).map((m) => m.id));
+      for (const i of itens) if (ids.has(i.id)) i.telefoneNaoConfirmado = true;
+    }
+  }
+
+  return itens;
+}
+
 export const getAgendaDia = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .validator((data: { dia?: string | undefined }) => data ?? {})
@@ -147,16 +215,8 @@ export const getAgendaDia = createServerFn({ method: "GET" })
     const de = new Date(isoNoFusoDaBarbearia(diaAlvo, "00:00", fuso));
     const ate = new Date(de.getTime() + 24 * 60 * 60 * 1000);
 
-    const [agRes, filaRes, horariosRes, profsRes, tenantRes] = await Promise.all([
-      db
-        .from("agendamentos")
-        .select(
-          "id, inicio, fim, status, forma_pagamento, valor_centavos, cliente_id, profissional_id, arrived_at, started_at, finished_at, confirmado_em, encaixe, origem_fila_id, origem, assistido_por_cortai, clientes(nome, telefone, ficha_tecnica, condicoes_especiais, preferencias), servicos(nome, duracao_min), profissionais(nome)",
-        )
-        .eq("tenant_id", tenant.id)
-        .gte("inicio", de.toISOString())
-        .lt("inicio", ate.toISOString())
-        .order("inicio"),
+    const [itens, filaRes, horariosRes, profsRes, tenantRes] = await Promise.all([
+      lerItensDaAgenda(db, tenant.id, de, ate),
       db
         .from("fila_de_espera")
         .select("id, janela_preferida, clientes(nome)")
@@ -175,53 +235,6 @@ export const getAgendaDia = createServerFn({ method: "GET" })
         .order("nome"),
       db.from("tenants").select("passo_horarios_min").eq("id", tenant.id).maybeSingle(),
     ]);
-
-    const itens = (agRes.data ?? []).map((a) => ({
-      id: a.id,
-      inicio: a.inicio,
-      fim: a.fim,
-      status: a.status,
-      forma_pagamento: a.forma_pagamento,
-      valor_centavos: a.valor_centavos,
-      clienteId: a.cliente_id ?? null,
-      cliente: a.clientes?.nome ?? "Cliente",
-      telefone: a.clientes?.telefone ?? null,
-      ficha: a.clientes?.condicoes_especiais ?? a.clientes?.ficha_tecnica ?? null,
-      preferencias: (a.clientes?.preferencias ?? {}) as PreferenciasCliente,
-      servico: a.servicos?.nome ?? "Serviço",
-      duracaoMin:
-        a.servicos?.duracao_min ??
-        Math.max(
-          1,
-          Math.round((new Date(a.fim).getTime() - new Date(a.inicio).getTime()) / 60_000),
-        ),
-      profissional: a.profissionais?.nome ?? "—",
-      profissionalId: (a as { profissional_id?: string | null }).profissional_id ?? null,
-      arrivedAt: a.arrived_at ?? null,
-      startedAt: a.started_at ?? null,
-      finishedAt: a.finished_at ?? null,
-      confirmadoEm: (a as { confirmado_em?: string | null }).confirmado_em ?? null,
-      encaixe: Boolean((a as { encaixe?: boolean | null }).encaixe),
-      daListaDeEspera: Boolean((a as { origem_fila_id?: string | null }).origem_fila_id),
-      origem: (a as { origem?: string | null }).origem ?? null,
-      assistidoPorCortai: Boolean((a as { assistido_por_cortai?: boolean }).assistido_por_cortai),
-      telefoneNaoConfirmado: false,
-    }));
-
-    // Marca "telefone não confirmado" (migração 0032): leitura à parte, só dos horários que
-    // vieram do link, e que nunca derruba a agenda se a coluna ainda não existir.
-    const doLink = itens.filter((i) => i.origem === "link_publico").map((i) => i.id);
-    if (doLink.length) {
-      const { data: marcados, error: erroMarca } = await db
-        .from("agendamentos")
-        .select("id")
-        .in("id", doLink)
-        .eq("telefone_nao_confirmado", true);
-      if (!erroMarca) {
-        const ids = new Set((marcados ?? []).map((m) => m.id));
-        for (const i of itens) if (ids.has(i.id)) i.telefoneNaoConfirmado = true;
-      }
-    }
 
     const fila = (filaRes.data ?? []).map((f) => {
       const j = (f.janela_preferida ?? null) as { inicio?: number; fim?: number } | null;
@@ -260,6 +273,36 @@ export const getAgendaDia = createServerFn({ method: "GET" })
       }).catch(() => [])
     ).map((b) => ({ profissional_id: b.profissional_id, inicio: b.inicio, fim: b.fim }));
     return { tenant, dia: iso, itens, bloqueios, fila, horarios, fuso, passoMin, profissionais };
+  });
+
+/** Máximo de dias numa leitura de período (o modo lista do celular carrega em blocos). */
+export const DIAS_MAX_DO_PERIODO = 62;
+
+export type AgendaPeriodo = { de: string; ate: string; fuso: string; itens: AgendaItem[] };
+
+/**
+ * Atendimentos de vários dias seguidos, a partir de `de` (dia no fuso do negócio), para o modo
+ * lista do celular. Mesma leitura e mesmo acesso da Agenda do dia (`getAgendaDia`).
+ */
+export const getAgendaPeriodo = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .validator((data: { de?: string | undefined; dias: number }) => {
+    if (data.de !== undefined && !/^\d{4}-\d{2}-\d{2}$/.test(data.de))
+      throw new Error("Dia inválido");
+    const dias = Math.trunc(Number(data.dias));
+    if (!Number.isFinite(dias) || dias < 1 || dias > DIAS_MAX_DO_PERIODO)
+      throw new Error("Período inválido");
+    return { de: data.de, dias };
+  })
+  .handler(async ({ data, context }): Promise<AgendaPeriodo> => {
+    const { db, tenant } = await tenantPadrao(context);
+    const fuso = await fusoDoTenant(tenant.id);
+    const primeiro = data.de ?? hojeNoFuso(fuso);
+    const fim = somarDiasIso(primeiro, data.dias);
+    const de = new Date(isoNoFusoDaBarbearia(primeiro, "00:00", fuso));
+    const ate = new Date(isoNoFusoDaBarbearia(fim, "00:00", fuso));
+    const itens = await lerItensDaAgenda(db, tenant.id, de, ate);
+    return { de: primeiro, ate: fim, fuso, itens };
   });
 
 export const ESTADOS_ATENDIMENTO = [
@@ -1658,11 +1701,13 @@ export const moverAgendamentoPainel = createServerFn({ method: "POST" })
       const fuso = await fusoDoTenant(tenant.id);
       const diaAlvo = hojeNoFuso(fuso, inicio);
       const desde = new Date(isoNoFusoDaBarbearia(diaAlvo, "00:00", fuso));
-      const ate = new Date(isoNoFusoDaBarbearia(
-        new Date(desde.getTime() + 36 * 60 * 60 * 1000).toISOString().slice(0, 10),
-        "00:00",
-        fuso,
-      ));
+      const ate = new Date(
+        isoNoFusoDaBarbearia(
+          new Date(desde.getTime() + 36 * 60 * 60 * 1000).toISOString().slice(0, 10),
+          "00:00",
+          fuso,
+        ),
+      );
       const { ocupacoesExtras } = await import("@/lib/ocupacoes-extras.server");
       const extras = await ocupacoesExtras(db, {
         tenantId: tenant.id,
@@ -1671,10 +1716,11 @@ export const moverAgendamentoPainel = createServerFn({ method: "POST" })
         ate,
         profissionalIds: [profissionalId],
       });
-      const extraConflitante = extras.some((ocupacao) =>
-        ocupacao.profissional_id === profissionalId &&
-        new Date(ocupacao.inicio).getTime() < fim.getTime() &&
-        new Date(ocupacao.fim).getTime() > inicio.getTime()
+      const extraConflitante = extras.some(
+        (ocupacao) =>
+          ocupacao.profissional_id === profissionalId &&
+          new Date(ocupacao.inicio).getTime() < fim.getTime() &&
+          new Date(ocupacao.fim).getTime() > inicio.getTime(),
       );
       if (extraConflitante) {
         if (data.apenasVerificar)

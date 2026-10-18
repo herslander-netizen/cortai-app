@@ -28,12 +28,12 @@ import {
 
 export type AcaoCard = "chegou" | "iniciar" | "terminar";
 
-const ENCERRADOS = new Set(["finalizado", "cancelado", "remarcado", "nao_compareceu"]);
+export const ENCERRADOS = new Set(["finalizado", "cancelado", "remarcado", "nao_compareceu"]);
 const PRIORIDADE: Record<string, number> = { na_cadeira: 0, chegou: 1, agendado: 2 };
 
 type AcaoPrincipal = { acao: AcaoCard; rotulo: string; Icone: LucideIcon };
 
-function acaoDoItem(item: AgendaItem, agora: number, ehHoje: boolean): AcaoPrincipal | null {
+export function acaoDoItem(item: AgendaItem, agora: number, ehHoje: boolean): AcaoPrincipal | null {
   if (item.status === "na_cadeira")
     return { acao: "terminar", rotulo: "Finalizar e cobrar", Icone: Check };
   if (item.status === "chegou") return { acao: "iniciar", rotulo: "Começar", Icone: Scissors };
@@ -101,11 +101,6 @@ export function ListaAgenda({
           const depoisDoHorario = atrasado && agora >= new Date(item.fim).getTime();
           const principal = onAcao ? acaoDoItem(item, agora, ehHoje) : null;
           const alergia = item.status === "na_cadeira" ? fichaRelevante(item.ficha) : null;
-          const decorrido =
-            item.status === "na_cadeira"
-              ? minutosDecorridos(item.startedAt ?? item.inicio, agora)
-              : 0;
-          const estourou = decorrido > item.duracaoMin;
           const estado =
             item.status === "na_cadeira"
               ? termos(segmento).statusAtendimento
@@ -173,82 +168,21 @@ export function ListaAgenda({
                   </span>
                 ) : null}
                 {item.status === "na_cadeira" ? (
-                  <span className="mt-2 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2">
-                    <progress
-                      className={`agenda-progress ${estourou ? "agenda-progress-estourado" : ""}`}
-                      max={Math.max(item.duracaoMin, decorrido)}
-                      value={decorrido}
-                      aria-label={`${decorrido} de ${item.duracaoMin} minutos`}
-                    />
-                    <span
-                      className={`agenda-tempo text-xs font-bold ${estourou ? "agenda-tempo-estourado" : ""}`}
-                    >
-                      {estourou
-                        ? tempoExcedido(decorrido, item.duracaoMin)
-                        : `${decorrido}/${item.duracaoMin} min`}
-                    </span>
-                  </span>
+                  <ProgressoDoAtendimento item={item} agora={agora} />
                 ) : null}
               </Button>
-              {principal || atrasado ? (
-                <div className="agenda-item-acoes">
-                  {principal ? (
-                    <Button
-                      variant={prioritario === item.id ? "primary" : "outline"}
-                      size="sm"
-                      className="agenda-item-primaria min-h-12"
-                      disabled={!online}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onAcao?.(item, principal.acao);
-                      }}
-                    >
-                      <principal.Icone aria-hidden /> {principal.rotulo}
-                    </Button>
-                  ) : null}
-                  {atrasado ? (
-                    <>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="min-h-12"
-                        disabled={!online}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onFalta(item);
-                        }}
-                      >
-                        <UserX /> Faltou
-                      </Button>
-                      {depoisDoHorario ? (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="min-h-12"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            onAbrir(item.id);
-                          }}
-                        >
-                          <CalendarClock /> Remarcar
-                        </Button>
-                      ) : (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="min-h-12"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setAguardando((a) => new Set(a).add(item.id));
-                          }}
-                        >
-                          Aguardar
-                        </Button>
-                      )}
-                    </>
-                  ) : null}
-                </div>
-              ) : null}
+              <AcoesDoItem
+                item={item}
+                principal={principal}
+                atrasado={atrasado}
+                depoisDoHorario={depoisDoHorario}
+                prioritario={prioritario === item.id}
+                online={online}
+                onAcao={onAcao}
+                onFalta={onFalta}
+                onAbrir={onAbrir}
+                onAguardar={() => setAguardando((a) => new Set(a).add(item.id))}
+              />
             </li>
           );
         })}
@@ -268,6 +202,115 @@ export function ListaAgenda({
       <p className="mt-2 border-t border-line pt-2 text-center text-xs text-mute" role="note">
         Toque no cartão para ver opções, remarcar ou cancelar
       </p>
+    </div>
+  );
+}
+
+/** Tempo do atendimento em andamento (barra e minutos), usado nas listas. */
+export function ProgressoDoAtendimento({ item, agora }: { item: AgendaItem; agora: number }) {
+  const decorrido = minutosDecorridos(item.startedAt ?? item.inicio, agora);
+  const estourou = decorrido > item.duracaoMin;
+  return (
+    <span className="mt-2 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2">
+      <progress
+        className={`agenda-progress ${estourou ? "agenda-progress-estourado" : ""}`}
+        max={Math.max(item.duracaoMin, decorrido)}
+        value={decorrido}
+        aria-label={`${decorrido} de ${item.duracaoMin} minutos`}
+      />
+      <span
+        className={`agenda-tempo text-xs font-bold ${estourou ? "agenda-tempo-estourado" : ""}`}
+      >
+        {estourou
+          ? tempoExcedido(decorrido, item.duracaoMin)
+          : `${decorrido}/${item.duracaoMin} min`}
+      </span>
+    </span>
+  );
+}
+
+/** Ações de hoje no cartão da lista (chegou, começar, finalizar, faltou, aguardar, remarcar). */
+export function AcoesDoItem({
+  item,
+  principal,
+  atrasado,
+  depoisDoHorario,
+  prioritario,
+  online,
+  onAcao,
+  onFalta,
+  onAbrir,
+  onAguardar,
+}: {
+  item: AgendaItem;
+  principal: AcaoPrincipal | null;
+  atrasado: boolean;
+  depoisDoHorario: boolean;
+  prioritario: boolean;
+  online: boolean;
+  onAcao?: ((item: AgendaItem, acao: AcaoCard) => void) | undefined;
+  onFalta: (item: AgendaItem) => void;
+  onAbrir: (id: string) => void;
+  onAguardar: () => void;
+}) {
+  if (!principal && !atrasado) return null;
+  return (
+    <div className="agenda-item-acoes">
+      {principal ? (
+        <Button
+          variant={prioritario ? "primary" : "outline"}
+          size="sm"
+          className="agenda-item-primaria min-h-12"
+          disabled={!online}
+          onClick={(e) => {
+            e.stopPropagation();
+            onAcao?.(item, principal.acao);
+          }}
+        >
+          <principal.Icone aria-hidden /> {principal.rotulo}
+        </Button>
+      ) : null}
+      {atrasado ? (
+        <>
+          <Button
+            variant="outline"
+            size="sm"
+            className="min-h-12"
+            disabled={!online}
+            onClick={(e) => {
+              e.stopPropagation();
+              onFalta(item);
+            }}
+          >
+            <UserX /> Faltou
+          </Button>
+          {depoisDoHorario ? (
+            <Button
+              variant="outline"
+              size="sm"
+              className="min-h-12"
+              onClick={(e) => {
+                e.stopPropagation();
+                onAbrir(item.id);
+              }}
+            >
+              <CalendarClock /> Remarcar
+            </Button>
+          ) : (
+            <Button
+              variant="outline"
+              size="sm"
+              className="min-h-12"
+              onClick={(e) => {
+                e.stopPropagation();
+                onAguardar();
+              }}
+            >
+              Aguardar
+            </Button>
+          )}
+        </>
+      ) : null}
     </div>
   );
 }

@@ -100,7 +100,6 @@ teste real na prévia.
 
 | Quem | Desde (UTC) | Tarefa | Arquivos / migração reservada |
 |---|---|---|---|
-| Claude | 2026-10-18 UTC | Agenda celular: modo lista de vários dias (de hoje em diante, busca, cancelados sob botão) e animação de entrada/saída do vídeo | `src/lib/barbeiro.functions.ts` (nova leitura `getAgendaPeriodo`), `src/components/barbeiro/agenda/ListaPeriodo.tsx` (novo), `src/components/barbeiro/AgendaOperacional.tsx`, `src/components/barbeiro/agenda/useAgendaDia.ts`, `src/styles.css` (Agenda) |
 
 | GPT | 2026-10-17 UTC | Auditoria e melhoria mobile-first da home de apresentação | `DIARIO.md`, `MUSE.md`, `src/components/apresentacao/ShowroomCortai.tsx`, `src/components/apresentacao/DemoAgendamento.tsx`, `src/components/apresentacao/NarrativaApresentacao.tsx`, estilos já existentes da apresentação |
 | GPT | 2026-10-17 UTC | Refinar movimento global para animações mais fluidas e perceptíveis | `DIARIO.md`, `src/lib/motion.ts`, `src/components/layout/GlobalDesign.tsx` |
@@ -141,6 +140,28 @@ teste real na prévia.
   que se contradizem; vale deixar só uma. Responda com `[lido]`.
 
 ## Diário (mais recente primeiro)
+
+### 2026-10-18 UTC — Claude — Modo lista de vários dias no celular (vídeo do dono)
+- O que mudou e por quê: o dono pediu o modo lista do vídeo (17/10, 21:46), com "todos os
+  atendimentos marcados em ordem para achar fácil o cliente e o dia". Decisões dele: **de hoje em
+  diante** e **cancelados escondidos atrás de botão**.
+  - Servidor: `getAgendaPeriodo({ de, dias ≤ 62 })` em `barbeiro.functions.ts`, com a mesma leitura
+    e o mesmo acesso de `getAgendaDia` (a consulta foi extraída para `lerItensDaAgenda`, usada
+    pelas duas; nada muda na busca do dia). Sem migração, sem escrita.
+  - `ListaPeriodo.tsx` (novo): blocos de 60 dias com carregar mais ao rolar (até 1 ano), separados
+    por dia ("23 out. · Sexta-feira", à direita "n atendimentos · R$"), hora e duração à esquerda e
+    o cartão padrão (cor só na barra). Busca por cliente (sem acento), telefone (só números),
+    serviço ou profissional. "Mostrar cancelados (n)". Os atendimentos de hoje mantêm as ações da
+    lista do dia (Cliente chegou, Começar, Finalizar e cobrar, Faltou, Aguardar, Remarcar) e a
+    barra de tempo — extraídas de `ListaAgenda.tsx` (`AcoesDoItem`, `ProgressoDoAtendimento`).
+    Tocar num atendimento de outro dia leva a Agenda para aquele dia e abre a ficha.
+  - Animação (`TrocaDeVisualizacao.tsx`): a faixa da semana recolhe para cima no modo lista e a
+    timeline sai subindo e esmaecendo enquanto a lista entra subindo; a página volta ao topo.
+  - Tempo real, volta da conexão e `sincronizar()` também atualizam `["agenda-periodo"]`.
+  - O computador continua com a lista do dia (`ListaAgenda`).
+- Testes: `tsc`, `vitest` (1525) e `build` passaram; simulação a 390 px nos dois temas (entrada,
+  lista, busca e saída).
+- Banco/infra: só leitura nova; nada publicado no site principal.
 
 ### 2026-10-18 UTC — Claude — Cartões da Agenda num padrão só
 - O que mudou e por quê: pedido do dono com dois modelos (claro e escuro). O CSS dos cartões tinha
