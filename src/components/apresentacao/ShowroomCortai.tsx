@@ -291,8 +291,13 @@ function Secretaria({ segmento }: { segmento: Segmento }) {
 }
 
 function Caixa({ segmento }: { segmento: Segmento }) {
-  const servico = SEGMENTOS_CONFIG[segmento].servicosSugeridos[0];
-  const valor = servico?.precoCentavos ?? 4500;
+  const servicos = SEGMENTOS_CONFIG[segmento].servicosSugeridos;
+  const servico = servicos[0];
+  const adicional = servicos[1];
+  const [adicionalAtivo, setAdicionalAtivo] = useState(false);
+  const [pagamento, setPagamento] = useState<string | null>(null);
+  const valor = (servico?.precoCentavos ?? 4500) +
+    (adicionalAtivo ? (adicional?.precoCentavos ?? 0) : 0);
   return (
     <div className="showroom-produto showroom-caixa" aria-label="Demonstração da comanda">
       <div className="showroom-produto-topo">
@@ -315,25 +320,56 @@ function Caixa({ segmento }: { segmento: Segmento }) {
           <CreditCard /> Pagamento
         </span>
       </div>
-      <div className="showroom-caixa-item">
-        <span>
-          <strong>{servico?.nome ?? "Atendimento"}</strong>
-          <small>1 serviço</small>
-        </span>
-        <b>{brl(valor)}</b>
-      </div>
-      <Button variant="outline">
-        <Plus /> Adicionar serviço ou produto
+      {servico ? (
+        <div className="showroom-caixa-item">
+          <span>
+            <strong>{servico.nome}</strong>
+            <small>Serviço</small>
+          </span>
+          <b>{brl(servico.precoCentavos)}</b>
+        </div>
+      ) : null}
+      {adicionalAtivo && adicional ? (
+        <div className="showroom-caixa-item">
+          <span>
+            <strong>{adicional.nome}</strong>
+            <small>Item adicional (simulação)</small>
+          </span>
+          <b>{brl(adicional.precoCentavos)}</b>
+        </div>
+      ) : null}
+      <Button
+        type="button"
+        variant="outline"
+        disabled={!adicional}
+        onClick={() => setAdicionalAtivo((ativo) => !ativo)}
+        className="h-auto min-h-11 whitespace-normal"
+      >
+        <Plus /> {adicionalAtivo ? "Remover item adicional" : "Adicionar serviço ou produto"}
       </Button>
       <div className="showroom-total">
-        <span>Total</span>
+        <span>Total ilustrativo</span>
         <strong>{brl(valor)}</strong>
       </div>
-      <div className="grid grid-cols-3 gap-2">
-        <Button variant="secondary">Pix</Button>
-        <Button variant="secondary">Cartão</Button>
-        <Button variant="secondary">Dinheiro</Button>
+      <div className="grid grid-cols-3 gap-2" role="group" aria-label="Forma de pagamento demonstrativa">
+        {["Pix", "Cartão", "Dinheiro"].map((forma) => (
+          <Button
+            key={forma}
+            type="button"
+            variant={pagamento === forma ? "primary" : "secondary"}
+            aria-pressed={pagamento === forma}
+            onClick={() => setPagamento(forma)}
+            className="h-auto min-h-11 whitespace-normal"
+          >
+            {forma}
+          </Button>
+        ))}
       </div>
+      {pagamento ? (
+        <p className="text-xs text-mute" role="status">
+          {pagamento} selecionado para a demonstração. Nenhum pagamento foi processado.
+        </p>
+      ) : null}
     </div>
   );
 }
