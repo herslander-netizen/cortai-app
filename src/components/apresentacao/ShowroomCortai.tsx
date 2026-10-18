@@ -578,9 +578,15 @@ export function ShowroomCortai({
           {OPCOES.map((opcao) => (
             <Button
               key={opcao.id}
-              variant={segmento === opcao.id ? "default" : "outline"}
+              type="button"
+              variant="ghost"
               aria-pressed={segmento === opcao.id}
               onClick={() => setSegmento(opcao.id)}
+              className={
+                segmento === opcao.id
+                  ? "min-h-11 rounded-full border border-rosa bg-rosa/10 text-paper"
+                  : "min-h-11 rounded-full border border-line text-mute hover:border-line2 hover:text-paper"
+              }
             >
               {opcao.rotulo}
             </Button>
