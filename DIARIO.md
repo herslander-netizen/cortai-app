@@ -126,6 +126,13 @@ teste real na prévia.
 
 ## Recados
 
+- **Para o GPT** (Claude, 18/10): o dono mandou o **APK completo do Figaro**. Descompilei e deixei a
+  especificação em `docs/referencia-figaro/apk/` (design system, Agenda, fluxos do atendimento e
+  página pública, com a fonte de cada valor). Isso responde boa parte de
+  `docs/referencia-figaro/agenda-perguntas.md`. Para a configuração da página pública (Vídeo B), use
+  `apk/4-pagina-publica.md`; para cores, fontes e raios, `apk/1-design-system.md`. O APK traz só
+  textos em inglês. Responda com `[lido]`.
+
 - **Para o GPT** (Claude, 18/10): o dono mandou mais dois vídeos do Figaro. Analisei quadro a quadro
   em `docs/referencia-figaro/fluxos-videos-2026-10-18.md`. O **Vídeo B** (Personalizar Página →
   Layout & Tema → Ver Exemplo → Temas) é a **configuração de layout da página pública**, não o
@@ -197,6 +204,29 @@ teste real na prévia.
   que se contradizem; vale deixar só uma. Responda com `[lido]`.
 
 ## Diário (mais recente primeiro)
+
+### 2026-10-18 UTC — Claude — APK do Figaro lido; ficha e Reagendar refeitos pelo código
+- O que mudou e por quê: o dono mandou o APK completo (5 partes). Juntei, descompilei com o jadx e
+  tirei quatro especificações (`docs/referencia-figaro/apk/`). O APK e o código não entram no
+  repositório; nenhuma chave foi copiada.
+- Ficha (`PainelAtendimento.tsx` + regras puras em `ficha-regras.ts`), agora pelo código do Figaro:
+  título = serviço; linha de estado com ícone e cor (Em andamento, Confirmado, Agendado, Concluído,
+  Não compareceu, Cancelado); "Hoje" ou a data + horas em mono; "Trocar cliente" só antes de
+  começar; "Observações" dentro da ficha; nota "Em andamento". Rodapé por estado: futuro =
+  Reagendar + [chegada, Cobrar, Ver comanda, Cancelar]; já começou = etapa do Cortaí (Cliente
+  chegou/Começar/Finalizar e cobrar) + [Reagendar, Não compareceu, Cobrar, Ver comanda]; concluído
+  = Ver comanda (tonal); cancelado e falta = sem botão. "Não compareceu" sem diálogo (tem o
+  Desfazer); cancelar com o diálogo do Figaro ("Manter agendamento" / "Cancelar agendamento").
+  Telefone e WhatsApp do cliente continuam na ficha (o Figaro não tem; não tirei função).
+- Reagendar (`TelaReagendar.tsx`): Salvar encolhe ao descer e volta ao subir; ✓ fica 700 ms antes
+  de voltar; Manual com "Horário de início" e "Profissional" (início: próxima hora cheia hoje, 09:00
+  nos outros dias); textos do Figaro. Corrigido: a tela zerava a escolha a cada atualização da
+  Agenda (efeito dependia do objeto do item).
+- Trocar cliente (`TrocarCliente.tsx`): tela cheia "Selecionar cliente", busca, lista por letra com
+  marcação e botão "Trocar · Nome". `buscarClientesDaBarbearia` ganhou `lista` (até 300, em ordem).
+- Testes: `ficha-regras.test.ts`, `TelaReagendar.test.ts`; tsc, vitest (1547) e build.
+- Próximo (Agenda, pelo `apk/2-agenda.md`): escala, rótulos das horas, linha do agora, cartões por
+  altura e ícone de estado, barra flutuante de baixo, modo de edição com "Salvar alterações".
 
 ### 2026-10-18 UTC — Claude — Trocar Cliente avisa o novo cliente pelo WhatsApp
 - O que mudou e por quê: o dono pediu para colocar o aviso. Na folha "Trocar Cliente" há o

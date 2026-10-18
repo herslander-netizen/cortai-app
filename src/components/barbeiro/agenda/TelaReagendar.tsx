@@ -9,7 +9,7 @@ import {
   CircleCheck,
   CircleMinus,
 } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type UIEvent } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
@@ -68,9 +68,10 @@ export function TelaReagendar({
   const [modo, setModo] = useState<Modo>("disponibilidade");
   const [profissionalId, setProfissionalId] = useState<string | null>(item.profissionalId ?? null);
   const [escolhido, setEscolhido] = useState<string | null>(null);
-  const [manual, setManual] = useState(() => hora(item.inicio, fuso));
+  const [manual, setManual] = useState("");
   const [escolhendoProfissional, setEscolhendoProfissional] = useState(false);
   const [salvando, setSalvando] = useState(false);
+  const [salvo, setSalvo] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
 
   // Ao reabrir, volta para hoje e para o profissional do próprio atendimento.
@@ -81,9 +82,12 @@ export function TelaReagendar({
     setModo("disponibilidade");
     setProfissionalId(item.profissionalId ?? null);
     setEscolhido(null);
-    setManual(hora(item.inicio, fuso));
+    setManual("");
+    setSalvo(false);
     setErro(null);
-  }, [aberto, item, fuso, hoje]);
+    // Só ao abrir ou trocar de atendimento (o item é recriado a cada atualização da Agenda).
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [aberto, item.id, fuso, hoje]);
 
   const ler = useServerFn(getHorariosParaRemarcar);
   const horarios = useQuery({
@@ -111,14 +115,18 @@ export function TelaReagendar({
     profissionais.find((p) => p.id === profissionalId)?.nome ?? item.profissional;
   const rotuloDoDia = dia === hoje ? "Hoje" : `Dia ${numeroDoDia(dia)}`;
 
-  // "Salvar" fica comprido parado e vira só o ✓ enquanto a lista rola.
-  const [rolando, setRolando] = useState(false);
-  const espera = useRef<number | null>(null);
-  const aoRolar = () => {
-    setRolando(true);
-    if (espera.current !== null) window.clearTimeout(espera.current);
-    espera.current = window.setTimeout(() => setRolando(false), 500);
+  // Como no Figaro (`rememberFabExpanded`): "Salvar" vira só o ✓ quando a lista desce e volta a
+  // ficar comprido ao subir ou no topo.
+  const [compacto, setCompacto] = useState(false);
+  const ultimaRolagem = useRef(0);
+  const aoRolar = (e: UIEvent<HTMLDivElement>) => {
+    const topo = e.currentTarget.scrollTop;
+    const delta = topo - ultimaRolagem.current;
+    ultimaRolagem.current = topo;
+    if (topo <= 0) setCompacto(false);
+    else if (Math.abs(delta) > 2) setCompacto(delta > 0);
   };
+  const espera = useRef<number | null>(null);
   useEffect(
     () => () => {
       if (espera.current !== null) window.clearTimeout(espera.current);
@@ -126,8 +134,15 @@ export function TelaReagendar({
     [],
   );
 
+  // Manual sem horário (Figaro `servicesForManualMode`): hoje = próxima hora cheia; outro dia = 09:00.
+  const horaInicialManual = (alvo: string) => {
+    if (alvo !== hoje) return "09:00";
+    const h = Number(hora(new Date().toISOString(), fuso).slice(0, 2));
+    return `${String(Math.min(h + 1, 23)).padStart(2, "0")}:00`;
+  };
+
   const horaEscolhida = modo === "manual" ? manual : escolhido;
-  const pronto = Boolean(horaEscolhida) && !bloqueado && !salvando;
+  const pronto = Boolean(horaEscolhida) && !bloqueado && !salvando && !salvo;
 
   async function salvar() {
     if (!horaEscolhida) return;
@@ -140,7 +155,12 @@ export function TelaReagendar({
         return;
       }
       await onRemarcar(item, pedido);
-      onVoltar();
+      // Figaro: o ✓ fica 700 ms no botão antes de voltar para a ficha.
+      setSalvo(true);
+      espera.current = window.setTimeout(() => {
+        setSalvo(false);
+        onVoltar();
+      }, 700);
     } catch (e) {
       setErro(e instanceof Error ? e.message : "Não foi possível remarcar.");
     } finally {
@@ -288,6 +308,7 @@ export function TelaReagendar({
                   className={modo === valor ? "is-ativo" : ""}
                   onClick={() => {
                     setModo(valor);
+                    if (valor === "manual" && !manual) setManual(horaInicialManual(dia));
                     setErro(null);
                   }}
                 >
@@ -303,18 +324,40 @@ export function TelaReagendar({
             ) : null}
 
             {modo === "manual" ? (
-              <div className="agenda-reagendar-cartao grid gap-3 p-4">
-                <label className="text-sm font-semibold text-mute">
-                  Horário
+              // Figaro (`ManualServiceCard`): o serviço com o horário e duas linhas, início e
+              // profissional.
+              <div className="agenda-reagendar-cartao overflow-hidden">
+                <div className="flex items-baseline justify-between gap-2 p-4 pb-3">
+                  <strong className="truncate text-paper">{item.servico}</strong>
+                  <span className="shrink-0 tabular-nums text-sm font-medium text-mute">
+                    {manual ? `${manual} – ${fimDe(manual)}` : "--:--"}
+                  </span>
+                </div>
+                <label className="agenda-reagendar-linha">
+                  <span>Horário de início</span>
                   <input
                     type="time"
                     step={300}
                     value={manual}
                     onChange={(e) => setManual(e.target.value)}
-                    className="agenda-campo"
+                    className="agenda-reagendar-hora"
                   />
                 </label>
-                {manual ? detalhes(manual) : null}
+                <div className="agenda-reagendar-linha">
+                  <span>Profissional</span>
+                  {opcoes.length > 1 ? (
+                    <Button
+                      type="button"
+                      variant="link"
+                      className="h-auto gap-1 p-0 font-semibold"
+                      onClick={() => setEscolhendoProfissional(true)}
+                    >
+                      {nomeDoProfissional} <ChevronDown aria-hidden className="size-4" />
+                    </Button>
+                  ) : (
+                    <span className="font-semibold text-paper">{nomeDoProfissional}</span>
+                  )}
+                </div>
               </div>
             ) : horarios.isPending ? (
               <p className="py-6 text-center text-sm text-mute" role="status">
@@ -335,7 +378,7 @@ export function TelaReagendar({
               <p className="py-6 text-center text-sm text-mute" role="status">
                 {horarios.data.fechado
                   ? "O negócio não abre neste dia."
-                  : "Nenhum horário livre neste dia. Tente outro dia ou o modo Manual."}
+                  : "Não há profissionais disponíveis neste dia."}
               </p>
             ) : (
               <ul className="agenda-reagendar-horarios" aria-label="Horários disponíveis">
@@ -365,12 +408,12 @@ export function TelaReagendar({
             size="lg"
             aria-label="Salvar"
             disabled={!pronto}
-            className={`agenda-reagendar-salvar ${rolando ? "is-compacto" : ""}`}
+            className={`agenda-reagendar-salvar ${compacto && !salvando && !salvo ? "is-compacto" : ""}`}
             onClick={() => void salvar()}
           >
             <Check aria-hidden />
             <span className="agenda-reagendar-salvar-texto">
-              {salvando ? "Salvando…" : "Salvar"}
+              {salvo ? "Salvo" : salvando ? "Salvando…" : "Salvar"}
             </span>
           </Button>
         </div>
@@ -408,12 +451,14 @@ export function TelaReagendar({
                           {p.expediente.trabalha ? (
                             <>
                               <CircleCheck aria-hidden className="size-3.5" />
-                              {rotuloDoDia} · {p.expediente.abre} - {p.expediente.fecha}
+                              {rotuloDoDia} · {p.expediente.abre} - {p.expediente.fecha}.
                             </>
                           ) : (
                             <>
                               <CircleMinus aria-hidden className="size-3.5" />
-                              {rotuloDoDia} · Não trabalha
+                              {dia === hoje
+                                ? "Não disponível hoje."
+                                : `${rotuloDoDia} · Não disponível.`}
                             </>
                           )}
                         </span>

@@ -11,12 +11,18 @@ describe("ficha e Reagendar como no Figaro", () => {
     expect(ficha).toContain("agenda-ficha-reagendar");
     expect(ficha).toContain('aria-label={maisAcoes ? "Fechar outras ações" : "Outras ações"}');
     expect(ficha).toContain("Cancelar agendamento");
-    expect(ficha).toContain("Marcar falta");
+    expect(ficha).toContain("Não compareceu");
     expect(ficha).toContain("<TelaReagendar");
   });
 
   it("a ficha mantém as ações do atendimento", () => {
-    for (const texto of ["Cliente chegou", "Começar", "Finalizar e cobrar", "Notas", "Cobrar"])
+    for (const texto of [
+      "Cliente chegou",
+      "Começar",
+      "Finalizar e cobrar",
+      "Observações",
+      "Cobrar",
+    ])
       expect(ficha).toContain(texto);
   });
 
@@ -63,7 +69,7 @@ describe("ficha e Reagendar como no Figaro", () => {
     // Os botões do cliente anterior deixam de valer para este horário.
     expect(corpo).toContain('.from("envios_de_whatsapp")');
     expect(corpo).toContain('.eq("cliente_id", atual.cliente_id)');
-    expect(ficha).toContain("Trocar Cliente");
+    expect(ficha).toContain("Trocar cliente");
     expect(ficha).toContain("<TrocarCliente");
   });
 

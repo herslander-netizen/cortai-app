@@ -1115,11 +1115,15 @@ export const getDadosAgendamentoManual = createServerFn({ method: "GET" })
     };
   });
 
-/** Busca clientes SOMENTE da barbearia do usuário logado, por nome ou telefone. */
+/**
+ * Busca clientes SOMENTE da barbearia do usuário logado, por nome ou telefone. Com `lista`, devolve
+ * a lista em ordem alfabética (até 300), para a escolha de cliente em tela cheia.
+ */
 export const buscarClientesDaBarbearia = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .validator((data: { termo?: string | undefined }) => ({
+  .validator((data: { termo?: string | undefined; lista?: boolean | undefined }) => ({
     termo: (data?.termo ?? "").trim().slice(0, 60),
+    lista: data?.lista === true,
   }))
   .handler(async ({ data, context }) => {
     const { db, tenant } = await tenantPadrao(context);
@@ -1129,12 +1133,12 @@ export const buscarClientesDaBarbearia = createServerFn({ method: "GET" })
       .eq("tenant_id", tenant.id)
       .is("arquivado_em", null)
       .order("nome")
-      .limit(8);
+      .limit(data.lista ? 300 : 8);
     if (data.termo) {
       const t = data.termo.replace(/[%,()]/g, "");
       q = q.or(`nome.ilike.%${t}%,telefone.ilike.%${t}%`);
     }
-    if (!data.termo) {
+    if (!data.termo && !data.lista) {
       // Sem busca: clientes atendidos mais recentemente primeiro.
       const { data: recentes } = await db
         .from("agendamentos")

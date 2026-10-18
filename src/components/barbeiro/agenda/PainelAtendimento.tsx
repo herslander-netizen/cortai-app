@@ -1,17 +1,22 @@
 import {
   ArrowLeftRight,
+  CalendarClock,
+  CalendarX2,
   Check,
   ChevronDown,
   CircleCheck,
+  CirclePlay,
   HandCoins,
+  Info,
   MessageCircle,
-  NotebookPen,
   Phone,
   Scissors,
   Trash2,
+  TriangleAlert,
   UserRound,
   UserRoundPlus,
   UserX,
+  type LucideIcon,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -25,7 +30,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { StatusBadge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -37,12 +41,24 @@ import {
 import { VerTicketDoAgendamento } from "@/components/comanda/VerTicketDoAgendamento";
 import type { AgendaItem } from "@/lib/barbeiro.functions";
 import { brl } from "@/lib/format";
-import { isoNoFusoDaBarbearia } from "@/lib/horarios";
+import { useAgora } from "@/hooks/useAgora";
+import { hojeNoFuso, isoNoFusoDaBarbearia } from "@/lib/horarios";
+import { useSegmentoDoPainel } from "@/lib/segmento-contexto";
+import { termos } from "@/lib/segmentos";
 
+import {
+  indicadorDeEstado,
+  jaComecou,
+  podeTrocarCliente,
+  quandoDaFicha,
+  rodapeDaFicha,
+  type AcaoDaFicha,
+  type IndicadorDeEstado,
+} from "./ficha-regras";
 import { FotoDoProfissional } from "./FotoDoProfissional";
 import { TelaReagendar } from "./TelaReagendar";
 import { TrocarCliente, type ClienteEscolhido } from "./TrocarCliente";
-import { hora, linkWhatsApp } from "./tempo";
+import { diaNoFuso, hora, linkWhatsApp } from "./tempo";
 
 export type PedidoRemarcar = { dia: string; hora: string; profissionalId: string | null };
 
@@ -90,7 +106,10 @@ export function PainelAtendimento(props: Props) {
   const [reagendando, setReagendando] = useState(false);
   const [trocandoCliente, setTrocandoCliente] = useState(false);
   const [maisAcoes, setMaisAcoes] = useState(false);
-  const [confirmacao, setConfirmacao] = useState<"cancelar" | "falta" | null>(null);
+  // Como no Figaro: só o cancelamento pede confirmação; a falta tem o "Desfazer" de 5 s.
+  const [confirmarCancelar, setConfirmarCancelar] = useState(false);
+  const agora = useAgora();
+  const segmento = useSegmentoDoPainel();
 
   useEffect(() => {
     if (!props.aberto) {
@@ -119,12 +138,11 @@ export function PainelAtendimento(props: Props) {
   const itemId = item?.id ?? null;
   useEffect(() => {
     setReagendando(props.iniciarEm === "remarcar" && Boolean(itemId));
-    setConfirmacao(props.iniciarEm === "cancelar" ? "cancelar" : null);
+    setConfirmarCancelar(props.iniciarEm === "cancelar");
     setMaisAcoes(false);
     setTrocandoCliente(false);
   }, [itemId, props.aberto, props.iniciarEm]);
 
-  const pendente = item?.status === "agendado" || item?.status === "chegou";
   const bloqueado = !props.online || props.ocupado;
   const whatsapp = item ? linkWhatsApp(item.telefone) : null;
   const telefone = item?.telefone?.replace(/\D/g, "") ?? "";
@@ -134,18 +152,60 @@ export function PainelAtendimento(props: Props) {
     f(item);
   };
 
-  const dataExtensa = item
-    ? new Intl.DateTimeFormat("pt-BR", {
-        day: "numeric",
-        month: "short",
-        year: "numeric",
-        timeZone: props.fuso,
-      }).format(new Date(item.inicio))
+  const quando = item
+    ? quandoDaFicha(
+        item.inicio,
+        props.fuso,
+        hojeNoFuso(props.fuso),
+        diaNoFuso(item.inicio, props.fuso),
+      )
     : "";
   const faixaDeHorario = item
     ? `${hora(item.inicio, props.fuso)} · ${hora(item.fim, props.fuso)}`
     : "";
-  const confirmado = item?.confirmadoEm && item.status === "agendado";
+  const estado = item ? indicadorDeEstado(item, agora, termos(segmento).statusAtendimento) : null;
+  const rodape = item ? rodapeDaFicha(item, agora) : { principal: null, menu: [] };
+  const emCurso = item ? jaComecou(item, agora) && item.status !== "finalizado" : false;
+
+  /** Rótulo, ícone e efeito de cada ação da ficha (uma tabela só para o botão e a seta). */
+  const acoes: Record<
+    Exclude<AcaoDaFicha, "comanda">,
+    { rotulo: string; Icone: LucideIcon; destrutiva?: boolean; agir: () => void }
+  > = {
+    reagendar: {
+      rotulo: "Reagendar",
+      Icone: CalendarClock,
+      agir: () => setReagendando(true),
+    },
+    chegou: { rotulo: "Cliente chegou", Icone: UserRoundPlus, agir: executar(props.onChegou) },
+    comecar: { rotulo: "Começar", Icone: Scissors, agir: executar(props.onIniciar) },
+    finalizar: { rotulo: "Finalizar e cobrar", Icone: Check, agir: executar(props.onComanda) },
+    cobrar: {
+      rotulo: item?.status === "finalizado" ? "Pagamento" : "Cobrar",
+      Icone: HandCoins,
+      agir: executar(props.onComanda),
+    },
+    falta: { rotulo: "Não compareceu", Icone: UserX, agir: executar(props.onFalta) },
+    cancelar: {
+      rotulo: "Cancelar agendamento",
+      Icone: Trash2,
+      destrutiva: true,
+      agir: () => setConfirmarCancelar(true),
+    },
+  };
+  const verComanda = (classe: string) =>
+    item ? (
+      <VerTicketDoAgendamento
+        agendamentoId={item.id}
+        desabilitado={!props.online}
+        className={classe}
+        onAbrir={(comandaId) => {
+          setMaisAcoes(false);
+          props.onFechar();
+          props.onVerComanda(item, comandaId);
+        }}
+      />
+    ) : null;
 
   return (
     <>
@@ -155,32 +215,25 @@ export function PainelAtendimento(props: Props) {
           arrastarParaFechar
           className={`agenda-painel agenda-ficha mov-agenda-painel border-0 bg-ink px-4 pt-3 sm:px-5 sm:pt-5 ${props.lateral ? "w-[380px]" : "mx-auto flex max-h-[92dvh] w-full max-w-[520px] flex-col overflow-hidden rounded-t-[28px]"}`}
         >
-          {item ? (
+          {item && estado ? (
             <>
               <div className="mb-3 flex justify-center md:hidden" aria-hidden="true">
                 <span className="h-1.5 w-12 rounded-full bg-mute/50" />
               </div>
               <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain pb-28 [scrollbar-width:thin]">
-                {/* Como no Figaro: quem, quando e com quem num cartão; o cliente logo abaixo. */}
+                {/* Como no Figaro (`AppointmentHeroGroup`): o serviço, o estado, quando e com
+                    quem; o cliente num bloco logo abaixo. */}
                 <section className="agenda-ficha-cartao">
                   <SheetHeader className="space-y-1 p-4 pb-3 text-left">
-                    <div className="flex items-start justify-between gap-3">
-                      <SheetTitle className="min-w-0 truncate text-xl font-bold text-paper">
-                        {item.cliente}
-                      </SheetTitle>
-                      {confirmado ? (
-                        <span className="agenda-ficha-confirmado">
-                          <CircleCheck aria-hidden className="size-4" /> Confirmado
-                        </span>
-                      ) : (
-                        <StatusBadge status={item.status} />
-                      )}
-                    </div>
-                    <SheetDescription className="text-sm text-mute">
-                      {dataExtensa}{" "}
-                      <span className="font-mono tabular-nums text-paper">{faixaDeHorario}</span>
+                    <SheetTitle className="min-w-0 truncate text-xl font-bold text-paper">
+                      {item.servico}
+                    </SheetTitle>
+                    <LinhaDeEstado estado={estado} />
+                    <SheetDescription className="flex flex-wrap items-baseline gap-x-1 text-sm font-semibold text-mute">
+                      <span>{quando}</span>
+                      <span className="font-mono font-medium tabular-nums">{faixaDeHorario}</span>
                     </SheetDescription>
-                    <span className="agenda-ficha-profissional">
+                    <span className="agenda-ficha-profissional mt-1">
                       <FotoDoProfissional
                         nome={item.profissional}
                         url={
@@ -198,7 +251,7 @@ export function PainelAtendimento(props: Props) {
                       <Button
                         type="button"
                         variant="ghost"
-                        className="h-auto min-w-0 flex-1 justify-start truncate p-0 text-base font-normal text-paper hover:bg-transparent"
+                        className="h-auto min-w-0 flex-1 justify-start truncate p-0 text-base font-semibold text-paper hover:bg-transparent"
                         onClick={() => {
                           const id = item.clienteId;
                           props.onFechar();
@@ -208,8 +261,8 @@ export function PainelAtendimento(props: Props) {
                         <span className="truncate">{item.cliente}</span>
                       </Button>
                     ) : (
-                      <span className="min-w-0 flex-1 truncate text-base text-paper">
-                        {item.cliente}
+                      <span className="min-w-0 flex-1 truncate text-base font-semibold text-paper">
+                        {item.cliente || "Sem cliente"}
                       </span>
                     )}
                     {telefone ? (
@@ -241,7 +294,7 @@ export function PainelAtendimento(props: Props) {
                   </div>
                 </section>
 
-                {pendente ? (
+                {podeTrocarCliente(item, agora) ? (
                   <Button
                     type="button"
                     variant="ghost"
@@ -249,7 +302,7 @@ export function PainelAtendimento(props: Props) {
                     className="agenda-ficha-trocar"
                     onClick={() => setTrocandoCliente(true)}
                   >
-                    <ArrowLeftRight aria-hidden className="size-4" /> Trocar Cliente
+                    <ArrowLeftRight aria-hidden className="size-4" /> Trocar cliente
                   </Button>
                 ) : null}
 
@@ -259,169 +312,106 @@ export function PainelAtendimento(props: Props) {
                   </p>
                 ) : null}
 
-                {/* A ação do momento continua à mão (o Figaro não tinha as etapas do Cortaí). */}
-                <div className="mt-3 grid gap-2">
-                  {item.status === "agendado" ? (
-                    <Button
-                      size="lg"
-                      variant="primary"
-                      className="min-h-14 w-full"
-                      disabled={bloqueado}
-                      onClick={executar(props.onChegou)}
-                    >
-                      <UserRoundPlus /> Cliente chegou
-                    </Button>
-                  ) : null}
-                  {item.status === "chegou" ? (
-                    <Button
-                      size="lg"
-                      variant="primary"
-                      className="min-h-14 w-full"
-                      disabled={bloqueado}
-                      onClick={executar(props.onIniciar)}
-                    >
-                      <Scissors /> Começar
-                    </Button>
-                  ) : null}
-                  {item.status === "na_cadeira" ? (
-                    <Button
-                      size="lg"
-                      variant="primary"
-                      className="min-h-14 w-full"
-                      disabled={bloqueado}
-                      onClick={executar(props.onComanda)}
-                    >
-                      <Check /> Finalizar e cobrar
-                    </Button>
-                  ) : null}
-                </div>
-
-                <p className="mb-2 mt-5 text-sm font-medium text-mute">Serviços</p>
+                <p className="agenda-ficha-secao">Serviços</p>
                 <section className="agenda-ficha-cartao">
                   <div className="flex items-start justify-between gap-3 p-4">
                     <div className="min-w-0">
-                      <p className="truncate font-semibold text-paper">{item.servico}</p>
-                      <p className="truncate text-sm text-mute">{item.profissional}</p>
+                      <p className="truncate font-bold text-paper">{item.servico}</p>
+                      <p className="truncate text-sm font-medium text-mute">{item.profissional}</p>
                     </div>
                     <div className="shrink-0 text-right">
-                      <p className="font-semibold text-paper">{brl(item.valor_centavos ?? 0)}</p>
+                      <p className="font-bold tabular-nums text-paper">
+                        {brl(item.valor_centavos ?? 0)}
+                      </p>
                       <p className="font-mono text-sm tabular-nums text-mute">{faixaDeHorario}</p>
                     </div>
                   </div>
                   <div className="flex items-center justify-between border-t border-line p-4">
-                    <span className="font-semibold text-paper">Total</span>
-                    <span className="font-semibold text-paper">
+                    <span className="font-bold text-paper">Total</span>
+                    <span className="text-lg font-bold tabular-nums text-paper">
                       {brl(item.valor_centavos ?? 0)}
                     </span>
                   </div>
                 </section>
+
+                {item.ficha ? (
+                  <>
+                    <p className="agenda-ficha-secao">Observações</p>
+                    <section className="agenda-ficha-cartao whitespace-pre-line p-4 text-sm text-paper">
+                      {item.ficha}
+                    </section>
+                  </>
+                ) : null}
+
+                {emCurso ? (
+                  <p className="agenda-ficha-nota">
+                    <Info aria-hidden className="size-4 shrink-0" />
+                    Em andamento — os serviços podem ser ajustados na cobrança.
+                  </p>
+                ) : null}
               </div>
 
-              {/* Rodapé do Figaro: "Reagendar" com a seta que abre as outras ações (aqui também
-                  ficam Notas, Cobrar e a comanda, que o Figaro não tinha). */}
-              <div className="agenda-ficha-rodape">
-                {maisAcoes ? (
-                  <div className="agenda-ficha-menu" role="menu">
-                    {item.clienteId ? (
-                      <Button
-                        role="menuitem"
-                        variant="ghost"
-                        className="justify-start"
-                        onClick={() => {
-                          const id = item.clienteId;
-                          setMaisAcoes(false);
-                          props.onFechar();
-                          if (id) props.onPerfil(id);
-                        }}
-                      >
-                        <NotebookPen /> Notas do cliente
-                      </Button>
-                    ) : null}
-                    {pendente || item.status === "finalizado" ? (
-                      <Button
-                        role="menuitem"
-                        variant="ghost"
-                        className="justify-start"
-                        disabled={!props.online}
-                        onClick={() => {
-                          setMaisAcoes(false);
-                          executar(props.onComanda)();
-                        }}
-                      >
-                        <HandCoins /> {pendente ? "Cobrar" : "Pagamento"}
-                      </Button>
-                    ) : null}
-                    <VerTicketDoAgendamento
-                      agendamentoId={item.id}
-                      desabilitado={!props.online}
-                      className="agenda-ficha-menu-item"
-                      onAbrir={(comandaId) => {
-                        setMaisAcoes(false);
-                        props.onFechar();
-                        props.onVerComanda(item, comandaId);
-                      }}
-                    />
-                    {pendente ? (
-                      <Button
-                        role="menuitem"
-                        variant="ghost"
-                        className="justify-start"
+              {/* Rodapé do Figaro: o botão principal à direita e, se houver mais ações, a seta. */}
+              {rodape.principal ? (
+                <div className="agenda-ficha-rodape">
+                  {maisAcoes && rodape.menu.length ? (
+                    <div className="agenda-ficha-menu" role="menu">
+                      {rodape.menu.map((acao) => {
+                        if (acao === "comanda")
+                          return <span key={acao}>{verComanda("agenda-ficha-menu-item")}</span>;
+                        const { rotulo, Icone, destrutiva, agir } = acoes[acao];
+                        return (
+                          <Button
+                            key={acao}
+                            role="menuitem"
+                            variant="ghost"
+                            className={`justify-start ${destrutiva ? "text-brick hover:text-brick" : ""}`}
+                            disabled={bloqueado}
+                            onClick={() => {
+                              setMaisAcoes(false);
+                              agir();
+                            }}
+                          >
+                            <Icone /> {rotulo}
+                          </Button>
+                        );
+                      })}
+                    </div>
+                  ) : null}
+                  <div className="flex items-center gap-1">
+                    {rodape.principal === "comanda" ? (
+                      verComanda(
+                        `agenda-ficha-reagendar is-tonal ${rodape.menu.length ? "" : "is-sozinho"}`,
+                      )
+                    ) : (
+                      <BotaoPrincipal
+                        {...acoes[rodape.principal]}
+                        sozinho={!rodape.menu.length}
                         disabled={bloqueado}
                         onClick={() => {
                           setMaisAcoes(false);
-                          setConfirmacao("falta");
+                          acoes[rodape.principal as Exclude<AcaoDaFicha, "comanda">].agir();
                         }}
-                      >
-                        <UserX /> Marcar falta
-                      </Button>
-                    ) : null}
-                    {pendente ? (
+                      />
+                    )}
+                    {rodape.menu.length ? (
                       <Button
-                        role="menuitem"
-                        variant="ghost"
-                        className="justify-start text-brick hover:text-brick"
-                        disabled={bloqueado}
-                        onClick={() => {
-                          setMaisAcoes(false);
-                          if (item.confirmadoEm) setConfirmacao("cancelar");
-                          else executar(props.onCancelar)();
-                        }}
+                        size="icon"
+                        variant="primary"
+                        className={`agenda-ficha-mais ${rodape.principal === "comanda" ? "is-tonal" : ""}`}
+                        aria-label={maisAcoes ? "Fechar outras ações" : "Outras ações"}
+                        aria-expanded={maisAcoes}
+                        onClick={() => setMaisAcoes((v) => !v)}
                       >
-                        <Trash2 /> Cancelar agendamento
+                        <ChevronDown
+                          aria-hidden
+                          className={`transition-transform duration-200 ${maisAcoes ? "rotate-180" : ""}`}
+                        />
                       </Button>
                     ) : null}
                   </div>
-                ) : null}
-                <div className="flex items-center gap-1">
-                  {pendente ? (
-                    <Button
-                      size="lg"
-                      variant="primary"
-                      className="agenda-ficha-reagendar"
-                      disabled={bloqueado}
-                      onClick={() => {
-                        setMaisAcoes(false);
-                        setReagendando(true);
-                      }}
-                    >
-                      Reagendar
-                    </Button>
-                  ) : null}
-                  <Button
-                    size="icon"
-                    variant="primary"
-                    className={`agenda-ficha-mais ${pendente ? "" : "is-sozinho"}`}
-                    aria-label={maisAcoes ? "Fechar outras ações" : "Outras ações"}
-                    aria-expanded={maisAcoes}
-                    onClick={() => setMaisAcoes((v) => !v)}
-                  >
-                    <ChevronDown
-                      aria-hidden
-                      className={`transition-transform duration-200 ${maisAcoes ? "rotate-180" : ""}`}
-                    />
-                  </Button>
                 </div>
-              </div>
+              ) : null}
               <TrocarCliente
                 item={item}
                 aberto={trocandoCliente}
@@ -444,38 +434,74 @@ export function PainelAtendimento(props: Props) {
         </SheetContent>
       </Sheet>
 
-      <AlertDialog
-        open={Boolean(confirmacao)}
-        onOpenChange={(aberto) => !aberto && setConfirmacao(null)}
-      >
+      <AlertDialog open={confirmarCancelar} onOpenChange={setConfirmarCancelar}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>
-              {confirmacao === "falta"
-                ? `Marcar falta de ${item?.cliente}?`
-                : `Cancelar o horário de ${item?.cliente}?`}
-            </AlertDialogTitle>
+            <AlertDialogTitle>Cancelar agendamento</AlertDialogTitle>
             <AlertDialogDescription>
-              {confirmacao === "falta"
-                ? "O atendimento será registrado como não comparecimento. Você poderá desfazer por 5 segundos."
-                : "Esse cliente já confirmou presença pelo WhatsApp. Você ainda poderá desfazer por 5 segundos."}
+              O horário sai da sua agenda e o cliente é avisado pelo WhatsApp, quando ele estiver
+              ligado. Você ainda pode desfazer por 5 segundos.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Voltar</AlertDialogCancel>
+            <AlertDialogCancel>Manter agendamento</AlertDialogCancel>
             <AlertDialogAction
+              className="bg-brick text-white hover:bg-brick/90"
               onClick={() => {
-                const acao = confirmacao;
-                setConfirmacao(null);
-                if (acao === "falta") executar(props.onFalta)();
-                else executar(props.onCancelar)();
+                setConfirmarCancelar(false);
+                executar(props.onCancelar)();
               }}
             >
-              {confirmacao === "falta" ? "Marcar falta" : "Cancelar horário"}
+              Cancelar agendamento
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
     </>
+  );
+}
+
+const ICONE_DO_ESTADO: Record<IndicadorDeEstado["tom"], LucideIcon> = {
+  andamento: CirclePlay,
+  sucesso: CircleCheck,
+  aviso: CalendarClock,
+  erro: CalendarX2,
+  neutro: CircleCheck,
+};
+
+/** Ícone + texto na cor do estado (Figaro: `StatusIndicatorRow`). */
+function LinhaDeEstado({ estado }: { estado: IndicadorDeEstado }) {
+  const Icone = estado.rotulo === "Não compareceu" ? TriangleAlert : ICONE_DO_ESTADO[estado.tom];
+  return (
+    <span className={`agenda-ficha-estado is-${estado.tom}`}>
+      <Icone aria-hidden className="size-5" />
+      {estado.rotulo}
+    </span>
+  );
+}
+
+function BotaoPrincipal({
+  rotulo,
+  Icone,
+  sozinho,
+  disabled,
+  onClick,
+}: {
+  rotulo: string;
+  Icone: LucideIcon;
+  sozinho: boolean;
+  disabled: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <Button
+      size="lg"
+      variant="primary"
+      className={`agenda-ficha-reagendar ${sozinho ? "is-sozinho" : ""}`}
+      disabled={disabled}
+      onClick={onClick}
+    >
+      <Icone aria-hidden /> {rotulo}
+    </Button>
   );
 }

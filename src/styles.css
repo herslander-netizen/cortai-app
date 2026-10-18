@@ -6810,13 +6810,14 @@ button.agenda-nome:hover {
 }
 .agenda-reagendar-horario.is-escolhido {
   background: color-mix(in oklab, var(--agenda-escolhido) 24%, var(--agenda-cartao));
+  font-size: 19px;
   font-weight: 700;
 }
 .agenda-reagendar-detalhe {
   display: grid;
   gap: 4px;
   margin: 2px 0;
-  border: 1.5px solid color-mix(in oklab, var(--agenda-escolhido) 35%, transparent);
+  border: 2px solid color-mix(in oklab, var(--agenda-escolhido) 35%, transparent);
   border-radius: 4px;
   background: var(--agenda-cartao);
   padding: 12px 20px;
@@ -6901,4 +6902,109 @@ button.agenda-nome:hover {
 }
 .agenda-reagendar-expediente.is-trabalha {
   color: var(--estado-finalizado);
+}
+
+/* Ficha (Figaro, APK): linha de estado, títulos de seção, nota de andamento e botão tonal. */
+.agenda-ficha-estado {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--mute);
+}
+.agenda-ficha-estado.is-andamento {
+  color: var(--primary);
+}
+.agenda-ficha-estado.is-sucesso {
+  color: var(--estado-finalizado);
+}
+.agenda-ficha-estado.is-aviso {
+  color: var(--estado-chegou);
+}
+.agenda-ficha-estado.is-erro {
+  color: var(--estado-faltou);
+}
+.agenda-ficha-secao {
+  margin: 32px 0 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--mute);
+}
+.agenda-ficha-nota {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-top: 16px;
+  font-size: 13px;
+  color: var(--mute);
+}
+.agenda-ficha-reagendar.agenda-ficha-reagendar.is-sozinho {
+  border-radius: 999px;
+}
+.agenda-ficha-reagendar.is-tonal,
+.agenda-ficha-mais.is-tonal {
+  border: 0;
+  background: color-mix(in oklab, var(--primary) 18%, var(--ink));
+  color: var(--primary);
+}
+
+/* Reagendar, modo Manual (Figaro `ManualServiceCard`): linhas de início e profissional. */
+.agenda-reagendar-linha {
+  display: flex;
+  min-height: 56px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border-top: 1px solid var(--line);
+  padding: 0 16px;
+  color: var(--paper);
+  font-size: 15px;
+}
+.agenda-reagendar-hora {
+  border: 0;
+  background: transparent;
+  color: var(--primary);
+  font: inherit;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Selecionar cliente (Figaro `ClientSelectorScreen`): lista por letra com marcação. */
+.agenda-cliente-letra {
+  margin: 12px 4px 6px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--mute);
+}
+.agenda-cliente-grupo {
+  display: grid;
+  gap: 2px;
+  overflow: hidden;
+  border-radius: 12px;
+}
+.agenda-cliente-linha.agenda-cliente-linha {
+  display: flex;
+  width: 100%;
+  min-height: 56px;
+  align-items: center;
+  gap: 12px;
+  border-radius: 0;
+  background: var(--agenda-cartao);
+  padding: 0 16px;
+  color: var(--paper);
+  font-size: 15px;
+  font-weight: 500;
+}
+.agenda-cliente-radio {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  border: 2px solid var(--mute);
+  border-radius: 999px;
+}
+.agenda-cliente-radio.is-marcado {
+  border-color: var(--primary);
+  box-shadow: inset 0 0 0 4px var(--agenda-cartao);
+  background: var(--primary);
 }
