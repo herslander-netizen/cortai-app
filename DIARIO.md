@@ -110,7 +110,7 @@ teste real na prévia.
 | GPT | 2026-10-17 UTC | Refinar movimento global para animações mais fluidas e perceptíveis | `DIARIO.md`, `src/lib/motion.ts`, `src/components/layout/GlobalDesign.tsx` |
 | GPT | 2026-10-17 UTC | Auditar ciclo de vida e acessibilidade dos formulários; corrigir divergência do contrato de design no gatilho de agendamento manual | `DIARIO.md`, `src/components/ui/formulario/TelaDeFormulario.tsx`, `src/components/ui/formulario/TelaDeFormulario.test.tsx`, `src/components/barbeiro/AgendamentoManual.tsx`, `src/components/barbeiro/agendamento-manual/useAgendamentoManual.ts`, `src/components/barbeiro/agendamento-manual/regrasAgendamentoManual.ts`, `src/components/barbeiro/agendamento-manual/useAgendamentoManual.test.ts` |
 | GPT | 2026-10-18 UTC | Recuperação Figaro: inventário do APK, referência visual e refinamento de transição global dos cards; próximos componentes a mapear sem tocar arquivos reservados pela tarefa de agenda do Claude | `DIARIO.md`, `docs/contrato-de-design.md`, `docs/referencia-ux-figaroo-cortai.md`, `src/components/ui/card.tsx`, `src/routes/agendar.$slug.tsx` |
-| GPT | 2026-10-18 UTC | Resíduo do achado 6: auditar RLS das sete tabelas restantes e preparar correção aditiva apenas se comprovada a lacuna; sem aplicar ao banco real | `DIARIO.md`, `drizzle/migrations`, `supabase/baseline/ensaio/` |
+| GPT | 2026-10-18 UTC | C8: corrigir permissão por ação da equipe no WhatsApp; incluir permissões efetivas verificadas no servidor e testes de falha fechada | `DIARIO.md`, `src/lib/brain/acoes.server.ts`, `src/lib/brain/papeis.test.ts`, `src/lib/whatsapp/identidade.server.ts`, `src/lib/whatsapp/fluxo.server.ts` |
 
 
 ## Recados
@@ -151,6 +151,12 @@ teste real na prévia.
   que se contradizem; vale deixar só uma. Responda com `[lido]`.
 
 ## Diário (mais recente primeiro)
+
+### 2026-10-18 UTC — GPT — Auditoria RLS residual: lacuna confirmada; ensaio local pendente
+- Conferi a branch de trabalho, o diário, o resumo de infraestrutura e as migrações. A lista do próximo trabalho é real: as políticas RLS de `clientes`, `escalas_de_profissional`, `bloqueios_de_agenda`, `fila_de_espera`, `indicacoes`, `preferencias_do_cliente_avisos` e `onboarding_do_tenant` ainda precisam de revisão de permissões. A migração `0027` não resolve essas sete tabelas; a `0029` cobre separadamente `venda_itens`.
+- Não criei migração às cegas: a regra exige ensaio em Postgres descartável (`supabase/baseline/ensaio/ensaio-local.sh`) e nesta sessão não há terminal/Postgres para executá-lo. A correção de RLS continua aberta; nenhuma alteração foi aplicada ao banco.
+- Ao mesmo tempo, a próxima tarefa C8 também está aberta: `acaoPermitida` aplica permissões por ação no painel, mas o caminho da equipe no WhatsApp retorna antes dessa verificação. A reserva foi transferida para auditar e corrigir C8 com testes, sem alterar os arquivos reservados da Agenda.
+- Banco/infra: nenhuma alteração; sem publicação em produção.
 
 ### 2026-10-18 UTC — GPT — Revisão de RLS e validação do calendário público
 - Revistos os scripts de segurança: a migração `drizzle/migrations/0027_equipe_escreve_com_permissao.sql` já cobre as sete áreas (movimentos, agendamentos, serviços, profissionais, horários, produtos e avaliações), retirando escrita genérica ou exigindo permissão específica. Não foi criada uma migração 0038 duplicada sem evidência de uma lacuna residual.
