@@ -149,6 +149,11 @@ teste real na prévia.
 
 ## Diário (mais recente primeiro)
 
+### 2026-10-18 UTC — GPT — Seletores do agendamento público alinhados ao contrato
+- Em `src/routes/agendar.$slug.tsx`, os quatro controles de seleção (serviço, profissional, data e horário) passaram de `<button>` cru para o componente oficial `Button`, preservando classes, seleção e ações. Acrescentei `aria-pressed` aos itens selecionáveis e mantive os dias fechados desabilitados.
+- O fluxo continua usando a mesma seleção e o mesmo motor de disponibilidade; não alterei regra de negócio, servidor ou banco.
+- Commit: `1df0bf5`. Validação automatizada e conferência visual ainda pendentes.
+
 ### 2026-10-18 UTC — GPT — Acessibilidade do progresso da demonstração
 - A etapa atual da demonstração guiada agora é identificada com `aria-current="step"`, além do anúncio da região viva já existente.
 - Arquivo: `src/components/apresentacao/DemoAgendamento.tsx`. Commit: `774a787`.
