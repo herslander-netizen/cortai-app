@@ -574,7 +574,7 @@ export function ShowroomCortai({
         aria-labelledby="showroom-segmento-titulo"
       >
         <Cabecalho b={c.segmentos} centro id="showroom-segmento-titulo" />
-        <div className="showroom-segmentos-opcoes" aria-label="Tipo de negócio">
+        <div className="showroom-segmentos-opcoes" role="group" aria-label="Tipo de negócio">
           {OPCOES.map((opcao) => (
             <Button
               key={opcao.id}
