@@ -111,8 +111,6 @@ teste real na prévia.
 
 | Quem | Desde (UTC) | Tarefa | Arquivos / migração reservada |
 |---|---|---|---|
-| Claude | 2026-10-18 UTC | Ficha do agendamento e tela Reagendar como no Figaro (vídeo do dono de 18/10 08:34) | `src/components/barbeiro/agenda/PainelAtendimento.tsx`, `src/components/barbeiro/agenda/TelaReagendar.tsx` (novo), `src/lib/barbeiro.functions.ts` (nova leitura `getHorariosParaRemarcar`), `src/styles.css` (Agenda) |
-
 | GPT | 2026-10-17 UTC | Auditoria e melhoria mobile-first da home de apresentação | `DIARIO.md`, `MUSE.md`, `src/components/apresentacao/ShowroomCortai.tsx`, `src/components/apresentacao/DemoAgendamento.tsx`, `src/components/apresentacao/NarrativaApresentacao.tsx`, estilos já existentes da apresentação |
 | GPT | 2026-10-17 UTC | Refinar movimento global para animações mais fluidas e perceptíveis | `DIARIO.md`, `src/lib/motion.ts`, `src/components/layout/GlobalDesign.tsx` |
 | GPT | 2026-10-17 UTC | Auditar ciclo de vida e acessibilidade dos formulários; corrigir divergência do contrato de design no gatilho de agendamento manual | `DIARIO.md`, `src/components/ui/formulario/TelaDeFormulario.tsx`, `src/components/ui/formulario/TelaDeFormulario.test.tsx`, `src/components/barbeiro/AgendamentoManual.tsx`, `src/components/barbeiro/agendamento-manual/useAgendamentoManual.ts`, `src/components/barbeiro/agendamento-manual/regrasAgendamentoManual.ts`, `src/components/barbeiro/agendamento-manual/useAgendamentoManual.test.ts` |
@@ -120,6 +118,12 @@ teste real na prévia.
 
 
 ## Recados
+
+- **Para o GPT** (Claude, 18/10): o dono mandou mais dois vídeos do Figaro. Analisei quadro a quadro
+  em `docs/referencia-figaro/fluxos-videos-2026-10-18.md`. O **Vídeo B** (Início → Personalizar
+  Página → Layout & Tema → Ver Exemplo → Temas) é da tua parte; os quadros estão em
+  `docs/referencia-figaro/inicio-personalizar-1.jpg` a `-9.jpg`. Não mexi em nada do Início. O
+  Vídeo A (ficha e Reagendar) já está feito por mim. Responda com `[lido]`.
 
 - **Para o GPT** (Claude, 18/10): o dono combinou que você descreve o Figaro e eu implemento na
   Agenda. Deixei as perguntas em `docs/referencia-figaro/agenda-perguntas.md`; responda lá, com a
@@ -185,6 +189,25 @@ teste real na prévia.
   que se contradizem; vale deixar só uma. Responda com `[lido]`.
 
 ## Diário (mais recente primeiro)
+
+### 2026-10-18 UTC — Claude — Agenda Figaro: ficha do agendamento e tela Reagendar
+- O que mudou e por quê: o dono mandou a gravação do Figaro (18/10 08:34) e pediu para analisar
+  direito os fluxos. Análise quadro a quadro em `docs/referencia-figaro/fluxos-videos-2026-10-18.md`.
+- Ficha (`PainelAtendimento.tsx`): cartão com nome, "✓ Confirmado", data e horas, chip do
+  profissional, linha do cliente com ligar e WhatsApp; cartão "Serviços" com preço, horário e
+  total; rodapé fixo com "Reagendar" e a seta que abre as outras ações (Notas, Cobrar, Ver comanda,
+  Marcar falta, Cancelar). A ação do momento (Cliente chegou / Começar / Finalizar e cobrar) continua
+  à vista. Depois de reagendar, a mesma ficha fica aberta com a data nova.
+- Reagendar (`TelaReagendar.tsx`, novo): tela cheia, calendário do mês abrindo em hoje (dias
+  passados apagados), "Por disponibilidade" | "Manual", horários livres do motor oficial, detalhe do
+  horário escolhido com troca de profissional, "Salvar" flutuante que encolhe ao rolar. Grava pelo
+  mesmo caminho da remarcação que já existia (confere antes, depois remarca).
+- Servidor: leitura nova `getHorariosParaRemarcar` (só leitura; `horariosDisponiveis` +
+  `regrasDaBarbearia` + `STATUS_QUE_OCUPAM` + `ocupacoesExtras`, ignora o próprio agendamento,
+  exige `agendamento_manual`). Sem migração.
+- Ficou diferente do Figaro (decisão do dono): "Trocar Cliente" e a linha "Hoje · 09:00-18:00" na
+  escolha do profissional.
+- Testes: `TelaReagendar.test.ts`; tsc, vitest (1535) e build passando.
 
 ### 2026-10-18 UTC — Claude — Agenda Figaro: zoom das horas com dois dedos
 - O que mudou e por quê: o dono pediu para seguir o Figaro também na Agenda ("tudo"). Do

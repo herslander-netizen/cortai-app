@@ -1,12 +1,14 @@
 import {
-  Ban,
-  CalendarPlus,
   Check,
+  ChevronDown,
+  CircleCheck,
   HandCoins,
   MessageCircle,
   NotebookPen,
   Phone,
   Scissors,
+  Trash2,
+  UserRound,
   UserRoundPlus,
   UserX,
 } from "lucide-react";
@@ -33,8 +35,11 @@ import {
 } from "@/components/ui/sheet";
 import { VerTicketDoAgendamento } from "@/components/comanda/VerTicketDoAgendamento";
 import type { AgendaItem } from "@/lib/barbeiro.functions";
+import { brl } from "@/lib/format";
+import { isoNoFusoDaBarbearia } from "@/lib/horarios";
 
-import { diaNoFuso, hora, linkWhatsApp } from "./tempo";
+import { TelaReagendar } from "./TelaReagendar";
+import { hora, linkWhatsApp } from "./tempo";
 
 export type PedidoRemarcar = { dia: string; hora: string; profissionalId: string | null };
 
@@ -63,28 +68,40 @@ type Props = {
 
 /** Painel único do atendimento, usado na agenda e no Modo Foco. */
 export function PainelAtendimento(props: Props) {
-  const { item } = props;
-  const [remarcar, setRemarcar] = useState<PedidoRemarcar | null>(null);
-  const [erroRemarcar, setErroRemarcar] = useState<string | null>(null);
-  const [verificando, setVerificando] = useState(false);
+  // Como no Figaro: depois de reagendar, a ficha continua aberta com o horário novo, mesmo que o
+  // atendimento tenha ido para outro dia (e saia da lista do dia que está na tela).
+  const [remarcado, setRemarcado] = useState<AgendaItem | null>(null);
+  const item = props.item ?? (props.aberto ? remarcado : null);
+  const [reagendando, setReagendando] = useState(false);
+  const [maisAcoes, setMaisAcoes] = useState(false);
   const [confirmacao, setConfirmacao] = useState<"cancelar" | "falta" | null>(null);
-  const [expandido, setExpandido] = useState(false);
-  const compacto = !props.lateral;
 
   useEffect(() => {
-    setRemarcar(
-      props.iniciarEm === "remarcar" && item
-        ? {
-            dia: diaNoFuso(item.inicio, props.fuso),
-            hora: hora(item.inicio, props.fuso),
-            profissionalId: item.profissionalId ?? null,
-          }
-        : null,
-    );
+    if (!props.aberto) setRemarcado(null);
+  }, [props.aberto]);
+  useEffect(() => {
+    if (props.item && remarcado && props.item.id !== remarcado.id) setRemarcado(null);
+  }, [props.item, remarcado]);
+
+  async function remarcar(alvo: AgendaItem, pedido: PedidoRemarcar) {
+    await props.onRemarcar(alvo, pedido);
+    const inicio = isoNoFusoDaBarbearia(pedido.dia, pedido.hora, props.fuso);
+    const duracao = new Date(alvo.fim).getTime() - new Date(alvo.inicio).getTime();
+    setRemarcado({
+      ...alvo,
+      inicio,
+      fim: new Date(new Date(inicio).getTime() + duracao).toISOString(),
+      profissionalId: pedido.profissionalId ?? alvo.profissionalId ?? null,
+      profissional:
+        props.profissionais.find((p) => p.id === pedido.profissionalId)?.nome ?? alvo.profissional,
+    });
+  }
+
+  useEffect(() => {
+    setReagendando(props.iniciarEm === "remarcar" && Boolean(item));
     setConfirmacao(props.iniciarEm === "cancelar" ? "cancelar" : null);
-    setErroRemarcar(null);
-    setExpandido(Boolean(props.iniciarEm));
-  }, [item, props.aberto, props.fuso, props.iniciarEm]);
+    setMaisAcoes(false);
+  }, [item, props.aberto, props.iniciarEm]);
 
   const pendente = item?.status === "agendado" || item?.status === "chegou";
   const bloqueado = !props.online || props.ocupado;
@@ -96,25 +113,18 @@ export function PainelAtendimento(props: Props) {
     f(item);
   };
 
-  async function enviarRemarcar() {
-    if (!item || !remarcar) return;
-    setErroRemarcar(null);
-    setVerificando(true);
-    try {
-      const livre = await props.onVerificar(item, remarcar);
-      if (!livre) {
-        const nome = props.profissionais.find((p) => p.id === remarcar.profissionalId)?.nome;
-        setErroRemarcar(`Esse horário está ocupado${nome ? ` para ${nome}` : ""}. Escolha outro.`);
-        return;
-      }
-      props.onFechar();
-      await props.onRemarcar(item, remarcar);
-    } catch (e) {
-      setErroRemarcar(e instanceof Error ? e.message : "Não foi possível conferir o horário.");
-    } finally {
-      setVerificando(false);
-    }
-  }
+  const dataExtensa = item
+    ? new Intl.DateTimeFormat("pt-BR", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+        timeZone: props.fuso,
+      }).format(new Date(item.inicio))
+    : "";
+  const faixaDeHorario = item
+    ? `${hora(item.inicio, props.fuso)} · ${hora(item.fim, props.fuso)}`
+    : "";
+  const confirmado = item?.confirmadoEm && item.status === "agendado";
 
   return (
     <>
@@ -122,264 +132,270 @@ export function PainelAtendimento(props: Props) {
         <SheetContent
           side={props.lateral ? "right" : "bottom"}
           arrastarParaFechar
-          className={`agenda-painel mov-agenda-painel border-line bg-ink2 px-4 pt-3 sm:px-5 sm:pt-5 ${props.lateral ? "w-[380px]" : "mx-auto flex max-h-[90dvh] w-full max-w-[520px] flex-col overflow-hidden rounded-t-[28px]"}`}
+          className={`agenda-painel agenda-ficha mov-agenda-painel border-0 bg-ink px-4 pt-3 sm:px-5 sm:pt-5 ${props.lateral ? "w-[380px]" : "mx-auto flex max-h-[92dvh] w-full max-w-[520px] flex-col overflow-hidden rounded-t-[28px]"}`}
         >
           {item ? (
             <>
-              <div className="mb-3 flex justify-center md:hidden" aria-hidden="true"><span className="h-1.5 w-12 rounded-full bg-mute/50" /></div>
-              <SheetHeader className="shrink-0 pr-10 text-left">
-                <SheetTitle className="truncate text-lg text-paper">{item.cliente}</SheetTitle>
-                <SheetDescription className="text-sm text-mute">
-                  {hora(item.inicio, props.fuso)} · {item.servico} · {item.profissional}
-                </SheetDescription>
-                <div className="flex flex-wrap gap-1">
-                  <StatusBadge status={item.status} />
-                  {item.confirmadoEm && item.status === "agendado" ? (
-                    <StatusBadge status="confirmado" label="Confirmou pelo WhatsApp" />
-                  ) : null}
-                </div>
-              </SheetHeader>
-              {!props.online ? (
-                <p className="mt-3 text-xs font-semibold text-mute">
-                  Sem conexão: as ações voltam quando a internet voltar.
-                </p>
-              ) : null}
-              <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain pb-4 pt-4 [scrollbar-width:thin]"><div className="grid gap-3">
-                {item.status === "agendado" ? (
-                  <Button
-                    size="lg"
-                    variant="primary"
-                    className="min-h-14 w-full"
-                    disabled={bloqueado}
-                    onClick={executar(props.onChegou)}
-                  >
-                    <UserRoundPlus /> Cliente chegou
-                  </Button>
-                ) : null}
-                {item.status === "chegou" ? (
-                  <Button
-                    size="lg"
-                    variant="primary"
-                    className="min-h-14 w-full"
-                    disabled={bloqueado}
-                    onClick={executar(props.onIniciar)}
-                  >
-                    <Scissors /> Começar
-                  </Button>
-                ) : null}
-                {item.status === "na_cadeira" ? (
-                  <Button
-                    size="lg"
-                    variant="primary"
-                    className="min-h-14 w-full"
-                    disabled={bloqueado}
-                    onClick={executar(props.onComanda)}
-                  >
-                    <Check /> Finalizar e cobrar
-                  </Button>
-                ) : null}
-
-                {telefone || whatsapp ? (
-                  <div
-                    className={`grid gap-2 ${telefone && whatsapp ? "grid-cols-2" : "grid-cols-1"}`}
-                    aria-label="Contato do cliente"
-                  >
+              <div className="mb-3 flex justify-center md:hidden" aria-hidden="true">
+                <span className="h-1.5 w-12 rounded-full bg-mute/50" />
+              </div>
+              <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain pb-28 [scrollbar-width:thin]">
+                {/* Como no Figaro: quem, quando e com quem num cartão; o cliente logo abaixo. */}
+                <section className="agenda-ficha-cartao">
+                  <SheetHeader className="space-y-1 p-4 pb-3 text-left">
+                    <div className="flex items-start justify-between gap-3">
+                      <SheetTitle className="min-w-0 truncate text-xl font-bold text-paper">
+                        {item.cliente}
+                      </SheetTitle>
+                      {confirmado ? (
+                        <span className="agenda-ficha-confirmado">
+                          <CircleCheck aria-hidden className="size-4" /> Confirmado
+                        </span>
+                      ) : (
+                        <StatusBadge status={item.status} />
+                      )}
+                    </div>
+                    <SheetDescription className="text-sm text-mute">
+                      {dataExtensa}{" "}
+                      <span className="font-mono tabular-nums text-paper">{faixaDeHorario}</span>
+                    </SheetDescription>
+                    <span className="agenda-ficha-profissional">
+                      <span className="agenda-ficha-avatar" aria-hidden>
+                        {item.profissional.trim().charAt(0).toUpperCase()}
+                      </span>
+                      {item.profissional.split(" ")[0]}
+                    </span>
+                  </SheetHeader>
+                  <div className="agenda-ficha-cliente">
+                    <span className="agenda-ficha-avatar is-cliente" aria-hidden>
+                      <UserRound className="size-4" />
+                    </span>
+                    {item.clienteId ? (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        className="h-auto min-w-0 flex-1 justify-start truncate p-0 text-base font-normal text-paper hover:bg-transparent"
+                        onClick={() => {
+                          const id = item.clienteId;
+                          props.onFechar();
+                          if (id) props.onPerfil(id);
+                        }}
+                      >
+                        <span className="truncate">{item.cliente}</span>
+                      </Button>
+                    ) : (
+                      <span className="min-w-0 flex-1 truncate text-base text-paper">
+                        {item.cliente}
+                      </span>
+                    )}
                     {telefone ? (
-                      <Button asChild variant="outline" className="min-h-12">
-                        <a href={`tel:${telefone}`} aria-label={`Ligar para ${item.cliente}`}>
-                          <Phone /> Ligar
+                      <Button
+                        asChild
+                        variant="ghost"
+                        size="icon"
+                        className="shrink-0"
+                        aria-label={`Ligar para ${item.cliente}`}
+                      >
+                        <a href={`tel:${telefone}`}>
+                          <Phone />
                         </a>
                       </Button>
                     ) : null}
                     {whatsapp ? (
                       <Button
                         asChild
-                        variant="outline"
-                        className="min-h-12"
+                        variant="ghost"
+                        size="icon"
+                        className="shrink-0"
+                        aria-label={`Abrir WhatsApp para ${item.cliente}`}
                       >
-                        <a
-                          href={whatsapp ?? undefined}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          aria-label={`Abrir WhatsApp para ${item.cliente}`}
-                        >
-                          <MessageCircle /> WhatsApp
+                        <a href={whatsapp} target="_blank" rel="noopener noreferrer">
+                          <MessageCircle />
                         </a>
                       </Button>
                     ) : null}
                   </div>
-                ) : null}
+                </section>
 
-                {(!compacto || expandido) ? (
-                  <>
-                <div className="grid grid-cols-2 gap-2" aria-label="Registro do atendimento">
-                  {item.clienteId ? (
-                    <Button
-                      variant="outline"
-                      className="min-h-12"
-                      onClick={() => {
-                        const id = item.clienteId;
-                        props.onFechar();
-                        if (id) props.onPerfil(id);
-                      }}
-                    >
-                      <NotebookPen /> Notas
-                    </Button>
-                  ) : null}
-                  {pendente || item.status === "finalizado" ? (
-                    <Button
-                      variant="outline"
-                      className="min-h-12"
-                      disabled={!props.online}
-                      onClick={executar(props.onComanda)}
-                    >
-                      <HandCoins /> {pendente ? "Cobrar" : "Pagamento"}
-                    </Button>
-                  ) : null}
-                  <VerTicketDoAgendamento
-                    agendamentoId={item.id}
-                    desabilitado={!props.online}
-                    onAbrir={(comandaId) => {
-                      props.onFechar();
-                      props.onVerComanda(item, comandaId);
-                    }}
-                  />
-                </div>
-
-                {pendente ? (
-                  <p className="border-t border-line pt-3 text-xs font-bold uppercase text-mute">
-                    Ajustar horário
+                {!props.online ? (
+                  <p className="mt-3 text-xs font-semibold text-mute">
+                    Sem conexão: as ações voltam quando a internet voltar.
                   </p>
                 ) : null}
-                <div className="grid grid-cols-2 gap-2">
-                  {pendente ? (
+
+                {/* A ação do momento continua à mão (o Figaro não tinha as etapas do Cortaí). */}
+                <div className="mt-3 grid gap-2">
+                  {item.status === "agendado" ? (
                     <Button
-                      variant="ghost"
-                      className="min-h-12"
+                      size="lg"
+                      variant="primary"
+                      className="min-h-14 w-full"
                       disabled={bloqueado}
-                      onClick={() =>
-                        setRemarcar({
-                          dia: diaNoFuso(item.inicio, props.fuso),
-                          hora: hora(item.inicio, props.fuso),
-                          profissionalId: item.profissionalId ?? null,
-                        })
-                      }
+                      onClick={executar(props.onChegou)}
                     >
-                      <CalendarPlus /> Remarcar
+                      <UserRoundPlus /> Cliente chegou
                     </Button>
                   ) : null}
-                  {pendente ? (
+                  {item.status === "chegou" ? (
                     <Button
-                      variant="ghost"
-                      className="min-h-12"
+                      size="lg"
+                      variant="primary"
+                      className="min-h-14 w-full"
                       disabled={bloqueado}
-                      onClick={() => setConfirmacao("falta")}
+                      onClick={executar(props.onIniciar)}
                     >
-                      <UserX /> Faltou
+                      <Scissors /> Começar
+                    </Button>
+                  ) : null}
+                  {item.status === "na_cadeira" ? (
+                    <Button
+                      size="lg"
+                      variant="primary"
+                      className="min-h-14 w-full"
+                      disabled={bloqueado}
+                      onClick={executar(props.onComanda)}
+                    >
+                      <Check /> Finalizar e cobrar
                     </Button>
                   ) : null}
                 </div>
-                {pendente ? (
-                  <Button
-                    variant="destructive"
-                    className="min-h-14 w-full rounded-xl text-base font-semibold"
-                    disabled={bloqueado}
-                    onClick={() => {
-                      if (item.confirmadoEm) setConfirmacao("cancelar");
-                      else executar(props.onCancelar)();
-                    }}
-                  >
-                    <Ban /> Cancelar agendamento
-                  </Button>
-                ) : null}
-                  </>
-                ) : null}
-                {compacto ? (
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    className="min-h-11 w-full"
-                    aria-expanded={expandido}
-                    onClick={() => setExpandido((aberto) => !aberto)}
-                  >
-                    {expandido ? "Mostrar menos" : "Mais ações"}
-                  </Button>
-                ) : null}
-              </div></div>
-              {remarcar ? (
-                <form
-                  className="mt-2 grid gap-3 border-t border-line pt-4 pb-4"
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    void enviarRemarcar();
-                  }}
-                >
-                  <div className="grid grid-cols-2 gap-2">
-                    <label className="text-xs font-semibold text-mute">
-                      Dia
-                      <input
-                        type="date"
-                        required
-                        value={remarcar.dia}
-                        onChange={(e) => setRemarcar({ ...remarcar, dia: e.target.value })}
-                        className="agenda-campo"
-                      />
-                    </label>
-                    <label className="text-xs font-semibold text-mute">
-                      Horário
-                      <input
-                        type="time"
-                        required
-                        step={props.passoMin * 60}
-                        value={remarcar.hora}
-                        onChange={(e) => setRemarcar({ ...remarcar, hora: e.target.value })}
-                        className="agenda-campo"
-                      />
-                    </label>
+
+                <p className="mb-2 mt-5 text-sm font-medium text-mute">Serviços</p>
+                <section className="agenda-ficha-cartao">
+                  <div className="flex items-start justify-between gap-3 p-4">
+                    <div className="min-w-0">
+                      <p className="truncate font-semibold text-paper">{item.servico}</p>
+                      <p className="truncate text-sm text-mute">{item.profissional}</p>
+                    </div>
+                    <div className="shrink-0 text-right">
+                      <p className="font-semibold text-paper">{brl(item.valor_centavos ?? 0)}</p>
+                      <p className="font-mono text-sm tabular-nums text-mute">{faixaDeHorario}</p>
+                    </div>
                   </div>
-                  {props.profissionais.length > 1 ? (
-                    <label className="text-xs font-semibold text-mute">
-                      Profissional
-                      <select
-                        value={remarcar.profissionalId ?? ""}
-                        onChange={(e) =>
-                          setRemarcar({ ...remarcar, profissionalId: e.target.value || null })
-                        }
-                        className="agenda-campo"
+                  <div className="flex items-center justify-between border-t border-line p-4">
+                    <span className="font-semibold text-paper">Total</span>
+                    <span className="font-semibold text-paper">
+                      {brl(item.valor_centavos ?? 0)}
+                    </span>
+                  </div>
+                </section>
+              </div>
+
+              {/* Rodapé do Figaro: "Reagendar" com a seta que abre as outras ações (aqui também
+                  ficam Notas, Cobrar e a comanda, que o Figaro não tinha). */}
+              <div className="agenda-ficha-rodape">
+                {maisAcoes ? (
+                  <div className="agenda-ficha-menu" role="menu">
+                    {item.clienteId ? (
+                      <Button
+                        role="menuitem"
+                        variant="ghost"
+                        className="justify-start"
+                        onClick={() => {
+                          const id = item.clienteId;
+                          setMaisAcoes(false);
+                          props.onFechar();
+                          if (id) props.onPerfil(id);
+                        }}
                       >
-                        {props.profissionais.map((p) => (
-                          <option key={p.id} value={p.id}>
-                            {p.nome}
-                          </option>
-                        ))}
-                      </select>
-                    </label>
-                  ) : null}
-                  {erroRemarcar ? (
-                    <p className="text-sm font-semibold text-brick" role="alert">
-                      {erroRemarcar}
-                    </p>
-                  ) : null}
-                  <div className="flex gap-2">
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      className="flex-1"
-                      onClick={() => setRemarcar(null)}
-                    >
-                      Voltar
-                    </Button>
-                    <Button
-                      type="submit"
-                      size="lg"
-                      className="flex-1"
-                      disabled={bloqueado || verificando}
-                    >
-                      {verificando ? "Conferindo…" : "Remarcar"}
-                    </Button>
+                        <NotebookPen /> Notas do cliente
+                      </Button>
+                    ) : null}
+                    {pendente || item.status === "finalizado" ? (
+                      <Button
+                        role="menuitem"
+                        variant="ghost"
+                        className="justify-start"
+                        disabled={!props.online}
+                        onClick={() => {
+                          setMaisAcoes(false);
+                          executar(props.onComanda)();
+                        }}
+                      >
+                        <HandCoins /> {pendente ? "Cobrar" : "Pagamento"}
+                      </Button>
+                    ) : null}
+                    <VerTicketDoAgendamento
+                      agendamentoId={item.id}
+                      desabilitado={!props.online}
+                      className="agenda-ficha-menu-item"
+                      onAbrir={(comandaId) => {
+                        setMaisAcoes(false);
+                        props.onFechar();
+                        props.onVerComanda(item, comandaId);
+                      }}
+                    />
+                    {pendente ? (
+                      <Button
+                        role="menuitem"
+                        variant="ghost"
+                        className="justify-start"
+                        disabled={bloqueado}
+                        onClick={() => {
+                          setMaisAcoes(false);
+                          setConfirmacao("falta");
+                        }}
+                      >
+                        <UserX /> Marcar falta
+                      </Button>
+                    ) : null}
+                    {pendente ? (
+                      <Button
+                        role="menuitem"
+                        variant="ghost"
+                        className="justify-start text-brick hover:text-brick"
+                        disabled={bloqueado}
+                        onClick={() => {
+                          setMaisAcoes(false);
+                          if (item.confirmadoEm) setConfirmacao("cancelar");
+                          else executar(props.onCancelar)();
+                        }}
+                      >
+                        <Trash2 /> Cancelar agendamento
+                      </Button>
+                    ) : null}
                   </div>
-                </form>
-              ) : null}
+                ) : null}
+                <div className="flex items-center gap-1">
+                  {pendente ? (
+                    <Button
+                      size="lg"
+                      variant="primary"
+                      className="agenda-ficha-reagendar"
+                      disabled={bloqueado}
+                      onClick={() => {
+                        setMaisAcoes(false);
+                        setReagendando(true);
+                      }}
+                    >
+                      Reagendar
+                    </Button>
+                  ) : null}
+                  <Button
+                    size="icon"
+                    variant="primary"
+                    className={`agenda-ficha-mais ${pendente ? "" : "is-sozinho"}`}
+                    aria-label={maisAcoes ? "Fechar outras ações" : "Outras ações"}
+                    aria-expanded={maisAcoes}
+                    onClick={() => setMaisAcoes((v) => !v)}
+                  >
+                    <ChevronDown
+                      aria-hidden
+                      className={`transition-transform duration-200 ${maisAcoes ? "rotate-180" : ""}`}
+                    />
+                  </Button>
+                </div>
+              </div>
+              <TelaReagendar
+                item={item}
+                aberto={reagendando}
+                fuso={props.fuso}
+                profissionais={props.profissionais}
+                bloqueado={bloqueado}
+                onVoltar={() => setReagendando(false)}
+                onVerificar={props.onVerificar}
+                onRemarcar={remarcar}
+              />
             </>
           ) : null}
         </SheetContent>

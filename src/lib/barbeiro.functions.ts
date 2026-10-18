@@ -1761,6 +1761,85 @@ export const moverAgendamentoPainel = createServerFn({ method: "POST" })
     };
   });
 
+/**
+ * Horários livres de um dia para remarcar um atendimento (tela "Reagendar", como no Figaro).
+ * Mesmo motor e mesmas regras da validação: expediente, pausa, bloqueios e escala, intervalo
+ * entre atendimentos e passo do negócio; o próprio atendimento não conta como ocupação. A
+ * equipe pode remarcar para perto do agora (sem a antecedência do link público), nunca para o
+ * passado. Só leitura: a gravação continua em `moverAgendamentoPainel`, que confere de novo.
+ */
+export const getHorariosParaRemarcar = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .validator((data: { agendamentoId: string; dia: string; profissionalId?: string | null }) => {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(data.dia)) throw new Error("Dia inválido");
+    return data;
+  })
+  .handler(
+    async ({
+      data,
+      context,
+    }): Promise<{
+      fechado: boolean;
+      duracaoMin: number;
+      horarios: { iso: string; label: string }[];
+    }> => {
+      const { db, tenant } = await tenantPadrao(context);
+      await exigirPermissao(context, tenant.id, "agendamento_manual");
+      const { data: atual } = await db
+        .from("agendamentos")
+        .select("id, inicio, fim, profissional_id")
+        .eq("id", data.agendamentoId)
+        .eq("tenant_id", tenant.id)
+        .maybeSingle();
+      if (!atual) throw new Error("Agendamento não encontrado neste negócio.");
+      const duracaoMin = Math.max(
+        1,
+        Math.round((new Date(atual.fim).getTime() - new Date(atual.inicio).getTime()) / 60_000),
+      );
+      const profissionalId = data.profissionalId ?? atual.profissional_id ?? null;
+      if (!profissionalId) return { fechado: false, duracaoMin, horarios: [] };
+      const regras = await regrasDaBarbearia(db, tenant.id);
+      const desde = new Date(isoNoFusoDaBarbearia(data.dia, "00:00", regras.fuso));
+      const ate = new Date(desde.getTime() + 36 * 60 * 60 * 1000);
+      const { STATUS_QUE_OCUPAM } = await import("@/lib/agenda-regras.server");
+      const { ocupacoesExtras } = await import("@/lib/ocupacoes-extras.server");
+      const [{ data: doDia }, extras] = await Promise.all([
+        db
+          .from("agendamentos")
+          .select("inicio, fim")
+          .eq("tenant_id", tenant.id)
+          .eq("profissional_id", profissionalId)
+          .in("status", [...STATUS_QUE_OCUPAM])
+          .neq("id", atual.id)
+          .lt("inicio", ate.toISOString())
+          .gt("fim", desde.toISOString()),
+        ocupacoesExtras(db, {
+          tenantId: tenant.id,
+          fuso: regras.fuso,
+          desde,
+          ate,
+          profissionalIds: [profissionalId],
+        }).catch(() => []),
+      ]);
+      const { horariosDisponiveis } = await import("@/lib/disponibilidade");
+      const { fechado, opcoes } = horariosDisponiveis({
+        dia: data.dia,
+        servico: { id: atual.id, duracao_min: duracaoMin, profissional_ids: null },
+        profissionais: [{ id: profissionalId }],
+        escolhido: profissionalId,
+        horarios: regras.horarios,
+        fuso: regras.fuso,
+        ocupados: [
+          ...(doDia ?? []).map((a) => ({ ...a, profissional_id: profissionalId })),
+          ...extras,
+        ],
+        regras: { antecedenciaMin: 0, intervaloEntreMin: regras.intervaloEntreMin },
+        passoMin: regras.passoMin,
+      });
+      return { fechado, duracaoMin, horarios: opcoes.map(({ iso, label }) => ({ iso, label })) };
+    },
+  );
+
 /** Quantidade de atendimentos ativos por dia do mês (uma consulta), para os pontinhos da Agenda. */
 export const getContagemDoMes = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
