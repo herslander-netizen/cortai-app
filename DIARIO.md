@@ -149,6 +149,11 @@ teste real na prévia.
 
 ## Diário (mais recente primeiro)
 
+### 2026-10-18 UTC — GPT — Acessibilidade do progresso da demonstração
+- A etapa atual da demonstração guiada agora é identificada com `aria-current="step"`, além do anúncio da região viva já existente.
+- Arquivo: `src/components/apresentacao/DemoAgendamento.tsx`. Commit: `774a787`.
+- A validação automatizada desse commit ainda não foi confirmada.
+
 ### 2026-10-18 UTC — GPT — Acerto de documentação da cascata
 - Corrigi o comentário de `ItemCascata.tsx`: a regra real é 40 ms entre itens e no máximo 6 itens, não 30 ms/8. Sem mudança no comportamento.
 - Commit: `4483b6f`. CI dos commits recentes ainda não confirmado.
