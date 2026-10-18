@@ -75,6 +75,7 @@ export async function identificarEquipe(
     userId: membro.user_id,
     profissionalId: prof?.id ?? null,
     nome: perfil?.nome ?? null,
+    permissoes: Array.isArray(membro.permissoes) ? membro.permissoes : [],
   };
 }
 
