@@ -99,7 +99,25 @@ export function useAgendamentoManual({
   const telefoneValido = novoTelefone.replace(/\D/g, "").length >= 10;
   const clienteOk = clienteId ? true : novo && nomeValido && telefoneValido;
   const pronto = Boolean(clienteOk && servicoId && profissionalId && data && horaMin);
-  const sujo = Boolean(clienteId || novoNome || novoTelefone || termo);
+  // Não perder escolhas feitas no formulário: o padrão carregado do catálogo não
+  // conta como edição, mas qualquer desvio dos valores iniciais pede confirmação.
+  const servicoInicial = base?.servicos[0]?.id ?? "";
+  const profissionalInicialId = profissionalInicial
+    ? (base?.profissionais.find((p) => p.nome === profissionalInicial)?.id ??
+      base?.profissionais[0]?.id ??
+      "")
+    : (base?.profissionais[0]?.id ?? "");
+  const sujo = Boolean(
+    clienteId ||
+      novoNome ||
+      novoTelefone ||
+      termo ||
+      (servicoId && servicoId !== servicoInicial) ||
+      (profissionalId && profissionalId !== profissionalInicialId) ||
+      data !== dia ||
+      horaMin !== horaInicial ||
+      forma !== "balcao",
+  );
 
   async function salvar(isoForcado?: string, encaixe = false) {
     if (!pronto || salvando) return;
