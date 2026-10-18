@@ -221,6 +221,18 @@ teste real na prévia.
 
 ## Diário (mais recente primeiro)
 
+### 2026-10-18 UTC — Claude — Troca de dia com as horas na mesma altura; cartões organizados
+- Defeito (vídeo do dono 17:12): na troca de dia a página que entrava ficava ~70 px deslocada ("uma
+  data maior que outra"). Causa: no celular a timeline empilhava cartões e somava espaço depois dos
+  curtos/sobrepostos — cada dia ficava com as horas numa altura diferente. Agora, como no Figaro, o
+  dia completo (celular) usa sempre o horário real (`alinhado = alinhado || diaCompleto` em
+  `AgendaTimeline.tsx`), com colunas na sobreposição; dia atual e vizinhos alinham hora a hora.
+- Cartões: 1 px de respiro em cima e embaixo (horários seguidos não viram um bloco), margens e
+  espaço entre linhas por tamanho (Figaro `CardTier`), ícone do relógio de 13 px.
+- Tema escuro: o código do Figaro tem o cartão mais claro que o fundo; mantive o cartão um pouco
+  abaixo do fundo, como foi decidido pelo vídeo escuro. Se o dono quiser o do APK, é trocar
+  `--agenda-cartao` no tema escuro.
+
 ### 2026-10-18 UTC — Claude — Pinça da timeline sem "pulo" (vídeo do dono 17:12)
 - Defeito: durante a pinça a grade pulava. Causa: a escala nova era desenhada num quadro e a
   rolagem que devolve o horário para debaixo dos dedos só vinha dois quadros depois; além disso a

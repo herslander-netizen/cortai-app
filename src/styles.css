@@ -7121,3 +7121,37 @@ button.agenda-nome:hover {
 .agenda-pinca-ativa .agenda-timeline * {
   transition: none !important;
 }
+
+/* Cartões: margens e espaços por tamanho, como no Figaro (`CardTier`: início/topo/fim/base e o
+   espaço entre as linhas). O início considera a barra lateral (6 + 3,5 px). */
+.agenda-timeline-bloco.agenda-timeline-bloco {
+  gap: 3px;
+  padding: 7px 10px 7px 19px;
+}
+.agenda-timeline-bloco.agenda-faixa-minimo {
+  gap: 2px;
+  padding: 2px 8px 2px 18px;
+}
+.agenda-timeline-bloco.agenda-faixa-grande {
+  gap: 4px;
+  padding: 9px 11px 9px 20px;
+}
+.agenda-timeline-bloco.agenda-faixa-maior {
+  gap: 5px;
+  padding: 11px 12px 11px 21px;
+}
+.agenda-timeline-bloco .agenda-timeline-bloco-topo {
+  display: flex;
+  min-width: 0;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+.agenda-timeline-bloco .agenda-timeline-horario {
+  gap: 4px;
+  line-height: 15px;
+}
+.agenda-timeline-bloco .agenda-timeline-horario svg {
+  width: 13px;
+  height: 13px;
+}

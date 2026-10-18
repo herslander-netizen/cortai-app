@@ -102,6 +102,7 @@ const MARGEM_AGORA_MIN = 90;
 const ESPACO_ENTRE_BLOCOS = 6;
 /** Altura mínima do cartão (Figaro `MinCardHeight`). */
 const ALTURA_MINIMA_DO_CARTAO = 28;
+const RESPIRO_DO_CARTAO = 1;
 
 function minutosDoHorario(valor: string) {
   const [hora = 0, minuto = 0] = valor.split(":").map(Number);
@@ -151,7 +152,7 @@ export function AgendaTimeline({
   onHorarioVazio,
   destaques,
   itensEscala,
-  alinhado,
+  alinhado: alinhadoPedido,
   mostrarProfissional = false,
   discreto = false,
   previa = false,
@@ -161,6 +162,10 @@ export function AgendaTimeline({
 }: AgendaTimelineProps) {
   const relogio = useAgora();
   const agora = agoraProp ?? relogio;
+  // Como no Figaro: no dia completo (celular) os cartões ficam sempre no horário real, com colunas
+  // na sobreposição. Empilhar somava espaço depois dos cartões curtos e as horas de um dia ficavam
+  // em outra altura que as do dia vizinho na troca de dia.
+  const alinhado = Boolean(alinhadoPedido || diaCompleto);
   const [toqueVazio, setToqueVazio] = useState<number | null>(null);
   const rolagemRef = useRef<HTMLDivElement>(null);
   // Escala da grade (pixels por minuto): muda com a pinça de dois dedos (zoom-agenda.ts).
@@ -973,8 +978,10 @@ export function AgendaTimeline({
                   className={`agenda-timeline-bloco agenda-faixa-${faixa} agenda-timeline-${item.status} ${edicaoDoCartao?.id && edicaoDoCartao.id !== item.id ? "agenda-timeline-esmaecido" : ""} ${item.confirmadoEm && item.status === "agendado" ? "agenda-timeline-confirmado" : ""} ${ehHoje && minutosNoFuso(item.fim, fuso) < escala.minutoAtual ? "agenda-timeline-passado" : ""} ${item.encaixe ? "agenda-timeline-encaixe" : ""} ${selecionado === item.id ? "agenda-timeline-selecionado" : ""} ${destaques?.has(item.id) ? "agenda-novo" : ""} ${arrasto?.id === item.id ? "agenda-arrastando" : ""}`}
                   style={{
                     ["--cor-categoria" as string]: corDaCategoria(item.categoriaIndice),
-                    top: `${topo}px`,
-                    height: `${alturaDoBloco}px`,
+                    // No horário real, 1 px de respiro em cima e embaixo: dois horários seguidos
+                    // não viram um bloco só.
+                    top: `${topo + (alinhado ? RESPIRO_DO_CARTAO : 0)}px`,
+                    height: `${alturaDoBloco - (alinhado ? 2 * RESPIRO_DO_CARTAO : 0)}px`,
                     ...(posicao?.colunas
                       ? {
                           left: `calc(7px + (100% - 11px) * ${posicao.coluna ?? 0} / ${posicao.colunas})`,
