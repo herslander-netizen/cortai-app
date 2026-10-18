@@ -2,14 +2,14 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
-import { ArrowLeft, Clock3, Pencil, Plus } from "lucide-react";
+import { Clock3, Pencil, Plus } from "lucide-react";
 
 import { Screen } from "@/components/layout/Screen";
 import { EsqueletoFormulario } from "@/components/layout/Esqueleto";
 import { EditorDeServicos, type ServicoEditavel } from "@/components/onboarding/EditorDeServicos";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { useConfirmar } from "@/components/ui/useConfirmar";
+import { TelaDeFormulario } from "@/components/ui/formulario/TelaDeFormulario";
 import {
   getConfiguracaoInicial,
   removerServico,
@@ -64,7 +64,6 @@ function ServicosPage() {
   const [idEditando, setIdEditando] = useState<string | null>(null);
   const [rascunho, setRascunho] = useState<ServicoEditavel[]>([]);
   const [rascunhoOriginal, setRascunhoOriginal] = useState("");
-  const [confirmar, dialogoConfirmar] = useConfirmar();
 
   useEffect(() => {
     if (!data || iniciado) return;
@@ -96,20 +95,11 @@ function ServicosPage() {
     setErro(null);
   }
 
-  async function voltarParaLista() {
-    if (JSON.stringify(rascunho) !== rascunhoOriginal) {
-      const sair = await confirmar({
-        titulo: "Descartar alterações?",
-        descricao: "As alterações deste serviço ainda não foram salvas.",
-        confirmar: "Descartar",
-        cancelar: "Continuar editando",
-        destrutivo: true,
-      });
-      if (!sair) return;
-    }
+  function fecharEditor() {
     setModoEditor(null);
     setIdEditando(null);
     setRascunho([]);
+    setRascunhoOriginal("");
     setErro(null);
     setEstado("pronto");
   }
@@ -143,9 +133,7 @@ function ServicosPage() {
         await remover({ data: { id: original.id! } });
         const atualizados = originais.filter((servico) => servico.id !== original.id);
         setServicos(atualizados);
-        setModoEditor(null);
-        setIdEditando(null);
-        setRascunho([]);
+        fecharEditor();
         setEstado("salvo");
         return;
       } catch (e) {
@@ -206,8 +194,7 @@ function ServicosPage() {
       });
       if (removerOriginalDepois && original?.id) await remover({ data: { id: original.id } });
       const atualizado = await refetch();
-      if (atualizado.data) setServicos(mapearServicos(atualizado.data));
-      else setServicos(validos);
+      setServicos(atualizado.data ? mapearServicos(atualizado.data) : validos);
       setModoEditor(null);
       setIdEditando(null);
       setRascunho([]);
@@ -219,91 +206,65 @@ function ServicosPage() {
     }
   }
 
-  const podeSalvar = modoEditor === "existente" && rascunho.length === 0
-    ? servicos.filter((servico) => servico.nome.trim().length >= 2).length > 1
-    : rascunho.some((servico) => servico.nome.trim().length >= 2);
+  const podeSalvar =
+    modoEditor === "existente" && rascunho.length === 0
+      ? servicos.filter((servico) => servico.nome.trim().length >= 2).length > 1
+      : rascunho.some((servico) => servico.nome.trim().length >= 2);
+  const rascunhoSujo = JSON.stringify(rascunho) !== rascunhoOriginal;
 
   return (
-    <Screen
-      voltarPara={modoEditor ? undefined : "/barbeiro/mais"}
-      title="Serviços"
-      subtitle={modoEditor ? "Edite um serviço por vez, sem perder o restante do catálogo." : "Seus serviços, duração e preços."}
-    >
-      {isLoading ? <EsqueletoFormulario campos={4} onTentarDeNovo={() => void refetch()} /> : null}
+    <>
+      <Screen
+        voltarPara="/barbeiro/mais"
+        title="Serviços"
+        subtitle="Seus serviços, duração e preços."
+      >
+        {isLoading || (!iniciado && Boolean(data)) ? (
+          <EsqueletoFormulario campos={4} onTentarDeNovo={() => void refetch()} />
+        ) : null}
 
-      {modoEditor ? (
-        <>
-          <Button
-            variant="ghost"
-            type="button"
-            className="mb-4 min-h-12 rounded-full px-3"
-            onClick={() => void voltarParaLista()}
-          >
-            <ArrowLeft size={18} aria-hidden />
-            Voltar aos serviços
-          </Button>
-          <EditorDeServicos
-            servicos={rascunho}
-            onChange={alterarRascunho}
-            segmento={data?.tenant.segmento ?? "outro"}
-            apenasUm
-            semSugestoes
-          />
-          <Button
-            variant="primary"
-            type="button"
-            className="mt-6 min-h-12 w-full"
-            disabled={estado === "salvando" || !podeSalvar}
-            onClick={() => void salvarEditor()}
-          >
-            {estado === "salvando"
-              ? "Salvando…"
-              : modoEditor === "existente" && rascunho.length === 0
-                ? "Remover serviço"
-                : "Salvar serviço"}
-          </Button>
-        </>
-      ) : (
-        <>
-          {!isLoading && servicos.length ? (
-            <ul className="space-y-3">
-              {servicos.map((servico, indice) => (
-                <li key={servico.id ?? "servico-" + indice}>
-                  <Card variant="touchable" density="none" className="overflow-hidden">
-                    <div className="flex items-center gap-3 p-4">
-                      <div className="grid size-11 shrink-0 place-items-center rounded-xl bg-ink3 text-gold">
-                        <Clock3 size={19} aria-hidden />
+        {!modoEditor && !isLoading && iniciado ? (
+          <>
+            {servicos.length ? (
+              <ul className="space-y-3">
+                {servicos.map((servico, indice) => (
+                  <li key={servico.id ?? "servico-" + indice}>
+                    <Card variant="touchable" density="none" className="overflow-hidden">
+                      <div className="flex items-center gap-3 p-4">
+                        <div className="grid size-11 shrink-0 place-items-center rounded-xl bg-ink3 text-gold">
+                          <Clock3 size={19} aria-hidden />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate font-semibold text-paper">{servico.nome}</p>
+                          <p className="mt-1 text-xs text-mute">{servico.categoria || "Serviço"}</p>
+                          <p className="mt-2 text-sm text-mute">
+                            {servico.duracaoMin} min <span aria-hidden>·</span> {brl(servico.precoCentavos)}
+                          </p>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          type="button"
+                          aria-label={"Editar " + servico.nome}
+                          className="min-h-12 shrink-0 rounded-full px-3"
+                          onClick={() => abrirServico(indice)}
+                        >
+                          <Pencil size={16} aria-hidden />
+                          Editar
+                        </Button>
                       </div>
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate font-semibold text-paper">{servico.nome}</p>
-                        <p className="mt-1 text-xs text-mute">{servico.categoria || "Serviço"}</p>
-                        <p className="mt-2 text-sm text-mute">
-                          {servico.duracaoMin} min <span aria-hidden>·</span> {brl(servico.precoCentavos)}
-                        </p>
-                      </div>
-                      <Button
-                        variant="ghost"
-                        type="button"
-                        aria-label={"Editar " + servico.nome}
-                        className="min-h-12 shrink-0 rounded-full px-3"
-                        onClick={() => abrirServico(indice)}
-                      >
-                        <Pencil size={16} aria-hidden />
-                        Editar
-                      </Button>
-                    </div>
-                  </Card>
-                </li>
-              ))}
-            </ul>
-          ) : !isLoading ? (
-            <Card density="default" className="text-center">
-              <p className="font-semibold text-paper">Nenhum serviço cadastrado</p>
-              <p className="mt-2 text-sm text-mute">Adicione o primeiro serviço para abrir seu catálogo.</p>
-            </Card>
-          ) : null}
+                    </Card>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <Card density="default" className="text-center">
+                <p className="font-semibold text-paper">Nenhum serviço cadastrado</p>
+                <p className="mt-2 text-sm text-mute">
+                  Adicione o primeiro serviço para abrir seu catálogo.
+                </p>
+              </Card>
+            )}
 
-          {!isLoading ? (
             <Button
               variant="primary"
               type="button"
@@ -313,21 +274,50 @@ function ServicosPage() {
               <Plus size={18} aria-hidden />
               Novo serviço
             </Button>
-          ) : null}
-          {estado === "salvo" ? (
-            <p className="mt-3 text-center text-sm text-mute" role="status">
-              Alterações salvas.
+            {estado === "salvo" ? (
+              <p className="mt-3 text-center text-sm text-mute" role="status">
+                Alterações salvas.
+              </p>
+            ) : null}
+          </>
+        ) : null}
+      </Screen>
+
+      {modoEditor ? (
+        <TelaDeFormulario
+          titulo={modoEditor === "novo" ? "Novo serviço" : "Editar serviço"}
+          subtitulo={
+            modoEditor === "novo"
+              ? "Cadastre um serviço e defina preço e duração."
+              : "Atualize os detalhes sem alterar os outros serviços."
+          }
+          sujo={rascunhoSujo}
+          onFechar={fecharEditor}
+          acao={{
+            rotulo:
+              modoEditor === "existente" && rascunho.length === 0
+                ? "Remover serviço"
+                : "Salvar serviço",
+            onClick: () => void salvarEditor(),
+            desabilitada: estado === "salvando" || !podeSalvar,
+            carregando: estado === "salvando",
+          }}
+        >
+          <EditorDeServicos
+            servicos={rascunho}
+            onChange={alterarRascunho}
+            segmento={data?.tenant.segmento ?? "outro"}
+            apenasUm
+            semSugestoes
+            semIA={modoEditor === "existente" && rascunho.length === 0}
+          />
+          {erro ? (
+            <p className="mt-3 text-sm text-brick" role="alert">
+              {erro}
             </p>
           ) : null}
-        </>
-      )}
-
-      {erro ? (
-        <p className="mt-3 text-sm text-brick" role="alert">
-          {erro}
-        </p>
+        </TelaDeFormulario>
       ) : null}
-      {dialogoConfirmar}
-    </Screen>
+    </>
   );
 }
