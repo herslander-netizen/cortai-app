@@ -52,7 +52,7 @@ export async function identificarEquipe(
   if (!ids.length) return null;
   const { data: membro } = await db
     .from("tenant_usuarios")
-    .select("user_id, papel")
+    .select("user_id, papel, permissoes")
     .eq("tenant_id", tenantId)
     .eq("ativo", true)
     .in("user_id", ids)
