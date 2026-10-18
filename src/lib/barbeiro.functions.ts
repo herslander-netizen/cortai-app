@@ -22,6 +22,7 @@ import {
 } from "@/lib/agenda-regras.server";
 import { sugestoesDeHorario } from "@/lib/sugestoes-de-horario";
 import type { PreferenciasCliente } from "@/lib/preferencias-cliente";
+import { expedienteDoProfissional, type Expediente } from "@/lib/expediente";
 
 async function admin() {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -1839,6 +1840,139 @@ export const getHorariosParaRemarcar = createServerFn({ method: "GET" })
       return { fechado, duracaoMin, horarios: opcoes.map(({ iso, label }) => ({ iso, label })) };
     },
   );
+
+export type ProfissionalParaRemarcar = {
+  id: string;
+  nome: string;
+  avatarUrl: string | null;
+  expediente: Expediente;
+};
+
+/**
+ * Equipe que pode receber o atendimento num dia (escolha do profissional no "Reagendar"):
+ * só ativos que fazem o serviço, com foto e expediente do dia (horário do negócio + escala).
+ * Só leitura.
+ */
+export const getEquipeParaRemarcar = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .validator((data: { agendamentoId: string; dia: string }) => {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(data.dia)) throw new Error("Dia inválido");
+    return data;
+  })
+  .handler(async ({ data, context }): Promise<ProfissionalParaRemarcar[]> => {
+    const { db, tenant } = await tenantPadrao(context);
+    await exigirPermissao(context, tenant.id, "agendamento_manual");
+    const { data: atual } = await db
+      .from("agendamentos")
+      .select("id, servicos(profissional_ids)")
+      .eq("id", data.agendamentoId)
+      .eq("tenant_id", tenant.id)
+      .maybeSingle();
+    if (!atual) throw new Error("Agendamento não encontrado neste negócio.");
+    const fazem = ((atual as { servicos?: { profissional_ids?: string[] | null } | null }).servicos
+      ?.profissional_ids ?? []) as string[];
+    const [regras, { data: profs }, { data: escalas }] = await Promise.all([
+      regrasDaBarbearia(db, tenant.id),
+      db
+        .from("profissionais")
+        .select("id, nome, avatar_url")
+        .eq("tenant_id", tenant.id)
+        .eq("ativo", true)
+        .order("nome"),
+      db
+        .from("escalas_de_profissional")
+        .select("profissional_id, dia_semana, trabalha, abre, fecha")
+        .eq("tenant_id", tenant.id),
+    ]);
+    return (profs ?? [])
+      .filter((p) => !fazem.length || fazem.includes(p.id))
+      .map((p) => ({
+        id: p.id,
+        nome: p.nome,
+        avatarUrl: p.avatar_url ?? null,
+        expediente: expedienteDoProfissional(data.dia, p.id, regras.horarios, escalas ?? []),
+      }));
+  });
+
+/**
+ * "Trocar Cliente" da ficha (como no Figaro): passa o atendimento para outro cliente do mesmo
+ * negócio. Só antes de começar e sem pagamento nem comanda; a confirmação do cliente anterior
+ * deixa de valer. Fica registrado na auditoria do negócio. Não envia WhatsApp.
+ */
+export const trocarClienteDoAgendamento = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((data: { agendamentoId: string; clienteId: string }) => {
+    if (!data?.agendamentoId || !data?.clienteId) throw new Error("Escolha o cliente.");
+    return data;
+  })
+  .handler(async ({ data, context }) => {
+    const { db, tenant } = await tenantPadrao(context);
+    await exigirPermissao(context, tenant.id, "agendamento_manual");
+    const { data: atual } = await db
+      .from("agendamentos")
+      .select("id, inicio, fim, status, cliente_id, pagamento_confirmado_em")
+      .eq("id", data.agendamentoId)
+      .eq("tenant_id", tenant.id)
+      .maybeSingle();
+    if (!atual) throw new Error("Agendamento não encontrado neste negócio.");
+    if (atual.cliente_id === data.clienteId) return { ok: true, clienteAnterior: atual.cliente_id };
+    if (atual.status !== "agendado" && atual.status !== "chegou")
+      throw new Error("Só dá para trocar o cliente antes de começar o atendimento.");
+    if (atual.pagamento_confirmado_em)
+      throw new Error("Este atendimento já tem pagamento confirmado; o cliente não pode mudar.");
+    const [{ data: comanda }, { data: cliente }] = await Promise.all([
+      db
+        .from("comandas")
+        .select("id")
+        .eq("tenant_id", tenant.id)
+        .eq("agendamento_id", atual.id)
+        .limit(1),
+      db
+        .from("clientes")
+        .select("id, nome")
+        .eq("id", data.clienteId)
+        .eq("tenant_id", tenant.id)
+        .is("arquivado_em", null)
+        .maybeSingle(),
+    ]);
+    if (comanda?.length)
+      throw new Error("Este atendimento já tem comanda; o cliente não pode mudar.");
+    if (!cliente) throw new Error("Cliente não encontrado neste negócio.");
+    // O novo cliente não pode estar em dois lugares ao mesmo tempo.
+    const { STATUS_QUE_OCUPAM } = await import("@/lib/agenda-regras.server");
+    const { data: choque } = await db
+      .from("agendamentos")
+      .select("id")
+      .eq("tenant_id", tenant.id)
+      .eq("cliente_id", cliente.id)
+      .in("status", [...STATUS_QUE_OCUPAM])
+      .neq("id", atual.id)
+      .lt("inicio", atual.fim)
+      .gt("fim", atual.inicio)
+      .limit(1);
+    if (choque?.length) throw new Error(`${cliente.nome} já tem um horário nesse período.`);
+    const { error } = await db
+      .from("agendamentos")
+      .update({ cliente_id: cliente.id, confirmado_em: null })
+      .eq("id", atual.id)
+      .eq("tenant_id", tenant.id)
+      .eq("cliente_id", atual.cliente_id);
+    if (error) throw new Error(error.message);
+    await db
+      .from("auditoria_da_barbearia")
+      .insert({
+        tenant_id: tenant.id,
+        ator_user_id: context.userId,
+        acao: "agendamento.cliente_trocado",
+        alvo: atual.id,
+        detalhes: { de: atual.cliente_id, para: cliente.id },
+      })
+      .then(
+        () => null,
+        () => null,
+      );
+    return { ok: true, clienteAnterior: atual.cliente_id as string };
+  });
 
 /** Quantidade de atendimentos ativos por dia do mês (uma consulta), para os pontinhos da Agenda. */
 export const getContagemDoMes = createServerFn({ method: "GET" })

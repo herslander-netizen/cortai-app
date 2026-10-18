@@ -1,11 +1,24 @@
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { ArrowLeft, Check, ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  ArrowLeft,
+  Check,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  CircleCheck,
+  CircleMinus,
+} from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
-import { getHorariosParaRemarcar, type AgendaItem } from "@/lib/barbeiro.functions";
+import {
+  getEquipeParaRemarcar,
+  getHorariosParaRemarcar,
+  type AgendaItem,
+  type ProfissionalParaRemarcar,
+} from "@/lib/barbeiro.functions";
 import { hojeNoFuso } from "@/lib/horarios";
 
 import {
@@ -16,6 +29,7 @@ import {
   somarMeses,
   tituloDoMes,
 } from "./calendario";
+import { FotoDoProfissional } from "./FotoDoProfissional";
 import type { PedidoRemarcar } from "./PainelAtendimento";
 import { diaNoFuso, hora } from "./tempo";
 
@@ -40,7 +54,7 @@ export function TelaReagendar({
   item: AgendaItem;
   aberto: boolean;
   fuso: string;
-  profissionais: { id: string; nome: string }[];
+  profissionais: { id: string; nome: string; avatarUrl?: string | null }[];
   bloqueado: boolean;
   onVoltar: () => void;
   onVerificar: (item: AgendaItem, pedido: PedidoRemarcar) => Promise<boolean>;
@@ -79,8 +93,23 @@ export function TelaReagendar({
     staleTime: 15_000,
   });
   const duracaoMin = horarios.data?.duracaoMin ?? item.duracaoMin;
+  // Quem faz o serviço, com foto e expediente do dia escolhido (como no Figaro).
+  const lerEquipe = useServerFn(getEquipeParaRemarcar);
+  const equipe = useQuery({
+    queryKey: ["equipe-remarcar", item.id, dia],
+    queryFn: () => lerEquipe({ data: { agendamentoId: item.id, dia } }),
+    enabled: aberto,
+    staleTime: 60_000,
+    placeholderData: (anterior) => anterior,
+  });
+  const opcoes: (Omit<ProfissionalParaRemarcar, "expediente"> & {
+    expediente: ProfissionalParaRemarcar["expediente"] | null;
+  })[] =
+    equipe.data ??
+    profissionais.map((p) => ({ ...p, avatarUrl: p.avatarUrl ?? null, expediente: null }));
   const nomeDoProfissional =
     profissionais.find((p) => p.id === profissionalId)?.nome ?? item.profissional;
+  const rotuloDoDia = dia === hoje ? "Hoje" : `Dia ${numeroDoDia(dia)}`;
 
   // "Salvar" fica comprido parado e vira só o ✓ enquanto a lista rola.
   const [rolando, setRolando] = useState(false);
@@ -135,7 +164,7 @@ export function TelaReagendar({
       </div>
       <div className="flex items-center justify-between gap-2">
         <span className="text-mute">Profissional</span>
-        {profissionais.length > 1 ? (
+        {opcoes.length > 1 ? (
           <Button
             type="button"
             variant="link"
@@ -352,7 +381,7 @@ export function TelaReagendar({
               Profissional
             </SheetTitle>
             <ul className="grid gap-2">
-              {profissionais.map((p) => (
+              {opcoes.map((p) => (
                 <li key={p.id}>
                   <Button
                     type="button"
@@ -365,10 +394,31 @@ export function TelaReagendar({
                       setEscolhendoProfissional(false);
                     }}
                   >
-                    <span className="agenda-reagendar-avatar" aria-hidden>
-                      {p.nome.trim().charAt(0).toUpperCase()}
+                    <FotoDoProfissional
+                      nome={p.nome}
+                      url={p.avatarUrl}
+                      className="agenda-reagendar-avatar is-grande"
+                    />
+                    <span className="min-w-0 flex-1 text-left">
+                      <span className="block truncate">{p.nome}</span>
+                      {p.expediente ? (
+                        <span
+                          className={`agenda-reagendar-expediente ${p.expediente.trabalha ? "is-trabalha" : ""}`}
+                        >
+                          {p.expediente.trabalha ? (
+                            <>
+                              <CircleCheck aria-hidden className="size-3.5" />
+                              {rotuloDoDia} · {p.expediente.abre} - {p.expediente.fecha}
+                            </>
+                          ) : (
+                            <>
+                              <CircleMinus aria-hidden className="size-3.5" />
+                              {rotuloDoDia} · Não trabalha
+                            </>
+                          )}
+                        </span>
+                      ) : null}
                     </span>
-                    <span className="min-w-0 flex-1 truncate text-left">{p.nome}</span>
                     {p.id === profissionalId ? <Check aria-hidden className="size-5" /> : null}
                   </Button>
                 </li>

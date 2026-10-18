@@ -54,17 +54,19 @@ dono. Os quadros citados estão nesta pasta. Tempos aproximados (segundos desde 
 - Volta para a Agenda com a folha mostrando um carregando; depois a **mesma ficha continua
   aberta** com a data nova "20 de out. de 2026 10:00 · 10:35". O ponto aparece no dia 20.
 
-### Diferenças que ficaram no Cortaí (decisão pendente do dono)
-- "⇄ Trocar Cliente": não existe no Cortaí (precisa de função nova no servidor).
-- Linha "Hoje · 09:00 - 18:00" na escolha do profissional: o Cortaí não tem esse dado nessa tela.
+### Diferenças com o Figaro
+- "⇄ Trocar Cliente" e a linha "Hoje · 09:00 - 18:00" na escolha do profissional: feitos em 18/10
+  depois da decisão do dono (padrão Figaro também no que é novo).
 - O Cortaí mantém à vista a ação do momento (Cliente chegou / Começar / Finalizar e cobrar), que
   o Figaro não tinha; Notas, Cobrar, Ver comanda e Marcar falta ficaram no menu da seta.
 
 ---
 
-## Vídeo B — `Record_2026-10-18-08-47-04` (32 s): Início, Personalizar Página, Layout & Tema
+## Vídeo B — `Record_2026-10-18-08-47-04` (32 s): configuração de layout da página pública
 
-**Responsável: GPT (tela de Início e página pública). Só descrição — o Claude não mexeu.**
+**O dono corrigiu: não é a tela de Início, é a configuração de layout das páginas (Personalizar
+Página / Layout & Tema). Só descrição — o Claude não mexeu.** O vídeo passa pelo Início só no
+começo, para chegar à Personalização.
 
 ### B1. Da Agenda para o Início (0–2 s) — `inicio-personalizar-1.jpg`
 - Tema claro. Cabeçalho: logo redondo, "Teste", "Jorge Santos · Proprietário", ícone de ajustes.

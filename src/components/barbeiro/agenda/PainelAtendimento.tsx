@@ -1,4 +1,5 @@
 import {
+  ArrowLeftRight,
   Check,
   ChevronDown,
   CircleCheck,
@@ -38,7 +39,9 @@ import type { AgendaItem } from "@/lib/barbeiro.functions";
 import { brl } from "@/lib/format";
 import { isoNoFusoDaBarbearia } from "@/lib/horarios";
 
+import { FotoDoProfissional } from "./FotoDoProfissional";
 import { TelaReagendar } from "./TelaReagendar";
+import { TrocarCliente, type ClienteEscolhido } from "./TrocarCliente";
 import { hora, linkWhatsApp } from "./tempo";
 
 export type PedidoRemarcar = { dia: string; hora: string; profissionalId: string | null };
@@ -52,7 +55,7 @@ type Props = {
   online: boolean;
   ocupado: boolean;
   passoMin: number;
-  profissionais: { id: string; nome: string }[];
+  profissionais: { id: string; nome: string; avatarUrl?: string | null }[];
   onChegou: (item: AgendaItem) => void;
   onIniciar: (item: AgendaItem) => void;
   onComanda: (item: AgendaItem) => void;
@@ -71,13 +74,29 @@ export function PainelAtendimento(props: Props) {
   // Como no Figaro: depois de reagendar, a ficha continua aberta com o horário novo, mesmo que o
   // atendimento tenha ido para outro dia (e saia da lista do dia que está na tela).
   const [remarcado, setRemarcado] = useState<AgendaItem | null>(null);
-  const item = props.item ?? (props.aberto ? remarcado : null);
+  // Cliente trocado: vale na tela até a Agenda recarregar com o cliente novo.
+  const [trocado, setTrocado] = useState<{ id: string; cliente: ClienteEscolhido } | null>(null);
+  const base = props.item ?? (props.aberto ? remarcado : null);
+  const item =
+    base && trocado?.id === base.id && base.clienteId !== trocado.cliente.id
+      ? {
+          ...base,
+          clienteId: trocado.cliente.id,
+          cliente: trocado.cliente.nome,
+          telefone: trocado.cliente.telefone,
+          confirmadoEm: null,
+        }
+      : base;
   const [reagendando, setReagendando] = useState(false);
+  const [trocandoCliente, setTrocandoCliente] = useState(false);
   const [maisAcoes, setMaisAcoes] = useState(false);
   const [confirmacao, setConfirmacao] = useState<"cancelar" | "falta" | null>(null);
 
   useEffect(() => {
-    if (!props.aberto) setRemarcado(null);
+    if (!props.aberto) {
+      setRemarcado(null);
+      setTrocado(null);
+    }
   }, [props.aberto]);
   useEffect(() => {
     if (props.item && remarcado && props.item.id !== remarcado.id) setRemarcado(null);
@@ -97,11 +116,13 @@ export function PainelAtendimento(props: Props) {
     });
   }
 
+  const itemId = item?.id ?? null;
   useEffect(() => {
-    setReagendando(props.iniciarEm === "remarcar" && Boolean(item));
+    setReagendando(props.iniciarEm === "remarcar" && Boolean(itemId));
     setConfirmacao(props.iniciarEm === "cancelar" ? "cancelar" : null);
     setMaisAcoes(false);
-  }, [item, props.aberto, props.iniciarEm]);
+    setTrocandoCliente(false);
+  }, [itemId, props.aberto, props.iniciarEm]);
 
   const pendente = item?.status === "agendado" || item?.status === "chegou";
   const bloqueado = !props.online || props.ocupado;
@@ -160,9 +181,12 @@ export function PainelAtendimento(props: Props) {
                       <span className="font-mono tabular-nums text-paper">{faixaDeHorario}</span>
                     </SheetDescription>
                     <span className="agenda-ficha-profissional">
-                      <span className="agenda-ficha-avatar" aria-hidden>
-                        {item.profissional.trim().charAt(0).toUpperCase()}
-                      </span>
+                      <FotoDoProfissional
+                        nome={item.profissional}
+                        url={
+                          props.profissionais.find((p) => p.id === item.profissionalId)?.avatarUrl
+                        }
+                      />
                       {item.profissional.split(" ")[0]}
                     </span>
                   </SheetHeader>
@@ -216,6 +240,18 @@ export function PainelAtendimento(props: Props) {
                     ) : null}
                   </div>
                 </section>
+
+                {pendente ? (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    disabled={bloqueado}
+                    className="agenda-ficha-trocar"
+                    onClick={() => setTrocandoCliente(true)}
+                  >
+                    <ArrowLeftRight aria-hidden className="size-4" /> Trocar Cliente
+                  </Button>
+                ) : null}
 
                 {!props.online ? (
                   <p className="mt-3 text-xs font-semibold text-mute">
@@ -386,6 +422,13 @@ export function PainelAtendimento(props: Props) {
                   </Button>
                 </div>
               </div>
+              <TrocarCliente
+                item={item}
+                aberto={trocandoCliente}
+                bloqueado={bloqueado}
+                onAberto={setTrocandoCliente}
+                onTrocado={(cliente) => setTrocado({ id: item.id, cliente })}
+              />
               <TelaReagendar
                 item={item}
                 aberto={reagendando}

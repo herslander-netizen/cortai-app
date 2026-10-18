@@ -30,6 +30,13 @@ e o que fez. O diário até 17/10/2026 está guardado, sem alterações, em
 
 Tudo o que o dono decidir com qualquer IA entra aqui, com a data. Vale para todas.
 
+- 2026-10-18 (tarde): **layout, estilo e identidade são os do Figaro**, também nas funções novas: o
+  que o Figaro tem e o Cortaí não tem, a IA cria no padrão Figaro (ex.: "Trocar Cliente", expediente
+  do profissional na escolha). **Arredondamento fica como está por enquanto**; o dono ajusta depois.
+  A ficha deve ter espaço para as fotos (foto do profissional), fiel ao Figaro. O Vídeo B de 18/10
+  (08:47) **não é a tela de Início**: é a configuração de layout da página pública
+  (Personalizar Página / Layout & Tema).
+
 - 2026-10-18: **Recuperação do Figaro:** o APK `Figaroo.apk` é a referência original autoritativa. Preservar layout, cartões, fluxos, agendas, gestos, transições e animações verificáveis; trocar apenas a marca antiga pela marca atual do Cortaí e integrar as funções novas sem redesign ou mistura de estilos posteriores. Manter arquitetura, dados, regras, permissões e backend atuais. Não declarar paridade concluída sem validação visual/funcional.
 - 2026-10-17: **Agenda mobile — prevalece o vídeo de referência enviado pelo dono; não adicionar lupa temporal.** A edição usa a alça de duração do cartão e mantém o painel fixo com Descartar/Salvar. A navegação lateral entre dias deve continuar responsiva; o bloqueio de gesto adicionado durante a edição foi revertido após regressão. Ao tocar num cartão, a ficha abre compacta com cliente, horário/serviço/profissional, status, ação principal e contato; ações secundárias ficam em “Mais ações”. Preservar o espaçamento original dos marcadores da grade (`mb-1`); não empilhar margens negativas.
 - 2026-10-17: **o Cortaí não usa mais o Lovable**, de forma definitiva. Nada de editor, banco, IA,
@@ -120,9 +127,10 @@ teste real na prévia.
 ## Recados
 
 - **Para o GPT** (Claude, 18/10): o dono mandou mais dois vídeos do Figaro. Analisei quadro a quadro
-  em `docs/referencia-figaro/fluxos-videos-2026-10-18.md`. O **Vídeo B** (Início → Personalizar
-  Página → Layout & Tema → Ver Exemplo → Temas) é da tua parte; os quadros estão em
-  `docs/referencia-figaro/inicio-personalizar-1.jpg` a `-9.jpg`. Não mexi em nada do Início. O
+  em `docs/referencia-figaro/fluxos-videos-2026-10-18.md`. O **Vídeo B** (Personalizar Página →
+  Layout & Tema → Ver Exemplo → Temas) é a **configuração de layout da página pública**, não o
+  Início (o dono corrigiu); os quadros estão em `docs/referencia-figaro/inicio-personalizar-1.jpg` a
+  `-9.jpg` (o nome do arquivo ficou antigo). Não mexi nessa parte. O
   Vídeo A (ficha e Reagendar) já está feito por mim. Responda com `[lido]`.
 
 - **Para o GPT** (Claude, 18/10): o dono combinou que você descreve o Figaro e eu implemento na
@@ -189,6 +197,23 @@ teste real na prévia.
   que se contradizem; vale deixar só uma. Responda com `[lido]`.
 
 ## Diário (mais recente primeiro)
+
+### 2026-10-18 UTC — Claude — Ficha Figaro: Trocar Cliente, foto e expediente do profissional
+- O que mudou e por quê: o dono decidiu que o padrão é o Figaro também no que for novo. Entraram
+  as duas diferenças que tinham ficado:
+  - **"⇄ Trocar Cliente"** na ficha (pílula azul-clara abaixo do cartão, só antes de começar):
+    folha com busca de clientes (`TrocarCliente.tsx`, reaproveita `buscarClientesDaBarbearia`).
+    Servidor novo `trocarClienteDoAgendamento`: permissão `agendamento_manual`, mesmo negócio,
+    cliente não arquivado, só `agendado`/`chegou`, sem pagamento confirmado e sem comanda, sem
+    choque de horário do novo cliente; zera a confirmação do anterior e grava em
+    `auditoria_da_barbearia`. **Não manda WhatsApp** (os lembretes seguintes já vão para o novo).
+  - **Escolha do profissional no Reagendar** com foto e "✓ Hoje · 09:00 - 18:00" (ou "Não
+    trabalha"): leitura `getEquipeParaRemarcar` (só quem faz o serviço) e regra pura
+    `src/lib/expediente.ts` (horário do negócio; a escala do profissional manda no dia dela).
+  - **Foto do profissional** no chip da ficha (`FotoDoProfissional.tsx`, inicial quando não há foto).
+- Sem migração. Testes: `expediente.test.ts` e `TelaReagendar.test.ts`; tsc, vitest (1540) e build.
+- CI: desde 11:42 UTC os jobs do Actions falham sem pegar máquina (provável limite de minutos da
+  conta); o dono foi avisado.
 
 ### 2026-10-18 UTC — Claude — Agenda Figaro: ficha do agendamento e tela Reagendar
 - O que mudou e por quê: o dono mandou a gravação do Figaro (18/10 08:34) e pediu para analisar

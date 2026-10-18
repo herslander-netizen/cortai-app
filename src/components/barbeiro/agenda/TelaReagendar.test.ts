@@ -29,10 +29,36 @@ describe("ficha e Reagendar como no Figaro", () => {
 
   it("a leitura de horários usa o motor único e não grava nada", () => {
     const fn = servidor.slice(servidor.indexOf("export const getHorariosParaRemarcar"));
-    const corpo = fn.slice(0, fn.indexOf("export const getContagemDoMes"));
+    const corpo = fn.slice(0, fn.indexOf("export type ProfissionalParaRemarcar"));
     expect(corpo).toContain("horariosDisponiveis(");
     expect(corpo).toContain('exigirPermissao(context, tenant.id, "agendamento_manual")');
     expect(corpo).toContain('.neq("id", atual.id)');
     expect(corpo).not.toMatch(/\.(update|insert|delete)\(/);
+  });
+
+  it("a equipe do Reagendar mostra foto e expediente e não grava nada", () => {
+    const fn = servidor.slice(servidor.indexOf("export const getEquipeParaRemarcar"));
+    const corpo = fn.slice(0, fn.indexOf("export const trocarClienteDoAgendamento"));
+    expect(corpo).toContain("expedienteDoProfissional(");
+    expect(corpo).toContain('exigirPermissao(context, tenant.id, "agendamento_manual")');
+    expect(corpo).not.toMatch(/\.(update|insert|delete)\(/);
+    expect(tela).toContain("getEquipeParaRemarcar");
+    expect(tela).toContain("<FotoDoProfissional");
+  });
+
+  it("Trocar Cliente confere negócio, estado, pagamento, comanda e choque, e audita", () => {
+    const fn = servidor.slice(servidor.indexOf("export const trocarClienteDoAgendamento"));
+    const corpo = fn.slice(0, fn.indexOf("export const getContagemDoMes"));
+    expect(corpo).toContain('exigirPermissao(context, tenant.id, "agendamento_manual")');
+    expect(corpo).toContain('.eq("tenant_id", tenant.id)');
+    expect(corpo).toContain('.is("arquivado_em", null)');
+    expect(corpo).toContain("pagamento_confirmado_em");
+    expect(corpo).toContain('.from("comandas")');
+    expect(corpo).toContain('.eq("cliente_id", cliente.id)');
+    expect(corpo).toContain("auditoria_da_barbearia");
+    expect(corpo).not.toMatch(/\.delete\(/);
+    expect(corpo).not.toContain("notificarAgendamento");
+    expect(ficha).toContain("Trocar Cliente");
+    expect(ficha).toContain("<TrocarCliente");
   });
 });

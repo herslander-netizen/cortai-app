@@ -6866,3 +6866,39 @@ button.agenda-nome:hover {
   background: transparent;
   box-shadow: none;
 }
+
+/* Ficha: "Trocar Cliente" (pílula azul-clara, como no Figaro) */
+.agenda-ficha-trocar {
+  margin-top: 12px;
+  min-height: 44px;
+  gap: 8px;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--primary) 14%, transparent);
+  padding: 0 18px;
+  color: var(--primary);
+  font-weight: 600;
+}
+.agenda-ficha-trocar:hover {
+  background: color-mix(in oklab, var(--primary) 20%, transparent);
+}
+.agenda-ficha-avatar,
+.agenda-reagendar-avatar {
+  overflow: hidden;
+}
+.agenda-reagendar-avatar.is-grande {
+  width: 44px;
+  height: 44px;
+  font-size: 16px;
+}
+.agenda-reagendar-expediente {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 2px;
+  color: var(--mute);
+  font-size: 12px;
+  font-weight: 500;
+}
+.agenda-reagendar-expediente.is-trabalha {
+  color: var(--estado-finalizado);
+}
