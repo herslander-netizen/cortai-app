@@ -134,8 +134,10 @@
   /* Cartão da timeline: um pouco abaixo do fundo, como no modelo escuro. */
   --agenda-cartao: color-mix(in oklab, var(--ink) 78%, #000);
   --agenda-cartao-sombra: none;
-  --agenda-listra-base: #2a2f2b;
-  --agenda-listra: color-mix(in oklab, #e8eee9 6%, #2a2f2b);
+  /* Fora do expediente como no Figaro: um tom quase igual ao fundo e listras bem leves
+     (surfaceContainerLow + onSurface a 2,5%), sem bloco pesado. */
+  --agenda-listra-base: color-mix(in oklab, var(--ink) 95%, #ffffff);
+  --agenda-listra: color-mix(in oklab, var(--agenda-listra-base) 95%, #ffffff);
   --grafite-ink: var(--fundo);
   --grafite-surface: var(--cartao);
   --grafite-raised: var(--painel);
@@ -267,8 +269,8 @@
   --estado-encaixe: #0f9488;
   --agenda-cartao: var(--ink2);
   --agenda-cartao-sombra: 0 1px 3px color-mix(in oklab, var(--paper) 10%, transparent);
-  --agenda-listra-base: #f0f6f2;
-  --agenda-listra: #e2eae4;
+  --agenda-listra-base: #f0f7f2;
+  --agenda-listra: color-mix(in oklab, #f0f7f2 96%, #2a2f2c);
   --ink: var(--fundo);
   --ink2: var(--cartao);
   --ink3: var(--painel);

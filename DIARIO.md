@@ -221,6 +221,14 @@ teste real na prévia.
 
 ## Diário (mais recente primeiro)
 
+### 2026-10-18 UTC — Claude — Fora do expediente discreto como no Figaro (vídeo 17:21)
+- O dono comparou o Cortaí com o Figaro (zoom e rolagem). O trecho do Cortaí era da versão antiga
+  (prévia parada): a pinça puxava a página para outras horas e a fileira "Todos/Bruno" aparecia no
+  topo — já corrigidos (pinça no mesmo quadro; filtro na barra de baixo).
+- Diferença que faltava: fora do expediente no Figaro é um tom quase igual ao fundo com listras bem
+  leves; no Cortaí eram blocos cinza fortes. Tokens `--agenda-listra-base`/`--agenda-listra` nos
+  dois temas (`styles.css`).
+
 ### 2026-10-18 UTC — Claude — Troca de dia com as horas na mesma altura; cartões organizados
 - Defeito (vídeo do dono 17:12): na troca de dia a página que entrava ficava ~70 px deslocada ("uma
   data maior que outra"). Causa: no celular a timeline empilhava cartões e somava espaço depois dos
