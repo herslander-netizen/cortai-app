@@ -237,7 +237,10 @@ function Balao({ cliente, children }: { cliente?: boolean; children: ReactNode }
 }
 
 function Secretaria({ segmento }: { segmento: Segmento }) {
-  const servico = SEGMENTOS_CONFIG[segmento].servicosSugeridos[0]?.nome ?? "Atendimento";
+  const servicos = SEGMENTOS_CONFIG[segmento].servicosSugeridos;
+  const [verOutros, setVerOutros] = useState(false);
+  const [escolhido, setEscolhido] = useState<string | null>(null);
+  const opcoes = verOutros ? servicos.slice(0, 4) : servicos.slice(0, 1);
   return (
     <div className="showroom-chat" aria-label="Demonstração do WhatsApp Cortaí">
       <ChatHeader nome="Cortaí" detalhe="Seu negócio" status="Online" />
@@ -247,11 +250,38 @@ function Secretaria({ segmento }: { segmento: Segmento }) {
           <Balao cliente>Quero marcar um horário.</Balao>
           <Balao>Claro. Vamos começar pelo atendimento.</Balao>
           <div className="grid grid-cols-2 gap-2">
-            <Button variant="outline">{servico}</Button>
-            <Button variant="outline">Ver outros</Button>
+            {opcoes.map((servico) => (
+              <Button
+                key={servico.nome}
+                type="button"
+                variant="outline"
+                aria-pressed={escolhido === servico.nome}
+                onClick={() => setEscolhido(servico.nome)}
+                className="h-auto min-h-11 whitespace-normal"
+              >
+                {servico.nome}
+              </Button>
+            ))}
+            {servicos.length > 1 ? (
+              <Button
+                type="button"
+                variant="outline"
+                aria-pressed={verOutros}
+                onClick={() => setVerOutros((aberto) => !aberto)}
+                className="h-auto min-h-11 whitespace-normal"
+              >
+                {verOutros ? "Ver menos" : "Ver outros"}
+              </Button>
+            ) : null}
           </div>
+          {escolhido ? (
+            <>
+              <Balao cliente>{escolhido}</Balao>
+              <Balao>Perfeito! Em um atendimento real, eu consultaria os horários disponíveis para você.</Balao>
+            </>
+          ) : null}
           <p className="showroom-chat-nota">
-            <Check /> Demonstração: nenhuma reserva será criada.
+            <Check /> Demonstração interativa: nenhuma reserva será criada.
           </p>
         </ConversationContent>
       </Conversation>
