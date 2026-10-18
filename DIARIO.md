@@ -30,6 +30,7 @@ e o que fez. O diário até 17/10/2026 está guardado, sem alterações, em
 
 Tudo o que o dono decidir com qualquer IA entra aqui, com a data. Vale para todas.
 
+- 2026-10-18: **Recuperação do Figaro:** o APK `Figaroo.apk` é a referência original autoritativa. Preservar layout, cartões, fluxos, agendas, gestos, transições e animações verificáveis; trocar apenas a marca antiga pela marca atual do Cortaí e integrar as funções novas sem redesign ou mistura de estilos posteriores. Manter arquitetura, dados, regras, permissões e backend atuais. Não declarar paridade concluída sem validação visual/funcional.
 - 2026-10-17: **Agenda mobile — prevalece o vídeo de referência enviado pelo dono; não adicionar lupa temporal.** A edição usa a alça de duração do cartão e mantém o painel fixo com Descartar/Salvar. A navegação lateral entre dias deve continuar responsiva; o bloqueio de gesto adicionado durante a edição foi revertido após regressão. Ao tocar num cartão, a ficha abre compacta com cliente, horário/serviço/profissional, status, ação principal e contato; ações secundárias ficam em “Mais ações”. Preservar o espaçamento original dos marcadores da grade (`mb-1`); não empilhar margens negativas.
 - 2026-10-17: **o Cortaí não usa mais o Lovable**, de forma definitiva. Nada de editor, banco, IA,
   conector de WhatsApp ou login pelo Lovable; referências e resíduos foram retirados do código e
@@ -108,7 +109,7 @@ teste real na prévia.
 | GPT | 2026-10-17 UTC | Auditoria e melhoria mobile-first da home de apresentação | `DIARIO.md`, `MUSE.md`, `src/components/apresentacao/ShowroomCortai.tsx`, `src/components/apresentacao/DemoAgendamento.tsx`, `src/components/apresentacao/NarrativaApresentacao.tsx`, estilos já existentes da apresentação |
 | GPT | 2026-10-17 UTC | Refinar movimento global para animações mais fluidas e perceptíveis | `DIARIO.md`, `src/lib/motion.ts`, `src/components/layout/GlobalDesign.tsx` |
 | GPT | 2026-10-17 UTC | Auditar ciclo de vida e acessibilidade dos formulários; corrigir divergência do contrato de design no gatilho de agendamento manual | `DIARIO.md`, `src/components/ui/formulario/TelaDeFormulario.tsx`, `src/components/ui/formulario/TelaDeFormulario.test.tsx`, `src/components/barbeiro/AgendamentoManual.tsx` |
-| GPT | 2026-10-18 UTC | Auditoria de recuperação Figaro APK como referência visual do Cortaí; mapear telas/fluxos e integrar preservando funções atuais | `DIARIO.md`, `docs/contrato-de-design.md`, componentes de navegação/telas a definir após auditoria do APK |
+| GPT | 2026-10-18 UTC | Recuperação Figaro: inventário do APK, referência visual e refinamento de transição global dos cards; próximos componentes a mapear sem tocar arquivos reservados pela tarefa de agenda do Claude | `DIARIO.md`, `docs/contrato-de-design.md`, `docs/referencia-ux-figaroo-cortai.md`, `src/components/ui/card.tsx` |
 
 
 ## Recados
@@ -145,6 +146,14 @@ teste real na prévia.
   que se contradizem; vale deixar só uma. Responda com `[lido]`.
 
 ## Diário (mais recente primeiro)
+
+### 2026-10-18 UTC — GPT — APK Figaro reencontrado: regra de paridade e transição de cards
+- O que mudou e por quê: o dono confirmou que o APK é a versão antiga a recuperar, não uma inspiração. Atualizados o contrato de design e o documento de referência para exigir preservação de layout, cartões, fluxos, agenda e movimento verificáveis, substituindo a marca antiga pela marca Cortaí e encaixando as funções novas sem refazer o produto.
+- Inspeção estática: o APK é Android nativo/Compose e contém módulos de Agenda, agendamento/reservas, serviços/combos, equipe, locais, clientes, página pública, checkout, vendas, pacotes/fidelidade, marketing, indicadores, avaliações, notificações e configurações. Os vídeos promocionais internos mostram cartões neutros arredondados, formulários em etapas, seleção de horários em linhas e estados de confirmação. O inventário não prova todas as animações internas; usar vídeos/capturas fornecidos para validação.
+- Código: `src/components/ui/card.tsx` agora usa o token global `--mov-base` (200 ms) e inclui transform na lista de propriedades animadas, removendo a transição curta isolada de 120 ms. Não altera layout, dados ou regras de negócio.
+- Testes: alteração de documentação e classe CSS/utility apenas; CI do commit `eebe3f8` ainda precisa ser confirmado. Sem inspeção visual no app renderizado nesta sessão.
+- Banco/infra: nada alterado; nenhum lançamento em produção.
+- Pendente / atenção para as outras IAs: preservar a reserva do Claude nos arquivos da Agenda. Continuar o mapa tela a tela a partir do APK; não mudar tipografia global sem conferir licença/compatibilidade das fontes. Validar a prévia em 390 px e 1280 px antes de declarar a recuperação pronta.
 
 ### 2026-10-18 UTC — Claude — Arrasto e alça de duração de 5 em 5 minutos
 - O que mudou e por quê: o dono quer ajustar de 5 em 5, como as listras. `passoDoGesto` limitava
