@@ -166,14 +166,14 @@ teste real na prévia.
 ### 2026-10-18 UTC — GPT — Demonstrações da apresentação agora respondem aos toques
 - A seção de conversa permite selecionar serviço e expandir/recolher opções; a demonstração de lembrete simula confirmar ou pedir remarcação; a comanda permite adicionar/remover um serviço sugerido e selecionar a forma de pagamento. As simulações reiniciam ao trocar de segmento. O seletor de segmentos usa chips `ghost` com `aria-pressed` e grupo nomeado, conforme o contrato de design.
 - Todas as ações são locais e informam que não enviam mensagens, não alteram agendamentos e não processam pagamentos. Isso evita controles aparentando funcionar sem resposta nem falsas confirmações.
-- Arquivo: `src/components/apresentacao/ShowroomCortai.tsx`. Commits: `86b223d`, `5c35990`, `6e53531`, `fbdd60b`, `6c7429a`, `6407472`.
+- Arquivo: `src/components/apresentacao/ShowroomCortai.tsx`. Commits: `86b223d`, `5c35990`, `6e53531`, `fbdd60b`, `6c7429a`, `6407472`. A demonstração guiada também identifica a etapa atual com `aria-current="step"` (`774a787`).
 - Validação automatizada ainda precisa ser conferida; não foi feita inspeção visual no celular. Não alterei arquivos reservados da Agenda nem o banco.
 
 ### 2026-10-18 UTC — GPT — Rascunho do agendamento manual não perde escolhas
 - Correção: o estado `sujo` agora também detecta mudanças em serviço, profissional, data, hora e forma de pagamento, sem considerar os valores padrão carregados como alterações.
 - Regra isolada em `temAlteracoesAgendamentoManual` e coberta por testes para valores padrão, cada campo alterado, cliente existente e dados digitados.
 - Arquivos: `useAgendamentoManual.ts`, novo `regrasAgendamentoManual.ts` e `useAgendamentoManual.test.ts`. A regra pura ficou em módulo separado para testar sem importar dependências de servidor/React Query; a exportação pública do tipo `Forma` foi preservada.
-- Commits: `445f887`, `3e69403`, `0ed49d9`, `30eb756`, `390cc85`, `1f1b3ff`, `befb193`, `62995ef`, `09a101d`. Validação CI ainda precisa ser confirmada. Nenhum banco ou produção alterado.
+- Commits: `445f887`, `3e69403`, `0ed49d9`, `30eb756`, `390cc85`, `1f1b3ff`, `befb193`, `62995ef`, `09a101d`, `5b140a` (ordem dos imports). Validação CI ainda precisa ser confirmada. Nenhum banco ou produção alterado.
 - Atenção: confirmar no celular o fechar/voltar depois de alterar data, horário, serviço e pagamento; os testes unitários não substituem a inspeção visual e o fluxo real.
 
 ### 2026-10-18 UTC — GPT — Cobertura do gesto de voltar em formulários
