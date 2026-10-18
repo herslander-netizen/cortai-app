@@ -32,6 +32,29 @@ describe("permissões por papel no WhatsApp", () => {
     expect(acaoPermitida("minha_agenda", dono)).toBe(true);
     expect(acaoPermitida("avisar_atraso", dono)).toBe(false);
   });
+  it("equipe no WhatsApp respeita as permissões efetivas de cada ação", () => {
+    const semPermissoes: ContextoDoCerebro = { ...prof, permissoes: [] };
+    const agendaSemCancelar: ContextoDoCerebro = {
+      ...prof,
+      permissoes: ["agendamento_manual"],
+    };
+    const completa: ContextoDoCerebro = {
+      ...prof,
+      permissoes: ["agendamento_manual", "cancelar_agendamento", "editar_clientes"],
+    };
+
+    expect(acaoPermitida("criar_agendamento", semPermissoes)).toBe(false);
+    expect(acaoPermitida("cancelar_agendamento", semPermissoes)).toBe(false);
+    expect(acaoPermitida("criar_agendamento", agendaSemCancelar)).toBe(true);
+    expect(acaoPermitida("cancelar_agendamento", agendaSemCancelar)).toBe(false);
+    expect(acaoPermitida("reagendar_agendamento", agendaSemCancelar)).toBe(false);
+    expect(acaoPermitida("criar_cliente", completa)).toBe(true);
+    // Ações limitadas pelo papel continuam com a regra própria.
+    expect(acaoPermitida("minha_agenda", semPermissoes)).toBe(true);
+    expect(acaoPermitida("avisar_atraso", semPermissoes)).toBe(true);
+    // Dono tem todas as permissões efetivas pela regra do banco.
+    expect(acaoPermitida("criar_agendamento", { ...dono, permissoes: [] })).toBe(true);
+  });
   it("ações da equipe no WhatsApp não vazam para painel nem site", () => {
     for (const a of ["minha_agenda", "consultar_fila", "avisar_atraso"]) {
       expect(acaoPermitida(a, painel)).toBe(false);
