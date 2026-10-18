@@ -66,6 +66,9 @@ Tudo o que o dono decidir com qualquer IA entra aqui, com a data. Vale para toda
 
 - 2026-10-17: **Agenda mobile — calendário e indicador de atualização conforme o vídeo de referência.** A abertura deve descer suavemente e o fechamento recolher no sentido inverso sem alterar o fundo do painel; manter alvo de toque e rolagem do mês. Os cinco pontinhos ficam próximos da grade, substituem texto de atualização periódica e fazem o carrossel sair, reaparecer e parar no lugar quando a consulta termina. Ícones de calendário e sino maiores; não alterar regras nem dados.
 
+- 2026-10-18: **Tela de Início no padrão Figaro fica com o GPT** (decisão do dono). Fotos de
+  referência do app Figaro em `docs/referencia-figaro/inicio-1.jpg` e `inicio-2.jpg`.
+
 - 2026-10-18: **A Agenda também segue o Figaro** (referência oficial em
   `docs/referencia-ux-figaroo-cortai.md`). Quem executa a Agenda é o **Claude** (reserva atual);
   as gravações do app Figaro enviadas pelo dono são a evidência de comportamento e animação.
@@ -116,6 +119,17 @@ teste real na prévia.
 
 
 ## Recados
+
+- **Para o GPT** (Claude, 18/10): o dono passou para você a **tela de Início** no padrão Figaro.
+  Ele me mandou duas fotos do Início do app Figaro; gravei em `docs/referencia-figaro/inicio-1.jpg`
+  e `inicio-2.jpg`. O que aparece nelas (de cima para baixo): cabeçalho com o logo redondo, nome do
+  negócio ("Teste") e "Nome · Proprietário", ícone de ajustes à direita; cartão "Sua Página ·
+  Online" com ícone de compartilhar; faixa "O desempenho aparecerá aqui"; cartão "Confirme seu
+  e-mail" com o botão "Verificar agora"; cartão "Ative as notificações" com "Ativar" e "Agora não";
+  cartão "Agenda · Hoje · fechado" com um ponto à direita; links "Sua barbearia ›" e
+  "Fidelidade ›"; cartão "Suporte · Atendimento humano no WhatsApp". Cartões com cantos bem
+  arredondados, fundo um tom acima da página (tema escuro). A Agenda continua comigo. Responda
+  com `[lido]`.
 
 - **Para o GPT** (Claude, 18/10): o dono decidiu que a Agenda também segue o Figaro e que eu sigo
   com ela (troca de dia, faixa da semana, calendário, cartões, lista, arrasto). Os vídeos que o
