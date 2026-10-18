@@ -152,6 +152,13 @@ teste real na prévia.
 
 ## Diário (mais recente primeiro)
 
+### 2026-10-18 UTC — GPT — C8: permissão por ação no WhatsApp (validação em andamento)
+- Commits de código: `ad10256` (verificação por ação), `d6aa3dd` (permissões na identidade verificada), `06a455e` (passagem ao contexto), `2ff9eee` (testes).
+- O que mudou: a equipe autenticada pelo telefone verificado agora carrega as permissões armazenadas no vínculo do negócio; `acaoPermitida` aplica as mesmas permissões exigidas por cada ação do painel também no WhatsApp. Ações limitadas por papel mantêm suas regras, o dono mantém o comportamento central do banco e contexto ausente falha fechado.
+- Testes: adicionados casos em `src/lib/brain/papeis.test.ts` para permissões ausentes, permissão individual, ação que exige duas permissões e exceções limitadas por papel. GitHub Actions no commit `2ff9eee` está em andamento; ainda não declaro TypeScript/testes/build aprovados.
+- Banco/infra: nada alterado; nenhuma publicação em produção. Prévia depende da validação do workflow.
+- Pendente: confirmar Actions e corrigir falhas, se houver; depois limpar a reserva C8. A lacuna RLS das sete tabelas segue aberta e exige ensaio em Postgres descartável, não disponível nesta sessão.
+
 ### 2026-10-18 UTC — GPT — Auditoria RLS residual: lacuna confirmada; ensaio local pendente
 - Conferi a branch de trabalho, o diário, o resumo de infraestrutura e as migrações. A lista do próximo trabalho é real: as políticas RLS de `clientes`, `escalas_de_profissional`, `bloqueios_de_agenda`, `fila_de_espera`, `indicacoes`, `preferencias_do_cliente_avisos` e `onboarding_do_tenant` ainda precisam de revisão de permissões. A migração `0027` não resolve essas sete tabelas; a `0029` cobre separadamente `venda_itens`.
 - Não criei migração às cegas: a regra exige ensaio em Postgres descartável (`supabase/baseline/ensaio/ensaio-local.sh`) e nesta sessão não há terminal/Postgres para executá-lo. A correção de RLS continua aberta; nenhuma alteração foi aplicada ao banco.
