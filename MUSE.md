@@ -1,6 +1,6 @@
 # Infraestrutura do Cortaí — leia antes de mexer
 
-Resumo para qualquer IA ou pessoa que trabalhe no projeto (Claude, GPT, Muse). Atualizado em 2026-10-17.
+Resumo para qualquer IA ou pessoa que trabalhe no projeto (Claude, GPT, Muse). Atualizado em 2026-10-19.
 O que cada IA está fazendo e fez fica em `DIARIO.md`. As regras do projeto vêm primeiro: topo do
 `AGENTS.md`, `CLAUDE.md`, `src/lib/AGENTS.md` e `docs/contrato-de-design.md`.
 
@@ -15,7 +15,7 @@ A estrutura foi pensada para só gerar custo quando houver clientes.
 | Prévia | https://previa.cortaiapp.pages.dev — publicada a cada envio na branch |
 | Site principal | https://cortaiapp.pages.dev (Cloudflare Pages, projeto `cortaiapp`) — só pelo "Lançar versão" |
 | Banco de produção | Supabase `cortai-prod` (`ibsberidejlbczxrweqg`); teste de permissões `supabase/tests/rbac.sql` |
-| Banco da prévia | Projeto Supabase de teste separado — **ainda precisa ser criado/configurado**; secrets obrigatórios `PREVIEW_SUPABASE_URL`, `PREVIEW_SUPABASE_PUBLISHABLE_KEY`, `PREVIEW_SUPABASE_SERVICE_ROLE_KEY` |
+| Banco da prévia | Supabase de teste `cortai-preview` (projeto `pfkxvindedkuktogbcsv`, região São Paulo); secrets `PREVIEW_SUPABASE_URL`, `PREVIEW_SUPABASE_PUBLISHABLE_KEY` e `PREVIEW_SUPABASE_SERVICE_ROLE_KEY` cadastrados e validados pelo workflow em 2026-10-19 |
 | IA | Provedor compatível com OpenAI (`CORTAI_AI_*`) ou modo por regras; sem configuração, fica indisponível |
 | Voz | Navegador (grátis) ou provedor de transcrição (`CORTAI_STT_*`) |
 | WhatsApp | Cloud API da Meta direto (`META_WHATSAPP_*`) ou Evolution API (`EVOLUTION_*`) |
@@ -45,6 +45,7 @@ O APK reencontrado `Figaroo.apk` é a referência original para layout, cartões
   "grande" vira 4.0), cria a tag `vX.Y` e a Release e publica no site principal.
 - **"Voltar versão"** põe no ar a versão anterior (ou a pedida) na hora, sem novo build.
 - Banco não volta junto com a versão.
+- **Tamanho do Worker (2026-10-19):** os plugins Streamdown de CJK, código/Shiki, matemática e Mermaid são carregados pela implementação `.client()` de `createIsomorphicFn` em `src/components/ai-elements/message.tsx`. Não reintroduzir esses imports no caminho SSR compartilhado sem medir o pacote: os módulos de linguagem do Shiki excederam o limite de 25 MiB da Cloudflare. Com a separação cliente/servidor, TypeScript, testes, build e deploy da prévia passaram.
 
 ## Automações (GitHub Actions)
 
