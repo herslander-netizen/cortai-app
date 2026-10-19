@@ -117,7 +117,7 @@ Tudo o que o dono decidir com qualquer IA entra aqui, com a data. Vale para toda
 
 Pegar a primeira livre; reservar em "Em andamento" antes.
 
-0. **Agenda no padrão Figaro (Codex/GPT):** seguir a lista do §4 de `docs/CONTINUAR-CODEX.md`. **Em execução:** Novo agendamento, etapa 2.
+0. **Agenda no padrão Figaro (Codex/GPT):** seguir a lista do §4 de `docs/CONTINUAR-CODEX.md`. **Em execução:** validação manual do novo agendamento na prévia pelo celular; próxima implementação: Bloqueio.
 3. Tarefas agendadas do banco (`cron.job`) apontando para o site principal em vez do Worker antigo
    (escrita no banco, com autorização). Depois, apagar o Worker antigo na Cloudflare (com autorização).
 4. Menores: 13 (remarcação pela IA recria o agendamento), 14 (contagens do ADM presas a 1000 linhas),
@@ -134,7 +134,7 @@ teste real na prévia.
 | GPT | 2026-10-17 UTC | Refinar movimento global para animações mais fluidas e perceptíveis | `DIARIO.md`, `src/lib/motion.ts`, `src/components/layout/GlobalDesign.tsx` |
 | GPT | 2026-10-17 UTC | Auditar ciclo de vida e acessibilidade dos formulários; corrigir divergência do contrato de design no gatilho de agendamento manual | `DIARIO.md`, `src/components/ui/formulario/TelaDeFormulario.tsx`, `src/components/ui/formulario/TelaDeFormulario.test.tsx`, `src/components/barbeiro/AgendamentoManual.tsx`, `src/components/barbeiro/agendamento-manual/useAgendamentoManual.ts`, `src/components/barbeiro/agendamento-manual/regrasAgendamentoManual.ts`, `src/components/barbeiro/agendamento-manual/useAgendamentoManual.test.ts` |
 | GPT | 2026-10-18 UTC | Recuperação Figaro: inventário do APK, referência visual e refinamento de transição global dos cards; próximos componentes a mapear sem tocar arquivos reservados pela tarefa de agenda do Claude | `DIARIO.md`, `docs/contrato-de-design.md`, `docs/referencia-ux-figaroo-cortai.md`, `src/components/ui/card.tsx`, `src/routes/agendar.$slug.tsx` |
-| Codex | 2026-10-18 UTC | Novo agendamento no padrão Figaro: cliente opcional → serviços → horário → resumo | `DIARIO.md`, `docs/referencia-figaro/apk/3-fluxos-do-atendimento.md`, `src/components/barbeiro/AgendamentoManual.tsx`, `src/components/barbeiro/agendamento-manual/` |
+
 | GPT | 2026-10-19 UTC | Documentar respostas comprovadas do APK às perguntas pendentes da Agenda, sem editar implementação reservada | `DIARIO.md`, `docs/referencia-figaro/agenda-perguntas.md` |
 
 
@@ -223,6 +223,13 @@ teste real na prévia.
   que se contradizem; vale deixar só uma. Responda com `[lido]`.
 
 ## Diário (mais recente primeiro)
+
+### 2026-10-19 UTC — GPT — Novo agendamento no padrão Figaro com cliente opcional
+- Arquivos: `src/components/barbeiro/AgendamentoManual.tsx`, `src/components/barbeiro/agendamento-manual/`, `src/lib/barbeiro.functions.ts`, `src/lib/ia/acoes.server.ts`, `src/components/barbeiro/agenda/PainelAtendimento.tsx`, `src/integrations/supabase/types.ts`.
+- Fluxo reorganizado: **Cliente (opcional) → Serviço → Horário → Resumo**. A opção sem cliente não cria ficha fictícia, não tenta enviar WhatsApp e deixa explícito que a cobrança será definida depois de vincular um cliente. Antes de começar o atendimento, a ação passa a ser **Vincular cliente**; ao vincular, a comanda é preparada pelo banco.
+- Migrações `0039_agendamento_cliente_opcional.sql`, `0040_comanda_ao_vincular_cliente.sql` e `0041_proteger_funcao_trigger_comanda.sql` aplicadas somente no projeto isolado `cortai-preview`, após autorização explícita do dono. Nenhuma mudança em `cortai-prod`, `main`, DNS ou site principal.
+- Validação automática: [Validate Cortaí](https://github.com/herslander-netizen/cortai-app/actions/runs/39330745901) e [prévia isolada](https://github.com/herslander-netizen/cortai-app/actions/runs/39330746154) concluíram com sucesso (TypeScript, testes, build e deploy). Prévia: https://previa.cortaiapp.pages.dev.
+- Pendente: teste funcional manual no celular — criar com cliente e sem cliente, vincular cliente antes de começar, conferir comanda e confirmar que não sai WhatsApp sem destinatário. Site principal não publicado.
 
 ### 2026-10-19 UTC — GPT — Corrige o bundle SSR e publica a prévia
 - Arquivo de código: `src/components/ai-elements/message.tsx`.
