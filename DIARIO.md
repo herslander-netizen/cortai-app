@@ -30,6 +30,11 @@ e o que fez. O diário até 17/10/2026 está guardado, sem alterações, em
 
 Tudo o que o dono decidir com qualquer IA entra aqui, com a data. Vale para todas.
 
+- 2026-10-19: **o repositório `cortai-app` passou a ser público** (decisão do dono, para o GitHub
+  Actions voltar a rodar sem custo). Consequência: código, documentos e histórico ficam visíveis a
+  qualquer pessoa. **Nunca** gravar segredo, dado de cliente ou e-mail pessoal em arquivo ou commit;
+  priorizar aplicar no banco as correções de segurança que os documentos descrevem como abertas.
+
 - 2026-10-18 (noite): **o Codex/GPT assume a Agenda** (o Claude está perto do limite de uso). Os
   arquivos da Agenda deixam de estar reservados ao Claude. Passagem completa em
   `docs/CONTINUAR-CODEX.md`.
