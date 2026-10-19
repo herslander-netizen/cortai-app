@@ -102,7 +102,7 @@ function Formulario({
 
   const servico = s.base?.servicos.find((item) => item.id === s.servicoId);
   const profissional = s.base?.profissionais.find((item) => item.id === s.profissionalId);
-  const nomeCliente = s.clienteId ? s.clienteNome : s.novoNome.trim();
+  const nomeCliente = s.semCliente ? "" : s.clienteId ? s.clienteNome : s.novoNome.trim();
   const dataResumo = s.data
     ? new Date(s.data + "T12:00:00Z").toLocaleDateString("pt-BR", {
         weekday: "long",
@@ -119,15 +119,15 @@ function Formulario({
     credito: "Crédito",
   }[s.forma];
   const etapas = [
+    { titulo: "Cliente", detalhe: "Escolha alguém ou continue sem cliente" },
     { titulo: "Serviço", detalhe: "O que será feito" },
     { titulo: "Horário", detalhe: "Dia e hora do atendimento" },
-    { titulo: "Cliente", detalhe: "Quem será atendido" },
     { titulo: "Resumo", detalhe: "Confira antes de confirmar" },
   ];
   const podeAvancar = [
+    Boolean(s.semCliente || s.clienteId || (s.novo && s.nomeValido && s.telefoneValido)),
     Boolean(s.servicoId && s.profissionalId),
     Boolean(s.data && s.horaMin),
-    Boolean(s.clienteId || (s.novo && s.nomeValido && s.telefoneValido)),
     s.pronto,
   ][etapa] ?? false;
 
@@ -206,9 +206,9 @@ function Formulario({
             </div>
           </div>
 
-          {etapa === 0 ? <SecaoServico s={s} /> : null}
-          {etapa === 1 ? <SecaoHorario s={s} /> : null}
-          {etapa === 2 ? <SecaoCliente s={s} /> : null}
+          {etapa === 0 ? <SecaoCliente s={s} /> : null}
+          {etapa === 1 ? <SecaoServico s={s} /> : null}
+          {etapa === 2 ? <SecaoHorario s={s} /> : null}
           {etapa === 3 ? (
             <>
               <SecaoDeFormulario rotulo="Confira o atendimento">
@@ -239,7 +239,7 @@ function Formulario({
                     </p>
                     <p className="flex items-center gap-2 text-paper">
                       <Check size={16} className="text-mute" aria-hidden />
-                      <span>{nomeCliente || "Cliente não selecionado"}</span>
+                      <span>{s.semCliente ? "Sem cliente vinculado" : nomeCliente || "Cliente não selecionado"}</span>
                     </p>
                     <p className="border-t border-line pt-3 text-mute">
                       Forma de pagamento: <span className="font-semibold text-paper">{pagamento}</span>
@@ -247,8 +247,8 @@ function Formulario({
                   </div>
                 </Card>
               </SecaoDeFormulario>
-              <SecaoPagamento s={s} />
-              <AvisosAgendamento s={s} />
+              {!s.semCliente ? <SecaoPagamento s={s} /> : null}
+              {!s.semCliente ? <AvisosAgendamento s={s} /> : null}
             </>
           ) : null}
         </>
