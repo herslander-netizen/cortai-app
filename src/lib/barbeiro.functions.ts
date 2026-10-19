@@ -1389,7 +1389,7 @@ export const criarAgendamentoManual = createServerFn({ method: "POST" })
       _encaixe: Boolean(data.encaixe),
     });
     if (error) {
-      if (clienteCriado) await db.from("clientes").delete().eq("id", clienteId);
+      if (clienteCriado) await db.from("clientes").delete().eq("id", clienteId!);
       if (error.message.includes("horario ja ocupado")) return await conflitoDoPainel();
       throw new Error(error.message);
     }
