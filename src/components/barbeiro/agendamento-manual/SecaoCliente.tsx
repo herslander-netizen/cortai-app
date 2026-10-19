@@ -12,6 +12,22 @@ import type { EstadoAgendamentoManual } from "./useAgendamentoManual";
 export function SecaoCliente({ s }: { s: EstadoAgendamentoManual }) {
   const [tocado, setTocado] = useState({ nome: false, telefone: false });
 
+  if (s.semCliente) {
+    return (
+      <SecaoDeFormulario rotulo="Cliente opcional">
+        <GrupoDeCartoes>
+          <li className="space-y-1 px-4 py-3">
+            <p className="font-medium text-paper">Agendamento sem cliente</p>
+            <p className="text-sm text-mute">Nenhuma ficha será criada. O pagamento e a comanda não serão vinculados a um cliente.</p>
+          </li>
+        </GrupoDeCartoes>
+        <Button variant="outline" type="button" className="w-full rounded-full" onClick={() => s.escolherCliente(null)}>
+          Escolher cliente
+        </Button>
+      </SecaoDeFormulario>
+    );
+  }
+
   if (s.clienteId) {
     return (
       <SecaoDeFormulario rotulo="Cliente">
@@ -73,6 +89,9 @@ export function SecaoCliente({ s }: { s: EstadoAgendamentoManual }) {
           >
             Buscar cliente cadastrado
           </Button>
+          <Button variant="ghost" type="button" className="w-full rounded-full text-sm text-mute" onClick={s.continuarSemCliente}>
+            Continuar sem cliente
+          </Button>
         </SecaoDeFormulario>
       </>
     );
@@ -131,6 +150,9 @@ export function SecaoCliente({ s }: { s: EstadoAgendamentoManual }) {
         }}
       >
         Novo cliente
+      </Button>
+      <Button variant="ghost" type="button" className="w-full rounded-full text-sm text-mute" onClick={s.continuarSemCliente}>
+        Continuar sem cliente
       </Button>
     </SecaoDeFormulario>
   );
