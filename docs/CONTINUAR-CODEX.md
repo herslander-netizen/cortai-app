@@ -46,6 +46,7 @@ imagens `ficha-reagendar-*.jpg`, `inicio-personalizar-*.jpg`.
   travas de estado/pagamento/comanda/choque; auditoria; confirmação ao novo cliente por WhatsApp
   (interruptor); botões do cliente anterior vencem. Trava de repetição do WhatsApp agora é por
   cliente (`whatsapp/notificacoes.server.ts`, `versao = cliente:<id>`).
+- **Novo agendamento** (`AgendamentoManual.tsx` + `agendamento-manual/`): Cliente opcional → Serviço → Horário → Resumo; sem ficha fictícia nem WhatsApp sem destinatário. Se criado sem cliente, a ficha mostra “Vincular cliente” antes de começar; o gatilho do banco prepara a comanda quando o cliente é vinculado. Migrações 0039–0041 só em `cortai-preview`.
 - **Cartões da timeline** (`src/components/barbeiro/AgendaTimeline.tsx`, regras em
   `agenda/cartao-figaro.ts`, ícone em `agenda/IconeDoEstado.tsx`): faixas por altura, ícone de
   estado, cor da categoria (`categoriaIndice` calculado em `lerItensDaAgenda`), mínimo 28 px.
@@ -58,23 +59,19 @@ imagens `ficha-reagendar-*.jpg`, `inicio-personalizar-*.jpg`.
 
 ## 4. Próximas tarefas, em ordem (todas com base no `apk/`)
 
-1. **Conferir na prévia** quando o Actions voltar (ver §6) a ficha, o Reagendar, o Trocar cliente,
-   os cartões, a barra de baixo e o zoom da edição, no celular, temas claro e escuro.
-2. **Novo agendamento** no padrão Figaro (`apk/3` §4): cliente (opcional) → serviços → horário →
-   resumo. Hoje é `src/components/barbeiro/AgendamentoManual.tsx` + `agendamento-manual/`. Reusar o
-   seletor de horário do Reagendar (mesmo visual) e a escolha de cliente de `TrocarCliente.tsx`.
-3. **Bloqueio** (`apk/3` §7): um dia, início/fim, motivo opcional, padrão 12:00–13:00. Hoje é
+1. **Conferir na prévia** a ficha, Reagendar, Trocar cliente, novo agendamento (com e sem cliente, comanda ao vincular), cartões, barra de baixo e zoom da edição, no celular, temas claro e escuro.
+2. **Bloqueio** (`apk/3` §7): um dia, início/fim, motivo opcional, padrão 12:00–13:00. Hoje é
    `BloquearHorarioSheet` (o Cortaí tem mais opções — não remover; só trazer o visual).
-4. **Lista**: cabeçalho por dia "d MMM" + "Hoje" + "N atendimentos · R$ X" já existe; conferir com
+3. **Lista**: cabeçalho por dia "d MMM" + "Hoje" + "N atendimentos · R$ X" já existe; conferir com
    `apk/2` §7 (linha com hora à esquerda, card 64 px, barra 4 px).
 5. **Menu +** (`MenuAcoesAgenda.tsx`): itens no Figaro = Vender pacote, Reservar horário, Bloquear
    horário, Agendar. O Cortaí não tem pacote/reserva — **não inventar**; manter os itens do Cortaí
    com o visual do Figaro (container primaryContainer, ícone + → X).
-6. **Fontes**: o Figaro usa Plus Jakarta Sans (texto), Poppins (títulos grandes) e JetBrains Mono
+5. **Fontes**: o Figaro usa Plus Jakarta Sans (texto), Poppins (títulos grandes) e JetBrains Mono
    (horas). Trocar fonte é identidade: **perguntar ao dono antes** se vale para o app todo.
 7. **Página pública** (Vídeo B, `apk/4`): Personalizar Página, Layout & Tema, Ver Exemplo — tarefa
    grande e separada; combinar escopo com o dono.
-8. Pendentes de decisão do dono: avisar o **cliente anterior** no Trocar cliente (hoje não avisa).
+7. Pendentes de decisão do dono: avisar o **cliente anterior** no Trocar cliente (hoje não avisa).
 
 ## 5. Como validar (obrigatório antes de cada push)
 
