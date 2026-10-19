@@ -136,6 +136,7 @@ teste real na prévia.
 | GPT | 2026-10-18 UTC | Recuperação Figaro: inventário do APK, referência visual e refinamento de transição global dos cards; próximos componentes a mapear sem tocar arquivos reservados pela tarefa de agenda do Claude | `DIARIO.md`, `docs/contrato-de-design.md`, `docs/referencia-ux-figaroo-cortai.md`, `src/components/ui/card.tsx`, `src/routes/agendar.$slug.tsx` |
 | Codex | 2026-10-18 UTC | Novo agendamento no padrão Figaro: cliente opcional → serviços → horário → resumo | `DIARIO.md`, `docs/referencia-figaro/apk/3-fluxos-do-atendimento.md`, `src/components/barbeiro/AgendamentoManual.tsx`, `src/components/barbeiro/agendamento-manual/` |
 | GPT | 2026-10-19 UTC | Documentar respostas comprovadas do APK às perguntas pendentes da Agenda, sem editar implementação reservada | `DIARIO.md`, `docs/referencia-figaro/agenda-perguntas.md` |
+| GPT | 2026-10-19 UTC | Corrigir bundle do Worker que excede 25 MiB no deploy da prévia; carregar renderizadores pesados de Markdown somente no cliente e validar publicação | `DIARIO.md`, `src/components/ai-elements/message.tsx`, `MUSE.md` |
 
 
 ## Recados
