@@ -26,20 +26,20 @@ Documentos daquela fase ficam em `docs/historico/`.
 
 ## Recuperação do Figaro (ativa em 18/10/2026)
 
-O APK reencontrado `Figaroo.apk` é a referência original para layout, cartões, fluxos, agenda e movimento. A decisão do dono e o mapa de escopo estão em `DIARIO.md` e `docs/referencia-ux-figaroo-cortai.md`; o contrato obrigatório está em `docs/contrato-de-design.md`. Preservar a experiência antiga verificável, substituir a marca pela marca atual do Cortaí e integrar funções novas sem redesign. A Agenda tem arquivos reservados pelo Claude conforme o diário; não tocar neles até a reserva ser liberada. Nenhuma mudança de banco ou publicação foi autorizada.
+O APK reencontrado `Figaroo.apk` é a referência original para layout, cartões, fluxos, agenda e movimento. A decisão do dono e o mapa de escopo estão em `DIARIO.md` e `docs/referencia-ux-figaroo-cortai.md`; o contrato obrigatório está em `docs/contrato-de-design.md`. Preservar a experiência antiga verificável, substituir a marca pela marca atual do Cortaí e integrar funções novas sem redesign. A Agenda foi passada ao Codex/GPT em 18/10; seguir `docs/CONTINUAR-CODEX.md` e as reservas ainda listadas no diário. Autorização explícita do dono em 19/10: migrações 0039–0041 somente no projeto isolado `cortai-preview`; nenhuma alteração em `cortai-prod`, `main`, DNS ou site principal.
 
 ## Limites (não negociáveis)
 
 - Trabalhar só na branch `cloudflare-workers-migration-2026-10-13`. Nada de push, merge ou PR na `main`.
 - Não mexer em DNS nem apontar `cortai.dev` sem autorização. Não tocar no projeto `evolution-crm`.
-- Banco: só migrações de acréscimo, sem DROP, sem apagar dados. Migração nova vai para
-  `drizzle/migrations` (com `_journal.json`) e é aplicada pela automação abaixo, com autorização do dono.
+- Banco: o padrão é não apagar dados nem remover objetos. Exceção autorizada em 19/10: a migração 0039 removeu apenas `NOT NULL` de `agendamentos.cliente_id`, exclusivamente em `cortai-preview`, sem apagar dados, para permitir cliente opcional. As migrações 0039–0041 foram aplicadas manualmente nesse projeto isolado sob autorização explícita; não replicar em `cortai-prod` sem nova autorização. Para produção, continuar usando `aplicar-migracoes-novas.yml` com a confirmação exigida.
 - Segredos nunca no repositório nem no chat; ficam só nos segredos do GitHub, colocados pelo dono.
 - Não reescrever histórico git (sem rebase/force-push). `bun.lock` só muda por `bun install` com motivo.
 - O que cada IA faz sozinha e o que precisa de autorização está no topo do `AGENTS.md`.
 
 ## Prévia e versões
 
+- Em 19/10, o fluxo de novo agendamento no padrão Figaro foi validado automaticamente e publicado na prévia com o banco isolado `cortai-preview`; teste manual no celular ainda pendente. Migrações 0039–0041 são exclusivas da prévia.
 - Cada envio na branch: TypeScript, testes e build; se passar, vai para a prévia.
 - "Mande pra main" (pedido do dono) = rodar **"Lançar versão"**: testa, grava a versão (3.1, 3.2…;
   "grande" vira 4.0), cria a tag `vX.Y` e a Release e publica no site principal.
