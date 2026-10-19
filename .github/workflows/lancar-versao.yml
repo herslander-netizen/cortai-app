@@ -64,6 +64,24 @@ jobs:
       - name: Testes
         run: bunx vitest run
 
+      # Falha antes de criar commit/tag se as credenciais essenciais de produção não estiverem configuradas.
+      # Nunca usar o service-role da prévia no site principal.
+      - name: Conferir credenciais de produção
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          set -euo pipefail
+          faltam=()
+          for n in CLOUDFLARE_API_TOKEN CLOUDFLARE_ACCOUNT_ID SUPABASE_SERVICE_ROLE_KEY; do
+            [ -n "${!n}" ] || faltam+=("$n")
+          done
+          if (( ${#faltam[@]} > 0 )); then
+            echo "::error::Publicação bloqueada antes de criar versão/tag. Configure os segredos de PRODUÇÃO ausentes: ${faltam[*]}."
+            exit 1
+          fi
+
       - name: Próxima versão
         id: versao
         env:
@@ -128,18 +146,18 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           SUPABASE_URL: ${{ env.SUPABASE_URL_PUBLICA }}
           SUPABASE_PUBLISHABLE_KEY: ${{ env.SUPABASE_CHAVE_PUBLICA }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.PREVIEW_SUPABASE_SERVICE_ROLE_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           CORTAI_PUBLIC_BASE_URL: https://cortaiapp.pages.dev
-          CORTAI_CRON_SECRET: ${{ secrets.PREVIEW_CORTAI_CRON_SECRET }}
-          CORTAI_AI_PROVIDER: ${{ secrets.PREVIEW_CORTAI_AI_PROVIDER }}
-          CORTAI_AI_BASE_URL: ${{ secrets.PREVIEW_CORTAI_AI_BASE_URL }}
-          CORTAI_AI_MODEL: ${{ secrets.PREVIEW_CORTAI_AI_MODEL }}
-          CORTAI_AI_API_KEY: ${{ secrets.PREVIEW_CORTAI_AI_API_KEY }}
-          CORTAI_AI_CANAIS: ${{ secrets.PREVIEW_CORTAI_AI_CANAIS }}
-          META_WHATSAPP_ACCESS_TOKEN: ${{ secrets.PREVIEW_META_WHATSAPP_ACCESS_TOKEN }}
-          META_WHATSAPP_PHONE_NUMBER_ID: ${{ secrets.PREVIEW_META_WHATSAPP_PHONE_NUMBER_ID }}
-          META_WHATSAPP_VERIFY_TOKEN: ${{ secrets.PREVIEW_META_WHATSAPP_VERIFY_TOKEN }}
-          META_WHATSAPP_APP_SECRET: ${{ secrets.PREVIEW_META_WHATSAPP_APP_SECRET }}
+          CORTAI_CRON_SECRET: ${{ secrets.CORTAI_CRON_SECRET }}
+          CORTAI_AI_PROVIDER: ${{ secrets.CORTAI_AI_PROVIDER }}
+          CORTAI_AI_BASE_URL: ${{ secrets.CORTAI_AI_BASE_URL }}
+          CORTAI_AI_MODEL: ${{ secrets.CORTAI_AI_MODEL }}
+          CORTAI_AI_API_KEY: ${{ secrets.CORTAI_AI_API_KEY }}
+          CORTAI_AI_CANAIS: ${{ secrets.CORTAI_AI_CANAIS }}
+          META_WHATSAPP_ACCESS_TOKEN: ${{ secrets.META_WHATSAPP_ACCESS_TOKEN }}
+          META_WHATSAPP_PHONE_NUMBER_ID: ${{ secrets.META_WHATSAPP_PHONE_NUMBER_ID }}
+          META_WHATSAPP_VERIFY_TOKEN: ${{ secrets.META_WHATSAPP_VERIFY_TOKEN }}
+          META_WHATSAPP_APP_SECRET: ${{ secrets.META_WHATSAPP_APP_SECRET }}
         run: |
           set -euo pipefail
           nomes=(SUPABASE_URL SUPABASE_PUBLISHABLE_KEY SUPABASE_SERVICE_ROLE_KEY CORTAI_PUBLIC_BASE_URL
