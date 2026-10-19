@@ -30,6 +30,8 @@ e o que fez. O diário até 17/10/2026 está guardado, sem alterações, em
 
 Tudo o que o dono decidir com qualquer IA entra aqui, com a data. Vale para todas.
 
+- 2026-10-19: **autorização restrita ao banco de teste `cortai-preview`** para aplicar as migrações 0039–0041 do agendamento com cliente opcional. Essa autorização não inclui `cortai-prod`, `main`, DNS nem publicação principal. A migração 0039 altera apenas a nulabilidade de `agendamentos.cliente_id` no projeto de teste; nenhuma linha foi apagada.
+
 - 2026-10-19: **o repositório `cortai-app` passou a ser público** (decisão do dono, para o GitHub
   Actions voltar a rodar sem custo). Consequência: código, documentos e histórico ficam visíveis a
   qualquer pessoa. **Nunca** gravar segredo, dado de cliente ou e-mail pessoal em arquivo ou commit;
