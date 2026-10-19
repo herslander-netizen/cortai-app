@@ -178,7 +178,11 @@ export function PainelAtendimento(props: Props) {
       agir: () => setReagendando(true),
     },
     chegou: { rotulo: "Cliente chegou", Icone: UserRoundPlus, agir: executar(props.onChegou) },
-    comecar: { rotulo: "Começar", Icone: Scissors, agir: executar(props.onIniciar) },
+    comecar: {
+      rotulo: item?.clienteId ? "Começar" : "Vincular cliente",
+      Icone: item?.clienteId ? Scissors : UserRoundPlus,
+      agir: item?.clienteId ? executar(props.onIniciar) : () => setTrocandoCliente(true),
+    },
     finalizar: { rotulo: "Finalizar e cobrar", Icone: Check, agir: executar(props.onComanda) },
     cobrar: {
       rotulo: item?.status === "finalizado" ? "Pagamento" : "Cobrar",
