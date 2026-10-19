@@ -8,6 +8,7 @@ import type { UIMessage } from "ai";
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import type { ComponentProps, HTMLAttributes, ReactElement } from "react";
 import { createContext, memo, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { createIsomorphicFn } from "@tanstack/react-start";
 import { Streamdown } from "streamdown";
 
 export type MessageProps = HTMLAttributes<HTMLDivElement> & {
@@ -267,6 +268,26 @@ export const MessageBranchPage = ({ className, ...props }: MessageBranchPageProp
 export type MessageResponseProps = ComponentProps<typeof Streamdown>;
 type StreamdownPlugins = NonNullable<MessageResponseProps["plugins"]>;
 
+// O transformador isomórfico remove as dependências dos plugins do bundle SSR.
+// Assim, Shiki/Mermaid continuam disponíveis no navegador sem inflar o Worker.
+const loadStreamdownPlugins = createIsomorphicFn()
+  .server(async (): Promise<StreamdownPlugins | null> => null)
+  .client(async (): Promise<StreamdownPlugins | null> => {
+    const [cjkPlugin, codePlugin, mathPlugin, mermaidPlugin] = await Promise.all([
+      import("@streamdown/cjk"),
+      import("@streamdown/code"),
+      import("@streamdown/math"),
+      import("@streamdown/mermaid"),
+    ]);
+
+    return {
+      cjk: cjkPlugin.cjk,
+      code: codePlugin.code,
+      math: mathPlugin.math,
+      mermaid: mermaidPlugin.mermaid,
+    };
+  });
+
 export const MessageResponse = memo(
   ({ className, ...props }: MessageResponseProps) => {
     const [streamdownPlugins, setStreamdownPlugins] = useState<StreamdownPlugins>();
@@ -276,20 +297,10 @@ export const MessageResponse = memo(
     useEffect(() => {
       let ativo = true;
 
-      void Promise.all([
-        import("@streamdown/cjk"),
-        import("@streamdown/code"),
-        import("@streamdown/math"),
-        import("@streamdown/mermaid"),
-      ])
-        .then(([cjkPlugin, codePlugin, mathPlugin, mermaidPlugin]) => {
-          if (!ativo) return;
-          setStreamdownPlugins({
-            cjk: cjkPlugin.cjk,
-            code: codePlugin.code,
-            math: mathPlugin.math,
-            mermaid: mermaidPlugin.mermaid,
-          });
+      void loadStreamdownPlugins()
+        .then((plugins) => {
+          if (!ativo || !plugins) return;
+          setStreamdownPlugins(plugins);
         })
         .catch(() => {
           // O Markdown básico continua disponível caso um plugin opcional falhe ao carregar.
