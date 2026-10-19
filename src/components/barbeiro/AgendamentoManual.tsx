@@ -242,7 +242,7 @@ function Formulario({
                       <span>{s.semCliente ? "Sem cliente vinculado" : nomeCliente || "Cliente não selecionado"}</span>
                     </p>
                     <p className="border-t border-line pt-3 text-mute">
-                      Forma de pagamento: <span className="font-semibold text-paper">{pagamento}</span>
+                      Forma de pagamento: <span className="font-semibold text-paper">{s.semCliente ? "A definir após vincular cliente" : pagamento}</span>
                     </p>
                   </div>
                 </Card>
