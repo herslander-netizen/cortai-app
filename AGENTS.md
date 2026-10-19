@@ -36,7 +36,7 @@ arquivo do período antigo (não alimenta nenhum site). Qualquer pedido que cheg
 - Sem esse pedido, nada vai para o site principal. Se algo der errado, **"Voltar versão"** põe no ar a
   versão anterior (ou a pedida) na hora.
 - Sempre dizer ao dono o número lançado e o que testar.
-- Prévia e site principal usam o mesmo banco (`cortai-prod`): o que se grava na prévia é real.
+- A prévia deve usar um Supabase de testes separado. O workflow exige `PREVIEW_SUPABASE_URL`, `PREVIEW_SUPABASE_PUBLISHABLE_KEY` e `PREVIEW_SUPABASE_SERVICE_ROLE_KEY`, e recusa URL de `cortai-prod`. Até esses segredos serem configurados e a nova prévia publicada, a versão já no ar pode continuar usando o banco real; não usar para gravar dados.
 - Banco não volta junto com a versão: migração continua só de acréscimo e com autorização.
 
 **Ao começar qualquer sessão, sem esperar o dono pedir:**
