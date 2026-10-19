@@ -822,3 +822,13 @@ Modelo:
 - Banco/infra: nada alterado.
 - Pendente / atenção: se a conexão de assistentes (MCP) for usada, a tela de consentimento OAuth do
   Supabase precisa apontar para `/oauth/consentimento`.
+
+
+### 2026-10-19 UTC — GPT — Banco isolado da prévia e migrações
+- Projeto Supabase de prévia confirmado: `cortai-preview`, ref `pfkxvindedkuktogbcsv`, região `sa-east-1`, estado `ACTIVE_HEALTHY`. URL: `https://pfkxvindedkuktogbcsv.supabase.co`.
+- Instalação: baseline aplicada em 16 lotes registrados no histórico de migrações do Supabase (12 lotes de migrações Supabase + 4 lotes Drizzle). A consulta de tabelas confirmou RLS habilitado em todas as tabelas públicas retornadas; verificação SQL não encontrou tabela pública sem RLS.
+- Validação do código: workflow de validação no commit `0a428846098f77b5ed6efd878baf95cf13b1b1f3` passou TypeScript, testes e build. A publicação da prévia não ocorreu: o workflow recusou a URL antiga que aponta para produção, corretamente.
+- Infraestrutura: criado `.github/workflows/montar-preview.yml` para registrar o procedimento de baseline isolada. A tentativa via API de gerenciamento do Supabase falhou com HTTP 403 por falta de privilégios do token; a baseline foi instalada usando a integração Supabase conectada. O workflow de instalação deve ser revisado antes de ser reutilizado.
+- Bloqueio pendente para publicar: atualizar os secrets do GitHub Actions `PREVIEW_SUPABASE_URL` para a URL do projeto `cortai-preview`, `PREVIEW_SUPABASE_PUBLISHABLE_KEY` para a chave publicável desse projeto e `PREVIEW_SUPABASE_SERVICE_ROLE_KEY` para a chave de serviço DESSE MESMO projeto. Não reutilizar nenhuma chave de produção; não colocar a chave de serviço no repositório, no diário ou no chat.
+- Próximo passo: no Supabase Dashboard do projeto `cortai-preview`, obter a service-role/secret key desse projeto e substituir os três secrets em GitHub → Settings → Secrets and variables → Actions. Depois repetir o envio/execução do workflow e confirmar o deploy real em `https://previa.cortaiapp.pages.dev`.
+- Nenhuma alteração feita em `main` ou no banco `cortai-prod`. Nenhuma publicação em produção.
