@@ -15,6 +15,7 @@ export function temAlteracoesAgendamentoManual({
   horaMin,
   horaInicial,
   forma,
+  semCliente,
 }: {
   clienteId: string | null;
   novoNome: string;
@@ -29,9 +30,11 @@ export function temAlteracoesAgendamentoManual({
   horaMin: string;
   horaInicial: string;
   forma: Forma;
+  semCliente?: boolean;
 }) {
   return Boolean(
     clienteId ||
+      semCliente ||
       novoNome ||
       novoTelefone ||
       termo ||
