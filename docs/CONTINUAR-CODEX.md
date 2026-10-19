@@ -98,6 +98,8 @@ Testes da Agenda que mais quebram com mudança visual: `timeline-rolagem-celular
 
 ## 6. Bloqueio atual: GitHub Actions parado
 
+> **Resolvido em 19/10 (~18:28 UTC):** o dono ajustou a conta e os jobs voltaram a pegar máquina.
+
 Desde 18/10 11:42 UTC todo job do Actions falha em ~3 s **sem pegar máquina** (os dois workflows).
 Não é o código (tudo passa local). Provável limite de minutos/gastos da conta — **só o dono resolve**
 em GitHub → Settings → Billing → Actions. Enquanto isso a prévia (`previa.cortaiapp.pages.dev`) não

@@ -113,9 +113,8 @@ Tudo o que o dono decidir com qualquer IA entra aqui, com a data. Vale para toda
 Pegar a primeira livre; reservar em "Em andamento" antes.
 
 0. **Agenda no padrão Figaro (Codex/GPT):** seguir a lista do §4 de `docs/CONTINUAR-CODEX.md`. **Em execução:** Novo agendamento, etapa 2.
-1. Resíduo do achado 6: tabelas ainda só com `is_tenant_member` (`clientes`, `escalas_de_profissional`,
-   `bloqueios_de_agenda`, `fila_de_espera`, `indicacoes`, `preferencias_do_cliente_avisos`,
-   `onboarding_do_tenant`). Migração só de acréscimo, ensaiada localmente; aplicar com autorização.
+1. Resíduo do achado 6: migração `0038_escrita_com_permissao_residuo` pronta e ensaiada (19/10).
+   Falta **aplicar no `cortai-prod` com autorização do dono**, conferindo antes as políticas reais.
 3. Tarefas agendadas do banco (`cron.job`) apontando para o site principal em vez do Worker antigo
    (escrita no banco, com autorização). Depois, apagar o Worker antigo na Cloudflare (com autorização).
 4. Menores: 13 (remarcação pela IA recria o agendamento), 14 (contagens do ADM presas a 1000 linhas),
@@ -133,7 +132,6 @@ teste real na prévia.
 | GPT | 2026-10-17 UTC | Auditar ciclo de vida e acessibilidade dos formulários; corrigir divergência do contrato de design no gatilho de agendamento manual | `DIARIO.md`, `src/components/ui/formulario/TelaDeFormulario.tsx`, `src/components/ui/formulario/TelaDeFormulario.test.tsx`, `src/components/barbeiro/AgendamentoManual.tsx`, `src/components/barbeiro/agendamento-manual/useAgendamentoManual.ts`, `src/components/barbeiro/agendamento-manual/regrasAgendamentoManual.ts`, `src/components/barbeiro/agendamento-manual/useAgendamentoManual.test.ts` |
 | GPT | 2026-10-18 UTC | Recuperação Figaro: inventário do APK, referência visual e refinamento de transição global dos cards; próximos componentes a mapear sem tocar arquivos reservados pela tarefa de agenda do Claude | `DIARIO.md`, `docs/contrato-de-design.md`, `docs/referencia-ux-figaroo-cortai.md`, `src/components/ui/card.tsx`, `src/routes/agendar.$slug.tsx` |
 | Codex | 2026-10-18 UTC | Novo agendamento no padrão Figaro: cliente opcional → serviços → horário → resumo | `DIARIO.md`, `docs/referencia-figaro/apk/3-fluxos-do-atendimento.md`, `src/components/barbeiro/AgendamentoManual.tsx`, `src/components/barbeiro/agendamento-manual/` |
-| Claude | 2026-10-19 UTC | Resíduo do achado 6: escrita com permissão nas 7 tabelas que só exigiam `is_tenant_member` (migração só de acréscimo, ensaiada, sem aplicar) | `DIARIO.md`, `drizzle/migrations/0038_*`, `drizzle/migrations/meta/_journal.json`, `supabase/tests/escrita_com_permissao.sql`, `src/lib/onboarding.functions.ts` |
 | GPT | 2026-10-19 UTC | Documentar respostas comprovadas do APK às perguntas pendentes da Agenda, sem editar implementação reservada | `DIARIO.md`, `docs/referencia-figaro/agenda-perguntas.md` |
 
 
@@ -222,6 +220,28 @@ teste real na prévia.
   que se contradizem; vale deixar só uma. Responda com `[lido]`.
 
 ## Diário (mais recente primeiro)
+
+### 2026-10-19 UTC — Claude — Resíduo do achado 6: escrita com permissão nas 7 tabelas (migração 0038, NÃO aplicada)
+- Arquivos: `drizzle/migrations/0038_escrita_com_permissao_residuo.sql` (+ `meta/_journal.json`),
+  `supabase/tests/escrita_com_permissao.sql`, `src/lib/onboarding.functions.ts`,
+  `src/lib/bloqueios.functions.ts`.
+- O que muda (só políticas, mesmo padrão da 0027, leitura da equipe igual):
+  `clientes` cria/edita com `editar_clientes`/`criar_agendamento`/`agendamento_manual`, exclui só com
+  `acoes_destrutivas`; `bloqueios_de_agenda` e `fila_de_espera` com quem agenda; `escalas_de_profissional`
+  com `alterar_dados_barbearia`/`gerenciar_profissionais`; `indicacoes` com `gerenciar_profissionais`/
+  `alterar_dados_barbearia` (exclusão `acoes_destrutivas`); `preferencias_do_cliente_avisos` (lado da
+  equipe) com `editar_clientes` — a política do cliente não muda; `onboarding_do_tenant` com
+  `alterar_dados_barbearia`. Servidor (chave de serviço) e RPCs não mudam.
+- Código: `salvarEscalaDoProfissional`, `marcarItemDoChecklist`, `marcarTourVisto` e
+  `salvarEtapaDaImplantacao` passam a conferir `alterar_dados_barbearia` antes de gravar (as telas já
+  só aparecem para essa permissão), para a recusa sair com mensagem clara.
+- Ensaio local (`ensaio-local.sh`): sem a 0038 o teste novo acha 19 brechas; com ela, "RESIDUO OK: 62
+  verificações", e os demais testes de banco seguem OK (RBAC 68, equipe 7, anônimo 11, tokens 7, fiado 15).
+- Vitest: 1550 ok; 2 estouros de tempo em arquivos não tocados (brain/whatsapp), que passam sozinhos (82/82).
+- **Aplicar no `cortai-prod` precisa de autorização do dono.** Antes de aplicar, listar as políticas reais
+  dessas 7 tabelas no banco: se houver alguma com outro nome só com `is_tenant_member`, ela continuaria
+  liberando e precisa entrar na migração.
+- Actions: voltou a pegar máquina em 19/10 ~18:28 UTC (o dono ajustou a conta).
 
 ### 2026-10-19 UTC — Claude — Gancho de início de sessão também sincroniza nas sessões na nuvem
 - Arquivo alterado: `.claude/hooks/sincronizar-dupla.sh`.
