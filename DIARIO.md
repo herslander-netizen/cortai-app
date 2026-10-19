@@ -118,8 +118,6 @@ Tudo o que o dono decidir com qualquer IA entra aqui, com a data. Vale para toda
 Pegar a primeira livre; reservar em "Em andamento" antes.
 
 0. **Agenda no padrão Figaro (Codex/GPT):** seguir a lista do §4 de `docs/CONTINUAR-CODEX.md`. **Em execução:** Novo agendamento, etapa 2.
-1. Resíduo do achado 6: migração `0038_escrita_com_permissao_residuo` pronta e ensaiada (19/10).
-   Falta **aplicar no `cortai-prod` com autorização do dono**, conferindo antes as políticas reais.
 3. Tarefas agendadas do banco (`cron.job`) apontando para o site principal em vez do Worker antigo
    (escrita no banco, com autorização). Depois, apagar o Worker antigo na Cloudflare (com autorização).
 4. Menores: 13 (remarcação pela IA recria o agendamento), 14 (contagens do ADM presas a 1000 linhas),
@@ -226,7 +224,20 @@ teste real na prévia.
 
 ## Diário (mais recente primeiro)
 
-### 2026-10-19 UTC — Claude — Resíduo do achado 6: escrita com permissão nas 7 tabelas (migração 0038, NÃO aplicada)
+### 2026-10-19 UTC — Claude — Migração 0038 APLICADA no `cortai-prod` (autorizada pelo dono)
+- Antes de aplicar: as políticas reais das 7 tabelas batiam exatamente com as substituídas (nenhuma
+  extra liberando escrita). Teste no banco real **antes**: "RESIDUO FALHOU (19 de 62)", as mesmas brechas
+  do ensaio local.
+- Aplicada pelo workflow "Aplicar migrações novas" (execução 39307631196, sucesso); registrada em
+  `cortai_controle.migracoes_aplicadas`.
+- **Depois**, no banco real: "RESIDUO OK: 62 verificações" e "RBAC OK: 68 verificações". 19 políticas de
+  escrita agora usam `tem_alguma_permissao`; a única de escrita sem ela é a do próprio cliente sobre os
+  avisos dele (intencional).
+- `CLAUDE.md` (Auditoria e segurança): o item sai de "Ainda abertos".
+- Para conferir na prática: dono, gerente, recepção e profissional seguem agendando, cadastrando cliente e
+  bloqueando horário; só dono e gerente mudam escala; excluir cliente só o dono.
+
+### 2026-10-19 UTC — Claude — Resíduo do achado 6: escrita com permissão nas 7 tabelas (migração 0038)
 - Arquivos: `drizzle/migrations/0038_escrita_com_permissao_residuo.sql` (+ `meta/_journal.json`),
   `supabase/tests/escrita_com_permissao.sql`, `src/lib/onboarding.functions.ts`,
   `src/lib/bloqueios.functions.ts`.

@@ -131,15 +131,13 @@ Preservar service worker, cache, recuperação de chunk e sessão. O manifest é
 ## Auditoria e segurança (estado em 17/10/2026)
 
 Auditorias anteriores em `docs/historico/` (`auditoria-2026-10-09.md` e as de 16/10). A maior parte já
-foi corrigida e aplicada no `cortai-prod` (migrações 0027 a 0037): tokens das redes sociais fora do
+foi corrigida e aplicada no `cortai-prod` (migrações 0027 a 0038): tokens das redes sociais fora do
 alcance da equipe, anônimo só com colunas públicas, "Pedir projeto" pelo servidor com limite, OAuth
 com nonce, quitação de fiado atômica, convite sem descoberta de conta, limites no rascunho e
-confirmação de telefone no agendamento público.
+confirmação de telefone no agendamento público e, em 19/10, escrita da equipe com permissão nas
+sete tabelas que ainda aceitavam qualquer membro (0038).
 
 Ainda abertos:
-- Escrita direta de qualquer membro (só `is_tenant_member`) em `clientes`, `escalas_de_profissional`,
-  `bloqueios_de_agenda`, `fila_de_espera`, `indicacoes`, `preferencias_do_cliente_avisos` e
-  `onboarding_do_tenant`.
 - Equipe no WhatsApp: a CortAI confere só o papel, não as permissões de cada pessoa.
 - Proteção contra senha vazada desligada no Auth do Supabase (ajuste do dono no painel).
 - As duas tarefas agendadas do banco (`cron.job`) ainda chamam o Worker antigo
