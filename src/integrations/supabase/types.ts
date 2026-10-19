@@ -220,7 +220,7 @@ export type Database = {
           arrived_inferido?: boolean
           assistido_por_cortai?: boolean
           cancelado_em?: string | null
-          cliente_id?: string
+          cliente_id?: string | null
           confirmado_em?: string | null
           criado_em?: string
           encaixe?: boolean
