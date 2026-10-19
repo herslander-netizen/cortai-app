@@ -52,4 +52,23 @@ Atendimento avulso, Agendar por voz e Agendar horário já existe no Cortaí.
 
 **Fonte:** `docs/referencia-figaro/apk/3-fluxos-do-atendimento.md`, §§1.1–1.5; `AppointmentDashboardSheetKt`, `AppointmentDashboardContentKt`, `AppointmentDashboardDockedActionsKt`.
 
-(continuar respostas 2–6)
+### Resposta 2 — Novo agendamento
+
+- **Entrada:** a referência do APK mostra o FAB “Agendar”. Toque longo em espaço vazio não foi encontrado no código da grade: **sem evidência** de que ele abra marcador, sheet ou tela cheia.
+- **Etapas:** Cliente → Serviços → Horário → Resumo (há também subfluxo para criar cliente). Cliente é opcional: “Continuar” ou “Continuar sem cliente”. Serviços vêm do catálogo e podem mostrar combos/descontos; CTA “Escolher horário”. O seletor de horários usa “Ver resumo”. No resumo, aparecem Cliente (adicionar/trocar ou “Sem cliente”), Serviços (alterar serviços) e total ou “Pago pelo pacote”.
+- Se o cliente vier pré-preenchido ou o fluxo converter uma reserva, pode começar no resumo. A validação exige pelo menos um serviço e horário/profissional para cada serviço.
+- A navegação interna desliza para a esquerda em 300ms; fechar desliza para baixo com fade de 300ms. Posição exata de botão Voltar por etapa: **sem evidência**. A ação final é o FAB “Criar agendamento” no resumo; não há evidência de campo de observação ou preço manual no fluxo original.
+
+**Fonte:** `docs/referencia-figaro/apk/3-fluxos-do-atendimento.md`, §4 (`CreateAppointmentFlow`); `docs/referencia-figaro/apk/2-agenda.md`, §§1.5 e 5.
+
+### Resposta 3 — Editar horário
+
+- **Entrada:** toque longo num cartão elegível, com feedback háptico; arma no minuto tocado. Só Pending/Confirmed e hoje ou data futura. Não é aberto pela ficha.
+- **Visual:** zoom anima até pelo menos 4dp/min em 300ms, mantendo o minuto tocado no mesmo lugar; linhas tracejadas de 5 minutos aparecem e os outros cartões ficam a 40% de opacidade. O topo normal sai por slide vertical + fade e entra o topo de edição. O título é a data completa localizada (exemplo do APK: “Sábado, 18 de outubro de 2026”). Abaixo: “Para mudar de dia, use Reagendar”, com “Reagendar” clicável. O cartão mostra chip do horário proposto; proposta inválida usa texto de erro (“Precisa ser depois de agora”, “Precisa terminar depois de agora” ou “Horário inválido”).
+- **Rodapé:** alça de duração em formato pílula 32×4dp no centro da base do cartão. Barra inferior com interruptor de aviso (só serviço), “Descartar” e “Salvar alterações”. O texto do interruptor depende dos canais configurados (WhatsApp, e-mail, ambos ou genérico); se nenhum canal existir, ele some. Começa desligado. Ao salvar: estado de carregamento e “Pronto!” por 1000ms; falha abre diálogo.
+- **Limites:** não sai do dia (00:00–24:00); início no passado é inválido; fim deve ser depois de agora e posterior ao início. Sobreposição com outro atendimento do mesmo profissional faz procurar o ponto livre mais próximo; redimensionar limita o fim ao próximo obstáculo. Serviços do mesmo agendamento não podem se cruzar; bloqueios não cruzam serviços do profissional; cancelados não contam como obstáculo. Embora o fora do expediente seja sombreado, **sem evidência** de que o gesto local rejeite todo horário fora do expediente; a regra oficial do servidor continua obrigatória.
+- “Reagendar” é um fluxo separado em tela cheia, com calendário e modos “Por disponibilidade” e “Manual”.
+
+**Fonte:** `docs/referencia-figaro/apk/2-agenda.md`, §§2.1–2.6, 5 e 6 (`AgendaArmableCardKt`, `AgendaArmState`, `AgendaArmedTopBar`, `AgendaArmedBottomBar`, `AgendaDragProposal`); `docs/referencia-figaro/apk/3-fluxos-do-atendimento.md`, §2.
+
+(continuar respostas 4–6)
