@@ -221,6 +221,14 @@ teste real na prévia.
 
 ## Diário (mais recente primeiro)
 
+### 2026-10-19 UTC — GPT — Corrige pré-validação e separação de segredos do lançamento
+- Commit: `dab442ea694ce98dcfb9f7212fc998bdeb6763d0`.
+- Arquivo: `.github/workflows/lancar-versao.yml`.
+- O que mudou: o lançamento principal não usa mais credenciais `PREVIEW_*` para o Worker de produção. Passa a ler `SUPABASE_SERVICE_ROLE_KEY`, `CORTAI_CRON_SECRET`, `CORTAI_AI_*` e `META_WHATSAPP_*` sem prefixo de prévia. Uma etapa de pré-validação exige Cloudflare e service-role de produção antes de criar versão/tag, para falhar cedo se faltar segredo essencial.
+- Testes/CI: push iniciou Actions run [39190913894](https://github.com/herslander-netizen/cortai-app/actions/runs/39190913894); ainda pendente na última consulta. Nenhuma publicação de produção foi disparada.
+- Banco/infra: nenhum banco alterado. A prévia segue isolada e com segredos `PREVIEW_*`.
+- Pendente: conferir resultado de TypeScript/testes/build e confirmar que os segredos de produção necessários estão cadastrados. Depois, executar manualmente “Lançar versão”; a integração disponível não oferece disparo direto de workflow manual.
+
 ### 2026-10-18 UTC — GPT — Proteção da prévia contra banco de produção
 - Atualizado `.github/workflows/preview-migration.yml` no commit `da732d308ba0aa13c714234929904f0cc5dbaffa`.
 - O deploy agora exige `PREVIEW_SUPABASE_URL`, `PREVIEW_SUPABASE_PUBLISHABLE_KEY` e `PREVIEW_SUPABASE_SERVICE_ROLE_KEY`; recusa explicitamente URL do projeto `cortai-prod` e pula a publicação se faltar credencial obrigatória.
