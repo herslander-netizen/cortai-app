@@ -232,6 +232,11 @@ teste real na prévia.
 - Testes: ensaiado num repositório descartável (em dia, atrás com árvore suja, fast-forward,
   divergente, sem rede e na própria branch atrasada).
 - Produção/banco: não alterados.
+- Conferência das mudanças de 18/10 (a pedido do dono), no commit `325cc4c`: TypeScript ok, 1552
+  testes ok (169 arquivos), build ok. Os arquivos de `src` mudados desde a última prévia publicada
+  (`bb8c14d`, 18/10 11:31) não têm erro de lint novo, só avisos. **O Actions continua parado**:
+  todo job falha em ~3 s sem pegar máquina (ver `docs/CONTINUAR-CODEX.md` §6), então a prévia está
+  29 commits atrás. Só o dono destrava em GitHub → Settings → Billing.
 
 ### 2026-10-19 UTC — GPT — Remove atalho CortAI do cabeçalho da Agenda
 - Arquivo alterado: `src/components/layout/ManagementDrawer.tsx`.
