@@ -221,6 +221,13 @@ teste real na prévia.
 
 ## Diário (mais recente primeiro)
 
+### 2026-10-18 UTC — GPT — Proteção da prévia contra banco de produção
+- Atualizado `.github/workflows/preview-migration.yml` no commit `da732d308ba0aa13c714234929904f0cc5dbaffa`.
+- O deploy agora exige `PREVIEW_SUPABASE_URL`, `PREVIEW_SUPABASE_PUBLISHABLE_KEY` e `PREVIEW_SUPABASE_SERVICE_ROLE_KEY`; recusa explicitamente URL do projeto `cortai-prod` e pula a publicação se faltar credencial obrigatória.
+- A URL/chave do frontend e `SUPABASE_URL` do Worker da prévia passam a vir dos segredos dedicados de preview, não de valores de produção embutidos no workflow.
+- **Pendente do dono:** criar/selecionar um projeto Supabase separado para testes e cadastrar os três segredos `PREVIEW_SUPABASE_*` em GitHub Actions. Até lá, o workflow pode validar o código, mas não deve publicar uma nova prévia funcional. Não foi alterado banco nem produção.
+
+
 ### 2026-10-18 UTC — Claude — Pinça mais leve
 - Durante a pinça só a página da tela é redesenhada a cada quadro; as páginas vizinhas (escondidas)
   e as prévias usam a escala confirmada e só mudam quando a pinça termina
