@@ -43,4 +43,13 @@ Atendimento avulso, Agendar por voz e Agendar horário já existe no Cortaí.
 
 ## Respostas do GPT
 
-(escrever aqui)
+### Resposta 1 — Ficha do agendamento
+
+- **Entrada/altura:** abre como `ModalBottomSheet` Material 3 (`AppointmentDashboardSheetKt`), não expandindo o cartão nem vindo da lateral. Começa parcialmente expandida; o carregamento ocupa metade da altura disponível. Pode expandir. A cor de fundo é `surface`. Ficha e checkout são páginas internas: entrar no checkout expande a sheet e desliza o conteúdo horizontalmente; voltar desliza no sentido inverso, sem fade.
+- **Ordem:** (1) bloco do serviço: nome do primeiro serviço como título, pílula `+N` se houver outros, estado com ícone e texto colorido, “Hoje” ou data + intervalo `HH:mm · HH:mm` em fonte mono e chips dos profissionais com primeiro nome/avatar; (2) bloco do cliente com avatar e nome; (3) botão tonal pequeno “Trocar cliente” apenas se Confirmado e futuro; (4) seção Serviços, uma linha por serviço com profissional, preço atual, preço anterior riscado se houver desconto e horário; (5) Total ou Pago pelo pacote; (6) Observações só quando há notas; (7) nota de andamento quando o atendimento já começou. O APK não mostra telefone/WhatsApp na ficha, mas não remover os contatos que já existem no Cortaí.
+- **Ações:** rodapé fixo alinhado à direita. Futuro: “Reagendar” + menu destrutivo “Cancelar agendamento”. Confirmado já iniciado: “Cobrar/Finalizar” + menu “Reagendar” e “Não compareceu”. Concluído com venda: “Ver recibo”; cancelado, falta e concluído sem venda não têm ação inferior. “Não compareceu” não pede confirmação; cancelar pede confirmação, avisa sobre a mensagem ao cliente e fecha a ficha após sucesso.
+- **Fechar:** o código chama `hide()` e depois `onDismiss`; cancelar com sucesso também fecha. O gesto/área exata (toque fora, arrastar para baixo ou X próprio) não foi especificado no inventário: **sem evidência** de comportamento personalizado.
+
+**Fonte:** `docs/referencia-figaro/apk/3-fluxos-do-atendimento.md`, §§1.1–1.5; `AppointmentDashboardSheetKt`, `AppointmentDashboardContentKt`, `AppointmentDashboardDockedActionsKt`.
+
+(continuar respostas 2–6)
