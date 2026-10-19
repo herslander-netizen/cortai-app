@@ -1396,12 +1396,14 @@ export const criarAgendamentoManual = createServerFn({ method: "POST" })
     const criado = res as unknown as { agendamento_id: string; inicio: string };
     await db.from("agendamentos").update({ origem: "manual" }).eq("id", criado.agendamento_id);
 
-    // Confirmação pelo WhatsApp: nunca bloqueia nem derruba o agendamento.
-    try {
-      const { enviarConfirmacaoDeAgendamento } = await import("@/lib/whatsapp/confirmacao.server");
-      await enviarConfirmacaoDeAgendamento(criado.agendamento_id);
-    } catch {
-      /* o agendamento já está salvo; a falha fica registrada no envio */
+    // Sem cliente vinculado, não há destinatário para a confirmação pelo WhatsApp.
+    if (!data.semCliente) {
+      try {
+        const { enviarConfirmacaoDeAgendamento } = await import("@/lib/whatsapp/confirmacao.server");
+        await enviarConfirmacaoDeAgendamento(criado.agendamento_id);
+      } catch {
+        /* o agendamento já está salvo; a falha fica registrada no envio */
+      }
     }
 
     // A comanda nasce junto (gatilho do banco); só lemos o id para abrir o ticket.
