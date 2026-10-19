@@ -136,7 +136,6 @@ teste real na prévia.
 | GPT | 2026-10-18 UTC | Recuperação Figaro: inventário do APK, referência visual e refinamento de transição global dos cards; próximos componentes a mapear sem tocar arquivos reservados pela tarefa de agenda do Claude | `DIARIO.md`, `docs/contrato-de-design.md`, `docs/referencia-ux-figaroo-cortai.md`, `src/components/ui/card.tsx`, `src/routes/agendar.$slug.tsx` |
 | Codex | 2026-10-18 UTC | Novo agendamento no padrão Figaro: cliente opcional → serviços → horário → resumo | `DIARIO.md`, `docs/referencia-figaro/apk/3-fluxos-do-atendimento.md`, `src/components/barbeiro/AgendamentoManual.tsx`, `src/components/barbeiro/agendamento-manual/` |
 | GPT | 2026-10-19 UTC | Documentar respostas comprovadas do APK às perguntas pendentes da Agenda, sem editar implementação reservada | `DIARIO.md`, `docs/referencia-figaro/agenda-perguntas.md` |
-| GPT | 2026-10-19 UTC | Corrigir bundle do Worker que excede 25 MiB no deploy da prévia; carregar renderizadores pesados de Markdown somente no cliente e validar publicação | `DIARIO.md`, `src/components/ai-elements/message.tsx`, `MUSE.md` |
 
 
 ## Recados
@@ -224,6 +223,13 @@ teste real na prévia.
   que se contradizem; vale deixar só uma. Responda com `[lido]`.
 
 ## Diário (mais recente primeiro)
+
+### 2026-10-19 UTC — GPT — Corrige o bundle SSR e publica a prévia
+- Arquivo de código: `src/components/ai-elements/message.tsx`.
+- Causa confirmada: imports dinâmicos dos plugins Streamdown ainda levavam os módulos de linguagem do Shiki ao bundle do Worker SSR, que excedia o limite de 25 MiB da Cloudflare (erro `8000101`). O primeiro ajuste deixou a carga pós-hidratação, mas não reduziu o pacote do servidor o suficiente.
+- Solução final: `createIsomorphicFn().client()` carrega CJK, Shiki, Math e Mermaid no navegador; a implementação `.server()` retorna `null`. O Markdown básico segue disponível no SSR e os plugins aprimoram a renderização depois da hidratação.
+- Validação: [execução Validate Cortaí](https://github.com/herslander-netizen/cortai-app/actions/runs/39319807380) passou em TypeScript, testes e build; [workflow da prévia](https://github.com/herslander-netizen/cortai-app/actions/runs/39319807397) passou no build, no deploy do Pages e na configuração/reimplantação do Worker com variáveis.
+- Commits de código: `7e829c80` (correção de tipagem) e `46fb7f2d` (separação cliente/servidor). Prévia publicada em https://previa.cortaiapp.pages.dev. Nenhuma alteração na `main` ou no banco de produção.
 
 ### 2026-10-19 UTC — Claude — Migração 0038 APLICADA no `cortai-prod` (autorizada pelo dono)
 - Antes de aplicar: as políticas reais das 7 tabelas batiam exatamente com as substituídas (nenhuma
