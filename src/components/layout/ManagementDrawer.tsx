@@ -289,8 +289,8 @@ export function ManagementHeader() {
         <div id="topo-centro" className="flex min-w-0 flex-1 justify-center md:hidden" />
         <div className="flex items-center gap-1">
           {mostrarAcoesRapidas ? <AcoesRapidas /> : null}
-          {/* Na Agenda do celular a barra já leva a semana inteira; a CortAI segue em Ajustes. */}
-          {celular && caminho === "/barbeiro" ? null : <AtalhoCortaiNoCabecalho />}
+          {/* A Agenda mantém o topo livre; a CortAI continua acessível nas demais telas. */}
+          {caminho === "/barbeiro" || caminho === "/barbeiro/agenda" ? null : <AtalhoCortaiNoCabecalho />}
           <SinoDeAvisos />
         </div>
       </div>
