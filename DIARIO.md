@@ -222,6 +222,17 @@ teste real na prévia.
 
 ## Diário (mais recente primeiro)
 
+### 2026-10-19 UTC — Claude — Gancho de início de sessão também sincroniza nas sessões na nuvem
+- Arquivo alterado: `.claude/hooks/sincronizar-dupla.sh`.
+- O que mudou: antes o `git pull` só rodava se a sessão estivesse na branch da migração; as sessões
+  do Claude na nuvem começam numa branch própria (`ccr-…`), então nada era atualizado. Agora o gancho
+  sempre busca `cloudflare-workers-migration-2026-10-13`; se a branch atual estiver atrás e limpa,
+  avança por fast-forward; se estiver suja ou divergente, só avisa para rodar `git merge`. O diário
+  mostrado vem sempre da versão mais nova da branch da migração. Nunca falha a sessão.
+- Testes: ensaiado num repositório descartável (em dia, atrás com árvore suja, fast-forward,
+  divergente, sem rede e na própria branch atrasada).
+- Produção/banco: não alterados.
+
 ### 2026-10-19 UTC — GPT — Remove atalho CortAI do cabeçalho da Agenda
 - Arquivo alterado: `src/components/layout/ManagementDrawer.tsx`.
 - O que mudou: o ícone CortAI deixa de aparecer no topo nas rotas `/barbeiro` e `/barbeiro/agenda`, tanto no celular quanto no desktop. A condição é localizada ao cabeçalho; o assistente e o botão flutuante permanecem disponíveis onde já existiam.
