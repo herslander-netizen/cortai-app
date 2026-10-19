@@ -71,4 +71,33 @@ Atendimento avulso, Agendar por voz e Agendar horário já existe no Cortaí.
 
 **Fonte:** `docs/referencia-figaro/apk/2-agenda.md`, §§2.1–2.6, 5 e 6 (`AgendaArmableCardKt`, `AgendaArmState`, `AgendaArmedTopBar`, `AgendaArmedBottomBar`, `AgendaDragProposal`); `docs/referencia-figaro/apk/3-fluxos-do-atendimento.md`, §2.
 
-(continuar respostas 4–6)
+### Resposta 4 — Bloquear horário
+
+- A criação abre uma sheet ajustada ao conteúdo, com título “Bloquear horário” e subtítulo “Agenda de [profissional]”. Campos nesta ordem: **Dia**, **Início**, **Fim**, **Motivo (opcional)**. O profissional vem do contexto, sem seletor. Dia abre seletor que aceita hoje em diante; início/fim abrem seletores de hora. Há a nota “Clientes não conseguem agendar durante o bloqueio” e botões “Cancelar” e “Bloquear horário”.
+- Padrão: 12:00–13:00; se hoje já passou de 12:00, próxima hora cheia e a seguinte (com limite perto da meia-noite). Hoje não aceita início anterior ao momento atual, arredondado para cima em passos de 5 minutos. Fim precisa ser maior que início. É um bloqueio de um dia, não dia inteiro ou período de vários dias.
+- Na grade, o cartão tem cantos de 8dp, listras diagonais neutras muito leves, barra lateral neutra de 3,5dp com alfa 0,3 e inset de 6dp, título em negrito (motivo/rótulo ou profissional; fallback “Bloqueio”), horário secundário e ícone de calendário com X no canto. Tocar abre detalhe com motivo/dia/horário/profissional e “Desbloquear”, protegido por confirmação.
+
+**Fonte:** `docs/referencia-figaro/apk/3-fluxos-do-atendimento.md`, §7 (`CreateBlockingSheetKt`, `BlockingDefaultWindowKt`, `BlockingDetailSheetKt`); `docs/referencia-figaro/apk/2-agenda.md`, §4.8 (`DayTimelineOffTimeBlockKt`).
+
+### Resposta 5 — Filtro da equipe
+
+- O gatilho fica na barra flutuante inferior: avatar circular de 38dp com foto/iniciais. Ao tocar, abre sheet “Agenda”, subtítulo “Escolha qual agenda você deseja visualizar.” A lista informa a disponibilidade semanal de hoje, por exemplo “Hoje · 09:00 - 18:00.” ou “Não disponível hoje.”, com ação “Ver minha agenda”.
+- O Figaro mostra **uma agenda por vez**: ao selecionar profissional, filtra os serviços por aquele profissional, não cria colunas lado a lado.
+- A especificação não detalha a forma/cor exata do realce do item selecionado: **sem evidência**.
+- O APK não documenta opção “Todos”. O Cortaí já possui “Toda a equipe”; preservar essa função atual. A referência do Figaro não prova a mecânica visual exata dessa opção extra, portanto não a redesenhar por suposição.
+
+**Fonte:** `docs/referencia-figaro/apk/2-agenda.md`, §§1.4 e 8 (`AgendaBottomBar`, `AgendaTeamMemberFilterSheet`, `filteredAppointments`).
+
+### Resposta 6 — Outros detalhes da Agenda
+
+- **“Agora/Hoje”:** no APK o rótulo é “Today” (tradução sugerida “Hoje”), com ícone de alvo, na barra inferior. Tocar retorna para hoje e anima o scroll até o minuto atual. Na abertura da tela, o scroll inicial posiciona “agora” cerca de 200dp abaixo do topo sem animação.
+- **“+”:** FAB em `primaryContainer`; o ícone Add transforma-se em Close ao abrir/fechar. O menu do Figaro lista “Vender pacote”, “Reservar horário”, “Bloquear horário” e “Agendar”, com itens em `surfaceContainerHigh`. A duração exata do morph e a sequência de animação dos itens: **sem evidência**. No Cortaí, manter as opções já existentes (Bloquear horário, Atendimento avulso, Agendar por voz, Agendar horário); não inventar venda de pacote/reserva.
+- **Sino:** no topo; `icon_bell` quando não há notificações não lidas e `icon_bell_on` em cor tertiary/magenta quando há; abre notificações.
+- **Modo Foco:** **sem evidência** no inventário do APK. Não confundir com o modo armado de edição por arrasto.
+- **Linha do horário atual:** só aparece no dia de hoje e dentro do dia; linha magenta `#D3145D`, 1,5dp, do início da grade até a borda direita. No trilho das horas, pílula magenta com `HH:mm` em branco, 10sp Bold. A posição acompanha o minuto e atualiza a cada minuto.
+- **Carregando/erro/vazio:** carregando: indicador contido centralizado abaixo do seletor de datas. Erro: “Não foi possível carregar a agenda”, “Verifique sua conexão e tente novamente.” e botão “Tentar novamente”. Dia vazio na timeline: só a grade (inferência; não foi encontrado estado próprio). Na lista, vazio com “Sem agendamentos” e “Os agendamentos aparecerão aqui assim que forem marcados.”.
+- **Movimento confirmado:** semana↔mês usa mola (damping 1, stiffness 400); armar/desarmar e reorganizar cartões usa 300ms FastOutSlowIn; calendário↔lista usa fade + mudança de tamanho. Não atribuir esses tempos ao Modo Foco, cuja mecânica não foi encontrada.
+
+**Fonte:** `docs/referencia-figaro/apk/2-agenda.md`, §§1.1, 1.4–1.5, 2.4, 2.6, 4.8, 6, 7, 9 e 10; ausência de evidência para Modo Foco e long-press em espaço vazio em §5.
+
+
