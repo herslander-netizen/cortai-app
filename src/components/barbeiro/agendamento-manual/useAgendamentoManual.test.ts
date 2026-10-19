@@ -16,6 +16,7 @@ const inicial = {
   horaMin: "09:00",
   horaInicial: "09:00",
   forma: "balcao" as const,
+  semCliente: false,
 };
 
 describe("temAlteracoesAgendamentoManual", () => {
@@ -35,6 +36,10 @@ describe("temAlteracoesAgendamentoManual", () => {
     for (const alteracao of alteracoes) {
       expect(temAlteracoesAgendamentoManual({ ...inicial, ...alteracao })).toBe(true);
     }
+  });
+
+  it("considera a opção sem cliente uma alteração explícita", () => {
+    expect(temAlteracoesAgendamentoManual({ ...inicial, semCliente: true })).toBe(true);
   });
 
   it("detecta cliente selecionado ou dados digitados", () => {
