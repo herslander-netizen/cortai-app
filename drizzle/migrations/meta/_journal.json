@@ -281,6 +281,13 @@
       "when": 1792446231421,
       "tag": "0039_agendamento_cliente_opcional",
       "breakpoints": true
+    },
+    {
+      "idx": 40,
+      "version": "7",
+      "when": 1792446568382,
+      "tag": "0040_comanda_ao_vincular_cliente",
+      "breakpoints": true
     }
   ]
 }
