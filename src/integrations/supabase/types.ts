@@ -152,7 +152,7 @@ export type Database = {
           arrived_inferido: boolean
           assistido_por_cortai: boolean
           cancelado_em: string | null
-          cliente_id: string
+          cliente_id: string | null
           confirmado_em: string | null
           criado_em: string
           encaixe: boolean
@@ -186,7 +186,7 @@ export type Database = {
           arrived_inferido?: boolean
           assistido_por_cortai?: boolean
           cancelado_em?: string | null
-          cliente_id: string
+          cliente_id: string | null
           confirmado_em?: string | null
           criado_em?: string
           encaixe?: boolean
@@ -5138,7 +5138,7 @@ export type Database = {
       }
       criar_agendamento: {
         Args: {
-          _cliente_id: string
+          _cliente_id: string | null
           _encaixe?: boolean
           _forma_pagamento: string
           _inicio: string
