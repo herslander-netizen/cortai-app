@@ -57,10 +57,7 @@ O APK reencontrado `Figaroo.apk` é a referência original para layout, cartões
 - `montar-banco-novo.yml` — só para banco vazio. Não usar no `cortai-prod`, que já está montado.
 - `testar-login.yml`, `conferir-links.yml`, `refresh-bun-lockfile.yml` — utilitários manuais.
 
-Segredos usados (nomes): `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`,
-`PREVIEW_SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_ACCESS_TOKEN`; opcionais `PREVIEW_CORTAI_AI_*`,
-`PREVIEW_CORTAI_CRON_SECRET`, `PREVIEW_META_WHATSAPP_*`. O prefixo `PREVIEW_` é só nome: os mesmos
-segredos valem para a prévia e para o site principal.
+Segredos: a prévia usa exclusivamente `PREVIEW_SUPABASE_URL`, `PREVIEW_SUPABASE_PUBLISHABLE_KEY`, `PREVIEW_SUPABASE_SERVICE_ROLE_KEY` e opcionais `PREVIEW_CORTAI_AI_*`, `PREVIEW_CORTAI_CRON_SECRET`, `PREVIEW_META_WHATSAPP_*`. O lançamento principal usa `SUPABASE_SERVICE_ROLE_KEY` e, quando configurados, `CORTAI_CRON_SECRET`, `CORTAI_AI_*` e `META_WHATSAPP_*`, além de `CLOUDFLARE_API_TOKEN` e `CLOUDFLARE_ACCOUNT_ID`. **Não reutilizar credenciais da prévia em produção.**
 
 ## Pendências
 
