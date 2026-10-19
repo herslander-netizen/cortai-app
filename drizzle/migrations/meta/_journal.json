@@ -288,6 +288,13 @@
       "when": 1792446568382,
       "tag": "0040_comanda_ao_vincular_cliente",
       "breakpoints": true
+    },
+    {
+      "idx": 41,
+      "version": "7",
+      "when": 1792446693204,
+      "tag": "0041_proteger_funcao_trigger_comanda",
+      "breakpoints": true
     }
   ]
 }
