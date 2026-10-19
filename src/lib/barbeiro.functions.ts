@@ -1374,7 +1374,7 @@ export const criarAgendamentoManual = createServerFn({ method: "POST" })
     });
 
     if (!data.encaixe && !livre(inicio.getTime(), fim.getTime())) {
-      if (clienteCriado) await db.from("clientes").delete().eq("id", clienteId);
+      if (clienteCriado) await db.from("clientes").delete().eq("id", clienteId!);
       return await conflitoDoPainel();
     }
 
@@ -1964,7 +1964,7 @@ export const trocarClienteDoAgendamento = createServerFn({ method: "POST" })
       .maybeSingle();
     if (!atual) throw new Error("Agendamento não encontrado neste negócio.");
     if (atual.cliente_id === data.clienteId)
-      return { ok: true, clienteAnterior: atual.cliente_id as string, avisado: false };
+      return { ok: true, clienteAnterior: atual.cliente_id ?? null, avisado: false };
     if (atual.status !== "agendado" && atual.status !== "chegou")
       throw new Error("Só dá para trocar o cliente antes de começar o atendimento.");
     if (atual.pagamento_confirmado_em)
@@ -2000,24 +2000,29 @@ export const trocarClienteDoAgendamento = createServerFn({ method: "POST" })
       .gt("fim", atual.inicio)
       .limit(1);
     if (choque?.length) throw new Error(`${cliente.nome} já tem um horário nesse período.`);
-    const { error } = await db
+    let atualizacao = db
       .from("agendamentos")
       .update({ cliente_id: cliente.id, confirmado_em: null })
       .eq("id", atual.id)
-      .eq("tenant_id", tenant.id)
-      .eq("cliente_id", atual.cliente_id);
+      .eq("tenant_id", tenant.id);
+    atualizacao = atual.cliente_id
+      ? atualizacao.eq("cliente_id", atual.cliente_id)
+      : atualizacao.is("cliente_id", null);
+    const { error } = await atualizacao;
     if (error) throw new Error(error.message);
-    // Os avisos que o cliente anterior recebeu não podem mais confirmar nem cancelar este horário.
-    await db
-      .from("envios_de_whatsapp")
-      .update({ aguarda_resposta: false, valido_ate: new Date().toISOString() })
-      .eq("tenant_id", tenant.id)
-      .eq("agendamento_id", atual.id)
-      .eq("cliente_id", atual.cliente_id)
-      .then(
-        () => null,
-        () => null,
-      );
+    // Os avisos do cliente anterior deixam de valer. Sem cliente anterior, não há avisos a invalidar.
+    if (atual.cliente_id) {
+      await db
+        .from("envios_de_whatsapp")
+        .update({ aguarda_resposta: false, valido_ate: new Date().toISOString() })
+        .eq("tenant_id", tenant.id)
+        .eq("agendamento_id", atual.id)
+        .eq("cliente_id", atual.cliente_id)
+        .then(
+          () => null,
+          () => null,
+        );
+    }
     let avisado = false;
     if (data.avisarCliente !== false) {
       try {
