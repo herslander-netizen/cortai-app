@@ -46,6 +46,7 @@ export function useAgendamentoManual({
   const [termoDebounce, setTermoDebounce] = useState("");
   const [clienteId, setClienteId] = useState<string | null>(null);
   const [clienteNome, setClienteNome] = useState("");
+  const [semCliente, setSemCliente] = useState(false);
   const [novo, setNovo] = useState(iniciarNovoCliente);
   const [novoNome, setNovoNome] = useState("");
   const [novoTelefone, setNovoTelefone] = useState("");
@@ -99,7 +100,7 @@ export function useAgendamentoManual({
 
   const nomeValido = novoNome.trim().length >= 2;
   const telefoneValido = novoTelefone.replace(/\D/g, "").length >= 10;
-  const clienteOk = clienteId ? true : novo && nomeValido && telefoneValido;
+  const clienteOk = semCliente || (clienteId ? true : novo && nomeValido && telefoneValido);
   const pronto = Boolean(clienteOk && servicoId && profissionalId && data && horaMin);
   // Não perder escolhas feitas no formulário: o padrão carregado do catálogo não
   // conta como edição, mas qualquer desvio dos valores iniciais pede confirmação.
@@ -123,6 +124,7 @@ export function useAgendamentoManual({
     horaMin,
     horaInicial,
     forma,
+    semCliente,
   });
 
   async function salvar(isoForcado?: string, encaixe = false) {
@@ -133,7 +135,7 @@ export function useAgendamentoManual({
     try {
       const r = await criar({
         data: {
-          ...(clienteId ? { clienteId } : { novoNome: novoNome.trim(), novoTelefone }),
+          ...(semCliente ? { semCliente: true } : clienteId ? { clienteId } : { novoNome: novoNome.trim(), novoTelefone }),
           servicoId,
           profissionalId,
           inicio:
@@ -172,12 +174,26 @@ export function useAgendamentoManual({
     setTermo,
     clienteId,
     clienteNome,
+    semCliente,
+    continuarSemCliente: () => {
+      setSemCliente(true);
+      setClienteId(null);
+      setClienteNome("");
+      setNovo(false);
+      setNovoNome("");
+      setNovoTelefone("");
+      setForma("balcao");
+    },
     escolherCliente: (id: string | null, nome = "") => {
+      setSemCliente(false);
       setClienteId(id);
       setClienteNome(nome);
     },
     novo,
-    setNovo,
+    setNovo: (valor: boolean) => {
+      setSemCliente(false);
+      setNovo(valor);
+    },
     novoNome,
     setNovoNome,
     novoTelefone,
