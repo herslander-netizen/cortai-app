@@ -1203,6 +1203,7 @@ export const criarAgendamentoManual = createServerFn({ method: "POST" })
   .validator(
     (data: {
       clienteId?: string | undefined;
+      semCliente?: boolean | undefined;
       novoNome?: string | undefined;
       novoTelefone?: string | undefined;
       servicoId: string;
@@ -1237,7 +1238,13 @@ export const criarAgendamentoManual = createServerFn({ method: "POST" })
     let clienteId = data.clienteId ?? null;
     let clienteNome = "";
     let clienteCriado = false;
-    if (clienteId) {
+    if (data.semCliente) {
+      if (clienteId || (data.novoNome ?? "").trim() || (data.novoTelefone ?? "").trim())
+        throw new Error("Escolha um cliente ou continue sem cliente, sem misturar os dados.");
+      if (data.formaPagamento !== "balcao")
+        throw new Error("Sem cliente, o pagamento deve ser definido depois do atendimento.");
+      clienteNome = "";
+    } else if (clienteId) {
       const { data: c } = await db
         .from("clientes")
         .select("id, nome")
@@ -1295,7 +1302,7 @@ export const criarAgendamentoManual = createServerFn({ method: "POST" })
     }
 
     // 3. Só agora cria o cliente novo; uma falha de disponibilidade nunca deixa cadastro órfão.
-    if (!clienteId) {
+    if (!clienteId && !data.semCliente) {
       const telefone = soDigitos(data.novoTelefone ?? "").slice(0, 15);
       const { data: novo, error } = await db
         .from("clientes")
@@ -1374,7 +1381,7 @@ export const criarAgendamentoManual = createServerFn({ method: "POST" })
     // 5. Criar pelas mesmas regras do app e marcar a origem como manual.
     const { data: res, error } = await db.rpc("criar_agendamento", {
       _tenant_id: tenant.id,
-      _cliente_id: clienteId,
+      _cliente_id: data.semCliente ? null : clienteId,
       _profissional_id: data.profissionalId,
       _servico_id: data.servicoId,
       _inicio: inicio.toISOString(),
