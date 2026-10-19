@@ -128,6 +128,7 @@ teste real na prévia.
 
 | Quem | Desde (UTC) | Tarefa | Arquivos / migração reservada |
 |---|---|---|---|
+| GPT | 2026-10-19 UTC | Remover o atalho/elemento CortAI do topo da Agenda, sem remover o assistente do restante do sistema | `DIARIO.md`, `src/components/barbeiro/AgendaOperacional.tsx`, componente de topo identificado após inspeção |
 | GPT | 2026-10-17 UTC | Auditoria e melhoria mobile-first da home de apresentação | `DIARIO.md`, `MUSE.md`, `src/components/apresentacao/ShowroomCortai.tsx`, `src/components/apresentacao/DemoAgendamento.tsx`, `src/components/apresentacao/NarrativaApresentacao.tsx`, estilos já existentes da apresentação |
 | GPT | 2026-10-17 UTC | Refinar movimento global para animações mais fluidas e perceptíveis | `DIARIO.md`, `src/lib/motion.ts`, `src/components/layout/GlobalDesign.tsx` |
 | GPT | 2026-10-17 UTC | Auditar ciclo de vida e acessibilidade dos formulários; corrigir divergência do contrato de design no gatilho de agendamento manual | `DIARIO.md`, `src/components/ui/formulario/TelaDeFormulario.tsx`, `src/components/ui/formulario/TelaDeFormulario.test.tsx`, `src/components/barbeiro/AgendamentoManual.tsx`, `src/components/barbeiro/agendamento-manual/useAgendamentoManual.ts`, `src/components/barbeiro/agendamento-manual/regrasAgendamentoManual.ts`, `src/components/barbeiro/agendamento-manual/useAgendamentoManual.test.ts` |
