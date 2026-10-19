@@ -14,7 +14,8 @@ A estrutura foi pensada para só gerar custo quando houver clientes.
 | Código | GitHub `herslander-netizen/cortai-app`, branch `cloudflare-workers-migration-2026-10-13` |
 | Prévia | https://previa.cortaiapp.pages.dev — publicada a cada envio na branch |
 | Site principal | https://cortaiapp.pages.dev (Cloudflare Pages, projeto `cortaiapp`) — só pelo "Lançar versão" |
-| Banco, login e arquivos | Supabase `cortai-prod` (`ibsberidejlbczxrweqg`); teste de permissões `supabase/tests/rbac.sql` |
+| Banco de produção | Supabase `cortai-prod` (`ibsberidejlbczxrweqg`); teste de permissões `supabase/tests/rbac.sql` |
+| Banco da prévia | Projeto Supabase de teste separado — **ainda precisa ser criado/configurado**; secrets obrigatórios `PREVIEW_SUPABASE_URL`, `PREVIEW_SUPABASE_PUBLISHABLE_KEY`, `PREVIEW_SUPABASE_SERVICE_ROLE_KEY` |
 | IA | Provedor compatível com OpenAI (`CORTAI_AI_*`) ou modo por regras; sem configuração, fica indisponível |
 | Voz | Navegador (grátis) ou provedor de transcrição (`CORTAI_STT_*`) |
 | WhatsApp | Cloud API da Meta direto (`META_WHATSAPP_*`) ou Evolution API (`EVOLUTION_*`) |
