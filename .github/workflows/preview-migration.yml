@@ -53,11 +53,21 @@ jobs:
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          PREVIEW_SUPABASE_URL: ${{ secrets.PREVIEW_SUPABASE_URL }}
+          PREVIEW_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.PREVIEW_SUPABASE_PUBLISHABLE_KEY }}
+          PREVIEW_SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.PREVIEW_SUPABASE_SERVICE_ROLE_KEY }}
         run: |
           set -euo pipefail
-          if [[ -z "$CLOUDFLARE_API_TOKEN" || -z "$CLOUDFLARE_ACCOUNT_ID" ]]; then
+          faltam=()
+          for n in CLOUDFLARE_API_TOKEN CLOUDFLARE_ACCOUNT_ID PREVIEW_SUPABASE_URL PREVIEW_SUPABASE_PUBLISHABLE_KEY PREVIEW_SUPABASE_SERVICE_ROLE_KEY; do
+            [ -n "${!n}" ] || faltam+=("$n")
+          done
+          if (( ${#faltam[@]} > 0 )); then
             echo "ready=false" >> "$GITHUB_OUTPUT"
-            echo "::notice::Preview deployment skipped: configure Cloudflare credentials and dedicated test Supabase secrets first."
+            echo "::notice::Preview deployment skipped: missing required isolated-preview secrets: ${faltam[*]}"
+          elif [[ "$PREVIEW_SUPABASE_URL" == *"ibsberidejlbczxrweqg.supabase.co"* ]]; then
+            echo "::error::PREVIEW_SUPABASE_URL points to production cortai-prod; refusing to deploy preview against production database."
+            exit 1
           else
             echo "ready=true" >> "$GITHUB_OUTPUT"
           fi
@@ -102,9 +112,9 @@ jobs:
       - name: Build with isolated preview configuration
         if: steps.gate.outputs.ready == 'true'
         env:
-          # Projeto da prévia (cortai-prod). Endereço e chave pública vão para o navegador: não são segredos.
-          VITE_SUPABASE_URL: https://ibsberidejlbczxrweqg.supabase.co
-          VITE_SUPABASE_PUBLISHABLE_KEY: sb_publishable_jGNr3ZXqTm603K_TtSK8rQ_sbQQT6IF
+          # Banco EXCLUSIVO de testes. Nunca apontar a prévia para cortai-prod.
+          VITE_SUPABASE_URL: ${{ secrets.PREVIEW_SUPABASE_URL }}
+          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.PREVIEW_SUPABASE_PUBLISHABLE_KEY }}
           # Links de compartilhar e prévias de link no navegador apontam para a prévia (src/lib/origem-publica.ts).
           VITE_CORTAI_PUBLIC_URL: ${{ steps.endereco.outputs.url }}
         run: |
@@ -140,8 +150,8 @@ jobs:
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          SUPABASE_URL: https://ibsberidejlbczxrweqg.supabase.co
-          SUPABASE_PUBLISHABLE_KEY: sb_publishable_jGNr3ZXqTm603K_TtSK8rQ_sbQQT6IF
+          SUPABASE_URL: ${{ secrets.PREVIEW_SUPABASE_URL }}
+          SUPABASE_PUBLISHABLE_KEY: ${{ secrets.PREVIEW_SUPABASE_PUBLISHABLE_KEY }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.PREVIEW_SUPABASE_SERVICE_ROLE_KEY }}
           CORTAI_PUBLIC_BASE_URL: ${{ steps.endereco.outputs.url }}
           CORTAI_CRON_SECRET: ${{ secrets.PREVIEW_CORTAI_CRON_SECRET }}
