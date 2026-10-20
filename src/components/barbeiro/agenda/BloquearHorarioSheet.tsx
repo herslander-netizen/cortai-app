@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Clock3, Lock, Unlock } from "lucide-react";
+import { CalendarDays, Clock3, Lock, Unlock } from "lucide-react";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -108,25 +108,36 @@ export function BloquearHorarioSheet({
           </SheetDescription>
         </SheetHeader>
 
-        <div className="mt-4 grid grid-cols-2 gap-3">
-          <label className="block text-sm text-mute">
-            De
-            <input
-              type="time"
-              value={de}
-              onChange={(e) => setDe(e.target.value)}
-              className="field-control mt-1 min-h-11 w-full"
-            />
-          </label>
-          <label className="block text-sm text-mute">
-            Até
-            <input
-              type="time"
-              value={ate}
-              onChange={(e) => setAte(e.target.value)}
-              className="field-control mt-1 min-h-11 w-full"
-            />
-          </label>
+        <div className="mt-5 space-y-3">
+          <div className="field-control flex min-h-12 items-center gap-3" aria-label={`Dia do bloqueio: ${dataEditorial(dia)}`}>
+            <CalendarDays className="size-5 shrink-0 text-mute" aria-hidden="true" />
+            <div className="min-w-0 flex-1">
+              <p className="text-xs text-mute">Dia</p>
+              <p className="truncate text-sm font-medium text-paper">{dataEditorial(dia)}</p>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <label className="block text-sm text-mute">
+              Início
+              <input
+                type="time"
+                value={de}
+                onChange={(e) => setDe(e.target.value)}
+                className="field-control mt-1 min-h-12 w-full"
+                aria-label="Horário de início do bloqueio"
+              />
+            </label>
+            <label className="block text-sm text-mute">
+              Fim
+              <input
+                type="time"
+                value={ate}
+                onChange={(e) => setAte(e.target.value)}
+                className="field-control mt-1 min-h-12 w-full"
+                aria-label="Horário de fim do bloqueio"
+              />
+            </label>
+          </div>
         </div>
         {profissionais.length > 1 ? (
           <label className="mt-3 block text-sm text-mute">
@@ -156,17 +167,30 @@ export function BloquearHorarioSheet({
             className="field-control mt-1 min-h-11 w-full"
           />
         </label>
+        <p className="mt-4 rounded-lg bg-ink3 px-3 py-3 text-sm text-mute">
+          Clientes não conseguem agendar durante o bloqueio.
+        </p>
         {invalido ? (
-          <p className="mt-2 text-sm text-brick">O fim precisa ser depois do início.</p>
+          <p className="mt-2 text-sm text-brick" role="alert">O fim precisa ser depois do início.</p>
         ) : null}
-        <Button
-          className="mt-4 w-full"
-          size="lg"
-          disabled={invalido || salvar.isPending}
-          onClick={() => salvar.mutate()}
-        >
-          <Lock /> {salvar.isPending ? "Bloqueando…" : "Bloquear este período"}
-        </Button>
+        <div className="mt-4 grid grid-cols-2 gap-3">
+          <Button
+            variant="outline"
+            size="lg"
+            disabled={salvar.isPending}
+            onClick={() => onAberto(false)}
+          >
+            Cancelar
+          </Button>
+          <Button
+            className="w-full"
+            size="lg"
+            disabled={invalido || salvar.isPending}
+            onClick={() => salvar.mutate()}
+          >
+            <Lock /> {salvar.isPending ? "Bloqueando…" : "Bloquear horário"}
+          </Button>
+        </div>
 
         {lista.data?.length ? (
           <ul
