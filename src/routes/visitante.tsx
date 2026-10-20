@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { destinoDoPapel } from "@/lib/guarda";
 import { getSessao } from "@/lib/sessao.functions";
+import { mensagemDeErroDeAuth, urlDeRetornoDeAutenticacao } from "@/lib/auth-flow";
 
 export const Route = createFileRoute("/visitante")({
   ssr: false,
@@ -30,7 +31,12 @@ export const Route = createFileRoute("/visitante")({
     ],
   }),
   beforeLoad: async () => {
-    const { data } = await supabase.auth.getUser();
+    let data: { user: { id: string } | null };
+    try {
+      data = (await supabase.auth.getUser()).data;
+    } catch {
+      return;
+    }
     if (data.user) {
       const sessao = await getSessao();
       throw redirect({ to: destinoDoPapel(sessao) });
@@ -74,45 +80,40 @@ function VisitantePage() {
           setErro(null);
           setAviso(null);
           setEnviando(true);
-          if (modo === "entrar") {
-            const { error } = await supabase.auth.signInWithPassword({ email, password: senha });
-            setEnviando(false);
+          try {
+            if (modo === "entrar") {
+              const { error } = await supabase.auth.signInWithPassword({ email, password: senha });
+              if (error) {
+                setErro(mensagemDeErroDeAuth(error, "entrar"));
+                return;
+              }
+              await seguir();
+              return;
+            }
+            const { data, error } = await supabase.auth.signUp({
+              email,
+              password: senha,
+              options: {
+                emailRedirectTo: urlDeRetornoDeAutenticacao(window.location.origin, "/app"),
+                data: { nome: nome.trim() },
+              },
+            });
             if (error) {
-              setErro("Não foi possível entrar. Confira o e-mail e a senha.");
+              setErro(mensagemDeErroDeAuth(error, "criar"));
+              return;
+            }
+            if (!data.session) {
+              setAviso(
+                "Verifique seu e-mail para confirmar sua conta. O link retornará para continuar o agendamento; se este e-mail já tiver cadastro, use Entrar ou Esqueceu a senha.",
+              );
               return;
             }
             await seguir();
-            return;
+          } catch (error) {
+            setErro(mensagemDeErroDeAuth(error instanceof Error ? error : null, modo));
+          } finally {
+            setEnviando(false);
           }
-          const { data, error } = await supabase.auth.signUp({
-            email,
-            password: senha,
-            options: {
-              emailRedirectTo: `${window.location.origin}/app`,
-              data: { nome: nome.trim() },
-            },
-          });
-          setEnviando(false);
-          if (error) {
-            const codigo = (error as { code?: string }).code ?? "";
-            setErro(
-              codigo === "weak_password"
-                ? "Essa senha é fácil de adivinhar ou já apareceu em vazamentos. Escolha outra."
-                : error.status === 429 || codigo.includes("rate_limit")
-                  ? "Muitas tentativas em pouco tempo. Aguarde alguns minutos e tente de novo."
-                  : codigo === "email_address_invalid"
-                    ? "Confira o e-mail digitado."
-                    : "Não foi possível criar a conta agora. Tente novamente em instantes.",
-            );
-            return;
-          }
-          if (!data.session) {
-            setAviso(
-              "Verifique seu e-mail para confirmar sua conta. Se este e-mail já tiver cadastro, nenhuma mensagem nova é enviada: use Entrar ou Esqueceu a senha.",
-            );
-            return;
-          }
-          await seguir();
         }}
       >
         {modo === "criar" ? (

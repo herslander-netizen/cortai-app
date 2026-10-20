@@ -5,6 +5,7 @@ import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { destinoDoPapel, esquecerSessao, sair, sessaoDoUsuario } from "@/lib/guarda";
 import { criarBarbearia, definirTipoDePerfil, escolherContexto } from "@/lib/sessao.functions";
+import { mensagemDeErroDeNegocio } from "@/lib/auth-flow";
 import { CHAVE_VINCULO } from "@/lib/vinculo";
 
 function temVinculoPendente() {
@@ -259,7 +260,8 @@ function ComecarPage() {
               esquecerSessao();
               setConcluido(true);
             } catch (e) {
-              setErro(e instanceof Error ? e.message : "Não foi possível criar agora.");
+              setErro(mensagemDeErroDeNegocio(e));
+            } finally {
               setEnviando(false);
             }
           }}
