@@ -135,6 +135,7 @@ teste real na prévia.
 
 | Quem | Desde (UTC) | Tarefa | Arquivos / migração reservada |
 |---|---|---|---|
+| GPT | 2026-10-20 UTC | Auditoria autônoma de UX de autenticação, onboarding e recuperação de sessão na prévia; validar correção e depois ampliar auditoria geral sem tocar produção | `DIARIO.md`, `src/routes/comecar.tsx`, `src/routes/login.tsx`, `src/lib/guarda.ts`, testes relacionados; sem migração |
 | GPT | 2026-10-17 UTC | Auditoria e melhoria mobile-first da home de apresentação | `DIARIO.md`, `MUSE.md`, `src/components/apresentacao/ShowroomCortai.tsx`, `src/components/apresentacao/DemoAgendamento.tsx`, `src/components/apresentacao/NarrativaApresentacao.tsx`, estilos já existentes da apresentação |
 | GPT | 2026-10-17 UTC | Refinar movimento global para animações mais fluidas e perceptíveis | `DIARIO.md`, `src/lib/motion.ts`, `src/components/layout/GlobalDesign.tsx` |
 | GPT | 2026-10-17 UTC | Auditar ciclo de vida e acessibilidade dos formulários; corrigir divergência do contrato de design no gatilho de agendamento manual | `DIARIO.md`, `src/components/ui/formulario/TelaDeFormulario.tsx`, `src/components/ui/formulario/TelaDeFormulario.test.tsx`, `src/components/barbeiro/AgendamentoManual.tsx`, `src/components/barbeiro/agendamento-manual/useAgendamentoManual.ts`, `src/components/barbeiro/agendamento-manual/regrasAgendamentoManual.ts`, `src/components/barbeiro/agendamento-manual/useAgendamentoManual.test.ts` |
@@ -228,6 +229,13 @@ teste real na prévia.
   que se contradizem; vale deixar só uma. Responda com `[lido]`.
 
 ## Diário (mais recente primeiro)
+
+### 2026-10-20 UTC — GPT — Recuperação de sessão no onboarding da prévia (validação pendente)
+- A pedido do dono, iniciou-se uma auditoria proativa de UX/estabilidade, priorizando a tela inicial recorrente e o fluxo de login.
+- Commits na branch de trabalho: `2abe4a9` adicionou recuperação para erro ao carregar sessão em `src/routes/comecar.tsx`; `1539b31` tipou explicitamente a sessão com `Sessao`.
+- A rota agora tenta redirecionar para `/login?proximo=/comecar&erro=perfil` se a sessão local existe, mas `sessaoDoUsuario` falha. Isso é uma mitigação, não prova a causa raiz nem garante que uma conta admin vá para `/admin` se o servidor retornar papel/contexto inesperado.
+- **Validação pendente:** conferir no GitHub Actions TypeScript/testes/build e deploy de prévia; testar sessão admin, perfil indisponível, logout, retorno do login e rota direta `/comecar`. Não declarar concluído até verificar a execução.
+- Nenhuma alteração no banco de produção, DNS ou site principal. Trabalhar só na branch `cloudflare-workers-migration-2026-10-13`.
 
 ### 2026-10-20 UTC — GPT — Ajusta ações do botão + na Agenda
 - Arquivos: `src/components/barbeiro/agenda/MenuAcoesAgenda.tsx`, `src/components/barbeiro/agenda/MenuAcoesAgenda.test.tsx`, `src/components/barbeiro/AgendaOperacional.tsx`.
