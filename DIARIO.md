@@ -229,6 +229,19 @@ teste real na prévia.
 
 ## Diário (mais recente primeiro)
 
+### 2026-10-20 UTC — Claude — Migrações 0039–0041 aplicadas no `cortai-prod`; lançamento 3.3 parado por segredo
+- Antes: as três funções substituídas pela 0039 no banco real eram idênticas às da migração fora das linhas
+  do cliente opcional; os gatilhos de `agendamentos` aceitam cliente vazio (`notificar_agendamento` usa
+  "Cliente"). Teste no banco real antes: agendar sem cliente → "cliente nao encontrado".
+- Ensaio local com 0039–0041: todos os testes de banco OK, incluindo o novo
+  `supabase/tests/agendamento_sem_cliente.sql` (7/7).
+- Aplicadas pelo "Aplicar migrações novas" (execução 39352818144, sucesso) e registradas. Depois, no banco
+  real: "SEM CLIENTE OK: 7 verificações"; `agendamentos.cliente_id` opcional; nenhuma linha alterada.
+  O site no ar (código antigo) continua compatível, porque sempre envia cliente.
+- **Lançar versão (execução 39353028985) falhou antes de criar versão/tag**: falta o segredo de produção
+  `SUPABASE_SERVICE_ROLE_KEY` no GitHub. Nada foi publicado. Só o dono cadastra o segredo; depois, rodar
+  o "Lançar versão" de novo (será a 3.3).
+
 ### 2026-10-19 UTC — GPT — Novo agendamento no padrão Figaro com cliente opcional
 - Arquivos: `src/components/barbeiro/AgendamentoManual.tsx`, `src/components/barbeiro/agendamento-manual/`, `src/lib/barbeiro.functions.ts`, `src/lib/ia/acoes.server.ts`, `src/components/barbeiro/agenda/PainelAtendimento.tsx`, `src/integrations/supabase/types.ts`.
 - Fluxo reorganizado: **Cliente (opcional) → Serviço → Horário → Resumo**. A opção sem cliente não cria ficha fictícia, não tenta enviar WhatsApp e deixa explícito que a cobrança será definida depois de vincular um cliente. Antes de começar o atendimento, a ação passa a ser **Vincular cliente**; ao vincular, a comanda é preparada pelo banco.
