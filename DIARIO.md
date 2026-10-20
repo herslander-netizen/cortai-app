@@ -232,7 +232,7 @@ teste real na prévia.
 
 ### 2026-10-20 UTC — GPT — Folha de bloqueio aproximada ao fluxo visual Figaro
 - Reserva feita em commit separado (`468ecf4`) antes da alteração. A tarefa foi concluída sem tocar em banco, produção ou publicação.
-- Arquivo alterado: `src/components/barbeiro/agenda/BloquearHorarioSheet.tsx`.
+- Arquivo alterado: `src/components/barbeiro/agenda/BloquearHorarioSheet.tsx`. Commits: `e03f3eee` (ajuste visual) e `b14d34f` (semântica acessível do grupo de data).
 - Mudanças visuais: acrescentada linha de data com ícone; rótulos de horário mais claros e alvos mínimos de 48 px; nota informativa de que clientes não podem agendar durante o bloqueio; ações secundárias “Cancelar” e primária “Bloquear horário” lado a lado. A validação de fim posterior ao início agora usa `role="alert"` e os campos de horário têm rótulos acessíveis.
 - Mantidos: horário padrão 12:00–13:00, seleção opcional de profissional/equipe, motivo, consulta e liberação dos bloqueios existentes, mutações e invalidação das consultas. Não foi implementado seletor de data porque o fluxo atual recebe o dia da Agenda; o campo de data é informativo. A seleção de profissional permanece apesar de não existir na sheet do Figaro, pois é uma capacidade existente do Cortaí.
 - Referência: `docs/referencia-figaro/apk/3-fluxos-do-atendimento.md`, §7. A adaptação preserva as opções atuais e aproxima a hierarquia da folha descrita no APK; não declara paridade completa.
