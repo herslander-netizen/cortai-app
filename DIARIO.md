@@ -122,7 +122,7 @@ Tudo o que o dono decidir com qualquer IA entra aqui, com a data. Vale para toda
 
 Pegar a primeira livre; reservar em "Em andamento" antes.
 
-0. **Agenda no padrão Figaro (Codex/GPT):** o cabeçalho e as dimensões dos cartões da Lista foram aproximados do §7 de `apk/2-agenda.md`. Pendentes: validação manual no celular (claro/escuro) e avaliar cabeçalhos fixos, dias vazios e reservas conforme os dados disponíveis. Continua pendente também a validação manual do novo agendamento na prévia.
+0. **Agenda no padrão Figaro (Codex/GPT):** o cabeçalho e as dimensões dos cartões da Lista foram aproximados do §7 de `apk/2-agenda.md`. Cabeçalhos fixos por dia adicionados; pendentes: validar no celular (claro/escuro) e avaliar dias vazios e reservas conforme os dados disponíveis. Continua pendente também a validação manual do novo agendamento na prévia.
 3. Tarefas agendadas do banco (`cron.job`) apontando para o site principal em vez do Worker antigo
    (escrita no banco, com autorização). Depois, apagar o Worker antigo na Cloudflare (com autorização).
 4. Menores: 13 (remarcação pela IA recria o agendamento), 14 (contagens do ADM presas a 1000 linhas),
@@ -135,7 +135,6 @@ teste real na prévia.
 
 | Quem | Desde (UTC) | Tarefa | Arquivos / migração reservada |
 |---|---|---|---|
-| GPT | 2026-10-20 UTC | Implementar cabeçalhos fixos por dia na Lista da Agenda, preservando ações e dados | `DIARIO.md`, `src/styles.css`; sem migração |
 | GPT | 2026-10-20 UTC | Auditoria autônoma de UX de autenticação, onboarding e recuperação de sessão na prévia; validar correção e depois ampliar auditoria geral sem tocar produção | `DIARIO.md`, `src/routes/comecar.tsx`, `src/routes/login.tsx`, `src/lib/guarda.ts`, testes relacionados; sem migração |
 | GPT | 2026-10-17 UTC | Auditoria e melhoria mobile-first da home de apresentação | `DIARIO.md`, `MUSE.md`, `src/components/apresentacao/ShowroomCortai.tsx`, `src/components/apresentacao/DemoAgendamento.tsx`, `src/components/apresentacao/NarrativaApresentacao.tsx`, estilos já existentes da apresentação |
 | GPT | 2026-10-17 UTC | Refinar movimento global para animações mais fluidas e perceptíveis | `DIARIO.md`, `src/lib/motion.ts`, `src/components/layout/GlobalDesign.tsx` |
@@ -230,6 +229,13 @@ teste real na prévia.
   que se contradizem; vale deixar só uma. Responda com `[lido]`.
 
 ## Diário (mais recente primeiro)
+
+### 2026-10-20 UTC — GPT — Cabeçalhos fixos por dia na Lista da Agenda
+- Arquivo: `src/styles.css`.
+- O cabeçalho de cada dia na Lista agora usa posicionamento sticky, fundo opaco e nível de sobreposição para permanecer visível durante a rolagem. Não alterei dados, consultas, busca ou ações.
+- Reserva: `c5a7e59d`; implementação: `3d30f48e`.
+- Validação visual no celular e em temas claro/escuro continua pendente; em particular, confirmar que o cabeçalho não se sobrepõe à navegação superior em dispositivos reais. Não consegui executar TypeScript, testes, ESLint ou build neste ambiente e não há confirmação de CI para este commit.
+
 
 ### 2026-10-20 UTC — GPT — Ajuste visual da Lista da Agenda conforme Figaro
 - Arquivos: `src/components/barbeiro/agenda/ListaPeriodo.tsx`, `src/styles.css`.
