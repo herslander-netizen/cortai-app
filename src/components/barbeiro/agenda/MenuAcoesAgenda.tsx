@@ -1,4 +1,4 @@
-import { CalendarPlus, Clock3, Mic, Scissors, type LucideIcon } from "lucide-react";
+import { CalendarPlus, Lock, Scissors, UsersRound, type LucideIcon } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useRef, type KeyboardEvent } from "react";
 import { createPortal } from "react-dom";
@@ -35,8 +35,9 @@ export function MenuAcoesAgenda({
   onEncaixe,
   onChamarFila: _onChamarFila,
   onBloquear,
+  onEquipe,
   onNovoCliente: _onNovoCliente,
-  onAgendarPorVoz,
+  onAgendarPorVoz: _onAgendarPorVoz,
   visivel = true,
 }: {
   aberto: boolean;
@@ -51,8 +52,9 @@ export function MenuAcoesAgenda({
   onEncaixe: () => void;
   onChamarFila: () => void;
   onBloquear: () => void;
+  onEquipe: () => void;
   onNovoCliente: () => void;
-  /** Quando existe (navegador com microfone), aparece "Agendar por voz" no leque. */
+  /** Mantido por compatibilidade: voz é acionada segurando o botão principal. */
   onAgendarPorVoz?: () => void;
   visivel?: boolean;
   /** Mantido por compatibilidade: o próprio "+" vira "X". */
@@ -113,13 +115,13 @@ export function MenuAcoesAgenda({
     f();
   };
 
-  // Três ações operacionais principais, com "Agendar horário" colado ao "+".
+  // Ações operacionais do menu +; a voz permanece no gesto de toque longo do botão principal.
   const acoes: Acao[] = [
     {
       id: "bloquear",
       rotulo: "Bloquear horário",
       descricao: "Fechar um período da agenda",
-      Icone: Clock3,
+      Icone: Lock,
       onSelect: onBloquear,
     },
     {
@@ -130,18 +132,13 @@ export function MenuAcoesAgenda({
       onSelect: onEncaixe,
       disabled: !online,
     },
-    ...(onAgendarPorVoz
-      ? [
-          {
-            id: "voz",
-            rotulo: "Agendar por voz",
-            descricao: "Fale o cliente, o dia e a hora",
-            Icone: Mic,
-            onSelect: onAgendarPorVoz,
-            disabled: !online,
-          },
-        ]
-      : []),
+    {
+      id: "equipe",
+      rotulo: "Equipe",
+      descricao: "Gerenciar os profissionais e acessos",
+      Icone: UsersRound,
+      onSelect: onEquipe,
+    },
     {
       id: "agendar",
       rotulo: "Agendar horário",
