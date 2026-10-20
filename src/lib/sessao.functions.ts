@@ -406,11 +406,15 @@ export const criarBarbearia = createServerFn({ method: "POST" })
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, "-")
         .replace(/^-+|-+$/g, "") || "negocio";
-    const { data: slugExistente } = await db
+    const { data: slugExistente, error: erroConsultaSlug } = await db
       .from("tenants")
       .select("id")
       .eq("slug", baseSlug)
       .maybeSingle();
+    if (erroConsultaSlug) {
+      diagnostico("consultar_slug", erroConsultaSlug);
+      throw new Error("Não foi possível verificar o nome do negócio agora.");
+    }
     const slug = slugExistente ? `${baseSlug}-${crypto.randomUUID().slice(0, 4)}` : baseSlug;
     const { data: tenant, error } = await db
       .from("tenants")
