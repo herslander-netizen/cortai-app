@@ -38,7 +38,7 @@ function tituloDoDia(dia: string) {
   const semana = new Intl.DateTimeFormat("pt-BR", { weekday: "long", timeZone: "UTC" }).format(
     data,
   );
-  return { curto: `${numero} ${mes}.`, semana: semana.charAt(0).toUpperCase() + semana.slice(1) };
+  return { curto: `${numero} ${mes}`, semana: semana.charAt(0).toUpperCase() + semana.slice(1) };
 }
 
 /** Busca por cliente, telefone (só os números), serviço ou profissional. */
@@ -181,11 +181,18 @@ export function ListaPeriodo({
               <header className="agenda-lista-dia-titulo">
                 <h3>
                   <strong>{titulo.curto}</strong>
-                  <span>{ehHoje ? `Hoje · ${titulo.semana}` : titulo.semana}</span>
+                  {ehHoje ? (
+                    <>
+                      <span className="rounded-full bg-mute2 px-2 py-0.5 text-xs font-semibold text-paper">Hoje</span>
+                      <span>{titulo.semana}</span>
+                    </>
+                  ) : (
+                    <span>{titulo.semana}</span>
+                  )}
                 </h3>
                 <span className="agenda-lista-dia-resumo">
                   {contam.length} {contam.length === 1 ? "atendimento" : "atendimentos"}
-                  {total > 0 ? ` · ${brl(total)}` : ""}
+                  {` · ${brl(total)}` }
                 </span>
               </header>
               <ul>
