@@ -122,7 +122,7 @@ Tudo o que o dono decidir com qualquer IA entra aqui, com a data. Vale para toda
 
 Pegar a primeira livre; reservar em "Em andamento" antes.
 
-0. **Agenda no padrão Figaro (Codex/GPT):** seguir a lista do §4 de `docs/CONTINUAR-CODEX.md`. **Em execução:** validação manual do novo agendamento na prévia pelo celular; próxima implementação: Bloqueio.
+0. **Agenda no padrão Figaro (Codex/GPT):** seguir a lista do §4 de `docs/CONTINUAR-CODEX.md`. **Pendente:** validação manual do novo agendamento na prévia pelo celular; próxima implementação: conferir Lista conforme `apk/2-agenda.md` §7.
 3. Tarefas agendadas do banco (`cron.job`) apontando para o site principal em vez do Worker antigo
    (escrita no banco, com autorização). Depois, apagar o Worker antigo na Cloudflare (com autorização).
 4. Menores: 13 (remarcação pela IA recria o agendamento), 14 (contagens do ADM presas a 1000 linhas),
@@ -135,7 +135,6 @@ teste real na prévia.
 
 | Quem | Desde (UTC) | Tarefa | Arquivos / migração reservada |
 |---|---|---|---|
-| GPT | 2026-10-20 UTC | Recuperar o visual Figaro da folha de bloqueio, preservando regras e opções atuais do Cortaí | `DIARIO.md`, `src/components/barbeiro/agenda/BloquearHorarioSheet.tsx`, testes associados; sem migração |
 | GPT | 2026-10-20 UTC | Auditoria autônoma de UX de autenticação, onboarding e recuperação de sessão na prévia; validar correção e depois ampliar auditoria geral sem tocar produção | `DIARIO.md`, `src/routes/comecar.tsx`, `src/routes/login.tsx`, `src/lib/guarda.ts`, testes relacionados; sem migração |
 | GPT | 2026-10-17 UTC | Auditoria e melhoria mobile-first da home de apresentação | `DIARIO.md`, `MUSE.md`, `src/components/apresentacao/ShowroomCortai.tsx`, `src/components/apresentacao/DemoAgendamento.tsx`, `src/components/apresentacao/NarrativaApresentacao.tsx`, estilos já existentes da apresentação |
 | GPT | 2026-10-17 UTC | Refinar movimento global para animações mais fluidas e perceptíveis | `DIARIO.md`, `src/lib/motion.ts`, `src/components/layout/GlobalDesign.tsx` |
@@ -230,6 +229,15 @@ teste real na prévia.
   que se contradizem; vale deixar só uma. Responda com `[lido]`.
 
 ## Diário (mais recente primeiro)
+
+### 2026-10-20 UTC — GPT — Folha de bloqueio aproximada ao fluxo visual Figaro
+- Reserva feita em commit separado (`468ecf4`) antes da alteração. A tarefa foi concluída sem tocar em banco, produção ou publicação.
+- Arquivo alterado: `src/components/barbeiro/agenda/BloquearHorarioSheet.tsx`.
+- Mudanças visuais: acrescentada linha de data com ícone; rótulos de horário mais claros e alvos mínimos de 48 px; nota informativa de que clientes não podem agendar durante o bloqueio; ações secundárias “Cancelar” e primária “Bloquear horário” lado a lado. A validação de fim posterior ao início agora usa `role="alert"` e os campos de horário têm rótulos acessíveis.
+- Mantidos: horário padrão 12:00–13:00, seleção opcional de profissional/equipe, motivo, consulta e liberação dos bloqueios existentes, mutações e invalidação das consultas. Não foi implementado seletor de data porque o fluxo atual recebe o dia da Agenda; o campo de data é informativo. A seleção de profissional permanece apesar de não existir na sheet do Figaro, pois é uma capacidade existente do Cortaí.
+- Referência: `docs/referencia-figaro/apk/3-fluxos-do-atendimento.md`, §7. A adaptação preserva as opções atuais e aproxima a hierarquia da folha descrita no APK; não declara paridade completa.
+- Validação: não há terminal de projeto disponível nesta sessão. O status check e a consulta de workflows pelo conector GitHub não retornaram execuções para o commit `e03f3eee`; TypeScript, Vitest, ESLint, build e inspeção visual manual **não foram executados/verificados**. Não declarar validação aprovada.
+- Próximo passo: conferir a folha em 390 px nos temas claro/escuro; depois validar a Lista da Agenda contra `docs/referencia-figaro/apk/2-agenda.md` §7. Nenhuma alteração no banco real, em produção, na `main` ou no repositório `evolution-crm`.
 
 ### 2026-10-20 UTC — GPT — Recuperação de sessão no onboarding da prévia (validação pendente)
 - A pedido do dono, iniciou-se uma auditoria proativa de UX/estabilidade, priorizando a tela inicial recorrente e o fluxo de login.
