@@ -2417,7 +2417,7 @@ body:has(.auth-screen--claro) {
 .brand-service h2,
 .brand-person h3,
 .brand-products h3 {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 700;
 }
 .brand-service p {
@@ -6556,7 +6556,7 @@ button.agenda-nome:hover {
 .agenda-lista-linha {
   display: grid;
   grid-template-columns: 52px minmax(0, 1fr);
-  gap: 8px;
+  gap: 12px;
   align-items: start;
 }
 .agenda-lista-linha + .agenda-lista-linha {
@@ -6564,7 +6564,7 @@ button.agenda-nome:hover {
 }
 .agenda-lista-hora {
   display: grid;
-  padding-top: 10px;
+  padding-top: 13px;
   text-align: right;
 }
 .agenda-lista-hora strong {
@@ -6585,13 +6585,14 @@ button.agenda-nome:hover {
   display: flex;
   width: 100%;
   height: auto;
+  min-height: 64px;
   flex-direction: column;
   align-items: stretch;
   gap: 2px;
   border-radius: 12px;
   background: var(--agenda-cartao);
   box-shadow: var(--agenda-cartao-sombra);
-  padding: 10px 12px 10px 20px;
+  padding: 10px 11px 10px 17px;
   color: var(--paper);
   text-align: left;
   white-space: normal;
@@ -6601,7 +6602,7 @@ button.agenda-nome:hover {
   position: absolute;
   top: 10px;
   bottom: 10px;
-  left: 8px;
+  left: 6px;
   width: 4px;
   border-radius: 999px;
   background: var(--cor-categoria, var(--cor-estado));
@@ -6638,7 +6639,7 @@ button.agenda-nome:hover {
 .agenda-lista-detalhe {
   overflow: hidden;
   color: var(--mute);
-  font-size: 13px;
+  font-size: 12.5px;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
