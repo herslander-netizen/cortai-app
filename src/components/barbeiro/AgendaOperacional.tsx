@@ -912,6 +912,7 @@ export function AgendaOperacional() {
       onEncaixe={() => setRapidoAberto(true)}
       onChamarFila={() => void chamarFila()}
       onBloquear={() => setBloquearAberto(true)}
+      onEquipe={() => void navigate({ to: "/barbeiro/equipe" })}
       onNovoCliente={() => {
         setNovoCliente(true);
         setManualAberto(true);
