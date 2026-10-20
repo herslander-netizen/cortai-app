@@ -40,7 +40,18 @@ export const Route = createFileRoute("/comecar")({
     const { data } = await supabase.auth.getSession();
     const usuario = data.session?.user;
     if (!usuario) throw redirect({ to: "/login", search: { proximo: "/comecar" } });
-    const sessao = await sessaoDoUsuario(usuario.id);
+    let sessao;
+    try {
+      sessao = await sessaoDoUsuario(usuario.id);
+    } catch {
+      // Se a sessão existe, mas o perfil/contexto não pôde ser carregado,
+      // não manter a pessoa presa no onboarding. Permite autenticar novamente.
+      esquecerSessao();
+      throw redirect({
+        to: "/login",
+        search: { proximo: "/comecar", erro: "perfil" },
+      });
+    }
     // Conta nova criada a partir de um agendamento: já é cliente, sem pergunta extra.
     if (sessao.papel === "pendente" && !sessao.acessoSuspenso && temVinculoPendente()) {
       await escolherContexto({ data: { contexto: "cliente" } });
