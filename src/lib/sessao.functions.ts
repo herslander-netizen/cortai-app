@@ -400,7 +400,17 @@ export const criarBarbearia = createServerFn({ method: "POST" })
       })
       .select("id")
       .single();
-    if (error || !tenant) throw new Error("Não foi possível criar seu negócio agora.");
+    if (error || !tenant) {
+      // Diagnóstico no servidor: não expor detalhes do banco na interface.
+      console.error("[criarBarbearia] Falha ao inserir tenant", {
+        code: error?.code ?? null,
+        message: error?.message ?? null,
+        details: error?.details ?? null,
+        hint: error?.hint ?? null,
+        returnedTenant: Boolean(tenant),
+      });
+      throw new Error("Não foi possível criar seu negócio agora.");
+    }
     const tenantId = tenant.id;
     const { iniciarTesteGratis } = await import("@/lib/teste-gratis.server");
     const teste = await iniciarTesteGratis(tenantId, {
