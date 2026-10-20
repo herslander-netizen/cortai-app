@@ -1,5 +1,6 @@
 import { OrigemDoAgendamento } from "@/components/barbeiro/agenda/OrigemDoAgendamento";
-import { Check, Clock3 } from "lucide-react";
+import { Clock3 } from "lucide-react";
+import { IconeDoEstado } from "@/components/barbeiro/agenda/IconeDoEstado";
 import {
   Fragment,
   useEffect,
@@ -11,7 +12,6 @@ import {
 } from "react";
 import type React from "react";
 
-import { StatusBadge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useAgora } from "@/hooks/useAgora";
 import type { AgendaItem } from "@/lib/barbeiro.functions";
@@ -25,8 +25,19 @@ import {
 import { ladoDoAgora, publicarAgora } from "@/components/barbeiro/agenda/pilula-agora";
 import { criarBloqueioDeRolagem } from "@/components/barbeiro/agenda/bloqueio-rolagem";
 import { AlcaDeDuracao } from "@/components/barbeiro/agenda/AlcaDeDuracao";
-import { passoDoGesto } from "@/lib/remarcacao-regras";
+import { PASSO_DO_AJUSTE_MIN, passoDoGesto } from "@/lib/remarcacao-regras";
+import { usePincaDaTimeline, usePxPorMinuto } from "@/components/barbeiro/agenda/zoom-agenda";
 import { criarToqueLongoVazio } from "@/components/barbeiro/agenda/toque-longo-vazio";
+import {
+  corDaCategoria,
+  faixaDoCartao,
+  glifoDoEstado,
+  mostraCliente,
+  mostraDetalhes,
+  mostraHorario,
+  opacidadeDasLinhasDe5,
+  ROTULO_DO_GLIFO,
+} from "@/components/barbeiro/agenda/cartao-figaro";
 import { prefereMenosMovimento } from "@/lib/motion";
 
 const CELULAR = "(max-width: 600px)";
@@ -64,7 +75,7 @@ type AgendaTimelineProps = {
   onRedimensionar?: (item: AgendaItem, deltaMin: number) => void;
   /** Segurar o cartão sem arrastar (toque): entra no modo de editar horário. */
   onEditar?: (item: AgendaItem) => void;
-  /** Passo do negócio, em minutos: define o passo fino do arrasto (veja `passoDoGesto`). */
+  /** Passo do negócio, em minutos (o arrasto e a alça andam sempre de 5 em 5; veja `passoDoGesto`). */
   passoMin?: number;
   /** Cartão em edição: mostra o intervalo novo ou o motivo de não poder salvar. */
   edicaoDoCartao?: { id: string } | undefined;
@@ -78,12 +89,20 @@ type AgendaTimelineProps = {
   previa?: boolean;
   /** Celular 3.0: sempre de 00:00 a 23:00, rola até o agora (hoje) ou à abertura. */
   diaCompleto?: boolean;
+  /**
+   * Troca de dia em páginas (celular): os dias vizinhos ficam ao lado, cada um com as próprias
+   * horas. A página inteira desliza com o dedo (`useGestoDia`).
+   */
+  vizinhos?: ReactNode;
+  /** Página de um dia vizinho dentro da troca de dia: sem rolagem própria nem alinhamento. */
+  emCamada?: boolean;
 };
 
-const PX_POR_MINUTO = 2.25;
 const MARGEM_AGORA_MIN = 90;
-const ALTURA_MINIMA_BLOCO = 72;
 const ESPACO_ENTRE_BLOCOS = 6;
+/** Altura mínima do cartão (Figaro `MinCardHeight`). */
+const ALTURA_MINIMA_DO_CARTAO = 28;
+const RESPIRO_DO_CARTAO = 1;
 
 function minutosDoHorario(valor: string) {
   const [hora = 0, minuto = 0] = valor.split(":").map(Number);
@@ -133,16 +152,25 @@ export function AgendaTimeline({
   onHorarioVazio,
   destaques,
   itensEscala,
-  alinhado,
+  alinhado: alinhadoPedido,
   mostrarProfissional = false,
   discreto = false,
   previa = false,
   diaCompleto = false,
+  vizinhos,
+  emCamada = false,
 }: AgendaTimelineProps) {
   const relogio = useAgora();
   const agora = agoraProp ?? relogio;
+  // Como no Figaro: no dia completo (celular) os cartões ficam sempre no horário real, com colunas
+  // na sobreposição. Empilhar somava espaço depois dos cartões curtos e as horas de um dia ficavam
+  // em outra altura que as do dia vizinho na troca de dia.
+  const alinhado = Boolean(alinhadoPedido || diaCompleto);
   const [toqueVazio, setToqueVazio] = useState<number | null>(null);
   const rolagemRef = useRef<HTMLDivElement>(null);
+  // Escala da grade (pixels por minuto): muda com a pinça de dois dedos (zoom-agenda.ts).
+  const PX_POR_MINUTO = usePxPorMinuto(!previa);
+  const gradeRef = useRef<HTMLDivElement>(null);
   const linhaAgoraRef = useRef<HTMLDivElement>(null);
   const posicionouRef = useRef<string | null>(null);
   const [agoraVisivel, setAgoraVisivel] = useState(true);
@@ -286,7 +314,10 @@ export function AgendaTimeline({
     const ordenados = itens
       .map((item) => {
         const inicio = minutosNoFuso(item.inicio, fuso);
-        return { item, inicio, fim: Math.max(inicio + 30, minutosNoFuso(item.fim, fuso)) };
+        // No horário real (alinhado, como no Figaro) o cartão tem a duração exata; empilhado, no
+        // mínimo 30 min para caber o texto.
+        const minimo = alinhado ? 1 : 30;
+        return { item, inicio, fim: Math.max(inicio + minimo, minutosNoFuso(item.fim, fuso)) };
       })
       .sort((a, b) => a.inicio - b.inicio);
     let grupo: typeof ordenados = [];
@@ -302,9 +333,7 @@ export function AgendaTimeline({
       if (grupo.length > 1 && (alinhado || grupo.some((evento) => evento.item.encaixe))) {
         const colunas = Math.min(grupo.length, 3);
         grupo.forEach((evento, i) => {
-          const altura = alinhado
-            ? Math.max(44, (evento.fim - evento.inicio) * PX_POR_MINUTO - 4)
-            : Math.max(ALTURA_MINIMA_BLOCO, (evento.fim - evento.inicio) * PX_POR_MINUTO - 4);
+          const altura = Math.max(1, (evento.fim - evento.inicio) * PX_POR_MINUTO);
           const topo = (evento.inicio - escala.inicio) * PX_POR_MINUTO + pixelsAcrescidos;
           resultado.set(evento.item.id, {
             inicio: evento.inicio,
@@ -320,15 +349,12 @@ export function AgendaTimeline({
         grupo.forEach((evento) => {
           if (alinhado) {
             const topo = (evento.inicio - escala.inicio) * PX_POR_MINUTO;
-            const altura = Math.max(44, (evento.fim - evento.inicio) * PX_POR_MINUTO - 4);
+            const altura = Math.max(1, (evento.fim - evento.inicio) * PX_POR_MINUTO);
             resultado.set(evento.item.id, { inicio: evento.inicio, fim: evento.fim, topo, altura });
             cursor = topo + altura + ESPACO_ENTRE_BLOCOS;
             return;
           }
-          const altura = Math.max(
-            ALTURA_MINIMA_BLOCO,
-            (evento.fim - evento.inicio) * PX_POR_MINUTO - 4,
-          );
+          const altura = Math.max(1, (evento.fim - evento.inicio) * PX_POR_MINUTO);
           resultado.set(evento.item.id, {
             inicio: evento.inicio,
             fim: evento.fim,
@@ -358,7 +384,7 @@ export function AgendaTimeline({
     });
     if (grupo.length > 0) distribuir();
     return { posicoes: resultado, acrescimos, pixelsAcrescidos };
-  }, [alinhado, escala.inicio, fuso, itens]);
+  }, [alinhado, escala.inicio, fuso, itens, PX_POR_MINUTO]);
 
   const deslocamentoAte = (minuto: number) =>
     layout.acrescimos.reduce(
@@ -374,8 +400,24 @@ export function AgendaTimeline({
     const linha = linhaAgoraRef.current;
     if (!area || !linha) return;
     if (window.matchMedia(CELULAR).matches) {
-      linha.scrollIntoView({
-        block: "center",
+      // No celular, organizar a grade pela HORA cheia atual: ela fica no topo da área útil,
+      // enquanto a linha rosa permanece na posição real do minuto (ex.: 08:04 fica 4 min
+      // abaixo de 08:00). Assim sobra espaço para a linha "correr" dentro daquela hora.
+      // Calculamos a distância entre a hora cheia e o minuto atual no mesmo eixo da timeline,
+      // incluindo os acréscimos de espaço criados pelos cartões.
+      const minutoDaHora = Math.floor(escala.minutoAtual / 60) * 60;
+      const distanciaDaHoraAteAgora =
+        (escala.minutoAtual - minutoDaHora) * PX_POR_MINUTO +
+        deslocamentoAte(escala.minutoAtual) -
+        deslocamentoAte(minutoDaHora);
+      const topo =
+        linha.getBoundingClientRect().top +
+        window.scrollY -
+        distanciaDaHoraAteAgora -
+        alturaDoTopoDaAgenda() -
+        8;
+      window.scrollTo({
+        top: Math.max(0, topo),
         behavior: comportamento === "smooth" && prefereMenosMovimento() ? "auto" : comportamento,
       });
       return;
@@ -386,8 +428,10 @@ export function AgendaTimeline({
     });
   }
 
+  // Posicionamento automático só na primeira abertura da Agenda. Depois, trocar de dia mantém a
+  // rolagem onde a pessoa deixou (puxar a página sozinho brigava com o dedo).
   useEffect(() => {
-    if (previa || !ehHoje || posicionouRef.current === dia) return;
+    if (previa || !ehHoje || posicionouRef.current !== null) return;
     const quadro = window.requestAnimationFrame(() => {
       voltarParaAgora("auto");
       posicionouRef.current = dia;
@@ -395,9 +439,16 @@ export function AgendaTimeline({
     return () => window.cancelAnimationFrame(quadro);
   }, [dia, ehHoje, altura, previa]);
 
+  // Abriu num dia sem posicionamento automático: conta como posicionado, para uma troca
+  // posterior (ex.: para hoje) não puxar a página.
+  useEffect(() => {
+    if (previa || ehHoje || diaCompleto || posicionouRef.current !== null) return;
+    posicionouRef.current = dia;
+  }, [dia, ehHoje, diaCompleto, previa]);
+
   // Dia completo fora de hoje: começa na abertura do expediente, não à meia-noite.
   useEffect(() => {
-    if (previa || ehHoje || !diaCompleto || posicionouRef.current === dia) return;
+    if (previa || ehHoje || !diaCompleto || posicionouRef.current !== null) return;
     const area = rolagemRef.current;
     const func = horarios.find((h) => h.diaSemana === diaDaSemana(dia) && !h.fechado);
     if (!area) return;
@@ -462,9 +513,24 @@ export function AgendaTimeline({
       observador.observe(linha);
     };
     montar();
-    window.addEventListener("resize", montar);
+    // No celular o "resize" dispara muito durante a rolagem (barras do navegador): remonta no
+    // máximo uma vez por quadro e só quando o tamanho da janela mudou de verdade.
+    let quadro = 0;
+    let tamanho = `${window.innerWidth}x${window.innerHeight}`;
+    const aoRedimensionar = () => {
+      if (quadro) return;
+      quadro = window.requestAnimationFrame(() => {
+        quadro = 0;
+        const novo = `${window.innerWidth}x${window.innerHeight}`;
+        if (novo === tamanho) return;
+        tamanho = novo;
+        montar();
+      });
+    };
+    window.addEventListener("resize", aoRedimensionar);
     return () => {
-      window.removeEventListener("resize", montar);
+      window.removeEventListener("resize", aoRedimensionar);
+      if (quadro) window.cancelAnimationFrame(quadro);
       observador?.disconnect();
       publicarAgora({ lado: null, ir: null });
     };
@@ -614,7 +680,13 @@ export function AgendaTimeline({
             : 0,
         );
   const interativo = !previa;
-  const alinharNoCelular = previa && diaCompleto;
+  usePincaDaTimeline({
+    grade: gradeRef,
+    ativo: interativo && diaCompleto,
+    inicioDaEscala: escala.inicio,
+  });
+  const alinharNoCelular = previa && diaCompleto && !emCamada;
+  const trilho = vizinhos ? { "data-trilho-dia": "" } : {};
   const abreEm = funcionamentoDoDia ? minutosDoHorario(funcionamentoDoDia.abre) : 8 * 60;
   const envolturaRef = useRef<HTMLDivElement>(null);
   // Celular: a prévia do dia vizinho já aparece no lugar exato em que ele vai assentar
@@ -642,16 +714,34 @@ export function AgendaTimeline({
     const palco = envoltura.closest<HTMLElement>(".agenda-previa-vizinho")?.getBoundingClientRect();
     const esquerdaNoPalco = eu.left - (palco?.left ?? 0);
     if (!grade) return;
-    const topoDesejado = ehHoje
-      ? window.innerHeight / 2 - posicaoAgora
-      : 120 - abreEm * PX_POR_MINUTO;
-    area.style.transform = `translate3d(${esquerdaReal - esquerdaNoPalco}px,${topoDesejado - grade.top}px,0)`;
-  }, [alinharNoCelular, ehHoje, posicaoAgora, abreEm, altura, itens.length]);
+    // A página vizinha precisa conservar o mesmo referencial vertical da página atual.
+    // Alinhar a marca das 09h (ou a abertura, se 09h não estiver visível na escala)
+    // evita que a grade "salte" quando o gesto termina e a prévia vira a agenda real.
+    const marcaDasNove = (raiz: ParentNode) =>
+      Array.from(raiz.querySelectorAll<HTMLElement>(".agenda-timeline-marca")).find(
+        (marca) => marca.querySelector("span")?.textContent?.trim() === "09",
+      );
+    const marcaReal = marcaDasNove(real);
+    const marcaVizinha = marcaDasNove(area);
+    const topoReferenciaReal = marcaReal?.getBoundingClientRect().top;
+    const topoReferenciaVizinha = marcaVizinha?.getBoundingClientRect().top;
+    const topoDesejado =
+      topoReferenciaReal !== undefined && topoReferenciaVizinha !== undefined
+        ? topoReferenciaReal
+        : ehHoje
+          ? window.innerHeight / 2 - posicaoAgora
+          : 120;
+    const topoAtual =
+      topoReferenciaReal !== undefined && topoReferenciaVizinha !== undefined
+        ? topoReferenciaVizinha
+        : grade.top + (ehHoje ? posicaoAgora : (abreEm - escala.inicio) * PX_POR_MINUTO);
+    area.style.transform = `translate3d(${esquerdaReal - esquerdaNoPalco}px,${topoDesejado - topoAtual}px,0)`;
+  }, [alinharNoCelular, ehHoje, posicaoAgora, abreEm, altura, itens.length, escala.inicio]);
 
   return (
     <div
       ref={envolturaRef}
-      className={`agenda-timeline-wrap${previa ? " agenda-timeline-previa" : ""}`}
+      className={`agenda-timeline-wrap${previa ? " agenda-timeline-previa" : ""}${vizinhos ? " agenda-timeline-paginas" : ""}`}
       aria-hidden={previa || undefined}
       style={previa ? { pointerEvents: "none" } : undefined}
     >
@@ -669,7 +759,7 @@ export function AgendaTimeline({
       ) : null}
       <div
         ref={rolagemRef}
-        className="agenda-timeline-scroll"
+        className="agenda-timeline-scroll sem-barra"
         aria-label={previa ? undefined : "Timeline de atendimentos"}
         onScroll={
           interativo
@@ -684,15 +774,18 @@ export function AgendaTimeline({
             ? {
                 maxHeight: "none",
                 overflow: "visible",
-                transform: alinharNoCelular ? undefined : `translateY(${-deslocamentoPrevia}px)`,
+                transform:
+                  alinharNoCelular || emCamada ? undefined : `translateY(${-deslocamentoPrevia}px)`,
               }
             : undefined
         }
       >
         <div
+          ref={gradeRef}
           className="agenda-timeline"
           id={previa ? undefined : "agenda-timeline-grade"}
           tabIndex={previa ? undefined : -1}
+          {...trilho}
           style={{
             height: `${altura}px`,
           }}
@@ -780,6 +873,52 @@ export function AgendaTimeline({
             </div>
           ))}
 
+          {opacidadeDasLinhasDe5(PX_POR_MINUTO, Boolean(redim || arrasto || edicaoDoCartao?.id)) >
+          0 ? (
+            <>
+              {Array.from(
+                { length: Math.floor((escala.fim - escala.inicio) / PASSO_DO_AJUSTE_MIN) + 1 },
+                (_, indice) => escala.inicio + indice * PASSO_DO_AJUSTE_MIN,
+              )
+                .filter((minuto) => minuto % 60 !== 0)
+                .map((minuto) => (
+                  <div
+                    key={`ajuste-5-${minuto}`}
+                    className="agenda-timeline-ajuste-5"
+                    style={{
+                      top: `${(minuto - escala.inicio) * PX_POR_MINUTO + deslocamentoAte(minuto)}px`,
+                      opacity: opacidadeDasLinhasDe5(
+                        PX_POR_MINUTO,
+                        Boolean(redim || arrasto || edicaoDoCartao?.id),
+                      ),
+                    }}
+                    aria-hidden="true"
+                  />
+                ))}
+              {redim
+                ? (() => {
+                    const item = itens.find((evento) => evento.id === redim.id);
+                    if (!item) return null;
+                    const fimItem = minutosNoFuso(item.fim, fuso);
+                    const delta = Math.round(redim.dy / PX_POR_MINUTO / passo) * passo;
+                    const minutoAlvo = Math.max(
+                      escala.inicio,
+                      Math.min(escala.fim, fimItem + delta),
+                    );
+                    return (
+                      <div
+                        className="agenda-timeline-ajuste-alvo"
+                        style={{
+                          top: `${(minutoAlvo - escala.inicio) * PX_POR_MINUTO + deslocamentoAte(minutoAlvo)}px`,
+                        }}
+                        aria-hidden="true"
+                      />
+                    );
+                  })()
+                : null}
+            </>
+          ) : null}
+
           {itens.map((item) => {
             const nome = nomeDaAgenda(item.cliente, discreto);
             const posicao = layout.posicoes.get(item.id);
@@ -788,11 +927,7 @@ export function AgendaTimeline({
             const topo =
               posicao?.topo ?? (inicio - escala.inicio) * PX_POR_MINUTO + deslocamentoAte(inicio);
             const blocoAltura =
-              posicao?.altura ??
-              Math.max(
-                ALTURA_MINIMA_BLOCO,
-                (Math.max(inicio + 1, fim) - inicio) * PX_POR_MINUTO - 4,
-              );
+              posicao?.altura ?? Math.max(1, (Math.max(inicio + 1, fim) - inicio) * PX_POR_MINUTO);
             const reais = [
               horaReal(item.arrivedAt, fuso) ? `Chegou ${horaReal(item.arrivedAt, fuso)}` : null,
               horaReal(item.startedAt, fuso) ? `Começou ${horaReal(item.startedAt, fuso)}` : null,
@@ -806,12 +941,13 @@ export function AgendaTimeline({
               arrasto?.id === item.id ? Math.round(arrasto.dy / PX_POR_MINUTO / passo) * passo : 0;
             const passoRedim =
               redim?.id === item.id ? Math.round(redim.dy / PX_POR_MINUTO / passo) * passo : 0;
+            // Altura mínima do cartão no Figaro: 28 px.
             const alturaDoBloco = Math.max(
-              ALTURA_MINIMA_BLOCO,
+              ALTURA_MINIMA_DO_CARTAO,
               blocoAltura + passoRedim * PX_POR_MINUTO,
             );
-            // Cartão curto (até 30 min): só a linha principal e o serviço, com altura fixa.
-            const compacto = fim - inicio <= 30;
+            // Figaro (`CardTier`): o que aparece depende da altura do cartão.
+            const faixa = faixaDoCartao(alturaDoBloco, PX_POR_MINUTO);
             const faixaDaColuna = posicao?.colunas
               ? {
                   left: `calc(7px + (100% - 11px) * ${posicao.coluna ?? 0} / ${posicao.colunas})`,
@@ -836,14 +972,16 @@ export function AgendaTimeline({
                 <Button
                   type="button"
                   variant="ghost"
-                  aria-label={`${horaMinuto(inicio)}, ${nome}, ${item.servico}, ${item.status.replace("_", " ")}`}
+                  aria-label={`${horaMinuto(inicio)}, ${nome}, ${item.servico}, ${ROTULO_DO_GLIFO[glifoDoEstado(item, ehHoje && estaAtrasado(item, agora))]}`}
                   data-sem-gesto-dia={edicaoDoCartao?.id === item.id ? "" : undefined}
-                  className={`agenda-timeline-bloco agenda-timeline-${item.status} ${item.confirmadoEm && item.status === "agendado" ? "agenda-timeline-confirmado" : ""} ${ehHoje && minutosNoFuso(item.fim, fuso) < escala.minutoAtual ? "agenda-timeline-passado" : ""} ${item.encaixe ? "agenda-timeline-encaixe" : ""} ${selecionado === item.id ? "agenda-timeline-selecionado" : ""} ${destaques?.has(item.id) ? "agenda-novo" : ""} ${arrasto?.id === item.id ? "agenda-arrastando" : ""}`}
+                  data-agendamento={previa ? undefined : item.id}
+                  className={`agenda-timeline-bloco agenda-faixa-${faixa} agenda-timeline-${item.status} ${edicaoDoCartao?.id && edicaoDoCartao.id !== item.id ? "agenda-timeline-esmaecido" : ""} ${item.confirmadoEm && item.status === "agendado" ? "agenda-timeline-confirmado" : ""} ${ehHoje && minutosNoFuso(item.fim, fuso) < escala.minutoAtual ? "agenda-timeline-passado" : ""} ${item.encaixe ? "agenda-timeline-encaixe" : ""} ${selecionado === item.id ? "agenda-timeline-selecionado" : ""} ${destaques?.has(item.id) ? "agenda-novo" : ""} ${arrasto?.id === item.id ? "agenda-arrastando" : ""}`}
                   style={{
-                    top: `${topo}px`,
-                    ...(compacto
-                      ? { height: `${alturaDoBloco}px` }
-                      : { minHeight: `${alturaDoBloco}px` }),
+                    ["--cor-categoria" as string]: corDaCategoria(item.categoriaIndice),
+                    // No horário real, 1 px de respiro em cima e embaixo: dois horários seguidos
+                    // não viram um bloco só.
+                    top: `${topo + (alinhado ? RESPIRO_DO_CARTAO : 0)}px`,
+                    height: `${alturaDoBloco - (alinhado ? 2 * RESPIRO_DO_CARTAO : 0)}px`,
                     ...(posicao?.colunas
                       ? {
                           left: `calc(7px + (100% - 11px) * ${posicao.coluna ?? 0} / ${posicao.colunas})`,
@@ -881,15 +1019,15 @@ export function AgendaTimeline({
                         },
                       })}
                 >
+                  {/* Como no Figaro: o serviço no título, o ícone do estado no canto e, conforme a
+                      altura, o cliente, o horário e os detalhes (a cor da barra é a categoria). */}
                   <span className="agenda-timeline-bloco-topo">
-                    <strong className="col-span-2">
-                      {horaMinuto(
-                        arrasto?.id === item.id
-                          ? inicio + Math.round(arrasto.dy / PX_POR_MINUTO / passo) * passo
-                          : inicio,
-                      )}{" "}
-                      · {nome}
-                    </strong>
+                    <strong className="agenda-timeline-titulo">{item.servico}</strong>
+                    {edicaoDoCartao?.id === item.id ? null : (
+                      <IconeDoEstado
+                        glifo={glifoDoEstado(item, ehHoje && estaAtrasado(item, agora))}
+                      />
+                    )}
                   </span>
                   {edicaoDoCartao?.id === item.id ? (
                     <span
@@ -899,42 +1037,36 @@ export function AgendaTimeline({
                       {horaMinuto(inicio)} – {horaMinuto(fim)}
                     </span>
                   ) : null}
-                  <span className="flex min-w-0 items-center gap-1">
-                    <span className="agenda-timeline-servico min-w-0 flex-1">{item.servico}</span>
-                    {mostrarProfissional ? (
-                      <span className="agenda-timeline-prof shrink-0 truncate text-xs text-mute max-w-[45%]">
-                        {item.profissional}
-                      </span>
-                    ) : null}
-                    <span className="flex shrink-0 gap-1">
-                      {/* Etiqueta com o nome do estado em todo cartão: a cor ajuda, mas não é a única pista. */}
-                      {item.confirmadoEm && item.status === "agendado" ? (
-                        <StatusBadge status="confirmado" label="Confirmou" />
-                      ) : (
-                        <StatusBadge
-                          status={
-                            item.encaixe && item.status === "agendado" ? "encaixe" : item.status
-                          }
-                        />
-                      )}
-                      {ehHoje && estaAtrasado(item, agora) ? (
-                        <StatusBadge status="atrasado" />
-                      ) : null}
-                      {item.encaixe && (item.status !== "agendado" || item.confirmadoEm) ? (
-                        <StatusBadge status="encaixe" />
-                      ) : null}
-                    </span>
-                  </span>
-                  {compacto ? null : (
-                    <OrigemDoAgendamento origem={item.origem} assistido={item.assistidoPorCortai} />
-                  )}
-                  {item.daListaDeEspera && !compacto ? (
-                    <span className="agenda-timeline-fila">
-                      Vaga preenchida pela lista de espera
+                  {mostraCliente(faixa) ? (
+                    <span className="agenda-timeline-cliente">
+                      {nome}
+                      {mostrarProfissional ? ` · ${item.profissional}` : ""}
                     </span>
                   ) : null}
-                  {reais && !compacto ? (
-                    <span className="agenda-timeline-reais">{reais}</span>
+                  {mostraHorario(faixa) ? (
+                    <span className="agenda-timeline-horario">
+                      <Clock3 aria-hidden className="size-3.5 shrink-0" />
+                      <span className="min-w-0 truncate">
+                        {horaMinuto(inicio + passoArrasto)} -{" "}
+                        {horaMinuto(fim + passoArrasto + passoRedim)}
+                      </span>
+                    </span>
+                  ) : null}
+                  {mostraDetalhes(faixa) ? (
+                    <>
+                      <OrigemDoAgendamento
+                        origem={item.origem}
+                        assistido={item.assistidoPorCortai}
+                        telefoneNaoConfirmado={item.telefoneNaoConfirmado}
+                      />
+                      {item.encaixe ? <span className="agenda-timeline-fila">Encaixe</span> : null}
+                      {item.daListaDeEspera ? (
+                        <span className="agenda-timeline-fila">
+                          Vaga preenchida pela lista de espera
+                        </span>
+                      ) : null}
+                      {reais ? <span className="agenda-timeline-reais">{reais}</span> : null}
+                    </>
                   ) : null}
                 </Button>
                 {!previa && onRedimensionar && podeMover(item) && edicaoDoCartao?.id === item.id ? (
@@ -967,6 +1099,7 @@ export function AgendaTimeline({
               <span>{horaMinuto(escala.minutoAtual)}</span>
             </div>
           ) : null}
+          {vizinhos}
         </div>
       </div>
     </div>

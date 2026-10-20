@@ -3,7 +3,7 @@
  *
  * Não é uma matriz nova: cada item aponta para o interruptor que o sistema JÁ
  * lê hoje (recursos_do_tenant, colunas do negócio, regras_de_plano ou a
- * configuração da Secretária). Itens sem interruptor real aparecem só com
+ * configuração do WhatsApp). Itens sem interruptor real aparecem só com
  * "Configurar" ou como "Sempre ativo", para o painel nunca mentir.
  */
 import type { ChaveDeRecurso } from "@/lib/planos";

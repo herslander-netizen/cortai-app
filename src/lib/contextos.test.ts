@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { decidirContextos, precisaEscolherContexto } from "./contextos";
+import { decidirContextos, opcoesDeEntrada, precisaEscolherContexto } from "./contextos";
 
 const base = {
   temVinculoAtivo: false,
@@ -59,5 +59,42 @@ describe("contextos da conta", () => {
     expect(precisaEscolherContexto({ ...ambos, papel: "admin", contextoEscolhido: false })).toBe(
       false,
     );
+  });
+});
+
+describe("opções da tela /escolher", () => {
+  const negocio = (id: string, extra: Partial<{ acessoAtivo: boolean; ativa: boolean }> = {}) => ({
+    id,
+    nome: `Negócio ${id}`,
+    segmento: id === "b" ? "salao" : "barbearia",
+    acessoAtivo: true,
+    ativa: true,
+    ...extra,
+  });
+
+  it("lista cada negócio com acesso ativo e o ADM só para admin", () => {
+    const opcoes = opcoesDeEntrada({
+      adminDaPlataforma: true,
+      negocios: [negocio("a"), negocio("b"), negocio("c", { acessoAtivo: false })],
+    });
+    expect(opcoes.map((o) => (o.tipo === "negocio" ? o.tenantId : o.tipo))).toEqual([
+      "cliente",
+      "a",
+      "b",
+      "admin",
+    ]);
+  });
+
+  it("sem admin, sem cartão do ADM", () => {
+    const opcoes = opcoesDeEntrada({ adminDaPlataforma: false, negocios: [negocio("a")] });
+    expect(opcoes.some((o) => o.tipo === "admin")).toBe(false);
+  });
+
+  it("sem negócio ativo, oferece criar", () => {
+    const opcoes = opcoesDeEntrada({
+      adminDaPlataforma: false,
+      negocios: [negocio("a", { ativa: false })],
+    });
+    expect(opcoes.map((o) => o.tipo)).toEqual(["cliente", "criar_negocio"]);
   });
 });

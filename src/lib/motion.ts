@@ -1,6 +1,10 @@
-/** Tokens de movimento do Cortaí 2.0 — curtos, discretos e consistentes. */
+/** Tokens de movimento do Cortaí — consistentes, perceptíveis e sem excesso. */
 
-export const DURACAO = { rapida: 0.12, base: 0.2, lenta: 0.28 } as const;
+/**
+ * Durações globais. A interface deve acompanhar o usuário, mas permitir perceber
+ * o movimento; gestos diretos continuam ligados ao dedo e não dependem destes tempos.
+ */
+export const DURACAO = { rapida: 0.22, base: 0.38, lenta: 0.52 } as const;
 
 export const SUAVE = [0.2, 0, 0, 1] as const;
 
@@ -9,22 +13,22 @@ export const transicaoRapida = { duration: DURACAO.rapida, ease: SUAVE } as cons
 export const molaFolha = { type: "spring", stiffness: 420, damping: 38 } as const;
 
 /**
- * Molas oficiais — "Standard" do Material 3 (amortecimento 0,9 a 1,0).
- * Chegam ao lugar sem passar do ponto (sem quique).
+ * Molas com amortecimento suficiente para assentar sem quique.
+ * Não alterar cores, tipografia, raios, sombras ou identidade visual por meio destes tokens.
  */
-/** ≈120 ms: toque e chips. */
-export const molaRapida = { type: "spring", stiffness: 1400, damping: 67.3, mass: 1 } as const;
-/** ≈200 ms: folhas e painéis. */
-export const molaBase = { type: "spring", stiffness: 700, damping: 47.6, mass: 1 } as const;
-/** ≈280 ms: tela inteira e troca de dia. */
-export const molaLenta = { type: "spring", stiffness: 300, damping: 31.2, mass: 1 } as const;
-/** Cor e opacidade. */
-export const molaEfeito = { type: "spring", stiffness: 1600, damping: 80, mass: 1 } as const;
+/** Movimento curto: resposta tátil visual, chips e controles. */
+export const molaRapida = { type: "spring", stiffness: 900, damping: 54, mass: 1 } as const;
+/** Movimento médio: cartões, folhas e painéis. */
+export const molaBase = { type: "spring", stiffness: 480, damping: 42, mass: 1 } as const;
+/** Movimento amplo: telas e troca de dia; lento o bastante para ser acompanhado. */
+export const molaLenta = { type: "spring", stiffness: 220, damping: 34, mass: 1 } as const;
+/** Cor e opacidade: suaves, sem quique. */
+export const molaEfeito = { type: "spring", stiffness: 1000, damping: 72, mass: 1 } as const;
 
 /** Com "reduzir movimento": só esmaece, em até 150 ms. */
 export const transicaoReduzida = { duration: 0.15, ease: SUAVE } as const;
 
-/** Entrada de página: esmaece e sobe um pouco. */
+/** Entrada de página: esmaece e sobe discretamente. */
 export const pagina = {
   initial: { opacity: 0, y: 8 },
   animate: { opacity: 1, y: 0 },
@@ -32,7 +36,7 @@ export const pagina = {
   transition: transicaoBase,
 };
 
-/** Entrada em cascata para listas (no máximo 8 itens animados). */
+/** Entrada em cascata curta; evita animar longas listas inteiras. */
 export const LIMITE_CASCATA = 6;
 export function cascata(indice: number) {
   const animar = indice < LIMITE_CASCATA;
@@ -40,7 +44,9 @@ export function cascata(indice: number) {
   return {
     initial: animar ? { opacity: 0, y: 6 } : false,
     animate: { opacity: 1, y: 0 },
-    transition: animar ? { duration: DURACAO.base, ease: SUAVE, delay: i * 0.03 } : { duration: 0 },
+    transition: animar
+      ? { duration: DURACAO.base, ease: SUAVE, delay: i * 0.04 }
+      : { duration: 0 },
   };
 }
 

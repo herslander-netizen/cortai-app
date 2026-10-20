@@ -2,8 +2,7 @@
  * Entrada oficial dos avisos do WhatsApp Business (Meta) para o Cortaí.
  *
  * A Meta envia para cá cada mudança do número conectado (mensagens de clientes,
- * confirmações de entrega, erros), direto (X-Hub-Signature-256) ou, no legado,
- * pelo conector do Lovable.
+ * confirmações de entrega, erros), direto, assinado com X-Hub-Signature-256.
  *
  * Segurança e confiabilidade:
  * - toda entrega tem a assinatura conferida antes de qualquer processamento;
@@ -15,9 +14,12 @@
  */
 import { createFileRoute } from "@tanstack/react-router";
 import { createHmac, timingSafeEqual } from "node:crypto";
-import { verificarWebhookIndependente, WebhookVerificationError } from "@/lib/webhooks/lovable-signature.server";
 import { lerCorpoLimitado } from "@/lib/webhooks/read-limited-body.server";
-import { reivindicarWebhook, concluirWebhook, registrarFalhaWebhook } from "@/lib/webhooks/whatsapp-event-claim.server";
+import {
+  reivindicarWebhook,
+  concluirWebhook,
+  registrarFalhaWebhook,
+} from "@/lib/webhooks/whatsapp-event-claim.server";
 
 /** Valida a assinatura oficial da Meta sobre o corpo cru, sem normalizar o JSON. */
 export function verificarAssinaturaMeta(
@@ -26,13 +28,11 @@ export function verificarAssinaturaMeta(
   appSecret: string | undefined,
 ): boolean {
   if (!assinatura || !appSecret || !assinatura.startsWith("sha256=")) return false;
-  const esperada =
-    "sha256=" + createHmac("sha256", appSecret).update(corpo, "utf8").digest("hex");
+  const esperada = "sha256=" + createHmac("sha256", appSecret).update(corpo, "utf8").digest("hex");
   const recebidaBytes = Buffer.from(assinatura, "utf8");
   const esperadaBytes = Buffer.from(esperada, "utf8");
   return (
-    recebidaBytes.length === esperadaBytes.length &&
-    timingSafeEqual(recebidaBytes, esperadaBytes)
+    recebidaBytes.length === esperadaBytes.length && timingSafeEqual(recebidaBytes, esperadaBytes)
   );
 }
 
@@ -242,13 +242,14 @@ export const Route = createFileRoute("/api/public/whatsapp/webhook")({
 
         const appSecret = process.env["META_APP_SECRET"] ?? process.env["META_WHATSAPP_APP_SECRET"];
         const assinaturaMeta = request.headers.get("x-hub-signature-256");
-        const segredo = process.env["WHATSAPP_API_KEY"];
 
         let payload: unknown;
         let entregaId: string | null;
         let evento: string | null;
 
-        if (assinaturaMeta) {
+        // Só a Meta, direto: X-Hub-Signature-256 = HMAC-SHA256(corpo cru, App Secret).
+        if (!assinaturaMeta) return guard.rejeitar(request, "whatsapp/meta", "sem assinatura");
+        {
           // Chamada direta da Meta: X-Hub-Signature-256 = HMAC-SHA256(corpo cru, App Secret).
           if (!appSecret)
             return guard.rejeitar(request, "whatsapp/meta", "META_APP_SECRET ausente");
@@ -272,27 +273,6 @@ export const Route = createFileRoute("/api/public/whatsapp/webhook")({
           }
           entregaId = "meta:" + createHmac("sha256", "id").update(corpo).digest("hex");
           evento = "whatsapp.meta";
-        } else {
-          // Entrega pelo conector do Lovable, assinada com a chave da integração.
-          if (!segredo) return guard.rejeitar(request, "whatsapp/meta", "sem assinatura");
-          try {
-            const verificado = await verificarWebhookIndependente({
-              req: request,
-              secret: segredo,
-              maxBodyBytes: 4 * 1024 * 1024,
-            });
-            payload = verificado.payload;
-          } catch (erro) {
-            if (erro instanceof WebhookVerificationError) {
-              const status =
-                erro.code === "body_too_large" ? 413 :
-                erro.code === "missing_signature" || erro.code === "invalid_signature" ? 401 : 400;
-              return guard.rejeitar(request, "whatsapp/meta", erro.code, status);
-            }
-            throw erro;
-          }
-          entregaId = request.headers.get("x-lovable-delivery");
-          evento = request.headers.get("x-lovable-event");
         }
 
         const limite = await guard.limiteAutenticado(request, "whatsapp/meta");
@@ -356,10 +336,7 @@ export const Route = createFileRoute("/api/public/whatsapp/webhook")({
           const { emSegundoPlano } = await import("@/lib/segundo-plano.server");
           if (!emSegundoPlano(retomada)) {
             // Em ambientes sem waitUntil, limitar a espera da resposta; o erro é logado acima.
-            await Promise.race([
-              retomada,
-              new Promise((resolve) => setTimeout(resolve, 3000)),
-            ]);
+            await Promise.race([retomada, new Promise((resolve) => setTimeout(resolve, 3000))]);
           }
           return Response.json({ ok: true });
         } catch (erro) {

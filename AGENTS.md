@@ -1,19 +1,76 @@
-- Migração para fora do Lovable: estado atual, limites e pendências em `MUSE.md` (raiz) — leia antes de mexer na branch `cloudflare-workers-migration-2026-10-13`.
+# Regras da equipe de IAs — Claude, GPT e Muse (valem igual para todos)
+
+O dono usa Claude (Claude Code), GPT (Codex ou ChatGPT ligado ao GitHub) e Muse (Muse Spark, da
+Meta), juntos ou só um deles. **Todos têm o mesmo poder de acesso e as mesmas autorizações**
+(decisão do dono, 16 e 17/10/2026): nenhum precisa do aval de outro para mudar o código, e o que um
+pode fazer sem perguntar os outros também podem. Todos precisam agir como **um único engenheiro**:
+mesmas regras, mesma ordem de prioridade, mesmo critério para pedir autorização ao dono. Quem não
+carrega este arquivo sozinho (o GPT/Codex lê `AGENTS.md`; o `CLAUDE.md` importa este arquivo) deve
+lê-lo no começo de cada tarefa. O estado vivo fica em `DIARIO.md` e o resumo da migração em `MUSE.md`.
+
+**Como conversam:** não há chat direto entre as IAs; o canal é o `DIARIO.md` no GitHub.
+- Antes de mexer: `git pull`, ler "Em andamento" e "Recados" e reservar a tarefa (commit só dessa linha).
+- Depois de cada mudança enviada: uma entrada no topo do diário (o que mudou, arquivos, testes,
+  o que os outros precisam saber) e, se alguém precisa agir ou conferir algo, um recado
+  "**Para o GPT**", "**Para o Claude**", "**Para o Muse**" ou "**Para todos**" em "Recados".
+- Ao ler um recado endereçado a você: responder logo abaixo ou marcar `[lido]`, no mesmo dia.
+- Mudou algo que outra IA está usando (arquivo reservado, migração, regra)? Avise por recado antes
+  de enviar; se a reserva for de outra, não mexa sem a resposta dela.
+- Sem terminal para rodar `tsc`, `vitest` e `build`? Envie e confira a validação no GitHub Actions
+  antes de dizer ao dono que está pronto; se falhar, conserte antes de qualquer outra coisa.
+
+**Onde trabalhar:** sempre pelo GitHub (`herslander-netizen/cortai-app`, ramo
+`cloudflare-workers-migration-2026-10-13`), com o GPT/Codex, o Claude Code ou o Muse ligados ao
+repositório. O Cortaí não usa mais o Lovable: não existe editor sincronizado, e a `main` do Git é só
+arquivo do período antigo (não alimenta nenhum site). Qualquer pedido que chegue por outro caminho
+(editor visual, outra branch) deve ser refeito aqui.
+
+**Prévia e publicação (decisão do dono, 16/10/2026):**
+- **Prévia:** todo push na branch passa pela validação (TypeScript, testes e build) e, se passar, vai
+  para **`https://previa.cortaiapp.pages.dev`** (workflow `preview-migration.yml`). O dono vê ali o
+  que pediu, sem esperar. Depois de enviar, diga ao dono o que mudou e o que olhar na prévia.
+- **"Mande pra main" = publicar no site principal** (`cortaiapp.pages.dev`). Quando o dono disser
+  isso (ou "publica", "sobe pro site"), rode o **"Lançar versão"** no GitHub Actions: ele testa,
+  grava o número da versão (3.1, 3.2…; mudança grande vira 4.0), cria a tag `vX.Y` e a Release com o
+  que mudou, e publica. Não é o ramo `main` do Git: o site sai da branch de trabalho.
+- Sem esse pedido, nada vai para o site principal. Se algo der errado, **"Voltar versão"** põe no ar a
+  versão anterior (ou a pedida) na hora.
+- Sempre dizer ao dono o número lançado e o que testar.
+- A prévia deve usar um Supabase de testes separado. O workflow exige `PREVIEW_SUPABASE_URL`, `PREVIEW_SUPABASE_PUBLISHABLE_KEY` e `PREVIEW_SUPABASE_SERVICE_ROLE_KEY`, e recusa URL de `cortai-prod`. Até esses segredos serem configurados e a nova prévia publicada, a versão já no ar pode continuar usando o banco real; não usar para gravar dados.
+- Banco não volta junto com a versão: migração continua só de acréscimo e com autorização.
+
+**Ao começar qualquer sessão, sem esperar o dono pedir:**
+1. `git pull origin cloudflare-workers-migration-2026-10-13` e trabalhar só nessa branch.
+2. Ler `DIARIO.md` inteiro (Decisões do dono, Próximas tarefas, Em andamento, Recados, últimas
+   entradas) e `MUSE.md`. Responder recados endereçados a você.
+3. Se o dono não deu tarefa, pegar a primeira de "Próximas tarefas" que não esteja em andamento.
+
+**Fazer sem perguntar** (reversível e só na branch): ler e investigar; corrigir código; escrever
+testes; criar migração **só de acréscimo** em `drizzle/migrations` (sem aplicar) e ensaiá-la no
+banco local descartável (`supabase/baseline/ensaio/ensaio-local.sh`); atualizar documentação,
+`MUSE.md` e `DIARIO.md`; commit e push na branch depois de `tsc`, `vitest` e `build` passarem.
+
+**Pedir autorização ao dono antes de:** aplicar migração ou escrever em qualquer banco real
+(`cortai-prod` incluído); merge, PR ou push na `main`; publicar em `cortai.dev` ou mexer em DNS;
+criar, trocar ou apagar segredos; qualquer custo; apagar arquivos, dados ou funcionalidades;
+decisões de produto (texto, preço, regra de negócio que a auditoria marca como "decisão").
+
+**Nunca:** tocar no banco e no repositório `evolution-crm` (`guuvderpqspldyrlbhxa`, outro projeto
+do dono); force-push, rebase ou amend de commit
+já enviado; segredo em arquivo, commit, log ou chat; DROP ou DELETE de dados.
+
+**Ao terminar cada tarefa:** registrar no topo do diário (`DIARIO.md`), tirar a reserva, atualizar
+"Próximas tarefas" e `MUSE.md` se o estado mudou.
+
+**Quando o dono disser uma preferência ou decisão** a qualquer uma das IAs, registrar na hora em
+"Decisões do dono" do `DIARIO.md`, com a data. As outras passam a seguir sem o dono repetir. Se uma
+decisão nova contradiz uma regra daqui, apontar o conflito ao dono antes de agir.
+
+---
+
+- Infraestrutura (GitHub, Cloudflare, Supabase), automações e pendências: `MUSE.md` (raiz) — leia antes de mexer.
 
 - Consultas responsivas em JavaScript usam `useMediaQuery`; o CSS continua responsável apenas pela apresentação — evita limites divergentes no mesmo controle.
-
-<!-- LOVABLE:BEGIN -->
-
-> [!IMPORTANT]
-> This project is connected to [Lovable](https://lovable.dev). Avoid rewriting
-> published git history — force pushing, or rebasing/amending/squashing commits
-> that are already pushed — as it rewrites history on Lovable's side and the
-> user will likely lose their project history.
->
-> Commits you push to the connected branch sync back to Lovable and show up in
-> the editor, so keep the branch in a working state.
-
-<!-- LOVABLE:END -->
 
 - Sobreposição travada no banco (`agendamentos_sem_sobreposicao`); só membros criam encaixes.
 - Webhooks públicos: `webhook-guard.server.ts` com contadores persistidos (instâncias sem memória comum).
@@ -48,6 +105,6 @@
 - Versão atual e novidades em src/lib/novidades.ts; subir versao.json junto.
 - Atualização obrigatória: subir `minima` em `versao.json` só após publicar; bloqueia só áreas internas, nunca com falha de leitura.
 - Conta Cortaí = um usuário por e-mail; contextos (cliente/negócio) decididos só por `src/lib/contextos.ts` e `perfis.contexto_ativo`; troca via `escolherContexto` e tela `/escolher` — nunca criar segunda conta para outro papel.
-- Integração externa ALVO IA (`ia/alvo-ia.server.ts`, `ponte.server.ts`, `/api/public/alvo-ia`) é legado deprecado; o cérebro em `src/lib/brain` (regras no AGENTS.md de lá) nunca a chama.
+- Integração externa ALVO IA desligada em 10/10/2026: `/api/public/alvo-ia`, `/api/public/ai/*` e `/api/public/cortai/acoes` respondem 410 (`ia/legado-desligado.ts`); tabelas mantidas, sem DROP. O cérebro em `src/lib/brain` (regras no AGENTS.md de lá) é o único caminho de IA.
 
 - Regras do formato de aviso e do entendimento no WhatsApp: `src/lib/whatsapp/AGENTS.md`.

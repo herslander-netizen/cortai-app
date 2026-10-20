@@ -1,6 +1,13 @@
-import { CalendarClock, Crosshair, List, Plus } from "lucide-react";
+import { Clock, Crosshair, Plus } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
-import { useCallback, useEffect, useRef, type KeyboardEvent, type PointerEvent } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  type KeyboardEvent,
+  type PointerEvent,
+  type ReactNode,
+} from "react";
 
 import { Button } from "@/components/ui/button";
 import { useMediaQuery } from "@/hooks/use-mobile";
@@ -12,6 +19,26 @@ import { solicitarAgora } from "./pilula-agora";
 import { alturaDoTopoDaAgenda } from "./tempo";
 import { useToqueLongo } from "./useToqueLongo";
 
+/** Ícone da visualização em cartões: duas linhas acima do cartão arredondado. */
+function IconeAcompanhamentoCard() {
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 28 28"
+      fill="none"
+      className="size-7"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M8 4.5h12" />
+      <path d="M5.5 8.5h17" />
+      <rect x="4" y="12" width="20" height="12" rx="2.5" />
+    </svg>
+  );
+}
+
 /** Controle principal do pé da Agenda no celular e o botão "+" preservado em todas as larguras. */
 export function BotaoAgoraPrincipal({
   visualizacao,
@@ -22,6 +49,7 @@ export function BotaoAgoraPrincipal({
   onAlternarMenu,
   onAgendarPorVoz,
   visivel = true,
+  filtro,
 }: {
   visualizacao: VisualizacaoAgenda;
   onVisualizacao: (visualizacao: VisualizacaoAgenda) => void;
@@ -32,14 +60,17 @@ export function BotaoAgoraPrincipal({
   /** Segurar o "+" abre o agendamento por voz já ouvindo. Sem isto, o "+" só abre o menu. */
   onAgendarPorVoz?: () => void;
   visivel?: boolean;
+  /** Figaro: a foto do profissional no fim da barra, para trocar a agenda na tela. */
+  filtro?: ReactNode;
 }) {
   const celular = useMediaQuery("(max-width: 600px)");
   // Só com o menu fechado: com o menu aberto o "+" é o "X" e segurar não faz nada de especial.
   const toqueLongo = useToqueLongo(onAgendarPorVoz, { ativo: !menuAberto });
   const menosMovimento = useMenosMovimento();
   const levarAoAgoraQuandoForHoje = useRef(false);
+  // Evita que toques duplicados durante a animação usem o mesmo estado antigo.
+  const ultimaAlternanciaRef = useRef(0);
   const proxima = visualizacao === "timeline" ? "lista" : "timeline";
-  const IconeVisualizacao = proxima === "timeline" ? CalendarClock : List;
 
   const rolarLista = useCallback(() => {
     const primeiro = document.querySelector<HTMLElement>(
@@ -79,6 +110,10 @@ export function BotaoAgoraPrincipal({
   }
 
   function alternarVisualizacao() {
+    const agora = Date.now();
+    // Toques duplicados podem chegar antes de React atualizar visualizacao.
+    if (agora - ultimaAlternanciaRef.current < 300) return;
+    ultimaAlternanciaRef.current = agora;
     onVisualizacao(proxima);
   }
 
@@ -111,13 +146,15 @@ export function BotaoAgoraPrincipal({
             onPointerUp={soltarFocoDoToque}
           >
             <Crosshair aria-hidden />
-            <span>Agora</span>
+            {/* Figaro: "Today" (volta para hoje e rola até agora). */}
+            <span>Hoje</span>
           </Button>
           <span className="agenda-botao-agora-separador" aria-hidden />
           <Button
             id={`agenda-aba-${visualizacao}`}
             variant="ghost"
             size="icon"
+            type="button"
             className="agenda-botao-agora-visualizacao"
             aria-label={`Mostrar ${proxima === "timeline" ? "Timeline" : "Lista"}`}
             onKeyDown={teclasDaVisualizacao}
@@ -142,10 +179,20 @@ export function BotaoAgoraPrincipal({
                   transition: { duration: menosMovimento ? 0 : 0.07, ease: SUAVE },
                 }}
               >
-                <IconeVisualizacao aria-hidden />
+                {proxima === "timeline" ? (
+                  <Clock aria-hidden className="size-7" />
+                ) : (
+                  <IconeAcompanhamentoCard />
+                )}
               </motion.span>
             </AnimatePresence>
           </Button>
+          {filtro ? (
+            <>
+              <span className="agenda-botao-agora-separador" aria-hidden />
+              {filtro}
+            </>
+          ) : null}
         </div>
       ) : null}
       <div className="agenda-acao-fixa">
@@ -158,6 +205,7 @@ export function BotaoAgoraPrincipal({
           aria-describedby={onAgendarPorVoz ? "agenda-fab-dica-voz" : undefined}
           data-acoes-agenda
           className="agenda-acao-redonda agenda-fab-toggle"
+          style={{ boxShadow: "none", filter: "none" }}
           data-aberto={menuAberto}
           data-segurando={toqueLongo.segurando || undefined}
           onClick={onAlternarMenu}

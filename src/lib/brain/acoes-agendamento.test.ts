@@ -291,6 +291,7 @@ describe("quem pode usar o quê (permissões)", () => {
         canal: "whatsapp",
         papel: "profissional",
         profissionalId: "p1",
+        permissoes: ["visualizar_clientes"],
       }),
     ).toBe(true);
   });

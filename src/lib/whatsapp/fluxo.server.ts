@@ -13,6 +13,7 @@ import {
   type ConfiguracaoDoAtendimento,
   type TomDoAtendimento,
 } from "./contrato";
+import { urlPublica } from "@/lib/origem-publica";
 
 async function admin() {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -493,17 +494,23 @@ export async function processarMensagemRecebida(input: {
   }
 
   const telefone = somenteDigitos(input.telefone);
-  // Equipe confirmando o próprio WhatsApp ("CODIGO 123456"): antes de qualquer menu.
+  // "CODIGO 123456" antes de qualquer menu: primeiro o cliente confirmando o telefone
+  // no agendamento público; sem pedido de cliente pendente, a equipe confirmando o seu.
   if (input.tipo === "text") {
+    const { tentarConfirmarTelefoneDoCliente } = await import("@/lib/verificacao-telefone.server");
+    const doCliente = await tentarConfirmarTelefoneDoCliente(telefone, input.conteudo).catch(
+      () => null,
+    );
     const { tentarVerificarPorMensagem } = await import("./identidade.server");
-    const resposta = await tentarVerificarPorMensagem(telefone, input.conteudo).catch(() => null);
+    const resposta =
+      doCliente ?? (await tentarVerificarPorMensagem(telefone, input.conteudo).catch(() => null));
     if (resposta) {
       const { gatewayDoProvedor } = await import("./gateway.server");
       const provedorDaSessao = (conexao as { provedor?: string | null }).provedor ?? null;
       await gatewayDoProvedor(provedorDaSessao)
         .enviarMensagem(input.sessaoId, telefone, resposta)
         .catch(() => undefined);
-      return { tratada: true, motivo: "verificacao_equipe" };
+      return { tratada: true, motivo: doCliente ? "verificacao_cliente" : "verificacao_equipe" };
     }
   }
   // Central de Notificações da plataforma: sem negócio próprio; o negócio vem do
@@ -607,6 +614,11 @@ export async function processarMensagemRecebida(input: {
   if (erroInsercao) {
     if (erroInsercao.code === "23505") return { tratada: true, motivo: "duplicada" };
     throw new Error(erroInsercao.message);
+  }
+  // A pessoa escreveu do próprio número: a ficha passa a receber WhatsApp automático.
+  {
+    const { marcarTelefoneConfirmado } = await import("@/lib/verificacao-telefone.server");
+    await marcarTelefoneConfirmado(tenantId, telefone);
   }
 
   const { data: linhaAtual } = await db
@@ -736,7 +748,7 @@ export async function processarMensagemRecebida(input: {
     if (respondida) return { tratada: true, motivo: "secretaria_cortai" };
   }
   const { data: tenant } = await db.from("tenants").select("slug").eq("id", tenantId).maybeSingle();
-  const link = tenant?.slug ? `https://cortai.dev/agendar/${tenant.slug}` : "https://cortai.dev";
+  const link = tenant?.slug ? urlPublica(`/agendar/${tenant.slug}`) : urlPublica("");
   const fallback = `Recebi sua mensagem! Estou com instabilidade agora — pode me escrever de novo daqui a pouco, que eu continuo por aqui. Se preferir, também dá para agendar pelo link: ${link}`;
   const desde = new Date(Date.now() - 24 * 60 * 60_000).toISOString();
   const { data: jaOrientado } = await db
@@ -857,7 +869,7 @@ export async function atualizarEstadoDaConexao(
 }
 
 /**
- * Entrega a mensagem livre ao cérebro CortAI (persona Secretária) e envia a
+ * Entrega a mensagem livre ao cérebro CortAI (persona do atendimento) e envia a
  * resposta pelo provedor do negócio. Devolve false quando não respondeu
  * (atendimento humano, plano, IA desligada/pausada, limite) para o chamador
  * seguir a orientação fixa — o canal nunca trava.
@@ -886,8 +898,7 @@ async function responderComCerebro(input: {
   const config = await configuracaoDoTenant(input.tenantId);
   if (!equipe && !config.responderWhatsapp) return false;
   if (!(await whatsappLiberadoNoPlano(input.tenantId))) return false;
-  const { bloqueioDeUso } = await import("@/lib/brain/uso.server");
-  if (await bloqueioDeUso(input.tenantId, "whatsapp", input.telefone, !!equipe)) return false;
+  // Interruptor geral, pausa e cotas são conferidos dentro do cérebro (`pensarCortai`).
 
   const [{ data: tenant }, { data: historico }] = await Promise.all([
     db.from("tenants").select("nome, segmento").eq("id", input.tenantId).maybeSingle(),
@@ -911,6 +922,7 @@ async function responderComCerebro(input: {
       telefoneCliente: equipe ? null : input.telefone,
       papel: equipe?.papel ?? "cliente",
       profissionalId: equipe?.profissionalId ?? null,
+      permissoes: equipe?.permissoes ?? [],
     },
     persona: {
       nome: equipe

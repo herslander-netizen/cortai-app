@@ -2,7 +2,7 @@
  * Conexão de contas sociais — parte exclusiva do servidor.
  * Lê segredos do ambiente dentro das funções (nunca no escopo do módulo).
  */
-import { createHmac, timingSafeEqual } from "crypto";
+import { createHmac, randomBytes, timingSafeEqual } from "crypto";
 
 import type { PlataformaSocial } from "@/lib/redes-sociais";
 
@@ -26,19 +26,77 @@ function hmac(valor: string, segredo: string): string {
   return createHmac("sha256", segredo).update(valor).digest("hex");
 }
 
-/** state do OAuth: tenant_id assinado, para o callback saber de qual negócio é a conexão. */
-export function assinarEstado(tenantId: string, segredo: string): string {
-  return `${tenantId}.${hmac(tenantId, segredo)}`;
+function iguais(a: string, b: string): boolean {
+  const x = Buffer.from(a);
+  const y = Buffer.from(b);
+  return x.length === y.length && timingSafeEqual(x, y);
 }
 
-export function verificarEstado(state: string, segredo: string): string | null {
-  const [tenantId, assinatura] = state.split(".");
-  if (!tenantId || !assinatura) return null;
-  const esperada = hmac(tenantId, segredo);
-  const a = Buffer.from(assinatura);
-  const b = Buffer.from(esperada);
-  if (a.length !== b.length || !timingSafeEqual(a, b)) return null;
-  return tenantId;
+/** Validade do state: tempo de autorizar na Meta/TikTok, sem deixar o link valer para sempre. */
+export const VALIDADE_DO_ESTADO_MS = 10 * 60 * 1000;
+
+/** Cookie que prende o state ao navegador de quem iniciou a conexão (uso único). */
+export function nomeDoCookieDoEstado(plataforma: PlataformaSocial): string {
+  return `cortai_oauth_${plataforma}`;
+}
+
+export type DadosDoEstado = { tenantId: string; userId: string; plataforma: PlataformaSocial };
+
+/**
+ * state do OAuth (achado C3 de 16/10): negócio, pessoa, plataforma, prazo e um nonce aleatório,
+ * assinados. O nonce também vai num cookie HttpOnly do navegador de quem iniciou; o callback só
+ * aceita o state junto com esse cookie, e o cookie é apagado no retorno. Assim quem viu o state
+ * (histórico, logs, ex-funcionário) não consegue ligar a própria conta ao negócio.
+ */
+export function criarEstado(
+  dados: DadosDoEstado,
+  segredo: string,
+  agora: number = Date.now(),
+): { state: string; nonce: string } {
+  const nonce = randomBytes(16).toString("hex");
+  const corpo = Buffer.from(
+    JSON.stringify({
+      t: dados.tenantId,
+      u: dados.userId,
+      p: dados.plataforma,
+      e: agora + VALIDADE_DO_ESTADO_MS,
+      n: nonce,
+    }),
+  ).toString("base64url");
+  return { state: `${corpo}.${hmac(corpo, segredo)}`, nonce };
+}
+
+export function verificarEstado(
+  state: string,
+  segredo: string,
+  esperado: { plataforma: PlataformaSocial; nonceDoCookie: string | null },
+  agora: number = Date.now(),
+): Omit<DadosDoEstado, "plataforma"> | null {
+  const [corpo, assinatura, sobra] = state.split(".");
+  if (!corpo || !assinatura || sobra !== undefined) return null;
+  if (!iguais(assinatura, hmac(corpo, segredo))) return null;
+  let dados: { t?: unknown; u?: unknown; p?: unknown; e?: unknown; n?: unknown };
+  try {
+    dados = JSON.parse(Buffer.from(corpo, "base64url").toString("utf8"));
+  } catch {
+    return null;
+  }
+  const { t, u, p, e, n } = dados;
+  if (typeof t !== "string" || typeof u !== "string" || typeof n !== "string") return null;
+  if (typeof e !== "number" || e < agora) return null;
+  if (p !== esperado.plataforma) return null;
+  if (!esperado.nonceDoCookie || !iguais(n, esperado.nonceDoCookie)) return null;
+  return { tenantId: t, userId: u };
+}
+
+/** Lê um cookie do cabeçalho da requisição. */
+export function lerCookie(cabecalho: string | null, nome: string): string | null {
+  if (!cabecalho) return null;
+  for (const parte of cabecalho.split(";")) {
+    const i = parte.indexOf("=");
+    if (i > 0 && parte.slice(0, i).trim() === nome) return parte.slice(i + 1).trim() || null;
+  }
+  return null;
 }
 
 export type TokenTrocado = {

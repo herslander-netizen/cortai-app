@@ -4,6 +4,7 @@ import { useState } from "react";
 
 import { supabase } from "@/integrations/supabase/client";
 import { destinoDoPapel, esquecerSessao, sair, sessaoDoUsuario } from "@/lib/guarda";
+import type { Sessao } from "@/lib/sessao.functions";
 import { criarBarbearia, definirTipoDePerfil, escolherContexto } from "@/lib/sessao.functions";
 import { mensagemDeErroDeNegocio } from "@/lib/auth-flow";
 import { CHAVE_VINCULO } from "@/lib/vinculo";
@@ -41,7 +42,18 @@ export const Route = createFileRoute("/comecar")({
     const { data } = await supabase.auth.getSession();
     const usuario = data.session?.user;
     if (!usuario) throw redirect({ to: "/login", search: { proximo: "/comecar" } });
-    const sessao = await sessaoDoUsuario(usuario.id);
+    let sessao: Sessao;
+    try {
+      sessao = await sessaoDoUsuario(usuario.id);
+    } catch {
+      // Se a sessão existe, mas o perfil/contexto não pôde ser carregado,
+      // não manter a pessoa presa no onboarding. Permite autenticar novamente.
+      esquecerSessao();
+      throw redirect({
+        to: "/login",
+        search: { proximo: "/comecar", erro: "perfil" },
+      });
+    }
     // Conta nova criada a partir de um agendamento: já é cliente, sem pergunta extra.
     if (sessao.papel === "pendente" && !sessao.acessoSuspenso && temVinculoPendente()) {
       await escolherContexto({ data: { contexto: "cliente" } });

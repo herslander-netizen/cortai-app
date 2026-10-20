@@ -1,11 +1,5 @@
 {
-  "version": 1,
-  "asset_id": "9efc2219-6c65-422f-aac6-99b842822bc7",
-  "project_id": "a3550de1-ec98-4622-8484-7dadb8b04ed0",
-  "url": "/__l5e/assets-v1/9efc2219-6c65-422f-aac6-99b842822bc7/cortai-hero-barbearia.png",
-  "r2_key": "a/v1/a3550de1-ec98-4622-8484-7dadb8b04ed0/9efc2219-6c65-422f-aac6-99b842822bc7/cortai-hero-barbearia.png",
-  "original_filename": "cortai-hero-barbearia.png",
-  "size": 1981651,
+  "url": "/marca/cortai-hero-barbearia.png",
   "content_type": "image/png",
-  "created_at": "2026-09-13T17:27:04Z"
+  "size": 1981651
 }

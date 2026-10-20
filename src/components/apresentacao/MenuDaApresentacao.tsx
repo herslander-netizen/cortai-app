@@ -13,6 +13,8 @@ import {
 
 /** Seções reais da apresentação (ids estáveis em ShowroomCortai). */
 const SECOES = [
+  { href: "#demo-interativa", rotulo: "Demonstração" },
+  { href: "#para-quem", rotulo: "Para quem é" },
   { href: "#como-funciona", rotulo: "Como funciona" },
   { href: "#recursos", rotulo: "Recursos" },
   { href: "#planos", rotulo: "Planos" },

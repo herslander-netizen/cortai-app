@@ -22,7 +22,7 @@ export const Route = createFileRoute("/barbeiro/clientes/")({
       { property: "og:title", content: "Clientes — Cortaí Gestão" },
       {
         property: "og:description",
-        content: "Seu CRM de barbearia, com dados reais de cada cliente.",
+        content: "Seu CRM, com dados reais de cada cliente.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

@@ -13,7 +13,7 @@ export const Route = createFileRoute("/admin/")({
       { title: "Visão da plataforma — Cortaí" },
       {
         name: "description",
-        content: "Receita, conversão, cancelamento e sinais de sucesso das barbearias no Cortaí.",
+        content: "Receita, conversão, cancelamento e sinais de sucesso dos negócios no Cortaí.",
       },
       { property: "og:title", content: "Visão da plataforma — Cortaí" },
       { property: "og:description", content: "Indicadores reais da plataforma Cortaí." },

@@ -63,7 +63,7 @@ export const getFuncionalidades = createServerFn({ method: "GET" })
               ? Boolean(fiado?.ativo)
               : Boolean(fiado?.bloqueia_agendamento_no_limite);
       else if (fonte.tipo === "secretaria")
-        // Mesmos padrões que o motor da Secretária usa quando não há linha salva.
+        // Mesmos padrões que o motor do WhatsApp usa quando não há linha salva.
         valores[item.chave] =
           fonte.coluna === "confirmacao_automatica"
             ? (c?.confirmacao_automatica ?? true)

@@ -19,6 +19,40 @@ afterEach(() => {
 });
 
 describe("TelaDeFormulario", () => {
+  it("pede confirmação antes de fechar um formulário com alterações pendentes", async () => {
+    host = document.createElement("div");
+    document.body.appendChild(host);
+    root = createRoot(host);
+    const onFechar = vi.fn();
+
+    await act(async () =>
+      root!.render(
+        createElement(TelaDeFormulario, {
+          titulo: "Editar serviço",
+          sujo: true,
+          onFechar,
+          children: createElement("p", null, "Dados alterados"),
+        }),
+      ),
+    );
+
+    await act(async () => {
+      document.body.querySelector<HTMLButtonElement>('button[aria-label="Fechar"]')!.click();
+    });
+
+    expect(document.body.textContent).toContain("Sair sem salvar?");
+    expect(onFechar).not.toHaveBeenCalled();
+
+    await act(async () => {
+      Array.from(document.body.querySelectorAll("button"))
+        .find((button) => button.textContent?.includes("Continuar editando"))!
+        .click();
+    });
+
+    expect(document.body.querySelector('[role="dialog"]')).not.toBeNull();
+    expect(onFechar).not.toHaveBeenCalled();
+  });
+
   it("mantém a ação principal em um rodapé separado da área rolável", async () => {
     host = document.createElement("div");
     document.body.appendChild(host);
@@ -47,4 +81,54 @@ describe("TelaDeFormulario", () => {
     expect(rodape.contains(conteudo)).toBe(false);
     expect(confirmar.className).toContain("w-full");
   });
+
+  it("pede confirmação ao usar o gesto de voltar com alterações pendentes", async () => {
+    host = document.createElement("div");
+    document.body.appendChild(host);
+    root = createRoot(host);
+    const onFechar = vi.fn();
+
+    await act(async () =>
+      root!.render(
+        createElement(TelaDeFormulario, {
+          titulo: "Editar serviço",
+          sujo: true,
+          onFechar,
+          children: createElement("p", null, "Dados alterados"),
+        }),
+      ),
+    );
+
+    await act(async () => {
+      window.dispatchEvent(new PopStateEvent("popstate", { state: {} }));
+    });
+
+    expect(document.body.textContent).toContain("Sair sem salvar?");
+    expect(onFechar).not.toHaveBeenCalled();
+  });
+
+  it("fecha ao usar o gesto de voltar quando não há alterações pendentes", async () => {
+    host = document.createElement("div");
+    document.body.appendChild(host);
+    root = createRoot(host);
+    const onFechar = vi.fn();
+
+    await act(async () =>
+      root!.render(
+        createElement(TelaDeFormulario, {
+          titulo: "Novo serviço",
+          sujo: false,
+          onFechar,
+          children: createElement("p", null, "Dados sem alterações"),
+        }),
+      ),
+    );
+
+    await act(async () => {
+      window.dispatchEvent(new PopStateEvent("popstate", { state: {} }));
+    });
+
+    expect(onFechar).toHaveBeenCalledTimes(1);
+  });
+
 });

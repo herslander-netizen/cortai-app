@@ -18,7 +18,8 @@ import {
 } from "./gesto-dia";
 import { somarDias } from "./tempo";
 
-const IGNORAR = ".agenda-chips, [data-sem-gesto-dia], input, select, textarea, [role=dialog]";
+const IGNORAR =
+  "[data-gesto-dia-ignore], [data-sem-gesto-dia], .agenda-chips, input, select, textarea, [role=dialog]";
 const arrastando = () => document.querySelector(".agenda-arrastando") !== null;
 
 type Estado = {
@@ -36,9 +37,12 @@ type Estado = {
  */
 export function useGestoDia(dia: string, aoTrocar: (proximo: string) => void) {
   const palco = useRef<HTMLElement | null>(null);
-  const previa = useRef<HTMLDivElement | null>(null);
+  const previaAnterior = useRef<HTMLDivElement | null>(null);
+  const previaProxima = useRef<HTMLDivElement | null>(null);
   const estado = useRef<Estado | null>(null);
   const animacao = useRef<{ stop: () => void } | null>(null);
+  /** Páginas do dia: o que desliza junto e a distância de um dia (largura da página + vão). */
+  const carrossel = useRef<{ trilhos: HTMLElement[]; largura: number } | null>(null);
   const [diaDoGesto, setDiaDoGesto] = useState<string | null>(null);
   const diaRef = useRef(dia);
   diaRef.current = dia;
@@ -46,6 +50,16 @@ export function useGestoDia(dia: string, aoTrocar: (proximo: string) => void) {
   trocarRef.current = aoTrocar;
 
   const escrever = useCallback((dx: number) => {
+    const c = carrossel.current;
+    if (c) {
+      // A página inteira do dia acompanha o dedo; os vizinhos vão dentro dela, ao lado.
+      for (const t of c.trilhos) t.style.transform = dx ? `translate3d(${dx}px,0,0)` : "";
+      const raiz = document.documentElement.style;
+      if (dx)
+        raiz.setProperty("--dia-progresso", String(Math.max(-1, Math.min(1, -dx / c.largura))));
+      else raiz.removeProperty("--dia-progresso");
+      return;
+    }
     const largura = window.innerWidth;
     const el = palco.current;
     if (el) el.style.transform = dx ? `translate3d(${dx}px,0,0)` : "";
@@ -53,8 +67,10 @@ export function useGestoDia(dia: string, aoTrocar: (proximo: string) => void) {
     const raiz = document.documentElement.style;
     if (dx) raiz.setProperty("--dia-progresso", String(Math.max(-1, Math.min(1, -dx / largura))));
     else raiz.removeProperty("--dia-progresso");
-    const p = previa.current;
-    if (p) p.style.transform = `translate3d(${dx + (dx > 0 ? -largura : largura)}px,0,0)`;
+    const anterior = previaAnterior.current;
+    const proxima = previaProxima.current;
+    if (anterior) anterior.style.transform = `translate3d(${dx - largura}px,0,0)`;
+    if (proxima) proxima.style.transform = `translate3d(${dx + largura}px,0,0)`;
   }, []);
 
   const limpar = useCallback(() => {
@@ -63,6 +79,18 @@ export function useGestoDia(dia: string, aoTrocar: (proximo: string) => void) {
       el.style.transform = "";
       el.style.willChange = "";
     }
+    for (const t of carrossel.current?.trilhos ?? []) {
+      t.style.transform = "";
+      t.style.willChange = "";
+    }
+    carrossel.current = null;
+    // As prévias ficam sempre montadas: depois do gesto voltam para fora da tela. Sem isso a que
+    // entrou ficava parada por cima da Agenda (tela vazia, a página rolando por baixo).
+    const largura = window.innerWidth;
+    if (previaAnterior.current)
+      previaAnterior.current.style.transform = `translate3d(${-largura}px,0,0)`;
+    if (previaProxima.current)
+      previaProxima.current.style.transform = `translate3d(${largura}px,0,0)`;
     document.documentElement.classList.remove("agenda-gesto-ativo");
     document.documentElement.style.removeProperty("--dia-progresso");
     definirVizinhoDoGesto(0);
@@ -88,7 +116,7 @@ export function useGestoDia(dia: string, aoTrocar: (proximo: string) => void) {
       estado.current = null;
       if (!s) return;
       if (s.quadro !== null) cancelAnimationFrame(s.quadro);
-      const largura = window.innerWidth;
+      const largura = carrossel.current?.largura ?? window.innerWidth;
       const { velocidade, distancia } = movimentoRecente(s.amostras, performance.now());
       const d = decidirFimDoGesto({
         inicio: s.inicio,
@@ -100,8 +128,8 @@ export function useGestoDia(dia: string, aoTrocar: (proximo: string) => void) {
         cancelado,
         arrastandoNoFim: arrastando(),
       });
-      if (s.eixo === "x") {
-        // Arrastar por cima de um cartão não pode abri-lo.
+      if (s.eixo === "x" && Math.abs(s.dx) >= 10) {
+        // Só suprime o clique quando houve arrasto real; um toque curto continua clicável.
         const engolir = (e: Event) => {
           e.stopPropagation();
           e.preventDefault();
@@ -123,12 +151,16 @@ export function useGestoDia(dia: string, aoTrocar: (proximo: string) => void) {
       assentar(s.dx, alvo, velocidade, () => {
         animacao.current = null;
         // Troca o dia antes de limpar: nenhum quadro mostra o dia antigo de volta.
-        if (proximo)
+        if (proximo) {
+          // O deslocamento sai junto com a troca: senão a bolinha da semana ficava uma casa além
+          // do dia novo e, ao soltar a trava, voltava animando ("vindo do dia seguinte").
+          document.documentElement.style.removeProperty("--dia-progresso");
           flushSync(() => {
             setDiaDoGesto(proximo);
             trocarRef.current(proximo);
             definirVizinhoDoGesto(0);
           });
+        }
         limpar();
       });
     },
@@ -140,6 +172,13 @@ export function useGestoDia(dia: string, aoTrocar: (proximo: string) => void) {
       const s = estado.current;
       const t = e.touches[0];
       if (!s || !t) return;
+      // Segundo dedo: é pinça (zoom das horas), não troca de dia.
+      if (e.touches.length > 1) {
+        estado.current = null;
+        if (s.quadro !== null) cancelAnimationFrame(s.quadro);
+        escrever(0);
+        return limpar();
+      }
       if (arrastando()) {
         estado.current = null;
         escrever(0);
@@ -158,14 +197,26 @@ export function useGestoDia(dia: string, aoTrocar: (proximo: string) => void) {
       if (!s.eixo) {
         s.eixo = "x";
         if (!prefereMenosMovimento() && palco.current) {
-          palco.current.style.willChange = "transform";
+          // Página do dia: a timeline inteira (com as horas) e os pontinhos deslizam juntos.
+          const trilhos = Array.from(
+            palco.current.querySelectorAll<HTMLElement>("[data-trilho-dia]"),
+          );
+          const grade = palco.current.querySelector<HTMLElement>(
+            ".agenda-timeline[data-trilho-dia]",
+          );
+          const pagina = grade?.parentElement?.getBoundingClientRect().width ?? 0;
+          if (grade && pagina > 0) {
+            const vao = parseFloat(getComputedStyle(grade).getPropertyValue("--trilho-vao"));
+            carrossel.current = { trilhos, largura: pagina + (Number.isFinite(vao) ? vao : 0) };
+            for (const t of trilhos) t.style.willChange = "transform";
+          } else palco.current.style.willChange = "transform";
           document.documentElement.classList.add("agenda-gesto-ativo");
         }
       }
       const agora = performance.now();
       s.amostras.push({ x: t.clientX, t: agora });
       if (s.amostras.length > 12) s.amostras.shift();
-      s.dx = limitarDeslocamento(dx, window.innerWidth);
+      s.dx = limitarDeslocamento(dx, carrossel.current?.largura ?? window.innerWidth);
       if (prefereMenosMovimento()) return;
       definirVizinhoDoGesto(s.dx < 0 ? 1 : s.dx > 0 ? -1 : 0);
       if (s.quadro === null)
@@ -229,26 +280,33 @@ export function useGestoDia(dia: string, aoTrocar: (proximo: string) => void) {
 
   useEffect(
     () => () => {
+      // Evita deixar RAF ou transforms inline presos se a Agenda desmontar durante o gesto.
+      const s = estado.current;
+      estado.current = null;
+      if (s?.quadro !== null && s?.quadro !== undefined) cancelAnimationFrame(s.quadro);
       animacao.current?.stop();
-      document.documentElement.style.removeProperty("--dia-progresso");
-      document.documentElement.classList.remove("agenda-gesto-ativo");
-      definirVizinhoDoGesto(0);
+      animacao.current = null;
+      limpar();
     },
-    [],
+    [limpar],
   );
 
   // Posiciona a prévia assim que ela monta (antes do próximo quadro do dedo).
-  const refPrevia = useCallback(
-    (el: HTMLDivElement | null) => {
-      previa.current = el;
-      if (el) escrever(estado.current?.dx ?? 0);
-    },
-    [escrever],
-  );
+  const refPreviaAnterior = useCallback((el: HTMLDivElement | null) => {
+    previaAnterior.current = el;
+    if (el)
+      el.style.transform = `translate3d(${(estado.current?.dx ?? 0) - window.innerWidth}px,0,0)`;
+  }, []);
+  const refPreviaProxima = useCallback((el: HTMLDivElement | null) => {
+    previaProxima.current = el;
+    if (el)
+      el.style.transform = `translate3d(${(estado.current?.dx ?? 0) + window.innerWidth}px,0,0)`;
+  }, []);
 
   return {
     ref,
-    refPrevia,
+    refPreviaAnterior,
+    refPreviaProxima,
     /** A agenda atual chegou pelo gesto: não repete a animação de entrada. */
     entradaPeloGesto: diaDoGesto === dia,
   };

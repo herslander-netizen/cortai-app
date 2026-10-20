@@ -4,7 +4,12 @@ import { inicioDoDiaNoFuso, inicioDoMesNoFuso } from "@/lib/horarios";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { tenantIdDoMembro, exigirPermissao, type ContextoAutenticado } from "@/lib/tenant";
 import { exigirRecurso } from "@/lib/planos";
-import { hojeNoFuso, isoNoFusoDaBarbearia, slotsDoDia } from "@/lib/horarios";
+import {
+  hojeNoFuso,
+  isoNoFusoDaBarbearia,
+  slotsDoDia,
+  somarDias as somarDiasIso,
+} from "@/lib/horarios";
 import { motivoForaDoHorario } from "@/lib/disponibilidade";
 import { fusoDoTenant } from "@/lib/fuso.server";
 import { DURACAO_MAX_MINUTOS, DURACAO_MIN_MINUTOS, TEXTO_DO_MOTIVO } from "@/lib/remarcacao-regras";
@@ -17,6 +22,7 @@ import {
 } from "@/lib/agenda-regras.server";
 import { sugestoesDeHorario } from "@/lib/sugestoes-de-horario";
 import type { PreferenciasCliente } from "@/lib/preferencias-cliente";
+import { expedienteDoProfissional, type Expediente } from "@/lib/expediente";
 
 async function admin() {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -93,6 +99,10 @@ export type AgendaItem = {
   ficha: string | null;
   preferencias?: PreferenciasCliente;
   servico: string;
+  /** Categoria do serviço (texto livre). */
+  categoria?: string | null;
+  /** Posição da categoria entre as do negócio (cor da barra do cartão, como no Figaro). */
+  categoriaIndice?: number | null;
   duracaoMin: number;
   profissional: string;
   arrivedAt: string | null;
@@ -102,6 +112,8 @@ export type AgendaItem = {
   daListaDeEspera?: boolean;
   origem?: string | null;
   assistidoPorCortai?: boolean;
+  /** Agendamento público que usou uma ficha existente sem confirmar o telefone. */
+  telefoneNaoConfirmado?: boolean;
   profissionalId?: string | null;
   confirmadoEm?: string | null;
 };
@@ -135,6 +147,77 @@ export type AgendaDia = {
   profissionais?: { id: string; nome: string; avatarUrl?: string | null }[];
 };
 
+/** Atendimentos do negócio num intervalo (início em [de, ate)), no formato da Agenda. */
+async function lerItensDaAgenda(
+  db: Awaited<ReturnType<typeof tenantPadrao>>["db"],
+  tenantId: string,
+  de: Date,
+  ate: Date,
+): Promise<AgendaItem[]> {
+  const categoriasRes = db.from("servicos").select("categoria").eq("tenant_id", tenantId);
+  const agRes = await db
+    .from("agendamentos")
+    .select(
+      "id, inicio, fim, status, forma_pagamento, valor_centavos, cliente_id, profissional_id, arrived_at, started_at, finished_at, confirmado_em, encaixe, origem_fila_id, origem, assistido_por_cortai, clientes(nome, telefone, ficha_tecnica, condicoes_especiais, preferencias), servicos(nome, duracao_min, categoria), profissionais(nome)",
+    )
+    .eq("tenant_id", tenantId)
+    .gte("inicio", de.toISOString())
+    .lt("inicio", ate.toISOString())
+    .order("inicio");
+  const { indiceDaCategoria } = await import("@/components/barbeiro/agenda/cartao-figaro");
+  const categoriasDoNegocio = ((await categoriasRes).data ?? []).map((c) => c.categoria);
+  const itens: AgendaItem[] = (agRes.data ?? []).map((a) => ({
+    id: a.id,
+    inicio: a.inicio,
+    fim: a.fim,
+    status: a.status,
+    forma_pagamento: a.forma_pagamento,
+    valor_centavos: a.valor_centavos,
+    clienteId: a.cliente_id ?? null,
+    cliente: a.clientes?.nome ?? "Cliente",
+    telefone: a.clientes?.telefone ?? null,
+    ficha: a.clientes?.condicoes_especiais ?? a.clientes?.ficha_tecnica ?? null,
+    preferencias: (a.clientes?.preferencias ?? {}) as PreferenciasCliente,
+    servico: a.servicos?.nome ?? "Serviço",
+    categoria: (a.servicos as { categoria?: string | null } | null)?.categoria ?? null,
+    categoriaIndice: indiceDaCategoria(
+      categoriasDoNegocio,
+      (a.servicos as { categoria?: string | null } | null)?.categoria,
+    ),
+    duracaoMin:
+      a.servicos?.duracao_min ??
+      Math.max(1, Math.round((new Date(a.fim).getTime() - new Date(a.inicio).getTime()) / 60_000)),
+    profissional: a.profissionais?.nome ?? "—",
+    profissionalId: (a as { profissional_id?: string | null }).profissional_id ?? null,
+    arrivedAt: a.arrived_at ?? null,
+    startedAt: a.started_at ?? null,
+    finishedAt: a.finished_at ?? null,
+    confirmadoEm: (a as { confirmado_em?: string | null }).confirmado_em ?? null,
+    encaixe: Boolean((a as { encaixe?: boolean | null }).encaixe),
+    daListaDeEspera: Boolean((a as { origem_fila_id?: string | null }).origem_fila_id),
+    origem: (a as { origem?: string | null }).origem ?? null,
+    assistidoPorCortai: Boolean((a as { assistido_por_cortai?: boolean }).assistido_por_cortai),
+    telefoneNaoConfirmado: false,
+  }));
+
+  // Marca "telefone não confirmado" (migração 0032): leitura à parte, só dos horários que
+  // vieram do link, e que nunca derruba a agenda se a coluna ainda não existir.
+  const doLink = itens.filter((i) => i.origem === "link_publico").map((i) => i.id);
+  if (doLink.length) {
+    const { data: marcados, error: erroMarca } = await db
+      .from("agendamentos")
+      .select("id")
+      .in("id", doLink)
+      .eq("telefone_nao_confirmado", true);
+    if (!erroMarca) {
+      const ids = new Set((marcados ?? []).map((m) => m.id));
+      for (const i of itens) if (ids.has(i.id)) i.telefoneNaoConfirmado = true;
+    }
+  }
+
+  return itens;
+}
+
 export const getAgendaDia = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .validator((data: { dia?: string | undefined }) => data ?? {})
@@ -145,16 +228,8 @@ export const getAgendaDia = createServerFn({ method: "GET" })
     const de = new Date(isoNoFusoDaBarbearia(diaAlvo, "00:00", fuso));
     const ate = new Date(de.getTime() + 24 * 60 * 60 * 1000);
 
-    const [agRes, filaRes, horariosRes, profsRes, tenantRes] = await Promise.all([
-      db
-        .from("agendamentos")
-        .select(
-          "id, inicio, fim, status, forma_pagamento, valor_centavos, cliente_id, profissional_id, arrived_at, started_at, finished_at, confirmado_em, encaixe, origem_fila_id, origem, assistido_por_cortai, clientes(nome, telefone, ficha_tecnica, condicoes_especiais, preferencias), servicos(nome, duracao_min), profissionais(nome)",
-        )
-        .eq("tenant_id", tenant.id)
-        .gte("inicio", de.toISOString())
-        .lt("inicio", ate.toISOString())
-        .order("inicio"),
+    const [itens, filaRes, horariosRes, profsRes, tenantRes] = await Promise.all([
+      lerItensDaAgenda(db, tenant.id, de, ate),
       db
         .from("fila_de_espera")
         .select("id, janela_preferida, clientes(nome)")
@@ -173,37 +248,6 @@ export const getAgendaDia = createServerFn({ method: "GET" })
         .order("nome"),
       db.from("tenants").select("passo_horarios_min").eq("id", tenant.id).maybeSingle(),
     ]);
-
-    const itens = (agRes.data ?? []).map((a) => ({
-      id: a.id,
-      inicio: a.inicio,
-      fim: a.fim,
-      status: a.status,
-      forma_pagamento: a.forma_pagamento,
-      valor_centavos: a.valor_centavos,
-      clienteId: a.cliente_id ?? null,
-      cliente: a.clientes?.nome ?? "Cliente",
-      telefone: a.clientes?.telefone ?? null,
-      ficha: a.clientes?.condicoes_especiais ?? a.clientes?.ficha_tecnica ?? null,
-      preferencias: (a.clientes?.preferencias ?? {}) as PreferenciasCliente,
-      servico: a.servicos?.nome ?? "Serviço",
-      duracaoMin:
-        a.servicos?.duracao_min ??
-        Math.max(
-          1,
-          Math.round((new Date(a.fim).getTime() - new Date(a.inicio).getTime()) / 60_000),
-        ),
-      profissional: a.profissionais?.nome ?? "—",
-      profissionalId: (a as { profissional_id?: string | null }).profissional_id ?? null,
-      arrivedAt: a.arrived_at ?? null,
-      startedAt: a.started_at ?? null,
-      finishedAt: a.finished_at ?? null,
-      confirmadoEm: (a as { confirmado_em?: string | null }).confirmado_em ?? null,
-      encaixe: Boolean((a as { encaixe?: boolean | null }).encaixe),
-      daListaDeEspera: Boolean((a as { origem_fila_id?: string | null }).origem_fila_id),
-      origem: (a as { origem?: string | null }).origem ?? null,
-      assistidoPorCortai: Boolean((a as { assistido_por_cortai?: boolean }).assistido_por_cortai),
-    }));
 
     const fila = (filaRes.data ?? []).map((f) => {
       const j = (f.janela_preferida ?? null) as { inicio?: number; fim?: number } | null;
@@ -242,6 +286,36 @@ export const getAgendaDia = createServerFn({ method: "GET" })
       }).catch(() => [])
     ).map((b) => ({ profissional_id: b.profissional_id, inicio: b.inicio, fim: b.fim }));
     return { tenant, dia: iso, itens, bloqueios, fila, horarios, fuso, passoMin, profissionais };
+  });
+
+/** Máximo de dias numa leitura de período (o modo lista do celular carrega em blocos). */
+export const DIAS_MAX_DO_PERIODO = 62;
+
+export type AgendaPeriodo = { de: string; ate: string; fuso: string; itens: AgendaItem[] };
+
+/**
+ * Atendimentos de vários dias seguidos, a partir de `de` (dia no fuso do negócio), para o modo
+ * lista do celular. Mesma leitura e mesmo acesso da Agenda do dia (`getAgendaDia`).
+ */
+export const getAgendaPeriodo = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .validator((data: { de?: string | undefined; dias: number }) => {
+    if (data.de !== undefined && !/^\d{4}-\d{2}-\d{2}$/.test(data.de))
+      throw new Error("Dia inválido");
+    const dias = Math.trunc(Number(data.dias));
+    if (!Number.isFinite(dias) || dias < 1 || dias > DIAS_MAX_DO_PERIODO)
+      throw new Error("Período inválido");
+    return { de: data.de, dias };
+  })
+  .handler(async ({ data, context }): Promise<AgendaPeriodo> => {
+    const { db, tenant } = await tenantPadrao(context);
+    const fuso = await fusoDoTenant(tenant.id);
+    const primeiro = data.de ?? hojeNoFuso(fuso);
+    const fim = somarDiasIso(primeiro, data.dias);
+    const de = new Date(isoNoFusoDaBarbearia(primeiro, "00:00", fuso));
+    const ate = new Date(isoNoFusoDaBarbearia(fim, "00:00", fuso));
+    const itens = await lerItensDaAgenda(db, tenant.id, de, ate);
+    return { de: primeiro, ate: fim, fuso, itens };
   });
 
 export const ESTADOS_ATENDIMENTO = [
@@ -1053,11 +1127,15 @@ export const getDadosAgendamentoManual = createServerFn({ method: "GET" })
     };
   });
 
-/** Busca clientes SOMENTE da barbearia do usuário logado, por nome ou telefone. */
+/**
+ * Busca clientes SOMENTE da barbearia do usuário logado, por nome ou telefone. Com `lista`, devolve
+ * a lista em ordem alfabética (até 300), para a escolha de cliente em tela cheia.
+ */
 export const buscarClientesDaBarbearia = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .validator((data: { termo?: string | undefined }) => ({
+  .validator((data: { termo?: string | undefined; lista?: boolean | undefined }) => ({
     termo: (data?.termo ?? "").trim().slice(0, 60),
+    lista: data?.lista === true,
   }))
   .handler(async ({ data, context }) => {
     const { db, tenant } = await tenantPadrao(context);
@@ -1067,12 +1145,12 @@ export const buscarClientesDaBarbearia = createServerFn({ method: "GET" })
       .eq("tenant_id", tenant.id)
       .is("arquivado_em", null)
       .order("nome")
-      .limit(8);
+      .limit(data.lista ? 300 : 8);
     if (data.termo) {
       const t = data.termo.replace(/[%,()]/g, "");
       q = q.or(`nome.ilike.%${t}%,telefone.ilike.%${t}%`);
     }
-    if (!data.termo) {
+    if (!data.termo && !data.lista) {
       // Sem busca: clientes atendidos mais recentemente primeiro.
       const { data: recentes } = await db
         .from("agendamentos")
@@ -1125,6 +1203,7 @@ export const criarAgendamentoManual = createServerFn({ method: "POST" })
   .validator(
     (data: {
       clienteId?: string | undefined;
+      semCliente?: boolean | undefined;
       novoNome?: string | undefined;
       novoTelefone?: string | undefined;
       servicoId: string;
@@ -1159,7 +1238,13 @@ export const criarAgendamentoManual = createServerFn({ method: "POST" })
     let clienteId = data.clienteId ?? null;
     let clienteNome = "";
     let clienteCriado = false;
-    if (clienteId) {
+    if (data.semCliente) {
+      if (clienteId || (data.novoNome ?? "").trim() || (data.novoTelefone ?? "").trim())
+        throw new Error("Escolha um cliente ou continue sem cliente, sem misturar os dados.");
+      if (data.formaPagamento !== "balcao")
+        throw new Error("Sem cliente, o pagamento deve ser definido depois do atendimento.");
+      clienteNome = "";
+    } else if (clienteId) {
       const { data: c } = await db
         .from("clientes")
         .select("id, nome")
@@ -1217,7 +1302,7 @@ export const criarAgendamentoManual = createServerFn({ method: "POST" })
     }
 
     // 3. Só agora cria o cliente novo; uma falha de disponibilidade nunca deixa cadastro órfão.
-    if (!clienteId) {
+    if (!clienteId && !data.semCliente) {
       const telefone = soDigitos(data.novoTelefone ?? "").slice(0, 15);
       const { data: novo, error } = await db
         .from("clientes")
@@ -1289,14 +1374,14 @@ export const criarAgendamentoManual = createServerFn({ method: "POST" })
     });
 
     if (!data.encaixe && !livre(inicio.getTime(), fim.getTime())) {
-      if (clienteCriado) await db.from("clientes").delete().eq("id", clienteId);
+      if (clienteCriado) await db.from("clientes").delete().eq("id", clienteId!);
       return await conflitoDoPainel();
     }
 
     // 5. Criar pelas mesmas regras do app e marcar a origem como manual.
     const { data: res, error } = await db.rpc("criar_agendamento", {
       _tenant_id: tenant.id,
-      _cliente_id: clienteId,
+      _cliente_id: data.semCliente ? null : clienteId,
       _profissional_id: data.profissionalId,
       _servico_id: data.servicoId,
       _inicio: inicio.toISOString(),
@@ -1304,26 +1389,21 @@ export const criarAgendamentoManual = createServerFn({ method: "POST" })
       _encaixe: Boolean(data.encaixe),
     });
     if (error) {
-      if (clienteCriado) await db.from("clientes").delete().eq("id", clienteId);
+      if (clienteCriado) await db.from("clientes").delete().eq("id", clienteId!);
       if (error.message.includes("horario ja ocupado")) return await conflitoDoPainel();
       throw new Error(error.message);
     }
     const criado = res as unknown as { agendamento_id: string; inicio: string };
     await db.from("agendamentos").update({ origem: "manual" }).eq("id", criado.agendamento_id);
 
-    // Fila de eventos da integração de IA: nunca interfere no agendamento.
-    const { emitirEvento } = await import("@/lib/ia/eventos.server");
-    await emitirEvento(tenant.id, "appointment_created", criado.agendamento_id, {
-      inicio: criado.inicio,
-      origem: "manual",
-    });
-
-    // Confirmação pelo WhatsApp: nunca bloqueia nem derruba o agendamento.
-    try {
-      const { enviarConfirmacaoDeAgendamento } = await import("@/lib/whatsapp/confirmacao.server");
-      await enviarConfirmacaoDeAgendamento(criado.agendamento_id);
-    } catch {
-      /* o agendamento já está salvo; a falha fica registrada no envio */
+    // Sem cliente vinculado, não há destinatário para a confirmação pelo WhatsApp.
+    if (!data.semCliente) {
+      try {
+        const { enviarConfirmacaoDeAgendamento } = await import("@/lib/whatsapp/confirmacao.server");
+        await enviarConfirmacaoDeAgendamento(criado.agendamento_id);
+      } catch {
+        /* o agendamento já está salvo; a falha fica registrada no envio */
+      }
     }
 
     // A comanda nasce junto (gatilho do banco); só lemos o id para abrir o ticket.
@@ -1556,6 +1636,9 @@ export const moverAgendamentoPainel = createServerFn({ method: "POST" })
     (data: {
       agendamentoId: string;
       novoInicio: string;
+      /** Valores vistos pela tela; evitam sobrescrever uma edição simultânea. */
+      inicioOriginal: string;
+      fimOriginal: string;
       profissionalId?: string | null;
       apenasVerificar?: boolean;
       /** Nova duração em minutos (alça da Agenda); sem ela, a duração atual é mantida. */
@@ -1584,6 +1667,12 @@ export const moverAgendamentoPainel = createServerFn({ method: "POST" })
       .eq("tenant_id", tenant.id)
       .maybeSingle();
     if (!atual) throw new Error("Agendamento não encontrado neste negócio.");
+    if (
+      new Date(atual.inicio).getTime() !== new Date(data.inicioOriginal).getTime() ||
+      new Date(atual.fim).getTime() !== new Date(data.fimOriginal).getTime()
+    ) {
+      throw new Error("Este agendamento mudou enquanto você editava. Confira e tente de novo.");
+    }
     if (atual.status !== "agendado" && atual.status !== "chegou")
       throw new Error("Só dá para remarcar quem ainda não começou.");
     const duracao =
@@ -1635,6 +1724,35 @@ export const moverAgendamentoPainel = createServerFn({ method: "POST" })
           return { ok: false, livre: false, inicioAnterior: atual.inicio as string };
         throw new Error("Esse horário já está ocupado para este profissional.");
       }
+      const fuso = await fusoDoTenant(tenant.id);
+      const diaAlvo = hojeNoFuso(fuso, inicio);
+      const desde = new Date(isoNoFusoDaBarbearia(diaAlvo, "00:00", fuso));
+      const ate = new Date(
+        isoNoFusoDaBarbearia(
+          new Date(desde.getTime() + 36 * 60 * 60 * 1000).toISOString().slice(0, 10),
+          "00:00",
+          fuso,
+        ),
+      );
+      const { ocupacoesExtras } = await import("@/lib/ocupacoes-extras.server");
+      const extras = await ocupacoesExtras(db, {
+        tenantId: tenant.id,
+        fuso,
+        desde,
+        ate,
+        profissionalIds: [profissionalId],
+      });
+      const extraConflitante = extras.some(
+        (ocupacao) =>
+          ocupacao.profissional_id === profissionalId &&
+          new Date(ocupacao.inicio).getTime() < fim.getTime() &&
+          new Date(ocupacao.fim).getTime() > inicio.getTime(),
+      );
+      if (extraConflitante) {
+        if (data.apenasVerificar)
+          return { ok: false, livre: false, inicioAnterior: atual.inicio as string };
+        throw new Error("Esse horário coincide com um bloqueio ou com a escala do profissional.");
+      }
     }
     if (data.apenasVerificar)
       return { ok: true, livre: true, inicioAnterior: atual.inicio as string };
@@ -1667,6 +1785,270 @@ export const moverAgendamentoPainel = createServerFn({ method: "POST" })
       fimAnterior: atual.fim as string,
       profissionalAnterior: (atual.profissional_id as string | null) ?? null,
     };
+  });
+
+/**
+ * Horários livres de um dia para remarcar um atendimento (tela "Reagendar", como no Figaro).
+ * Mesmo motor e mesmas regras da validação: expediente, pausa, bloqueios e escala, intervalo
+ * entre atendimentos e passo do negócio; o próprio atendimento não conta como ocupação. A
+ * equipe pode remarcar para perto do agora (sem a antecedência do link público), nunca para o
+ * passado. Só leitura: a gravação continua em `moverAgendamentoPainel`, que confere de novo.
+ */
+export const getHorariosParaRemarcar = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .validator((data: { agendamentoId: string; dia: string; profissionalId?: string | null }) => {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(data.dia)) throw new Error("Dia inválido");
+    return data;
+  })
+  .handler(
+    async ({
+      data,
+      context,
+    }): Promise<{
+      fechado: boolean;
+      duracaoMin: number;
+      horarios: { iso: string; label: string }[];
+    }> => {
+      const { db, tenant } = await tenantPadrao(context);
+      await exigirPermissao(context, tenant.id, "agendamento_manual");
+      const { data: atual } = await db
+        .from("agendamentos")
+        .select("id, inicio, fim, profissional_id")
+        .eq("id", data.agendamentoId)
+        .eq("tenant_id", tenant.id)
+        .maybeSingle();
+      if (!atual) throw new Error("Agendamento não encontrado neste negócio.");
+      const duracaoMin = Math.max(
+        1,
+        Math.round((new Date(atual.fim).getTime() - new Date(atual.inicio).getTime()) / 60_000),
+      );
+      const profissionalId = data.profissionalId ?? atual.profissional_id ?? null;
+      if (!profissionalId) return { fechado: false, duracaoMin, horarios: [] };
+      const regras = await regrasDaBarbearia(db, tenant.id);
+      const desde = new Date(isoNoFusoDaBarbearia(data.dia, "00:00", regras.fuso));
+      const ate = new Date(desde.getTime() + 36 * 60 * 60 * 1000);
+      const { STATUS_QUE_OCUPAM } = await import("@/lib/agenda-regras.server");
+      const { ocupacoesExtras } = await import("@/lib/ocupacoes-extras.server");
+      const [{ data: doDia }, extras] = await Promise.all([
+        db
+          .from("agendamentos")
+          .select("inicio, fim")
+          .eq("tenant_id", tenant.id)
+          .eq("profissional_id", profissionalId)
+          .in("status", [...STATUS_QUE_OCUPAM])
+          .neq("id", atual.id)
+          .lt("inicio", ate.toISOString())
+          .gt("fim", desde.toISOString()),
+        ocupacoesExtras(db, {
+          tenantId: tenant.id,
+          fuso: regras.fuso,
+          desde,
+          ate,
+          profissionalIds: [profissionalId],
+        }).catch(() => []),
+      ]);
+      const { horariosDisponiveis } = await import("@/lib/disponibilidade");
+      const { fechado, opcoes } = horariosDisponiveis({
+        dia: data.dia,
+        servico: { id: atual.id, duracao_min: duracaoMin, profissional_ids: null },
+        profissionais: [{ id: profissionalId }],
+        escolhido: profissionalId,
+        horarios: regras.horarios,
+        fuso: regras.fuso,
+        ocupados: [
+          ...(doDia ?? []).map((a) => ({ ...a, profissional_id: profissionalId })),
+          ...extras,
+        ],
+        regras: { antecedenciaMin: 0, intervaloEntreMin: regras.intervaloEntreMin },
+        passoMin: regras.passoMin,
+      });
+      return { fechado, duracaoMin, horarios: opcoes.map(({ iso, label }) => ({ iso, label })) };
+    },
+  );
+
+export type ProfissionalParaRemarcar = {
+  id: string;
+  nome: string;
+  avatarUrl: string | null;
+  expediente: Expediente;
+};
+
+/**
+ * Equipe que pode receber o atendimento num dia (escolha do profissional no "Reagendar"):
+ * só ativos que fazem o serviço, com foto e expediente do dia (horário do negócio + escala).
+ * Só leitura.
+ */
+export const getEquipeParaRemarcar = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .validator((data: { agendamentoId: string; dia: string }) => {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(data.dia)) throw new Error("Dia inválido");
+    return data;
+  })
+  .handler(async ({ data, context }): Promise<ProfissionalParaRemarcar[]> => {
+    const { db, tenant } = await tenantPadrao(context);
+    await exigirPermissao(context, tenant.id, "agendamento_manual");
+    const { data: atual } = await db
+      .from("agendamentos")
+      .select("id, servicos(profissional_ids)")
+      .eq("id", data.agendamentoId)
+      .eq("tenant_id", tenant.id)
+      .maybeSingle();
+    if (!atual) throw new Error("Agendamento não encontrado neste negócio.");
+    const fazem = ((atual as { servicos?: { profissional_ids?: string[] | null } | null }).servicos
+      ?.profissional_ids ?? []) as string[];
+    const equipe = await equipeComExpediente(db, tenant.id, data.dia);
+    return equipe.filter((p) => !fazem.length || fazem.includes(p.id));
+  });
+
+/** Profissionais ativos com foto e expediente do dia (horário do negócio + escala). */
+async function equipeComExpediente(
+  db: Awaited<ReturnType<typeof tenantPadrao>>["db"],
+  tenantId: string,
+  dia: string,
+): Promise<ProfissionalParaRemarcar[]> {
+  const [regras, { data: profs }, { data: escalas }] = await Promise.all([
+    regrasDaBarbearia(db, tenantId),
+    db
+      .from("profissionais")
+      .select("id, nome, avatar_url")
+      .eq("tenant_id", tenantId)
+      .eq("ativo", true)
+      .order("nome"),
+    db
+      .from("escalas_de_profissional")
+      .select("profissional_id, dia_semana, trabalha, abre, fecha")
+      .eq("tenant_id", tenantId),
+  ]);
+  return (profs ?? []).map((p) => ({
+    id: p.id,
+    nome: p.nome,
+    avatarUrl: p.avatar_url ?? null,
+    expediente: expedienteDoProfissional(dia, p.id, regras.horarios, escalas ?? []),
+  }));
+}
+
+/**
+ * Equipe do dia para trocar a agenda que está na tela (Figaro `AgendaTeamMemberFilterSheet`:
+ * cada pessoa com "Hoje · 09:00 - 18:00."). Só leitura; mesmo acesso da Agenda.
+ */
+export const getEquipeDoDia = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .validator((data: { dia: string }) => {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(data?.dia ?? "")) throw new Error("Dia inválido");
+    return data;
+  })
+  .handler(async ({ data, context }): Promise<ProfissionalParaRemarcar[]> => {
+    const { db, tenant } = await tenantPadrao(context);
+    return equipeComExpediente(db, tenant.id, data.dia);
+  });
+
+/**
+ * "Trocar Cliente" da ficha (como no Figaro): passa o atendimento para outro cliente do mesmo
+ * negócio. Só antes de começar e sem pagamento nem comanda; a confirmação do cliente anterior
+ * deixa de valer e os botões que ele recebeu no WhatsApp param de agir sobre este horário. O
+ * novo cliente recebe a confirmação do horário (pelo motor único, com o porteiro e as regras do
+ * negócio), a menos que a equipe desmarque. Fica registrado na auditoria do negócio.
+ */
+export const trocarClienteDoAgendamento = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((data: { agendamentoId: string; clienteId: string; avisarCliente?: boolean }) => {
+    if (!data?.agendamentoId || !data?.clienteId) throw new Error("Escolha o cliente.");
+    return data;
+  })
+  .handler(async ({ data, context }) => {
+    const { db, tenant } = await tenantPadrao(context);
+    await exigirPermissao(context, tenant.id, "agendamento_manual");
+    const { data: atual } = await db
+      .from("agendamentos")
+      .select("id, inicio, fim, status, cliente_id, pagamento_confirmado_em")
+      .eq("id", data.agendamentoId)
+      .eq("tenant_id", tenant.id)
+      .maybeSingle();
+    if (!atual) throw new Error("Agendamento não encontrado neste negócio.");
+    if (atual.cliente_id === data.clienteId)
+      return { ok: true, clienteAnterior: atual.cliente_id ?? null, avisado: false };
+    if (atual.status !== "agendado" && atual.status !== "chegou")
+      throw new Error("Só dá para trocar o cliente antes de começar o atendimento.");
+    if (atual.pagamento_confirmado_em)
+      throw new Error("Este atendimento já tem pagamento confirmado; o cliente não pode mudar.");
+    const [{ data: comanda }, { data: cliente }] = await Promise.all([
+      db
+        .from("comandas")
+        .select("id")
+        .eq("tenant_id", tenant.id)
+        .eq("agendamento_id", atual.id)
+        .limit(1),
+      db
+        .from("clientes")
+        .select("id, nome")
+        .eq("id", data.clienteId)
+        .eq("tenant_id", tenant.id)
+        .is("arquivado_em", null)
+        .maybeSingle(),
+    ]);
+    if (comanda?.length)
+      throw new Error("Este atendimento já tem comanda; o cliente não pode mudar.");
+    if (!cliente) throw new Error("Cliente não encontrado neste negócio.");
+    // O novo cliente não pode estar em dois lugares ao mesmo tempo.
+    const { STATUS_QUE_OCUPAM } = await import("@/lib/agenda-regras.server");
+    const { data: choque } = await db
+      .from("agendamentos")
+      .select("id")
+      .eq("tenant_id", tenant.id)
+      .eq("cliente_id", cliente.id)
+      .in("status", [...STATUS_QUE_OCUPAM])
+      .neq("id", atual.id)
+      .lt("inicio", atual.fim)
+      .gt("fim", atual.inicio)
+      .limit(1);
+    if (choque?.length) throw new Error(`${cliente.nome} já tem um horário nesse período.`);
+    let atualizacao = db
+      .from("agendamentos")
+      .update({ cliente_id: cliente.id, confirmado_em: null })
+      .eq("id", atual.id)
+      .eq("tenant_id", tenant.id);
+    atualizacao = atual.cliente_id
+      ? atualizacao.eq("cliente_id", atual.cliente_id)
+      : atualizacao.is("cliente_id", null);
+    const { error } = await atualizacao;
+    if (error) throw new Error(error.message);
+    // Os avisos do cliente anterior deixam de valer. Sem cliente anterior, não há avisos a invalidar.
+    if (atual.cliente_id) {
+      await db
+        .from("envios_de_whatsapp")
+        .update({ aguarda_resposta: false, valido_ate: new Date().toISOString() })
+        .eq("tenant_id", tenant.id)
+        .eq("agendamento_id", atual.id)
+        .eq("cliente_id", atual.cliente_id)
+        .then(
+          () => null,
+          () => null,
+        );
+    }
+    let avisado = false;
+    if (data.avisarCliente !== false) {
+      try {
+        const { notificarAgendamento } = await import("@/lib/whatsapp/notificacoes.server");
+        const resultado = await notificarAgendamento(atual.id, "confirmacao_agendamento");
+        avisado = resultado.enviado;
+      } catch {
+        /* a troca já está salva; a falha fica registrada no envio */
+      }
+    }
+    await db
+      .from("auditoria_da_barbearia")
+      .insert({
+        tenant_id: tenant.id,
+        ator_user_id: context.userId,
+        acao: "agendamento.cliente_trocado",
+        alvo: atual.id,
+        detalhes: { de: atual.cliente_id, para: cliente.id, avisado },
+      })
+      .then(
+        () => null,
+        () => null,
+      );
+    return { ok: true, clienteAnterior: atual.cliente_id as string, avisado };
   });
 
 /** Quantidade de atendimentos ativos por dia do mês (uma consulta), para os pontinhos da Agenda. */

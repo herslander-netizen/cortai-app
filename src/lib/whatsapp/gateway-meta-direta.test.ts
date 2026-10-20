@@ -19,7 +19,6 @@ describe("WhatsApp oficial direto na Cloud API da Meta", () => {
   beforeEach(() => {
     vi.stubEnv("META_WHATSAPP_ACCESS_TOKEN", "token-de-teste");
     vi.stubEnv("META_WHATSAPP_PHONE_NUMBER_ID", "123456");
-    vi.stubEnv("LOVABLE_API_KEY", "");
     vi.stubEnv("WHATSAPP_API_KEY", "");
   });
   afterEach(() => {
@@ -27,7 +26,7 @@ describe("WhatsApp oficial direto na Cloud API da Meta", () => {
     vi.unstubAllGlobals();
   });
 
-  it("envia texto para graph.facebook.com com o token da Meta, sem passar pelo Lovable", async () => {
+  it("envia texto para graph.facebook.com com o token da Meta, sem intermediário", async () => {
     const chamadas = capturarFetch({ messages: [{ id: "wamid.1" }] });
     const r = await gatewayDoProvedor("meta").enviarMensagem("s", "+55 (11) 98888-7777", "Olá");
     expect(r).toEqual({ id: "wamid.1" });

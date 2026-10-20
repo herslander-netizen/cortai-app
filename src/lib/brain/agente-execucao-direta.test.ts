@@ -19,6 +19,7 @@ const estado = vi.hoisted(() => ({
 }));
 
 vi.mock("./uso.server", () => ({
+  bloqueioDeUso: async () => null,
   pausarIa: async () => undefined,
   registrarAcao: async () => undefined,
   registrarTurno: async () => undefined,

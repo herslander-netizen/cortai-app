@@ -17,6 +17,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { getPaginaPublica } from "@/lib/publico.functions";
+import { urlPublica } from "@/lib/origem-publica";
 
 export function TelaPublicaBarbearia({ chave }: { chave: string }) {
   const consulta = useQuery({
@@ -30,7 +31,7 @@ export function TelaPublicaBarbearia({ chave }: { chave: string }) {
   const [barra, setBarra] = useState(false);
   const aoMudarBarra = useCallback((v: boolean) => setBarra(v), []);
   const slugAtual = data?.tenant.slug;
-  const linkCom = (origem: string) => `https://cortai.dev/b/${slugAtual ?? chave}?origem=${origem}`;
+  const linkCom = (origem: string) => urlPublica(`/b/${slugAtual ?? chave}?origem=${origem}`);
   useEffect(() => {
     if (!slugAtual) return;
     registrarEtapa({

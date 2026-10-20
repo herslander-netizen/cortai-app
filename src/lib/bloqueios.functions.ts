@@ -2,7 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { tenantIdDoMembro } from "@/lib/tenant";
+import { exigirPermissao, tenantIdDoMembro } from "@/lib/tenant";
 import { fusoDoTenant } from "@/lib/fuso.server";
 import { isoNoFusoDaBarbearia, somarDias } from "@/lib/horarios";
 
@@ -147,6 +147,7 @@ export const salvarEscalaDoProfissional = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const tenantId = await tenantIdDoMembro(context);
+    await exigirPermissao(context, tenantId, "alterar_dados_barbearia");
     const { data: p } = await context.supabase
       .from("profissionais")
       .select("id")

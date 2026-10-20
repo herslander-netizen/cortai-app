@@ -1,11 +1,5 @@
 {
-  "version": 1,
-  "asset_id": "662d076d-c3e1-4c82-b1d4-99845cd45eb0",
-  "project_id": "a3550de1-ec98-4622-8484-7dadb8b04ed0",
-  "url": "/__l5e/assets-v1/662d076d-c3e1-4c82-b1d4-99845cd45eb0/cortai-logo-menu.png",
-  "r2_key": "a/v1/a3550de1-ec98-4622-8484-7dadb8b04ed0/662d076d-c3e1-4c82-b1d4-99845cd45eb0/cortai-logo-menu.png",
-  "original_filename": "cortai-logo-menu.png",
-  "size": 1087458,
+  "url": "/marca/cortai-logo-menu.png",
   "content_type": "image/png",
-  "created_at": "2026-09-30T09:47:24Z"
+  "size": 1087458
 }

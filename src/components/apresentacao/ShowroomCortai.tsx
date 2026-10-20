@@ -12,6 +12,8 @@ import {
   UsersRound,
 } from "lucide-react";
 import { useMemo, useState, type ReactNode } from "react";
+import { DemoAgendamento } from "@/components/apresentacao/DemoAgendamento";
+import { NarrativaApresentacao } from "@/components/apresentacao/NarrativaApresentacao";
 
 import { Conversation, ConversationContent } from "@/components/ai-elements/conversation";
 import { Message, MessageContent } from "@/components/ai-elements/message";
@@ -235,7 +237,10 @@ function Balao({ cliente, children }: { cliente?: boolean; children: ReactNode }
 }
 
 function Secretaria({ segmento }: { segmento: Segmento }) {
-  const servico = SEGMENTOS_CONFIG[segmento].servicosSugeridos[0]?.nome ?? "Atendimento";
+  const servicos = SEGMENTOS_CONFIG[segmento].servicosSugeridos;
+  const [verOutros, setVerOutros] = useState(false);
+  const [escolhido, setEscolhido] = useState<string | null>(null);
+  const opcoes = verOutros ? servicos.slice(0, 4) : servicos.slice(0, 1);
   return (
     <div className="showroom-chat" aria-label="Demonstração do WhatsApp Cortaí">
       <ChatHeader nome="Cortaí" detalhe="Seu negócio" status="Online" />
@@ -245,11 +250,38 @@ function Secretaria({ segmento }: { segmento: Segmento }) {
           <Balao cliente>Quero marcar um horário.</Balao>
           <Balao>Claro. Vamos começar pelo atendimento.</Balao>
           <div className="grid grid-cols-2 gap-2">
-            <Button variant="outline">{servico}</Button>
-            <Button variant="outline">Ver outros</Button>
+            {opcoes.map((servico) => (
+              <Button
+                key={servico.nome}
+                type="button"
+                variant="outline"
+                aria-pressed={escolhido === servico.nome}
+                onClick={() => setEscolhido(servico.nome)}
+                className="h-auto min-h-11 whitespace-normal"
+              >
+                {servico.nome}
+              </Button>
+            ))}
+            {servicos.length > 1 ? (
+              <Button
+                type="button"
+                variant="outline"
+                aria-pressed={verOutros}
+                onClick={() => setVerOutros((aberto) => !aberto)}
+                className="h-auto min-h-11 whitespace-normal"
+              >
+                {verOutros ? "Ver menos" : "Ver outros"}
+              </Button>
+            ) : null}
           </div>
+          {escolhido ? (
+            <>
+              <Balao cliente>{escolhido}</Balao>
+              <Balao>Perfeito! Em um atendimento real, eu consultaria os horários disponíveis para você.</Balao>
+            </>
+          ) : null}
           <p className="showroom-chat-nota">
-            <Check /> Demonstração: nenhuma reserva será criada.
+            <Check /> Demonstração interativa: nenhuma reserva será criada.
           </p>
         </ConversationContent>
       </Conversation>
@@ -259,8 +291,13 @@ function Secretaria({ segmento }: { segmento: Segmento }) {
 }
 
 function Caixa({ segmento }: { segmento: Segmento }) {
-  const servico = SEGMENTOS_CONFIG[segmento].servicosSugeridos[0];
-  const valor = servico?.precoCentavos ?? 4500;
+  const servicos = SEGMENTOS_CONFIG[segmento].servicosSugeridos;
+  const servico = servicos[0];
+  const adicional = servicos[1];
+  const [adicionalAtivo, setAdicionalAtivo] = useState(false);
+  const [pagamento, setPagamento] = useState<string | null>(null);
+  const valor = (servico?.precoCentavos ?? 4500) +
+    (adicionalAtivo ? (adicional?.precoCentavos ?? 0) : 0);
   return (
     <div className="showroom-produto showroom-caixa" aria-label="Demonstração da comanda">
       <div className="showroom-produto-topo">
@@ -283,45 +320,115 @@ function Caixa({ segmento }: { segmento: Segmento }) {
           <CreditCard /> Pagamento
         </span>
       </div>
-      <div className="showroom-caixa-item">
-        <span>
-          <strong>{servico?.nome ?? "Atendimento"}</strong>
-          <small>1 serviço</small>
-        </span>
-        <b>{brl(valor)}</b>
-      </div>
-      <Button variant="outline">
-        <Plus /> Adicionar serviço ou produto
+      {servico ? (
+        <div className="showroom-caixa-item">
+          <span>
+            <strong>{servico.nome}</strong>
+            <small>Serviço</small>
+          </span>
+          <b>{brl(servico.precoCentavos)}</b>
+        </div>
+      ) : null}
+      {adicionalAtivo && adicional ? (
+        <div className="showroom-caixa-item">
+          <span>
+            <strong>{adicional.nome}</strong>
+            <small>Item adicional (simulação)</small>
+          </span>
+          <b>{brl(adicional.precoCentavos)}</b>
+        </div>
+      ) : null}
+      <Button
+        type="button"
+        variant="outline"
+        disabled={!adicional}
+        onClick={() => setAdicionalAtivo((ativo) => !ativo)}
+        className="h-auto min-h-11 whitespace-normal"
+      >
+        <Plus /> {adicionalAtivo ? "Remover item adicional" : "Adicionar serviço ou produto"}
       </Button>
       <div className="showroom-total">
-        <span>Total</span>
+        <span>Total ilustrativo</span>
         <strong>{brl(valor)}</strong>
       </div>
-      <div className="grid grid-cols-3 gap-2">
-        <Button variant="secondary">Pix</Button>
-        <Button variant="secondary">Cartão</Button>
-        <Button variant="secondary">Dinheiro</Button>
+      <div className="grid grid-cols-3 gap-2" role="group" aria-label="Forma de pagamento demonstrativa">
+        {["Pix", "Cartão", "Dinheiro"].map((forma) => (
+          <Button
+            key={forma}
+            type="button"
+            variant={pagamento === forma ? "primary" : "secondary"}
+            aria-pressed={pagamento === forma}
+            onClick={() => setPagamento(forma)}
+            className="h-auto min-h-11 whitespace-normal"
+          >
+            {forma}
+          </Button>
+        ))}
       </div>
+      {pagamento ? (
+        <p className="text-xs text-mute" role="status" aria-live="polite">
+          {pagamento} selecionado para a demonstração. Nenhum pagamento foi processado.
+        </p>
+      ) : null}
     </div>
   );
 }
 
 function Lembrete({ segmento }: { segmento: Segmento }) {
   const servico = SEGMENTOS_CONFIG[segmento].servicosSugeridos[1]?.nome ?? "Atendimento";
+  const [resposta, setResposta] = useState<"aguardando" | "confirmar" | "remarcar">("aguardando");
   return (
     <div className="showroom-chat" aria-label="Demonstração do lembrete automático por WhatsApp">
-      <ChatHeader nome="Lembrete automático" detalhe="WhatsApp" status="Enviado sozinho" />
+      <ChatHeader
+        nome="Lembrete automático"
+        detalhe="WhatsApp"
+        status={resposta === "aguardando" ? "Aguardando resposta" : "Simulação"}
+      />
       <Conversation>
         <ConversationContent className="gap-4 p-4">
           <Balao>Oi, Rafa! Lembrete: amanhã às 11:00, {servico} com Alex. Posso confirmar?</Balao>
-          <div className="grid grid-cols-2 gap-2">
-            <Button variant="outline">Confirmar</Button>
-            <Button variant="outline">Remarcar</Button>
-          </div>
-          <Balao cliente>Confirmar</Balao>
-          <Balao>Confirmado. Até amanhã!</Balao>
+          {resposta === "aguardando" ? (
+            <div className="grid grid-cols-2 gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setResposta("confirmar")}
+                className="h-auto min-h-11 whitespace-normal"
+              >
+                Confirmar
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setResposta("remarcar")}
+                className="h-auto min-h-11 whitespace-normal"
+              >
+                Remarcar
+              </Button>
+            </div>
+          ) : resposta === "confirmar" ? (
+            <>
+              <Balao cliente>Confirmar</Balao>
+              <Balao>Na demonstração, a confirmação seria registrada após validar o agendamento.</Balao>
+            </>
+          ) : (
+            <>
+              <Balao cliente>Quero remarcar</Balao>
+              <Balao>Na experiência real, eu consultaria os horários disponíveis antes de alterar o agendamento.</Balao>
+            </>
+          )}
+          {resposta !== "aguardando" ? (
+            <Button
+              type="button"
+              variant="ghost"
+              className="w-full"
+              onClick={() => setResposta("aguardando")}
+            >
+              Reiniciar demonstração
+            </Button>
+          ) : null}
           <p className="showroom-chat-nota">
-            <Check /> Menos faltas, sem você mandar mensagem.
+            <Check /> Simulação local: nenhuma mensagem foi enviada e nenhum agendamento foi alterado.
           </p>
         </ConversationContent>
       </Conversation>
@@ -334,7 +441,7 @@ const RECURSOS = [
     icone: MessageCircle,
     titulo: "Lembrete por WhatsApp",
     texto:
-      "Aviso automático antes de cada horário. O cliente confirma com um toque e as faltas caem.",
+      "Veja como lembretes e confirmações podem aparecer quando a integração estiver habilitada e configurada pelo estabelecimento.",
   },
   {
     icone: CalendarDays,
@@ -359,7 +466,7 @@ const RECURSOS = [
   {
     icone: MessageCircle,
     titulo: "WhatsApp",
-    texto: "O cliente agenda sozinho pelo link, a qualquer hora.",
+    texto: "Conheça o fluxo de conversa apresentado como exemplo. A disponibilidade depende da configuração do estabelecimento.",
   },
 ];
 
@@ -398,7 +505,7 @@ export function ShowroomCortai({
   const [segmento, setSegmento] = useState(inicial);
   const contato = useWhatsappAlvo();
   return (
-    <main className="showroom-page light">
+    <main className="showroom-page dark">
       <header className="showroom-header">
         <div className="showroom-header-inner">
           <a href="#inicio" aria-label="Cortaí — início">
@@ -415,9 +522,10 @@ export function ShowroomCortai({
             <Button asChild variant="ghost" size="sm">
               <Link to="/login">Entrar</Link>
             </Button>
-            <Button asChild size="sm">
-              <Link to="/login" search={{ proximo: "/comecar", aba: "criar" }}>
-                Começar agora
+            <Button asChild size="sm" variant="primary">
+              <Link to="/comecar">
+                <span className="hidden sm:inline">Cadastrar meu negócio</span>
+                <span className="sm:hidden">Começar grátis</span>
               </Link>
             </Button>
           </div>
@@ -437,15 +545,17 @@ export function ShowroomCortai({
           </h1>
           <p className="showroom-lead">{c.hero.texto}</p>
           <div className="showroom-hero-actions">
-            <Button asChild size="lg">
-              <Link to="/login" search={{ proximo: "/comecar", aba: "criar" }}>
+            <Button asChild size="lg" variant="primary">
+              <Link to="/comecar">
                 {c.hero.cta} <ArrowRight />
               </Link>
             </Button>
             <Button asChild size="lg" variant="outline">
-              <a href="#como-funciona">Ver como funciona</a>
+              <Link to="/barbearias">Encontrar estabelecimento</Link>
             </Button>
+            <a href="#como-funciona" className="text-sm font-semibold text-ink underline underline-offset-4">Ver como funciona</a>
           </div>
+          <p className="mt-3 max-w-prose text-sm text-mute">Você entrará com sua conta para iniciar o cadastro do seu negócio.</p>
           <p className="showroom-assinatura">Simplifica. Conecta. Cresce.</p>
         </div>
         <div
@@ -456,18 +566,27 @@ export function ShowroomCortai({
         </div>
       </section>
 
+      <DemoAgendamento />
+      <NarrativaApresentacao />
+
       <section
         className="showroom-faixa showroom-segmentos"
         aria-labelledby="showroom-segmento-titulo"
       >
         <Cabecalho b={c.segmentos} centro id="showroom-segmento-titulo" />
-        <div className="showroom-segmentos-opcoes" aria-label="Tipo de negócio">
+        <div className="showroom-segmentos-opcoes" role="group" aria-label="Tipo de negócio">
           {OPCOES.map((opcao) => (
             <Button
               key={opcao.id}
-              variant={segmento === opcao.id ? "default" : "outline"}
+              type="button"
+              variant="ghost"
               aria-pressed={segmento === opcao.id}
               onClick={() => setSegmento(opcao.id)}
+              className={
+                segmento === opcao.id
+                  ? "min-h-11 rounded-full border border-rosa bg-rosa/10 text-paper"
+                  : "min-h-11 rounded-full border border-line text-mute hover:border-line2 hover:text-paper"
+              }
             >
               {opcao.rotulo}
             </Button>
@@ -475,10 +594,10 @@ export function ShowroomCortai({
         </div>
       </section>
 
-      <section id="como-funciona" className="showroom-secao showroom-prova">
+      <section id="lembretes" className="showroom-secao showroom-prova">
         <Cabecalho b={c.agenda} />
         <div className="showroom-prova-layout">
-          <Lembrete segmento={segmento} />
+          <Lembrete key={segmento} segmento={segmento} />
         </div>
       </section>
 
@@ -499,7 +618,7 @@ export function ShowroomCortai({
       <section className="showroom-faixa showroom-secretaria-secao">
         <div className="showroom-dividida">
           <div className="showroom-chat-wrap">
-            <Secretaria segmento={segmento} />
+            <Secretaria key={segmento} segmento={segmento} />
           </div>
           <div className="showroom-secao-cabecalho">
             {c.secretaria.etiqueta ? (
@@ -510,11 +629,9 @@ export function ShowroomCortai({
             <div className="showroom-plano-nota">
               <Sparkles />
               <span>
-                <strong>
-                  Disponível no Conecta e no Studio. Liberado durante os 45 dias grátis.
-                </strong>
+                <strong>Integrações em validação.</strong>
                 <small>
-                  Inclui WhatsApp, agendamento pelo cliente, WhatsApp e confirmações automáticas.
+                  WhatsApp, CortAI e confirmações automáticas dependem da disponibilidade e da configuração de cada estabelecimento.
                 </small>
               </span>
             </div>
@@ -535,7 +652,7 @@ export function ShowroomCortai({
         </div>
         <div className="showroom-caixa-destaque">
           <Cabecalho b={c.caixa} />
-          <Caixa segmento={segmento} />
+          <Caixa key={segmento} segmento={segmento} />
         </div>
       </section>
 
@@ -548,9 +665,7 @@ export function ShowroomCortai({
         <TabelaDePlanos
           acao={() => (
             <Button asChild className="w-full" variant="outline">
-              <Link to="/login" search={{ proximo: "/comecar", aba: "criar" }}>
-                Começar agora
-              </Link>
+              <Link to="/comecar">Cadastrar meu negócio</Link>
             </Button>
           )}
         />
@@ -573,10 +688,11 @@ export function ShowroomCortai({
         <h2>{c.final.titulo}</h2>
         {c.final.texto ? <p>{c.final.texto}</p> : null}
         <div>
-          <Button asChild size="lg">
-            <Link to="/login" search={{ proximo: "/comecar", aba: "criar" }}>
-              Começar agora <ArrowRight />
-            </Link>
+          <Button asChild size="lg" variant="primary">
+            <Link to="/comecar">Cadastrar meu negócio <ArrowRight /></Link>
+          </Button>
+          <Button asChild size="lg" variant="outline">
+            <Link to="/barbearias">Encontrar estabelecimento</Link>
           </Button>
           {contato ? (
             <Button asChild size="lg" variant="outline">
@@ -590,7 +706,7 @@ export function ShowroomCortai({
 
       <footer className="showroom-footer">
         <MarcaCortai variante="escura" className="h-auto w-24" />
-        <span>By Alvo Digital</span>
+        <span>Agendamentos de um jeito mais simples.</span>
         <nav aria-label="Links do rodapé">
           <a href="#recursos">Recursos</a>
           <a href="#planos">Planos</a>

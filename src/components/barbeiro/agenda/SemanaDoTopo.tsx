@@ -1,3 +1,4 @@
+import { AnimatePresence, motion } from "framer-motion";
 import {
   useEffect,
   useLayoutEffect,
@@ -27,6 +28,10 @@ import { somarDias } from "./tempo";
 
 /** Meses mostrados antes e depois do mês do dia quando o calendário está aberto. */
 const MESES_EM_VOLTA = 12;
+/** Altura do calendário do mês aberto (a lista rola por dentro). */
+const ALTURA_DO_MES = 344;
+/** A faixa tem três semanas; a do meio é a visível. `dx` acompanha o dedo ou a troca. */
+const posicaoDaFaixa = (dx: number) => `translate3d(calc(-100% / 3 + ${dx}px),0,0)`;
 
 function DiaDoCalendario({
   dia,
@@ -107,15 +112,34 @@ export function SemanaDoTopo({
   const [semanas, setSemanas] = useState(0);
   useEffect(() => setSemanas(0), [dia]);
   const semana = semanaDoDia(somarDias(dia, semanas * 7));
+  const inicioDaSemana = semana[0] ?? dia;
+  // Três semanas lado a lado: a faixa acompanha o dedo e a vizinha já está ali para entrar.
+  const tresSemanas = [
+    semanaDoDia(somarDias(inicioDaSemana, -7)),
+    semana,
+    semanaDoDia(somarDias(inicioDaSemana, 7)),
+  ];
 
   const indiceDoDia = semana.indexOf(dia);
   const mesDoDiaEscolhido = mesDoDia(dia);
+  // A lista mensal permite percorrer 12 meses para trás e para frente.
+  // Consultar as mesmas 25 competências é necessário para os pontinhos continuarem
+  // indicando agendamentos também nos meses distantes, não só nos três meses iniciais.
+  const meses = Array.from({ length: MESES_EM_VOLTA * 2 + 1 }, (_, i) =>
+    somarMeses(mesDoDiaEscolhido, i - MESES_EM_VOLTA),
+  );
+  // Abre só com o mês do dia (a animação de abrir fica leve) e logo depois monta os outros meses;
+  // a lista continua parada no mês do dia escolhido.
+  const [mesesProntos, setMesesProntos] = useState(false);
+  useEffect(() => {
+    if (!expandido) return setMesesProntos(false);
+    const espera = window.setTimeout(() => setMesesProntos(true), 320);
+    return () => window.clearTimeout(espera);
+  }, [expandido]);
   const mesesComContagem = [
     ...new Set([
-      ...semana.map(mesDoDia),
-      ...(expandido
-        ? [somarMeses(mesDoDiaEscolhido, -1), mesDoDiaEscolhido, somarMeses(mesDoDiaEscolhido, 1)]
-        : []),
+      ...tresSemanas.flat().map(mesDoDia),
+      ...(mesesProntos ? meses : expandido ? [mesDoDiaEscolhido] : []),
     ]),
   ];
   const contar = useServerFn(getContagemDoMes);
@@ -128,85 +152,112 @@ export function SemanaDoTopo({
   });
   const temAtendimento = (d: string) => contagens.some((q) => Number(q.data?.[d] ?? 0) > 0);
 
-  // A semana acompanha o dedo e, ao trocar (pelo gesto aqui ou pelo deslize do dia), entra pelo lado.
+  // A faixa desliza uma semana inteira, como no modelo: pelo dedo aqui (1:1, assenta na semana
+  // mais próxima) ou quando o dia escolhido passa para outra semana (a antiga sai, a nova entra).
   const linha = useRef<HTMLDivElement>(null);
-  const primeiraDaSemana = useRef(semana[0] ?? dia);
+  const trilho = useRef<HTMLDivElement>(null);
+  const primeiraDaSemana = useRef(inicioDaSemana);
+  const assentouPeloDedo = useRef<Animation | null>(null);
   useLayoutEffect(() => {
     const antes = primeiraDaSemana.current;
-    const agora = semana[0] ?? dia;
-    primeiraDaSemana.current = agora;
-    const el = linha.current;
-    if (!el || antes === agora || prefereMenosMovimento() || !el.animate) return;
-    const lado = agora > antes ? 1 : -1;
-    el.animate(
-      [
-        { transform: `translate3d(${lado * 36}%,0,0)`, opacity: 0 },
-        { transform: "translate3d(0,0,0)", opacity: 1 },
-      ],
-      { duration: 280, easing: "cubic-bezier(0.22, 1, 0.36, 1)" },
-    );
-  }, [semana, dia]);
+    primeiraDaSemana.current = inicioDaSemana;
+    const el = trilho.current;
+    const pelaMao = assentouPeloDedo.current;
+    assentouPeloDedo.current = null;
+    if (!el || antes === inicioDaSemana) return;
+    el.style.transform = posicaoDaFaixa(0);
+    // Pelo dedo a faixa já chegou lá: só tira o deslocamento junto com a troca (nada pisca).
+    pelaMao?.cancel();
+    if (pelaMao || prefereMenosMovimento() || !el.animate) return;
+    const largura = linha.current?.getBoundingClientRect().width ?? 0;
+    const lado = inicioDaSemana > antes ? 1 : -1;
+    el.animate([{ transform: posicaoDaFaixa(lado * largura) }, { transform: posicaoDaFaixa(0) }], {
+      duration: 280,
+      easing: "cubic-bezier(0.22, 1, 0.36, 1)",
+    });
+  }, [inicioDaSemana]);
 
-  const toque = useRef<{ x: number; y: number; horizontal: boolean | null } | null>(null);
+  const toque = useRef<{
+    x: number;
+    y: number;
+    t: number;
+    horizontal: boolean | null;
+    dx: number;
+  } | null>(null);
   function comecar(e: TouchEvent) {
     const t = e.touches[0];
-    toque.current = t ? { x: t.clientX, y: t.clientY, horizontal: null } : null;
+    toque.current = t
+      ? { x: t.clientX, y: t.clientY, t: performance.now(), horizontal: null, dx: 0 }
+      : null;
   }
   function mover(e: TouchEvent) {
     const inicio = toque.current;
     const t = e.touches[0];
-    const el = linha.current;
+    const el = trilho.current;
     if (!inicio || !t || !el) return;
     const dx = t.clientX - inicio.x;
     const dy = t.clientY - inicio.y;
     if (inicio.horizontal === null && Math.hypot(dx, dy) > 8)
       inicio.horizontal = Math.abs(dx) > Math.abs(dy);
     if (!inicio.horizontal || prefereMenosMovimento()) return;
-    el.style.transform = `translate3d(${dx * 0.7}px,0,0)`;
-    el.style.opacity = String(1 - Math.min(Math.abs(dx) / 400, 0.45));
+    const largura = linha.current?.getBoundingClientRect().width ?? 0;
+    inicio.dx = Math.max(-largura, Math.min(largura, dx));
+    el.style.transform = posicaoDaFaixa(inicio.dx);
   }
   function soltar(e: TouchEvent) {
     const inicio = toque.current;
-    const t = e.changedTouches[0];
-    const el = linha.current;
     toque.current = null;
-    if (!el) return;
-    const volta = () => {
-      el.style.transform = "";
-      el.style.opacity = "";
-    };
-    if (!inicio || !t) return volta();
-    const dx = t.clientX - inicio.x;
-    if (Math.abs(dx) < 40 || Math.abs(dx) < Math.abs(t.clientY - inicio.y)) {
-      if (!prefereMenosMovimento() && el.animate && el.style.transform) {
-        const de = el.style.transform;
-        volta();
-        el.animate([{ transform: de }, { transform: "translate3d(0,0,0)" }], {
-          duration: 200,
-          easing: "cubic-bezier(0.22, 1, 0.36, 1)",
-        });
-      } else volta();
+    const el = trilho.current;
+    const t = e.changedTouches[0];
+    if (!el || !inicio) return;
+    // Um deslize rápido pode chegar sem nenhum movimento intermediário.
+    if (inicio.horizontal === null && t) {
+      const dxFinal = t.clientX - inicio.x;
+      if (Math.abs(dxFinal) > 8 && Math.abs(dxFinal) > Math.abs(t.clientY - inicio.y)) {
+        inicio.horizontal = true;
+        inicio.dx = dxFinal;
+      }
+    }
+    if (!inicio.horizontal) return;
+    const largura = linha.current?.getBoundingClientRect().width ?? 0;
+    const { dx } = inicio;
+    const rapido = Math.abs(dx) > 20 && performance.now() - inicio.t < 250;
+    const passo = Math.abs(dx) > largura * 0.25 || rapido ? (dx < 0 ? 1 : -1) : 0;
+    if (prefereMenosMovimento() || !el.animate) {
+      el.style.transform = posicaoDaFaixa(0);
+      if (passo) setSemanas((s) => s + passo);
       return;
     }
-    volta();
-    setSemanas((s) => s + (dx < 0 ? 1 : -1));
+    const animacao = el.animate(
+      [{ transform: posicaoDaFaixa(dx) }, { transform: posicaoDaFaixa(-passo * largura) }],
+      { duration: 220, easing: "cubic-bezier(0.22, 1, 0.36, 1)", fill: "forwards" },
+    );
+    el.style.transform = posicaoDaFaixa(0);
+    animacao.onfinish = () => {
+      if (!passo) return animacao.cancel();
+      assentouPeloDedo.current = animacao;
+      setSemanas((s) => s + passo);
+    };
   }
 
-  // Ao abrir, a lista de meses começa no mês do dia escolhido.
   const listaRef = useRef<HTMLDivElement>(null);
-  useEffect(() => {
+  // Altura da semana: o mês nasce dela e volta para ela ao fechar.
+  const camadaSemana = useRef<HTMLDivElement>(null);
+  const [alturaSemana, setAlturaSemana] = useState(60);
+  useLayoutEffect(() => {
+    const altura = camadaSemana.current?.offsetHeight;
+    if (altura) setAlturaSemana(altura);
+  }, []);
+  useLayoutEffect(() => {
     if (!expandido) return;
-    listaRef.current
-      ?.querySelector<HTMLElement>(`[data-mes="${mesDoDiaEscolhido}"]`)
-      ?.scrollIntoView({ block: "start" });
-  }, [expandido, mesDoDiaEscolhido]);
-  const meses = Array.from({ length: MESES_EM_VOLTA * 2 + 1 }, (_, i) =>
-    somarMeses(mesDoDiaEscolhido, i - MESES_EM_VOLTA),
-  );
-
+    // Rola só a lista: scrollIntoView rolava também a página e a Agenda pulava embaixo.
+    const lista = listaRef.current;
+    const mes = lista?.querySelector<HTMLElement>(`[data-mes="${mesDoDiaEscolhido}"]`);
+    if (lista && mes) lista.scrollTop = mes.offsetTop;
+  }, [expandido, mesDoDiaEscolhido, mesesProntos]);
   return (
     <div data-sem-gesto-dia>
-      <div className={`px-2 pb-3 ${expandido ? "rounded-b-xl bg-ink3" : ""}`}>
+      <div className="px-2 pb-3 rounded-b-xl">
         <div className="grid grid-cols-7 text-center text-sm font-medium text-mute" aria-hidden>
           {LETRAS_SEMANA.map((letra, i) => (
             <span key={i} className="pb-4 pt-5">
@@ -214,85 +265,128 @@ export function SemanaDoTopo({
             </span>
           ))}
         </div>
-        {expandido ? (
-          <div
-            ref={listaRef}
-            className="h-[344px] snap-y snap-mandatory overflow-y-auto overscroll-contain animate-in fade-in-0 duration-[200ms] motion-reduce:animate-none"
-            aria-label="Calendário"
+        {/* Como no modelo: a superfície cresce até o mês e a semana dá lugar a ele ao mesmo tempo.
+            O mês cresce por cima da Agenda, sem empurrar a página: empurrar fazia o navegador
+            corrigir a rolagem um quadro depois e a linha da equipe piscava embaixo. */}
+        <div className="relative">
+          <motion.div
+            ref={camadaSemana}
+            initial={false}
+            animate={{ opacity: expandido ? 0 : 1 }}
+            transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
+            aria-hidden={expandido || undefined}
+            inert={expandido || undefined}
           >
-            {meses.map((mes) => {
-              const primeiro = `${mes}-01`;
-              return (
-                <section key={mes} data-mes={mes} className="min-h-full snap-start pb-2">
-                  <h2 className="px-2 pb-1 pt-1 text-[26px] font-semibold text-paper">
-                    {tituloDoMes(mes).split(" ")[0]}
-                  </h2>
-                  <div className="grid grid-cols-7">
-                    {gradeDoMes(mes).map((d, i) =>
-                      mesDoDia(d) === mes ? (
-                        <DiaDoCalendario
-                          key={d}
-                          dia={d}
-                          escolhido={d === dia}
-                          hoje={d === hoje}
-                          comAtendimento={temAtendimento(d)}
-                          compacto
-                          onDia={onDia}
-                        />
-                      ) : (
-                        <span key={`${primeiro}-${i}`} aria-hidden />
-                      ),
-                    )}
+            <div
+              ref={linha}
+              className="relative touch-pan-y overflow-x-clip"
+              role="group"
+              aria-label="Dias da semana"
+              onTouchStart={comecar}
+              onTouchMove={mover}
+              onTouchEnd={soltar}
+              onTouchCancel={soltar}
+            >
+              <div ref={trilho} className="flex w-[300%]" style={{ transform: posicaoDaFaixa(0) }}>
+                {tresSemanas.map((dias, s) => (
+                  <div
+                    key={dias[0]}
+                    className="relative grid w-1/3 grid-cols-7"
+                    aria-hidden={s !== 1 || undefined}
+                    inert={s !== 1 || undefined}
+                  >
+                    {s === 1 && indiceDoDia >= 0 ? (
+                      <span
+                        aria-hidden
+                        className="pointer-events-none absolute left-0 top-1 grid w-[calc(100%/7)] place-items-center transition-transform duration-[200ms] motion-reduce:transition-none [.agenda-gesto-ativo_&]:transition-none"
+                        style={{
+                          transform: `translate3d(calc((${indiceDoDia} + var(--dia-progresso, 0)) * 100%),0,0)`,
+                        }}
+                      >
+                        <i className="size-11 rounded-full bg-[var(--agenda-escolhido)]" />
+                      </span>
+                    ) : null}
+                    {dias.map((d, i) => (
+                      <DiaDoCalendario
+                        key={d}
+                        dia={d}
+                        escolhido={d === dia}
+                        hoje={d === hoje}
+                        comAtendimento={temAtendimento(d)}
+                        vizinho={
+                          s !== 1 || indiceDoDia < 0
+                            ? undefined
+                            : i === indiceDoDia
+                              ? "atual"
+                              : i === indiceDoDia + 1
+                                ? "proximo"
+                                : i === indiceDoDia - 1
+                                  ? "anterior"
+                                  : undefined
+                        }
+                        onDia={onDia}
+                      />
+                    ))}
                   </div>
-                </section>
-              );
-            })}
-          </div>
-        ) : (
-          <div
-            ref={linha}
-            className="relative grid touch-pan-y grid-cols-7 overflow-x-clip animate-in fade-in-0 duration-[200ms] motion-reduce:animate-none"
-            role="group"
-            aria-label="Dias da semana"
-            onTouchStart={comecar}
-            onTouchMove={mover}
-            onTouchEnd={soltar}
-            onTouchCancel={soltar}
-          >
-            {indiceDoDia >= 0 ? (
-              <span
-                aria-hidden
-                className="pointer-events-none absolute left-0 top-1 grid w-[calc(100%/7)] place-items-center transition-transform duration-[200ms] motion-reduce:transition-none [.agenda-gesto-ativo_&]:transition-none"
-                style={{
-                  transform: `translate3d(calc((${indiceDoDia} + var(--dia-progresso, 0)) * 100%),0,0)`,
-                }}
+                ))}
+              </div>
+            </div>
+          </motion.div>
+          <AnimatePresence initial={false}>
+            {expandido ? (
+              <motion.div
+                key="calendario-expandido"
+                className="absolute -inset-x-2 top-0 z-10 overflow-hidden rounded-b-[24px] px-2 pb-3"
+                style={{ background: "var(--ink2)", boxShadow: "var(--shadow-md)" }}
+                initial={{ height: alturaSemana + 12 }}
+                animate={{ height: ALTURA_DO_MES + 12 }}
+                exit={{ height: alturaSemana + 12 }}
+                transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
               >
-                <i className="size-11 rounded-full bg-[var(--agenda-escolhido)]" />
-              </span>
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+                >
+                  <div
+                    ref={listaRef}
+                    className="relative h-[344px] snap-y snap-mandatory overflow-y-auto overscroll-contain"
+                    aria-label="Calendário"
+                  >
+                    {(mesesProntos ? meses : [mesDoDiaEscolhido]).map((mes) => {
+                      const primeiro = `${mes}-01`;
+                      return (
+                        <section key={mes} data-mes={mes} className="min-h-full snap-start pb-2">
+                          <h2 className="px-2 pb-1 pt-1 text-[26px] font-semibold text-paper">
+                            {tituloDoMes(mes).split(" ")[0]}
+                          </h2>
+                          <div className="grid grid-cols-7">
+                            {gradeDoMes(mes).map((d, i) =>
+                              mesDoDia(d) === mes ? (
+                                <DiaDoCalendario
+                                  key={d}
+                                  dia={d}
+                                  escolhido={d === dia}
+                                  hoje={d === hoje}
+                                  comAtendimento={temAtendimento(d)}
+                                  compacto
+                                  onDia={onDia}
+                                />
+                              ) : (
+                                <span key={`${primeiro}-${i}`} aria-hidden />
+                              ),
+                            )}
+                          </div>
+                        </section>
+                      );
+                    })}
+                  </div>
+                </motion.div>
+              </motion.div>
             ) : null}
-            {semana.map((d, i) => (
-              <DiaDoCalendario
-                key={d}
-                dia={d}
-                escolhido={d === dia}
-                hoje={d === hoje}
-                comAtendimento={temAtendimento(d)}
-                vizinho={
-                  indiceDoDia < 0
-                    ? undefined
-                    : i === indiceDoDia
-                      ? "atual"
-                      : i === indiceDoDia + 1
-                        ? "proximo"
-                        : i === indiceDoDia - 1
-                          ? "anterior"
-                          : undefined
-                }
-                onDia={onDia}
-              />
-            ))}
-          </div>
-        )}
+          </AnimatePresence>
+        </div>
       </div>
     </div>
   );
@@ -302,8 +396,11 @@ export function SemanaDoTopo({
 export function MarcaDoLimiteDoDia({
   className = "",
   carregando = false,
+  naPagina = false,
 }: {
   className?: string;
+  /** Troca de dia em páginas: os pontinhos deslizam junto com a página do dia. */
+  naPagina?: boolean;
   /** Enquanto a Agenda atualiza, os pontos correm pela direita e voltam pela esquerda. */
   carregando?: boolean;
 }) {
@@ -334,7 +431,8 @@ export function MarcaDoLimiteDoDia({
       ref={raiz}
       aria-hidden
       data-correndo={correndo || undefined}
-      className={`agenda-pontos flex h-5 items-center justify-center gap-1.5 ${className}`}
+      data-trilho-dia={naPagina ? "" : undefined}
+      className={`agenda-pontos flex h-3 items-center justify-center gap-[6px] ${className}`}
     >
       {[0, 1, 2, 3, 4].map((i) => (
         <span

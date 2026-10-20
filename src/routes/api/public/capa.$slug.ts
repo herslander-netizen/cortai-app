@@ -1,11 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { urlPublica } from "@/lib/origem-publica";
 
 /** Endereço estável da capa para prévias de link: redireciona para uma URL assinada nova. */
 export const Route = createFileRoute("/api/public/capa/$slug")({
   server: {
     handlers: {
       GET: async ({ params }) => {
-        const reserva = "https://cortai.dev/capa-social-cortai.jpg";
+        const reserva = urlPublica("/capa-social-cortai.jpg");
         let destino = reserva;
         try {
           const { supabaseAdmin } = await import("@/integrations/supabase/client.server");

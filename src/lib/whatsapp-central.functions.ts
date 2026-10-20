@@ -215,3 +215,92 @@ export const definirNotificacoesDoNegocio = createServerFn({ method: "POST" })
     });
     return { ok: true as const };
   });
+
+const codigoDoNegocioSchema = z.object({
+  tenantId: z.string().uuid(),
+  telefone: z.string().trim().min(8).max(24),
+});
+
+/**
+ * Admin: gera o código de 8 caracteres para conectar a conexão principal de um negócio pelo
+ * número de telefone (WhatsApp → Aparelhos conectados → Conectar com número). O código não
+ * fica gravado; a ação vai para a auditoria de suporte.
+ */
+export const gerarCodigoDoNegocio = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => codigoDoNegocioSchema.parse(d))
+  .handler(
+    async ({
+      context,
+      data,
+    }): Promise<{ codigo: string | null; expiraEm: string | null; aviso: string | null }> => {
+      const db = await exigirAdminDaPlataforma(context);
+      const { numeroParaPareamento } = await import("@/lib/whatsapp/pareamento-telefone");
+      const numero = numeroParaPareamento(data.telefone);
+      if (!numero)
+        return {
+          codigo: null,
+          expiraEm: null,
+          aviso: "Confira o número: use DDD e telefone, como (11) 99999-8888.",
+        };
+      const { gatewayConfigurado, gatewayDoProvedor, provedorDoGateway } =
+        await import("@/lib/whatsapp/gateway.server");
+      const { conexaoPrincipal } = await import("@/lib/whatsapp/finalidade-conexao");
+      if (!gatewayConfigurado("evolution"))
+        return { codigo: null, expiraEm: null, aviso: "Serviço de WhatsApp não configurado." };
+      if (provedorDoGateway() !== "evolution")
+        return {
+          codigo: null,
+          expiraEm: null,
+          aviso: "Neste serviço a conexão é só pelo QR Code.",
+        };
+      const { data: linhas } = await db
+        .from("conexoes_whatsapp")
+        .select(COLUNAS)
+        .eq("tenant_id", data.tenantId)
+        .eq("escopo", "tenant");
+      const principal = conexaoPrincipal((linhas ?? []) as Linha[]);
+      if (!principal)
+        return {
+          codigo: null,
+          expiraEm: null,
+          aviso: "Conecte o WhatsApp deste negócio primeiro.",
+        };
+      const gw = gatewayDoProvedor("evolution");
+      try {
+        let pareamento;
+        try {
+          pareamento = await gw.obterCodigoDePareamento(principal.sessao_id, numero);
+        } catch {
+          // Sessão ainda não existe no serviço: cria e tenta de novo.
+          await gw.criarSessao(principal.sessao_id, urlDeEventos("evolution"));
+          pareamento = await gw.obterCodigoDePareamento(principal.sessao_id, numero);
+        }
+        await db
+          .from("conexoes_whatsapp")
+          .update({
+            provedor: "evolution",
+            status: "conectando",
+            qr_code: null,
+            qr_expira_em: null,
+            ultimo_erro: null,
+          })
+          .eq("id", principal.id)
+          .eq("tenant_id", data.tenantId);
+        await db.from("auditoria_de_suporte").insert({
+          ator_user_id: context.userId,
+          tenant_id: data.tenantId,
+          acao: "whatsapp.codigo_por_numero",
+          alvo: principal.sessao_id,
+          alteracoes: {},
+        });
+        return { codigo: pareamento.codigo, expiraEm: pareamento.expiraEm, aviso: null };
+      } catch (erro) {
+        return {
+          codigo: null,
+          expiraEm: null,
+          aviso: erro instanceof Error ? erro.message : "Não foi possível gerar o código agora.",
+        };
+      }
+    },
+  );

@@ -54,8 +54,12 @@ export function lerErroMeta(mensagem: string): {
   codigo: number | null;
   httpStatus: number | null;
 } {
+  // Evolution: número sem WhatsApp vem como `"exists": false`; equivale ao 131026 da Meta.
+  const semWhatsappNoEvolution = /"exists"\s*:\s*false/.test(mensagem) ? "131026" : undefined;
   const codigo =
-    mensagem.match(/"code"\s*:\s*(\d{3,6})/)?.[1] ?? mensagem.match(/\b(13\d{4})\b/)?.[1];
+    semWhatsappNoEvolution ??
+    mensagem.match(/"code"\s*:\s*(\d{3,6})/)?.[1] ??
+    mensagem.match(/\b(13\d{4})\b/)?.[1];
   const http = mensagem.match(/\((\d{3})\)/)?.[1];
   return { codigo: codigo ? Number(codigo) : null, httpStatus: http ? Number(http) : null };
 }

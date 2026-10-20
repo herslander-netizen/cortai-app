@@ -13,6 +13,7 @@ import { sair } from "@/lib/guarda";
 import { getSessao } from "@/lib/sessao.functions";
 import { rotuloDoPapel } from "@/lib/navigation";
 import { Button } from "@/components/ui/button";
+import { TrocarPainel } from "@/components/acesso/TrocarPainel";
 
 export const Route = createFileRoute("/barbeiro/mais")({
   head: () => ({
@@ -60,6 +61,9 @@ function MaisPage() {
   return (
     <Screen title="Ajustes e ajuda" subtitle={rotuloDoPapel(sessao?.papelNaEquipe)}>
       <div data-guia="mais-lista" className="space-y-8">
+        <div className="mt-6">
+          <TrocarPainel />
+        </div>
         <section className="mt-6">
           <h2 className="mb-2 text-xs font-semibold uppercase text-mute2">Sistema</h2>
           <ul className="divide-y divide-line border-y border-line">

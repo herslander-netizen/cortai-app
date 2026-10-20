@@ -225,7 +225,7 @@ export const getCrescimento = createServerFn({ method: "GET" })
     const porCliente = new Map<string, number[]>();
     for (const a of agRes.data ?? []) {
       const t = new Date(a.inicio).getTime();
-      if (t > agora) continue;
+      if (t > agora || !a.cliente_id) continue;
       const lista = porCliente.get(a.cliente_id) ?? [];
       lista.push(t);
       porCliente.set(a.cliente_id, lista);

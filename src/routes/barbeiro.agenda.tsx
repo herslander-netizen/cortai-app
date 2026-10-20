@@ -20,7 +20,7 @@ export const Route = createFileRoute("/barbeiro/agenda")({
   }),
   head: () => ({
     meta: [
-      { title: "Agenda do dia — Painel do barbeiro | Cortaí" },
+      { title: "Agenda do dia — Painel do negócio | Cortaí" },
       {
         name: "description",
         content: "Todos os horários do dia, com fiado, bloqueios e fila de espera.",

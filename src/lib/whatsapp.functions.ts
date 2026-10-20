@@ -29,6 +29,7 @@ import {
   type StatusDaConexao,
   type TomDoAtendimento,
 } from "@/lib/whatsapp/contrato";
+import { urlPublica } from "@/lib/origem-publica";
 
 async function admin() {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -42,15 +43,22 @@ async function admin() {
  */
 function urlDeEventos(provedor: string): string {
   const base = process.env["CORTAI_PUBLIC_BASE_URL"]?.trim().replace(/\/$/, "");
-  if (!base) throw new Error("Configure CORTAI_PUBLIC_BASE_URL para ativar o WhatsApp neste ambiente.");
+  if (!base)
+    throw new Error("Configure CORTAI_PUBLIC_BASE_URL para ativar o WhatsApp neste ambiente.");
   let parsed: URL;
   try {
     parsed = new URL(base);
   } catch {
     throw new Error("CORTAI_PUBLIC_BASE_URL precisa ser uma URL HTTPS válida.");
   }
-  if (parsed.protocol !== "https:" || parsed.hostname === "cortai.dev" || parsed.hostname.endsWith(".cortai.dev")) {
-    throw new Error("CORTAI_PUBLIC_BASE_URL deve apontar para o ambiente independente, nunca para o domínio de produção.");
+  if (
+    parsed.protocol !== "https:" ||
+    parsed.hostname === "cortai.dev" ||
+    parsed.hostname.endsWith(".cortai.dev")
+  ) {
+    throw new Error(
+      "CORTAI_PUBLIC_BASE_URL deve apontar para o ambiente independente, nunca para o domínio de produção.",
+    );
   }
   return `${base}${provedor === "evolution" ? "/api/public/whatsapp/evolution" : "/api/public/whatsapp/eventos"}`;
 }
@@ -303,7 +311,7 @@ export const getDiagnosticoDoWhatsapp = createServerFn({ method: "GET" })
       gatewayConfigurado: gatewayConfigurado(),
       credenciaisFaltantes: credenciaisFaltantes(),
       enderecoDeEventos: oficial
-        ? "https://cortai.dev/api/public/whatsapp/webhook"
+        ? urlPublica("/api/public/whatsapp/webhook")
         : provedor === "evolution"
           ? urlDeEventos("evolution")
           : urlDeEventos(provedorDoGateway()),
@@ -398,7 +406,9 @@ export const conectarWhatsapp = createServerFn({ method: "POST" })
       try {
         const estado = await gatewayDeWhatsapp.criarSessao(
           sessao.sessao_id,
-          provedorDoGateway() === "evolution" ? urlDeEventos("evolution") : urlDeEventos(provedorDoGateway()),
+          provedorDoGateway() === "evolution"
+            ? urlDeEventos("evolution")
+            : urlDeEventos(provedorDoGateway()),
         );
         await db
           .from("conexoes_whatsapp")

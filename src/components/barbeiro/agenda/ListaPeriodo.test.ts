@@ -1,0 +1,76 @@
+import { describe, expect, it } from "vitest";
+
+import type { AgendaItem } from "@/lib/barbeiro.functions";
+
+import { agruparPorDia, correspondeABusca } from "./ListaPeriodo";
+
+const item = (id: string, inicio: string, extra: Partial<AgendaItem> = {}): AgendaItem => ({
+  id,
+  inicio,
+  fim: inicio,
+  status: "agendado",
+  forma_pagamento: null,
+  valor_centavos: 5000,
+  clienteId: null,
+  cliente: "João Ávila",
+  telefone: "(11) 98765-4321",
+  ficha: null,
+  servico: "Corte degradê",
+  duracaoMin: 30,
+  profissional: "Bruno",
+  arrivedAt: null,
+  startedAt: null,
+  finishedAt: null,
+  ...extra,
+});
+
+describe("lista de vários dias", () => {
+  it("separa por dia no fuso do negócio e põe em ordem de horário", () => {
+    const grupos = agruparPorDia(
+      [
+        item("b", "2026-10-24T13:00:00Z"),
+        item("a", "2026-10-23T15:00:00Z"),
+        // 23h30 de 23/10 em São Paulo é 02h30 UTC do dia 24.
+        item("c", "2026-10-24T02:30:00Z"),
+      ],
+      "America/Sao_Paulo",
+    );
+    expect(grupos.map((g) => [g.dia, g.itens.map((i) => i.id)])).toEqual([
+      ["2026-10-23", ["a", "c"]],
+      ["2026-10-24", ["b"]],
+    ]);
+  });
+
+  it("busca por cliente sem acento, telefone só com números e serviço", () => {
+    const i = item("a", "2026-10-23T15:00:00Z");
+    expect(correspondeABusca(i, "joao avila")).toBe(true);
+    expect(correspondeABusca(i, "98765")).toBe(true);
+    expect(correspondeABusca(i, "DEGRADE")).toBe(true);
+    expect(correspondeABusca(i, "bruno")).toBe(true);
+    expect(correspondeABusca(i, "maria")).toBe(false);
+    expect(correspondeABusca(i, "  ")).toBe(true);
+  });
+});
+
+describe("modo lista no celular", () => {
+  const ler = (p: string) => require("node:fs").readFileSync(p, "utf8") as string;
+  const operacional = ler("src/components/barbeiro/AgendaOperacional.tsx");
+  const lista = ler("src/components/barbeiro/agenda/ListaPeriodo.tsx");
+
+  it("o celular usa a lista de vários dias; o computador mantém a lista do dia", () => {
+    expect(operacional).toMatch(/\) : celular \? \(\s*<ListaPeriodo/);
+    expect(operacional).toContain("<ListaAgenda");
+  });
+
+  it("a faixa da semana recolhe e a troca de visualização anima, sem animar a troca de dia", () => {
+    expect(operacional).toContain('<RecolheNaLista visivel={visualizacao !== "lista"}>');
+    expect(operacional).toContain(
+      'chave={celular && visualizacao === "lista" ? "lista" : "grade"}',
+    );
+  });
+
+  it("cancelados ficam atrás de um botão e hoje mantém as ações", () => {
+    expect(lista).toContain("Mostrar cancelados");
+    expect(lista).toContain("<AcoesDoItem");
+  });
+});

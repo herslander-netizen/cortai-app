@@ -1,10 +1,12 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect } from "react";
 import type { Ref } from "react";
 
 import { AgendaTimeline } from "@/components/barbeiro/AgendaTimeline";
 import { EsqueletoAgenda, EsqueletoTimeline } from "@/components/layout/Esqueleto";
 
 import { useVizinhoDoGesto } from "./gesto-dia";
+import { MarcaDoLimiteDoDia } from "./SemanaDoTopo";
 import { dataEditorial, hora, nomeDaAgenda, somarDias } from "./tempo";
 import { opcoesAgendaDia } from "./useAgendaDia";
 
@@ -29,7 +31,20 @@ export function PreviaDiaVizinho({
   diaCompleto?: boolean;
   ref?: Ref<HTMLDivElement>;
 }) {
-  const consulta = useQuery({ ...opcoesAgendaDia(dia), refetchOnMount: false });
+  const queryClient = useQueryClient();
+  // A prévia do vizinho aquece os dados antes da conclusão do gesto.
+  // Mantém a consulta reutilizável para que a troca do dia não comece do zero.
+  useEffect(() => {
+    void queryClient.prefetchQuery({
+      ...opcoesAgendaDia(dia),
+      staleTime: 15_000,
+    });
+  }, [dia, queryClient]);
+  const consulta = useQuery({
+    ...opcoesAgendaDia(dia),
+    refetchOnMount: false,
+    staleTime: 15_000,
+  });
   const { data } = consulta;
   const itens = (data?.itens ?? [])
     .filter((i) => !ENCERRADOS.has(i.status))
@@ -81,8 +96,11 @@ export function PreviaDiaVizinho({
 }
 
 /** Único ponto que redesenha durante o gesto: lê o vizinho do estado externo. */
+/** Mantém os dois vizinhos montados antes do gesto; o toque só revela a página pronta. */
 export function PreviaDoGesto({
   diaAtual,
+  refAnterior,
+  refProximo,
   ...props
 }: {
   diaAtual: string;
@@ -90,8 +108,99 @@ export function PreviaDoGesto({
   profissionalId: string | null;
   discreto: boolean;
   diaCompleto?: boolean;
-  ref?: Ref<HTMLDivElement>;
+  refAnterior?: Ref<HTMLDivElement>;
+  refProximo?: Ref<HTMLDivElement>;
 }) {
-  const vizinho = useVizinhoDoGesto();
-  return vizinho ? <PreviaDiaVizinho dia={somarDias(diaAtual, vizinho)} {...props} /> : null;
+  return (
+    <>
+      <PreviaDiaVizinho
+        dia={somarDias(diaAtual, -1)}
+        {...(refAnterior ? { ref: refAnterior } : {})}
+        {...props}
+      />
+      <PreviaDiaVizinho
+        dia={somarDias(diaAtual, 1)}
+        {...(refProximo ? { ref: refProximo } : {})}
+        {...props}
+      />
+    </>
+  );
+}
+
+/**
+ * Dias vizinhos dentro da grade da Agenda (carrossel do celular): a coluna do dia anterior à
+ * esquerda e a do próximo à direita, só com cartões e expediente. Ficam fora da vista até o
+ * gesto lateral deslizar as camadas (`useGestoDia`).
+ */
+export function CamadasVizinhas({
+  diaAtual,
+  profissionalId,
+  discreto,
+  diaCompleto = false,
+}: {
+  diaAtual: string;
+  profissionalId: string | null;
+  discreto: boolean;
+  diaCompleto?: boolean;
+}) {
+  return (
+    <>
+      <CamadaVizinha
+        lado="anterior"
+        dia={somarDias(diaAtual, -1)}
+        profissionalId={profissionalId}
+        discreto={discreto}
+        diaCompleto={diaCompleto}
+      />
+      <CamadaVizinha
+        lado="proximo"
+        dia={somarDias(diaAtual, 1)}
+        profissionalId={profissionalId}
+        discreto={discreto}
+        diaCompleto={diaCompleto}
+      />
+    </>
+  );
+}
+
+function CamadaVizinha({
+  lado,
+  dia,
+  profissionalId,
+  discreto,
+  diaCompleto,
+}: {
+  lado: "anterior" | "proximo";
+  dia: string;
+  profissionalId: string | null;
+  discreto: boolean;
+  diaCompleto: boolean;
+}) {
+  const { data } = useQuery({
+    ...opcoesAgendaDia(dia),
+    refetchOnMount: false,
+    staleTime: 15_000,
+  });
+  // Sem o dia carregado a página entra mesmo assim, com horas e linhas (como no modelo).
+  const itens = (data?.itens ?? [])
+    .filter((i) => !ENCERRADOS.has(i.status))
+    .filter((i) => !profissionalId || i.profissionalId === profissionalId)
+    .sort((a, b) => a.inicio.localeCompare(b.inicio));
+  return (
+    <div className="agenda-dia-vizinha" data-lado={lado} aria-hidden="true">
+      <MarcaDoLimiteDoDia className="agenda-dia-vizinha-pontos" />
+      <AgendaTimeline
+        previa
+        emCamada
+        dia={dia}
+        fuso={data?.fuso}
+        itens={itens}
+        horarios={data?.horarios ?? []}
+        selecionado={null}
+        onSelecionar={nada}
+        discreto={discreto}
+        diaCompleto={diaCompleto}
+      />
+    </div>
+  );
 }

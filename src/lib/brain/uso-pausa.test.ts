@@ -34,25 +34,25 @@ beforeEach(() => {
 afterEach(() => vi.unstubAllEnvs());
 
 describe("pausa por falta de crédito é do provedor que recusou", () => {
-  it("lê o provedor gravado; sem marca (pausas antigas) era o Lovable", () => {
-    expect(pausaDoProvedor("gateway_402@lovable")).toBe("lovable");
+  it("lê o provedor gravado; sem marca (pausas antigas) fica como legado", () => {
+    expect(pausaDoProvedor("gateway_402@legado")).toBe("legado");
     expect(pausaDoProvedor("gateway_402@api.groq.com")).toBe("api.groq.com");
-    expect(pausaDoProvedor("gateway_402")).toBe("lovable");
-    expect(pausaDoProvedor(null)).toBe("lovable");
+    expect(pausaDoProvedor("gateway_402")).toBe("legado");
+    expect(pausaDoProvedor(null)).toBe("legado");
   });
 
-  it("sem provedor independente configurado, pausa antiga do Lovable não bloqueia um provedor inexistente", async () => {
-    pausar("gateway_402@lovable");
+  it("sem provedor configurado, pausa antiga não bloqueia um provedor inexistente", async () => {
+    pausar("gateway_402@legado");
     expect(await bloqueioDeUso("t1", "whatsapp", "5511")).toBeNull();
   });
 
-  it("pausa antiga sem marca não ativa fallback para Lovable", async () => {
+  it("pausa antiga sem marca não ativa fallback", async () => {
     pausar("gateway_402");
     expect(await bloqueioDeUso("t1", "site", "ip")).toBeNull();
   });
 
-  it("trocou para o provedor gratuito: a pausa do Lovable NÃO vale e a IA volta na hora", async () => {
-    pausar("gateway_402@lovable");
+  it("trocou para o provedor gratuito: a pausa do provedor antigo NÃO vale e a IA volta na hora", async () => {
+    pausar("gateway_402@legado");
     usarProvedorGratuito();
     expect(await bloqueioDeUso("t1", "whatsapp", "5511")).toBeNull();
     expect(await bloqueioDeUso("t1", "site", "ip")).toBeNull();
@@ -70,15 +70,15 @@ describe("pausa por falta de crédito é do provedor que recusou", () => {
     expect(await bloqueioDeUso("t1", "whatsapp", "5511")).toBe("pausada");
   });
 
-  it("canal fora da lista do provedor não herda pausa antiga do Lovable", async () => {
+  it("canal fora da lista do provedor não herda pausa antiga", async () => {
     usarProvedorGratuito();
     vi.stubEnv("CORTAI_AI_CANAIS", "painel");
-    pausar("gateway_402@lovable");
+    pausar("gateway_402@legado");
     expect(await bloqueioDeUso("t1", "whatsapp", "5511")).toBeNull();
   });
 
   it("depois de 6 horas a pausa acaba de qualquer jeito", async () => {
-    pausar("gateway_402@lovable", 7 * 60);
+    pausar("gateway_402@legado", 7 * 60);
     expect(await bloqueioDeUso("t1", "whatsapp", "5511")).toBeNull();
   });
 });

@@ -5,7 +5,7 @@ confirmação) sobre um **mundo simulado**: as ações do catálogo são trocada
 leem dados fixos e registram o que foi chamado. Não toca banco, WhatsApp nem clientes.
 
 Promptfoo roda via `npx` com versão fixada (`promptfoo@0.124.1`); **não entra no `package.json`**
-(o `bun.lock` do Lovable não pode sair de sincronia). `tsx` já vem do `drizzle-kit`.
+(não mexe no `bun.lock`). `tsx` já vem do `drizzle-kit`.
 
 | Comando                             | O que faz                                                                                                                | Precisa de                            |
 | ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------ | ------------------------------------- |
@@ -42,7 +42,7 @@ O juiz só aparece em `qualidade.yaml`, e nunca decide segurança.
 - Com o modelo-falso só se valida o **encanamento**. Qualidade, uso de ferramentas e português
   do GPT-OSS-20B só aparecem em `npm run avaliar:comparar` com chaves reais.
 - A reivindicação atômica da ação pendente no **banco** (atualização condicional) não é
-  exercitada aqui; o harness usa uma versão em memória. Veja `docs/ia-gpt-oss-langfuse-promptfoo.md`.
+  exercitada aqui; o harness usa uma versão em memória. Veja `docs/historico/ia-gpt-oss-langfuse-promptfoo.md`.
 
 ## Armadilha do Promptfoo
 

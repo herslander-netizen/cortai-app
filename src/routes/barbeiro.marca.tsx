@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { getMarca, type MarcaData } from "@/lib/marca.functions";
 import { exigirCapacidade } from "@/lib/guarda-capacidade";
+import { urlPublica } from "@/lib/origem-publica";
 
 export const Route = createFileRoute("/barbeiro/marca")({
   beforeLoad: ({ context }) => exigirCapacidade(context.queryClient, "branding_avancado"),
@@ -70,7 +71,7 @@ function Editor({
   const e = useEditorDaPagina(initial, reload);
   const [previaAberta, setPreviaAberta] = useState(false);
   const [confirmar, dialogo] = useConfirmar();
-  const link = `https://cortai.dev/${e.slug}`;
+  const link = urlPublica(`/${e.slug}`);
   const previa = (altura?: string) => (
     <PreviaDaExperiencia
       data={e.previewData}

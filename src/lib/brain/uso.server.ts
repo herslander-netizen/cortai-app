@@ -8,6 +8,7 @@
  *   voltam às regras fixas e o painel mostra o aviso, sem travar a operação.
  */
 import type { Canal } from "./acoes.server";
+import { bloqueioDaConfig } from "./estado-cortai";
 
 async function admin() {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -21,17 +22,19 @@ function chaveDoUso(canal: Canal, equipe: boolean) {
   return equipe ? `cerebro.${canal}.equipe` : `cerebro.${canal}`;
 }
 
-const LIMITE_DIARIO_PADRAO: Record<Canal, number> = { painel: 1000, whatsapp: 400, site: 300 };
-/** Pausa por crédito: só uma nova tentativa a cada 6 h, até o dono reativar. */
-const PAUSA_MS = 6 * 60 * 60_000;
+export const LIMITE_DIARIO_PADRAO: Record<Canal, number> = {
+  painel: 1000,
+  whatsapp: 400,
+  site: 300,
+};
 
-/** Provedor registrado na pausa; pausas antigas, sem registro, eram do Lovable. */
+/** Provedor registrado na pausa; pausas antigas, sem registro, ficam como "legado". */
 export function pausaDoProvedor(motivo: string | null | undefined): string {
   const marca = (motivo ?? "").split("@")[1]?.trim();
-  return marca || "lovable";
+  return marca || "legado";
 }
 
-export type Bloqueio = "pausada" | "limite_diario" | "limite_pessoa" | null;
+export type Bloqueio = "desligada" | "pausada" | "limite_diario" | "limite_pessoa" | null;
 
 export async function bloqueioDeUso(
   tenantId: string,
@@ -42,16 +45,19 @@ export async function bloqueioDeUso(
 ): Promise<Bloqueio> {
   try {
     const db = await admin();
+    // `*` mantém a leitura válida antes e depois da coluna `cortai_ativa` existir no banco.
     const { data: cfg } = await db
       .from("config_atendimento_ia")
-      .select("ia_pausada_em, ia_pausa_motivo, ia_limite_diario_whatsapp")
+      .select("*")
       .eq("tenant_id", tenantId)
       .maybeSingle();
-    if (cfg?.ia_pausada_em && Date.now() - Date.parse(cfg.ia_pausada_em) < PAUSA_MS) {
-      // A pausa por falta de crédito é do PROVEDOR que recusou ("gateway_402@lovable"). Se o
+    const daConfig = bloqueioDaConfig(cfg);
+    if (daConfig === "desligada") return daConfig;
+    if (daConfig === "pausada") {
+      // A pausa por falta de crédito é do PROVEDOR que recusou ("gateway_402@<provedor>"). Se o
       // provedor do canal mudou (ex.: passou para um gratuito), a pausa antiga não vale.
       const { identidadeDoModelo } = await import("./gateway.server");
-      const pausadoPor = pausaDoProvedor(cfg.ia_pausa_motivo);
+      const pausadoPor = pausaDoProvedor(cfg?.ia_pausa_motivo);
       if (pausadoPor === identidadeDoModelo(canal).provedor) return "pausada";
     }
 
@@ -79,7 +85,8 @@ export async function bloqueioDeUso(
         .gte("criado_em", umaHora),
     ]);
     if ((dia ?? 0) >= limiteDia) return "limite_diario";
-    if ((hora ?? 0) >= (equipe ? LIMITE_EQUIPE.hora : LIMITE_POR_PESSOA_HORA[canal])) return "limite_pessoa";
+    if ((hora ?? 0) >= (equipe ? LIMITE_EQUIPE.hora : LIMITE_POR_PESSOA_HORA[canal]))
+      return "limite_pessoa";
     return null;
   } catch {
     // Falha de leitura nunca libera custo sem controle no canal automático.

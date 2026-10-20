@@ -4,6 +4,7 @@ import { ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { MarcaForm } from "@/lib/marca.functions";
 import { Campo, fieldClass } from "./campos";
+import { hostPublico, urlPublica } from "@/lib/origem-publica";
 
 export function SecaoLink({
   slug,
@@ -32,7 +33,7 @@ export function SecaoLink({
           </label>
           <div className="mt-2 flex items-stretch gap-2">
             <span className="flex items-center rounded-lg border border-line2 bg-ink3 px-3 text-xs text-mute">
-              cortai.dev/
+              {hostPublico()}/
             </span>
             <input
               id={slugId}
@@ -62,7 +63,7 @@ export function SecaoLink({
           O endereço antigo permanece ativo para não quebrar links já enviados.
         </p>
         <Button type="button" variant="outline" className="mt-3 min-h-12" asChild>
-          <a href={`https://cortai.dev/${slug}`} target="_blank" rel="noreferrer">
+          <a href={urlPublica(`/${slug}`)} target="_blank" rel="noreferrer">
             <ExternalLink />
             Abrir agendamento
           </a>

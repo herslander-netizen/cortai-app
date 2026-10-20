@@ -5,13 +5,12 @@ import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable";
+import { entrarComProvedor } from "@/lib/auth/entrar-com-provedor";
 import { destinoAposEntrar, destinoDoPapel, destinoSolicitadoPermitido } from "@/lib/guarda";
 import { getSessao, type Sessao } from "@/lib/sessao.functions";
 import { Aviso } from "@/components/ui/aviso";
 import { MarcaCortai } from "@/components/marca/MarcaCortai";
 import { sincronizarCorDoNavegador } from "@/lib/aparencia";
-import { mensagemDeErroDeAuth, urlDeRetornoDeAutenticacao } from "@/lib/auth-flow";
 
 export const Route = createFileRoute("/login")({
   ssr: false,
@@ -42,14 +41,7 @@ export const Route = createFileRoute("/login")({
     links: [{ rel: "canonical", href: "https://cortai.dev/login" }],
   }),
   beforeLoad: async () => {
-    let data: { user: { id: string } | null };
-    try {
-      data = (await supabase.auth.getUser()).data;
-    } catch {
-      // Falha transitória não transforma uma sessão válida em logout nem
-      // impede a pessoa de tentar entrar novamente.
-      return;
-    }
+    const { data } = await supabase.auth.getUser();
     if (data.user) {
       // Uma falha temporária ao carregar o perfil não deve impedir a tela de login
       // de renderizar nem apagar a sessão válida do usuário.
@@ -150,9 +142,11 @@ function LoginPage() {
     setErro(null);
     setEnviando(true);
     try {
-      const retorno = urlDeRetornoDeAutenticacao(window.location.origin, proximo);
-      const resultado = await lovable.auth.signInWithOAuth(provedor, {
-        redirect_uri: retorno,
+      const retorno = new URL("/entrar/retorno", window.location.origin);
+      if (proximo && proximo.startsWith("/") && !proximo.startsWith("//"))
+        retorno.searchParams.set("proximo", proximo);
+      const resultado = await entrarComProvedor(provedor, {
+        retorno: retorno.toString(),
       });
       if (resultado.error) {
         setEnviando(false);
@@ -220,39 +214,43 @@ function LoginPage() {
           setEnviando(true);
           setErro(null);
           setAviso(null);
-          try {
-            if (modo === "entrar") {
-              const { error } = await supabase.auth.signInWithPassword({ email, password: senha });
-              if (error) {
-                setErro(mensagemDeErroDeAuth(error, "entrar"));
-                return;
-              }
-              await seguirParaMinhaArea();
-              return;
-            }
-            const { data, error } = await supabase.auth.signUp({
-              email,
-              password: senha,
-              options: {
-                emailRedirectTo: urlDeRetornoDeAutenticacao(window.location.origin, proximo),
-              },
-            });
+          if (modo === "entrar") {
+            const { error } = await supabase.auth.signInWithPassword({ email, password: senha });
             if (error) {
-              setErro(mensagemDeErroDeAuth(error, "criar"));
-              return;
-            }
-            if (!data.session) {
-              setAviso(
-                "Verifique seu e-mail para confirmar sua conta. O link retornará para continuar seu cadastro; se este e-mail já tiver cadastro, use Entrar ou Esqueceu a senha.",
-              );
+              setEnviando(false);
+              setErro("E-mail ou senha incorretos.");
               return;
             }
             await seguirParaMinhaArea();
-          } catch (error) {
-            setErro(mensagemDeErroDeAuth(error instanceof Error ? error : null, modo));
-          } finally {
             setEnviando(false);
+            return;
           }
+          const { data, error } = await supabase.auth.signUp({
+            email,
+            password: senha,
+            options: { emailRedirectTo: window.location.origin },
+          });
+          setEnviando(false);
+          if (error) {
+            const codigo = (error as { code?: string }).code ?? "";
+            setErro(
+              codigo === "weak_password"
+                ? "Essa senha é fácil de adivinhar ou já apareceu em vazamentos. Escolha outra."
+                : error.status === 429 || codigo.includes("rate_limit")
+                  ? "Muitas tentativas em pouco tempo. Aguarde alguns minutos e tente de novo."
+                  : codigo === "email_address_invalid"
+                    ? "Confira o e-mail digitado."
+                    : "Não foi possível criar a conta agora. Tente novamente em instantes.",
+            );
+            return;
+          }
+          if (!data.session) {
+            setAviso(
+              "Verifique seu e-mail para confirmar sua conta. Se este e-mail já tiver cadastro, nenhuma mensagem nova é enviada: use Entrar ou Esqueceu a senha.",
+            );
+            return;
+          }
+          await seguirParaMinhaArea();
         }}
       >
         <Field label="E-mail">

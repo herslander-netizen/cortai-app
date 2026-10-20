@@ -12,6 +12,7 @@ import {
   UsersRound,
 } from "lucide-react";
 
+import { TrocarPainel } from "@/components/acesso/TrocarPainel";
 import { AdminScreen } from "@/components/layout/AdminScreen";
 
 export const Route = createFileRoute("/admin/mais")({
@@ -42,7 +43,7 @@ const grupos = [
       {
         to: "/admin/pedidos",
         label: "Pedidos",
-        detail: "Solicitações e prioridades das barbearias",
+        detail: "Solicitações e prioridades dos negócios",
         icon: ClipboardList,
       },
       {
@@ -111,6 +112,7 @@ function AdminMaisPage() {
   return (
     <AdminScreen title="Mais" subtitle="Configurações e áreas menos frequentes da plataforma.">
       <div className="space-y-8">
+        <TrocarPainel />
         {grupos.map((grupo) => (
           <section key={grupo.titulo}>
             <h2 className="mb-2 text-xs font-semibold uppercase text-mute2">{grupo.titulo}</h2>

@@ -522,7 +522,7 @@ function Fluxo({
                   titulo="Deixar no fiado"
                   detalhe={
                     fiadoBloqueado
-                      ? `Limite de fiado atingido (${brl(Math.abs(dados.carteira.saldo_centavos))} em aberto de ${brl(dados.cliente.limite_fiado_centavos)}). Fale com a barbearia.`
+                      ? `Limite de fiado atingido (${brl(Math.abs(dados.carteira.saldo_centavos))} em aberto de ${brl(dados.cliente.limite_fiado_centavos)}). Fale com a equipe.`
                       : `Ainda cabe ${brl(Math.max(0, disponivelFiado))} no seu limite`
                   }
                   valor={brl(preco)}

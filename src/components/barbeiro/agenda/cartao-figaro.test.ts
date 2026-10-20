@@ -1,0 +1,62 @@
+import { describe, expect, it } from "vitest";
+
+import {
+  COR_SEM_CATEGORIA,
+  CORES_DE_CATEGORIA,
+  corDaCategoria,
+  faixaDoCartao,
+  indiceDaCategoria,
+  glifoDoEstado,
+  mostraCliente,
+  mostraHorario,
+  opacidadeDasLinhasDe5,
+} from "./cartao-figaro";
+
+describe("cartão da timeline como no Figaro", () => {
+  it("cada categoria do negócio ganha uma cor diferente, pela ordem alfabética", () => {
+    const doNegocio = ["Corte", "Barba", "Química", "corte ", "Estética", null];
+    expect(indiceDaCategoria(doNegocio, "Barba")).toBe(0);
+    expect(indiceDaCategoria(doNegocio, " corte")).toBe(1);
+    expect(indiceDaCategoria(doNegocio, "Estetica")).toBe(2);
+    expect(indiceDaCategoria(doNegocio, "Química")).toBe(3);
+    expect(indiceDaCategoria(doNegocio, null)).toBeNull();
+    expect(new Set([0, 1, 2, 3].map(corDaCategoria)).size).toBe(4);
+    expect(corDaCategoria(null)).toBe(COR_SEM_CATEGORIA);
+    expect(corDaCategoria(10)).toBe(CORES_DE_CATEGORIA[0]);
+  });
+
+  it("as faixas por altura mostram cliente e horário só quando cabem (2 px/min)", () => {
+    expect(faixaDoCartao(28, 2)).toBe("minimo");
+    expect(faixaDoCartao(50, 2)).toBe("pequeno");
+    expect(faixaDoCartao(70, 2)).toBe("medio");
+    expect(faixaDoCartao(100, 2)).toBe("grande");
+    expect(faixaDoCartao(130, 2)).toBe("maior");
+    expect(mostraHorario("pequeno")).toBe(false);
+    expect(mostraHorario("medio")).toBe(true);
+    expect(mostraCliente("medio")).toBe(false);
+    expect(mostraCliente("grande")).toBe(true);
+  });
+
+  it("ícone de estado: confirmado, pendente pelo link ou pela equipe, atrasado e encerrados", () => {
+    const base = { confirmadoEm: null, origem: null };
+    expect(glifoDoEstado({ ...base, status: "agendado", confirmadoEm: "x" }, false)).toBe(
+      "confirmado",
+    );
+    expect(glifoDoEstado({ ...base, status: "agendado", origem: "link_publico" }, false)).toBe(
+      "pendente-online",
+    );
+    expect(glifoDoEstado({ ...base, status: "agendado", origem: "manual" }, false)).toBe(
+      "pendente-equipe",
+    );
+    expect(glifoDoEstado({ ...base, status: "agendado" }, true)).toBe("atrasado");
+    expect(glifoDoEstado({ ...base, status: "nao_compareceu" }, true)).toBe("falta");
+    expect(glifoDoEstado({ ...base, status: "finalizado" }, false)).toBe("concluido");
+  });
+
+  it("linhas de 5 min: sempre na edição; fora dela, só com zoom a partir de 2,5 px/min", () => {
+    expect(opacidadeDasLinhasDe5(2, false)).toBe(0);
+    expect(opacidadeDasLinhasDe5(2.75, false)).toBeCloseTo(0.5);
+    expect(opacidadeDasLinhasDe5(3.5, false)).toBe(1);
+    expect(opacidadeDasLinhasDe5(1, true)).toBe(1);
+  });
+});

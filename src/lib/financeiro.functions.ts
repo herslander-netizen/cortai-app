@@ -892,6 +892,11 @@ export const getFiados = createServerFn({ method: "GET" })
     return data ?? [];
   });
 
+/**
+ * Quita o fiado (tudo ou parte) numa função só do banco (`quitar_fiado_seguro`, migração 0036):
+ * pagamento confirmado, caixa, saldo do fiado e baixa na carteira na mesma transação, com o fiado
+ * travado. Mandando o saldo que a tela mostrou, repetir o pedido não grava de novo.
+ */
 export const quitarFiado = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((input: unknown) =>
@@ -900,6 +905,7 @@ export const quitarFiado = createServerFn({ method: "POST" })
         fiadoId: z.string().uuid(),
         valorCentavos: z.number().int().positive(),
         forma: z.enum(["pix", "dinheiro", "cartao"]),
+        saldoEsperadoCentavos: z.number().int().positive().optional(),
       })
       .parse(input),
   )
@@ -907,83 +913,26 @@ export const quitarFiado = createServerFn({ method: "POST" })
     const tenantId = await tenantIdDoMembro(context);
     await exigirPermissao(context, tenantId, "confirmar_pagamento");
     const db = await admin();
-    const { data: fiado } = await db
-      .from("fiados")
-      .select(
-        "id, comanda_id, cliente_id, profissional_id, valor_pago_centavos, saldo_centavos, status",
-      )
-      .eq("id", data.fiadoId)
-      .eq("tenant_id", tenantId)
-      .maybeSingle();
-    if (!fiado || fiado.status === "quitado") throw new Error("Esta dívida não está em aberto.");
-    const valor = Math.min(data.valorCentavos, fiado.saldo_centavos);
-    const saldo = fiado.saldo_centavos - valor;
-    const { data: sessao } = await db
-      .from("caixa_sessoes")
-      .select("id")
-      .eq("tenant_id", tenantId)
-      .eq("status", "aberto")
-      .maybeSingle();
-    const { data: pagamento, error: pagamentoErro } = await db
-      .from("pagamentos")
-      .insert({
-        tenant_id: tenantId,
-        comanda_id: fiado.comanda_id,
-        forma_pagamento: data.forma,
-        valor_centavos: valor,
-        status: "confirmado",
-        criado_por: context.userId,
-        confirmado_por: context.userId,
-        confirmado_em: new Date().toISOString(),
-      })
-      .select("id")
-      .single();
-    if (pagamentoErro) throw new Error(pagamentoErro.message);
-    const { error: movErro } = await db.from("caixa_movimentos").insert({
-      tenant_id: tenantId,
-      caixa_sessao_id: sessao?.id ?? null,
-      comanda_id: fiado.comanda_id,
-      pagamento_id: pagamento.id,
-      cliente_id: fiado.cliente_id,
-      profissional_id: fiado.profissional_id,
-      tipo: "entrada",
-      categoria: "fiado",
-      descricao: "Quitação de fiado",
-      valor_centavos: valor,
-      forma_pagamento: data.forma,
-      criado_por: context.userId,
+    const { data: resultado, error } = await db.rpc("quitar_fiado_seguro", {
+      _ator: context.userId,
+      _tenant_id: tenantId,
+      _fiado_id: data.fiadoId,
+      _valor_centavos: data.valorCentavos,
+      _forma: data.forma,
+      _saldo_esperado_centavos: data.saldoEsperadoCentavos ?? null,
     });
-    if (movErro) throw new Error(movErro.message);
-    const { error } = await db
-      .from("fiados")
-      .update({
-        valor_pago_centavos: fiado.valor_pago_centavos + valor,
-        saldo_centavos: saldo,
-        status: saldo === 0 ? "quitado" : "parcial",
-        quitado_em: saldo === 0 ? new Date().toISOString() : null,
-      })
-      .eq("id", fiado.id);
-    if (error) throw new Error(error.message);
-    if (fiado.cliente_id) {
-      const { data: carteira } = await db
-        .from("carteiras")
-        .select("id")
-        .eq("tenant_id", tenantId)
-        .eq("cliente_id", fiado.cliente_id)
-        .maybeSingle();
-      if (carteira) {
-        await db.from("movimentos").insert({
-          carteira_id: carteira.id,
-          tipo: "baixa",
-          centavos_delta: valor,
-          origem: "fiado",
-          comanda_id: fiado.comanda_id,
-          descricao: saldo === 0 ? "Fiado quitado" : "Baixa parcial de fiado",
-          criado_por: context.userId,
-        });
-      }
+    if (error) {
+      const mensagem = error.message ?? "";
+      if (mensagem.includes("saldo do fiado mudou"))
+        throw new Error("O valor desta dívida mudou. Atualize a tela e tente de novo.");
+      if (mensagem.includes("nao esta em aberto") || mensagem.includes("nao encontrado"))
+        throw new Error("Esta dívida não está em aberto.");
+      if (mensagem.includes("sem permissao"))
+        throw new Error("Você não tem permissão para receber pagamentos.");
+      throw new Error("Não foi possível registrar o pagamento agora. Tente de novo.");
     }
-    return { ok: true, saldoCentavos: saldo };
+    const r = resultado as { saldo_centavos?: number } | null;
+    return { ok: true, saldoCentavos: r?.saldo_centavos ?? 0 };
   });
 
 export const identificarClienteAvulso = createServerFn({ method: "POST" })

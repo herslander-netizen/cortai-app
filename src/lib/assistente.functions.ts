@@ -9,6 +9,33 @@ import {
   type ClienteEscolhido,
 } from "@/lib/brain/escolha-de-cliente";
 import type { RespostaDoAssistente } from "@/lib/ia/assistente";
+import type { EstadoDaCortai } from "@/lib/brain/estado-cortai";
+
+/**
+ * Interruptor geral, pausa e cotas da CortAI no painel. O cérebro confere de novo por
+ * dentro; aqui serve ao assistente de cadastro (mesma CortAI, outro caminho) e aos selos.
+ */
+async function estadoNoPainel(tenantId: string, userId: string): Promise<EstadoDaCortai> {
+  const { iaDisponivel } = await import("@/lib/brain/gateway.server");
+  if (!iaDisponivel("painel")) return "sem_configuracao";
+  const { bloqueioDeUso } = await import("@/lib/brain/uso.server");
+  return (await bloqueioDeUso(tenantId, "painel", userId)) ?? "ativa";
+}
+
+async function respostaBloqueada(estado: EstadoDaCortai): Promise<RespostaDoAssistente | null> {
+  if (estado === "ativa") return null;
+  const { respostaIndisponivel } = await import("@/lib/ia/assistente");
+  const { textoDoBloqueio } = await import("@/lib/brain/estado-cortai");
+  return respostaIndisponivel(textoDoBloqueio(estado));
+}
+
+/** Estado da CortAI para o selo do cabeçalho e do chat. */
+export const getEstadoDaCortai = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }): Promise<{ estado: EstadoDaCortai }> => {
+    const tenantId = await tenantIdDoMembro(context);
+    return { estado: await estadoNoPainel(tenantId, context.userId) };
+  });
 
 /** Monta o contexto real da barbearia — a IA só enxerga o que existe de verdade. */
 async function contextoDaBarbearia(context: { supabase: any }, tenantId: string) {
@@ -115,7 +142,14 @@ export const perguntarAoCortai = createServerFn({ method: "POST" })
       .parse(input),
   )
   .handler(
-    async ({ data, context }): Promise<{ conversaId: string; resposta: RespostaDoAssistente }> => {
+    async ({
+      data,
+      context,
+    }): Promise<{
+      conversaId: string;
+      resposta: RespostaDoAssistente;
+      estado: EstadoDaCortai;
+    }> => {
       const { tenantId, papel: papelNaEquipe } = await vinculoDoMembro(context);
       const db = context.supabase;
 
@@ -176,7 +210,11 @@ export const perguntarAoCortai = createServerFn({ method: "POST" })
           return null;
         });
         if (pedido?.tipo === "repetido")
-          return { conversaId, resposta: pedido.resposta as unknown as RespostaDoAssistente };
+          return {
+            conversaId,
+            resposta: pedido.resposta as unknown as RespostaDoAssistente,
+            estado: "ativa",
+          };
         if (pedido?.tipo === "em_andamento")
           return {
             conversaId,
@@ -191,6 +229,7 @@ export const perguntarAoCortai = createServerFn({ method: "POST" })
               horarios: null,
               disponivel: true,
             },
+            estado: "ativa",
           };
         if (pedido?.tipo === "novo") {
           usuarioJaGravado = true;
@@ -210,13 +249,19 @@ export const perguntarAoCortai = createServerFn({ method: "POST" })
         const contexto = await contextoDaBarbearia(context, tenantId);
         let resposta: RespostaDoAssistente;
         let pendenteNova: unknown = null;
+        let estado: EstadoDaCortai = "ativa";
 
         // Cadastro em lote de serviços/horários segue no fluxo estruturado já existente.
         const cadastroEstruturado =
           /\b(cadastr\w*|adicion\w*|cri\w*)\b.*\bservi[cç]os?\b|\bhor[aá]rios? de funcionamento\b|\b(abr\w*|fech\w*) (de|às|as) \d/i.test(
             data.mensagem,
           );
-        if (cadastroEstruturado) {
+        const bloqueadaNoCadastro = cadastroEstruturado
+          ? await respostaBloqueada((estado = await estadoNoPainel(tenantId, context.userId)))
+          : null;
+        if (bloqueadaNoCadastro) {
+          resposta = bloqueadaNoCadastro;
+        } else if (cadastroEstruturado) {
           const { pensar } = await import("@/lib/ia/assistente.server");
           resposta = await pensar({
             mensagem: data.mensagem,
@@ -233,8 +278,10 @@ export const perguntarAoCortai = createServerFn({ method: "POST" })
           const { respostaIndisponivel } = await import("@/lib/ia/assistente");
           const ultima = [...historicoBruto].reverse().find((m) => m["autor"] === "assistente");
           const pendente = (ultima?.["acao"] as { pendente?: unknown } | null)?.pendente ?? null;
-          if (!iaDisponivel("painel")) resposta = respostaIndisponivel();
-          else {
+          if (!iaDisponivel("painel")) {
+            resposta = respostaIndisponivel();
+            estado = "sem_configuracao";
+          } else {
             // A CortAI age com a chave de serviço: papel e permissões da pessoa entram no
             // contexto, para ela nunca poder mais do que a própria pessoa pode nas telas.
             const { acessoDoPainel } = await import("@/lib/brain/acesso-painel.server");
@@ -282,6 +329,7 @@ export const perguntarAoCortai = createServerFn({ method: "POST" })
               },
             });
             pendenteNova = r.pendente;
+            if (r.bloqueio) estado = r.bloqueio;
             resposta = {
               resposta: r.texto,
               intencao: r.acoes.length ? "consultar" : "conversa",
@@ -315,7 +363,7 @@ export const perguntarAoCortai = createServerFn({ method: "POST" })
           .update({ atualizado_em: new Date().toISOString() })
           .eq("id", conversaId);
 
-        return { conversaId, resposta };
+        return { conversaId, resposta, estado };
       } catch (erro) {
         // Libera a nova tentativa (mesmo id) sem esperar a janela de "em andamento".
         if (data.idDaMensagem && usuarioMsgId) {
@@ -340,6 +388,8 @@ export const interpretarServicos = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }): Promise<RespostaDoAssistente> => {
     const tenantId = await tenantIdDoMembro(context);
+    const bloqueada = await respostaBloqueada(await estadoNoPainel(tenantId, context.userId));
+    if (bloqueada) return bloqueada;
     const { pensar } = await import("@/lib/ia/assistente.server");
     return pensar({
       mensagem: data.texto,
@@ -357,6 +407,8 @@ export const interpretarHorarios = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }): Promise<RespostaDoAssistente> => {
     const tenantId = await tenantIdDoMembro(context);
+    const bloqueada = await respostaBloqueada(await estadoNoPainel(tenantId, context.userId));
+    if (bloqueada) return bloqueada;
     const { pensar } = await import("@/lib/ia/assistente.server");
     return pensar({
       mensagem: data.texto,

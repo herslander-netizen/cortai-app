@@ -5,7 +5,7 @@ import { cascata } from "@/lib/motion";
 import { useMenosMovimento } from "@/hooks/useMovimento";
 
 /**
- * Entrada em cascata para itens de lista (30ms entre itens, no máximo 8).
+ * Entrada em cascata para itens de lista (40 ms entre itens, no máximo 6).
  * Com "menos movimento" ligado, o item aparece direto.
  */
 export function ItemCascata({

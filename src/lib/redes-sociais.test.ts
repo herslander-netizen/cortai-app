@@ -1,7 +1,12 @@
 import { describe, expect, it } from "vitest";
 
 import { rotuloDoStatus, urlDeAutorizacao } from "@/lib/redes-sociais";
-import { assinarEstado, verificarEstado } from "@/lib/redes-sociais.server";
+import {
+  VALIDADE_DO_ESTADO_MS,
+  criarEstado,
+  lerCookie,
+  verificarEstado,
+} from "@/lib/redes-sociais.server";
 
 describe("urlDeAutorizacao", () => {
   const params = {
@@ -27,17 +32,52 @@ describe("urlDeAutorizacao", () => {
 });
 
 describe("estado assinado do OAuth", () => {
-  it("assinatura válida devolve o tenant", () => {
-    const state = assinarEstado("tenant-1", "segredo");
-    expect(verificarEstado(state, "segredo")).toBe("tenant-1");
+  const dados = { tenantId: "tenant-1", userId: "user-1", plataforma: "instagram" as const };
+  const agora = 1_800_000_000_000;
+
+  it("com o cookie do mesmo navegador, dentro do prazo, devolve negócio e pessoa", () => {
+    const { state, nonce } = criarEstado(dados, "segredo", agora);
+    expect(
+      verificarEstado(state, "segredo", { plataforma: "instagram", nonceDoCookie: nonce }, agora),
+    ).toEqual({ tenantId: "tenant-1", userId: "user-1" });
   });
 
-  it("state adulterado ou com outro segredo é rejeitado", () => {
-    const state = assinarEstado("tenant-1", "segredo");
-    expect(verificarEstado(state, "outro-segredo")).toBeNull();
-    expect(verificarEstado("tenant-2." + state.split(".")[1], "segredo")).toBeNull();
-    expect(verificarEstado("lixo", "segredo")).toBeNull();
-    expect(verificarEstado("", "segredo")).toBeNull();
+  it("cada início gera um state e um nonce diferentes", () => {
+    const a = criarEstado(dados, "segredo", agora);
+    const b = criarEstado(dados, "segredo", agora);
+    expect(a.state).not.toBe(b.state);
+    expect(a.nonce).not.toBe(b.nonce);
+  });
+
+  it("sem o cookie, com cookie de outro início ou depois do prazo é rejeitado", () => {
+    const { state, nonce } = criarEstado(dados, "segredo", agora);
+    const outro = criarEstado(dados, "segredo", agora).nonce;
+    const ok = { plataforma: "instagram" as const, nonceDoCookie: nonce };
+    expect(verificarEstado(state, "segredo", { ...ok, nonceDoCookie: null }, agora)).toBeNull();
+    expect(verificarEstado(state, "segredo", { ...ok, nonceDoCookie: outro }, agora)).toBeNull();
+    expect(verificarEstado(state, "segredo", ok, agora + VALIDADE_DO_ESTADO_MS + 1)).toBeNull();
+  });
+
+  it("state de outra plataforma, adulterado ou com outro segredo é rejeitado", () => {
+    const { state, nonce } = criarEstado(dados, "segredo", agora);
+    const ok = { plataforma: "instagram" as const, nonceDoCookie: nonce };
+    expect(verificarEstado(state, "segredo", { ...ok, plataforma: "tiktok" }, agora)).toBeNull();
+    expect(verificarEstado(state, "outro-segredo", ok, agora)).toBeNull();
+    const [corpo, assinatura] = state.split(".");
+    const trocado = Buffer.from(
+      JSON.stringify({ ...JSON.parse(Buffer.from(corpo!, "base64url").toString()), t: "tenant-2" }),
+    ).toString("base64url");
+    expect(verificarEstado(`${trocado}.${assinatura}`, "segredo", ok, agora)).toBeNull();
+    expect(verificarEstado("lixo", "segredo", ok, agora)).toBeNull();
+    expect(verificarEstado("", "segredo", ok, agora)).toBeNull();
+  });
+});
+
+describe("lerCookie", () => {
+  it("acha o cookie pelo nome exato", () => {
+    expect(lerCookie("a=1; cortai_oauth_instagram=abc; b=2", "cortai_oauth_instagram")).toBe("abc");
+    expect(lerCookie("xcortai_oauth_instagram=abc", "cortai_oauth_instagram")).toBeNull();
+    expect(lerCookie(null, "cortai_oauth_instagram")).toBeNull();
   });
 });
 

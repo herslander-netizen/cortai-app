@@ -87,9 +87,9 @@ describe("alça de duração na Timeline", () => {
     expect(onRedimensionar).toHaveBeenCalledTimes(1);
     const delta = onRedimensionar.mock.calls[0]?.[1] as number;
     expect(delta).toBeGreaterThan(0);
-    expect(delta % 15).toBe(0);
+    expect(delta % 5).toBe(0);
   });
-  it("as setas do teclado mudam 15 minutos", () => {
+  it("as setas do teclado mudam 5 minutos (como as listras)", () => {
     const onRedimensionar = vi.fn();
     const alvo = montar({
       onMover: vi.fn(),
@@ -102,7 +102,7 @@ describe("alça de duração na Timeline", () => {
         new KeyboardEvent("keydown", { key: "ArrowDown", bubbles: true, cancelable: true }),
       );
     });
-    expect(onRedimensionar.mock.calls[0]?.[1]).toBe(15);
+    expect(onRedimensionar.mock.calls[0]?.[1]).toBe(5);
   });
   it("com passo do negócio de 5 min, a alça e as setas andam de 5 em 5", () => {
     const onRedimensionar = vi.fn();
@@ -202,6 +202,6 @@ describe("arrastar na Timeline (mouse)", () => {
     expect(onMover).toHaveBeenCalledTimes(1);
     const delta = onMover.mock.calls[0]?.[1] as number;
     expect(delta).toBeGreaterThan(0);
-    expect(delta % 15).toBe(0);
+    expect(delta % 5).toBe(0);
   });
 });

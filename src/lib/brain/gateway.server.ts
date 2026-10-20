@@ -38,14 +38,12 @@ export class ErroDoGateway extends Error {
 }
 
 /**
- * Resolve o provedor por canal. Só usa provedor independente explicitamente configurado
- * ou modo de regras; nenhum canal recorre ao gateway do Lovable.
+ * Resolve o provedor por canal. Só usa o provedor explicitamente configurado ou o modo de
+ * regras; sem configuração, a IA fica indisponível.
  */
 function resolverProvedor(canal?: Canal): LeituraDaConfig {
   const leitura = lerConfigDoProvedor();
   if (!leitura.ok) return leitura;
-  if (leitura.config.tipo === "lovable")
-    return { ok: false, motivo: "Configure CORTAI_AI_PROVIDER e as credenciais do provedor independente." };
   if (leitura.config.tipo === "regras")
     return !canal || canal === "painel"
       ? leitura

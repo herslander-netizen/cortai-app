@@ -413,6 +413,7 @@ export const marcarItemDoChecklist = createServerFn({ method: "POST" })
     const permitido =
       data.chave === "sozinho" || ITENS_DO_CHECKLIST.some((i) => i.chave === data.chave);
     if (!permitido) throw new Error("Item desconhecido.");
+    await exigirPermissao(context, tenantId, "alterar_dados_barbearia");
     const itens = await lerItens(context, tenantId);
     await gravarOnboarding(context, tenantId, { itens: { ...itens, [data.chave]: data.feito } });
     return { ok: true };
@@ -422,6 +423,7 @@ export const marcarTourVisto = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const tenantId = await tenantIdDoMembro(context);
+    await exigirPermissao(context, tenantId, "alterar_dados_barbearia");
     await gravarOnboarding(context, tenantId, { tour_visto: true });
     return { ok: true };
   });
@@ -773,6 +775,7 @@ export const salvarEtapaDaImplantacao = createServerFn({ method: "POST" })
   .validator((input: unknown) => z.object({ etapa: z.enum(ETAPAS_DA_IMPLANTACAO) }).parse(input))
   .handler(async ({ data, context }) => {
     const tenantId = await tenantIdDoMembro(context);
+    await exigirPermissao(context, tenantId, "alterar_dados_barbearia");
     await gravarOnboarding(context, tenantId, { etapa: data.etapa });
     return { ok: true };
   });

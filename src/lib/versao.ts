@@ -1,4 +1,5 @@
 import { NOVIDADES } from "./novidades";
+import { urlPublica } from "@/lib/origem-publica";
 /**
  * Controle de versão do aplicativo.
  *
@@ -9,7 +10,7 @@ import { NOVIDADES } from "./novidades";
  */
 
 /** Versão embutida nesta build. Fonte única de verdade. */
-export const VERSAO_INSTALADA = "3.0.0";
+export const VERSAO_INSTALADA = "3.3.0";
 
 /** Alias público da versão do aplicativo. */
 export const APP_VERSION = VERSAO_INSTALADA;
@@ -18,7 +19,7 @@ export const APP_VERSION = VERSAO_INSTALADA;
 export const VERSAO_EXIBICAO = `Cortaí · v${APP_VERSION}`;
 
 /** Para onde mandamos quem precisa atualizar. */
-export const URL_DE_ATUALIZACAO = "https://cortai.dev";
+export const URL_DE_ATUALIZACAO = urlPublica("");
 
 export type InfoDeVersao = { atual: string; minima: string; url: string };
 

@@ -1,14 +1,22 @@
 import {
-  Ban,
-  CalendarPlus,
+  ArrowLeftRight,
+  CalendarClock,
+  CalendarX2,
   Check,
+  ChevronDown,
+  CircleCheck,
+  CirclePlay,
   HandCoins,
+  Info,
   MessageCircle,
-  NotebookPen,
   Phone,
   Scissors,
+  Trash2,
+  TriangleAlert,
+  UserRound,
   UserRoundPlus,
   UserX,
+  type LucideIcon,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -22,7 +30,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { StatusBadge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -33,7 +40,24 @@ import {
 } from "@/components/ui/sheet";
 import { VerTicketDoAgendamento } from "@/components/comanda/VerTicketDoAgendamento";
 import type { AgendaItem } from "@/lib/barbeiro.functions";
+import { brl } from "@/lib/format";
+import { useAgora } from "@/hooks/useAgora";
+import { hojeNoFuso, isoNoFusoDaBarbearia } from "@/lib/horarios";
+import { useSegmentoDoPainel } from "@/lib/segmento-contexto";
+import { termos } from "@/lib/segmentos";
 
+import {
+  indicadorDeEstado,
+  jaComecou,
+  podeTrocarCliente,
+  quandoDaFicha,
+  rodapeDaFicha,
+  type AcaoDaFicha,
+  type IndicadorDeEstado,
+} from "./ficha-regras";
+import { FotoDoProfissional } from "./FotoDoProfissional";
+import { TelaReagendar } from "./TelaReagendar";
+import { TrocarCliente, type ClienteEscolhido } from "./TrocarCliente";
 import { diaNoFuso, hora, linkWhatsApp } from "./tempo";
 
 export type PedidoRemarcar = { dia: string; hora: string; profissionalId: string | null };
@@ -47,7 +71,7 @@ type Props = {
   online: boolean;
   ocupado: boolean;
   passoMin: number;
-  profissionais: { id: string; nome: string }[];
+  profissionais: { id: string; nome: string; avatarUrl?: string | null }[];
   onChegou: (item: AgendaItem) => void;
   onIniciar: (item: AgendaItem) => void;
   onComanda: (item: AgendaItem) => void;
@@ -63,27 +87,62 @@ type Props = {
 
 /** Painel único do atendimento, usado na agenda e no Modo Foco. */
 export function PainelAtendimento(props: Props) {
-  const { item } = props;
-  const [remarcar, setRemarcar] = useState<PedidoRemarcar | null>(null);
-  const [erroRemarcar, setErroRemarcar] = useState<string | null>(null);
-  const [verificando, setVerificando] = useState(false);
-  const [confirmacao, setConfirmacao] = useState<"cancelar" | "falta" | null>(null);
+  // Como no Figaro: depois de reagendar, a ficha continua aberta com o horário novo, mesmo que o
+  // atendimento tenha ido para outro dia (e saia da lista do dia que está na tela).
+  const [remarcado, setRemarcado] = useState<AgendaItem | null>(null);
+  // Cliente trocado: vale na tela até a Agenda recarregar com o cliente novo.
+  const [trocado, setTrocado] = useState<{ id: string; cliente: ClienteEscolhido } | null>(null);
+  const base = props.item ?? (props.aberto ? remarcado : null);
+  const item =
+    base && trocado?.id === base.id && base.clienteId !== trocado.cliente.id
+      ? {
+          ...base,
+          clienteId: trocado.cliente.id,
+          cliente: trocado.cliente.nome,
+          telefone: trocado.cliente.telefone,
+          confirmadoEm: null,
+        }
+      : base;
+  const [reagendando, setReagendando] = useState(false);
+  const [trocandoCliente, setTrocandoCliente] = useState(false);
+  const [maisAcoes, setMaisAcoes] = useState(false);
+  // Como no Figaro: só o cancelamento pede confirmação; a falta tem o "Desfazer" de 5 s.
+  const [confirmarCancelar, setConfirmarCancelar] = useState(false);
+  const agora = useAgora();
+  const segmento = useSegmentoDoPainel();
 
   useEffect(() => {
-    setRemarcar(
-      props.iniciarEm === "remarcar" && item
-        ? {
-            dia: diaNoFuso(item.inicio, props.fuso),
-            hora: hora(item.inicio, props.fuso),
-            profissionalId: item.profissionalId ?? null,
-          }
-        : null,
-    );
-    setConfirmacao(props.iniciarEm === "cancelar" ? "cancelar" : null);
-    setErroRemarcar(null);
-  }, [item, props.aberto, props.fuso, props.iniciarEm]);
+    if (!props.aberto) {
+      setRemarcado(null);
+      setTrocado(null);
+    }
+  }, [props.aberto]);
+  useEffect(() => {
+    if (props.item && remarcado && props.item.id !== remarcado.id) setRemarcado(null);
+  }, [props.item, remarcado]);
 
-  const pendente = item?.status === "agendado" || item?.status === "chegou";
+  async function remarcar(alvo: AgendaItem, pedido: PedidoRemarcar) {
+    await props.onRemarcar(alvo, pedido);
+    const inicio = isoNoFusoDaBarbearia(pedido.dia, pedido.hora, props.fuso);
+    const duracao = new Date(alvo.fim).getTime() - new Date(alvo.inicio).getTime();
+    setRemarcado({
+      ...alvo,
+      inicio,
+      fim: new Date(new Date(inicio).getTime() + duracao).toISOString(),
+      profissionalId: pedido.profissionalId ?? alvo.profissionalId ?? null,
+      profissional:
+        props.profissionais.find((p) => p.id === pedido.profissionalId)?.nome ?? alvo.profissional,
+    });
+  }
+
+  const itemId = item?.id ?? null;
+  useEffect(() => {
+    setReagendando(props.iniciarEm === "remarcar" && Boolean(itemId));
+    setConfirmarCancelar(props.iniciarEm === "cancelar");
+    setMaisAcoes(false);
+    setTrocandoCliente(false);
+  }, [itemId, props.aberto, props.iniciarEm]);
+
   const bloqueado = !props.online || props.ocupado;
   const whatsapp = item ? linkWhatsApp(item.telefone) : null;
   const telefone = item?.telefone?.replace(/\D/g, "") ?? "";
@@ -93,25 +152,64 @@ export function PainelAtendimento(props: Props) {
     f(item);
   };
 
-  async function enviarRemarcar() {
-    if (!item || !remarcar) return;
-    setErroRemarcar(null);
-    setVerificando(true);
-    try {
-      const livre = await props.onVerificar(item, remarcar);
-      if (!livre) {
-        const nome = props.profissionais.find((p) => p.id === remarcar.profissionalId)?.nome;
-        setErroRemarcar(`Esse horário está ocupado${nome ? ` para ${nome}` : ""}. Escolha outro.`);
-        return;
-      }
-      props.onFechar();
-      await props.onRemarcar(item, remarcar);
-    } catch (e) {
-      setErroRemarcar(e instanceof Error ? e.message : "Não foi possível conferir o horário.");
-    } finally {
-      setVerificando(false);
-    }
-  }
+  const quando = item
+    ? quandoDaFicha(
+        item.inicio,
+        props.fuso,
+        hojeNoFuso(props.fuso),
+        diaNoFuso(item.inicio, props.fuso),
+      )
+    : "";
+  const faixaDeHorario = item
+    ? `${hora(item.inicio, props.fuso)} · ${hora(item.fim, props.fuso)}`
+    : "";
+  const estado = item ? indicadorDeEstado(item, agora, termos(segmento).statusAtendimento) : null;
+  const rodape = item ? rodapeDaFicha(item, agora) : { principal: null, menu: [] };
+  const emCurso = item ? jaComecou(item, agora) && item.status !== "finalizado" : false;
+
+  /** Rótulo, ícone e efeito de cada ação da ficha (uma tabela só para o botão e a seta). */
+  const acoes: Record<
+    Exclude<AcaoDaFicha, "comanda">,
+    { rotulo: string; Icone: LucideIcon; destrutiva?: boolean; agir: () => void }
+  > = {
+    reagendar: {
+      rotulo: "Reagendar",
+      Icone: CalendarClock,
+      agir: () => setReagendando(true),
+    },
+    chegou: { rotulo: "Cliente chegou", Icone: UserRoundPlus, agir: executar(props.onChegou) },
+    comecar: {
+      rotulo: item?.clienteId ? "Começar" : "Vincular cliente",
+      Icone: item?.clienteId ? Scissors : UserRoundPlus,
+      agir: item?.clienteId ? executar(props.onIniciar) : () => setTrocandoCliente(true),
+    },
+    finalizar: { rotulo: "Finalizar e cobrar", Icone: Check, agir: executar(props.onComanda) },
+    cobrar: {
+      rotulo: item?.status === "finalizado" ? "Pagamento" : "Cobrar",
+      Icone: HandCoins,
+      agir: executar(props.onComanda),
+    },
+    falta: { rotulo: "Não compareceu", Icone: UserX, agir: executar(props.onFalta) },
+    cancelar: {
+      rotulo: "Cancelar agendamento",
+      Icone: Trash2,
+      destrutiva: true,
+      agir: () => setConfirmarCancelar(true),
+    },
+  };
+  const verComanda = (classe: string) =>
+    item ? (
+      <VerTicketDoAgendamento
+        agendamentoId={item.id}
+        desabilitado={!props.online}
+        className={classe}
+        onAbrir={(comandaId) => {
+          setMaisAcoes(false);
+          props.onFechar();
+          props.onVerComanda(item, comandaId);
+        }}
+      />
+    ) : null;
 
   return (
     <>
@@ -119,281 +217,295 @@ export function PainelAtendimento(props: Props) {
         <SheetContent
           side={props.lateral ? "right" : "bottom"}
           arrastarParaFechar
-          className={`agenda-painel mov-agenda-painel border-line bg-ink2 px-5 pt-5 ${props.lateral ? "w-[380px]" : "mx-auto max-h-[88dvh] w-full max-w-[520px] overflow-y-auto rounded-t-xl"}`}
+          className={`agenda-painel agenda-ficha mov-agenda-painel border-0 bg-ink px-4 pt-3 sm:px-5 sm:pt-5 ${props.lateral ? "w-[380px]" : "mx-auto flex max-h-[92dvh] w-full max-w-[520px] flex-col overflow-hidden rounded-t-[28px]"}`}
         >
-          {item ? (
+          {item && estado ? (
             <>
-              <SheetHeader className="pr-10 text-left">
-                <SheetTitle className="truncate text-lg text-paper">{item.cliente}</SheetTitle>
-                <SheetDescription className="text-sm text-mute">
-                  {hora(item.inicio, props.fuso)} · {item.servico} · {item.profissional}
-                </SheetDescription>
-                <div className="flex flex-wrap gap-1">
-                  <StatusBadge status={item.status} />
-                  {item.confirmadoEm && item.status === "agendado" ? (
-                    <StatusBadge status="confirmado" label="Confirmou pelo WhatsApp" />
-                  ) : null}
-                </div>
-              </SheetHeader>
-              {!props.online ? (
-                <p className="mt-3 text-xs font-semibold text-mute">
-                  Sem conexão: as ações voltam quando a internet voltar.
-                </p>
-              ) : null}
-              <div className="mt-5 grid gap-3">
-                {item.status === "agendado" ? (
-                  <Button
-                    size="lg"
-                    variant="primary"
-                    className="min-h-14 w-full"
-                    disabled={bloqueado}
-                    onClick={executar(props.onChegou)}
-                  >
-                    <UserRoundPlus /> Cliente chegou
-                  </Button>
-                ) : null}
-                {item.status === "chegou" ? (
-                  <Button
-                    size="lg"
-                    variant="primary"
-                    className="min-h-14 w-full"
-                    disabled={bloqueado}
-                    onClick={executar(props.onIniciar)}
-                  >
-                    <Scissors /> Começar
-                  </Button>
-                ) : null}
-                {item.status === "na_cadeira" ? (
-                  <Button
-                    size="lg"
-                    variant="primary"
-                    className="min-h-14 w-full"
-                    disabled={bloqueado}
-                    onClick={executar(props.onComanda)}
-                  >
-                    <Check /> Finalizar e cobrar
-                  </Button>
-                ) : null}
-
-                {telefone || whatsapp ? (
-                  <div
-                    className={`grid gap-2 ${telefone && whatsapp ? "grid-cols-2" : "grid-cols-1"}`}
-                    aria-label="Contato do cliente"
-                  >
+              <div className="mb-3 flex justify-center md:hidden" aria-hidden="true">
+                <span className="h-1.5 w-12 rounded-full bg-mute/50" />
+              </div>
+              <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain pb-28 [scrollbar-width:thin]">
+                {/* Como no Figaro (`AppointmentHeroGroup`): o serviço, o estado, quando e com
+                    quem; o cliente num bloco logo abaixo. */}
+                <section className="agenda-ficha-cartao">
+                  <SheetHeader className="space-y-1 p-4 pb-3 text-left">
+                    <SheetTitle className="min-w-0 truncate text-xl font-bold text-paper">
+                      {item.servico}
+                    </SheetTitle>
+                    <LinhaDeEstado estado={estado} />
+                    <SheetDescription className="flex flex-wrap items-baseline gap-x-1 text-sm font-semibold text-mute">
+                      <span>{quando}</span>
+                      <span className="font-mono font-medium tabular-nums">{faixaDeHorario}</span>
+                    </SheetDescription>
+                    <span className="agenda-ficha-profissional mt-1">
+                      <FotoDoProfissional
+                        nome={item.profissional}
+                        url={
+                          props.profissionais.find((p) => p.id === item.profissionalId)?.avatarUrl
+                        }
+                      />
+                      {item.profissional.split(" ")[0]}
+                    </span>
+                  </SheetHeader>
+                  <div className="agenda-ficha-cliente">
+                    <span className="agenda-ficha-avatar is-cliente" aria-hidden>
+                      <UserRound className="size-4" />
+                    </span>
+                    {item.clienteId ? (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        className="h-auto min-w-0 flex-1 justify-start truncate p-0 text-base font-semibold text-paper hover:bg-transparent"
+                        onClick={() => {
+                          const id = item.clienteId;
+                          props.onFechar();
+                          if (id) props.onPerfil(id);
+                        }}
+                      >
+                        <span className="truncate">{item.cliente}</span>
+                      </Button>
+                    ) : (
+                      <span className="min-w-0 flex-1 truncate text-base font-semibold text-paper">
+                        {item.cliente || "Sem cliente"}
+                      </span>
+                    )}
                     {telefone ? (
-                      <Button asChild variant="outline" className="min-h-12">
-                        <a href={`tel:${telefone}`} aria-label={`Ligar para ${item.cliente}`}>
-                          <Phone /> Ligar
+                      <Button
+                        asChild
+                        variant="ghost"
+                        size="icon"
+                        className="shrink-0"
+                        aria-label={`Ligar para ${item.cliente}`}
+                      >
+                        <a href={`tel:${telefone}`}>
+                          <Phone />
                         </a>
                       </Button>
                     ) : null}
                     {whatsapp ? (
-                      <Button asChild variant="outline" className="min-h-12">
-                        <a
-                          href={whatsapp}
-                          target="_blank"
-                          rel="noreferrer"
-                          aria-label={`Abrir conversa com ${item.cliente} no WhatsApp`}
-                        >
-                          <MessageCircle /> WhatsApp
+                      <Button
+                        asChild
+                        variant="ghost"
+                        size="icon"
+                        className="shrink-0"
+                        aria-label={`Abrir WhatsApp para ${item.cliente}`}
+                      >
+                        <a href={whatsapp} target="_blank" rel="noopener noreferrer">
+                          <MessageCircle />
                         </a>
                       </Button>
                     ) : null}
                   </div>
+                </section>
+
+                {podeTrocarCliente(item, agora) ? (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    disabled={bloqueado}
+                    className="agenda-ficha-trocar"
+                    onClick={() => setTrocandoCliente(true)}
+                  >
+                    <ArrowLeftRight aria-hidden className="size-4" /> Trocar cliente
+                  </Button>
                 ) : null}
 
-                <div className="grid grid-cols-2 gap-2" aria-label="Registro do atendimento">
-                  {item.clienteId ? (
-                    <Button
-                      variant="outline"
-                      className="min-h-12"
-                      onClick={() => {
-                        const id = item.clienteId;
-                        props.onFechar();
-                        if (id) props.onPerfil(id);
-                      }}
-                    >
-                      <NotebookPen /> Notas
-                    </Button>
-                  ) : null}
-                  {pendente || item.status === "finalizado" ? (
-                    <Button
-                      variant="outline"
-                      className="min-h-12"
-                      disabled={!props.online}
-                      onClick={executar(props.onComanda)}
-                    >
-                      <HandCoins /> {pendente ? "Cobrar" : "Pagamento"}
-                    </Button>
-                  ) : null}
-                  <VerTicketDoAgendamento
-                    agendamentoId={item.id}
-                    desabilitado={!props.online}
-                    onAbrir={(comandaId) => {
-                      props.onFechar();
-                      props.onVerComanda(item, comandaId);
-                    }}
-                  />
-                </div>
-
-                {pendente ? (
-                  <p className="border-t border-line pt-3 text-xs font-bold uppercase text-mute">
-                    Ajustar horário
+                {!props.online ? (
+                  <p className="mt-3 text-xs font-semibold text-mute">
+                    Sem conexão: as ações voltam quando a internet voltar.
                   </p>
                 ) : null}
-                <div className="grid grid-cols-2 gap-2">
-                  {pendente ? (
-                    <Button
-                      variant="ghost"
-                      className="min-h-12"
-                      disabled={bloqueado}
-                      onClick={() =>
-                        setRemarcar({
-                          dia: diaNoFuso(item.inicio, props.fuso),
-                          hora: hora(item.inicio, props.fuso),
-                          profissionalId: item.profissionalId ?? null,
-                        })
-                      }
-                    >
-                      <CalendarPlus /> Remarcar
-                    </Button>
-                  ) : null}
-                  {pendente ? (
-                    <Button
-                      variant="ghost"
-                      className="min-h-12"
-                      disabled={bloqueado}
-                      onClick={() => setConfirmacao("falta")}
-                    >
-                      <UserX /> Faltou
-                    </Button>
-                  ) : null}
-                  {pendente ? (
-                    <Button
-                      variant="destructive"
-                      className="min-h-12"
-                      disabled={bloqueado}
-                      onClick={() => {
-                        if (item.confirmadoEm) setConfirmacao("cancelar");
-                        else executar(props.onCancelar)();
-                      }}
-                    >
-                      <Ban /> Cancelar
-                    </Button>
-                  ) : null}
-                </div>
+
+                <p className="agenda-ficha-secao">Serviços</p>
+                <section className="agenda-ficha-cartao">
+                  <div className="flex items-start justify-between gap-3 p-4">
+                    <div className="min-w-0">
+                      <p className="truncate font-bold text-paper">{item.servico}</p>
+                      <p className="truncate text-sm font-medium text-mute">{item.profissional}</p>
+                    </div>
+                    <div className="shrink-0 text-right">
+                      <p className="font-bold tabular-nums text-paper">
+                        {brl(item.valor_centavos ?? 0)}
+                      </p>
+                      <p className="font-mono text-sm tabular-nums text-mute">{faixaDeHorario}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between border-t border-line p-4">
+                    <span className="font-bold text-paper">Total</span>
+                    <span className="text-lg font-bold tabular-nums text-paper">
+                      {brl(item.valor_centavos ?? 0)}
+                    </span>
+                  </div>
+                </section>
+
+                {item.ficha ? (
+                  <>
+                    <p className="agenda-ficha-secao">Observações</p>
+                    <section className="agenda-ficha-cartao whitespace-pre-line p-4 text-sm text-paper">
+                      {item.ficha}
+                    </section>
+                  </>
+                ) : null}
+
+                {emCurso ? (
+                  <p className="agenda-ficha-nota">
+                    <Info aria-hidden className="size-4 shrink-0" />
+                    Em andamento — os serviços podem ser ajustados na cobrança.
+                  </p>
+                ) : null}
               </div>
-              {remarcar ? (
-                <form
-                  className="mt-2 grid gap-3 border-t border-line pt-4 pb-4"
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    void enviarRemarcar();
-                  }}
-                >
-                  <div className="grid grid-cols-2 gap-2">
-                    <label className="text-xs font-semibold text-mute">
-                      Dia
-                      <input
-                        type="date"
-                        required
-                        value={remarcar.dia}
-                        onChange={(e) => setRemarcar({ ...remarcar, dia: e.target.value })}
-                        className="agenda-campo"
+
+              {/* Rodapé do Figaro: o botão principal à direita e, se houver mais ações, a seta. */}
+              {rodape.principal ? (
+                <div className="agenda-ficha-rodape">
+                  {maisAcoes && rodape.menu.length ? (
+                    <div className="agenda-ficha-menu" role="menu">
+                      {rodape.menu.map((acao) => {
+                        if (acao === "comanda")
+                          return <span key={acao}>{verComanda("agenda-ficha-menu-item")}</span>;
+                        const { rotulo, Icone, destrutiva, agir } = acoes[acao];
+                        return (
+                          <Button
+                            key={acao}
+                            role="menuitem"
+                            variant="ghost"
+                            className={`justify-start ${destrutiva ? "text-brick hover:text-brick" : ""}`}
+                            disabled={bloqueado}
+                            onClick={() => {
+                              setMaisAcoes(false);
+                              agir();
+                            }}
+                          >
+                            <Icone /> {rotulo}
+                          </Button>
+                        );
+                      })}
+                    </div>
+                  ) : null}
+                  <div className="flex items-center gap-1">
+                    {rodape.principal === "comanda" ? (
+                      verComanda(
+                        `agenda-ficha-reagendar is-tonal ${rodape.menu.length ? "" : "is-sozinho"}`,
+                      )
+                    ) : (
+                      <BotaoPrincipal
+                        {...acoes[rodape.principal]}
+                        sozinho={!rodape.menu.length}
+                        disabled={bloqueado}
+                        onClick={() => {
+                          setMaisAcoes(false);
+                          acoes[rodape.principal as Exclude<AcaoDaFicha, "comanda">].agir();
+                        }}
                       />
-                    </label>
-                    <label className="text-xs font-semibold text-mute">
-                      Horário
-                      <input
-                        type="time"
-                        required
-                        step={props.passoMin * 60}
-                        value={remarcar.hora}
-                        onChange={(e) => setRemarcar({ ...remarcar, hora: e.target.value })}
-                        className="agenda-campo"
-                      />
-                    </label>
-                  </div>
-                  {props.profissionais.length > 1 ? (
-                    <label className="text-xs font-semibold text-mute">
-                      Profissional
-                      <select
-                        value={remarcar.profissionalId ?? ""}
-                        onChange={(e) =>
-                          setRemarcar({ ...remarcar, profissionalId: e.target.value || null })
-                        }
-                        className="agenda-campo"
+                    )}
+                    {rodape.menu.length ? (
+                      <Button
+                        size="icon"
+                        variant="primary"
+                        className={`agenda-ficha-mais ${rodape.principal === "comanda" ? "is-tonal" : ""}`}
+                        aria-label={maisAcoes ? "Fechar outras ações" : "Outras ações"}
+                        aria-expanded={maisAcoes}
+                        onClick={() => setMaisAcoes((v) => !v)}
                       >
-                        {props.profissionais.map((p) => (
-                          <option key={p.id} value={p.id}>
-                            {p.nome}
-                          </option>
-                        ))}
-                      </select>
-                    </label>
-                  ) : null}
-                  {erroRemarcar ? (
-                    <p className="text-sm font-semibold text-brick" role="alert">
-                      {erroRemarcar}
-                    </p>
-                  ) : null}
-                  <div className="flex gap-2">
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      className="flex-1"
-                      onClick={() => setRemarcar(null)}
-                    >
-                      Voltar
-                    </Button>
-                    <Button
-                      type="submit"
-                      size="lg"
-                      className="flex-1"
-                      disabled={bloqueado || verificando}
-                    >
-                      {verificando ? "Conferindo…" : "Remarcar"}
-                    </Button>
+                        <ChevronDown
+                          aria-hidden
+                          className={`transition-transform duration-200 ${maisAcoes ? "rotate-180" : ""}`}
+                        />
+                      </Button>
+                    ) : null}
                   </div>
-                </form>
+                </div>
               ) : null}
+              <TrocarCliente
+                item={item}
+                aberto={trocandoCliente}
+                bloqueado={bloqueado}
+                onAberto={setTrocandoCliente}
+                onTrocado={(cliente) => setTrocado({ id: item.id, cliente })}
+              />
+              <TelaReagendar
+                item={item}
+                aberto={reagendando}
+                fuso={props.fuso}
+                profissionais={props.profissionais}
+                bloqueado={bloqueado}
+                onVoltar={() => setReagendando(false)}
+                onVerificar={props.onVerificar}
+                onRemarcar={remarcar}
+              />
             </>
           ) : null}
         </SheetContent>
       </Sheet>
 
-      <AlertDialog
-        open={Boolean(confirmacao)}
-        onOpenChange={(aberto) => !aberto && setConfirmacao(null)}
-      >
+      <AlertDialog open={confirmarCancelar} onOpenChange={setConfirmarCancelar}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>
-              {confirmacao === "falta"
-                ? `Marcar falta de ${item?.cliente}?`
-                : `Cancelar o horário de ${item?.cliente}?`}
-            </AlertDialogTitle>
+            <AlertDialogTitle>Cancelar agendamento</AlertDialogTitle>
             <AlertDialogDescription>
-              {confirmacao === "falta"
-                ? "O atendimento será registrado como não comparecimento. Você poderá desfazer por 5 segundos."
-                : "Esse cliente já confirmou presença pelo WhatsApp. Você ainda poderá desfazer por 5 segundos."}
+              O horário sai da sua agenda e o cliente é avisado pelo WhatsApp, quando ele estiver
+              ligado. Você ainda pode desfazer por 5 segundos.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Voltar</AlertDialogCancel>
+            <AlertDialogCancel>Manter agendamento</AlertDialogCancel>
             <AlertDialogAction
+              className="bg-brick text-white hover:bg-brick/90"
               onClick={() => {
-                const acao = confirmacao;
-                setConfirmacao(null);
-                if (acao === "falta") executar(props.onFalta)();
-                else executar(props.onCancelar)();
+                setConfirmarCancelar(false);
+                executar(props.onCancelar)();
               }}
             >
-              {confirmacao === "falta" ? "Marcar falta" : "Cancelar horário"}
+              Cancelar agendamento
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
     </>
+  );
+}
+
+const ICONE_DO_ESTADO: Record<IndicadorDeEstado["tom"], LucideIcon> = {
+  andamento: CirclePlay,
+  sucesso: CircleCheck,
+  aviso: CalendarClock,
+  erro: CalendarX2,
+  neutro: CircleCheck,
+};
+
+/** Ícone + texto na cor do estado (Figaro: `StatusIndicatorRow`). */
+function LinhaDeEstado({ estado }: { estado: IndicadorDeEstado }) {
+  const Icone = estado.rotulo === "Não compareceu" ? TriangleAlert : ICONE_DO_ESTADO[estado.tom];
+  return (
+    <span className={`agenda-ficha-estado is-${estado.tom}`}>
+      <Icone aria-hidden className="size-5" />
+      {estado.rotulo}
+    </span>
+  );
+}
+
+function BotaoPrincipal({
+  rotulo,
+  Icone,
+  sozinho,
+  disabled,
+  onClick,
+}: {
+  rotulo: string;
+  Icone: LucideIcon;
+  sozinho: boolean;
+  disabled: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <Button
+      size="lg"
+      variant="primary"
+      className={`agenda-ficha-reagendar ${sozinho ? "is-sozinho" : ""}`}
+      disabled={disabled}
+      onClick={onClick}
+    >
+      <Icone aria-hidden /> {rotulo}
+    </Button>
   );
 }

@@ -22,7 +22,7 @@ import { Button } from "@/components/ui/button";
 export const Route = createFileRoute("/barbeiro/clientes/$id")({
   head: () => ({
     meta: [
-      { title: "Ficha do cliente — Painel do barbeiro | Cortaí" },
+      { title: "Ficha do cliente — Painel do negócio | Cortaí" },
       {
         name: "description",
         content: "Fiado em aberto, baixas de pagamento e ficha técnica do corte.",

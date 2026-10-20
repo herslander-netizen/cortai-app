@@ -347,15 +347,17 @@ export const getSecaoClientes = createServerFn({ method: "GET" })
         .lt("inicio", ini.toISOString())
         .limit(5000),
     ]);
-    const antes = new Set((historico.data ?? []).map((a) => a.cliente_id));
-    const idsHoje = new Set((hoje.data ?? []).map((a) => a.cliente_id));
+    const antes = new Set((historico.data ?? []).map((a) => a.cliente_id).filter((id): id is string => id !== null));
+    const idsHoje = new Set((hoje.data ?? []).map((a) => a.cliente_id).filter((id): id is string => id !== null));
     const ultima = new Map<string, number>();
-    for (const a of historico.data ?? [])
+    for (const a of historico.data ?? []) {
+      if (!a.cliente_id) continue;
       ultima.set(
         a.cliente_id,
         Math.max(ultima.get(a.cliente_id) ?? 0, new Date(a.inicio).getTime()),
       );
-    const futuros = new Set((proximos.data ?? []).map((a) => a.cliente_id));
+    }
+    const futuros = new Set((proximos.data ?? []).map((a) => a.cliente_id).filter((id): id is string => id !== null));
     const limite = Date.now() - 45 * DIA;
     return {
       novosHoje: novos.count ?? 0,

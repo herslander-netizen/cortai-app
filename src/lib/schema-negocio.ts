@@ -1,4 +1,5 @@
-/** JSON-LD schema.org da página pública do negócio (função pura). */
+/** JSON-LD schema.org da página pública do negócio. */
+import { urlPublica } from "@/lib/origem-publica";
 
 export type DadosSchemaNegocio = {
   slug: string;
@@ -51,7 +52,7 @@ export function faixaDePreco(precos: number[]) {
 }
 
 export function montarSchemaNegocio(d: DadosSchemaNegocio) {
-  const url = `https://cortai.dev/b/${d.slug}`;
+  const url = urlPublica(`/b/${d.slug}`);
   const instagram = d.instagram?.replace(/^@/, "").trim();
   const horas = d.horarios
     .filter((h) => !h.fechado && DIAS[h.dia_semana])
@@ -80,7 +81,7 @@ export function montarSchemaNegocio(d: DadosSchemaNegocio) {
       "@type": "ReserveAction",
       target: {
         "@type": "EntryPoint",
-        urlTemplate: `https://cortai.dev/agendar/${d.slug}`,
+        urlTemplate: urlPublica(`/agendar/${d.slug}`),
         actionPlatform: [
           "https://schema.org/DesktopWebPlatform",
           "https://schema.org/MobileWebPlatform",

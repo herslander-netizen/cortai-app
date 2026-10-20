@@ -18,7 +18,7 @@ export const Route = createFileRoute("/barbeiro/horarios")({
   ssr: false,
   head: () => ({
     meta: [
-      { title: "Horários — Painel do barbeiro | Cortaí" },
+      { title: "Horários — Painel do negócio | Cortaí" },
       { name: "description", content: "Defina os dias e horários em que seu negócio atende." },
       { property: "og:title", content: "Horários — Cortaí" },
       { property: "og:description", content: "Dias e horários de funcionamento." },

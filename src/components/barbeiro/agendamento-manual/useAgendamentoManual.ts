@@ -4,6 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 
 import { invalidarComandas } from "@/lib/comanda-ticket";
 import { isoNoFusoDaBarbearia } from "@/lib/horarios";
+import { temAlteracoesAgendamentoManual, type Forma } from "./regrasAgendamentoManual";
 import {
   buscarClientesDaBarbearia,
   criarAgendamentoManual,
@@ -11,7 +12,8 @@ import {
   getProximoHorarioLivre,
 } from "@/lib/barbeiro.functions";
 
-export type Forma = "balcao" | "pix" | "fiado" | "credito";
+export type { Forma } from "./regrasAgendamentoManual";
+
 export type Conflito = {
   mensagem: string;
   sugestoes: { iso: string; label: string }[];
@@ -44,6 +46,7 @@ export function useAgendamentoManual({
   const [termoDebounce, setTermoDebounce] = useState("");
   const [clienteId, setClienteId] = useState<string | null>(null);
   const [clienteNome, setClienteNome] = useState("");
+  const [semCliente, setSemCliente] = useState(false);
   const [novo, setNovo] = useState(iniciarNovoCliente);
   const [novoNome, setNovoNome] = useState("");
   const [novoTelefone, setNovoTelefone] = useState("");
@@ -97,9 +100,32 @@ export function useAgendamentoManual({
 
   const nomeValido = novoNome.trim().length >= 2;
   const telefoneValido = novoTelefone.replace(/\D/g, "").length >= 10;
-  const clienteOk = clienteId ? true : novo && nomeValido && telefoneValido;
+  const clienteOk = semCliente || (clienteId ? true : novo && nomeValido && telefoneValido);
   const pronto = Boolean(clienteOk && servicoId && profissionalId && data && horaMin);
-  const sujo = Boolean(clienteId || novoNome || novoTelefone || termo);
+  // Não perder escolhas feitas no formulário: o padrão carregado do catálogo não
+  // conta como edição, mas qualquer desvio dos valores iniciais pede confirmação.
+  const servicoInicial = base?.servicos[0]?.id ?? "";
+  const profissionalInicialId = profissionalInicial
+    ? (base?.profissionais.find((p) => p.nome === profissionalInicial)?.id ??
+      base?.profissionais[0]?.id ??
+      "")
+    : (base?.profissionais[0]?.id ?? "");
+  const sujo = temAlteracoesAgendamentoManual({
+    clienteId,
+    novoNome,
+    novoTelefone,
+    termo,
+    servicoId,
+    servicoInicial,
+    profissionalId,
+    profissionalInicialId,
+    data,
+    diaInicial: dia,
+    horaMin,
+    horaInicial,
+    forma,
+    semCliente,
+  });
 
   async function salvar(isoForcado?: string, encaixe = false) {
     if (!pronto || salvando) return;
@@ -109,7 +135,7 @@ export function useAgendamentoManual({
     try {
       const r = await criar({
         data: {
-          ...(clienteId ? { clienteId } : { novoNome: novoNome.trim(), novoTelefone }),
+          ...(semCliente ? { semCliente: true } : clienteId ? { clienteId } : { novoNome: novoNome.trim(), novoTelefone }),
           servicoId,
           profissionalId,
           inicio:
@@ -148,12 +174,26 @@ export function useAgendamentoManual({
     setTermo,
     clienteId,
     clienteNome,
+    semCliente,
+    continuarSemCliente: () => {
+      setSemCliente(true);
+      setClienteId(null);
+      setClienteNome("");
+      setNovo(false);
+      setNovoNome("");
+      setNovoTelefone("");
+      setForma("balcao");
+    },
     escolherCliente: (id: string | null, nome = "") => {
+      setSemCliente(false);
       setClienteId(id);
       setClienteNome(nome);
     },
     novo,
-    setNovo,
+    setNovo: (valor: boolean) => {
+      setSemCliente(false);
+      setNovo(valor);
+    },
     novoNome,
     setNovoNome,
     novoTelefone,

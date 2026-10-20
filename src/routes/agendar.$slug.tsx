@@ -10,12 +10,17 @@ import { termos } from "@/lib/segmentos";
 import { detectarExperiencia, origemDaVisita, registrarEtapa, type EtapaFunil } from "@/lib/funil";
 import { FontesDaMarca } from "@/components/marca/FontesDaMarca";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { Check, Clock3, MessageCircle, Scissors, UserRound } from "lucide-react";
-import { useEffect, useState } from "react";
+import { ArrowLeft, ArrowRight, Check, Clock3, MessageCircle, Scissors, UserRound } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { AgendamentoChat } from "@/components/agendamento/AgendamentoChat";
+import {
+  ConfirmarTelefone,
+  type PedidoDeConfirmacao,
+} from "@/components/agendamento/ConfirmarTelefone";
 import { ConfirmacaoAgendamento } from "@/components/agendamento/ConfirmacaoAgendamento";
+import { AvisosNoWhatsapp } from "@/components/agendamento/AvisosNoWhatsapp";
 import { TicketDaConfirmacao } from "@/components/comanda/TicketDaConfirmacao";
 import { ConviteDeConta } from "@/components/agendamento/ConviteDeConta";
 import { StatusFuncionamento } from "@/components/agendamento/StatusFuncionamento";
@@ -154,6 +159,11 @@ function AgendamentoPublico() {
   const [situacao, setSituacao] = useState<Situacao>("confirmado");
   // Alterar = marcar o novo e só então liberar o antigo (nunca fica sem horário nem com dois).
   const [substituiId, setSubstituiId] = useState<string | null>(null);
+  const faixaDiasRef = useRef<HTMLDivElement>(null);
+  // Telefone com ficha existente: código pelo WhatsApp antes de concluir (achado 11).
+  const [pedidoDeConfirmacao, setPedidoDeConfirmacao] = useState<PedidoDeConfirmacao | null>(null);
+  const verificacaoRef = useRef<string | null>(null);
+  const trocaPendenteRef = useRef<string | undefined>(undefined);
   const fluxo = data ? fluxoDoAgendamento(data.pagina.experiencia, data.pagina.chat.modo) : null;
   const experienciaPublicada = data?.pagina.experiencia;
   const slugFunil = data?.tenant ? slug : null;
@@ -254,6 +264,10 @@ function AgendamentoPublico() {
   }, [chaveSalva]);
 
   const digitosTel = telefone.replace(/\D/g, "");
+  useEffect(() => {
+    // Outro número: a confirmação anterior não vale para ele.
+    verificacaoRef.current = null;
+  }, [digitosTel]);
   const erroTelefone = digitosTel.length < 10 ? "Informe seu WhatsApp com DDD" : null;
   const erroNome = nome.trim().length < 2 ? "Informe seu nome" : null;
   const falta = !servico
@@ -273,14 +287,25 @@ function AgendamentoPublico() {
           nome: nome.trim(),
           telefone: digitosTel,
           ...((troca ?? substituiId) ? { substituiId: (troca ?? substituiId)! } : {}),
+          ...(verificacaoRef.current ? { verificacaoId: verificacaoRef.current } : {}),
         },
       }),
     onMutate: () => marcarEtapa("dados_enviados"),
-    onSuccess: (res) => {
+    onSuccess: (res, troca) => {
       if (res.tipo === "conflito") {
         setConflito({ agendamentoId: res.agendamentoId, hora: res.hora });
         return;
       }
+      if (res.tipo === "verificar") {
+        trocaPendenteRef.current = troca;
+        setPedidoDeConfirmacao({
+          verificacaoId: res.verificacaoId,
+          codigo: res.codigo,
+          link: res.link,
+        });
+        return;
+      }
+      setPedidoDeConfirmacao(null);
       setErro(null);
       setConflito(null);
       setSubstituiId(null);
@@ -319,6 +344,29 @@ function AgendamentoPublico() {
       }
     },
   });
+
+  const criarMutate = criar.mutate;
+  const concluirComTelefoneConfirmado = useCallback(
+    (verificacaoId: string) => {
+      verificacaoRef.current = verificacaoId;
+      setPedidoDeConfirmacao(null);
+      criarMutate(trocaPendenteRef.current);
+    },
+    [criarMutate],
+  );
+  const confirmacaoDoTelefone = (
+    <ConfirmarTelefone
+      slug={slug}
+      telefone={digitosTel}
+      pedido={pedidoDeConfirmacao}
+      aoConfirmar={concluirComTelefoneConfirmado}
+      aoGerarOutro={() => {
+        verificacaoRef.current = null;
+        criar.mutate(trocaPendenteRef.current);
+      }}
+      aoFechar={() => setPedidoDeConfirmacao(null)}
+    />
+  );
 
   const cancelar = useMutation({
     mutationFn: () =>
@@ -363,6 +411,24 @@ function AgendamentoPublico() {
         <p className="mt-2 text-sm text-mute">Confira o link que você recebeu.</p>
       </main>
     );
+  }
+
+  const dataReferencia = dia ?? dias[0];
+  const rotuloMes = dataReferencia
+    ? new Intl.DateTimeFormat("pt-BR", { month: "long", year: "numeric", timeZone: "UTC" }).format(
+        new Date(`${dataReferencia}T12:00:00Z`),
+      )
+    : "Próximas datas";
+  function moverFaixaDias(direcao: -1 | 1) {
+    const faixa = faixaDiasRef.current;
+    if (!faixa) return;
+    const comportamento = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+      ? "auto"
+      : "smooth";
+    faixa.scrollBy({
+      left: direcao * Math.max(180, faixa.clientWidth * 0.8),
+      behavior: comportamento,
+    });
   }
 
   const limiteAtingido = data.agendaOnline === "limite_atingido" && !confirmado;
@@ -423,6 +489,11 @@ function AgendamentoPublico() {
           extras={
             situacao === "confirmado" ? (
               <>
+                <AvisosNoWhatsapp
+                  slug={slug}
+                  telefone={digitosTel}
+                  estado={confirmado.avisosWhatsapp}
+                />
                 {confirmado.preferenciasToken ? (
                   modoConversa ? (
                     <PreferenciasEmConversa
@@ -477,31 +548,34 @@ function AgendamentoPublico() {
           }
         : null;
     return (
-      <AgendamentoChat
-        futuro={futuro}
-        linkSobre={linkSobre}
-        data={data}
-        selecao={selecao}
-        nome={nome}
-        telefone={telefone}
-        setNome={setNome}
-        setTelefone={setTelefone}
-        confirmar={() => {
-          if (!servico || !escolhido || nome.trim().length < 2 || digitosTel.length < 10) return;
-          setErro(null);
-          setConflito(null);
-          criar.mutate(undefined);
-        }}
-        conflito={conflito}
-        alterarConflito={() => {
-          if (!conflito) return;
-          setSubstituiId(conflito.agendamentoId);
-          setConflito(null);
-          criar.mutate(conflito.agendamentoId);
-        }}
-        enviando={criar.isPending}
-        erro={erro}
-      />
+      <>
+        <AgendamentoChat
+          futuro={futuro}
+          linkSobre={linkSobre}
+          data={data}
+          selecao={selecao}
+          nome={nome}
+          telefone={telefone}
+          setNome={setNome}
+          setTelefone={setTelefone}
+          confirmar={() => {
+            if (!servico || !escolhido || nome.trim().length < 2 || digitosTel.length < 10) return;
+            setErro(null);
+            setConflito(null);
+            criar.mutate(undefined);
+          }}
+          conflito={conflito}
+          alterarConflito={() => {
+            if (!conflito) return;
+            setSubstituiId(conflito.agendamentoId);
+            setConflito(null);
+            criar.mutate(conflito.agendamentoId);
+          }}
+          enviando={criar.isPending}
+          erro={erro}
+        />
+        {confirmacaoDoTelefone}
+      </>
     );
   }
 
@@ -536,14 +610,16 @@ function AgendamentoPublico() {
       <Bloco titulo="Serviço">
         <div className="grid gap-2">
           {data.servicos.map((s) => (
-            <button
+            <Button
               key={s.id}
               type="button"
+              variant="ghost"
+              aria-pressed={servicoId === s.id}
               onClick={() => {
                 setServicoId(s.id);
                 setHorario(null);
               }}
-              className={`grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 rounded-xl border px-4 py-3 text-left ${
+              className={`grid h-auto w-full grid-cols-[auto_minmax(0,1fr)_auto] justify-start gap-3 whitespace-normal rounded-xl border px-4 py-3 text-left ${
                 servicoId === s.id ? "border-gold bg-ink2" : "border-line bg-ink2/60"
               }`}
             >
@@ -556,7 +632,7 @@ function AgendamentoPublico() {
                 </span>
               </span>
               <span className="text-sm font-semibold text-paper">{brl(s.preco_centavos)}</span>
-            </button>
+            </Button>
           ))}
         </div>
       </Bloco>
@@ -565,20 +641,22 @@ function AgendamentoPublico() {
         <Bloco titulo="Profissional">
           <div className="flex flex-wrap gap-2">
             {[{ id: "qualquer", nome: "Qualquer profissional" }, ...aptos].map((p) => (
-              <button
+              <Button
                 key={p.id}
                 type="button"
+                variant="ghost"
+                aria-pressed={profId === p.id}
                 onClick={() => {
                   setProfId(p.id);
                   setHorario(null);
                 }}
-                className={`flex min-h-12 items-center gap-2 rounded-full border px-4 py-2 text-sm ${
+                className={`h-auto min-h-12 whitespace-normal rounded-full border px-4 py-2 text-sm ${
                   profId === p.id ? "border-gold text-paper" : "border-line text-mute"
                 }`}
               >
                 <UserRound size={14} aria-hidden />
                 {p.nome}
-              </button>
+              </Button>
             ))}
           </div>
         </Bloco>
@@ -586,6 +664,17 @@ function AgendamentoPublico() {
 
       {servicoId ? (
         <Bloco titulo="Data">
+          <div className="mb-2 flex items-center justify-between gap-3">
+            <p className="text-sm font-bold capitalize text-paper">{rotuloMes}</p>
+            <div className="flex gap-1">
+              <Button type="button" variant="ghost" size="icon" aria-label="Dias anteriores" onClick={() => moverFaixaDias(-1)}>
+                <ArrowLeft />
+              </Button>
+              <Button type="button" variant="ghost" size="icon" aria-label="Próximos dias" onClick={() => moverFaixaDias(1)}>
+                <ArrowRight />
+              </Button>
+            </div>
+          </div>
           <div className="-mx-5 flex gap-2 overflow-x-auto px-5 pb-1">
             {dias.map((d) => {
               const info = porDia.get(d);
@@ -593,10 +682,12 @@ function AgendamentoPublico() {
               const lotado = !fechado && (info?.opcoes.length ?? 0) === 0;
               const { rotulo, numero } = rotuloDoDia(d);
               return (
-                <button
+                <Button
                   key={d}
                   type="button"
+                  variant="ghost"
                   disabled={fechado}
+                  aria-pressed={dia === d}
                   aria-label={
                     fechado
                       ? `${rotulo} ${numero}, fechado`
@@ -608,7 +699,7 @@ function AgendamentoPublico() {
                     setDia(d);
                     setHorario(null);
                   }}
-                  className={`flex h-16 w-14 shrink-0 flex-col items-center justify-center rounded-xl border ${
+                  className={`h-16 w-14 shrink-0 flex-col rounded-xl border px-0 ${
                     fechado
                       ? "cursor-not-allowed border-line text-mute2 opacity-50"
                       : dia === d
@@ -620,7 +711,7 @@ function AgendamentoPublico() {
                   <span className="text-lg font-semibold">{numero}</span>
                   {fechado ? <span className="text-xs leading-none">Fechado</span> : null}
                   {lotado ? <span className="text-xs leading-none">Lotado</span> : null}
-                </button>
+                </Button>
               );
             })}
           </div>
@@ -634,24 +725,35 @@ function AgendamentoPublico() {
               O negócio está fechado neste dia. Escolha outra data.
             </p>
           ) : agenda.opcoes.length ? (
-            <div className="grid grid-cols-4 gap-2">
-              {agenda.opcoes.map((o) => (
-                <button
-                  key={o.iso}
-                  type="button"
-                  onClick={() => {
-                    setHorario(o.iso);
-                    setConflito(null);
-                  }}
-                  className={`h-12 rounded-lg border text-sm font-semibold ${
-                    horario === o.iso
-                      ? "border-gold bg-gold/15 text-paper"
-                      : "border-line text-mute"
-                  }`}
-                >
-                  {o.label}
-                </button>
-              ))}
+            <div className="grid gap-2" role="group" aria-label="Horários disponíveis">
+              {agenda.opcoes.map((o) => {
+                const profissional = data.profissionais.find((p) => p.id === o.profId)?.nome ?? "Equipe";
+                const ativo = horario === o.iso;
+                return (
+                  <Button
+                    key={o.iso}
+                    type="button"
+                    variant="ghost"
+                    aria-pressed={ativo}
+                    aria-label={`${o.label}, profissional sugerido: ${profissional}`}
+                    onClick={() => {
+                      setHorario(o.iso);
+                      setConflito(null);
+                    }}
+                    className={`h-auto min-h-14 w-full justify-between rounded-xl border px-4 py-3 text-left ${
+                      ativo
+                        ? "border-gold bg-gold/15 text-paper"
+                        : "border-line bg-ink2/60 text-mute"
+                    }`}
+                  >
+                    <span className="text-base font-bold tabular-nums">{o.label}</span>
+                    <span className="flex items-center gap-2 text-xs font-medium">
+                      <UserRound size={14} aria-hidden />
+                      {profissional}
+                    </span>
+                  </Button>
+                );
+              })}
             </div>
           ) : null}
           {servicoId && dia && !agenda.fechado ? (
@@ -794,6 +896,7 @@ function AgendamentoPublico() {
           ) : null}
         </div>
       </div>
+      {confirmacaoDoTelefone}
     </main>
   );
 }

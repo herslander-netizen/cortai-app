@@ -5,7 +5,7 @@ argument-hint: "[o que a migração deve fazer]"
 
 Crie uma migração de banco para o Cortaí: **$ARGUMENTS**
 
-Leia antes `CLAUDE.md` (seção "Arquitetura e segurança") e `docs/auditoria-2026-10-09.md`. O código sincroniza com o Lovable, então tudo isto vale: preservar o que funciona, correção cirúrgica, **sem apagar dados**.
+Leia antes o topo do `AGENTS.md`, o `CLAUDE.md` (seções "Arquitetura e segurança" e "Auditoria e segurança") e o `MUSE.md`. Vale tudo isto: preservar o que funciona, correção cirúrgica, **sem apagar dados**. O banco é o Supabase `cortai-prod` (`ibsberidejlbczxrweqg`).
 
 ## Regras da migração
 
@@ -21,18 +21,17 @@ Leia antes `CLAUDE.md` (seção "Arquitetura e segurança") e `docs/auditoria-20
    - Acrescente em `drizzle/migrations/meta/_journal.json` uma entrada com `idx`, `version: "7"`, `when` (milissegundos, `Date.now()`), `tag` (nome do arquivo sem `.sql`) e `breakpoints: true`.
    - Crie `meta/NNNN_snapshot.json` copiando o anterior, com `id` novo e `prevId` igual ao `id` do anterior.
 3. **Teste por papel:** se a migração mexe em permissão, acrescente ou ajuste um teste em `tests/sql/` no formato de `supabase/tests/rbac.sql`: um bloco `DO` que cria um negócio de teste com dono, gerente, recepção, barbeiro e estranho, confere o que cada um pode, e **sempre termina com `RAISE EXCEPTION`** para nada ficar gravado.
-4. **Ensaio no banco real (nada fica gravado):** use `mcp__Lovable__query_database` (projeto `a3550de1-ec98-4622-8484-7dadb8b04ed0`) com um bloco único:
+4. **Ensaio (nada fica gravado):** primeiro no banco local descartável (`supabase/baseline/ensaio/ensaio-local.sh`). Se precisar conferir no banco real, use o conector do Supabase (`execute_sql`, projeto `ibsberidejlbczxrweqg`) com um bloco único:
    `DO $wrap$ BEGIN EXECUTE $mig$ <SQL da migração> $mig$; EXECUTE $tst$ <bloco de teste> $tst$; END $wrap$;`
    O resultado volta na mensagem de erro (por exemplo "ESCRITA OK: 76 verificações"), e tudo é desfeito. Use tags de dólar diferentes das usadas dentro do SQL.
 5. **Duas rodadas:** rode o teste **antes** (sem a migração) e **depois** (com ela). O "antes" deve mostrar as falhas que a migração corrige; o "depois" deve passar. Rode também os testes existentes (`supabase/tests/*.sql` e `tests/sql/*.sql`) para provar que nada regrediu, e compare com o resultado de antes.
-6. **Salvar:** faça commit numa branch `claude/<nome>` (nunca na `main`) e envie a branch.
+6. **Salvar:** faça commit na branch `cloudflare-workers-migration-2026-10-13` (nunca na `main`), reserve o número da migração no `DIARIO.md` e envie.
 
 ## Aplicar no banco só com autorização
 
-Mostre o resultado do ensaio e **pergunte**. A `main` e o banco afetam o negócio de verdade. Se o dono autorizar:
-1. Descubra se o Lovable aplica as migrações sozinho ao sincronizar: veja a tabela `drizzle.__drizzle_migrations` (colunas `id`, `hash`, `created_at`). O `hash` é o SHA-256 do arquivo `.sql` e o `created_at` é o `when` do journal.
-2. Aplique o SQL numa transação única e, na mesma transação, registre a linha do histórico com esse hash. Assim, se o Lovable tentar rodar o arquivo depois, ele reconhece que já foi aplicado.
-3. Rode o teste de novo no banco já alterado, só para conferir.
-4. Só então envie a branch para a `main`, e atualize a auditoria se a migração fechar algum achado.
+Mostre o resultado do ensaio e **pergunte**. O banco afeta o negócio de verdade. Se o dono autorizar:
+1. Rode o workflow **"Aplicar migrações novas"** no GitHub Actions, informando o arquivo (`drizzle/migrations/NNNN_x.sql`) e digitando `APLICAR`. Ele aplica numa transação e registra em `cortai_controle.migracoes_aplicadas` (arquivo já registrado é pulado).
+2. Rode o teste de novo no banco já alterado, só para conferir.
+3. Registre no `DIARIO.md` e atualize "Auditoria e segurança" do `CLAUDE.md` se a migração fechar algum achado.
 
 Se algo der errado, escreva uma migração de reversão que recoloca as regras antigas (não apague dados para voltar).

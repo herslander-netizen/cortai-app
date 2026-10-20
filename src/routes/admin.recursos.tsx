@@ -16,7 +16,7 @@ export const Route = createFileRoute("/admin/recursos")({
       { title: "Recursos e planos — Cortaí" },
       {
         name: "description",
-        content: "Defina quais recursos do Cortaí cada plano libera para as barbearias.",
+        content: "Defina quais recursos do Cortaí cada plano libera para os negócios.",
       },
       { property: "og:title", content: "Recursos e planos — Cortaí" },
       { property: "og:description", content: "Matriz de recursos por plano da plataforma Cortaí." },

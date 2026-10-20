@@ -1,4 +1,8 @@
-name: Cortaí Migration Preview
+name: Validar e publicar a prévia a cada envio
+
+# Decisão do dono (16/10/2026): cada envio na branch vai para a prévia
+# (previa.cortaiapp.pages.dev) para ele ver na hora. O site principal só muda quando o dono
+# disser "mande pra main": aí roda o "Lançar versão" (versão numerada, com "Voltar versão").
 
 on:
   push:
@@ -36,13 +40,6 @@ jobs:
         run: bunx vitest run
       - name: Build migration preview
         run: bunx vite build --outDir /tmp/cortai-preview-build
-      - name: Upload preview build artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: cortai-migration-preview-${{ github.sha }}
-          path: /tmp/cortai-preview-build/
-          if-no-files-found: error
-          retention-days: 14
 
   deploy-isolated-preview:
     needs: validate-build
@@ -58,14 +55,47 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           PREVIEW_SUPABASE_URL: ${{ secrets.PREVIEW_SUPABASE_URL }}
           PREVIEW_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.PREVIEW_SUPABASE_PUBLISHABLE_KEY }}
+          PREVIEW_SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.PREVIEW_SUPABASE_SERVICE_ROLE_KEY }}
         run: |
           set -euo pipefail
-          if [[ -z "$CLOUDFLARE_API_TOKEN" || -z "$CLOUDFLARE_ACCOUNT_ID" || -z "$PREVIEW_SUPABASE_URL" || -z "$PREVIEW_SUPABASE_PUBLISHABLE_KEY" ]]; then
+          faltam=()
+          for n in CLOUDFLARE_API_TOKEN CLOUDFLARE_ACCOUNT_ID PREVIEW_SUPABASE_URL PREVIEW_SUPABASE_PUBLISHABLE_KEY PREVIEW_SUPABASE_SERVICE_ROLE_KEY; do
+            [ -n "${!n}" ] || faltam+=("$n")
+          done
+          if (( ${#faltam[@]} > 0 )); then
             echo "ready=false" >> "$GITHUB_OUTPUT"
-            echo "::notice::Preview deployment skipped: configure Cloudflare credentials and dedicated preview Supabase secrets first."
+            echo "::notice::Preview deployment skipped: missing required isolated-preview secrets: ${faltam[*]}"
+          elif [[ "$PREVIEW_SUPABASE_URL" == *"ibsberidejlbczxrweqg.supabase.co"* ]]; then
+            echo "::error::PREVIEW_SUPABASE_URL points to production cortai-prod; refusing to deploy preview against production database."
+            exit 1
           else
             echo "ready=true" >> "$GITHUB_OUTPUT"
           fi
+      # Prévia no ramo "previa" do mesmo projeto Pages do site principal (previa.<projeto>.pages.dev).
+      # Cria o projeto se ainda não existir; o endereço vem da Cloudflare.
+      - name: Endereço da prévia
+        id: endereco
+        if: steps.gate.outputs.ready == 'true'
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          PROJETO_PAGES: cortaiapp
+        run: |
+          set -euo pipefail
+          api="https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/pages/projects"
+          auth=(-H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" -H "Content-Type: application/json")
+          resp="$(curl -sS "${auth[@]}" "$api/$PROJETO_PAGES")"
+          if [ "$(jq -r '.success' <<<"$resp")" != "true" ]; then
+            corpo="$(jq -nc --arg n "$PROJETO_PAGES" '{name:$n, production_branch:"producao",
+              deployment_configs:{production:{compatibility_date:"2026-10-13",compatibility_flags:["nodejs_compat"]},
+                                  preview:{compatibility_date:"2026-10-13",compatibility_flags:["nodejs_compat"]}}}')"
+            resp="$(curl -sS "${auth[@]}" -X POST "$api" --data "$corpo")"
+            [ "$(jq -r '.success' <<<"$resp")" = "true" ] || { echo "::error::$(jq -c '.errors' <<<"$resp")"; exit 1; }
+          fi
+          sub="$(jq -r '.result.subdomain' <<<"$resp")"
+          echo "projeto=$PROJETO_PAGES" >> "$GITHUB_OUTPUT"
+          echo "url=https://previa.$sub" >> "$GITHUB_OUTPUT"
+          echo "Prévia: https://previa.$sub"
       - name: Checkout migration branch
         if: steps.gate.outputs.ready == 'true'
         uses: actions/checkout@v4
@@ -82,20 +112,37 @@ jobs:
       - name: Build with isolated preview configuration
         if: steps.gate.outputs.ready == 'true'
         env:
-          # O projeto da prévia vem dos secrets dedicados; nunca use o banco de produção neste workflow.
+          # Banco EXCLUSIVO de testes. Nunca apontar a prévia para cortai-prod.
           VITE_SUPABASE_URL: ${{ secrets.PREVIEW_SUPABASE_URL }}
           VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.PREVIEW_SUPABASE_PUBLISHABLE_KEY }}
+          # Links de compartilhar e prévias de link no navegador apontam para a prévia (src/lib/origem-publica.ts).
+          VITE_CORTAI_PUBLIC_URL: ${{ steps.endereco.outputs.url }}
         run: |
           # Só a raiz do projeto (https://<ref>.supabase.co): sem /rest/v1, /auth/v1 nem barra final.
           VITE_SUPABASE_URL="$(printf '%s' "$VITE_SUPABASE_URL" | tr -d '\r\n ' | sed -E 's#/(rest|auth)/v1/?$##; s#/+$##')"
           export VITE_SUPABASE_URL
           bunx vite build
-      - name: Deploy isolated preview Worker
+      # O Worker vai em _worker.js/ e os estáticos são servidos direto.
+      - name: Montar pacote do Pages
+        if: steps.gate.outputs.ready == 'true'
+        run: |
+          set -euo pipefail
+          # O build deixa um apontador para dist/server/wrangler.json, que confunde o Pages.
+          rm -rf .wrangler
+          cd dist
+          rm -f server/wrangler.json
+          mv server client/_worker.js
+          excluir=$(cd client && for f in *; do
+            [ "$f" = "_worker.js" ] && continue
+            if [ -d "$f" ]; then echo "/$f/*"; else echo "/$f"; fi
+          done | jq -R . | jq -sc .)
+          jq -n --argjson ex "$excluir" '{version:1, include:["/*"], exclude:$ex}' > client/_routes.json
+      - name: Deploy preview
         if: steps.gate.outputs.ready == 'true'
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-        run: bunx wrangler deploy --config dist/server/wrangler.json --name cortai-reconstruction-test-2026
+        run: bunx wrangler pages deploy dist/client --project-name "${{ steps.endereco.outputs.projeto }}" --branch previa --commit-dirty=true
       # Variáveis do servidor (lidas em process.env pelo Worker). Só vão as que existem
       # nos segredos do GitHub; nada fica no código nem no log.
       - name: Send server secrets to the preview Worker
@@ -106,7 +153,7 @@ jobs:
           SUPABASE_URL: ${{ secrets.PREVIEW_SUPABASE_URL }}
           SUPABASE_PUBLISHABLE_KEY: ${{ secrets.PREVIEW_SUPABASE_PUBLISHABLE_KEY }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.PREVIEW_SUPABASE_SERVICE_ROLE_KEY }}
-          CORTAI_PUBLIC_BASE_URL: https://cortai-reconstruction-test-2026.aprovamaisbarra.workers.dev
+          CORTAI_PUBLIC_BASE_URL: ${{ steps.endereco.outputs.url }}
           CORTAI_CRON_SECRET: ${{ secrets.PREVIEW_CORTAI_CRON_SECRET }}
           CORTAI_AI_PROVIDER: ${{ secrets.PREVIEW_CORTAI_AI_PROVIDER }}
           CORTAI_AI_BASE_URL: ${{ secrets.PREVIEW_CORTAI_AI_BASE_URL }}
@@ -134,5 +181,12 @@ jobs:
           if [ -z "${SUPABASE_SERVICE_ROLE_KEY}" ]; then
             echo "::warning::PREVIEW_SUPABASE_SERVICE_ROLE_KEY ausente: login, agenda e funções do servidor não vão funcionar na prévia."
           fi
-          printf '%s' "$json" | bunx wrangler secret bulk --config dist/server/wrangler.json --name cortai-reconstruction-test-2026
+          printf '%s' "$json" | bunx wrangler pages secret bulk --project-name "${{ steps.endereco.outputs.projeto }}" --env preview
           echo "Variáveis enviadas: ${enviados[*]}"
+      # As variáveis valem para publicações feitas depois delas: publica de novo.
+      - name: Deploy preview com as variáveis
+        if: steps.gate.outputs.ready == 'true'
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: bunx wrangler pages deploy dist/client --project-name "${{ steps.endereco.outputs.projeto }}" --branch previa --commit-dirty=true

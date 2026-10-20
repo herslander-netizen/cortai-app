@@ -1,4 +1,4 @@
-import { Instagram, Link2, MessageCircle, UserRound, Zap } from "lucide-react";
+import { Instagram, Link2, MessageCircle, ShieldAlert, UserRound, Zap } from "lucide-react";
 import { descreverOrigem, type IconeOrigem } from "@/lib/origem-agendamento";
 
 const ICONES: Record<IconeOrigem, typeof Link2> = {
@@ -12,9 +12,12 @@ const ICONES: Record<IconeOrigem, typeof Link2> = {
 export function OrigemDoAgendamento({
   origem,
   assistido,
+  telefoneNaoConfirmado,
 }: {
   origem: string | null | undefined;
   assistido: boolean | null | undefined;
+  /** Agendado pelo link com o telefone de uma ficha existente, sem confirmar o número. */
+  telefoneNaoConfirmado?: boolean | undefined;
 }) {
   const d = descreverOrigem(origem, assistido);
   const Icone = ICONES[d.icone];
@@ -32,6 +35,20 @@ export function OrigemDoAgendamento({
           <span aria-hidden>·</span>
           <Zap className="h-3 w-3" aria-hidden />
           <span aria-hidden>CortAI</span>
+        </span>
+      ) : null}
+      {telefoneNaoConfirmado ? (
+        <span
+          className="inline-flex shrink-0 items-center gap-0.5 text-rosa"
+          aria-label="Telefone não confirmado: confira com o cliente"
+          title="Agendado pelo link com o telefone de uma ficha existente, sem confirmar o número."
+        >
+          <span aria-hidden>·</span>
+          <ShieldAlert className="h-3 w-3" aria-hidden />
+          <span aria-hidden>
+            <span className="sm:hidden">Conferir tel.</span>
+            <span className="hidden sm:inline">Telefone não confirmado</span>
+          </span>
         </span>
       ) : null}
     </span>

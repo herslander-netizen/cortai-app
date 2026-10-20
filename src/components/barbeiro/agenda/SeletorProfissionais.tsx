@@ -27,6 +27,7 @@ export function SeletorProfissionais({
 }) {
   return (
     <div
+      data-gesto-dia-ignore
       className="-mx-5 mt-2 overflow-x-auto px-5 pb-1 [scrollbar-width:none]"
       role="toolbar"
       aria-label="Filtrar agenda por profissional"

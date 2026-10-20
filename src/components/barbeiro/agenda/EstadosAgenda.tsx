@@ -1,4 +1,4 @@
-import { CloudOff, RefreshCw, Scissors, TriangleAlert } from "lucide-react";
+import { CloudOff, Scissors, TriangleAlert } from "lucide-react";
 import type { ReactNode } from "react";
 
 import { EsqueletoAgenda, EsqueletoTimeline } from "@/components/layout/Esqueleto";
@@ -9,15 +9,11 @@ export function FaixaConexao({
   online,
   origem,
   salvoEm,
-  aoVivo,
-  temDados,
   fuso,
 }: {
   online: boolean;
   origem: "rede" | "cache" | undefined;
   salvoEm: number | null | undefined;
-  aoVivo: boolean;
-  temDados: boolean;
   fuso?: string;
 }) {
   const horaSalva = salvoEm
@@ -39,13 +35,6 @@ export function FaixaConexao({
       <p className="agenda-faixa agenda-faixa-offline" role="status">
         <CloudOff aria-hidden />
         Sem conexão · as ações voltam quando a internet voltar
-      </p>
-    );
-  if (temDados && !aoVivo)
-    return (
-      <p className="agenda-faixa" role="status">
-        <RefreshCw aria-hidden />
-        Reconectando… a agenda continua atualizando a cada 15 s
       </p>
     );
   return null;

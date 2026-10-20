@@ -437,7 +437,9 @@ function RegraDeRecebimento() {
     <section className="surface p-4">
       <label className="flex min-h-12 items-center justify-between gap-4">
         <span className="min-w-0">
-          <span className="block text-sm font-semibold text-paper">Barbeiro recebe pagamento</span>
+          <span className="block text-sm font-semibold text-paper">
+            Profissional recebe pagamento
+          </span>
           <span className="mt-1 block text-xs text-mute">
             Recepção, gerente e dono sempre recebem. Ligue para o barbeiro também fechar a comanda e
             receber.

@@ -51,8 +51,133 @@ describe("rolagem da Timeline no celular", () => {
 
   it("mantém horários passados visíveis, apenas com tratamento visual discreto", () => {
     expect(timeline).toContain('"agenda-timeline-passado"');
-    expect(css).toContain(
-      ".agenda-timeline-passado:not(.agenda-timeline-na_cadeira)",
+    expect(css).toContain(".agenda-timeline-passado:not(.agenda-timeline-na_cadeira)");
+  });
+});
+
+describe("troca de dia sem piscar nem puxar a página", () => {
+  const operacional = readFileSync("src/components/barbeiro/AgendaOperacional.tsx", "utf8");
+
+  it("a Agenda não é desmontada a cada dia", () => {
+    expect(operacional).not.toContain("key={dia}");
+  });
+
+  it("nenhuma animação de troca de dia começa invisível", () => {
+    expect(css).not.toMatch(/@keyframes agenda-troca/);
+    expect(operacional).not.toMatch(/opacity:\s*0[,\s}]/);
+  });
+
+  it("cartões do dia anterior nunca aparecem debaixo da data nova", () => {
+    expect(operacional).toContain("agenda.isPlaceholderData ? [] :");
+  });
+
+  it("os pontinhos indicam consultas em andamento, inclusive atualizações periódicas", () => {
+    expect(operacional.match(/carregando=\{agenda\.isFetching\}/g)?.length).toBe(2);
+    expect(operacional).not.toContain("carregando={agenda.isFetching && agenda.isPlaceholderData}");
+  });
+
+  it("a timeline só se posiciona sozinha na primeira abertura", () => {
+    expect(timeline).not.toContain("posicionouRef.current === dia");
+    expect(timeline.match(/posicionouRef\.current !== null/g)?.length).toBe(3);
+  });
+});
+
+describe("prévia do dia vizinho não fica presa na tela", () => {
+  const gesto = readFileSync("src/components/barbeiro/agenda/useGestoDia.ts", "utf8");
+
+  it("fora do gesto a prévia fica escondida", () => {
+    expect(css).toMatch(
+      /html:not\(\.agenda-gesto-ativo\) \.agenda-previa-vizinho \{\s*visibility: hidden;/,
     );
+  });
+
+  it("ao terminar o gesto as duas prévias voltam para fora da tela", () => {
+    const limpar = gesto.slice(gesto.indexOf("const limpar"), gesto.indexOf("const assentar"));
+    expect(limpar).toContain("previaAnterior.current.style.transform");
+    expect(limpar).toContain("previaProxima.current.style.transform");
+  });
+});
+
+describe("bolinha da semana ao terminar o gesto", () => {
+  const gesto = readFileSync("src/components/barbeiro/agenda/useGestoDia.ts", "utf8");
+
+  it("o deslocamento do dedo sai antes da troca do dia (sem voltar animando)", () => {
+    const fim = gesto.slice(gesto.indexOf("assentar(s.dx, alvo"));
+    const tira = fim.indexOf('removeProperty("--dia-progresso")');
+    const troca = fim.indexOf("flushSync(");
+    expect(tira).toBeGreaterThan(-1);
+    expect(tira).toBeLessThan(troca);
+  });
+});
+
+describe("troca de dia em páginas no celular (como no vídeo de referência)", () => {
+  const gesto = readFileSync("src/components/barbeiro/agenda/useGestoDia.ts", "utf8");
+  const previa = readFileSync("src/components/barbeiro/agenda/PreviaDiaVizinho.tsx", "utf8");
+  const operacional = readFileSync("src/components/barbeiro/AgendaOperacional.tsx", "utf8");
+  const semana = readFileSync("src/components/barbeiro/agenda/SemanaDoTopo.tsx", "utf8");
+
+  it("a página inteira do dia (grade com as horas) é o que desliza", () => {
+    expect(timeline).toContain('{ "data-trilho-dia": "" }');
+    expect(timeline).not.toContain("agenda-dia-camada");
+    expect(gesto).toContain('".agenda-timeline[data-trilho-dia]"');
+    expect(gesto).toContain('querySelectorAll<HTMLElement>("[data-trilho-dia]")');
+  });
+
+  it("a distância de um dia é a largura da página mais o vão", () => {
+    expect(gesto).toContain("grade?.parentElement?.getBoundingClientRect().width");
+    expect(gesto).toContain("carrossel.current?.largura ?? window.innerWidth");
+  });
+
+  it("o dia vizinho entra ao lado com as próprias horas e pontinhos", () => {
+    expect(operacional).toMatch(/vizinhos=\{\s*celular \? \(\s*<CamadasVizinhas/);
+    expect(previa).toContain("<MarcaDoLimiteDoDia");
+    expect(css).not.toMatch(/\.agenda-dia-vizinha \.agenda-timeline-marca/);
+    expect(css).toContain("left: calc(-100% - 2 * var(--calha-das-horas) - var(--trilho-vao));");
+    expect(css).toContain("width: calc(100% + var(--calha-das-horas));");
+    expect(css).toMatch(/\.agenda-dia-vizinha \.agenda-timeline-scroll \{\s*padding-block: 0;/);
+  });
+
+  it("os pontinhos do topo deslizam com a página", () => {
+    expect(semana).toContain('data-trilho-dia={naPagina ? "" : undefined}');
+    expect(operacional.match(/<MarcaDoLimiteDoDia[^>]*naPagina/g)?.length).toBe(2);
+  });
+
+  it("a faixa da semana tem três semanas e troca deslizando a semana inteira", () => {
+    expect(semana).toContain("const tresSemanas = [");
+    expect(semana).toContain("translate3d(calc(-100% / 3 + ${dx}px),0,0)");
+    expect(semana).not.toContain("translate3d(${lado * 36}%,0,0)");
+  });
+
+  it("o calendário do mês cresce por cima da Agenda, sem empurrar a página", () => {
+    expect(semana).not.toContain('mode="wait"');
+    expect(semana).toContain("animate={{ height: ALTURA_DO_MES + 12 }}");
+    expect(semana).not.toContain('height: expandido ? ALTURA_DO_MES : "auto"');
+  });
+
+  it("o dia vizinho mostra o fora do expediente durante o gesto", () => {
+    expect(css).not.toMatch(
+      /\.agenda-dia-vizinha \.agenda-timeline-fora-expediente \{\s*background: transparent/,
+    );
+  });
+
+  it('o espaço do "Agora · Livre" fica reservado em todo dia (a grade não pula)', () => {
+    expect(operacional).toContain('${ehHoje && ativos.length === 0 ? "" : "invisible"}');
+  });
+});
+
+describe("cartões da timeline num padrão só, barra na cor da categoria (decisões do dono, 18/10)", () => {
+  it("o fundo é o mesmo para todos; o estado muda só a barra", () => {
+    expect(css).not.toContain("Premium Glass");
+    expect(css).not.toContain("--fundo-estado");
+    expect(css).toContain("background: var(--agenda-cartao);");
+    expect(css.match(/\.agenda-timeline-bloco::before \{/g)?.length).toBe(1);
+    expect(css).not.toMatch(
+      /\.agenda-timeline-(agendado|chegou|na_cadeira|finalizado|cancelado|nao_compareceu) \{\s*border-left-color/,
+    );
+  });
+
+  it("o cartão mostra nome, serviço e horário com relógio, como nos modelos", () => {
+    expect(timeline).toContain('className="agenda-timeline-horario"');
+    expect(timeline).toContain("<Clock3 aria-hidden");
   });
 });

@@ -83,7 +83,7 @@ export function PersonalizacaoCliente({
       </p>
 
       <div className="mt-5 surface px-4 py-4">
-        <p className="text-xs uppercase tracking-wide text-mute2">Padrão da barbearia</p>
+        <p className="text-xs uppercase tracking-wide text-mute2">Padrão do negócio</p>
         <p className="mt-1 text-sm text-paper">Fidelidade: {padraoTexto}</p>
       </div>
 
@@ -140,7 +140,7 @@ export function PersonalizacaoCliente({
         />
       </Field>
 
-      <Field label="Observações internas" hint="Só a barbearia vê este campo." className="mt-5">
+      <Field label="Observações internas" hint="Só a equipe vê este campo." className="mt-5">
         <Textarea
           rows={2}
           value={observacoes}

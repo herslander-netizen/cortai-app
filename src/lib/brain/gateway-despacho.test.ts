@@ -18,18 +18,18 @@ afterEach(() => {
 });
 
 describe("gateway central — escolha do provedor", () => {
-  it("sem provedor independente, fica indisponível mesmo que exista chave antiga", async () => {
+  it("sem provedor configurado, fica indisponível", async () => {
     vi.stubEnv("CORTAI_AI_PROVIDER", "");
-    vi.stubEnv("LOVABLE_API_KEY", "");
     const g = await import("./gateway.server");
-    expect(g.identidadeDoModelo()).toEqual({ provedor: "não configurado", modelo: g.MODELO_CORTAI });
+    expect(g.identidadeDoModelo()).toEqual({
+      provedor: "não configurado",
+      modelo: g.MODELO_CORTAI,
+    });
     expect(g.iaDisponivel()).toBe(false);
-    vi.stubEnv("LOVABLE_API_KEY", "x");
     expect(g.iaDisponivel()).toBe(false);
   });
 
-  it("provedor compatível completo fica disponível mesmo sem LOVABLE_API_KEY", async () => {
-    vi.stubEnv("LOVABLE_API_KEY", "");
+  it("provedor compatível completo fica disponível", async () => {
     vi.stubEnv("CORTAI_AI_PROVIDER", "openai_compatible");
     vi.stubEnv("CORTAI_AI_BASE_URL", "https://api.exemplo.test/v1");
     vi.stubEnv("CORTAI_AI_MODEL", "openai/gpt-oss-20b");
@@ -42,8 +42,7 @@ describe("gateway central — escolha do provedor", () => {
     });
   });
 
-  it("configuração inválida NÃO volta para o Lovable: fica indisponível e responde 401 seguro", async () => {
-    vi.stubEnv("LOVABLE_API_KEY", "tem-chave-do-lovable");
+  it("configuração inválida não cai em outro provedor: fica indisponível e responde 401 seguro", async () => {
     vi.stubEnv("CORTAI_AI_PROVIDER", "openai_compatible");
     vi.stubEnv("CORTAI_AI_BASE_URL", "");
     vi.stubEnv("CORTAI_AI_MODEL", "");
@@ -127,14 +126,13 @@ describe("gateway central — escolha do provedor", () => {
       .responder({ instrucoes: "i", entrada: [], ferramentas })
       .catch((e) => e);
     expect(erro.semCredito).toBe(true);
-    // A pausa por crédito precisa saber QUEM recusou (o gratuito não herda a pausa do Lovable).
+    // A pausa por crédito precisa saber QUEM recusou (um provedor não herda a pausa de outro).
     expect(erro.provedor).toBe("api.exemplo.test");
     expect(erro.message).not.toContain("sem crédito");
     expect(eventos[0]).toMatchObject({ ok: false, httpStatus: 402 });
   });
 
   it("migração por canal: só os canais listados usam o provedor; os demais ficam indisponíveis", async () => {
-    vi.stubEnv("LOVABLE_API_KEY", "chave-lovable");
     vi.stubEnv("CORTAI_AI_PROVIDER", "openai_compatible");
     vi.stubEnv("CORTAI_AI_BASE_URL", "https://api.exemplo.test/v1");
     vi.stubEnv("CORTAI_AI_MODEL", "openai/gpt-oss-20b");
@@ -159,7 +157,6 @@ describe("gateway central — escolha do provedor", () => {
   });
 
   it("canal fora da lista não chama provedor algum", async () => {
-    vi.stubEnv("LOVABLE_API_KEY", "chave-lovable");
     vi.stubEnv("CORTAI_AI_PROVIDER", "openai_compatible");
     vi.stubEnv("CORTAI_AI_BASE_URL", "https://api.exemplo.test/v1");
     vi.stubEnv("CORTAI_AI_MODEL", "m");

@@ -161,7 +161,7 @@ export function CabecalhoAgenda({
         <Button
           variant="ghost"
           size="icon"
-          className="ml-auto"
+          className="ml-auto [&>svg]:size-6"
           aria-label="Desativar modo discreto"
           onClick={onDiscreto}
         >
@@ -179,9 +179,9 @@ export function CabecalhoAgenda({
               className={`relative ${discreto ? "" : "ml-auto"} ${celular ? "w-9 min-w-9" : ""}`}
             >
               {celular ? (
-                <MoreVertical className="size-5" />
+                <MoreVertical className="size-6" />
               ) : (
-                <MoreHorizontal className="size-5" />
+                <MoreHorizontal className="size-6" />
               )}
               {fila > 0 ? <span className="agenda-ponto" aria-hidden /> : null}
             </Button>
@@ -225,7 +225,6 @@ export function CabecalhoAgenda({
         className="min-h-12 min-w-0 flex-1 justify-start px-0.5 hover:bg-transparent"
         aria-label={`${tituloCelular ?? tituloDoMes(dia)}. ${calendarioAberto ? "Recolher mês" : "Abrir mês"}`}
         aria-expanded={calendarioAberto}
-        onClick={onCalendario}
       >
         <span className="truncate text-[clamp(18px,5vw,22px)] leading-none text-paper">
           <strong className="font-semibold">
@@ -237,12 +236,19 @@ export function CabecalhoAgenda({
       <Button
         variant="ghost"
         size="icon"
-        className="h-12 w-11 min-w-11 shrink-0"
+        className="h-12 w-12 min-w-12 shrink-0 rounded-xl text-mute transition-transform duration-[200ms] hover:bg-transparent hover:text-mute motion-reduce:transition-none"
         aria-label={calendarioAberto ? "Recolher calendário" : "Abrir calendário"}
         aria-pressed={calendarioAberto}
         onClick={onCalendario}
       >
-        <CalendarDays className="size-5" strokeWidth={1.8} />
+        <CalendarDays
+          className={`size-7 transition-[transform,color] duration-[200ms] motion-reduce:transition-none ${
+            calendarioAberto
+              ? "scale-110 rotate-[-8deg] text-gold [&>rect]:fill-current [&>path]:stroke-ink"
+              : "scale-100 rotate-0 text-mute"
+          }`}
+          strokeWidth={calendarioAberto ? 2.2 : 1.8}
+        />
       </Button>
       {menu}
     </>

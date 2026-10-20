@@ -18,6 +18,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { normalizarPagina, type PaginaConfig } from "@/lib/pagina-config";
 import { segmentoParaApresentacao, type Segmento } from "@/lib/segmentos";
 import { validarPreferenciasCliente, type PreferenciasCliente } from "@/lib/preferencias-cliente";
+import { urlPublica } from "@/lib/origem-publica";
 
 async function clientePorTelefone(db: any, tenantId: string, telefone: string) {
   const { data } = await db
@@ -41,28 +42,30 @@ const LIMITES = {
   situacao: { ip: 30, telefone: 15 },
   cancelar: { ip: 8, telefone: 5 },
   preferencias: { ip: 10, telefone: 5 },
+  /** A tela consulta a cada 3 s enquanto espera o código chegar. */
+  confirmarTelefone: { ip: 40, telefone: 30 },
+  avisos: { ip: 6, telefone: 3 },
 } as const;
 
 /** Barra excesso de chamadas usando os mesmos contadores no banco do webhook-guard. */
 async function limitarPublico(acao: keyof typeof LIMITES, telefone?: string) {
-  const { ipDaChamada, consumirLimite, BALDE_SEM_IP } = await import("@/lib/webhook-guard.server");
-  let ip: string | null = null;
+  const { dentroDoLimitePublico, MENSAGEM_DE_EXCESSO } = await import("@/lib/webhook-guard.server");
+  let request: Request | null = null;
   try {
-    ip = ipDaChamada(getRequest());
+    request = getRequest();
   } catch {
-    ip = null;
+    request = null;
   }
   const limite = LIMITES[acao];
-  // Sem IP identificável: balde próprio e 10× mais folgado, para não travar ninguém.
-  const okIp = await consumirLimite(
-    `pub:${acao}|ip:${ip ?? BALDE_SEM_IP}`,
-    ip ? limite.ip : limite.ip * 10,
+  const ok = await dentroDoLimitePublico(
+    request,
+    acao,
+    limite.ip,
+    telefone
+      ? { chave: `tel:${normalizarTelefone(telefone)}`, limite: limite.telefone }
+      : undefined,
   );
-  const okTel = telefone
-    ? await consumirLimite(`pub:${acao}|tel:${normalizarTelefone(telefone)}`, limite.telefone)
-    : true;
-  if (!okIp || !okTel)
-    throw new Error("Muitas tentativas em pouco tempo. Aguarde um minuto e tente de novo.");
+  if (!ok) throw new Error(MENSAGEM_DE_EXCESSO);
 }
 
 export type AgendaPublica = {
@@ -299,11 +302,18 @@ export type ConfirmacaoPublica = {
   endereco: string | null;
   whatsapp: string | null;
   valor_centavos: number;
+  /**
+   * WhatsApp deste horário: "ativos" (telefone confirmado), "confirmar" (número novo:
+   * a pessoa pode ativar mandando o código) ou "sem_whatsapp" (negócio sem WhatsApp).
+   */
+  avisosWhatsapp?: "ativos" | "confirmar" | "sem_whatsapp";
 };
 
 export type ResultadoConvidado =
   | { tipo: "ok"; confirmacao: ConfirmacaoPublica }
-  | { tipo: "conflito"; agendamentoId: string; hora: string };
+  | { tipo: "conflito"; agendamentoId: string; hora: string }
+  /** O WhatsApp já tem ficha: o cliente confirma o número mandando o código ao negócio. */
+  | { tipo: "verificar"; verificacaoId: string; codigo: string; link: string };
 
 export const agendarComoConvidado = createServerFn({ method: "POST" })
   .validator((input: unknown) =>
@@ -316,6 +326,7 @@ export const agendarComoConvidado = createServerFn({ method: "POST" })
         nome: z.string().trim().min(2).max(80),
         telefone: telefoneSchema,
         substituiId: z.string().uuid().optional(),
+        verificacaoId: z.string().uuid().optional(),
       })
       .parse(input),
   )
@@ -358,6 +369,36 @@ export const agendarComoConvidado = createServerFn({ method: "POST" })
 
     // Ficha do cliente: reaproveita pelo WhatsApp para não duplicar cadastro.
     const existente = await clientePorTelefone(db, tenant.id, data.telefone);
+
+    // Ficha existente só é usada por quem prova que o número é seu (achado 11). Com o
+    // WhatsApp do negócio conectado, o cliente manda o código; sem ele, o horário é
+    // marcado como "telefone não confirmado" para a equipe e o nome da ficha não aparece.
+    let telefoneNaoConfirmado = false;
+    let avisosWhatsapp: NonNullable<ConfirmacaoPublica["avisosWhatsapp"]> = "ativos";
+    if (existente) {
+      const v = await import("@/lib/verificacao-telefone.server");
+      const confirmado =
+        !!data.verificacaoId &&
+        (await v.situacaoDoPedido(tenant.id, data.telefone, data.verificacaoId)) === "confirmado";
+      if (!confirmado) {
+        const pedido = await v.pedirConfirmacaoDoTelefone(tenant.id, data.telefone);
+        if (pedido) {
+          const { linkParaEnviarCodigo } = await import("@/lib/verificacao-telefone");
+          return {
+            tipo: "verificar",
+            verificacaoId: pedido.verificacaoId,
+            codigo: pedido.codigo,
+            link: linkParaEnviarCodigo(pedido.numero, pedido.codigo),
+          };
+        }
+        telefoneNaoConfirmado = true;
+        avisosWhatsapp = "sem_whatsapp";
+      }
+    } else {
+      // Número novo: nada sai pelo WhatsApp até a pessoa confirmar (porteiro do WhatsApp).
+      const { numeroQueRecebeCodigo } = await import("@/lib/verificacao-telefone.server");
+      avisosWhatsapp = (await numeroQueRecebeCodigo(tenant.id)) ? "confirmar" : "sem_whatsapp";
+    }
 
     // Só pode substituir um horário ativo do próprio WhatsApp; senão, erro (nunca cria um segundo em silêncio).
     let substituiId: string | null = null;
@@ -414,7 +455,7 @@ export const agendarComoConvidado = createServerFn({ method: "POST" })
     let fichaCriadaAgora = false;
     if (existente) {
       clienteId = existente.id;
-      clienteNome = existente.nome;
+      clienteNome = telefoneNaoConfirmado ? data.nome : existente.nome;
     } else {
       const { data: novo, error } = await db
         .from("clientes")
@@ -488,6 +529,18 @@ export const agendarComoConvidado = createServerFn({ method: "POST" })
       throw new Error("Não foi possível concluir o agendamento agora.");
     }
 
+    if (telefoneNaoConfirmado) {
+      // Marca só informativa: falhar aqui (ex.: migração 0032 pendente) nunca desfaz o horário.
+      await db
+        .from("agendamentos")
+        .update({ telefone_nao_confirmado: true })
+        .eq("id", criado.agendamento_id)
+        .then(
+          () => undefined,
+          () => undefined,
+        );
+    }
+
     // Alteração: o horário antigo só é liberado depois que o novo está garantido.
     // Se não der para liberar, o novo é desfeito e o cliente fica só com o antigo.
     if (substituiId) {
@@ -526,8 +579,50 @@ export const agendarComoConvidado = createServerFn({ method: "POST" })
         endereco: tenant.endereco,
         whatsapp: tenant.whatsapp,
         valor_centavos: servico.preco_centavos,
+        avisosWhatsapp,
       },
     };
+  });
+
+/**
+ * Número novo pede para receber os avisos no WhatsApp: gera o código que a pessoa manda
+ * ao negócio. Só para um telefone que já tem ficha aqui (acabou de agendar).
+ */
+export const pedirAvisosNoWhatsapp = createServerFn({ method: "POST" })
+  .validator((input: unknown) =>
+    z.object({ slug: slugSchema, telefone: telefoneSchema }).parse(input),
+  )
+  .handler(
+    async ({ data }): Promise<{ verificacaoId: string; codigo: string; link: string } | null> => {
+      await limitarPublico("avisos", data.telefone);
+      const db = await admin();
+      const tenant = await barbeariaPorSlug(db, data.slug);
+      if (!(await clientePorTelefone(db, tenant.id, data.telefone))) return null;
+      const { pedirConfirmacaoDoTelefone } = await import("@/lib/verificacao-telefone.server");
+      const pedido = await pedirConfirmacaoDoTelefone(tenant.id, data.telefone);
+      if (!pedido) return null;
+      const { linkParaEnviarCodigo } = await import("@/lib/verificacao-telefone");
+      return {
+        verificacaoId: pedido.verificacaoId,
+        codigo: pedido.codigo,
+        link: linkParaEnviarCodigo(pedido.numero, pedido.codigo),
+      };
+    },
+  );
+
+/** A tela acompanha se o código já chegou pelo WhatsApp. Não revela nada da ficha. */
+export const situacaoDaConfirmacaoDoTelefone = createServerFn({ method: "POST" })
+  .validator((input: unknown) =>
+    z
+      .object({ slug: slugSchema, telefone: telefoneSchema, verificacaoId: z.string().uuid() })
+      .parse(input),
+  )
+  .handler(async ({ data }): Promise<{ situacao: "confirmado" | "pendente" | "expirado" }> => {
+    await limitarPublico("confirmarTelefone", data.telefone);
+    const db = await admin();
+    const tenant = await barbeariaPorSlug(db, data.slug);
+    const { situacaoDoPedido } = await import("@/lib/verificacao-telefone.server");
+    return { situacao: await situacaoDoPedido(tenant.id, data.telefone, data.verificacaoId) };
   });
 
 /** Preferências opcionais após a confirmação; não lê nem devolve a ficha privada. */
@@ -632,8 +727,8 @@ export const getPreviaDaBarbearia = createServerFn({ method: "GET" })
         descricao: (t.descricao || t.texto_boas_vindas || null) as string | null,
         // Endereço estável: redireciona para uma URL assinada nova a cada acesso.
         imagem: temImagem
-          ? `https://cortai.dev/api/public/capa/${slugAtual}`
-          : "https://cortai.dev/capa-social-cortai.jpg",
+          ? urlPublica(`/api/public/capa/${slugAtual}`)
+          : urlPublica("/capa-social-cortai.jpg"),
         logo,
         segmento: (t.segmento as string | null) ?? null,
         endereco: (t.endereco as string | null) ?? null,

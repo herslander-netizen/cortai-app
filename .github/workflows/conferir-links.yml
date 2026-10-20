@@ -1,0 +1,34 @@
+name: Conferir links de imagem
+
+# Utilitário: confere se cada endereço (separados por espaço) responde 200 com tipo image/*.
+# Útil antes de gravar fotos em dados de demonstração. Não grava nada.
+on:
+  push:
+    branches: [cloudflare-workers-migration-2026-10-13]
+    paths: [.github/workflows/conferir-links.yml]
+  workflow_dispatch:
+    inputs:
+      links:
+        description: "Endereços separados por espaço"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  conferir:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Conferir
+        env:
+          LINKS: ${{ inputs.links }}
+        run: |
+          ruins=0
+          for u in $LINKS; do
+            r="$(curl -sSL -o /dev/null -w '%{http_code} %{content_type}' "$u" || echo "000 erro")"
+            case "$r" in "200 image/"*) echo "OK    $u";; *) echo "RUIM  $r  $u"; ruins=$((ruins+1));; esac
+          done
+          echo "Ruins: $ruins"

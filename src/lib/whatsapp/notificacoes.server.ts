@@ -18,6 +18,7 @@ import { fusoDoTenant } from "@/lib/fuso.server";
 import { segmentoValido } from "@/lib/segmentos";
 
 import { conversaDoTelefone, configuracaoDoTenant, enviarPelaBarbearia } from "./fluxo.server";
+import { urlPublica } from "@/lib/origem-publica";
 
 export type TipoDeNotificacao =
   | "confirmacao_agendamento"
@@ -302,7 +303,11 @@ export function montarMensagem(
       linha(d.servico, "Serviço: "),
     );
     if (d.linkAgendamento) {
-      blocos.push("", "Quer marcar outro horário? É só responder aqui.", `Ou pelo link: ${d.linkAgendamento}`);
+      blocos.push(
+        "",
+        "Quer marcar outro horário? É só responder aqui.",
+        `Ou pelo link: ${d.linkAgendamento}`,
+      );
     }
   }
 
@@ -530,6 +535,22 @@ async function executar(agendamentoId: string, tipo: TipoDeNotificacao): Promise
   ) {
     return { enviado: false, motivo: "Cliente sem consentimento para lembretes." };
   }
+  // Porteiro único: telefone confirmado, SAIR/número errado e número recusado.
+  const { decisaoDeEnvio } = await import("./porteiro.server");
+  const porteiro = await decisaoDeEnvio(ag.cliente_id);
+  if (!porteiro.pode) return { enviado: false, motivo: porteiro.motivo };
+  // Teto por hora do número do negócio para os lotes que podem esperar (24h e retorno).
+  // Sem registro de envio: a próxima varredura tenta de novo, dentro da janela.
+  if (tipo === "lembrete_24h" || tipo === "retorno") {
+    const { TETO_POR_HORA } = await import("./ritmo");
+    const { count } = await db
+      .from("envios_de_whatsapp")
+      .select("id", { count: "exact", head: true })
+      .eq("tenant_id", ag.tenant_id)
+      .gte("criado_em", new Date(Date.now() - 3600_000).toISOString());
+    if ((count ?? 0) >= TETO_POR_HORA)
+      return { enviado: false, motivo: "Ritmo: teto de envios por hora deste número." };
+  }
 
   if (["lembrete_24h", "lembrete_2h", "pos_atendimento", "convite_avaliacao"].includes(tipo)) {
     const bloqueio = await preferenciaBloqueia(
@@ -580,7 +601,10 @@ async function executar(agendamentoId: string, tipo: TipoDeNotificacao): Promise
     const wa = emitido.decisoes[0]?.find((d) => d.canal === "whatsapp");
     if (wa && !wa.enviar) return { enviado: false, motivo: `Regra de avisos: ${wa.motivo}.` };
     // Mudança no horário torna obsoletos os avisos anteriores do cliente.
-    if (eventoDoCliente === "agendamento_remarcado" || eventoDoCliente === "agendamento_cancelado") {
+    if (
+      eventoDoCliente === "agendamento_remarcado" ||
+      eventoDoCliente === "agendamento_cancelado"
+    ) {
       await db
         .from("notificacoes")
         .update({ obsoleta_em: new Date().toISOString() })
@@ -592,13 +616,20 @@ async function executar(agendamentoId: string, tipo: TipoDeNotificacao): Promise
     }
   }
 
-  // Idempotência: o índice único (agendamento_id, tipo) impede duplicar.
-  const { data: existente } = await db
+  // Idempotência: o índice único (agendamento_id, tipo, versao) impede duplicar. A trava é por
+  // cliente: se o atendimento passou para outro cliente ("Trocar Cliente"), o envio já feito ao
+  // anterior não impede o do novo, que ganha a própria versão.
+  const { data: envios } = await db
     .from("envios_de_whatsapp")
-    .select("id, status, tentativas, proxima_tentativa_em")
+    .select("id, status, tentativas, proxima_tentativa_em, cliente_id")
     .eq("agendamento_id", agendamentoId)
-    .eq("tipo", tipo)
-    .maybeSingle();
+    .eq("tipo", tipo);
+  const doMesmoCliente = (envios ?? []).filter(
+    (e) => !e.cliente_id || e.cliente_id === ag.cliente_id,
+  );
+  const existente = doMesmoCliente[0] ?? null;
+  const versaoDoEnvio =
+    doMesmoCliente.length < (envios ?? []).length ? `cliente:${ag.cliente_id}` : null;
   // Só "erro" (temporário) e "pendente" podem tentar de novo.
   if (existente && existente.status !== "erro" && existente.status !== "pendente") {
     return { enviado: false, motivo: "Mensagem já processada." };
@@ -625,6 +656,7 @@ async function executar(agendamentoId: string, tipo: TipoDeNotificacao): Promise
         cliente_id: ag.cliente_id,
         telefone,
         tipo,
+        ...(versaoDoEnvio ? { versao: versaoDoEnvio } : {}),
         status: "enviando",
         tentativas: 1,
       })
@@ -706,7 +738,7 @@ async function executar(agendamentoId: string, tipo: TipoDeNotificacao): Promise
     const { criarConviteDeAvaliacao } = await import("@/lib/avaliacoes-publicas.functions");
     const token = await criarConviteDeAvaliacao(ag.id);
     if (!token) return marcarErro("Convite de avaliação já criado ou atendimento não elegível.");
-    linkAvaliacao = `https://cortai.dev/avaliar/${token}`;
+    linkAvaliacao = urlPublica(`/avaliar/${token}`);
   }
 
   const { gatewayDoProvedor } = await import("./gateway.server");
@@ -726,7 +758,7 @@ async function executar(agendamentoId: string, tipo: TipoDeNotificacao): Promise
       segmento: tenant?.segmento ?? null,
       textoRetorno,
       linkAvaliacao,
-      linkAgendamento: tenant?.slug ? `https://cortai.dev/agendar/${tenant.slug}` : null,
+      linkAgendamento: tenant?.slug ? urlPublica(`/agendar/${tenant.slug}`) : null,
       linkPagamento:
         tipo === "confirmacao_agendamento" &&
         config.pagamentoAntecipado &&
@@ -871,7 +903,10 @@ export async function processarAutomacoesDeWhatsapp(agora = new Date()) {
   };
   // Primeiro: envios parados em "enviando" (nunca reenviados).
   resumo.presosRecuperados = await recuperarEnviosPresos(agora).catch((e) => {
-    console.error("[whatsapp] recuperação de envios presos falhou:", e instanceof Error ? e.message : e);
+    console.error(
+      "[whatsapp] recuperação de envios presos falhou:",
+      e instanceof Error ? e.message : e,
+    );
     return 0;
   });
   try {
@@ -907,20 +942,36 @@ export async function processarAutomacoesDeWhatsapp(agora = new Date()) {
     return ids.filter((id) => !feitos.has(id));
   };
 
-  for (const id of await janela("lembrete_24h", 24, 30)) {
-    const r = await notificarAgendamento(id, "lembrete_24h");
-    if (r.enviado) resumo.lembrete24h += 1;
-  }
+  // Ritmo (`ritmo.ts`): pausa curta e variável entre envios, nada de rajada pelo mesmo
+  // número. O lembrete de 2h vem primeiro e não tem teto (a janela dele é curta); o de 24h
+  // e o retorno respeitam o teto da rodada e o que sobrar sai na próxima varredura.
+  const { PAUSA_ENTRE_ENVIOS, TETO_DA_RODADA, pausaVariavel } = await import("./ritmo");
+  let enviadosNaRodada = 0;
+  const depoisDoEnvio = async (r: Resultado) => {
+    if (!r.enviado) return;
+    enviadosNaRodada += 1;
+    await new Promise((ok) => setTimeout(ok, pausaVariavel(PAUSA_ENTRE_ENVIOS)));
+  };
+
   // "Você é o próximo": 2h ± 5 min (varredura a cada 15 min, dedupe pelo índice único).
   for (const id of await janela("lembrete_2h", 2, 8)) {
     const r = await notificarAgendamento(id, "lembrete_2h");
     if (r.enviado) resumo.lembrete2h += 1;
+    await depoisDoEnvio(r);
+  }
+  for (const id of await janela("lembrete_24h", 24, 30)) {
+    if (enviadosNaRodada >= TETO_DA_RODADA) break;
+    const r = await notificarAgendamento(id, "lembrete_24h");
+    if (r.enviado) resumo.lembrete24h += 1;
+    await depoisDoEnvio(r);
   }
 
   const { candidatosAoRetorno } = await import("./lembretes.server");
   for (const id of await candidatosAoRetorno(agora)) {
+    if (enviadosNaRodada >= TETO_DA_RODADA) break;
     const r = await notificarAgendamento(id, "retorno");
     if (r.enviado) resumo.retorno += 1;
+    await depoisDoEnvio(r);
   }
 
   // Retry controlado: só falhas recentes e abaixo do limite de tentativas.

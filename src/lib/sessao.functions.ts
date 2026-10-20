@@ -39,6 +39,11 @@ export type Sessao = {
   contextos: { cliente: boolean; negocio: boolean };
   /** A pessoa já escolheu em qual contexto quer estar. */
   contextoEscolhido: boolean;
+  /**
+   * Conta com papel de admin da plataforma. Pode estar no painel do ADM (papel "admin") ou,
+   * se escolheu o contexto "negocio" e tem vínculo ativo, no painel do negócio — e voltar.
+   */
+  adminDaPlataforma?: boolean;
 };
 
 async function admin() {
@@ -49,23 +54,13 @@ async function admin() {
 /** Cria o perfil na primeira entrada e concede admin se o e-mail estiver autorizado. */
 async function garantirPerfil(userId: string, email: string | null, nome: string | null) {
   const db = await admin();
-  const { data: perfil, error: erroConsulta } = await db
+  const { data: perfil } = await db
     .from("perfis")
     .select("tipo, nome")
     .eq("user_id", userId)
     .maybeSingle();
-  if (erroConsulta) {
-    console.error("[sessao] etapa=perfil.consultar", { code: erroConsulta.code });
-    throw new Error("Não foi possível carregar seu perfil agora.");
-  }
   if (!perfil) {
-    const { error } = await db
-      .from("perfis")
-      .insert({ user_id: userId, nome: nome ?? email?.split("@")[0] ?? null });
-    if (error) {
-      console.error("[sessao] etapa=perfil.criar", { code: error.code });
-      throw new Error("Não foi possível preparar seu perfil agora.");
-    }
+    await db.from("perfis").insert({ user_id: userId, nome: nome ?? email?.split("@")[0] ?? null });
   }
   if (email) {
     // Comparação exata: o e-mail de quem entra nunca vira padrão de busca (`_`/`%` seriam curingas).
@@ -103,40 +98,26 @@ export const getSessao = createServerFn({ method: "GET" })
     const tipo = await garantirPerfil(context.userId, email, nomeMeta);
     const db = await admin();
 
-    const [resultadoAdmin, resultadoVinculos, resultadoPerfil, resultadoFichas] = await Promise.all([
-      db.rpc("has_role", { _user_id: context.userId, _role: "admin" }),
-      db
-        .from("tenant_usuarios")
-        .select(
-          "tenant_id, papel, permissoes, ativo, tenants(nome, slug, logo_url, identidade_app, fuso, segmento, modo)",
-        )
-        .eq("user_id", context.userId)
-        .order("criado_em", { ascending: true }),
-      db
-        .from("perfis")
-        .select("nome, tipo, tenant_ativo, contexto_ativo")
-        .eq("user_id", context.userId)
-        .maybeSingle(),
-      db
-        .from("clientes")
-        .select("id", { count: "exact", head: true })
-        .eq("user_id", context.userId),
-    ]);
-    const falhaDaSessao = [
-      ["papel", resultadoAdmin.error],
-      ["vinculos", resultadoVinculos.error],
-      ["perfil", resultadoPerfil.error],
-      ["fichas", resultadoFichas.error],
-    ].find(([, error]) => error);
-    if (falhaDaSessao) {
-      const [etapa, error] = falhaDaSessao;
-      console.error("[sessao] etapa=carregar", { etapa, code: error?.code });
-      throw new Error("Não foi possível carregar sua sessão agora.");
-    }
-    const papelAdmin = resultadoAdmin.data;
-    const vinculos = resultadoVinculos.data;
-    const perfil = resultadoPerfil.data;
-    const fichas = resultadoFichas.count;
+    const [{ data: papelAdmin }, { data: vinculos }, { data: perfil }, { count: fichas }] =
+      await Promise.all([
+        db.rpc("has_role", { _user_id: context.userId, _role: "admin" }),
+        db
+          .from("tenant_usuarios")
+          .select(
+            "tenant_id, papel, permissoes, ativo, tenants(nome, slug, logo_url, identidade_app, fuso, segmento, modo)",
+          )
+          .eq("user_id", context.userId)
+          .order("criado_em", { ascending: true }),
+        db
+          .from("perfis")
+          .select("nome, tipo, tenant_ativo, contexto_ativo")
+          .eq("user_id", context.userId)
+          .maybeSingle(),
+        db
+          .from("clientes")
+          .select("id", { count: "exact", head: true })
+          .eq("user_id", context.userId),
+      ]);
 
     // Uma conta pode ter vínculo com mais de uma barbearia: usa a escolhida, com o
     // primeiro vínculo ativo como padrão seguro — a mesma regra do servidor (`vinculoDoMembro`).
@@ -172,9 +153,15 @@ export const getSessao = createServerFn({ method: "GET" })
       acessoSuspenso: false,
       contextos,
       contextoEscolhido,
+      adminDaPlataforma: Boolean(papelAdmin),
     };
 
-    if (papelAdmin) {
+    // Admin da plataforma entra no ADM, a não ser que tenha escolhido o painel do negócio
+    // (contexto "negocio" com vínculo ativo) ou a área de cliente na tela /escolher. As funções
+    // do servidor continuam conferindo vínculo e permissões em cada ação.
+    const escolheuOutraArea =
+      (contextoAtivo === "negocio" && vinculo?.ativo) || contextoAtivo === "cliente";
+    if (papelAdmin && !escolheuOutraArea) {
       return { ...base, papel: "admin" as const };
     }
     // Conta com os dois contextos que escolheu "cliente": entra como cliente,
@@ -255,10 +242,25 @@ export const getSessao = createServerFn({ method: "GET" })
 export const escolherContexto = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((input: unknown) =>
-    z.object({ contexto: z.enum(["cliente", "negocio"]) }).parse(input),
+    z.object({ contexto: z.enum(["cliente", "negocio", "admin"]) }).parse(input),
   )
   .handler(async ({ data, context }) => {
     const db = await admin();
+    // Voltar ao painel do ADM: só para quem tem o papel de admin (conferido no servidor).
+    // Contexto vazio = padrão do admin.
+    if (data.contexto === "admin") {
+      const { data: ehAdmin } = await db.rpc("has_role", {
+        _user_id: context.userId,
+        _role: "admin",
+      });
+      if (ehAdmin !== true) throw new Error("Esta conta não tem acesso ao painel do ADM.");
+      const { error } = await db
+        .from("perfis")
+        .update({ contexto_ativo: null })
+        .eq("user_id", context.userId);
+      if (error) throw new Error("Não foi possível trocar de painel agora.");
+      return { ok: true };
+    }
     if (data.contexto === "negocio") {
       const { data: vinculo } = await db
         .from("tenant_usuarios")
@@ -362,18 +364,40 @@ export const criarBarbearia = createServerFn({ method: "POST" })
       .parse(input),
   )
   .handler(async ({ data, context }) => {
-    const db = await admin();
-    const { data: vinculo, error: erroVinculoExistente } = await db
+    const diagnostico = (etapa: string, error: { code?: string; message?: string; details?: string; hint?: string } | null | undefined) => {
+      // Nunca registrar CPF, telefone, token, nome do usuário ou chaves de ambiente.
+      console.error("[criarBarbearia] Falha no fluxo", {
+        etapa,
+        userId: context.userId,
+        code: error?.code ?? null,
+        message: error?.message ?? null,
+        details: error?.details ?? null,
+        hint: error?.hint ?? null,
+        supabaseUrlConfigurada: Boolean(process.env["SUPABASE_URL"]),
+        serviceRoleConfigurada: Boolean(process.env["SUPABASE_SERVICE_ROLE_KEY"]),
+        supabaseHost: (() => {
+          try { return new URL(process.env["SUPABASE_URL"] ?? "").host; } catch { return null; }
+        })(),
+      });
+    };
+    let db: Awaited<ReturnType<typeof admin>>;
+    try {
+      db = await admin();
+    } catch (error) {
+      diagnostico("inicializar_cliente_admin", error instanceof Error ? { message: error.message } : null);
+      throw new Error("Não foi possível conectar ao serviço de cadastro. Tente novamente.");
+    }
+    const { data: vinculo, error: erroConsultaVinculo } = await db
       .from("tenant_usuarios")
-      .select("tenant_id, papel, ativo, tenants(segmento, identidade_app, modo)")
+      .select("tenant_id")
       .eq("user_id", context.userId)
       .limit(1)
       .maybeSingle();
-    if (erroVinculoExistente) {
-      console.error("[criar-negocio] etapa=vinculo.consultar", { code: erroVinculoExistente.code });
-      throw new Error("Não foi possível verificar seu acesso agora.");
+    if (erroConsultaVinculo) {
+      diagnostico("consultar_vinculo_existente", erroConsultaVinculo);
+      throw new Error("Não foi possível verificar seu negócio agora.");
     }
-    if (vinculo && vinculo.papel !== "dono") throw new Error("Sua conta já está ligada a um negócio.");
+    if (vinculo) throw new Error("Sua conta já está ligada a um negócio.");
     const definicao = SEGMENTOS_CONFIG[data.segmento];
     const baseSlug =
       data.nome
@@ -382,53 +406,16 @@ export const criarBarbearia = createServerFn({ method: "POST" })
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, "-")
         .replace(/^-+|-+$/g, "") || "negocio";
-    const { data: slugExistente } = await db
+    const { data: slugExistente, error: erroConsultaSlug } = await db
       .from("tenants")
       .select("id")
       .eq("slug", baseSlug)
       .maybeSingle();
+    if (erroConsultaSlug) {
+      diagnostico("consultar_slug", erroConsultaSlug);
+      throw new Error("Não foi possível verificar o nome do negócio agora.");
+    }
     const slug = slugExistente ? `${baseSlug}-${crypto.randomUUID().slice(0, 4)}` : baseSlug;
-    const pagina = configPadrao({
-      ...(definicao.temaPagina === "rose-creme"
-        ? { tema: "rose-creme", cores: TEMAS["rose-creme"].cores, fonteTitulo: "serif" }
-        : {}),
-      experiencia: definicao.experienciaPadrao,
-      versao: 2,
-    });
-    async function salvarDadosIniciais(tenantId: string) {
-      const { error: erroPagina } = await db
-        .from("tenant_page_configs")
-        .upsert(
-          { tenant_id: tenantId, draft_config: { pagina }, published_config: { pagina } },
-          { onConflict: "tenant_id" },
-        );
-      if (erroPagina) {
-        console.error("[criar-negocio] etapa=pagina.salvar", { code: erroPagina.code, tenantId });
-        throw new Error("O negócio foi criado, mas não conseguimos preparar sua página. Tente novamente.");
-      }
-      const { error: erroPerfil } = await db.from("perfis").upsert(
-        { user_id: context.userId, tipo: "barbeiro", contexto_ativo: "negocio", tenant_ativo: tenantId },
-        { onConflict: "user_id" },
-      );
-      if (erroPerfil) {
-        console.error("[criar-negocio] etapa=perfil.atualizar", { code: erroPerfil.code, tenantId });
-        throw new Error("O negócio foi criado, mas não conseguimos finalizar seu acesso. Tente novamente.");
-      }
-    }
-
-    if (vinculo) {
-      // Reentrada idempotente após uma falha posterior: completa os dados sem
-      // criar outro negócio nem apagar o que já pertence à conta.
-      await salvarDadosIniciais(vinculo.tenant_id);
-      return {
-        tenantId: vinculo.tenant_id as string,
-        identidade: definicao.identidade,
-        modo: definicao.modoPadrao,
-        emTeste: false,
-        avisoDoTeste: "Seu negócio já existia e foi finalizado. Confira os dados antes de continuar.",
-      };
-    }
-
     const { data: tenant, error } = await db
       .from("tenants")
       .insert({
@@ -444,34 +431,57 @@ export const criarBarbearia = createServerFn({ method: "POST" })
       .select("id")
       .single();
     if (error || !tenant) {
-      console.error("[criar-negocio] etapa=negocio.criar", { code: error?.code });
+      // Diagnóstico no servidor: não expor detalhes do banco na interface.
+      diagnostico("inserir_tenant", error);
+      console.error("[criarBarbearia] Resultado da inserção", { returnedTenant: Boolean(tenant) });
       throw new Error("Não foi possível criar seu negócio agora.");
     }
     const tenantId = tenant.id;
+    const { iniciarTesteGratis } = await import("@/lib/teste-gratis.server");
+    const teste = await iniciarTesteGratis(tenantId, {
+      documento: data.documento,
+      telefone: data.telefone,
+    }).catch(() => ({ emTeste: false, motivo: undefined }));
+    const pagina = configPadrao({
+      ...(definicao.temaPagina === "rose-creme"
+        ? { tema: "rose-creme", cores: TEMAS["rose-creme"].cores, fonteTitulo: "serif" }
+        : {}),
+      experiencia: definicao.experienciaPadrao,
+      versao: 2,
+    });
     const { error: erroVinculo } = await db
       .from("tenant_usuarios")
       .insert({ tenant_id: tenantId, user_id: context.userId, papel: "dono" });
     if (erroVinculo) {
-      // Não apaga dados aqui: a próxima tentativa detecta o vínculo se ele
-      // tiver sido confirmado e conclui as etapas restantes com segurança.
-      console.error("[criar-negocio] etapa=vinculo.criar", { code: erroVinculo.code, tenantId });
-      throw new Error("Não foi possível liberar o acesso ao seu negócio. Tente novamente.");
+      diagnostico("vincular_dono", erroVinculo);
+      await db.from("tenants").delete().eq("id", tenantId);
+      throw new Error("Não foi possível liberar o acesso ao seu negócio.");
     }
-    const { iniciarTesteGratis } = await import("@/lib/teste-gratis.server");
-    let teste: { emTeste: boolean; motivo?: string };
-    try {
-      teste = await iniciarTesteGratis(tenantId, {
-        documento: data.documento,
-        telefone: data.telefone,
-      });
-    } catch (erro) {
-      console.error("[criar-negocio] etapa=teste-gratis", {
-        code: erro instanceof Error ? erro.name : "desconhecido",
-        tenantId,
-      });
-      throw new Error("O negócio foi criado, mas não conseguimos preparar o teste grátis. Tente novamente.");
+    const { error: erroPagina } = await db
+      .from("tenant_page_configs")
+      .upsert(
+        { tenant_id: tenantId, draft_config: { pagina }, published_config: { pagina } },
+        { onConflict: "tenant_id" },
+      );
+    if (erroPagina) {
+      diagnostico("salvar_configuracao_pagina", erroPagina);
+      await db.from("tenant_usuarios").delete().eq("tenant_id", tenantId).eq("user_id", context.userId);
+      await db.from("tenants").delete().eq("id", tenantId);
+      throw new Error("Não foi possível preparar a página do negócio.");
     }
-    await salvarDadosIniciais(tenantId);
+    const { error: erroPerfil } = await db
+      .from("perfis")
+      .upsert(
+        { user_id: context.userId, tipo: "barbeiro", contexto_ativo: "negocio" },
+        { onConflict: "user_id" },
+      );
+    if (erroPerfil) {
+      diagnostico("atualizar_perfil", erroPerfil);
+      await db.from("tenant_page_configs").delete().eq("tenant_id", tenantId);
+      await db.from("tenant_usuarios").delete().eq("tenant_id", tenantId).eq("user_id", context.userId);
+      await db.from("tenants").delete().eq("id", tenantId);
+      throw new Error("O negócio foi iniciado, mas não foi possível configurar seu acesso. Tente novamente.");
+    }
     return {
       tenantId: tenantId as string,
       identidade: definicao.identidade,

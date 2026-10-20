@@ -15,6 +15,8 @@ export type IdentidadeDaEquipe = {
   userId: string;
   profissionalId: string | null;
   nome: string | null;
+  /** Permissões efetivas armazenadas para o membro; o dono é tratado pela regra central. */
+  permissoes: string[];
 };
 
 const VALIDADE_CODIGO_MS = 15 * 60_000;
@@ -50,7 +52,7 @@ export async function identificarEquipe(
   if (!ids.length) return null;
   const { data: membro } = await db
     .from("tenant_usuarios")
-    .select("user_id, papel")
+    .select("user_id, papel, permissoes")
     .eq("tenant_id", tenantId)
     .eq("ativo", true)
     .in("user_id", ids)
@@ -73,6 +75,7 @@ export async function identificarEquipe(
     userId: membro.user_id,
     profissionalId: prof?.id ?? null,
     nome: perfil?.nome ?? null,
+    permissoes: Array.isArray(membro.permissoes) ? membro.permissoes : [],
   };
 }
 

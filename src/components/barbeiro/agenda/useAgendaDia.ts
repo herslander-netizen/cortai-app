@@ -76,6 +76,7 @@ export function useAgendaDia(dia: string) {
     const conectar = () => {
       setOnline(true);
       void queryClient.invalidateQueries({ queryKey: ["agenda-dia"] });
+      void queryClient.invalidateQueries({ queryKey: ["agenda-periodo"] });
     };
     const desconectar = () => setOnline(false);
     window.addEventListener("online", conectar);
@@ -97,6 +98,7 @@ export function useAgendaDia(dia: string) {
       invalidacao = window.setTimeout(() => {
         if (agendaPendente) {
           void queryClient.invalidateQueries({ queryKey: ["agenda-dia"] });
+          void queryClient.invalidateQueries({ queryKey: ["agenda-periodo"] });
           void queryClient.invalidateQueries({ queryKey: ["agenda-agora-proximo"] });
           void queryClient.invalidateQueries({ queryKey: ["agenda-a-receber"] });
           void queryClient.invalidateQueries({ queryKey: ["agenda-meu-dia"] });

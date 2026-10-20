@@ -1,8 +1,8 @@
 /**
- * Único lugar que registra o service worker. Só no domínio de produção e fora
- * de iframe; em qualquer outro lugar remove um registro que tenha sobrado.
+ * Único lugar que registra o service worker. Só no site principal e fora de iframe
+ * (a prévia fica de fora); em qualquer outro lugar remove um registro que tenha sobrado.
  */
-const HOSTS_DE_PRODUCAO = new Set(["cortai.dev", "www.cortai.dev"]);
+const HOSTS_DE_PRODUCAO = new Set(["cortaiapp.pages.dev", "cortai.dev", "www.cortai.dev"]);
 
 export function podeRegistrar(opcoes: { host: string; emIframe: boolean; producao: boolean }) {
   return opcoes.producao && !opcoes.emIframe && HOSTS_DE_PRODUCAO.has(opcoes.host);

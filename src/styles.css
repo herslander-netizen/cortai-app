@@ -4,6 +4,18 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* Oculta indicadores de rolagem em toda a aplicação sem desativar o scroll. */
+* {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+*::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
 /*
  * Cortaí design system — base semântica compartilhada.
  */
@@ -119,8 +131,13 @@
   --estado-faltou: #ff4d5e;
   --estado-remarcado: #ff2d78;
   --estado-encaixe: #2dd4bf;
-  --agenda-listra-base: #2a2f2b;
-  --agenda-listra: color-mix(in oklab, #e8eee9 6%, #2a2f2b);
+  /* Cartão da timeline: um pouco abaixo do fundo, como no modelo escuro. */
+  --agenda-cartao: color-mix(in oklab, var(--ink) 78%, #000);
+  --agenda-cartao-sombra: none;
+  /* Fora do expediente como no Figaro: um tom quase igual ao fundo e listras bem leves
+     (surfaceContainerLow + onSurface a 2,5%), sem bloco pesado. */
+  --agenda-listra-base: color-mix(in oklab, var(--ink) 95%, #ffffff);
+  --agenda-listra: color-mix(in oklab, var(--agenda-listra-base) 95%, #ffffff);
   --grafite-ink: var(--fundo);
   --grafite-surface: var(--cartao);
   --grafite-raised: var(--painel);
@@ -250,8 +267,10 @@
   --estado-faltou: #e0343a;
   --estado-remarcado: #e0145e;
   --estado-encaixe: #0f9488;
-  --agenda-listra-base: #f0f6f2;
-  --agenda-listra: #e2eae4;
+  --agenda-cartao: var(--ink2);
+  --agenda-cartao-sombra: 0 1px 3px color-mix(in oklab, var(--paper) 10%, transparent);
+  --agenda-listra-base: #f0f7f2;
+  --agenda-listra: color-mix(in oklab, #f0f7f2 96%, #2a2f2c);
   --ink: var(--fundo);
   --ink2: var(--cartao);
   --ink3: var(--painel);
@@ -1280,43 +1299,6 @@ html.light .brand-logo-on-light,
 .agenda-timeline-reais {
   color: var(--paper);
   font-weight: 650;
-}
-.agenda-timeline-agendado {
-  border-left-color: var(--status-scheduled);
-  background: var(--status-scheduled-soft);
-}
-.agenda-timeline-remarcado {
-  border-left-color: var(--status-rescheduled);
-  background: var(--status-rescheduled-soft);
-}
-.agenda-timeline-chegou {
-  border-left-color: var(--status-arrived);
-  background: var(--status-arrived-soft);
-}
-.agenda-timeline-na_cadeira {
-  border-left-color: var(--status-active);
-  background: var(--status-active-soft);
-}
-.agenda-timeline-finalizado {
-  border-left-color: var(--status-completed);
-  background: var(--status-completed-soft);
-}
-.agenda-timeline-cancelado {
-  border-left-color: var(--status-cancelled);
-  background: var(--status-cancelled-soft);
-}
-.agenda-timeline-nao_compareceu {
-  border-left-color: var(--status-missed);
-  background: var(--status-missed-soft);
-}
-.agenda-timeline-encaixe {
-  border-color: var(--status-walk-in);
-  border-style: dashed;
-  background: var(--status-walk-in-soft);
-}
-.agenda-timeline-selecionado {
-  border-color: var(--gold);
-  box-shadow: 0 0 0 2px var(--gold-soft);
 }
 .agenda-linha-agora {
   position: absolute;
@@ -2908,9 +2890,6 @@ body:has(.auth-screen--claro) {
   min-height: 52px;
   justify-content: flex-start;
 }
-.agenda-timeline-encaixe {
-  border-style: dashed !important;
-}
 .agenda-arrastando {
   z-index: 6;
   box-shadow: var(--shadow-lg, var(--shadow-md));
@@ -2982,16 +2961,7 @@ body:has(.auth-screen--claro) {
     opacity: 0;
   }
 }
-.agenda-troca-dia {
-  animation: agenda-troca-proximo var(--mov-base) var(--ease-saida);
-}
-.agenda-troca-dia[data-direcao="anterior"] {
-  animation-name: agenda-troca-anterior;
-}
-/* Troca pelo gesto: o dia já entrou acompanhando o dedo. */
-.agenda-troca-dia[data-entrada="gesto"] {
-  animation: none;
-}
+/* Troca de dia: a Agenda não desmonta; o deslize curto é feito em AgendaOperacional (Web Animations). */
 .agenda-operacional {
   touch-action: pan-y pinch-zoom;
 }
@@ -3026,30 +2996,67 @@ html.agenda-gesto-ativo body {
   pointer-events: none;
   will-change: transform;
 }
+/* Troca de dia em páginas (celular, como no modelo): a página inteira do dia (horas, linhas,
+   expediente, cartões e os cinco pontinhos) desliza com o dedo (useGestoDia) e o dia vizinho
+   entra ao lado com as próprias horas. Distância de uma página = largura da grade + vão. */
+.agenda-timeline-paginas {
+  --trilho-vao: 24px;
+  /* Coluna das horas (margem da grade): 48px, 37px no celular — a mesma de .agenda-timeline. */
+  --calha-das-horas: 48px;
+}
+@media (max-width: 767px) {
+  .agenda-timeline-paginas {
+    --calha-das-horas: 37px;
+  }
+}
+@media (max-width: 600px) {
+  /* As páginas saem até a borda da tela; quem corta é a Agenda (e a página durante o gesto). */
+  .agenda-timeline-paginas,
+  .agenda-timeline-paginas > .agenda-timeline-scroll {
+    overflow-x: visible;
+  }
+  html.agenda-gesto-ativo .agenda-operacional {
+    overflow-x: visible;
+  }
+}
+.agenda-dia-vizinha {
+  position: absolute;
+  top: 0;
+  /* A página vizinha tem a largura da grade inteira, com a coluna das horas. */
+  width: calc(100% + var(--calha-das-horas));
+  height: 100%;
+  pointer-events: none;
+}
+.agenda-dia-vizinha[data-lado="anterior"] {
+  left: calc(-100% - 2 * var(--calha-das-horas) - var(--trilho-vao));
+}
+.agenda-dia-vizinha[data-lado="proximo"] {
+  left: calc(100% + var(--trilho-vao));
+}
+.agenda-dia-vizinha .agenda-timeline-wrap,
+.agenda-dia-vizinha .agenda-timeline-scroll {
+  max-height: none;
+  overflow: visible;
+}
+/* Sem o respiro da grade: o dia vizinho alinha hora a hora com o atual. */
+.agenda-dia-vizinha .agenda-timeline-scroll {
+  padding-block: 0;
+}
+/* Os pontinhos do topo e do fim da página vizinha, na mesma altura dos do dia atual. */
+.agenda-dia-vizinha-pontos {
+  position: absolute;
+  inset-inline: 0;
+  top: -26px;
+}
+
+/* Fora do gesto, a prévia nunca aparece, mesmo que um transform tenha ficado para trás. */
+html:not(.agenda-gesto-ativo) .agenda-previa-vizinho {
+  visibility: hidden;
+}
 .agenda-previa-data {
   display: block;
   font-size: 0.8125rem;
   letter-spacing: 0.04em;
-}
-@keyframes agenda-troca-proximo {
-  from {
-    opacity: 0;
-    transform: translateX(20px);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
-}
-@keyframes agenda-troca-anterior {
-  from {
-    opacity: 0;
-    transform: translateX(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
 }
 .mov-item-cascata,
 .mov-conteudo-entrada,
@@ -3133,7 +3140,6 @@ html.agenda-gesto-ativo body {
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .agenda-troca-dia,
   .agenda-novo {
     animation: none;
   }
@@ -5066,11 +5072,13 @@ html.agenda-gesto-ativo body {
   }
 }
 @media (max-width: 560px) {
+  .showroom-secao,
+  .showroom-faixa { padding-block: 3.25rem; }
   .showroom-header-inner {
     min-height: 62px;
   }
   .showroom-header-actions .btn {
-    min-height: 40px;
+    min-height: 48px;
   }
   .showroom-hero {
     padding-block: 3.5rem 4.5rem;
@@ -5481,48 +5489,6 @@ button.agenda-nome:hover {
   font-weight: 800;
   letter-spacing: 0.08em;
 }
-/* Timeline limpa: status pela barra lateral, fundo neutro, passado apagado. */
-.agenda-timeline-bloco.agenda-timeline-agendado,
-.agenda-timeline-bloco.agenda-timeline-chegou,
-.agenda-timeline-bloco.agenda-timeline-remarcado,
-.agenda-timeline-bloco.agenda-timeline-finalizado,
-.agenda-timeline-bloco.agenda-timeline-cancelado,
-.agenda-timeline-bloco.agenda-timeline-nao_compareceu {
-  border-color: var(--line);
-  border-left-width: 4px;
-  background: var(--ink2);
-}
-.agenda-timeline-bloco.agenda-timeline-agendado {
-  border-left-color: var(--status-scheduled);
-}
-.agenda-timeline-bloco.agenda-timeline-chegou {
-  border-left-color: var(--status-arrived);
-}
-.agenda-timeline-bloco.agenda-timeline-na_cadeira {
-  border-left-width: 4px;
-}
-.agenda-timeline-bloco.agenda-timeline-finalizado {
-  border-left-color: var(--status-completed);
-  opacity: 0.7;
-}
-.agenda-timeline-bloco.agenda-timeline-cancelado {
-  border-left-color: var(--status-cancelled);
-  opacity: 0.55;
-}
-.agenda-timeline-bloco.agenda-timeline-nao_compareceu {
-  border-left-color: var(--status-missed);
-  opacity: 0.55;
-}
-.agenda-timeline-bloco.agenda-timeline-remarcado {
-  border-left-color: var(--status-rescheduled);
-  opacity: 0.55;
-}
-.agenda-timeline-bloco.agenda-timeline-cancelado strong {
-  text-decoration: line-through;
-}
-.agenda-timeline-passado:not(.agenda-timeline-na_cadeira) {
-  opacity: 0.6;
-}
 .agenda-timeline-intervalo {
   position: absolute;
   right: 0;
@@ -5703,6 +5669,14 @@ button.agenda-nome:hover {
   -webkit-tap-highlight-color: transparent;
 }
 .agenda-botao-agora-principal .agenda-botao-agora-visualizacao {
+  /* O botão só alterna a visualização: não deve parecer uma aba selecionada. */
+  color: var(--mute);
+  border-color: transparent;
+  box-shadow: none;
+  transition: color 160ms ease, transform 160ms ease;
+}
+.agenda-botao-agora-principal .agenda-botao-agora-visualizacao:hover,
+.agenda-botao-agora-principal .agenda-botao-agora-visualizacao:focus-visible {
   color: var(--agenda-destaque);
 }
 /* Pílula enxuta: texto e ícones na medida do polegar, sem pesar na tela. */
@@ -5714,9 +5688,9 @@ button.agenda-nome:hover {
   height: 20px;
 }
 .agenda-botao-agora-visualizacao svg {
-  width: 22px;
-  height: 22px;
-  stroke-width: 2.2;
+  width: 24px;
+  height: 24px;
+  stroke-width: 2;
 }
 .agenda-botao-agora-principal button:active {
   transform: scale(0.97);
@@ -6061,7 +6035,15 @@ button.agenda-nome:hover {
     border-radius: 20px;
   }
   .agenda-acao-fixa .agenda-fab-toggle {
-    background: color-mix(in oklab, var(--primary) 55%, black);
+    /* Mais presença de azul, sem perder o marinho da identidade Cortaí. */
+    background: color-mix(in oklab, var(--primary) 76%, black);
+    box-shadow:
+      0 8px 24px color-mix(in oklab, var(--primary) 30%, transparent),
+      var(--shadow-md);
+  }
+  .agenda-acao-fixa .agenda-fab-toggle .agenda-fab-icone {
+    color: white;
+    filter: drop-shadow(0 1px 1px color-mix(in oklab, black 18%, transparent));
   }
   .agenda-acao-fixa .agenda-acao-redonda {
     width: var(--agenda-fab-tamanho);
@@ -6225,19 +6207,6 @@ button.agenda-nome:hover {
 
 /* Agenda: paleta de hierarquia (neutro estrutura, azul ação, verde positivo, rosa atenção). */
 .agenda-timeline-hora { border-color: var(--agenda-linha-hora); }
-.agenda-timeline-bloco { background: var(--ink2); border-color: var(--line); box-shadow: none; }
-.agenda-timeline-agendado,
-.agenda-timeline-remarcado,
-.agenda-timeline-finalizado { background: var(--ink2); }
-.agenda-timeline-agendado { border-left-color: var(--line2); }
-.agenda-timeline-remarcado { border-left-color: var(--agenda-aguardo); }
-.agenda-timeline-chegou { border-left-color: var(--agenda-aguardo); background: color-mix(in oklab, var(--agenda-aguardo) 7%, var(--ink2)); }
-.agenda-timeline-na_cadeira { border-left-color: var(--agenda-acao); background: var(--ink2); }
-.agenda-timeline-finalizado { border-left-color: var(--agenda-positivo); }
-.agenda-timeline-cancelado,
-.agenda-timeline-nao_compareceu { border-left-color: var(--agenda-atencao); background: color-mix(in oklab, var(--agenda-atencao) 6%, var(--ink2)); }
-.agenda-timeline-encaixe { border-color: var(--agenda-acao-suave); background: var(--ink2); }
-.agenda-timeline-selecionado { border-color: var(--agenda-acao); box-shadow: 0 0 0 2px color-mix(in oklab, var(--agenda-acao) 22%, transparent); }
 .agenda-linha-agora { border-top-color: var(--agenda-atencao); }
 .agenda-linha-agora::before,
 .agenda-linha-agora span { background: var(--agenda-atencao); color: #ffffff; }
@@ -6251,62 +6220,6 @@ button.agenda-nome:hover {
   }
 }
 
-/* Agenda: cartões coloridos pelo estado do cliente, com a faixa lateral arredondada do modelo. */
-.agenda-timeline-bloco {
-  --cor-estado: var(--estado-agendado);
-  --fundo-estado: 20%;
-}
-.light .agenda-timeline-bloco {
-  --fundo-estado: 11%;
-}
-.agenda-timeline-confirmado { --cor-estado: var(--estado-confirmado); }
-.agenda-timeline-chegou { --cor-estado: var(--estado-chegou); }
-.agenda-timeline-na_cadeira { --cor-estado: var(--estado-na-cadeira); --fundo-estado: 28%; }
-.light .agenda-timeline-na_cadeira { --fundo-estado: 16%; }
-.agenda-timeline-finalizado { --cor-estado: var(--estado-finalizado); }
-.agenda-timeline-cancelado { --cor-estado: var(--estado-cancelado); }
-.agenda-timeline-nao_compareceu { --cor-estado: var(--estado-faltou); }
-.agenda-timeline-remarcado { --cor-estado: var(--estado-remarcado); }
-.agenda-timeline-encaixe:not(.agenda-timeline-chegou, .agenda-timeline-na_cadeira, .agenda-timeline-finalizado, .agenda-timeline-cancelado, .agenda-timeline-nao_compareceu) {
-  --cor-estado: var(--estado-encaixe);
-}
-.agenda-operacional .agenda-timeline-bloco.agenda-timeline-bloco {
-  border: 1px solid color-mix(in oklab, var(--cor-estado) 30%, transparent);
-  border-radius: 12px;
-  background: color-mix(in oklab, var(--cor-estado) var(--fundo-estado), var(--ink2));
-  padding-left: 18px;
-  opacity: 1;
-}
-.agenda-operacional .agenda-timeline-bloco.agenda-timeline-encaixe {
-  border-style: dashed;
-}
-.agenda-operacional .agenda-timeline-bloco::before {
-  content: "";
-  position: absolute;
-  top: 6px;
-  bottom: 6px;
-  left: 6px;
-  width: 4px;
-  border-radius: 999px;
-  background: var(--cor-estado);
-  pointer-events: none;
-}
-/* Encerrados continuam legíveis pela cor; só perdem um pouco de destaque. */
-.agenda-operacional .agenda-timeline-bloco.agenda-timeline-cancelado,
-.agenda-operacional .agenda-timeline-bloco.agenda-timeline-nao_compareceu,
-.agenda-operacional .agenda-timeline-bloco.agenda-timeline-remarcado {
-  opacity: 0.8;
-}
-.agenda-operacional .agenda-timeline-bloco.agenda-timeline-passado:not(.agenda-timeline-na_cadeira) {
-  opacity: 0.82;
-}
-.agenda-operacional .agenda-timeline-bloco.agenda-timeline-selecionado {
-  border-color: var(--cor-estado);
-  box-shadow: 0 0 0 2px color-mix(in oklab, var(--cor-estado) 35%, transparent);
-}
-.agenda-operacional .agenda-timeline-bloco.agenda-arrastando {
-  opacity: 0.85;
-}
 
 /* Celular: a prévia do dia vizinho ocupa a tela toda por baixo da barra do topo e já nasce
    alinhada à grade (ver AgendaTimeline); sem a data editorial, que não existe no dia real. */
@@ -6403,4 +6316,850 @@ button.agenda-nome:hover {
   .showroom-header-actions > :nth-child(2) {
     display: none;
   }
+}
+
+
+/* Home de apresentação: estética premium escura com acento oficial da marca. */
+.showroom-page {
+  --show-bg: var(--ink);
+  --show-surface: var(--ink2);
+  --show-ink: var(--paper);
+  --show-muted: var(--mute);
+  --show-line: var(--line);
+  --show-accent: var(--rosa);
+  --show-accent-soft: color-mix(in oklab, var(--rosa) 12%, var(--ink2));
+  --show-shadow: 0 28px 80px color-mix(in oklab, var(--background) 42%, transparent);
+  color-scheme: dark;
+  background: radial-gradient(ellipse at 82% 8%, color-mix(in oklab, var(--rosa) 10%, transparent), transparent 35rem), var(--show-bg);
+}
+.showroom-header { border-bottom-color: color-mix(in oklab, var(--line) 80%, transparent); background: color-mix(in oklab, var(--ink) 90%, transparent); backdrop-filter: blur(18px) saturate(140%); }
+.showroom-header-inner { min-height: 76px; width: min(100% - 2.5rem, 1280px); }
+.showroom-header-inner nav a, .showroom-footer nav a { min-height: 44px; display: inline-flex; align-items: center; transition: color 180ms ease, opacity 180ms ease; }
+.showroom-hero, .showroom-secao, .showroom-dividida, .showroom-cta-final, .showroom-footer { width: min(100% - 2.5rem, 1280px); }
+.showroom-hero { position: relative; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: clamp(2rem, 6vw, 6rem); min-height: min(860px, calc(100svh - 76px)); padding-block: clamp(4rem, 8vw, 8rem); }
+.showroom-hero-copy { position: relative; z-index: 1; max-width: 640px; }
+.showroom-eyebrow { display: inline-flex; align-items: center; gap: .65rem; color: var(--ink2); letter-spacing: .16em; text-transform: uppercase; }
+.showroom-eyebrow::before { width: 1.6rem; height: 1px; background: var(--rosa); content: ""; }
+.showroom-hero h1 { max-width: 12ch; font-size: clamp(3rem, 5.7vw, 5.75rem); line-height: .99; letter-spacing: -.065em; text-wrap: balance; }
+.showroom-hero h1 span:nth-of-type(2) { color: var(--rosa); }
+.showroom-lead { max-width: 46ch; margin-top: 1.4rem; font-size: clamp(1.05rem, 1.5vw, 1.25rem); line-height: 1.7; }
+.showroom-hero-actions { align-items: center; gap: .85rem; margin-top: 1.8rem; }
+.showroom-hero-actions .btn, .showroom-cta-final .btn { min-height: 48px; border-radius: 999px; padding-inline: 1.35rem; }
+.showroom-hero-produto { isolation: isolate; }
+.showroom-hero-produto::before { position: absolute; z-index: -1; inset: 7% -4% -5% 9%; border: 1px solid color-mix(in oklab, var(--rosa) 28%, transparent); border-radius: 2rem; background: linear-gradient(145deg, color-mix(in oklab, var(--rosa) 10%, transparent), transparent 55%); content: ""; transform: rotate(2deg); }
+.showroom-hero-produto > .showroom-agenda { transform: translateY(-.5rem); }
+.showroom-faixa { border-color: color-mix(in oklab, var(--line) 75%, transparent); }
+.showroom-secao-cabecalho h2, .showroom-cta-final h2 { letter-spacing: -.045em; text-wrap: balance; }
+.showroom-produto, .showroom-chat { border-radius: 1.4rem; box-shadow: var(--show-shadow); }
+.showroom-recursos { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem 1.5rem; }
+.showroom-recursos article { min-height: 160px; padding: 1.5rem .5rem 1rem 0; border-top-width: 1px; transition: transform 200ms ease, border-color 200ms ease; }
+.showroom-recursos article:hover { border-color: var(--rosa); transform: translateY(-3px); }
+.showroom-recursos article svg { width: 1.5rem; height: 1.5rem; }
+.showroom-recursos h3 { font-size: 1rem; letter-spacing: -.02em; }
+.showroom-recursos p { max-width: 34ch; font-size: .85rem; line-height: 1.7; }
+.showroom-faq summary { min-height: 48px; display: flex; align-items: center; padding-block: .35rem; }
+.showroom-faq details[open] summary { color: var(--ink2); }
+.showroom-cta-final { position: relative; isolation: isolate; max-width: 100%; width: 100%; padding-inline: max(1.25rem, calc((100% - 900px) / 2)); background: radial-gradient(ellipse at 50% 0%, color-mix(in oklab, var(--rosa) 16%, transparent), transparent 28rem), var(--ink); }
+.showroom-cta-final h2 { max-width: 16ch; margin-inline: auto; }
+.showroom-footer { grid-template-columns: auto minmax(0, 1fr) auto; width: min(100% - 2.5rem, 1280px); gap: 1.25rem; }
+@media (max-width: 900px) {
+  .showroom-hero { grid-template-columns: minmax(0, 1fr); min-height: auto; gap: 3rem; padding-block: 4rem; }
+  .showroom-hero-copy { max-width: 720px; }
+  .showroom-hero h1 { max-width: 14ch; font-size: clamp(3rem, 9vw, 5rem); }
+  .showroom-hero-produto { width: min(100%, 720px); margin-inline: auto; }
+}
+@media (max-width: 640px) {
+  .showroom-header-inner { width: min(100% - 1.25rem, 1280px); gap: .5rem; }
+  .showroom-hero, .showroom-secao, .showroom-dividida, .showroom-footer { width: min(100% - 1.5rem, 1280px); }
+  .showroom-hero { padding-block: 3.25rem; }
+  .showroom-hero h1 { font-size: clamp(2.7rem, 12vw, 4rem); }
+  .showroom-hero-actions { align-items: stretch; flex-direction: column; }
+  .showroom-hero-actions > * { width: 100%; justify-content: center; }
+  .showroom-recursos { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .5rem 1rem; }
+  .showroom-recursos article { min-height: 0; }
+  .showroom-faq { grid-template-columns: minmax(0, 1fr); gap: 2rem; padding-inline: 1rem; }
+  .showroom-footer { grid-template-columns: minmax(0, 1fr); justify-items: start; }
+  .showroom-footer nav { flex-wrap: wrap; gap: .5rem 1rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .showroom-page, .showroom-page *, .showroom-page *::before, .showroom-page *::after { scroll-behavior: auto; transition-duration: .01ms; animation-duration: .01ms; animation-iteration-count: 1; }
+  .showroom-recursos article:hover { transform: none; }
+}
+
+
+/* Cartões da timeline — um padrão só, como nos modelos do dono (18/10/2026): o mesmo fundo para
+   todos (claro no tema claro, grafite no escuro) e o estado muda só a cor da barra lateral.
+   O nome do estado continua escrito, neutro, para a cor não ser a única pista. */
+.agenda-timeline-bloco {
+  --cor-estado: var(--estado-agendado);
+  border: 0;
+  border-radius: 12px;
+  background: var(--agenda-cartao);
+  padding: 8px 12px 8px 20px;
+  box-shadow: var(--agenda-cartao-sombra);
+  color: var(--paper);
+}
+.agenda-timeline-bloco::before {
+  content: "";
+  position: absolute;
+  top: 6px;
+  bottom: 6px;
+  left: 6px;
+  width: 3.5px;
+  border-radius: 2px;
+  /* Figaro: a cor da categoria do serviço (decisão do dono, 18/10). */
+  background: var(--cor-categoria, var(--cor-estado));
+  pointer-events: none;
+}
+.agenda-timeline-confirmado { --cor-estado: var(--estado-confirmado); }
+.agenda-timeline-chegou { --cor-estado: var(--estado-chegou); }
+.agenda-timeline-na_cadeira { --cor-estado: var(--estado-na-cadeira); }
+.agenda-timeline-finalizado { --cor-estado: var(--estado-finalizado); }
+.agenda-timeline-cancelado { --cor-estado: var(--estado-cancelado); }
+.agenda-timeline-nao_compareceu { --cor-estado: var(--estado-faltou); }
+.agenda-timeline-remarcado { --cor-estado: var(--estado-remarcado); }
+.agenda-timeline-encaixe:not(.agenda-timeline-chegou, .agenda-timeline-na_cadeira, .agenda-timeline-finalizado, .agenda-timeline-cancelado, .agenda-timeline-nao_compareceu) {
+  --cor-estado: var(--estado-encaixe);
+}
+.agenda-timeline-bloco .agenda-timeline-bloco-topo strong {
+  font-size: 14px;
+  font-weight: 700;
+}
+.agenda-timeline-bloco.agenda-timeline-cancelado .agenda-timeline-bloco-topo strong {
+  text-decoration: line-through;
+}
+.agenda-timeline-bloco .agenda-timeline-horario {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--mute);
+  font-size: 13px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+/* Etiqueta do estado: neutra (a cor fica só na barra). */
+.agenda-timeline-bloco .status-badge {
+  border-color: var(--line2);
+  background: transparent;
+  color: var(--mute);
+}
+/* Horários que já passaram: só um pouco mais discretos (não depende do estado). */
+.agenda-timeline-passado:not(.agenda-timeline-na_cadeira) {
+  opacity: 0.82;
+}
+.agenda-timeline-bloco.agenda-timeline-selecionado {
+  box-shadow:
+    0 0 0 2px color-mix(in oklab, var(--cor-estado) 45%, transparent),
+    var(--agenda-cartao-sombra);
+}
+.agenda-timeline-bloco:focus-visible {
+  outline: 2px solid color-mix(in oklab, var(--cor-estado) 70%, var(--paper));
+  outline-offset: 2px;
+}
+/* Apresentação: mesmo cartão, com espaço para a barra lateral. */
+.showroom-agenda .agenda-timeline-bloco {
+  padding-left: 18px;
+}
+
+/* Divisões temporárias de 5 min: só aparecem durante o redimensionamento. */
+.agenda-timeline-ajuste-5,
+.agenda-timeline-ajuste-alvo {
+  position: absolute;
+  right: 0;
+  left: 0;
+  height: 0;
+  pointer-events: none;
+}
+.agenda-timeline-ajuste-5 {
+  z-index: 1;
+  border-top: 1px dashed color-mix(in oklab, var(--mute2) 52%, transparent);
+}
+.agenda-timeline-ajuste-alvo {
+  z-index: 4;
+  border-top: 2px solid color-mix(in oklab, var(--rosa) 82%, transparent);
+  filter: drop-shadow(0 0 2px color-mix(in oklab, var(--rosa) 22%, transparent));
+}
+.agenda-timeline-ajuste-alvo::after {
+  position: absolute;
+  top: -4px;
+  left: 50%;
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: var(--rosa);
+  content: "";
+  transform: translateX(-50%);
+}
+
+
+/* Agenda mobile — grade silenciosa: horas cheias orientam; subdivisões viram pequenos ticks. */
+@media (max-width: 767px) {
+  .agenda-operacional .agenda-timeline-marca:not(.agenda-timeline-hora) {
+    right: auto;
+    width: 8px;
+    border-top-color: color-mix(in oklab, var(--line) 72%, transparent);
+    opacity: 0.65;
+  }
+
+  /* A precisão de 5 min continua ativa ao editar, sem riscar a largura inteira da agenda. */
+  .agenda-operacional .agenda-timeline-ajuste-5 {
+    right: auto;
+    width: 14px;
+    border-top: 1px solid color-mix(in oklab, var(--mute2) 28%, transparent);
+  }
+}
+
+/* Modo lista do celular (como no vídeo do dono): dias separados, hora e duração à esquerda e o
+   cartão padrão da Agenda (mesmo fundo; a cor do estado só na barra). */
+.agenda-lista-busca {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  border-radius: 999px;
+  background: var(--agenda-cartao);
+  box-shadow: var(--agenda-cartao-sombra);
+  padding: 0 14px;
+}
+.agenda-lista-dia + .agenda-lista-dia {
+  margin-top: 18px;
+}
+.agenda-lista-dia-titulo {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+  padding: 14px 0 8px;
+  background: var(--ink);
+}
+.agenda-lista-dia-titulo h3 {
+  display: flex;
+  flex-shrink: 0;
+  align-items: baseline;
+  gap: 8px;
+}
+.agenda-lista-dia-resumo {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.agenda-lista-dia-titulo strong {
+  color: var(--paper);
+  font-size: 20px;
+  font-weight: 700;
+}
+.agenda-lista-dia-titulo h3 span,
+.agenda-lista-dia-resumo {
+  color: var(--mute);
+  font-size: 13px;
+  white-space: nowrap;
+}
+.agenda-lista-linha {
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+}
+.agenda-lista-linha + .agenda-lista-linha {
+  margin-top: 8px;
+}
+.agenda-lista-hora {
+  display: grid;
+  padding-top: 13px;
+  text-align: right;
+}
+.agenda-lista-hora strong {
+  color: var(--paper);
+  font-size: 14px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.agenda-lista-hora span {
+  color: var(--mute);
+  font-size: 12px;
+}
+:where(.agenda-lista-cartao) {
+  --cor-estado: var(--estado-agendado);
+}
+.agenda-lista-cartao.agenda-lista-cartao {
+  position: relative;
+  display: flex;
+  width: 100%;
+  height: auto;
+  min-height: 64px;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 2px;
+  border-radius: 12px;
+  background: var(--agenda-cartao);
+  box-shadow: var(--agenda-cartao-sombra);
+  padding: 10px 11px 10px 17px;
+  color: var(--paper);
+  text-align: left;
+  white-space: normal;
+}
+.agenda-lista-cartao::before {
+  content: "";
+  position: absolute;
+  top: 10px;
+  bottom: 10px;
+  left: 6px;
+  width: 4px;
+  border-radius: 999px;
+  background: var(--cor-categoria, var(--cor-estado));
+  pointer-events: none;
+}
+.agenda-lista-cartao-selecionado {
+  box-shadow:
+    0 0 0 2px color-mix(in oklab, var(--cor-estado) 45%, transparent),
+    var(--agenda-cartao-sombra);
+}
+.agenda-lista-cartao-topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-width: 0;
+}
+.agenda-lista-cartao-topo strong {
+  overflow: hidden;
+  font-size: 14px;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.agenda-lista-cartao-topo svg {
+  color: var(--cor-estado);
+}
+.agenda-lista-estado {
+  flex-shrink: 0;
+  color: var(--mute);
+  font-size: 12px;
+}
+.agenda-lista-servico,
+.agenda-lista-detalhe {
+  overflow: hidden;
+  color: var(--mute);
+  font-size: 12.5px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.agenda-lista-detalhe:empty {
+  display: none;
+}
+
+/* Ficha do agendamento e tela Reagendar (como no Figaro, vídeo do dono de 18/10): folha no fundo
+   da página com cartões padrão, rodapé "Reagendar ⌄" à direita e lista de horários em linhas. */
+.agenda-ficha.agenda-ficha {
+  background: var(--ink);
+}
+.agenda-ficha-cartao,
+.agenda-reagendar-cartao {
+  overflow: hidden;
+  border-radius: 20px;
+  background: var(--agenda-cartao);
+  box-shadow: var(--agenda-cartao-sombra);
+}
+.agenda-ficha-confirmado {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 4px;
+  color: var(--estado-finalizado);
+  font-size: 13px;
+  font-weight: 600;
+}
+.agenda-ficha-profissional {
+  display: inline-flex;
+  width: fit-content;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+  border-radius: 999px;
+  background: var(--ink3);
+  padding: 4px 12px 4px 4px;
+  color: var(--paper);
+  font-size: 14px;
+}
+.agenda-ficha-avatar,
+.agenda-reagendar-avatar {
+  display: grid;
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  place-items: center;
+  border-radius: 999px;
+  background: var(--agenda-cartao);
+  color: var(--mute);
+  font-size: 13px;
+  font-weight: 700;
+}
+.agenda-ficha-avatar.is-cliente {
+  width: 36px;
+  height: 36px;
+  background: var(--ink3);
+}
+.agenda-ficha-cliente {
+  display: flex;
+  min-height: 64px;
+  align-items: center;
+  gap: 12px;
+  border-top: 1px solid var(--line);
+  padding: 8px 8px 8px 16px;
+}
+.agenda-ficha-pilula.agenda-ficha-pilula {
+  min-height: 44px;
+  border-radius: 999px;
+}
+.agenda-ficha-rodape {
+  position: absolute;
+  right: 16px;
+  bottom: calc(16px + env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+.agenda-ficha-reagendar.agenda-ficha-reagendar {
+  min-height: 52px;
+  border-radius: 999px 10px 10px 999px;
+  padding-inline: 26px;
+}
+.agenda-ficha-mais.agenda-ficha-mais {
+  width: 52px;
+  height: 52px;
+  border-radius: 10px 999px 999px 10px;
+}
+.agenda-ficha-menu {
+  display: grid;
+  min-width: 230px;
+  border-radius: 14px;
+  background: var(--agenda-cartao);
+  box-shadow: var(--shadow-md);
+  padding: 6px;
+  animation: agenda-ficha-menu var(--mov-base, 200ms) var(--ease-saida, ease-out) both;
+}
+@keyframes agenda-ficha-menu {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .agenda-ficha-menu {
+    animation: none;
+  }
+}
+.agenda-reagendar-topo {
+  display: flex;
+  min-height: 64px;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+}
+.agenda-reagendar-dia.agenda-reagendar-dia {
+  width: 40px;
+  height: 40px;
+  margin-inline: auto;
+  border-radius: 999px;
+  padding: 0;
+  color: var(--paper);
+  font-size: 16px;
+}
+.agenda-reagendar-dia.is-hoje {
+  box-shadow: inset 0 0 0 1.5px var(--agenda-escolhido);
+}
+.agenda-reagendar-dia.is-escolhido {
+  background: var(--agenda-escolhido);
+  color: var(--agenda-escolhido-texto);
+  font-weight: 700;
+}
+.agenda-reagendar-dia:disabled {
+  opacity: 0.35;
+}
+.agenda-reagendar-modos {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  margin: 16px 0;
+  border-radius: 999px;
+  background: var(--ink3);
+  padding: 4px;
+}
+.agenda-reagendar-modos > button {
+  min-height: 48px;
+  border-radius: 999px;
+  color: var(--mute);
+}
+.agenda-reagendar-modos > button.is-ativo {
+  background: color-mix(in oklab, var(--agenda-escolhido) 22%, var(--agenda-cartao));
+  color: var(--paper);
+  font-weight: 600;
+}
+.agenda-reagendar-horarios {
+  display: grid;
+  gap: 2px;
+  overflow: hidden;
+  border-radius: 20px;
+}
+.agenda-reagendar-horario.agenda-reagendar-horario {
+  width: 100%;
+  min-height: 56px;
+  justify-content: flex-start;
+  border-radius: 4px;
+  background: var(--agenda-cartao);
+  padding-inline: 20px;
+  color: var(--paper);
+  font-size: 17px;
+  font-variant-numeric: tabular-nums;
+}
+.agenda-reagendar-horario.is-escolhido {
+  background: color-mix(in oklab, var(--agenda-escolhido) 24%, var(--agenda-cartao));
+  font-size: 19px;
+  font-weight: 700;
+}
+.agenda-reagendar-detalhe {
+  display: grid;
+  gap: 4px;
+  margin: 2px 0;
+  border: 2px solid color-mix(in oklab, var(--agenda-escolhido) 35%, transparent);
+  border-radius: 4px;
+  background: var(--agenda-cartao);
+  padding: 12px 20px;
+  color: var(--paper);
+  font-size: 14px;
+}
+.agenda-reagendar-salvar.agenda-reagendar-salvar {
+  position: absolute;
+  right: 16px;
+  bottom: calc(16px + env(safe-area-inset-bottom));
+  min-width: 52px;
+  height: 52px;
+  border-radius: 999px;
+  padding-inline: 22px;
+  box-shadow: var(--shadow-md);
+  transition:
+    padding var(--mov-base, 200ms) var(--ease-saida, ease-out),
+    opacity var(--mov-base, 200ms) var(--ease-saida, ease-out);
+}
+.agenda-reagendar-salvar.is-compacto {
+  padding-inline: 14px;
+}
+.agenda-reagendar-salvar.is-compacto .agenda-reagendar-salvar-texto {
+  display: none;
+}
+.agenda-reagendar-profissional.agenda-reagendar-profissional {
+  display: flex;
+  width: 100%;
+  min-height: 64px;
+  align-items: center;
+  gap: 12px;
+  border-radius: 16px;
+  background: var(--agenda-cartao);
+  padding-inline: 12px 16px;
+  color: var(--paper);
+}
+.agenda-reagendar-profissional.is-escolhido {
+  background: color-mix(in oklab, var(--agenda-escolhido) 20%, var(--agenda-cartao));
+}
+.agenda-ficha-mais.is-sozinho {
+  border-radius: 999px;
+}
+.agenda-ficha-menu-item.agenda-ficha-menu-item {
+  min-height: 44px;
+  justify-content: flex-start;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+/* Ficha: "Trocar Cliente" (pílula azul-clara, como no Figaro) */
+.agenda-ficha-trocar {
+  margin-top: 12px;
+  min-height: 44px;
+  gap: 8px;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--primary) 14%, transparent);
+  padding: 0 18px;
+  color: var(--primary);
+  font-weight: 600;
+}
+.agenda-ficha-trocar:hover {
+  background: color-mix(in oklab, var(--primary) 20%, transparent);
+}
+.agenda-ficha-avatar,
+.agenda-reagendar-avatar {
+  overflow: hidden;
+}
+.agenda-reagendar-avatar.is-grande {
+  width: 44px;
+  height: 44px;
+  font-size: 16px;
+}
+.agenda-reagendar-expediente {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 2px;
+  color: var(--mute);
+  font-size: 12px;
+  font-weight: 500;
+}
+.agenda-reagendar-expediente.is-trabalha {
+  color: var(--estado-finalizado);
+}
+
+/* Ficha (Figaro, APK): linha de estado, títulos de seção, nota de andamento e botão tonal. */
+.agenda-ficha-estado {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--mute);
+}
+.agenda-ficha-estado.is-andamento {
+  color: var(--primary);
+}
+.agenda-ficha-estado.is-sucesso {
+  color: var(--estado-finalizado);
+}
+.agenda-ficha-estado.is-aviso {
+  color: var(--estado-chegou);
+}
+.agenda-ficha-estado.is-erro {
+  color: var(--estado-faltou);
+}
+.agenda-ficha-secao {
+  margin: 32px 0 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--mute);
+}
+.agenda-ficha-nota {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-top: 16px;
+  font-size: 13px;
+  color: var(--mute);
+}
+.agenda-ficha-reagendar.agenda-ficha-reagendar.is-sozinho {
+  border-radius: 999px;
+}
+.agenda-ficha-reagendar.is-tonal,
+.agenda-ficha-mais.is-tonal {
+  border: 0;
+  background: color-mix(in oklab, var(--primary) 18%, var(--ink));
+  color: var(--primary);
+}
+
+/* Reagendar, modo Manual (Figaro `ManualServiceCard`): linhas de início e profissional. */
+.agenda-reagendar-linha {
+  display: flex;
+  min-height: 56px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border-top: 1px solid var(--line);
+  padding: 0 16px;
+  color: var(--paper);
+  font-size: 15px;
+}
+.agenda-reagendar-hora {
+  border: 0;
+  background: transparent;
+  color: var(--primary);
+  font: inherit;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Selecionar cliente (Figaro `ClientSelectorScreen`): lista por letra com marcação. */
+.agenda-cliente-letra {
+  margin: 12px 4px 6px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--mute);
+}
+.agenda-cliente-grupo {
+  display: grid;
+  gap: 2px;
+  overflow: hidden;
+  border-radius: 12px;
+}
+.agenda-cliente-linha.agenda-cliente-linha {
+  display: flex;
+  width: 100%;
+  min-height: 56px;
+  align-items: center;
+  gap: 12px;
+  border-radius: 0;
+  background: var(--agenda-cartao);
+  padding: 0 16px;
+  color: var(--paper);
+  font-size: 15px;
+  font-weight: 500;
+}
+.agenda-cliente-radio {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  border: 2px solid var(--mute);
+  border-radius: 999px;
+}
+.agenda-cliente-radio.is-marcado {
+  border-color: var(--primary);
+  box-shadow: inset 0 0 0 4px var(--agenda-cartao);
+  background: var(--primary);
+}
+
+/* Cartão da timeline como no Figaro (decisão do dono, 18/10): barra na cor da categoria do
+   serviço (3,5 px), título = serviço, ícone do estado no canto, conteúdo pela altura. */
+.agenda-timeline-bloco {
+  padding: 7px 10px 7px 18px;
+}
+.agenda-timeline-bloco .agenda-timeline-titulo {
+  min-width: 0;
+  overflow: hidden;
+  font-size: 13.5px;
+  font-weight: 700;
+  line-height: 17px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.agenda-timeline-cliente {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--mute);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 15px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.agenda-timeline-bloco .agenda-timeline-horario {
+  font-size: 11.5px;
+}
+.agenda-timeline-bloco.agenda-timeline-cancelado .agenda-timeline-titulo {
+  color: var(--mute);
+  text-decoration: line-through;
+}
+.agenda-faixa-minimo {
+  justify-content: center;
+  padding-top: 2px;
+  padding-bottom: 2px;
+}
+.agenda-faixa-maior {
+  padding-top: 11px;
+}
+.agenda-glifo {
+  display: inline-flex;
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+  color: var(--mute);
+}
+.agenda-faixa-minimo .agenda-glifo {
+  width: 12px;
+  height: 12px;
+}
+.agenda-faixa-maior .agenda-glifo {
+  width: 17px;
+  height: 17px;
+}
+.agenda-glifo.is-confirmado,
+.agenda-glifo.is-chegou,
+.agenda-glifo.is-atendimento {
+  color: var(--primary);
+}
+.agenda-glifo.is-pendente-online {
+  color: var(--estado-finalizado);
+}
+.agenda-glifo.is-pendente-equipe {
+  color: var(--estado-remarcado);
+}
+.agenda-glifo.is-falta,
+.agenda-glifo.is-atrasado {
+  color: var(--estado-faltou);
+}
+/* Edição de um cartão: os outros ficam apagados (Figaro: 40%, 300 ms). */
+.agenda-timeline-esmaecido {
+  opacity: 0.4;
+  transition: opacity 280ms var(--ease-saida, ease-out);
+}
+.agenda-linha-agora {
+  border-top-width: 1.5px;
+}
+
+/* Barra de baixo do Figaro: foto do profissional para trocar a agenda (38 px). */
+.agenda-botao-agora-principal:has(.agenda-filtro-gatilho) .agenda-botao-agora-visualizacao {
+  border-radius: 0;
+}
+.agenda-filtro-gatilho.agenda-filtro-gatilho {
+  width: 52px;
+  height: 50px;
+  border-radius: 0 999px 999px 0;
+}
+.agenda-filtro-avatar {
+  display: grid;
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+  place-items: center;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--agenda-cartao);
+  color: var(--paper);
+  font-size: 14px;
+  font-weight: 700;
+}
+:root[data-filtro-agenda] .agenda-acao-fixa {
+  visibility: hidden;
+}
+
+/* Pinça na timeline: a grade segue os dedos sem animação (senão a linha do agora e os cartões
+   ficam para trás e a grade parece pular). */
+.agenda-pinca-ativa .agenda-timeline,
+.agenda-pinca-ativa .agenda-timeline * {
+  transition: none !important;
+}
+
+/* Cartões: margens e espaços por tamanho, como no Figaro (`CardTier`: início/topo/fim/base e o
+   espaço entre as linhas). O início considera a barra lateral (6 + 3,5 px). */
+.agenda-timeline-bloco.agenda-timeline-bloco {
+  gap: 3px;
+  padding: 7px 10px 7px 19px;
+}
+.agenda-timeline-bloco.agenda-faixa-minimo {
+  gap: 2px;
+  padding: 2px 8px 2px 18px;
+}
+.agenda-timeline-bloco.agenda-faixa-grande {
+  gap: 4px;
+  padding: 9px 11px 9px 20px;
+}
+.agenda-timeline-bloco.agenda-faixa-maior {
+  gap: 5px;
+  padding: 11px 12px 11px 21px;
+}
+.agenda-timeline-bloco .agenda-timeline-bloco-topo {
+  display: flex;
+  min-width: 0;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+.agenda-timeline-bloco .agenda-timeline-horario {
+  gap: 4px;
+  line-height: 15px;
+}
+.agenda-timeline-bloco .agenda-timeline-horario svg {
+  width: 13px;
+  height: 13px;
 }

@@ -16,7 +16,10 @@ function rotuloDoGrupo(grupo: GrupoDoMenu, segmento: Parameters<typeof termos>[0
   return possessivo.charAt(0).toUpperCase() + possessivo.slice(1);
 }
 
-/** Grupos recolhíveis do menu lateral: título, chevron e os itens em bloco. */
+/**
+ * Menu mobile com categorias em blocos únicos e linhas compactas.
+ * Facilita percorrer muitas opções sem transformar cada destino em um cartão isolado.
+ */
 export function GruposDoMenu({
   grupos,
   segmento,
@@ -33,13 +36,13 @@ export function GruposDoMenu({
   onNavegar: () => void;
 }) {
   return (
-    <div className="mt-6 space-y-4">
+    <div className="mt-5 space-y-3">
       {grupos.map((grupo) =>
         grupo.itens.length ? (
           <section key={grupo.titulo}>
             <Button
               variant="ghost"
-              className="min-h-12 w-full justify-between pl-[30px] pr-2 text-base font-semibold text-menu-icone hover:bg-transparent"
+              className="min-h-12 w-full justify-between pl-5 pr-2 text-base font-semibold text-menu-icone hover:bg-transparent"
               aria-expanded={abertos.includes(grupo.titulo)}
               aria-controls={`menu-grupo-${grupo.titulo.replace(/\s+/g, "-")}`}
               onClick={() => onAlternar(grupo.titulo)}
@@ -53,29 +56,28 @@ export function GruposDoMenu({
             {abertos.includes(grupo.titulo) ? (
               <ul
                 id={`menu-grupo-${grupo.titulo.replace(/\s+/g, "-")}`}
-                className="space-y-2 animate-in fade-in-0 duration-[120ms] motion-reduce:animate-none"
+                className="overflow-hidden rounded-[24px] border border-drawer-borda bg-drawer-card animate-in fade-in-0 duration-[120ms] motion-reduce:animate-none"
               >
                 {grupo.itens.map((item, indice) => {
                   const Icon = item.icon;
                   const ativo = itemDeNavegacaoAtivo(caminho, item.to);
-                  const raio =
-                    grupo.itens.length === 1
-                      ? "rounded-[24px]"
-                      : indice === 0
-                        ? "rounded-t-[24px] rounded-b-[9px]"
-                        : indice === grupo.itens.length - 1
-                          ? "rounded-t-[9px] rounded-b-[24px]"
-                          : "rounded-[9px]";
                   return (
-                    <li key={`${grupo.titulo}-${item.label}`}>
+                    <li
+                      key={`${grupo.titulo}-${item.label}`}
+                      className={indice < grupo.itens.length - 1 ? "border-b border-drawer-borda" : ""}
+                    >
                       <Link
                         to={item.to as never}
                         preload="intent"
                         onClick={onNavegar}
                         aria-current={ativo ? "page" : undefined}
-                        className={`grid min-h-[70px] grid-cols-[28px_minmax(0,1fr)] items-center gap-5 border border-drawer-borda bg-drawer-card px-6 py-3 text-[17px] font-medium text-paper active:brightness-110 ${raio} ${ativo ? "ring-2 ring-primary/30" : ""}`}
+                        className={`grid min-h-14 grid-cols-[24px_minmax(0,1fr)] items-center gap-4 px-5 py-2 text-base font-medium text-paper transition-colors active:brightness-110 motion-reduce:transition-none ${ativo ? "bg-drawer-band" : ""}`}
                       >
-                        <Icon className="size-7 text-menu-icone" strokeWidth={2} aria-hidden />
+                        <Icon
+                          className={`size-6 ${ativo ? "text-primary" : "text-menu-icone"}`}
+                          strokeWidth={1.9}
+                          aria-hidden
+                        />
                         <span className="truncate">{item.label}</span>
                       </Link>
                     </li>

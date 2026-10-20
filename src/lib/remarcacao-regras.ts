@@ -61,12 +61,14 @@ export function arredondarAoPasso(minutos: number, passoMin: number): number {
   return Math.round(minutos / passo) * passo;
 }
 
+/** Passo do ajuste por gesto na Agenda: 5 min, o mesmo das listras que aparecem ao segurar. */
+export const PASSO_DO_AJUSTE_MIN = 5;
+
 /**
- * Passo do arrasto na Agenda: o do negócio quando for menor que 15 min (mais fino, até 5),
- * nunca maior que 15 (o arrasto já é assim hoje) e nunca menor que 5.
+ * Passo do arrasto e da alça de duração na Agenda (decisão do dono, 18/10/2026): sempre de 5 em
+ * 5 minutos, como as listras marcam, qualquer que seja o intervalo de horários do negócio (o
+ * intervalo continua valendo para os horários oferecidos ao cliente).
  */
-export function passoDoGesto(passoMin: number | null | undefined): number {
-  const passo = Math.round(Number(passoMin));
-  if (!Number.isFinite(passo) || passo <= 0) return 15;
-  return Math.min(15, Math.max(5, passo));
+export function passoDoGesto(_passoMin?: number | null): number {
+  return PASSO_DO_AJUSTE_MIN;
 }

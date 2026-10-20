@@ -152,7 +152,7 @@ export type Database = {
           arrived_inferido: boolean
           assistido_por_cortai: boolean
           cancelado_em: string | null
-          cliente_id: string
+          cliente_id: string | null
           confirmado_em: string | null
           criado_em: string
           encaixe: boolean
@@ -172,6 +172,7 @@ export type Database = {
           recorrencia: string | null
           servico_id: string | null
           started_at: string | null
+          telefone_nao_confirmado: boolean
           started_inferido: boolean
           status: string
           status_alterado_em: string | null
@@ -185,7 +186,7 @@ export type Database = {
           arrived_inferido?: boolean
           assistido_por_cortai?: boolean
           cancelado_em?: string | null
-          cliente_id: string
+          cliente_id: string | null
           confirmado_em?: string | null
           criado_em?: string
           encaixe?: boolean
@@ -205,6 +206,7 @@ export type Database = {
           recorrencia?: string | null
           servico_id?: string | null
           started_at?: string | null
+          telefone_nao_confirmado?: boolean
           started_inferido?: boolean
           status?: string
           status_alterado_em?: string | null
@@ -218,7 +220,7 @@ export type Database = {
           arrived_inferido?: boolean
           assistido_por_cortai?: boolean
           cancelado_em?: string | null
-          cliente_id?: string
+          cliente_id?: string | null
           confirmado_em?: string | null
           criado_em?: string
           encaixe?: boolean
@@ -238,6 +240,7 @@ export type Database = {
           recorrencia?: string | null
           servico_id?: string | null
           started_at?: string | null
+          telefone_nao_confirmado?: boolean
           started_inferido?: boolean
           status?: string
           status_alterado_em?: string | null
@@ -945,6 +948,9 @@ export type Database = {
           telefone: string
           tenant_id: string
           user_id: string | null
+          whatsapp_confirmado_em: string | null
+          whatsapp_parado_em: string | null
+          whatsapp_parado_motivo: string | null
         }
         Insert: {
           alergias?: string | null
@@ -969,6 +975,9 @@ export type Database = {
           telefone: string
           tenant_id: string
           user_id?: string | null
+          whatsapp_confirmado_em?: string | null
+          whatsapp_parado_em?: string | null
+          whatsapp_parado_motivo?: string | null
         }
         Update: {
           alergias?: string | null
@@ -993,6 +1002,9 @@ export type Database = {
           telefone?: string
           tenant_id?: string
           user_id?: string | null
+          whatsapp_confirmado_em?: string | null
+          whatsapp_parado_em?: string | null
+          whatsapp_parado_motivo?: string | null
         }
         Relationships: [
           {
@@ -1512,6 +1524,7 @@ export type Database = {
           atendimento_automatico: boolean
           atualizado_em: string
           confirmacao_automatica: boolean
+          cortai_ativa: boolean
           criado_em: string
           encaminhamento_humano: boolean
           horario_dias: number[]
@@ -1543,6 +1556,7 @@ export type Database = {
           atendimento_automatico?: boolean
           atualizado_em?: string
           confirmacao_automatica?: boolean
+          cortai_ativa?: boolean
           criado_em?: string
           encaminhamento_humano?: boolean
           horario_dias?: number[]
@@ -1574,6 +1588,7 @@ export type Database = {
           atendimento_automatico?: boolean
           atualizado_em?: string
           confirmacao_automatica?: boolean
+          cortai_ativa?: boolean
           criado_em?: string
           encaminhamento_humano?: boolean
           horario_dias?: number[]
@@ -4862,6 +4877,47 @@ export type Database = {
           },
         ]
       }
+      verificacoes_de_telefone: {
+        Row: {
+          codigo_hash: string
+          criado_em: string
+          expira_em: string
+          id: string
+          telefone: string
+          tenant_id: string
+          tentativas: number
+          verificado_em: string | null
+        }
+        Insert: {
+          codigo_hash: string
+          criado_em?: string
+          expira_em: string
+          id?: string
+          telefone: string
+          tenant_id: string
+          tentativas?: number
+          verificado_em?: string | null
+        }
+        Update: {
+          codigo_hash?: string
+          criado_em?: string
+          expira_em?: string
+          id?: string
+          telefone?: string
+          tenant_id?: string
+          tentativas?: number
+          verificado_em?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "verificacoes_de_telefone_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       webhook_limites: {
         Row: {
           chave: string
@@ -5082,7 +5138,7 @@ export type Database = {
       }
       criar_agendamento: {
         Args: {
-          _cliente_id: string
+          _cliente_id: string | null
           _encaixe?: boolean
           _forma_pagamento: string
           _inicio: string
@@ -5287,6 +5343,17 @@ export type Database = {
           _whatsapp: string
         }
         Returns: undefined
+      }
+      quitar_fiado_seguro: {
+        Args: {
+          _ator: string
+          _fiado_id: string
+          _forma: string
+          _saldo_esperado_centavos?: number | null
+          _tenant_id: string
+          _valor_centavos: number
+        }
+        Returns: Json
       }
       recurso_do_tenant_ativo: {
         Args: { _chave: string; _tenant_id: string }

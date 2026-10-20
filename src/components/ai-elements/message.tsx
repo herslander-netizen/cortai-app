@@ -4,14 +4,11 @@ import { Button } from "@/components/ui/button";
 import { ButtonGroup, ButtonGroupText } from "@/components/ui/button-group";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
-import { cjk } from "@streamdown/cjk";
-import { code } from "@streamdown/code";
-import { math } from "@streamdown/math";
-import { mermaid } from "@streamdown/mermaid";
 import type { UIMessage } from "ai";
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import type { ComponentProps, HTMLAttributes, ReactElement } from "react";
 import { createContext, memo, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { createIsomorphicFn } from "@tanstack/react-start";
 import { Streamdown } from "streamdown";
 
 export type MessageProps = HTMLAttributes<HTMLDivElement> & {
@@ -269,17 +266,59 @@ export const MessageBranchPage = ({ className, ...props }: MessageBranchPageProp
 };
 
 export type MessageResponseProps = ComponentProps<typeof Streamdown>;
+type StreamdownPlugins = NonNullable<MessageResponseProps["plugins"]>;
 
-const streamdownPlugins = { cjk, code, math, mermaid };
+// O transformador isomórfico remove as dependências dos plugins do bundle SSR.
+// Assim, Shiki/Mermaid continuam disponíveis no navegador sem inflar o Worker.
+const loadStreamdownPlugins = createIsomorphicFn()
+  .server(async (): Promise<StreamdownPlugins | null> => null)
+  .client(async (): Promise<StreamdownPlugins | null> => {
+    const [cjkPlugin, codePlugin, mathPlugin, mermaidPlugin] = await Promise.all([
+      import("@streamdown/cjk"),
+      import("@streamdown/code"),
+      import("@streamdown/math"),
+      import("@streamdown/mermaid"),
+    ]);
+
+    return {
+      cjk: cjkPlugin.cjk,
+      code: codePlugin.code,
+      math: mathPlugin.math,
+      mermaid: mermaidPlugin.mermaid,
+    };
+  });
 
 export const MessageResponse = memo(
-  ({ className, ...props }: MessageResponseProps) => (
-    <Streamdown
-      className={cn("size-full [&>*:first-child]:mt-0 [&>*:last-child]:mb-0", className)}
-      plugins={streamdownPlugins}
-      {...props}
-    />
-  ),
+  ({ className, ...props }: MessageResponseProps) => {
+    const [streamdownPlugins, setStreamdownPlugins] = useState<StreamdownPlugins>();
+
+    // Plugins pesados (Shiki e Mermaid) são exclusivos da interface no navegador.
+    // Carregá-los após a hidratação mantém o Worker SSR abaixo do limite de 25 MiB.
+    useEffect(() => {
+      let ativo = true;
+
+      void loadStreamdownPlugins()
+        .then((plugins) => {
+          if (!ativo || !plugins) return;
+          setStreamdownPlugins(plugins);
+        })
+        .catch(() => {
+          // O Markdown básico continua disponível caso um plugin opcional falhe ao carregar.
+        });
+
+      return () => {
+        ativo = false;
+      };
+    }, []);
+
+    return (
+      <Streamdown
+        className={cn("size-full [&>*:first-child]:mt-0 [&>*:last-child]:mb-0", className)}
+        {...(streamdownPlugins ? { plugins: streamdownPlugins } : {})}
+        {...props}
+      />
+    );
+  },
   (prevProps, nextProps) =>
     prevProps.children === nextProps.children && nextProps.isAnimating === prevProps.isAnimating,
 );

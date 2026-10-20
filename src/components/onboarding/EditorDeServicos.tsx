@@ -18,6 +18,8 @@ export function EditorDeServicos({
   onChange,
   profissionais,
   semIA = false,
+  semSugestoes = false,
+  apenasUm = false,
   segmento = "barbearia",
   tenantId,
   fotosAssinadas = {},
@@ -27,6 +29,10 @@ export function EditorDeServicos({
   /** Quando há mais de um profissional, mostra quem faz cada serviço. */
   profissionais?: { id: string; nome: string }[];
   semIA?: boolean;
+  /** Oculta sugestões rápidas ao editar um único serviço. */
+  semSugestoes?: boolean;
+  /** Esconde a ação de adicionar vários serviços dentro do formulário individual. */
+  apenasUm?: boolean;
   segmento?: Segmento;
   tenantId?: string;
   fotosAssinadas?: Record<string, string>;
@@ -45,7 +51,9 @@ export function EditorDeServicos({
 
   return (
     <div>
-      <SugestoesDeServicos servicos={servicos} onChange={onChange} segmento={segmento} />
+      {semSugestoes ? null : (
+        <SugestoesDeServicos servicos={servicos} onChange={onChange} segmento={segmento} />
+      )}
 
       <ul className="mt-5 space-y-3">
         {servicos.map((s, i) => (
@@ -267,19 +275,21 @@ export function EditorDeServicos({
         ))}
       </ul>
 
-      <Button
-        type="button"
-        variant="outline"
-        className="mt-3 min-h-12 text-sm"
-        onClick={() =>
-          onChange([
-            ...servicos,
-            { nome: "", categoria: "Serviço", duracaoMin: 30, precoCentavos: 3500 },
-          ])
-        }
-      >
-        + Adicionar serviço
-      </Button>
+      {apenasUm ? null : (
+        <Button
+          type="button"
+          variant="outline"
+          className="mt-3 min-h-12 text-sm"
+          onClick={() =>
+            onChange([
+              ...servicos,
+              { nome: "", categoria: "Serviço", duracaoMin: 30, precoCentavos: 3500 },
+            ])
+          }
+        >
+          + Adicionar serviço
+        </Button>
+      )}
 
       <datalist id="categorias-de-servico">
         {definicao.categorias.map((c) => (

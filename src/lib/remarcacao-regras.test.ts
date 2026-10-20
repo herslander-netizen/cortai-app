@@ -65,15 +65,8 @@ describe("aplicarEdicao e passo", () => {
 });
 
 describe("passoDoGesto", () => {
-  it("usa o passo do negócio quando é menor que 15, entre 5 e 15", () => {
-    expect(passoDoGesto(10)).toBe(10);
-    expect(passoDoGesto(5)).toBe(5);
-    expect(passoDoGesto(2)).toBe(5);
-  });
-  it("nunca passa de 15 e cai em 15 sem valor válido", () => {
-    expect(passoDoGesto(30)).toBe(15);
-    expect(passoDoGesto(null)).toBe(15);
-    expect(passoDoGesto(0)).toBe(15);
-    expect(passoDoGesto(Number.NaN)).toBe(15);
+  it("ajusta sempre de 5 em 5 minutos, como as listras, qualquer que seja o passo do negócio", () => {
+    for (const passo of [5, 10, 15, 30, 50, null, 0, Number.NaN])
+      expect(passoDoGesto(passo)).toBe(5);
   });
 });
