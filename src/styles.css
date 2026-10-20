@@ -2417,7 +2417,7 @@ body:has(.auth-screen--claro) {
 .brand-service h2,
 .brand-person h3,
 .brand-products h3 {
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 700;
 }
 .brand-service p {
@@ -6622,7 +6622,7 @@ button.agenda-nome:hover {
 }
 .agenda-lista-cartao-topo strong {
   overflow: hidden;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 700;
   text-overflow: ellipsis;
   white-space: nowrap;
