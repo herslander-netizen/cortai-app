@@ -109,7 +109,11 @@ export function BloquearHorarioSheet({
         </SheetHeader>
 
         <div className="mt-5 space-y-3">
-          <div className="field-control flex min-h-12 items-center gap-3" aria-label={`Dia do bloqueio: ${dataEditorial(dia)}`}>
+          <div
+            className="field-control flex min-h-12 items-center gap-3"
+            role="group"
+            aria-label={`Dia do bloqueio: ${dataEditorial(dia)}`}
+          >
             <CalendarDays className="size-5 shrink-0 text-mute" aria-hidden="true" />
             <div className="min-w-0 flex-1">
               <p className="text-xs text-mute">Dia</p>
