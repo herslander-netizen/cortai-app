@@ -56,6 +56,7 @@ export function mensagemDeErroDeNegocio(erro: unknown): string {
     "Informe um telefone com DDD.",
     "Sua conta já está ligada a um negócio.",
     "Não foi possível verificar seu acesso agora.",
+    "O cadastro está temporariamente indisponível. Tente novamente em instantes.",
     "Não foi possível criar seu negócio agora.",
     "Não foi possível liberar o acesso ao seu negócio. Tente novamente.",
     "O negócio foi criado, mas não conseguimos preparar o teste grátis. Tente novamente.",
@@ -63,5 +64,9 @@ export function mensagemDeErroDeNegocio(erro: unknown): string {
     "O negócio foi criado, mas não conseguimos finalizar seu acesso. Tente novamente.",
     "Seu negócio já existia e foi finalizado. Confira os dados antes de continuar.",
   ];
-  return mensagensSeguras.includes(mensagem) ? mensagem : "Não foi possível criar seu negócio agora. Tente novamente.";
+  if (mensagensSeguras.includes(mensagem)) return mensagem;
+  if (mensagem.includes("Invalid Supabase server key") || mensagem.includes("Missing Supabase environment variable")) {
+    return "O cadastro está temporariamente indisponível. Tente novamente em instantes.";
+  }
+  return "Não foi possível criar seu negócio agora. Tente novamente.";
 }

@@ -68,6 +68,9 @@ jobs:
           elif [[ "$PREVIEW_SUPABASE_URL" == *"ibsberidejlbczxrweqg.supabase.co"* ]]; then
             echo "::error::PREVIEW_SUPABASE_URL points to production cortai-prod; refusing to deploy preview against production database."
             exit 1
+          elif [[ "$PREVIEW_SUPABASE_SERVICE_ROLE_KEY" == "$PREVIEW_SUPABASE_PUBLISHABLE_KEY" || "$PREVIEW_SUPABASE_SERVICE_ROLE_KEY" == sb_publishable_* ]]; then
+            echo "::error::PREVIEW_SUPABASE_SERVICE_ROLE_KEY is the public Supabase key; refusing to deploy a preview with invalid server credentials."
+            exit 1
           else
             echo "ready=true" >> "$GITHUB_OUTPUT"
           fi
