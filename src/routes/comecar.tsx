@@ -4,6 +4,7 @@ import { useState } from "react";
 
 import { supabase } from "@/integrations/supabase/client";
 import { destinoDoPapel, esquecerSessao, sair, sessaoDoUsuario } from "@/lib/guarda";
+import type { Sessao } from "@/lib/sessao.functions";
 import { criarBarbearia, definirTipoDePerfil, escolherContexto } from "@/lib/sessao.functions";
 import { CHAVE_VINCULO } from "@/lib/vinculo";
 
@@ -40,7 +41,7 @@ export const Route = createFileRoute("/comecar")({
     const { data } = await supabase.auth.getSession();
     const usuario = data.session?.user;
     if (!usuario) throw redirect({ to: "/login", search: { proximo: "/comecar" } });
-    let sessao;
+    let sessao: Sessao;
     try {
       sessao = await sessaoDoUsuario(usuario.id);
     } catch {
