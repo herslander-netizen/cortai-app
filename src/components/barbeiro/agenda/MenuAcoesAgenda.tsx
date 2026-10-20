@@ -37,7 +37,6 @@ export function MenuAcoesAgenda({
   onBloquear,
   onEquipe,
   onNovoCliente: _onNovoCliente,
-  onAgendarPorVoz: _onAgendarPorVoz,
   visivel = true,
 }: {
   aberto: boolean;
