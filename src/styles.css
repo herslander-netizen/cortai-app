@@ -6525,11 +6525,16 @@ button.agenda-nome:hover {
   margin-top: 18px;
 }
 .agenda-lista-dia-titulo {
+  position: sticky;
+  top: 0;
+  z-index: 5;
   display: flex;
   align-items: baseline;
   justify-content: space-between;
   gap: 8px;
   margin-bottom: 8px;
+  padding: 14px 0 8px;
+  background: var(--ink);
 }
 .agenda-lista-dia-titulo h3 {
   display: flex;
