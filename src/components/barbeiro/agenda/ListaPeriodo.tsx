@@ -183,7 +183,9 @@ export function ListaPeriodo({
                   <strong>{titulo.curto}</strong>
                   {ehHoje ? (
                     <>
-                      <span className="rounded-full bg-mute2 px-2 py-0.5 text-xs font-semibold text-paper">Hoje</span>
+                      <span className="rounded-full bg-mute2 px-2 py-0.5 text-xs font-semibold text-paper">
+                        Hoje
+                      </span>
                       <span>{titulo.semana}</span>
                     </>
                   ) : (
@@ -192,7 +194,7 @@ export function ListaPeriodo({
                 </h3>
                 <span className="agenda-lista-dia-resumo">
                   {contam.length} {contam.length === 1 ? "atendimento" : "atendimentos"}
-                  {` · ${brl(total)}` }
+                  {` · ${brl(total)}`}
                 </span>
               </header>
               <ul>
