@@ -364,13 +364,39 @@ export const criarBarbearia = createServerFn({ method: "POST" })
       .parse(input),
   )
   .handler(async ({ data, context }) => {
-    const db = await admin();
-    const { data: vinculo } = await db
+    const diagnostico = (etapa: string, error: { code?: string; message?: string; details?: string; hint?: string } | null | undefined) => {
+      // Nunca registrar CPF, telefone, token, nome do usuário ou chaves de ambiente.
+      console.error("[criarBarbearia] Falha no fluxo", {
+        etapa,
+        userId: context.userId,
+        code: error?.code ?? null,
+        message: error?.message ?? null,
+        details: error?.details ?? null,
+        hint: error?.hint ?? null,
+        supabaseUrlConfigurada: Boolean(process.env["SUPABASE_URL"]),
+        serviceRoleConfigurada: Boolean(process.env["SUPABASE_SERVICE_ROLE_KEY"]),
+        supabaseHost: (() => {
+          try { return new URL(process.env["SUPABASE_URL"] ?? "").host; } catch { return null; }
+        })(),
+      });
+    };
+    let db: Awaited<ReturnType<typeof admin>>;
+    try {
+      db = await admin();
+    } catch (error) {
+      diagnostico("inicializar_cliente_admin", error instanceof Error ? { message: error.message } : null);
+      throw new Error("Não foi possível conectar ao serviço de cadastro. Tente novamente.");
+    }
+    const { data: vinculo, error: erroConsultaVinculo } = await db
       .from("tenant_usuarios")
       .select("tenant_id")
       .eq("user_id", context.userId)
       .limit(1)
       .maybeSingle();
+    if (erroConsultaVinculo) {
+      diagnostico("consultar_vinculo_existente", erroConsultaVinculo);
+      throw new Error("Não foi possível verificar seu negócio agora.");
+    }
     if (vinculo) throw new Error("Sua conta já está ligada a um negócio.");
     const definicao = SEGMENTOS_CONFIG[data.segmento];
     const baseSlug =
@@ -402,13 +428,8 @@ export const criarBarbearia = createServerFn({ method: "POST" })
       .single();
     if (error || !tenant) {
       // Diagnóstico no servidor: não expor detalhes do banco na interface.
-      console.error("[criarBarbearia] Falha ao inserir tenant", {
-        code: error?.code ?? null,
-        message: error?.message ?? null,
-        details: error?.details ?? null,
-        hint: error?.hint ?? null,
-        returnedTenant: Boolean(tenant),
-      });
+      diagnostico("inserir_tenant", error);
+      console.error("[criarBarbearia] Resultado da inserção", { returnedTenant: Boolean(tenant) });
       throw new Error("Não foi possível criar seu negócio agora.");
     }
     const tenantId = tenant.id;
@@ -428,21 +449,35 @@ export const criarBarbearia = createServerFn({ method: "POST" })
       .from("tenant_usuarios")
       .insert({ tenant_id: tenantId, user_id: context.userId, papel: "dono" });
     if (erroVinculo) {
+      diagnostico("vincular_dono", erroVinculo);
       await db.from("tenants").delete().eq("id", tenantId);
       throw new Error("Não foi possível liberar o acesso ao seu negócio.");
     }
-    await db
+    const { error: erroPagina } = await db
       .from("tenant_page_configs")
       .upsert(
         { tenant_id: tenantId, draft_config: { pagina }, published_config: { pagina } },
         { onConflict: "tenant_id" },
       );
-    await db
+    if (erroPagina) {
+      diagnostico("salvar_configuracao_pagina", erroPagina);
+      await db.from("tenant_usuarios").delete().eq("tenant_id", tenantId).eq("user_id", context.userId);
+      await db.from("tenants").delete().eq("id", tenantId);
+      throw new Error("Não foi possível preparar a página do negócio.");
+    }
+    const { error: erroPerfil } = await db
       .from("perfis")
       .upsert(
         { user_id: context.userId, tipo: "barbeiro", contexto_ativo: "negocio" },
         { onConflict: "user_id" },
       );
+    if (erroPerfil) {
+      diagnostico("atualizar_perfil", erroPerfil);
+      await db.from("tenant_page_configs").delete().eq("tenant_id", tenantId);
+      await db.from("tenant_usuarios").delete().eq("tenant_id", tenantId).eq("user_id", context.userId);
+      await db.from("tenants").delete().eq("id", tenantId);
+      throw new Error("O negócio foi iniciado, mas não foi possível configurar seu acesso. Tente novamente.");
+    }
     return {
       tenantId: tenantId as string,
       identidade: definicao.identidade,
