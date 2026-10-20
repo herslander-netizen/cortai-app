@@ -317,6 +317,12 @@ function LoginPage() {
       >
         Sou cliente e quero só agendar
       </Link>
+      <Link
+        to="/comecar"
+        className="mt-2 flex min-h-11 items-center justify-center text-center text-sm font-medium text-mute2 hover:text-paper"
+      >
+        Voltar ao início
+      </Link>
     </main>
   );
 }

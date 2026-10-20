@@ -1,4 +1,4 @@
-import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, redirect, useNavigate, Link } from "@tanstack/react-router";
 import { ArrowLeft, CalendarDays, ChevronRight, Scissors } from "lucide-react";
 import { useState } from "react";
 
@@ -39,9 +39,17 @@ export const Route = createFileRoute("/comecar")({
     ],
   }),
   beforeLoad: async () => {
-    const { data } = await supabase.auth.getSession();
+    let data: Awaited<ReturnType<typeof supabase.auth.getSession>>["data"];
+    try {
+      data = (await supabase.auth.getSession()).data;
+    } catch {
+      // A falha transitória não deve prender quem ainda não concluiu o login.
+      return { sessao: null };
+    }
     const usuario = data.session?.user;
-    if (!usuario) throw redirect({ to: "/login", search: { proximo: "/comecar" } });
+    // A tela inicial também é a saída segura de um login abandonado.
+    // Ela precisa ser pública para não criar um ciclo /comecar -> /login.
+    if (!usuario) return { sessao: null };
     let sessao: Sessao;
     try {
       sessao = await sessaoDoUsuario(usuario.id);
@@ -78,7 +86,7 @@ function ComecarPage() {
   const { sessao } = Route.useRouteContext();
   const navigate = useNavigate();
   const [modo, setModo] = useState<"escolha" | "segmento" | "negocio">(
-    sessao.papel === "barbeiro" || sessao.papel === "cliente" ? "segmento" : "escolha",
+    sessao?.papel === "barbeiro" || sessao?.papel === "cliente" ? "segmento" : "escolha",
   );
   const [segmento, setSegmento] = useState<Segmento>("barbearia");
   const [nome, setNome] = useState("");
@@ -88,6 +96,8 @@ function ComecarPage() {
   const [erro, setErro] = useState<string | null>(null);
   const [enviando, setEnviando] = useState(false);
   const [concluido, setConcluido] = useState(false);
+
+  if (!sessao) return <InicioPublico />;
 
   if (sessao.acessoSuspenso) {
     return (
@@ -334,6 +344,58 @@ function ComecarPage() {
           {erro}
         </p>
       ) : null}
+    </main>
+  );
+}
+
+function InicioPublico() {
+  const navigate = useNavigate();
+
+  return (
+    <main className="mx-auto flex min-h-[100dvh] w-full max-w-[480px] flex-col px-6 pb-12 pt-10">
+      <MarcaCortai variante="automatica" className="mx-auto h-auto w-28" prioridade />
+      <h1 className="mt-12 text-center text-[30px] font-bold leading-tight tracking-tight text-paper">
+        Como você vai usar o Cortaí?
+      </h1>
+      <p className="mx-auto mt-3 max-w-[34ch] text-center text-sm leading-relaxed text-mute">
+        Escolha por onde começar. Você pode voltar e trocar de caminho depois.
+      </p>
+
+      <div className="mt-10 divide-y divide-line overflow-hidden rounded-2xl border border-line bg-ink2">
+        <Button
+          variant="ghost"
+          className="grid h-auto w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4 rounded-none px-5 py-6 text-left font-normal"
+          onClick={() => void navigate({ to: "/barbearias" })}
+        >
+          <CalendarDays size={22} className="text-gold" aria-hidden />
+          <span>
+            <span className="block text-base font-semibold text-paper">Quero agendar</span>
+            <span className="mt-1 block text-sm text-mute">Marcar horários em negócios de Beleza.</span>
+          </span>
+          <ChevronRight size={19} className="text-mute2" aria-hidden />
+        </Button>
+        <Button
+          variant="ghost"
+          className="grid h-auto w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4 rounded-none px-5 py-6 text-left font-normal"
+          onClick={() =>
+            void navigate({ to: "/login", search: { proximo: "/comecar", aba: "criar" } })
+          }
+        >
+          <Scissors size={22} className="text-gold" aria-hidden />
+          <span>
+            <span className="block text-base font-semibold text-paper">Tenho um negócio</span>
+            <span className="mt-1 block text-sm text-mute">Escolha seu segmento de Beleza.</span>
+          </span>
+          <ChevronRight size={19} className="text-mute2" aria-hidden />
+        </Button>
+      </div>
+
+      <Link
+        to="/login"
+        className="mt-8 flex min-h-11 items-center justify-center text-sm font-medium text-mute hover:text-paper"
+      >
+        Já tenho conta? Entrar
+      </Link>
     </main>
   );
 }

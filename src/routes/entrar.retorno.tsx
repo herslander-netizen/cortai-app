@@ -56,7 +56,7 @@ function RetornoPage() {
       } catch {
         if (!ativo) return;
         finalizando.current = false;
-        setErro("Não foi possível concluir o acesso. Tente entrar novamente.");
+        setErro("Não foi possível concluir o acesso. Volte ao início e tente novamente.");
       }
     }
 
@@ -73,7 +73,7 @@ function RetornoPage() {
     const limite = window.setTimeout(async () => {
       if (finalizando.current || !ativo) return;
       const { data: atual } = await supabase.auth.getSession();
-      if (!atual.session && ativo) await navigate({ to: "/login", search: {}, replace: true });
+      if (!atual.session && ativo) await navigate({ to: "/comecar", replace: true });
     }, 8000);
 
     return () => {
@@ -91,9 +91,9 @@ function RetornoPage() {
           <button
             type="button"
             className="mt-4 h-11 rounded-lg border border-line2 bg-ink2 px-5 text-sm font-semibold text-paper"
-            onClick={() => void navigate({ to: "/login", search: {} })}
+            onClick={() => void navigate({ to: "/comecar", replace: true })}
           >
-            Voltar para entrar
+            Voltar ao início
           </button>
         </div>
       </main>
