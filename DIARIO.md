@@ -135,7 +135,6 @@ teste real na prévia.
 
 | Quem | Desde (UTC) | Tarefa | Arquivos / migração reservada |
 |---|---|---|---|
-| GPT | 2026-10-20 UTC | Ajustar menu + da Agenda: Equipe, retirar Agendar por voz do menu e trocar ícone de bloqueio por cadeado | `DIARIO.md`, `src/components/barbeiro/agenda/MenuAcoesAgenda.tsx`, `src/components/barbeiro/agenda/MenuAcoesAgenda.test.tsx`, `src/components/barbeiro/AgendaOperacional.tsx` |
 | GPT | 2026-10-17 UTC | Auditoria e melhoria mobile-first da home de apresentação | `DIARIO.md`, `MUSE.md`, `src/components/apresentacao/ShowroomCortai.tsx`, `src/components/apresentacao/DemoAgendamento.tsx`, `src/components/apresentacao/NarrativaApresentacao.tsx`, estilos já existentes da apresentação |
 | GPT | 2026-10-17 UTC | Refinar movimento global para animações mais fluidas e perceptíveis | `DIARIO.md`, `src/lib/motion.ts`, `src/components/layout/GlobalDesign.tsx` |
 | GPT | 2026-10-17 UTC | Auditar ciclo de vida e acessibilidade dos formulários; corrigir divergência do contrato de design no gatilho de agendamento manual | `DIARIO.md`, `src/components/ui/formulario/TelaDeFormulario.tsx`, `src/components/ui/formulario/TelaDeFormulario.test.tsx`, `src/components/barbeiro/AgendamentoManual.tsx`, `src/components/barbeiro/agendamento-manual/useAgendamentoManual.ts`, `src/components/barbeiro/agendamento-manual/regrasAgendamentoManual.ts`, `src/components/barbeiro/agendamento-manual/useAgendamentoManual.test.ts` |
@@ -229,6 +228,13 @@ teste real na prévia.
   que se contradizem; vale deixar só uma. Responda com `[lido]`.
 
 ## Diário (mais recente primeiro)
+
+### 2026-10-20 UTC — GPT — Ajusta ações do botão + na Agenda
+- Arquivos: `src/components/barbeiro/agenda/MenuAcoesAgenda.tsx`, `src/components/barbeiro/agenda/MenuAcoesAgenda.test.tsx`, `src/components/barbeiro/AgendaOperacional.tsx`.
+- O menu + agora inclui **Equipe**, ligada à tela existente `/barbeiro/equipe`; removeu-se **Agendar por voz** apenas do menu (o gesto de segurar o botão principal permanece); o item **Bloquear horário** usa o ícone de cadeado fechado, sem alterar o fluxo de bloqueio.
+- Testes atualizados para confirmar Equipe e garantir que a ação de voz não aparece no menu mesmo quando o navegador suporta voz.
+- Alterações feitas apenas na branch `cloudflare-workers-migration-2026-10-13`; nenhuma publicação em produção ou mudança de banco.
+
 
 ### 2026-10-20 UTC — Claude — Migrações 0039–0041 aplicadas no `cortai-prod`; lançamento 3.3 parado por segredo
 - Antes: as três funções substituídas pela 0039 no banco real eram idênticas às da migração fora das linhas
