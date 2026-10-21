@@ -38,7 +38,7 @@ function MarcaPage() {
   const query = useQuery({ queryKey: ["marca"], queryFn: () => getMarca(), retry: false });
   if (query.isLoading)
     return (
-      <Screen voltarPara="/barbeiro/sua-pagina" title="Personalizar página">
+      <Screen voltarPara="/barbeiro" title="Personalizar página">
         <EsqueletoFormulario campos={6} onTentarDeNovo={() => void query.refetch()} />
       </Screen>
     );
@@ -88,7 +88,7 @@ function Editor({
   return (
     <Screen
       wide
-      voltarPara="/barbeiro/sua-pagina"
+      voltarPara="/barbeiro"
       title="Personalizar página"
       subtitle={`Escolha como seu cliente chega até ${e.vocabulario.comArtigo} e veja a mudança na hora.`}
     >
