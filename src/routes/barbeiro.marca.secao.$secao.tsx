@@ -13,6 +13,20 @@ import { getMarca, salvarRascunhoPagina } from "@/lib/marca.functions";
 import { exigirCapacidade } from "@/lib/guarda-capacidade";
 import { componenteIds } from "@/lib/pagina-config";
 
+const NOMES_SECOES = {
+  apresentacao: "Apresentação",
+  servicos: "Serviços",
+  profissionais: "Equipe",
+  galeria: "Galeria",
+  avaliacoes: "Avaliações",
+  produtos: "Produtos",
+  instagram: "Instagram",
+  localizacao: "Localização",
+  horarios: "Horários",
+  whatsapp: "WhatsApp",
+  cta_final: "Chamada final",
+} as const;
+
 export const Route = createFileRoute("/barbeiro/marca/secao/$secao")({
   beforeLoad: ({ context }) => exigirCapacidade(context.queryClient, "branding_avancado"),
   head: () => ({
@@ -57,9 +71,10 @@ function EditorSecaoPage() {
     );
   }
 
+  const secaoValida = secao as (typeof componenteIds)[number];
   return (
     <EditorSecao
-      secao={secao as (typeof componenteIds)[number]}
+      secao={secaoValida}
       initial={query.data.marca}
       salvarEVoltar={async () => {
         await queryClient.invalidateQueries({ queryKey: ["marca"] });
@@ -102,7 +117,7 @@ function EditorSecao({
   return (
     <Screen
       voltarPara="/barbeiro/marca"
-      title="Editar seção"
+      title={`Editar ${NOMES_SECOES[secao]}`}
       subtitle="Ative ou oculte este bloco da página pública. Os dados cadastrados do negócio não são apagados."
     >
       <div className="space-y-5 pb-24">
