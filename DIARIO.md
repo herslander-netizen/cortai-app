@@ -146,6 +146,7 @@ teste real na prévia.
 
 | Quem | Desde (UTC) | Tarefa | Arquivos / migração reservada |
 |---|---|---|---|
+| GPT | 2026-10-21 UTC | Recuperar primeira fatia P0 do fluxo Figaro da página pública: hub de entrada e navegação para personalização sem alterar publicação/backend | `DIARIO.md`, rotas e componentes de navegação da página pública; sem migração |
 
 
 | GPT | 2026-10-20 UTC | Auditoria autônoma de UX de autenticação, onboarding e recuperação de sessão na prévia; validar correção e depois ampliar auditoria geral sem tocar produção | `DIARIO.md`, `src/routes/comecar.tsx`, `src/routes/login.tsx`, `src/lib/guarda.ts`, testes relacionados; sem migração |
