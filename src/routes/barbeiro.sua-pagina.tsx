@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowUpRight, CheckCircle2, CircleHelp, Eye, LayoutTemplate, PencilLine } from "lucide-react";
+import { ArrowUpRight, CheckCircle2, CircleHelp, Eye, LayoutTemplate, Palette, PencilLine } from "lucide-react";
 import { useState } from "react";
 
 import { Screen } from "@/components/layout/Screen";
