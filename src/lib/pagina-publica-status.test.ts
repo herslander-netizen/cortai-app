@@ -18,5 +18,8 @@ describe("estado da página pública", () => {
     const fonte = readFileSync("src/lib/publico.functions.ts", "utf8");
     expect(fonte).toContain('.select("published_config, is_online")');
     expect(fonte).toContain("if (!paginaPublicaDisponivel(pageConfig?.is_online)) return null;");
+    const metadata = readFileSync("src/lib/agendamento-publico.functions.ts", "utf8");
+    expect(metadata).toContain('.select("published_config, is_online")');
+    expect(metadata).toContain("if (!paginaPublicaDisponivel(cfg?.is_online)) return null;");
   });
 });
