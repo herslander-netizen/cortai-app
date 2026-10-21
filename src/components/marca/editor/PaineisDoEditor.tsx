@@ -94,7 +94,7 @@ export function PaineisDoEditor({
 
         <TabsContent value="conteudo" className="mt-2">
           <motion.div {...pagina}>
-            <Accordion type="multiple" defaultValue={["experiencia"]}>
+            <Accordion type="multiple" defaultValue={["conteudo"]}>
               <Item
                 id="experiencia"
                 titulo="Experiência de agendamento"
