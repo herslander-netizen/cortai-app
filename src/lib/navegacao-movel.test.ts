@@ -60,6 +60,18 @@ describe("navegação móvel", () => {
     expect(ajustes).toContain("Sair da conta");
   });
 
+  it("mapeia as seções Figaro para controles reais ou para a gestão correspondente", () => {
+    const editor = readFileSync("src/components/marca/editor/EditorDaSecaoPublica.tsx", "utf8");
+    const rota = readFileSync("src/routes/barbeiro.marca.secao.$secao.tsx", "utf8");
+    for (const secao of ["apresentacao", "servicos", "profissionais", "galeria", "avaliacoes", "produtos", "instagram", "localizacao", "horarios", "whatsapp", "cta_final"]) {
+      expect(editor).toContain('case "' + secao + '"');
+    }
+    expect(editor).toContain('to="/barbeiro/servicos"');
+    expect(editor).toContain('to="/barbeiro/avaliacoes"');
+    expect(editor).toContain('to="/barbeiro/produtos"');
+    expect(editor).toContain('to="/barbeiro/horarios"');
+    expect(rota).toContain("<EditorDaSecaoPublica secao={secao} e={e} />");
+  });
   it("promove Agenda ao primeiro destaque fora dos grupos", () => {
     const destaques = readFileSync("src/components/layout/DrawerDestaques.tsx", "utf8");
     const drawer = readFileSync("src/components/layout/ManagementDrawer.tsx", "utf8");
