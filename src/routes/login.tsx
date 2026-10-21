@@ -151,7 +151,7 @@ function LoginPage() {
       });
       if (resultado.error) {
         setEnviando(false);
-        falha(provedor);
+        falha(provedor, resultado.error);
         return;
       }
       if (resultado.redirected) return;
@@ -163,8 +163,19 @@ function LoginPage() {
     }
   }
 
-  const falha = (provedor: "google" | "apple") =>
-    setErro(`Não foi possível continuar com ${provedor === "google" ? "o Google" : "a Apple"}.`);
+  const falha = (provedor: "google" | "apple", detalhe?: unknown) => {
+    const nome = provedor === "google" ? "o Google" : "a Apple";
+    const mensagem =
+      detalhe && typeof detalhe === "object" && "message" in detalhe &&
+      typeof detalhe.message === "string"
+        ? detalhe.message.toLowerCase()
+        : "";
+    if (mensagem.includes("provider is not enabled") || mensagem.includes("provider_not_enabled")) {
+      setErro(`O login com ${nome} ainda não está ativado neste ambiente. Entre com e-mail e senha por enquanto.`);
+      return;
+    }
+    setErro(`Não foi possível continuar com ${nome}. Confira sua conexão ou tente entrar com e-mail e senha.`);
+  };
 
   const botaoSocial =
     "h-12 w-full justify-center gap-2 rounded-full border-line2 bg-ink2 text-sm font-semibold text-paper";
