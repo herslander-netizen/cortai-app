@@ -75,6 +75,8 @@ type AgendaTimelineProps = {
   onRedimensionar?: (item: AgendaItem, deltaMin: number) => void;
   /** Segurar o cartão sem arrastar (toque): entra no modo de editar horário. */
   onEditar?: (item: AgendaItem, yDoToque?: number) => void;
+  /** Atualiza a âncora do zoom no dedo em movimento sem reabrir o rascunho. */
+  onAtualizarYDoToque?: (id: string, yDoToque: number) => void;
   /** Passo do negócio, em minutos (o arrasto e a alça andam sempre de 5 em 5; veja `passoDoGesto`). */
   passoMin?: number;
   /** Cartão em edição: mostra o intervalo novo ou o motivo de não poder salvar. */
@@ -187,6 +189,7 @@ export function AgendaTimeline({
     longo?: boolean;
     rolagem0: number;
     dy: number;
+    deslocamentoMin: number;
   } | null>(null);
   const bloqueio = useRef<ReturnType<typeof criarBloqueioDeRolagem> | null>(null);
   useEffect(
@@ -568,6 +571,7 @@ export function AgendaTimeline({
       arrastou: false,
       rolagem0: celularAgora() ? window.scrollY : (rolagemRef.current?.scrollTop ?? 0),
       dy: 0,
+      deslocamentoMin: 0,
     } as NonNullable<typeof gesto.current>;
     const alvo = e.currentTarget as HTMLElement;
     const pid = e.pointerId;
@@ -595,17 +599,18 @@ export function AgendaTimeline({
   function moverGesto(e: React.PointerEvent) {
     const g = gesto.current;
     if (!g) return;
+    if (g.longo) onAtualizarYDoToque?.(g.id, e.clientY);
     const celular = celularAgora();
     const area = rolagemRef.current;
     const borda = 48;
-    if (g.ativo && celular) {
+    if (g.ativo && g.arrastou && celular) {
       // No celular quem rola é a página: bordas da área livre e window.scrollBy.
       const r = areaLivre();
       if (e.clientY < r.top + borda)
         window.scrollBy(0, -Math.ceil((r.top + borda - e.clientY) / 4));
       else if (e.clientY > r.bottom - borda)
         window.scrollBy(0, Math.ceil((e.clientY - (r.bottom - borda)) / 4));
-    } else if (g.ativo && area) {
+    } else if (g.ativo && g.arrastou && area) {
       const r = area.getBoundingClientRect();
       if (e.clientY < r.top + borda) area.scrollTop -= Math.ceil((r.top + borda - e.clientY) / 4);
       else if (e.clientY > r.bottom - borda)
@@ -624,19 +629,24 @@ export function AgendaTimeline({
     if (!g.arrastou) {
       // Ao começar a mover, desconta o scroll que a animação de zoom aplicou até aqui.
       if (g.longo) g.rolagem0 = rolagemAtual;
+      g.deslocamentoMin = dy / PX_POR_MINUTO;
       try {
         (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
       } catch {
         /* */
       }
+    } else {
+      // Durante a aproximação, cada trecho usa a escala daquele instante, como no Figaro.
+      g.deslocamentoMin += (dy - g.dy) / PX_POR_MINUTO;
     }
     g.arrastou = true;
     e.preventDefault();
     g.dy = dy;
     setArrasto({ id: g.id, dy });
   }
-  function fimGesto(item: AgendaItem) {
+  function fimGesto(item: AgendaItem, ySolto?: number) {
     const g = gesto.current;
+    if (g?.longo && ySolto !== undefined) onAtualizarYDoToque?.(g.id, ySolto);
     gesto.current = null;
     soltarRolagemDoToque();
     if (!g) return;
@@ -649,7 +659,7 @@ export function AgendaTimeline({
       return;
     }
     ignorarClique.current = true;
-    const delta = Math.round(dy / PX_POR_MINUTO / passo) * passo;
+    const delta = Math.round(g.deslocamentoMin / passo) * passo;
     if (delta !== 0) {
       navigator.vibrate?.(18);
       onMover?.(item, delta);
@@ -1012,7 +1022,7 @@ export function AgendaTimeline({
                     : {
                         onPointerDown: (e: React.PointerEvent) => inicioGesto(e, item),
                         onPointerMove: moverGesto,
-                        onPointerUp: () => fimGesto(item),
+                        onPointerUp: (e: React.PointerEvent) => fimGesto(item, e.clientY),
                         onPointerCancel: () => {
                           const cancelado = gesto.current;
                           if (cancelado) window.clearTimeout(cancelado.timer);
