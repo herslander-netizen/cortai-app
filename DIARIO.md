@@ -184,7 +184,8 @@ teste real na prévia.
 - Corrigido o destino do item “Sua Página” em Ajustes: abre `/barbeiro/sua-pagina`, o hub com o cartão Layout & Tema, em vez de cair direto no editor unificado. Isso corresponde ao caminho do Figaro: gaveta → Sua Página/Personalizar Página → Layout & Tema.
 - A tela do hub passou a se chamar “Personalizar Página”; o cartão principal mantém “Layout & Tema” e a ação secundária foi renomeada para “Editar conteúdo da página”. O teste de navegação agora exige a rota do hub.
 - Arquivos: `src/components/layout/DrawerAjustes.tsx`, `src/routes/barbeiro.sua-pagina.tsx`, `src/lib/navegacao-movel.test.ts`. Commits: `6281004`, `3bde6ae`, `c842aab`.
-- **Ainda incompleto:** Layout & Tema ainda abre o editor unificado, e faltam editores independentes por seção, prévia de exemplo separada, menu ⋮ com ações condicionadas e retorno com recarga. Não declarar paridade completa. Sem alterações no banco, `main` ou site principal.
+- Criada a rota própria `/barbeiro/marca/layout-tema`, com barra inferior persistente “Ver Exemplo” / “Salvar Alterações” e retorno ao hub após salvar rascunho. O cartão Layout & Tema agora aponta para essa tela e o teste cobre ida e volta. Commits: `ef9c67b`, `0604fdd`, `3b5d5cf`.
+- **Ainda incompleto:** editores independentes por seção, prévia de exemplo separada no estilo WebView, menu ⋮ com ações condicionadas e validação visual real de animações. Não declarar paridade completa. Sem alterações no banco, `main` ou site principal.
 - A validação do GitHub Actions está em andamento; confirmar TypeScript, testes, build e deploy da prévia antes de afirmar que está pronto.
 ## Atualização de execução — 2026-10-21
 
