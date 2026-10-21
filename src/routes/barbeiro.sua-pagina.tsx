@@ -52,7 +52,7 @@ function SuaPagina() {
 
   if (query.isLoading) {
     return (
-      <Screen voltarPara="/barbeiro" title="Sua Página">
+      <Screen voltarPara="/barbeiro" title="Personalizar Página">
         <EsqueletoFormulario campos={4} onTentarDeNovo={() => void query.refetch()} />
       </Screen>
     );
@@ -77,8 +77,8 @@ function SuaPagina() {
   return (
     <Screen
       voltarPara="/barbeiro"
-      title="Sua Página"
-      subtitle="A página que seus clientes usam para conhecer seu negócio e iniciar um agendamento."
+      title="Personalizar Página"
+      subtitle="Gerencie as seções da sua página pública, o layout e o tema."
     >
       <div className="space-y-4">
         <section className="surface overflow-hidden p-4 sm:p-5">
@@ -217,7 +217,7 @@ function SuaPagina() {
             to="/barbeiro/marca"
             className="m-4 flex min-h-12 items-center justify-center gap-2 rounded-full bg-gold px-4 py-3 text-sm font-semibold text-ink transition-colors hover:brightness-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold sm:mx-5 sm:mb-5"
           >
-            Escolher Layout & Tema
+            Layout & Tema
             <PencilLine size={17} aria-hidden />
           </Link>
         </section>
@@ -228,7 +228,7 @@ function SuaPagina() {
             Personalize primeiro o layout e o tema. Depois revise os textos, as imagens, os serviços e os canais de contato. As alterações só entram na página pública quando forem publicadas pelo editor.
           </p>
           <Button asChild variant="primary" className="mt-4 w-full sm:w-auto">
-            <Link to="/barbeiro/marca">Personalizar página</Link>
+            <Link to="/barbeiro/marca">Editar conteúdo da página</Link>
           </Button>
         </section>
       </div>
