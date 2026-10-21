@@ -1393,7 +1393,7 @@ export function AgendaOperacional() {
                   </Button>
                 ) : null}
               </AgendaVazia>
-            ) : celular && diaSemAgenda ? (
+            ) : celular && visualizacao === "lista" && diaSemAgenda ? (
               <ListaPeriodo
                 hoje={hojeNoFuso(fuso)}
                 fuso={fuso}
