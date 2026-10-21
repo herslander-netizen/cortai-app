@@ -135,7 +135,7 @@ export const MODULOS_DE_NAVEGACAO = [
   },
   {
     grupo: "Clientes e marca",
-    to: "/barbeiro/marca",
+    to: "/barbeiro/sua-pagina",
     label: "Aparência",
     detail: "Página, marca e temas",
     icon: Palette,
@@ -203,7 +203,7 @@ export const SECOES: ReadonlyArray<{ titulo: string; abas: ReadonlyArray<Aba> }>
   {
     titulo: "Aparência",
     abas: [
-      { to: "/barbeiro/marca", label: "Personalizar página", permissao: "alterar_dados_barbearia" },
+      { to: "/barbeiro/sua-pagina", label: "Personalizar página", permissao: "alterar_dados_barbearia" },
     ],
   },
 ];
