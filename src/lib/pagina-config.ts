@@ -16,6 +16,9 @@ export const temaIds = [
   "industrial",
   "street",
   "editorial",
+  "figaro-classico",
+  "figaro-retro",
+  "figaro-rock-n-roll",
 ] as const;
 export const layoutIds = [
   "cinematografico",
@@ -23,6 +26,8 @@ export const layoutIds = [
   "minimalista",
   "foto-destaque",
   "editorial",
+  "figaro-site-completo",
+  "figaro-agendamento",
 ] as const;
 export const fonteIds = ["inter", "poppins", "montserrat", "oswald", "roboto", "serif"] as const;
 export const componenteIds = [
@@ -263,6 +268,42 @@ export const TEMAS: Record<
       destaque: "#7B3127",
     },
   },
+  "figaro-classico": {
+    nome: "Clássico",
+    descricao: "Visual moderno e minimalista, recuperado da referência Figaro. Paleta adaptada para o Cortaí.",
+    cores: {
+      principal: "#5F6469",
+      secundaria: "#E5E7E8",
+      botao: "#5F6469",
+      fundo: "#F6F7F7",
+      texto: "#202224",
+      destaque: "#2467BB",
+    },
+  },
+  "figaro-retro": {
+    nome: "Retro",
+    descricao: "Uma opção retrô recuperada da referência Figaro, com paleta adaptada para o Cortaí.",
+    cores: {
+      principal: "#C4A82D",
+      secundaria: "#F0E2A1",
+      botao: "#D3145D",
+      fundo: "#FFF9E5",
+      texto: "#2B281F",
+      destaque: "#D3145D",
+    },
+  },
+  "figaro-rock-n-roll": {
+    nome: "Rock n' Roll",
+    descricao: "Visual intenso e cheio de atitude, recuperado da referência Figaro; paleta adaptada para o Cortaí.",
+    cores: {
+      principal: "#D3145D",
+      secundaria: "#2B2630",
+      botao: "#D3145D",
+      fundo: "#151318",
+      texto: "#F4F4F5",
+      destaque: "#5F6469",
+    },
+  },
 };
 
 export const LAYOUTS: Record<LayoutId, string> = {
@@ -271,6 +312,8 @@ export const LAYOUTS: Record<LayoutId, string> = {
   minimalista: "Minimalista",
   "foto-destaque": "Foto em Destaque",
   editorial: "Editorial",
+  "figaro-site-completo": "Site Completo",
+  "figaro-agendamento": "Agendamento",
 };
 export const FONTES: Record<FonteId, string> = {
   inter: "Inter",
