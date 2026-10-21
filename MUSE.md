@@ -1,6 +1,6 @@
 # Infraestrutura do Cortaí — leia antes de mexer
 
-Resumo para qualquer IA ou pessoa que trabalhe no projeto (Claude, GPT, Muse). Atualizado em 2026-10-19.
+Resumo para qualquer IA ou pessoa que trabalhe no projeto (Claude, GPT, Muse). Atualizado em 2026-10-21.
 O que cada IA está fazendo e fez fica em `DIARIO.md`. As regras do projeto vêm primeiro: topo do
 `AGENTS.md`, `CLAUDE.md`, `src/lib/AGENTS.md` e `docs/contrato-de-design.md`.
 
@@ -41,6 +41,8 @@ O APK reencontrado `Figaroo.apk` é a referência original para layout, cartões
 
 - Em 19/10, o fluxo de novo agendamento no padrão Figaro foi validado automaticamente e publicado na prévia com o banco isolado `cortai-preview`; teste manual no celular ainda pendente. Migrações 0039–0041 são exclusivas da prévia.
 - Cada envio na branch: TypeScript, testes e build; se passar, vai para a prévia.
+- Correção de 2026-10-21 no pipeline: `preview-migration.yml` faz checkout do SHA exato do evento; não cancela um deploy já em andamento; gera um marcador único por run e só termina verde quando `previa.cortaiapp.pages.dev` serve esse marcador com commit/run correspondentes. A fila de concorrência mantém apenas a execução pendente mais recente.
+- A branch de migração não dispara mais o workflow duplicado `validate.yml` em push; sua validação continua integrada à publicação. PRs e os pushes de `main`/`claude/**` continuam validados separadamente.
 - "Mande pra main" (pedido do dono) = rodar **"Lançar versão"**: testa, grava a versão (3.1, 3.2…;
   "grande" vira 4.0), cria a tag `vX.Y` e a Release e publica no site principal.
 - **"Voltar versão"** põe no ar a versão anterior (ou a pedida) na hora, sem novo build.

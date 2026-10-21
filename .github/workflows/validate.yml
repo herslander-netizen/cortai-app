@@ -4,8 +4,10 @@ on:
   workflow_dispatch:
   pull_request:
     branches: [main, "cloudflare-workers-migration-2026-10-13"]
+  # A branch de migração já valida e publica no preview-migration.yml; manter aqui
+  # criaria um segundo check verde que não confirma deploy.
   push:
-    branches: [main, "claude/**", "cloudflare-workers-migration-2026-10-13"]
+    branches: [main, "claude/**"]
 
 permissions:
   contents: read

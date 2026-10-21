@@ -146,7 +146,6 @@ teste real na prévia.
 
 | Quem | Desde (UTC) | Tarefa | Arquivos / migração reservada |
 |---|---|---|---|
-| GPT | 2026-10-21 UTC | Auditoria e endurecimento do fluxo de publicação da prévia: impedir cancelamento de deploy em andamento, fixar checkout no SHA do evento e verificar que a URL serve o commit publicado | `.github/workflows/preview-migration.yml`, `DIARIO.md`, `MUSE.md`; sem migração |
 | GPT | 2026-10-20 UTC | Auditoria autônoma de UX de autenticação, onboarding e recuperação de sessão na prévia; validar correção e depois ampliar auditoria geral sem tocar produção | `DIARIO.md`, `src/routes/comecar.tsx`, `src/routes/login.tsx`, `src/lib/guarda.ts`, testes relacionados; sem migração |
 | GPT | 2026-10-17 UTC | Auditoria e melhoria mobile-first da home de apresentação | `DIARIO.md`, `MUSE.md`, `src/components/apresentacao/ShowroomCortai.tsx`, `src/components/apresentacao/DemoAgendamento.tsx`, `src/components/apresentacao/NarrativaApresentacao.tsx`, estilos já existentes da apresentação |
 | GPT | 2026-10-17 UTC | Refinar movimento global para animações mais fluidas e perceptíveis | `DIARIO.md`, `src/lib/motion.ts`, `src/components/layout/GlobalDesign.tsx` |
@@ -241,6 +240,13 @@ teste real na prévia.
   que se contradizem; vale deixar só uma. Responda com `[lido]`.
 
 ## Diário (mais recente primeiro)
+
+### 2026-10-21 UTC — GPT — Auditoria e correção do fluxo de publicação da prévia
+- Causa confirmada de cancelamentos: `.github/workflows/preview-migration.yml` usava `concurrency.cancel-in-progress: true`. Em pushes consecutivos (código seguido de registro no DIARIO), a publicação anterior era cancelada; o histórico mostra execuções 499, 501 e 502 canceladas rapidamente, enquanto o check separado `Validate Cortaí` ficava verde. Isso não prova que o deploy foi publicado.
+- Correção: execução de deploy em andamento não é cancelada, os checkouts usam o SHA exato do evento e um smoke test consulta um arquivo exclusivo do run na URL da prévia, comparando commit e ID do workflow. Assim, “sucesso” exige que a URL entregue o artefato dessa execução.
+- Removido o push duplicado de `cloudflare-workers-migration-2026-10-13` em `validate.yml`; a branch continua passando por TypeScript, testes e build dentro de `preview-migration.yml`. O workflow `validate.yml` mantém os pushes de `main` e `claude/**`, além de PRs.
+- Diagnóstico visual: as capturas enviadas mostram o modo Lista e a ficha do atendimento; o cabeçalho compacto só aparece quando a edição de horário da Timeline está ativa, e as linhas de grade só existem na visualização Timeline. `src/lib/pwa/registro.ts` desregistra service workers na prévia, então o service worker do Cortaí não explica tela antiga nesse host.
+- Nenhum banco, `main`, DNS ou site principal foi alterado. Resultado do novo smoke test será confirmado pela execução do GitHub Actions após este commit.
 
 ### 2026-10-21 UTC — GPT — Centraliza cartão ao sair do zoom armado
 - A pedido do dono, ao encerrar o modo de edição tocando fora ou saindo do zoom, a restauração da escala passa a ancorar o centro do cartão na região visível acima da barra inferior, em vez de manter o ponto pressionado na posição anterior.
