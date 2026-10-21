@@ -2737,6 +2737,14 @@ body:has(.auth-screen--claro) {
 .public-brand.is-preview .brand-hero {
   min-height: 530px;
 }
+
+/* A prévia respeita a altura definida pelo layout selecionado. */
+.public-brand.is-preview.layout-figaro-site-completo .brand-hero {
+  min-height: min(78vh, 760px);
+}
+.public-brand.is-preview.layout-figaro-agendamento .brand-hero {
+  min-height: min(42vh, 420px);
+}
 .public-brand.is-preview .brand-main {
   width: calc(100% - 30px);
 }
