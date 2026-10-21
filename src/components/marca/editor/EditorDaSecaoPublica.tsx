@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { CalendarDays, Clock3, ExternalLink, MapPin, MessageCircle, Package, Star, Users } from "lucide-react";
+import { CalendarDays, ExternalLink, MapPin, MessageCircle } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -8,8 +8,7 @@ import { SecaoRedes } from "@/components/marca/editor/SecaoRedes";
 import { SecaoTextos } from "@/components/marca/editor/SecaoTextos";
 import { Campo } from "@/components/marca/editor/campos";
 import { useEditorDaPagina } from "@/components/marca/editor/useEditorDaPagina";
-import type { MarcaData } from "@/lib/marca.functions";
-import type { componenteIds } from "@/lib/pagina-config";
+import { componenteIds } from "@/lib/pagina-config";
 
 type Secao = (typeof componenteIds)[number];
 type Editor = ReturnType<typeof useEditorDaPagina>;
@@ -33,7 +32,7 @@ function IrParaGestao({ to, titulo, descricao }: { to: DestinoGestao; titulo: st
   );
 }
 
-export function EditorDaSecaoPublica({ secao, e, initial }: { secao: Secao; e: Editor; initial: MarcaData }) {
+export function EditorDaSecaoPublica({ secao, e }: { secao: Secao; e: Editor }) {
   switch (secao) {
     case "apresentacao":
       return <SecaoTextos config={e.config} setPagina={e.setPagina} form={e.form} setMarca={e.setMarca} vocabulario={e.vocabulario} />;
