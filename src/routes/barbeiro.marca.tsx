@@ -27,12 +27,12 @@ export const Route = createFileRoute("/barbeiro/marca")({
   beforeLoad: ({ context }) => exigirCapacidade(context.queryClient, "branding_avancado"),
   head: () => ({
     meta: [
-      { title: "Personalizar página — Cortaí" },
+      { title: "Personalizar Página — Cortaí" },
       { name: "description", content: "Personalize e publique a página pública do seu negócio." },
       { property: "og:title", content: "Personalizar página — Cortaí" },
       {
         property: "og:description",
-        content: "Experiência, tema, conteúdo e links da página do negócio.",
+        content: "Escolha o layout, tema e seções que aparecem na página pública do seu negócio.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -46,7 +46,7 @@ function MarcaPage() {
   const query = useQuery({ queryKey: ["marca"], queryFn: () => getMarca(), retry: false });
   if (query.isLoading)
     return (
-      <Screen voltarPara="/barbeiro" title="Personalizar página">
+      <Screen voltarPara="/barbeiro" title="Personalizar Página">
         <EsqueletoFormulario campos={6} onTentarDeNovo={() => void query.refetch()} />
       </Screen>
     );
@@ -132,7 +132,7 @@ function Editor({
       wide
       voltarPara="/barbeiro"
       title="Personalizar página"
-      subtitle={`Escolha como seu cliente chega até ${e.vocabulario.comArtigo} e veja a mudança na hora.`}
+      subtitle="Escolha o layout, tema e quais seções aparecem na página pública."
     >
       <div className="mb-5 flex flex-wrap items-center gap-2">
         <Button variant="outline" size="sm" asChild>
