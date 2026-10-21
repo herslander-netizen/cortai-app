@@ -99,7 +99,7 @@ function EditorGaleria({ e }: { e: Editor }) {
                 <div className="flex aspect-square items-center justify-center px-3 text-center text-xs text-mute">Imagem indisponível</div>
               )}
               <div className="p-2">
-                <Button type="button" variant="ghost" className="min-h-11 w-full" onClick={() => e.removerFoto(foto.path)} aria-label={`Remover foto ${index + 1}`}>
+                <Button type="button" variant="ghost" className="min-h-11 w-full" disabled={e.busy} onClick={() => e.removerFoto(foto.path)} aria-label={`Remover foto ${index + 1}`}>
                   <Trash2 size={16} aria-hidden />
                   Remover
                 </Button>
