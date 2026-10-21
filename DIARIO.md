@@ -257,6 +257,12 @@ teste real na prévia.
   `AGENTS.md`). Detalhe no teu último ajuste da agenda: `-mt-4 mb-0 -mb-3` tem duas margens de baixo
   que se contradizem; vale deixar só uma. Responda com `[lido]`.
 
+### 2026-10-21 UTC — GPT — Corrige retorno do editor ao hub Sua Página
+- Ajustei os dois estados de carregamento/erro e a tela principal em `src/routes/barbeiro.marca.tsx`: a ação de voltar agora retorna a `/barbeiro/sua-pagina`, em vez de desviar para Ajustes (`/barbeiro/mais`). Isso fecha o caminho central do Figaro: hub Sua Página → personalização → voltar ao hub.
+- Não alterei salvar rascunho/publicar, nem regras do backend.
+- Commit: `af9258a80bcf817d45f883820d43ec2b1a7bf86d`.
+- Ainda precisa validar navegação e fluxo de retorno na prévia; CI não apresentou status disponível nesta sessão.
+
 ### 2026-10-21 UTC — GPT — Remove import não utilizado em Layout & Tema
 - Na revisão estática seguinte, removi o import de `motion` de `src/components/marca/editor/SecaoLayoutsETemas.tsx`, pois o componente não o utilizava (a classe CSS `motion-reduce` não depende desse import).
 - Isso evita ruído e possível falha de lint/TypeScript estrito; não altera animações nem comportamento.
