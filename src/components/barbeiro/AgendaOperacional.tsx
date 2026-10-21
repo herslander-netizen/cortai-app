@@ -99,7 +99,6 @@ import {
   type EstadoAtendimento,
 } from "@/lib/barbeiro.functions";
 import { getAguardandoPagamento, getMeuDia } from "@/lib/financeiro.functions";
-import { PrimeirosPassos } from "@/components/onboarding/PrimeirosPassos";
 import { brl } from "@/lib/format";
 import {
   chamarProximoDaFila,
@@ -1353,12 +1352,6 @@ export function AgendaOperacional() {
           </div>
         ) : null}
 
-        {celular && ehHoje && diaSemAgenda ? (
-          <div className="mb-3">
-            <PrimeirosPassos />
-          </div>
-        ) : null}
-
         <div
           id="agenda-painel-visualizacao"
           aria-label={`Visualização ${visualizacao}`}
@@ -1384,8 +1377,8 @@ export function AgendaOperacional() {
               />
             ) : diaSemAgenda && !(celular && visualizacao !== "lista") ? (
               <AgendaVazia
-                titulo="Agenda livre"
-                texto={`${dataEditorial(dia)} · nenhum atendimento marcado`}
+                titulo="Sem atendimentos neste dia"
+                texto={`${dataEditorial(dia)} · não há horários marcados para esta data. Seus agendamentos de outros dias continuam salvos na agenda.`}
               >
                 <Button className="min-h-11" onClick={() => setManualAberto(true)}>
                   <Plus /> Novo agendamento
@@ -1399,7 +1392,6 @@ export function AgendaOperacional() {
                     Encaixe
                   </Button>
                 ) : null}
-                {ehHoje ? <PrimeirosPassos /> : null}
               </AgendaVazia>
             ) : colunas ? (
               <div
