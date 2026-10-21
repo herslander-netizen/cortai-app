@@ -124,6 +124,11 @@ Tudo o que o dono decidir com qualquer IA entra aqui, com a data. Vale para toda
 - Validação visual e execução completa de TypeScript/testes/build ainda precisam ser confirmadas pelo GitHub Actions; não declarar pronto até verificar.
 - Nenhuma alteração em banco, `main` ou site principal.
 
+### 2026-10-21 UTC — GPT — Linhas mais neutras na timeline mobile
+- Em `src/styles.css`, linhas das horas inteiras ficam com contraste reduzido via `color-mix` usando o token neutro `--mute`; as listras fora do expediente também ficam mais sutis e neutras, mantendo tokens e cores de marca para estados/ações.
+- Commit: `a71ed2d8be7a1f13516f5673d5bd05716377ac10`.
+- Validação visual, TypeScript/testes/build e publicação da prévia ainda não confirmados. Nenhuma mudança em `main` ou banco.
+
 ## Próximas tarefas (ordem combinada)
 
 Pegar a primeira livre; reservar em "Em andamento" antes.
