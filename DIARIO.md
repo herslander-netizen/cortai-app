@@ -118,6 +118,12 @@ Tudo o que o dono decidir com qualquer IA entra aqui, com a data. Vale para toda
   limite; a faixa da semana pode ser arrastada entre semanas; o calendário do mês abre a partir da
   faixa. O dono escolheu o **Claude** para executar (as reservas do GPT nesses arquivos passam ao Claude).
 
+### 2026-10-21 UTC — GPT — Cabeçalho compacto durante edição da Agenda
+- Alterado `src/components/barbeiro/agenda/CabecalhoDeEdicao.tsx`: no celular, o cabeçalho de edição usa data abreviada em uma linha, instrução de Reagendar menor, fundo do tema e borda inferior arredondada; não inclui logomarca. O cabeçalho fora desse modo permanece igual.
+- Commit de código: `bcfe16754266ec332e136a567fd975b20bf9a9eb`.
+- Validação visual e execução completa de TypeScript/testes/build ainda precisam ser confirmadas pelo GitHub Actions; não declarar pronto até verificar.
+- Nenhuma alteração em banco, `main` ou site principal.
+
 ## Próximas tarefas (ordem combinada)
 
 Pegar a primeira livre; reservar em "Em andamento" antes.
