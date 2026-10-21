@@ -20,6 +20,12 @@ describe("estado da página pública", () => {
     expect(fonte).toContain("if (!paginaPublicaDisponivel(pageConfig?.is_online)) return null;");
     const metadata = readFileSync("src/lib/agendamento-publico.functions.ts", "utf8");
     expect(metadata).toContain('.select("published_config, is_online")');
-    expect(metadata).toContain("if (!paginaPublicaDisponivel(cfg?.is_online)) return null;");
+    expect(metadata).toContain("const paginaOnline = paginaPublicaDisponivel(cfg?.is_online);");
+    expect(metadata).toContain("paginaOnline,");
+    expect(metadata).not.toContain("if (!paginaPublicaDisponivel(cfg?.is_online)) return null;");
+    const rotaVitrine = readFileSync("src/routes/b.$slug.tsx", "utf8");
+    expect(rotaVitrine).toContain("!loaderData.paginaOnline");
+    const rotaCurta = readFileSync("src/routes/$slug.tsx", "utf8");
+    expect(rotaCurta).toContain("previa?.experiencia ?? \"vitrine\"");
   });
 });
