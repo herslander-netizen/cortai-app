@@ -2708,6 +2708,29 @@ body:has(.auth-screen--claro) {
 .layout-editorial .brand-hero h1 {
   max-width: 650px;
 }
+
+/* Layouts recuperados da referência Figaro, renderizados pelos componentes web atuais. */
+.layout-figaro-site-completo .brand-hero {
+  min-height: min(78vh, 760px);
+}
+.layout-figaro-agendamento .brand-hero {
+  min-height: min(42vh, 420px);
+  align-items: center;
+}
+.layout-figaro-agendamento .brand-cover {
+  opacity: 0.35;
+}
+.layout-figaro-agendamento .brand-overlay {
+  background: var(--brand-background);
+  opacity: 0.58;
+}
+.layout-figaro-agendamento .brand-hero h1 {
+  font-size: clamp(30px, 6vw, 54px);
+}
+.layout-figaro-agendamento .brand-hero-content {
+  padding-block: 24px;
+}
+
 .public-brand.is-preview {
   min-height: 100%;
 }
