@@ -27,20 +27,6 @@ const ROTULOS_SECOES: Record<(typeof componenteIds)[number], string> = {
   cta_final: "Botão final",
 };
 
-const ROTULOS_SECOES: Record<(typeof componenteIds)[number], string> = {
-  apresentacao: "Apresentação",
-  servicos: "Serviços",
-  profissionais: "Equipe",
-  galeria: "Galeria",
-  avaliacoes: "Avaliações",
-  produtos: "Produtos",
-  instagram: "Instagram",
-  localizacao: "Localização",
-  horarios: "Horários",
-  whatsapp: "WhatsApp",
-  cta_final: "Botão final",
-};
-
 export function SecaoLayoutsETemas({
   config,
   setLayout,
