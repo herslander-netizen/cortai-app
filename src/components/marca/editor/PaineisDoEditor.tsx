@@ -4,7 +4,6 @@ import { SecaoAjustesFinos } from "@/components/marca/editor/SecaoAjustesFinos";
 import { SecaoConteudo } from "@/components/marca/editor/SecaoConteudo";
 import { SecaoExperiencia } from "@/components/marca/editor/SecaoExperiencia";
 import { SecaoImagens } from "@/components/marca/editor/SecaoImagens";
-import { SecaoLayoutsETemas } from "@/components/marca/editor/SecaoLayoutsETemas";
 import { SecaoLink } from "@/components/marca/editor/SecaoLink";
 import { SecaoRedes } from "@/components/marca/editor/SecaoRedes";
 import { SecaoRecepcao } from "@/components/marca/editor/SecaoRecepcao";
@@ -21,7 +20,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { motion } from "framer-motion";
 import type { MarcaData, getMarca } from "@/lib/marca.functions";
 import { pagina } from "@/lib/motion";
-import { TEMAS, type LayoutId } from "@/lib/pagina-config";
 
 function Item({
   id,
@@ -53,12 +51,11 @@ export function PaineisDoEditor({
   e,
   initial,
   versions,
-  onVerExemplo,
 }: {
   e: ReturnType<typeof useEditorDaPagina>;
   initial: MarcaData;
   versions: NonNullable<Awaited<ReturnType<typeof getMarca>>>["versoes"];
-  onVerExemplo: () => void;
+  onVerExemplo?: () => void;
 }) {
   return (
     <>
@@ -69,9 +66,6 @@ export function PaineisDoEditor({
         >
           <TabsTrigger value="conteudo" className="min-h-12 min-w-[92px] shrink-0 whitespace-nowrap px-3 text-xs sm:text-sm">
             Conteúdo
-          </TabsTrigger>
-          <TabsTrigger value="layout-tema" className="min-h-12 whitespace-normal px-2 text-xs sm:text-sm">
-            Layout & Tema
           </TabsTrigger>
           <TabsTrigger value="detalhes" className="min-h-12 whitespace-normal px-2 text-xs sm:text-sm">
             Detalhes
@@ -84,18 +78,6 @@ export function PaineisDoEditor({
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="layout-tema" className="mt-3">
-          <motion.div {...pagina}>
-            <SecaoLayoutsETemas
-              config={e.config}
-              setLayout={(layout: LayoutId) => e.setPagina("layout", layout)}
-              escolherTema={(tema) =>
-                e.setConfig((old) => ({ ...old, tema, cores: TEMAS[tema].cores }))
-              }
-              onVerExemplo={onVerExemplo}
-            />
-          </motion.div>
-        </TabsContent>
 
         <TabsContent value="conteudo" className="mt-2">
           <motion.div {...pagina}>
