@@ -367,7 +367,7 @@ teste real na prévia.
 - Corrigi a tela auxiliar `/barbeiro/sua-pagina`: agora ela se identifica como **Link público e QR Code**, para não se confundir com a tela principal de Personalizar Página.
 - O botão que prometia editar conteúdo agora abre `/barbeiro/marca`; o cartão independente de Layout & Tema continua abrindo `/barbeiro/marca/layout-tema`.
 - Arquivo: `src/routes/barbeiro.sua-pagina.tsx`. Commit de código: `366d737b2d1bf85f5f021f7de71ad22ec1dc78c1`.
-- TypeScript, testes, build, deploy e smoke test deste commit ainda precisam ser confirmados pelo GitHub Actions. Inspeção visual 390px/1280px e animações segue pendente por falta de navegador conectado.
+- Validação confirmada no workflow [39682376683](https://github.com/herslander-netizen/cortai-app/actions/runs/39682376683), para o commit `f97ccac9e5f735c5fa5db2f3aa0552386b4950a6`: TypeScript, testes, build, deploy isolado da prévia e smoke test passaram. Inspeção visual real em 390px/1280px e animações segue pendente por falta de navegador conectado.
 - Sem alteração de banco, `main`, DNS ou site principal.
 
 ### 2026-10-21 UTC — GPT — Corrige destino da seção Equipe no editor público
