@@ -26,7 +26,7 @@ import { ladoDoAgora, publicarAgora } from "@/components/barbeiro/agenda/pilula-
 import { criarBloqueioDeRolagem } from "@/components/barbeiro/agenda/bloqueio-rolagem";
 import { AlcaDeDuracao } from "@/components/barbeiro/agenda/AlcaDeDuracao";
 import { PASSO_DO_AJUSTE_MIN, passoDoGesto } from "@/lib/remarcacao-regras";
-import { usePincaDaTimeline, usePxPorMinuto } from "@/components/barbeiro/agenda/zoom-agenda";
+import { aoCorrigirRolagemDoZoom, usePincaDaTimeline, usePxPorMinuto } from "@/components/barbeiro/agenda/zoom-agenda";
 import { criarToqueLongoVazio } from "@/components/barbeiro/agenda/toque-longo-vazio";
 import {
   corDaCategoria,
@@ -74,7 +74,7 @@ type AgendaTimelineProps = {
   /** Esticar ou encurtar a duração pela alça da base do cartão (variação em minutos). */
   onRedimensionar?: (item: AgendaItem, deltaMin: number) => void;
   /** Segurar o cartão sem arrastar (toque): entra no modo de editar horário. */
-  onEditar?: (item: AgendaItem) => void;
+  onEditar?: (item: AgendaItem, yDoToque?: number) => void;
   /** Passo do negócio, em minutos (o arrasto e a alça andam sempre de 5 em 5; veja `passoDoGesto`). */
   passoMin?: number;
   /** Cartão em edição: mostra o intervalo novo ou o motivo de não poder salvar. */
@@ -175,9 +175,6 @@ export function AgendaTimeline({
   const posicionouRef = useRef<string | null>(null);
   const [agoraVisivel, setAgoraVisivel] = useState(true);
   const [arrasto, setArrasto] = useState<{ id: string; dy: number } | null>(null);
-  const [zoomSegurandoId, setZoomSegurandoId] = useState<string | null>(null);
-  const [zoomSaindoId, setZoomSaindoId] = useState<string | null>(null);
-  const zoomSaidaTimer = useRef<number | null>(null);
   const [redim, setRedim] = useState<{ id: string; dy: number } | null>(null);
   const passo = passoDoGesto(passoMin);
   const gesto = useRef<{
@@ -192,19 +189,15 @@ export function AgendaTimeline({
     dy: number;
   } | null>(null);
   const bloqueio = useRef<ReturnType<typeof criarBloqueioDeRolagem> | null>(null);
-  function animarSaidaDoZoom(id: string) {
-    setZoomSegurandoId(null);
-    if (zoomSaidaTimer.current !== null) window.clearTimeout(zoomSaidaTimer.current);
-    setZoomSaindoId(id);
-    zoomSaidaTimer.current = window.setTimeout(() => {
-      setZoomSaindoId((atual) => (atual === id ? null : atual));
-      zoomSaidaTimer.current = null;
-    }, 190);
-  }
   useEffect(
-    () => () => {
-      if (zoomSaidaTimer.current !== null) window.clearTimeout(zoomSaidaTimer.current);
-    },
+    () => aoCorrigirRolagemDoZoom((destino, delta) => {
+      const g = gesto.current;
+      if (!g?.ativo || !g.longo) return;
+      if ((destino === window && celularAgora()) || destino === rolagemRef.current) {
+        // Não tratar o scroll de ancoragem do zoom como movimento provocado pelo dedo.
+        g.rolagem0 += delta;
+      }
+    }),
     [],
   );
   function travarRolagemDoToque() {
@@ -590,14 +583,10 @@ export function AgendaTimeline({
         }
         g.ativo = true;
         g.longo = true;
-        if (zoomSaidaTimer.current !== null) {
-          window.clearTimeout(zoomSaidaTimer.current);
-          zoomSaidaTimer.current = null;
-        }
-        setZoomSaindoId(null);
-        setZoomSegurandoId(item.id);
         travarRolagemDoToque();
         setArrasto({ id: item.id, dy: 0 });
+        // Arma durante a pressão, como no Figaro; o zoom começa antes de soltar o dedo.
+        onEditar?.(item, g.y0);
         navigator.vibrate?.(10);
       }, 280);
     }
@@ -623,7 +612,7 @@ export function AgendaTimeline({
         area.scrollTop += Math.ceil((e.clientY - (r.bottom - borda)) / 4);
     }
     const rolagemAtual = celular ? window.scrollY : (area?.scrollTop ?? 0);
-    const dy = e.clientY - g.y0 + (rolagemAtual - g.rolagem0);
+    const dy = e.clientY - g.y0 + (g.longo && !g.arrastou ? 0 : rolagemAtual - g.rolagem0);
     if (!g.ativo) {
       if (Math.abs(e.clientY - g.y0) > 10 || Math.abs(e.clientX - g.x0) > 10) {
         window.clearTimeout(g.timer);
@@ -633,8 +622,8 @@ export function AgendaTimeline({
     }
     if (!g.arrastou && Math.abs(dy) < 5) return;
     if (!g.arrastou) {
-      // Assim que o gesto vira arrasto, a animação de entrada cede o controle ao dedo.
-      setZoomSegurandoId(null);
+      // Ao começar a mover, desconta o scroll que a animação de zoom aplicou até aqui.
+      if (g.longo) g.rolagem0 = rolagemAtual;
       try {
         (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
       } catch {
@@ -650,26 +639,16 @@ export function AgendaTimeline({
     const g = gesto.current;
     gesto.current = null;
     soltarRolagemDoToque();
-    if (!g) {
-      setZoomSegurandoId(null);
-      return;
-    }
+    if (!g) return;
     window.clearTimeout(g.timer);
     const dy = g.id === item.id ? g.dy : 0;
     setArrasto(null);
     if (!g.arrastou) {
-      // Toque longo sem arrastar: abre edição com zoom de entrada e retorno visual do cartão.
-      if (g.longo && onEditar) {
-        ignorarClique.current = true;
-        animarSaidaDoZoom(item.id);
-        onEditar(item);
-      } else {
-        setZoomSegurandoId(null);
-      }
+      // O modo armado já foi aberto no início do toque longo; soltar não deve reabri-lo.
+      if (g.longo) ignorarClique.current = true;
       return;
     }
     ignorarClique.current = true;
-    if (g.longo) animarSaidaDoZoom(item.id);
     const delta = Math.round(dy / PX_POR_MINUTO / passo) * passo;
     if (delta !== 0) {
       navigator.vibrate?.(18);
@@ -1008,8 +987,6 @@ export function AgendaTimeline({
                   aria-label={`${horaMinuto(inicio)}, ${nome}, ${item.servico}, ${ROTULO_DO_GLIFO[glifoDoEstado(item, ehHoje && estaAtrasado(item, agora))]}`}
                   data-sem-gesto-dia={edicaoDoCartao?.id === item.id ? "" : undefined}
                   data-agendamento={previa ? undefined : item.id}
-                  data-zoom-held={zoomSegurandoId === item.id ? "true" : undefined}
-                  data-zoom-exit={zoomSaindoId === item.id ? "true" : undefined}
                   className={`agenda-timeline-bloco agenda-faixa-${faixa} agenda-timeline-${item.status} ${edicaoDoCartao?.id && edicaoDoCartao.id !== item.id ? "agenda-timeline-esmaecido" : ""} ${item.confirmadoEm && item.status === "agendado" ? "agenda-timeline-confirmado" : ""} ${ehHoje && minutosNoFuso(item.fim, fuso) < escala.minutoAtual ? "agenda-timeline-passado" : ""} ${item.encaixe ? "agenda-timeline-encaixe" : ""} ${selecionado === item.id ? "agenda-timeline-selecionado" : ""} ${destaques?.has(item.id) ? "agenda-novo" : ""} ${arrasto?.id === item.id ? "agenda-arrastando" : ""}`}
                   style={{
                     ["--cor-categoria" as string]: corDaCategoria(item.categoriaIndice),
@@ -1042,8 +1019,6 @@ export function AgendaTimeline({
                           gesto.current = null;
                           soltarRolagemDoToque();
                           setArrasto(null);
-                          if (cancelado?.longo) animarSaidaDoZoom(cancelado.id);
-                          else setZoomSegurandoId(null);
                         },
                         onContextMenu: (e: React.MouseEvent) => {
                           if (podeMover(item)) e.preventDefault();
