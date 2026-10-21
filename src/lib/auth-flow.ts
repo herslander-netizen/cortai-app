@@ -20,7 +20,11 @@ export function destinoInterno(valor: string): boolean {
   );
 }
 
-type ErroAuth = { code?: string; status?: number; message?: string };
+type ErroAuth = {
+  code?: string | undefined;
+  status?: number | undefined;
+  message?: string | undefined;
+};
 
 /** Mensagens seguras para o navegador; detalhes técnicos permanecem no servidor/SDK. */
 export function mensagemDeErroDeAuth(erro: ErroAuth | null, operacao: "entrar" | "criar") {
