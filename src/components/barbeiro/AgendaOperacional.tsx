@@ -1375,7 +1375,7 @@ export function AgendaOperacional() {
                   alterarVisualizacao("timeline");
                 }}
               />
-            ) : diaSemAgenda && !(celular && visualizacao !== "lista") ? (
+            ) : diaSemAgenda && !celular ? (
               <AgendaVazia
                 titulo="Sem atendimentos neste dia"
                 texto={`${dataEditorial(dia)} · não há horários marcados para esta data. Seus agendamentos de outros dias continuam salvos na agenda.`}
@@ -1393,6 +1393,28 @@ export function AgendaOperacional() {
                   </Button>
                 ) : null}
               </AgendaVazia>
+            ) : celular && diaSemAgenda ? (
+              <ListaPeriodo
+                hoje={hojeNoFuso(fuso)}
+                fuso={fuso}
+                profissionalId={profFiltro}
+                mostrarProfissional={!profFiltro && profissionais.length > 1}
+                discreto={modoDiscreto}
+                selecionado={selecionado}
+                online={online}
+                onAbrir={(item) => {
+                  const doItem = diaNoFuso(item.inicio, fuso);
+                  if (doItem !== dia) mudarDia(doItem);
+                  abrir(item.id);
+                }}
+                onFalta={(item) => void transicionar(item, "nao_compareceu")}
+                onAcao={(item, acao) => {
+                  const efeito = efeitoDaAcaoCard(acao);
+                  if (efeito === "marcar_chegada") void transicionar(item, "chegou");
+                  else if (efeito === "comecar") iniciar(item);
+                  else setFechando(item.id);
+                }}
+              />
             ) : colunas ? (
               <div
                 className="agenda-colunas"
