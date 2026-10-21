@@ -569,12 +569,8 @@ export function AgendaOperacional() {
         avisarCliente: avisar,
       }),
   });
-  // Figaro: o zoom entra ao segurar, ancora o ponto pressionado e volta ao zoom anterior ao sair.
-  const yAncoraZoom =
-    edicao.rascunho && ancoraZoomEdicao.current?.id === edicao.rascunho.id
-      ? ancoraZoomEdicao.current.y
-      : undefined;
-  useZoomDaEdicao(edicao.rascunho?.id ?? null, yAncoraZoom);
+  // Figaro: o zoom entra ao segurar, acompanha o ponto pressionado e volta ao sair.
+  useZoomDaEdicao(edicao.rascunho?.id ?? null, ancoraZoomEdicao);
   const gestoDia = useGestoDia(dia, mudarDia);
   // A Agenda não é desmontada ao trocar de dia (nada pisca e a rolagem fica onde estava).
   // Troca por seta, calendário ou "Hoje": um deslize curto, sem sumir; pelo gesto, nada.
@@ -867,6 +863,10 @@ export function AgendaOperacional() {
     ancoraZoomEdicao.current =
       typeof yDoToque === "number" ? { id: item.id, y: yDoToque } : null;
     edicao.iniciar(item.id);
+  }
+  function atualizarYDoGesto(id: string, yDoToque: number) {
+    if (ancoraZoomEdicao.current?.id !== id) return;
+    ancoraZoomEdicao.current = { id, y: yDoToque };
   }
   const cartaoEmEdicao = edicao.original
     ? { id: edicao.original.id, motivo: edicao.textoDoMotivo }
@@ -1453,6 +1453,7 @@ export function AgendaOperacional() {
                       onMover={moverPorArrasto}
                       onRedimensionar={redimensionarPorAlca}
                       onEditar={iniciarEdicaoPorGesto}
+                      onAtualizarYDoToque={atualizarYDoGesto}
                       passoMin={passoMin}
                       edicaoDoCartao={cartaoEmEdicao}
                       onHorarioVazio={(h) => {
@@ -1484,6 +1485,7 @@ export function AgendaOperacional() {
                   onMover={moverPorArrasto}
                   onRedimensionar={redimensionarPorAlca}
                   onEditar={iniciarEdicaoPorGesto}
+                      onAtualizarYDoToque={atualizarYDoGesto}
                   passoMin={passoMin}
                   edicaoDoCartao={cartaoEmEdicao}
                   onHorarioVazio={(h) => {
