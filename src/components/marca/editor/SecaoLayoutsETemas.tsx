@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
 import { Check, Eye, LayoutTemplate, Palette } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -120,6 +121,20 @@ function MiniaturaLayout({ layout }: { layout: LayoutId }) {
   );
 }
 
+function IndicadorSelecionado() {
+  return (
+    <motion.span
+      initial={{ opacity: 0, scale: 0.82 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ type: "spring", stiffness: 1500, damping: 58 }}
+      className="flex size-6 shrink-0 items-center justify-center rounded-full bg-gold text-ink"
+      aria-hidden
+    >
+      <Check size={15} />
+    </motion.span>
+  );
+}
+
 function TemaCartao({
   tema,
   selecionado,
@@ -142,7 +157,7 @@ function TemaCartao({
       <MiniaturaDoTema cores={definicao.cores} />
       <span className="flex items-center justify-between gap-2 text-sm font-semibold text-paper">
         {definicao.nome}
-        {selecionado ? <Check size={18} className="shrink-0 text-gold" aria-hidden /> : null}
+        {selecionado ? <IndicadorSelecionado /> : <span className="size-6 shrink-0 rounded-full border border-line2" aria-hidden />}
       </span>
       <span className="mt-1 block text-xs leading-relaxed text-mute">{definicao.descricao}</span>
       <span className="mt-1 block text-[11px] font-medium text-mute">{referenciaFigaro ? "Referência Figaro · paleta adaptada" : "Tema do Cortaí"}</span>
@@ -207,7 +222,7 @@ export function SecaoLayoutsETemas({
                     <MiniaturaLayout layout={layout} />
                     <span className="flex items-center justify-between gap-2 text-base font-semibold text-paper">
                       {LAYOUTS[layout]}
-                      {selecionado ? <Check size={18} className="shrink-0 text-gold" aria-hidden /> : null}
+                      {selecionado ? <IndicadorSelecionado /> : <span className="size-6 shrink-0 rounded-full border border-line2" aria-hidden />}
                     </span>
                     <span className="mt-1 text-xs leading-relaxed text-mute">{DESCRICOES_LAYOUT[layout]}</span>
                     <span className="mt-2 block text-[11px] font-medium text-mute">{secoesAtivas.length} seções ativas na sua página</span>
