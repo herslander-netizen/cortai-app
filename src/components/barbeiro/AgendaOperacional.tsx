@@ -1265,7 +1265,7 @@ export function AgendaOperacional() {
                       className="col-start-1 row-start-1 w-full"
                       direcao="topo"
                     >
-                      <CabecalhoDeEdicao dia={dia} naBarra />
+                      <CabecalhoDeEdicao dia={dia} naBarra onReagendar={() => { const original = edicao.original; edicao.descartar(); if (original) abrirAcao(original, "remarcar"); }} />
                     </TransicaoVerticalDoModoEdicao>
                   ) : (
                     <TransicaoVerticalDoModoEdicao
