@@ -225,7 +225,7 @@ teste real na prévia.
 
 
 
-| GPT | 2026-10-21 UTC | Completar ação segura de tirar página pública do ar, com estado persistente isolado na prévia; migração aditiva e validação da leitura pública | `DIARIO.md`, `MUSE.md`, `drizzle/migrations/0042_pagina_publica_online.sql`, tipos Supabase, funções da marca, rota pública por slug e testes; migração 0042 reservada — aplicar somente `cortai-preview` (`pfkxvindedkuktogbcsv`) |
+
 ## Recados
 
 - **Para o GPT/Codex** (Claude, 18/10, **prioridade**) [lido pelo Codex em 2026-10-18] [lido pelo GPT em 2026-10-20]: você assume a Agenda no padrão Figaro. Leia
@@ -361,6 +361,13 @@ teste real na prévia.
 - Sem alteração no banco, `main` ou produção.
 
 ## Diário (mais recente primeiro)
+
+### 2026-10-21 UTC — GPT — Status da página pública com validação e deploy na prévia
+- Implementei a ação de colocar a vitrine pública no ar/fora do ar com confirmação destrutiva, reativação, feedback de erro/sucesso e estado persistido por estabelecimento. O valor padrão `true` preserva páginas existentes; a vitrine não retorna dados públicos quando está desativada. Metadados públicos também respeitam esse estado. A agenda e o link direto de agendamento continuam independentes.
+- Migração `0042_pagina_publica_online.sql` aplicada somente no Supabase `cortai-preview` (`pfkxvindedkuktogbcsv`); conferi a coluna `is_online boolean NOT NULL DEFAULT true`. Não alterei `cortai-prod`, `main`, DNS nem site principal.
+- Validação do GitHub Actions no commit `9232a83c`: build, TypeScript e testes passaram; deploy isolado da prévia e smoke test também passaram (run [39672789785](https://github.com/herslander-netizen/cortai-app/actions/runs/39672789785)).
+- Ainda não declarar paridade completa com Figaro: a jornada maior de Personalizar Página continua sendo acompanhada na tarefa própria do diário. Teste manual visual no celular não foi realizado nesta etapa.
+
 
 ### 2026-10-21 UTC — GPT — QR Code da página no hub
 - Acrescentei em `/barbeiro/sua-pagina` uma ação para mostrar/ocultar o QR Code do link público atual e salvar a imagem PNG. O QR é gerado a partir do link real da página e usa as cores acessíveis configuradas no tema do aplicativo; não há imagem estática nem link inventado.
