@@ -5952,22 +5952,19 @@ button.agenda-nome:hover {
     font-weight: 700;
     letter-spacing: -0.02em;
   }
-  /* Só as linhas das horas inteiras, como no modelo. */
+  /* Linhas neutras e discretas no celular: a cor da marca fica reservada aos estados e ações. */
   .agenda-timeline-marca:not(.agenda-timeline-hora) {
     border-top-color: transparent;
   }
-  .agenda-timeline-fora-expediente {
-    background: repeating-linear-gradient(
-      135deg,
-      transparent 0 6px,
-      color-mix(in oklab, var(--paper) 8%, transparent) 6px 7px
-    );
+  .agenda-timeline-hora {
+    border-top-color: color-mix(in oklab, var(--mute) 24%, transparent);
   }
+  .agenda-timeline-fora-expediente,
   .light .agenda-timeline-fora-expediente {
     background: repeating-linear-gradient(
       135deg,
       transparent 0 6px,
-      color-mix(in oklab, var(--paper) 6%, transparent) 6px 7px
+      color-mix(in oklab, var(--mute) 13%, transparent) 6px 7px
     );
   }
 }
