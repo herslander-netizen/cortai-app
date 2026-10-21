@@ -27,6 +27,8 @@ describe("famílias de tema", () => {
   });
 
   it("16 temas × 7 layouts são configurações válidas", () => {
+    expect(temaIds).toHaveLength(16);
+    expect(layoutIds).toHaveLength(7);
     for (const tema of temaIds)
       for (const layout of layoutIds) {
         const c = normalizarPagina({ ...configPadrao(), tema, layout });
