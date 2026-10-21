@@ -363,6 +363,13 @@ teste real na prévia.
 
 ## Diário (mais recente primeiro)
 
+### 2026-10-21 UTC — GPT — Separa divulgação da personalização da página
+- Corrigi a tela auxiliar `/barbeiro/sua-pagina`: agora ela se identifica como **Link público e QR Code**, para não se confundir com a tela principal de Personalizar Página.
+- O botão que prometia editar conteúdo agora abre `/barbeiro/marca`; o cartão independente de Layout & Tema continua abrindo `/barbeiro/marca/layout-tema`.
+- Arquivo: `src/routes/barbeiro.sua-pagina.tsx`. Commit de código: `366d737b2d1bf85f5f021f7de71ad22ec1dc78c1`.
+- TypeScript, testes, build, deploy e smoke test deste commit ainda precisam ser confirmados pelo GitHub Actions. Inspeção visual 390px/1280px e animações segue pendente por falta de navegador conectado.
+- Sem alteração de banco, `main`, DNS ou site principal.
+
 ### 2026-10-21 UTC — GPT — Corrige destino da seção Equipe no editor público
 - Ao revisar a jornada de Personalizar Página, encontrei um desvio funcional confirmado: o botão de gestão da seção **Equipe** abria `/barbeiro/configurar` (Dados e localização), embora o texto prometesse gerenciar profissionais.
 - Corrigi `src/components/marca/editor/EditorDaSecaoPublica.tsx` para direcionar a seção à rota `/barbeiro/profissionais`; o tipo local de destinos foi ajustado para refletir a rota correta.
