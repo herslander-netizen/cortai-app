@@ -39,6 +39,7 @@ export function useEditorDaPagina(initial: MarcaData, reload: () => void) {
   const [logoPreview, setLogoPreview] = useState(initial.logo_signed_url);
   const [coverPreview, setCoverPreview] = useState(initial.capa_signed_url);
   const [avatarPreview, setAvatarPreview] = useState(initial.avatar_signed_url);
+  const [fotosPreview, setFotosPreview] = useState<{ path: string; url: string | null }[]>([]);
   const [slug, setSlug] = useState(initial.slug);
   const [device, setDevice] = useState<"mobile" | "desktop">("mobile");
   const [busy, setBusy] = useState(false);
@@ -64,6 +65,26 @@ export function useEditorDaPagina(initial: MarcaData, reload: () => void) {
     setAvatarPreview(initial.avatar_signed_url);
     setSlug(initial.slug);
   }, [initial]);
+  useEffect(() => {
+    let ativo = true;
+    void Promise.all(
+      form.fotos.map(async (path) => {
+        if (path.startsWith("https://")) return { path, url: path };
+        const { data } = await supabase.storage.from("tenant-logos").createSignedUrl(path, 60 * 60);
+        return { path, url: data?.signedUrl ?? null };
+      }),
+    ).then((fotos) => {
+      if (ativo) setFotosPreview(fotos);
+    });
+    return () => {
+      ativo = false;
+    };
+  }, [form.fotos]);
+
+  const removerFoto = (path: string) => {
+    setForm((old) => ({ ...old, fotos: old.fotos.filter((foto) => foto !== path) }));
+    setStatus("Foto removida da galeria. Salve o rascunho para guardar a alteração.");
+  };
   const setMarca = <K extends keyof MarcaForm>(key: K, value: MarcaForm[K]) =>
     setForm((old) => ({ ...old, [key]: value }));
   const setPagina = <K extends keyof PaginaConfig>(key: K, value: PaginaConfig[K]) =>
@@ -73,10 +94,14 @@ export function useEditorDaPagina(initial: MarcaData, reload: () => void) {
   const previasLocais = useRef<string[]>([]);
   useEffect(() => () => previasLocais.current.forEach((u) => URL.revokeObjectURL(u)), []);
 
-  const upload = async (event: ChangeEvent<HTMLInputElement>, kind: "logo" | "capa" | "avatar") => {
+  const upload = async (event: ChangeEvent<HTMLInputElement>, kind: "logo" | "capa" | "avatar" | "foto") => {
     const file = event.target.files?.[0];
     event.target.value = "";
     if (!file) return;
+    if (kind === "foto" && form.fotos.length >= 8) {
+      setStatus("A galeria aceita até 8 fotos.", true);
+      return;
+    }
     if (!["image/png", "image/jpeg", "image/webp"].includes(file.type)) {
       setStatus("Escolha um arquivo de imagem (JPG, PNG ou WebP).", true);
       return;
@@ -89,7 +114,7 @@ export function useEditorDaPagina(initial: MarcaData, reload: () => void) {
     setStatus(kind === "capa" ? "Enviando capa…" : "Enviando imagem…");
     try {
       const blob = await comprimirImagem(file, {
-        maxLado: kind === "capa" ? 1920 : 800,
+        maxLado: kind === "capa" ? 1920 : kind === "foto" ? 1400 : 800,
         transparente: kind === "logo",
       });
       if (blob.size > 2 * 1024 * 1024) {
@@ -105,6 +130,11 @@ export function useEditorDaPagina(initial: MarcaData, reload: () => void) {
         .upload(path, blob, { contentType: tipo });
       if (error) {
         setStatus("Não foi possível enviar a imagem. Tente de novo.", true);
+        return;
+      }
+      if (kind === "foto") {
+        setForm((old) => ({ ...old, fotos: [...old.fotos, path] }));
+        setStatus("Foto adicionada à galeria. Salve o rascunho para guardar a alteração.");
         return;
       }
       const preview = URL.createObjectURL(blob);
@@ -251,6 +281,8 @@ export function useEditorDaPagina(initial: MarcaData, reload: () => void) {
     coverPreview,
     avatarPreview,
     setAvatarPreview,
+    fotosPreview,
+    removerFoto,
     upload,
     usarLogo,
     removerLogo,
