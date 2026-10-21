@@ -7,7 +7,7 @@
 /* A edição substitui o conteúdo da barra existente, sem posicionamento por margens negativas. */
 @media (max-width: 767px) {
   .management-header {
-    transition: border-radius 220ms ease, background-color 220ms ease;
+    transition: border-radius 380ms cubic-bezier(0.22, 1, 0.36, 1), background-color 380ms ease;
   }
 
   .management-header:has(#topo-centro .cabecalho-edicao-mobile) {
@@ -27,7 +27,7 @@
     justify-content: center;
     gap: 0;
     padding: 0;
-    transition: height 220ms ease;
+    transition: height 380ms cubic-bezier(0.22, 1, 0.36, 1);
   }
 
   .management-header:has(#topo-centro .cabecalho-edicao-mobile) .menu-cortai-trigger {
