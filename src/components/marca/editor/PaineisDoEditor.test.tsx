@@ -66,7 +66,7 @@ describe("PaineisDoEditor", () => {
     );
 
     expect(alvo.querySelector('[role="tablist"]')).not.toBeNull();
-    expect(alvo.querySelectorAll('[role="tab"]')).toHaveLength(5);
+    expect(alvo.querySelectorAll('[role="tab"]')).toHaveLength(4);
 
     const conteudo = [...alvo.querySelectorAll<HTMLButtonElement>('[role="tab"]')].find((botao) =>
       botao.textContent?.includes("Conteúdo"),
