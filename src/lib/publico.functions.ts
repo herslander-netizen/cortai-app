@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { normalizarPagina, type PaginaConfig } from "@/lib/pagina-config";
+import { paginaPublicaDisponivel } from "@/lib/pagina-publica-status";
 import { segmentoValido, type Segmento } from "@/lib/segmentos";
 
 export type PaginaPublica = {
@@ -111,10 +112,12 @@ export const getPaginaPublica = createServerFn({ method: "GET" })
       supabaseAdmin.from("avaliacoes").select("nota").eq("tenant_id", tenant.id),
       supabaseAdmin
         .from("tenant_page_configs")
-        .select("published_config")
+        .select("published_config, is_online")
         .eq("tenant_id", tenant.id)
         .maybeSingle(),
     ]);
+    if (!paginaPublicaDisponivel(pageConfig?.is_online)) return null;
+
     const { data: regraLoja } = await supabaseAdmin
       .from("recursos_de_plano")
       .select("liberado")
