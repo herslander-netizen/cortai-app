@@ -7163,3 +7163,57 @@ button.agenda-nome:hover {
   width: 13px;
   height: 13px;
 }
+
+
+/* Timeline: zoom de foco no toque longo, com retorno suave ao terminar o gesto. */
+.agenda-timeline-bloco[data-zoom-held="true"] {
+  z-index: 9;
+  outline: 1px solid color-mix(in oklab, var(--cor-categoria, var(--primary)) 55%, transparent);
+  box-shadow:
+    0 14px 28px color-mix(in oklab, var(--ink) 30%, transparent),
+    0 0 0 2px color-mix(in oklab, var(--cor-categoria, var(--primary)) 24%, transparent);
+  transform-origin: center center;
+  will-change: transform;
+  animation: agenda-timeline-cartao-zoom-entrada 220ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.agenda-timeline-bloco[data-zoom-exit="true"] {
+  z-index: 8;
+  box-shadow:
+    0 14px 28px color-mix(in oklab, var(--ink) 24%, transparent),
+    0 0 0 1px color-mix(in oklab, var(--cor-categoria, var(--primary)) 18%, transparent);
+  transform-origin: center center;
+  will-change: transform;
+  animation: agenda-timeline-cartao-zoom-saida 190ms cubic-bezier(0.2, 0, 0, 1) both;
+}
+@keyframes agenda-timeline-cartao-zoom-entrada {
+  from {
+    opacity: 0.94;
+    transform: scale(0.96);
+  }
+  68% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1.035);
+  }
+}
+@keyframes agenda-timeline-cartao-zoom-saida {
+  from {
+    opacity: 1;
+    transform: scale(1.035);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .agenda-timeline-bloco[data-zoom-held="true"],
+  .agenda-timeline-bloco[data-zoom-exit="true"] {
+    animation: none;
+    transform: none;
+    will-change: auto;
+  }
+}
