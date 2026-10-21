@@ -62,15 +62,15 @@ describe("PaineisDoEditor", () => {
     const root = createRoot(alvo);
 
     await act(async () =>
-      root.render(createElement(PaineisDoEditor, { e, initial, versions: [] })),
+      root.render(createElement(PaineisDoEditor, { e, initial, versions: [], onVerExemplo: vi.fn() })),
     );
 
     expect(alvo.querySelector('[role="tablist"]')).not.toBeNull();
-    expect(alvo.querySelectorAll('[role="tab"]')).toHaveLength(4);
+    expect(alvo.querySelectorAll('[role="tab"]')).toHaveLength(5);
     expect(alvo.textContent).toContain("Experiência de agendamento");
 
     const aparencia = [...alvo.querySelectorAll<HTMLButtonElement>('[role="tab"]')].find((botao) =>
-      botao.textContent?.includes("Aparência"),
+      botao.textContent?.includes("Detalhes"),
     );
     expect(aparencia).toBeDefined();
     await act(async () => {
@@ -78,8 +78,8 @@ describe("PaineisDoEditor", () => {
       await new Promise((resolve) => setTimeout(resolve, 0));
     });
 
-    expect(alvo.textContent).toContain("Tema e cores");
     expect(alvo.textContent).toContain("Logo e imagens");
+    expect(alvo.textContent).toContain("Cores, fontes e detalhes");
     expect(alvo.textContent).not.toContain("Experiência de agendamento");
     await act(async () => root.unmount());
   });
