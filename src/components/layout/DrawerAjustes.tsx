@@ -116,14 +116,17 @@ export function DrawerAjustes({
           evento.preventDefault();
           gatilhoRef.current?.focus();
         }}
-        className="z-[70] max-h-[85dvh] overflow-y-auto rounded-t-[28px] border-line bg-drawer-surface px-4 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-5"
+        className="z-[70] flex max-h-[85dvh] flex-col overflow-hidden rounded-t-[28px] border-line bg-drawer-surface px-4 pt-5"
       >
-        <SheetTitle className="text-xl text-paper">Ajustes</SheetTitle>
-        <SheetDescription className="mt-1 text-sm text-mute">
-          Conta, aparência e preferências do aplicativo.
-        </SheetDescription>
+        <div className="shrink-0 pb-4">
+          <SheetTitle className="text-xl text-paper">Ajustes</SheetTitle>
+          <SheetDescription className="mt-1 text-sm text-mute">
+            Conta, aparência e preferências do aplicativo.
+          </SheetDescription>
+        </div>
 
-        <div className="mt-5 space-y-1.5">
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain pb-[calc(1rem+env(safe-area-inset-bottom))]">
+          <div className="mt-1 space-y-1.5">
           {ITENS.slice(0, 3).map((item) => {
             const Icon = item.icon;
             return (
@@ -251,6 +254,7 @@ export function DrawerAjustes({
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
+          </div>
         </div>
       </SheetContent>
     </Sheet>

@@ -149,7 +149,6 @@ teste real na prévia.
 
 
 | GPT | 2026-10-20 UTC | Auditoria autônoma de UX de autenticação, onboarding e recuperação de sessão na prévia; validar correção e depois ampliar auditoria geral sem tocar produção | `DIARIO.md`, `src/routes/comecar.tsx`, `src/routes/login.tsx`, `src/lib/guarda.ts`, testes relacionados; sem migração |
-| GPT | 2026-10-21 UTC | Ajustar cartões da Agenda (remover ações inline), rótulo de data completo e contraste do chip Hoje; manter título/subtítulo de Ajustes fixos no scroll da gaveta | `DIARIO.md`, `src/components/barbeiro/agenda/ListaPeriodo.tsx`, testes da lista, `src/components/layout/DrawerAjustes.tsx`, `src/styles.css`; sem migração |
 | GPT | 2026-10-17 UTC | Auditoria e melhoria mobile-first da home de apresentação | `DIARIO.md`, `MUSE.md`, `src/components/apresentacao/ShowroomCortai.tsx`, `src/components/apresentacao/DemoAgendamento.tsx`, `src/components/apresentacao/NarrativaApresentacao.tsx`, estilos já existentes da apresentação |
 | GPT | 2026-10-17 UTC | Refinar movimento global para animações mais fluidas e perceptíveis | `DIARIO.md`, `src/lib/motion.ts`, `src/components/layout/GlobalDesign.tsx` |
 | GPT | 2026-10-17 UTC | Auditar ciclo de vida e acessibilidade dos formulários; corrigir divergência do contrato de design no gatilho de agendamento manual | `DIARIO.md`, `src/components/ui/formulario/TelaDeFormulario.tsx`, `src/components/ui/formulario/TelaDeFormulario.test.tsx`, `src/components/barbeiro/AgendamentoManual.tsx`, `src/components/barbeiro/agendamento-manual/useAgendamentoManual.ts`, `src/components/barbeiro/agendamento-manual/regrasAgendamentoManual.ts`, `src/components/barbeiro/agendamento-manual/useAgendamentoManual.test.ts` |
@@ -243,6 +242,13 @@ teste real na prévia.
   que se contradizem; vale deixar só uma. Responda com `[lido]`.
 
 ## Diário (mais recente primeiro)
+
+### 2026-10-21 UTC — GPT — Cartões limpos e cabeçalho fixo em Ajustes
+- Agenda mobile: removidas as ações inline “Cliente chegou”, “Faltou” e “Aguardar” abaixo dos cartões; tocar no cartão continua abrindo a ficha existente com suas opções. O horário, serviço, cliente e demais detalhes permanecem.
+- O cabeçalho dos dias agora mostra o mês por extenso (“21 de outubro”, “28 de outubro”). O chip “Hoje” usa contraste explícito e não herda a cor secundária que o deixava ilegível no tema claro; o resumo se reorganiza em uma linha abaixo em telas estreitas.
+- A gaveta “Ajustes” mantém título e descrição fixos; apenas os itens abaixo rolam, com espaçamento entre cabeçalho e lista.
+- Arquivos: `src/components/barbeiro/agenda/ListaPeriodo.tsx`, `src/components/barbeiro/agenda/ListaPeriodo.test.ts`, `src/components/layout/DrawerAjustes.tsx`, `src/styles.css`, `DIARIO.md`.
+- Validação automatizada pendente via GitHub Actions; não houve teste visual real no Android. Sem alterações em banco, produção ou `main`.
 
 ### 2026-10-21 UTC — GPT — Transição de gaveta e zoom mais lento
 - Pedido: reforçar a sensação de gaveta no cabeçalho que substitui a logo ao segurar um cartão e desacelerar entrada/saída do zoom da timeline.

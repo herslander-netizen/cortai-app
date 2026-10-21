@@ -3028,6 +3028,21 @@ body:has(.auth-screen--claro) {
 /* Celular: a Timeline não é contêiner de rolagem; quem rola é a página.
    Uma sobra de 1px prendia o gesto na caixa (overscroll contain). */
 @media (max-width: 600px) {
+  .agenda-lista-dia-titulo {
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .agenda-lista-dia-titulo h3 {
+    min-width: 0;
+    flex-wrap: wrap;
+  }
+
+  .agenda-lista-dia-resumo {
+    flex: 1 1 100%;
+    white-space: normal;
+  }
+
   .agenda-timeline-wrap {
     overflow: visible;
     overflow-x: clip;
@@ -6609,7 +6624,7 @@ button.agenda-nome:hover {
   font-size: 20px;
   font-weight: 700;
 }
-.agenda-lista-dia-titulo h3 span,
+.agenda-lista-dia-titulo h3 span:not([data-hoje]),
 .agenda-lista-dia-resumo {
   color: var(--mute);
   font-size: 13px;

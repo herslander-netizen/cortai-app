@@ -12,7 +12,7 @@ import { termos } from "@/lib/segmentos";
 
 import { corDaCategoria, glifoDoEstado } from "./cartao-figaro";
 import { IconeDoEstado } from "./IconeDoEstado";
-import { AcoesDoItem, acaoDoItem, ProgressoDoAtendimento, type AcaoCard } from "./ListaAgenda";
+import { ProgressoDoAtendimento } from "./ListaAgenda";
 import { MarcaDoLimiteDoDia } from "./SemanaDoTopo";
 import { diaNoFuso, estaAtrasado, hora, nomeDaAgenda, ROTULO_ESTADO } from "./tempo";
 
@@ -29,16 +29,14 @@ function diasEntre(de: string, ate: string) {
   return Math.round((Date.parse(`${ate}T12:00:00Z`) - Date.parse(`${de}T12:00:00Z`)) / 86_400_000);
 }
 
-function tituloDoDia(dia: string) {
+export function tituloDoDia(dia: string) {
   const data = new Date(`${dia}T12:00:00Z`);
   const numero = data.getUTCDate();
-  const mes = new Intl.DateTimeFormat("pt-BR", { month: "short", timeZone: "UTC" })
-    .format(data)
-    .replace(".", "");
+  const mes = new Intl.DateTimeFormat("pt-BR", { month: "long", timeZone: "UTC" }).format(data);
   const semana = new Intl.DateTimeFormat("pt-BR", { weekday: "long", timeZone: "UTC" }).format(
     data,
   );
-  return { curto: `${numero} ${mes}`, semana: semana.charAt(0).toUpperCase() + semana.slice(1) };
+  return { curto: `${numero} de ${mes}`, semana: semana.charAt(0).toUpperCase() + semana.slice(1) };
 }
 
 /** Busca por cliente, telefone (só os números), serviço ou profissional. */
@@ -78,8 +76,6 @@ export function ListaPeriodo({
   selecionado,
   online,
   onAbrir,
-  onFalta,
-  onAcao,
 }: {
   hoje: string;
   fuso: string;
@@ -87,16 +83,12 @@ export function ListaPeriodo({
   mostrarProfissional: boolean;
   discreto: boolean;
   selecionado: string | null;
-  online: boolean;
   onAbrir: (item: AgendaItem) => void;
-  onFalta: (item: AgendaItem) => void;
-  onAcao?: (item: AgendaItem, acao: AcaoCard) => void;
 }) {
   const agora = useAgora();
   const segmento = useSegmentoDoPainel();
   const [busca, setBusca] = useState("");
   const [comCancelados, setComCancelados] = useState(false);
-  const [aguardando, setAguardando] = useState<Set<string>>(() => new Set());
 
   const periodo = useInfiniteQuery({
     queryKey: ["agenda-periodo", hoje],
@@ -183,7 +175,7 @@ export function ListaPeriodo({
                   <strong>{titulo.curto}</strong>
                   {ehHoje ? (
                     <>
-                      <span className="rounded-full bg-mute2 px-2 py-0.5 text-xs font-semibold text-paper">
+                      <span data-hoje className="rounded-full bg-paper px-2 py-0.5 text-xs font-semibold text-ink">
                         Hoje
                       </span>
                       <span>{titulo.semana}</span>
@@ -200,8 +192,7 @@ export function ListaPeriodo({
               <ul>
                 {itens.map((item, i) => {
                   const nome = nomeDaAgenda(item.cliente, discreto);
-                  const atrasado = ehHoje && !aguardando.has(item.id) && estaAtrasado(item, agora);
-                  const principal = ehHoje && onAcao ? acaoDoItem(item, agora, ehHoje) : null;
+                  const atrasado = ehHoje && estaAtrasado(item, agora);
                   const estado =
                     item.status === "na_cadeira"
                       ? termos(segmento).statusAtendimento
@@ -249,20 +240,6 @@ export function ListaPeriodo({
                             <ProgressoDoAtendimento item={item} agora={agora} />
                           ) : null}
                         </Button>
-                        {ehHoje ? (
-                          <AcoesDoItem
-                            item={item}
-                            principal={principal}
-                            atrasado={atrasado}
-                            depoisDoHorario={atrasado && agora >= new Date(item.fim).getTime()}
-                            prioritario={false}
-                            online={online}
-                            onAcao={onAcao}
-                            onFalta={onFalta}
-                            onAbrir={() => onAbrir(item)}
-                            onAguardar={() => setAguardando((a) => new Set(a).add(item.id))}
-                          />
-                        ) : null}
                       </div>
                     </li>
                   );
