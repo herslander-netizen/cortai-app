@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
-import { Copy, Eye, Save, Send, Share2, Smartphone, Undo2 } from "lucide-react";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { Copy, Eye, LayoutTemplate, Save, Send, Share2, Smartphone, Undo2 } from "lucide-react";
 import { useState } from "react";
 
 import { EsqueletoFormulario } from "@/components/layout/Esqueleto";
@@ -146,9 +146,22 @@ function Editor({
         </Button>
       </div>
 
+      <section className="mb-5 rounded-xl border border-line bg-ink p-4 sm:p-5">
+        <div className="flex items-start gap-3">
+          <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-ink2 text-gold"><LayoutTemplate size={20} aria-hidden /></span>
+          <div className="min-w-0 flex-1">
+            <h2 className="text-sm font-semibold text-paper">Layout & Tema</h2>
+            <p className="mt-1 text-sm leading-relaxed text-mute">Escolha o layout e o tema em uma tela própria, como no fluxo do Figaro.</p>
+            <Button asChild variant="outline" className="mt-3 min-h-12 w-full sm:w-auto">
+              <Link to="/barbeiro/marca/layout-tema">Escolher Layout & Tema</Link>
+            </Button>
+          </div>
+        </div>
+      </section>
+
       <div className="grid gap-6 xl:grid-cols-[minmax(0,520px)_minmax(420px,1fr)]">
         <div>
-          <PaineisDoEditor e={e} initial={initial} versions={versions} onVerExemplo={() => setPreviaAberta(true)} />
+          <PaineisDoEditor e={e} initial={initial} versions={versions} />
 
           <div className="sticky bottom-20 z-20 mt-6 rounded-lg border border-line bg-ink p-2 shadow-xl xl:bottom-4">
             <Button
