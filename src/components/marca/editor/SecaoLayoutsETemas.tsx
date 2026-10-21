@@ -1,4 +1,4 @@
-import { Check, ChevronDown, Eye, LayoutTemplate, Palette } from "lucide-react";
+import { Check, Eye, LayoutTemplate, Palette } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -129,6 +129,7 @@ export function SecaoLayoutsETemas({
   return (
     <div className="space-y-4">
       <Accordion type="single" collapsible defaultValue="layout" className="space-y-3">
+        {config.experiencia === "vitrine" ? (
         <AccordionItem value="layout" className="overflow-hidden rounded-xl border border-line bg-ink">
           <AccordionTrigger className="min-h-[68px] gap-3 px-4 text-left hover:no-underline [&>svg]:shrink-0">
             <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-ink2 text-gold">
@@ -166,6 +167,11 @@ export function SecaoLayoutsETemas({
             </div>
           </AccordionContent>
         </AccordionItem>
+        ) : (
+          <div className="rounded-xl border border-line bg-ink px-4 py-3 text-sm leading-relaxed text-mute">
+            A escolha de layout é usada na experiência Vitrine. Para ver os cinco layouts, acesse Conteúdo e selecione Vitrine como experiência de agendamento.
+          </div>
+        )}
 
         <AccordionItem value="tema" className="overflow-hidden rounded-xl border border-line bg-ink">
           <AccordionTrigger className="min-h-[68px] gap-3 px-4 text-left hover:no-underline [&>svg]:shrink-0">
