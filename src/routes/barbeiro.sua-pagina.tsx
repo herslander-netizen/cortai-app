@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowUpRight, CheckCircle2, CircleHelp, Eye, LayoutTemplate, Palette, PencilLine, TriangleAlert } from "lucide-react";
+import { ArrowUpRight, CheckCircle2, CircleHelp, Eye, LayoutTemplate, Palette, PencilLine, AlertTriangle } from "lucide-react";
 import { useState } from "react";
 
 import { Screen } from "@/components/layout/Screen";
@@ -109,7 +109,7 @@ function SuaPagina() {
           <section className="surface space-y-3 p-4 sm:p-5" aria-labelledby="pontos-revisar">
             <div className="flex items-start gap-3">
               <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-gold/10 text-gold">
-                <TriangleAlert size={20} aria-hidden />
+                <AlertTriangle size={20} aria-hidden />
               </span>
               <div className="min-w-0 flex-1">
                 <h2 id="pontos-revisar" className="text-sm font-semibold text-paper">
