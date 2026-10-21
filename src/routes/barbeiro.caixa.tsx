@@ -50,8 +50,26 @@ function Linha({ rotulo, valor, cor }: { rotulo: string; valor: string; cor?: st
   );
 }
 
+type CaixaDados = {
+  sessao: { saldo_inicial_centavos: number; aberto_em: string | null } | null;
+  movimentos: any[];
+  resumo: {
+    liquido: number;
+    entradas: number;
+    saidas: number;
+    pix: number;
+    dinheiro: number;
+    cartao: number;
+    fiado: number;
+  };
+};
+
 function CaixaPage() {
-  const caixa = useQuery({ queryKey: ["caixa"], queryFn: () => getCaixa(), retry: false });
+  const caixa = useQuery<CaixaDados>({
+    queryKey: ["caixa"],
+    queryFn: async () => (await getCaixa()) as CaixaDados,
+    retry: false,
+  });
   const fiados = useQuery({ queryKey: ["fiados"], queryFn: () => getFiados(), retry: false });
   const abrirFechar = useServerFn(abrirOuFecharCaixa);
   const registrar = useServerFn(registrarMovimentoDeCaixa);
