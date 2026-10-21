@@ -14,6 +14,9 @@ export const familiaIds = [
   "clean",
   "noturno",
   "editorial",
+  "figaro-classico",
+  "figaro-retro",
+  "figaro-rock",
 ] as const;
 export type FamiliaId = (typeof familiaIds)[number];
 
@@ -90,6 +93,24 @@ export const FAMILIAS_DE_TEMA: FamiliaDeTema[] = [
     nome: "Editorial",
     descricao: "Visual de revista, com foco nas fotos.",
     variantes: [{ tema: "editorial", rotulo: "Editorial" }],
+  },
+  {
+    id: "figaro-classico",
+    nome: "Clássico · Figaro",
+    descricao: "A opção Clássico identificada na referência Figaro.",
+    variantes: [{ tema: "figaro-classico", rotulo: "Figaro" }],
+  },
+  {
+    id: "figaro-retro",
+    nome: "Retro · Figaro",
+    descricao: "A opção Retro identificada na referência Figaro.",
+    variantes: [{ tema: "figaro-retro", rotulo: "Figaro" }],
+  },
+  {
+    id: "figaro-rock",
+    nome: "Rock n' Roll · Figaro",
+    descricao: "A opção Rock n' Roll identificada na referência Figaro.",
+    variantes: [{ tema: "figaro-rock-n-roll", rotulo: "Figaro" }],
   },
 ];
 
