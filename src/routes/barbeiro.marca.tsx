@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { motion, useReducedMotion } from "framer-motion";
 import { Copy, Eye, LayoutTemplate, MoreVertical, Save, Send, Share2, Smartphone, Undo2 } from "lucide-react";
 import { useState } from "react";
@@ -13,7 +14,7 @@ import { useEditorDaPagina } from "@/components/marca/editor/useEditorDaPagina";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { getMarca, type MarcaData } from "@/lib/marca.functions";
+import { alterarStatusPaginaPublica, getMarca, type MarcaData } from "@/lib/marca.functions";
 import { exigirCapacidade } from "@/lib/guarda-capacidade";
 import { urlPublica } from "@/lib/origem-publica";
 
@@ -68,14 +69,45 @@ function Editor({
 }: {
   initial: MarcaData;
   versions: NonNullable<Awaited<ReturnType<typeof getMarca>>>["versoes"];
-  reload: () => void;
+  reload: () => Promise<unknown> | void;
 }) {
   const e = useEditorDaPagina(initial, reload);
+  const alterarStatus = useServerFn(alterarStatusPaginaPublica);
+  const [paginaOnline, setPaginaOnline] = useState(initial.pagina_online);
+  const [alterandoStatus, setAlterandoStatus] = useState(false);
   const [previaAberta, setPreviaAberta] = useState(false);
   const [abaAtiva, setAbaAtiva] = useState<AbaPainelDoEditor>("conteudo");
   const reduzirMovimento = useReducedMotion();
   const [confirmar, dialogo] = useConfirmar();
   const link = urlPublica(`/${e.slug}`);
+  const mudarStatusPagina = async () => {
+    const online = !paginaOnline;
+    const aceitou = await confirmar({
+      titulo: online ? "Colocar a página no ar?" : "Tirar a página do ar?",
+      descricao: online
+        ? "A página pública voltará a abrir pelo link compartilhável."
+        : "A vitrine pública deixará de abrir pelo link. O link direto de agendamento e a agenda interna continuarão funcionando.",
+      confirmar: online ? "Colocar no ar" : "Tirar do ar",
+      cancelar: "Cancelar",
+      destrutivo: !online,
+    });
+    if (!aceitou) return;
+
+    setAlterandoStatus(true);
+    try {
+      await alterarStatus({ data: { online } });
+      setPaginaOnline(online);
+      e.setStatus(online ? "Página pública colocada no ar." : "Página pública tirada do ar.");
+      await reload();
+    } catch (error) {
+      e.setStatus(
+        error instanceof Error ? error.message : "Não foi possível alterar o status da página.",
+        true,
+      );
+    } finally {
+      setAlterandoStatus(false);
+    }
+  };
   const previa = (altura?: string) => (
     <PreviaDaExperiencia
       data={e.previewData}
@@ -148,6 +180,9 @@ function Editor({
           <Copy />
           Copiar link
         </Button>
+        <p role="status" className="self-center text-xs text-mute">
+          {paginaOnline ? "Página pública online" : "Página pública fora do ar"}
+        </p>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" size="icon" aria-label="Mais ações da página">
@@ -162,8 +197,12 @@ function Editor({
               <Link to="/barbeiro/sua-pagina" search={{ qr: "1" }}>QR Code</Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem disabled>
-              Tirar página do ar — indisponível no backend atual
+            <DropdownMenuItem disabled={alterandoStatus} onSelect={() => void mudarStatusPagina()}>
+              {alterandoStatus
+                ? "Atualizando…"
+                : paginaOnline
+                  ? "Tirar página do ar"
+                  : "Colocar página no ar"}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
