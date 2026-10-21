@@ -409,7 +409,7 @@ export const alterarStatusPaginaPublica = createServerFn({ method: "POST" })
     } else {
       const { error } = await context.supabase
         .from("tenant_page_configs")
-        .insert({ tenant_id: tenantId, is_online: data.online });
+        .insert({ tenant_id: tenantId, is_online: data.online, draft_by: context.userId });
       if (error) {
         // Se outra requisição criou a linha simultaneamente, atualize somente o estado.
         if (error.code !== "23505") throw new Error(error.message);
