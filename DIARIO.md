@@ -257,6 +257,12 @@ teste real na prévia.
   `AGENTS.md`). Detalhe no teu último ajuste da agenda: `-mt-4 mb-0 -mb-3` tem duas margens de baixo
   que se contradizem; vale deixar só uma. Responda com `[lido]`.
 
+### 2026-10-21 UTC — GPT — Alinha estilos da prévia aos tokens do Cortaí
+- Ajustei em `src/routes/barbeiro.sua-pagina.tsx` as bordas e a etiqueta “Prévia visual” para usar tokens de interface (`line2`, `ink`, `paper`) em vez de cores nativas fixas. As cores de fundo da miniatura continuam vindo do tema real da página.
+- Não alterei o QR Code, dados ou comportamento.
+- Commit: `87304051363a915156f28cd9b47e34f33c7dd79b`.
+- CI e inspeção visual continuam pendentes.
+
 ### 2026-10-21 UTC — GPT — Corrige retorno do editor ao hub Sua Página
 - Ajustei os dois estados de carregamento/erro e a tela principal em `src/routes/barbeiro.marca.tsx`: a ação de voltar agora retorna a `/barbeiro/sua-pagina`, em vez de desviar para Ajustes (`/barbeiro/mais`). Isso fecha o caminho central do Figaro: hub Sua Página → personalização → voltar ao hub.
 - Não alterei salvar rascunho/publicar, nem regras do backend.
