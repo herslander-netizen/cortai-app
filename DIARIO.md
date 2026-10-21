@@ -27,6 +27,8 @@ e o que fez. O diário até 17/10/2026 está guardado, sem alterações, em
 7. **Sem segredos:** nunca escreva chaves, senhas ou tokens aqui. Cite só o nome da variável.
 
 ## Decisões do dono
+- 2026-10-21: **o caminho de navegação do Cortaí deve ser igual ao do Figaro**, não só visualmente parecido. Usar `docs/referencia-figaro/apk/4-pagina-publica.md` como fonte autoritativa para a jornada de Personalizar Página: entrada pela gaveta/Agenda diretamente na tela principal de Personalizar Página; card Layout & Tema abre tela própria; Ver Exemplo abre a prévia; cada seção abre seu editor específico; salvar volta à tela anterior e recarrega; rascunho, menu de ações e confirmações seguem o fluxo documentado. Preservar animações verificadas, regras, permissões, backend e identidade Cortaí. Não afirmar paridade completa até implementar e validar cada rota/ação.
+
 
 Tudo o que o dono decidir com qualquer IA entra aqui, com a data. Vale para todas.
 
@@ -168,6 +170,14 @@ teste real na prévia.
 - Atualizei o teste do editor para abrir explicitamente a aba Conteúdo antes de verificar “Experiência de agendamento”; atualizei o teste de navegação para refletir a rota atual sem o hash antigo.
 - Commits: `9db473a668c64f4590fc1cba53f1bd4b686bb79a` e `f6af3502d418d669f683632b41ae9a7708db17c3`.
 - CI da nova ponta ainda precisa ser conferido. Não declarar testes/build/prévia aprovados até a execução terminar; nenhuma alteração em banco, `main` ou site principal.
+
+### 2026-10-21 UTC — GPT — Alinha entrada de Sua Página ao fluxo Figaro
+- Decisão do dono registrada: a jornada deve ser igual à do Figaro, com referência em `docs/referencia-figaro/apk/4-pagina-publica.md`.
+- `src/components/layout/DrawerAjustes.tsx`: o item “Sua Página” agora abre diretamente `/barbeiro/marca` (Personalizar Página), em vez de passar pelo hub intermediário `/barbeiro/sua-pagina`.
+- `src/routes/barbeiro.marca.tsx`: voltar da tela de carregamento/editor retorna à Agenda (`/barbeiro`), como a navegação do Figaro.
+- `src/lib/navegacao-movel.test.ts`: expectativa atualizada para a rota direta.
+- Commits: `a476c6c30f9f7025d0a1cfb36532d62fb4fc3f50`, `d9fd79a8297ba40643bd3941233eece259321817`, `fb121071a090dec8873bae76e78f895915531480`.
+- **Ainda pendente:** o editor Cortaí usa abas e edita várias seções na mesma tela; a especificação Figaro pede uma tela própria de Layout & Tema, editores separados por seção, menu ⋮ com Editar link/QR/tirar do ar, e retorno com recarga. Esta alteração alinha somente a entrada e o botão voltar; não declarar a jornada completa como igual até concluir os fluxos restantes. CI deve validar os commits mais recentes.
 
 ## Atualização de execução — 2026-10-21
 
