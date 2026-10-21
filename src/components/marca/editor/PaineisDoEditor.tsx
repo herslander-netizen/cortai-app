@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/accordion";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { motion } from "framer-motion";
+import { useState } from "react";
 import type { MarcaData, getMarca } from "@/lib/marca.functions";
 import { pagina } from "@/lib/motion";
 
@@ -47,18 +48,31 @@ function Item({
   );
 }
 
+export type AbaPainelDoEditor = "conteudo" | "detalhes" | "divulgacao" | "historico";
+
 export function PaineisDoEditor({
   e,
   initial,
   versions,
+  abaAtiva,
+  onAbaChange,
 }: {
   e: ReturnType<typeof useEditorDaPagina>;
   initial: MarcaData;
   versions: NonNullable<Awaited<ReturnType<typeof getMarca>>>["versoes"];
+  abaAtiva?: AbaPainelDoEditor;
+  onAbaChange?: (aba: AbaPainelDoEditor) => void;
 }) {
+  const [abaLocal, setAbaLocal] = useState<AbaPainelDoEditor>("conteudo");
+  const aba = abaAtiva ?? abaLocal;
+  const mudarAba = (value: string) => {
+    const proxima = value as AbaPainelDoEditor;
+    setAbaLocal(proxima);
+    onAbaChange?.(proxima);
+  };
   return (
     <>
-      <Tabs defaultValue="conteudo">
+      <Tabs value={aba} onValueChange={mudarAba}>
         <TabsList
           aria-label="Áreas de configuração da página"
           className="flex h-auto w-full justify-start gap-1 overflow-x-auto overscroll-x-contain bg-ink2 p-1"
