@@ -37,7 +37,7 @@ describe("navegação móvel", () => {
     expect(ajustes).toContain("Plano");
     expect(ajustes).toContain("Aparência do aplicativo");
     expect(ajustes).toContain("Sua Página");
-    expect(ajustes).toContain('to: "/barbeiro/sua-pagina"');
+    expect(ajustes).toContain('to: "/barbeiro/marca"');
     const pagina = readFileSync("src/routes/barbeiro.sua-pagina.tsx", "utf8");
     const layoutTema = readFileSync("src/routes/barbeiro.marca.layout-tema.tsx", "utf8");
     expect(pagina).toContain('to="/barbeiro/marca/layout-tema"');
