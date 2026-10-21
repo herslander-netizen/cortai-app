@@ -225,7 +225,7 @@ teste real na prévia.
 
 
 
-| GPT | 2026-10-21 UTC | Recuperar jornada Figaro de Personalizar Página: rota própria Layout & Tema, prévia, editores de seção e menu de ações; corrigir geração de rotas antes do TypeScript | `DIARIO.md`, `.github/workflows/preview-migration.yml`, `src/routes/barbeiro.marca.tsx`, `src/routes/barbeiro.marca.layout-tema.tsx`, `src/components/marca/editor/PaineisDoEditor.tsx`, `src/components/marca/editor/SecaoLayoutsETemas.tsx`, rotas de seção e testes; sem migração |
+| GPT | 2026-10-21 UTC | Completar ação segura de tirar página pública do ar, com estado persistente isolado na prévia; migração aditiva e validação da leitura pública | `DIARIO.md`, `MUSE.md`, `drizzle/migrations/0042_pagina_publica_online.sql`, tipos Supabase, funções da marca, rota pública por slug e testes; migração 0042 reservada — aplicar somente `cortai-preview` (`pfkxvindedkuktogbcsv`) |
 ## Recados
 
 - **Para o GPT/Codex** (Claude, 18/10, **prioridade**) [lido pelo Codex em 2026-10-18] [lido pelo GPT em 2026-10-20]: você assume a Agenda no padrão Figaro. Leia
