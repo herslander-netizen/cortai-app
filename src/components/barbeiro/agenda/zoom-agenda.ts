@@ -47,10 +47,6 @@ export function aoCorrigirRolagemDoZoom(ouvinte: CorrecaoDeZoom) {
   };
 }
 
-export function pxPorMinutoAtual() {
-  return ler();
-}
-
 /** Nova escala a partir da distância entre os dedos no começo e agora. */
 export function pxDaPinca(pxInicial: number, distanciaInicial: number, distancia: number) {
   if (distanciaInicial <= 0) return limitarPx(pxInicial);
@@ -212,7 +208,11 @@ export function useZoomDaEdicao(idEmEdicao: string | null, yDoToque?: number) {
     let quadro: number | null = null;
     let cancelado = false;
     const cartao = (id: string | null) =>
-      id ? document.querySelector<HTMLElement>("[data-agendamento=\"" + CSS.escape(id) + "\"]") : null;
+      id
+        ? document.querySelector<HTMLElement>(
+            "[data-agendamento=\"" + CSS.escape(id) + "\"]",
+          )
+        : null;
 
     const aplicarEscala = (
       escala: number,
