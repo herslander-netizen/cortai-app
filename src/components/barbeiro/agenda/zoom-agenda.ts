@@ -315,16 +315,20 @@ export function useZoomDaEdicao(
       const ultimoCartao = ultimo.current;
       const ancora = cartao(ultimoCartao?.id ?? null);
       const escalaInicial = ler();
-      const minutoDoCartao = ultimoCartao?.minutoDoCartao ?? 0;
       const topo = ancora?.getBoundingClientRect().top ?? null;
-      // Na saída, ancora o mesmo minuto na posição onde o usuário o vê neste momento.
-      const yAlvo = topo === null ? null : topo + minutoDoCartao * escalaInicial;
+      // Ao sair do modo armado (inclusive ao tocar fora), enquadra o cartão no espaço livre
+      // acima da barra inferior. Usa o centro do cartão como âncora, não o ponto do toque,
+      // para que ele fique fácil de inspecionar depois de restaurar a escala.
+      const minutoDoCentro =
+        ancora && escalaInicial > 0 ? (ancora.getBoundingClientRect().height / escalaInicial) / 2 : 0;
+      const alturaVisivel = typeof window === "undefined" ? 700 : window.innerHeight;
+      const yAlvo = topo === null ? null : Math.max(96, Math.min(alturaVisivel * 0.34, alturaVisivel - 220));
 
       animar(
         escalaInicial,
         restaurar,
         ancora,
-        minutoDoCartao,
+        minutoDoCentro,
         () => yAlvo,
         () => {
           if (cancelado) return;
