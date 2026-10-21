@@ -30,6 +30,8 @@ e o que fez. O diário até 17/10/2026 está guardado, sem alterações, em
 
 Tudo o que o dono decidir com qualquer IA entra aqui, com a data. Vale para todas.
 
+- 2026-10-21: **Recuperação do Figaro inclui obrigatoriamente as animações e transições verificáveis**, não só telas estáticas. Preservar direção, duração, curva, resposta ao toque, expansão/recolhimento, navegação entre telas, estados de carregamento/progresso/sucesso e respeito a redução de movimento, conforme APK e vídeos. Quando não houver evidência, marcar “sem evidência” e não inventar nem afirmar paridade.
+
 - 2026-10-20: **"mande tudo pra principal"**: o dono autorizou aplicar as migrações 0039–0041 (agendamento
   com cliente opcional) no `cortai-prod`, com ensaio antes, e em seguida rodar o "Lançar versão".
 
@@ -157,6 +159,7 @@ teste real na prévia.
 
 
 
+| GPT | 2026-10-21 UTC | Auditoria contínua e recuperação do fluxo Configurações → Sua Página → Layout & Tema, incluindo transições/animações do Figaro e navegação direta; sem tocar onboarding autenticado ou backend | `DIARIO.md`, `docs/referencia-figaro/matriz-recuperacao-cortai.md`, `src/components/layout/DrawerAjustes.tsx`, `src/routes/barbeiro.sua-pagina.tsx`, `src/components/marca/editor/SecaoLayoutsETemas.tsx`; sem migração |
 ## Recados
 
 - **Para o GPT/Codex** (Claude, 18/10, **prioridade**) [lido pelo Codex em 2026-10-18] [lido pelo GPT em 2026-10-20]: você assume a Agenda no padrão Figaro. Leia
