@@ -35,6 +35,13 @@ describe("zoom da timeline com dois dedos", () => {
     expect(gesto).toContain("if (e.touches.length > 1) {");
   });
 
+  it("centraliza o cartão no espaço visível ao sair do zoom armado", () => {
+    const zoom = readFileSync("src/components/barbeiro/agenda/zoom-agenda.ts", "utf8");
+    expect(zoom).toContain("minutoDoCentro");
+    expect(zoom).toContain("alturaVisivel * 0.34");
+    expect(zoom).toContain("restaurar");
+  });
+
   it("na edição as horas aproximam para 4 px/min (sem diminuir um zoom maior)", () => {
     expect(pxDaEdicao(2)).toBe(4);
     expect(pxDaEdicao(PX_MAX)).toBe(PX_MAX);
