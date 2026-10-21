@@ -363,6 +363,14 @@ teste real na prévia.
 
 ## Diário (mais recente primeiro)
 
+### 2026-10-21 UTC — GPT — Corrige entrada de Sua Página para seguir o fluxo Figaro
+- A gaveta principal agora abre diretamente `/barbeiro/marca` (Personalizar Página), em vez de passar pelo hub `/barbeiro/sua-pagina`; a aba de navegação também acompanha as telas filhas Layout & Tema e Editar seção.
+- Atualizei `src/lib/navegacao-barbeiro.ts` e acrescentei testes em `src/lib/navegacao-barbeiro.test.ts` para a rota de entrada e o estado ativo.
+- Commits de código: `d7d35dbe77973e8488c8074070c87cc8538d8005` e `183bc221d4bcec07df193600439d7da4a6258b6a`.
+- Validação do GitHub Actions ainda pendente após estes commits; a inspeção visual em 390px/1280px e das animações continua pendente por indisponibilidade de navegador conectado. Não declarar paridade completa.
+- Nenhuma alteração em banco, `main`, DNS ou site principal.
+
+
 ### 2026-10-21 UTC — GPT — Jornada Figaro e estado público na prévia
 - A tela principal `Personalizar Página` agora mostra o card `Layout & Tema`, os grupos de seções diretamente na página e mantém `Detalhes`, `Divulgação` e `Histórico` em `Outras configurações`. O menu de ações abre a edição do link dentro desse painel.
 - Cada seção tem editor próprio: apresentação/textos, dados reais de serviços, profissionais, avaliações, produtos e horários via suas áreas de gestão; localização, contatos, redes, CTA e galeria têm controles no editor. A galeria aceita até 8 fotos e remover da página não apaga o arquivo do armazenamento.
