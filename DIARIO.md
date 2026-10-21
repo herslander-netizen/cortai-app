@@ -257,6 +257,12 @@ teste real na prévia.
   `AGENTS.md`). Detalhe no teu último ajuste da agenda: `-mt-4 mb-0 -mb-3` tem duas margens de baixo
   que se contradizem; vale deixar só uma. Responda com `[lido]`.
 
+### 2026-10-21 UTC — GPT — Corrige ciclo de hooks no hub Sua Página
+- Corrigi `src/routes/barbeiro.sua-pagina.tsx`: o efeito que gera o QR Code era declarado depois de retornos condicionais de carregamento/erro, o que podia alterar a ordem dos hooks do React quando a página carregava.
+- O link público agora é derivado com segurança enquanto a consulta carrega; o efeito permanece sempre na mesma posição e só gera o QR quando há link.
+- Commit de código: `fcb5b88f0612b3404c272278cc89eed598804668`.
+- TypeScript, testes, build e visual no celular ainda precisam ser confirmados pelo GitHub Actions/prévia. Não publicar em produção nem alterar banco.
+
 ### 2026-10-21 UTC — GPT — Ajustes ligados ao hub Sua Página
 - O drawer de Ajustes agora tem uma entrada “Sua Página” que aponta para `/barbeiro/sua-pagina`; o mesmo nome foi padronizado na navegação principal e na tela Conta. O editor continua acessível a partir do hub.
 - “Avisos e notificações” agora aponta para a âncora `#avisos` em Ajustes e preferências (`/barbeiro/mais`), e a seção de preferências tem o ID correspondente para a navegação focar o lugar certo.
