@@ -46,7 +46,7 @@ A especificação do APK em `docs/referencia-figaro/apk/4-pagina-publica.md` con
 
 **Confirmado no código:**
 
-- Rota de entrada/hub: `src/routes/barbeiro.sua-pagina.tsx`, com o negócio, link público, indicador de alterações pendentes e resumo visual de Layout & Tema (layout, tema, paleta e quantidade de seções ativas).
+- Rota de entrada/hub: `src/routes/barbeiro.sua-pagina.tsx`, com o negócio, link público, indicador de alterações pendentes, resumo visual de Layout & Tema e avisos acionáveis para as lacunas reais retornadas pelo backend (serviços ativos, profissionais e dias abertos). As lacunas são avisos, não bloqueios de publicação. O status Online/Offline do Figaro ainda não tem equivalente comprovado no contrato Cortaí e não é simulado.
 - Rota principal do editor: `src/routes/barbeiro.marca.tsx`.
 - Painéis: `src/components/marca/editor/PaineisDoEditor.tsx`.
 - Seleção de tema: `SecaoTema.tsx`; prévia: `PreviaDaExperiencia.tsx`; estado e ações: `useEditorDaPagina.ts`.
