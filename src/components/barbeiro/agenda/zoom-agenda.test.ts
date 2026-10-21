@@ -39,6 +39,7 @@ describe("zoom da timeline com dois dedos", () => {
     expect(pxDaEdicao(2)).toBe(4);
     expect(pxDaEdicao(PX_MAX)).toBe(PX_MAX);
     const operacional = readFileSync("src/components/barbeiro/AgendaOperacional.tsx", "utf8");
+    const timeline = readFileSync("src/components/barbeiro/AgendaTimeline.tsx", "utf8");
     expect(operacional).toContain("useZoomDaEdicao(edicao.rascunho?.id ?? null, ancoraZoomEdicao);");
     expect(timeline).toContain("onEditar?.(item, g.y0);");
     expect(timeline).toContain("onAtualizarYDoToque?.(g.id, e.clientY);");
