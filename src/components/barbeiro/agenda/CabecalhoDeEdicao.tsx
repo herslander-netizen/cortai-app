@@ -21,7 +21,7 @@ export function CabecalhoDeEdicao({ dia, naBarra = false }: { dia: string; naBar
   if (naBarra)
     return (
       <div
-        className="cabecalho-edicao-mobile relative z-10 mx-auto flex min-h-14 w-full max-w-[520px] flex-col justify-center rounded-b-3xl border-b border-line bg-ink2 px-3 pb-2 pt-2 text-center shadow-sm"
+        className="cabecalho-edicao-mobile relative z-10 mx-auto flex min-h-[108px] w-full flex-col justify-center bg-ink2 px-4 py-3 text-center"
         role="status"
         aria-label={`Editando horário. ${extenso}. Para mudar de dia, use Reagendar.`}
       >
