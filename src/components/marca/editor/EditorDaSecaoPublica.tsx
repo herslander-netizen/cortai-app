@@ -12,7 +12,7 @@ import { componenteIds } from "@/lib/pagina-config";
 
 type Secao = (typeof componenteIds)[number];
 type Editor = ReturnType<typeof useEditorDaPagina>;
-type DestinoGestao = "/barbeiro/servicos" | "/barbeiro/configurar" | "/barbeiro/avaliacoes" | "/barbeiro/produtos" | "/barbeiro/horarios";
+type DestinoGestao = "/barbeiro/servicos" | "/barbeiro/profissionais" | "/barbeiro/avaliacoes" | "/barbeiro/produtos" | "/barbeiro/horarios";
 
 function IrParaGestao({ to, titulo, descricao }: { to: DestinoGestao; titulo: string; descricao: string }) {
   return (
@@ -39,7 +39,7 @@ export function EditorDaSecaoPublica({ secao, e }: { secao: Secao; e: Editor }) 
     case "servicos":
       return <IrParaGestao to="/barbeiro/servicos" titulo="Serviços cadastrados" descricao="Edite nomes, preços, duração e disponibilidade dos serviços que aparecem na página pública." />;
     case "profissionais":
-      return <IrParaGestao to="/barbeiro/configurar" titulo="Profissionais do negócio" descricao="Gerencie os profissionais cadastrados no negócio. A lista pública usa os dados reais da equipe." />;
+      return <IrParaGestao to="/barbeiro/profissionais" titulo="Profissionais do negócio" descricao="Gerencie os profissionais cadastrados no negócio. A lista pública usa os dados reais da equipe." />;
     case "galeria":
       return <EditorGaleria e={e} />;
     case "avaliacoes":
