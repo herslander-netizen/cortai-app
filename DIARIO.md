@@ -157,7 +157,6 @@ teste real na prévia.
 
 
 
-| GPT | 2026-10-21 UTC | Recuperar a hierarquia do hub Personalizar Página no estilo Figaro, com grupos de seções ativas/inativas e resumo, sem fingir requisitos dinâmicos por layout | `DIARIO.md`, `src/components/marca/editor/SecaoConteudo.tsx`, `src/components/marca/editor/PaineisDoEditor.tsx`; sem migração |
 ## Recados
 
 - **Para o GPT/Codex** (Claude, 18/10, **prioridade**) [lido pelo Codex em 2026-10-18] [lido pelo GPT em 2026-10-20]: você assume a Agenda no padrão Figaro. Leia
@@ -243,6 +242,14 @@ teste real na prévia.
   que se contradizem; vale deixar só uma. Responda com `[lido]`.
 
 ## Diário (mais recente primeiro)
+
+### 2026-10-21 UTC — GPT — Hub da página com resumo visual e seções organizadas
+- O cartão “Layout & Tema” em `/barbeiro/sua-pagina` agora mostra uma capa ilustrativa gerada com as cores do tema real, layout selecionado, tema, faixa com a paleta e contagem das seções ativas. O botão usa o texto “Escolher Layout & Tema”, seguindo a hierarquia visual observada no Figaro. A arte é uma representação do Cortaí, não uma imagem original do Figaro.
+- `SecaoConteudo.tsx` organiza os blocos em “Seções ativas” e “Seções inativas”, com ícone, nome, descrição, contagem e controle para ocultar/ativar. O foco é restaurado quando uma seção muda de grupo para manter o uso pelo teclado.
+- `SecaoLayoutsETemas.tsx` mantém o acordeão controlado de acordo com a experiência selecionada; ao mudar para Direta/Conversa, não deixa o usuário preso a um painel de layout que não se aplica àquela experiência.
+- Commit do hub: `1be796a6979db5806f657c359b97b95725389e33`; commit dos grupos de seções: `88f1c0570458cd0097624b696bdfcd6e119ce1ea`; ajuste do acordeão: `e30d0779566f43301966b4c11976fd98d6d720e2`; matriz atualizada: `d2e988fa3d60bc049b5809b6499dc5b34c4b2032`.
+- Validação: o ambiente de execução desta sessão não tem acesso à rede para clonar o repositório e os status consultados no GitHub não retornaram checks; TypeScript, testes/build e prévia visual continuam pendentes.
+- Sem alteração de banco, regras de publicação/agendamento, `main` ou site principal.
 
 ### 2026-10-21 UTC — GPT — Layout & Tema no padrão Figaro com opções combinadas
 - Reorganizada a área do editor para abrir na aba **Layout & Tema**, usando dois acordeões exclusivos (Layout e Tema) e carrosséis horizontais de cartões com encaixe, miniaturas, descrições e seleção destacada.
