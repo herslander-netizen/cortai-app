@@ -183,11 +183,11 @@ function SuaPagina() {
             <div className="absolute inset-x-[8%] top-[13%] h-[6%] w-[28%] rounded-full" style={{ backgroundColor: TEMAS[marca.pagina.tema].cores.texto, opacity: 0.75 }} />
             <div className="absolute inset-x-[8%] top-[25%] h-[12%] w-[62%] rounded-lg" style={{ backgroundColor: TEMAS[marca.pagina.tema].cores.texto, opacity: 0.12 }} />
             <div className="absolute inset-x-[8%] bottom-[14%] flex gap-2">
-              <div className="h-14 flex-1 rounded-lg border border-white/20" style={{ backgroundColor: TEMAS[marca.pagina.tema].cores.secundaria, opacity: 0.92 }} />
-              <div className="h-14 flex-1 rounded-lg border border-white/20" style={{ backgroundColor: TEMAS[marca.pagina.tema].cores.secundaria, opacity: 0.72 }} />
+              <div className="h-14 flex-1 rounded-lg border border-line2/50" style={{ backgroundColor: TEMAS[marca.pagina.tema].cores.secundaria, opacity: 0.92 }} />
+              <div className="h-14 flex-1 rounded-lg border border-line2/50" style={{ backgroundColor: TEMAS[marca.pagina.tema].cores.secundaria, opacity: 0.72 }} />
               <div className="h-14 w-1/4 rounded-lg" style={{ backgroundColor: TEMAS[marca.pagina.tema].cores.botao }} />
             </div>
-            <span className="absolute right-3 top-3 rounded-full border border-white/25 bg-black/25 px-3 py-1 text-xs font-semibold text-white backdrop-blur">
+            <span className="absolute right-3 top-3 rounded-full border border-line2/60 bg-ink/70 px-3 py-1 text-xs font-semibold text-paper backdrop-blur">
               Prévia visual
             </span>
           </div>
