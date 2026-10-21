@@ -151,6 +151,12 @@ teste real na prévia.
 - Ainda sem execução de TypeScript, Vitest, build ou conferência visual; a prévia publicada não foi confirmada.
 - Nenhuma alteração em backend, banco ou site principal.
 
+### 2026-10-21 UTC — GPT — Corrige falhas de TypeScript na configuração da página
+- O CI do commit `52c00f143054352e6d521ca04ac2921d6581e76f` identificou três problemas de tipos/teste: `hash` opcional no drawer de Ajustes, `value` indefinido no acordeão Layout & Tema e teste de `PaineisDoEditor` desatualizado após a inclusão da aba Layout & Tema.
+- Corrigi o hash condicional com spread de propriedade, usei string vazia para o estado fechado do acordeão controlado e atualizei o teste para cinco abas, prop `onVerExemplo` e os rótulos atuais.
+- Commits: `ee931e85e78ecb6455ea81bb6b125223ed053a84`, `b2ec383ea57c7a10731b9e8cf86b1a72267733c2`, `e3008b2e8757b68a16ed2e8cb350c5c56de099b8`.
+- Aguardando CI do commit mais recente; não declarar testes/build aprovados até conferir o resultado.
+
 ## Atualização de execução — 2026-10-21
 
 - **Escopo:** recuperação da experiência Figaro no Cortaí; preservar as animações verificadas junto com layout, conteúdo e navegação. A regra foi registrada em Decisões do dono e nos critérios de aceite da matriz.
