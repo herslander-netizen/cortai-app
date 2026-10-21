@@ -54,32 +54,62 @@ async function admin() {
 /** Cria o perfil na primeira entrada e concede admin se o e-mail estiver autorizado. */
 async function garantirPerfil(userId: string, email: string | null, nome: string | null) {
   const db = await admin();
-  const { data: perfil } = await db
-    .from("perfis")
-    .select("tipo, nome")
-    .eq("user_id", userId)
-    .maybeSingle();
+  const consultarPerfil = () =>
+    db.from("perfis").select("tipo, nome").eq("user_id", userId).maybeSingle();
+
+  const { data: perfilExistente, error: erroConsultaPerfil } = await consultarPerfil();
+  if (erroConsultaPerfil) throw new Error("Não foi possível verificar seu perfil.");
+  let perfil = perfilExistente;
+
   if (!perfil) {
-    await db.from("perfis").insert({ user_id: userId, nome: nome ?? email?.split("@")[0] ?? null });
+    const { error: erroInsercaoPerfil } = await db
+      .from("perfis")
+      .insert({ user_id: userId, nome: nome ?? email?.split("@")[0] ?? null });
+
+    // Outra requisição pode ter criado o perfil entre a consulta e a inserção.
+    // Só tratamos o conflito como sucesso se o perfil realmente existir.
+    if (erroInsercaoPerfil) {
+      const { data: perfilConcorrente, error: erroReconsulta } = await consultarPerfil();
+      if (erroReconsulta || !perfilConcorrente) {
+        throw new Error("Não foi possível preparar seu perfil.");
+      }
+      perfil = perfilConcorrente;
+    } else {
+      const { data: perfilCriado, error: erroReconsulta } = await consultarPerfil();
+      if (erroReconsulta || !perfilCriado) {
+        throw new Error("Não foi possível confirmar a criação do seu perfil.");
+      }
+      perfil = perfilCriado;
+    }
   }
+
   if (email) {
     // Comparação exata: o e-mail de quem entra nunca vira padrão de busca (`_`/`%` seriam curingas).
-    const { data: autorizados } = await db
+    const { data: autorizados, error: erroAutorizados } = await db
       .from("emails_admin_autorizados")
       .select("email")
       .limit(500);
+    if (erroAutorizados) throw new Error("Não foi possível verificar as permissões da conta.");
     const autorizado = (autorizados ?? []).some((linha) => mesmoEmail(linha.email, email));
     if (autorizado) {
-      const { data: jaTem } = await db
-        .from("user_roles")
-        .select("id")
-        .eq("user_id", userId)
-        .eq("role", "admin")
-        .maybeSingle();
-      if (!jaTem) await db.from("user_roles").insert({ user_id: userId, role: "admin" });
+      const consultarPapelAdmin = () =>
+        db.from("user_roles").select("id").eq("user_id", userId).eq("role", "admin").maybeSingle();
+      const { data: jaTem, error: erroPapel } = await consultarPapelAdmin();
+      if (erroPapel) throw new Error("Não foi possível verificar as permissões da conta.");
+      if (!jaTem) {
+        const { error: erroInsercaoPapel } = await db
+          .from("user_roles")
+          .insert({ user_id: userId, role: "admin" });
+        if (erroInsercaoPapel) {
+          const { data: papelConcorrente, error: erroReconsulta } = await consultarPapelAdmin();
+          if (erroReconsulta || !papelConcorrente) {
+            throw new Error("Não foi possível preparar as permissões da conta.");
+          }
+        }
+      }
     }
   }
-  return perfil?.tipo ?? "pendente";
+  return perfil.tipo ?? "pendente";
 }
 
 export const getSessao = createServerFn({ method: "GET" })
