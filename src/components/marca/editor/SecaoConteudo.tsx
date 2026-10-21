@@ -106,7 +106,9 @@ export function SecaoConteudo({
   const ativos = ids.filter((id) => config.componentes[id]);
   const inativos = ids.filter((id) => !config.componentes[id]);
 
-  const grupo = (ids: ComponenteId[], ativo: boolean) => (
+  const grupo = (ids: ComponenteId[], ativo: boolean) => {
+    if (somente && ids.length === 0) return null;
+    return (
     <section className="space-y-3" aria-label={ativo ? "Seções ativas" : "Seções inativas"}>
       <div className="flex items-center justify-between gap-3">
         <div>
@@ -161,7 +163,8 @@ export function SecaoConteudo({
         </p>
       )}
     </section>
-  );
+    );
+  };
 
   return (
     <div className="space-y-6">
