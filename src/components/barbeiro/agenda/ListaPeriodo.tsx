@@ -74,7 +74,6 @@ export function ListaPeriodo({
   mostrarProfissional,
   discreto,
   selecionado,
-  online,
   onAbrir,
 }: {
   hoje: string;
