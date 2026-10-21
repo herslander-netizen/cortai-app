@@ -146,7 +146,6 @@ teste real na prévia.
 
 | Quem | Desde (UTC) | Tarefa | Arquivos / migração reservada |
 |---|---|---|---|
-| GPT | 2026-10-21 UTC | Recuperar primeira fatia P0 do fluxo Figaro da página pública: hub de entrada e navegação para personalização sem alterar publicação/backend | `DIARIO.md`, rotas e componentes de navegação da página pública; sem migração |
 
 
 | GPT | 2026-10-20 UTC | Auditoria autônoma de UX de autenticação, onboarding e recuperação de sessão na prévia; validar correção e depois ampliar auditoria geral sem tocar produção | `DIARIO.md`, `src/routes/comecar.tsx`, `src/routes/login.tsx`, `src/lib/guarda.ts`, testes relacionados; sem migração |
@@ -243,6 +242,13 @@ teste real na prévia.
   que se contradizem; vale deixar só uma. Responda com `[lido]`.
 
 ## Diário (mais recente primeiro)
+
+### 2026-10-21 UTC — GPT — Primeira fatia implementada: hub “Sua Página”
+- Adicionada a rota `/barbeiro/sua-pagina` como ponto de entrada inspirado no hub do Figaro: resumo do negócio, estado de alterações pendentes, link público, ação de abrir/copiar link e acesso destacado a “Layout & Tema”/personalização.
+- A navegação principal da área Aparência agora aponta para “Sua Página”; o editor existente em `/barbeiro/marca` permanece responsável pela edição e pelo ciclo de publicação. Nenhuma regra de publicação foi duplicada ou alterada.
+- Arquivos: `src/routes/barbeiro.sua-pagina.tsx`, `src/lib/navegacao-barbeiro.ts`, `DIARIO.md`. Sem migração, alteração de banco, produção ou `main`.
+- Validação: código enviado à branch; aguardar GitHub Actions (TypeScript, testes, build e publicação na prévia). Ainda não declarar concluído até confirmar workflow e testar visualmente em 390 px e 1280 px.
+- Próxima etapa: conferir a prévia e implementar o fluxo de Layout & Tema no padrão Figaro (seleção de layout/tema com acordeões, cartões/carrossel e “Ver Exemplo”), sem substituir o backend atual.
 
 ### 2026-10-21 UTC — GPT — Matriz de recuperação Figaro: configurações, onboarding e página pública
 - Inspecionados o APK completo `Figaroo.apk` entregue no ZIP e a branch de trabalho do Cortaí. O APK contém módulos nativos de onboarding, configurações de conta/negócio e editor de página; o Cortaí já tem rotas/componentes correspondentes em várias áreas.
