@@ -46,7 +46,12 @@ describe("navegação móvel", () => {
     const secoes = readFileSync("src/components/marca/editor/SecaoConteudo.tsx", "utf8");
     const editorSecao = readFileSync("src/routes/barbeiro.marca.secao.$secao.tsx", "utf8");
     expect(secoes).toContain('to="/barbeiro/marca/secao/$secao"');
-    expect(editorSecao).toContain('title={`Editar ${NOMES_SECOES[secao]}`}');
+    expect(editorSecao).toContain('title={\`Editar \${NOMES_SECOES[secao]}\`}');
+    const paginaPrincipal = readFileSync("src/routes/barbeiro.marca.tsx", "utf8");
+    expect(paginaPrincipal).toContain('aria-label="Mais ações da página"');
+    expect(paginaPrincipal).toContain('search={{ qr: "1" }}');
+    expect(paginaPrincipal).toContain("Tirar página do ar — indisponível no backend atual");
+    expect(pagina).toContain('validateSearch: z.object({ qr: z.string().optional() })');
     expect(ajustes).not.toContain('hash={item.label === "Avisos e notificações" ? "avisos" : undefined}');
     expect(ajustes).toContain("Avisos e notificações");
     expect(ajustes).toContain("Ajuda e suporte");
