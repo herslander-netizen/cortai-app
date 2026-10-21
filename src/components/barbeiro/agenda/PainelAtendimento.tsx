@@ -221,9 +221,6 @@ export function PainelAtendimento(props: Props) {
         >
           {item && estado ? (
             <>
-              <div className="mb-3 flex justify-center md:hidden" aria-hidden="true">
-                <span className="h-1.5 w-12 rounded-full bg-mute/50" />
-              </div>
               <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain pb-28 [scrollbar-width:thin]">
                 {/* Como no Figaro (`AppointmentHeroGroup`): o serviço, o estado, quando e com
                     quem; o cliente num bloco logo abaixo. */}
