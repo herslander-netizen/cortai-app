@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { Link } from "@tanstack/react-router";
 import {
   CalendarDays,
   CheckCircle2,
@@ -14,6 +15,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 
+import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { componenteIds, type PaginaConfig } from "@/lib/pagina-config";
 import type { SetPagina } from "./tipos";
@@ -81,9 +83,13 @@ const SECOES: Record<ComponenteId, { nome: string; descricao: string; icone: Luc
 export function SecaoConteudo({
   config,
   setPagina,
+  somente,
+  mostrarEdicao = true,
 }: {
   config: PaginaConfig;
   setPagina: SetPagina;
+  somente?: ComponenteId;
+  mostrarEdicao?: boolean;
 }) {
   const refs = useRef<Record<ComponenteId, HTMLButtonElement | null>>({} as Record<ComponenteId, HTMLButtonElement | null>);
   const focoPendente = useRef<ComponenteId | null>(null);
@@ -96,8 +102,9 @@ export function SecaoConteudo({
     focoPendente.current = null;
   }, [config.componentes]);
 
-  const ativos = componenteIds.filter((id) => config.componentes[id]);
-  const inativos = componenteIds.filter((id) => !config.componentes[id]);
+  const ids = somente ? [somente] : componenteIds;
+  const ativos = ids.filter((id) => config.componentes[id]);
+  const inativos = ids.filter((id) => !config.componentes[id]);
 
   const grupo = (ids: ComponenteId[], ativo: boolean) => (
     <section className="space-y-3" aria-label={ativo ? "Seções ativas" : "Seções inativas"}>
@@ -130,6 +137,11 @@ export function SecaoConteudo({
                   <span className="block text-sm font-semibold text-paper">{secao.nome}</span>
                   <span className="mt-0.5 block text-xs leading-relaxed text-mute">{secao.descricao}</span>
                 </span>
+                {mostrarEdicao ? (
+                  <Button type="button" variant="outline" size="sm" className="min-h-11 shrink-0" asChild>
+                    <Link to="/barbeiro/marca/secao/$secao" params={{ secao: id }}>Editar</Link>
+                  </Button>
+                ) : null}
                 <Switch
                   ref={(node) => { refs.current[id] = node; }}
                   checked={ativo}
