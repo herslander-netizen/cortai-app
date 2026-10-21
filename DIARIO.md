@@ -265,6 +265,11 @@ teste real na prévia.
 
 ## Diário (mais recente primeiro)
 
+### 2026-10-21 UTC — GPT — QR Code da página no hub
+- Acrescentei em `/barbeiro/sua-pagina` uma ação para mostrar/ocultar o QR Code do link público atual e salvar a imagem PNG. O QR é gerado a partir do link real da página e usa as cores acessíveis configuradas no tema do aplicativo; não há imagem estática nem link inventado.
+- Arquivo: `src/routes/barbeiro.sua-pagina.tsx`. Commit: `d7fafdd75141732e91eb76ecb9ce828a00b1862c`.
+- Validação de build/testes ainda pendente; não afirmar que compilou. Nenhuma mudança em banco, publicação ou `main`.
+
 ### 2026-10-21 UTC — GPT — Avisos de configuração e transições do editor
 - O hub `/barbeiro/sua-pagina` agora mostra os avisos reais retornados pelo backend para serviços ativos, profissionais e dias abertos, com links para corrigir cada ponto. O texto deixa explícito que são avisos e não bloqueios automáticos da publicação. Não foi inventado um estado Online/Offline, porque esse campo não está comprovado no contrato Cortaí.
 - Cartões de layout e tema têm transição de seleção; o selo usa mola e respeita `prefers-reduced-motion`. O chevron dos acordeões usa uma curva de mola e o conteúdo desativa animações quando o sistema pede movimento reduzido. Os cartões foram extraídos para `CartoesDeLayoutTema.tsx` para facilitar manutenção.
