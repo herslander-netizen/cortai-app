@@ -179,6 +179,16 @@ teste real na prévia.
 - Commits: `a476c6c30f9f7025d0a1cfb36532d62fb4fc3f50`, `d9fd79a8297ba40643bd3941233eece259321817`, `fb121071a090dec8873bae76e78f895915531480`.
 - **Ainda pendente:** o editor Cortaí usa abas e edita várias seções na mesma tela; a especificação Figaro pede uma tela própria de Layout & Tema, editores separados por seção, menu ⋮ com Editar link/QR/tirar do ar, e retorno com recarga. Esta alteração alinha somente a entrada e o botão voltar; não declarar a jornada completa como igual até concluir os fluxos restantes. CI deve validar os commits mais recentes.
 
+### 2026-10-21 UTC — GPT — Jornada Figaro de Personalizar Página (em andamento)
+- Drawer “Sua Página” abre diretamente `/barbeiro/marca`; a tela apresenta acesso à rota própria Layout & Tema.
+- Criada `src/routes/barbeiro.marca.layout-tema.tsx`: seleção de layout/tema, prévia, salvar rascunho e retorno à tela principal com invalidação da consulta.
+- Criada `src/routes/barbeiro.marca.secao.$secao.tsx` e ligada a lista de blocos a editores individuais; ativar/ocultar preserva os dados do negócio.
+- Menu de ações abre a aba de link e o QR Code diretamente; banner de rascunho entra com animação e respeita `prefers-reduced-motion`.
+- **Limite identificado:** não existe ação/estado de backend para tirar somente a página pública do ar. A opção está desabilitada e identificada como indisponível; não simular mudança de status nem alterar o banco sem projeto seguro.
+- Build, TypeScript e testes passaram no commit `aeeeb31148054f4ac435730e179d10b445011837`; ajustes seguintes deixaram as seções visíveis ao abrir e corrigiram o estado vazio no editor individual. A validação e a publicação isolada da prévia precisam ser conferidas no commit mais recente.
+- Arquivos desta etapa: `src/routes/barbeiro.marca.tsx`, `src/routes/barbeiro.marca.layout-tema.tsx`, `src/routes/barbeiro.marca.secao.$secao.tsx`, `src/routes/barbeiro.sua-pagina.tsx`, `src/components/layout/DrawerAjustes.tsx`, `src/components/marca/editor/PaineisDoEditor.tsx`, `src/components/marca/editor/PaineisDoEditor.test.tsx`, `src/components/marca/editor/SecaoConteudo.tsx`, `src/lib/navegacao-movel.test.ts`.
+- **Ainda não concluído:** os editores individuais de seção expõem por enquanto o controle de visibilidade; a equivalência funcional de cada editor do APK, as confirmações de ações e a validação visual de transições ainda precisam ser completadas. Não afirmar paridade total.
+
 ## Atualização de execução — 2026-10-21 — fluxo principal Personalizar Página
 
 - Corrigido o destino do item “Sua Página” em Ajustes: abre `/barbeiro/sua-pagina`, o hub com o cartão Layout & Tema, em vez de cair direto no editor unificado. Isso corresponde ao caminho do Figaro: gaveta → Sua Página/Personalizar Página → Layout & Tema.
