@@ -21,14 +21,14 @@ export function CabecalhoDeEdicao({ dia, naBarra = false }: { dia: string; naBar
   if (naBarra)
     return (
       <div
-        className="cabecalho-edicao-mobile relative z-10 mx-auto flex min-h-[108px] w-full flex-col justify-center bg-ink2 px-4 py-3 text-center"
+        className="cabecalho-edicao-mobile relative z-10 mx-auto flex min-h-[84px] w-full flex-col justify-center bg-ink2 px-3 py-2 text-center"
         role="status"
         aria-label={`Editando horário. ${extenso}. Para mudar de dia, use Reagendar.`}
       >
-        <p className="truncate text-[clamp(20px,5.2vw,24px)] font-bold leading-tight text-paper first-letter:uppercase">
+        <p className="truncate text-[clamp(17px,4.5vw,20px)] font-bold leading-tight text-paper first-letter:uppercase">
           {compacto}
         </p>
-        <p className="mt-1 truncate text-[12px] leading-tight text-mute">
+        <p className="mt-0.5 truncate text-[11px] leading-tight text-mute">
           Para mudar de dia, use <span className="font-semibold text-gold">Reagendar</span>.
         </p>
       </div>
