@@ -18,12 +18,12 @@ export const Route = createFileRoute("/barbeiro/barbearias")({
       { title: "Meus negócios — Cortaí Gestão" },
       {
         name: "description",
-        content: "Todos os negócios ligados à sua conta, com plano e configuração pendente.",
+        content: "Alterne entre os negócios vinculados à sua conta e abra cada painel de gestão.",
       },
       { property: "og:title", content: "Meus negócios — Cortaí" },
       {
         property: "og:description",
-        content: "Troque de negócio e retome a configuração de onde parou.",
+        content: "Troque de negócio sem sair da sua conta.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -64,7 +64,7 @@ function MinhasBarbeariasPage() {
         esquecerSessao();
         await queryClient.invalidateQueries();
       }
-      await navigate({ to: "/barbeiro/configurar" });
+      await navigate({ to: "/barbeiro", replace: true });
     } catch (e) {
       aviso.erro(e instanceof Error ? e.message : "Não consegui abrir este negócio agora.");
       setIndo(null);
@@ -74,7 +74,7 @@ function MinhasBarbeariasPage() {
   return (
     <Screen
       title="Meus negócios"
-      subtitle="Tudo que está ligado à sua conta, com o plano e o que falta configurar."
+      subtitle="Escolha um negócio para abrir seu painel. Você não precisa sair da conta nem fazer outro login."
     >
       {isLoading || !data ? (
         <EsqueletoLista linhas={2} onTentarDeNovo={() => void refetch()} />
