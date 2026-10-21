@@ -146,6 +146,7 @@ teste real na prévia.
 
 | Quem | Desde (UTC) | Tarefa | Arquivos / migração reservada |
 |---|---|---|---|
+| GPT | 2026-10-21 UTC | Auditoria de recuperação Figaro→Cortaí: configurações, onboarding, funcionalidades e personalização da página pública; produzir matriz de paridade e prioridades, sem alterar regras ou backend | `DIARIO.md`, `docs/referencia-ux-figaroo-cortai.md`, `docs/referencia-figaro/matriz-recuperacao-cortai.md`; sem migração |
 
 
 | GPT | 2026-10-20 UTC | Auditoria autônoma de UX de autenticação, onboarding e recuperação de sessão na prévia; validar correção e depois ampliar auditoria geral sem tocar produção | `DIARIO.md`, `src/routes/comecar.tsx`, `src/routes/login.tsx`, `src/lib/guarda.ts`, testes relacionados; sem migração |
