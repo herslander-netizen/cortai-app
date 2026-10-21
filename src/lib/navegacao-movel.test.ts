@@ -37,7 +37,7 @@ describe("navegação móvel", () => {
     expect(ajustes).toContain("Plano");
     expect(ajustes).toContain("Aparência do aplicativo");
     expect(ajustes).toContain("Sua Página");
-    expect(ajustes).toContain('to: "/barbeiro/sua-pagina"');
+    expect(ajustes).toContain('to: "/barbeiro/marca"');
     expect(ajustes).not.toContain('hash={item.label === "Avisos e notificações" ? "avisos" : undefined}');
     expect(ajustes).toContain("Avisos e notificações");
     expect(ajustes).toContain("Ajuda e suporte");
