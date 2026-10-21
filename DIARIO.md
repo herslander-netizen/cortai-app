@@ -243,6 +243,14 @@ teste real na prévia.
 
 ## Diário (mais recente primeiro)
 
+### 2026-10-21 UTC — GPT — Animação de gaveta no cabeçalho de edição mobile
+- Pedido: aplicar a animação padrão de gaveta ao cabeçalho que substitui a logo quando o usuário pressiona e segura um cartão.
+- Alterações: `TransicaoVerticalDoModoEdicao.tsx` ganhou uma variante opt-in `animacaoGaveta` com entrada/saída vertical de 84px e spring suave; `AgendaOperacional.tsx` habilita essa variante somente para o cabeçalho de edição mobile. A transição normal dos demais elementos e o desktop permanecem iguais.
+- Commits: `f4d0951` e `d04ddad`.
+- Validação: workflow da prévia ainda precisa confirmar build/testes; inspeção visual no Android não executada nesta etapa.
+- Escopo: branch `cloudflare-workers-migration-2026-10-13`; sem alteração em produção ou banco.
+
+
 ### 2026-10-21 UTC — GPT — Remover alça duplicada da gaveta de atendimento
 - Evidência: captura mostra duas alças horizontais no topo da gaveta de detalhes do agendamento.
 - Causa raiz: `SheetContent` já renderiza `AlcaDaGaveta` automaticamente quando `arrastarParaFechar` está ativo; `PainelAtendimento.tsx` também desenhava uma alça manual idêntica.
