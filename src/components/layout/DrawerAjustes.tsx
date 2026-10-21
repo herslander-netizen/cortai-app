@@ -54,7 +54,7 @@ const ITENS = [
   {
     label: "Sua Página",
     detalhe: "Personalize a página pública, layout e seções",
-    to: "/barbeiro/marca",
+    to: "/barbeiro/sua-pagina",
     icon: Eye,
   },
   {
