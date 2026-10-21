@@ -67,6 +67,14 @@ describe("PaineisDoEditor", () => {
 
     expect(alvo.querySelector('[role="tablist"]')).not.toBeNull();
     expect(alvo.querySelectorAll('[role="tab"]')).toHaveLength(5);
+
+    const conteudo = [...alvo.querySelectorAll<HTMLButtonElement>('[role="tab"]')].find((botao) =>
+      botao.textContent?.includes("Conteúdo"),
+    );
+    await act(async () => {
+      conteudo?.dispatchEvent(new MouseEvent("mousedown", { bubbles: true, button: 0 }));
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
     expect(alvo.textContent).toContain("Experiência de agendamento");
 
     const aparencia = [...alvo.querySelectorAll<HTMLButtonElement>('[role="tab"]')].find((botao) =>
