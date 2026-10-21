@@ -243,6 +243,14 @@ teste real na prévia.
 
 ## Diário (mais recente primeiro)
 
+### 2026-10-21 UTC — GPT — Ação real no link Reagendar do cabeçalho
+- Pedido: clicar em “Reagendar” deve abrir o fluxo de reagendamento, não ser apenas texto decorativo.
+- Alterações: `CabecalhoDeEdicao.tsx` transforma “Reagendar” em botão acessível; `AgendaOperacional.tsx` descarta o rascunho de edição de horário e abre o painel existente `abrirAcao(original, "remarcar")`, preservando as regras de negócio e reutilizando o fluxo oficial.
+- Commits: `9273e3d` e `34ad969`.
+- Validação: aguardando workflow e publicação da prévia; ainda não testado visualmente no Android.
+- Escopo: branch `cloudflare-workers-migration-2026-10-13`; sem alteração de produção/banco.
+
+
 ### 2026-10-21 UTC — GPT — Compactar cabeçalho de edição mobile
 - Pedido: reduzir mais a altura do cabeçalho durante edição de cartão, preservando o estilo e as duas informações.
 - Alterações: altura reduzida de 108px para 84px; título ajustado para 17–20px, orientação para 11px, espaçamentos menores. Alterados `src/components/barbeiro/agenda/CabecalhoDeEdicao.tsx` e `src/styles.css`.
