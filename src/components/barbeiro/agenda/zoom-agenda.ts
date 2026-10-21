@@ -1,5 +1,6 @@
 import { useEffect, useRef, useSyncExternalStore, type RefObject } from "react";
 import { flushSync } from "react-dom";
+import { prefereMenosMovimento } from "@/lib/motion";
 
 /**
  * Zoom da timeline (como no Figaro: pinça com dois dedos aproxima ou afasta as horas).
@@ -15,6 +16,37 @@ const CHAVE = "cortai:agenda:px-por-minuto";
 export function limitarPx(valor: number) {
   if (!Number.isFinite(valor)) return PX_PADRAO;
   return Math.min(PX_MAX, Math.max(PX_MIN, Math.round(valor * 100) / 100));
+}
+
+
+/** Curva FastOutSlowIn do Figaro: entrada e saída do modo de edição em 300ms. */
+export function fastOutSlowInProgresso(progresso: number) {
+  const x = Math.max(0, Math.min(1, progresso));
+  if (x === 0 || x === 1) return x;
+  const bezier = (t: number, p1: number, p2: number) =>
+    3 * (1 - t) ** 2 * t * p1 + 3 * (1 - t) * t ** 2 * p2 + t ** 3;
+  let baixo = 0;
+  let alto = 1;
+  for (let i = 0; i < 18; i += 1) {
+    const meio = (baixo + alto) / 2;
+    if (bezier(meio, 0.4, 0.2) < x) baixo = meio;
+    else alto = meio;
+  }
+  return bezier((baixo + alto) / 2, 0, 1);
+}
+
+const DURACAO_ZOOM_ARMADO_MS = 300;
+type CorrecaoDeZoom = (destino: Window | HTMLElement, delta: number) => void;
+const ouvintesDeCorrecaoDeZoom = new Set<CorrecaoDeZoom>();
+
+/** Permite ao gesto de arrasto desconsiderar o scroll usado para ancorar o cartão. */
+export function aoCorrigirRolagemDoZoom(ouvinte: CorrecaoDeZoom) {
+  ouvintesDeCorrecaoDeZoom.add(ouvinte);
+  return () => ouvintesDeCorrecaoDeZoom.delete(ouvinte);
+}
+
+export function pxPorMinutoAtual() {
+  return ler();
 }
 
 /** Nova escala a partir da distância entre os dedos no começo e agora. */
@@ -167,36 +199,129 @@ export function pxDaEdicao(pxAtual: number) {
 }
 
 /**
- * Ao entrar na edição de um cartão, a escala sobe para 4 px/min (sem guardar) e volta à de antes
- * ao sair, como no Figaro; o cartão editado fica no mesmo lugar da tela nas duas trocas.
+ * Anima o modo armado do Figaro: aproxima para 4 px/min em 300ms, mantém no lugar o minuto
+ * tocado e restaura a escala anterior ao salvar/descartar.
  */
-export function useZoomDaEdicao(idEmEdicao: string | null) {
+export function useZoomDaEdicao(idEmEdicao: string | null, yDoToque?: number) {
   const anterior = useRef<number | null>(null);
-  const ultimo = useRef<string | null>(null);
+  const ultimo = useRef<{ id: string; minutoDoCartao: number } | null>(null);
+
   useEffect(() => {
-    if (typeof window === "undefined") return;
+    let quadro: number | null = null;
+    let cancelado = false;
     const cartao = (id: string | null) =>
-      id ? document.querySelector<HTMLElement>(`[data-agendamento="${CSS.escape(id)}"]`) : null;
-    const trocar = (px: number, ancora: HTMLElement | null) => {
-      const antes = ancora?.getBoundingClientRect().top ?? null;
-      definirPxPorMinuto(px, false);
-      requestAnimationFrame(() =>
-        requestAnimationFrame(() => {
-          const depois = ancora?.isConnected ? ancora.getBoundingClientRect().top : null;
-          if (antes !== null && depois !== null) window.scrollBy({ top: depois - antes });
-        }),
-      );
+      id ? document.querySelector<HTMLElement>("[data-agendamento=\"" + CSS.escape(id) + "\"]") : null;
+
+    const aplicarEscala = (
+      escala: number,
+      ancora: HTMLElement | null,
+      minutoDoCartao: number,
+      yAlvo: number | null,
+    ) => {
+      flushSync(() => definirPxPorMinuto(escala, false));
+      if (!ancora?.isConnected || yAlvo === null) return;
+
+      const pontoAtual = ancora.getBoundingClientRect().top + minutoDoCartao * escala;
+      const delta = pontoAtual - yAlvo;
+      if (Math.abs(delta) < 0.25) return;
+
+      const area = ancora.closest<HTMLElement>(".agenda-timeline-scroll");
+      const paginaRola = window.matchMedia("(max-width: 600px)").matches || !area;
+      if (paginaRola) {
+        const antes = window.scrollY;
+        window.scrollBy({ top: delta, behavior: "instant" });
+        const aplicado = window.scrollY - antes;
+        if (aplicado !== 0)
+          for (const ouvinte of ouvintesDeCorrecaoDeZoom) ouvinte(window, aplicado);
+      } else {
+        const antes = area.scrollTop;
+        area.scrollTop += delta;
+        const aplicado = area.scrollTop - antes;
+        if (aplicado !== 0)
+          for (const ouvinte of ouvintesDeCorrecaoDeZoom) ouvinte(area, aplicado);
+      }
     };
+
+    const animar = (
+      escalaInicial: number,
+      escalaFinal: number,
+      ancora: HTMLElement | null,
+      minutoDoCartao: number,
+      yAlvo: number | null,
+      aoConcluir: () => void,
+    ) => {
+      if (prefereMenosMovimento() || Math.abs(escalaFinal - escalaInicial) < 0.005) {
+        aplicarEscala(escalaFinal, ancora, minutoDoCartao, yAlvo);
+        aoConcluir();
+        return;
+      }
+
+      let inicio: number | null = null;
+      const avancar = (agora: number) => {
+        if (cancelado) return;
+        inicio ??= agora;
+        const progresso = Math.min(1, (agora - inicio) / DURACAO_ZOOM_ARMADO_MS);
+        const suave = fastOutSlowInProgresso(progresso);
+        const escala = escalaInicial + (escalaFinal - escalaInicial) * suave;
+        aplicarEscala(escala, ancora, minutoDoCartao, yAlvo);
+
+        if (progresso < 1) quadro = window.requestAnimationFrame(avancar);
+        else {
+          quadro = null;
+          aoConcluir();
+        }
+      };
+      quadro = window.requestAnimationFrame(avancar);
+    };
+
     if (idEmEdicao) {
-      ultimo.current = idEmEdicao;
-      anterior.current ??= ler();
-      trocar(pxDaEdicao(anterior.current), cartao(idEmEdicao));
-      return;
+      const escalaInicial = ler();
+      anterior.current ??= escalaInicial;
+      const ancora = cartao(idEmEdicao);
+      const topo = ancora?.getBoundingClientRect().top ?? null;
+      const minutoDoCartao =
+        ancora && topo !== null && yDoToque !== undefined
+          ? Math.max(0, (yDoToque - topo) / escalaInicial)
+          : 0;
+      ultimo.current = { id: idEmEdicao, minutoDoCartao };
+      const yAlvo = topo === null ? null : (yDoToque ?? topo + minutoDoCartao * escalaInicial);
+
+      animar(
+        escalaInicial,
+        pxDaEdicao(anterior.current),
+        ancora,
+        minutoDoCartao,
+        yAlvo,
+        () => undefined,
+      );
+    } else {
+      const restaurar = anterior.current;
+      if (restaurar === null) return;
+      const ultimoCartao = ultimo.current;
+      const ancora = cartao(ultimoCartao?.id ?? null);
+      const escalaInicial = ler();
+      const minutoDoCartao = ultimoCartao?.minutoDoCartao ?? 0;
+      const topo = ancora?.getBoundingClientRect().top ?? null;
+      // Na saída, ancora o mesmo minuto na posição onde o usuário o vê neste momento.
+      const yAlvo = topo === null ? null : topo + minutoDoCartao * escalaInicial;
+
+      animar(
+        escalaInicial,
+        restaurar,
+        ancora,
+        minutoDoCartao,
+        yAlvo,
+        () => {
+          if (cancelado) return;
+          anterior.current = null;
+          ultimo.current = null;
+        },
+      );
     }
-    if (anterior.current !== null) {
-      const voltar = anterior.current;
-      anterior.current = null;
-      trocar(voltar, cartao(ultimo.current));
-    }
-  }, [idEmEdicao]);
+
+    return () => {
+      cancelado = true;
+      if (quadro !== null) window.cancelAnimationFrame(quadro);
+    };
+  }, [idEmEdicao, yDoToque]);
 }
