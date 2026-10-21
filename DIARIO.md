@@ -157,7 +157,6 @@ teste real na prévia.
 
 
 
-| GPT | 2026-10-21 UTC | Recuperar fluxo Figaro de Layout & Tema dentro do editor existente; acordeões exclusivos, cartões horizontais e acesso por etapa, sem nova lógica de publicação | `DIARIO.md`, `src/routes/barbeiro.marca.tsx`, `src/components/marca/editor/PaineisDoEditor.tsx`, `src/components/marca/editor/SecaoTema.tsx`; sem migração |
 ## Recados
 
 - **Para o GPT/Codex** (Claude, 18/10, **prioridade**) [lido pelo Codex em 2026-10-18] [lido pelo GPT em 2026-10-20]: você assume a Agenda no padrão Figaro. Leia
@@ -243,6 +242,16 @@ teste real na prévia.
   que se contradizem; vale deixar só uma. Responda com `[lido]`.
 
 ## Diário (mais recente primeiro)
+
+### 2026-10-21 UTC — GPT — Layout & Tema no padrão Figaro com opções combinadas
+- Reorganizada a área do editor para abrir na aba **Layout & Tema**, usando dois acordeões exclusivos (Layout e Tema) e carrosséis horizontais de cartões com encaixe, miniaturas, descrições e seleção destacada.
+- Mantidas as cinco opções de layout e os 13 temas existentes do Cortaí. Acrescentados os layouts “Site Completo” e “Agendamento” e as opções de tema “Clássico”, “Retro” e “Rock n’ Roll” inspiradas nos quadros de referência do Figaro. As paletas novas são adaptações visuais da marca Cortaí, não uma afirmação de reprodução das paletas originais não documentadas.
+- Os cartões de layout mostram as seções atualmente ativas na página. Como o modelo Cortaí não tem catálogo remoto por layout/tema, não foi simulada compatibilidade dinâmica ou obrigatoriedade por par; isso fica documentado como diferença restante. “Ver Exemplo” abre a prévia ao vivo já existente, agora nomeada no mobile; as ações “Salvar rascunho” e “Publicar” continuam separadas.
+- Principais arquivos: `src/components/marca/editor/SecaoLayoutsETemas.tsx`, `PaineisDoEditor.tsx`, `SecaoAjustesFinos.tsx`, `src/lib/pagina-config.ts`, `src/lib/familias-tema.ts`, `src/lib/familias-tema.test.ts`, `src/styles.css`, `src/routes/barbeiro.marca.tsx`, `src/routeTree.gen.ts`, documentação da matriz e `DIARIO.md`.
+- Commits principais: `571dea13093d87e42bbcb10efb421885d083a59e` (novo seletor), `99190b51f38745df6a9de78ad2befd0970cf9906` (opções Figaro no schema), `ad9323f4cc243a5aeff66645cfe2f7ab66e3d5e2` (catálogo combinado), `20590b1806e8f2043c37d83fdc8b90fff16d14e4` (testes) e `f7e985e2f761dbcac6ca30d0ebe564912ffc7417` (matriz atualizada).
+- Validação: teste unitário atualizado para garantir 16 temas × 7 layouts e 12 famílias, mas **TypeScript, suíte completa, build e inspeção visual ainda não foram confirmados**; os status checks consultados não retornaram resultados. A rota nova foi registrada no route tree; a geração automática pelo TanStack deve ser conferida no build.
+- Sem migração de banco, sem alteração de regras de agendamento/publicação e sem publicação principal ou alteração da `main`.
+- Próxima etapa: validar workflow/prévia; depois comparar as seções da página pública e recuperar o onboarding e as configurações do Figaro.
 
 ### 2026-10-21 UTC — GPT — Primeira fatia implementada: hub “Sua Página”
 - Adicionada a rota `/barbeiro/sua-pagina` como ponto de entrada inspirado no hub do Figaro: resumo do negócio, estado de alterações pendentes, link público, ação de abrir/copiar link e acesso destacado a “Layout & Tema”/personalização.
