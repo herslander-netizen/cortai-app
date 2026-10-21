@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
 import { paginaPublicaDisponivel } from "./pagina-publica-status";
@@ -11,5 +12,11 @@ describe("estado da página pública", () => {
 
   it("retorna falso quando a página está fora do ar", () => {
     expect(paginaPublicaDisponivel(false)).toBe(false);
+  });
+
+  it("consulta o estado persistido antes de servir a vitrine", () => {
+    const fonte = readFileSync("src/lib/publico.functions.ts", "utf8");
+    expect(fonte).toContain('.select("published_config, is_online")');
+    expect(fonte).toContain("if (!paginaPublicaDisponivel(pageConfig?.is_online)) return null;");
   });
 });
