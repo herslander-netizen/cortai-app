@@ -228,7 +228,7 @@ function Editor({
             animate={reduzirMovimento ? { opacity: 1 } : { opacity: 1, height: "auto", paddingTop: 16, paddingBottom: 16, marginBottom: 16 }}
             exit={reduzirMovimento ? { opacity: 0 } : { opacity: 0, height: 0, paddingTop: 0, paddingBottom: 0, marginBottom: 0 }}
             transition={{ duration: reduzirMovimento ? 0.15 : 0.22 }}
-            className="overflow-hidden rounded-xl border border-gold/40 bg-gold/5 px-4 sm:px-5"
+            className="overflow-hidden rounded-xl border border-gold/40 bg-gold/5 p-4 sm:p-5"
           >
             <h2 className="text-sm font-semibold text-paper">Alterações não publicadas</h2>
             <p className="mt-1 text-sm leading-relaxed text-mute">
