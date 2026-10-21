@@ -7091,7 +7091,7 @@ button.agenda-nome:hover {
 /* Edição de um cartão: os outros ficam apagados (Figaro: 40%, 300 ms). */
 .agenda-timeline-esmaecido {
   opacity: 0.4;
-  transition: opacity 280ms var(--ease-saida, ease-out);
+  transition: opacity 300ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 .agenda-linha-agora {
   border-top-width: 1.5px;
