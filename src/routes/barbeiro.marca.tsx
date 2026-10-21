@@ -6,7 +6,12 @@ import { Copy, Eye, LayoutTemplate, MoreVertical, Save, Send, Share2, Smartphone
 import { useState } from "react";
 
 import { EsqueletoFormulario } from "@/components/layout/Esqueleto";
+import { LacunasDaPagina } from "@/components/marca/editor/LacunasDaPagina";
+import { SecaoConteudo } from "@/components/marca/editor/SecaoConteudo";
+import { SecaoExperiencia } from "@/components/marca/editor/SecaoExperiencia";
+import { SecaoRecepcao } from "@/components/marca/editor/SecaoRecepcao";
 import { Screen } from "@/components/layout/Screen";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { PaineisDoEditor, type AbaPainelDoEditor } from "@/components/marca/editor/PaineisDoEditor";
 import { useConfirmar } from "@/components/ui/useConfirmar";
 import { PreviaDaExperiencia } from "@/components/marca/editor/PreviaDaExperiencia";
@@ -76,7 +81,8 @@ function Editor({
   const [paginaOnline, setPaginaOnline] = useState(initial.pagina_online);
   const [alterandoStatus, setAlterandoStatus] = useState(false);
   const [previaAberta, setPreviaAberta] = useState(false);
-  const [abaAtiva, setAbaAtiva] = useState<AbaPainelDoEditor>("conteudo");
+  const [abaAtiva, setAbaAtiva] = useState<AbaPainelDoEditor>("detalhes");
+  const [avancadoAberto, setAvancadoAberto] = useState(false);
   const reduzirMovimento = useReducedMotion();
   const [confirmar, dialogo] = useConfirmar();
   const link = urlPublica(`/${e.slug}`);
@@ -190,7 +196,12 @@ function Editor({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem onSelect={() => setAbaAtiva("divulgacao")}>
+            <DropdownMenuItem
+              onSelect={() => {
+                setAbaAtiva("divulgacao");
+                setAvancadoAberto(true);
+              }}
+            >
               Editar link
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
@@ -240,9 +251,34 @@ function Editor({
         </div>
       </section>
 
+      <div className="mb-5 rounded-xl border border-line bg-ink p-4 sm:p-5">
+        <h2 className="text-sm font-semibold text-paper">Experiência de agendamento</h2>
+        <p className="mb-4 mt-1 text-sm leading-relaxed text-mute">Defina como o cliente começa a marcar um horário. Esta configuração é própria do Cortaí.</p>
+        <SecaoExperiencia config={e.config} setPagina={e.setPagina} />
+        {e.usaConversa ? (
+          <div className="mt-5 border-t border-line pt-5">
+            <h3 className="mb-3 text-sm font-semibold text-paper">Recepção virtual</h3>
+            <SecaoRecepcao config={e.config} setPagina={e.setPagina} avatarRef={e.avatarRef} avatarPreview={e.avatarPreview} setAvatarPreview={e.setAvatarPreview} upload={e.upload} />
+          </div>
+        ) : null}
+      </div>
+
+      <section className="mb-5 space-y-4" aria-label="Seções da página pública">
+        <SecaoConteudo config={e.config} setPagina={e.setPagina} />
+        <LacunasDaPagina lacunas={initial.lacunas} />
+      </section>
+
+      <Accordion type="single" collapsible value={avancadoAberto ? "avancado" : ""} onValueChange={(value) => setAvancadoAberto(value === "avancado")} className="mb-6">
+        <AccordionItem value="avancado" className="rounded-xl border border-line bg-ink px-4">
+          <AccordionTrigger className="min-h-14 text-sm font-semibold text-paper hover:no-underline">Outras configurações</AccordionTrigger>
+          <AccordionContent>
+            <PaineisDoEditor e={e} initial={initial} versions={versions} abaAtiva={abaAtiva} onAbaChange={setAbaAtiva} />
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
+
       <div className="grid gap-6 xl:grid-cols-[minmax(0,520px)_minmax(420px,1fr)]">
         <div>
-          <PaineisDoEditor e={e} initial={initial} versions={versions} abaAtiva={abaAtiva} onAbaChange={setAbaAtiva} />
 
           <div className="sticky bottom-20 z-20 mt-6 rounded-lg border border-line bg-ink p-2 shadow-xl xl:bottom-4">
             <Button
