@@ -257,6 +257,12 @@ teste real na prévia.
   `AGENTS.md`). Detalhe no teu último ajuste da agenda: `-mt-4 mb-0 -mb-3` tem duas margens de baixo
   que se contradizem; vale deixar só uma. Responda com `[lido]`.
 
+### 2026-10-21 UTC — GPT — Remove import não utilizado em Layout & Tema
+- Na revisão estática seguinte, removi o import de `motion` de `src/components/marca/editor/SecaoLayoutsETemas.tsx`, pois o componente não o utilizava (a classe CSS `motion-reduce` não depende desse import).
+- Isso evita ruído e possível falha de lint/TypeScript estrito; não altera animações nem comportamento.
+- Commit: `2c72db51807746641b098223773e6723d1577f45`.
+- CI ainda não confirmou build/testes; manter como pendente até verificação real.
+
 ### 2026-10-21 UTC — GPT — Atualiza matriz Figaro após QR Code
 - Atualizei `docs/referencia-figaro/matriz-recuperacao-cortai.md`: a matriz agora registra o QR Code implementado no hub Sua Página, diferencia a seção expansível da tela independente do Figaro e deixa explícita a validação pendente em celular.
 - Registrei também que “tirar do ar” continua pendente até existir suporte real confirmado no backend; não há botão fictício nem alteração de backend.
