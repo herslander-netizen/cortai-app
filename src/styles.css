@@ -174,8 +174,9 @@
   --agenda-cartao-sombra: none;
   /* Fora do expediente como no Figaro: um tom quase igual ao fundo e listras bem leves
      (surfaceContainerLow + onSurface a 2,5%), sem bloco pesado. */
-  --agenda-listra-base: color-mix(in oklab, var(--ink) 98%, #ffffff);
-  --agenda-listra: color-mix(in oklab, var(--texto) 5%, var(--agenda-listra-base));
+  /* Fora do expediente: grafite discreto com listras pouco contrastadas. */
+  --agenda-listra-base: color-mix(in oklab, var(--ink) 97%, var(--texto));
+  --agenda-listra: color-mix(in oklab, var(--agenda-listra-base) 92%, var(--texto));
   --grafite-ink: var(--fundo);
   --grafite-surface: var(--cartao);
   --grafite-raised: var(--painel);
