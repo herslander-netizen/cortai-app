@@ -70,8 +70,12 @@ export function useEditorDaPagina(initial: MarcaData, reload: () => void) {
     void Promise.all(
       form.fotos.map(async (path) => {
         if (path.startsWith("https://")) return { path, url: path };
-        const { data } = await supabase.storage.from("tenant-logos").createSignedUrl(path, 60 * 60);
-        return { path, url: data?.signedUrl ?? null };
+        try {
+          const { data } = await supabase.storage.from("tenant-logos").createSignedUrl(path, 60 * 60);
+          return { path, url: data?.signedUrl ?? null };
+        } catch {
+          return { path, url: null };
+        }
       }),
     ).then((fotos) => {
       if (ativo) setFotosPreview(fotos);
