@@ -8,8 +8,22 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import type { LayoutId, PaginaConfig, TemaId } from "@/lib/pagina-config";
-import { LAYOUTS, TEMAS, temaIds } from "@/lib/pagina-config";
+import { componenteIds, LAYOUTS, TEMAS, temaIds } from "@/lib/pagina-config";
 import { MiniaturaDoTema } from "./MiniaturaDoTema";
+
+const ROTULOS_SECOES: Record<(typeof componenteIds)[number], string> = {
+  apresentacao: "Apresentação",
+  servicos: "Serviços",
+  profissionais: "Equipe",
+  galeria: "Galeria",
+  avaliacoes: "Avaliações",
+  produtos: "Produtos",
+  instagram: "Instagram",
+  localizacao: "Localização",
+  horarios: "Horários",
+  whatsapp: "WhatsApp",
+  cta_final: "Botão final",
+};
 
 const DESCRICOES_LAYOUT: Record<LayoutId, string> = {
   cinematografico: "Capa marcante e apresentação com bastante presença.",
@@ -173,6 +187,9 @@ export function SecaoLayoutsETemas({
             <div className="flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-3">
               {(Object.keys(LAYOUTS) as LayoutId[]).map((layout) => {
                 const selecionado = config.layout === layout;
+                const secoesAtivas = componenteIds.filter((id) => config.componentes[id]);
+                const visiveis = secoesAtivas.slice(0, 5);
+                const restantes = secoesAtivas.length - visiveis.length;
                 return (
                   <Button
                     key={layout}
@@ -180,7 +197,7 @@ export function SecaoLayoutsETemas({
                     variant="ghost"
                     aria-pressed={selecionado}
                     onClick={() => setLayout(layout)}
-                    className={`relative h-auto min-h-[228px] w-[min(78vw,286px)] shrink-0 snap-start flex-col items-stretch whitespace-normal rounded-xl border p-3 text-left ${selecionado ? "border-2 border-gold bg-gold/10" : "border-line bg-ink"}`}
+                    className={`relative h-auto min-h-[300px] w-[min(78vw,286px)] shrink-0 snap-start flex-col items-stretch whitespace-normal rounded-xl border p-3 text-left ${selecionado ? "border-2 border-gold bg-gold/10" : "border-line bg-ink"}`}
                   >
                     <MiniaturaLayout layout={layout} />
                     <span className="flex items-center justify-between gap-2 text-base font-semibold text-paper">
@@ -188,6 +205,13 @@ export function SecaoLayoutsETemas({
                       {selecionado ? <Check size={18} className="shrink-0 text-gold" aria-hidden /> : null}
                     </span>
                     <span className="mt-1 text-xs leading-relaxed text-mute">{DESCRICOES_LAYOUT[layout]}</span>
+                    <span className="mt-2 block text-[11px] font-medium text-mute">{secoesAtivas.length} seções ativas na sua página</span>
+                    <span className="grid grid-cols-2 gap-x-2 gap-y-1 pt-1 text-[11px] text-mute">
+                      {visiveis.map((id) => (
+                        <span key={id} className="truncate">• {ROTULOS_SECOES[id]}</span>
+                      ))}
+                      {restantes > 0 ? <span className="font-semibold text-paper">+{restantes} seções</span> : null}
+                    </span>
                     {layout.startsWith("figaro-") ? (
                       <span className="mt-auto pt-2 text-[11px] font-medium text-mute">Layout recuperado do Figaro</span>
                     ) : (
