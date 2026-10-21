@@ -1,9 +1,9 @@
 import { Link } from "@tanstack/react-router";
-import { CalendarDays, ExternalLink, MapPin, MessageCircle } from "lucide-react";
+import { useRef } from "react";
+import { CalendarDays, ExternalLink, ImagePlus, MapPin, MessageCircle, Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { SecaoImagens } from "@/components/marca/editor/SecaoImagens";
 import { SecaoRedes } from "@/components/marca/editor/SecaoRedes";
 import { SecaoTextos } from "@/components/marca/editor/SecaoTextos";
 import { Campo } from "@/components/marca/editor/campos";
@@ -41,12 +41,7 @@ export function EditorDaSecaoPublica({ secao, e }: { secao: Secao; e: Editor }) 
     case "profissionais":
       return <IrParaGestao to="/barbeiro/configurar" titulo="Profissionais do negócio" descricao="Gerencie os profissionais cadastrados no negócio. A lista pública usa os dados reais da equipe." />;
     case "galeria":
-      return (
-        <div className="space-y-4">
-          <p className="text-sm leading-relaxed text-mute">A capa e a logo são editáveis aqui. As fotos da galeria continuam vindo das fotos cadastradas no perfil do negócio; não alteramos nem apagamos esses dados nesta tela.</p>
-          <SecaoImagens coverRef={e.coverRef} fileRef={e.fileRef} coverPreview={e.coverPreview} logoPreview={e.logoPreview} logoAtual={e.form.logo_url} busy={e.busy} upload={e.upload} usarLogo={e.usarLogo} removerLogo={e.removerLogo} />
-        </div>
-      );
+      return <EditorGaleria e={e} />;
     case "avaliacoes":
       return <IrParaGestao to="/barbeiro/avaliacoes" titulo="Avaliações do negócio" descricao="Consulte e gerencie as avaliações reais. A página pública mostra apenas o resumo disponível." />;
     case "produtos":
@@ -84,4 +79,42 @@ export function EditorDaSecaoPublica({ secao, e }: { secao: Secao; e: Editor }) 
     default:
       return <p className="text-sm text-mute">Esta seção não tem campos adicionais de página. Use o controle de visibilidade e salve; os dados são mantidos no cadastro do negócio.</p>;
   }
+}
+
+function EditorGaleria({ e }: { e: Editor }) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  return (
+    <div className="space-y-4">
+      <div>
+        <h3 className="text-sm font-semibold text-paper">Fotos da galeria</h3>
+        <p className="mt-1 text-sm leading-relaxed text-mute">Adicione até 8 fotos JPG, PNG ou WebP. Remover uma foto da galeria não apaga o arquivo do armazenamento.</p>
+      </div>
+      {e.fotosPreview.length ? (
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+          {e.fotosPreview.map((foto, index) => (
+            <article key={foto.path} className="overflow-hidden rounded-xl border border-line bg-ink2">
+              {foto.url ? (
+                <img src={foto.url} alt={`Foto ${index + 1} da galeria`} className="aspect-square w-full object-cover" />
+              ) : (
+                <div className="flex aspect-square items-center justify-center px-3 text-center text-xs text-mute">Imagem indisponível</div>
+              )}
+              <div className="p-2">
+                <Button type="button" variant="ghost" className="min-h-11 w-full" onClick={() => e.removerFoto(foto.path)} aria-label={`Remover foto ${index + 1}`}>
+                  <Trash2 size={16} aria-hidden />
+                  Remover
+                </Button>
+              </div>
+            </article>
+          ))}
+        </div>
+      ) : (
+        <p className="rounded-lg border border-dashed border-line px-4 py-6 text-center text-sm text-mute">Nenhuma foto adicionada à galeria.</p>
+      )}
+      <input ref={inputRef} type="file" accept="image/png,image/jpeg,image/webp" className="hidden" onChange={(event) => void e.upload(event, "foto")} />
+      <Button type="button" variant="outline" className="min-h-12 w-full" disabled={e.busy || e.form.fotos.length >= 8} onClick={() => inputRef.current?.click()}>
+        <ImagePlus size={17} aria-hidden />
+        {e.form.fotos.length >= 8 ? "Limite de 8 fotos atingido" : "Adicionar foto"}
+      </Button>
+    </div>
+  );
 }
