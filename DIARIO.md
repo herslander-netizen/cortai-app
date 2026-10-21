@@ -144,6 +144,13 @@ Pegar a primeira livre; reservar em "Em andamento" antes.
 Aguardando o dono: Auth do Supabase (URLs, senha vazada, Google/Apple); chaves da IA e do WhatsApp;
 teste real na prévia.
 
+### 2026-10-21 UTC — GPT — Corrige catálogo e altura da prévia Figaro
+- Em `src/components/marca/editor/SecaoLayoutsETemas.tsx`, corrigi a orientação que dizia “cinco layouts” e “experiência de agendamento”: agora informa os sete layouts e orienta selecionar Vitrine como experiência da página.
+- Em `src/styles.css`, a prévia respeita a altura específica de `figaro-site-completo` e `figaro-agendamento`, evitando que a regra genérica de 530px esconda a configuração selecionada.
+- Commits de código: `8359159f7dfe1aaeac88cb713b9a09a465b89c8b` e `f22909bc65f7ca8da580cc372d4839d9e73dfb1b`.
+- Ainda sem execução de TypeScript, Vitest, build ou conferência visual; a prévia publicada não foi confirmada.
+- Nenhuma alteração em backend, banco ou site principal.
+
 ## Atualização de execução — 2026-10-21
 
 - **Escopo:** recuperação da experiência Figaro no Cortaí; preservar as animações verificadas junto com layout, conteúdo e navegação. A regra foi registrada em Decisões do dono e nos critérios de aceite da matriz.
