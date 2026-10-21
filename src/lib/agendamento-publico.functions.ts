@@ -16,6 +16,7 @@ import { normalizarTelefone, variantesDoTelefone } from "@/lib/telefone";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { normalizarPagina, type PaginaConfig } from "@/lib/pagina-config";
+import { paginaPublicaDisponivel } from "@/lib/pagina-publica-status";
 import { segmentoParaApresentacao, type Segmento } from "@/lib/segmentos";
 import { validarPreferenciasCliente, type PreferenciasCliente } from "@/lib/preferencias-cliente";
 import { urlPublica } from "@/lib/origem-publica";
