@@ -3,6 +3,7 @@ import QRCode from "qrcode";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowUpRight, CheckCircle2, CircleHelp, Eye, LayoutTemplate, Palette, PencilLine, AlertTriangle, QrCode } from "lucide-react";
 import { useEffect, useState } from "react";
+import { z } from "zod";
 
 import { Screen } from "@/components/layout/Screen";
 import { Button } from "@/components/ui/button";
@@ -13,6 +14,7 @@ import { urlPublica } from "@/lib/origem-publica";
 import { componenteIds, LAYOUTS, TEMAS } from "@/lib/pagina-config";
 
 export const Route = createFileRoute("/barbeiro/sua-pagina")({
+  validateSearch: z.object({ qr: z.string().optional() }),
   beforeLoad: ({ context }) => exigirCapacidade(context.queryClient, "branding_avancado"),
   head: () => ({
     meta: [
@@ -25,10 +27,12 @@ export const Route = createFileRoute("/barbeiro/sua-pagina")({
 });
 
 function SuaPagina() {
+  const { qr } = Route.useSearch();
   const query = useQuery({ queryKey: ["marca"], queryFn: () => getMarca(), retry: false });
   const [mensagem, setMensagem] = useState("");
   const [qrCode, setQrCode] = useState<string | null>(null);
-  const [mostrarQr, setMostrarQr] = useState(false);
+  const [mostrarQr, setMostrarQr] = useState(qr === "1");
+  useEffect(() => setMostrarQr(qr === "1"), [qr]);
   const link = query.data?.marca ? urlPublica(`/${query.data.marca.slug}`) : "";
 
   useEffect(() => {
