@@ -243,6 +243,14 @@ teste real na prévia.
 
 ## Diário (mais recente primeiro)
 
+### 2026-10-21 UTC — GPT — Compactar cabeçalho de edição mobile
+- Pedido: reduzir mais a altura do cabeçalho durante edição de cartão, preservando o estilo e as duas informações.
+- Alterações: altura reduzida de 108px para 84px; título ajustado para 17–20px, orientação para 11px, espaçamentos menores. Alterados `src/components/barbeiro/agenda/CabecalhoDeEdicao.tsx` e `src/styles.css`.
+- Commits: `4b2c8d8` e `6ab70b0`.
+- Validação: workflow automático da prévia pendente; inspeção visual no Android ainda necessária.
+- Escopo: branch `cloudflare-workers-migration-2026-10-13`; sem alterações em produção ou banco.
+
+
 ### 2026-10-21 UTC — GPT — Cabeçalho da edição usa a barra original com altura estável
 - Causa identificada: o portal de edição era colocado no centro da barra, mas a linha interna do cabeçalho permanecia com altura fixa de 56px; o CSS anterior escondia logo/ações e sobrepunha o conteúdo sem expandir a barra, causando corte/ocultação. O cabeçalho em si também tinha limites de altura/largura desnecessários.
 - Alterações: `src/styles.css` agora aplica o estado de edição somente quando o cabeçalho existe em `#topo-centro`, preserva a barra como superfície única de 108px, oculta logo/ações apenas nesse estado e mantém o alvo centralizado; `CabecalhoDeEdicao.tsx` passa a preencher essa superfície sem margens negativas ou max-width restritivo. A transição existente de `TransicaoVerticalDoModoEdicao` e o portal foram mantidos.
