@@ -75,6 +75,7 @@ export type MarcaData = MarcaForm & {
   pagina: PaginaConfig;
   publicada: PaginaConfig;
   alteracoes_pendentes: boolean;
+  pagina_online: boolean;
   lacunas: Lacuna[];
   segmento: Segmento;
 };
@@ -170,7 +171,7 @@ export const getMarca = createServerFn({ method: "GET" })
         .limit(12),
       context.supabase
         .from("tenant_page_configs")
-        .select("draft_config, published_config, updated_at, published_at")
+        .select("draft_config, published_config, updated_at, published_at, is_online")
         .eq("tenant_id", tenantId)
         .maybeSingle(),
       context.supabase
@@ -218,6 +219,7 @@ export const getMarca = createServerFn({ method: "GET" })
           sobre: tenant.descricao ?? "",
         }),
         alteracoes_pendentes: haAlteracoesPendentes(pagina),
+        pagina_online: pagina?.is_online ?? true,
         lacunas: lacunasDaPagina({
           servicosAtivos: servicosAtivos ?? 0,
           profissionais: profissionais ?? 0,
@@ -382,6 +384,44 @@ export const alterarLinkPublico = createServerFn({ method: "POST" })
     });
     if (error) throw new Error(error.message);
     return { slug };
+  });
+
+export const alterarStatusPaginaPublica = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((input: unknown) => z.object({ online: z.boolean() }).parse(input))
+  .handler(async ({ data, context }) => {
+    const tenantId = await tenantDoDono(context.supabase, context.userId);
+    await exigirRecurso(context.supabase, tenantId, "branding_avancado");
+
+    const { data: existente, error: leituraErro } = await context.supabase
+      .from("tenant_page_configs")
+      .select("tenant_id")
+      .eq("tenant_id", tenantId)
+      .maybeSingle();
+    if (leituraErro) throw new Error(leituraErro.message);
+
+    if (existente) {
+      const { error } = await context.supabase
+        .from("tenant_page_configs")
+        .update({ is_online: data.online })
+        .eq("tenant_id", tenantId);
+      if (error) throw new Error(error.message);
+    } else {
+      const { error } = await context.supabase
+        .from("tenant_page_configs")
+        .insert({ tenant_id: tenantId, is_online: data.online });
+      if (error) {
+        // Se outra requisição criou a linha simultaneamente, atualize somente o estado.
+        if (error.code !== "23505") throw new Error(error.message);
+        const { error: atualizarErro } = await context.supabase
+          .from("tenant_page_configs")
+          .update({ is_online: data.online })
+          .eq("tenant_id", tenantId);
+        if (atualizarErro) throw new Error(atualizarErro.message);
+      }
+    }
+
+    return { online: data.online };
   });
 
 export const publicarPagina = createServerFn({ method: "POST" })
