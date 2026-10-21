@@ -1,15 +1,17 @@
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Copy, Eye, LayoutTemplate, Save, Send, Share2, Smartphone, Undo2 } from "lucide-react";
+import { motion, useReducedMotion } from "framer-motion";
+import { Copy, Eye, LayoutTemplate, MoreVertical, Save, Send, Share2, Smartphone, Undo2 } from "lucide-react";
 import { useState } from "react";
 
 import { EsqueletoFormulario } from "@/components/layout/Esqueleto";
 import { Screen } from "@/components/layout/Screen";
-import { PaineisDoEditor } from "@/components/marca/editor/PaineisDoEditor";
+import { PaineisDoEditor, type AbaPainelDoEditor } from "@/components/marca/editor/PaineisDoEditor";
 import { useConfirmar } from "@/components/ui/useConfirmar";
 import { PreviaDaExperiencia } from "@/components/marca/editor/PreviaDaExperiencia";
 import { useEditorDaPagina } from "@/components/marca/editor/useEditorDaPagina";
 import { Button } from "@/components/ui/button";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { getMarca, type MarcaData } from "@/lib/marca.functions";
 import { exigirCapacidade } from "@/lib/guarda-capacidade";
@@ -70,6 +72,8 @@ function Editor({
 }) {
   const e = useEditorDaPagina(initial, reload);
   const [previaAberta, setPreviaAberta] = useState(false);
+  const [abaAtiva, setAbaAtiva] = useState<AbaPainelDoEditor>("conteudo");
+  const reduzirMovimento = useReducedMotion();
   const [confirmar, dialogo] = useConfirmar();
   const link = urlPublica(`/${e.slug}`);
   const previa = (altura?: string) => (
@@ -144,7 +148,45 @@ function Editor({
           <Copy />
           Copiar link
         </Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" size="icon" aria-label="Mais ações da página">
+              <MoreVertical size={18} aria-hidden />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onSelect={() => setAbaAtiva("divulgacao")}>
+              Editar link
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link to="/barbeiro/sua-pagina" search={{ qr: "1" }}>QR Code</Link>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem disabled>
+              Tirar página do ar — indisponível no backend atual
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
+
+      {e.pendente ? (
+        <motion.section
+          layout
+          initial={reduzirMovimento ? { opacity: 0 } : { opacity: 0, y: -8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: reduzirMovimento ? 0.15 : 0.22 }}
+          className="mb-4 rounded-xl border border-gold/40 bg-gold/5 p-4 sm:p-5"
+        >
+          <h2 className="text-sm font-semibold text-paper">Alterações não publicadas</h2>
+          <p className="mt-1 text-sm leading-relaxed text-mute">
+            Há um rascunho que ainda não aparece na sua página pública.
+          </p>
+          <Button variant="outline" className="mt-3 min-h-12" onClick={() => setPreviaAberta(true)}>
+            <Eye size={17} aria-hidden />
+            Prévia do rascunho
+          </Button>
+        </motion.section>
+      ) : null}
 
       <section className="mb-5 rounded-xl border border-line bg-ink p-4 sm:p-5">
         <div className="flex items-start gap-3">
@@ -161,7 +203,7 @@ function Editor({
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,520px)_minmax(420px,1fr)]">
         <div>
-          <PaineisDoEditor e={e} initial={initial} versions={versions} />
+          <PaineisDoEditor e={e} initial={initial} versions={versions} abaAtiva={abaAtiva} onAbaChange={setAbaAtiva} />
 
           <div className="sticky bottom-20 z-20 mt-6 rounded-lg border border-line bg-ink p-2 shadow-xl xl:bottom-4">
             <Button
@@ -199,7 +241,7 @@ function Editor({
       <Sheet open={previaAberta} onOpenChange={setPreviaAberta}>
         <SheetContent side="bottom" className="h-[100dvh] overflow-y-auto p-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">
           <SheetHeader>
-            <SheetTitle>Ver Exemplo</SheetTitle>
+            <SheetTitle>Prévia da página</SheetTitle>
           </SheetHeader>
           <div className="mt-2">{previa("h-[calc(100dvh-140px)]")}</div>
         </SheetContent>
