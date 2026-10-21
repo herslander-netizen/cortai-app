@@ -55,7 +55,7 @@ describe("navegação móvel", () => {
     expect(paginaPrincipal).toContain('aria-label="Seções da página pública"');
     expect(paginaPrincipal).toContain("<SecaoConteudo config={e.config} setPagina={e.setPagina} />");
     expect(paginaPrincipal).toContain("Outras configurações");
-    expect(paginaPrincipal).toContain("<AnimatePresence initial={false}>");
+    expect(paginaPrincipal).toContain("<AnimatePresence>");
     expect(paginaPrincipal).toContain('height: "auto"');
     const conteudoSecoes = readFileSync("src/components/marca/editor/SecaoConteudo.tsx", "utf8");
     expect(conteudoSecoes).toContain("useReducedMotion");
