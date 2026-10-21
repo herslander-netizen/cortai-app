@@ -28,5 +28,8 @@ describe("fluxo de autenticação", () => {
     expect(mensagemDeErroDeAuth({ status: 429 }, "criar")).toContain("Muitas tentativas");
     expect(mensagemDeErroDeAuth({ code: "email_not_confirmed" }, "entrar")).toContain("Confirme");
     expect(mensagemDeErroDeAuth({ message: "Failed to fetch" }, "entrar")).toContain("conectar");
+    expect(mensagemDeErroDeAuth({ code: "weak_password" }, "criar")).toContain("Escolha outra");
+    expect(mensagemDeErroDeAuth({ code: "email_address_invalid" }, "criar")).toContain("e-mail");
+    expect(mensagemDeErroDeAuth({ code: "invalid_credentials" }, "entrar")).toContain("incorretos");
   });
 });
