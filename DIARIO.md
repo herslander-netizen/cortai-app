@@ -243,6 +243,14 @@ teste real na prévia.
 
 ## Diário (mais recente primeiro)
 
+### 2026-10-21 UTC — GPT — Transição de gaveta e zoom mais lento
+- Pedido: reforçar a sensação de gaveta no cabeçalho que substitui a logo ao segurar um cartão e desacelerar entrada/saída do zoom da timeline.
+- Alterações: `TransicaoVerticalDoModoEdicao.tsx` usa easing suave de 480ms na variante `animacaoGaveta`; `zoom-agenda.ts` aumenta duração do zoom de entrada/saída de 300ms para 520ms; `styles.css` aumenta a transição da altura e cantos do cabeçalho de 220ms para 380ms.
+- Commits: `03abb14`, `99464e4`, `82e39bc`.
+- Validação: aguarda GitHub Actions; a confirmação visual no Android ainda é necessária.
+- Escopo: branch `cloudflare-workers-migration-2026-10-13`; sem alterações em produção ou banco.
+
+
 ### 2026-10-21 UTC — GPT — Animação de gaveta no cabeçalho de edição mobile
 - Pedido: aplicar a animação padrão de gaveta ao cabeçalho que substitui a logo quando o usuário pressiona e segura um cartão.
 - Alterações: `TransicaoVerticalDoModoEdicao.tsx` ganhou uma variante opt-in `animacaoGaveta` com entrada/saída vertical de 84px e spring suave; `AgendaOperacional.tsx` habilita essa variante somente para o cabeçalho de edição mobile. A transição normal dos demais elementos e o desktop permanecem iguais.
