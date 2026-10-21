@@ -135,7 +135,6 @@ teste real na prévia.
 
 | Quem | Desde (UTC) | Tarefa | Arquivos / migração reservada |
 |---|---|---|---|
-| GPT | 2026-10-21 UTC | Replicar zoom armado do Figaro ao segurar cartão: animar escala da timeline, ancorar o minuto sob o toque e restaurar ao sair; testes sem mudar regras de agendamento | `DIARIO.md`, `src/components/barbeiro/AgendaTimeline.tsx`, `src/components/barbeiro/AgendaOperacional.tsx`, `src/components/barbeiro/agenda/zoom-agenda.ts`, `src/components/barbeiro/agenda/zoom-agenda.test.ts`, `src/styles.css`; sem migração |
 | GPT | 2026-10-20 UTC | Auditoria autônoma de UX de autenticação, onboarding e recuperação de sessão na prévia; validar correção e depois ampliar auditoria geral sem tocar produção | `DIARIO.md`, `src/routes/comecar.tsx`, `src/routes/login.tsx`, `src/lib/guarda.ts`, testes relacionados; sem migração |
 | GPT | 2026-10-17 UTC | Auditoria e melhoria mobile-first da home de apresentação | `DIARIO.md`, `MUSE.md`, `src/components/apresentacao/ShowroomCortai.tsx`, `src/components/apresentacao/DemoAgendamento.tsx`, `src/components/apresentacao/NarrativaApresentacao.tsx`, estilos já existentes da apresentação |
 | GPT | 2026-10-17 UTC | Refinar movimento global para animações mais fluidas e perceptíveis | `DIARIO.md`, `src/lib/motion.ts`, `src/components/layout/GlobalDesign.tsx` |
@@ -230,6 +229,14 @@ teste real na prévia.
   que se contradizem; vale deixar só uma. Responda com `[lido]`.
 
 ## Diário (mais recente primeiro)
+
+### 2026-10-21 UTC — GPT — Zoom armado e transições da Agenda conforme Fígaro
+- Referência consultada: `docs/referencia-figaro/apk/2-agenda.md`, §§4.6 e 6. O toque longo arma o cartão no ponto tocado; a grade aproxima até 4 px/min (preserva zoom maior já escolhido) em 300 ms com curva FastOutSlowIn; mantém o ponto temporal sob o dedo; os outros cartões esmaecem para 40% em 300 ms. Ao encerrar a edição, a escala anterior é restaurada.
+- Transições do topo e da barra de edição entram/saem com deslocamento vertical e fade em 300 ms. O arrasto real só começa quando o dedo se move, sem criar estado falso de arraste ao apenas segurar.
+- Arquivos: `src/components/barbeiro/AgendaTimeline.tsx`, `src/components/barbeiro/AgendaOperacional.tsx`, `src/components/barbeiro/agenda/zoom-agenda.ts`, `src/components/barbeiro/agenda/zoom-agenda.test.ts`, `src/components/barbeiro/agenda/BarraDeEdicaoDeHorario.tsx`, `src/components/barbeiro/agenda/TransicaoVerticalDoModoEdicao.tsx`, `src/styles.css`.
+- Validação: TypeScript, testes e build aprovados no workflow `Validate Cortaí` (commit `a81fda7a0d2193cf00cedd88f8e0786a0d94ca4f`). Workflow de prévia `39537507133` concluiu todos os passos com sucesso, incluindo publicação isolada e variáveis do Worker.
+- Publicado em `https://previa.cortaiapp.pages.dev`. A conferência visual manual no Android ainda precisa ser feita. Nenhuma regra de negócio, banco, migração, `main` ou produção foi alterada.
+
 
 ### 2026-10-20 UTC — GPT — Cabeçalhos fixos por dia na Lista da Agenda
 - Arquivo: `src/styles.css`.
