@@ -55,11 +55,10 @@ export function PaineisDoEditor({
   e: ReturnType<typeof useEditorDaPagina>;
   initial: MarcaData;
   versions: NonNullable<Awaited<ReturnType<typeof getMarca>>>["versoes"];
-  onVerExemplo?: () => void;
 }) {
   return (
     <>
-      <Tabs defaultValue="layout-tema">
+      <Tabs defaultValue="conteudo">
         <TabsList
           aria-label="Áreas de configuração da página"
           className="flex h-auto w-full justify-start gap-1 overflow-x-auto overscroll-x-contain bg-ink2 p-1"
