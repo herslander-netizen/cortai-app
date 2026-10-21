@@ -6,6 +6,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { ChartNoAxesColumn, Clock3, HandCoins, Lock, Plus, UserRoundPlus } from "lucide-react";
 import type React from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import {
   Suspense,
   useCallback,
@@ -1221,22 +1222,37 @@ export function AgendaOperacional() {
 
   return (
     <Screen title="Agenda" hideHeader wide assinaturaSoComputador>
-      {edicao.rascunho && !celular ? <CabecalhoDeEdicao dia={dia} /> : null}
-      {edicao.rascunho && edicao.original && edicao.novo ? (
-        <BarraDeEdicaoDeHorario
-          cliente={edicao.original.cliente}
-          inicio={edicao.novo.inicio}
-          fim={edicao.novo.fim}
-          fuso={fuso}
-          motivo={edicao.textoDoMotivo}
-          avisar={edicao.rascunho.avisar}
-          salvando={edicao.salvando}
-          semMudanca={edicao.semMudanca}
-          onAvisar={edicao.definirAviso}
-          onDescartar={edicao.descartar}
-          onSalvar={() => void edicao.confirmar()}
-        />
-      ) : null}
+      <AnimatePresence initial={false}>
+        {edicao.rascunho && !celular ? (
+          <motion.div
+            key="edicao-topo-desktop"
+            initial={{ opacity: 0, y: -18 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -18 }}
+            transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
+          >
+            <CabecalhoDeEdicao dia={dia} />
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
+      <AnimatePresence initial={false}>
+        {edicao.rascunho && edicao.original && edicao.novo ? (
+          <BarraDeEdicaoDeHorario
+            key="barra-edicao-horario"
+            cliente={edicao.original.cliente}
+            inicio={edicao.novo.inicio}
+            fim={edicao.novo.fim}
+            fuso={fuso}
+            motivo={edicao.textoDoMotivo}
+            avisar={edicao.rascunho.avisar}
+            salvando={edicao.salvando}
+            semMudanca={edicao.semMudanca}
+            onAvisar={edicao.definirAviso}
+            onDescartar={edicao.descartar}
+            onSalvar={() => void edicao.confirmar()}
+          />
+        ) : null}
+      </AnimatePresence>
       <div
         className="agenda-operacional pb-32"
         data-direcao={direcaoDia}
@@ -1246,21 +1262,42 @@ export function AgendaOperacional() {
         {celular ? (
           <>
             <NaBarraDoTopo>
-              {edicao.rascunho ? (
-                <CabecalhoDeEdicao dia={dia} naBarra />
-              ) : (
-                // No modo lista a faixa da semana recolhe (a lista já vai por dias).
-                <RecolheNaLista visivel={visualizacao !== "lista"}>
-                  <SemanaDoTopo
-                    dia={dia}
-                    hoje={hojeNoFuso(fuso)}
-                    profissionalId={profFiltro}
-                    onDia={mudarDia}
-                    expandido={calAberto}
-                    onExpandido={setCalAberto}
-                  />
-                </RecolheNaLista>
-              )}
+              <div className="grid w-full">
+                <AnimatePresence initial={false} mode="sync">
+                  {edicao.rascunho ? (
+                    <motion.div
+                      key="edicao-topo-mobile"
+                      className="col-start-1 row-start-1 w-full"
+                      initial={{ opacity: 0, y: -18 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -18 }}
+                      transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
+                    >
+                      <CabecalhoDeEdicao dia={dia} naBarra />
+                    </motion.div>
+                  ) : (
+                    <motion.div
+                      key="semana-topo-mobile"
+                      className="col-start-1 row-start-1 w-full"
+                      initial={{ opacity: 0, y: -18 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -18 }}
+                      transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
+                    >
+                      <RecolheNaLista visivel={visualizacao !== "lista"}>
+                        <SemanaDoTopo
+                          dia={dia}
+                          hoje={hojeNoFuso(fuso)}
+                          profissionalId={profFiltro}
+                          onDia={mudarDia}
+                          expandido={calAberto}
+                          onExpandido={setCalAberto}
+                        />
+                      </RecolheNaLista>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
             </NaBarraDoTopo>
           </>
         ) : null}
