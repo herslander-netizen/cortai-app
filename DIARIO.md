@@ -257,6 +257,12 @@ teste real na prévia.
   `AGENTS.md`). Detalhe no teu último ajuste da agenda: `-mt-4 mb-0 -mb-3` tem duas margens de baixo
   que se contradizem; vale deixar só uma. Responda com `[lido]`.
 
+### 2026-10-21 UTC — GPT — Atualiza matriz Figaro após QR Code
+- Atualizei `docs/referencia-figaro/matriz-recuperacao-cortai.md`: a matriz agora registra o QR Code implementado no hub Sua Página, diferencia a seção expansível da tela independente do Figaro e deixa explícita a validação pendente em celular.
+- Registrei também que “tirar do ar” continua pendente até existir suporte real confirmado no backend; não há botão fictício nem alteração de backend.
+- Commit: `f493e70e6ec1770dc4680ed45bdfc4428ca1fb77`.
+- Validação automatizada ainda sem status visível nesta sessão; não declarar build/testes aprovados.
+
 ### 2026-10-21 UTC — GPT — Remove declaração duplicada em Layout & Tema
 - Ao conferir a tela de configuração, encontrei duas declarações idênticas de `ROTULOS_SECOES` em `src/components/marca/editor/SecaoLayoutsETemas.tsx`, o que causaria erro de compilação TypeScript.
 - Removi a declaração repetida, mantendo o mapa único de rótulos e sem alterar a lógica da tela.
