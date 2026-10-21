@@ -148,7 +148,7 @@ function Editor({
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,520px)_minmax(420px,1fr)]">
         <div>
-          <PaineisDoEditor e={e} initial={initial} versions={versions} />
+          <PaineisDoEditor e={e} initial={initial} versions={versions} onVerExemplo={() => setPreviaAberta(true)} />
 
           <div className="sticky bottom-20 z-20 mt-6 rounded-lg border border-line bg-ink p-2 shadow-xl xl:bottom-4">
             <Button
