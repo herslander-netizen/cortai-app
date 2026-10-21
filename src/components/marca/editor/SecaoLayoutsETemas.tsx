@@ -46,7 +46,7 @@ export function SecaoLayoutsETemas({
   const temasCortai = totalTemas - temasFigaro;
   return (
     <div className="space-y-4">
-      <Accordion type="single" collapsible value={painelAberto} onValueChange={(value) => setPainelAberto(value === "layout" || value === "tema" ? value : undefined)} className="space-y-3">
+      <Accordion type="single" collapsible value={painelAberto ?? ""} onValueChange={(value) => setPainelAberto(value === "layout" || value === "tema" ? value : undefined)} className="space-y-3">
         {config.experiencia === "vitrine" ? (
         <AccordionItem value="layout" className="overflow-hidden rounded-xl border border-line bg-ink">
           <AccordionTrigger className="min-h-[68px] gap-3 px-4 text-left hover:no-underline [&>svg]:shrink-0">
