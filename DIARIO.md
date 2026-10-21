@@ -371,11 +371,12 @@ teste real na prévia.
 - Nenhuma alteração em banco, `main`, DNS ou site principal.
 
 
-### 2026-10-21 UTC — GPT — Corrige entrada de Sua Página para seguir o fluxo Figaro
-- A gaveta principal agora abre diretamente `/barbeiro/marca` (Personalizar Página), em vez de passar pelo hub `/barbeiro/sua-pagina`; a aba de navegação também acompanha as telas filhas Layout & Tema e Editar seção.
-- Atualizei `src/lib/navegacao-barbeiro.ts` e acrescentei testes em `src/lib/navegacao-barbeiro.test.ts` para a rota de entrada e o estado ativo.
-- Commits de código: `d7d35dbe77973e8488c8074070c87cc8538d8005` e `183bc221d4bcec07df193600439d7da4a6258b6a`.
-- Validação do GitHub Actions ainda pendente após estes commits; a inspeção visual em 390px/1280px e das animações continua pendente por indisponibilidade de navegador conectado. Não declarar paridade completa.
+### 2026-10-21 UTC — GPT — Valida entrada direta de Personalizar Página
+- A gaveta principal abre diretamente `/barbeiro/marca` (Personalizar Página); a navegação permanece ativa em Layout & Tema e nos editores de seção. O caminho QR Code continua separado no hub `/barbeiro/sua-pagina`.
+- Testes de navegação adicionados em `src/lib/navegacao-barbeiro.test.ts`.
+- Commits de código: `d7d35dbe77973e8488c8074070c87cc8538d8005` e `183bc221d4bcec07df193600439d7da4a6258b6a`; registro final `7f729f7f76e2c136434c3baaa28f60985c6c893e`.
+- GitHub Actions run [39680735117](https://github.com/herslander-netizen/cortai-app/actions/runs/39680735117) passou em build, TypeScript e testes; a prévia isolada foi publicada e o smoke test passou.
+- **Pendente:** inspeção visual real em 390px/1280px e validação manual das animações e do retorno entre telas; não havia navegador conectado nesta sessão. Não declarar paridade completa.
 - Nenhuma alteração em banco, `main`, DNS ou site principal.
 
 
