@@ -17,6 +17,8 @@ const DESCRICOES_LAYOUT: Record<LayoutId, string> = {
   minimalista: "Visual discreto, com foco no nome e nas informações.",
   "foto-destaque": "Fotografia em evidência na abertura da página.",
   editorial: "Composição editorial, com largura e títulos mais contidos.",
+  "figaro-site-completo": "Layout completo com as seções organizadas em uma rolagem única.",
+  "figaro-agendamento": "Layout focado em levar o cliente rapidamente à escolha do serviço e do horário.",
 };
 
 function MiniaturaLayout({ layout }: { layout: LayoutId }) {
@@ -67,6 +69,28 @@ function MiniaturaLayout({ layout }: { layout: LayoutId }) {
             <div className="h-7 rounded-sm bg-gold opacity-70" />
           </div>
         </>
+      ) : layout === "figaro-site-completo" ? (
+        <>
+          <div className="flex h-8 flex-col justify-end rounded-sm bg-ink3 p-2">
+            <div className="h-1.5 w-2/3 rounded-full bg-paper opacity-80" />
+          </div>
+          <div className="mt-1 grid flex-1 grid-cols-2 gap-1">
+            <div className="rounded-sm bg-mute opacity-25" />
+            <div className="rounded-sm bg-ink3 opacity-75" />
+            <div className="rounded-sm bg-ink3 opacity-55" />
+            <div className="rounded-sm bg-gold opacity-70" />
+          </div>
+        </>
+      ) : layout === "figaro-agendamento" ? (
+        <>
+          <div className="h-2 w-3/4 rounded-full bg-ink3" />
+          <div className="mt-1 h-1.5 w-1/2 rounded-full bg-mute opacity-60" />
+          <div className="mt-2 flex flex-1 flex-col gap-1">
+            <div className="flex-1 rounded-sm border border-line bg-ink3/70" />
+            <div className="flex-1 rounded-sm border border-line bg-ink3/40" />
+          </div>
+          <div className="mt-1 h-4 w-full rounded-full bg-gold" />
+        </>
       ) : (
         <>
           <div className="flex flex-1 flex-col justify-end rounded-sm bg-ink3 p-2">
@@ -91,6 +115,7 @@ function TemaCartao({
   escolher: () => void;
 }) {
   const definicao = TEMAS[tema];
+  const referenciaFigaro = tema.startsWith("figaro-");
   return (
     <Button
       type="button"
@@ -105,6 +130,7 @@ function TemaCartao({
         {selecionado ? <Check size={18} className="shrink-0 text-gold" aria-hidden /> : null}
       </span>
       <span className="mt-1 block text-xs leading-relaxed text-mute">{definicao.descricao}</span>
+      <span className="mt-1 block text-[11px] font-medium text-mute">{referenciaFigaro ? "Referência Figaro · paleta adaptada" : "Tema do Cortaí"}</span>
       <span className="mt-auto flex h-2 overflow-hidden rounded-full" aria-hidden>
         {[definicao.cores.principal, definicao.cores.secundaria, definicao.cores.botao, definicao.cores.fundo, definicao.cores.destaque].map((cor, i) => (
           <i key={i} className="flex-1" style={{ backgroundColor: cor }} />
@@ -126,9 +152,11 @@ export function SecaoLayoutsETemas({
   onVerExemplo: () => void;
 }) {
   const totalTemas = temaIds.length;
+  const temasFigaro = temaIds.filter((tema) => tema.startsWith("figaro-")).length;
+  const temasCortai = totalTemas - temasFigaro;
   return (
     <div className="space-y-4">
-      <Accordion type="single" collapsible defaultValue="layout" className="space-y-3">
+      <Accordion type="single" collapsible defaultValue={config.experiencia === "vitrine" ? "layout" : "tema"} className="space-y-3">
         {config.experiencia === "vitrine" ? (
         <AccordionItem value="layout" className="overflow-hidden rounded-xl border border-line bg-ink">
           <AccordionTrigger className="min-h-[68px] gap-3 px-4 text-left hover:no-underline [&>svg]:shrink-0">
@@ -138,7 +166,7 @@ export function SecaoLayoutsETemas({
             <span className="min-w-0 flex-1">
               <span className="block text-[11px] font-semibold uppercase tracking-wider text-mute">LAYOUT</span>
               <span className="mt-1 block text-base font-semibold text-paper">{LAYOUTS[config.layout]}</span>
-              <span className="mt-1 block text-xs text-mute">{totalTemas} temas atuais do Cortaí disponíveis</span>
+              <span className="mt-1 block text-xs text-mute">{totalTemas} temas: {temasCortai} do Cortaí e {temasFigaro} do Figaro</span>
             </span>
           </AccordionTrigger>
           <AccordionContent className="pb-4">
@@ -160,7 +188,12 @@ export function SecaoLayoutsETemas({
                       {selecionado ? <Check size={18} className="shrink-0 text-gold" aria-hidden /> : null}
                     </span>
                     <span className="mt-1 text-xs leading-relaxed text-mute">{DESCRICOES_LAYOUT[layout]}</span>
-                    <span className="mt-auto pt-2 text-xs font-medium text-mute">{totalTemas} temas disponíveis</span>
+                    {layout.startsWith("figaro-") ? (
+                      <span className="mt-auto pt-2 text-[11px] font-medium text-mute">Layout recuperado do Figaro</span>
+                    ) : (
+                      <span className="mt-auto pt-2 text-[11px] font-medium text-mute">Layout do Cortaí</span>
+                    )}
+                    <span className="pt-1 text-xs text-mute">{totalTemas} temas disponíveis neste editor</span>
                   </Button>
                 );
               })}
@@ -201,7 +234,7 @@ export function SecaoLayoutsETemas({
 
       <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-line bg-ink px-4 py-3">
         <p className="min-w-0 flex-1 text-xs leading-relaxed text-mute">
-          As opções atuais do Cortaí foram mantidas. Ao escolher um layout ou tema, veja a combinação na prévia antes de salvar ou publicar.
+          Os layouts e temas do Cortaí continuam disponíveis junto às opções recuperadas do Figaro. Os temas Figaro usam paletas adaptadas, e a prévia mostra como cada opção fica com o conteúdo real do seu negócio.
         </p>
         <Button type="button" variant="outline" className="min-h-12 w-full sm:w-auto" onClick={onVerExemplo}>
           <Eye size={17} aria-hidden />
