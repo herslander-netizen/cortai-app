@@ -243,6 +243,15 @@ teste real na prévia.
 
 ## Diário (mais recente primeiro)
 
+### 2026-10-21 UTC — GPT — Remover alça duplicada da gaveta de atendimento
+- Evidência: captura mostra duas alças horizontais no topo da gaveta de detalhes do agendamento.
+- Causa raiz: `SheetContent` já renderiza `AlcaDaGaveta` automaticamente quando `arrastarParaFechar` está ativo; `PainelAtendimento.tsx` também desenhava uma alça manual idêntica.
+- Correção: removido o elemento manual redundante de `src/components/barbeiro/agenda/PainelAtendimento.tsx`; mantida a alça oficial que suporta arrastar/tocar para fechar.
+- Commit: `55aede7`.
+- Validação: workflow automático pendente; precisa conferir a prévia publicada para confirmar que há apenas uma alça e que o gesto de arrastar continua funcionando.
+- Escopo: branch `cloudflare-workers-migration-2026-10-13`; sem mudanças em produção ou banco.
+
+
 ### 2026-10-21 UTC — GPT — Ação real no link Reagendar do cabeçalho
 - Pedido: clicar em “Reagendar” deve abrir o fluxo de reagendamento, não ser apenas texto decorativo.
 - Alterações: `CabecalhoDeEdicao.tsx` transforma “Reagendar” em botão acessível; `AgendaOperacional.tsx` descarta o rascunho de edição de horário e abre o painel existente `abrirAcao(original, "remarcar")`, preservando as regras de negócio e reutilizando o fluxo oficial.
