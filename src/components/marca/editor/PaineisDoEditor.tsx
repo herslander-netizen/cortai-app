@@ -1,13 +1,8 @@
-import { LacunasDaPagina } from "@/components/marca/editor/LacunasDaPagina";
 import { FaixaDeEstado } from "@/components/marca/editor/FaixaDeEstado";
 import { SecaoAjustesFinos } from "@/components/marca/editor/SecaoAjustesFinos";
-import { SecaoConteudo } from "@/components/marca/editor/SecaoConteudo";
-import { SecaoExperiencia } from "@/components/marca/editor/SecaoExperiencia";
 import { SecaoImagens } from "@/components/marca/editor/SecaoImagens";
 import { SecaoLink } from "@/components/marca/editor/SecaoLink";
 import { SecaoRedes } from "@/components/marca/editor/SecaoRedes";
-import { SecaoRecepcao } from "@/components/marca/editor/SecaoRecepcao";
-import { SecaoTextos } from "@/components/marca/editor/SecaoTextos";
 import { SecaoVersoes } from "@/components/marca/editor/SecaoVersoes";
 import { useEditorDaPagina } from "@/components/marca/editor/useEditorDaPagina";
 import {
@@ -48,7 +43,7 @@ function Item({
   );
 }
 
-export type AbaPainelDoEditor = "conteudo" | "detalhes" | "divulgacao" | "historico";
+export type AbaPainelDoEditor = "detalhes" | "divulgacao" | "historico";
 
 export function PaineisDoEditor({
   e,
@@ -63,7 +58,7 @@ export function PaineisDoEditor({
   abaAtiva?: AbaPainelDoEditor;
   onAbaChange?: (aba: AbaPainelDoEditor) => void;
 }) {
-  const [abaLocal, setAbaLocal] = useState<AbaPainelDoEditor>("conteudo");
+  const [abaLocal, setAbaLocal] = useState<AbaPainelDoEditor>("detalhes");
   const aba = abaAtiva ?? abaLocal;
   const mudarAba = (value: string) => {
     const proxima = value as AbaPainelDoEditor;
@@ -77,9 +72,6 @@ export function PaineisDoEditor({
           aria-label="Áreas de configuração da página"
           className="flex h-auto w-full justify-start gap-1 overflow-x-auto overscroll-x-contain bg-ink2 p-1"
         >
-          <TabsTrigger value="conteudo" className="min-h-12 min-w-[92px] shrink-0 whitespace-nowrap px-3 text-xs sm:text-sm">
-            Conteúdo
-          </TabsTrigger>
           <TabsTrigger value="detalhes" className="min-h-12 whitespace-normal px-2 text-xs sm:text-sm">
             Detalhes
           </TabsTrigger>
@@ -92,53 +84,6 @@ export function PaineisDoEditor({
         </TabsList>
 
 
-        <TabsContent value="conteudo" className="mt-2">
-          <motion.div {...pagina}>
-            <Accordion type="multiple" defaultValue={["conteudo"]}>
-              <Item
-                id="experiencia"
-                titulo="Experiência de agendamento"
-                descricao="Escolha como seus clientes vão iniciar o agendamento."
-              >
-                <SecaoExperiencia config={e.config} setPagina={e.setPagina} />
-                {e.usaConversa ? (
-                  <div className="mt-6 border-t border-line pt-6">
-                    <h3 className="mb-4 text-sm font-semibold text-paper">Recepção</h3>
-                    <SecaoRecepcao
-                      config={e.config}
-                      setPagina={e.setPagina}
-                      avatarRef={e.avatarRef}
-                      avatarPreview={e.avatarPreview}
-                      setAvatarPreview={e.setAvatarPreview}
-                      upload={e.upload}
-                    />
-                  </div>
-                ) : null}
-              </Item>
-              <Item
-                id="conteudo"
-                titulo="Blocos da página"
-                descricao="Mostre serviços, equipe, avaliações e outras informações reais."
-              >
-                <SecaoConteudo config={e.config} setPagina={e.setPagina} />
-              </Item>
-              <Item
-                id="textos"
-                titulo="Textos e botão"
-                descricao="Ajuste sua apresentação, endereço e chamada para agendar."
-              >
-                <SecaoTextos
-                  config={e.config}
-                  setPagina={e.setPagina}
-                  form={e.form}
-                  setMarca={e.setMarca}
-                  vocabulario={e.vocabulario}
-                />
-              </Item>
-            </Accordion>
-            <LacunasDaPagina lacunas={initial.lacunas} />
-          </motion.div>
-        </TabsContent>
 
         <TabsContent value="detalhes" className="mt-2">
           <motion.div {...pagina}>
