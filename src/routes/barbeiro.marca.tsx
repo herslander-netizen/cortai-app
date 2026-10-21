@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { motion, useReducedMotion } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Copy, Eye, LayoutTemplate, MoreVertical, Save, Send, Share2, Smartphone, Undo2 } from "lucide-react";
 import { useState } from "react";
 
@@ -219,24 +219,28 @@ function Editor({
         </DropdownMenu>
       </div>
 
-      {e.pendente ? (
-        <motion.section
-          layout
-          initial={reduzirMovimento ? { opacity: 0 } : { opacity: 0, y: -8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: reduzirMovimento ? 0.15 : 0.22 }}
-          className="mb-4 rounded-xl border border-gold/40 bg-gold/5 p-4 sm:p-5"
-        >
-          <h2 className="text-sm font-semibold text-paper">Alterações não publicadas</h2>
-          <p className="mt-1 text-sm leading-relaxed text-mute">
-            Há um rascunho que ainda não aparece na sua página pública.
-          </p>
-          <Button variant="outline" className="mt-3 min-h-12" onClick={() => setPreviaAberta(true)}>
-            <Eye size={17} aria-hidden />
-            Prévia do rascunho
-          </Button>
-        </motion.section>
-      ) : null}
+      <AnimatePresence initial={false}>
+        {e.pendente ? (
+          <motion.section
+            key="rascunho-banner"
+            layout
+            initial={reduzirMovimento ? { opacity: 0 } : { opacity: 0, height: 0, paddingTop: 0, paddingBottom: 0, marginBottom: 0 }}
+            animate={reduzirMovimento ? { opacity: 1 } : { opacity: 1, height: "auto", paddingTop: 16, paddingBottom: 16, marginBottom: 16 }}
+            exit={reduzirMovimento ? { opacity: 0 } : { opacity: 0, height: 0, paddingTop: 0, paddingBottom: 0, marginBottom: 0 }}
+            transition={{ duration: reduzirMovimento ? 0.15 : 0.22 }}
+            className="overflow-hidden rounded-xl border border-gold/40 bg-gold/5 px-4 sm:px-5"
+          >
+            <h2 className="text-sm font-semibold text-paper">Alterações não publicadas</h2>
+            <p className="mt-1 text-sm leading-relaxed text-mute">
+              Há um rascunho que ainda não aparece na sua página pública.
+            </p>
+            <Button variant="outline" className="mt-3 min-h-12" onClick={() => setPreviaAberta(true)}>
+              <Eye size={17} aria-hidden />
+              Prévia do rascunho
+            </Button>
+          </motion.section>
+        ) : null}
+      </AnimatePresence>
 
       <section className="mb-5 rounded-xl border border-line bg-ink p-4 sm:p-5">
         <div className="flex items-start gap-3">
