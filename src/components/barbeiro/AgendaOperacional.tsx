@@ -1256,7 +1256,7 @@ export function AgendaOperacional() {
       >
         {celular ? (
           <>
-            <NaBarraDoTopo>
+            <NaBarraDoTopo alvoId={edicao.rascunho ? "topo-centro" : "topo-baixo"}>
               <div className="grid w-full">
                 <AnimatePresence initial={false} mode="sync">
                   {edicao.rascunho ? (
