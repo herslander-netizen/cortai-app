@@ -184,7 +184,7 @@ function Editor({
 
       {dialogo}
       <Sheet open={previaAberta} onOpenChange={setPreviaAberta}>
-        <SheetContent side="bottom" className="h-[100dvh] overflow-y-auto p-4">
+        <SheetContent side="bottom" className="h-[100dvh] overflow-y-auto p-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">
           <SheetHeader>
             <SheetTitle>Ver Exemplo</SheetTitle>
           </SheetHeader>
