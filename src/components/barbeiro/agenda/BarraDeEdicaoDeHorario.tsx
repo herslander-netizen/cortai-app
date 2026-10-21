@@ -1,3 +1,4 @@
+import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { CircleAlert, Clock3 } from "lucide-react";
@@ -31,7 +32,11 @@ export function BarraDeEdicaoDeHorario({
   onSalvar: () => void;
 }) {
   return (
-    <section
+    <motion.section
+      initial={{ opacity: 0, y: 32 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: 32 }}
+      transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
       aria-label="Editar horário"
       className="fixed inset-x-0 bottom-0 z-50 mx-auto max-h-[min(55dvh,24rem)] w-full overflow-y-auto rounded-t-2xl border border-b-0 border-line bg-ink2 px-5 pb-[max(1rem,env(safe-area-inset-bottom))] pt-4 md:max-w-[520px]"
     >
@@ -78,6 +83,6 @@ export function BarraDeEdicaoDeHorario({
           {salvando ? "Salvando…" : "Salvar"}
         </Button>
       </div>
-    </section>
+    </motion.section>
   );
 }
