@@ -38,6 +38,11 @@ describe("navegação móvel", () => {
     expect(ajustes).toContain("Aparência do aplicativo");
     expect(ajustes).toContain("Sua Página");
     expect(ajustes).toContain('to: "/barbeiro/sua-pagina"');
+    const pagina = readFileSync("src/routes/barbeiro.sua-pagina.tsx", "utf8");
+    const layoutTema = readFileSync("src/routes/barbeiro.marca.layout-tema.tsx", "utf8");
+    expect(pagina).toContain('to="/barbeiro/marca/layout-tema"');
+    expect(layoutTema).toContain('title="Layout & Tema"');
+    expect(layoutTema).toContain('to: "/barbeiro/sua-pagina"');
     expect(ajustes).not.toContain('hash={item.label === "Avisos e notificações" ? "avisos" : undefined}');
     expect(ajustes).toContain("Avisos e notificações");
     expect(ajustes).toContain("Ajuda e suporte");
