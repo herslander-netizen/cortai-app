@@ -50,7 +50,9 @@ describe("navegação móvel", () => {
     const paginaPrincipal = readFileSync("src/routes/barbeiro.marca.tsx", "utf8");
     expect(paginaPrincipal).toContain('aria-label="Mais ações da página"');
     expect(paginaPrincipal).toContain('search={{ qr: "1" }}');
-    expect(paginaPrincipal).toContain("Tirar página do ar — indisponível no backend atual");
+    expect(paginaPrincipal).toContain("Tirar página do ar");
+    expect(paginaPrincipal).toContain("alterarStatusPaginaPublica");
+    expect(paginaPrincipal).toContain("A vitrine pública deixará de abrir pelo link.");
     expect(pagina).toContain('validateSearch: z.object({ qr: z.string().optional() })');
     expect(ajustes).not.toContain('hash={item.label === "Avisos e notificações" ? "avisos" : undefined}');
     expect(ajustes).toContain("Avisos e notificações");
