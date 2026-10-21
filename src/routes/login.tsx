@@ -233,7 +233,7 @@ function LoginPage() {
             const { data, error } = await supabase.auth.signUp({
               email: email.trim().toLowerCase(),
               password: senha,
-              options: { emailRedirectTo: new URL("/entrar/retorno", window.location.origin).toString() },
+              options: { emailRedirectTo: window.location.origin },
             });
             if (error) {
               setErro(mensagemDeErroDeAuth(error, "criar"));
