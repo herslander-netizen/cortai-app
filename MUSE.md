@@ -26,20 +26,20 @@ Documentos daquela fase ficam em `docs/historico/`.
 
 ## Recuperação do Figaro (ativa em 18/10/2026)
 
-O APK reencontrado `Figaroo.apk` é a referência original para layout, cartões, fluxos, agenda e movimento. A decisão do dono e o mapa de escopo estão em `DIARIO.md` e `docs/referencia-ux-figaroo-cortai.md`; o contrato obrigatório está em `docs/contrato-de-design.md`. Preservar a experiência antiga verificável, substituir a marca pela marca atual do Cortaí e integrar funções novas sem redesign. A Agenda foi passada ao Codex/GPT em 18/10; seguir `docs/CONTINUAR-CODEX.md` e as reservas ainda listadas no diário. Autorização explícita do dono em 19/10: migrações 0039–0041 somente no projeto isolado `cortai-preview`; nenhuma alteração em `cortai-prod`, `main`, DNS ou site principal.
+O APK reencontrado `Figaroo.apk` é a referência original para layout, cartões, fluxos, agenda e movimento. A decisão do dono e o mapa de escopo estão em `DIARIO.md` e `docs/referencia-ux-figaroo-cortai.md`; o contrato obrigatório está em `docs/contrato-de-design.md`. Preservar a experiência antiga verificável, substituir a marca pela marca atual do Cortaí e integrar funções novas sem redesign. A Agenda foi passada ao Codex/GPT em 18/10; seguir `docs/CONTINUAR-CODEX.md` e as reservas ainda listadas no diário. Autorização explícita do dono em 19/10: migrações 0039–0041 somente no projeto isolado `cortai-preview`; a migração 0042, autorizada no trabalho de 21/10, também é exclusiva da prévia. Nenhuma alteração em `cortai-prod`, `main`, DNS ou site principal.
 
 ## Limites (não negociáveis)
 
 - Trabalhar só na branch `cloudflare-workers-migration-2026-10-13`. Nada de push, merge ou PR na `main`.
 - Não mexer em DNS nem apontar `cortai.dev` sem autorização. Não tocar no projeto `evolution-crm`.
-- Banco: o padrão é não apagar dados nem remover objetos. Exceção autorizada em 19/10: a migração 0039 removeu apenas `NOT NULL` de `agendamentos.cliente_id`, exclusivamente em `cortai-preview`, sem apagar dados, para permitir cliente opcional. As migrações 0039–0041 foram aplicadas manualmente nesse projeto isolado sob autorização explícita; não replicar em `cortai-prod` sem nova autorização. Para produção, continuar usando `aplicar-migracoes-novas.yml` com a confirmação exigida.
+- Banco: o padrão é não apagar dados nem remover objetos. Exceção autorizada em 19/10: a migração 0039 removeu apenas `NOT NULL` de `agendamentos.cliente_id`, exclusivamente em `cortai-preview`, sem apagar dados, para permitir cliente opcional. As migrações 0039–0042 foram aplicadas nesse projeto isolado sob autorização explícita; a 0042 adiciona `tenant_page_configs.is_online BOOLEAN NOT NULL DEFAULT true` para controlar somente a vitrine pública, sem alterar agenda nem link direto de agendamento. Não replicar em `cortai-prod` sem nova autorização. Para produção, continuar usando `aplicar-migracoes-novas.yml` com a confirmação exigida.
 - Segredos nunca no repositório nem no chat; ficam só nos segredos do GitHub, colocados pelo dono.
 - Não reescrever histórico git (sem rebase/force-push). `bun.lock` só muda por `bun install` com motivo.
 - O que cada IA faz sozinha e o que precisa de autorização está no topo do `AGENTS.md`.
 
 ## Prévia e versões
 
-- Em 19/10, o fluxo de novo agendamento no padrão Figaro foi validado automaticamente e publicado na prévia com o banco isolado `cortai-preview`; teste manual no celular ainda pendente. Migrações 0039–0041 são exclusivas da prévia.
+- Em 19/10, o fluxo de novo agendamento no padrão Figaro foi validado automaticamente e publicado na prévia com o banco isolado `cortai-preview`; teste manual no celular ainda pendente. Migrações 0039–0042 são exclusivas da prévia.
 - Cada envio na branch: TypeScript, testes e build; se passar, vai para a prévia.
 - Correção de 2026-10-21 no pipeline: `preview-migration.yml` faz checkout do SHA exato do evento; não cancela um deploy já em andamento; gera um marcador único por run e só termina verde quando `previa.cortaiapp.pages.dev` serve esse marcador com commit/run correspondentes. A fila de concorrência mantém apenas a execução pendente mais recente.
 - A branch de migração não dispara mais o workflow duplicado `validate.yml` em push; sua validação continua integrada à publicação. PRs e os pushes de `main`/`claude/**` continuam validados separadamente.
