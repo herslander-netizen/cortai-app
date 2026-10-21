@@ -88,7 +88,7 @@ export function SecaoLayoutsETemas({
                     variant="ghost"
                     aria-pressed={selecionado}
                     onClick={() => setLayout(layout)}
-                    className={`relative h-auto min-h-[300px] w-[min(78vw,286px)] shrink-0 snap-start flex-col items-stretch whitespace-normal rounded-xl border p-3 text-left ${selecionado ? "border-2 border-gold bg-gold/10" : "border-line bg-ink"}`}
+                    className={`relative h-auto min-h-[300px] w-[min(78vw,286px)] shrink-0 snap-start flex-col items-stretch whitespace-normal rounded-xl border p-3 text-left transition-[border-color,background-color,box-shadow] duration-200 ease-out motion-reduce:transition-none ${selecionado ? "border-2 border-gold bg-gold/10" : "border-line bg-ink"}`}
                   >
                     <MiniaturaLayout layout={layout} />
                     <span className="flex items-center justify-between gap-2 text-base font-semibold text-paper">
