@@ -83,6 +83,7 @@ import { Route as BarbeiroProdutosRouteImport } from './routes/barbeiro.produtos
 import { Route as BarbeiroProfissionaisRouteImport } from './routes/barbeiro.profissionais'
 import { Route as BarbeiroRedesRouteImport } from './routes/barbeiro.redes'
 import { Route as BarbeiroServicosRouteImport } from './routes/barbeiro.servicos'
+import { Route as BarbeiroSuaPaginaRouteImport } from './routes/barbeiro.sua-pagina'
 import { Route as BarbeiroTemasRouteImport } from './routes/barbeiro.temas'
 import { Route as EntrarRetornoRouteImport } from './routes/entrar.retorno'
 import { Route as FSlugRouteImport } from './routes/f.$slug'
@@ -480,6 +481,11 @@ const BarbeiroServicosRoute = BarbeiroServicosRouteImport.update({
   path: '/servicos',
   getParentRoute: () => BarbeiroRoute,
 } as any)
+const BarbeiroSuaPaginaRoute = BarbeiroSuaPaginaRouteImport.update({
+  id: '/sua-pagina',
+  path: '/sua-pagina',
+  getParentRoute: () => BarbeiroRoute,
+} as any)
 const BarbeiroTemasRoute = BarbeiroTemasRouteImport.update({
   id: '/temas',
   path: '/temas',
@@ -678,6 +684,7 @@ export interface FileRoutesByFullPath {
   '/barbeiro/profissionais': typeof BarbeiroProfissionaisRoute
   '/barbeiro/redes': typeof BarbeiroRedesRoute
   '/barbeiro/servicos': typeof BarbeiroServicosRoute
+  '/barbeiro/sua-pagina': typeof BarbeiroSuaPaginaRoute
   '/barbeiro/temas': typeof BarbeiroTemasRoute
   '/entrar/retorno': typeof EntrarRetornoRoute
   '/f/$slug': typeof FSlugRoute
@@ -774,6 +781,7 @@ export interface FileRoutesByTo {
   '/barbeiro/profissionais': typeof BarbeiroProfissionaisRoute
   '/barbeiro/redes': typeof BarbeiroRedesRoute
   '/barbeiro/servicos': typeof BarbeiroServicosRoute
+  '/barbeiro/sua-pagina': typeof BarbeiroSuaPaginaRoute
   '/barbeiro/temas': typeof BarbeiroTemasRoute
   '/entrar/retorno': typeof EntrarRetornoRoute
   '/f/$slug': typeof FSlugRoute
@@ -875,6 +883,7 @@ export interface FileRoutesById {
   '/barbeiro/profissionais': typeof BarbeiroProfissionaisRoute
   '/barbeiro/redes': typeof BarbeiroRedesRoute
   '/barbeiro/servicos': typeof BarbeiroServicosRoute
+  '/barbeiro/sua-pagina': typeof BarbeiroSuaPaginaRoute
   '/barbeiro/temas': typeof BarbeiroTemasRoute
   '/entrar/retorno': typeof EntrarRetornoRoute
   '/f/$slug': typeof FSlugRoute
@@ -977,6 +986,7 @@ export interface FileRouteTypes {
     | '/barbeiro/profissionais'
     | '/barbeiro/redes'
     | '/barbeiro/servicos'
+    | '/barbeiro/sua-pagina'
     | '/barbeiro/temas'
     | '/entrar/retorno'
     | '/f/$slug'
@@ -1073,6 +1083,7 @@ export interface FileRouteTypes {
     | '/barbeiro/profissionais'
     | '/barbeiro/redes'
     | '/barbeiro/servicos'
+    | '/barbeiro/sua-pagina'
     | '/barbeiro/temas'
     | '/entrar/retorno'
     | '/f/$slug'
@@ -1173,6 +1184,7 @@ export interface FileRouteTypes {
     | '/barbeiro/profissionais'
     | '/barbeiro/redes'
     | '/barbeiro/servicos'
+    | '/barbeiro/sua-pagina'
     | '/barbeiro/temas'
     | '/entrar/retorno'
     | '/f/$slug'
@@ -1769,6 +1781,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BarbeiroServicosRouteImport
       parentRoute: typeof BarbeiroRoute
     }
+    '/barbeiro/sua-pagina': {
+      id: '/barbeiro/sua-pagina'
+      path: '/sua-pagina'
+      fullPath: '/barbeiro/sua-pagina'
+      preLoaderRoute: typeof BarbeiroSuaPaginaRouteImport
+      parentRoute: typeof BarbeiroRoute
+    }
     '/barbeiro/temas': {
       id: '/barbeiro/temas'
       path: '/temas'
@@ -2040,6 +2059,7 @@ interface BarbeiroRouteChildren {
   BarbeiroProfissionaisRoute: typeof BarbeiroProfissionaisRoute
   BarbeiroRedesRoute: typeof BarbeiroRedesRoute
   BarbeiroServicosRoute: typeof BarbeiroServicosRoute
+  BarbeiroSuaPaginaRoute: typeof BarbeiroSuaPaginaRoute
   BarbeiroTemasRoute: typeof BarbeiroTemasRoute
   BarbeiroIndexRoute: typeof BarbeiroIndexRoute
 }
@@ -2075,6 +2095,7 @@ const BarbeiroRouteChildren: BarbeiroRouteChildren = {
   BarbeiroProfissionaisRoute: BarbeiroProfissionaisRoute,
   BarbeiroRedesRoute: BarbeiroRedesRoute,
   BarbeiroServicosRoute: BarbeiroServicosRoute,
+  BarbeiroSuaPaginaRoute: BarbeiroSuaPaginaRoute,
   BarbeiroTemasRoute: BarbeiroTemasRoute,
   BarbeiroIndexRoute: BarbeiroIndexRoute,
 }
