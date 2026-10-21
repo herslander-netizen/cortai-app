@@ -51,7 +51,7 @@ function LayoutTemaPage() {
     );
   }
 
-  const marcaInicial = query.data.marca;
+  const marcaInicial = query.data!.marca;
 
   return (
     <EditorLayoutTema
