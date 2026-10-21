@@ -42,8 +42,15 @@ export const Route = createFileRoute("/login")({
     links: [{ rel: "canonical", href: "https://cortai.dev/login" }],
   }),
   beforeLoad: async () => {
-    const { data } = await supabase.auth.getUser();
-    if (data.user) {
+    let usuario = null;
+    try {
+      const resultado = await supabase.auth.getUser();
+      usuario = resultado.data.user;
+    } catch {
+      // Falha de rede ao consultar a sessão não pode impedir a tela de login de abrir.
+      return;
+    }
+    if (usuario) {
       // Uma falha temporária ao carregar o perfil não deve impedir a tela de login
       // de renderizar nem apagar a sessão válida do usuário.
       let sessao: Sessao;
