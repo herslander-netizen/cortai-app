@@ -215,6 +215,7 @@ teste real na prévia.
 | Quem | Desde (UTC) | Tarefa | Arquivos / migração reservada |
 |---|---|---|---|
 | GPT | 2026-10-21 UTC | Completar editores individuais de seção no fluxo Figaro, ligando cada seção a controles reais do Cortaí ou à gestão correspondente; validar salvamento/retorno e acessibilidade | `DIARIO.md`, `src/routes/barbeiro.marca.secao.$secao.tsx`, `src/components/marca/editor/SecaoConteudo.tsx`, componentes de edição existentes e testes; sem migração |
+| GPT | 2026-10-21 UTC | Corrigir regressão de link público: tirar a vitrine do ar não pode bloquear a rota de agendamento direto/conversa; validar redirecionamento e metadados | `DIARIO.md`, `src/lib/agendamento-publico.functions.ts`, `src/routes/$slug.tsx`, testes de link público; sem migração |
 
 
 | GPT | 2026-10-20 UTC | Auditoria autônoma de UX de autenticação, onboarding e recuperação de sessão na prévia; validar correção e depois ampliar auditoria geral sem tocar produção | `DIARIO.md`, `src/routes/comecar.tsx`, `src/routes/login.tsx`, `src/lib/guarda.ts`, testes relacionados; sem migração |
