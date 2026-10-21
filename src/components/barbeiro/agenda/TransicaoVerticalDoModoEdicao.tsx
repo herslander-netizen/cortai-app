@@ -12,19 +12,26 @@ export function TransicaoVerticalDoModoEdicao({
   children,
   direcao,
   className,
+  animacaoGaveta = false,
 }: {
   children: ReactNode;
   direcao: Direcao;
   className?: string;
+  /** Movimento de gaveta vertical para o cabeçalho mobile de edição. */
+  animacaoGaveta?: boolean;
 }) {
-  const deslocamento = direcao === "topo" ? -18 : 32;
+  const deslocamento = animacaoGaveta ? -84 : direcao === "topo" ? -18 : 32;
   return (
     <motion.div
       className={className}
       initial={{ opacity: 0, y: deslocamento }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: deslocamento }}
-      transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
+      transition={
+        animacaoGaveta
+          ? { type: "spring", stiffness: 420, damping: 38, mass: 0.8 }
+          : { duration: 0.3, ease: [0.4, 0, 0.2, 1] }
+      }
     >
       {children}
     </motion.div>
