@@ -29,6 +29,26 @@ function SuaPagina() {
   const [mensagem, setMensagem] = useState("");
   const [qrCode, setQrCode] = useState<string | null>(null);
   const [mostrarQr, setMostrarQr] = useState(false);
+  const link = query.data?.marca ? urlPublica(`/${query.data.marca.slug}`) : "";
+
+  useEffect(() => {
+    if (!link) return;
+    let ativo = true;
+    const estilos = window.getComputedStyle(document.documentElement);
+    void QRCode.toDataURL(link, {
+      width: 320,
+      margin: 1,
+      color: {
+        dark: estilos.getPropertyValue("--qr-dark").trim() || "#10203A",
+        light: estilos.getPropertyValue("--qr-light").trim() || "#FFFFFF",
+      },
+    }).then((url) => {
+      if (ativo) setQrCode(url);
+    }).catch(() => {
+      if (ativo) setMensagem("Não foi possível gerar o QR Code agora.");
+    });
+    return () => { ativo = false; };
+  }, [link]);
 
   if (query.isLoading) {
     return (
@@ -53,25 +73,6 @@ function SuaPagina() {
   }
 
   const marca = query.data.marca;
-  const link = urlPublica(`/${marca.slug}`);
-
-  useEffect(() => {
-    let ativo = true;
-    const estilos = window.getComputedStyle(document.documentElement);
-    void QRCode.toDataURL(link, {
-      width: 320,
-      margin: 1,
-      color: {
-        dark: estilos.getPropertyValue("--qr-dark").trim() || "#10203A",
-        light: estilos.getPropertyValue("--qr-light").trim() || "#FFFFFF",
-      },
-    }).then((url) => {
-      if (ativo) setQrCode(url);
-    }).catch(() => {
-      if (ativo) setMensagem("Não foi possível gerar o QR Code agora.");
-    });
-    return () => { ativo = false; };
-  }, [link]);
 
   return (
     <Screen
