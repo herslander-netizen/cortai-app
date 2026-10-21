@@ -76,6 +76,11 @@ describe("navegação móvel", () => {
     expect(editor).toContain('to="/barbeiro/produtos"');
     expect(editor).toContain('to="/barbeiro/horarios"');
     expect(rota).toContain("<EditorDaSecaoPublica secao={secao} e={e} />");
+    expect(editor).toContain("Fotos da galeria");
+    expect(editor).toContain('e.upload(event, "foto")');
+    const hook = readFileSync("src/components/marca/editor/useEditorDaPagina.ts", "utf8");
+    expect(hook).toContain("form.fotos.length >= 8");
+    expect(hook).toContain("createSignedUrl(path, 60 * 60)");
   });
   it("promove Agenda ao primeiro destaque fora dos grupos", () => {
     const destaques = readFileSync("src/components/layout/DrawerDestaques.tsx", "utf8");
