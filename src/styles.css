@@ -11,8 +11,8 @@
   }
 
   .management-header:has(#topo-centro .cabecalho-edicao-mobile) {
-    height: 108px;
-    min-height: 108px;
+    height: 84px;
+    min-height: 84px;
     overflow: hidden;
     border-radius: 0 0 28px 28px;
     background: var(--ink2);
@@ -22,8 +22,8 @@
 
   .management-header:has(#topo-centro .cabecalho-edicao-mobile) > div:first-child {
     position: relative;
-    height: 108px !important;
-    min-height: 108px;
+    height: 84px !important;
+    min-height: 84px;
     justify-content: center;
     gap: 0;
     padding: 0;
@@ -54,11 +54,11 @@
   .management-header:has(#topo-centro .cabecalho-edicao-mobile) .cabecalho-edicao-mobile {
     width: 100%;
     max-width: none;
-    min-height: 108px;
+    min-height: 84px;
     justify-content: center;
     border: 0;
     border-radius: 0 0 28px 28px;
-    padding: 12px 16px 14px;
+    padding: 8px 12px 10px;
     box-shadow: none;
   }
 }
