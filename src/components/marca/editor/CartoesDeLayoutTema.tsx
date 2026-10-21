@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { Check } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -101,11 +101,12 @@ export function MiniaturaLayout({ layout }: { layout: LayoutId }) {
 }
 
 export function IndicadorSelecionado() {
+  const reduzirMovimento = useReducedMotion();
   return (
     <motion.span
-      initial={{ opacity: 0, scale: 0.82 }}
+      initial={reduzirMovimento ? false : { opacity: 0, scale: 0.82 }}
       animate={{ opacity: 1, scale: 1 }}
-      transition={{ type: "spring", stiffness: 1500, damping: 58 }}
+      transition={reduzirMovimento ? { duration: 0 } : { type: "spring", stiffness: 1500, damping: 58 }}
       className="flex size-6 shrink-0 items-center justify-center rounded-full bg-gold text-ink"
       aria-hidden
     >
