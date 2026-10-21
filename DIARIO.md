@@ -230,6 +230,13 @@ teste real na prévia.
 
 ## Diário (mais recente primeiro)
 
+### 2026-10-21 UTC — GPT — Centraliza cartão ao sair do zoom armado
+- A pedido do dono, ao encerrar o modo de edição tocando fora ou saindo do zoom, a restauração da escala passa a ancorar o centro do cartão na região visível acima da barra inferior, em vez de manter o ponto pressionado na posição anterior.
+- Arquivos: `src/components/barbeiro/agenda/zoom-agenda.ts`, `src/components/barbeiro/agenda/zoom-agenda.test.ts`.
+- Teste adicionado para a regra de enquadramento. Alteração somente na branch de trabalho; nenhuma mudança no banco, na main ou em produção.
+- Pendente: verificar CI e conferir o comportamento visual no Android depois da publicação automática da prévia.
+
+
 ### 2026-10-21 UTC — GPT — Zoom armado e transições da Agenda conforme Fígaro
 - Referência consultada: `docs/referencia-figaro/apk/2-agenda.md`, §§4.6 e 6. O toque longo arma o cartão no ponto tocado; a grade aproxima até 4 px/min (preserva zoom maior já escolhido) em 300 ms com curva FastOutSlowIn; mantém o ponto temporal sob o dedo; os outros cartões esmaecem para 40% em 300 ms. Ao encerrar a edição, a escala anterior é restaurada.
 - Transições do topo e da barra de edição entram/saem com deslocamento vertical e fade em 300 ms. O arrasto real só começa quando o dedo se move, sem criar estado falso de arraste ao apenas segurar.
