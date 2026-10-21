@@ -53,8 +53,8 @@ const ITENS = [
   },
   {
     label: "Sua Página",
-    detalhe: "Página pública, layout e temas",
-    to: "/barbeiro/sua-pagina",
+    detalhe: "Personalize a página pública, layout e seções",
+    to: "/barbeiro/marca",
     icon: Eye,
   },
   {
