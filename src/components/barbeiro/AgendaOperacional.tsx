@@ -6,7 +6,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { ChartNoAxesColumn, Clock3, HandCoins, Lock, Plus, UserRoundPlus } from "lucide-react";
 import type React from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence } from "framer-motion";
 import {
   Suspense,
   useCallback,
@@ -81,6 +81,7 @@ import {
   TrocaDeVisualizacao,
 } from "@/components/barbeiro/agenda/TrocaDeVisualizacao";
 import { NaBarraDoTopo } from "@/components/barbeiro/agenda/NaBarraDoTopo";
+import { TransicaoVerticalDoModoEdicao } from "@/components/barbeiro/agenda/TransicaoVerticalDoModoEdicao";
 import { useRascunhoDeHorario } from "@/components/barbeiro/agenda/useRascunhoDeHorario";
 import {
   Sheet,
@@ -1224,15 +1225,9 @@ export function AgendaOperacional() {
     <Screen title="Agenda" hideHeader wide assinaturaSoComputador>
       <AnimatePresence initial={false}>
         {edicao.rascunho && !celular ? (
-          <motion.div
-            key="edicao-topo-desktop"
-            initial={{ opacity: 0, y: -18 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -18 }}
-            transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
-          >
+          <TransicaoVerticalDoModoEdicao key="edicao-topo-desktop" direcao="topo">
             <CabecalhoDeEdicao dia={dia} />
-          </motion.div>
+          </TransicaoVerticalDoModoEdicao>
         ) : null}
       </AnimatePresence>
       <AnimatePresence initial={false}>
@@ -1265,24 +1260,18 @@ export function AgendaOperacional() {
               <div className="grid w-full">
                 <AnimatePresence initial={false} mode="sync">
                   {edicao.rascunho ? (
-                    <motion.div
+                    <TransicaoVerticalDoModoEdicao
                       key="edicao-topo-mobile"
                       className="col-start-1 row-start-1 w-full"
-                      initial={{ opacity: 0, y: -18 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -18 }}
-                      transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
+                      direcao="topo"
                     >
                       <CabecalhoDeEdicao dia={dia} naBarra />
-                    </motion.div>
+                    </TransicaoVerticalDoModoEdicao>
                   ) : (
-                    <motion.div
+                    <TransicaoVerticalDoModoEdicao
                       key="semana-topo-mobile"
                       className="col-start-1 row-start-1 w-full"
-                      initial={{ opacity: 0, y: -18 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -18 }}
-                      transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
+                      direcao="topo"
                     >
                       <RecolheNaLista visivel={visualizacao !== "lista"}>
                         <SemanaDoTopo
@@ -1294,7 +1283,7 @@ export function AgendaOperacional() {
                           onExpandido={setCalAberto}
                         />
                       </RecolheNaLista>
-                    </motion.div>
+                    </TransicaoVerticalDoModoEdicao>
                   )}
                 </AnimatePresence>
               </div>
