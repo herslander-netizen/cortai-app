@@ -5,10 +5,10 @@ import { configPadrao, layoutIds, normalizarPagina, temaIds } from "@/lib/pagina
 import { SEGMENTOS, SEGMENTOS_CONFIG } from "@/lib/segmentos";
 
 describe("famílias de tema", () => {
-  it("cobrem os 13 temas exatamente uma vez", () => {
+  it("cobrem os 16 temas exatamente uma vez", () => {
     const temas = FAMILIAS_DE_TEMA.flatMap((f) => f.variantes.map((v) => v.tema));
     expect(temas.sort()).toEqual([...temaIds].sort());
-    expect(FAMILIAS_DE_TEMA).toHaveLength(9);
+    expect(FAMILIAS_DE_TEMA).toHaveLength(12);
   });
 
   it("encontra a família de cada tema", () => {
@@ -26,7 +26,7 @@ describe("famílias de tema", () => {
     expect(SEGMENTOS_CONFIG.salao.familiasRecomendadas).toContain("rose");
   });
 
-  it("13 temas × 5 layouts são configurações válidas", () => {
+  it("16 temas × 7 layouts são configurações válidas", () => {
     for (const tema of temaIds)
       for (const layout of layoutIds) {
         const c = normalizarPagina({ ...configPadrao(), tema, layout });
