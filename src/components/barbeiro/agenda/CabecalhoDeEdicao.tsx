@@ -1,20 +1,36 @@
-/** Topo da Agenda no modo "editar horário": a data por extenso e como mudar de dia. */
+/** Topo da Agenda no modo "editar horário": cabeçalho compacto, sem logomarca. */
 export function CabecalhoDeEdicao({ dia, naBarra = false }: { dia: string; naBarra?: boolean }) {
+  const data = new Date(`${dia}T12:00:00Z`);
   const extenso = new Intl.DateTimeFormat("pt-BR", {
     weekday: "long",
     day: "numeric",
     month: "long",
     year: "numeric",
     timeZone: "UTC",
-  }).format(new Date(`${dia}T12:00:00Z`));
-  // Celular: dentro da barra do topo, no lugar da semana (como no modelo).
+  }).format(data);
+  const compacto = new Intl.DateTimeFormat("pt-BR", {
+    weekday: "short",
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+    timeZone: "UTC",
+  }).format(data).replace(/\.$/, "");
+
+  // No celular, imita a referência: só data + orientação, com altura reduzida,
+  // sem logomarca e com a borda inferior arredondada mantida.
   if (naBarra)
     return (
-      <div className="px-4 pb-4 pt-1" role="status">
-        <p className="text-[clamp(18px,5.8vw,25px)] font-medium leading-tight text-paper first-letter:uppercase">
-          {extenso}
+      <div
+        className="rounded-b-3xl border-b border-line bg-ink2 px-4 pb-2 pt-2 shadow-sm"
+        role="status"
+        aria-label={`Editando horário. ${extenso}. Para mudar de dia, use Reagendar.`}
+      >
+        <p className="truncate text-[clamp(15px,4.2vw,18px)] font-semibold leading-tight text-paper first-letter:uppercase">
+          {compacto}
         </p>
-        <p className="mt-1 text-sm text-mute">Para mudar de dia, use Reagendar.</p>
+        <p className="mt-0.5 truncate text-xs leading-tight text-mute">
+          Para mudar de dia, use <span className="font-semibold text-gold">Reagendar</span>.
+        </p>
       </div>
     );
   return (
