@@ -715,7 +715,7 @@ export const getPreviaDaBarbearia = createServerFn({ method: "GET" })
           .eq("tenant_id", resolvido.tenant_id)
           .maybeSingle(),
       ]);
-      if (!paginaPublicaDisponivel(cfg?.is_online)) return null;
+      const paginaOnline = paginaPublicaDisponivel(cfg?.is_online);
       const publicada = normalizarPagina(
         (cfg?.published_config as { pagina?: unknown } | null)?.pagina,
       );
@@ -737,6 +737,7 @@ export const getPreviaDaBarbearia = createServerFn({ method: "GET" })
         telefone: (t.telefone as string | null) ?? null,
         whatsapp: (t.whatsapp as string | null) ?? null,
         instagram: (t.instagram as string | null) ?? null,
+        paginaOnline,
         horarios: horarios ?? [],
         precos: (servicos ?? []).map((s) => s.preco_centavos),
         experiencia: publicada.experiencia,
@@ -758,6 +759,7 @@ export type PreviaPublica = {
   telefone: string | null;
   whatsapp: string | null;
   instagram: string | null;
+  paginaOnline: boolean;
   horarios: { dia_semana: number; fechado: boolean; abre: string; fecha: string }[];
   precos: number[];
   experiencia: "direta" | "vitrine" | "conversa";
