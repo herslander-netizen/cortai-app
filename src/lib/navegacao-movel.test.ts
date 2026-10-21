@@ -52,6 +52,11 @@ describe("navegação móvel", () => {
     expect(paginaPrincipal).toContain('search={{ qr: "1" }}');
     expect(paginaPrincipal).toContain("Tirar página do ar");
     expect(paginaPrincipal).toContain("alterarStatusPaginaPublica");
+    expect(paginaPrincipal).toContain('aria-label="Seções da página pública"');
+    expect(paginaPrincipal).toContain("<SecaoConteudo config={e.config} setPagina={e.setPagina} />");
+    expect(paginaPrincipal).toContain("Outras configurações");
+    const paineis = readFileSync("src/components/marca/editor/PaineisDoEditor.tsx", "utf8");
+    expect(paineis).not.toContain('TabsTrigger value="conteudo"');
     expect(paginaPrincipal).toContain("A vitrine pública deixará de abrir pelo link.");
     expect(pagina).toContain('validateSearch: z.object({ qr: z.string().optional() })');
     expect(ajustes).not.toContain('hash={item.label === "Avisos e notificações" ? "avisos" : undefined}');
