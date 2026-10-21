@@ -242,6 +242,14 @@ teste real na prévia.
 
 ## Diário (mais recente primeiro)
 
+### 2026-10-21 UTC — GPT — Cabeçalho central substitui a logo ao editar cartão
+- Pedido: manter as proporções do cabeçalho da visualização em cartões, com a mesma transição ao entrar no modo de edição; ocultar totalmente a marca e exibir data/instrução centralizadas.
+- Alterações: `NaBarraDoTopo.tsx` aceita destino `topo-centro`; `AgendaOperacional.tsx` direciona o cabeçalho para o centro apenas enquanto existe rascunho de edição; `CabecalhoDeEdicao.tsx` recebeu classe/altura responsiva; `styles.css` oculta o botão da logo enquanto o cabeçalho de edição está no centro.
+- Commits: `1664b4f`, `8c6f55a`, `8f01e75`, `a06752e`.
+- Testes: pendente de execução no GitHub Actions e inspeção manual no Android; não declarar concluído até verificar publicação e ausência de corte/sobreposição.
+- Escopo: branch `cloudflare-workers-migration-2026-10-13`; sem alterações em `main` ou no banco de produção.
+
+
 ### 2026-10-21 UTC — GPT — Ajuste visual do modo de edição da Agenda na prévia
 - Pedido: ao segurar um cartão no celular, subir o cabeçalho de data/instrução para aproveitar a área superior marcada na captura e suavizar as duas cores das listras fora do expediente conforme a segunda referência.
 - Arquivos: `src/components/barbeiro/agenda/CabecalhoDeEdicao.tsx` (cabeçalho mobile elevado com margem negativa e texto ligeiramente maior); `src/styles.css` (contraste das listras reduzido em temas claro e escuro).
