@@ -65,9 +65,9 @@ export function PaineisDoEditor({
       <Tabs defaultValue="layout-tema">
         <TabsList
           aria-label="Áreas de configuração da página"
-          className="grid h-auto w-full grid-cols-2 gap-1 bg-ink2 p-1 sm:grid-cols-3 xl:grid-cols-5"
+          className="flex h-auto w-full justify-start gap-1 overflow-x-auto overscroll-x-contain bg-ink2 p-1"
         >
-          <TabsTrigger value="conteudo" className="min-h-12 whitespace-normal px-2 text-xs sm:text-sm">
+          <TabsTrigger value="conteudo" className="min-h-12 min-w-[92px] shrink-0 whitespace-nowrap px-3 text-xs sm:text-sm">
             Conteúdo
           </TabsTrigger>
           <TabsTrigger value="layout-tema" className="min-h-12 whitespace-normal px-2 text-xs sm:text-sm">
