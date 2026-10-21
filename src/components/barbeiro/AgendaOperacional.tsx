@@ -1264,6 +1264,7 @@ export function AgendaOperacional() {
                       key="edicao-topo-mobile"
                       className="col-start-1 row-start-1 w-full"
                       direcao="topo"
+                      animacaoGaveta
                     >
                       <CabecalhoDeEdicao dia={dia} naBarra onReagendar={() => { const original = edicao.original; edicao.descartar(); if (original) abrirAcao(original, "remarcar"); }} />
                     </TransicaoVerticalDoModoEdicao>
