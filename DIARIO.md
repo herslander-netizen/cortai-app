@@ -265,6 +265,13 @@ teste real na prévia.
 
 ## Diário (mais recente primeiro)
 
+### 2026-10-21 UTC — GPT — Refino das animações do fluxo Layout & Tema
+- Extraídos os cartões e miniaturas de layout/tema para `src/components/marca/editor/CartoesDeLayoutTema.tsx`, deixando `SecaoLayoutsETemas.tsx` responsável por estado, acordeões e seleção. A extração evita duplicação e facilita a validação.
+- O selo de seleção usa mola curta (stiffness 1500, damping 58) e respeita `prefers-reduced-motion` com entrada estática. O chevron global dos acordeões usa uma curva de mola visual e remove a transição quando a preferência de movimento reduzido está ativa; o conteúdo preserva os keyframes existentes do Cortaí.
+- Arquivos: `src/components/marca/editor/CartoesDeLayoutTema.tsx`, `src/components/marca/editor/SecaoLayoutsETemas.tsx`, `src/components/ui/accordion.tsx`. Commits: `e062bb76612a8e3bb4baefcc096a7d6c6035857c`, `32ee961c599669c1ded15949e1c2f12926086e1f`, `f66049bf36390fe6153b04889ec587a9e4150773`, `4ecbe84ebef4b7891e3fab66312a8b400112b714`.
+- Limite importante: isso preserva/anima as interações do Cortaí; a fidelidade exata ao Figaro (fade, tempos e retorno de tela) precisa ser conferida com os quadros/vídeo em execução. Não afirmar paridade visual ainda.
+- Validação: não foi possível obter status checks do GitHub (a API de status retornou lista vazia); build, TypeScript, testes e inspeção em 390 px/1280 px seguem pendentes. Sem alteração de `main`, produção, banco ou regras de negócio.
+
 ### 2026-10-21 UTC — GPT — Hub da página com resumo visual e seções organizadas
 - O cartão “Layout & Tema” em `/barbeiro/sua-pagina` agora mostra uma capa ilustrativa gerada com as cores do tema real, layout selecionado, tema, faixa com a paleta e contagem das seções ativas. O botão usa o texto “Escolher Layout & Tema”, seguindo a hierarquia visual observada no Figaro. A arte é uma representação do Cortaí, não uma imagem original do Figaro.
 - `SecaoConteudo.tsx` organiza os blocos em “Seções ativas” e “Seções inativas”, com ícone, nome, descrição, contagem e controle para ocultar/ativar. O foco é restaurado quando uma seção muda de grupo para manter o uso pelo teclado.
