@@ -42,12 +42,18 @@ function createSupabaseAdminClient() {
   const SUPABASE_SERVICE_ROLE_KEY = process.env["SUPABASE_SERVICE_ROLE_KEY"];
   const SUPABASE_PUBLISHABLE_KEY = process.env["SUPABASE_PUBLISHABLE_KEY"];
 
-  if (!SUPABASE_URL || !isUsableSupabaseServiceKey(SUPABASE_SERVICE_ROLE_KEY, SUPABASE_PUBLISHABLE_KEY)) {
+  if (
+    !SUPABASE_URL ||
+    !SUPABASE_SERVICE_ROLE_KEY ||
+    !isUsableSupabaseServiceKey(SUPABASE_SERVICE_ROLE_KEY, SUPABASE_PUBLISHABLE_KEY)
+  ) {
     const missing = [
       ...(!SUPABASE_URL ? ["SUPABASE_URL"] : []),
       ...(!SUPABASE_SERVICE_ROLE_KEY ? ["SUPABASE_SERVICE_ROLE_KEY"] : []),
     ];
-    const invalid = SUPABASE_SERVICE_ROLE_KEY && !isUsableSupabaseServiceKey(SUPABASE_SERVICE_ROLE_KEY, SUPABASE_PUBLISHABLE_KEY);
+    const invalid =
+      Boolean(SUPABASE_SERVICE_ROLE_KEY) &&
+      !isUsableSupabaseServiceKey(SUPABASE_SERVICE_ROLE_KEY, SUPABASE_PUBLISHABLE_KEY);
     const message = invalid
       ? "Invalid Supabase server key: SUPABASE_SERVICE_ROLE_KEY must be a service/secret key, never the publishable key."
       : `Missing Supabase environment variable(s): ${missing.join(", ")}. Set them in the hosting environment (see .env.example).`;
