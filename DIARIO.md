@@ -265,6 +265,12 @@ teste real na prévia.
 
 ## Diário (mais recente primeiro)
 
+### 2026-10-21 UTC — GPT — Avisos de configuração e transições do editor
+- O hub `/barbeiro/sua-pagina` agora mostra os avisos reais retornados pelo backend para serviços ativos, profissionais e dias abertos, com links para corrigir cada ponto. O texto deixa explícito que são avisos e não bloqueios automáticos da publicação. Não foi inventado um estado Online/Offline, porque esse campo não está comprovado no contrato Cortaí.
+- Cartões de layout e tema têm transição de seleção; o selo usa mola e respeita `prefers-reduced-motion`. O chevron dos acordeões usa uma curva de mola e o conteúdo desativa animações quando o sistema pede movimento reduzido. Os cartões foram extraídos para `CartoesDeLayoutTema.tsx` para facilitar manutenção.
+- Commits desta etapa: `4bdbe5bdf3799179ebcb1a34860631a02da83660`, `98baecf3f27c7799f7e8bfda2bd141ff5844257a`, `80ba28fad14e24b7f4b2b4b78b01967fec7e6493`, `9ae3bdb9f4c20bac0612330737300e03908091a7`, `72ea49d9413763c630cc6edd6de8adf6d2dcddf5`.
+- Validação ainda pendente: os status checks do GitHub retornam lista vazia; não foi possível executar TypeScript, testes, build nem inspeção visual no navegador desta sessão. Não declarar a tarefa concluída. Sem migração, produção ou `main`.
+
 ### 2026-10-21 UTC — GPT — Refino das animações do fluxo Layout & Tema
 - Extraídos os cartões e miniaturas de layout/tema para `src/components/marca/editor/CartoesDeLayoutTema.tsx`, deixando `SecaoLayoutsETemas.tsx` responsável por estado, acordeões e seleção. A extração evita duplicação e facilita a validação.
 - O selo de seleção usa mola curta (stiffness 1500, damping 58) e respeita `prefers-reduced-motion` com entrada estática. O chevron global dos acordeões usa uma curva de mola visual e remove a transição quando a preferência de movimento reduzido está ativa; o conteúdo preserva os keyframes existentes do Cortaí.
