@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowUpRight, CheckCircle2, CircleHelp, Eye, LayoutTemplate, Palette, PencilLine } from "lucide-react";
+import { ArrowUpRight, CheckCircle2, CircleHelp, Eye, LayoutTemplate, Palette, PencilLine, TriangleAlert } from "lucide-react";
 import { useState } from "react";
 
 import { Screen } from "@/components/layout/Screen";
@@ -104,6 +104,39 @@ function SuaPagina() {
           </div>
           {mensagem ? <p role="status" className="mt-3 text-xs text-mute">{mensagem}</p> : null}
         </section>
+
+        {marca.lacunas.length > 0 ? (
+          <section className="surface space-y-3 p-4 sm:p-5" aria-labelledby="pontos-revisar">
+            <div className="flex items-start gap-3">
+              <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-gold/10 text-gold">
+                <TriangleAlert size={20} aria-hidden />
+              </span>
+              <div className="min-w-0 flex-1">
+                <h2 id="pontos-revisar" className="text-sm font-semibold text-paper">
+                  {marca.lacunas.length === 1 ? "Um ponto para revisar" : `${marca.lacunas.length} pontos para revisar`}
+                </h2>
+                <p className="mt-1 text-sm leading-relaxed text-mute">
+                  A página pode ser personalizada, mas estes itens precisam de atenção para que o cliente consiga concluir um agendamento.
+                </p>
+              </div>
+            </div>
+            <div className="space-y-2">
+              {marca.lacunas.map((lacuna) => (
+                <Link
+                  key={lacuna.chave}
+                  to={lacuna.destino}
+                  className="flex min-h-14 items-center gap-3 rounded-lg border border-line px-3 py-3 transition-colors hover:bg-ink2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
+                >
+                  <span className="min-w-0 flex-1 text-sm text-paper">{lacuna.rotulo}</span>
+                  <PencilLine size={16} className="shrink-0 text-mute" aria-hidden />
+                </Link>
+              ))}
+            </div>
+            <p className="text-xs text-mute">
+              Estes são avisos de configuração, não um bloqueio automático da publicação.
+            </p>
+          </section>
+        ) : null}
 
         <section className="surface overflow-hidden">
           <div
