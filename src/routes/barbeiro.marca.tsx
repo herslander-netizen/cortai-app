@@ -186,7 +186,7 @@ function Editor({
       <Sheet open={previaAberta} onOpenChange={setPreviaAberta}>
         <SheetContent side="bottom" className="h-[100dvh] overflow-y-auto p-4">
           <SheetHeader>
-            <SheetTitle>Prévia</SheetTitle>
+            <SheetTitle>Ver Exemplo</SheetTitle>
           </SheetHeader>
           <div className="mt-2">{previa("h-[calc(100dvh-140px)]")}</div>
         </SheetContent>
