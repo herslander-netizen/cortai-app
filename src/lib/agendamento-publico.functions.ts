@@ -710,10 +710,11 @@ export const getPreviaDaBarbearia = createServerFn({ method: "GET" })
           .eq("ativo", true),
         db
           .from("tenant_page_configs")
-          .select("published_config")
+          .select("published_config, is_online")
           .eq("tenant_id", resolvido.tenant_id)
           .maybeSingle(),
       ]);
+      if (!paginaPublicaDisponivel(cfg?.is_online)) return null;
       const publicada = normalizarPagina(
         (cfg?.published_config as { pagina?: unknown } | null)?.pagina,
       );
