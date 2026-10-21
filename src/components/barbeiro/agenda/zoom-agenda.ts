@@ -200,7 +200,10 @@ export function pxDaEdicao(pxAtual: number) {
  * Anima o modo armado do Figaro: aproxima para 4 px/min em 300ms, mantém no lugar o minuto
  * tocado e restaura a escala anterior ao salvar/descartar.
  */
-export function useZoomDaEdicao(idEmEdicao: string | null, yDoToque?: number) {
+export function useZoomDaEdicao(
+  idEmEdicao: string | null,
+  ancoraDoToque?: { current: { id: string; y: number } | null },
+) {
   const anterior = useRef<number | null>(null);
   const ultimo = useRef<{ id: string; minutoDoCartao: number } | null>(null);
 
@@ -249,14 +252,14 @@ export function useZoomDaEdicao(idEmEdicao: string | null, yDoToque?: number) {
       escalaFinal: number,
       ancora: HTMLElement | null,
       minutoDoCartao: number,
-      yAlvo: number | null,
+      lerYAlvo: () => number | null,
       aoConcluir: () => void,
     ) => {
       if (prefereMenosMovimento() || Math.abs(escalaFinal - escalaInicial) < 0.005) {
         quadro = window.requestAnimationFrame(() => {
           quadro = null;
           if (cancelado) return;
-          aplicarEscala(escalaFinal, ancora, minutoDoCartao, yAlvo);
+          aplicarEscala(escalaFinal, ancora, minutoDoCartao, lerYAlvo());
           aoConcluir();
         });
         return;
@@ -269,7 +272,7 @@ export function useZoomDaEdicao(idEmEdicao: string | null, yDoToque?: number) {
         const progresso = Math.min(1, (agora - inicio) / DURACAO_ZOOM_ARMADO_MS);
         const suave = fastOutSlowInProgresso(progresso);
         const escala = escalaInicial + (escalaFinal - escalaInicial) * suave;
-        aplicarEscala(escala, ancora, minutoDoCartao, yAlvo);
+        aplicarEscala(escala, ancora, minutoDoCartao, lerYAlvo());
 
         if (progresso < 1) quadro = window.requestAnimationFrame(avancar);
         else {
@@ -285,19 +288,25 @@ export function useZoomDaEdicao(idEmEdicao: string | null, yDoToque?: number) {
       anterior.current ??= escalaInicial;
       const ancora = cartao(idEmEdicao);
       const topo = ancora?.getBoundingClientRect().top ?? null;
+      const toque = ancoraDoToque?.current;
+      const yInicial = toque?.id === idEmEdicao ? toque.y : undefined;
       const minutoDoCartao =
-        ancora && topo !== null && yDoToque !== undefined
-          ? Math.max(0, (yDoToque - topo) / escalaInicial)
+        ancora && topo !== null && yInicial !== undefined
+          ? Math.max(0, (yInicial - topo) / escalaInicial)
           : 0;
       ultimo.current = { id: idEmEdicao, minutoDoCartao };
-      const yAlvo = topo === null ? null : (yDoToque ?? topo + minutoDoCartao * escalaInicial);
+      const yAlvoInicial = topo === null ? null : (yInicial ?? topo + minutoDoCartao * escalaInicial);
+      const lerYAlvo = () => {
+        const atual = ancoraDoToque?.current;
+        return atual?.id === idEmEdicao ? atual.y : yAlvoInicial;
+      };
 
       animar(
         escalaInicial,
         pxDaEdicao(anterior.current),
         ancora,
         minutoDoCartao,
-        yAlvo,
+        lerYAlvo,
         () => undefined,
       );
     } else {
@@ -316,7 +325,7 @@ export function useZoomDaEdicao(idEmEdicao: string | null, yDoToque?: number) {
         restaurar,
         ancora,
         minutoDoCartao,
-        yAlvo,
+        () => yAlvo,
         () => {
           if (cancelado) return;
           anterior.current = null;
@@ -329,5 +338,5 @@ export function useZoomDaEdicao(idEmEdicao: string | null, yDoToque?: number) {
       cancelado = true;
       if (quadro !== null) window.cancelAnimationFrame(quadro);
     };
-  }, [idEmEdicao, yDoToque]);
+  }, [idEmEdicao, ancoraDoToque]);
 }
