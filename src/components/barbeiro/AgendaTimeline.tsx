@@ -589,8 +589,7 @@ export function AgendaTimeline({
         g.ativo = true;
         g.longo = true;
         travarRolagemDoToque();
-        setArrasto({ id: item.id, dy: 0 });
-        // Arma durante a pressão, como no Figaro; o zoom começa antes de soltar o dedo.
+        // Segurar só arma o cartão; o estado de arrasto nasce quando o dedo realmente se move.
         onEditar?.(item, g.y0);
         navigator.vibrate?.(10);
       }, 280);
