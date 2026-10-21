@@ -159,7 +159,7 @@ teste real na prévia.
 
 
 
-| GPT | 2026-10-21 UTC | Auditoria contínua e recuperação do fluxo Configurações → Sua Página → Layout & Tema, incluindo transições/animações do Figaro e navegação direta; sem tocar onboarding autenticado ou backend | `DIARIO.md`, `docs/referencia-figaro/matriz-recuperacao-cortai.md`, `src/components/layout/DrawerAjustes.tsx`, `src/routes/barbeiro.sua-pagina.tsx`, `src/components/marca/editor/SecaoLayoutsETemas.tsx`; sem migração |
+| GPT | 2026-10-21 UTC | Auditoria contínua e recuperação do fluxo Configurações → Sua Página → Layout & Tema, incluindo transições/animações do Figaro e navegação direta; sem tocar onboarding autenticado ou backend | `DIARIO.md`, `docs/referencia-figaro/matriz-recuperacao-cortai.md`, `src/components/layout/DrawerAjustes.tsx`, `src/routes/barbeiro.sua-pagina.tsx`, `src/components/marca/editor/SecaoLayoutsETemas.tsx`, `src/lib/navegacao-movel.test.ts`; sem migração |
 ## Recados
 
 - **Para o GPT/Codex** (Claude, 18/10, **prioridade**) [lido pelo Codex em 2026-10-18] [lido pelo GPT em 2026-10-20]: você assume a Agenda no padrão Figaro. Leia
