@@ -34,7 +34,7 @@ function LayoutTemaPage() {
 
   if (query.isLoading) {
     return (
-      <Screen voltarPara="/barbeiro/marca" title="Layout & Tema">
+      <Screen voltarPara="/barbeiro/sua-pagina" title="Layout & Tema">
         <EsqueletoFormulario campos={4} onTentarDeNovo={() => void query.refetch()} />
       </Screen>
     );
@@ -42,7 +42,7 @@ function LayoutTemaPage() {
 
   if (query.isError || !query.data?.marca) {
     return (
-      <Screen voltarPara="/barbeiro/marca" title="Layout & Tema">
+      <Screen voltarPara="/barbeiro/sua-pagina" title="Layout & Tema">
         <div className="surface space-y-3 p-4">
           <p className="text-sm text-paper">Não foi possível carregar as configurações da página.</p>
           <Button variant="outline" onClick={() => void query.refetch()}>Tentar novamente</Button>
@@ -58,7 +58,7 @@ function LayoutTemaPage() {
         await queryClient.invalidateQueries({ queryKey: ["marca"] });
         await queryClient.invalidateQueries({ queryKey: ["pagina-publica", query.data.marca.slug] });
       }}
-      onVoltar={() => void navigate({ to: "/barbeiro/marca" })}
+      onVoltar={() => void navigate({ to: "/barbeiro/sua-pagina" })}
     />
   );
 }
@@ -112,7 +112,7 @@ function EditorLayoutTema({
   return (
     <Screen
       wide
-      voltarPara="/barbeiro/marca"
+      voltarPara="/barbeiro/sua-pagina"
       title="Layout & Tema"
       subtitle="Escolha o visual da página pública do seu negócio."
     >
