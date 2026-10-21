@@ -157,7 +157,6 @@ teste real na prévia.
 
 
 
-| GPT | 2026-10-21 UTC | Corrigir navegação em Ajustes para a nova experiência Sua Página e levar Avisos e notificações diretamente à seção certa, sem duplicar telas | `DIARIO.md`, `src/components/layout/DrawerAjustes.tsx`, `src/components/notificacoes/PreferenciasDeAvisos.tsx`, `src/routes/barbeiro.conta.tsx`, `src/lib/navegacao-barbeiro.ts`; sem migração |
 ## Recados
 
 - **Para o GPT/Codex** (Claude, 18/10, **prioridade**) [lido pelo Codex em 2026-10-18] [lido pelo GPT em 2026-10-20]: você assume a Agenda no padrão Figaro. Leia
@@ -241,6 +240,12 @@ teste real na prévia.
   Quando o dono disser "mande pra main", rode o "Lançar versão" no Actions (detalhes no topo do
   `AGENTS.md`). Detalhe no teu último ajuste da agenda: `-mt-4 mb-0 -mb-3` tem duas margens de baixo
   que se contradizem; vale deixar só uma. Responda com `[lido]`.
+
+### 2026-10-21 UTC — GPT — Ajustes ligados ao hub Sua Página
+- O drawer de Ajustes agora tem uma entrada “Sua Página” que aponta para `/barbeiro/sua-pagina`; o mesmo nome foi padronizado na navegação principal e na tela Conta. O editor continua acessível a partir do hub.
+- “Avisos e notificações” agora aponta para a âncora `#avisos` em Ajustes e preferências (`/barbeiro/mais`), e a seção de preferências tem o ID correspondente para a navegação focar o lugar certo.
+- Arquivos: `src/components/layout/DrawerAjustes.tsx`, `src/components/notificacoes/PreferenciasDeAvisos.tsx`, `src/routes/barbeiro.conta.tsx`, `src/lib/navegacao-barbeiro.ts`. Commits: `cdb5d0d9fe5fa168a9b04bf798faea864c6efad4`, `0c190483759fd51a3634a2509686c022e528f186`, `c4a5c94b90c351223ae30ff1c8cb7319b7fdbd47`, `2f3cc112c0c74eb59ba403c2bfca0580f1b0c160`.
+- Validação: TypeScript, testes e navegação hash ainda pendentes de confirmação automatizada/visual. Sem banco, sem produção e sem `main`.
 
 ## Diário (mais recente primeiro)
 
