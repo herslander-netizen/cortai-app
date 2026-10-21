@@ -146,6 +146,7 @@ teste real na prévia.
 
 | Quem | Desde (UTC) | Tarefa | Arquivos / migração reservada |
 |---|---|---|---|
+| GPT | 2026-10-21 UTC | Corrigir estruturalmente cabeçalho mobile de edição: trocar logo pelo texto dentro da mesma barra, preservar altura/controles fora da edição e validar preview | `DIARIO.md`, `src/components/layout/ManagementDrawer.tsx`, `src/components/barbeiro/AgendaOperacional.tsx`, `src/components/barbeiro/agenda/CabecalhoDeEdicao.tsx`, `src/components/barbeiro/agenda/NaBarraDoTopo.tsx`, `src/styles.css` |
 
 | GPT | 2026-10-20 UTC | Auditoria autônoma de UX de autenticação, onboarding e recuperação de sessão na prévia; validar correção e depois ampliar auditoria geral sem tocar produção | `DIARIO.md`, `src/routes/comecar.tsx`, `src/routes/login.tsx`, `src/lib/guarda.ts`, testes relacionados; sem migração |
 | GPT | 2026-10-17 UTC | Auditoria e melhoria mobile-first da home de apresentação | `DIARIO.md`, `MUSE.md`, `src/components/apresentacao/ShowroomCortai.tsx`, `src/components/apresentacao/DemoAgendamento.tsx`, `src/components/apresentacao/NarrativaApresentacao.tsx`, estilos já existentes da apresentação |
