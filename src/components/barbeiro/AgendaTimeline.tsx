@@ -149,6 +149,7 @@ export function AgendaTimeline({
   onMover,
   onRedimensionar,
   onEditar,
+  onAtualizarYDoToque,
   passoMin,
   edicaoDoCartao,
   onHorarioVazio,
