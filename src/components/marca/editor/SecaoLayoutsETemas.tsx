@@ -102,7 +102,7 @@ export function SecaoLayoutsETemas({
         </AccordionItem>
         ) : (
           <div className="rounded-xl border border-line bg-ink px-4 py-3 text-sm leading-relaxed text-mute">
-            A escolha de layout é usada na experiência Vitrine. Para ver os cinco layouts, acesse Conteúdo e selecione Vitrine como experiência de agendamento.
+            A escolha de layout é usada na experiência Vitrine. Para acessar os sete layouts, abra Conteúdo e selecione Vitrine como experiência da página.
           </div>
         )}
 
