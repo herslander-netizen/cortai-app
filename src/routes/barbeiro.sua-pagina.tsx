@@ -214,7 +214,7 @@ function SuaPagina() {
             </div>
           </div>
           <Link
-            to="/barbeiro/marca"
+            to="/barbeiro/marca/layout-tema"
             className="m-4 flex min-h-12 items-center justify-center gap-2 rounded-full bg-gold px-4 py-3 text-sm font-semibold text-ink transition-colors hover:brightness-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold sm:mx-5 sm:mb-5"
           >
             Layout & Tema
@@ -228,7 +228,7 @@ function SuaPagina() {
             Personalize primeiro o layout e o tema. Depois revise os textos, as imagens, os serviços e os canais de contato. As alterações só entram na página pública quando forem publicadas pelo editor.
           </p>
           <Button asChild variant="primary" className="mt-4 w-full sm:w-auto">
-            <Link to="/barbeiro/marca">Editar conteúdo da página</Link>
+            <Link to="/barbeiro/marca/layout-tema">Editar conteúdo da página</Link>
           </Button>
         </section>
       </div>
