@@ -214,8 +214,7 @@ teste real na prévia.
 
 | Quem | Desde (UTC) | Tarefa | Arquivos / migração reservada |
 |---|---|---|---|
-| GPT | 2026-10-21 UTC | Completar jornada Figaro: editores individuais funcionais e tela principal com grupos de seções no lugar das abas, mantendo configurações extras e salvamento atual | `DIARIO.md`, `src/routes/barbeiro.marca.tsx`, `src/routes/barbeiro.marca.secao.$secao.tsx`, `src/components/marca/editor/EditorDaSecaoPublica.tsx`, `src/components/marca/editor/SecaoConteudo.tsx`, `src/components/marca/editor/PaineisDoEditor.tsx`, testes; sem migração |
-| GPT | 2026-10-21 UTC | Corrigir regressão de link público: tirar a vitrine do ar não pode bloquear a rota de agendamento direto/conversa; validar redirecionamento e metadados | `DIARIO.md`, `src/lib/agendamento-publico.functions.ts`, `src/routes/$slug.tsx`, testes de link público; sem migração |
+| GPT | 2026-10-21 UTC | Validar visualmente a jornada Figaro em 390px e 1280px, conferir animações e corrigir divergências observadas; implementação automatizada já passou, mas não declarar paridade sem inspeção visual | `DIARIO.md`, `src/routes/barbeiro.marca.tsx`, `src/routes/barbeiro.marca.secao.$secao.tsx`, `src/components/marca/editor/EditorDaSecaoPublica.tsx`, `src/components/marca/editor/SecaoConteudo.tsx`, `src/components/marca/editor/PaineisDoEditor.tsx`, testes; sem migração |
 
 
 | GPT | 2026-10-20 UTC | Auditoria autônoma de UX de autenticação, onboarding e recuperação de sessão na prévia; validar correção e depois ampliar auditoria geral sem tocar produção | `DIARIO.md`, `src/routes/comecar.tsx`, `src/routes/login.tsx`, `src/lib/guarda.ts`, testes relacionados; sem migração |
@@ -363,6 +362,14 @@ teste real na prévia.
 - Sem alteração no banco, `main` ou produção.
 
 ## Diário (mais recente primeiro)
+
+### 2026-10-21 UTC — GPT — Jornada Figaro e estado público na prévia
+- A tela principal `Personalizar Página` agora mostra o card `Layout & Tema`, os grupos de seções diretamente na página e mantém `Detalhes`, `Divulgação` e `Histórico` em `Outras configurações`. O menu de ações abre a edição do link dentro desse painel.
+- Cada seção tem editor próprio: apresentação/textos, dados reais de serviços, profissionais, avaliações, produtos e horários via suas áreas de gestão; localização, contatos, redes, CTA e galeria têm controles no editor. A galeria aceita até 8 fotos e remover da página não apaga o arquivo do armazenamento.
+- O banner de rascunho usa expansão/recolhimento com fade; a movimentação de seções tem transição e respeita `prefers-reduced-motion`. A tela foi alinhada ao título e à hierarquia da referência.
+- Corrigi a regressão de roteamento: `paginaOnline` controla a vitrine e seus metadados, mas não faz `getPreviaDaBarbearia` retornar `null`; links de agendamento direto/conversa continuam sendo roteados pela experiência configurada.
+- GitHub Actions no commit `89f11ed4` passou em build, TypeScript e testes, e a prévia isolada foi publicada com smoke test bem-sucedido (run [39676076893](https://github.com/herslander-netizen/cortai-app/actions/runs/39676076893)). A migração 0042 segue apenas em `cortai-preview`; produção, `main` e DNS não foram alterados.
+- **Pendente:** não consegui fazer inspeção visual real em 390px/1280px nesta sessão por falta de contexto de navegador conectado. Portanto, não declarar paridade completa com o APK até validar visualmente o fluxo e as animações.
 
 ### 2026-10-21 UTC — GPT — Status da página pública com validação e deploy na prévia
 - Implementei a ação de colocar a vitrine pública no ar/fora do ar com confirmação destrutiva, reativação, feedback de erro/sucesso e estado persistido por estabelecimento. O valor padrão `true` preserva páginas existentes; a vitrine não retorna dados públicos quando está desativada. Metadados públicos também respeitam esse estado. A agenda e o link direto de agendamento continuam independentes.
