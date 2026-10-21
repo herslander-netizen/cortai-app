@@ -128,7 +128,7 @@ export const getSessao = createServerFn({ method: "GET" })
     const tipo = await garantirPerfil(context.userId, email, nomeMeta);
     const db = await admin();
 
-    const [{ data: papelAdmin }, { data: vinculos }, { data: perfil }, { count: fichas }] =
+    const [resultadoPapelAdmin, resultadoVinculos, resultadoPerfil, resultadoFichas] =
       await Promise.all([
         db.rpc("has_role", { _user_id: context.userId, _role: "admin" }),
         db
@@ -148,6 +148,20 @@ export const getSessao = createServerFn({ method: "GET" })
           .select("id", { count: "exact", head: true })
           .eq("user_id", context.userId),
       ]);
+
+    if (
+      resultadoPapelAdmin.error ||
+      resultadoVinculos.error ||
+      resultadoPerfil.error ||
+      resultadoFichas.error
+    ) {
+      throw new Error("Não foi possível carregar seu acesso. Tente novamente em instantes.");
+    }
+
+    const papelAdmin = resultadoPapelAdmin.data;
+    const vinculos = resultadoVinculos.data;
+    const perfil = resultadoPerfil.data;
+    const fichas = resultadoFichas.count;
 
     // Uma conta pode ter vínculo com mais de uma barbearia: usa a escolhida, com o
     // primeiro vínculo ativo como padrão seguro — a mesma regra do servidor (`vinculoDoMembro`).
