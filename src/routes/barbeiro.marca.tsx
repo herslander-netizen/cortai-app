@@ -219,7 +219,7 @@ function Editor({
         </DropdownMenu>
       </div>
 
-      <AnimatePresence initial={false}>
+      <AnimatePresence>
         {e.pendente ? (
           <motion.section
             key="rascunho-banner"
