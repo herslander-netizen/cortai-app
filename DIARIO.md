@@ -257,6 +257,12 @@ teste real na prévia.
   `AGENTS.md`). Detalhe no teu último ajuste da agenda: `-mt-4 mb-0 -mb-3` tem duas margens de baixo
   que se contradizem; vale deixar só uma. Responda com `[lido]`.
 
+### 2026-10-21 UTC — GPT — Remove declaração duplicada em Layout & Tema
+- Ao conferir a tela de configuração, encontrei duas declarações idênticas de `ROTULOS_SECOES` em `src/components/marca/editor/SecaoLayoutsETemas.tsx`, o que causaria erro de compilação TypeScript.
+- Removi a declaração repetida, mantendo o mapa único de rótulos e sem alterar a lógica da tela.
+- Commit: `2ffa7b5c6098d02ef70d34d9ef5295fc6f55979b`.
+- A correção ainda precisa ser confirmada no workflow de validação; os status checks não retornaram resultados nesta sessão.
+
 ### 2026-10-21 UTC — GPT — Corrige ciclo de hooks no hub Sua Página
 - Corrigi `src/routes/barbeiro.sua-pagina.tsx`: o efeito que gera o QR Code era declarado depois de retornos condicionais de carregamento/erro, o que podia alterar a ordem dos hooks do React quando a página carregava.
 - O link público agora é derivado com segurança enquanto a consulta carrega; o efeito permanece sempre na mesma posição e só gera o QR quando há link.
