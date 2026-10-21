@@ -7,6 +7,7 @@ import { useState } from "react";
 import { EsqueletoFormulario } from "@/components/layout/Esqueleto";
 import { Screen } from "@/components/layout/Screen";
 import { SecaoConteudo } from "@/components/marca/editor/SecaoConteudo";
+import { EditorDaSecaoPublica } from "@/components/marca/editor/EditorDaSecaoPublica";
 import { useEditorDaPagina } from "@/components/marca/editor/useEditorDaPagina";
 import { Button } from "@/components/ui/button";
 import { getMarca, salvarRascunhoPagina } from "@/lib/marca.functions";
@@ -122,6 +123,9 @@ function EditorSecao({
     >
       <div className="space-y-5 pb-24">
         <SecaoConteudo config={e.config} setPagina={e.setPagina} somente={secao} mostrarEdicao={false} />
+        <section className="surface space-y-4 p-4 sm:p-5" aria-label="Configurações da seção">
+          <EditorDaSecaoPublica secao={secao} e={e} />
+        </section>
         {mensagem ? <p role={erro ? "alert" : "status"} className="text-sm text-mute">{mensagem}</p> : null}
       </div>
       <div className="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-ink/95 p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] backdrop-blur md:sticky md:bottom-0 md:rounded-xl md:border md:bg-ink">
