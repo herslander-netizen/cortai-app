@@ -34,7 +34,7 @@ function LayoutTemaPage() {
 
   if (query.isLoading) {
     return (
-      <Screen voltarPara="/barbeiro/sua-pagina" title="Layout & Tema">
+      <Screen voltarPara="/barbeiro/marca" title="Layout & Tema">
         <EsqueletoFormulario campos={4} onTentarDeNovo={() => void query.refetch()} />
       </Screen>
     );
@@ -58,7 +58,7 @@ function LayoutTemaPage() {
         await queryClient.invalidateQueries({ queryKey: ["marca"] });
         await queryClient.invalidateQueries({ queryKey: ["pagina-publica", query.data.marca.slug] });
       }}
-      onVoltar={() => void navigate({ to: "/barbeiro/sua-pagina" })}
+      onVoltar={() => void navigate({ to: "/barbeiro/marca" })}
     />
   );
 }
