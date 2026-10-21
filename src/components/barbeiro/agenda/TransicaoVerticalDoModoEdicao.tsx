@@ -29,7 +29,7 @@ export function TransicaoVerticalDoModoEdicao({
       exit={{ opacity: 0, y: deslocamento }}
       transition={
         animacaoGaveta
-          ? { type: "spring", stiffness: 420, damping: 38, mass: 0.8 }
+          ? { duration: 0.48, ease: [0.22, 1, 0.36, 1] }
           : { duration: 0.3, ease: [0.4, 0, 0.2, 1] }
       }
     >
