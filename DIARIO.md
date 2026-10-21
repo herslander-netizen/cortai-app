@@ -144,6 +144,19 @@ Pegar a primeira livre; reservar em "Em andamento" antes.
 Aguardando o dono: Auth do Supabase (URLs, senha vazada, Google/Apple); chaves da IA e do WhatsApp;
 teste real na prévia.
 
+## Atualização de execução — 2026-10-21
+
+- **Escopo:** recuperação da experiência Figaro no Cortaí; preservar as animações verificadas junto com layout, conteúdo e navegação. A regra foi registrada em Decisões do dono e nos critérios de aceite da matriz.
+- **Alterações feitas nesta sequência, somente na branch `cloudflare-workers-migration-2026-10-13`:**
+  - hub “Sua Página” e atalho de navegação já criados anteriormente;
+  - distinção do item “Aparência do aplicativo” em Ajustes para não confundir o tema do painel com o tema da página pública;
+  - animação curta de escala/opacidade no selo de seleção dos cartões de Layout & Tema;
+  - componente de cartões de layout/tema separado em `CartoesDeLayoutTema.tsx`;
+  - teste de navegação atualizado para exigir a rota “Sua Página”;
+  - matriz Figaro atualizada para declarar animações como critério obrigatório e registrar as lacunas da prévia.
+- **Ainda não verificado:** execução visual, build, TypeScript e testes. Os status checks disponíveis não retornaram resultados; isso não significa aprovação. Não afirmar que está pronto nem publicar em produção.
+- **Próxima ação:** validar os imports e a compilação após a extração de `CartoesDeLayoutTema.tsx`; depois testar 390 px e 1280 px, transições e movimento reduzido, corrigindo qualquer falha antes de avançar para os editores individuais e onboarding.
+
 ## Em andamento
 
 | Quem | Desde (UTC) | Tarefa | Arquivos / migração reservada |
