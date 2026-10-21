@@ -4,6 +4,25 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* No modo de edição mobile, o cabeçalho substitui a marca no topo; não deixa a logo visível por trás. */
+@media (max-width: 767px) {
+  .management-header:has(#topo-centro .cabecalho-edicao-mobile) .menu-cortai-trigger {
+    visibility: hidden;
+    width: 0;
+    min-width: 0;
+    padding: 0;
+    margin: 0;
+    overflow: hidden;
+  }
+  .management-header:has(#topo-centro .cabecalho-edicao-mobile) #topo-centro {
+    justify-content: center;
+    flex: 1 1 100%;
+  }
+  .management-header:has(#topo-centro .cabecalho-edicao-mobile) > div:first-child {
+    gap: 0;
+  }
+}
+
 /* Oculta indicadores de rolagem em toda a aplicação sem desativar o scroll. */
 * {
   scrollbar-width: none;
