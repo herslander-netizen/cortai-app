@@ -4,24 +4,40 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* Modo editar horário mobile: o cabeçalho ocupa a barra inteira no lugar da logo.
-   Não altera a altura da barra nem deixa os ícones laterais disputarem espaço com a data. */
+/* A edição substitui o conteúdo da barra existente, sem posicionamento por margens negativas. */
 @media (max-width: 767px) {
-  .management-header:has(#topo-centro .cabecalho-edicao-mobile) {
-    position: relative;
-    isolation: isolate;
+  .management-header {
+    transition: border-radius 220ms ease, background-color 220ms ease;
   }
+
+  .management-header:has(#topo-centro .cabecalho-edicao-mobile) {
+    height: 108px;
+    min-height: 108px;
+    overflow: hidden;
+    border-radius: 0 0 28px 28px;
+    background: var(--ink2);
+    border-bottom-color: var(--line);
+    backdrop-filter: none;
+  }
+
   .management-header:has(#topo-centro .cabecalho-edicao-mobile) > div:first-child {
     position: relative;
+    height: 108px !important;
+    min-height: 108px;
     justify-content: center;
     gap: 0;
+    padding: 0;
+    transition: height 220ms ease;
   }
+
   .management-header:has(#topo-centro .cabecalho-edicao-mobile) .menu-cortai-trigger {
     display: none !important;
   }
+
   .management-header:has(#topo-centro .cabecalho-edicao-mobile) > div:first-child > div:last-child {
     display: none !important;
   }
+
   .management-header:has(#topo-centro .cabecalho-edicao-mobile) #topo-centro {
     position: absolute;
     inset: 0;
@@ -34,11 +50,16 @@
     justify-content: center;
     padding: 0;
   }
+
   .management-header:has(#topo-centro .cabecalho-edicao-mobile) .cabecalho-edicao-mobile {
     width: 100%;
     max-width: none;
-    min-height: 56px;
-    border-radius: 0 0 24px 24px;
+    min-height: 108px;
+    justify-content: center;
+    border: 0;
+    border-radius: 0 0 28px 28px;
+    padding: 12px 16px 14px;
+    box-shadow: none;
   }
 }
 
