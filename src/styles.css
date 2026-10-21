@@ -3028,20 +3028,6 @@ body:has(.auth-screen--claro) {
 /* Celular: a Timeline não é contêiner de rolagem; quem rola é a página.
    Uma sobra de 1px prendia o gesto na caixa (overscroll contain). */
 @media (max-width: 600px) {
-  .agenda-lista-dia-titulo {
-    flex-wrap: wrap;
-    align-items: center;
-  }
-
-  .agenda-lista-dia-titulo h3 {
-    min-width: 0;
-    flex-wrap: wrap;
-  }
-
-  .agenda-lista-dia-resumo {
-    flex: 1 1 100%;
-    white-space: normal;
-  }
 
   .agenda-timeline-wrap {
     overflow: visible;
@@ -7234,4 +7220,22 @@ button.agenda-nome:hover {
 .agenda-timeline-bloco .agenda-timeline-horario svg {
   width: 13px;
   height: 13px;
+}
+
+/* Cabeçalho dos dias em Cards: data por extenso sem comprimir a agenda no celular. */
+@media (max-width: 600px) {
+  .agenda-lista-dia-titulo {
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .agenda-lista-dia-titulo h3 {
+    min-width: 0;
+    flex-wrap: wrap;
+  }
+
+  .agenda-lista-dia-resumo {
+    flex: 1 1 100%;
+    white-space: normal;
+  }
 }
