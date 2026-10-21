@@ -557,6 +557,7 @@ export function AgendaOperacional() {
   );
   // Editar horário: arrastar ou esticar só propõe; nada grava até Salvar.
   const relogioDaEdicao = useAgora();
+  const ancoraZoomEdicao = useRef<{ id: string; y: number } | null>(null);
   const edicao = useRascunhoDeHorario({
     itens: itensBase,
     dia,
@@ -568,8 +569,12 @@ export function AgendaOperacional() {
         avisarCliente: avisar,
       }),
   });
-  // Figaro: editar um cartão aproxima as horas (4 px/min) e sair volta ao zoom de antes.
-  useZoomDaEdicao(edicao.rascunho?.id ?? null);
+  // Figaro: o zoom entra ao segurar, ancora o ponto pressionado e volta ao zoom anterior ao sair.
+  const yAncoraZoom =
+    edicao.rascunho && ancoraZoomEdicao.current?.id === edicao.rascunho.id
+      ? ancoraZoomEdicao.current.y
+      : undefined;
+  useZoomDaEdicao(edicao.rascunho?.id ?? null, yAncoraZoom);
   const gestoDia = useGestoDia(dia, mudarDia);
   // A Agenda não é desmontada ao trocar de dia (nada pisca e a rolagem fica onde estava).
   // Troca por seta, calendário ou "Hoje": um deslize curto, sem sumir; pelo gesto, nada.
@@ -857,6 +862,11 @@ export function AgendaOperacional() {
 
   function moverPorArrasto(item: AgendaItem, deltaMin: number) {
     edicao.propor(item.id, deltaMin);
+  }
+  function iniciarEdicaoPorGesto(item: AgendaItem, yDoToque?: number) {
+    ancoraZoomEdicao.current =
+      typeof yDoToque === "number" ? { id: item.id, y: yDoToque } : null;
+    edicao.iniciar(item.id);
   }
   const cartaoEmEdicao = edicao.original
     ? { id: edicao.original.id, motivo: edicao.textoDoMotivo }
@@ -1442,7 +1452,7 @@ export function AgendaOperacional() {
                       onSelecionar={abrir}
                       onMover={moverPorArrasto}
                       onRedimensionar={redimensionarPorAlca}
-                      onEditar={(item) => edicao.iniciar(item.id)}
+                      onEditar={iniciarEdicaoPorGesto}
                       passoMin={passoMin}
                       edicaoDoCartao={cartaoEmEdicao}
                       onHorarioVazio={(h) => {
@@ -1473,7 +1483,7 @@ export function AgendaOperacional() {
                   onSelecionar={abrir}
                   onMover={moverPorArrasto}
                   onRedimensionar={redimensionarPorAlca}
-                  onEditar={(item) => edicao.iniciar(item.id)}
+                  onEditar={iniciarEdicaoPorGesto}
                   passoMin={passoMin}
                   edicaoDoCartao={cartaoEmEdicao}
                   onHorarioVazio={(h) => {
