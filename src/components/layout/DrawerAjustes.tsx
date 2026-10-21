@@ -192,7 +192,7 @@ export function DrawerAjustes({
             const Icon = item.icon;
             return (
               <Button key={item.label} asChild variant="ghost" size="bloco" className={CARTAO}>
-                <Link to={item.to} hash={item.label === "Avisos e notificações" ? "avisos" : undefined} onClick={navegar}>
+                <Link to={item.to} {...(item.label === "Avisos e notificações" ? { hash: "avisos" } : {})} onClick={navegar}>
                   <span className={LINHA}>
                     <IconeDoMenu icone={Icon} />
                     <span className="min-w-0">
