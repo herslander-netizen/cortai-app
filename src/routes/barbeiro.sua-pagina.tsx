@@ -1,7 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
+import QRCode from "qrcode";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowUpRight, CheckCircle2, CircleHelp, Eye, LayoutTemplate, Palette, PencilLine, AlertTriangle } from "lucide-react";
-import { useState } from "react";
+import { ArrowUpRight, CheckCircle2, CircleHelp, Eye, LayoutTemplate, Palette, PencilLine, AlertTriangle, QrCode } from "lucide-react";
+import { useEffect, useState } from "react";
 
 import { Screen } from "@/components/layout/Screen";
 import { Button } from "@/components/ui/button";
@@ -26,6 +27,8 @@ export const Route = createFileRoute("/barbeiro/sua-pagina")({
 function SuaPagina() {
   const query = useQuery({ queryKey: ["marca"], queryFn: () => getMarca(), retry: false });
   const [mensagem, setMensagem] = useState("");
+  const [qrCode, setQrCode] = useState<string | null>(null);
+  const [mostrarQr, setMostrarQr] = useState(false);
 
   if (query.isLoading) {
     return (
@@ -51,6 +54,24 @@ function SuaPagina() {
 
   const marca = query.data.marca;
   const link = urlPublica(`/${marca.slug}`);
+
+  useEffect(() => {
+    let ativo = true;
+    const estilos = window.getComputedStyle(document.documentElement);
+    void QRCode.toDataURL(link, {
+      width: 320,
+      margin: 1,
+      color: {
+        dark: estilos.getPropertyValue("--qr-dark").trim() || "#10203A",
+        light: estilos.getPropertyValue("--qr-light").trim() || "#FFFFFF",
+      },
+    }).then((url) => {
+      if (ativo) setQrCode(url);
+    }).catch(() => {
+      if (ativo) setMensagem("Não foi possível gerar o QR Code agora.");
+    });
+    return () => { ativo = false; };
+  }, [link]);
 
   return (
     <Screen
@@ -102,6 +123,17 @@ function SuaPagina() {
               Copiar link
             </Button>
           </div>
+          <Button type="button" variant="outline" className="mt-2" onClick={() => setMostrarQr((aberto) => !aberto)} aria-expanded={mostrarQr}>
+            <QrCode size={17} aria-hidden />
+            {mostrarQr ? "Ocultar QR Code" : "Mostrar QR Code"}
+          </Button>
+          {mostrarQr ? (
+            <div className="mt-4 rounded-xl border border-line bg-background p-4 text-center">
+              {qrCode ? <img src={qrCode} alt={`QR Code para abrir a página pública de ${marca.nome}`} width={240} height={240} className="mx-auto h-60 w-60 max-w-full rounded-lg bg-qr-light p-2" /> : <p role="status" className="text-sm text-mute">Gerando QR Code…</p>}
+              <p className="mt-2 text-xs text-mute">Aponte a câmera do celular para abrir sua página pública.</p>
+              {qrCode ? <a href={qrCode} download={`qr-${marca.slug}.png`} className="mt-3 inline-flex min-h-11 items-center justify-center rounded-full border border-line px-4 text-sm font-medium text-paper">Salvar imagem do QR Code</a> : null}
+            </div>
+          ) : null}
           {mensagem ? <p role="status" className="mt-3 text-xs text-mute">{mensagem}</p> : null}
         </section>
 
