@@ -157,6 +157,12 @@ teste real na prévia.
 - Commits: `ee931e85e78ecb6455ea81bb6b125223ed053a84`, `b2ec383ea57c7a10731b9e8cf86b1a72267733c2`, `e3008b2e8757b68a16ed2e8cb350c5c56de099b8`.
 - Aguardando CI do commit mais recente; não declarar testes/build aprovados até conferir o resultado.
 
+### 2026-10-21 UTC — GPT — Prioriza navegação mobile no editor da página
+- Em `PaineisDoEditor.tsx`, as cinco áreas de configuração agora ficam numa faixa horizontal rolável no celular, com alvos de toque consistentes, em vez de ocupar até três linhas e empurrar o conteúdo para baixo. Mantém as mesmas áreas e seus estados; não remove animações.
+- Em `SecaoLayoutsETemas.tsx`, o acordeão controlado agora omite a prop `value` quando está recolhido, respeitando `exactOptionalPropertyTypes`.
+- CI anterior (`52c00f1`) falhou em TypeScript: além do acordeão, apontou um erro de tipagem no drawer de Ajustes e um teste de painéis. Conferir a nova execução; não considerar validado até corrigir os erros restantes.
+- Alterações continuam isoladas na branch de migração; sem banco, main ou publicação principal.
+
 ## Atualização de execução — 2026-10-21
 
 - **Escopo:** recuperação da experiência Figaro no Cortaí; preservar as animações verificadas junto com layout, conteúdo e navegação. A regra foi registrada em Decisões do dono e nos critérios de aceite da matriz.
