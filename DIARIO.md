@@ -363,6 +363,14 @@ teste real na prévia.
 
 ## Diário (mais recente primeiro)
 
+### 2026-10-21 UTC — GPT — Corrige destino da seção Equipe no editor público
+- Ao revisar a jornada de Personalizar Página, encontrei um desvio funcional confirmado: o botão de gestão da seção **Equipe** abria `/barbeiro/configurar` (Dados e localização), embora o texto prometesse gerenciar profissionais.
+- Corrigi `src/components/marca/editor/EditorDaSecaoPublica.tsx` para direcionar a seção à rota `/barbeiro/profissionais`; o tipo local de destinos foi ajustado para refletir a rota correta.
+- Commit de código: `2d26ab3b6133c477599ef5ffbc194929faa66f9c`.
+- A validação automática e a publicação da prévia para este commit ainda precisam ser conferidas. A auditoria Figaro continua em andamento; a inspeção visual real em 390px/1280px e das animações depende de navegador conectado.
+- Nenhuma alteração em banco, `main`, DNS ou site principal.
+
+
 ### 2026-10-21 UTC — GPT — Corrige entrada de Sua Página para seguir o fluxo Figaro
 - A gaveta principal agora abre diretamente `/barbeiro/marca` (Personalizar Página), em vez de passar pelo hub `/barbeiro/sua-pagina`; a aba de navegação também acompanha as telas filhas Layout & Tema e Editar seção.
 - Atualizei `src/lib/navegacao-barbeiro.ts` e acrescentei testes em `src/lib/navegacao-barbeiro.test.ts` para a rota de entrada e o estado ativo.
