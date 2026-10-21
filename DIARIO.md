@@ -312,6 +312,14 @@ teste real na prévia.
 - Arquivos: `src/components/layout/DrawerAjustes.tsx`, `src/components/notificacoes/PreferenciasDeAvisos.tsx`, `src/routes/barbeiro.conta.tsx`, `src/lib/navegacao-barbeiro.ts`. Commits: `cdb5d0d9fe5fa168a9b04bf798faea864c6efad4`, `0c190483759fd51a3634a2509686c022e528f186`, `c4a5c94b90c351223ae30ff1c8cb7319b7fdbd47`, `2f3cc112c0c74eb59ba403c2bfca0580f1b0c160`.
 - Validação: TypeScript, testes e navegação hash ainda pendentes de confirmação automatizada/visual. Sem banco, sem produção e sem `main`.
 
+### 2026-10-21 UTC — GPT — Ajustes de mobile-first e correção do CI
+- Reforcei a prioridade mobile na configuração da página: a folha “Ver Exemplo” agora reserva espaço inferior para a área segura do aparelho (`env(safe-area-inset-bottom)`), evitando que controles fiquem sob a barra de gestos.
+- Corrigi o Link do drawer de Ajustes para não enviar um `hash` inválido ao TanStack Router.
+- Tipagem do acordeão Layout & Tema agora usa estado fechado explícito como string vazia, compatível com `exactOptionalPropertyTypes`.
+- Commits: `ae7cf8913f6fa14bcfa87c1a3b89e0b77af20243`, `5f174bf6a4f91619ad6e8c3232b7c20d8f2fa73e`, `bdbfc8f2458dc5018d3bfe7d5bf9d5580d46f0ec`.
+- A execução anterior do CI falhou em TypeScript; os novos envios estão sendo validados. Não afirmar que testes/build passaram até concluir o workflow.
+- Sem alteração no banco, `main` ou produção.
+
 ## Diário (mais recente primeiro)
 
 ### 2026-10-21 UTC — GPT — QR Code da página no hub
