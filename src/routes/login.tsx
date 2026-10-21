@@ -42,7 +42,7 @@ export const Route = createFileRoute("/login")({
     links: [{ rel: "canonical", href: "https://cortai.dev/login" }],
   }),
   beforeLoad: async () => {
-    let usuario = null;
+    let usuario: { id: string } | null = null;
     try {
       const resultado = await supabase.auth.getUser();
       usuario = resultado.data.user;
