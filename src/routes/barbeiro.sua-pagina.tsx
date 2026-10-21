@@ -56,7 +56,7 @@ function SuaPagina() {
 
   if (query.isLoading) {
     return (
-      <Screen voltarPara="/barbeiro" title="Personalizar Página">
+      <Screen voltarPara="/barbeiro" title="Link público e QR Code">
         <EsqueletoFormulario campos={4} onTentarDeNovo={() => void query.refetch()} />
       </Screen>
     );
@@ -64,7 +64,7 @@ function SuaPagina() {
 
   if (query.isError || !query.data?.marca) {
     return (
-      <Screen voltarPara="/barbeiro" title="Sua Página" subtitle="Página pública do negócio">
+      <Screen voltarPara="/barbeiro" title="Link público e QR Code" subtitle="Compartilhe sua página pública com clientes.">
         <div className="surface space-y-3 p-5">
           <CircleHelp className="text-mute" size={24} aria-hidden />
           <p className="text-sm text-paper">
@@ -81,8 +81,8 @@ function SuaPagina() {
   return (
     <Screen
       voltarPara="/barbeiro"
-      title="Personalizar Página"
-      subtitle="Gerencie as seções da sua página pública, o layout e o tema."
+      title="Link público e QR Code"
+      subtitle="Compartilhe o link, gere o QR Code e confira a aparência atual da página."
     >
       <div className="space-y-4">
         <section className="surface overflow-hidden p-4 sm:p-5">
@@ -232,7 +232,7 @@ function SuaPagina() {
             Personalize primeiro o layout e o tema. Depois revise os textos, as imagens, os serviços e os canais de contato. As alterações só entram na página pública quando forem publicadas pelo editor.
           </p>
           <Button asChild variant="primary" className="mt-4 w-full sm:w-auto">
-            <Link to="/barbeiro/marca/layout-tema">Editar conteúdo da página</Link>
+            <Link to="/barbeiro/marca">Personalizar Página</Link>
           </Button>
         </section>
       </div>
