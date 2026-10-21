@@ -42,7 +42,9 @@ const ouvintesDeCorrecaoDeZoom = new Set<CorrecaoDeZoom>();
 /** Permite ao gesto de arrasto desconsiderar o scroll usado para ancorar o cartão. */
 export function aoCorrigirRolagemDoZoom(ouvinte: CorrecaoDeZoom) {
   ouvintesDeCorrecaoDeZoom.add(ouvinte);
-  return () => ouvintesDeCorrecaoDeZoom.delete(ouvinte);
+  return () => {
+    ouvintesDeCorrecaoDeZoom.delete(ouvinte);
+  };
 }
 
 export function pxPorMinutoAtual() {
@@ -251,8 +253,12 @@ export function useZoomDaEdicao(idEmEdicao: string | null, yDoToque?: number) {
       aoConcluir: () => void,
     ) => {
       if (prefereMenosMovimento() || Math.abs(escalaFinal - escalaInicial) < 0.005) {
-        aplicarEscala(escalaFinal, ancora, minutoDoCartao, yAlvo);
-        aoConcluir();
+        quadro = window.requestAnimationFrame(() => {
+          quadro = null;
+          if (cancelado) return;
+          aplicarEscala(escalaFinal, ancora, minutoDoCartao, yAlvo);
+          aoConcluir();
+        });
         return;
       }
 
