@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Link } from "@tanstack/react-router";
 import {
   CalendarDays,
@@ -93,6 +94,7 @@ export function SecaoConteudo({
 }) {
   const refs = useRef<Record<ComponenteId, HTMLButtonElement | null>>({} as Record<ComponenteId, HTMLButtonElement | null>);
   const focoPendente = useRef<ComponenteId | null>(null);
+  const reduzirMovimento = useReducedMotion();
 
   // Se um bloco mudar de grupo ao ligar/desligar, preserva o foco do teclado.
   useEffect(() => {
@@ -124,12 +126,18 @@ export function SecaoConteudo({
 
       {ids.length ? (
         <div className="space-y-2">
-          {ids.map((id) => {
-            const secao = SECOES[id];
-            const Icone = secao.icone;
-            return (
-              <div
+          <AnimatePresence initial={false}>
+            {ids.map((id) => {
+              const secao = SECOES[id];
+              const Icone = secao.icone;
+              return (
+              <motion.div
                 key={id}
+                layout
+                initial={reduzirMovimento ? { opacity: 0 } : { opacity: 0, y: -5, scale: 0.99 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={reduzirMovimento ? { opacity: 0 } : { opacity: 0, y: -5, scale: 0.99 }}
+                transition={{ duration: reduzirMovimento ? 0.12 : 0.2, ease: "easeOut" }}
                 className="surface flex min-h-[76px] items-center gap-3 p-3 sm:gap-4 sm:p-4"
               >
                 <span className={`flex size-10 shrink-0 items-center justify-center rounded-lg ${ativo ? "bg-gold/10 text-gold" : "bg-ink2 text-mute"}`}>
@@ -153,9 +161,10 @@ export function SecaoConteudo({
                   }}
                   aria-label={`${checkedLabel(ativo)} ${secao.nome}`}
                 />
-              </div>
-            );
-          })}
+              </motion.div>
+              );
+            })}
+          </AnimatePresence>
         </div>
       ) : (
         <p className="rounded-lg border border-dashed border-line px-4 py-5 text-center text-sm text-mute">
