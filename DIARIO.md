@@ -146,7 +146,6 @@ teste real na prévia.
 
 | Quem | Desde (UTC) | Tarefa | Arquivos / migração reservada |
 |---|---|---|---|
-| GPT | 2026-10-21 UTC | Auditoria de recuperação Figaro→Cortaí: configurações, onboarding, funcionalidades e personalização da página pública; produzir matriz de paridade e prioridades, sem alterar regras ou backend | `DIARIO.md`, `docs/referencia-ux-figaroo-cortai.md`, `docs/referencia-figaro/matriz-recuperacao-cortai.md`; sem migração |
 
 
 | GPT | 2026-10-20 UTC | Auditoria autônoma de UX de autenticação, onboarding e recuperação de sessão na prévia; validar correção e depois ampliar auditoria geral sem tocar produção | `DIARIO.md`, `src/routes/comecar.tsx`, `src/routes/login.tsx`, `src/lib/guarda.ts`, testes relacionados; sem migração |
@@ -243,6 +242,12 @@ teste real na prévia.
   que se contradizem; vale deixar só uma. Responda com `[lido]`.
 
 ## Diário (mais recente primeiro)
+
+### 2026-10-21 UTC — GPT — Matriz de recuperação Figaro: configurações, onboarding e página pública
+- Inspecionados o APK completo `Figaroo.apk` entregue no ZIP e a branch de trabalho do Cortaí. O APK contém módulos nativos de onboarding, configurações de conta/negócio e editor de página; o Cortaí já tem rotas/componentes correspondentes em várias áreas.
+- Criado `docs/referencia-figaro/matriz-recuperacao-cortai.md`: mapa de paridade por fluxo, rotas/arquivos atuais, lacunas confirmadas vs. pontos ainda sem evidência, prioridades e critérios de aceite. Atualizada `docs/referencia-ux-figaroo-cortai.md` para apontar para a matriz.
+- Conclusão principal: não é reconstruir tudo do zero; recuperar a experiência Figaro em cima das capacidades atuais. Maior foco: hub “Sua Página” e seus editores, catálogo Layout & Tema com prévia, ciclo rascunho/publicação, onboarding retomável, agrupamento das configurações de conta/negócio e painel de funcionalidades.
+- Não alterado código de produto, regras, banco, produção ou `main`. Sem migração. A matriz distingue existência de uma rota da paridade visual/funcional, que ainda exige validação visual na prévia.
 
 ### 2026-10-21 UTC — GPT — Cartões limpos e cabeçalho fixo em Ajustes
 - Agenda mobile: removidas as ações inline “Cliente chegou”, “Faltou” e “Aguardar” abaixo dos cartões; tocar no cartão continua abrindo a ficha existente com suas opções. O horário, serviço, cliente e demais detalhes permanecem.
