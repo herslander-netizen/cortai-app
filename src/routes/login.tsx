@@ -11,6 +11,7 @@ import { getSessao, type Sessao } from "@/lib/sessao.functions";
 import { Aviso } from "@/components/ui/aviso";
 import { MarcaCortai } from "@/components/marca/MarcaCortai";
 import { sincronizarCorDoNavegador } from "@/lib/aparencia";
+import { mensagemDeErroDeAuth } from "@/lib/auth-flow";
 
 export const Route = createFileRoute("/login")({
   ssr: false,
@@ -211,46 +212,49 @@ function LoginPage() {
         className="space-y-3"
         onSubmit={async (event) => {
           event.preventDefault();
+          if (enviando) return;
           setEnviando(true);
           setErro(null);
           setAviso(null);
-          if (modo === "entrar") {
-            const { error } = await supabase.auth.signInWithPassword({ email, password: senha });
+          try {
+            if (modo === "entrar") {
+              const { error } = await supabase.auth.signInWithPassword({
+                email: email.trim().toLowerCase(),
+                password: senha,
+              });
+              if (error) {
+                setErro(mensagemDeErroDeAuth(error, "entrar"));
+                return;
+              }
+              await seguirParaMinhaArea();
+              return;
+            }
+
+            const { data, error } = await supabase.auth.signUp({
+              email: email.trim().toLowerCase(),
+              password: senha,
+              options: { emailRedirectTo: new URL("/entrar/retorno", window.location.origin).toString() },
+            });
             if (error) {
-              setEnviando(false);
-              setErro("E-mail ou senha incorretos.");
+              setErro(mensagemDeErroDeAuth(error, "criar"));
+              return;
+            }
+            if (!data.session) {
+              setAviso(
+                "Verifique seu e-mail para confirmar sua conta. Se este e-mail já tiver cadastro, nenhuma mensagem nova é enviada: use Entrar ou Esqueceu a senha.",
+              );
               return;
             }
             await seguirParaMinhaArea();
-            setEnviando(false);
-            return;
-          }
-          const { data, error } = await supabase.auth.signUp({
-            email,
-            password: senha,
-            options: { emailRedirectTo: window.location.origin },
-          });
-          setEnviando(false);
-          if (error) {
-            const codigo = (error as { code?: string }).code ?? "";
+          } catch {
             setErro(
-              codigo === "weak_password"
-                ? "Essa senha é fácil de adivinhar ou já apareceu em vazamentos. Escolha outra."
-                : error.status === 429 || codigo.includes("rate_limit")
-                  ? "Muitas tentativas em pouco tempo. Aguarde alguns minutos e tente de novo."
-                  : codigo === "email_address_invalid"
-                    ? "Confira o e-mail digitado."
-                    : "Não foi possível criar a conta agora. Tente novamente em instantes.",
+              modo === "entrar"
+                ? "Não foi possível concluir o acesso. Confira sua conexão e tente novamente."
+                : "Não foi possível concluir o cadastro. Confira sua conexão e tente novamente.",
             );
-            return;
+          } finally {
+            setEnviando(false);
           }
-          if (!data.session) {
-            setAviso(
-              "Verifique seu e-mail para confirmar sua conta. Se este e-mail já tiver cadastro, nenhuma mensagem nova é enviada: use Entrar ou Esqueceu a senha.",
-            );
-            return;
-          }
-          await seguirParaMinhaArea();
         }}
       >
         <Field label="E-mail">
