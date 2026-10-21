@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Building2, ChevronRight, LogOut, Palette, Share2, UserRound } from "lucide-react";
+import { Building2, ChevronRight, Eye, LogOut, Share2, UserRound } from "lucide-react";
 
 import { Screen } from "@/components/layout/Screen";
 import { AlterarSenha } from "@/components/acesso/AlterarSenha";
@@ -93,11 +93,11 @@ function ContaPage() {
         ) : null}
         <li className="border-b border-line">
           <Link
-            to="/barbeiro/marca"
+            to="/barbeiro/sua-pagina"
             className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4 py-5"
           >
-            <Palette size={18} className="text-mute" />
-            <span className="text-sm text-paper">Página e marca</span>
+            <Eye size={18} className="text-mute" />
+            <span className="text-sm text-paper">Sua Página</span>
             <ChevronRight size={16} className="text-mute2" />
           </Link>
         </li>
