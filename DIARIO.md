@@ -146,7 +146,7 @@ teste real na prévia.
 
 | Quem | Desde (UTC) | Tarefa | Arquivos / migração reservada |
 |---|---|---|---|
-| GPT | 2026-10-21 UTC | Corrigir estruturalmente cabeçalho mobile de edição: trocar logo pelo texto dentro da mesma barra, preservar altura/controles fora da edição e validar preview | `DIARIO.md`, `src/components/layout/ManagementDrawer.tsx`, `src/components/barbeiro/AgendaOperacional.tsx`, `src/components/barbeiro/agenda/CabecalhoDeEdicao.tsx`, `src/components/barbeiro/agenda/NaBarraDoTopo.tsx`, `src/styles.css` |
+
 
 | GPT | 2026-10-20 UTC | Auditoria autônoma de UX de autenticação, onboarding e recuperação de sessão na prévia; validar correção e depois ampliar auditoria geral sem tocar produção | `DIARIO.md`, `src/routes/comecar.tsx`, `src/routes/login.tsx`, `src/lib/guarda.ts`, testes relacionados; sem migração |
 | GPT | 2026-10-17 UTC | Auditoria e melhoria mobile-first da home de apresentação | `DIARIO.md`, `MUSE.md`, `src/components/apresentacao/ShowroomCortai.tsx`, `src/components/apresentacao/DemoAgendamento.tsx`, `src/components/apresentacao/NarrativaApresentacao.tsx`, estilos já existentes da apresentação |
@@ -242,6 +242,14 @@ teste real na prévia.
   que se contradizem; vale deixar só uma. Responda com `[lido]`.
 
 ## Diário (mais recente primeiro)
+
+### 2026-10-21 UTC — GPT — Cabeçalho da edição usa a barra original com altura estável
+- Causa identificada: o portal de edição era colocado no centro da barra, mas a linha interna do cabeçalho permanecia com altura fixa de 56px; o CSS anterior escondia logo/ações e sobrepunha o conteúdo sem expandir a barra, causando corte/ocultação. O cabeçalho em si também tinha limites de altura/largura desnecessários.
+- Alterações: `src/styles.css` agora aplica o estado de edição somente quando o cabeçalho existe em `#topo-centro`, preserva a barra como superfície única de 108px, oculta logo/ações apenas nesse estado e mantém o alvo centralizado; `CabecalhoDeEdicao.tsx` passa a preencher essa superfície sem margens negativas ou max-width restritivo. A transição existente de `TransicaoVerticalDoModoEdicao` e o portal foram mantidos.
+- Commits: `573f448` (estrutura da barra) e `dda4444` (conteúdo do cabeçalho).
+- Validação: aguardando workflow automático da prévia; teste visual Android real ainda não executado. Não declarar concluído até confirmar o workflow e conferir logo/texto, painel inferior, tema claro/escuro e larguras 360/390/430px.
+- Escopo: branch `cloudflare-workers-migration-2026-10-13`; sem alteração em `main`, produção ou banco.
+
 
 ### 2026-10-21 UTC — GPT — Cabeçalho central substitui a logo ao editar cartão
 - Pedido: manter as proporções do cabeçalho da visualização em cartões, com a mesma transição ao entrar no modo de edição; ocultar totalmente a marca e exibir data/instrução centralizadas.
