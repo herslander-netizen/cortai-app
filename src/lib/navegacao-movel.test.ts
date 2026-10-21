@@ -43,6 +43,10 @@ describe("navegação móvel", () => {
     expect(pagina).toContain('to="/barbeiro/marca/layout-tema"');
     expect(layoutTema).toContain('title="Layout & Tema"');
     expect(layoutTema).toContain('to: "/barbeiro/marca"');
+    const secoes = readFileSync("src/components/marca/editor/SecaoConteudo.tsx", "utf8");
+    const editorSecao = readFileSync("src/routes/barbeiro.marca.secao.$secao.tsx", "utf8");
+    expect(secoes).toContain('to="/barbeiro/marca/secao/$secao"');
+    expect(editorSecao).toContain('title={`Editar ${NOMES_SECOES[secao]}`}');
     expect(ajustes).not.toContain('hash={item.label === "Avisos e notificações" ? "avisos" : undefined}');
     expect(ajustes).toContain("Avisos e notificações");
     expect(ajustes).toContain("Ajuda e suporte");
