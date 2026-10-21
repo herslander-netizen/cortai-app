@@ -66,29 +66,20 @@ describe("PaineisDoEditor", () => {
     );
 
     expect(alvo.querySelector('[role="tablist"]')).not.toBeNull();
-    expect(alvo.querySelectorAll('[role="tab"]')).toHaveLength(4);
-
-    const conteudo = [...alvo.querySelectorAll<HTMLButtonElement>('[role="tab"]')].find((botao) =>
-      botao.textContent?.includes("Conteúdo"),
-    );
-    await act(async () => {
-      conteudo?.dispatchEvent(new MouseEvent("mousedown", { bubbles: true, button: 0 }));
-      await new Promise((resolve) => setTimeout(resolve, 0));
-    });
-    expect(alvo.textContent).toContain("Experiência de agendamento");
-
-    const aparencia = [...alvo.querySelectorAll<HTMLButtonElement>('[role="tab"]')].find((botao) =>
-      botao.textContent?.includes("Detalhes"),
-    );
-    expect(aparencia).toBeDefined();
-    await act(async () => {
-      aparencia?.dispatchEvent(new MouseEvent("mousedown", { bubbles: true, button: 0 }));
-      await new Promise((resolve) => setTimeout(resolve, 0));
-    });
-
+    expect(alvo.querySelectorAll('[role="tab"]')).toHaveLength(3);
+    expect(alvo.textContent).not.toContain("Conteúdo");
     expect(alvo.textContent).toContain("Logo e imagens");
     expect(alvo.textContent).toContain("Cores, fontes e detalhes");
-    expect(alvo.textContent).not.toContain("Experiência de agendamento");
+
+    const divulgacao = [...alvo.querySelectorAll<HTMLButtonElement>('[role="tab"]')].find((botao) =>
+      botao.textContent?.includes("Divulgação"),
+    );
+    expect(divulgacao).toBeDefined();
+    await act(async () => {
+      divulgacao?.dispatchEvent(new MouseEvent("mousedown", { bubbles: true, button: 0 }));
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
+    expect(alvo.textContent).not.toContain("Cores, fontes e detalhes");
     await act(async () => root.unmount());
   });
 });
