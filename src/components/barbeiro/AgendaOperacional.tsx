@@ -1438,18 +1438,10 @@ export function AgendaOperacional() {
                 mostrarProfissional={!profFiltro && profissionais.length > 1}
                 discreto={modoDiscreto}
                 selecionado={selecionado}
-                online={online}
                 onAbrir={(item) => {
                   const doItem = diaNoFuso(item.inicio, fuso);
                   if (doItem !== dia) mudarDia(doItem);
                   abrir(item.id);
-                }}
-                onFalta={(item) => void transicionar(item, "nao_compareceu")}
-                onAcao={(item, acao) => {
-                  const efeito = efeitoDaAcaoCard(acao);
-                  if (efeito === "marcar_chegada") void transicionar(item, "chegou");
-                  else if (efeito === "comecar") iniciar(item);
-                  else setFechando(item.id);
                 }}
               />
             ) : colunas ? (
@@ -1547,18 +1539,10 @@ export function AgendaOperacional() {
                 mostrarProfissional={!profFiltro && profissionais.length > 1}
                 discreto={modoDiscreto}
                 selecionado={selecionado}
-                online={online}
                 onAbrir={(item) => {
                   const doItem = diaNoFuso(item.inicio, fuso);
                   if (doItem !== dia) mudarDia(doItem);
                   abrir(item.id);
-                }}
-                onFalta={(i) => void transicionar(i, "nao_compareceu")}
-                onAcao={(i, acao) => {
-                  const efeito = efeitoDaAcaoCard(acao);
-                  if (efeito === "marcar_chegada") void transicionar(i, "chegou");
-                  else if (efeito === "comecar") iniciar(i);
-                  else setFechando(i.id);
                 }}
               />
             ) : (
