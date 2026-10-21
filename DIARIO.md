@@ -163,6 +163,12 @@ teste real na prévia.
 - CI anterior (`52c00f1`) falhou em TypeScript: além do acordeão, apontou um erro de tipagem no drawer de Ajustes e um teste de painéis. Conferir a nova execução; não considerar validado até corrigir os erros restantes.
 - Alterações continuam isoladas na branch de migração; sem banco, main ou publicação principal.
 
+### 2026-10-21 UTC — GPT — Corrige testes quebrados após reorganização mobile do editor
+- O CI do commit `859ed3b3aab126fa9734853abcafe81f53326279` passou no TypeScript, mas falhou em dois testes desatualizados: `PaineisDoEditor.test.tsx` esperava conteúdo da aba inativa; `navegacao-movel.test.ts` ainda exigia um hash antigo em Ajustes.
+- Atualizei o teste do editor para abrir explicitamente a aba Conteúdo antes de verificar “Experiência de agendamento”; atualizei o teste de navegação para refletir a rota atual sem o hash antigo.
+- Commits: `9db473a668c64f4590fc1cba53f1bd4b686bb79a` e `f6af3502d418d669f683632b41ae9a7708db17c3`.
+- CI da nova ponta ainda precisa ser conferido. Não declarar testes/build/prévia aprovados até a execução terminar; nenhuma alteração em banco, `main` ou site principal.
+
 ## Atualização de execução — 2026-10-21
 
 - **Escopo:** recuperação da experiência Figaro no Cortaí; preservar as animações verificadas junto com layout, conteúdo e navegação. A regra foi registrada em Decisões do dono e nos critérios de aceite da matriz.
