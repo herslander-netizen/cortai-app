@@ -111,7 +111,7 @@ export function PreferenciasDeAvisos() {
   };
 
   return (
-    <section className="mt-8">
+    <section id="avisos" className="mt-8 scroll-mt-6">
       <h2 className="mb-2 text-xs font-semibold uppercase text-mute2">Avisos</h2>
       <p className="mb-3 text-xs text-mute">
         Escolha onde quer receber cada aviso. Você pode ativar mais de um canal.
