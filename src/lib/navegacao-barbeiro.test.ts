@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { itemDeNavegacaoAtivo } from "@/lib/navegacao-barbeiro";
+import { itemDeNavegacaoAtivo, MODULOS_DE_NAVEGACAO } from "@/lib/navegacao-barbeiro";
 
 const itens = ["/barbeiro", "/barbeiro/clientes", "/barbeiro/caixa", "/barbeiro/fila"];
 
@@ -29,5 +29,21 @@ describe("item ativo da navegação da equipe", () => {
 
   it("mantém somente Espera ativa na lista de espera", () => {
     expect(ativosEm("/barbeiro/fila")).toEqual(["/barbeiro/fila"]);
+  });
+});
+
+
+describe("entrada Figaro de Personalizar Página", () => {
+  it("abre diretamente a tela principal de Personalizar Página pelo menu", () => {
+    const suaPagina = MODULOS_DE_NAVEGACAO.find((item) => item.label === "Sua Página");
+    expect(suaPagina?.to).toBe("/barbeiro/marca");
+  });
+
+  it.each([
+    "/barbeiro/marca",
+    "/barbeiro/marca/layout-tema",
+    "/barbeiro/marca/secao/galeria",
+  ])("mantém Sua Página ativa dentro do fluxo %s", (caminho) => {
+    expect(itemDeNavegacaoAtivo(caminho, "/barbeiro/marca")).toBe(true);
   });
 });
