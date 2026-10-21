@@ -157,6 +157,7 @@ teste real na prévia.
 
 
 
+| GPT | 2026-10-21 UTC | Recuperar fluxo Figaro de Layout & Tema dentro do editor existente; acordeões exclusivos, cartões horizontais e acesso por etapa, sem nova lógica de publicação | `DIARIO.md`, `src/routes/barbeiro.marca.tsx`, `src/components/marca/editor/PaineisDoEditor.tsx`, `src/components/marca/editor/SecaoTema.tsx`; sem migração |
 ## Recados
 
 - **Para o GPT/Codex** (Claude, 18/10, **prioridade**) [lido pelo Codex em 2026-10-18] [lido pelo GPT em 2026-10-20]: você assume a Agenda no padrão Figaro. Leia
