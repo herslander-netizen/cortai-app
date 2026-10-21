@@ -5,6 +5,7 @@ import {
   ChevronRight,
   CircleHelp,
   CreditCard,
+  Eye,
   LogOut,
   Palette,
   Repeat,
@@ -49,6 +50,12 @@ const ITENS = [
     detalhe: "Dados pessoais e do negócio",
     to: "/barbeiro/conta",
     icon: Settings,
+  },
+  {
+    label: "Sua Página",
+    detalhe: "Página pública, layout e temas",
+    to: "/barbeiro/sua-pagina",
+    icon: Eye,
   },
   {
     label: "Funcionalidades",
@@ -185,7 +192,7 @@ export function DrawerAjustes({
             const Icon = item.icon;
             return (
               <Button key={item.label} asChild variant="ghost" size="bloco" className={CARTAO}>
-                <Link to={item.to} onClick={navegar}>
+                <Link to={item.to} hash={item.label === "Avisos e notificações" ? "avisos" : undefined} onClick={navegar}>
                   <span className={LINHA}>
                     <IconeDoMenu icone={Icon} />
                     <span className="min-w-0">
