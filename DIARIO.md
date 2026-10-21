@@ -146,7 +146,7 @@ teste real na prévia.
 
 | Quem | Desde (UTC) | Tarefa | Arquivos / migração reservada |
 |---|---|---|---|
-| GPT | 2026-10-21 UTC | Ajustar topo mobile ao segurar cartão e suavizar listras da área fora do expediente, conforme capturas do dono | `DIARIO.md`, `src/components/barbeiro/agenda/CabecalhoDeEdicao.tsx`, `src/styles.css` |
+
 | GPT | 2026-10-20 UTC | Auditoria autônoma de UX de autenticação, onboarding e recuperação de sessão na prévia; validar correção e depois ampliar auditoria geral sem tocar produção | `DIARIO.md`, `src/routes/comecar.tsx`, `src/routes/login.tsx`, `src/lib/guarda.ts`, testes relacionados; sem migração |
 | GPT | 2026-10-17 UTC | Auditoria e melhoria mobile-first da home de apresentação | `DIARIO.md`, `MUSE.md`, `src/components/apresentacao/ShowroomCortai.tsx`, `src/components/apresentacao/DemoAgendamento.tsx`, `src/components/apresentacao/NarrativaApresentacao.tsx`, estilos já existentes da apresentação |
 | GPT | 2026-10-17 UTC | Refinar movimento global para animações mais fluidas e perceptíveis | `DIARIO.md`, `src/lib/motion.ts`, `src/components/layout/GlobalDesign.tsx` |
@@ -241,6 +241,14 @@ teste real na prévia.
   que se contradizem; vale deixar só uma. Responda com `[lido]`.
 
 ## Diário (mais recente primeiro)
+
+### 2026-10-21 UTC — GPT — Ajuste visual do modo de edição da Agenda na prévia
+- Pedido: ao segurar um cartão no celular, subir o cabeçalho de data/instrução para aproveitar a área superior marcada na captura e suavizar as duas cores das listras fora do expediente conforme a segunda referência.
+- Arquivos: `src/components/barbeiro/agenda/CabecalhoDeEdicao.tsx` (cabeçalho mobile elevado com margem negativa e texto ligeiramente maior); `src/styles.css` (contraste das listras reduzido em temas claro e escuro).
+- Commits: `dccf3c5` (cabeçalho) e `fa8b74a` (listras).
+- Validação: aguardando GitHub Actions e publicação da prévia; inspeção visual manual no Android ainda pendente. Não declarar concluído até confirmar o workflow e revisar o resultado no celular.
+- Escopo: somente branch de trabalho/prévia; nenhum banco, `main`, DNS ou site principal alterado.
+
 
 ### 2026-10-21 UTC — GPT — Auditoria e correção do fluxo de publicação da prévia
 - Causa confirmada de cancelamentos: `.github/workflows/preview-migration.yml` usava `concurrency.cancel-in-progress: true`. Em pushes consecutivos (código seguido de registro no DIARIO), a publicação anterior era cancelada; o histórico mostra execuções 499, 501 e 502 canceladas rapidamente, enquanto o check separado `Validate Cortaí` ficava verde. Isso não prova que o deploy foi publicado.
