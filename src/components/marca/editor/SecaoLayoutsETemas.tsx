@@ -73,9 +73,9 @@ export function SecaoLayoutsETemas({
                   <motion.div
                     key={layout}
                     initial={false}
-                    animate={{ scale: selecionado ? 0.97 : 1 }}
+                    animate={{ padding: selecionado ? 8 : 0 }}
                     transition={reduzirMovimento ? { duration: 0 } : MOLA.padraoCompose}
-                    className="w-[min(78vw,286px)] shrink-0 snap-start"
+                    className="h-[316px] w-[min(78vw,286px)] shrink-0 snap-start"
                     data-selecionado={selecionado ? "true" : undefined}
                   >
                   <Button
@@ -83,7 +83,7 @@ export function SecaoLayoutsETemas({
                     variant="ghost"
                     aria-pressed={selecionado}
                     onClick={() => setLayout(layout)}
-                    className={`relative h-auto min-h-[300px] w-full flex-col items-stretch whitespace-normal border p-3 text-left transition-[border-color,background-color,box-shadow,border-radius] duration-200 ease-out motion-reduce:transition-none ${selecionado ? "rounded-lg border-2 border-gold bg-gold/10" : "rounded-xl border-line bg-ink"}`}
+                    className={`relative h-full min-h-0 w-full flex-col items-stretch whitespace-normal border p-3 text-left transition-[border-color,background-color,box-shadow,border-radius] duration-200 ease-out motion-reduce:transition-none ${selecionado ? "rounded-lg border-2 border-gold bg-gold/10" : "rounded-xl border-line bg-ink"}`}
                   >
                     <MiniaturaLayout layout={layout} />
                     <span className="flex items-center justify-between gap-2 text-base font-semibold text-paper">
