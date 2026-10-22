@@ -27,6 +27,12 @@ e o que fez. O diário até 17/10/2026 está guardado, sem alterações, em
 7. **Sem segredos:** nunca escreva chaves, senhas ou tokens aqui. Cite só o nome da variável.
 
 ## Decisões do dono
+- 2026-10-22: **Recuperar TODAS as animações do Figaro, sem exceção** (dono: "era a parte que mais deu trabalho").
+  A lista de controle é `docs/referencia-figaro/apk/8-inventario-de-animacoes.md`, uma linha por animação, com
+  valores, fonte e situação (✔ feito, ◐ conferir, ✘ falta, — sem equivalente). Nada sai da lista sem decisão do
+  dono; as decisões em aberto estão no §10 do inventário. Execução em lotes (P.12 abaixo), cada lote com teste,
+  conferência no navegador e prévia. Isto libera o Claude a tocar nas telas reservadas ao GPT **só para pôr a
+  animação** (mudança mínima, aviso por recado), sem alterar regra, dado ou texto.
 - 2026-10-22: **Novo agendamento não pode parecer onboarding** (dono, com foto da tela no celular: título gigante,
   barras de progresso e "Etapa 1 de 4"). O fluxo segue o Figaro (`apk/3-fluxos-do-atendimento.md` §4): cabeçalho
   compacto com voltar e nome do passo, sem barras nem contagem de etapas, botão fixo embaixo. Vale para os
@@ -435,6 +441,25 @@ estado vazio que explica, erro com "Tentar novamente", desativar separado de exc
 4. Fase 5: Avaliações e página pública de agendamento (livres) — Claude; demais conforme as reservas.
 5. Fase 4 (gaveta) — GPT.
 6. Fase 6, módulo por módulo, sempre com o documento de comparação antes.
+
+### P.12 Execução de "todas as animações" (lotes)
+
+Fonte de verdade: `apk/8-inventario-de-animacoes.md` (IDs N1…, B1…, C1…, D1…, G1…, E1…, O1…, P1…, V1…, H1…, M1…).
+Cada lote: reservar → implementar com `src/lib/movimento-figaro.ts` → teste → ensaio no Chromium (quadros) →
+`tsc`/`eslint`/`vitest`/`build` → diário (marcar os IDs no inventário) → prévia verde. Falta de celular sempre
+registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
+
+| Lote | IDs | Arquivos principais | Situação |
+|---|---|---|---|
+| 1 Base de componentes | C1 C2 C3 (acordeão), B1 (toque fora do `Button`), B3 (carregando mínimo), C13 (folhas), C16 (cor da barra ao rolar), H (utilitário de vibração) | `ui/accordion.tsx`, `styles.css`, `layout/Carregando.tsx`, `ui/sheet.tsx`, `lib/vibrar.ts` | próximo |
+| 2 Gaveta e Início | D1 D2 D3 D4, C4/C5 em uso | `layout/GruposDoMenu.tsx`, `layout/DrawerMenuExtras.tsx`, `layout/DrawerDestaques.tsx` | |
+| 3 Páginas e editores | C7 C8 C9 C10 C11 C12, P1 P3, L1, V3 | `marca/editor/*`, `onboarding/PrimeirosPassos.tsx`, `onboarding/EditorDeHorarios.tsx`, `painel/PreferenciasDeAvisos` | |
+| 4 Cadastros | N6/N7 nos demais cadastros (serviço, equipe, cliente), S2 S3 | `routes/barbeiro.servicos.tsx`, `equipe`, `clientes` | |
+| 5 Cobrança e comanda | N5 (passos da comanda), V1 V2 V4 | `components/comanda/*` (ler `AGENTS.md` de lá) | |
+| 6 Avisos e vibração | G17 (aviso "Continue configurando"), H1–H7 | `layout/FaixaPendencias.tsx`, `lib/vibrar.ts`, telas de H | |
+| 7 Página pública de agendamento | M1 (vídeo `booking`) | `components/agendamento/*`, `routes/agendar.$slug.tsx` | |
+| 8 Conferência da Agenda | G1…G16 | `components/barbeiro/agenda/*` | |
+| 9 Decisões do dono | B4 B5 B6 C6 C14 C15 E1 M4 | — | depende do §10 do inventário |
 
 ## Em andamento
 
