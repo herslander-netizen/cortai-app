@@ -665,6 +665,13 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-22 UTC — GPT — Remove resumo “Meu dia” da agenda
+- Pedido do dono: remover como padrão a seção inferior “Meu dia”, a linha divisória e o resumo de atendimentos/faturamento, deixando a agenda limpa na visualização operacional.
+- Removida integralmente a seção visual e sua consulta `getMeuDia`, incluindo estado e ícone que ficaram sem uso. Dados financeiros e atendimentos no banco não foram alterados.
+- Arquivo: `src/components/barbeiro/AgendaOperacional.tsx`.
+- Commits: `1695a80cd93815047b7828b69729f0cd4ed84636` (remoção visual), `2b49591c0f0078ec1460afc022977124b0934ad3` (limpeza de import/estado/consulta).
+- **Pendente:** GitHub Actions precisa validar TypeScript, testes e build; a prévia só estará confirmada após o workflow concluir. Nenhuma alteração em banco, `main` ou site principal.
+
 ### 2026-10-22 UTC — Claude — Modo de edição da Agenda: cabeçalho e barra como no Figaro, parte que sai do horário e toque fora
 - Pedido do dono (print de 22/10 e texto): ao segurar um cartão, cabeçalho e barra entram e saem como no Figaro; ao
   tocar fora, o modo sai; e aparece a diferença entre o horário normal e o proposto.
