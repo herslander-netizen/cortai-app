@@ -665,6 +665,18 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-22 UTC — Claude — Pontinhos piscando na lista da Agenda (celular): corrigido o carregamento sem fim
+- Sintoma (print do dono, 22/10): na lista "Meu dia" com poucos atendimentos, os cinco pontinhos ficavam entrando e
+  saindo embaixo do cartão.
+- Causa: `ListaPeriodo.tsx` recriava o observador do fim da lista a cada `isFetchingNextPage`. Com a lista curta, o fim
+  continuava visível, então cada bloco de dias disparava o seguinte, até 365 dias, com os pontinhos aparecendo a cada rodada.
+- Correção: o observador é criado uma vez por "há mais" e lê o estado por referência; uma segunda checagem busca o
+  próximo bloco só enquanto o fim ainda estiver dentro da área de leitura (mesma margem de 400 px). O carregamento
+  continua limitado a 365 dias.
+- Testes: TypeScript ok; Vitest 1794 ok. Lint sem erros novos (3 avisos já existiam). **Não vi o bug acontecer na tela
+  nem confirmei a correção no celular**: validar na prévia com poucos atendimentos e com rolagem até o fim da lista.
+- Sem migração. Arquivo não estava reservado por outra IA.
+
 ### 2026-10-22 UTC — Claude — Auditoria de carregamentos/esqueletos e cores fora do padrão
 - **Esqueletos**: (1) o casco da área do negócio usava o esqueleto do Cockpit (outra tela); agora tem o formato real da Agenda
   (barra do topo, cartões do dia, barra flutuante com "+"); (2) as barras do esqueleto sumiam no tema claro (`ink3` sobre o

@@ -111,21 +111,35 @@ export function ListaPeriodo({
   );
   const grupos = agruparPorDia(visiveis, periodo.data?.pages[0]?.fuso ?? fuso);
 
-  // Carrega o próximo bloco de dias quando o fim da lista aparece.
+  // Carrega o próximo bloco de dias quando o fim da lista aparece. O observador é criado uma vez por
+  // mudança de "há mais" e lê o estado atual por referência: recriá-lo a cada carregamento fazia a lista
+  // puxar bloco após bloco, com os pontinhos piscando, quando havia poucos atendimentos.
   const fim = useRef<HTMLDivElement>(null);
   const { hasNextPage, isFetchingNextPage, fetchNextPage } = periodo;
+  const carregando = useRef(false);
+  carregando.current = isFetchingNextPage;
+  const buscarMais = useRef(fetchNextPage);
+  buscarMais.current = fetchNextPage;
   useEffect(() => {
     const el = fim.current;
     if (!el || !hasNextPage || typeof IntersectionObserver === "undefined") return;
     const observador = new IntersectionObserver(
       (entradas) => {
-        if (entradas.some((e) => e.isIntersecting) && !isFetchingNextPage) void fetchNextPage();
+        if (entradas.some((e) => e.isIntersecting) && !carregando.current)
+          void buscarMais.current();
       },
       { rootMargin: "400px 0px" },
     );
     observador.observe(el);
     return () => observador.disconnect();
-  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
+  }, [hasNextPage]);
+  // Quando a lista ainda não enche a tela, o fim continua visível depois de cada bloco: busca o próximo,
+  // mas só enquanto o fim estiver dentro da área de leitura (com a mesma margem do observador).
+  useEffect(() => {
+    const el = fim.current;
+    if (!el || !hasNextPage || isFetchingNextPage) return;
+    if (el.getBoundingClientRect().top < window.innerHeight + 400) void buscarMais.current();
+  }, [hasNextPage, isFetchingNextPage, periodo.data]);
 
   return (
     <div className="agenda-lista-periodo" data-sem-gesto-dia>
