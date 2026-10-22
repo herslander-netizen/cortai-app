@@ -1,9 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { aviso } from "@/lib/avisos";
+import { MOLA } from "@/lib/movimento-figaro";
 
 type Pref = {
   whatsapp_ativo: boolean;
@@ -27,6 +29,7 @@ const FREQ: { v: Pref["frequencia"]; r: string }[] = [
 
 /** Preferências de lembrete do cliente; vale para todas as barbearias em que ele é cliente. */
 export function PreferenciasDoCliente() {
+  const reduzirMovimento = useReducedMotion();
   const qc = useQueryClient();
   const chave = ["preferencias-cliente-avisos"];
   const { data } = useQuery({
@@ -76,6 +79,7 @@ export function PreferenciasDoCliente() {
 
   if (!data) return null;
   const p = data.pref;
+  const mostrarHorarios = p.whatsapp_ativo || p.push_ativo;
   const mudar = (parcial: Partial<Pref>) => salvar.mutate({ ...p, ...parcial });
   const chip = (ativo: boolean) =>
     `h-auto min-h-12 rounded-full border px-4 text-sm ${ativo ? "border-gold/45 bg-gold-soft text-paper" : "border-line text-mute"}`;
@@ -105,39 +109,62 @@ export function PreferenciasDoCliente() {
           No celular
         </Button>
       </div>
-      <p className="mb-2 mt-4 text-xs text-mute">Quando avisar</p>
-      <div className="flex flex-wrap gap-2">
-        {FREQ.map((f) => (
-          <Button
-            key={f.v}
-            type="button"
-            variant="ghost"
-            aria-pressed={p.frequencia === f.v}
-            className={chip(p.frequencia === f.v)}
-            onClick={() => mudar({ frequencia: f.v })}
+      <AnimatePresence initial={false}>
+        {mostrarHorarios ? (
+          <motion.div
+            key="configuracao-de-lembretes"
+            initial={reduzirMovimento ? false : { opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{
+              opacity: 0,
+              height: 0,
+              transition: {
+                height: reduzirMovimento ? { duration: 0 } : MOLA.tamanho,
+                opacity: reduzirMovimento ? { duration: 0 } : MOLA.padraoEfeito,
+              },
+            }}
+            transition={{
+              height: reduzirMovimento ? { duration: 0 } : MOLA.tamanho,
+              opacity: reduzirMovimento ? { duration: 0 } : MOLA.padraoEfeito,
+            }}
+            className="overflow-hidden"
           >
-            {f.r}
-          </Button>
-        ))}
-      </div>
-      <p className="mb-2 mt-4 text-xs text-mute">Não me avisar entre</p>
-      <div className="flex items-center gap-2 text-sm text-paper">
-        <Input
-          type="time"
-          aria-label="Início do silêncio"
-          value={p.silencio_inicio?.slice(0, 5) ?? ""}
-          onChange={(e) => mudar({ silencio_inicio: e.target.value || null })}
-          className="min-w-0 flex-1 sm:w-auto sm:flex-none"
-        />
-        <span className="text-mute">e</span>
-        <Input
-          type="time"
-          aria-label="Fim do silêncio"
-          value={p.silencio_fim?.slice(0, 5) ?? ""}
-          onChange={(e) => mudar({ silencio_fim: e.target.value || null })}
-          className="min-w-0 flex-1 sm:w-auto sm:flex-none"
-        />
-      </div>
+            <p className="mb-2 mt-4 text-xs text-mute">Quando avisar</p>
+            <div className="flex flex-wrap gap-2">
+              {FREQ.map((f) => (
+                <Button
+                  key={f.v}
+                  type="button"
+                  variant="ghost"
+                  aria-pressed={p.frequencia === f.v}
+                  className={chip(p.frequencia === f.v)}
+                  onClick={() => mudar({ frequencia: f.v })}
+                >
+                  {f.r}
+                </Button>
+              ))}
+            </div>
+            <p className="mb-2 mt-4 text-xs text-mute">Não me avisar entre</p>
+            <div className="flex items-center gap-2 text-sm text-paper">
+              <Input
+                type="time"
+                aria-label="Início do silêncio"
+                value={p.silencio_inicio?.slice(0, 5) ?? ""}
+                onChange={(e) => mudar({ silencio_inicio: e.target.value || null })}
+                className="min-w-0 flex-1 sm:w-auto sm:flex-none"
+              />
+              <span className="text-mute">e</span>
+              <Input
+                type="time"
+                aria-label="Fim do silêncio"
+                value={p.silencio_fim?.slice(0, 5) ?? ""}
+                onChange={(e) => mudar({ silencio_fim: e.target.value || null })}
+                className="min-w-0 flex-1 sm:w-auto sm:flex-none"
+              />
+            </div>
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
     </section>
   );
 }
