@@ -1,6 +1,7 @@
 import { exigirCapacidade } from "@/lib/guarda-capacidade";
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { KeyRound, Mail, ShieldCheck, Trash2, UserPlus } from "lucide-react";
 import { useState } from "react";
 
@@ -19,6 +20,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { EquipeWhatsapp } from "@/components/barbeiro/EquipeWhatsapp";
 import { EsqueletoLista } from "@/components/layout/Esqueleto";
+import { MOLA, TEMPO } from "@/lib/movimento-figaro";
 import {
   ACOES,
   DESCRICAO_DO_PAPEL,
@@ -50,6 +52,7 @@ export const Route = createFileRoute("/barbeiro/equipe")({
 });
 
 function EquipePage() {
+  const reduzirMovimento = useReducedMotion();
   const queryClient = useQueryClient();
   const equipe = useQuery({ queryKey: ["equipe"], queryFn: () => listarEquipe() });
   const [email, setEmail] = useState("");
@@ -192,36 +195,82 @@ function EquipePage() {
 
           <section>
             <h2 className="mb-2 text-xs font-semibold uppercase text-mute2">Quem tem acesso</h2>
-            {equipe.isLoading ? (
-              <EsqueletoLista linhas={3} />
-            ) : (equipe.data?.length ?? 0) === 0 ? (
-              <EmptyState text="Só você tem acesso a este negócio." />
-            ) : (
-              <ul className="space-y-3">
-                {(equipe.data ?? []).map((membro) => (
-                  <li key={membro.userId} className="surface p-4">
-                    <CartaoMembro
-                      membro={membro}
-                      aberto={editando === membro.userId}
-                      onAbrir={() => setEditando(editando === membro.userId ? null : membro.userId)}
-                      onSalvar={(dados) => {
-                        setMensagem(null);
-                        salvar.mutate({ userId: membro.userId, ...dados });
-                      }}
-                      onRemover={() => {
-                        setMensagem(null);
-                        remover.mutate(membro.userId);
-                      }}
-                      onRecuperar={() => {
-                        setMensagem(null);
-                        recuperar.mutate(membro.userId);
-                      }}
-                      ocupado={salvar.isPending || remover.isPending || recuperar.isPending}
-                    />
-                  </li>
-                ))}
-              </ul>
-            )}
+            <AnimatePresence mode="wait" initial={false}>
+              {equipe.isLoading ? (
+                <motion.div
+                  key="carregando"
+                  initial={reduzirMovimento ? false : { opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ opacity: { duration: reduzirMovimento ? 0 : TEMPO.conteudoSai } }}
+                >
+                  <EsqueletoLista linhas={3} />
+                </motion.div>
+              ) : (equipe.data?.length ?? 0) === 0 ? (
+                <motion.div
+                  key="vazio"
+                  initial={reduzirMovimento ? false : { opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{
+                    opacity: 0,
+                    height: 0,
+                    transition: {
+                      height: reduzirMovimento ? { duration: 0 } : MOLA.tamanho,
+                      opacity: { duration: reduzirMovimento ? 0 : TEMPO.conteudoSai },
+                    },
+                  }}
+                  transition={{
+                    height: reduzirMovimento ? { duration: 0 } : MOLA.tamanho,
+                    opacity: { duration: reduzirMovimento ? 0 : TEMPO.conteudoEntra },
+                  }}
+                  className="overflow-hidden"
+                >
+                  <EmptyState text="Só você tem acesso a este negócio." />
+                </motion.div>
+              ) : (
+                <motion.ul
+                  key="lista"
+                  initial={reduzirMovimento ? false : { opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{
+                    opacity: 0,
+                    height: 0,
+                    transition: {
+                      height: reduzirMovimento ? { duration: 0 } : MOLA.tamanho,
+                      opacity: { duration: reduzirMovimento ? 0 : TEMPO.conteudoSai },
+                    },
+                  }}
+                  transition={{
+                    height: reduzirMovimento ? { duration: 0 } : MOLA.tamanho,
+                    opacity: { duration: reduzirMovimento ? 0 : TEMPO.conteudoEntra },
+                  }}
+                  className="space-y-3 overflow-hidden"
+                >
+                  {(equipe.data ?? []).map((membro) => (
+                    <li key={membro.userId} className="surface p-4">
+                      <CartaoMembro
+                        membro={membro}
+                        aberto={editando === membro.userId}
+                        onAbrir={() => setEditando(editando === membro.userId ? null : membro.userId)}
+                        onSalvar={(dados) => {
+                          setMensagem(null);
+                          salvar.mutate({ userId: membro.userId, ...dados });
+                        }}
+                        onRemover={() => {
+                          setMensagem(null);
+                          remover.mutate(membro.userId);
+                        }}
+                        onRecuperar={() => {
+                          setMensagem(null);
+                          recuperar.mutate(membro.userId);
+                        }}
+                        ocupado={salvar.isPending || remover.isPending || recuperar.isPending}
+                      />
+                    </li>
+                  ))}
+                </motion.ul>
+              )}
+            </AnimatePresence>
           </section>
 
           <EquipeWhatsapp />
