@@ -365,6 +365,14 @@ teste real na prévia.
 
 ## Diário (mais recente primeiro)
 
+### 2026-10-21 UTC — GPT — Amplia teste de navegação do fluxo Figaro
+
+- O teste da navegação agora cobre dinamicamente todas as seções configuráveis de Personalizar Página, além do hub e de Layout & Tema, verificando que o item Sua Página permaneça ativo em todas elas.
+- Arquivo: `src/lib/navegacao-barbeiro.test.ts`.
+- Validação automática pendente para este novo commit; não há execução local nesta sessão.
+- Commit do teste: `9a422f36ad514acd9001995701cd5f34ccfda796`.
+
+
 ### 2026-10-21 UTC — GPT — Resumo visual de Layout & Tema
 
 - A tela Personalizar Página agora apresenta o layout selecionado, o tema atual, uma faixa com suas cores e a quantidade de seções ativas, mantendo o acesso à tela própria Layout & Tema.
