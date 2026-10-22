@@ -81,6 +81,8 @@ describe("modo lista no celular", () => {
   });
 
   it("o marcador Hoje mantém contraste independente do tema", () => {
-    expect(lista).toContain('data-hoje className="rounded-full bg-paper px-2 py-0.5 text-xs font-semibold text-ink"');
+    expect(lista.replace(/\s+/g, " ")).toContain(
+      'data-hoje className="rounded-full bg-paper px-2 py-0.5 text-xs font-semibold text-ink"',
+    );
   });
 });

@@ -12,7 +12,10 @@ import {
   Maximize2,
   MoreHorizontal,
   MoreVertical,
+  Search,
+  X,
 } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState, type KeyboardEvent, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 
@@ -33,6 +36,8 @@ import { LegendaDasCores } from "./LegendaDasCores";
 import { useAlvoNoTopo } from "./useAlvoNoTopo";
 import { dataEditorial, somarDias } from "./tempo";
 import { tituloDoMes } from "./calendario";
+import { buscaDaLista, useBuscaDaLista } from "./busca-da-lista";
+import { MOLA } from "@/lib/movimento-figaro";
 
 export type VisualizacaoAgenda = "lista" | "timeline" | "semana";
 
@@ -42,6 +47,45 @@ function paraData(dia: string) {
 }
 function deData(data: Date) {
   return `${data.getFullYear()}-${String(data.getMonth() + 1).padStart(2, "0")}-${String(data.getDate()).padStart(2, "0")}`;
+}
+
+/** Painel de busca: nasce no lugar da lupa e corre para a esquerda até cobrir a barra do topo. */
+function PainelDeBusca() {
+  const { texto } = useBuscaDaLista();
+  return (
+    <motion.div
+      role="search"
+      initial={{ width: 56, opacity: 0 }}
+      animate={{ width: "100%", opacity: 1 }}
+      exit={{ width: 56, opacity: 0 }}
+      transition={MOLA.tamanho}
+      className="absolute inset-y-0 right-0 z-10 flex items-center gap-2 overflow-hidden rounded-full bg-[var(--agenda-cartao)] pl-4 pr-1 shadow-[var(--agenda-cartao-sombra)]"
+    >
+      <Search aria-hidden className="size-5 shrink-0 text-mute" />
+      <input
+        // eslint-disable-next-line jsx-a11y/no-autofocus
+        autoFocus
+        type="search"
+        value={texto}
+        onChange={(e) => buscaDaLista.texto(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Escape") buscaDaLista.fechar();
+        }}
+        placeholder="Buscar cliente, telefone ou serviço"
+        aria-label="Buscar atendimento"
+        className="h-12 min-w-0 flex-1 bg-transparent text-base text-paper outline-none placeholder:text-mute"
+      />
+      <Button
+        variant="ghost"
+        size="icon"
+        aria-label="Fechar busca"
+        className="size-12 shrink-0 rounded-full text-mute"
+        onClick={buscaDaLista.fechar}
+      >
+        <X aria-hidden />
+      </Button>
+    </motion.div>
+  );
 }
 
 export function CabecalhoAgenda({
@@ -97,6 +141,12 @@ export function CabecalhoAgenda({
   children?: ReactNode;
 }) {
   const [calendario, setCalendario] = useState(false);
+  // Na lista do celular o calendário não serve: o mesmo botão vira lupa e abre a busca para o lado esquerdo.
+  const modoBusca = celular && visualizacao === "lista";
+  const busca = useBuscaDaLista();
+  useEffect(() => {
+    if (!modoBusca) buscaDaLista.fechar();
+  }, [modoBusca]);
   const { guiaDisponivel, abrirGuia } = useGuia();
   const opcoes = [
     { id: "timeline" as const, rotulo: "Timeline", Icone: CalendarClock },
@@ -237,18 +287,48 @@ export function CabecalhoAgenda({
         variant="ghost"
         size="icon"
         className="h-14 w-14 min-w-14 shrink-0 rounded-xl text-mute transition-transform duration-[200ms] hover:bg-transparent hover:text-mute motion-reduce:transition-none"
-        aria-label={calendarioAberto ? "Recolher calendário" : "Abrir calendário"}
-        aria-pressed={calendarioAberto}
-        onClick={onCalendario}
+        aria-label={
+          modoBusca
+            ? "Buscar atendimento"
+            : calendarioAberto
+              ? "Recolher calendário"
+              : "Abrir calendário"
+        }
+        aria-pressed={modoBusca ? busca.aberta : calendarioAberto}
+        onClick={modoBusca ? buscaDaLista.abrir : onCalendario}
       >
-        <CalendarDays
-          className={`size-9 transition-[transform,color] duration-[200ms] motion-reduce:transition-none ${
-            calendarioAberto
-              ? "scale-110 rotate-[-8deg] text-gold [&>rect]:fill-current [&>path]:stroke-ink"
-              : "scale-100 rotate-0 text-mute"
-          }`}
-          strokeWidth={calendarioAberto ? 2.2 : 1.8}
-        />
+        <AnimatePresence initial={false} mode="wait">
+          {modoBusca ? (
+            <motion.span
+              key="lupa"
+              initial={{ opacity: 0, scale: 0.6, rotate: -45 }}
+              animate={{ opacity: 1, scale: 1, rotate: 0 }}
+              exit={{ opacity: 0, scale: 0.6, rotate: 45 }}
+              transition={MOLA.rapidaEspacial}
+              className="inline-flex"
+            >
+              <Search className="size-9 text-mute" strokeWidth={1.8} aria-hidden />
+            </motion.span>
+          ) : (
+            <motion.span
+              key="calendario"
+              initial={{ opacity: 0, scale: 0.6, rotate: 45 }}
+              animate={{ opacity: 1, scale: 1, rotate: 0 }}
+              exit={{ opacity: 0, scale: 0.6, rotate: -45 }}
+              transition={MOLA.rapidaEspacial}
+              className="inline-flex"
+            >
+              <CalendarDays
+                className={`size-9 transition-[transform,color] duration-[200ms] motion-reduce:transition-none ${
+                  calendarioAberto
+                    ? "scale-110 rotate-[-8deg] text-gold [&>rect]:fill-current [&>path]:stroke-ink"
+                    : "scale-100 rotate-0 text-mute"
+                }`}
+                strokeWidth={calendarioAberto ? 2.2 : 1.8}
+              />
+            </motion.span>
+          )}
+        </AnimatePresence>
       </Button>
       {menu}
     </>
@@ -260,13 +340,16 @@ export function CabecalhoAgenda({
         ? createPortal(
             // Toques na barra do topo não sobem até o deslize de dia.
             <div
-              className="agenda-topo-data w-full"
+              className="agenda-topo-data relative w-full"
               onTouchStart={parar}
               onTouchMove={parar}
               onTouchEnd={parar}
               onTouchCancel={parar}
             >
               {topoCelular}
+              <AnimatePresence initial={false}>
+                {modoBusca && busca.aberta ? <PainelDeBusca /> : null}
+              </AnimatePresence>
             </div>,
             topo,
           )

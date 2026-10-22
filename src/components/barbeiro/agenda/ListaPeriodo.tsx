@@ -1,9 +1,8 @@
+import { useBuscaDaLista } from "./busca-da-lista";
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { Search } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { useAgora } from "@/hooks/useAgora";
 import { getAgendaPeriodo, type AgendaItem } from "@/lib/barbeiro.functions";
 import { brl } from "@/lib/format";
@@ -86,7 +85,7 @@ export function ListaPeriodo({
 }) {
   const agora = useAgora();
   const segmento = useSegmentoDoPainel();
-  const [busca, setBusca] = useState("");
+  const { texto: busca } = useBuscaDaLista();
   const [comCancelados, setComCancelados] = useState(false);
 
   const periodo = useInfiniteQuery({
@@ -130,18 +129,6 @@ export function ListaPeriodo({
 
   return (
     <div className="agenda-lista-periodo" data-sem-gesto-dia>
-      <label className="agenda-lista-busca">
-        <Search aria-hidden className="size-4 shrink-0 text-mute" />
-        <Input
-          type="search"
-          value={busca}
-          onChange={(e) => setBusca(e.target.value)}
-          placeholder="Buscar cliente, telefone ou serviço"
-          aria-label="Buscar atendimento"
-          className="h-11 border-0 bg-transparent px-0 shadow-none focus-visible:ring-0"
-        />
-      </label>
-
       {!periodo.data && !periodo.isError ? (
         <MarcaDoLimiteDoDia className="my-6" carregando />
       ) : !periodo.data ? (
@@ -174,7 +161,10 @@ export function ListaPeriodo({
                   <strong>{titulo.curto}</strong>
                   {ehHoje ? (
                     <>
-                      <span data-hoje className="rounded-full bg-paper px-2 py-0.5 text-xs font-semibold text-ink">
+                      <span
+                        data-hoje
+                        className="rounded-full bg-paper px-2 py-0.5 text-xs font-semibold text-ink"
+                      >
                         Hoje
                       </span>
                       <span>{titulo.semana}</span>

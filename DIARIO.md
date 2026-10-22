@@ -665,6 +665,14 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-22 UTC — Claude — Lupa no lugar do calendário na lista da Agenda (celular)
+- Na visão **Lista** do celular o botão do calendário (que não serve ali) vira **lupa** com troca animada (gira e escala, mola
+  rápida do Figaro). Tocar na lupa abre o **painel de busca**, que nasce no lugar do botão e corre para a esquerda até cobrir a
+  barra do topo (mola de tamanho 1/400), com foco no campo, "x" para fechar e Esc. Fechar limpa o texto. Voltar para a
+  Timeline devolve o calendário com o efeito de sempre.
+- O campo de busca fixo no corpo da lista saiu; a lista lê o texto de `busca-da-lista.ts` (estado externo, testado).
+  `CabecalhoAgenda.tsx`, `ListaPeriodo.tsx`. O teste do marcador "Hoje" passou a ignorar quebras de linha do Prettier.
+
 ### 2026-10-22 UTC — Claude — Auditoria e correção do fluxo Layout & Tema (igual ao Figaro)
 - **Achados**: (1) a tela abria com o layout/tema antigos do Cortaí ("Cortaí" escuro no cabeçalho do Tema e nada marcado nos
   carrosséis); (2) o carrossel de temas não dependia do layout e o selo "N temas" era fixo; (3) trocar de layout não seguia
