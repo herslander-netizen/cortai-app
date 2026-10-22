@@ -665,6 +665,14 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-22 UTC — GPT — Cartões brancos e transparência no tempo acrescentado
+- Decisão explícita do dono: cartões da agenda no tema claro devem ser brancos; ao segurar um cartão e aumentar a duração, o intervalo novo acrescentado deve aparecer translúcido durante a edição.
+- `src/styles.css`: cartões brancos no tema claro, mantendo a barra lateral da categoria e os tokens/estados atuais.
+- `src/components/barbeiro/agenda/fantasma-do-horario.ts`: agora destaca o intervalo acrescentado quando o início permanece fixo e o fim é estendido; ao encurtar/mover, mantém o destaque do trecho original que deixou de valer.
+- `src/components/barbeiro/AgendaOperacional.tsx`: usa a função de ajuste atualizada. `src/components/barbeiro/agenda/fantasma-do-horario.test.ts`: teste atualizado para extensão.
+- Commits: `2c97d6d`, `91d19a5`, `503276c`, `e7cde0e`.
+- **Pendente de validação:** confirmar TypeScript, suíte de testes, build e deploy da prévia via GitHub Actions; nenhuma alteração em banco, `main` ou site principal.
+
 ### 2026-10-22 UTC — GPT — Remove resumo “Meu dia” da agenda
 - Pedido do dono: remover como padrão a seção inferior “Meu dia”, a linha divisória e o resumo de atendimentos/faturamento, deixando a agenda limpa na visualização operacional.
 - Removida integralmente a seção visual e sua consulta `getMeuDia`, incluindo estado e ícone que ficaram sem uso. Dados financeiros e atendimentos no banco não foram alterados.
