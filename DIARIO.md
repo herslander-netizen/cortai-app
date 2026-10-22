@@ -27,6 +27,10 @@ e o que fez. O diário até 17/10/2026 está guardado, sem alterações, em
 7. **Sem segredos:** nunca escreva chaves, senhas ou tokens aqui. Cite só o nome da variável.
 
 ## Decisões do dono
+- 2026-10-22: **Tempos e molas do Figaro valem** (resposta do dono, "Certo", ao conflito P.2 do plano): nas
+  animações que vêm do Figaro usam-se os valores do APK (90, 220, 300, 320, 350, 520 ms e as molas do Figaro),
+  guardados em `src/lib/movimento-figaro.ts`. Os tokens antigos do Cortaí (`--mov-*`, `DURACAO` de `motion.ts`)
+  continuam para o que não vem do Figaro. `CLAUDE.md` e `AGENTS.md` atualizados.
 - 2026-10-22: o dono autorizou aplicar a migração **0042** (`is_online` da página pública) no `cortai-prod` e
   lançar a versão seguinte (3.4) depois de a validação passar.
 - 2026-10-21: **o caminho de navegação do Cortaí deve ser igual ao do Figaro**, não só visualmente parecido. Usar `docs/referencia-figaro/apk/4-pagina-publica.md` como fonte autoritativa para a jornada de Personalizar Página: entrada pela gaveta/Agenda diretamente na tela principal de Personalizar Página; card Layout & Tema abre tela própria; Ver Exemplo abre a prévia; cada seção abre seu editor específico; salvar volta à tela anterior e recarrega; rascunho, menu de ações e confirmações seguem o fluxo documentado. Preservar animações verificadas, regras, permissões, backend e identidade Cortaí. Não afirmar paridade completa até implementar e validar cada rota/ação.
@@ -244,7 +248,7 @@ terminar, `[feito: commit]`.
    `AgendamentoManual`), `motion.ts`/`GlobalDesign`, Personalizar Página (`barbeiro.marca*`) e o cabeçalho de edição
    da Agenda. Quem for mexer nesses arquivos deixa recado e espera a resposta, ou pede a divisão.
 
-### P.2 Conflito de regra que o dono precisa decidir
+### P.2 Conflito de regra que o dono precisa decidir [decidido em 22/10: valem os tempos do Figaro]
 
 O `CLAUDE.md` diz "Movimento: 120/200/280 ms … molas oficiais de `motion.ts`". O Figaro usa 90, 220, 300, 320,
 350, 520 ms e molas próprias. A decisão do dono de 21/10 manda copiar duração e curva do Figaro. **Até o dono
@@ -427,6 +431,7 @@ estado vazio que explica, erro com "Tentar novamente", desativar separado de exc
 
 | Quem | Desde (UTC) | Tarefa | Arquivos / migração reservada |
 |---|---|---|---|
+| Claude | 2026-10-22 UTC | Plano Figaro, fases 0 e 3 (itens 1, 3, 4): `movimento-figaro.ts`, botão principal, odômetro e pulso de número | `DIARIO.md`, `CLAUDE.md`, `AGENTS.md` (linha Movimento), `src/lib/movimento-figaro.ts`, `src/lib/transicoes-de-tela.ts`, `src/components/ui/button.tsx`, `src/components/ui/Odometro.tsx`, `src/components/ui/PulsoDeNumero.tsx`; sem migração |
 | GPT | 2026-10-21 UTC | Corrigir a varredura de WhatsApp/Asaas: diagnosticar timeouts, preparar correção dos cron jobs e validar endpoint no worker de produção; sem escrita real até autorização explícita | `DIARIO.md`, `MUSE.md`, `drizzle/migrations/0043_corrigir_agendadores.sql`, rotas de varredura; migração 0043 (não aplicada) |
 | GPT | 2026-10-21 UTC | Validar jornada Figaro e corrigir divergências de navegação confirmadas no código; inspeção visual 390px/1280px e animações segue pendente sem navegador conectado | `DIARIO.md`, `src/routes/barbeiro.marca.tsx`, `src/routes/barbeiro.marca.secao.$secao.tsx`, `src/components/marca/editor/EditorDaSecaoPublica.tsx`, `src/components/marca/editor/SecaoConteudo.tsx`, `src/components/marca/editor/PaineisDoEditor.tsx`, `src/lib/navegacao-barbeiro.ts`, `src/lib/navegacao-barbeiro.test.ts`, `src/routes/barbeiro.sua-pagina.tsx`; sem migração |
 | GPT | 2026-10-21 UTC | Compactar cabeçalho do modo zoom/edição da Agenda sem reduzir tipografia; aplicar movimento de gaveta de entrada/saída | `DIARIO.md`, `src/components/barbeiro/agenda/CabecalhoDeEdicao.tsx`, componente que abre/fecha a configuração de zoom e testes de movimento; sem migração |
