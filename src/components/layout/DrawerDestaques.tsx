@@ -93,9 +93,9 @@ export function DrawerDestaques({
         to="/barbeiro"
         onClick={fechar}
         aria-current={agendaAtiva ? "page" : undefined}
-        className={`grid min-h-[60px] grid-cols-[44px_minmax(0,1fr)_8px] items-center gap-3 rounded-[28px] bg-drawer-card px-5 py-3 ${agendaAtiva ? "ring-2 ring-primary/30" : ""}`}
+        className={`grid min-h-[60px] grid-cols-[56px_minmax(0,1fr)_8px] items-center gap-3 rounded-[28px] bg-drawer-card px-5 py-3 ${agendaAtiva ? "ring-2 ring-primary/30" : ""}`}
       >
-        <IconeDoMenu icone={CalendarDays} destaque ativo={agendaAtiva} />
+        <IconeDoMenu icone={CalendarDays} destaque grande ativo={agendaAtiva} />
         <span className="min-w-0">
           <span className="block truncate text-[22px] font-semibold leading-tight text-paper">
             Agenda

@@ -665,6 +665,11 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-22 UTC — Claude — Ícone do calendário maior, mesmo efeito do Cortaí
+- Pedido do dono: manter o ícone e o efeito do calendário do Cortaí, só maior. Mantive o `CalendarDays` e o efeito (escala,
+  giro e preenchimento ao abrir) e aumentei: botão do calendário no topo da Agenda 48→56 px, ícone 28→36 px; ícone da linha
+  "Agenda" na gaveta 44→56 px (`IconeDoMenu` ganhou `grande`). Se o dono quis outro ícone, é só dizer qual.
+
 ### 2026-10-22 UTC — Claude — Menu lateral no desenho do Figaro e troca de dia no ritmo do pager
 - **Menu lateral** (`GruposDoMenu`, `DrawerDestaques`, `ManagementDrawer`, `DrawerAjustes`) com as medidas do APK
   (`DrawerSectionRow`, `FigarooDrawerCollapsibleSection`, `Dimensions`): gaveta 348, cabeçalho de seção 32 dp com recuo 18,
