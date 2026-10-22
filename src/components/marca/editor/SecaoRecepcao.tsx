@@ -44,9 +44,9 @@ export function SecaoRecepcao({
                   key={avatarPreview}
                   src={avatarPreview}
                   alt="Foto atual da recepção"
-                  initial={reduzirMovimento ? false : { opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
+                  initial={reduzirMovimento ? false : { opacity: 0, scale: 0.96 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.96 }}
                   transition={transicaoFoto}
                   className="h-full w-full object-cover"
                 />
