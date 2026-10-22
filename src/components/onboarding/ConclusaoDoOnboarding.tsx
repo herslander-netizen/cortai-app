@@ -1,0 +1,163 @@
+import { Copy, Share2 } from "lucide-react";
+import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
+
+import { MarcaCortai } from "@/components/marca/MarcaCortai";
+import { Button } from "@/components/ui/button";
+import { VistoAnimado } from "@/components/ui/VistoAnimado";
+import { useMenosMovimento } from "@/hooks/useMovimento";
+import { fonteDoLink, trechoDigitado } from "@/lib/conclusao-do-onboarding";
+import { CONCLUSAO, CURVA, MOLA } from "@/lib/movimento-figaro";
+
+/** Link que aparece letra a letra, com cursor. Quem usa leitor de tela lê o link inteiro de uma vez. */
+function LinkDigitado({ texto, parado }: { texto: string; parado: boolean }) {
+  const [n, setN] = useState(parado ? texto.length : 0);
+  const [cursor, setCursor] = useState(true);
+  const digitando = n < texto.length;
+
+  useEffect(() => {
+    if (parado) {
+      setN(texto.length);
+      return;
+    }
+    setN(0);
+    const id = window.setInterval(() => {
+      setN((atual) => {
+        if (atual + 1 >= texto.length) window.clearInterval(id);
+        return atual + 1;
+      });
+    }, CONCLUSAO.letraMs);
+    return () => window.clearInterval(id);
+  }, [texto, parado]);
+
+  useEffect(() => {
+    if (!digitando) return;
+    const id = window.setInterval(() => setCursor((c) => !c), CONCLUSAO.cursorMs);
+    return () => window.clearInterval(id);
+  }, [digitando]);
+
+  return (
+    <p
+      aria-label={texto}
+      className="mt-2 break-all font-semibold text-paper"
+      style={{ fontSize: fonteDoLink(texto, 342) }}
+    >
+      <span aria-hidden>
+        {trechoDigitado(texto, n)}
+        {digitando ? (
+          <span
+            className="ml-px inline-block w-0.5 bg-gold align-middle"
+            style={{ height: "1em", opacity: cursor ? 1 : 0 }}
+          />
+        ) : null}
+        {/* O resto fica invisível para a altura não pular enquanto digita. */}
+        <span className="invisible">{texto.slice(n)}</span>
+      </span>
+    </p>
+  );
+}
+
+/**
+ * Conclusão do onboarding no padrão do Figaro (`OnboardingCompleteScreen`, spec 6 §4): o herói aparece
+ * em 520 ms, o conteúdo sobe e aparece com a mola `lentaEfeito`, o logotipo entra 800 ms depois e o
+ * link é digitado. A publicação já foi feita antes (etapa do link); aqui só se mostra o resultado.
+ */
+export function ConclusaoDoOnboarding({
+  titulo,
+  link,
+  linkCurto,
+  onCopiar,
+  onCompartilhar,
+  onIrParaAgenda,
+  onRevisar,
+  copiado,
+}: {
+  titulo: string;
+  link: string;
+  linkCurto: string;
+  onCopiar: () => void | Promise<void>;
+  onCompartilhar: () => void | Promise<void>;
+  onIrParaAgenda: () => void;
+  onRevisar: () => void;
+  copiado: boolean;
+}) {
+  const menosMovimento = useMenosMovimento();
+  const [logo, setLogo] = useState(menosMovimento);
+
+  useEffect(() => {
+    if (menosMovimento) {
+      setLogo(true);
+      return;
+    }
+    const id = window.setTimeout(() => setLogo(true), CONCLUSAO.logoAtrasoMs);
+    return () => window.clearTimeout(id);
+  }, [menosMovimento]);
+
+  return (
+    <div className="pt-2 text-center" data-link={link}>
+      <motion.div
+        className="mx-auto grid place-items-center rounded-full bg-gold-soft"
+        style={{ width: CONCLUSAO.heroPx, height: CONCLUSAO.heroPx }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{
+          duration: menosMovimento ? 0.15 : CONCLUSAO.heroSegundos,
+          ease: CURVA.rapidaParaLenta,
+        }}
+      >
+        <VistoAnimado tamanho={96} />
+      </motion.div>
+      <motion.div
+        initial={menosMovimento ? { opacity: 0 } : { opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={menosMovimento ? { duration: 0.15 } : MOLA.lentaEfeito}
+      >
+        <h2 className="mt-6 text-xl font-semibold text-paper">{titulo}</h2>
+        <LinkDigitado texto={linkCurto} parado={menosMovimento} />
+        <p className="mt-3 text-sm text-mute">
+          Você pode personalizar o layout e o tema da página quando quiser.
+        </p>
+        <div className="mt-6 grid grid-cols-2 gap-3">
+          <Button type="button" variant="outline" className="min-h-12 text-sm" onClick={onCopiar}>
+            <Copy size={14} className="mr-1.5 inline" aria-hidden />
+            {copiado ? "Copiado" : "Copiar link"}
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            className="min-h-12 text-sm"
+            onClick={onCompartilhar}
+          >
+            <Share2 size={14} className="mr-1.5 inline" aria-hidden />
+            Compartilhar
+          </Button>
+        </div>
+        <Button
+          variant="primary"
+          type="button"
+          className="mt-4 min-h-14 w-full text-sm"
+          onClick={onIrParaAgenda}
+        >
+          Ir para a agenda
+        </Button>
+        <Button
+          variant="ghost"
+          type="button"
+          className="mt-3 min-h-12 w-full text-center text-xs text-mute"
+          onClick={onRevisar}
+        >
+          Revisar configuração
+        </Button>
+      </motion.div>
+      <motion.div
+        className="mt-8 flex justify-center"
+        aria-label="Cortaí"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: logo ? 1 : 0 }}
+        transition={{ duration: menosMovimento ? 0.15 : 0.4, ease: CURVA.rapidaParaLenta }}
+      >
+        <MarcaCortai variante="automatica" className="h-6 w-auto" />
+      </motion.div>
+    </div>
+  );
+}

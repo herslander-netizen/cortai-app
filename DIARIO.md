@@ -383,7 +383,7 @@ Cada item é um commit pequeno em `src/components/ui/`:
 
 | Tela no Cortaí | O que trazer | Valores | Reserva |
 |---|---|---|---|
-| Conclusão do onboarding (`barbeiro.configurar.tsx`, etapa "pronto") | "Preparando sua página…" → sucesso com esmaecer; conteúdo sobe e aparece; logo depois; link digitado letra a letra com cursor; "Copiar link" e "Compartilhar" | 520 ms; slowEffects; logo aos 800 ms; 32 ms por letra; cursor 450 ms; ícone 140 px | GPT |
+| [feito: Claude, 22/10; falta celular] Conclusão do onboarding (`barbeiro.configurar.tsx`, etapa "pronto") | "Preparando sua página…" → sucesso com esmaecer; conteúdo sobe e aparece; logo depois; link digitado letra a letra com cursor; "Copiar link" e "Compartilhar" | 520 ms; slowEffects; logo aos 800 ms; 32 ms por letra; cursor 450 ms; ícone 140 px | GPT |
 | Aviso "Continue configurando" (Agenda; hoje `PrimeirosPassos`/`FaixaPendencias`) | cartão flutuante que sobe de baixo e desce ao sair, com sombra | 320 ms + esmaecer; sombra 8 px | Agenda: combinar |
 | [feito: Claude, 22/10; falta celular] Avaliações (`barbeiro.avaliacoes.tsx`) | nota média conta de 0 até o valor (Odômetro), estrelas enchem, barras 5→1 crescem da esquerda, selo aparece; "ver mais / ver menos" | barras com expandSize; selo com Pulso | livre |
 | Comanda, pagamento em dinheiro (`src/components/comanda/`) | ao escolher dinheiro, área "valor recebido / troco" aparece com esmaecer + altura; atalhos R$ 100 e R$ 200 | mola k = 400 | ler `comanda/AGENTS.md` antes |
@@ -440,7 +440,6 @@ estado vazio que explica, erro com "Tentar novamente", desativar separado de exc
 
 | Quem | Desde (UTC) | Tarefa | Arquivos / migração reservada |
 |---|---|---|---|
-| Claude | 2026-10-22 UTC | Plano Figaro P.8: conclusão do onboarding (herói, link digitado, logo depois, Copiar e Compartilhar), liberado pelo dono | `DIARIO.md`, `src/components/onboarding/ConclusaoDoOnboarding.tsx` (novo), `src/lib/conclusao-do-onboarding.ts` (novo), `src/lib/movimento-figaro.ts`, `src/routes/barbeiro.configurar.tsx` (só o bloco `pronto`); sem migração |
 | GPT | 2026-10-21 UTC | Corrigir a varredura de WhatsApp/Asaas: diagnosticar timeouts, preparar correção dos cron jobs e validar endpoint no worker de produção; sem escrita real até autorização explícita | `DIARIO.md`, `MUSE.md`, `drizzle/migrations/0043_corrigir_agendadores.sql`, rotas de varredura; migração 0043 (não aplicada) |
 | GPT | 2026-10-21 UTC | Validar jornada Figaro e corrigir divergências de navegação confirmadas no código; inspeção visual 390px/1280px e animações segue pendente sem navegador conectado | `DIARIO.md`, `src/routes/barbeiro.marca.tsx`, `src/routes/barbeiro.marca.secao.$secao.tsx`, `src/components/marca/editor/EditorDaSecaoPublica.tsx`, `src/components/marca/editor/SecaoConteudo.tsx`, `src/components/marca/editor/PaineisDoEditor.tsx`, `src/lib/navegacao-barbeiro.ts`, `src/lib/navegacao-barbeiro.test.ts`, `src/routes/barbeiro.sua-pagina.tsx`; sem migração |
 | GPT | 2026-10-21 UTC | Compactar cabeçalho do modo zoom/edição da Agenda sem reduzir tipografia; aplicar movimento de gaveta de entrada/saída | `DIARIO.md`, `src/components/barbeiro/agenda/CabecalhoDeEdicao.tsx`, componente que abre/fecha a configuração de zoom e testes de movimento; sem migração |
@@ -622,6 +621,22 @@ estado vazio que explica, erro com "Tentar novamente", desativar separado de exc
 - Sem alteração no banco, `main` ou produção.
 
 ## Diário
+
+### 2026-10-22 UTC — Claude — Conclusão do onboarding no padrão Figaro (plano P.8)
+- Novo `src/components/onboarding/ConclusaoDoOnboarding.tsx` (o bloco `pronto` de `barbeiro.configurar.tsx` passou
+  a usá-lo; o arquivo da rota ficou menor). Segue `OnboardingCompleteScreen` (spec 6 §4): herói de 140 px com o
+  visto, aparecendo em **520 ms**; o conteúdo sobe e aparece com a mola `lentaEfeito`; o link é **digitado, uma
+  letra a cada 32 ms**, com cursor piscando a cada 450 ms, já no lugar final (o resto fica invisível, sem pulo de
+  altura); o **logotipo entra 800 ms depois** (agora fica embaixo, e some do topo nessa etapa); fonte do link de 18
+  a 14 px para caber. Botões: **Copiar link**, **Compartilhar** (folha do aparelho; sem ela abre o WhatsApp com a
+  mensagem) e "Ir para a agenda"; texto "Você pode personalizar o layout e o tema da página quando quiser."
+- **Sem tela de "Preparando…" inventada:** no Figaro ela espera a publicação; no Cortaí a publicação já foi feita
+  no "Concluir" da etapa do link (o botão mostra o carregando de verdade). Aqui só se anima o resultado.
+- Regras puras em `src/lib/conclusao-do-onboarding.ts`; valores em `CONCLUSAO` (`movimento-figaro.ts`).
+  Sem evidência no APK: cursor some quando termina a digitação (decisão minha). "Reduzir movimento": tudo aparece de
+  uma vez, em 150 ms, e o leitor de tela lê o link inteiro (`aria-label`).
+- Validação: `tsc`, `eslint`, `vitest` (179 arquivos, 1662 testes), `build`; conferido no Chromium (herói, digitação
+  com cursor, botões; o logo aparece quebrado só no ensaio por não servir os arquivos públicos). Falta o celular.
 
 ### 2026-10-22 UTC — Claude — Novo agendamento no padrão Figaro (sem cara de onboarding)
 - **Pedido do dono**, com a foto da tela: o Novo agendamento estava parecendo onboarding. Causas: título gigante

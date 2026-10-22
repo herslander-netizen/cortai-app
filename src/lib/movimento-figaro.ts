@@ -86,3 +86,18 @@ export const ESCALA = {
   pulsoInicio: 0.85,
   pulsoPico: 1.05,
 } as const;
+
+/**
+ * Conclusão do onboarding (`OnboardingCompleteScreenKt`, spec 6 §4): o herói aparece em 520 ms, o
+ * logotipo 800 ms depois, o link é digitado uma letra a cada 32 ms com o cursor piscando a cada 450 ms,
+ * e a fonte do link vai de 18 a 14 para caber (passo de 1).
+ */
+export const CONCLUSAO = {
+  heroSegundos: 0.52,
+  logoAtrasoMs: 800,
+  letraMs: 32,
+  cursorMs: 450,
+  heroPx: 140,
+  fonteMaxPx: 18,
+  fonteMinPx: 14,
+} as const;

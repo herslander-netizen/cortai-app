@@ -3,6 +3,7 @@ import { mascaraTelefone } from "@/lib/previa";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { EtapasAnimadas } from "@/components/ui/EtapasAnimadas";
+import { ConclusaoDoOnboarding } from "@/components/onboarding/ConclusaoDoOnboarding";
 import { useMemo, useRef, useState, type ChangeEvent } from "react";
 import {
   Camera,
@@ -310,6 +311,31 @@ function ConfigurarPage() {
     }).then(() => setServicos(null));
   };
 
+  async function copiarLink() {
+    try {
+      await navigator.clipboard.writeText(link);
+      setCopiado(true);
+      marcarLinkCompartilhado();
+    } catch {
+      aviso.erro("Não consegui copiar o link. Tente novamente.");
+    }
+  }
+
+  /** Folha de compartilhar do aparelho; sem ela, abre o WhatsApp com a mensagem pronta. */
+  async function compartilharLink() {
+    const texto = `Agende seu horário na ${data?.tenant.nome ?? "nossa página"}: ${link}`;
+    try {
+      if (typeof navigator !== "undefined" && typeof navigator.share === "function") {
+        await navigator.share({ title: data?.tenant.nome ?? "Cortaí", text: texto, url: link });
+      } else {
+        window.open(`https://wa.me/?text=${encodeURIComponent(texto)}`, "_blank", "noopener");
+      }
+      marcarLinkCompartilhado();
+    } catch {
+      // Cancelar a folha de compartilhar não é erro.
+    }
+  }
+
   function marcarLinkCompartilhado() {
     void marcar({ data: { chave: "compartilhar_link", feito: true } })
       .then(recarregar)
@@ -376,9 +402,11 @@ function ConfigurarPage() {
 
       {data ? (
         <>
-          <div className="mb-5 flex justify-center" aria-label="Cortaí">
-            <MarcaCortai variante="automatica" className="h-7 w-auto" />
-          </div>
+          {etapa !== "pronto" ? (
+            <div className="mb-5 flex justify-center" aria-label="Cortaí">
+              <MarcaCortai variante="automatica" className="h-7 w-auto" />
+            </div>
+          ) : null}
           {etapa !== "pronto" ? (
             <div className="mb-6">
               <div className="flex gap-1.5" aria-hidden>
@@ -772,32 +800,16 @@ function ConfigurarPage() {
             ) : null}
 
             {etapa === "pronto" ? (
-              <div className="pt-4 text-center">
-                <span className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-sage">
-                  <Check size={28} className="text-ink" aria-hidden />
-                </span>
-                <h2 className="mt-5 text-xl font-semibold text-paper">
-                  {vocabulario.possessivo.charAt(0).toUpperCase()}
-                  {vocabulario.possessivo.slice(1)} já pode receber agendamentos.
-                </h2>
-                <p className="mt-2 break-all text-sm text-mute">{linkCurto}</p>
-                <Button
-                  variant="primary"
-                  type="button"
-                  className="mt-8 min-h-14 w-full text-sm"
-                  onClick={() => void navigate({ to: "/barbeiro" })}
-                >
-                  Ir para a agenda
-                </Button>
-                <Button
-                  variant="ghost"
-                  type="button"
-                  className="mt-3 min-h-12 w-full text-center text-xs text-mute"
-                  onClick={() => setEtapaEscolhida("dados")}
-                >
-                  Revisar configuração
-                </Button>
-              </div>
+              <ConclusaoDoOnboarding
+                titulo={`${vocabulario.possessivo.charAt(0).toUpperCase()}${vocabulario.possessivo.slice(1)} já pode receber agendamentos.`}
+                link={link}
+                linkCurto={linkCurto}
+                copiado={copiado}
+                onCopiar={copiarLink}
+                onCompartilhar={compartilharLink}
+                onIrParaAgenda={() => void navigate({ to: "/barbeiro" })}
+                onRevisar={() => setEtapaEscolhida("dados")}
+              />
             ) : null}
           </EtapasAnimadas>
         </>
