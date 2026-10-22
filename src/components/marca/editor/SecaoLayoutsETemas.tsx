@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Eye, LayoutTemplate, Palette } from "lucide-react";
+import { LayoutTemplate } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -132,19 +132,6 @@ export function SecaoLayoutsETemas({
         </AccordionItem>
       </Accordion>
 
-      <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-line bg-ink px-4 py-3">
-        <p className="min-w-0 flex-1 text-xs leading-relaxed text-mute">
-          Os layouts e temas do Cortaí continuam disponíveis junto às opções recuperadas do Figaro. Os temas Figaro usam paletas adaptadas, e a prévia mostra como cada opção fica com o conteúdo real do seu negócio.
-        </p>
-        <Button type="button" variant="outline" className="min-h-12 w-full sm:w-auto" onClick={onVerExemplo}>
-          <Eye size={17} aria-hidden />
-          Ver Exemplo
-        </Button>
-      </div>
-      <p className="flex items-center gap-2 px-1 text-xs text-mute">
-        <Palette size={14} aria-hidden />
-        A seleção só altera a edição em andamento; use a ação de salvar rascunho ou publicar para persistir.
-      </p>
     </div>
   );
 }
