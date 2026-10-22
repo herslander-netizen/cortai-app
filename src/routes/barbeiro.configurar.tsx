@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { mascaraTelefone } from "@/lib/previa";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
+import { EtapasAnimadas } from "@/components/ui/EtapasAnimadas";
 import { useMemo, useRef, useState, type ChangeEvent } from "react";
 import {
   Camera,
@@ -394,409 +395,411 @@ function ConfigurarPage() {
             </div>
           ) : null}
 
-          {etapa === "dados" ? (
-            <div className="space-y-4">
-              <div className="flex items-center gap-4">
+          <EtapasAnimadas etapa={indice}>
+            {etapa === "dados" ? (
+              <div className="space-y-4">
+                <div className="flex items-center gap-4">
+                  <Button
+                    variant="ghost"
+                    type="button"
+                    onClick={() => arquivoRef.current?.click()}
+                    className="grid h-20 w-20 shrink-0 place-items-center overflow-hidden rounded-xl border border-line2 bg-ink2"
+                    aria-label="Enviar logo ou foto"
+                  >
+                    {logo?.previa || data.tenant.logoAssinada ? (
+                      <img
+                        src={logo?.previa ?? data.tenant.logoAssinada ?? ""}
+                        alt=""
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      <Camera size={22} className="text-mute" aria-hidden />
+                    )}
+                  </Button>
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold text-paper">Logo ou foto</p>
+                    <p className="mt-1 text-xs text-mute">
+                      {enviandoLogo ? "Enviando…" : "Aparece no seu link. Opcional."}
+                    </p>
+                  </div>
+                  <input
+                    ref={arquivoRef}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={enviarLogo}
+                  />
+                </div>
+                <label className="block text-xs font-medium text-mute">
+                  Nome {vocabulario.de}
+                  <input
+                    value={valorNome}
+                    onChange={(e) => setNome(e.target.value)}
+                    className="field-control mt-2 w-full"
+                  />
+                </label>
+                <label className="block text-xs font-medium text-mute">
+                  WhatsApp {vocabulario.de}
+                  <input
+                    value={valorWhatsapp}
+                    onChange={(e) => setWhatsapp(mascaraTelefone(e.target.value))}
+                    inputMode="tel"
+                    autoComplete="tel"
+                    placeholder="(11) 90000-0000"
+                    className="field-control mt-2 w-full"
+                  />
+                </label>
+                <label className="block text-xs font-medium text-mute">
+                  Endereço
+                  <input
+                    value={valorEndereco}
+                    onChange={(e) => setEndereco(e.target.value)}
+                    placeholder="Rua, número, bairro, cidade"
+                    className="field-control mt-2 w-full"
+                  />
+                </label>
+                {rodape(
+                  () =>
+                    proxima(() =>
+                      salvarDados({
+                        data: {
+                          nome: valorNome.trim(),
+                          whatsapp: valorWhatsapp,
+                          endereco: valorEndereco,
+                          ...(logo ? { logoUrl: logo.caminho } : {}),
+                        },
+                      }),
+                    ),
+                  "Continuar",
+                  valorNome.trim().length < 2 || enviandoLogo,
+                )}
+              </div>
+            ) : null}
+
+            {etapa === "equipe" ? (
+              <div>
                 <Button
                   variant="ghost"
                   type="button"
-                  onClick={() => arquivoRef.current?.click()}
-                  className="grid h-20 w-20 shrink-0 place-items-center overflow-hidden rounded-xl border border-line2 bg-ink2"
-                  aria-label="Enviar logo ou foto"
+                  onClick={() =>
+                    proxima(async () => {
+                      await garantirDonoNaAgenda();
+                      await marcar({ data: { chave: "sozinho", feito: true } });
+                    })
+                  }
+                  disabled={salvando}
+                  className="flex h-auto min-h-14 w-full items-center gap-3 whitespace-normal rounded-xl border border-line2 bg-ink2 px-4 py-3 text-left"
                 >
-                  {logo?.previa || data.tenant.logoAssinada ? (
-                    <img
-                      src={logo?.previa ?? data.tenant.logoAssinada ?? ""}
-                      alt=""
-                      className="h-full w-full object-cover"
-                    />
-                  ) : (
-                    <Camera size={22} className="text-mute" aria-hidden />
-                  )}
+                  <UserRound size={18} className="shrink-0 text-paper" aria-hidden />
+                  <span className="min-w-0 flex-1">
+                    <span className="block break-words text-sm font-semibold text-paper">
+                      Trabalho sozinho
+                    </span>
+                    <span className="block break-words text-xs text-mute">
+                      Você aparece como o profissional. Pula este passo.
+                    </span>
+                  </span>
                 </Button>
-                <div className="min-w-0">
-                  <p className="text-sm font-semibold text-paper">Logo ou foto</p>
-                  <p className="mt-1 text-xs text-mute">
-                    {enviandoLogo ? "Enviando…" : "Aparece no seu link. Opcional."}
-                  </p>
-                </div>
-                <input
-                  ref={arquivoRef}
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={enviarLogo}
-                />
-              </div>
-              <label className="block text-xs font-medium text-mute">
-                Nome {vocabulario.de}
-                <input
-                  value={valorNome}
-                  onChange={(e) => setNome(e.target.value)}
-                  className="field-control mt-2 w-full"
-                />
-              </label>
-              <label className="block text-xs font-medium text-mute">
-                WhatsApp {vocabulario.de}
-                <input
-                  value={valorWhatsapp}
-                  onChange={(e) => setWhatsapp(mascaraTelefone(e.target.value))}
-                  inputMode="tel"
-                  autoComplete="tel"
-                  placeholder="(11) 90000-0000"
-                  className="field-control mt-2 w-full"
-                />
-              </label>
-              <label className="block text-xs font-medium text-mute">
-                Endereço
-                <input
-                  value={valorEndereco}
-                  onChange={(e) => setEndereco(e.target.value)}
-                  placeholder="Rua, número, bairro, cidade"
-                  className="field-control mt-2 w-full"
-                />
-              </label>
-              {rodape(
-                () =>
-                  proxima(() =>
-                    salvarDados({
-                      data: {
-                        nome: valorNome.trim(),
-                        whatsapp: valorWhatsapp,
-                        endereco: valorEndereco,
-                        ...(logo ? { logoUrl: logo.caminho } : {}),
-                      },
-                    }),
-                  ),
-                "Continuar",
-                valorNome.trim().length < 2 || enviandoLogo,
-              )}
-            </div>
-          ) : null}
 
-          {etapa === "equipe" ? (
-            <div>
-              <Button
-                variant="ghost"
-                type="button"
-                onClick={() =>
-                  proxima(async () => {
-                    await garantirDonoNaAgenda();
-                    await marcar({ data: { chave: "sozinho", feito: true } });
-                  })
-                }
-                disabled={salvando}
-                className="flex h-auto min-h-14 w-full items-center gap-3 whitespace-normal rounded-xl border border-line2 bg-ink2 px-4 py-3 text-left"
-              >
-                <UserRound size={18} className="shrink-0 text-paper" aria-hidden />
-                <span className="min-w-0 flex-1">
-                  <span className="block break-words text-sm font-semibold text-paper">
-                    Trabalho sozinho
-                  </span>
-                  <span className="block break-words text-xs text-mute">
-                    Você aparece como o profissional. Pula este passo.
-                  </span>
-                </span>
-              </Button>
-
-              <p className="mt-6 text-xs font-medium text-mute">Quem trabalha com você</p>
-              <ul className="mt-2 divide-y divide-line border-y border-line">
-                {profissionais.length === 0 ? (
-                  <li className="py-3 text-sm text-mute">Ninguém cadastrado ainda.</li>
-                ) : null}
-                {profissionais.map((p) => (
-                  <li key={p.id} className="flex min-h-12 items-center gap-3">
-                    <Scissors size={15} className="text-paper" aria-hidden />
-                    <span className="text-sm text-paper">{p.nome}</span>
-                  </li>
-                ))}
-              </ul>
-
-              <div className="mt-4 space-y-3 surface p-4">
-                <div className="grid grid-cols-3 gap-2" role="radiogroup" aria-label="Função">
-                  {FUNCOES.map((f) => (
-                    <Button
-                      variant="ghost"
-                      key={f.valor}
-                      type="button"
-                      role="radio"
-                      aria-checked={novaFuncao === f.valor}
-                      onClick={() => setNovaFuncao(f.valor)}
-                      className={`min-h-12 rounded-lg border text-xs font-semibold ${
-                        novaFuncao === f.valor
-                          ? "border-paper bg-paper text-ink"
-                          : "border-line2 bg-ink text-paper"
-                      }`}
-                    >
-                      {f.rotulo}
-                    </Button>
+                <p className="mt-6 text-xs font-medium text-mute">Quem trabalha com você</p>
+                <ul className="mt-2 divide-y divide-line border-y border-line">
+                  {profissionais.length === 0 ? (
+                    <li className="py-3 text-sm text-mute">Ninguém cadastrado ainda.</li>
+                  ) : null}
+                  {profissionais.map((p) => (
+                    <li key={p.id} className="flex min-h-12 items-center gap-3">
+                      <Scissors size={15} className="text-paper" aria-hidden />
+                      <span className="text-sm text-paper">{p.nome}</span>
+                    </li>
                   ))}
-                </div>
-                <p className="text-xs text-mute">
-                  {FUNCOES.find((f) => f.valor === novaFuncao)?.detalhe} As permissões da função
-                  entram sozinhas.
-                </p>
-                {novaFuncao !== "recepcao" ? (
+                </ul>
+
+                <div className="mt-4 space-y-3 surface p-4">
+                  <div className="grid grid-cols-3 gap-2" role="radiogroup" aria-label="Função">
+                    {FUNCOES.map((f) => (
+                      <Button
+                        variant="ghost"
+                        key={f.valor}
+                        type="button"
+                        role="radio"
+                        aria-checked={novaFuncao === f.valor}
+                        onClick={() => setNovaFuncao(f.valor)}
+                        className={`min-h-12 rounded-lg border text-xs font-semibold ${
+                          novaFuncao === f.valor
+                            ? "border-paper bg-paper text-ink"
+                            : "border-line2 bg-ink text-paper"
+                        }`}
+                      >
+                        {f.rotulo}
+                      </Button>
+                    ))}
+                  </div>
+                  <p className="text-xs text-mute">
+                    {FUNCOES.find((f) => f.valor === novaFuncao)?.detalhe} As permissões da função
+                    entram sozinhas.
+                  </p>
+                  {novaFuncao !== "recepcao" ? (
+                    <input
+                      value={novoNome}
+                      onChange={(e) => setNovoNome(e.target.value)}
+                      placeholder="Nome"
+                      className="field-control w-full"
+                    />
+                  ) : null}
                   <input
-                    value={novoNome}
-                    onChange={(e) => setNovoNome(e.target.value)}
-                    placeholder="Nome"
+                    value={novoEmail}
+                    onChange={(e) => setNovoEmail(e.target.value)}
+                    type="email"
+                    inputMode="email"
+                    placeholder={
+                      novaFuncao === "recepcao"
+                        ? "E-mail (para enviar o convite)"
+                        : "E-mail para dar acesso (opcional)"
+                    }
                     className="field-control w-full"
                   />
-                ) : null}
-                <input
-                  value={novoEmail}
-                  onChange={(e) => setNovoEmail(e.target.value)}
-                  type="email"
-                  inputMode="email"
-                  placeholder={
-                    novaFuncao === "recepcao"
-                      ? "E-mail (para enviar o convite)"
-                      : "E-mail para dar acesso (opcional)"
-                  }
-                  className="field-control w-full"
-                />
-                <Button
-                  type="button"
-                  disabled={adicionando}
-                  onClick={() => void adicionarPessoa()}
-                  variant="outline"
-                  className="min-h-12 w-full text-sm"
-                >
-                  <Plus size={14} className="mr-1.5 inline" aria-hidden />
-                  {adicionando ? "Adicionando…" : "Adicionar"}
-                </Button>
-              </div>
-
-              {rodape(() => proxima(garantirDonoNaAgenda))}
-            </div>
-          ) : null}
-
-          {etapa === "servicos" ? (
-            <div>
-              <p className="mb-3 text-xs text-mute">
-                Já deixamos sugestões. Ajuste preço e duração ou apague o que não faz.
-              </p>
-              <EditorDeServicos
-                servicos={valorServicos}
-                onChange={setServicos}
-                profissionais={profissionais.map((p) => ({ id: p.id, nome: p.nome }))}
-                semIA
-                segmento={segmento}
-                tenantId={data.tenant.id}
-              />
-              {rodape(
-                () => proxima(salvarServicosAgora),
-                "Continuar",
-                !valorServicos.some((s) => s.nome.trim().length >= 2),
-              )}
-            </div>
-          ) : null}
-
-          {etapa === "horarios" ? (
-            <div>
-              <p className="mb-3 text-xs text-mute">
-                Já vem preenchido. Mude só o que for diferente.
-              </p>
-              <EditorDeHorarios
-                horarios={valorHorarios}
-                onChange={setHorarios}
-                semIA
-                segmento={segmento}
-              />
-              {rodape(() => proxima(() => gravarHorarios({ data: { horarios: valorHorarios } })))}
-            </div>
-          ) : null}
-
-          {etapa === "regras" ? (
-            <div>
-              <Button
-                variant="ghost"
-                type="button"
-                onClick={() => {
-                  setRegras(REGRAS_RECOMENDADAS);
-                  proxima(() => gravarRegras({ data: REGRAS_RECOMENDADAS }));
-                }}
-                disabled={salvando}
-                className="flex h-auto min-h-14 w-full items-center gap-3 whitespace-normal rounded-xl border border-line2 bg-ink2 px-4 py-3 text-left"
-              >
-                <Check size={18} className="shrink-0 text-paper" aria-hidden />
-                <span className="min-w-0 flex-1">
-                  <span className="block break-words text-sm font-semibold text-paper">
-                    Usar padrão recomendado
-                  </span>
-                  <span className="block break-words text-xs text-mute">
-                    1 h de antecedência, cancelar até 2 h antes, aceita encaixe.
-                  </span>
-                </span>
-              </Button>
-
-              <Escolha
-                titulo="Antecedência mínima para agendar"
-                opcoes={ANTECEDENCIAS}
-                valor={valorRegras.antecedenciaMinMinutos}
-                onChange={(v) => setRegras({ ...valorRegras, antecedenciaMinMinutos: v })}
-              />
-              <Escolha
-                titulo="Cliente pode cancelar até"
-                opcoes={CANCELAMENTOS}
-                valor={valorRegras.cancelamentoMinHoras}
-                onChange={(v) => setRegras({ ...valorRegras, cancelamentoMinHoras: v })}
-              />
-              <Escolha
-                titulo="Intervalo entre atendimentos"
-                opcoes={INTERVALOS}
-                valor={valorRegras.intervaloEntreMin}
-                onChange={(v) => setRegras({ ...valorRegras, intervaloEntreMin: v })}
-              />
-              <Escolha
-                titulo="Período máximo para agendar"
-                opcoes={JANELAS}
-                valor={valorRegras.janelaDias}
-                onChange={(v) => setRegras({ ...valorRegras, janelaDias: v })}
-              />
-              <Escolha
-                titulo="Horários oferecidos a cada"
-                opcoes={PASSOS}
-                valor={valorRegras.passoMin}
-                onChange={(v) => setRegras({ ...valorRegras, passoMin: v })}
-              />
-              <label className="mt-6 flex min-h-12 items-center justify-between gap-4">
-                <span>
-                  <span className="block text-sm font-semibold text-paper">Aceitar encaixes</span>
-                  <span className="block text-xs text-mute">
-                    Cliente sem horário pode entrar na fila.
-                  </span>
-                </span>
-                <input
-                  type="checkbox"
-                  checked={valorRegras.aceitaEncaixe}
-                  onChange={(e) => setRegras({ ...valorRegras, aceitaEncaixe: e.target.checked })}
-                  className="h-6 w-6 shrink-0 accent-[var(--gold)]"
-                />
-              </label>
-              {rodape(() =>
-                proxima(() => gravarRegras({ data: valorRegras }).then(() => concluir())),
-              )}
-            </div>
-          ) : null}
-
-          {etapa === "link" ? (
-            <div>
-              <p className="text-sm text-paper">
-                Este é o link {vocabulario.de}. Mande para seus clientes agendarem.
-              </p>
-              <p className="mt-4 break-all rounded-lg border border-line2 bg-ink2 px-4 py-4 text-base font-semibold text-paper">
-                {linkCurto}
-              </p>
-              <div className="mt-3 grid grid-cols-2 gap-3">
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="min-h-12 text-sm"
-                  onClick={async () => {
-                    try {
-                      await navigator.clipboard.writeText(link);
-                      setCopiado(true);
-                      marcarLinkCompartilhado();
-                    } catch {
-                      aviso.erro("Não consegui copiar o link. Tente novamente.");
-                    }
-                  }}
-                >
-                  <Copy size={14} className="mr-1.5 inline" aria-hidden />
-                  {copiado ? "Copiado" : "Copiar"}
-                </Button>
-                <Button variant="outline" className="min-h-12 text-sm" asChild>
-                  <a
-                    href={`https://wa.me/?text=${encodeURIComponent(`Agende seu horário na ${data.tenant.nome}: ${link}`)}`}
-                    target="_blank"
-                    rel="noreferrer"
-                    onClick={marcarLinkCompartilhado}
+                  <Button
+                    type="button"
+                    disabled={adicionando}
+                    onClick={() => void adicionarPessoa()}
+                    variant="outline"
+                    className="min-h-12 w-full text-sm"
                   >
-                    <MessageCircle size={14} className="mr-1.5" aria-hidden /> WhatsApp
+                    <Plus size={14} className="mr-1.5 inline" aria-hidden />
+                    {adicionando ? "Adicionando…" : "Adicionar"}
+                  </Button>
+                </div>
+
+                {rodape(() => proxima(garantirDonoNaAgenda))}
+              </div>
+            ) : null}
+
+            {etapa === "servicos" ? (
+              <div>
+                <p className="mb-3 text-xs text-mute">
+                  Já deixamos sugestões. Ajuste preço e duração ou apague o que não faz.
+                </p>
+                <EditorDeServicos
+                  servicos={valorServicos}
+                  onChange={setServicos}
+                  profissionais={profissionais.map((p) => ({ id: p.id, nome: p.nome }))}
+                  semIA
+                  segmento={segmento}
+                  tenantId={data.tenant.id}
+                />
+                {rodape(
+                  () => proxima(salvarServicosAgora),
+                  "Continuar",
+                  !valorServicos.some((s) => s.nome.trim().length >= 2),
+                )}
+              </div>
+            ) : null}
+
+            {etapa === "horarios" ? (
+              <div>
+                <p className="mb-3 text-xs text-mute">
+                  Já vem preenchido. Mude só o que for diferente.
+                </p>
+                <EditorDeHorarios
+                  horarios={valorHorarios}
+                  onChange={setHorarios}
+                  semIA
+                  segmento={segmento}
+                />
+                {rodape(() => proxima(() => gravarHorarios({ data: { horarios: valorHorarios } })))}
+              </div>
+            ) : null}
+
+            {etapa === "regras" ? (
+              <div>
+                <Button
+                  variant="ghost"
+                  type="button"
+                  onClick={() => {
+                    setRegras(REGRAS_RECOMENDADAS);
+                    proxima(() => gravarRegras({ data: REGRAS_RECOMENDADAS }));
+                  }}
+                  disabled={salvando}
+                  className="flex h-auto min-h-14 w-full items-center gap-3 whitespace-normal rounded-xl border border-line2 bg-ink2 px-4 py-3 text-left"
+                >
+                  <Check size={18} className="shrink-0 text-paper" aria-hidden />
+                  <span className="min-w-0 flex-1">
+                    <span className="block break-words text-sm font-semibold text-paper">
+                      Usar padrão recomendado
+                    </span>
+                    <span className="block break-words text-xs text-mute">
+                      1 h de antecedência, cancelar até 2 h antes, aceita encaixe.
+                    </span>
+                  </span>
+                </Button>
+
+                <Escolha
+                  titulo="Antecedência mínima para agendar"
+                  opcoes={ANTECEDENCIAS}
+                  valor={valorRegras.antecedenciaMinMinutos}
+                  onChange={(v) => setRegras({ ...valorRegras, antecedenciaMinMinutos: v })}
+                />
+                <Escolha
+                  titulo="Cliente pode cancelar até"
+                  opcoes={CANCELAMENTOS}
+                  valor={valorRegras.cancelamentoMinHoras}
+                  onChange={(v) => setRegras({ ...valorRegras, cancelamentoMinHoras: v })}
+                />
+                <Escolha
+                  titulo="Intervalo entre atendimentos"
+                  opcoes={INTERVALOS}
+                  valor={valorRegras.intervaloEntreMin}
+                  onChange={(v) => setRegras({ ...valorRegras, intervaloEntreMin: v })}
+                />
+                <Escolha
+                  titulo="Período máximo para agendar"
+                  opcoes={JANELAS}
+                  valor={valorRegras.janelaDias}
+                  onChange={(v) => setRegras({ ...valorRegras, janelaDias: v })}
+                />
+                <Escolha
+                  titulo="Horários oferecidos a cada"
+                  opcoes={PASSOS}
+                  valor={valorRegras.passoMin}
+                  onChange={(v) => setRegras({ ...valorRegras, passoMin: v })}
+                />
+                <label className="mt-6 flex min-h-12 items-center justify-between gap-4">
+                  <span>
+                    <span className="block text-sm font-semibold text-paper">Aceitar encaixes</span>
+                    <span className="block text-xs text-mute">
+                      Cliente sem horário pode entrar na fila.
+                    </span>
+                  </span>
+                  <input
+                    type="checkbox"
+                    checked={valorRegras.aceitaEncaixe}
+                    onChange={(e) => setRegras({ ...valorRegras, aceitaEncaixe: e.target.checked })}
+                    className="h-6 w-6 shrink-0 accent-[var(--gold)]"
+                  />
+                </label>
+                {rodape(() =>
+                  proxima(() => gravarRegras({ data: valorRegras }).then(() => concluir())),
+                )}
+              </div>
+            ) : null}
+
+            {etapa === "link" ? (
+              <div>
+                <p className="text-sm text-paper">
+                  Este é o link {vocabulario.de}. Mande para seus clientes agendarem.
+                </p>
+                <p className="mt-4 break-all rounded-lg border border-line2 bg-ink2 px-4 py-4 text-base font-semibold text-paper">
+                  {linkCurto}
+                </p>
+                <div className="mt-3 grid grid-cols-2 gap-3">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="min-h-12 text-sm"
+                    onClick={async () => {
+                      try {
+                        await navigator.clipboard.writeText(link);
+                        setCopiado(true);
+                        marcarLinkCompartilhado();
+                      } catch {
+                        aviso.erro("Não consegui copiar o link. Tente novamente.");
+                      }
+                    }}
+                  >
+                    <Copy size={14} className="mr-1.5 inline" aria-hidden />
+                    {copiado ? "Copiado" : "Copiar"}
+                  </Button>
+                  <Button variant="outline" className="min-h-12 text-sm" asChild>
+                    <a
+                      href={`https://wa.me/?text=${encodeURIComponent(`Agende seu horário na ${data.tenant.nome}: ${link}`)}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      onClick={marcarLinkCompartilhado}
+                    >
+                      <MessageCircle size={14} className="mr-1.5" aria-hidden /> WhatsApp
+                    </a>
+                  </Button>
+                </div>
+                <Button variant="ghost" className="mt-4 min-h-12 px-2 text-xs" asChild>
+                  <a href={link} target="_blank" rel="noreferrer">
+                    <ExternalLink size={13} aria-hidden /> Ver como o cliente vê
                   </a>
                 </Button>
+                {rodape(() => proxima(), "Concluir")}
               </div>
-              <Button variant="ghost" className="mt-4 min-h-12 px-2 text-xs" asChild>
-                <a href={link} target="_blank" rel="noreferrer">
-                  <ExternalLink size={13} aria-hidden /> Ver como o cliente vê
-                </a>
-              </Button>
-              {rodape(() => proxima(), "Concluir")}
-            </div>
-          ) : null}
+            ) : null}
 
-          {etapa === "canais" ? (
-            <div>
-              <h2 className="text-lg font-semibold text-paper">Como seu cliente agenda?</h2>
-              <p className="mt-1 text-sm text-mute">
-                Escolha agora ou mantenha o formato atual. Você pode mudar depois.
-              </p>
-              <div
-                className="mt-5 grid grid-cols-2 gap-3"
-                role="group"
-                aria-label="Modo de agendamento"
-              >
-                <Button
-                  type="button"
-                  variant={valorModo === "conversa" ? "primary" : "outline"}
-                  className="h-14"
-                  aria-pressed={valorModo === "conversa"}
-                  onClick={() => setModo("conversa")}
+            {etapa === "canais" ? (
+              <div>
+                <h2 className="text-lg font-semibold text-paper">Como seu cliente agenda?</h2>
+                <p className="mt-1 text-sm text-mute">
+                  Escolha agora ou mantenha o formato atual. Você pode mudar depois.
+                </p>
+                <div
+                  className="mt-5 grid grid-cols-2 gap-3"
+                  role="group"
+                  aria-label="Modo de agendamento"
                 >
-                  Conversa
+                  <Button
+                    type="button"
+                    variant={valorModo === "conversa" ? "primary" : "outline"}
+                    className="h-14"
+                    aria-pressed={valorModo === "conversa"}
+                    onClick={() => setModo("conversa")}
+                  >
+                    Conversa
+                  </Button>
+                  <Button
+                    type="button"
+                    variant={valorModo === "tradicional" ? "primary" : "outline"}
+                    className="h-14"
+                    aria-pressed={valorModo === "tradicional"}
+                    onClick={() => setModo("tradicional")}
+                  >
+                    Tradicional
+                  </Button>
+                </div>
+                <div className="mt-5 pb-4">
+                  <ChatPreview ativo={valorModo === "conversa"} />
+                </div>
+                {rodape(
+                  () => proxima(() => gravarModo({ data: { modo: valorModo } })),
+                  "Continuar",
+                  false,
+                  () => proxima(),
+                )}
+              </div>
+            ) : null}
+
+            {etapa === "pronto" ? (
+              <div className="pt-4 text-center">
+                <span className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-sage">
+                  <Check size={28} className="text-ink" aria-hidden />
+                </span>
+                <h2 className="mt-5 text-xl font-semibold text-paper">
+                  {vocabulario.possessivo.charAt(0).toUpperCase()}
+                  {vocabulario.possessivo.slice(1)} já pode receber agendamentos.
+                </h2>
+                <p className="mt-2 break-all text-sm text-mute">{linkCurto}</p>
+                <Button
+                  variant="primary"
+                  type="button"
+                  className="mt-8 min-h-14 w-full text-sm"
+                  onClick={() => void navigate({ to: "/barbeiro" })}
+                >
+                  Ir para a agenda
                 </Button>
                 <Button
+                  variant="ghost"
                   type="button"
-                  variant={valorModo === "tradicional" ? "primary" : "outline"}
-                  className="h-14"
-                  aria-pressed={valorModo === "tradicional"}
-                  onClick={() => setModo("tradicional")}
+                  className="mt-3 min-h-12 w-full text-center text-xs text-mute"
+                  onClick={() => setEtapaEscolhida("dados")}
                 >
-                  Tradicional
+                  Revisar configuração
                 </Button>
               </div>
-              <div className="mt-5 pb-4">
-                <ChatPreview ativo={valorModo === "conversa"} />
-              </div>
-              {rodape(
-                () => proxima(() => gravarModo({ data: { modo: valorModo } })),
-                "Continuar",
-                false,
-                () => proxima(),
-              )}
-            </div>
-          ) : null}
-
-          {etapa === "pronto" ? (
-            <div className="pt-4 text-center">
-              <span className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-sage">
-                <Check size={28} className="text-ink" aria-hidden />
-              </span>
-              <h2 className="mt-5 text-xl font-semibold text-paper">
-                {vocabulario.possessivo.charAt(0).toUpperCase()}
-                {vocabulario.possessivo.slice(1)} já pode receber agendamentos.
-              </h2>
-              <p className="mt-2 break-all text-sm text-mute">{linkCurto}</p>
-              <Button
-                variant="primary"
-                type="button"
-                className="mt-8 min-h-14 w-full text-sm"
-                onClick={() => void navigate({ to: "/barbeiro" })}
-              >
-                Ir para a agenda
-              </Button>
-              <Button
-                variant="ghost"
-                type="button"
-                className="mt-3 min-h-12 w-full text-center text-xs text-mute"
-                onClick={() => setEtapaEscolhida("dados")}
-              >
-                Revisar configuração
-              </Button>
-            </div>
-          ) : null}
+            ) : null}
+          </EtapasAnimadas>
         </>
       ) : null}
     </Screen>

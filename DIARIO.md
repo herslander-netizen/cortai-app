@@ -317,7 +317,7 @@ Já implementado (`src/lib/transicoes-de-tela.ts`, `TransicaoDePagina.tsx`, spec
    (área da gaveta = nível 1; tela interna = nível 2+; fluxo à parte = acrescentar em `FLUXOS_CRUZADOS`).
 4. **Não aplicar** fora de `/barbeiro` (cliente, página pública e admin continuam com o esmaecer).
 
-### P.5 Fase 2 — Etapas de cadastro (spec 5 §1.5, spec 6 §1)
+### P.5 Fase 2 — Etapas de cadastro (spec 5 §1.5, spec 6 §1) [feito em Novo agendamento e Onboarding: Claude, 22/10; falta celular]
 
 Objetivo: todo cadastro em etapas troca o conteúdo como o Figaro.
 
@@ -436,7 +436,6 @@ estado vazio que explica, erro com "Tentar novamente", desativar separado de exc
 
 | Quem | Desde (UTC) | Tarefa | Arquivos / migração reservada |
 |---|---|---|---|
-| Claude | 2026-10-22 UTC | Plano Figaro P.5 (etapas animadas), **liberado pelo dono em 22/10** a aplicar nos arquivos reservados ao GPT: `EtapasAnimadas` e uso em Novo agendamento e onboarding | `DIARIO.md`, `src/components/ui/EtapasAnimadas.tsx`, `src/lib/etapas-animadas.ts`, `src/components/barbeiro/AgendamentoManual.tsx` (só o miolo das etapas), `src/routes/barbeiro.configurar.tsx` (só o miolo das etapas); sem migração |
 | GPT | 2026-10-21 UTC | Corrigir a varredura de WhatsApp/Asaas: diagnosticar timeouts, preparar correção dos cron jobs e validar endpoint no worker de produção; sem escrita real até autorização explícita | `DIARIO.md`, `MUSE.md`, `drizzle/migrations/0043_corrigir_agendadores.sql`, rotas de varredura; migração 0043 (não aplicada) |
 | GPT | 2026-10-21 UTC | Validar jornada Figaro e corrigir divergências de navegação confirmadas no código; inspeção visual 390px/1280px e animações segue pendente sem navegador conectado | `DIARIO.md`, `src/routes/barbeiro.marca.tsx`, `src/routes/barbeiro.marca.secao.$secao.tsx`, `src/components/marca/editor/EditorDaSecaoPublica.tsx`, `src/components/marca/editor/SecaoConteudo.tsx`, `src/components/marca/editor/PaineisDoEditor.tsx`, `src/lib/navegacao-barbeiro.ts`, `src/lib/navegacao-barbeiro.test.ts`, `src/routes/barbeiro.sua-pagina.tsx`; sem migração |
 | GPT | 2026-10-21 UTC | Compactar cabeçalho do modo zoom/edição da Agenda sem reduzir tipografia; aplicar movimento de gaveta de entrada/saída | `DIARIO.md`, `src/components/barbeiro/agenda/CabecalhoDeEdicao.tsx`, componente que abre/fecha a configuração de zoom e testes de movimento; sem migração |
@@ -618,6 +617,24 @@ estado vazio que explica, erro com "Tentar novamente", desativar separado de exc
 - Sem alteração no banco, `main` ou produção.
 
 ## Diário
+
+### 2026-10-22 UTC — Claude — Etapas animadas nos cadastros (plano P.5)
+- **Liberado pelo dono** ("pode aplicar você mesmo") nos arquivos reservados ao GPT. Componente novo
+  `src/components/ui/EtapasAnimadas.tsx` + regras em `src/lib/etapas-animadas.ts`: ao trocar de etapa o conteúdo
+  desliza a largura inteira e esmaece em **220 ms** (curva FastOutSlowIn); avançar entra pela direita, voltar pela
+  esquerda (Figaro, spec 5 §1.5). A etapa que sai fica inerte (sem foco nem toque, sem campos duplicados) e os
+  dados digitados são mantidos. "Reduzir movimento": só esmaece, em 150 ms.
+- **Aplicado em:** `AgendamentoManual.tsx` (Novo agendamento, 4 etapas) e `barbeiro.configurar.tsx` (onboarding,
+  etapas dados → … → pronto). Só o miolo de cada etapa é embrulhado; cabeçalho, barra de progresso, botão de ação
+  e regras de avançar/salvar não mudaram (`git diff -w`: 3 linhas em `configurar`, ~40 em `AgendamentoManual`).
+- **Atenção, GPT:** os dois arquivos passaram pelo `prettier` (o embrulho reindenta o miolo; antes já tinham erros
+  de formatação, 12 no `eslint`), por isso o diff sem `-w` é grande. Se você tem alteração aberta neles, junte
+  com `git pull` e rode `bunx prettier --write` nos dois.
+- **Fora desta entrega:** o título da etapa ("Etapa 2 de 4 · Serviço") ainda não desliza (spec 6 §1, mola
+  `padraoEspacial`); o botão "Continuar · N" só vale onde se escolhem vários itens (não existe no Cortaí hoje).
+- Validação: `tsc`, `eslint` (arquivos tocados limpos), `vitest` (177 arquivos, 1654 testes), `build`; ensaio no
+  Chromium com etapas de alturas diferentes: desliza nos dois sentidos, sem rolagem lateral, texto digitado
+  mantido ao voltar. Falta ver no celular, nos fluxos reais.
 
 ### 2026-10-22 UTC — Claude — Avaliações com as cores do Figaro
 - Pela decisão do dono de hoje, o resumo de Avaliações passou a usar as cores do APK: barras por nota

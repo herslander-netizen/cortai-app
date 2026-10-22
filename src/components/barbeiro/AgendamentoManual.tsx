@@ -1,4 +1,13 @@
-import { ArrowLeft, CalendarDays, Check, Clock3, FileText, Scissors, UserRound } from "lucide-react";
+import { EtapasAnimadas } from "@/components/ui/EtapasAnimadas";
+import {
+  ArrowLeft,
+  CalendarDays,
+  Check,
+  Clock3,
+  FileText,
+  Scissors,
+  UserRound,
+} from "lucide-react";
 import { useState } from "react";
 
 import { ConteudoDoTicket } from "@/components/comanda/FolhaDoTicket";
@@ -124,12 +133,13 @@ function Formulario({
     { titulo: "Horário", detalhe: "Dia e hora do atendimento" },
     { titulo: "Resumo", detalhe: "Confira antes de confirmar" },
   ];
-  const podeAvancar = [
-    Boolean(s.semCliente || s.clienteId || (s.novo && s.nomeValido && s.telefoneValido)),
-    Boolean(s.servicoId && s.profissionalId),
-    Boolean(s.data && s.horaMin),
-    s.pronto,
-  ][etapa] ?? false;
+  const podeAvancar =
+    [
+      Boolean(s.semCliente || s.clienteId || (s.novo && s.nomeValido && s.telefoneValido)),
+      Boolean(s.servicoId && s.profissionalId),
+      Boolean(s.data && s.horaMin),
+      s.pronto,
+    ][etapa] ?? false;
 
   return (
     <TelaDeFormulario
@@ -179,7 +189,11 @@ function Formulario({
         </>
       ) : (
         <>
-          <div role="group" aria-label={"Etapa " + (etapa + 1) + " de " + etapas.length} className="space-y-3">
+          <div
+            role="group"
+            aria-label={"Etapa " + (etapa + 1) + " de " + etapas.length}
+            className="space-y-3"
+          >
             <div className="grid grid-cols-4 gap-2" aria-hidden="true">
               {etapas.map((item, indice) => (
                 <span
@@ -206,51 +220,63 @@ function Formulario({
             </div>
           </div>
 
-          {etapa === 0 ? <SecaoCliente s={s} /> : null}
-          {etapa === 1 ? <SecaoServico s={s} /> : null}
-          {etapa === 2 ? <SecaoHorario s={s} /> : null}
-          {etapa === 3 ? (
-            <>
-              <SecaoDeFormulario rotulo="Confira o atendimento">
-                <Card density="none" className="overflow-hidden">
-                  <div className="flex items-start gap-3 border-b border-line p-4">
-                    <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-ink3 text-gold">
-                      <Scissors size={18} aria-hidden />
-                    </span>
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate font-semibold text-paper">{servico?.nome ?? "Serviço"}</p>
-                      <p className="mt-1 text-sm text-mute">
-                        {servico?.duracao_min ?? "—"} min · {servico ? brl(servico.preco_centavos) : "Preço a confirmar"}
+          <EtapasAnimadas etapa={etapa}>
+            {etapa === 0 ? <SecaoCliente s={s} /> : null}
+            {etapa === 1 ? <SecaoServico s={s} /> : null}
+            {etapa === 2 ? <SecaoHorario s={s} /> : null}
+            {etapa === 3 ? (
+              <>
+                <SecaoDeFormulario rotulo="Confira o atendimento">
+                  <Card density="none" className="overflow-hidden">
+                    <div className="flex items-start gap-3 border-b border-line p-4">
+                      <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-ink3 text-gold">
+                        <Scissors size={18} aria-hidden />
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate font-semibold text-paper">
+                          {servico?.nome ?? "Serviço"}
+                        </p>
+                        <p className="mt-1 text-sm text-mute">
+                          {servico?.duracao_min ?? "—"} min ·{" "}
+                          {servico ? brl(servico.preco_centavos) : "Preço a confirmar"}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="space-y-3 p-4 text-sm">
+                      <p className="flex items-center gap-2 text-paper">
+                        <UserRound size={16} className="text-mute" aria-hidden />
+                        <span>{profissional?.nome ?? "Profissional"}</span>
+                      </p>
+                      <p className="flex items-center gap-2 text-paper">
+                        <CalendarDays size={16} className="text-mute" aria-hidden />
+                        <span className="capitalize">{dataResumo}</span>
+                      </p>
+                      <p className="flex items-center gap-2 text-paper">
+                        <Clock3 size={16} className="text-mute" aria-hidden />
+                        <span>{s.horaMin}</span>
+                      </p>
+                      <p className="flex items-center gap-2 text-paper">
+                        <Check size={16} className="text-mute" aria-hidden />
+                        <span>
+                          {s.semCliente
+                            ? "Sem cliente vinculado"
+                            : nomeCliente || "Cliente não selecionado"}
+                        </span>
+                      </p>
+                      <p className="border-t border-line pt-3 text-mute">
+                        Forma de pagamento:{" "}
+                        <span className="font-semibold text-paper">
+                          {s.semCliente ? "A definir após vincular cliente" : pagamento}
+                        </span>
                       </p>
                     </div>
-                  </div>
-                  <div className="space-y-3 p-4 text-sm">
-                    <p className="flex items-center gap-2 text-paper">
-                      <UserRound size={16} className="text-mute" aria-hidden />
-                      <span>{profissional?.nome ?? "Profissional"}</span>
-                    </p>
-                    <p className="flex items-center gap-2 text-paper">
-                      <CalendarDays size={16} className="text-mute" aria-hidden />
-                      <span className="capitalize">{dataResumo}</span>
-                    </p>
-                    <p className="flex items-center gap-2 text-paper">
-                      <Clock3 size={16} className="text-mute" aria-hidden />
-                      <span>{s.horaMin}</span>
-                    </p>
-                    <p className="flex items-center gap-2 text-paper">
-                      <Check size={16} className="text-mute" aria-hidden />
-                      <span>{s.semCliente ? "Sem cliente vinculado" : nomeCliente || "Cliente não selecionado"}</span>
-                    </p>
-                    <p className="border-t border-line pt-3 text-mute">
-                      Forma de pagamento: <span className="font-semibold text-paper">{s.semCliente ? "A definir após vincular cliente" : pagamento}</span>
-                    </p>
-                  </div>
-                </Card>
-              </SecaoDeFormulario>
-              {!s.semCliente ? <SecaoPagamento s={s} /> : null}
-              {!s.semCliente ? <AvisosAgendamento s={s} /> : null}
-            </>
-          ) : null}
+                  </Card>
+                </SecaoDeFormulario>
+                {!s.semCliente ? <SecaoPagamento s={s} /> : null}
+                {!s.semCliente ? <AvisosAgendamento s={s} /> : null}
+              </>
+            ) : null}
+          </EtapasAnimadas>
         </>
       )}
     </TelaDeFormulario>
