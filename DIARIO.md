@@ -365,6 +365,15 @@ teste real na prévia.
 
 ## Diário (mais recente primeiro)
 
+### 2026-10-22 UTC — GPT — Ajusta cartão Layout & Tema ao padrão Figaro
+
+- O cartão em Personalizar Página agora mostra uma prévia esquemática ampla em proporção 16:9 e duas colunas abaixo: layout com quantidade de seções ativas e tema com a paleta atual. O botão para abrir a tela própria fica em largura total.
+- Arquivos: `src/routes/barbeiro.marca.tsx`, `src/components/marca/editor/CartoesDeLayoutTema.tsx`.
+- A miniatura ampla é uma representação visual esquemática; não é uma capa real carregada do servidor. Não houve alteração de persistência, permissões ou regras de negócio.
+- Validação automática da combinação final ainda pendente; verificar build, TypeScript, testes e prévia mobile/desktop antes de considerar concluído.
+- Commits de código: `512155cfc6a9892501206455bcdeca1e47b2c072`, `f9872b7d51f17044b637a51213e0bbb616d8b634`.
+
+
 ### 2026-10-21 UTC — GPT — Amplia teste de navegação do fluxo Figaro
 
 - O teste da navegação agora cobre dinamicamente todas as seções configuráveis de Personalizar Página, além do hub e de Layout & Tema, verificando que o item Sua Página permaneça ativo em todas elas.
