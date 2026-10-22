@@ -6,7 +6,7 @@ import {
   LAYOUTS,
   LAYOUTS_DO_FIGARO,
   TEMAS,
-  TEMAS_DO_FIGARO,
+  TEMAS_DO_CATALOGO,
   type LayoutId,
   type PaginaConfig,
   type TemaId,
@@ -110,7 +110,7 @@ export function SecaoLayoutsETemas({
       <section className="overflow-hidden rounded-[28px] bg-ink2" aria-label="Layout">
         <Cabecalho
           rotulo="Layout"
-          selo={`${TEMAS_DO_FIGARO.length} temas`}
+          selo={`${TEMAS_DO_CATALOGO.length} temas`}
           valor={LAYOUTS[config.layout]}
           aberto={aberto === "layout"}
           onClick={() => alternar("layout")}
@@ -148,7 +148,7 @@ export function SecaoLayoutsETemas({
         />
         <Painel aberto={aberto === "tema"}>
           <div className="flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-4">
-            {TEMAS_DO_FIGARO.map((tema) => (
+            {TEMAS_DO_CATALOGO.map((tema) => (
               <CartaoDeTema
                 key={tema}
                 tema={tema}

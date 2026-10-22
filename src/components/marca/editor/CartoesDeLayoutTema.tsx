@@ -8,7 +8,7 @@ import {
   LAYOUTS,
   SECOES_DO_LAYOUT,
   TEMAS,
-  TEMAS_DO_FIGARO,
+  TEMAS_DO_CATALOGO,
   type LayoutId,
   type TemaId,
 } from "@/lib/pagina-config";
@@ -79,7 +79,7 @@ export function CartaoDeLayout({
       </span>
       <span className="mt-3 flex items-center gap-2 text-xs font-semibold text-gold">
         <Palette size={15} aria-hidden />
-        {TEMAS_DO_FIGARO.length} temas disponíveis
+        {TEMAS_DO_CATALOGO.length} temas disponíveis
       </span>
       <span className="my-3 block h-px bg-line" aria-hidden />
       <span className="grid min-h-[78px] grid-cols-2 gap-x-3 gap-y-3">

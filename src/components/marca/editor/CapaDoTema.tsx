@@ -47,6 +47,29 @@ export function CapaDoTema({ tema, className = "" }: { tema: TemaId; className?:
           <circle cx="215" cy="50" r="22" fill="#E3C23F" />
           <rect x="20" y="62" width="90" height="14" rx="7" fill={cores.botao} />
         </>
+      ) : tema === "feminino-rose" ? (
+        <>
+          <rect width="290" height="100" fill="#F6D9DE" />
+          <circle cx="60" cy="30" r="46" fill="#EFC0C8" />
+          <circle cx="235" cy="78" r="58" fill="#E8AEB8" />
+          <circle cx="150" cy="95" r="34" fill="#F9E6E9" />
+          <circle cx="205" cy="18" r="14" fill="#B76E79" opacity="0.8" />
+        </>
+      ) : tema === "feminino-lavanda" ? (
+        <>
+          <rect width="290" height="100" fill="#E6DDF5" />
+          <path d="M0 62 Q70 28 145 58 T290 44 V100 H0Z" fill="#CDBDEB" />
+          <path d="M0 80 Q80 52 160 78 T290 68 V100 H0Z" fill="#9B7FD9" opacity="0.75" />
+          <circle cx="228" cy="26" r="16" fill="#F8F3FF" />
+        </>
+      ) : tema === "feminino-pessego" ? (
+        <>
+          <rect width="290" height="100" fill="#FFDCCB" />
+          <circle cx="200" cy="62" r="58" fill="#FFC4A8" />
+          <circle cx="200" cy="62" r="36" fill="#F9A98A" />
+          <circle cx="200" cy="62" r="16" fill={cores.botao} />
+          <path d="M0 84 Q70 64 140 86 T290 80 V100 H0Z" fill="#FFF3EA" />
+        </>
       ) : (
         <rect width="290" height="100" fill={cores.fundo} />
       )}

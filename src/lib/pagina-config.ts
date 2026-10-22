@@ -19,6 +19,9 @@ export const temaIds = [
   "figaro-classico",
   "figaro-retro",
   "figaro-rock-n-roll",
+  "feminino-rose",
+  "feminino-lavanda",
+  "feminino-pessego",
 ] as const;
 export const layoutIds = [
   "cinematografico",
@@ -41,6 +44,8 @@ export const fonteIds = [
   "lobster",
   "jakarta",
   "oldstandard",
+  "cormorant",
+  "dancing",
 ] as const;
 export const componenteIds = [
   "apresentacao",
@@ -395,6 +400,42 @@ export const TEMAS: Record<
       destaque: "#E8582A",
     },
   },
+  "feminino-rose": {
+    nome: "Rosé",
+    descricao: "Rosa suave com detalhes em ouro rosado, elegante e acolhedor.",
+    cores: {
+      principal: "#8C3B52",
+      secundaria: "#F6D9DE",
+      botao: "#B76E79",
+      fundo: "#FCEFF1",
+      texto: "#4A2130",
+      destaque: "#B76E79",
+    },
+  },
+  "feminino-lavanda": {
+    nome: "Lavanda",
+    descricao: "Lilás delicado e sofisticado, com ar de spa e bem-estar.",
+    cores: {
+      principal: "#5B3F8F",
+      secundaria: "#E6DDF5",
+      botao: "#7B5CC4",
+      fundo: "#F5F0FB",
+      texto: "#33254F",
+      destaque: "#9B7FD9",
+    },
+  },
+  "feminino-pessego": {
+    nome: "Pêssego",
+    descricao: "Tons de pêssego e coral, leve, solar e cheio de charme.",
+    cores: {
+      principal: "#B5523B",
+      secundaria: "#FFDCCB",
+      botao: "#E0745A",
+      fundo: "#FFF3EA",
+      texto: "#4D2A1F",
+      destaque: "#E0745A",
+    },
+  },
 };
 
 export const LAYOUTS: Record<LayoutId, string> = {
@@ -418,6 +459,8 @@ export const FONTES: Record<FonteId, string> = {
   lobster: "Lobster",
   jakarta: "Plus Jakarta Sans",
   oldstandard: "Old Standard TT",
+  cormorant: "Cormorant Garamond",
+  dancing: "Dancing Script",
 };
 
 /**
@@ -426,6 +469,12 @@ export const FONTES: Record<FonteId, string> = {
  */
 export const LAYOUTS_DO_FIGARO = ["figaro-site-completo", "figaro-agendamento"] as const satisfies readonly LayoutId[];
 export const TEMAS_DO_FIGARO = ["figaro-classico", "figaro-rock-n-roll", "figaro-retro"] as const satisfies readonly TemaId[];
+
+/** Temas de estilo e paleta femininos, do Cortaí, que usam os mesmos modelos. */
+export const TEMAS_FEMININOS = ["feminino-rose", "feminino-lavanda", "feminino-pessego"] as const satisfies readonly TemaId[];
+
+/** Tudo o que a tela Layout & Tema oferece, na ordem. */
+export const TEMAS_DO_CATALOGO = [...TEMAS_DO_FIGARO, ...TEMAS_FEMININOS] as const;
 
 export const DESCRICAO_DO_LAYOUT: Partial<Record<LayoutId, string>> = {
   "figaro-site-completo": "Layout completo com todas as seções organizadas em rolagem única.",
@@ -471,6 +520,9 @@ export const FONTES_DO_TEMA: Partial<Record<TemaId, { titulo: FonteId; texto: Fo
   "figaro-classico": { titulo: "playfair", texto: "outfit" },
   "figaro-rock-n-roll": { titulo: "oswald", texto: "inter" },
   "figaro-retro": { titulo: "lobster", texto: "montserrat" },
+  "feminino-rose": { titulo: "cormorant", texto: "outfit" },
+  "feminino-lavanda": { titulo: "playfair", texto: "poppins" },
+  "feminino-pessego": { titulo: "dancing", texto: "montserrat" },
 };
 
 /** Troca o tema levando paleta e fontes juntas. */
@@ -556,6 +608,8 @@ const fontes: Record<FonteId, string> = {
   lobster: '"Lobster", cursive',
   jakarta: '"Plus Jakarta Sans", sans-serif',
   oldstandard: '"Old Standard TT", Georgia, serif',
+  cormorant: '"Cormorant Garamond", Georgia, serif',
+  dancing: '"Dancing Script", cursive',
 };
 
 export function paginaStyle(config: PaginaConfig): CSSProperties {
@@ -606,6 +660,8 @@ const familiasGoogle: Record<FonteId, string> = {
   lobster: "Lobster",
   jakarta: "Plus+Jakarta+Sans:wght@400;500;600;700;800",
   oldstandard: "Old+Standard+TT:wght@400;700",
+  cormorant: "Cormorant+Garamond:wght@400;500;600;700",
+  dancing: "Dancing+Script:wght@500;700",
 };
 
 /** URL única do Google Fonts com as fontes escolhidas pela marca (antes nunca eram carregadas). */

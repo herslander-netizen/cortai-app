@@ -11,7 +11,7 @@ import { useEditorDaPagina } from "@/components/marca/editor/useEditorDaPagina";
 import { Button } from "@/components/ui/button";
 import { getMarca, salvarRascunhoPagina } from "@/lib/marca.functions";
 import { exigirCapacidade } from "@/lib/guarda-capacidade";
-import { aplicarTema, TEMAS_DO_FIGARO, type LayoutId } from "@/lib/pagina-config";
+import { aplicarTema, TEMAS_DO_CATALOGO, type LayoutId } from "@/lib/pagina-config";
 
 export const Route = createFileRoute("/barbeiro/marca/layout-tema")({
   beforeLoad: ({ context }) => exigirCapacidade(context.queryClient, "branding_avancado"),
@@ -116,9 +116,9 @@ function EditorLayoutTema({
             e.setConfig((old) => {
               const comLayout = { ...old, layout };
               // Tema antigo do Cortaí não existe no catálogo do Figaro: leva o primeiro tema.
-              return (TEMAS_DO_FIGARO as readonly string[]).includes(old.tema)
+              return (TEMAS_DO_CATALOGO as readonly string[]).includes(old.tema)
                 ? comLayout
-                : aplicarTema(comLayout, TEMAS_DO_FIGARO[0]);
+                : aplicarTema(comLayout, TEMAS_DO_CATALOGO[0]);
             })
           }
           escolherTema={(tema) => e.setConfig((old) => aplicarTema(old, tema))}

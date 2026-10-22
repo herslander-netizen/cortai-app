@@ -665,6 +665,12 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-22 UTC — Claude — Três temas femininos (Rosé, Lavanda e Pêssego)
+- Novos temas do Cortaí na tela Layout & Tema (agora 6 por layout), usando os modelos Site Completo e Agendamento:
+  **Rosé** (rosa suave e ouro rosado, Cormorant + Outfit), **Lavanda** (lilás, Playfair + Poppins) e **Pêssego**
+  (pêssego e coral, Dancing Script + Montserrat). Paletas em `TEMAS`, fontes em `FONTES_DO_TEMA`, capas SVG em
+  `CapaDoTema`, estilos `.fg[data-tema="feminino-*"]`. Aditivo: nada muda em páginas já salvas. Sem banco.
+
 ### 2026-10-22 UTC — Claude — Layout & Tema, modelos de site e reserva idênticos ao Figaro
 - **Fonte dos modelos:** o APK não traz o site público (ele é servido pelo Figaro), mas traz os vídeos
   `landing_peek_site` e `landing_peek_booking`. Extraí os quadros e reproduzi o que aparece neles; o que não aparece

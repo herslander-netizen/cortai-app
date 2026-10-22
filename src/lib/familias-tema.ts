@@ -17,6 +17,9 @@ export const familiaIds = [
   "figaro-classico",
   "figaro-retro",
   "figaro-rock",
+  "feminino-rose",
+  "feminino-lavanda",
+  "feminino-pessego",
 ] as const;
 export type FamiliaId = (typeof familiaIds)[number];
 
@@ -111,6 +114,24 @@ export const FAMILIAS_DE_TEMA: FamiliaDeTema[] = [
     nome: "Rock n' Roll · Figaro",
     descricao: "A opção Rock n' Roll identificada na referência Figaro.",
     variantes: [{ tema: "figaro-rock-n-roll", rotulo: "Figaro" }],
+  },
+  {
+    id: "feminino-rose",
+    nome: "Rosé",
+    descricao: "Rosa suave com detalhes em ouro rosado.",
+    variantes: [{ tema: "feminino-rose", rotulo: "Cortaí" }],
+  },
+  {
+    id: "feminino-lavanda",
+    nome: "Lavanda",
+    descricao: "Lilás delicado e sofisticado.",
+    variantes: [{ tema: "feminino-lavanda", rotulo: "Cortaí" }],
+  },
+  {
+    id: "feminino-pessego",
+    nome: "Pêssego",
+    descricao: "Tons de pêssego e coral.",
+    variantes: [{ tema: "feminino-pessego", rotulo: "Cortaí" }],
   },
 ];
 

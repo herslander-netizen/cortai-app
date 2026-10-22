@@ -8487,3 +8487,59 @@ button.agenda-nome:hover {
 .fg-rapido .fg-centro > div {
   margin-top: 28px;
 }
+
+/* Temas femininos do Cortaí (Rosé, Lavanda e Pêssego): mesmos modelos, paletas e fontes delicadas. */
+.fg[data-tema="feminino-rose"] {
+  --fg-pagina: #fceff1;
+  --fg-texto: #4a2130;
+  --fg-mudo: #8c6670;
+  --fg-linha: rgb(140 59 82 / 0.14);
+  --fg-veu: linear-gradient(180deg, rgb(150 70 90 / 0.38), rgb(106 36 60 / 0.74));
+  --fg-cta-bg: #b76e79;
+  --fg-cta-texto: #fff;
+  --fg-cta-raio: 999px;
+  --fg-linha-bg: #b76e79;
+  --fg-linha-raio: 999px;
+  --fg-acento: #b76e79;
+}
+.fg[data-tema="feminino-lavanda"] {
+  --fg-pagina: #f5f0fb;
+  --fg-texto: #33254f;
+  --fg-mudo: #7a6a96;
+  --fg-linha: rgb(91 63 143 / 0.14);
+  --fg-veu: linear-gradient(180deg, rgb(123 92 196 / 0.4), rgb(58 38 108 / 0.76));
+  --fg-cta-bg: #7b5cc4;
+  --fg-cta-texto: #fff;
+  --fg-cta-raio: 999px;
+  --fg-linha-bg: #7b5cc4;
+  --fg-linha-raio: 999px;
+  --fg-acento: #9b7fd9;
+}
+.fg[data-tema="feminino-pessego"] {
+  --fg-pagina: #fff3ea;
+  --fg-texto: #4d2a1f;
+  --fg-mudo: #8f6b5e;
+  --fg-linha: rgb(181 82 59 / 0.15);
+  --fg-veu: linear-gradient(180deg, rgb(224 116 90 / 0.4), rgb(140 54 36 / 0.72));
+  --fg-cta-bg: #e0745a;
+  --fg-cta-texto: #fff;
+  --fg-cta-raio: 999px;
+  --fg-linha-bg: #e0745a;
+  --fg-linha-raio: 999px;
+  --fg-acento: #e0745a;
+}
+.fg[data-tema="feminino-rose"] .fg-centro h1 {
+  font-weight: 500;
+  font-size: clamp(2.4rem, 15cqw, 5.2rem);
+}
+.fg[data-tema="feminino-pessego"] .fg-centro h1,
+.fg[data-tema="feminino-pessego"] .fg-secao h2 {
+  font-weight: 700;
+}
+.fg[data-tema="feminino-pessego"] .fg-centro h1 {
+  font-size: clamp(2.6rem, 15cqw, 5.2rem);
+}
+.fg[data-tema="feminino-rose"] .fg-secao h2,
+.fg[data-tema="feminino-lavanda"] .fg-secao h2 {
+  font-weight: 600;
+}
