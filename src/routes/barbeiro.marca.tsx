@@ -46,26 +46,54 @@ export const Route = createFileRoute("/barbeiro/marca")({
 
 function MarcaPage() {
   const query = useQuery({ queryKey: ["marca"], queryFn: () => getMarca(), retry: false });
-  if (query.isLoading)
-    return (
-      <Screen voltarPara="/barbeiro" title="Personalizar Página">
-        <EsqueletoFormulario campos={6} onTentarDeNovo={() => void query.refetch()} />
-      </Screen>
-    );
-  if (!query.data)
-    return (
-      <Screen title="Personalizar página">
-        <p className="text-sm text-brick">
-          Entre como responsável pelo negócio para personalizar a página.
-        </p>
-      </Screen>
-    );
+  const reduzirMovimento = useReducedMotion();
+  const transicaoEntrada = { opacity: { duration: reduzirMovimento ? 0 : 0.22 } };
+  const transicaoSaida = { opacity: { duration: reduzirMovimento ? 0 : 0.18 } };
+
   return (
-    <Editor
-      initial={query.data.marca}
-      versions={query.data.versoes}
-      reload={() => query.refetch()}
-    />
+    <AnimatePresence mode="wait" initial={false}>
+      {query.isLoading ? (
+        <motion.div
+          key="carregando"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ ...transicaoEntrada, ...transicaoSaida }}
+        >
+          <Screen voltarPara="/barbeiro" title="Personalizar Página">
+            <EsqueletoFormulario campos={6} onTentarDeNovo={() => void query.refetch()} />
+          </Screen>
+        </motion.div>
+      ) : !query.data ? (
+        <motion.div
+          key="sem-acesso"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ ...transicaoEntrada, ...transicaoSaida }}
+        >
+          <Screen title="Personalizar página">
+            <p className="text-sm text-brick">
+              Entre como responsável pelo negócio para personalizar a página.
+            </p>
+          </Screen>
+        </motion.div>
+      ) : (
+        <motion.div
+          key="conteudo"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ ...transicaoEntrada, ...transicaoSaida }}
+        >
+          <Editor
+            initial={query.data.marca}
+            versions={query.data.versoes}
+            reload={() => query.refetch()}
+          />
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }
 
