@@ -1,7 +1,30 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Check } from "lucide-react";
+import {
+  CalendarClock,
+  CalendarPlus,
+  CalendarX,
+  Check,
+  HandCoins,
+  QrCode,
+  UserCheck,
+  Users,
+  type LucideIcon,
+} from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import {
+  GrupoDeLinhas,
+  LinhaComInterruptor,
+  LinhaDeConfiguracao,
+  SecaoDeConfiguracao,
+} from "@/components/ui/formulario/LinhasDeConfiguracao";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import { supabase } from "@/integrations/supabase/client";
 import { getSessao } from "@/lib/sessao.functions";
 import { aviso } from "@/lib/avisos";
@@ -27,6 +50,22 @@ type Preferencia = { tipo: string; no_app: boolean; no_whatsapp: boolean; no_pus
 
 /** Padrão quando a pessoa ainda não escolheu nada para aquele aviso. */
 const PADRAO: Omit<Preferencia, "tipo"> = { no_app: true, no_whatsapp: false, no_push: true };
+
+const DETALHE_DO_CANAL: Record<Canal, string> = {
+  no_app: "Sininho e aviso dentro do Cortaí.",
+  no_push: "Notificação no celular, mesmo com o app fechado.",
+  no_whatsapp: "Mensagem no seu WhatsApp.",
+};
+
+const ICONE_DO_TIPO: Record<(typeof TIPOS)[number]["chave"], LucideIcon> = {
+  agendamento_novo: CalendarPlus,
+  agendamento_cancelado: CalendarX,
+  agendamento_remarcado: CalendarClock,
+  cliente_chegou: UserCheck,
+  fila: Users,
+  fiado: HandCoins,
+  pix: QrCode,
+};
 
 const ROTULO_DO_CANAL: Record<Canal, string> = {
   no_app: "No app",
@@ -103,67 +142,67 @@ export function PreferenciasDeAvisos() {
     },
   });
 
+  const [editando, setEditando] = useState<(typeof TIPOS)[number] | null>(null);
   if (!tenantId || !userId) return null;
 
   const alternar = (tipo: string, canal: Canal) => {
     const atual = linhaDe(prefs, tipo);
     salvar.mutate({ ...atual, tipo, [canal]: !atual[canal] });
   };
+  const resumo = (tipo: string) => {
+    const linha = linhaDe(prefs, tipo);
+    const ligados = canaisDo(tipo).filter((c) => linha[c]);
+    return ligados.length ? ligados.map((c) => ROTULO_DO_CANAL[c]).join(" · ") : "Desligado";
+  };
+  const atual = editando ? linhaDe(prefs, editando.chave) : null;
 
   return (
-    <section className="mt-8">
-      <h2 className="mb-2 text-xs font-semibold uppercase text-mute2">Avisos</h2>
-      <p className="mb-3 text-xs text-mute">
-        Escolha onde quer receber cada aviso. Você pode ativar mais de um canal.
-      </p>
-      <AvisosNoCelular tenantId={tenantId} />
-      <MeuWhatsappNoCortai />
-      <ul className="divide-y divide-line border-y border-line">
-        {TIPOS.map((t) => {
-          const linha = linhaDe(prefs, t.chave);
-          return (
-            <li
+    <div id="avisos" className="scroll-mt-6">
+      {/* Avisos do aparelho e do WhatsApp da pessoa, em cartões de 28 dp como no Figaro. */}
+      <div className="space-y-3">
+        <AvisosNoCelular tenantId={tenantId} />
+        <MeuWhatsappNoCortai />
+      </div>
+      <SecaoDeConfiguracao
+        titulo="Avisos para você"
+        rodape="Escolha onde receber cada aviso. Pode ligar mais de um canal."
+      >
+        <GrupoDeLinhas>
+          {TIPOS.map((t) => (
+            <LinhaDeConfiguracao
               key={t.chave}
-              className="flex flex-col gap-2 py-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-x-3"
-            >
-              <span className="min-w-0 text-sm text-paper">{t.rotulo}</span>
-              <span className="flex flex-wrap gap-2">
-                {canaisDo(t.chave).map((canal) => {
-                  const ativo = linha[canal];
-                  return (
-                    <Button
-                      key={canal}
-                      type="button"
-                      variant="ghost"
-                      role="checkbox"
-                      aria-checked={ativo}
-                      aria-label={`${ROTULO_DO_CANAL[canal]} — ${t.rotulo}`}
-                      disabled={isLoading}
-                      onClick={() => alternar(t.chave, canal)}
-                      className={`h-auto min-h-12 flex items-center gap-1.5 rounded-full border px-3.5 text-xs ${
-                        ativo ? "border-gold/45 bg-gold-soft text-gold" : "border-line text-mute"
-                      }`}
-                    >
-                      <span
-                        aria-hidden
-                        className={`flex h-3.5 w-3.5 items-center justify-center rounded-[4px] border ${
-                          ativo
-                            ? "border-gold bg-gold/20 text-gold"
-                            : "border-line2 text-transparent"
-                        }`}
-                      >
-                        <Check className="h-2.5 w-2.5" strokeWidth={3} />
-                      </span>
-                      {ROTULO_DO_CANAL[canal]}
-                    </Button>
-                  );
-                })}
-              </span>
-            </li>
-          );
-        })}
-      </ul>
-    </section>
+              icone={ICONE_DO_TIPO[t.chave]}
+              titulo={t.rotulo}
+              suporte={resumo(t.chave)}
+              aoTocar={() => setEditando(t)}
+              desabilitada={isLoading}
+            />
+          ))}
+        </GrupoDeLinhas>
+      </SecaoDeConfiguracao>
+
+      <Sheet open={editando !== null} onOpenChange={(v) => !v && setEditando(null)}>
+        <SheetContent side="bottom" className="mx-auto w-full max-w-[520px] rounded-t-[28px]">
+          <SheetHeader className="text-left">
+            <SheetTitle>{editando?.rotulo}</SheetTitle>
+            <SheetDescription>Onde você quer receber este aviso.</SheetDescription>
+          </SheetHeader>
+          {editando && atual ? (
+            <GrupoDeLinhas className="mt-4">
+              {canaisDo(editando.chave).map((canal) => (
+                <LinhaComInterruptor
+                  key={canal}
+                  titulo={ROTULO_DO_CANAL[canal]}
+                  suporte={DETALHE_DO_CANAL[canal]}
+                  marcado={atual[canal]}
+                  aoMudar={() => alternar(editando.chave, canal)}
+                />
+              ))}
+            </GrupoDeLinhas>
+          ) : null}
+        </SheetContent>
+      </Sheet>
+    </div>
   );
 }
 
@@ -174,13 +213,18 @@ function AvisosNoCelular({ tenantId }: { tenantId: string }) {
   useEffect(() => setAtivo(pushAtivoNesteAparelho()), []);
   if (ativo) {
     return (
-      <p className="mb-3 flex min-h-11 items-center gap-2 text-sm text-paper">
-        <Check className="h-4 w-4 text-gold" aria-hidden /> Avisos no celular ativos neste aparelho
+      <p className="flex min-h-14 items-center gap-2 rounded-[28px] bg-[var(--agenda-cartao)] px-4 text-sm text-paper">
+        <Check className="h-4 w-4 text-primary" aria-hidden /> Avisos no celular ativos neste
+        aparelho
       </p>
     );
   }
   return (
-    <div className="mb-3">
+    <div className="rounded-[28px] bg-[var(--agenda-cartao)] p-4">
+      <p className="text-[15px] font-semibold leading-5 text-paper">Ative as notificações</p>
+      <p className="mt-1 text-sm text-mute">
+        Não perca agendamentos novos e cancelamentos de última hora.
+      </p>
       <Button
         type="button"
         variant="primary"
@@ -195,7 +239,7 @@ function AvisosNoCelular({ tenantId }: { tenantId: string }) {
           setOcupado(false);
           setAtivo(r === "ativo");
         }}
-        className="w-full"
+        className="mt-3 w-full"
       >
         Ativar avisos no celular
       </Button>
@@ -222,15 +266,17 @@ function MeuWhatsappNoCortai() {
 
   if (data?.verificadoEm && !codigo) {
     return (
-      <p className="mb-3 flex min-h-11 items-center gap-2 text-sm text-paper">
-        <Check className="h-4 w-4 text-gold" aria-hidden /> WhatsApp confirmado: converse com o
-        CortAI e receba avisos por lá
+      <p className="flex min-h-14 items-center gap-2 rounded-[28px] bg-[var(--agenda-cartao)] px-4 py-3 text-sm text-paper">
+        <Check className="h-4 w-4 shrink-0 text-primary" aria-hidden /> WhatsApp confirmado:
+        converse com o CortAI e receba avisos por lá
       </p>
     );
   }
   return (
-    <div className="mb-3 rounded-lg border border-line px-3 py-3">
-      <p className="text-sm text-paper">Conversar com o CortAI pelo WhatsApp</p>
+    <div className="rounded-[28px] bg-[var(--agenda-cartao)] p-4">
+      <p className="text-[15px] font-semibold leading-5 text-paper">
+        Conversar com o CortAI pelo WhatsApp
+      </p>
       <p className="mt-1 text-xs leading-relaxed text-mute">
         Confirme seu número para perguntar sua agenda, avisar atrasos e receber avisos por lá.
       </p>
@@ -280,7 +326,7 @@ function MeuWhatsappNoCortai() {
               setOcupado(false);
             }
           }}
-          className="mt-3 w-full border-gold/45 bg-gold-soft text-gold hover:bg-gold-soft"
+          className="mt-3 w-full"
         >
           Confirmar meu WhatsApp
         </Button>

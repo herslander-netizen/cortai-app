@@ -1,14 +1,8 @@
-import { LacunasDaPagina } from "@/components/marca/editor/LacunasDaPagina";
 import { FaixaDeEstado } from "@/components/marca/editor/FaixaDeEstado";
 import { SecaoAjustesFinos } from "@/components/marca/editor/SecaoAjustesFinos";
-import { SecaoConteudo } from "@/components/marca/editor/SecaoConteudo";
-import { SecaoExperiencia } from "@/components/marca/editor/SecaoExperiencia";
 import { SecaoImagens } from "@/components/marca/editor/SecaoImagens";
 import { SecaoLink } from "@/components/marca/editor/SecaoLink";
 import { SecaoRedes } from "@/components/marca/editor/SecaoRedes";
-import { SecaoRecepcao } from "@/components/marca/editor/SecaoRecepcao";
-import { SecaoTema } from "@/components/marca/editor/SecaoTema";
-import { SecaoTextos } from "@/components/marca/editor/SecaoTextos";
 import { SecaoVersoes } from "@/components/marca/editor/SecaoVersoes";
 import { useEditorDaPagina } from "@/components/marca/editor/useEditorDaPagina";
 import {
@@ -19,9 +13,9 @@ import {
 } from "@/components/ui/accordion";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { motion } from "framer-motion";
+import { useState } from "react";
 import type { MarcaData, getMarca } from "@/lib/marca.functions";
 import { pagina } from "@/lib/motion";
-import { TEMAS } from "@/lib/pagina-config";
 
 function Item({
   id,
@@ -49,108 +43,51 @@ function Item({
   );
 }
 
+export type AbaPainelDoEditor = "detalhes" | "divulgacao" | "historico";
+
 export function PaineisDoEditor({
   e,
   initial,
   versions,
+  abaAtiva,
+  onAbaChange,
 }: {
   e: ReturnType<typeof useEditorDaPagina>;
   initial: MarcaData;
   versions: NonNullable<Awaited<ReturnType<typeof getMarca>>>["versoes"];
+  abaAtiva?: AbaPainelDoEditor;
+  onAbaChange?: (aba: AbaPainelDoEditor) => void;
 }) {
+  const [abaLocal, setAbaLocal] = useState<AbaPainelDoEditor>("detalhes");
+  const aba = abaAtiva ?? abaLocal;
+  const mudarAba = (value: string) => {
+    const proxima = value as AbaPainelDoEditor;
+    setAbaLocal(proxima);
+    onAbaChange?.(proxima);
+  };
   return (
     <>
-      <Tabs defaultValue="conteudo">
+      <Tabs value={aba} onValueChange={mudarAba}>
         <TabsList
           aria-label="Áreas de configuração da página"
-          className="grid h-auto w-full grid-cols-2 gap-1 bg-ink2 p-1 sm:grid-cols-4"
+          className="flex h-auto w-full justify-start gap-1 overflow-x-auto overscroll-x-contain bg-ink2 p-1"
         >
-          <TabsTrigger
-            value="conteudo"
-            className="min-h-12 whitespace-normal px-2 text-xs sm:text-sm"
-          >
-            Conteúdo
+          <TabsTrigger value="detalhes" className="min-h-12 whitespace-normal px-2 text-xs sm:text-sm">
+            Detalhes
           </TabsTrigger>
-          <TabsTrigger
-            value="aparencia"
-            className="min-h-12 whitespace-normal px-2 text-xs sm:text-sm"
-          >
-            Aparência
-          </TabsTrigger>
-          <TabsTrigger
-            value="divulgacao"
-            className="min-h-12 whitespace-normal px-2 text-xs sm:text-sm"
-          >
+          <TabsTrigger value="divulgacao" className="min-h-12 whitespace-normal px-2 text-xs sm:text-sm">
             Divulgação
           </TabsTrigger>
-          <TabsTrigger
-            value="historico"
-            className="min-h-12 whitespace-normal px-2 text-xs sm:text-sm"
-          >
+          <TabsTrigger value="historico" className="min-h-12 whitespace-normal px-2 text-xs sm:text-sm">
             Histórico
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="conteudo" className="mt-2">
-          <motion.div {...pagina}>
-            <Accordion type="multiple" defaultValue={["experiencia"]}>
-              <Item
-                id="experiencia"
-                titulo="Experiência de agendamento"
-                descricao="Escolha como seus clientes vão iniciar o agendamento."
-              >
-                <SecaoExperiencia config={e.config} setPagina={e.setPagina} />
-                {e.usaConversa ? (
-                  <div className="mt-6 border-t border-line pt-6">
-                    <h3 className="mb-4 text-sm font-semibold text-paper">Recepção</h3>
-                    <SecaoRecepcao
-                      config={e.config}
-                      setPagina={e.setPagina}
-                      avatarRef={e.avatarRef}
-                      avatarPreview={e.avatarPreview}
-                      setAvatarPreview={e.setAvatarPreview}
-                      upload={e.upload}
-                    />
-                  </div>
-                ) : null}
-              </Item>
-              <Item
-                id="conteudo"
-                titulo="Blocos da página"
-                descricao="Mostre serviços, equipe, avaliações e outras informações reais."
-              >
-                <SecaoConteudo config={e.config} setPagina={e.setPagina} />
-              </Item>
-              <Item
-                id="textos"
-                titulo="Textos e botão"
-                descricao="Ajuste sua apresentação, endereço e chamada para agendar."
-              >
-                <SecaoTextos
-                  config={e.config}
-                  setPagina={e.setPagina}
-                  form={e.form}
-                  setMarca={e.setMarca}
-                  vocabulario={e.vocabulario}
-                />
-              </Item>
-            </Accordion>
-            <LacunasDaPagina lacunas={initial.lacunas} />
-          </motion.div>
-        </TabsContent>
 
-        <TabsContent value="aparencia" className="mt-2">
+
+        <TabsContent value="detalhes" className="mt-2">
           <motion.div {...pagina}>
-            <Accordion type="multiple" defaultValue={["tema"]}>
-              <Item id="tema" titulo="Tema e cores" descricao="Escolha o estilo visual da página.">
-                <SecaoTema
-                  config={e.config}
-                  segmento={initial.segmento}
-                  escolher={(tema) =>
-                    e.setConfig((old) => ({ ...old, tema, cores: TEMAS[tema].cores }))
-                  }
-                />
-              </Item>
+            <Accordion type="multiple" defaultValue={["imagens"]}>
               <Item
                 id="imagens"
                 titulo="Logo e imagens"
@@ -170,8 +107,8 @@ export function PaineisDoEditor({
               </Item>
               <Item
                 id="ajustes"
-                titulo="Detalhes visuais"
-                descricao="Personalize pequenos ajustes de layout e apresentação."
+                titulo="Cores, fontes e detalhes"
+                descricao="Personalize cores, tipografia, espaçamento, cantos e botões."
               >
                 <SecaoAjustesFinos config={e.config} setPagina={e.setPagina} />
               </Item>

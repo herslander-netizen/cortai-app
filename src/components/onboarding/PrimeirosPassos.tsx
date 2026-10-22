@@ -1,11 +1,13 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Check, ChevronRight, Circle } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { getSessao } from "@/lib/sessao.functions";
 import { getCapacidades, getUsoDaAgendaOnline } from "@/lib/capacidades.functions";
+import { MOLA } from "@/lib/movimento-figaro";
 import {
   getConfiguracaoInicial,
   ITENS_DO_CHECKLIST,
@@ -79,6 +81,7 @@ export function PrimeirosPassos() {
 }
 
 function ListaDePrimeirosPassos() {
+  const reduzirMovimento = useReducedMotion();
   const marcar = useServerFn(marcarItemDoChecklist);
   const queryClient = useQueryClient();
   const { data: sessao } = useQuery({
@@ -143,11 +146,39 @@ function ListaDePrimeirosPassos() {
                   );
                 }}
               >
-                {feito ? (
-                  <Check size={16} className="shrink-0 text-paper" aria-hidden />
-                ) : (
-                  <Circle size={16} className="shrink-0 text-mute2" aria-hidden />
-                )}
+                <motion.span
+                  className="grid size-4 shrink-0 place-items-center overflow-hidden rounded-full border"
+                  animate={{
+                    backgroundColor: feito ? "var(--paper)" : "transparent",
+                    borderColor: feito ? "var(--paper)" : "var(--mute2)",
+                  }}
+                  transition={reduzirMovimento ? { duration: 0 } : MOLA.padraoCompose}
+                  aria-hidden
+                >
+                  <AnimatePresence initial={false} mode="wait">
+                    {feito ? (
+                      <motion.span
+                        key="feito"
+                        initial={reduzirMovimento ? false : { opacity: 0, scale: 0.7 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.7 }}
+                        transition={reduzirMovimento ? { duration: 0 } : MOLA.padraoCompose}
+                      >
+                        <Check size={12} className="text-ink" />
+                      </motion.span>
+                    ) : (
+                      <motion.span
+                        key="pendente"
+                        initial={reduzirMovimento ? false : { opacity: 0, scale: 0.7 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.7 }}
+                        transition={reduzirMovimento ? { duration: 0 } : MOLA.padraoCompose}
+                      >
+                        <Circle size={16} className="text-mute2" />
+                      </motion.span>
+                    )}
+                  </AnimatePresence>
+                </motion.span>
                 <span className={`text-sm ${feito ? "text-mute line-through" : "text-paper"}`}>
                   {item.rotulo}
                 </span>

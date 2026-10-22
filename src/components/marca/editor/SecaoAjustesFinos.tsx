@@ -1,4 +1,4 @@
-import { FONTES, LAYOUTS, type PaginaConfig } from "@/lib/pagina-config";
+import { FONTES, type PaginaConfig } from "@/lib/pagina-config";
 import { contraste } from "@/lib/cor-marca";
 import { SelectNative, fieldClass } from "./campos";
 import type { SetPagina } from "./tipos";
@@ -28,14 +28,6 @@ export function SecaoAjustesFinos({
   return (
     <div className="space-y-6">
       <div className="grid gap-4 sm:grid-cols-2">
-        {config.experiencia === "vitrine" ? (
-          <SelectNative
-            label="Layout"
-            value={config.layout}
-            options={LAYOUTS}
-            onChange={(value) => setPagina("layout", value as PaginaConfig["layout"])}
-          />
-        ) : null}
         <SelectNative
           label="Fonte dos títulos"
           value={config.fonteTitulo}

@@ -1,4 +1,4 @@
-import { CalendarPlus, Lock, Scissors, UsersRound, type LucideIcon } from "lucide-react";
+import { CalendarPlus, Lock, Scissors, type LucideIcon } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useRef, type KeyboardEvent } from "react";
 import { createPortal } from "react-dom";
@@ -35,7 +35,6 @@ export function MenuAcoesAgenda({
   onEncaixe,
   onChamarFila: _onChamarFila,
   onBloquear,
-  onEquipe,
   onNovoCliente: _onNovoCliente,
   visivel = true,
 }: {
@@ -51,7 +50,6 @@ export function MenuAcoesAgenda({
   onEncaixe: () => void;
   onChamarFila: () => void;
   onBloquear: () => void;
-  onEquipe: () => void;
   onNovoCliente: () => void;
   /** Mantido por compatibilidade: voz é acionada segurando o botão principal. */
   onAgendarPorVoz?: () => void;
@@ -130,13 +128,6 @@ export function MenuAcoesAgenda({
       Icone: Scissors,
       onSelect: onEncaixe,
       disabled: !online,
-    },
-    {
-      id: "equipe",
-      rotulo: "Equipe",
-      descricao: "Gerenciar os profissionais e acessos",
-      Icone: UsersRound,
-      onSelect: onEquipe,
     },
     {
       id: "agendar",

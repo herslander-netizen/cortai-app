@@ -131,4 +131,38 @@ describe("TelaDeFormulario", () => {
     expect(onFechar).toHaveBeenCalledTimes(1);
   });
 
+  it("no modo compacto mostra o passo na barra, sem título grande, e voltar não pede confirmação", async () => {
+    host = document.createElement("div");
+    document.body.appendChild(host);
+    root = createRoot(host);
+    const onFechar = vi.fn();
+    const onVoltar = vi.fn();
+
+    await act(async () =>
+      root!.render(
+        createElement(TelaDeFormulario, {
+          titulo: "Novo agendamento",
+          subtitulo: "Dia e hora do atendimento",
+          sujo: true,
+          onFechar,
+          onVoltar,
+          compacto: { passo: "Horário", indice: 2 },
+          children: createElement("p", null, "Conteúdo"),
+        }),
+      ),
+    );
+
+    expect(document.body.querySelector(".titulo-tela")).toBeNull();
+    expect(document.body.textContent).toContain("Novo agendamento");
+    expect(document.body.textContent).toContain("Horário");
+    expect(document.body.textContent).toContain("Dia e hora do atendimento");
+
+    await act(async () => {
+      document.body.querySelector<HTMLButtonElement>('button[aria-label="Voltar"]')!.click();
+    });
+
+    expect(onVoltar).toHaveBeenCalledTimes(1);
+    expect(onFechar).not.toHaveBeenCalled();
+    expect(document.body.textContent).not.toContain("Sair sem salvar?");
+  });
 });

@@ -59,7 +59,7 @@ export function ConviteDeInstalacao({ posicao = "base" }: { posicao?: "base" | "
       <div
         role="dialog"
         aria-label="Instalar o Cortaí"
-        className="pointer-events-auto w-full max-w-[420px] rounded-2xl border border-line bg-ink3 p-4 shadow-xl"
+        className="pointer-events-auto w-full max-w-[420px] rounded-2xl border border-line bg-ink3 p-4 shadow-[var(--elevacao-8)]"
       >
         <div className="flex items-start gap-3">
           <img

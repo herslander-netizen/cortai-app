@@ -33,14 +33,61 @@ describe("navegação móvel", () => {
     expect(drawer).not.toContain("ModeMenuItem");
     expect(drawer).toContain("DrawerDestaques");
     expect(drawer).toContain("saudacao.titulo");
-    expect(ajustes).toContain("Conta e negócio");
+    expect(ajustes).toContain("Opções da conta");
     expect(ajustes).toContain("Plano");
-    expect(ajustes).toContain("Aparência");
-    expect(ajustes).toContain("Avisos e notificações");
+    expect(ajustes).toContain("Aparência do aplicativo");
+    expect(ajustes).toContain("Sua Página");
+    expect(ajustes).toContain('to: "/barbeiro/marca"');
+    const pagina = readFileSync("src/routes/barbeiro.sua-pagina.tsx", "utf8");
+    const layoutTema = readFileSync("src/routes/barbeiro.marca.layout-tema.tsx", "utf8");
+    expect(pagina).toContain('to="/barbeiro/marca/layout-tema"');
+    expect(layoutTema).toContain('title="Layout & Tema"');
+    expect(layoutTema).toContain('to: "/barbeiro/marca"');
+    const secoes = readFileSync("src/components/marca/editor/SecaoConteudo.tsx", "utf8");
+    const editorSecao = readFileSync("src/routes/barbeiro.marca.secao.$secao.tsx", "utf8");
+    expect(secoes).toContain('to="/barbeiro/marca/secao/$secao"');
+    expect(editorSecao).toContain('NOMES_SECOES[secao]');
+    const paginaPrincipal = readFileSync("src/routes/barbeiro.marca.index.tsx", "utf8");
+    expect(paginaPrincipal).toContain('aria-label="Mais ações da página"');
+    expect(paginaPrincipal).toContain('search={{ qr: "1" }}');
+    expect(paginaPrincipal).toContain("Tirar página do ar");
+    expect(paginaPrincipal).toContain("alterarStatusPaginaPublica");
+    expect(paginaPrincipal).toContain('aria-label="Seções da página pública"');
+    expect(paginaPrincipal).toContain("<SecaoConteudo config={e.config} />");
+    expect(paginaPrincipal).toContain("Outras configurações");
+    expect(paginaPrincipal).toContain("<AnimatePresence>");
+    expect(paginaPrincipal).toContain('height: "auto"');
+    const conteudoSecoes = readFileSync("src/components/marca/editor/SecaoConteudo.tsx", "utf8");
+    expect(conteudoSecoes).toContain("useReducedMotion");
+    expect(conteudoSecoes).toContain("<AnimatePresence initial={false}>");
+    const paineis = readFileSync("src/components/marca/editor/PaineisDoEditor.tsx", "utf8");
+    expect(paineis).not.toContain('TabsTrigger value="conteudo"');
+    expect(paginaPrincipal).toContain("A vitrine pública deixará de abrir pelo link.");
+    expect(pagina).toContain('validateSearch: z.object({ qr: z.string().optional() })');
+    expect(ajustes).not.toContain('hash={item.label === "Notificações" ? "avisos" : undefined}');
+    expect(ajustes).toContain('to: "/barbeiro/notificacoes"');
     expect(ajustes).toContain("Ajuda e suporte");
     expect(ajustes).toContain("Sair da conta");
   });
 
+  it("mapeia as seções Figaro para controles reais ou para a gestão correspondente", () => {
+    const editor = readFileSync("src/components/marca/editor/EditorDaSecaoPublica.tsx", "utf8");
+    const rota = readFileSync("src/routes/barbeiro.marca.secao.$secao.tsx", "utf8");
+    for (const secao of ["apresentacao", "servicos", "profissionais", "galeria", "avaliacoes", "produtos", "instagram", "localizacao", "horarios", "whatsapp", "cta_final"]) {
+      expect(editor).toContain('case "' + secao + '"');
+    }
+    const editores = readFileSync("src/components/marca/editor/secoes/editores.tsx", "utf8");
+    expect(editores).toContain('to="/barbeiro/servicos"');
+    expect(editores).toContain('to="/barbeiro/avaliacoes"');
+    expect(editor).toContain('to="/barbeiro/produtos"');
+    expect(editor).toContain('to="/barbeiro/horarios"');
+    expect(rota).toContain("<EditorDaSecaoPublica secao={secao} e={e} reportarErro={reportarErro} />");
+    expect(editores).toContain('titulo="Fotos da galeria da página"');
+    expect(editores).toContain("e.definirFotos(");
+    const hook = readFileSync("src/components/marca/editor/useEditorDaPagina.ts", "utf8");
+    expect(hook).toContain("form.fotos.length >= 8");
+    expect(hook).toContain("createSignedUrl(path, 60 * 60)");
+  });
   it("promove Agenda ao primeiro destaque fora dos grupos", () => {
     const destaques = readFileSync("src/components/layout/DrawerDestaques.tsx", "utf8");
     const drawer = readFileSync("src/components/layout/ManagementDrawer.tsx", "utf8");

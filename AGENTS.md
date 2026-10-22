@@ -75,6 +75,7 @@ decisão nova contradiz uma regra daqui, apontar o conflito ao dono antes de agi
 - Sobreposição travada no banco (`agendamentos_sem_sobreposicao`); só membros criam encaixes.
 - Webhooks públicos: `webhook-guard.server.ts` com contadores persistidos (instâncias sem memória comum).
 - Cortaí = Beleza; barbearia é segmento. Linguagem em `src/lib/segmentos.ts`; sem segmento, neutro.
+- **Toda tela nova ou refeita nasce no estilo Figaro** (decisão do dono, 24/10/2026): cartões em grupo com cantos de 28 dp nas pontas, hero arredondado, folhas de baixo, botão grande de pílula embaixo, mesmas molas e tokens `--figaro-*`; referência em `docs/referencia-figaro/apk/`. Não entregar tela em estilo próprio.
 - Contrato de design (obrigatório em toda tela): `docs/contrato-de-design.md`. Ícone CortAI via `IconeDaIA`.
 - Desfazer: atômico no banco, 5 s, mesmo negócio e autor.
 - Contexto do cliente: slug persistido e revalidado; nunca escolher ficha silenciosamente.
@@ -96,7 +97,7 @@ decisão nova contradiz uma regra daqui, apontar o conflito ao dono antes de agi
 - Papéis neutros em todo o código: negócio (tenant), dono, profissional, cliente. Palavras de segmento só na tela via `termos(segmento)`; nunca em rotas, arquivos, funções, tipos, banco, modelos de WhatsApp, textos fixos ou emojis de segmento — o produto atende todo o universo de beleza.
 - WhatsApp: todo envio escolhe o remetente por `conexaoDeEnvio` (próprio → número oficial compartilhado) e toda falha passa por `erros-meta.ts` + `falhas-envio.server.ts` — uma regra só para roteamento, reserva e falhas.
 - Links de tela do painel ficam em `src/lib/links-de-tela.ts` (espelho SQL `link_de_tela`) — a troca de rota acontece num lugar só.
-- Movimento: `MotionConfig` na raiz (GlobalDesign) com reducedMotion="user" e transição padrão de `motion.ts`; molas novas só as oficiais de `motion.ts` (sem quique) — uma base para todo o app.
+- Movimento: `MotionConfig` na raiz (GlobalDesign) com reducedMotion="user" e transição padrão de `motion.ts`; molas novas só as oficiais de `motion.ts` (sem quique) — uma base para todo o app. Exceção (dono, 22/10): animação recuperada do Figaro usa só os valores de `src/lib/movimento-figaro.ts`, com a fonte no APK.
 - Preferências privadas de atendimento estendem a ficha existente em `clientes.preferencias`; validação dupla e acesso por negócio evitam fontes paralelas e exposição pública.
 - Preferências do cliente nunca são lidas pela página pública e só preenchem campos vazios; registros da equipe nunca são sobrescritos.
 - Manifest por área via `manifestDaRota` (um link só) — evita instalar o app errado.

@@ -1,10 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Eye, History, Loader2, Plus, RotateCcw, Trash2 } from "lucide-react";
+import { Eye, History, Plus, RotateCcw, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
+import { IndicadorDeCarregamento } from "@/components/ui/IndicadorDeCarregamento";
 import { InterruptorApresentacao } from "@/components/admin/InterruptorApresentacao";
 import { AdminNotice, AdminScreen } from "@/components/layout/AdminScreen";
 import { EsqueletoFormulario } from "@/components/layout/Esqueleto";
@@ -363,7 +364,10 @@ function EditorDaHome() {
               }}
               disabled={ocupado}
             >
-              {publicar.isPending ? <Loader2 className="animate-spin" size={14} /> : null} Publicar
+              {publicar.isPending ? (
+                <IndicadorDeCarregamento tamanho={18} decorativo className="text-current" />
+              ) : null}{" "}
+              Publicar
             </Button>
             <Button
               variant="outline"

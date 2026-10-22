@@ -54,6 +54,7 @@ import { Route as BSlugRouteImport } from './routes/b.$slug'
 import { Route as BarbeariaIdRouteImport } from './routes/barbearia.$id'
 import { Route as BarbeiroIndexRouteImport } from './routes/barbeiro.index'
 import { Route as BarbeiroAgendaRouteImport } from './routes/barbeiro.agenda'
+import { Route as BarbeiroAgendamentoRouteImport } from './routes/barbeiro.agendamento'
 import { Route as BarbeiroAgendamentosRouteImport } from './routes/barbeiro.agendamentos'
 import { Route as BarbeiroAutomacaoRouteImport } from './routes/barbeiro.automacao'
 import { Route as BarbeiroAvaliacoesRouteImport } from './routes/barbeiro.avaliacoes'
@@ -73,16 +74,19 @@ import { Route as BarbeiroFidelidadeRouteImport } from './routes/barbeiro.fideli
 import { Route as BarbeiroFilaRouteImport } from './routes/barbeiro.fila'
 import { Route as BarbeiroFinanceiroRouteImport } from './routes/barbeiro.financeiro'
 import { Route as BarbeiroFuncionalidadesRouteImport } from './routes/barbeiro.funcionalidades'
+import { Route as BarbeiroHistoricoRouteImport } from './routes/barbeiro.historico'
 import { Route as BarbeiroHojeRouteImport } from './routes/barbeiro.hoje'
 import { Route as BarbeiroHorariosRouteImport } from './routes/barbeiro.horarios'
 import { Route as BarbeiroIndicacoesRouteImport } from './routes/barbeiro.indicacoes'
 import { Route as BarbeiroMaisRouteImport } from './routes/barbeiro.mais'
-import { Route as BarbeiroMarcaRouteImport } from './routes/barbeiro.marca'
+import { Route as BarbeiroNegocioRouteImport } from './routes/barbeiro.negocio'
+import { Route as BarbeiroNotificacoesRouteImport } from './routes/barbeiro.notificacoes'
 import { Route as BarbeiroPlanoRouteImport } from './routes/barbeiro.plano'
 import { Route as BarbeiroProdutosRouteImport } from './routes/barbeiro.produtos'
 import { Route as BarbeiroProfissionaisRouteImport } from './routes/barbeiro.profissionais'
 import { Route as BarbeiroRedesRouteImport } from './routes/barbeiro.redes'
 import { Route as BarbeiroServicosRouteImport } from './routes/barbeiro.servicos'
+import { Route as BarbeiroSuaPaginaRouteImport } from './routes/barbeiro.sua-pagina'
 import { Route as BarbeiroTemasRouteImport } from './routes/barbeiro.temas'
 import { Route as EntrarRetornoRouteImport } from './routes/entrar.retorno'
 import { Route as FSlugRouteImport } from './routes/f.$slug'
@@ -95,6 +99,9 @@ import { Route as ApiPublicAlvoIaRouteImport } from './routes/api/public/alvo-ia
 import { Route as ApiPublicFunilRouteImport } from './routes/api/public/funil'
 import { Route as BarbeiroClientesIndexRouteImport } from './routes/barbeiro.clientes.index'
 import { Route as BarbeiroClientesIdRouteImport } from './routes/barbeiro.clientes.$id'
+import { Route as BarbeiroMarcaIndexRouteImport } from './routes/barbeiro.marca.index'
+import { Route as BarbeiroMarcaChatRouteImport } from './routes/barbeiro.marca.chat'
+import { Route as BarbeiroMarcaLayoutTemaRouteImport } from './routes/barbeiro.marca.layout-tema'
 import { Route as ApiPublicAiSplatRouteImport } from './routes/api/public/ai/$'
 import { Route as ApiPublicAsaasVarreduraRouteImport } from './routes/api/public/asaas/varredura'
 import { Route as ApiPublicAsaasWebhookRouteImport } from './routes/api/public/asaas/webhook'
@@ -107,6 +114,8 @@ import { Route as ApiPublicWhatsappAutomacoesRouteImport } from './routes/api/pu
 import { Route as ApiPublicWhatsappEventosRouteImport } from './routes/api/public/whatsapp/eventos'
 import { Route as ApiPublicWhatsappEvolutionRouteImport } from './routes/api/public/whatsapp/evolution'
 import { Route as ApiPublicWhatsappWebhookRouteImport } from './routes/api/public/whatsapp/webhook'
+import { Route as BarbeiroMarcaLayoutTemaPreviewRouteImport } from './routes/barbeiro.marca.layout-tema_.preview'
+import { Route as BarbeiroMarcaSecaoSecaoRouteImport } from './routes/barbeiro.marca.secao.$secao'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -335,6 +344,11 @@ const BarbeiroAgendaRoute = BarbeiroAgendaRouteImport.update({
   path: '/agenda',
   getParentRoute: () => BarbeiroRoute,
 } as any)
+const BarbeiroAgendamentoRoute = BarbeiroAgendamentoRouteImport.update({
+  id: '/agendamento',
+  path: '/agendamento',
+  getParentRoute: () => BarbeiroRoute,
+} as any)
 const BarbeiroAgendamentosRoute = BarbeiroAgendamentosRouteImport.update({
   id: '/agendamentos',
   path: '/agendamentos',
@@ -430,6 +444,11 @@ const BarbeiroFuncionalidadesRoute = BarbeiroFuncionalidadesRouteImport.update({
   path: '/funcionalidades',
   getParentRoute: () => BarbeiroRoute,
 } as any)
+const BarbeiroHistoricoRoute = BarbeiroHistoricoRouteImport.update({
+  id: '/historico',
+  path: '/historico',
+  getParentRoute: () => BarbeiroRoute,
+} as any)
 const BarbeiroHojeRoute = BarbeiroHojeRouteImport.update({
   id: '/hoje',
   path: '/hoje',
@@ -450,9 +469,14 @@ const BarbeiroMaisRoute = BarbeiroMaisRouteImport.update({
   path: '/mais',
   getParentRoute: () => BarbeiroRoute,
 } as any)
-const BarbeiroMarcaRoute = BarbeiroMarcaRouteImport.update({
-  id: '/marca',
-  path: '/marca',
+const BarbeiroNegocioRoute = BarbeiroNegocioRouteImport.update({
+  id: '/negocio',
+  path: '/negocio',
+  getParentRoute: () => BarbeiroRoute,
+} as any)
+const BarbeiroNotificacoesRoute = BarbeiroNotificacoesRouteImport.update({
+  id: '/notificacoes',
+  path: '/notificacoes',
   getParentRoute: () => BarbeiroRoute,
 } as any)
 const BarbeiroPlanoRoute = BarbeiroPlanoRouteImport.update({
@@ -478,6 +502,11 @@ const BarbeiroRedesRoute = BarbeiroRedesRouteImport.update({
 const BarbeiroServicosRoute = BarbeiroServicosRouteImport.update({
   id: '/servicos',
   path: '/servicos',
+  getParentRoute: () => BarbeiroRoute,
+} as any)
+const BarbeiroSuaPaginaRoute = BarbeiroSuaPaginaRouteImport.update({
+  id: '/sua-pagina',
+  path: '/sua-pagina',
   getParentRoute: () => BarbeiroRoute,
 } as any)
 const BarbeiroTemasRoute = BarbeiroTemasRouteImport.update({
@@ -539,6 +568,21 @@ const BarbeiroClientesIdRoute = BarbeiroClientesIdRouteImport.update({
   id: '/$id',
   path: '/$id',
   getParentRoute: () => BarbeiroClientesRoute,
+} as any)
+const BarbeiroMarcaIndexRoute = BarbeiroMarcaIndexRouteImport.update({
+  id: '/marca/',
+  path: '/marca/',
+  getParentRoute: () => BarbeiroRoute,
+} as any)
+const BarbeiroMarcaChatRoute = BarbeiroMarcaChatRouteImport.update({
+  id: '/marca/chat',
+  path: '/marca/chat',
+  getParentRoute: () => BarbeiroRoute,
+} as any)
+const BarbeiroMarcaLayoutTemaRoute = BarbeiroMarcaLayoutTemaRouteImport.update({
+  id: '/marca/layout-tema',
+  path: '/marca/layout-tema',
+  getParentRoute: () => BarbeiroRoute,
 } as any)
 const ApiPublicAiSplatRoute = ApiPublicAiSplatRouteImport.update({
   id: '/api/public/ai/$',
@@ -605,6 +649,17 @@ const ApiPublicWhatsappWebhookRoute =
     path: '/api/public/whatsapp/webhook',
     getParentRoute: () => rootRouteImport,
   } as any)
+const BarbeiroMarcaLayoutTemaPreviewRoute =
+  BarbeiroMarcaLayoutTemaPreviewRouteImport.update({
+    id: '/marca/layout-tema_/preview',
+    path: '/marca/layout-tema/preview',
+    getParentRoute: () => BarbeiroRoute,
+  } as any)
+const BarbeiroMarcaSecaoSecaoRoute = BarbeiroMarcaSecaoSecaoRouteImport.update({
+  id: '/marca/secao/$secao',
+  path: '/marca/secao/$secao',
+  getParentRoute: () => BarbeiroRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -649,6 +704,7 @@ export interface FileRoutesByFullPath {
   '/b/$slug': typeof BSlugRoute
   '/barbearia/$id': typeof BarbeariaIdRoute
   '/barbeiro/agenda': typeof BarbeiroAgendaRoute
+  '/barbeiro/agendamento': typeof BarbeiroAgendamentoRoute
   '/barbeiro/agendamentos': typeof BarbeiroAgendamentosRoute
   '/barbeiro/automacao': typeof BarbeiroAutomacaoRoute
   '/barbeiro/avaliacoes': typeof BarbeiroAvaliacoesRoute
@@ -668,16 +724,19 @@ export interface FileRoutesByFullPath {
   '/barbeiro/fila': typeof BarbeiroFilaRoute
   '/barbeiro/financeiro': typeof BarbeiroFinanceiroRoute
   '/barbeiro/funcionalidades': typeof BarbeiroFuncionalidadesRoute
+  '/barbeiro/historico': typeof BarbeiroHistoricoRoute
   '/barbeiro/hoje': typeof BarbeiroHojeRoute
   '/barbeiro/horarios': typeof BarbeiroHorariosRoute
   '/barbeiro/indicacoes': typeof BarbeiroIndicacoesRoute
   '/barbeiro/mais': typeof BarbeiroMaisRoute
-  '/barbeiro/marca': typeof BarbeiroMarcaRoute
+  '/barbeiro/negocio': typeof BarbeiroNegocioRoute
+  '/barbeiro/notificacoes': typeof BarbeiroNotificacoesRoute
   '/barbeiro/plano': typeof BarbeiroPlanoRoute
   '/barbeiro/produtos': typeof BarbeiroProdutosRoute
   '/barbeiro/profissionais': typeof BarbeiroProfissionaisRoute
   '/barbeiro/redes': typeof BarbeiroRedesRoute
   '/barbeiro/servicos': typeof BarbeiroServicosRoute
+  '/barbeiro/sua-pagina': typeof BarbeiroSuaPaginaRoute
   '/barbeiro/temas': typeof BarbeiroTemasRoute
   '/entrar/retorno': typeof EntrarRetornoRoute
   '/f/$slug': typeof FSlugRoute
@@ -692,7 +751,10 @@ export interface FileRoutesByFullPath {
   '/api/public/alvo-ia': typeof ApiPublicAlvoIaRoute
   '/api/public/funil': typeof ApiPublicFunilRoute
   '/barbeiro/clientes/$id': typeof BarbeiroClientesIdRoute
+  '/barbeiro/marca/chat': typeof BarbeiroMarcaChatRoute
+  '/barbeiro/marca/layout-tema': typeof BarbeiroMarcaLayoutTemaRoute
   '/barbeiro/clientes/': typeof BarbeiroClientesIndexRoute
+  '/barbeiro/marca/': typeof BarbeiroMarcaIndexRoute
   '/api/public/ai/$': typeof ApiPublicAiSplatRoute
   '/api/public/asaas/varredura': typeof ApiPublicAsaasVarreduraRoute
   '/api/public/asaas/webhook': typeof ApiPublicAsaasWebhookRoute
@@ -705,6 +767,8 @@ export interface FileRoutesByFullPath {
   '/api/public/whatsapp/eventos': typeof ApiPublicWhatsappEventosRoute
   '/api/public/whatsapp/evolution': typeof ApiPublicWhatsappEvolutionRoute
   '/api/public/whatsapp/webhook': typeof ApiPublicWhatsappWebhookRoute
+  '/barbeiro/marca/layout-tema/preview': typeof BarbeiroMarcaLayoutTemaPreviewRoute
+  '/barbeiro/marca/secao/$secao': typeof BarbeiroMarcaSecaoSecaoRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -746,6 +810,7 @@ export interface FileRoutesByTo {
   '/b/$slug': typeof BSlugRoute
   '/barbearia/$id': typeof BarbeariaIdRoute
   '/barbeiro/agenda': typeof BarbeiroAgendaRoute
+  '/barbeiro/agendamento': typeof BarbeiroAgendamentoRoute
   '/barbeiro/agendamentos': typeof BarbeiroAgendamentosRoute
   '/barbeiro/automacao': typeof BarbeiroAutomacaoRoute
   '/barbeiro/avaliacoes': typeof BarbeiroAvaliacoesRoute
@@ -764,16 +829,19 @@ export interface FileRoutesByTo {
   '/barbeiro/fila': typeof BarbeiroFilaRoute
   '/barbeiro/financeiro': typeof BarbeiroFinanceiroRoute
   '/barbeiro/funcionalidades': typeof BarbeiroFuncionalidadesRoute
+  '/barbeiro/historico': typeof BarbeiroHistoricoRoute
   '/barbeiro/hoje': typeof BarbeiroHojeRoute
   '/barbeiro/horarios': typeof BarbeiroHorariosRoute
   '/barbeiro/indicacoes': typeof BarbeiroIndicacoesRoute
   '/barbeiro/mais': typeof BarbeiroMaisRoute
-  '/barbeiro/marca': typeof BarbeiroMarcaRoute
+  '/barbeiro/negocio': typeof BarbeiroNegocioRoute
+  '/barbeiro/notificacoes': typeof BarbeiroNotificacoesRoute
   '/barbeiro/plano': typeof BarbeiroPlanoRoute
   '/barbeiro/produtos': typeof BarbeiroProdutosRoute
   '/barbeiro/profissionais': typeof BarbeiroProfissionaisRoute
   '/barbeiro/redes': typeof BarbeiroRedesRoute
   '/barbeiro/servicos': typeof BarbeiroServicosRoute
+  '/barbeiro/sua-pagina': typeof BarbeiroSuaPaginaRoute
   '/barbeiro/temas': typeof BarbeiroTemasRoute
   '/entrar/retorno': typeof EntrarRetornoRoute
   '/f/$slug': typeof FSlugRoute
@@ -788,7 +856,10 @@ export interface FileRoutesByTo {
   '/api/public/alvo-ia': typeof ApiPublicAlvoIaRoute
   '/api/public/funil': typeof ApiPublicFunilRoute
   '/barbeiro/clientes/$id': typeof BarbeiroClientesIdRoute
+  '/barbeiro/marca/chat': typeof BarbeiroMarcaChatRoute
+  '/barbeiro/marca/layout-tema': typeof BarbeiroMarcaLayoutTemaRoute
   '/barbeiro/clientes': typeof BarbeiroClientesIndexRoute
+  '/barbeiro/marca': typeof BarbeiroMarcaIndexRoute
   '/api/public/ai/$': typeof ApiPublicAiSplatRoute
   '/api/public/asaas/varredura': typeof ApiPublicAsaasVarreduraRoute
   '/api/public/asaas/webhook': typeof ApiPublicAsaasWebhookRoute
@@ -801,6 +872,8 @@ export interface FileRoutesByTo {
   '/api/public/whatsapp/eventos': typeof ApiPublicWhatsappEventosRoute
   '/api/public/whatsapp/evolution': typeof ApiPublicWhatsappEvolutionRoute
   '/api/public/whatsapp/webhook': typeof ApiPublicWhatsappWebhookRoute
+  '/barbeiro/marca/layout-tema/preview': typeof BarbeiroMarcaLayoutTemaPreviewRoute
+  '/barbeiro/marca/secao/$secao': typeof BarbeiroMarcaSecaoSecaoRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -846,6 +919,7 @@ export interface FileRoutesById {
   '/b/$slug': typeof BSlugRoute
   '/barbearia/$id': typeof BarbeariaIdRoute
   '/barbeiro/agenda': typeof BarbeiroAgendaRoute
+  '/barbeiro/agendamento': typeof BarbeiroAgendamentoRoute
   '/barbeiro/agendamentos': typeof BarbeiroAgendamentosRoute
   '/barbeiro/automacao': typeof BarbeiroAutomacaoRoute
   '/barbeiro/avaliacoes': typeof BarbeiroAvaliacoesRoute
@@ -865,16 +939,19 @@ export interface FileRoutesById {
   '/barbeiro/fila': typeof BarbeiroFilaRoute
   '/barbeiro/financeiro': typeof BarbeiroFinanceiroRoute
   '/barbeiro/funcionalidades': typeof BarbeiroFuncionalidadesRoute
+  '/barbeiro/historico': typeof BarbeiroHistoricoRoute
   '/barbeiro/hoje': typeof BarbeiroHojeRoute
   '/barbeiro/horarios': typeof BarbeiroHorariosRoute
   '/barbeiro/indicacoes': typeof BarbeiroIndicacoesRoute
   '/barbeiro/mais': typeof BarbeiroMaisRoute
-  '/barbeiro/marca': typeof BarbeiroMarcaRoute
+  '/barbeiro/negocio': typeof BarbeiroNegocioRoute
+  '/barbeiro/notificacoes': typeof BarbeiroNotificacoesRoute
   '/barbeiro/plano': typeof BarbeiroPlanoRoute
   '/barbeiro/produtos': typeof BarbeiroProdutosRoute
   '/barbeiro/profissionais': typeof BarbeiroProfissionaisRoute
   '/barbeiro/redes': typeof BarbeiroRedesRoute
   '/barbeiro/servicos': typeof BarbeiroServicosRoute
+  '/barbeiro/sua-pagina': typeof BarbeiroSuaPaginaRoute
   '/barbeiro/temas': typeof BarbeiroTemasRoute
   '/entrar/retorno': typeof EntrarRetornoRoute
   '/f/$slug': typeof FSlugRoute
@@ -889,7 +966,10 @@ export interface FileRoutesById {
   '/api/public/alvo-ia': typeof ApiPublicAlvoIaRoute
   '/api/public/funil': typeof ApiPublicFunilRoute
   '/barbeiro/clientes/$id': typeof BarbeiroClientesIdRoute
+  '/barbeiro/marca/chat': typeof BarbeiroMarcaChatRoute
+  '/barbeiro/marca/layout-tema': typeof BarbeiroMarcaLayoutTemaRoute
   '/barbeiro/clientes/': typeof BarbeiroClientesIndexRoute
+  '/barbeiro/marca/': typeof BarbeiroMarcaIndexRoute
   '/api/public/ai/$': typeof ApiPublicAiSplatRoute
   '/api/public/asaas/varredura': typeof ApiPublicAsaasVarreduraRoute
   '/api/public/asaas/webhook': typeof ApiPublicAsaasWebhookRoute
@@ -902,6 +982,8 @@ export interface FileRoutesById {
   '/api/public/whatsapp/eventos': typeof ApiPublicWhatsappEventosRoute
   '/api/public/whatsapp/evolution': typeof ApiPublicWhatsappEvolutionRoute
   '/api/public/whatsapp/webhook': typeof ApiPublicWhatsappWebhookRoute
+  '/barbeiro/marca/layout-tema_/preview': typeof BarbeiroMarcaLayoutTemaPreviewRoute
+  '/barbeiro/marca/secao/$secao': typeof BarbeiroMarcaSecaoSecaoRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -948,6 +1030,7 @@ export interface FileRouteTypes {
     | '/b/$slug'
     | '/barbearia/$id'
     | '/barbeiro/agenda'
+    | '/barbeiro/agendamento'
     | '/barbeiro/agendamentos'
     | '/barbeiro/automacao'
     | '/barbeiro/avaliacoes'
@@ -967,16 +1050,19 @@ export interface FileRouteTypes {
     | '/barbeiro/fila'
     | '/barbeiro/financeiro'
     | '/barbeiro/funcionalidades'
+    | '/barbeiro/historico'
     | '/barbeiro/hoje'
     | '/barbeiro/horarios'
     | '/barbeiro/indicacoes'
     | '/barbeiro/mais'
-    | '/barbeiro/marca'
+    | '/barbeiro/negocio'
+    | '/barbeiro/notificacoes'
     | '/barbeiro/plano'
     | '/barbeiro/produtos'
     | '/barbeiro/profissionais'
     | '/barbeiro/redes'
     | '/barbeiro/servicos'
+    | '/barbeiro/sua-pagina'
     | '/barbeiro/temas'
     | '/entrar/retorno'
     | '/f/$slug'
@@ -991,7 +1077,10 @@ export interface FileRouteTypes {
     | '/api/public/alvo-ia'
     | '/api/public/funil'
     | '/barbeiro/clientes/$id'
+    | '/barbeiro/marca/chat'
+    | '/barbeiro/marca/layout-tema'
     | '/barbeiro/clientes/'
+    | '/barbeiro/marca/'
     | '/api/public/ai/$'
     | '/api/public/asaas/varredura'
     | '/api/public/asaas/webhook'
@@ -1004,6 +1093,8 @@ export interface FileRouteTypes {
     | '/api/public/whatsapp/eventos'
     | '/api/public/whatsapp/evolution'
     | '/api/public/whatsapp/webhook'
+    | '/barbeiro/marca/layout-tema/preview'
+    | '/barbeiro/marca/secao/$secao'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -1045,6 +1136,7 @@ export interface FileRouteTypes {
     | '/b/$slug'
     | '/barbearia/$id'
     | '/barbeiro/agenda'
+    | '/barbeiro/agendamento'
     | '/barbeiro/agendamentos'
     | '/barbeiro/automacao'
     | '/barbeiro/avaliacoes'
@@ -1063,16 +1155,19 @@ export interface FileRouteTypes {
     | '/barbeiro/fila'
     | '/barbeiro/financeiro'
     | '/barbeiro/funcionalidades'
+    | '/barbeiro/historico'
     | '/barbeiro/hoje'
     | '/barbeiro/horarios'
     | '/barbeiro/indicacoes'
     | '/barbeiro/mais'
-    | '/barbeiro/marca'
+    | '/barbeiro/negocio'
+    | '/barbeiro/notificacoes'
     | '/barbeiro/plano'
     | '/barbeiro/produtos'
     | '/barbeiro/profissionais'
     | '/barbeiro/redes'
     | '/barbeiro/servicos'
+    | '/barbeiro/sua-pagina'
     | '/barbeiro/temas'
     | '/entrar/retorno'
     | '/f/$slug'
@@ -1087,7 +1182,10 @@ export interface FileRouteTypes {
     | '/api/public/alvo-ia'
     | '/api/public/funil'
     | '/barbeiro/clientes/$id'
+    | '/barbeiro/marca/chat'
+    | '/barbeiro/marca/layout-tema'
     | '/barbeiro/clientes'
+    | '/barbeiro/marca'
     | '/api/public/ai/$'
     | '/api/public/asaas/varredura'
     | '/api/public/asaas/webhook'
@@ -1100,6 +1198,8 @@ export interface FileRouteTypes {
     | '/api/public/whatsapp/eventos'
     | '/api/public/whatsapp/evolution'
     | '/api/public/whatsapp/webhook'
+    | '/barbeiro/marca/layout-tema/preview'
+    | '/barbeiro/marca/secao/$secao'
   id:
     | '__root__'
     | '/'
@@ -1144,6 +1244,7 @@ export interface FileRouteTypes {
     | '/b/$slug'
     | '/barbearia/$id'
     | '/barbeiro/agenda'
+    | '/barbeiro/agendamento'
     | '/barbeiro/agendamentos'
     | '/barbeiro/automacao'
     | '/barbeiro/avaliacoes'
@@ -1163,16 +1264,19 @@ export interface FileRouteTypes {
     | '/barbeiro/fila'
     | '/barbeiro/financeiro'
     | '/barbeiro/funcionalidades'
+    | '/barbeiro/historico'
     | '/barbeiro/hoje'
     | '/barbeiro/horarios'
     | '/barbeiro/indicacoes'
     | '/barbeiro/mais'
-    | '/barbeiro/marca'
+    | '/barbeiro/negocio'
+    | '/barbeiro/notificacoes'
     | '/barbeiro/plano'
     | '/barbeiro/produtos'
     | '/barbeiro/profissionais'
     | '/barbeiro/redes'
     | '/barbeiro/servicos'
+    | '/barbeiro/sua-pagina'
     | '/barbeiro/temas'
     | '/entrar/retorno'
     | '/f/$slug'
@@ -1187,7 +1291,10 @@ export interface FileRouteTypes {
     | '/api/public/alvo-ia'
     | '/api/public/funil'
     | '/barbeiro/clientes/$id'
+    | '/barbeiro/marca/chat'
+    | '/barbeiro/marca/layout-tema'
     | '/barbeiro/clientes/'
+    | '/barbeiro/marca/'
     | '/api/public/ai/$'
     | '/api/public/asaas/varredura'
     | '/api/public/asaas/webhook'
@@ -1200,6 +1307,8 @@ export interface FileRouteTypes {
     | '/api/public/whatsapp/eventos'
     | '/api/public/whatsapp/evolution'
     | '/api/public/whatsapp/webhook'
+    | '/barbeiro/marca/layout-tema_/preview'
+    | '/barbeiro/marca/secao/$secao'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -1566,6 +1675,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BarbeiroAgendaRouteImport
       parentRoute: typeof BarbeiroRoute
     }
+    '/barbeiro/agendamento': {
+      id: '/barbeiro/agendamento'
+      path: '/agendamento'
+      fullPath: '/barbeiro/agendamento'
+      preLoaderRoute: typeof BarbeiroAgendamentoRouteImport
+      parentRoute: typeof BarbeiroRoute
+    }
     '/barbeiro/agendamentos': {
       id: '/barbeiro/agendamentos'
       path: '/agendamentos'
@@ -1699,6 +1815,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BarbeiroFuncionalidadesRouteImport
       parentRoute: typeof BarbeiroRoute
     }
+    '/barbeiro/historico': {
+      id: '/barbeiro/historico'
+      path: '/historico'
+      fullPath: '/barbeiro/historico'
+      preLoaderRoute: typeof BarbeiroHistoricoRouteImport
+      parentRoute: typeof BarbeiroRoute
+    }
     '/barbeiro/hoje': {
       id: '/barbeiro/hoje'
       path: '/hoje'
@@ -1727,11 +1850,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BarbeiroMaisRouteImport
       parentRoute: typeof BarbeiroRoute
     }
-    '/barbeiro/marca': {
-      id: '/barbeiro/marca'
-      path: '/marca'
-      fullPath: '/barbeiro/marca'
-      preLoaderRoute: typeof BarbeiroMarcaRouteImport
+    '/barbeiro/negocio': {
+      id: '/barbeiro/negocio'
+      path: '/negocio'
+      fullPath: '/barbeiro/negocio'
+      preLoaderRoute: typeof BarbeiroNegocioRouteImport
+      parentRoute: typeof BarbeiroRoute
+    }
+    '/barbeiro/notificacoes': {
+      id: '/barbeiro/notificacoes'
+      path: '/notificacoes'
+      fullPath: '/barbeiro/notificacoes'
+      preLoaderRoute: typeof BarbeiroNotificacoesRouteImport
       parentRoute: typeof BarbeiroRoute
     }
     '/barbeiro/plano': {
@@ -1767,6 +1897,13 @@ declare module '@tanstack/react-router' {
       path: '/servicos'
       fullPath: '/barbeiro/servicos'
       preLoaderRoute: typeof BarbeiroServicosRouteImport
+      parentRoute: typeof BarbeiroRoute
+    }
+    '/barbeiro/sua-pagina': {
+      id: '/barbeiro/sua-pagina'
+      path: '/sua-pagina'
+      fullPath: '/barbeiro/sua-pagina'
+      preLoaderRoute: typeof BarbeiroSuaPaginaRouteImport
       parentRoute: typeof BarbeiroRoute
     }
     '/barbeiro/temas': {
@@ -1853,6 +1990,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BarbeiroClientesIdRouteImport
       parentRoute: typeof BarbeiroClientesRoute
     }
+    '/barbeiro/marca/': {
+      id: '/barbeiro/marca/'
+      path: '/marca'
+      fullPath: '/barbeiro/marca/'
+      preLoaderRoute: typeof BarbeiroMarcaIndexRouteImport
+      parentRoute: typeof BarbeiroRoute
+    }
+    '/barbeiro/marca/chat': {
+      id: '/barbeiro/marca/chat'
+      path: '/marca/chat'
+      fullPath: '/barbeiro/marca/chat'
+      preLoaderRoute: typeof BarbeiroMarcaChatRouteImport
+      parentRoute: typeof BarbeiroRoute
+    }
+    '/barbeiro/marca/layout-tema': {
+      id: '/barbeiro/marca/layout-tema'
+      path: '/marca/layout-tema'
+      fullPath: '/barbeiro/marca/layout-tema'
+      preLoaderRoute: typeof BarbeiroMarcaLayoutTemaRouteImport
+      parentRoute: typeof BarbeiroRoute
+    }
     '/api/public/ai/$': {
       id: '/api/public/ai/$'
       path: '/api/public/ai/$'
@@ -1937,6 +2095,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicWhatsappWebhookRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/barbeiro/marca/layout-tema_/preview': {
+      id: '/barbeiro/marca/layout-tema_/preview'
+      path: '/marca/layout-tema/preview'
+      fullPath: '/barbeiro/marca/layout-tema/preview'
+      preLoaderRoute: typeof BarbeiroMarcaLayoutTemaPreviewRouteImport
+      parentRoute: typeof BarbeiroRoute
+    }
+    '/barbeiro/marca/secao/$secao': {
+      id: '/barbeiro/marca/secao/$secao'
+      path: '/marca/secao/$secao'
+      fullPath: '/barbeiro/marca/secao/$secao'
+      preLoaderRoute: typeof BarbeiroMarcaSecaoSecaoRouteImport
+      parentRoute: typeof BarbeiroRoute
+    }
   }
 }
 
@@ -2011,6 +2183,7 @@ const BarbeiroClientesRouteWithChildren =
 
 interface BarbeiroRouteChildren {
   BarbeiroAgendaRoute: typeof BarbeiroAgendaRoute
+  BarbeiroAgendamentoRoute: typeof BarbeiroAgendamentoRoute
   BarbeiroAgendamentosRoute: typeof BarbeiroAgendamentosRoute
   BarbeiroAutomacaoRoute: typeof BarbeiroAutomacaoRoute
   BarbeiroAvaliacoesRoute: typeof BarbeiroAvaliacoesRoute
@@ -2030,22 +2203,31 @@ interface BarbeiroRouteChildren {
   BarbeiroFilaRoute: typeof BarbeiroFilaRoute
   BarbeiroFinanceiroRoute: typeof BarbeiroFinanceiroRoute
   BarbeiroFuncionalidadesRoute: typeof BarbeiroFuncionalidadesRoute
+  BarbeiroHistoricoRoute: typeof BarbeiroHistoricoRoute
   BarbeiroHojeRoute: typeof BarbeiroHojeRoute
   BarbeiroHorariosRoute: typeof BarbeiroHorariosRoute
   BarbeiroIndicacoesRoute: typeof BarbeiroIndicacoesRoute
   BarbeiroMaisRoute: typeof BarbeiroMaisRoute
-  BarbeiroMarcaRoute: typeof BarbeiroMarcaRoute
+  BarbeiroNegocioRoute: typeof BarbeiroNegocioRoute
+  BarbeiroNotificacoesRoute: typeof BarbeiroNotificacoesRoute
   BarbeiroPlanoRoute: typeof BarbeiroPlanoRoute
   BarbeiroProdutosRoute: typeof BarbeiroProdutosRoute
   BarbeiroProfissionaisRoute: typeof BarbeiroProfissionaisRoute
   BarbeiroRedesRoute: typeof BarbeiroRedesRoute
   BarbeiroServicosRoute: typeof BarbeiroServicosRoute
+  BarbeiroSuaPaginaRoute: typeof BarbeiroSuaPaginaRoute
   BarbeiroTemasRoute: typeof BarbeiroTemasRoute
   BarbeiroIndexRoute: typeof BarbeiroIndexRoute
+  BarbeiroMarcaChatRoute: typeof BarbeiroMarcaChatRoute
+  BarbeiroMarcaLayoutTemaRoute: typeof BarbeiroMarcaLayoutTemaRoute
+  BarbeiroMarcaIndexRoute: typeof BarbeiroMarcaIndexRoute
+  BarbeiroMarcaLayoutTemaPreviewRoute: typeof BarbeiroMarcaLayoutTemaPreviewRoute
+  BarbeiroMarcaSecaoSecaoRoute: typeof BarbeiroMarcaSecaoSecaoRoute
 }
 
 const BarbeiroRouteChildren: BarbeiroRouteChildren = {
   BarbeiroAgendaRoute: BarbeiroAgendaRoute,
+  BarbeiroAgendamentoRoute: BarbeiroAgendamentoRoute,
   BarbeiroAgendamentosRoute: BarbeiroAgendamentosRoute,
   BarbeiroAutomacaoRoute: BarbeiroAutomacaoRoute,
   BarbeiroAvaliacoesRoute: BarbeiroAvaliacoesRoute,
@@ -2065,18 +2247,26 @@ const BarbeiroRouteChildren: BarbeiroRouteChildren = {
   BarbeiroFilaRoute: BarbeiroFilaRoute,
   BarbeiroFinanceiroRoute: BarbeiroFinanceiroRoute,
   BarbeiroFuncionalidadesRoute: BarbeiroFuncionalidadesRoute,
+  BarbeiroHistoricoRoute: BarbeiroHistoricoRoute,
   BarbeiroHojeRoute: BarbeiroHojeRoute,
   BarbeiroHorariosRoute: BarbeiroHorariosRoute,
   BarbeiroIndicacoesRoute: BarbeiroIndicacoesRoute,
   BarbeiroMaisRoute: BarbeiroMaisRoute,
-  BarbeiroMarcaRoute: BarbeiroMarcaRoute,
+  BarbeiroNegocioRoute: BarbeiroNegocioRoute,
+  BarbeiroNotificacoesRoute: BarbeiroNotificacoesRoute,
   BarbeiroPlanoRoute: BarbeiroPlanoRoute,
   BarbeiroProdutosRoute: BarbeiroProdutosRoute,
   BarbeiroProfissionaisRoute: BarbeiroProfissionaisRoute,
   BarbeiroRedesRoute: BarbeiroRedesRoute,
   BarbeiroServicosRoute: BarbeiroServicosRoute,
+  BarbeiroSuaPaginaRoute: BarbeiroSuaPaginaRoute,
   BarbeiroTemasRoute: BarbeiroTemasRoute,
   BarbeiroIndexRoute: BarbeiroIndexRoute,
+  BarbeiroMarcaChatRoute: BarbeiroMarcaChatRoute,
+  BarbeiroMarcaLayoutTemaRoute: BarbeiroMarcaLayoutTemaRoute,
+  BarbeiroMarcaIndexRoute: BarbeiroMarcaIndexRoute,
+  BarbeiroMarcaLayoutTemaPreviewRoute: BarbeiroMarcaLayoutTemaPreviewRoute,
+  BarbeiroMarcaSecaoSecaoRoute: BarbeiroMarcaSecaoSecaoRoute,
 }
 
 const BarbeiroRouteWithChildren = BarbeiroRoute._addFileChildren(

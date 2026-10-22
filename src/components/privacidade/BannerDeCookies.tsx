@@ -28,7 +28,7 @@ export function BannerDeCookies() {
       <div
         role="dialog"
         aria-label="Privacidade e cookies"
-        className="pointer-events-auto max-h-[70dvh] w-full max-w-[440px] overflow-y-auto rounded-3xl border border-line bg-card px-5 py-4 text-center text-card-foreground shadow-xl md:max-w-[400px]"
+        className="pointer-events-auto max-h-[70dvh] w-full max-w-[440px] overflow-y-auto rounded-3xl border border-line bg-card px-5 py-4 text-center text-card-foreground shadow-[var(--elevacao-8)] md:max-w-[400px]"
       >
         <p className="text-[13px] leading-relaxed text-muted-foreground">
           Usamos cookies para o Cortaí funcionar e, se você permitir, melhorar sua experiência.{" "}

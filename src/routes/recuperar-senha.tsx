@@ -46,24 +46,35 @@ function RecuperarSenhaPage() {
     }
 
     setEnviando(true);
-    const { error } = await supabase.auth.resetPasswordForEmail(emailNormalizado, {
-      redirectTo: new URL("/redefinir-senha", window.location.origin).toString(),
-    });
-    setEnviando(false);
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(emailNormalizado, {
+        redirectTo: new URL("/redefinir-senha", window.location.origin).toString(),
+      });
 
-    if (error) {
-      const texto = error.message.toLowerCase();
-      if (error.status === 429) {
-        setErro("Muitas tentativas em pouco tempo. Aguarde alguns minutos e tente novamente.");
+      if (error) {
+        const texto = error.message.toLowerCase();
+        if (error.status === 429) {
+          setErro("Muitas tentativas em pouco tempo. Aguarde alguns minutos e tente novamente.");
+          return;
+        }
+        if (texto.includes("smtp") || texto.includes("sending") || texto.includes("email provider")) {
+          setErro("O envio de e-mails está indisponível no momento. Tente novamente mais tarde.");
+          return;
+        }
+        if (texto.includes("network") || texto.includes("fetch") || texto.includes("timeout")) {
+          setErro("Não foi possível conectar agora. Confira sua internet e tente novamente.");
+          return;
+        }
+        setErro("Não foi possível solicitar a recuperação agora. Tente novamente em instantes.");
         return;
       }
-      if (texto.includes("smtp") || texto.includes("sending") || texto.includes("email provider")) {
-        setErro("O envio de e-mails está indisponível no momento. Tente novamente mais tarde.");
-        return;
-      }
+
+      setEnviado(true);
+    } catch {
+      setErro("Não foi possível conectar agora. Confira sua internet e tente novamente.");
+    } finally {
+      setEnviando(false);
     }
-
-    setEnviado(true);
   }
 
   return (

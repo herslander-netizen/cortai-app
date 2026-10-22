@@ -14,7 +14,7 @@ import {
   registrarIndicacao,
   salvarConfigIndicacao,
 } from "@/lib/crescimento.functions";
-import { Carregando } from "@/components/layout/Carregando";
+import { EsqueletoLista } from "@/components/layout/Esqueleto";
 import { exigirCapacidade } from "@/lib/guarda-capacidade";
 import { Button } from "@/components/ui/button";
 
@@ -65,7 +65,7 @@ function IndicacoesPage() {
 
   return (
     <Screen voltarPara="/barbeiro/mais" title="Indicações" subtitle="Cliente que traz cliente.">
-      {isLoading ? <Carregando /> : null}
+      {isLoading ? <EsqueletoLista onTentarDeNovo={() => void refetch()} /> : null}
 
       <div className="surface p-5">
         <div className="flex items-center justify-between gap-4">

@@ -1,3 +1,4 @@
+import { IndicadorDeCarregamento } from "@/components/ui/IndicadorDeCarregamento";
 import { exigirCapacidade } from "@/lib/guarda-capacidade";
 import { useConfirmar } from "@/components/ui/useConfirmar";
 import { createFileRoute, Link } from "@tanstack/react-router";
@@ -9,7 +10,6 @@ import {
   AlertTriangle,
   CalendarPlus,
   FileWarning,
-  Loader2,
   MessageCircle,
   ShieldCheck,
   Smartphone,
@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 
 import { Screen, EmptyState } from "@/components/layout/Screen";
-import { Carregando } from "@/components/layout/Carregando";
+import { EsqueletoLista, EsqueletoPainel } from "@/components/layout/Esqueleto";
 import { CodigoPorTelefone } from "@/components/ia/CodigoPorTelefone";
 import { QrCodeReal } from "@/components/ia/QrCodeReal";
 import { diagnosticoDoEnvio, type TomDoEnvio } from "@/lib/whatsapp/erros-meta";
@@ -106,7 +106,7 @@ function CortaiPage() {
       title="WhatsApp"
       subtitle="O WhatsApp do seu negócio conversa com clientes e envia os avisos."
     >
-      {painel.isLoading ? <Carregando /> : null}
+      {painel.isLoading ? <EsqueletoPainel /> : null}
       {painel.isError ? (
         <p className="border-y border-line py-8 text-center text-sm text-brick">
           {mensagemDeAcessoNegado(painel.error)
@@ -172,7 +172,7 @@ function CortaiPage() {
                 type="button"
                 onClick={() => setAba(id)}
                 className={`rounded-full border px-4 py-1.5 text-xs ${
-                  aba === id ? "border-cyan-400 text-cyan-400" : "border-line2 text-mute"
+                  aba === id ? "border-gold text-gold" : "border-line2 text-mute"
                 }`}
               >
                 {rotulo}
@@ -202,7 +202,7 @@ function BlocoExperiencia() {
     queryKey: ["secretaria-experiencia"],
     queryFn: () => getAvaliacoes(),
   });
-  if (avaliacoes.isLoading) return <Carregando />;
+  if (avaliacoes.isLoading) return <EsqueletoLista />;
   if (avaliacoes.isError)
     return (
       <p className="py-8 text-center text-sm text-brick">
@@ -232,7 +232,7 @@ function BlocoExperiencia() {
               <li key={avaliacao.id} className="py-3">
                 <div className="flex items-center justify-between gap-3">
                   <p className="text-sm text-paper">{avaliacao.cliente}</p>
-                  <span className="text-sm font-semibold text-cyan-400">{avaliacao.nota}/5</span>
+                  <span className="text-sm font-semibold text-gold">{avaliacao.nota}/5</span>
                 </div>
                 {avaliacao.comentario ? (
                   <p className="mt-1 text-xs leading-relaxed text-mute">{avaliacao.comentario}</p>
@@ -252,7 +252,7 @@ function BlocoExperiencia() {
 const COR_DO_TOM: Record<TomDoEnvio, string> = {
   enviado: "border-sage/50 text-sage",
   entregue: "border-sage/60 text-sage",
-  lida: "border-cyan-400/60 text-cyan-400",
+  lida: "border-gold/60 text-gold",
   aguardando: "border-line2 text-mute",
   sem_modelo: "border-gold/60 text-gold",
   falhou: "border-brick/50 text-brick",
@@ -298,7 +298,7 @@ function AvisosDaMeta() {
 
 function BlocoEnvios({ irParaConexao }: { irParaConexao: () => void }) {
   const envios = useEnviosDaSecretaria();
-  if (envios.isLoading) return <Carregando />;
+  if (envios.isLoading) return <EsqueletoLista />;
   if (envios.isError)
     return (
       <p className="py-8 text-center text-sm text-brick">Não foi possível carregar os envios.</p>
@@ -839,7 +839,7 @@ function CartaoDeConexao({ painel, tipo }: { painel: PainelDoCortai; tipo: TipoD
 
       {conectando && !qrVisivel ? (
         <div className="mt-5 flex items-center gap-3 border-t border-line pt-4">
-          <Loader2 size={16} className="animate-spin text-gold" aria-hidden />
+          <IndicadorDeCarregamento tamanho={20} decorativo />
           <p className="text-xs text-mute">
             {status === "conectando" || qrExpirado
               ? "Conectando seu WhatsApp…"

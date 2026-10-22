@@ -1,5 +1,5 @@
 import { OrigemDoAgendamento } from "@/components/barbeiro/agenda/OrigemDoAgendamento";
-import { Clock3 } from "lucide-react";
+import { Clock3, Lock } from "lucide-react";
 import { IconeDoEstado } from "@/components/barbeiro/agenda/IconeDoEstado";
 import {
   Fragment,
@@ -7,6 +7,7 @@ import {
   useLayoutEffect,
   useMemo,
   useRef,
+  memo,
   useState,
   type ReactNode,
 } from "react";
@@ -26,7 +27,13 @@ import { ladoDoAgora, publicarAgora } from "@/components/barbeiro/agenda/pilula-
 import { criarBloqueioDeRolagem } from "@/components/barbeiro/agenda/bloqueio-rolagem";
 import { AlcaDeDuracao } from "@/components/barbeiro/agenda/AlcaDeDuracao";
 import { PASSO_DO_AJUSTE_MIN, passoDoGesto } from "@/lib/remarcacao-regras";
-import { usePincaDaTimeline, usePxPorMinuto } from "@/components/barbeiro/agenda/zoom-agenda";
+import {
+  aoCorrigirRolagemDoZoom,
+  PX_PADRAO,
+  usePincaDaTimeline,
+  usePxPorMinuto,
+} from "@/components/barbeiro/agenda/zoom-agenda";
+import { vibrar } from "@/lib/vibrar";
 import { criarToqueLongoVazio } from "@/components/barbeiro/agenda/toque-longo-vazio";
 import {
   corDaCategoria,
@@ -74,11 +81,14 @@ type AgendaTimelineProps = {
   /** Esticar ou encurtar a duração pela alça da base do cartão (variação em minutos). */
   onRedimensionar?: (item: AgendaItem, deltaMin: number) => void;
   /** Segurar o cartão sem arrastar (toque): entra no modo de editar horário. */
-  onEditar?: (item: AgendaItem) => void;
+  onEditar?: (item: AgendaItem, yDoToque?: number) => void;
+  /** Atualiza a âncora do zoom no dedo em movimento sem reabrir o rascunho. */
+  onAtualizarYDoToque?: (id: string, yDoToque: number) => void;
   /** Passo do negócio, em minutos (o arrasto e a alça andam sempre de 5 em 5; veja `passoDoGesto`). */
   passoMin?: number;
   /** Cartão em edição: mostra o intervalo novo ou o motivo de não poder salvar. */
-  edicaoDoCartao?: { id: string } | undefined;
+  /** Cartão em edição e os trechos do horário original que saem do horário proposto (ISO). */
+  edicaoDoCartao?: { id: string; trechos?: { inicio: string; fim: string }[] } | undefined;
   onHorarioVazio?: (horaMin: string) => void;
   destaques?: Set<string>;
   itensEscala?: AgendaItem[];
@@ -96,6 +106,8 @@ type AgendaTimelineProps = {
   vizinhos?: ReactNode;
   /** Página de um dia vizinho dentro da troca de dia: sem rolagem própria nem alinhamento. */
   emCamada?: boolean;
+  /** Bloqueios do dia (já filtrados para esta coluna): faixa visual, sem ponteiros. */
+  bloqueiosDoDia?: { id: string; inicio: string; fim: string; motivo: string | null }[];
 };
 
 const MARGEM_AGORA_MIN = 90;
@@ -136,7 +148,7 @@ function diaDaSemana(dia: string) {
   return new Date(`${dia}T12:00:00Z`).getUTCDay();
 }
 
-export function AgendaTimeline({
+function AgendaTimelineBase({
   dia,
   fuso,
   agora: agoraProp,
@@ -147,6 +159,7 @@ export function AgendaTimeline({
   onMover,
   onRedimensionar,
   onEditar,
+  onAtualizarYDoToque,
   passoMin,
   edicaoDoCartao,
   onHorarioVazio,
@@ -159,6 +172,7 @@ export function AgendaTimeline({
   diaCompleto = false,
   vizinhos,
   emCamada = false,
+  bloqueiosDoDia = [],
 }: AgendaTimelineProps) {
   const relogio = useAgora();
   const agora = agoraProp ?? relogio;
@@ -175,7 +189,11 @@ export function AgendaTimeline({
   const posicionouRef = useRef<string | null>(null);
   const [agoraVisivel, setAgoraVisivel] = useState(true);
   const [arrasto, setArrasto] = useState<{ id: string; dy: number } | null>(null);
-  const [redim, setRedim] = useState<{ id: string; dy: number } | null>(null);
+  const [redim, setRedim] = useState<{ id: string; dy: number } | null>(null); // Desempenho (Figaro só move o cartão arrastado, sem recompor a lista): o estado só muda quando o PASSO
+  // arredondado muda; o deslocamento fino do cartão vai direto no estilo. Sem isto, cada pixel do dedo
+  // re-renderizava a linha do tempo inteira.
+  const ultimoPassoDoArrasto = useRef<number | null>(null);
+  const ultimoPassoDaAlca = useRef<number | null>(null);
   const passo = passoDoGesto(passoMin);
   const gesto = useRef<{
     id: string;
@@ -187,8 +205,21 @@ export function AgendaTimeline({
     longo?: boolean;
     rolagem0: number;
     dy: number;
+    deslocamentoMin: number;
   } | null>(null);
   const bloqueio = useRef<ReturnType<typeof criarBloqueioDeRolagem> | null>(null);
+  useEffect(
+    () =>
+      aoCorrigirRolagemDoZoom((destino, delta) => {
+        const g = gesto.current;
+        if (!g?.ativo || !g.longo) return;
+        if ((destino === window && celularAgora()) || destino === rolagemRef.current) {
+          // Não tratar o scroll de ancoragem do zoom como movimento provocado pelo dedo.
+          g.rolagem0 += delta;
+        }
+      }),
+    [],
+  );
   function travarRolagemDoToque() {
     bloqueio.current ??= criarBloqueioDeRolagem(
       () => Boolean(gesto.current?.ativo) || document.querySelector(".agenda-arrastando") !== null,
@@ -557,6 +588,7 @@ export function AgendaTimeline({
       arrastou: false,
       rolagem0: celularAgora() ? window.scrollY : (rolagemRef.current?.scrollTop ?? 0),
       dy: 0,
+      deslocamentoMin: 0,
     } as NonNullable<typeof gesto.current>;
     const alvo = e.currentTarget as HTMLElement;
     const pid = e.pointerId;
@@ -573,8 +605,9 @@ export function AgendaTimeline({
         g.ativo = true;
         g.longo = true;
         travarRolagemDoToque();
-        setArrasto({ id: item.id, dy: 0 });
-        navigator.vibrate?.(10);
+        // Segurar só arma o cartão; o estado de arrasto nasce quando o dedo realmente se move.
+        onEditar?.(item, g.y0);
+        vibrar("pressao");
       }, 280);
     }
     gesto.current = g;
@@ -582,24 +615,25 @@ export function AgendaTimeline({
   function moverGesto(e: React.PointerEvent) {
     const g = gesto.current;
     if (!g) return;
+    if (g.longo) onAtualizarYDoToque?.(g.id, e.clientY);
     const celular = celularAgora();
     const area = rolagemRef.current;
     const borda = 48;
-    if (g.ativo && celular) {
+    if (g.ativo && g.arrastou && celular) {
       // No celular quem rola é a página: bordas da área livre e window.scrollBy.
       const r = areaLivre();
       if (e.clientY < r.top + borda)
         window.scrollBy(0, -Math.ceil((r.top + borda - e.clientY) / 4));
       else if (e.clientY > r.bottom - borda)
         window.scrollBy(0, Math.ceil((e.clientY - (r.bottom - borda)) / 4));
-    } else if (g.ativo && area) {
+    } else if (g.ativo && g.arrastou && area) {
       const r = area.getBoundingClientRect();
       if (e.clientY < r.top + borda) area.scrollTop -= Math.ceil((r.top + borda - e.clientY) / 4);
       else if (e.clientY > r.bottom - borda)
         area.scrollTop += Math.ceil((e.clientY - (r.bottom - borda)) / 4);
     }
     const rolagemAtual = celular ? window.scrollY : (area?.scrollTop ?? 0);
-    const dy = e.clientY - g.y0 + (rolagemAtual - g.rolagem0);
+    const dy = e.clientY - g.y0 + (g.longo && !g.arrastou ? 0 : rolagemAtual - g.rolagem0);
     if (!g.ativo) {
       if (Math.abs(e.clientY - g.y0) > 10 || Math.abs(e.clientX - g.x0) > 10) {
         window.clearTimeout(g.timer);
@@ -609,35 +643,45 @@ export function AgendaTimeline({
     }
     if (!g.arrastou && Math.abs(dy) < 5) return;
     if (!g.arrastou) {
+      // Ao começar a mover, desconta o scroll que a animação de zoom aplicou até aqui.
+      if (g.longo) g.rolagem0 = rolagemAtual;
+      g.deslocamentoMin = dy / PX_POR_MINUTO;
       try {
         (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
       } catch {
         /* */
       }
+    } else {
+      // Durante a aproximação, cada trecho usa a escala daquele instante, como no Figaro.
+      g.deslocamentoMin += (dy - g.dy) / PX_POR_MINUTO;
     }
     g.arrastou = true;
     e.preventDefault();
     g.dy = dy;
+    // Movimento fino direto no cartão (compositor), sem passar pelo React.
+    (e.currentTarget as HTMLElement).style.transform = `translateY(${dy}px) scale(1.02)`;
+    const passoAtual = Math.round(dy / PX_POR_MINUTO / passo);
+    if (ultimoPassoDoArrasto.current === passoAtual) return;
+    ultimoPassoDoArrasto.current = passoAtual;
     setArrasto({ id: g.id, dy });
   }
-  function fimGesto(item: AgendaItem) {
+  function fimGesto(item: AgendaItem, ySolto?: number) {
     const g = gesto.current;
+    if (g?.longo && ySolto !== undefined) onAtualizarYDoToque?.(g.id, ySolto);
     gesto.current = null;
     soltarRolagemDoToque();
     if (!g) return;
     window.clearTimeout(g.timer);
     const dy = g.id === item.id ? g.dy : 0;
+    ultimoPassoDoArrasto.current = null;
     setArrasto(null);
     if (!g.arrastou) {
-      // Toque longo sem arrastar: abre o modo de edição (como no modelo), sem abrir a ficha.
-      if (g.longo && onEditar) {
-        ignorarClique.current = true;
-        onEditar(item);
-      }
+      // O modo armado já foi aberto no início do toque longo; soltar não deve reabri-lo.
+      if (g.longo) ignorarClique.current = true;
       return;
     }
     ignorarClique.current = true;
-    const delta = Math.round(dy / PX_POR_MINUTO / passo) * passo;
+    const delta = Math.round(g.deslocamentoMin / passo) * passo;
     if (delta !== 0) {
       navigator.vibrate?.(18);
       onMover?.(item, delta);
@@ -832,6 +876,28 @@ export function AgendaTimeline({
               {faixa.fechado ? <span>Fechado</span> : null}
             </div>
           ))}
+          {bloqueiosDoDia.map((b) => {
+            const de = Math.max(minutosNoFuso(b.inicio, fuso), escala.inicio);
+            const ate = Math.min(minutosNoFuso(b.fim, fuso) || 24 * 60, escala.fim);
+            if (ate <= de) return null;
+            return (
+              <div
+                key={b.id}
+                className="agenda-timeline-intervalo agenda-timeline-bloqueio"
+                style={{
+                  top: `${(de - escala.inicio) * PX_POR_MINUTO + deslocamentoAte(de)}px`,
+                  height: `${(ate - de) * PX_POR_MINUTO + deslocamentoAte(ate) - deslocamentoAte(de)}px`,
+                }}
+                role="img"
+                aria-label={`Horário bloqueado, ${horaMinuto(de)} às ${horaMinuto(ate)}${b.motivo ? `, ${b.motivo}` : ""}`}
+              >
+                <span>
+                  <Lock aria-hidden />
+                  {b.motivo || "Bloqueado"}
+                </span>
+              </div>
+            );
+          })}
           {intervalo ? (
             <div
               className="agenda-timeline-intervalo"
@@ -859,6 +925,8 @@ export function AgendaTimeline({
             <div
               key={minuto}
               className={`agenda-timeline-marca ${minuto % 60 === 0 ? "agenda-timeline-hora" : ""}`}
+              // Os traços de meia hora só aparecem depois de dar zoom (acima do tamanho de repouso).
+              data-meia-oculta={minuto % 60 !== 0 && PX_POR_MINUTO <= PX_PADRAO ? "" : undefined}
               style={{
                 top: `${(minuto - escala.inicio) * PX_POR_MINUTO + deslocamentoAte(minuto)}px`,
               }}
@@ -957,6 +1025,31 @@ export function AgendaTimeline({
               : { left: "7px", right: "4px" };
             return (
               <Fragment key={item.id}>
+                {edicaoDoCartao?.id === item.id
+                  ? edicaoDoCartao.trechos?.map((trecho) => {
+                      const de = minutosNoFuso(trecho.inicio, fuso);
+                      const ate = minutosNoFuso(trecho.fim, fuso);
+                      if (ate <= de) return null;
+                      return (
+                        <div
+                          key={`${trecho.inicio}-${trecho.fim}`}
+                          className="agenda-timeline-fantasma"
+                          style={{
+                            top: `${(de - escala.inicio) * PX_POR_MINUTO + deslocamentoAte(de)}px`,
+                            height: `${(ate - de) * PX_POR_MINUTO + deslocamentoAte(ate) - deslocamentoAte(de)}px`,
+                            ...(posicao?.colunas
+                              ? {
+                                  left: `calc(7px + (100% - 11px) * ${posicao.coluna ?? 0} / ${posicao.colunas})`,
+                                  right: "auto",
+                                  width: `calc((100% - 11px) / ${posicao.colunas} - 4px)`,
+                                }
+                              : { left: "7px", right: "4px" }),
+                          }}
+                          aria-hidden
+                        />
+                      );
+                    })
+                  : null}
                 {arrasto?.id === item.id ? (
                   <div
                     className="agenda-timeline-alvo"
@@ -1000,11 +1093,13 @@ export function AgendaTimeline({
                     : {
                         onPointerDown: (e: React.PointerEvent) => inicioGesto(e, item),
                         onPointerMove: moverGesto,
-                        onPointerUp: () => fimGesto(item),
+                        onPointerUp: (e: React.PointerEvent) => fimGesto(item, e.clientY),
                         onPointerCancel: () => {
-                          if (gesto.current) window.clearTimeout(gesto.current.timer);
+                          const cancelado = gesto.current;
+                          if (cancelado) window.clearTimeout(cancelado.timer);
                           gesto.current = null;
                           soltarRolagemDoToque();
+                          ultimoPassoDoArrasto.current = null;
                           setArrasto(null);
                         },
                         onContextMenu: (e: React.MouseEvent) => {
@@ -1081,7 +1176,18 @@ export function AgendaTimeline({
                     }
                     onTravar={travarRolagemDoToque}
                     onSoltar={soltarRolagemDoToque}
-                    onArrastar={(dy) => setRedim(dy === null ? null : { id: item.id, dy })}
+                    onArrastar={(dy) => {
+                      if (dy === null) {
+                        ultimoPassoDaAlca.current = null;
+                        setRedim(null);
+                        return;
+                      }
+                      // Tudo o que usa `redim.dy` já arredonda ao passo: só re-renderiza quando ele muda.
+                      const passoAtual = Math.round(dy / PX_POR_MINUTO / passo);
+                      if (ultimoPassoDaAlca.current === passoAtual) return;
+                      ultimoPassoDaAlca.current = passoAtual;
+                      setRedim({ id: item.id, dy });
+                    }}
                     onConfirmar={(delta) => onRedimensionar(item, delta)}
                   />
                 ) : null}
@@ -1105,3 +1211,6 @@ export function AgendaTimeline({
     </div>
   );
 }
+
+/** Memorizada: a troca de dia e os gestos da tela só a re-renderizam quando algo dela muda. */
+export const AgendaTimeline = memo(AgendaTimelineBase);

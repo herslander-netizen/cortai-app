@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import type { AgendaItem } from "@/lib/barbeiro.functions";
 
-import { agruparPorDia, correspondeABusca } from "./ListaPeriodo";
+import { agruparPorDia, correspondeABusca, tituloDoDia } from "./ListaPeriodo";
 
 const item = (id: string, inicio: string, extra: Partial<AgendaItem> = {}): AgendaItem => ({
   id,
@@ -41,6 +41,11 @@ describe("lista de vários dias", () => {
     ]);
   });
 
+  it("mostra o mês por extenso no cabeçalho de cada dia", () => {
+    expect(tituloDoDia("2026-10-21").curto).toBe("21 de outubro");
+    expect(tituloDoDia("2026-10-28").curto).toBe("28 de outubro");
+  });
+
   it("busca por cliente sem acento, telefone só com números e serviço", () => {
     const i = item("a", "2026-10-23T15:00:00Z");
     expect(correspondeABusca(i, "joao avila")).toBe(true);
@@ -69,8 +74,15 @@ describe("modo lista no celular", () => {
     );
   });
 
-  it("cancelados ficam atrás de um botão e hoje mantém as ações", () => {
+  it("cancelados continuam recolhidos e os cartões não mostram ações inline", () => {
     expect(lista).toContain("Mostrar cancelados");
-    expect(lista).toContain("<AcoesDoItem");
+    expect(lista).not.toContain("<AcoesDoItem");
+    expect(lista).toContain("Toque no cartão para ver opções, remarcar ou cancelar");
+  });
+
+  it("o marcador Hoje mantém contraste independente do tema", () => {
+    expect(lista.replace(/\s+/g, " ")).toContain(
+      'data-hoje className="rounded-full bg-paper px-2 py-0.5 text-xs font-semibold text-ink"',
+    );
   });
 });

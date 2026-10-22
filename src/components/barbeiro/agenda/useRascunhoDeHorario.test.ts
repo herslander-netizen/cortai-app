@@ -31,6 +31,7 @@ function montar(salvar = vi.fn().mockResolvedValue(true)) {
       fuso,
       agora,
       salvar,
+      permanenciaDoSucesso: 0,
     });
     return null;
   }
@@ -81,6 +82,40 @@ describe("rascunho de horário", () => {
       true,
     );
     expect(result.current.rascunho).toBeNull();
+  });
+  it("com permanência, mostra o salvo por 1 s antes de fechar (Figaro)", async () => {
+    vi.useFakeTimers();
+    const salvar = vi.fn().mockResolvedValue(true);
+    const result = { current: null as unknown as Retorno };
+    function Harness() {
+      result.current = useRascunhoDeHorario({
+        itens: [item],
+        dia: "2026-10-09",
+        fuso,
+        agora,
+        salvar,
+      });
+      return null;
+    }
+    const alvo = document.createElement("div");
+    const raiz = createRoot(alvo);
+    act(() => raiz.render(createElement(Harness)));
+    act(() => result.current.propor("a1", 30));
+    let fim: Promise<void> | undefined;
+    await act(async () => {
+      fim = result.current.confirmar();
+      await vi.advanceTimersByTimeAsync(500);
+    });
+    expect(result.current.salvo).toBe(true);
+    expect(result.current.rascunho).not.toBeNull();
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(600);
+      await fim;
+    });
+    expect(result.current.salvo).toBe(false);
+    expect(result.current.rascunho).toBeNull();
+    act(() => raiz.unmount());
+    vi.useRealTimers();
   });
   it("se salvar falhar, o rascunho continua para ajustar", async () => {
     const { result } = montar(vi.fn().mockResolvedValue(false));

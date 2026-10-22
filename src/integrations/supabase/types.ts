@@ -4438,6 +4438,7 @@ export type Database = {
       }
       tenant_page_configs: {
         Row: {
+          is_online: boolean
           created_at: string
           draft_by: string | null
           draft_config: Json
@@ -4448,6 +4449,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          is_online?: boolean
           created_at?: string
           draft_by?: string | null
           draft_config?: Json
@@ -4458,6 +4460,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          is_online?: boolean
           created_at?: string
           draft_by?: string | null
           draft_config?: Json

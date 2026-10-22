@@ -15,7 +15,8 @@ permissions:
 
 concurrency:
   group: cortai-migration-preview
-  cancel-in-progress: true
+  # Não interrompe um deploy já iniciado. O GitHub mantém só a execução pendente mais recente.
+  cancel-in-progress: false
 
 jobs:
   validate-build:
@@ -25,21 +26,23 @@ jobs:
       - name: Checkout migration branch
         uses: actions/checkout@v4
         with:
-          ref: cloudflare-workers-migration-2026-10-13
+          ref: ${{ github.sha }}
       - name: Set up Bun
         uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
       - name: Install dependencies
         run: bun install --frozen-lockfile
+      # Vite/TanStack Router gera src/routeTree.gen.ts; isso precisa ocorrer antes do tsc
+      # quando a branch adiciona uma rota nova. O build continua sendo validado antes dos testes.
+      - name: Build migration preview
+        run: bunx vite build --outDir /tmp/cortai-preview-build
       - name: TypeScript
         env:
           NODE_OPTIONS: --max-old-space-size=4096
         run: bunx tsc --noEmit -p .
       - name: Tests
         run: bunx vitest run
-      - name: Build migration preview
-        run: bunx vite build --outDir /tmp/cortai-preview-build
 
   deploy-isolated-preview:
     needs: validate-build
@@ -103,7 +106,7 @@ jobs:
         if: steps.gate.outputs.ready == 'true'
         uses: actions/checkout@v4
         with:
-          ref: cloudflare-workers-migration-2026-10-13
+          ref: ${{ github.sha }}
       - name: Set up Bun
         if: steps.gate.outputs.ready == 'true'
         uses: oven-sh/setup-bun@v2
@@ -135,6 +138,9 @@ jobs:
           cd dist
           rm -f server/wrangler.json
           mv server client/_worker.js
+          # Marcador exclusivo deste workflow: o smoke test provará qual commit a URL serve.
+          marcador="__deploy-check-${GITHUB_RUN_ID}.json"
+          printf '{"commit":"%s","run_id":"%s"}\n' "$GITHUB_SHA" "$GITHUB_RUN_ID" > "client/$marcador"
           excluir=$(cd client && for f in *; do
             [ "$f" = "_worker.js" ] && continue
             if [ -d "$f" ]; then echo "/$f/*"; else echo "/$f"; fi
@@ -193,3 +199,22 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: bunx wrangler pages deploy dist/client --project-name "${{ steps.endereco.outputs.projeto }}" --branch previa --commit-dirty=true
+      - name: Smoke test da prévia publicada
+        if: steps.gate.outputs.ready == 'true'
+        env:
+          PREVIEW_URL: ${{ steps.endereco.outputs.url }}
+        run: |
+          set -euo pipefail
+          arquivo="__deploy-check-${GITHUB_RUN_ID}.json"
+          alvo="${PREVIEW_URL%/}/${arquivo}?run=${GITHUB_RUN_ID}"
+          for tentativa in $(seq 1 12); do
+            corpo="$(curl -fsS --connect-timeout 5 --max-time 15 "$alvo" 2>/dev/null || true)"
+            if [ -n "$corpo" ] && jq -e --arg commit "$GITHUB_SHA" --arg run "$GITHUB_RUN_ID" '.commit == $commit and .run_id == $run' <<< "$corpo" >/dev/null; then
+              echo "OK: a prévia está servindo o commit $GITHUB_SHA (execução $GITHUB_RUN_ID)."
+              exit 0
+            fi
+            echo "Tentativa ${tentativa}/12: aguardando a URL refletir a publicação."
+            sleep 3
+          done
+          echo "::error::O deploy terminou, mas ${PREVIEW_URL} não serviu o artefato esperado do commit ${GITHUB_SHA}."
+          exit 1

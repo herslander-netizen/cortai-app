@@ -23,7 +23,9 @@ export function RegiaoDeEsqueleto({ children, className, onTentarDeNovo }: Regia
   if (demorou) {
     return (
       <div role="status" aria-live="polite" className={cn("surface p-5", className)}>
-        <p className="text-sm font-semibold text-paper">O carregamento está demorando mais que o esperado.</p>
+        <p className="text-sm font-semibold text-paper">
+          O carregamento está demorando mais que o esperado.
+        </p>
         <p className="mt-1 text-xs text-mute">
           Ainda estamos aguardando os dados. Se a tela não avançar, tente novamente.
         </p>
@@ -174,7 +176,7 @@ export function EsqueletoAgenda({
       {Array.from({ length: linhas }).map((_, i) => (
         <div
           key={i}
-          className="grid min-h-[72px] grid-cols-[56px_minmax(0,1fr)] items-center gap-3 rounded-md border border-line bg-ink2 p-3"
+          className="grid min-h-[72px] grid-cols-[56px_minmax(0,1fr)] items-center gap-3 rounded-[12px] bg-ink2 p-3"
         >
           <Barra w="42px" h={14} />
           <Linhas linhas={2} />
@@ -300,8 +302,43 @@ export function EsqueletoCockpit() {
   );
 }
 
+/**
+ * Casco da área do negócio enquanto a sessão e a rota carregam: barra do topo (logo, mês, ícones), cartões do dia e a
+ * barra flutuante com o "+". Segue a forma real da Agenda para a tela não "pular" quando o conteúdo chega.
+ */
 export function EsqueletoCascoEquipe() {
-  return <EsqueletoCockpit />;
+  return (
+    <RegiaoDeEsqueleto className="mx-auto flex min-h-dvh w-full max-w-[1180px] flex-col px-4 md:px-8">
+      <div className="flex h-14 items-center gap-3">
+        <BlocoEsqueleto className="size-11 shrink-0 rounded-full" />
+        <Barra w="132px" h={20} />
+        <span className="flex-1" />
+        <BlocoEsqueleto className="size-9 rounded-full" />
+        <BlocoEsqueleto className="size-9 rounded-full" />
+      </div>
+      <div className="mt-5 space-y-2">
+        <Barra w="46%" h={22} />
+        <Barra w="30%" h={12} />
+      </div>
+      <div className="mt-5 space-y-3">
+        {Array.from({ length: 3 }).map((_, i) => (
+          <div key={i} className="grid grid-cols-[52px_minmax(0,1fr)] items-start gap-3">
+            <div className="space-y-2 pt-3">
+              <Barra w="40px" h={13} />
+              <Barra w="28px" h={10} />
+            </div>
+            <div className="min-h-[88px] rounded-[12px] bg-ink2 p-4">
+              <Linhas />
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="fixed inset-x-0 bottom-5 mx-auto flex w-full max-w-[1180px] items-center justify-between px-4 md:px-8">
+        <BlocoEsqueleto className="h-14 w-48 rounded-full" />
+        <BlocoEsqueleto className="size-14 rounded-[20px]" />
+      </div>
+    </RegiaoDeEsqueleto>
+  );
 }
 
 export function EsqueletoCascoCliente() {

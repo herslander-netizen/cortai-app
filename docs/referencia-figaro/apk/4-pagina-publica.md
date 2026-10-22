@@ -206,6 +206,7 @@ Agenda (gaveta) ── card "Sua Página" ──▶ Personalizar Página
 - `GET pages/layouts` → `PageLayoutsResponseDto.layouts: List<PageLayoutProfileDto>`.
 - Cada layout: `layout {id, type, name, description}` + `availableThemes`.
 - Cada tema: `theme {id, type, name, description, details, smallCoverImageUri, largeCoverImageUri}` + `colors [{hexCodeLight, hexCodeDark}]` + `availableSections` (cada uma com `type`, `name`, `description`, `details`, `compactPreviewImageUri`, `expandedPreviewImageUri`, `isRequired`).
+- **[código, conferido 24/10]** `compactPreviewImageUri` e `expandedPreviewImageUri` só aparecem nos DTOs, modelos e mapeadores (`CompanyPageSection`, `PageLayoutsMapper`, `PageSettingsMapper`); nenhuma tela do APK as lê. Não há prévia por seção para reproduzir.
 - Isso implica que **as seções e quais são obrigatórias dependem do par layout+tema**. Nomes e descrições chegam localizados via `Accept-Language`.
 - Fontes e tipografia por tema: **sem evidência**. O DTO não traz fonte; só cores e imagens.
 

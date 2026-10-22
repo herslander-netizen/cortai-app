@@ -1,6 +1,6 @@
 # Infraestrutura do Cortaí — leia antes de mexer
 
-Resumo para qualquer IA ou pessoa que trabalhe no projeto (Claude, GPT, Muse). Atualizado em 2026-10-19.
+Resumo para qualquer IA ou pessoa que trabalhe no projeto (Claude, GPT, Muse). Atualizado em 2026-10-21.
 O que cada IA está fazendo e fez fica em `DIARIO.md`. As regras do projeto vêm primeiro: topo do
 `AGENTS.md`, `CLAUDE.md`, `src/lib/AGENTS.md` e `docs/contrato-de-design.md`.
 
@@ -26,21 +26,23 @@ Documentos daquela fase ficam em `docs/historico/`.
 
 ## Recuperação do Figaro (ativa em 18/10/2026)
 
-O APK reencontrado `Figaroo.apk` é a referência original para layout, cartões, fluxos, agenda e movimento. A decisão do dono e o mapa de escopo estão em `DIARIO.md` e `docs/referencia-ux-figaroo-cortai.md`; o contrato obrigatório está em `docs/contrato-de-design.md`. Preservar a experiência antiga verificável, substituir a marca pela marca atual do Cortaí e integrar funções novas sem redesign. A Agenda foi passada ao Codex/GPT em 18/10; seguir `docs/CONTINUAR-CODEX.md` e as reservas ainda listadas no diário. Autorização explícita do dono em 19/10: migrações 0039–0041 somente no projeto isolado `cortai-preview`; nenhuma alteração em `cortai-prod`, `main`, DNS ou site principal.
+O APK reencontrado `Figaroo.apk` é a referência original para layout, cartões, fluxos, agenda e movimento. A decisão do dono e o mapa de escopo estão em `DIARIO.md` e `docs/referencia-ux-figaroo-cortai.md`; o contrato obrigatório está em `docs/contrato-de-design.md`. Preservar a experiência antiga verificável, substituir a marca pela marca atual do Cortaí e integrar funções novas sem redesign. A Agenda foi passada ao Codex/GPT em 18/10; seguir `docs/CONTINUAR-CODEX.md` e as reservas ainda listadas no diário. Autorização explícita do dono em 19/10: migrações 0039–0041 somente no projeto isolado `cortai-preview`; a migração 0042, autorizada no trabalho de 21/10, também é exclusiva da prévia. Nenhuma alteração em `cortai-prod`, `main`, DNS ou site principal.
 
 ## Limites (não negociáveis)
 
 - Trabalhar só na branch `cloudflare-workers-migration-2026-10-13`. Nada de push, merge ou PR na `main`.
 - Não mexer em DNS nem apontar `cortai.dev` sem autorização. Não tocar no projeto `evolution-crm`.
-- Banco: o padrão é não apagar dados nem remover objetos. Exceção autorizada em 19/10: a migração 0039 removeu apenas `NOT NULL` de `agendamentos.cliente_id`, exclusivamente em `cortai-preview`, sem apagar dados, para permitir cliente opcional. As migrações 0039–0041 foram aplicadas manualmente nesse projeto isolado sob autorização explícita; não replicar em `cortai-prod` sem nova autorização. Para produção, continuar usando `aplicar-migracoes-novas.yml` com a confirmação exigida.
+- Banco: o padrão é não apagar dados nem remover objetos. Exceção autorizada em 19/10: a migração 0039 removeu apenas `NOT NULL` de `agendamentos.cliente_id`, exclusivamente em `cortai-preview`, sem apagar dados, para permitir cliente opcional. As migrações 0039–0042 foram aplicadas nesse projeto isolado sob autorização explícita; a 0042 adiciona `tenant_page_configs.is_online BOOLEAN NOT NULL DEFAULT true` para controlar somente a vitrine pública, sem alterar agenda nem link direto de agendamento. Não replicar em `cortai-prod` sem nova autorização. Para produção, continuar usando `aplicar-migracoes-novas.yml` com a confirmação exigida.
 - Segredos nunca no repositório nem no chat; ficam só nos segredos do GitHub, colocados pelo dono.
 - Não reescrever histórico git (sem rebase/force-push). `bun.lock` só muda por `bun install` com motivo.
 - O que cada IA faz sozinha e o que precisa de autorização está no topo do `AGENTS.md`.
 
 ## Prévia e versões
 
-- Em 19/10, o fluxo de novo agendamento no padrão Figaro foi validado automaticamente e publicado na prévia com o banco isolado `cortai-preview`; teste manual no celular ainda pendente. Migrações 0039–0041 são exclusivas da prévia.
+- Em 19/10, o fluxo de novo agendamento no padrão Figaro foi validado automaticamente e publicado na prévia com o banco isolado `cortai-preview`; teste manual no celular ainda pendente. Migrações 0039–0042 são exclusivas da prévia.
 - Cada envio na branch: TypeScript, testes e build; se passar, vai para a prévia.
+- Correção de 2026-10-21 no pipeline: `preview-migration.yml` faz checkout do SHA exato do evento; não cancela um deploy já em andamento; gera um marcador único por run e só termina verde quando `previa.cortaiapp.pages.dev` serve esse marcador com commit/run correspondentes. A fila de concorrência mantém apenas a execução pendente mais recente.
+- A branch de migração não dispara mais o workflow duplicado `validate.yml` em push; sua validação continua integrada à publicação. PRs e os pushes de `main`/`claude/**` continuam validados separadamente.
 - "Mande pra main" (pedido do dono) = rodar **"Lançar versão"**: testa, grava a versão (3.1, 3.2…;
   "grande" vira 4.0), cria a tag `vX.Y` e a Release e publica no site principal.
 - **"Voltar versão"** põe no ar a versão anterior (ou a pedida) na hora, sem novo build.
@@ -75,9 +77,7 @@ Técnicas (detalhes em "Auditoria e segurança" do `CLAUDE.md`):
 - Sete tabelas com escrita de qualquer membro (`clientes`, escalas, bloqueios, fila, indicações,
   preferências de aviso, onboarding).
 - Permissão por ação para a equipe no WhatsApp.
-- Tarefas agendadas do banco (`cron.job`) ainda chamam o Worker antigo
-  `cortai-reconstruction-test-2026…workers.dev`; trocar para o site principal (escrita no banco, com
-  autorização). Depois disso o Worker antigo pode ser apagado na Cloudflare.
+- Tarefas agendadas do banco (`cron.job`) foram corrigidas em 21/10/2026 após autorização explícita do dono: migração `0043_corrigir_agendadores` aplicada em `cortai-prod`. Os dois jobs (`cortai-varredura-whatsapp` a cada 15 min e `cortai-varredura-asaas` a cada 30 min) agora chamam `https://cortaiapp.pages.dev` e usam `timeout_milliseconds := 20000`; consulta posterior confirmou que não resta o host temporário nos comandos. A amostra anterior tinha 34 timeouts em 38 respostas HTTP com limite de 5 s. Falta conferir a primeira resposta HTTP de cada job após a alteração; só depois avaliar remoção do Worker antigo na Cloudflare.
 - Menores: remarcação pela IA recria o agendamento; contagens do ADM presas a 1000 linhas;
   contadores não atômicos; buckets sem limite de tipo/tamanho; casts `as never`.
 

@@ -166,8 +166,8 @@ describe("ListaAgenda", () => {
       item({ id: "a2", status: "chegou" }),
       item({ id: "a3", status: "na_cadeira" }),
     ]);
-    expect(host!.querySelectorAll(".bg-primary")).toHaveLength(1);
-    expect(host!.querySelector(".agenda-item-na_cadeira .bg-primary")).not.toBeNull();
+    expect(host!.querySelectorAll("[class*='--botao-fundo']")).toHaveLength(1);
+    expect(host!.querySelector(".agenda-item-na_cadeira [class*='--botao-fundo']")).not.toBeNull();
   });
 
   it("só mostra Cliente chegou nos 30 minutos anteriores", () => {

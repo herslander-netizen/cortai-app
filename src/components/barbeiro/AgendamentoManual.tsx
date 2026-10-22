@@ -1,5 +1,6 @@
-import { ArrowLeft, CalendarDays, Check, Clock3, FileText, Scissors, UserRound } from "lucide-react";
-import { useState } from "react";
+import { EtapasAnimadas } from "@/components/ui/EtapasAnimadas";
+import { CalendarDays, Check, Clock3, FileText, Scissors, UserRound } from "lucide-react";
+import { useEffect, useState } from "react";
 
 import { ConteudoDoTicket } from "@/components/comanda/FolhaDoTicket";
 import { ConfirmacaoRapida } from "@/components/ui/VistoAnimado";
@@ -7,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { SecaoDeFormulario } from "@/components/ui/formulario/SecaoDeFormulario";
 import { brl } from "@/lib/format";
+import { ESPERA_MS } from "@/lib/movimento-figaro";
 import { TelaDeFormulario } from "@/components/ui/formulario/TelaDeFormulario";
 
 import { SecaoCliente } from "./agendamento-manual/SecaoCliente";
@@ -99,6 +101,15 @@ function Formulario({
   });
   const [verTicket, setVerTicket] = useState(false);
   const [etapa, setEtapa] = useState(0);
+  // Figaro (`CreateReservationFlowScreen`): o botão fica em sucesso (✓ + rótulo) por 1200 ms; só depois
+  // a tela troca para o que vem a seguir (aqui, a comanda).
+  const [mostrarPainel, setMostrarPainel] = useState(false);
+  useEffect(() => {
+    if (!s.confirmado) return;
+    const id = window.setTimeout(() => setMostrarPainel(true), ESPERA_MS.reservaCriada);
+    return () => window.clearTimeout(id);
+  }, [s.confirmado]);
+  const painel = s.confirmado && mostrarPainel;
 
   const servico = s.base?.servicos.find((item) => item.id === s.servicoId);
   const profissional = s.base?.profissionais.find((item) => item.id === s.profissionalId);
@@ -124,12 +135,13 @@ function Formulario({
     { titulo: "Horário", detalhe: "Dia e hora do atendimento" },
     { titulo: "Resumo", detalhe: "Confira antes de confirmar" },
   ];
-  const podeAvancar = [
-    Boolean(s.semCliente || s.clienteId || (s.novo && s.nomeValido && s.telefoneValido)),
-    Boolean(s.servicoId && s.profissionalId),
-    Boolean(s.data && s.horaMin),
-    s.pronto,
-  ][etapa] ?? false;
+  const podeAvancar =
+    [
+      Boolean(s.semCliente || s.clienteId || (s.novo && s.nomeValido && s.telefoneValido)),
+      Boolean(s.servicoId && s.profissionalId),
+      Boolean(s.data && s.horaMin),
+      s.pronto,
+    ][etapa] ?? false;
 
   return (
     <TelaDeFormulario
@@ -137,21 +149,36 @@ function Formulario({
       subtitulo={etapas[etapa]?.detalhe ?? "Agendamento em etapas."}
       sujo={s.sujo && !s.confirmado}
       onFechar={onFechar}
-      {...(s.confirmado
+      {...(painel || etapa === 0
         ? {}
-        : {
-            acao: {
-              rotulo: etapa < etapas.length - 1 ? "Continuar" : "Confirmar agendamento",
-              onClick: () => {
-                if (etapa < etapas.length - 1) setEtapa((atual) => Math.min(atual + 1, 3));
-                else void s.salvar();
+        : { onVoltar: () => setEtapa((atual) => Math.max(0, atual - 1)) })}
+      {...(painel ? {} : { compacto: { passo: etapas[etapa]?.titulo ?? "", indice: etapa } })}
+      {...(painel
+        ? {}
+        : s.confirmado
+          ? {
+              acao: {
+                rotulo: "Confirmar agendamento",
+                onClick: () => {},
+                sucesso: true,
+                morfo: true,
+                flutuante: { icone: "visto" },
               },
-              desabilitada: !podeAvancar,
-              carregando: s.salvando,
-            },
-          })}
+            }
+          : {
+              acao: {
+                rotulo: etapa < etapas.length - 1 ? "Continuar" : "Confirmar agendamento",
+                onClick: () => {
+                  if (etapa < etapas.length - 1) setEtapa((atual) => Math.min(atual + 1, 3));
+                  else void s.salvar();
+                },
+                desabilitada: !podeAvancar,
+                carregando: s.salvando,
+                flutuante: { icone: etapa < etapas.length - 1 ? "seta" : "visto" },
+              },
+            })}
     >
-      {s.confirmado ? (
+      {painel ? (
         <>
           <ConfirmacaoRapida texto="Pronto. Agendamento criado." />
           {s.criado?.comandaId && verTicket ? (
@@ -179,78 +206,63 @@ function Formulario({
         </>
       ) : (
         <>
-          <div role="group" aria-label={"Etapa " + (etapa + 1) + " de " + etapas.length} className="space-y-3">
-            <div className="grid grid-cols-4 gap-2" aria-hidden="true">
-              {etapas.map((item, indice) => (
-                <span
-                  key={item.titulo}
-                  className={"h-1.5 rounded-full " + (indice <= etapa ? "bg-gold" : "bg-ink3")}
-                />
-              ))}
-            </div>
-            <div className="flex items-center justify-between gap-3">
-              <p className="text-sm font-semibold text-paper">
-                Etapa {etapa + 1} de {etapas.length} · {etapas[etapa]?.titulo}
-              </p>
-              {etapa > 0 ? (
-                <Button
-                  variant="ghost"
-                  type="button"
-                  className="h-10 rounded-full px-3"
-                  onClick={() => setEtapa((atual) => Math.max(0, atual - 1))}
-                >
-                  <ArrowLeft size={16} aria-hidden />
-                  Voltar
-                </Button>
-              ) : null}
-            </div>
-          </div>
-
-          {etapa === 0 ? <SecaoCliente s={s} /> : null}
-          {etapa === 1 ? <SecaoServico s={s} /> : null}
-          {etapa === 2 ? <SecaoHorario s={s} /> : null}
-          {etapa === 3 ? (
-            <>
-              <SecaoDeFormulario rotulo="Confira o atendimento">
-                <Card density="none" className="overflow-hidden">
-                  <div className="flex items-start gap-3 border-b border-line p-4">
-                    <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-ink3 text-gold">
-                      <Scissors size={18} aria-hidden />
-                    </span>
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate font-semibold text-paper">{servico?.nome ?? "Serviço"}</p>
-                      <p className="mt-1 text-sm text-mute">
-                        {servico?.duracao_min ?? "—"} min · {servico ? brl(servico.preco_centavos) : "Preço a confirmar"}
+          <EtapasAnimadas etapa={etapa} fluxo>
+            {etapa === 0 ? <SecaoCliente s={s} /> : null}
+            {etapa === 1 ? <SecaoServico s={s} /> : null}
+            {etapa === 2 ? <SecaoHorario s={s} /> : null}
+            {etapa === 3 ? (
+              <>
+                <SecaoDeFormulario rotulo="Confira o atendimento">
+                  <Card density="none" className="overflow-hidden">
+                    <div className="flex items-start gap-3 border-b border-line p-4">
+                      <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-ink3 text-gold">
+                        <Scissors size={18} aria-hidden />
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate font-semibold text-paper">
+                          {servico?.nome ?? "Serviço"}
+                        </p>
+                        <p className="mt-1 text-sm text-mute">
+                          {servico?.duracao_min ?? "—"} min ·{" "}
+                          {servico ? brl(servico.preco_centavos) : "Preço a confirmar"}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="space-y-3 p-4 text-sm">
+                      <p className="flex items-center gap-2 text-paper">
+                        <UserRound size={16} className="text-mute" aria-hidden />
+                        <span>{profissional?.nome ?? "Profissional"}</span>
+                      </p>
+                      <p className="flex items-center gap-2 text-paper">
+                        <CalendarDays size={16} className="text-mute" aria-hidden />
+                        <span className="capitalize">{dataResumo}</span>
+                      </p>
+                      <p className="flex items-center gap-2 text-paper">
+                        <Clock3 size={16} className="text-mute" aria-hidden />
+                        <span>{s.horaMin}</span>
+                      </p>
+                      <p className="flex items-center gap-2 text-paper">
+                        <Check size={16} className="text-mute" aria-hidden />
+                        <span>
+                          {s.semCliente
+                            ? "Sem cliente vinculado"
+                            : nomeCliente || "Cliente não selecionado"}
+                        </span>
+                      </p>
+                      <p className="border-t border-line pt-3 text-mute">
+                        Forma de pagamento:{" "}
+                        <span className="font-semibold text-paper">
+                          {s.semCliente ? "A definir após vincular cliente" : pagamento}
+                        </span>
                       </p>
                     </div>
-                  </div>
-                  <div className="space-y-3 p-4 text-sm">
-                    <p className="flex items-center gap-2 text-paper">
-                      <UserRound size={16} className="text-mute" aria-hidden />
-                      <span>{profissional?.nome ?? "Profissional"}</span>
-                    </p>
-                    <p className="flex items-center gap-2 text-paper">
-                      <CalendarDays size={16} className="text-mute" aria-hidden />
-                      <span className="capitalize">{dataResumo}</span>
-                    </p>
-                    <p className="flex items-center gap-2 text-paper">
-                      <Clock3 size={16} className="text-mute" aria-hidden />
-                      <span>{s.horaMin}</span>
-                    </p>
-                    <p className="flex items-center gap-2 text-paper">
-                      <Check size={16} className="text-mute" aria-hidden />
-                      <span>{s.semCliente ? "Sem cliente vinculado" : nomeCliente || "Cliente não selecionado"}</span>
-                    </p>
-                    <p className="border-t border-line pt-3 text-mute">
-                      Forma de pagamento: <span className="font-semibold text-paper">{s.semCliente ? "A definir após vincular cliente" : pagamento}</span>
-                    </p>
-                  </div>
-                </Card>
-              </SecaoDeFormulario>
-              {!s.semCliente ? <SecaoPagamento s={s} /> : null}
-              {!s.semCliente ? <AvisosAgendamento s={s} /> : null}
-            </>
-          ) : null}
+                  </Card>
+                </SecaoDeFormulario>
+                {!s.semCliente ? <SecaoPagamento s={s} /> : null}
+                {!s.semCliente ? <AvisosAgendamento s={s} /> : null}
+              </>
+            ) : null}
+          </EtapasAnimadas>
         </>
       )}
     </TelaDeFormulario>

@@ -1,12 +1,23 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useConfirmar } from "@/components/ui/useConfirmar";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Building2, ChevronRight, LogOut, Palette, Share2, UserRound } from "lucide-react";
+import { Building2, CreditCard, Eye, Info, LogOut, Mail, Share2 } from "lucide-react";
 
 import { Screen } from "@/components/layout/Screen";
+import {
+  AvisoDeConfiguracao,
+  CartaoDePerfil,
+  GrupoDeLinhas,
+  LinhaDeConfiguracao,
+  SecaoDeConfiguracao,
+} from "@/components/ui/formulario/LinhasDeConfiguracao";
+import { statusDaConta } from "@/lib/seguranca-conta.functions";
+import { APP_VERSION } from "@/lib/versao";
+import { rotuloDoPapel } from "@/lib/navigation";
+import { supabase } from "@/integrations/supabase/client";
 import { AlterarSenha } from "@/components/acesso/AlterarSenha";
 import { PreferenciasDicas } from "@/components/guia/PreferenciasDicas";
 import { InstalarCortai } from "@/components/pwa/InstalarCortai";
@@ -24,9 +35,12 @@ import { aviso } from "@/lib/avisos";
 export const Route = createFileRoute("/barbeiro/conta")({
   head: () => ({
     meta: [
-      { title: "Conta e negócio — Cortaí Gestão" },
-      { name: "description", content: "Dados da sua conta, do negócio e saída segura do Cortaí." },
-      { property: "og:title", content: "Conta e negócio — Cortaí Gestão" },
+      { title: "Opções da conta — Cortaí Gestão" },
+      {
+        name: "description",
+        content: "Perfil, formas de entrar, assinatura e saída segura do Cortaí.",
+      },
+      { property: "og:title", content: "Opções da conta — Cortaí Gestão" },
       { property: "og:description", content: "Sua conta e seu negócio no Cortaí." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -40,6 +54,24 @@ function ContaPage() {
   const [confirmar, dialogo] = useConfirmar();
   const { data } = useQuery({ queryKey: ["sessao"], queryFn: () => getSessao() });
   const [saindo, setSaindo] = useState(false);
+  const consultarConta = useServerFn(statusDaConta);
+  const { data: conta } = useQuery({
+    queryKey: ["seguranca-conta"],
+    queryFn: () => consultarConta(),
+    staleTime: 30_000,
+  });
+  const [reenviando, setReenviando] = useState(false);
+  async function reenviarConfirmacao() {
+    if (!data?.email) {
+      aviso.erro("Não encontrei o e-mail da conta. Entre de novo e tente outra vez.");
+      return;
+    }
+    setReenviando(true);
+    const { error } = await supabase.auth.resend({ type: "signup", email: data.email });
+    setReenviando(false);
+    if (error) aviso.erro("Não foi possível enviar agora. Tente de novo em instantes.");
+    else aviso.ok(`Enviamos o link de confirmação para ${data.email}.`);
+  }
   const queryClient = useQueryClient();
   const salvarSegmento = useServerFn(alterarSegmento);
   const trocarAtalhos = useServerFn(trocarAtalhosDaFicha);
@@ -50,90 +82,131 @@ function ContaPage() {
     if (data?.segmento) setSegmento(data.segmento);
   }, [data?.segmento]);
 
+  const papel =
+    data?.papelNaEquipe === "dono" ? "Proprietário" : rotuloDoPapel(data?.papelNaEquipe);
+  const podeEditarNegocio = Boolean(data?.permissoes.includes("alterar_dados_barbearia"));
+
   return (
-    <Screen voltarPara="/barbeiro/mais" title="Conta" subtitle="Seus dados e os do seu negócio.">
+    <Screen
+      voltarPara="/barbeiro/mais"
+      title="Opções da conta"
+      subtitle="Gerencie seu perfil, as formas de entrar e a assinatura."
+    >
       {dialogo}
-      <div className="flex items-center gap-4 border-b border-line pb-6">
-        <span className="flex h-14 w-14 items-center justify-center rounded-full bg-ink2 text-gold">
-          <UserRound size={22} />
-        </span>
-        <div className="min-w-0">
-          <p className="truncate font-semibold text-paper">{data?.nome ?? "Minha conta"}</p>
-          <p className="mt-1 truncate text-xs text-mute">{data?.email ?? "Conta conectada"}</p>
+      <div className="pb-6">
+        {/* Como no Figaro (`AccountSettingsScreen`): perfil, aviso de e-mail, formas de entrar, assinatura e saída. */}
+        <div className="mt-6">
+          <CartaoDePerfil
+            nome={data?.nome ?? "Minha conta"}
+            email={data?.email ?? null}
+            papel={papel}
+          />
         </div>
+        {conta && !conta.emailVerificado ? (
+          <div className="mt-3">
+            <AvisoDeConfiguracao
+              titulo="Verifique seu e-mail"
+              texto="Confirme sua conta para aproveitar todos os recursos."
+              acao={
+                <Button
+                  type="button"
+                  size="sm"
+                  loading={reenviando}
+                  onClick={() => void reenviarConfirmacao()}
+                >
+                  Verificar agora
+                </Button>
+              }
+            />
+          </div>
+        ) : null}
+
+        <SecaoDeConfiguracao titulo="Formas de entrar">
+          <GrupoDeLinhas>
+            <LinhaDeConfiguracao
+              icone={Mail}
+              titulo="E-mail"
+              suporte={data?.email ?? "Conta conectada"}
+              fim={conta ? (conta.emailVerificado ? "Verificado" : "Pendente") : ""}
+            />
+            <li>
+              <AlterarSenha emGrupo />
+            </li>
+          </GrupoDeLinhas>
+        </SecaoDeConfiguracao>
+
+        <SecaoDeConfiguracao titulo="Assinatura">
+          <GrupoDeLinhas>
+            <LinhaDeConfiguracao
+              para="/barbeiro/plano"
+              icone={CreditCard}
+              titulo="Gerenciar assinatura"
+              suporte="Plano, cobranças e histórico"
+            />
+          </GrupoDeLinhas>
+        </SecaoDeConfiguracao>
+
+        <SecaoDeConfiguracao titulo="Seu negócio">
+          <GrupoDeLinhas>
+            {podeEditarNegocio ? (
+              <LinhaDeConfiguracao
+                para="/barbeiro/negocio"
+                icone={Building2}
+                titulo="Informações básicas"
+                suporte={data?.tenantNome ?? "Sem negócio vinculado"}
+              />
+            ) : null}
+            <LinhaDeConfiguracao
+              para="/barbeiro/sua-pagina"
+              icone={Eye}
+              titulo="Sua Página"
+              suporte="Link, QR Code e situação da página"
+            />
+            {data?.tenantSlug ? (
+              <LinhaDeConfiguracao
+                href={`/b/${data.tenantSlug}`}
+                icone={Share2}
+                titulo="Ver página pública"
+              />
+            ) : null}
+          </GrupoDeLinhas>
+        </SecaoDeConfiguracao>
+
+        <SecaoDeConfiguracao titulo="Aparência e aplicativo">
+          <div className="cartao-config">
+            <ThemeToggle
+              identidadeDaBarbearia={data?.identidadeApp}
+              tenantId={data?.tenantId ?? undefined}
+              podeAlterarIdentidade={data?.papelNaEquipe === "dono"}
+            />
+          </div>
+          <div className="cartao-config mt-3">
+            <InstalarCortai />
+          </div>
+        </SecaoDeConfiguracao>
+
+        <SecaoDeConfiguracao>
+          <GrupoDeLinhas>
+            <LinhaDeConfiguracao
+              icone={Info}
+              titulo="Versão do aplicativo"
+              fim={`Cortaí ${APP_VERSION}`}
+            />
+            <LinhaDeConfiguracao
+              icone={LogOut}
+              titulo={saindo ? "Saindo…" : "Sair da conta"}
+              desabilitada={saindo}
+              aoTocar={() => {
+                setSaindo(true);
+                void sair();
+              }}
+            />
+          </GrupoDeLinhas>
+        </SecaoDeConfiguracao>
       </div>
 
-      <ul className="mt-3">
-        {data?.permissoes.includes("alterar_dados_barbearia") ? (
-          <li className="border-b border-line">
-            <div className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4 py-5">
-              <Building2 size={18} className="text-mute" />
-              <span className="min-w-0">
-                <span className="block text-sm text-paper">Negócio</span>
-                <span className="mt-0.5 block truncate text-xs text-mute">
-                  {data?.tenantNome ?? "Sem negócio vinculado"}
-                </span>
-              </span>
-            </div>
-          </li>
-        ) : null}
-        {data?.tenantSlug ? (
-          <li className="border-b border-line">
-            <a
-              href={`/b/${data.tenantSlug}`}
-              target="_blank"
-              rel="noreferrer"
-              className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4 py-5"
-            >
-              <Share2 size={18} className="text-mute" />
-              <span className="text-sm text-paper">Ver página pública</span>
-              <ChevronRight size={16} className="text-mute2" />
-            </a>
-          </li>
-        ) : null}
-        <li className="border-b border-line">
-          <Link
-            to="/barbeiro/marca"
-            className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4 py-5"
-          >
-            <Palette size={18} className="text-mute" />
-            <span className="text-sm text-paper">Página e marca</span>
-            <ChevronRight size={16} className="text-mute2" />
-          </Link>
-        </li>
-        <li>
-          <AlterarSenha />
-        </li>
-        <li>
-          <ThemeToggle
-            identidadeDaBarbearia={data?.identidadeApp}
-            tenantId={data?.tenantId ?? undefined}
-            podeAlterarIdentidade={data?.papelNaEquipe === "dono"}
-          />
-        </li>
-        <li>
-          <InstalarCortai />
-        </li>
-        <li className="border-b border-line">
-          <Button
-            variant="ghost"
-            type="button"
-            disabled={saindo}
-            onClick={() => {
-              setSaindo(true);
-              void sair();
-            }}
-            className="grid w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4 py-5 text-left disabled:opacity-50"
-          >
-            <LogOut size={18} className="text-mute" />
-            <span className="text-sm text-paper">{saindo ? "Saindo…" : "Sair da conta"}</span>
-            <ChevronRight size={16} className="text-mute2" />
-          </Button>
-        </li>
-      </ul>
-
       {data?.permissoes.includes("alterar_dados_barbearia") ? (
-        <section className="border-b border-line py-5">
+        <section className="cartao-config mb-3">
           <label className="block text-xs font-medium text-mute">
             Tipo de negócio
             <select
@@ -195,9 +268,15 @@ function ContaPage() {
         </section>
       ) : null}
 
-      <SegurancaDaConta />
-      <PreferenciasDicas />
-      <PreferenciasDePrivacidade />
+      <div className="cartao-config mb-3">
+        <SegurancaDaConta />
+      </div>
+      <div className="cartao-config mb-3">
+        <PreferenciasDicas />
+      </div>
+      <div className="cartao-config">
+        <PreferenciasDePrivacidade />
+      </div>
     </Screen>
   );
 }

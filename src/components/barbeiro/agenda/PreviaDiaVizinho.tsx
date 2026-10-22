@@ -1,5 +1,5 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect } from "react";
+import { useDeferredValue, useEffect } from "react";
 import type { Ref } from "react";
 
 import { AgendaTimeline } from "@/components/barbeiro/AgendaTimeline";
@@ -143,18 +143,22 @@ export function CamadasVizinhas({
   discreto: boolean;
   diaCompleto?: boolean;
 }) {
+  // Os vizinhos estão fora da tela: na troca de dia o commit urgente renderiza só o dia que entra
+  // e as duas camadas se atualizam logo depois, em prioridade baixa (menos trabalho no quadro do
+  // soltar do dedo).
+  const diaDasCamadas = useDeferredValue(diaAtual);
   return (
     <>
       <CamadaVizinha
         lado="anterior"
-        dia={somarDias(diaAtual, -1)}
+        dia={somarDias(diaDasCamadas, -1)}
         profissionalId={profissionalId}
         discreto={discreto}
         diaCompleto={diaCompleto}
       />
       <CamadaVizinha
         lado="proximo"
-        dia={somarDias(diaAtual, 1)}
+        dia={somarDias(diaDasCamadas, 1)}
         profissionalId={profissionalId}
         discreto={discreto}
         diaCompleto={diaCompleto}
@@ -201,6 +205,8 @@ function CamadaVizinha({
         discreto={discreto}
         diaCompleto={diaCompleto}
       />
+      {/* Os pontos do fim também vêm com a página: não podem aparecer do nada quando ela assenta. */}
+      <MarcaDoLimiteDoDia className="agenda-dia-vizinha-pontos-fim" />
     </div>
   );
 }

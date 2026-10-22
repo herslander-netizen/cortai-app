@@ -42,7 +42,7 @@ export function AtivarAvisosNoAparelho({
       <div
         role="dialog"
         aria-label="Ativar avisos"
-        className="pointer-events-auto w-full max-w-[420px] rounded-2xl border border-line bg-ink3 p-4 shadow-xl"
+        className="pointer-events-auto w-full max-w-[420px] rounded-2xl border border-line bg-ink3 p-4 shadow-[var(--elevacao-8)]"
       >
         <div className="flex items-start gap-3">
           <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-line text-gold">

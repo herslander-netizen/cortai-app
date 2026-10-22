@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useServerFn } from "@tanstack/react-start";
 import { Sparkles } from "lucide-react";
 
@@ -8,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { DIAS_DA_SEMANA, type HorarioSugerido } from "@/lib/ia/assistente";
 import { interpretarHorarios } from "@/lib/assistente.functions";
 import { SEGMENTOS_CONFIG, segmentoValido, type Segmento } from "@/lib/segmentos";
+import { MOLA } from "@/lib/movimento-figaro";
 
 export function EditorDeHorarios({
   horarios,
@@ -20,6 +22,7 @@ export function EditorDeHorarios({
   semIA?: boolean;
   segmento?: Segmento;
 }) {
+  const reduzirMovimento = useReducedMotion();
   const interpretar = useServerFn(interpretarHorarios);
   const [texto, setTexto] = useState("");
   const [pensando, setPensando] = useState(false);
@@ -65,27 +68,53 @@ export function EditorDeHorarios({
                 />
                 Aberto
               </label>
-              {h.fechado ? (
-                <span className="text-xs text-mute2">Fechado</span>
-              ) : (
-                <span className="flex items-center gap-2">
-                  <input
-                    type="time"
-                    aria-label={`${DIAS_DA_SEMANA[h.diaSemana]} abre`}
-                    value={h.abre}
-                    onChange={(e) => atualizar(h.diaSemana, { abre: e.target.value })}
-                    className="field-control w-auto px-2 text-sm"
-                  />
-                  <span className="text-xs text-mute2">às</span>
-                  <input
-                    type="time"
-                    aria-label={`${DIAS_DA_SEMANA[h.diaSemana]} fecha`}
-                    value={h.fecha}
-                    onChange={(e) => atualizar(h.diaSemana, { fecha: e.target.value })}
-                    className="field-control w-auto px-2 text-sm"
-                  />
-                </span>
-              )}
+              <AnimatePresence initial={false} mode="wait">
+                {h.fechado ? (
+                  <motion.div
+                    key="fechado"
+                    initial={reduzirMovimento ? false : { opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0 }}
+                    transition={
+                      reduzirMovimento
+                        ? { duration: 0 }
+                        : { height: MOLA.tamanho, opacity: MOLA.padraoEfeito }
+                    }
+                    className="overflow-hidden text-xs text-mute2"
+                  >
+                    Fechado
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="aberto"
+                    initial={reduzirMovimento ? false : { opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0 }}
+                    transition={
+                      reduzirMovimento
+                        ? { duration: 0 }
+                        : { height: MOLA.tamanho, opacity: MOLA.padraoEfeito }
+                    }
+                    className="flex items-center gap-2 overflow-hidden"
+                  >
+                    <input
+                      type="time"
+                      aria-label={`${DIAS_DA_SEMANA[h.diaSemana]} abre`}
+                      value={h.abre}
+                      onChange={(e) => atualizar(h.diaSemana, { abre: e.target.value })}
+                      className="field-control w-auto px-2 text-sm"
+                    />
+                    <span className="text-xs text-mute2">às</span>
+                    <input
+                      type="time"
+                      aria-label={`${DIAS_DA_SEMANA[h.diaSemana]} fecha`}
+                      value={h.fecha}
+                      onChange={(e) => atualizar(h.diaSemana, { fecha: e.target.value })}
+                      className="field-control w-auto px-2 text-sm"
+                    />
+                  </motion.div>
+                )}
+              </AnimatePresence>
               {!h.fechado ? (
                 h.intervaloInicio && h.intervaloFim ? (
                   <span className="flex w-full flex-wrap items-center gap-2 pl-0 text-xs text-mute sm:flex-nowrap sm:pl-20">

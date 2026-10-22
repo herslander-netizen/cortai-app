@@ -56,8 +56,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { title: "Cortaí — Gestão e tecnologia para negócios de Beleza" },
       {
         name: "description",
-        content:
-          "Agenda, WhatsApp e gestão para barbearias, salões e negócios de beleza.",
+        content: "Agenda, WhatsApp e gestão para barbearias, salões e negócios de beleza.",
       },
       { property: "og:site_name", content: "Cortaí" },
       { property: "og:type", content: "website" },
@@ -74,7 +73,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
         rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap",
+        href: "https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Poppins:wght@500;600;700&display=swap",
       },
       { rel: "icon", href: "/favicon-cortai-v3.png", type: "image/png", sizes: "any" },
       { rel: "apple-touch-icon", sizes: "180x180", href: "/apple-touch-icon-cortai-v2.png" },
@@ -94,7 +93,7 @@ function RootShell({ children }: { children: ReactNode }) {
         <HeadContent />
         <script
           dangerouslySetInnerHTML={{
-            __html: `try{var d=document.documentElement,m=localStorage.getItem("cortai-modo-v2")||"escuro",l=m==="claro"||(m==="sistema"&&matchMedia("(prefers-color-scheme: light)").matches);d.dataset.identidade="moderno";d.classList.toggle("light",l);d.classList.toggle("dark",!l);var t=document.createElement("meta");t.name="theme-color";t.content=l?"#E9F1EB":"#1A1F1C";document.head.appendChild(t)}catch{}`,
+            __html: `try{var d=document.documentElement,m=localStorage.getItem("cortai-modo-v2")||"escuro",l=m==="claro"||(m==="sistema"&&matchMedia("(prefers-color-scheme: light)").matches);var i=localStorage.getItem("cortai-identidade-v1");d.dataset.identidade=location.pathname.indexOf("/barbeiro")===0&&/^(moderno|rose|indigo|copper|classico)$/.test(i)?i:"moderno";d.classList.toggle("light",l);d.classList.toggle("dark",!l);var t=document.createElement("meta");t.name="theme-color";t.content=l?"#E9F1EB":"#1A1F1C";document.head.appendChild(t)}catch{}`,
           }}
         />
       </head>

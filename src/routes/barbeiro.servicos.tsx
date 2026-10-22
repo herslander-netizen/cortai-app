@@ -17,6 +17,7 @@ import {
   type ConfiguracaoInicial,
 } from "@/lib/onboarding.functions";
 import { brl } from "@/lib/format";
+import { ESPERA_MS } from "@/lib/movimento-figaro";
 
 export const Route = createFileRoute("/barbeiro/servicos")({
   ssr: false,
@@ -159,7 +160,10 @@ function ServicosPage() {
         merged = originais.map((servico) => (servico.id === original.id ? editado : servico));
         merged.push(...validosDoRascunho.filter((servico) => servico.id !== original.id));
       } else {
-        merged = [...originais.filter((servico) => servico.id !== original.id), ...validosDoRascunho];
+        merged = [
+          ...originais.filter((servico) => servico.id !== original.id),
+          ...validosDoRascunho,
+        ];
         removerOriginalDepois = true;
       }
     } else {
@@ -195,11 +199,13 @@ function ServicosPage() {
       if (removerOriginalDepois && original?.id) await remover({ data: { id: original.id } });
       const atualizado = await refetch();
       setServicos(atualizado.data ? mapearServicos(atualizado.data) : validos);
+      // Figaro: o botão mostra ✓ + rótulo por 700 ms antes de a tela fechar.
+      setEstado("salvo");
+      await new Promise((resolver) => window.setTimeout(resolver, ESPERA_MS.sucessoDoBotao));
       setModoEditor(null);
       setIdEditando(null);
       setRascunho([]);
       setRascunhoOriginal("");
-      setEstado("salvo");
     } catch (e) {
       setEstado("pronto");
       setErro(e instanceof Error ? e.message : "Não consegui salvar agora.");
@@ -238,7 +244,8 @@ function ServicosPage() {
                           <p className="truncate font-semibold text-paper">{servico.nome}</p>
                           <p className="mt-1 text-xs text-mute">{servico.categoria || "Serviço"}</p>
                           <p className="mt-2 text-sm text-mute">
-                            {servico.duracaoMin} min <span aria-hidden>·</span> {brl(servico.precoCentavos)}
+                            {servico.duracaoMin} min <span aria-hidden>·</span>{" "}
+                            {brl(servico.precoCentavos)}
                           </p>
                         </div>
                         <Button
@@ -299,8 +306,11 @@ function ServicosPage() {
                 ? "Remover serviço"
                 : "Salvar serviço",
             onClick: () => void salvarEditor(),
-            desabilitada: estado === "salvando" || !podeSalvar,
+            desabilitada: estado === "salvando" || (estado !== "salvo" && !podeSalvar),
             carregando: estado === "salvando",
+            sucesso: estado === "salvo" && modoEditor !== null,
+            morfo: true,
+            flutuante: { icone: "visto" },
           }}
         >
           <EditorDeServicos

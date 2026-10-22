@@ -1,9 +1,10 @@
 import { Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { History, Loader2 } from "lucide-react";
+import { History } from "lucide-react";
 import { useState } from "react";
 
+import { IndicadorDeCarregamento } from "@/components/ui/IndicadorDeCarregamento";
 import { IconeWhatsApp } from "@/components/comanda/FolhaDoTicket";
 import { Carregando } from "@/components/layout/Carregando";
 import { Button } from "@/components/ui/button";
@@ -98,7 +99,9 @@ export function CentralDeAutomacao() {
             {central.numero ? <p className="mt-0.5 text-sm text-mute">{central.numero}</p> : null}
           </div>
           <div className="flex shrink-0 items-center gap-2 pt-1">
-            {trocando ? <Loader2 className="size-4 animate-spin text-mute" aria-hidden /> : null}
+            {trocando ? (
+              <IndicadorDeCarregamento tamanho={20} decorativo className="text-mute" />
+            ) : null}
             <Switch
               checked={central.automacaoLigada}
               disabled={!podeGerenciar || trocando}

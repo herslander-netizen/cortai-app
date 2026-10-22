@@ -129,7 +129,9 @@ describe("troca de dia em páginas no celular (como no vídeo de referência)", 
   });
 
   it("o dia vizinho entra ao lado com as próprias horas e pontinhos", () => {
-    expect(operacional).toMatch(/vizinhos=\{\s*celular \? \(\s*<CamadasVizinhas/);
+    // O vizinho é memorizado (vizinhosMemo) e passado à linha do tempo.
+    expect(operacional).toMatch(/vizinhos=\{vizinhosMemo\}/);
+    expect(operacional).toMatch(/vizinhosMemo = useMemo\([\s\S]*?celular \? \([\s\S]*?<CamadasVizinhas/);
     expect(previa).toContain("<MarcaDoLimiteDoDia");
     expect(css).not.toMatch(/\.agenda-dia-vizinha \.agenda-timeline-marca/);
     expect(css).toContain("left: calc(-100% - 2 * var(--calha-das-horas) - var(--trilho-vao));");
@@ -148,10 +150,40 @@ describe("troca de dia em páginas no celular (como no vídeo de referência)", 
     expect(semana).not.toContain("translate3d(${lado * 36}%,0,0)");
   });
 
-  it("o calendário do mês cresce por cima da Agenda, sem empurrar a página", () => {
+  it("o calendário desce primeiro e a timeline vem atrás: duas molas do Figaro em série (1,0 / 400)", () => {
     expect(semana).not.toContain('mode="wait"');
-    expect(semana).toContain("animate={{ height: ALTURA_DO_MES + 12 }}");
-    expect(semana).not.toContain('height: expandido ? ALTURA_DO_MES : "auto"');
+    // `expandSizeSpringDp` do APK: amortecimento 1 (damping 40 com massa 1) e rigidez 400.
+    expect(semana).toMatch(/const MOLA_DO_FIGARO = \{\s*stiffness: 400,\s*damping: 40,\s*mass: 1,/);
+    // Mola 1 leva o painel ao alvo; mola 2 persegue a altura já animada do painel (o espaço da Agenda).
+    expect(semana).toContain("const alturaDoPainel = useSpring(alvoDoPainel, MOLA_DO_FIGARO)");
+    expect(semana).toContain("const espacoDaAgenda = useSpring(alturaDoPainel, MOLA_DO_FIGARO)");
+    // Desempenho: a Agenda desce por transform (sem refazer o layout a cada quadro) e os meses são memoizados e
+    // montados em fases depois que as molas assentam.
+    expect(semana).toContain("palco.style.transform = `translate3d(0,${dy}px,0)`");
+    expect(semana).not.toContain("{ height: espacoDaAgenda }");
+    expect(semana).toContain("const MesDoCalendario = memo(");
+    expect(semana).toContain("const FASES_DOS_MESES = [3, 6, 9, MESES_EM_VOLTA]");
+    expect(semana).toContain("height: alturaDoPainelMais12");
+    expect(semana).toContain("data-calendario-aberto={expandido || painelVisivel || undefined}");
+    // Uma sombra só durante todo o movimento (a do painel); a do cabeçalho idêntica volta quando o painel sai.
+    expect(css).toMatch(
+      /html:has\(\[data-calendario-aberto\]\) \.management-header \{\s*box-shadow: none !important/,
+    );
+    expect(css).toMatch(/html:has\(\[data-calendario-aberto\]\) \{\s*overflow-anchor: none/);
+  });
+
+  it("os cinco pontos são discretos (3 px, vão de 8 px, alfa 0,45) e ficam a 12 px da grade", () => {
+    expect(semana).toContain('className="size-[3px] rounded-full bg-mute2 opacity-[0.45]"');
+    expect(semana).toContain("gap-2");
+    expect(css).not.toMatch(/agenda-pontos-correr[\s\S]{0,400}opacity: 0\.6/);
+    expect(operacional).toContain('className="mb-[-2.5px] mt-[6.5px]"');
+    expect(operacional).toContain('className="mt-[-2.5px] mb-0.5"');
+    expect(css).toMatch(/\.agenda-dia-vizinha-pontos \{[^}]*top: -19\.5px/);
+    // Os pontos do fim também vêm na página vizinha (antes só os do topo: os de baixo apareciam do nada).
+    expect(readFileSync("src/components/barbeiro/agenda/PreviaDiaVizinho.tsx", "utf8")).toContain(
+      "agenda-dia-vizinha-pontos-fim",
+    );
+    expect(css).toMatch(/\.agenda-dia-vizinha-pontos-fim \{[^}]*top: calc\(100% \+ 7\.5px\)/);
   });
 
   it("o dia vizinho mostra o fora do expediente durante o gesto", () => {

@@ -17,7 +17,6 @@ vi.mock("@/components/marca/editor/SecaoLink", () => ({ SecaoLink: () => null })
 vi.mock("@/components/marca/editor/SecaoRedes", () => ({ SecaoRedes: () => null }));
 vi.mock("@/components/marca/editor/SecaoRecepcao", () => ({ SecaoRecepcao: () => null }));
 vi.mock("@/components/marca/editor/SecaoTema", () => ({ SecaoTema: () => null }));
-vi.mock("@/components/marca/editor/SecaoTextos", () => ({ SecaoTextos: () => null }));
 vi.mock("@/components/marca/editor/SecaoVersoes", () => ({ SecaoVersoes: () => null }));
 
 (globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT: boolean }).IS_REACT_ACT_ENVIRONMENT =
@@ -66,21 +65,20 @@ describe("PaineisDoEditor", () => {
     );
 
     expect(alvo.querySelector('[role="tablist"]')).not.toBeNull();
-    expect(alvo.querySelectorAll('[role="tab"]')).toHaveLength(4);
-    expect(alvo.textContent).toContain("Experiência de agendamento");
+    expect(alvo.querySelectorAll('[role="tab"]')).toHaveLength(3);
+    expect(alvo.textContent).not.toContain("Conteúdo");
+    expect(alvo.textContent).toContain("Logo e imagens");
+    expect(alvo.textContent).toContain("Cores, fontes e detalhes");
 
-    const aparencia = [...alvo.querySelectorAll<HTMLButtonElement>('[role="tab"]')].find((botao) =>
-      botao.textContent?.includes("Aparência"),
+    const divulgacao = [...alvo.querySelectorAll<HTMLButtonElement>('[role="tab"]')].find((botao) =>
+      botao.textContent?.includes("Divulgação"),
     );
-    expect(aparencia).toBeDefined();
+    expect(divulgacao).toBeDefined();
     await act(async () => {
-      aparencia?.dispatchEvent(new MouseEvent("mousedown", { bubbles: true, button: 0 }));
+      divulgacao?.dispatchEvent(new MouseEvent("mousedown", { bubbles: true, button: 0 }));
       await new Promise((resolve) => setTimeout(resolve, 0));
     });
-
-    expect(alvo.textContent).toContain("Tema e cores");
-    expect(alvo.textContent).toContain("Logo e imagens");
-    expect(alvo.textContent).not.toContain("Experiência de agendamento");
+    expect(alvo.textContent).not.toContain("Cores, fontes e detalhes");
     await act(async () => root.unmount());
   });
 });

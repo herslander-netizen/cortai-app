@@ -5,7 +5,7 @@ import {
   HeartHandshake,
   MessageCircle,
   Clock3,
-  Palette,
+  Eye,
   Scissors,
   Store,
   UsersRound,
@@ -136,9 +136,9 @@ export const MODULOS_DE_NAVEGACAO = [
   {
     grupo: "Clientes e marca",
     to: "/barbeiro/marca",
-    label: "Aparência",
-    detail: "Página, marca e temas",
-    icon: Palette,
+    label: "Sua Página",
+    detail: "Página pública, layout e temas",
+    icon: Eye,
     permissao: "alterar_dados_barbearia",
   },
 ] as const satisfies ReadonlyArray<{
@@ -201,9 +201,9 @@ export const SECOES: ReadonlyArray<{ titulo: string; abas: ReadonlyArray<Aba> }>
     ],
   },
   {
-    titulo: "Aparência",
+    titulo: "Sua Página",
     abas: [
-      { to: "/barbeiro/marca", label: "Personalizar página", permissao: "alterar_dados_barbearia" },
+      { to: "/barbeiro/marca", label: "Sua Página", permissao: "alterar_dados_barbearia" },
     ],
   },
 ];

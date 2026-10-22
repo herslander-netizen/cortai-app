@@ -2,15 +2,18 @@ import { useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import {
   Bell,
+  CalendarCog,
   ChevronRight,
   CircleHelp,
   CreditCard,
+  Eye,
   LogOut,
   Palette,
   Repeat,
   Settings,
   Share2,
   SlidersHorizontal,
+  Store,
 } from "lucide-react";
 
 import { IconeDoMenu } from "@/components/layout/IconeDoMenu";
@@ -45,10 +48,28 @@ type Props = {
 
 const ITENS = [
   {
-    label: "Conta e negócio",
-    detalhe: "Dados pessoais e do negócio",
+    label: "Informações básicas",
+    detalhe: "Nome, logo e contato do negócio",
+    to: "/barbeiro/negocio",
+    icon: Store,
+  },
+  {
+    label: "Opções de agendamento",
+    detalhe: "Horários oferecidos, antecedência e cancelamento",
+    to: "/barbeiro/agendamento",
+    icon: CalendarCog,
+  },
+  {
+    label: "Opções da conta",
+    detalhe: "Perfil, formas de entrar e segurança",
     to: "/barbeiro/conta",
     icon: Settings,
+  },
+  {
+    label: "Sua Página",
+    detalhe: "Personalize a página pública, layout e seções",
+    to: "/barbeiro/marca",
+    icon: Eye,
   },
   {
     label: "Funcionalidades",
@@ -69,9 +90,9 @@ const ITENS = [
     icon: CreditCard,
   },
   {
-    label: "Avisos e notificações",
-    detalhe: "Preferências de cada aviso",
-    to: "/barbeiro/mais",
+    label: "Notificações",
+    detalhe: "Onde receber cada aviso",
+    to: "/barbeiro/notificacoes",
     icon: Bell,
   },
   { label: "Ajuda e suporte", detalhe: "Ajustes e ajuda", to: "/barbeiro/mais", icon: CircleHelp },
@@ -104,7 +125,7 @@ export function DrawerAjustes({
           variant="icon"
           size="icon"
           aria-label="Abrir ajustes"
-          className="size-12 shrink-0 rounded-full text-menu-icone hover:bg-drawer-card"
+          className="size-11 shrink-0 rounded-full text-menu-icone hover:bg-drawer-card"
         >
           <SlidersHorizontal className="size-[22px]" aria-hidden />
         </Button>
@@ -116,14 +137,17 @@ export function DrawerAjustes({
           evento.preventDefault();
           gatilhoRef.current?.focus();
         }}
-        className="z-[70] max-h-[85dvh] overflow-y-auto rounded-t-[28px] border-line bg-drawer-surface px-4 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-5"
+        className="z-[70] flex max-h-[85dvh] flex-col overflow-hidden rounded-t-[28px] border-line bg-drawer-surface px-4 pt-5"
       >
-        <SheetTitle className="text-xl text-paper">Ajustes</SheetTitle>
-        <SheetDescription className="mt-1 text-sm text-mute">
-          Conta, aparência e preferências do aplicativo.
-        </SheetDescription>
+        <div className="shrink-0 pb-4">
+          <SheetTitle className="text-xl text-paper">Ajustes</SheetTitle>
+          <SheetDescription className="mt-1 text-sm text-mute">
+            Conta, aparência e preferências do aplicativo.
+          </SheetDescription>
+        </div>
 
-        <div className="mt-5 space-y-1.5">
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain pb-[calc(1rem+env(safe-area-inset-bottom))]">
+          <div className="mt-1 space-y-1.5">
           {ITENS.slice(0, 3).map((item) => {
             const Icon = item.icon;
             return (
@@ -157,9 +181,9 @@ export function DrawerAjustes({
             <span className={LINHA}>
               <IconeDoMenu icone={Palette} />
               <span className="min-w-0">
-                <span className="block truncate text-base font-semibold text-paper">Aparência</span>
+                <span className="block truncate text-base font-semibold text-paper">Aparência do aplicativo</span>
                 <span className="mt-0.5 block truncate text-xs font-normal text-mute">
-                  Claro, escuro, sistema e identidade
+                  Tema, modo de exibição e identidade do painel
                 </span>
               </span>
               <ChevronRight
@@ -251,6 +275,7 @@ export function DrawerAjustes({
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
+          </div>
         </div>
       </SheetContent>
     </Sheet>

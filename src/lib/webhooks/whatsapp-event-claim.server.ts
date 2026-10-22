@@ -1,7 +1,5 @@
-import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
-
-type AdminDb = SupabaseClient<Database>;
+type AdminDb = typeof import("@/integrations/supabase/client.server").supabaseAdmin;
 type WebhookEvent = Pick<
   Database["public"]["Tables"]["whatsapp_webhook_events"]["Row"],
   "id" | "payload"

@@ -1,9 +1,11 @@
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { ImagePlus } from "lucide-react";
 import type { ChangeEvent, RefObject } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import type { PaginaConfig } from "@/lib/pagina-config";
+import { CURVA, TEMPO } from "@/lib/movimento-figaro";
 import { fieldClass } from "./campos";
 import type { SetPagina } from "./tipos";
 
@@ -22,6 +24,8 @@ export function SecaoRecepcao({
   setAvatarPreview: (url: string | null) => void;
   upload: (event: ChangeEvent<HTMLInputElement>, kind: "avatar") => void;
 }) {
+  const reduzirMovimento = useReducedMotion();
+  const transicaoFoto = { duration: reduzirMovimento ? 0 : TEMPO.foto, ease: CURVA.rapidaParaLenta };
   return (
     <div className="space-y-4">
       <div>
@@ -34,15 +38,31 @@ export function SecaoRecepcao({
             aria-label="Alterar foto da recepção"
             onClick={() => avatarRef.current?.click()}
           >
-            {avatarPreview ? (
-              <img
-                src={avatarPreview}
-                alt="Foto atual da recepção"
-                className="h-full w-full object-cover"
-              />
-            ) : (
-              <ImagePlus />
-            )}
+            <AnimatePresence mode="wait" initial={false}>
+              {avatarPreview ? (
+                <motion.img
+                  key={avatarPreview}
+                  src={avatarPreview}
+                  alt="Foto atual da recepção"
+                  initial={reduzirMovimento ? false : { opacity: 0, scale: 0.96 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.96 }}
+                  transition={transicaoFoto}
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <motion.span
+                  key="sem-foto"
+                  initial={reduzirMovimento ? false : { opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={transicaoFoto}
+                  className="grid size-full place-items-center"
+                >
+                  <ImagePlus />
+                </motion.span>
+              )}
+            </AnimatePresence>
           </Button>
           <Button
             type="button"
@@ -116,7 +136,7 @@ export function SecaoRecepcao({
         />
       </label>
       <div className="grid grid-cols-3 gap-2">
-        {(["azul", "ciano", "rosa"] as const).map((cor) => (
+        {(["azul", "ciano", "rosa", "areia", "couro"] as const).map((cor) => (
           <Button
             key={cor}
             type="button"

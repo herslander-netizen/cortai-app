@@ -9,7 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
  * Troca de senha do próprio usuário logado.
  * A senha atual é pedida para confirmar a identidade e nunca é guardada.
  */
-export function AlterarSenha() {
+export function AlterarSenha({ emGrupo = false }: { emGrupo?: boolean }) {
   const [aberto, setAberto] = useState(false);
   const [atual, setAtual] = useState("");
   const [nova, setNova] = useState("");
@@ -19,25 +19,55 @@ export function AlterarSenha() {
   const [salvando, setSalvando] = useState(false);
 
   return (
-    <div className="border-b border-line">
+    <div className={emGrupo ? undefined : "border-b border-line"}>
       <Button
         type="button"
         variant="ghost"
         onClick={() => setAberto((v) => !v)}
         aria-expanded={aberto}
-        className="h-auto min-h-12 w-full justify-between gap-4 py-5 text-left"
+        className={
+          emGrupo
+            ? "h-auto min-h-14 w-full justify-start gap-3 whitespace-normal rounded-none px-4 py-3 text-left"
+            : "h-auto min-h-12 w-full justify-between gap-4 py-5 text-left"
+        }
       >
-        <KeyRound size={18} className="text-mute" />
-        <span className="text-sm text-paper">Alterar minha senha</span>
-        <ChevronRight
-          size={16}
-          className={`text-mute2 transition-transform ${aberto ? "rotate-90" : ""}`}
-        />
+        {emGrupo ? (
+          // Linha de grupo de configuração (mesmo desenho de `LinhaDeConfiguracao`); o formulário abre embaixo.
+          <>
+            <span
+              aria-hidden
+              className="grid size-12 shrink-0 place-items-center rounded-full bg-[color-mix(in_oklab,var(--primary)_16%,transparent)] text-primary"
+            >
+              <KeyRound size={20} />
+            </span>
+            <span className="min-w-0 flex-1">
+              <span className="block text-[15px] font-semibold leading-5 text-paper">
+                Alterar minha senha
+              </span>
+              <span className="mt-0.5 block text-sm font-normal leading-5 text-mute">
+                Use pelo menos 8 caracteres.
+              </span>
+            </span>
+            <ChevronRight
+              size={20}
+              className={`shrink-0 text-mute2 transition-transform ${aberto ? "rotate-90" : ""}`}
+            />
+          </>
+        ) : (
+          <>
+            <KeyRound size={18} className="text-mute" />
+            <span className="text-sm text-paper">Alterar minha senha</span>
+            <ChevronRight
+              size={16}
+              className={`text-mute2 transition-transform ${aberto ? "rotate-90" : ""}`}
+            />
+          </>
+        )}
       </Button>
 
       {aberto ? (
         <form
-          className="space-y-3 pb-5"
+          className={emGrupo ? "space-y-3 px-4 pb-4" : "space-y-3 pb-5"}
           onSubmit={async (event) => {
             event.preventDefault();
             setErro(null);

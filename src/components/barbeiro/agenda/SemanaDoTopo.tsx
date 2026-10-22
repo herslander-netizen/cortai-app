@@ -1,8 +1,12 @@
-import { AnimatePresence, motion } from "framer-motion";
+import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 import {
+  memo,
+  useCallback,
   useEffect,
   useLayoutEffect,
+  useMemo,
   useRef,
+  type RefObject,
   useState,
   type AnimationEvent,
   type TouchEvent,
@@ -28,8 +32,24 @@ import { somarDias } from "./tempo";
 
 /** Meses mostrados antes e depois do mês do dia quando o calendário está aberto. */
 const MESES_EM_VOLTA = 12;
+/** Meses montados em cada fase depois que o calendário assenta: perto do dia primeiro, o resto logo depois. */
+const FASES_DOS_MESES = [3, 6, 9, MESES_EM_VOLTA] as const;
 /** Altura do calendário do mês aberto (a lista rola por dentro). */
 const ALTURA_DO_MES = 344;
+/**
+ * Mola do Figaro (`expandSizeSpringDp`: amortecimento 1,0 e rigidez 400). No Figaro o painel do calendário cresce
+ * com essa mola e o espaço da Agenda é uma SEGUNDA mola igual, que persegue a altura já medida do painel
+ * (`animateDpAsState` sobre o `onSizeChanged` do seletor): por isso o calendário desce primeiro e a timeline vem atrás.
+ */
+/** Raiz do conteúdo da Agenda (tudo abaixo do topo), movida junto com o calendário. */
+const SELETOR_DO_PALCO = ".agenda-operacional";
+const MOLA_DO_FIGARO = {
+  stiffness: 400,
+  damping: 40,
+  mass: 1,
+  restDelta: 0.4,
+  restSpeed: 4,
+} as const;
 /** A faixa tem três semanas; a do meio é a visível. `dx` acompanha o dedo ou a troca. */
 const posicaoDaFaixa = (dx: number) => `translate3d(calc(-100% / 3 + ${dx}px),0,0)`;
 
@@ -89,6 +109,86 @@ function DiaDoCalendario({
   );
 }
 
+/** Um mês da lista. Memoizado: ao montar mais meses em fases, os que já estão na tela não renderizam de novo. */
+const MesDoCalendario = memo(function MesDoCalendario({
+  mes,
+  escolhido,
+  hoje,
+  marcados,
+  onDia,
+}: {
+  mes: string;
+  escolhido: string;
+  hoje: string;
+  marcados: ReadonlySet<string>;
+  onDia: (dia: string) => void;
+}) {
+  const primeiro = `${mes}-01`;
+  return (
+    <section data-mes={mes} className="min-h-full snap-start pb-2">
+      <h2 className="px-2 pb-1 pt-1 text-[26px] font-semibold text-paper">
+        {tituloDoMes(mes).split(" ")[0]}
+      </h2>
+      <div className="grid grid-cols-7">
+        {gradeDoMes(mes).map((d, i) =>
+          mesDoDia(d) === mes ? (
+            <DiaDoCalendario
+              key={d}
+              dia={d}
+              escolhido={d === escolhido}
+              hoje={d === hoje}
+              comAtendimento={marcados.has(d)}
+              compacto
+              onDia={onDia}
+            />
+          ) : (
+            <span key={`${primeiro}-${i}`} aria-hidden />
+          ),
+        )}
+      </div>
+    </section>
+  );
+});
+
+/**
+ * Lista de meses do calendário aberto. Memoizada: sem isso cada passo das molas (abrir/fechar) re-renderizava os
+ * ~25 meses (centenas de botões) no mesmo quadro e a animação engasgava.
+ */
+const ListaDeMeses = memo(function ListaDeMeses({
+  meses,
+  escolhido,
+  hoje,
+  marcados,
+  onDia,
+  listaRef,
+}: {
+  meses: string[];
+  escolhido: string;
+  hoje: string;
+  marcados: ReadonlySet<string>;
+  onDia: (dia: string) => void;
+  listaRef: RefObject<HTMLDivElement | null>;
+}) {
+  return (
+    <div
+      ref={listaRef}
+      className="relative h-[344px] snap-y snap-mandatory overflow-y-auto overscroll-contain"
+      aria-label="Calendário"
+    >
+      {meses.map((mes) => (
+        <MesDoCalendario
+          key={mes}
+          mes={mes}
+          escolhido={escolhido}
+          hoje={hoje}
+          marcados={marcados}
+          onDia={onDia}
+        />
+      ))}
+    </div>
+  );
+});
+
 /**
  * Topo da Agenda no celular, como no modelo: letras da semana, a semana com o dia escolhido,
  * pontinho nos dias com atendimento e deslizar para trocar de semana. Com `expandido`, a mesma
@@ -125,21 +225,30 @@ export function SemanaDoTopo({
   // A lista mensal permite percorrer 12 meses para trás e para frente.
   // Consultar as mesmas 25 competências é necessário para os pontinhos continuarem
   // indicando agendamentos também nos meses distantes, não só nos três meses iniciais.
-  const meses = Array.from({ length: MESES_EM_VOLTA * 2 + 1 }, (_, i) =>
-    somarMeses(mesDoDiaEscolhido, i - MESES_EM_VOLTA),
+  const meses = useMemo(
+    () =>
+      Array.from({ length: MESES_EM_VOLTA * 2 + 1 }, (_, i) =>
+        somarMeses(mesDoDiaEscolhido, i - MESES_EM_VOLTA),
+      ),
+    [mesDoDiaEscolhido],
   );
-  // Abre só com o mês do dia (a animação de abrir fica leve) e logo depois monta os outros meses;
-  // a lista continua parada no mês do dia escolhido.
-  const [mesesProntos, setMesesProntos] = useState(false);
-  useEffect(() => {
-    if (!expandido) return setMesesProntos(false);
-    const espera = window.setTimeout(() => setMesesProntos(true), 320);
-    return () => window.clearTimeout(espera);
-  }, [expandido]);
+  // Abre só com o mês do dia (a animação de abrir fica leve) e monta os outros meses quando as molas
+  // assentam (`layoutAberto`): montar 24 meses no meio da animação travava o quadro. A lista continua
+  // parada no mês do dia escolhido.
+  const [raioDosMeses, setRaioDosMeses] = useState(0);
+  const mesesProntos = raioDosMeses > 0;
+  const mesesMontados = useMemo(
+    () => meses.filter((_, i) => Math.abs(i - MESES_EM_VOLTA) <= raioDosMeses),
+    [meses, raioDosMeses],
+  );
+  const mesesDaLista = useMemo(
+    () => (raioDosMeses > 0 ? mesesMontados : [mesDoDiaEscolhido]),
+    [raioDosMeses, mesesMontados, mesDoDiaEscolhido],
+  );
   const mesesComContagem = [
     ...new Set([
       ...tresSemanas.flat().map(mesDoDia),
-      ...(mesesProntos ? meses : expandido ? [mesDoDiaEscolhido] : []),
+      ...(mesesProntos ? mesesMontados : expandido ? [mesDoDiaEscolhido] : []),
     ]),
   ];
   const contar = useServerFn(getContagemDoMes);
@@ -151,6 +260,23 @@ export function SemanaDoTopo({
     })),
   });
   const temAtendimento = (d: string) => contagens.some((q) => Number(q.data?.[d] ?? 0) > 0);
+  // Mesmo conteúdo = mesma referência: a lista de meses memoizada só refaz quando as contagens mudam de fato.
+  const versaoDasContagens = contagens.map((q) => q.dataUpdatedAt).join(",");
+  const diasAnteriores = useRef<ReadonlySet<string>>(new Set());
+  const diasComAtendimento = useMemo(() => {
+    const dias = new Set<string>();
+    for (const q of contagens)
+      for (const [d, n] of Object.entries(q.data ?? {})) if (Number(n) > 0) dias.add(d);
+    // Conteúdo igual = mesma referência: contagem chegando sem novidade não refaz os ~25 meses.
+    const antes = diasAnteriores.current;
+    if (antes.size === dias.size && [...dias].every((d) => antes.has(d))) return antes;
+    diasAnteriores.current = dias;
+    return dias;
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- `versaoDasContagens` resume as contagens
+  }, [versaoDasContagens]);
+  const onDiaAtual = useRef(onDia);
+  onDiaAtual.current = onDia;
+  const onDiaEstavel = useCallback((d: string) => onDiaAtual.current(d), []);
 
   // A faixa desliza uma semana inteira, como no modelo: pelo dedo aqui (1:1, assenta na semana
   // mais próxima) ou quando o dia escolhido passa para outra semana (a antiga sai, a nova entra).
@@ -243,20 +369,126 @@ export function SemanaDoTopo({
   const listaRef = useRef<HTMLDivElement>(null);
   // Altura da semana: o mês nasce dela e volta para ela ao fechar.
   const camadaSemana = useRef<HTMLDivElement>(null);
-  const [alturaSemana, setAlturaSemana] = useState(60);
+  const alturaDaSemana = useRef(60);
+  // Painel (mola 1) → espaço da Agenda (mola 2, persegue o painel): a timeline desce depois do calendário.
+  const alvoDoPainel = useMotionValue(60);
+  const alturaDoPainel = useSpring(alvoDoPainel, MOLA_DO_FIGARO);
+  const espacoDaAgenda = useSpring(alturaDoPainel, MOLA_DO_FIGARO);
+  const alturaDoPainelMais12 = useTransform(alturaDoPainel, (v) => v + 12);
+  const [painelVisivel, setPainelVisivel] = useState(false);
+  // Só o painel (camada sobre a Agenda) muda de tamanho a cada quadro. A Agenda é movida por transform
+  // (GPU, sem refazer o layout da grade inteira); a altura real do topo só muda no começo do fechar e no
+  // fim do abrir, no mesmo quadro em que o transform sai: nada salta e nada engasga.
+  const [layoutAberto, setLayoutAberto] = useState(false);
+  const layoutAbertoRef = useRef(false);
+  layoutAbertoRef.current = layoutAberto;
+  const expandidoRef = useRef(expandido);
+  expandidoRef.current = expandido;
+  const aplicarDeslocamento = useCallback((espaco: number) => {
+    const palco = document.querySelector<HTMLElement>(SELETOR_DO_PALCO);
+    if (!palco) return;
+    const base = layoutAbertoRef.current ? ALTURA_DO_MES : alturaDaSemana.current;
+    const dy = espaco - base;
+    if (Math.abs(dy) < 0.05) {
+      palco.style.transform = "";
+      palco.style.willChange = "";
+    } else {
+      palco.style.willChange = "transform";
+      palco.style.transform = `translate3d(0,${dy}px,0)`;
+    }
+  }, []);
   useLayoutEffect(() => {
     const altura = camadaSemana.current?.offsetHeight;
-    if (altura) setAlturaSemana(altura);
-  }, []);
+    if (!altura) return;
+    alturaDaSemana.current = altura;
+    for (const v of [alvoDoPainel, alturaDoPainel, espacoDaAgenda]) v.jump(altura);
+  }, [alvoDoPainel, alturaDoPainel, espacoDaAgenda]);
+  useLayoutEffect(() => {
+    if (!expandido && !painelVisivel) return;
+    const alvo = expandido ? ALTURA_DO_MES : alturaDaSemana.current;
+    if (expandido) setPainelVisivel(true);
+    if (prefereMenosMovimento()) {
+      for (const v of [alvoDoPainel, alturaDoPainel, espacoDaAgenda]) v.jump(alvo);
+      layoutAbertoRef.current = expandido;
+      setLayoutAberto(expandido);
+      aplicarDeslocamento(alvo);
+      if (!expandido) {
+        setPainelVisivel(false);
+        setRaioDosMeses(0);
+      }
+      return;
+    }
+    if (!expandido && layoutAbertoRef.current) {
+      // Fechando: o topo encolhe já, e a Agenda continua onde estava (transform) até a mola 2 trazê-la.
+      layoutAbertoRef.current = false;
+      setLayoutAberto(false);
+      aplicarDeslocamento(espacoDaAgenda.get());
+    }
+    alvoDoPainel.set(alvo);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- reage só à troca de aberto/fechado
+  }, [expandido]);
+  // Cada mudança da mola 2 só move a Agenda por transform.
+  useEffect(
+    () => espacoDaAgenda.on("change", aplicarDeslocamento),
+    [espacoDaAgenda, aplicarDeslocamento],
+  );
+  useEffect(
+    () =>
+      alturaDoPainel.on("animationComplete", () => {
+        if (expandidoRef.current) return;
+        setPainelVisivel(false);
+        setRaioDosMeses(0);
+      }),
+    [alturaDoPainel],
+  );
+  useEffect(
+    () =>
+      espacoDaAgenda.on("animationComplete", () => {
+        // Abriu: a altura real passa a ser a do mês (o transform sai no mesmo quadro, em `layoutAberto`).
+        if (expandidoRef.current) setLayoutAberto(true);
+        else aplicarDeslocamento(alturaDaSemana.current);
+      }),
+    [espacoDaAgenda, aplicarDeslocamento],
+  );
+  useLayoutEffect(() => {
+    if (!layoutAberto) return;
+    layoutAbertoRef.current = true;
+    aplicarDeslocamento(ALTURA_DO_MES);
+  }, [layoutAberto, aplicarDeslocamento]);
+  useEffect(() => {
+    // Fechando, os meses só saem depois que o painel termina de recolher (desmontar no 1º quadro travava).
+    if (!expandido || !layoutAberto) return;
+    // Fases separadas por um respiro (uma cada ~140 ms): nunca os 25 meses de uma vez no mesmo quadro.
+    let fase = 0;
+    let espera = 0;
+    const proxima = () => {
+      setRaioDosMeses(FASES_DOS_MESES[fase] ?? MESES_EM_VOLTA);
+      fase += 1;
+      if (fase < FASES_DOS_MESES.length) espera = window.setTimeout(proxima, 140);
+    };
+    proxima();
+    return () => window.clearTimeout(espera);
+  }, [expandido, layoutAberto]);
+  // Se a tela sair com o mês aberto, a Agenda não pode ficar deslocada.
+  useEffect(
+    () => () => {
+      const palco = document.querySelector<HTMLElement>(SELETOR_DO_PALCO);
+      if (palco) {
+        palco.style.transform = "";
+        palco.style.willChange = "";
+      }
+    },
+    [],
+  );
   useLayoutEffect(() => {
     if (!expandido) return;
     // Rola só a lista: scrollIntoView rolava também a página e a Agenda pulava embaixo.
     const lista = listaRef.current;
     const mes = lista?.querySelector<HTMLElement>(`[data-mes="${mesDoDiaEscolhido}"]`);
     if (lista && mes) lista.scrollTop = mes.offsetTop;
-  }, [expandido, mesDoDiaEscolhido, mesesProntos]);
+  }, [expandido, mesDoDiaEscolhido, raioDosMeses]);
   return (
-    <div data-sem-gesto-dia>
+    <div data-sem-gesto-dia data-calendario-aberto={expandido || painelVisivel || undefined}>
       <div className="px-2 pb-3 rounded-b-xl">
         <div className="grid grid-cols-7 text-center text-sm font-medium text-mute" aria-hidden>
           {LETRAS_SEMANA.map((letra, i) => (
@@ -265,10 +497,10 @@ export function SemanaDoTopo({
             </span>
           ))}
         </div>
-        {/* Como no modelo: a superfície cresce até o mês e a semana dá lugar a ele ao mesmo tempo.
-            O mês cresce por cima da Agenda, sem empurrar a página: empurrar fazia o navegador
-            corrigir a rolagem um quadro depois e a linha da equipe piscava embaixo. */}
-        <div className="relative">
+        {/* Como no Figaro: a superfície cresce até o mês e a semana dá lugar a ele ao mesmo tempo, e a
+            Agenda abaixo desce junto (o espaço do mês anima na mesma curva do painel). A rolagem do mês
+            é só por dentro e o navegador não reancora a página (`overflow-anchor` em styles.css). */}
+        <motion.div className="relative" style={layoutAberto ? { height: ALTURA_DO_MES } : {}}>
           <motion.div
             ref={camadaSemana}
             initial={false}
@@ -332,61 +564,35 @@ export function SemanaDoTopo({
               </div>
             </div>
           </motion.div>
-          <AnimatePresence initial={false}>
-            {expandido ? (
+          {painelVisivel ? (
+            <motion.div
+              key="calendario-expandido"
+              className="absolute -inset-x-2 top-0 z-10 overflow-hidden rounded-b-[24px] px-2 pb-3"
+              // O recorte deixa a sombra só embaixo: no topo ela desenhava uma linha entre as letras da semana e o mês.
+              style={{
+                background: "var(--ink2)",
+                boxShadow: "var(--elevacao-3)",
+                clipPath: "inset(0 -16px -24px -16px)",
+                height: alturaDoPainelMais12,
+              }}
+            >
               <motion.div
-                key="calendario-expandido"
-                className="absolute -inset-x-2 top-0 z-10 overflow-hidden rounded-b-[24px] px-2 pb-3"
-                style={{ background: "var(--ink2)", boxShadow: "var(--shadow-md)" }}
-                initial={{ height: alturaSemana + 12 }}
-                animate={{ height: ALTURA_DO_MES + 12 }}
-                exit={{ height: alturaSemana + 12 }}
-                transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: expandido ? 1 : 0 }}
+                transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
               >
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
-                >
-                  <div
-                    ref={listaRef}
-                    className="relative h-[344px] snap-y snap-mandatory overflow-y-auto overscroll-contain"
-                    aria-label="Calendário"
-                  >
-                    {(mesesProntos ? meses : [mesDoDiaEscolhido]).map((mes) => {
-                      const primeiro = `${mes}-01`;
-                      return (
-                        <section key={mes} data-mes={mes} className="min-h-full snap-start pb-2">
-                          <h2 className="px-2 pb-1 pt-1 text-[26px] font-semibold text-paper">
-                            {tituloDoMes(mes).split(" ")[0]}
-                          </h2>
-                          <div className="grid grid-cols-7">
-                            {gradeDoMes(mes).map((d, i) =>
-                              mesDoDia(d) === mes ? (
-                                <DiaDoCalendario
-                                  key={d}
-                                  dia={d}
-                                  escolhido={d === dia}
-                                  hoje={d === hoje}
-                                  comAtendimento={temAtendimento(d)}
-                                  compacto
-                                  onDia={onDia}
-                                />
-                              ) : (
-                                <span key={`${primeiro}-${i}`} aria-hidden />
-                              ),
-                            )}
-                          </div>
-                        </section>
-                      );
-                    })}
-                  </div>
-                </motion.div>
+                <ListaDeMeses
+                  meses={mesesDaLista}
+                  escolhido={dia}
+                  hoje={hoje}
+                  marcados={diasComAtendimento}
+                  onDia={onDiaEstavel}
+                  listaRef={listaRef}
+                />
               </motion.div>
-            ) : null}
-          </AnimatePresence>
-        </div>
+            </motion.div>
+          ) : null}
+        </motion.div>
       </div>
     </div>
   );
@@ -432,7 +638,7 @@ export function MarcaDoLimiteDoDia({
       aria-hidden
       data-correndo={correndo || undefined}
       data-trilho-dia={naPagina ? "" : undefined}
-      className={`agenda-pontos flex h-3 items-center justify-center gap-[6px] ${className}`}
+      className={`agenda-pontos flex h-3 items-center justify-center gap-2 ${className}`}
     >
       {[0, 1, 2, 3, 4].map((i) => (
         <span
@@ -440,7 +646,7 @@ export function MarcaDoLimiteDoDia({
           data-ultimo={i === 0 ? "1" : undefined}
           style={{ animationDelay: `${(4 - i) * 140}ms` }}
           onAnimationIteration={aoVoltar}
-          className="size-1 rounded-full bg-mute2 opacity-60"
+          className="size-[3px] rounded-full bg-mute2 opacity-[0.45]"
         />
       ))}
     </div>

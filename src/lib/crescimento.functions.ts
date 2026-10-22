@@ -5,6 +5,8 @@ import { fusoDoTenant } from "@/lib/fuso.server";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { tenantIdDoMembro, type ContextoAutenticado, exigirPermissao } from "@/lib/tenant";
 import { exigirRecurso } from "@/lib/planos";
+import { fotoValida, MAX_FOTOS_DO_PORTFOLIO } from "@/lib/fotos-do-negocio";
+import { assinarFoto } from "@/lib/fotos.server";
 import { z } from "zod";
 import { dataDeRetorno, estaNaHoraDeVoltar } from "@/lib/retorno";
 
@@ -563,15 +565,24 @@ export const getProfissionaisPerfil = createServerFn({ method: "GET" })
       .select("id, nome, descricao, portfolio, ativo")
       .eq("tenant_id", tenant.id)
       .order("criado_em");
-    return (data ?? []).map((p) => ({
-      id: p.id,
-      nome: p.nome,
-      descricao: p.descricao,
-      portfolio: Array.isArray(p.portfolio)
-        ? (p.portfolio as unknown[]).filter((f): f is string => typeof f === "string")
-        : [],
-      ativo: p.ativo,
-    }));
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    return Promise.all(
+      (data ?? []).map(async (p) => {
+        const portfolio = Array.isArray(p.portfolio)
+          ? (p.portfolio as unknown[]).filter((f): f is string => typeof f === "string")
+          : [];
+        // `portfolio` guarda os caminhos (é o que se salva); `fotos` traz o link temporário de cada um para mostrar.
+        const fotos = (
+          await Promise.all(
+            portfolio.map(async (valor) => ({
+              valor,
+              url: await assinarFoto(supabaseAdmin, valor),
+            })),
+          )
+        ).filter((f): f is { valor: string; url: string } => Boolean(f.url));
+        return { id: p.id, nome: p.nome, descricao: p.descricao, portfolio, fotos, ativo: p.ativo };
+      }),
+    );
   });
 
 export const salvarPerfilProfissional = createServerFn({ method: "POST" })
@@ -580,14 +591,16 @@ export const salvarPerfilProfissional = createServerFn({ method: "POST" })
     z
       .object({
         id: z.string().uuid(),
-        descricao: z.string().trim().max(200),
-        portfolio: z.array(z.string().trim().url().max(400)).max(6),
+        descricao: z.string().trim().max(2000),
+        portfolio: z.array(z.string().trim().min(1).max(400)).max(MAX_FOTOS_DO_PORTFOLIO),
       })
       .parse(input),
   )
   .handler(async ({ data, context }) => {
     const { db, tenant } = await tenantPadrao(context);
     await exigirPermissao(context, tenant.id, "gerenciar_profissionais");
+    if (!data.portfolio.every((f) => fotoValida(f, tenant.id)))
+      throw new Error("Escolha as fotos pela galeria de fotos.");
     const { error } = await db
       .from("profissionais")
       .update({ descricao: data.descricao || null, portfolio: data.portfolio })

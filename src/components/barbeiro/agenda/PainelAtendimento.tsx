@@ -18,7 +18,7 @@ import {
   UserX,
   type LucideIcon,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import {
   AlertDialog,
@@ -42,6 +42,7 @@ import { VerTicketDoAgendamento } from "@/components/comanda/VerTicketDoAgendame
 import type { AgendaItem } from "@/lib/barbeiro.functions";
 import { brl } from "@/lib/format";
 import { useAgora } from "@/hooks/useAgora";
+import { useFolhaEmDoisEstados } from "@/hooks/useFolhaEmDoisEstados";
 import { hojeNoFuso, isoNoFusoDaBarbearia } from "@/lib/horarios";
 import { useSegmentoDoPainel } from "@/lib/segmento-contexto";
 import { termos } from "@/lib/segmentos";
@@ -110,6 +111,18 @@ export function PainelAtendimento(props: Props) {
   const [confirmarCancelar, setConfirmarCancelar] = useState(false);
   const agora = useAgora();
   const segmento = useSegmentoDoPainel();
+  // Cartão de um estado só (decisão do dono, 24/10): na altura do conteúdo, sem parcial; a barrinha só fecha.
+  const [folha, setFolha] = useState<HTMLDivElement | null>(null);
+  const [alca, setAlca] = useState<HTMLDivElement | null>(null);
+  const { onFechar } = props;
+  const fecharFicha = useCallback(() => onFechar(), [onFechar]);
+  useFolhaEmDoisEstados(folha, alca, {
+    ativo: props.aberto && !props.lateral,
+    expandida: false,
+    onExpandida: () => {},
+    onFechar: fecharFicha,
+    soFechar: true,
+  });
 
   useEffect(() => {
     if (!props.aberto) {
@@ -215,16 +228,36 @@ export function PainelAtendimento(props: Props) {
     <>
       <Sheet open={props.aberto && Boolean(item)} onOpenChange={(v) => !v && props.onFechar()}>
         <SheetContent
+          ref={setFolha}
           side={props.lateral ? "right" : "bottom"}
-          arrastarParaFechar
-          className={`agenda-painel agenda-ficha mov-agenda-painel border-0 bg-ink px-4 pt-3 sm:px-5 sm:pt-5 ${props.lateral ? "w-[380px]" : "mx-auto flex max-h-[92dvh] w-full max-w-[520px] flex-col overflow-hidden rounded-t-[28px]"}`}
+          arrastarParaFechar={props.lateral ?? false}
+          className={`agenda-painel agenda-ficha mov-agenda-painel border-0 bg-ink px-4 sm:px-5 ${props.lateral ? "pt-3 sm:pt-5 w-[380px]" : "agenda-ficha-cartao-unico mx-auto flex max-h-[92dvh] w-full max-w-[520px] flex-col overflow-hidden rounded-t-[28px] pt-0"}`}
         >
+          {!props.lateral ? (
+            <div
+              ref={setAlca}
+              role="button"
+              tabIndex={0}
+              aria-label="Fechar a ficha"
+              className="agenda-ficha-alca"
+              onClick={props.onFechar}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  props.onFechar();
+                }
+              }}
+            >
+              <span aria-hidden />
+            </div>
+          ) : null}
           {item && estado ? (
             <>
-              <div className="mb-3 flex justify-center md:hidden" aria-hidden="true">
-                <span className="h-1.5 w-12 rounded-full bg-mute/50" />
-              </div>
-              <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain pb-28 [scrollbar-width:thin]">
+              {/* Cartão na altura do conteúdo, sem rolagem por dentro. A rolagem só existe como último recurso,
+                  em tela tão baixa que a ficha não caberia; o botão do rodapé fica fora dela. */}
+              <div
+                className={`min-h-0 flex-1 overflow-y-auto overscroll-contain [scrollbar-width:thin] ${props.lateral ? "pb-28" : "pb-2"}`}
+              >
                 {/* Como no Figaro (`AppointmentHeroGroup`): o serviço, o estado, quando e com
                     quem; o cliente num bloco logo abaixo. */}
                 <section className="agenda-ficha-cartao">
@@ -450,7 +483,7 @@ export function PainelAtendimento(props: Props) {
           <AlertDialogFooter>
             <AlertDialogCancel>Manter agendamento</AlertDialogCancel>
             <AlertDialogAction
-              className="bg-brick text-white hover:bg-brick/90"
+              className="bg-brick text-[color:var(--figaro-on-error)] hover:bg-brick/90"
               onClick={() => {
                 setConfirmarCancelar(false);
                 executar(props.onCancelar)();

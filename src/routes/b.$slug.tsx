@@ -15,8 +15,15 @@ export const Route = createFileRoute("/b/$slug")({
     return previa;
   },
   head: ({ params, loaderData }) => {
+    if (!loaderData || !loaderData.paginaOnline) {
+      return {
+        meta: [
+          { title: "Página indisponível — Cortaí" },
+          { name: "robots", content: "noindex, nofollow" },
+        ],
+      };
+    }
     const base = headDaBarbearia(params.slug, loaderData, `/b/${params.slug}`);
-    if (!loaderData) return base;
     const schema = montarSchemaNegocio({ ...loaderData, imagem: loaderData.imagem });
     return {
       ...base,

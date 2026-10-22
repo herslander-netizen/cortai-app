@@ -18,10 +18,17 @@ export function SecaoCliente({ s }: { s: EstadoAgendamentoManual }) {
         <GrupoDeCartoes>
           <li className="space-y-1 px-4 py-3">
             <p className="font-medium text-paper">Agendamento sem cliente</p>
-            <p className="text-sm text-mute">Nenhuma ficha será criada. O pagamento e a comanda não serão vinculados a um cliente.</p>
+            <p className="text-sm text-mute">
+              Nenhuma ficha será criada. O pagamento e a comanda não serão vinculados a um cliente.
+            </p>
           </li>
         </GrupoDeCartoes>
-        <Button variant="outline" type="button" className="w-full rounded-full" onClick={() => s.escolherCliente(null)}>
+        <Button
+          variant="outline"
+          type="button"
+          className="w-full rounded-full"
+          onClick={() => s.escolherCliente(null)}
+        >
           Escolher cliente
         </Button>
       </SecaoDeFormulario>
@@ -89,7 +96,12 @@ export function SecaoCliente({ s }: { s: EstadoAgendamentoManual }) {
           >
             Buscar cliente cadastrado
           </Button>
-          <Button variant="ghost" type="button" className="w-full rounded-full text-sm text-mute" onClick={s.continuarSemCliente}>
+          <Button
+            variant="ghost"
+            type="button"
+            className="w-full rounded-full text-sm text-mute"
+            onClick={s.continuarSemCliente}
+          >
             Continuar sem cliente
           </Button>
         </SecaoDeFormulario>
@@ -151,7 +163,12 @@ export function SecaoCliente({ s }: { s: EstadoAgendamentoManual }) {
       >
         Novo cliente
       </Button>
-      <Button variant="ghost" type="button" className="w-full rounded-full text-sm text-mute" onClick={s.continuarSemCliente}>
+      <Button
+        variant="ghost"
+        type="button"
+        className="w-full rounded-full text-sm text-mute"
+        onClick={s.continuarSemCliente}
+      >
         Continuar sem cliente
       </Button>
     </SecaoDeFormulario>

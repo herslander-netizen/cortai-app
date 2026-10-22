@@ -1,3 +1,6 @@
+import { motion } from "framer-motion";
+
+import { CURVA, TEMPO } from "@/lib/movimento-figaro";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { CircleAlert, Clock3 } from "lucide-react";
@@ -12,6 +15,7 @@ export function BarraDeEdicaoDeHorario({
   motivo,
   avisar,
   salvando,
+  salvo = false,
   semMudanca = false,
   onAvisar,
   onDescartar,
@@ -24,6 +28,8 @@ export function BarraDeEdicaoDeHorario({
   motivo: string | null;
   avisar: boolean;
   salvando: boolean;
+  /** Gravou: mostra "Pronto!" por um instante antes de fechar. */
+  salvo?: boolean;
   /** Nada mudou ainda: Salvar fica desabilitado. */
   semMudanca?: boolean;
   onAvisar: (valor: boolean) => void;
@@ -31,7 +37,12 @@ export function BarraDeEdicaoDeHorario({
   onSalvar: () => void;
 }) {
   return (
-    <section
+    <motion.section
+      data-edicao-ui=""
+      initial={{ opacity: 0, y: "100%" }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: "100%" }}
+      transition={{ duration: TEMPO.etapaDeFluxo, ease: CURVA.rapidaParaLenta }}
       aria-label="Editar horário"
       className="fixed inset-x-0 bottom-0 z-50 mx-auto max-h-[min(55dvh,24rem)] w-full overflow-y-auto rounded-t-2xl border border-b-0 border-line bg-ink2 px-5 pb-[max(1rem,env(safe-area-inset-bottom))] pt-4 md:max-w-[520px]"
     >
@@ -40,7 +51,11 @@ export function BarraDeEdicaoDeHorario({
           <p className="text-xs font-medium text-mute">Horário proposto</p>
           <p className="truncate text-sm font-semibold text-paper">{cliente}</p>
         </div>
-        <span className="flex shrink-0 items-center gap-1.5 rounded-full bg-ink3 px-3 py-2 text-sm font-semibold text-paper">
+        {/* Figaro (spec 2-agenda §6.4): com proposta inválida, o horário fica na cor de erro. */}
+        <span
+          data-invalido={motivo ? "" : undefined}
+          className={`flex shrink-0 items-center gap-1.5 rounded-full bg-ink3 px-3 py-2 text-sm font-semibold ${motivo ? "text-brick" : "text-paper"}`}
+        >
           <Clock3 aria-hidden="true" className="size-4 text-gold" />
           {hora(new Date(inicio).toISOString(), fuso)} – {hora(new Date(fim).toISOString(), fuso)}
         </span>
@@ -65,7 +80,7 @@ export function BarraDeEdicaoDeHorario({
           variant="outline"
           className="rounded-full"
           onClick={onDescartar}
-          disabled={salvando}
+          disabled={salvando || salvo}
         >
           Descartar
         </Button>
@@ -73,11 +88,12 @@ export function BarraDeEdicaoDeHorario({
           variant="primary"
           className="rounded-full"
           onClick={onSalvar}
-          disabled={Boolean(motivo) || salvando || semMudanca}
+          disabled={Boolean(motivo) || salvando || salvo || semMudanca}
+          data-salvo={salvo ? "" : undefined}
         >
-          {salvando ? "Salvando…" : "Salvar"}
+          {salvando ? "Salvando…" : salvo ? "Pronto!" : "Salvar"}
         </Button>
       </div>
-    </section>
+    </motion.section>
   );
 }

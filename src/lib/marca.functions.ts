@@ -18,6 +18,8 @@ import {
   VERSAO_DA_PAGINA,
   preservarFilaDeChegada,
   type PaginaConfig,
+  NOMES_DAS_SECOES,
+  secoesObrigatoriasAusentes,
 } from "@/lib/pagina-config";
 import { SEGMENTOS_CONFIG, segmentoValido, type Segmento } from "@/lib/segmentos";
 
@@ -75,6 +77,7 @@ export type MarcaData = MarcaForm & {
   pagina: PaginaConfig;
   publicada: PaginaConfig;
   alteracoes_pendentes: boolean;
+  pagina_online: boolean;
   lacunas: Lacuna[];
   segmento: Segmento;
 };
@@ -101,7 +104,7 @@ async function containerSalvo(db: SupabaseClient<Database>, tenantId: string) {
 }
 
 async function tenantDoDono(supabase: SupabaseClient<Database>, userId: string) {
-  const [{ data: vinculos }, { data: perfil }] = await Promise.all([
+  const [{ data: vinculosDono }, { data: perfil }] = await Promise.all([
     supabase
       .from("tenant_usuarios")
       .select("tenant_id, papel, ativo")
@@ -110,11 +113,32 @@ async function tenantDoDono(supabase: SupabaseClient<Database>, userId: string) 
       .order("criado_em", { ascending: true }),
     supabase.from("perfis").select("tenant_ativo").eq("user_id", userId).maybeSingle(),
   ]);
-  // Dono de mais de um negócio: vale o que está em uso, como no resto do servidor.
-  const vinculo = escolherVinculo(vinculos ?? [], perfil?.tenant_ativo);
 
-  if (!vinculo?.ativo) throw new Error("Apenas o dono pode configurar a marca.");
-  return vinculo.tenant_id as string;
+  // O fluxo normal continua exigindo vínculo ativo de dono.
+  const vinculoDono = escolherVinculo(vinculosDono ?? [], perfil?.tenant_ativo);
+  if (vinculoDono?.ativo) return vinculoDono.tenant_id;
+
+  // Exceção restrita à demo: um membro ativo pode personalizar apenas o tenant
+  // explicitamente identificado pelo slug reservado "demonstracao".
+  const { data: vinculosAtivos } = await supabase
+    .from("tenant_usuarios")
+    .select("tenant_id, papel, ativo")
+    .eq("user_id", userId)
+    .eq("ativo", true)
+    .order("criado_em", { ascending: true });
+
+  const ids = [...new Set((vinculosAtivos ?? []).map((v) => v.tenant_id))];
+  if (ids.length) {
+    const { data: tenantDemo } = await supabase
+      .from("tenants")
+      .select("id")
+      .eq("slug", "demonstracao")
+      .in("id", ids)
+      .maybeSingle();
+    if (tenantDemo?.id) return tenantDemo.id;
+  }
+
+  throw new Error("Apenas o dono pode configurar a marca.");
 }
 
 function snapshot(row: Database["public"]["Tables"]["tenants"]["Row"]): MarcaForm {
@@ -125,7 +149,8 @@ function snapshot(row: Database["public"]["Tables"]["tenants"]["Row"]): MarcaFor
     instagram: row.instagram ?? null,
     whatsapp: row.whatsapp ?? null,
     facebook: row.facebook ?? null,
-    tema: row.tema,
+    // A coluna aceita qualquer texto (a demonstração grava "rose-creme", que é tema da página): sem coerção a leitura toda quebrava.
+    tema: temaConhecido(row.tema) ? row.tema : "cortai",
     cor_primaria: row.cor_primaria ?? "#1653A1",
     cor_secundaria: row.cor_secundaria ?? "#1F2024",
     cor_accent: row.cor_accent ?? "#C41F61",
@@ -170,7 +195,7 @@ export const getMarca = createServerFn({ method: "GET" })
         .limit(12),
       context.supabase
         .from("tenant_page_configs")
-        .select("draft_config, published_config, updated_at, published_at")
+        .select("draft_config, published_config, updated_at, published_at, is_online")
         .eq("tenant_id", tenantId)
         .maybeSingle(),
       context.supabase
@@ -218,6 +243,7 @@ export const getMarca = createServerFn({ method: "GET" })
           sobre: tenant.descricao ?? "",
         }),
         alteracoes_pendentes: haAlteracoesPendentes(pagina),
+        pagina_online: pagina?.is_online ?? true,
         lacunas: lacunasDaPagina({
           servicosAtivos: servicosAtivos ?? 0,
           profissionais: profissionais ?? 0,
@@ -384,6 +410,44 @@ export const alterarLinkPublico = createServerFn({ method: "POST" })
     return { slug };
   });
 
+export const alterarStatusPaginaPublica = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((input: unknown) => z.object({ online: z.boolean() }).parse(input))
+  .handler(async ({ data, context }) => {
+    const tenantId = await tenantDoDono(context.supabase, context.userId);
+    await exigirRecurso(context.supabase, tenantId, "branding_avancado");
+
+    const { data: existente, error: leituraErro } = await context.supabase
+      .from("tenant_page_configs")
+      .select("tenant_id")
+      .eq("tenant_id", tenantId)
+      .maybeSingle();
+    if (leituraErro) throw new Error(leituraErro.message);
+
+    if (existente) {
+      const { error } = await context.supabase
+        .from("tenant_page_configs")
+        .update({ is_online: data.online })
+        .eq("tenant_id", tenantId);
+      if (error) throw new Error(error.message);
+    } else {
+      const { error } = await context.supabase
+        .from("tenant_page_configs")
+        .insert({ tenant_id: tenantId, is_online: data.online, draft_by: context.userId });
+      if (error) {
+        // Se outra requisição criou a linha simultaneamente, atualize somente o estado.
+        if (error.code !== "23505") throw new Error(error.message);
+        const { error: atualizarErro } = await context.supabase
+          .from("tenant_page_configs")
+          .update({ is_online: data.online })
+          .eq("tenant_id", tenantId);
+        if (atualizarErro) throw new Error(atualizarErro.message);
+      }
+    }
+
+    return { online: data.online };
+  });
+
 export const publicarPagina = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((input: unknown) => editorSchema.parse(input))
@@ -396,6 +460,12 @@ export const publicarPagina = createServerFn({ method: "POST" })
       .eq("id", tenantId)
       .single();
     if (!tenant) throw new Error("Negócio não encontrado.");
+    const ausentes = secoesObrigatoriasAusentes(data.pagina);
+    if (ausentes.length > 0) {
+      throw new Error(
+        `Seções obrigatórias ausentes para este layout: ${ausentes.map((id) => NOMES_DAS_SECOES[id]).join(", ")}. Ative-as para publicar.`,
+      );
+    }
     const marca = {
       ...data.marca,
       assinatura_visivel: tenant.plano === "essencial" ? true : data.marca.assinatura_visivel,

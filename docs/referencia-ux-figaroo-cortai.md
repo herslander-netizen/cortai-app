@@ -161,3 +161,9 @@ A inspeção estática do APK identifica estes domínios de telas e fluxos. A li
 - Recursos de animação genéricos do Android não provam por si só a animação de cada tela. Usar os vídeos/capturas fornecidos para validar o movimento; sem evidência, registrar a lacuna.
 - O APK contém fontes Plus Jakarta Sans, Poppins (pesos Medium/Semibold/Bold) e JetBrains Mono. Antes de alterar tipografia global, verificar se os arquivos podem ser incorporados de forma íntegra e licenciada e se a troca não interfere em legibilidade/identidade da marca atual.
 - Não marcar a recuperação como concluída até a validação visual/funcional das áreas principais em 390 px e 1280 px e a execução de TypeScript, testes e build.
+
+## Mapa de recuperação: Configurações, onboarding e página pública
+
+A matriz detalhada de paridade, com as rotas atuais do Cortaí, as telas identificadas no APK, as lacunas confirmadas e o que ainda precisa de validação visual, está em `docs/referencia-figaro/matriz-recuperacao-cortai.md`. Ela complementa esta referência e a especificação `docs/referencia-figaro/apk/4-pagina-publica.md`.
+
+Prioridade de recuperação: (1) hub “Sua Página” + Layout & Tema + prévia de rascunho/publicação; (2) onboarding e primeiros passos; (3) configurações de conta/negócio e preferências de agendamento/notificações; (4) funcionalidades e navegação; (5) módulos administrativos e demais fluxos. O objetivo é paridade de experiência, não copiar a arquitetura Android nem recriar funções que o Cortaí já tem.

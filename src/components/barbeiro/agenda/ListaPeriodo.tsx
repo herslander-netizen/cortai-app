@@ -1,9 +1,8 @@
-import { useInfiniteQuery } from "@tanstack/react-query";
-import { Search } from "lucide-react";
+import { useBuscaDaLista } from "./busca-da-lista";
+import { infiniteQueryOptions, useInfiniteQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { useAgora } from "@/hooks/useAgora";
 import { getAgendaPeriodo, type AgendaItem } from "@/lib/barbeiro.functions";
 import { brl } from "@/lib/format";
@@ -12,8 +11,7 @@ import { termos } from "@/lib/segmentos";
 
 import { corDaCategoria, glifoDoEstado } from "./cartao-figaro";
 import { IconeDoEstado } from "./IconeDoEstado";
-import { AcoesDoItem, acaoDoItem, ProgressoDoAtendimento, type AcaoCard } from "./ListaAgenda";
-import { MarcaDoLimiteDoDia } from "./SemanaDoTopo";
+import { ProgressoDoAtendimento } from "./ListaAgenda";
 import { diaNoFuso, estaAtrasado, hora, nomeDaAgenda, ROTULO_ESTADO } from "./tempo";
 
 /** Dias por leitura: a lista abre com 60 dias e carrega mais ao chegar no fim. */
@@ -29,16 +27,14 @@ function diasEntre(de: string, ate: string) {
   return Math.round((Date.parse(`${ate}T12:00:00Z`) - Date.parse(`${de}T12:00:00Z`)) / 86_400_000);
 }
 
-function tituloDoDia(dia: string) {
+export function tituloDoDia(dia: string) {
   const data = new Date(`${dia}T12:00:00Z`);
   const numero = data.getUTCDate();
-  const mes = new Intl.DateTimeFormat("pt-BR", { month: "short", timeZone: "UTC" })
-    .format(data)
-    .replace(".", "");
+  const mes = new Intl.DateTimeFormat("pt-BR", { month: "long", timeZone: "UTC" }).format(data);
   const semana = new Intl.DateTimeFormat("pt-BR", { weekday: "long", timeZone: "UTC" }).format(
     data,
   );
-  return { curto: `${numero} ${mes}`, semana: semana.charAt(0).toUpperCase() + semana.slice(1) };
+  return { curto: `${numero} de ${mes}`, semana: semana.charAt(0).toUpperCase() + semana.slice(1) };
 }
 
 /** Busca por cliente, telefone (só os números), serviço ou profissional. */
@@ -66,6 +62,21 @@ export function agruparPorDia(itens: AgendaItem[], fuso: string) {
 }
 
 /**
+ * Consulta da lista de períodos, compartilhada com a pré-busca da Agenda: ao trocar da linha do tempo para
+ * os cartões, os dados já estão prontos e a lista não passa por um carregando.
+ */
+export function opcoesAgendaPeriodo(hoje: string) {
+  return infiniteQueryOptions({
+    queryKey: ["agenda-periodo", hoje],
+    initialPageParam: hoje,
+    queryFn: ({ pageParam }) => getAgendaPeriodo({ data: { de: pageParam, dias: DIAS_POR_BLOCO } }),
+    getNextPageParam: (ultima: { ate: string }) =>
+      diasEntre(hoje, ultima.ate) < DIAS_NO_MAXIMO ? ultima.ate : undefined,
+    staleTime: 15_000,
+  });
+}
+
+/**
  * Modo lista do celular, como no vídeo do dono: os atendimentos de hoje em diante, separados por
  * dia e em ordem, para achar fácil o cliente e o dia marcado. Hoje mantém as ações da lista do dia.
  */
@@ -76,10 +87,7 @@ export function ListaPeriodo({
   mostrarProfissional,
   discreto,
   selecionado,
-  online,
   onAbrir,
-  onFalta,
-  onAcao,
 }: {
   hoje: string;
   fuso: string;
@@ -87,26 +95,14 @@ export function ListaPeriodo({
   mostrarProfissional: boolean;
   discreto: boolean;
   selecionado: string | null;
-  online: boolean;
   onAbrir: (item: AgendaItem) => void;
-  onFalta: (item: AgendaItem) => void;
-  onAcao?: (item: AgendaItem, acao: AcaoCard) => void;
 }) {
   const agora = useAgora();
   const segmento = useSegmentoDoPainel();
-  const [busca, setBusca] = useState("");
+  const { texto: busca } = useBuscaDaLista();
   const [comCancelados, setComCancelados] = useState(false);
-  const [aguardando, setAguardando] = useState<Set<string>>(() => new Set());
 
-  const periodo = useInfiniteQuery({
-    queryKey: ["agenda-periodo", hoje],
-    initialPageParam: hoje,
-    queryFn: ({ pageParam }) => getAgendaPeriodo({ data: { de: pageParam, dias: DIAS_POR_BLOCO } }),
-    getNextPageParam: (ultima) =>
-      diasEntre(hoje, ultima.ate) < DIAS_NO_MAXIMO ? ultima.ate : undefined,
-    staleTime: 15_000,
-    refetchInterval: 60_000,
-  });
+  const periodo = useInfiniteQuery({ ...opcoesAgendaPeriodo(hoje), refetchInterval: 60_000 });
 
   const todos = useMemo(
     () =>
@@ -121,38 +117,38 @@ export function ListaPeriodo({
   );
   const grupos = agruparPorDia(visiveis, periodo.data?.pages[0]?.fuso ?? fuso);
 
-  // Carrega o próximo bloco de dias quando o fim da lista aparece.
+  // Carrega o próximo bloco de dias quando o fim da lista aparece **por rolagem**. O observador lê o estado por
+  // referência (recriá-lo a cada carregamento puxava bloco após bloco). Se a lista cabe na tela não há o que
+  // rolar: nada é buscado sozinho, e "Ver mais dias" cobre esse caso (sem pontinhos encadeados).
   const fim = useRef<HTMLDivElement>(null);
   const { hasNextPage, isFetchingNextPage, fetchNextPage } = periodo;
+  const carregando = useRef(false);
+  carregando.current = isFetchingNextPage;
+  const buscarMais = useRef(fetchNextPage);
+  buscarMais.current = fetchNextPage;
   useEffect(() => {
     const el = fim.current;
     if (!el || !hasNextPage || typeof IntersectionObserver === "undefined") return;
     const observador = new IntersectionObserver(
       (entradas) => {
-        if (entradas.some((e) => e.isIntersecting) && !isFetchingNextPage) void fetchNextPage();
+        if (!entradas.some((e) => e.isIntersecting) || carregando.current) return;
+        if (document.documentElement.scrollHeight <= window.innerHeight + 8) return;
+        void buscarMais.current();
       },
       { rootMargin: "400px 0px" },
     );
     observador.observe(el);
     return () => observador.disconnect();
-  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
+  }, [hasNextPage]);
 
   return (
     <div className="agenda-lista-periodo" data-sem-gesto-dia>
-      <label className="agenda-lista-busca">
-        <Search aria-hidden className="size-4 shrink-0 text-mute" />
-        <Input
-          type="search"
-          value={busca}
-          onChange={(e) => setBusca(e.target.value)}
-          placeholder="Buscar cliente, telefone ou serviço"
-          aria-label="Buscar atendimento"
-          className="h-11 border-0 bg-transparent px-0 shadow-none focus-visible:ring-0"
-        />
-      </label>
-
       {!periodo.data && !periodo.isError ? (
-        <MarcaDoLimiteDoDia className="my-6" carregando />
+        // Os pontinhos são só da linha do tempo (decisão do dono, 23/10): aqui o espaço fica reservado, sem
+        // animação, e o leitor de tela ouve o estado.
+        <div className="min-h-64" aria-busy role="status">
+          <span className="sr-only">Carregando a lista</span>
+        </div>
       ) : !periodo.data ? (
         <div className="py-8 text-center text-sm text-mute" role="alert">
           Não deu para carregar a lista.{" "}
@@ -183,7 +179,10 @@ export function ListaPeriodo({
                   <strong>{titulo.curto}</strong>
                   {ehHoje ? (
                     <>
-                      <span className="rounded-full bg-mute2 px-2 py-0.5 text-xs font-semibold text-paper">
+                      <span
+                        data-hoje
+                        className="rounded-full bg-paper px-2 py-0.5 text-xs font-semibold text-ink"
+                      >
                         Hoje
                       </span>
                       <span>{titulo.semana}</span>
@@ -200,8 +199,7 @@ export function ListaPeriodo({
               <ul>
                 {itens.map((item, i) => {
                   const nome = nomeDaAgenda(item.cliente, discreto);
-                  const atrasado = ehHoje && !aguardando.has(item.id) && estaAtrasado(item, agora);
-                  const principal = ehHoje && onAcao ? acaoDoItem(item, agora, ehHoje) : null;
+                  const atrasado = ehHoje && estaAtrasado(item, agora);
                   const estado =
                     item.status === "na_cadeira"
                       ? termos(segmento).statusAtendimento
@@ -249,20 +247,6 @@ export function ListaPeriodo({
                             <ProgressoDoAtendimento item={item} agora={agora} />
                           ) : null}
                         </Button>
-                        {ehHoje ? (
-                          <AcoesDoItem
-                            item={item}
-                            principal={principal}
-                            atrasado={atrasado}
-                            depoisDoHorario={atrasado && agora >= new Date(item.fim).getTime()}
-                            prioritario={false}
-                            online={online}
-                            onAcao={onAcao}
-                            onFalta={onFalta}
-                            onAbrir={() => onAbrir(item)}
-                            onAguardar={() => setAguardando((a) => new Set(a).add(item.id))}
-                          />
-                        ) : null}
                       </div>
                     </li>
                   );
@@ -283,8 +267,17 @@ export function ListaPeriodo({
           {comCancelados ? "Esconder cancelados" : `Mostrar cancelados (${cancelados})`}
         </Button>
       ) : null}
+      {hasNextPage ? (
+        <Button
+          variant="ghost"
+          className="mt-2 min-h-12 w-full"
+          loading={isFetchingNextPage}
+          onClick={() => void buscarMais.current()}
+        >
+          Ver mais dias
+        </Button>
+      ) : null}
       <div ref={fim} aria-hidden />
-      {isFetchingNextPage ? <MarcaDoLimiteDoDia className="my-4" carregando /> : null}
       {grupos.length > 0 ? (
         <p className="mt-3 text-center text-xs text-mute" role="note">
           Toque no cartão para ver opções, remarcar ou cancelar

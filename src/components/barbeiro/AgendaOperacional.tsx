@@ -4,8 +4,9 @@ import { useNavigate, useRouterState, useSearch } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { ChartNoAxesColumn, Clock3, HandCoins, Lock, Plus, UserRoundPlus } from "lucide-react";
+import { Clock3, HandCoins, Lock, Plus, UserRoundPlus } from "lucide-react";
 import type React from "react";
+import { AnimatePresence } from "framer-motion";
 import {
   Suspense,
   useCallback,
@@ -73,13 +74,15 @@ import {
 import { Button } from "@/components/ui/button";
 import { BarraDeEdicaoDeHorario } from "@/components/barbeiro/agenda/BarraDeEdicaoDeHorario";
 import { CabecalhoDeEdicao } from "@/components/barbeiro/agenda/CabecalhoDeEdicao";
+import { trechosQueSaem } from "@/components/barbeiro/agenda/fantasma-do-horario";
 import { MarcaDoLimiteDoDia, SemanaDoTopo } from "@/components/barbeiro/agenda/SemanaDoTopo";
-import { ListaPeriodo } from "@/components/barbeiro/agenda/ListaPeriodo";
+import { ListaPeriodo, opcoesAgendaPeriodo } from "@/components/barbeiro/agenda/ListaPeriodo";
 import {
   RecolheNaLista,
   TrocaDeVisualizacao,
 } from "@/components/barbeiro/agenda/TrocaDeVisualizacao";
 import { NaBarraDoTopo } from "@/components/barbeiro/agenda/NaBarraDoTopo";
+import { TransicaoVerticalDoModoEdicao } from "@/components/barbeiro/agenda/TransicaoVerticalDoModoEdicao";
 import { useRascunhoDeHorario } from "@/components/barbeiro/agenda/useRascunhoDeHorario";
 import {
   Sheet,
@@ -98,8 +101,7 @@ import {
   type AgendaItem,
   type EstadoAtendimento,
 } from "@/lib/barbeiro.functions";
-import { getAguardandoPagamento, getMeuDia } from "@/lib/financeiro.functions";
-import { PrimeirosPassos } from "@/components/onboarding/PrimeirosPassos";
+import { getAguardandoPagamento } from "@/lib/financeiro.functions";
 import { brl } from "@/lib/format";
 import {
   chamarProximoDaFila,
@@ -262,6 +264,16 @@ function FolhaFila(props: {
       </SheetContent>
     </Sheet>
   );
+}
+
+/**
+ * Função de identidade fixa que sempre chama a versão mais recente (ref). A linha do tempo é memorizada: se os
+ * manipuladores mudassem de identidade a cada render, a troca de dia refaria a grade inteira à toa.
+ */
+function useFuncaoEstavel<A extends unknown[], R>(fn: (...args: A) => R): (...args: A) => R {
+  const atual = useRef(fn);
+  atual.current = fn;
+  return useCallback((...args: A) => atual.current(...args), []);
 }
 
 export function AgendaOperacional() {
@@ -457,13 +469,6 @@ export function AgendaOperacional() {
     staleTime: 30_000,
     refetchOnWindowFocus: true,
   });
-  const [meuDiaAberto, setMeuDiaAberto] = useState(false);
-  const meuDiaQ = useQuery({
-    queryKey: ["agenda-meu-dia"],
-    queryFn: () => getMeuDia(),
-    staleTime: 60_000,
-    enabled: ehHoje,
-  });
   const aReceber = aReceberQ.data ?? [];
   const chegada = filaQ.data?.chegada ?? [];
   const mostrarFila = filaDeChegadaVisivel(filaQ.data?.filaDeChegadaAtiva, chegada.length);
@@ -558,6 +563,7 @@ export function AgendaOperacional() {
   );
   // Editar horário: arrastar ou esticar só propõe; nada grava até Salvar.
   const relogioDaEdicao = useAgora();
+  const ancoraZoomEdicao = useRef<{ id: string; y: number } | null>(null);
   const edicao = useRascunhoDeHorario({
     itens: itensBase,
     dia,
@@ -569,8 +575,8 @@ export function AgendaOperacional() {
         avisarCliente: avisar,
       }),
   });
-  // Figaro: editar um cartão aproxima as horas (4 px/min) e sair volta ao zoom de antes.
-  useZoomDaEdicao(edicao.rascunho?.id ?? null);
+  // Figaro: o zoom entra ao segurar, acompanha o ponto pressionado e volta ao sair.
+  useZoomDaEdicao(edicao.rascunho?.id ?? null, ancoraZoomEdicao);
   const gestoDia = useGestoDia(dia, mudarDia);
   // A Agenda não é desmontada ao trocar de dia (nada pisca e a rolagem fica onde estava).
   // Troca por seta, calendário ou "Hoje": um deslize curto, sem sumir; pelo gesto, nada.
@@ -605,6 +611,11 @@ export function AgendaOperacional() {
     () => todosItens.filter((item) => !profFiltro || item.profissionalId === profFiltro),
     [todosItens, profFiltro],
   );
+  /** Bloqueios cadastrados do dia; os da equipe toda (sem profissional) valem para qualquer coluna. */
+  const bloqueiosDoDia = (profissional: string | null) =>
+    (agenda.data?.bloqueiosDoDia ?? [])
+      .filter((b) => !b.profissional_id || !profissional || b.profissional_id === profissional)
+      .map((b) => ({ id: b.id, inicio: b.inicio, fim: b.fim, motivo: b.motivo }));
 
   useEffect(() => {
     const lista = agenda.data?.itens;
@@ -859,9 +870,51 @@ export function AgendaOperacional() {
   function moverPorArrasto(item: AgendaItem, deltaMin: number) {
     edicao.propor(item.id, deltaMin);
   }
-  const cartaoEmEdicao = edicao.original
-    ? { id: edicao.original.id, motivo: edicao.textoDoMotivo }
-    : undefined;
+  function iniciarEdicaoPorGesto(item: AgendaItem, yDoToque?: number) {
+    ancoraZoomEdicao.current = typeof yDoToque === "number" ? { id: item.id, y: yDoToque } : null;
+    edicao.iniciar(item.id);
+  }
+  function atualizarYDoGesto(id: string, yDoToque: number) {
+    if (ancoraZoomEdicao.current?.id !== id) return;
+    ancoraZoomEdicao.current = { id, y: yDoToque };
+  }
+  // Toque curto fora do cartão e das barras sai do modo de edição, como no Figaro (spec 2-agenda §6,
+  // "Toque fora"). Só toque no celular: um toque longo arma o cartão e arrastar não conta como toque.
+  const descartarEdicao = useRef(edicao.descartar);
+  descartarEdicao.current = edicao.descartar;
+  const editando = Boolean(edicao.rascunho);
+  useEffect(() => {
+    if (!editando) return;
+    let toque: { id: number; x: number; y: number; t: number } | null = null;
+    const comecar = (e: PointerEvent) => {
+      toque =
+        e.pointerType === "mouse" || !e.isPrimary
+          ? null
+          : { id: e.pointerId, x: e.clientX, y: e.clientY, t: performance.now() };
+    };
+    const terminar = (e: PointerEvent) => {
+      const inicio = toque;
+      toque = null;
+      if (!inicio || e.pointerId !== inicio.id) return;
+      if (performance.now() - inicio.t > 300) return;
+      if (Math.hypot(e.clientX - inicio.x, e.clientY - inicio.y) > 8) return;
+      const alvo = e.target instanceof Element ? e.target : null;
+      if (
+        !alvo ||
+        alvo.closest(
+          '[data-agendamento],[data-edicao-ui],button,a,input,select,textarea,[role="dialog"],[role="alertdialog"],[role="menu"],[role="listbox"]',
+        )
+      )
+        return;
+      descartarEdicao.current();
+    };
+    document.addEventListener("pointerdown", comecar, true);
+    document.addEventListener("pointerup", terminar, true);
+    return () => {
+      document.removeEventListener("pointerdown", comecar, true);
+      document.removeEventListener("pointerup", terminar, true);
+    };
+  }, [editando]);
   function redimensionarPorAlca(item: AgendaItem, deltaMin: number) {
     edicao.propor(item.id, 0, deltaMin);
   }
@@ -881,8 +934,70 @@ export function AgendaOperacional() {
   }
 
   const carregandoInicial = agenda.isLoading && !agenda.data;
+  // Celular: deixa a lista de cartões pronta em segundo plano; a troca da linha do tempo para os cartões
+  // não passa por um carregamento.
+  const hojeDaLista = hojeNoFuso(fuso);
+  useEffect(() => {
+    if (!celular || carregandoInicial) return;
+    const id = window.setTimeout(
+      () => void queryClient.prefetchInfiniteQuery(opcoesAgendaPeriodo(hojeDaLista)),
+      1500,
+    );
+    return () => window.clearTimeout(id);
+  }, [celular, carregandoInicial, hojeDaLista, queryClient]);
   const erroInicial = agenda.isError && !agenda.data;
   const mensagemErro = agenda.error instanceof Error ? agenda.error.message : undefined;
+  // Identidades estáveis para a linha do tempo memorizada (veja useFuncaoEstavel).
+  const abrirEstavel = useFuncaoEstavel(abrir);
+  const moverEstavel = useFuncaoEstavel(moverPorArrasto);
+  const redimensionarEstavel = useFuncaoEstavel(redimensionarPorAlca);
+  const editarEstavel = useFuncaoEstavel(iniciarEdicaoPorGesto);
+  const atualizarYEstavel = useFuncaoEstavel(atualizarYDoGesto);
+  const horarioVazioGeralEstavel = useFuncaoEstavel((h: string) => {
+    setHoraVazia(h);
+    setProfVazio(null);
+    setManualAberto(true);
+  });
+  const cartaoEmEdicaoMemo = useMemo(
+    () =>
+      edicao.original
+        ? {
+            id: edicao.original.id,
+            motivo: edicao.textoDoMotivo,
+            trechos:
+              edicao.novo && edicao.original
+                ? trechosQueSaem(
+                    {
+                      inicio: Date.parse(edicao.original.inicio),
+                      fim: Date.parse(edicao.original.fim),
+                    },
+                    edicao.novo,
+                  ).map((t) => ({
+                    inicio: new Date(t.inicio).toISOString(),
+                    fim: new Date(t.fim).toISOString(),
+                  }))
+                : [],
+          }
+        : undefined,
+    [edicao.original, edicao.novo, edicao.textoDoMotivo],
+  );
+  const bloqueiosDoDiaGeral = useMemo(
+    () => bloqueiosDoDia(profFiltro),
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- depende só dos dados e do filtro
+    [agenda.data?.bloqueiosDoDia, profFiltro],
+  );
+  const vizinhosMemo = useMemo(
+    () =>
+      celular ? (
+        <CamadasVizinhas
+          diaAtual={dia}
+          profissionalId={profFiltro}
+          discreto={modoDiscreto}
+          diaCompleto
+        />
+      ) : undefined,
+    [celular, dia, profFiltro, modoDiscreto],
+  );
   const faixa = (
     <FaixaConexao
       online={online}
@@ -912,7 +1027,6 @@ export function AgendaOperacional() {
       onEncaixe={() => setRapidoAberto(true)}
       onChamarFila={() => void chamarFila()}
       onBloquear={() => setBloquearAberto(true)}
-      onEquipe={() => void navigate({ to: "/barbeiro/equipe" })}
       onNovoCliente={() => {
         setNovoCliente(true);
         setManualAberto(true);
@@ -1212,22 +1326,32 @@ export function AgendaOperacional() {
 
   return (
     <Screen title="Agenda" hideHeader wide assinaturaSoComputador>
-      {edicao.rascunho && !celular ? <CabecalhoDeEdicao dia={dia} /> : null}
-      {edicao.rascunho && edicao.original && edicao.novo ? (
-        <BarraDeEdicaoDeHorario
-          cliente={edicao.original.cliente}
-          inicio={edicao.novo.inicio}
-          fim={edicao.novo.fim}
-          fuso={fuso}
-          motivo={edicao.textoDoMotivo}
-          avisar={edicao.rascunho.avisar}
-          salvando={edicao.salvando}
-          semMudanca={edicao.semMudanca}
-          onAvisar={edicao.definirAviso}
-          onDescartar={edicao.descartar}
-          onSalvar={() => void edicao.confirmar()}
-        />
-      ) : null}
+      <AnimatePresence initial={false}>
+        {edicao.rascunho && !celular ? (
+          <TransicaoVerticalDoModoEdicao key="edicao-topo-desktop" direcao="topo">
+            <CabecalhoDeEdicao dia={dia} />
+          </TransicaoVerticalDoModoEdicao>
+        ) : null}
+      </AnimatePresence>
+      <AnimatePresence initial={false}>
+        {edicao.rascunho && edicao.original && edicao.novo ? (
+          <BarraDeEdicaoDeHorario
+            key="barra-edicao-horario"
+            cliente={edicao.original.cliente}
+            inicio={edicao.novo.inicio}
+            fim={edicao.novo.fim}
+            fuso={fuso}
+            motivo={edicao.textoDoMotivo}
+            avisar={edicao.rascunho.avisar}
+            salvando={edicao.salvando}
+            salvo={edicao.salvo}
+            semMudanca={edicao.semMudanca}
+            onAvisar={edicao.definirAviso}
+            onDescartar={edicao.descartar}
+            onSalvar={() => void edicao.confirmar()}
+          />
+        ) : null}
+      </AnimatePresence>
       <div
         className="agenda-operacional pb-32"
         data-direcao={direcaoDia}
@@ -1236,22 +1360,45 @@ export function AgendaOperacional() {
       >
         {celular ? (
           <>
-            <NaBarraDoTopo>
-              {edicao.rascunho ? (
-                <CabecalhoDeEdicao dia={dia} naBarra />
-              ) : (
-                // No modo lista a faixa da semana recolhe (a lista já vai por dias).
-                <RecolheNaLista visivel={visualizacao !== "lista"}>
-                  <SemanaDoTopo
-                    dia={dia}
-                    hoje={hojeNoFuso(fuso)}
-                    profissionalId={profFiltro}
-                    onDia={mudarDia}
-                    expandido={calAberto}
-                    onExpandido={setCalAberto}
-                  />
-                </RecolheNaLista>
-              )}
+            <NaBarraDoTopo alvoId={edicao.rascunho ? "topo-centro" : "topo-baixo"}>
+              <div className="grid w-full">
+                <AnimatePresence initial={false} mode="sync">
+                  {edicao.rascunho ? (
+                    <TransicaoVerticalDoModoEdicao
+                      key="edicao-topo-mobile"
+                      className="col-start-1 row-start-1 w-full"
+                      direcao="topo"
+                    >
+                      <CabecalhoDeEdicao
+                        dia={dia}
+                        naBarra
+                        onReagendar={() => {
+                          const original = edicao.original;
+                          edicao.descartar();
+                          if (original) abrirAcao(original, "remarcar");
+                        }}
+                      />
+                    </TransicaoVerticalDoModoEdicao>
+                  ) : (
+                    <TransicaoVerticalDoModoEdicao
+                      key="semana-topo-mobile"
+                      className="col-start-1 row-start-1 w-full"
+                      direcao="topo"
+                    >
+                      <RecolheNaLista visivel={visualizacao !== "lista"}>
+                        <SemanaDoTopo
+                          dia={dia}
+                          hoje={hojeNoFuso(fuso)}
+                          profissionalId={profFiltro}
+                          onDia={mudarDia}
+                          expandido={calAberto}
+                          onExpandido={setCalAberto}
+                        />
+                      </RecolheNaLista>
+                    </TransicaoVerticalDoModoEdicao>
+                  )}
+                </AnimatePresence>
+              </div>
             </NaBarraDoTopo>
           </>
         ) : null}
@@ -1353,12 +1500,6 @@ export function AgendaOperacional() {
           </div>
         ) : null}
 
-        {celular && ehHoje && diaSemAgenda ? (
-          <div className="mb-3">
-            <PrimeirosPassos />
-          </div>
-        ) : null}
-
         <div
           id="agenda-painel-visualizacao"
           aria-label={`Visualização ${visualizacao}`}
@@ -1382,10 +1523,10 @@ export function AgendaOperacional() {
                   alterarVisualizacao("timeline");
                 }}
               />
-            ) : diaSemAgenda && !(celular && visualizacao !== "lista") ? (
+            ) : diaSemAgenda && !celular ? (
               <AgendaVazia
-                titulo="Agenda livre"
-                texto={`${dataEditorial(dia)} · nenhum atendimento marcado`}
+                titulo="Sem atendimentos neste dia"
+                texto={`${dataEditorial(dia)} · não há horários marcados para esta data. Seus agendamentos de outros dias continuam salvos na agenda.`}
               >
                 <Button className="min-h-11" onClick={() => setManualAberto(true)}>
                   <Plus /> Novo agendamento
@@ -1399,8 +1540,21 @@ export function AgendaOperacional() {
                     Encaixe
                   </Button>
                 ) : null}
-                {ehHoje ? <PrimeirosPassos /> : null}
               </AgendaVazia>
+            ) : celular && visualizacao === "lista" && diaSemAgenda ? (
+              <ListaPeriodo
+                hoje={hojeNoFuso(fuso)}
+                fuso={fuso}
+                profissionalId={profFiltro}
+                mostrarProfissional={!profFiltro && profissionais.length > 1}
+                discreto={modoDiscreto}
+                selecionado={selecionado}
+                onAbrir={(item) => {
+                  const doItem = diaNoFuso(item.inicio, fuso);
+                  if (doItem !== dia) mudarDia(doItem);
+                  abrir(item.id);
+                }}
+              />
             ) : colunas ? (
               <div
                 className="agenda-colunas"
@@ -1422,15 +1576,17 @@ export function AgendaOperacional() {
                       fuso={fuso}
                       itens={itens.filter((item) => item.profissionalId === p.id)}
                       itensEscala={itens}
+                      bloqueiosDoDia={bloqueiosDoDia(p.id)}
                       alinhado
                       horarios={agenda.data?.horarios ?? []}
                       selecionado={selecionado}
-                      onSelecionar={abrir}
-                      onMover={moverPorArrasto}
-                      onRedimensionar={redimensionarPorAlca}
-                      onEditar={(item) => edicao.iniciar(item.id)}
+                      onSelecionar={abrirEstavel}
+                      onMover={moverEstavel}
+                      onRedimensionar={redimensionarEstavel}
+                      onEditar={editarEstavel}
+                      onAtualizarYDoToque={atualizarYEstavel}
                       passoMin={passoMin}
-                      edicaoDoCartao={cartaoEmEdicao}
+                      edicaoDoCartao={cartaoEmEdicaoMemo}
                       onHorarioVazio={(h) => {
                         setHoraVazia(h);
                         setProfVazio(p.id);
@@ -1447,43 +1603,32 @@ export function AgendaOperacional() {
             ) : visualizacao !== "lista" ? (
               <>
                 {celular ? (
-                  <MarcaDoLimiteDoDia className="mb-1" carregando={agenda.isFetching} naPagina />
+                  <MarcaDoLimiteDoDia className="mb-[-2.5px] mt-[6.5px]" carregando={agenda.isFetching} naPagina />
                 ) : null}
                 <AgendaTimeline
                   dia={dia}
                   fuso={fuso}
                   itens={itens}
                   itensEscala={todosItens}
+                  bloqueiosDoDia={bloqueiosDoDiaGeral}
                   horarios={agenda.data?.horarios ?? []}
                   selecionado={selecionado}
-                  onSelecionar={abrir}
-                  onMover={moverPorArrasto}
-                  onRedimensionar={redimensionarPorAlca}
-                  onEditar={(item) => edicao.iniciar(item.id)}
+                  onSelecionar={abrirEstavel}
+                  onMover={moverEstavel}
+                  onRedimensionar={redimensionarEstavel}
+                  onEditar={editarEstavel}
+                  onAtualizarYDoToque={atualizarYEstavel}
                   passoMin={passoMin}
-                  edicaoDoCartao={cartaoEmEdicao}
-                  onHorarioVazio={(h) => {
-                    setHoraVazia(h);
-                    setProfVazio(null);
-                    setManualAberto(true);
-                  }}
+                  edicaoDoCartao={cartaoEmEdicaoMemo}
+                  onHorarioVazio={horarioVazioGeralEstavel}
                   destaques={novos}
                   mostrarProfissional={!profFiltro && profissionais.length > 1}
                   discreto={modoDiscreto}
                   diaCompleto={celular}
-                  vizinhos={
-                    celular ? (
-                      <CamadasVizinhas
-                        diaAtual={dia}
-                        profissionalId={profFiltro}
-                        discreto={modoDiscreto}
-                        diaCompleto
-                      />
-                    ) : undefined
-                  }
+                  vizinhos={vizinhosMemo}
                 />
                 {celular ? (
-                  <MarcaDoLimiteDoDia className="mt-1" carregando={agenda.isFetching} naPagina />
+                  <MarcaDoLimiteDoDia className="mt-[-2.5px] mb-0.5" carregando={agenda.isFetching} naPagina />
                 ) : null}
               </>
             ) : celular ? (
@@ -1494,18 +1639,10 @@ export function AgendaOperacional() {
                 mostrarProfissional={!profFiltro && profissionais.length > 1}
                 discreto={modoDiscreto}
                 selecionado={selecionado}
-                online={online}
                 onAbrir={(item) => {
                   const doItem = diaNoFuso(item.inicio, fuso);
                   if (doItem !== dia) mudarDia(doItem);
                   abrir(item.id);
-                }}
-                onFalta={(i) => void transicionar(i, "nao_compareceu")}
-                onAcao={(i, acao) => {
-                  const efeito = efeitoDaAcaoCard(acao);
-                  if (efeito === "marcar_chegada") void transicionar(i, "chegou");
-                  else if (efeito === "comecar") iniciar(i);
-                  else setFechando(i.id);
                 }}
               />
             ) : (
@@ -1568,63 +1705,6 @@ export function AgendaOperacional() {
                 </li>
               ))}
             </ul>
-          </section>
-        ) : null}
-
-        {ehHoje && meuDiaQ.data ? (
-          <section className="mt-6 border-t border-line pt-2">
-            <Button
-              variant="ghost"
-              type="button"
-              aria-expanded={meuDiaAberto}
-              className="flex min-h-12 w-full items-center justify-between gap-3 text-left"
-              onClick={() => setMeuDiaAberto((v) => !v)}
-            >
-              <span className="flex items-center gap-2 text-sm font-bold text-paper">
-                <ChartNoAxesColumn aria-hidden className="size-4" />
-                Meu dia
-              </span>
-              <span className="text-xs text-mute">
-                {meuDiaQ.data.atendimentos} atend. ·{" "}
-                {modoDiscreto ? "R$ •••" : brl(meuDiaQ.data.vendido)}
-              </span>
-            </Button>
-            {meuDiaAberto ? (
-              <dl className="grid grid-cols-2 gap-x-4 gap-y-3 pb-3 text-sm">
-                <div>
-                  <dt className="text-xs text-mute">Atendimentos hoje</dt>
-                  <dd className="text-lg font-extrabold text-paper">{meuDiaQ.data.atendimentos}</dd>
-                </div>
-                <div>
-                  <dt className="text-xs text-mute">Vendido (caixa)</dt>
-                  <dd className="money-value text-lg text-paper">
-                    {modoDiscreto ? "R$ •••" : brl(meuDiaQ.data.vendido)}
-                  </dd>
-                </div>
-                {meuDiaQ.data.temComissao ? (
-                  <div>
-                    <dt className="text-xs text-mute">Comissão estimada</dt>
-                    <dd className="money-value text-lg text-paper">
-                      {modoDiscreto ? "R$ •••" : brl(meuDiaQ.data.comissao)}
-                    </dd>
-                  </div>
-                ) : null}
-                {meuDiaQ.data.fiado ? (
-                  <div>
-                    <dt className="text-xs text-mute">No fiado</dt>
-                    <dd className="money-value text-lg text-paper">
-                      {modoDiscreto ? "R$ •••" : brl(meuDiaQ.data.fiado)}
-                    </dd>
-                  </div>
-                ) : null}
-                {meuDiaQ.data.noPlano ? (
-                  <div>
-                    <dt className="text-xs text-mute">Pelo plano</dt>
-                    <dd className="text-lg font-extrabold text-paper">{meuDiaQ.data.noPlano}</dd>
-                  </div>
-                ) : null}
-              </dl>
-            ) : null}
           </section>
         ) : null}
       </div>

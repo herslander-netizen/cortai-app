@@ -3,7 +3,7 @@ import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { PERMISSOES } from "@/lib/permissoes";
-import { IDENTIDADES, type Identidade } from "@/lib/aparencia";
+import { IDENTIDADES, identidadeValida, type Identidade } from "@/lib/aparencia";
 import { SEGMENTOS_CONFIG, segmentoValido, type Segmento } from "@/lib/segmentos";
 import { configPadrao, TEMAS } from "@/lib/pagina-config";
 import { decidirContextos } from "@/lib/contextos";
@@ -54,32 +54,62 @@ async function admin() {
 /** Cria o perfil na primeira entrada e concede admin se o e-mail estiver autorizado. */
 async function garantirPerfil(userId: string, email: string | null, nome: string | null) {
   const db = await admin();
-  const { data: perfil } = await db
-    .from("perfis")
-    .select("tipo, nome")
-    .eq("user_id", userId)
-    .maybeSingle();
+  const consultarPerfil = () =>
+    db.from("perfis").select("tipo, nome").eq("user_id", userId).maybeSingle();
+
+  const { data: perfilExistente, error: erroConsultaPerfil } = await consultarPerfil();
+  if (erroConsultaPerfil) throw new Error("Não foi possível verificar seu perfil.");
+  let perfil = perfilExistente;
+
   if (!perfil) {
-    await db.from("perfis").insert({ user_id: userId, nome: nome ?? email?.split("@")[0] ?? null });
+    const { error: erroInsercaoPerfil } = await db
+      .from("perfis")
+      .insert({ user_id: userId, nome: nome ?? email?.split("@")[0] ?? null });
+
+    // Outra requisição pode ter criado o perfil entre a consulta e a inserção.
+    // Só tratamos o conflito como sucesso se o perfil realmente existir.
+    if (erroInsercaoPerfil) {
+      const { data: perfilConcorrente, error: erroReconsulta } = await consultarPerfil();
+      if (erroReconsulta || !perfilConcorrente) {
+        throw new Error("Não foi possível preparar seu perfil.");
+      }
+      perfil = perfilConcorrente;
+    } else {
+      const { data: perfilCriado, error: erroReconsulta } = await consultarPerfil();
+      if (erroReconsulta || !perfilCriado) {
+        throw new Error("Não foi possível confirmar a criação do seu perfil.");
+      }
+      perfil = perfilCriado;
+    }
   }
+
   if (email) {
     // Comparação exata: o e-mail de quem entra nunca vira padrão de busca (`_`/`%` seriam curingas).
-    const { data: autorizados } = await db
+    const { data: autorizados, error: erroAutorizados } = await db
       .from("emails_admin_autorizados")
       .select("email")
       .limit(500);
+    if (erroAutorizados) throw new Error("Não foi possível verificar as permissões da conta.");
     const autorizado = (autorizados ?? []).some((linha) => mesmoEmail(linha.email, email));
     if (autorizado) {
-      const { data: jaTem } = await db
-        .from("user_roles")
-        .select("id")
-        .eq("user_id", userId)
-        .eq("role", "admin")
-        .maybeSingle();
-      if (!jaTem) await db.from("user_roles").insert({ user_id: userId, role: "admin" });
+      const consultarPapelAdmin = () =>
+        db.from("user_roles").select("id").eq("user_id", userId).eq("role", "admin").maybeSingle();
+      const { data: jaTem, error: erroPapel } = await consultarPapelAdmin();
+      if (erroPapel) throw new Error("Não foi possível verificar as permissões da conta.");
+      if (!jaTem) {
+        const { error: erroInsercaoPapel } = await db
+          .from("user_roles")
+          .insert({ user_id: userId, role: "admin" });
+        if (erroInsercaoPapel) {
+          const { data: papelConcorrente, error: erroReconsulta } = await consultarPapelAdmin();
+          if (erroReconsulta || !papelConcorrente) {
+            throw new Error("Não foi possível preparar as permissões da conta.");
+          }
+        }
+      }
     }
   }
-  return perfil?.tipo ?? "pendente";
+  return perfil.tipo ?? "pendente";
 }
 
 export const getSessao = createServerFn({ method: "GET" })
@@ -98,7 +128,7 @@ export const getSessao = createServerFn({ method: "GET" })
     const tipo = await garantirPerfil(context.userId, email, nomeMeta);
     const db = await admin();
 
-    const [{ data: papelAdmin }, { data: vinculos }, { data: perfil }, { count: fichas }] =
+    const [resultadoPapelAdmin, resultadoVinculos, resultadoPerfil, resultadoFichas] =
       await Promise.all([
         db.rpc("has_role", { _user_id: context.userId, _role: "admin" }),
         db
@@ -118,6 +148,20 @@ export const getSessao = createServerFn({ method: "GET" })
           .select("id", { count: "exact", head: true })
           .eq("user_id", context.userId),
       ]);
+
+    if (
+      resultadoPapelAdmin.error ||
+      resultadoVinculos.error ||
+      resultadoPerfil.error ||
+      resultadoFichas.error
+    ) {
+      throw new Error("Não foi possível carregar seu acesso. Tente novamente em instantes.");
+    }
+
+    const papelAdmin = resultadoPapelAdmin.data;
+    const vinculos = resultadoVinculos.data;
+    const perfil = resultadoPerfil.data;
+    const fichas = resultadoFichas.count;
 
     // Uma conta pode ter vínculo com mais de uma barbearia: usa a escolhida, com o
     // primeiro vínculo ativo como padrão seguro — a mesma regra do servidor (`vinculoDoMembro`).
@@ -205,9 +249,7 @@ export const getSessao = createServerFn({ method: "GET" })
         tenantLogoUrl,
         tenantPaginaPublicada,
         tenantFuso: t?.fuso ?? null,
-        identidadeApp: IDENTIDADES.includes(t?.identidade_app as Identidade)
-          ? (t?.identidade_app as Identidade)
-          : "moderno",
+        identidadeApp: identidadeValida(t?.identidade_app),
         segmento: segmentoValido(t?.segmento),
         tenantModo: t?.modo === "claro" || t?.modo === "sistema" ? t.modo : "escuro",
         papelNaEquipe: vinculo.papel,
@@ -364,7 +406,11 @@ export const criarBarbearia = createServerFn({ method: "POST" })
       .parse(input),
   )
   .handler(async ({ data, context }) => {
-    const diagnostico = (etapa: string, error: { code?: string; message?: string; details?: string; hint?: string } | null | undefined) => {
+    const diagnostico = (
+      etapa: string,
+      error:
+        { code?: string; message?: string; details?: string; hint?: string } | null | undefined,
+    ) => {
       // Nunca registrar CPF, telefone, token, nome do usuário ou chaves de ambiente.
       console.error("[criarBarbearia] Falha no fluxo", {
         etapa,
@@ -376,7 +422,11 @@ export const criarBarbearia = createServerFn({ method: "POST" })
         supabaseUrlConfigurada: Boolean(process.env["SUPABASE_URL"]),
         serviceRoleConfigurada: Boolean(process.env["SUPABASE_SERVICE_ROLE_KEY"]),
         supabaseHost: (() => {
-          try { return new URL(process.env["SUPABASE_URL"] ?? "").host; } catch { return null; }
+          try {
+            return new URL(process.env["SUPABASE_URL"] ?? "").host;
+          } catch {
+            return null;
+          }
         })(),
       });
     };
@@ -384,7 +434,10 @@ export const criarBarbearia = createServerFn({ method: "POST" })
     try {
       db = await admin();
     } catch (error) {
-      diagnostico("inicializar_cliente_admin", error instanceof Error ? { message: error.message } : null);
+      diagnostico(
+        "inicializar_cliente_admin",
+        error instanceof Error ? { message: error.message } : null,
+      );
       throw new Error("Não foi possível conectar ao serviço de cadastro. Tente novamente.");
     }
     const { data: vinculo, error: erroConsultaVinculo } = await db
@@ -465,7 +518,11 @@ export const criarBarbearia = createServerFn({ method: "POST" })
       );
     if (erroPagina) {
       diagnostico("salvar_configuracao_pagina", erroPagina);
-      await db.from("tenant_usuarios").delete().eq("tenant_id", tenantId).eq("user_id", context.userId);
+      await db
+        .from("tenant_usuarios")
+        .delete()
+        .eq("tenant_id", tenantId)
+        .eq("user_id", context.userId);
       await db.from("tenants").delete().eq("id", tenantId);
       throw new Error("Não foi possível preparar a página do negócio.");
     }
@@ -478,9 +535,15 @@ export const criarBarbearia = createServerFn({ method: "POST" })
     if (erroPerfil) {
       diagnostico("atualizar_perfil", erroPerfil);
       await db.from("tenant_page_configs").delete().eq("tenant_id", tenantId);
-      await db.from("tenant_usuarios").delete().eq("tenant_id", tenantId).eq("user_id", context.userId);
+      await db
+        .from("tenant_usuarios")
+        .delete()
+        .eq("tenant_id", tenantId)
+        .eq("user_id", context.userId);
       await db.from("tenants").delete().eq("id", tenantId);
-      throw new Error("O negócio foi iniciado, mas não foi possível configurar seu acesso. Tente novamente.");
+      throw new Error(
+        "O negócio foi iniciado, mas não foi possível configurar seu acesso. Tente novamente.",
+      );
     }
     return {
       tenantId: tenantId as string,

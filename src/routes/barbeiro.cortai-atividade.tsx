@@ -4,7 +4,7 @@ import { useState } from "react";
 import { AlertTriangle, CheckCircle2 } from "lucide-react";
 
 import { Screen, EmptyState } from "@/components/layout/Screen";
-import { Carregando } from "@/components/layout/Carregando";
+import { EsqueletoPainel } from "@/components/layout/Esqueleto";
 import { Button } from "@/components/ui/button";
 import { PainelDeLembretes } from "@/components/notificacoes/PainelDeLembretes";
 import {
@@ -119,7 +119,7 @@ function AtividadePage() {
       title="Atividade do CortAI"
       subtitle="O que ele entendeu, o que consultou no seu negócio e o que não deu certo — nos últimos 30 dias."
     >
-      {metricas.isLoading || atividade.isLoading ? <Carregando /> : null}
+      {metricas.isLoading || atividade.isLoading ? <EsqueletoPainel /> : null}
       {metricas.isError || atividade.isError ? (
         <p className="border-y border-line py-8 text-center text-sm text-brick">
           Não conseguimos carregar a atividade agora. Tente de novo em instantes.

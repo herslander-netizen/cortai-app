@@ -16,6 +16,7 @@ import { normalizarTelefone, variantesDoTelefone } from "@/lib/telefone";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { normalizarPagina, type PaginaConfig } from "@/lib/pagina-config";
+import { paginaPublicaDisponivel } from "@/lib/pagina-publica-status";
 import { segmentoParaApresentacao, type Segmento } from "@/lib/segmentos";
 import { validarPreferenciasCliente, type PreferenciasCliente } from "@/lib/preferencias-cliente";
 import { urlPublica } from "@/lib/origem-publica";
@@ -710,10 +711,11 @@ export const getPreviaDaBarbearia = createServerFn({ method: "GET" })
           .eq("ativo", true),
         db
           .from("tenant_page_configs")
-          .select("published_config")
+          .select("published_config, is_online")
           .eq("tenant_id", resolvido.tenant_id)
           .maybeSingle(),
       ]);
+      const paginaOnline = paginaPublicaDisponivel(cfg?.is_online);
       const publicada = normalizarPagina(
         (cfg?.published_config as { pagina?: unknown } | null)?.pagina,
       );
@@ -735,6 +737,7 @@ export const getPreviaDaBarbearia = createServerFn({ method: "GET" })
         telefone: (t.telefone as string | null) ?? null,
         whatsapp: (t.whatsapp as string | null) ?? null,
         instagram: (t.instagram as string | null) ?? null,
+        paginaOnline,
         horarios: horarios ?? [],
         precos: (servicos ?? []).map((s) => s.preco_centavos),
         experiencia: publicada.experiencia,
@@ -756,6 +759,7 @@ export type PreviaPublica = {
   telefone: string | null;
   whatsapp: string | null;
   instagram: string | null;
+  paginaOnline: boolean;
   horarios: { dia_semana: number; fechado: boolean; abre: string; fecha: string }[];
   precos: number[];
   experiencia: "direta" | "vitrine" | "conversa";

@@ -2,7 +2,10 @@ import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Bell, ChevronDown, TrendingUp } from "lucide-react";
 
+import { CartaoDeAvisoDoMenu } from "@/components/layout/CartaoDeAvisoDoMenu";
 import { Button } from "@/components/ui/button";
+import { Odometro } from "@/components/ui/Odometro";
+import { PulsoDeNumero } from "@/components/ui/PulsoDeNumero";
 import { getDesempenhoDaSemana } from "@/lib/desempenho-menu.functions";
 import { TEXTO_INSTALAR_PRIMEIRO } from "@/lib/push/ativar";
 import { marcarCartaoDeAvisosNoMenu, useConviteDeAvisos } from "@/lib/push/convite-avisos";
@@ -48,14 +51,20 @@ export function FaixaDesempenho({ tenantId, ativo }: { tenantId: string; ativo: 
   return (
     <div className="overflow-hidden rounded-b-[28px] rounded-t-[10px] bg-drawer-band">
       <div
-        className={`grid transition-[grid-template-rows] duration-[150ms] motion-reduce:transition-none ${aberta ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}
+        className={`grid transition-[grid-template-rows] duration-[var(--mola-tamanho-duracao)] ease-[var(--mola-tamanho)] motion-reduce:transition-none ${aberta ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}
       >
         <div className="overflow-hidden">
           <div className="grid grid-cols-3 gap-2 px-3 pt-3" aria-busy={isLoading}>
             {blocos.map((b) => (
               <div key={b.rotulo} className="rounded-[20px] bg-drawer-card px-4 py-3 text-left">
                 <p className="text-2xl font-semibold tabular-nums text-paper">
-                  {b.valor ?? <span className="text-mute">–</span>}
+                  {b.valor === undefined ? (
+                    <span className="text-mute">–</span>
+                  ) : (
+                    <PulsoDeNumero chave={String(b.valor)}>
+                      <Odometro texto={String(b.valor)} />
+                    </PulsoDeNumero>
+                  )}
                 </p>
                 <p className="mt-1 text-xs text-mute">{b.rotulo}</p>
               </div>
@@ -74,7 +83,7 @@ export function FaixaDesempenho({ tenantId, ativo }: { tenantId: string; ativo: 
           {aberta ? "Desempenho dos últimos 7 dias" : "Ver desempenho · últimos 7 dias"}
         </span>
         <ChevronDown
-          className={`size-4 transition-transform duration-[150ms] motion-reduce:transition-none ${aberta ? "rotate-180" : ""}`}
+          className={`size-4 transition-transform duration-[var(--mola-padrao-duracao)] ease-[var(--mola-padrao)] motion-reduce:transition-none ${aberta ? "rotate-180" : ""}`}
           aria-hidden
         />
       </Button>
@@ -92,30 +101,27 @@ export function CartaoAvisosDoMenu({ tenantId }: { tenantId: string | null }) {
   }, [visivel]);
   if (!visivel) return null;
   return (
-    <div className="rounded-[28px] border border-drawer-borda bg-drawer-card p-5">
-      <div className="flex items-start gap-3">
-        <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-drawer-band text-primary">
-          <Bell className="size-5" aria-hidden />
-        </span>
-        <div className="min-w-0">
-          <p className="text-base font-semibold text-paper">Ative as notificações</p>
-          <p className="mt-1 text-sm leading-5 text-mute">
-            {instalarPrimeiro
-              ? TEXTO_INSTALAR_PRIMEIRO
-              : "Não perca agendamentos novos e cancelamentos de última hora"}
-          </p>
-        </div>
-      </div>
-      <div className="mt-4 flex items-center gap-2">
-        {instalarPrimeiro ? null : (
-          <Button className="h-12 rounded-full px-6" onClick={() => void ativar()}>
-            Ativar
-          </Button>
-        )}
-        <Button variant="ghost" className="h-12 rounded-full px-4 text-mute" onClick={dispensar}>
-          {instalarPrimeiro ? "Entendi" : "Agora não"}
+    <CartaoDeAvisoDoMenu
+      icone={Bell}
+      titulo="Ative as notificações"
+      texto={
+        instalarPrimeiro
+          ? TEXTO_INSTALAR_PRIMEIRO
+          : "Não perca agendamentos novos e cancelamentos de última hora"
+      }
+    >
+      {instalarPrimeiro ? null : (
+        <Button className="h-10 rounded-full px-5 text-sm" onClick={() => void ativar()}>
+          Ativar
         </Button>
-      </div>
-    </div>
+      )}
+      <Button
+        variant="ghost"
+        className="h-10 rounded-full px-3 text-sm text-mute"
+        onClick={dispensar}
+      >
+        {instalarPrimeiro ? "Entendi" : "Agora não"}
+      </Button>
+    </CartaoDeAvisoDoMenu>
   );
 }

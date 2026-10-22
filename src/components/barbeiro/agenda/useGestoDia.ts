@@ -2,7 +2,8 @@ import { animate } from "framer-motion";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { flushSync } from "react-dom";
 
-import { molaLenta, prefereMenosMovimento } from "@/lib/motion";
+import { prefereMenosMovimento } from "@/lib/motion";
+import { MOLA } from "@/lib/movimento-figaro";
 
 import {
   decidirFimDoGesto,
@@ -100,7 +101,8 @@ export function useGestoDia(dia: string, aoTrocar: (proximo: string) => void) {
     (de: number, para: number, velocidade: number, fim: () => void) => {
       animacao.current?.stop();
       animacao.current = animate(de, para, {
-        ...molaLenta,
+        // Pager do Compose: assenta com mola de amortecimento 1 e rigidez 400 (`snapAnimationSpec`).
+        ...MOLA.tamanho,
         velocity: velocidade * 1000,
         restDelta: 0.5,
         onUpdate: escrever,

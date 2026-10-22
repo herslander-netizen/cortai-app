@@ -4,6 +4,67 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* A edição substitui o conteúdo da barra existente, sem posicionamento por margens negativas. */
+@media (max-width: 767px) {
+  .management-header {
+    transition:
+      border-radius 380ms cubic-bezier(0.22, 1, 0.36, 1),
+      background-color 380ms ease;
+  }
+
+  .management-header:has(#topo-centro .cabecalho-edicao-mobile) {
+    height: 84px;
+    min-height: 84px;
+    overflow: hidden;
+    border-radius: 0 0 28px 28px;
+    background: var(--ink2);
+    border-bottom-color: var(--line);
+    backdrop-filter: none;
+  }
+
+  .management-header:has(#topo-centro .cabecalho-edicao-mobile) > div:first-child {
+    position: relative;
+    height: 84px !important;
+    min-height: 84px;
+    justify-content: center;
+    gap: 0;
+    padding: 0;
+    transition: height 380ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .management-header:has(#topo-centro .cabecalho-edicao-mobile) .menu-cortai-trigger {
+    display: none !important;
+  }
+
+  .management-header:has(#topo-centro .cabecalho-edicao-mobile) > div:first-child > div:last-child {
+    display: none !important;
+  }
+
+  .management-header:has(#topo-centro .cabecalho-edicao-mobile) #topo-centro {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    display: flex;
+    width: 100%;
+    max-width: none;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+  }
+
+  .management-header:has(#topo-centro .cabecalho-edicao-mobile) .cabecalho-edicao-mobile {
+    width: 100%;
+    max-width: none;
+    min-height: 84px;
+    justify-content: center;
+    border: 0;
+    border-radius: 0 0 28px 28px;
+    padding: 8px 12px 10px;
+    box-shadow: none;
+  }
+}
+
 /* Oculta indicadores de rolagem em toda a aplicação sem desativar o scroll. */
 * {
   scrollbar-width: none;
@@ -45,6 +106,14 @@
   --color-sage-soft: var(--sage-soft);
   --color-brick: var(--brick);
   --color-brick-soft: var(--brick-soft);
+  --color-nota-1: var(--nota-1);
+  --color-nota-2: var(--nota-2);
+  --color-nota-3: var(--nota-3);
+  --color-nota-4: var(--nota-4);
+  --color-nota-5: var(--nota-5);
+  --color-nota-trilho: var(--nota-trilho);
+  --color-nota-contorno: var(--nota-contorno);
+  --color-nota-rotulo: var(--nota-rotulo);
   --color-line: var(--line);
   --color-line2: var(--line2);
   --color-landing-light-surface: var(--landing-light-surface);
@@ -93,6 +162,24 @@
   --mov-lento: 280ms;
   --ease-saida: cubic-bezier(0.2, 0, 0, 1);
   --ease-entrada: cubic-bezier(0.4, 0, 1, 1);
+  /* Molas do Figaro como curvas `linear()` amostradas (valores em src/lib/movimento-figaro.ts, MOLAS_CSS; o teste
+     movimento-figaro.test.ts confere que continuam iguais). Fonte: docs/referencia-figaro/apk/1-design-system.md §5. */
+  --mola-toque: linear(
+    0, 0.054, 0.185, 0.352, 0.527, 0.69, 0.827, 0.934, 1.011, 1.06, 1.086, 1.095, 1.091, 1.079, 1.063, 1.047, 1.031, 1.018, 1.007, 1, 0.995, 0.992, 0.991, 0.991, 1
+  );
+  --mola-toque-duracao: 300ms;
+  --mola-tamanho: linear(
+    0, 0.037, 0.122, 0.228, 0.337, 0.442, 0.537, 0.62, 0.692, 0.751, 0.801, 0.841, 0.874, 0.901, 0.922, 0.939, 0.952, 0.963, 0.971, 0.978, 0.983, 0.987, 0.99, 0.992, 1
+  );
+  --mola-tamanho-duracao: 360ms;
+  --mola-seta: linear(
+    0, 0.053, 0.175, 0.327, 0.481, 0.622, 0.741, 0.836, 0.908, 0.959, 0.993, 1.013, 1.024, 1.028, 1.028, 1.025, 1.021, 1.016, 1.012, 1.009, 1.006, 1.003, 1.002, 1.001, 1
+  );
+  --mola-seta-duracao: 220ms;
+  --mola-padrao: linear(
+    0, 0.038, 0.126, 0.235, 0.347, 0.453, 0.549, 0.632, 0.703, 0.762, 0.811, 0.85, 0.882, 0.907, 0.928, 0.944, 0.956, 0.966, 0.974, 0.98, 0.985, 0.988, 0.991, 0.993, 1
+  );
+  --mola-padrao-duracao: 190ms;
 
   /* Paleta extraída da marca oficial: marinho, azul, ciano e rosa. */
   --identity-accent: #00b7f4;
@@ -136,8 +223,9 @@
   --agenda-cartao-sombra: none;
   /* Fora do expediente como no Figaro: um tom quase igual ao fundo e listras bem leves
      (surfaceContainerLow + onSurface a 2,5%), sem bloco pesado. */
-  --agenda-listra-base: color-mix(in oklab, var(--ink) 95%, #ffffff);
-  --agenda-listra: color-mix(in oklab, var(--agenda-listra-base) 95%, #ffffff);
+  /* Fora do expediente: grafite discreto com listras pouco contrastadas. */
+  --agenda-listra-base: color-mix(in oklab, var(--ink) 97%, var(--texto));
+  --agenda-listra: color-mix(in oklab, var(--agenda-listra-base) 92%, var(--texto));
   --grafite-ink: var(--fundo);
   --grafite-surface: var(--cartao);
   --grafite-raised: var(--painel);
@@ -167,6 +255,16 @@
   --sage-soft: color-mix(in oklab, var(--sage) 14%, transparent);
   --brick: #d67161;
   --brick-soft: color-mix(in oklab, var(--brick) 16%, transparent);
+  /* Cores de avaliação do Figaro (decisão do dono, 22/10): ratingTone de 1 a 5, trilho das barras
+     (secondaryContainer), contorno da estrela (outline) e rótulo (success). Fonte: ColorKt/ThemeKt do APK. */
+  --nota-1: #dd4425;
+  --nota-2: #e2622e;
+  --nota-3: #ffdc00;
+  --nota-4: #0d9b8a;
+  --nota-5: #3e9b4f;
+  --nota-trilho: #6e3843;
+  --nota-contorno: #9d8f8b;
+  --nota-rotulo: #43a047;
   --line: var(--grafite-line);
   --line2: var(--grafite-line-2);
   --landing-light-surface: #f7faff;
@@ -179,9 +277,16 @@
   --surface-raised: var(--ink2);
   --surface-emphasis: var(--ink3);
   --surface-overlay: color-mix(in oklab, var(--ink) 82%, transparent);
-  --shadow-sm: 0 1px 0 color-mix(in oklab, var(--paper) 8%, transparent);
-  --shadow-md: 0 12px 28px color-mix(in oklab, #000000 42%, transparent);
-  --shadow-xl: 0 24px 60px color-mix(in oklab, #000000 52%, transparent);
+  /* Elevação do Figaro (spec 1 §4.4), sombras do Material 3 em preto: 2 dp (superfície elevada), 3 dp (barra flutuante,
+     borda do seletor de data), 6 dp (FAB em repouso), 8 dp (aviso). Botões comuns não têm sombra: a hierarquia é de cor. */
+  --elevacao-2: 0 1px 2px rgb(0 0 0 / 0.3), 0 1px 3px 1px rgb(0 0 0 / 0.15);
+  --elevacao-3: 0 1px 2px rgb(0 0 0 / 0.3), 0 2px 6px 2px rgb(0 0 0 / 0.15);
+  --elevacao-6: 0 1px 3px rgb(0 0 0 / 0.3), 0 4px 8px 3px rgb(0 0 0 / 0.15);
+  --elevacao-8: 0 2px 3px rgb(0 0 0 / 0.3), 0 6px 10px 4px rgb(0 0 0 / 0.15);
+  --shadow-sm: var(--elevacao-2);
+  --shadow-md: var(--elevacao-3);
+  --shadow-lg: var(--elevacao-6);
+  --shadow-xl: var(--elevacao-8);
 
   --space-1: 4px;
   --space-2: 8px;
@@ -268,9 +373,9 @@
   --estado-remarcado: #e0145e;
   --estado-encaixe: #0f9488;
   --agenda-cartao: var(--ink2);
-  --agenda-cartao-sombra: 0 1px 3px color-mix(in oklab, var(--paper) 10%, transparent);
-  --agenda-listra-base: #f0f7f2;
-  --agenda-listra: color-mix(in oklab, #f0f7f2 96%, #2a2f2c);
+  --agenda-cartao-sombra: none;
+  --agenda-listra-base: #f4f8f5;
+  --agenda-listra: color-mix(in oklab, #2a2f2c 3%, #f4f8f5);
   --ink: var(--fundo);
   --ink2: var(--cartao);
   --ink3: var(--painel);
@@ -306,6 +411,9 @@
   --primary-foreground: #ffffff;
   --sage: #4e785f;
   --brick: #a73923;
+  --nota-trilho: #ffdade;
+  --nota-contorno: #827572;
+  --nota-rotulo: #2e7d32;
   --destructive: var(--brick);
   --destructive-foreground: #ffffff;
   --ring: var(--gold);
@@ -333,50 +441,59 @@
   --surface-raised: var(--ink2);
   --surface-emphasis: var(--ink3);
   --surface-overlay: color-mix(in oklab, var(--paper) 38%, transparent);
-  --shadow-sm: 0 1px 2px color-mix(in oklab, var(--paper) 8%, transparent);
-  --shadow-md: 0 8px 24px color-mix(in oklab, var(--paper) 10%, transparent);
-  --shadow-xl: 0 16px 40px color-mix(in oklab, var(--paper) 14%, transparent);
+  --shadow-sm: var(--elevacao-2);
+  --shadow-md: var(--elevacao-3);
+  --shadow-xl: var(--elevacao-8);
   color-scheme: light;
 }
 
+/* Tema Índigo: índigo de destaque com cinzas azulados, preto e branco. Fundos e textos no bloco `html:root[data-identidade="indigo"]`. */
 :root[data-identidade="indigo"] {
-  --identity-accent: #999dbd;
-  --identity-accent-light: #5e638c;
-  --identity-secondary: #999dbd;
-  --identity-secondary-light: #5e638c;
-  --identity-primary: #666b9b;
-  --identity-secondary-strong: #666b9b;
-  --identity-deep: #292d4a;
+  --identity-accent: #a5abff;
+  --identity-accent-light: #3f43a6;
+  --identity-primary: #4a4fb5;
+  --identity-secondary: #b4b7c9;
+  --identity-secondary-light: #5f6178;
+  --identity-secondary-strong: #8588a3;
+  --identity-deep: #17181f;
 }
 
+/* Tema Rosé: delicado, de salão. Rosé-gold e champanhe de destaque sobre marfim e grafite suave, com toque de sálvia; o rosa aparece
+   com parcimônia. Fundos e textos no bloco `html:root[data-identidade="rose"]`. */
 :root[data-identidade="rose"] {
-  --identity-accent: #f05f96;
-  --identity-accent-light: #c41f61;
-  --identity-primary: #d71c65;
-  --identity-secondary: #88ade0;
-  --identity-secondary-light: #1653a1;
-  --identity-secondary-strong: #1653a1;
-  --identity-deep: #2a1720;
+  --identity-accent: #e6b8b0;
+  --identity-accent-light: #a6485f;
+  --identity-primary: #a6485f;
+  --identity-secondary: #d9c3a8;
+  --identity-secondary-light: #6f5f55;
+  --identity-secondary-strong: #a08e80;
+  --identity-deep: #1c1819;
 }
 
-:root[data-identidade="copper"] {
-  --identity-accent: #c69a7e;
-  --identity-accent-light: #855a42;
-  --identity-secondary: #c69a7e;
-  --identity-secondary-light: #855a42;
-  --identity-primary: #855a42;
-  --identity-secondary-strong: #855a42;
-  --identity-deep: #43281d;
-}
 
+/* Tema Clássico: barbearia, preto e dourado. Dourado antigo e prata de destaque sobre preto quente (escuro) ou pergaminho (claro).
+   Fundos e textos no bloco `html:root[data-identidade="classico"]`. */
 :root[data-identidade="classico"] {
-  --identity-accent: #b8a178;
-  --identity-accent-light: #75613e;
-  --identity-secondary: #b8a178;
-  --identity-secondary-light: #75613e;
-  --identity-primary: #75613e;
-  --identity-secondary-strong: #75613e;
-  --identity-deep: #332b1f;
+  --identity-accent: #d6b25a;
+  --identity-accent-light: #7d5f14;
+  --identity-primary: #7d5f14;
+  --identity-secondary: #b3ada0;
+  --identity-secondary-light: #5c5f63;
+  --identity-secondary-strong: #8a8578;
+  --identity-deep: #0c0b09;
+}
+
+/* Tema Cobre: a paleta da marca Claude (preto `#141413`, marfim `#FAF9F5`, cinza `#B0AEA5`, laranja `#D97757`, azul
+   `#6A9BCC`). Aqui só as cores de destaque; fundos, cartões e textos estão no bloco `html:root[data-identidade="copper"]`
+   (depois da paleta do Figaro, que ele sobrepõe). Contraste conferido em contraste-app.test.ts. */
+:root[data-identidade="copper"] {
+  --identity-accent: #d97757;
+  --identity-accent-light: #ac5435;
+  --identity-primary: #ac5435;
+  --identity-secondary: #b0aea5;
+  --identity-secondary-light: #5e5d59;
+  --identity-secondary-strong: #87867f;
+  --identity-deep: #141413;
 }
 
 /* Sino de avisos: rosa do Cortaí fixo, independente da identidade visual. */
@@ -743,7 +860,11 @@
   --ink2: var(--chat-superficie-1, var(--ink2));
   --cartao: var(
     --chat-superficie-1,
-    color-mix(in oklab, var(--chat-page, var(--background)) 96%, var(--chat-page-text, var(--foreground)))
+    color-mix(
+      in oklab,
+      var(--chat-page, var(--background)) 96%,
+      var(--chat-page-text, var(--foreground))
+    )
   );
   --paper: var(--chat-page-text, var(--foreground));
   --ink3: var(--chat-superficie-2, var(--ink3));
@@ -878,22 +999,6 @@
 .drawer-link:hover {
   background: var(--ink3);
   color: var(--paper);
-}
-.drawer-link-active {
-  background: color-mix(in oklab, var(--primary) 18%, var(--ink2));
-  color: var(--paper);
-  font-weight: 700;
-}
-.drawer-link-active {
-  box-shadow: inset 3px 0 0 var(--primary);
-}
-.drawer-link-active svg {
-  color: var(--primary);
-}
-
-.management-shell .shadow-xl,
-.management-shell .shadow-lg {
-  box-shadow: var(--shadow-md);
 }
 .management-shell [class*="backdrop-blur"] {
   backdrop-filter: none;
@@ -1308,7 +1413,8 @@ html.light .brand-logo-on-light,
   height: 2px;
   border-top: 2px solid var(--rosa);
   pointer-events: none;
-  transition: transform var(--mov-lento) var(--ease-saida);
+  /* Figaro: a linha "agora" anda com a mola rápida do tema (`fastSpatialSpec`). */
+  transition: transform var(--mola-toque-duracao) var(--mola-toque);
 }
 .agenda-linha-agora::before {
   position: absolute;
@@ -1358,7 +1464,7 @@ html.light .brand-logo-on-light,
   max-width: min(82vw, 360px);
   min-height: 56px;
   border-radius: 999px;
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--elevacao-6);
 }
 .agenda-acoes-folha {
   max-height: min(72dvh, 520px);
@@ -1762,10 +1868,6 @@ html.light {
 }
 
 /* ------------------------- Carregamento (clipper) ------------------------- */
-.cortai-clipper-lamina {
-  transform-origin: 24px 9px;
-  animation: cortai-lamina 640ms ease-in-out infinite;
-}
 
 @keyframes cortai-lamina {
   0%,
@@ -1777,11 +1879,6 @@ html.light {
   }
 }
 
-.cortai-progresso {
-  animation: cortai-progresso 1100ms ease-in-out infinite;
-  background: var(--rosa);
-}
-
 @keyframes cortai-progresso {
   0% {
     transform: translateX(-100%);
@@ -1791,21 +1888,7 @@ html.light {
   }
 }
 
-.cortai-splash {
-  animation: cortai-aparecer 160ms ease-out both;
-}
-
 /* ------------------------ Home pública editorial ------------------------ */
-.landing-page {
-  isolation: isolate;
-  --gold: var(--identity-accent);
-  --primary: var(--identity-primary);
-  --primary-foreground: #ffffff;
-  --rosa: var(--identity-secondary);
-  --rosa-forte: var(--identity-secondary-strong);
-  --rosa-soft: color-mix(in oklab, var(--identity-secondary) 16%, transparent);
-  --landing-light-rosa: var(--identity-secondary-light);
-}
 
 .auth-screen {
   position: relative;
@@ -1914,34 +1997,6 @@ body:has(.auth-screen--claro) {
   min-height: 100svh;
 }
 
-.auth-login-brand {
-  padding-top: clamp(16px, 7svh, 72px);
-}
-
-.auth-google-mark {
-  display: grid;
-  width: 24px;
-  height: 24px;
-  place-items: center;
-  border-radius: 50%;
-  background: var(--paper);
-  color: var(--ink);
-  font-size: 13px;
-  font-weight: 800;
-}
-
-.light .landing-page {
-  --ink: var(--identity-graphite);
-  --ink2: var(--surface-raised);
-  --ink3: var(--surface-emphasis);
-  --paper: var(--identity-off-white);
-  --mute: var(--identity-muted);
-  --mute2: var(--muted-foreground);
-  --line: var(--identity-border);
-  --line2: var(--border);
-  --gold-soft: color-mix(in oklab, var(--gold) 13%, transparent);
-}
-
 .landing-hero-overlay {
   background: color-mix(in oklab, var(--ink) 68%, transparent);
 }
@@ -2048,7 +2103,6 @@ body:has(.auth-screen--claro) {
   transform: translateY(-2px);
 }
 
-.landing-page img,
 .public-brand[data-segmento="barbearia"] .brand-cover,
 .public-brand[data-segmento="barbearia"] .brand-gallery img,
 .public-brand[data-segmento="barbearia"] .brand-products img {
@@ -2144,7 +2198,7 @@ body:has(.auth-screen--claro) {
   border-radius: 9999px;
   background: var(--rosa-forte);
   color: var(--sobre-rosa);
-  box-shadow: 0 6px 24px color-mix(in oklab, var(--rosa) 28%, transparent);
+  box-shadow: var(--elevacao-6);
   transition: transform 150ms ease;
 }
 .cortai-fab:active {
@@ -2481,6 +2535,15 @@ body:has(.auth-screen--claro) {
   grid-column: span 2;
   grid-row: span 2;
 }
+.brand-subtitle {
+  margin: 0 0 12px;
+  font-size: 14px;
+  line-height: 1.5;
+  opacity: 0.72;
+}
+.brand-service-grid + .brand-subtitle {
+  margin-top: 20px;
+}
 .brand-about {
   max-width: 760px;
   font-family: var(--brand-heading);
@@ -2648,11 +2711,42 @@ body:has(.auth-screen--claro) {
 .layout-editorial .brand-hero h1 {
   max-width: 650px;
 }
+
+/* Layouts recuperados da referência Figaro, renderizados pelos componentes web atuais. */
+.layout-figaro-site-completo .brand-hero {
+  min-height: min(78vh, 760px);
+}
+.layout-figaro-agendamento .brand-hero {
+  min-height: min(42vh, 420px);
+  align-items: center;
+}
+.layout-figaro-agendamento .brand-cover {
+  opacity: 0.35;
+}
+.layout-figaro-agendamento .brand-overlay {
+  background: var(--brand-background);
+  opacity: 0.58;
+}
+.layout-figaro-agendamento .brand-hero h1 {
+  font-size: clamp(30px, 6vw, 54px);
+}
+.layout-figaro-agendamento .brand-hero-content {
+  padding-block: 24px;
+}
+
 .public-brand.is-preview {
   min-height: 100%;
 }
 .public-brand.is-preview .brand-hero {
   min-height: 530px;
+}
+
+/* A prévia respeita a altura definida pelo layout selecionado. */
+.public-brand.is-preview.layout-figaro-site-completo .brand-hero {
+  min-height: min(78vh, 760px);
+}
+.public-brand.is-preview.layout-figaro-agendamento .brand-hero {
+  min-height: min(42vh, 420px);
 }
 .public-brand.is-preview .brand-main {
   width: calc(100% - 30px);
@@ -2892,7 +2986,7 @@ body:has(.auth-screen--claro) {
 }
 .agenda-arrastando {
   z-index: 6;
-  box-shadow: var(--shadow-lg, var(--shadow-md));
+  box-shadow: var(--elevacao-3);
   outline: 2px solid var(--primary);
   outline-offset: 1px;
   opacity: 0.85;
@@ -3046,7 +3140,24 @@ html.agenda-gesto-ativo body {
 .agenda-dia-vizinha-pontos {
   position: absolute;
   inset-inline: 0;
-  top: -26px;
+  top: -19.5px;
+}
+/* Fim da página vizinha: 12 px abaixo da última hora, igual aos pontos do dia atual. */
+.agenda-dia-vizinha-pontos-fim {
+  position: absolute;
+  inset-inline: 0;
+  top: calc(100% + 7.5px);
+}
+
+/* Com o mês aberto a Agenda desce junto: sem reancorar a rolagem a cada quadro da animação. */
+html:has([data-calendario-aberto]) {
+  overflow-anchor: none;
+}
+/* A sombra do topo é a do painel do mês (mesma elevação) enquanto ele existe: com a do cabeçalho também, ela só
+   aparecia inteira no fim da animação, quando o topo cresce, e dobrava a sombra. Ao sumir o painel, a do cabeçalho
+   (idêntica) assume sem salto. */
+html:has([data-calendario-aberto]) .management-header {
+  box-shadow: none !important;
 }
 
 /* Fora do gesto, a prévia nunca aparece, mesmo que um transform tenha ficado para trás. */
@@ -3059,7 +3170,6 @@ html:not(.agenda-gesto-ativo) .agenda-previa-vizinho {
   letter-spacing: 0.04em;
 }
 .mov-item-cascata,
-.mov-conteudo-entrada,
 .mov-confirmacao,
 .mov-foco-entrada {
   animation: chat-in var(--mov-base) var(--ease-saida) both;
@@ -3085,7 +3195,8 @@ html:not(.agenda-gesto-ativo) .agenda-previa-vizinho {
   animation: esqueleto-aparecer 150ms var(--ease-saida) 150ms forwards;
 }
 .esqueleto-barra {
-  background-color: var(--ink3);
+  /* Um degrau acima do cartão, nos dois temas: `ink3` no claro some sobre o cartão branco. */
+  background-color: var(--figaro-surface-container-highest, var(--ink3));
   background-image: linear-gradient(
     90deg,
     transparent 0,
@@ -3347,7 +3458,7 @@ html:not(.agenda-gesto-ativo) .agenda-previa-vizinho {
 .agenda-foco-fab .agenda-acao-redonda {
   width: 52px;
   height: 52px;
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--elevacao-6);
 }
 .agenda-foco-item {
   position: relative;
@@ -3693,90 +3804,6 @@ html:not(.agenda-gesto-ativo) .agenda-previa-vizinho {
   background: var(--ink);
   color: var(--paper);
 }
-.modo-foco-topo {
-  position: sticky;
-  top: 0;
-  z-index: 30;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 12px;
-  min-height: 56px;
-  border-bottom: 1px solid var(--line);
-  background: color-mix(in oklab, var(--ink) 96%, transparent);
-  padding: env(safe-area-inset-top) 12px 0;
-  backdrop-filter: blur(14px);
-}
-.modo-foco-sair {
-  min-width: 0;
-  justify-self: start;
-  padding-inline: 4px 10px;
-  font-size: 13px;
-  font-weight: 750;
-}
-.modo-foco-topo-acoes {
-  display: flex;
-  align-items: center;
-}
-.modo-foco-topo-acoes > span {
-  padding-right: 4px;
-  font-size: 11px;
-  font-weight: 700;
-}
-.modo-foco-ao-vivo::before {
-  display: inline-block;
-  width: 6px;
-  height: 6px;
-  margin-right: 6px;
-  border-radius: 999px;
-  background: var(--status-active);
-  content: "";
-  vertical-align: 1px;
-}
-.modo-foco-corpo {
-  width: min(100%, 1120px);
-  margin: 0 auto;
-  padding: 12px 14px calc(80px + env(safe-area-inset-bottom));
-}
-.modo-foco-data {
-  display: grid;
-  grid-template-columns: 44px minmax(0, 1fr) 44px;
-  align-items: center;
-  max-width: 430px;
-  margin: 0 auto;
-}
-.modo-foco-data strong,
-.modo-foco-data span {
-  display: block;
-}
-.modo-foco-data strong {
-  font-size: 15px;
-  font-weight: 850;
-}
-.modo-foco-data span {
-  margin-top: 1px;
-  color: var(--mute);
-  font-size: 11px;
-}
-.modo-foco-profissionais {
-  display: flex;
-  gap: 6px;
-  overflow-x: auto;
-  margin: 4px -14px 0;
-  padding: 4px 14px;
-}
-.modo-foco-profissionais > * {
-  min-height: 40px;
-  flex: 0 0 auto;
-  border: 1px solid var(--line);
-}
-.modo-foco-resumo {
-  margin: 8px 0 14px;
-  color: var(--mute);
-  font-size: 12px;
-  font-weight: 650;
-  text-align: center;
-}
 .modo-foco-alertas {
   display: flex;
   min-height: 48px;
@@ -3785,249 +3812,6 @@ html:not(.agenda-gesto-ativo) .agenda-previa-vizinho {
   gap: 12px;
   border-block: 1px solid var(--line);
   padding: 8px 0;
-}
-.modo-foco-cockpit {
-  display: grid;
-  gap: 14px;
-}
-.modo-foco-estado {
-  border-block: 1px solid var(--line);
-  padding: 18px 2px 16px;
-}
-.modo-foco-rotulo {
-  color: var(--mute);
-  font-size: 11px;
-  font-weight: 850;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-}
-.modo-foco-rotulo-atendimento,
-.modo-foco-rotulo-chegou,
-.modo-foco-rotulo-encaixe {
-  color: var(--status-active);
-}
-.modo-foco-rotulo-atrasado {
-  color: var(--brick);
-}
-.modo-foco-contexto {
-  margin-top: 3px;
-  color: var(--mute);
-  font-size: 13px;
-}
-.modo-foco-cliente {
-  display: grid;
-  grid-template-columns: 58px minmax(0, 1fr);
-  align-items: start;
-  gap: 12px;
-  margin-top: 18px;
-}
-.modo-foco-cliente time {
-  color: var(--paper);
-  font-family: var(--font-display);
-  font-size: 20px;
-  font-weight: 850;
-}
-.modo-foco-cliente h1 {
-  overflow-wrap: anywhere;
-  font-size: clamp(24px, 7vw, 36px);
-  font-weight: 850;
-  line-height: 1.05;
-}
-.modo-foco-cliente p {
-  margin-top: 6px;
-  color: var(--mute);
-  font-size: 14px;
-}
-.modo-foco-cliente span {
-  display: inline-block;
-  margin-top: 8px;
-  border: 1px dashed var(--status-walk-in);
-  border-radius: var(--radius-sm);
-  padding: 2px 7px;
-  color: var(--status-walk-in);
-  font-size: 11px;
-  font-weight: 750;
-}
-.modo-foco-observacao {
-  display: grid;
-  width: 100%;
-  grid-template-columns: auto minmax(0, 1fr);
-  gap: 8px;
-  margin-top: 16px;
-  border-left: 2px solid var(--status-arrived);
-  background: var(--ink2);
-  padding: 10px 12px;
-  color: var(--paper);
-  text-align: left;
-}
-.modo-foco-observacao strong {
-  font-size: 12px;
-}
-.modo-foco-observacao span {
-  overflow: hidden;
-  color: var(--mute);
-  font-size: 12px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.modo-foco-cronometro {
-  height: 5px;
-  overflow: hidden;
-  margin-top: 16px;
-  border-radius: 999px;
-  background: var(--ink3);
-}
-.modo-foco-cronometro span {
-  display: block;
-  height: 100%;
-  border-radius: inherit;
-  background: var(--status-active);
-  width: 100%;
-  transform-origin: left center;
-  transition: transform var(--mov-lento) var(--ease-saida);
-}
-.modo-foco-principal {
-  margin-top: 18px;
-}
-.modo-foco-principal > * {
-  width: 100%;
-  min-height: 56px;
-}
-.modo-foco-secundarias {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 6px;
-  margin-top: 8px;
-}
-.modo-foco-secundarias > * {
-  min-height: 44px;
-  white-space: normal;
-}
-.modo-foco-sem-atendimento,
-.modo-foco-vazio {
-  display: flex;
-  min-height: 300px;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  color: var(--mute);
-  text-align: center;
-}
-.modo-foco-sem-atendimento svg {
-  width: 24px;
-  height: 24px;
-}
-.modo-foco-sem-atendimento strong,
-.modo-foco-vazio strong {
-  color: var(--paper);
-  font-size: 18px;
-}
-.modo-foco-sem-atendimento > button,
-.modo-foco-vazio > button {
-  margin-top: 12px;
-}
-.modo-foco-sequencia {
-  border-top: 1px solid var(--line);
-  padding-top: 14px;
-}
-.modo-foco-sequencia-topo {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 10px;
-}
-.modo-foco-sequencia-topo p {
-  font-size: 14px;
-  font-weight: 800;
-}
-.modo-foco-sequencia-topo span,
-.modo-foco-sequencia-vazia {
-  color: var(--mute);
-  font-size: 12px;
-}
-.modo-foco-sequencia ol {
-  margin-top: 8px;
-  border-top: 1px solid var(--line);
-}
-.modo-foco-sequencia li {
-  border-bottom: 1px solid var(--line);
-}
-.modo-foco-sequencia li button {
-  display: grid;
-  width: 100%;
-  min-height: 64px;
-  grid-template-columns: 48px minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 10px;
-  color: var(--paper);
-  text-align: left;
-}
-.modo-foco-sequencia time {
-  font-weight: 800;
-}
-.modo-foco-sequencia li span {
-  min-width: 0;
-}
-.modo-foco-sequencia li strong,
-.modo-foco-sequencia li small {
-  display: block;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.modo-foco-sequencia li small {
-  margin-top: 2px;
-  color: var(--mute);
-}
-.modo-foco-sequencia-vazia {
-  padding: 18px 0;
-}
-.modo-foco-sequencia > button {
-  width: 100%;
-  margin-top: 12px;
-}
-.modo-foco-tempo-livre {
-  position: relative;
-  display: grid;
-  min-height: 72px;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 12px;
-  overflow: hidden;
-  margin-top: 12px;
-  border: 1px dashed var(--line2);
-  border-radius: var(--radius-md);
-  padding: 12px;
-}
-.modo-foco-tempo-livre-textura {
-  position: absolute;
-  inset: 0;
-  background: repeating-linear-gradient(
-    135deg,
-    transparent 0 9px,
-    color-mix(in oklab, var(--gold) 8%, transparent) 9px 10px
-  );
-  pointer-events: none;
-}
-.modo-foco-tempo-livre > *:not(.modo-foco-tempo-livre-textura) {
-  position: relative;
-}
-.modo-foco-tempo-livre strong,
-.modo-foco-tempo-livre small {
-  display: block;
-}
-.modo-foco-tempo-livre strong {
-  color: var(--paper);
-  font-size: 14px;
-}
-.modo-foco-tempo-livre small {
-  margin-top: 2px;
-  color: var(--mute);
-  font-size: 12px;
-}
-.modo-foco-tempo-livre button {
-  min-height: 52px;
 }
 
 @media (max-width: 767px) {
@@ -4053,200 +3837,10 @@ html:not(.agenda-gesto-ativo) .agenda-previa-vizinho {
   body:has(.modo-foco) .screen-content {
     padding: 0;
   }
-  .modo-foco-corpo {
-    padding-top: 20px;
-  }
-  .modo-foco-cockpit {
-    grid-template-columns: minmax(0, 1.55fr) minmax(300px, 0.75fr);
-    align-items: start;
-    gap: 32px;
-  }
-  .modo-foco-estado {
-    padding: 28px 8px;
-  }
-  .modo-foco-sequencia {
-    border-top: 0;
-    border-left: 1px solid var(--line);
-    padding: 18px 0 18px 24px;
-  }
-  .modo-foco-cliente h1 {
-    font-size: 38px;
-  }
 }
 
 /* Apresentação interna: narrativa isolada do painel. */
-.presentation-stage {
-  min-height: 100svh;
-  overflow: hidden;
-  background: var(--ink);
-  color: var(--paper);
-  display: grid;
-  grid-template-rows: auto auto 1fr auto;
-}
-.presentation-header,
-.presentation-controls {
-  width: min(1180px, 100%);
-  margin-inline: auto;
-  padding: max(16px, env(safe-area-inset-top)) 20px 16px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-}
-.presentation-controls {
-  padding-block: 12px max(16px, env(safe-area-inset-bottom));
-}
-.presentation-progress {
-  width: min(1140px, calc(100% - 40px));
-  margin-inline: auto;
-  display: grid;
-  grid-template-columns: repeat(8, 1fr);
-  gap: 6px;
-}
-.presentation-progress button {
-  height: 3px;
-  border: 0;
-  border-radius: 999px;
-  background: var(--line2);
-  cursor: pointer;
-}
-.presentation-progress button.presentation-progress-active {
-  background: var(--gold);
-}
-.presentation-scene {
-  width: min(1120px, calc(100% - 40px));
-  margin: auto;
-  display: grid;
-  grid-template-columns: minmax(0, 0.82fr) minmax(420px, 1.18fr);
-  align-items: center;
-  gap: clamp(40px, 8vw, 110px);
-  padding-block: 28px;
-}
-.presentation-copy {
-  max-width: 520px;
-}
-.presentation-copy h1 {
-  margin-top: 14px;
-  font-size: clamp(2.4rem, 5vw, 5.6rem);
-  line-height: 0.98;
-  font-weight: 800;
-  letter-spacing: 0;
-  text-wrap: balance;
-}
-.presentation-copy > p:not(:first-child) {
-  margin-top: 24px;
-  max-width: 46ch;
-  color: var(--mute);
-  font-size: clamp(1rem, 1.5vw, 1.25rem);
-  line-height: 1.65;
-}
-.presentation-copy .presentation-signature {
-  color: var(--paper);
-  font-weight: 700;
-}
-.presentation-visual {
-  min-width: 0;
-  display: grid;
-  place-items: center;
-}
-.presentation-product {
-  width: min(100%, 470px);
-  min-height: 430px;
-  border: 1px solid var(--line2);
-  border-radius: 14px;
-  background: var(--ink2);
-  box-shadow: var(--shadow-xl);
-  overflow: hidden;
-}
-.presentation-phone {
-  width: min(100%, 350px);
-  min-height: 520px;
-  border: 1px solid var(--line2);
-  border-radius: 14px;
-  background: var(--ink2);
-  box-shadow: var(--shadow-xl);
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-}
-.presentation-hero-media {
-  width: min(100%, 650px);
-}
-.presentation-hero-media img {
-  width: 100%;
-  height: auto;
-  object-fit: contain;
-  filter: drop-shadow(0 28px 35px color-mix(in oklab, var(--ink) 70%, transparent));
-}
-.presentation-final-media {
-  width: min(100%, 560px);
-  aspect-ratio: 4 / 3;
-  overflow: hidden;
-  border-radius: 14px;
-}
-.presentation-final-media img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-@media (max-width: 767px) {
-  .presentation-header {
-    padding-inline: 16px;
-  }
-  .presentation-header > button {
-    min-height: 44px;
-    padding-inline: 10px;
-    font-size: 11px;
-  }
-  .presentation-progress {
-    width: calc(100% - 32px);
-  }
-  .presentation-scene {
-    width: calc(100% - 32px);
-    grid-template-columns: 1fr;
-    align-content: center;
-    gap: 24px;
-    padding-block: 20px;
-  }
-  .presentation-copy {
-    max-width: none;
-  }
-  .presentation-copy h1 {
-    margin-top: 10px;
-    font-size: clamp(2rem, 10vw, 3.15rem);
-  }
-  .presentation-copy > p:not(:first-child) {
-    margin-top: 14px;
-    font-size: 0.95rem;
-    line-height: 1.5;
-  }
-  .presentation-product {
-    min-height: 330px;
-    max-height: 42svh;
-  }
-  .presentation-phone {
-    min-height: 390px;
-    max-height: 44svh;
-  }
-  .presentation-hero-media {
-    max-width: 410px;
-    max-height: 36svh;
-    overflow: hidden;
-  }
-  .presentation-hero-media img {
-    max-height: 36svh;
-  }
-  .presentation-final-media {
-    max-height: 42svh;
-  }
-  .presentation-controls {
-    padding-inline: 16px;
-  }
-}
 @media (prefers-reduced-motion: no-preference) {
-  .presentation-scene {
-    animation: presentation-enter 0.35s ease-out;
-  }
   @keyframes presentation-enter {
     from {
       opacity: 0;
@@ -4380,12 +3974,6 @@ html:not(.agenda-gesto-ativo) .agenda-previa-vizinho {
   position: relative;
   inset: auto;
 }
-.showroom-hero-cliente {
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  width: min(72%, 420px);
-}
 .showroom-secao {
   padding-block: clamp(5rem, 9vw, 8rem);
 }
@@ -4427,11 +4015,6 @@ html:not(.agenda-gesto-ativo) .agenda-previa-vizinho {
 .showroom-dividida-inversa {
   grid-template-columns: minmax(360px, 0.9fr) minmax(0, 1.1fr);
 }
-.showroom-prova-pontos {
-  display: grid;
-  gap: 0.4rem;
-}
-.showroom-prova-pontos > div,
 .showroom-plano-nota {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
@@ -4440,16 +4023,13 @@ html:not(.agenda-gesto-ativo) .agenda-previa-vizinho {
   padding: 1rem 0;
   border-bottom: 1px solid var(--show-line);
 }
-.showroom-prova-pontos svg,
 .showroom-plano-nota svg {
   color: var(--show-accent);
 }
-.showroom-prova-pontos span,
 .showroom-plano-nota span {
   display: grid;
   gap: 0.2rem;
 }
-.showroom-prova-pontos small,
 .showroom-plano-nota small {
   color: var(--show-muted);
   line-height: 1.55;
@@ -4637,10 +4217,6 @@ html:not(.agenda-gesto-ativo) .agenda-previa-vizinho {
   font-size: 12px;
   font-weight: 700;
 }
-.showroom-foco-demo {
-  max-width: 500px;
-  padding: 1.25rem;
-}
 .showroom-foco-estado {
   display: flex;
   justify-content: space-between;
@@ -4655,56 +4231,6 @@ html:not(.agenda-gesto-ativo) .agenda-previa-vizinho {
   align-items: center;
   gap: 0.3rem;
   color: var(--show-muted);
-}
-.showroom-foco-cliente {
-  display: grid;
-  grid-template-columns: auto auto minmax(0, 1fr);
-  align-items: center;
-  gap: 0.8rem;
-  margin: 1.35rem 0;
-}
-.showroom-foco-cliente time {
-  font-size: 1.35rem;
-  font-weight: 800;
-}
-.showroom-foco-cliente > svg {
-  color: var(--show-accent);
-}
-.showroom-foco-cliente span {
-  display: flex;
-  flex-direction: column;
-}
-.showroom-foco-cliente small,
-.showroom-proximo small,
-.showroom-proximo span {
-  color: var(--show-muted);
-  font-size: 0.72rem;
-}
-.showroom-foco-nota {
-  margin-bottom: 1rem;
-  padding: 0.8rem;
-  border-radius: var(--radius-sm);
-  background: var(--show-bg);
-  color: var(--show-muted);
-  font-size: 0.75rem;
-}
-.showroom-foco-demo > button {
-  width: 100%;
-}
-.showroom-proximo {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 0.2rem;
-  margin-top: 1.4rem;
-  padding-top: 1rem;
-  border-top: 1px solid var(--show-line);
-}
-.showroom-proximo strong {
-  grid-column: 1;
-}
-.showroom-proximo span {
-  grid-column: 2;
-  grid-row: 2;
 }
 .showroom-cliente {
   max-width: 540px;
@@ -5073,7 +4599,9 @@ html:not(.agenda-gesto-ativo) .agenda-previa-vizinho {
 }
 @media (max-width: 560px) {
   .showroom-secao,
-  .showroom-faixa { padding-block: 3.25rem; }
+  .showroom-faixa {
+    padding-block: 3.25rem;
+  }
   .showroom-header-inner {
     min-height: 62px;
   }
@@ -5103,15 +4631,6 @@ html:not(.agenda-gesto-ativo) .agenda-previa-vizinho {
     max-height: 340px;
     overflow-y: auto;
     overscroll-behavior: contain;
-  }
-  .showroom-hero-cliente {
-    right: -0.25rem;
-    width: 84%;
-  }
-  .showroom-hero-cliente .showroom-cliente dl,
-  .showroom-hero-cliente .showroom-anotacao,
-  .showroom-hero-cliente .showroom-historico:last-child {
-    display: none;
   }
   .showroom-recursos {
     grid-template-columns: 1fr;
@@ -5509,6 +5028,48 @@ button.agenda-nome:hover {
   font-size: 12px;
   font-weight: 700;
 }
+/* Horário bloqueado (apk/3 §7): faixa mais marcada que o intervalo, com cadeado e motivo. */
+.agenda-timeline-bloqueio {
+  z-index: 2;
+  overflow: hidden;
+  border-left: 3px solid color-mix(in oklab, var(--mute) 55%, transparent);
+  background:
+    repeating-linear-gradient(
+      135deg,
+      transparent 0 6px,
+      color-mix(in oklab, var(--mute) 26%, transparent) 6px 7px
+    ),
+    color-mix(in oklab, var(--mute) 8%, transparent);
+  animation: agenda-bloqueio-entra var(--mov-base) var(--ease-saida) both;
+}
+.agenda-timeline-bloqueio span {
+  display: inline-flex;
+  max-width: calc(100% - 16px);
+  align-items: center;
+  gap: 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--paper);
+}
+.agenda-timeline-bloqueio svg {
+  width: 12px;
+  height: 12px;
+  flex: none;
+}
+@keyframes agenda-bloqueio-entra {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .agenda-timeline-bloqueio {
+    animation: none;
+  }
+}
 .agenda-timeline-toque {
   position: absolute;
   right: 4px;
@@ -5546,13 +5107,6 @@ button.agenda-nome:hover {
 }
 
 /* Elementos decorativos permanecem estáticos; indicadores de espera real continuam animados. */
-.chat-hero::after,
-.chat-status-online::before,
-.cortai-lamina,
-.cortai-pulso,
-.cortai-ponto {
-  animation: none;
-}
 .landing-reveal {
   animation-duration: var(--mov-lento);
 }
@@ -5600,7 +5154,6 @@ button.agenda-nome:hover {
   .toast-desfazer::after,
   .esqueleto-regiao,
   .esqueleto-barra,
-  .cortai-progresso,
   .chat-dot {
     animation: none;
   }
@@ -5639,7 +5192,7 @@ button.agenda-nome:hover {
   border: 1px solid transparent;
   border-radius: 999px;
   background: var(--ink2);
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--elevacao-3);
 }
 .agenda-botao-agora-ir {
   height: 50px;
@@ -5673,7 +5226,9 @@ button.agenda-nome:hover {
   color: var(--mute);
   border-color: transparent;
   box-shadow: none;
-  transition: color 160ms ease, transform 160ms ease;
+  transition:
+    color 160ms ease,
+    transform 160ms ease;
 }
 .agenda-botao-agora-principal .agenda-botao-agora-visualizacao:hover,
 .agenda-botao-agora-principal .agenda-botao-agora-visualizacao:focus-visible {
@@ -5843,7 +5398,7 @@ button.agenda-nome:hover {
   padding: var(--space-2) var(--space-3) 0;
   border-radius: 0 0 20px 20px;
   background: var(--painel, var(--ink3));
-  box-shadow: 0 6px 14px color-mix(in oklab, var(--paper) 6%, transparent);
+  box-shadow: var(--elevacao-3);
   touch-action: pan-y;
 }
 .agenda-cal-letras,
@@ -5952,22 +5507,19 @@ button.agenda-nome:hover {
     font-weight: 700;
     letter-spacing: -0.02em;
   }
-  /* Só as linhas das horas inteiras, como no modelo. */
+  /* Linhas neutras e discretas no celular: a cor da marca fica reservada aos estados e ações. */
   .agenda-timeline-marca:not(.agenda-timeline-hora) {
     border-top-color: transparent;
   }
-  .agenda-timeline-fora-expediente {
-    background: repeating-linear-gradient(
-      135deg,
-      transparent 0 6px,
-      color-mix(in oklab, var(--paper) 8%, transparent) 6px 7px
-    );
+  .agenda-timeline-hora {
+    border-top-color: color-mix(in oklab, var(--mute) 24%, transparent);
   }
+  .agenda-timeline-fora-expediente,
   .light .agenda-timeline-fora-expediente {
     background: repeating-linear-gradient(
       135deg,
       transparent 0 6px,
-      color-mix(in oklab, var(--paper) 6%, transparent) 6px 7px
+      color-mix(in oklab, var(--mute) 13%, transparent) 6px 7px
     );
   }
 }
@@ -5998,7 +5550,7 @@ button.agenda-nome:hover {
   height: 56px;
   padding: 0;
   border-radius: 999px;
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--elevacao-6);
 }
 .agenda-fab-toggle .agenda-fab-icone {
   width: var(--agenda-fab-icone);
@@ -6037,9 +5589,7 @@ button.agenda-nome:hover {
   .agenda-acao-fixa .agenda-fab-toggle {
     /* Mais presença de azul, sem perder o marinho da identidade Cortaí. */
     background: color-mix(in oklab, var(--primary) 76%, black);
-    box-shadow:
-      0 8px 24px color-mix(in oklab, var(--primary) 30%, transparent),
-      var(--shadow-md);
+    box-shadow: var(--elevacao-6);
   }
   .agenda-acao-fixa .agenda-fab-toggle .agenda-fab-icone {
     color: white;
@@ -6172,15 +5722,21 @@ button.agenda-nome:hover {
   color: var(--ticket-texto);
   -webkit-mask:
     radial-gradient(circle var(--furo) at 50% 0, #0000 98%, #000) 50% 0 / var(--passo) 100% repeat-x,
-    radial-gradient(circle var(--furo) at 50% 100%, #0000 98%, #000) 50% 100% / var(--passo) 100% repeat-x,
-    radial-gradient(circle var(--furo-lado) at 0 50%, #0000 98%, #000) 0 50% / 100% var(--passo-lado) repeat-y,
-    radial-gradient(circle var(--furo-lado) at 100% 50%, #0000 98%, #000) 100% 50% / 100% var(--passo-lado) repeat-y;
+    radial-gradient(circle var(--furo) at 50% 100%, #0000 98%, #000) 50% 100% / var(--passo) 100%
+      repeat-x,
+    radial-gradient(circle var(--furo-lado) at 0 50%, #0000 98%, #000) 0 50% / 100%
+      var(--passo-lado) repeat-y,
+    radial-gradient(circle var(--furo-lado) at 100% 50%, #0000 98%, #000) 100% 50% / 100%
+      var(--passo-lado) repeat-y;
   -webkit-mask-composite: source-in;
   mask:
     radial-gradient(circle var(--furo) at 50% 0, #0000 98%, #000) 50% 0 / var(--passo) 100% repeat-x,
-    radial-gradient(circle var(--furo) at 50% 100%, #0000 98%, #000) 50% 100% / var(--passo) 100% repeat-x,
-    radial-gradient(circle var(--furo-lado) at 0 50%, #0000 98%, #000) 0 50% / 100% var(--passo-lado) repeat-y,
-    radial-gradient(circle var(--furo-lado) at 100% 50%, #0000 98%, #000) 100% 50% / 100% var(--passo-lado) repeat-y;
+    radial-gradient(circle var(--furo) at 50% 100%, #0000 98%, #000) 50% 100% / var(--passo) 100%
+      repeat-x,
+    radial-gradient(circle var(--furo-lado) at 0 50%, #0000 98%, #000) 0 50% / 100%
+      var(--passo-lado) repeat-y,
+    radial-gradient(circle var(--furo-lado) at 100% 50%, #0000 98%, #000) 100% 50% / 100%
+      var(--passo-lado) repeat-y;
   mask-composite: intersect;
 }
 
@@ -6194,8 +5750,13 @@ button.agenda-nome:hover {
   color: inherit;
   transition: background-color 120ms ease;
 }
-.chat-header-botao:hover { background: color-mix(in oklab, currentColor 10%, transparent); }
-.chat-header-botao:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+.chat-header-botao:hover {
+  background: color-mix(in oklab, currentColor 10%, transparent);
+}
+.chat-header-botao:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
 .chat-header-avatar {
   width: 2.5rem;
   height: 2.5rem;
@@ -6206,20 +5767,38 @@ button.agenda-nome:hover {
 }
 
 /* Agenda: paleta de hierarquia (neutro estrutura, azul ação, verde positivo, rosa atenção). */
-.agenda-timeline-hora { border-color: var(--agenda-linha-hora); }
-.agenda-linha-agora { border-top-color: var(--agenda-atencao); }
+.agenda-timeline-hora {
+  border-color: var(--agenda-linha-hora);
+}
+.agenda-linha-agora {
+  border-top-color: var(--agenda-atencao);
+}
 .agenda-linha-agora::before,
-.agenda-linha-agora span { background: var(--agenda-atencao); color: #ffffff; }
-.agenda-cal-dia[data-hoje] .agenda-cal-numero { border-color: var(--agenda-acao-suave); }
-.agenda-cal-dia[data-selecionado] .agenda-cal-numero { background: var(--agenda-acao); border-color: var(--agenda-acao); color: #ffffff; }
-.agenda-cal-ponto[data-visivel] { background: var(--agenda-acao); }
+.agenda-linha-agora span {
+  background: var(--agenda-atencao);
+  color: #ffffff;
+}
+.agenda-cal-dia[data-hoje] .agenda-cal-numero {
+  border-color: var(--agenda-acao-suave);
+}
+.agenda-cal-dia[data-selecionado] .agenda-cal-numero {
+  background: var(--agenda-acao);
+  border-color: var(--agenda-acao);
+  color: #ffffff;
+}
+.agenda-cal-ponto[data-visivel] {
+  background: var(--agenda-acao);
+}
 @media (max-width: 767px) {
   .agenda-timeline-fora-expediente,
   .light .agenda-timeline-fora-expediente {
-    background: repeating-linear-gradient(135deg, var(--agenda-listra-base) 0 6px, var(--agenda-listra) 6px 7px);
+    background: repeating-linear-gradient(
+      135deg,
+      var(--agenda-listra-base) 0 6px,
+      var(--agenda-listra) 6px 7px
+    );
   }
 }
-
 
 /* Celular: a prévia do dia vizinho ocupa a tela toda por baixo da barra do topo e já nasce
    alinhada à grade (ver AgendaTimeline); sem a data editorial, que não existe no dia real. */
@@ -6241,7 +5820,7 @@ button.agenda-nome:hover {
 @keyframes agenda-pontos-correr {
   0% {
     transform: translate3d(0, 0, 0);
-    opacity: 0.6;
+    opacity: 0.45;
     animation-timing-function: cubic-bezier(0.55, 0, 0.9, 0.5);
   }
   45% {
@@ -6255,7 +5834,7 @@ button.agenda-nome:hover {
   }
   100% {
     transform: translate3d(0, 0, 0);
-    opacity: 0.6;
+    opacity: 0.45;
   }
 }
 .agenda-pontos[data-correndo] > span {
@@ -6268,15 +5847,33 @@ button.agenda-nome:hover {
 }
 
 /* Lista: só a barrinha lateral ganha a cor do estado do cliente (o resto do cartão não muda). */
-.agenda-item-agendado { border-left-color: var(--estado-agendado); }
-.agenda-item-confirmado { border-left-color: var(--estado-confirmado); }
-.agenda-item-chegou { border-left-color: var(--estado-chegou); }
-.agenda-item-na_cadeira { border-left-color: var(--estado-na-cadeira); }
-.agenda-item-finalizado { border-left-color: var(--estado-finalizado); }
-.agenda-item-cancelado { border-left-color: var(--estado-cancelado); }
-.agenda-item-nao_compareceu { border-left-color: var(--estado-faltou); }
-.agenda-item-remarcado { border-left-color: var(--estado-remarcado); }
-.agenda-item-encaixe { border-left-color: var(--estado-encaixe); }
+.agenda-item-agendado {
+  border-left-color: var(--estado-agendado);
+}
+.agenda-item-confirmado {
+  border-left-color: var(--estado-confirmado);
+}
+.agenda-item-chegou {
+  border-left-color: var(--estado-chegou);
+}
+.agenda-item-na_cadeira {
+  border-left-color: var(--estado-na-cadeira);
+}
+.agenda-item-finalizado {
+  border-left-color: var(--estado-finalizado);
+}
+.agenda-item-cancelado {
+  border-left-color: var(--estado-cancelado);
+}
+.agenda-item-nao_compareceu {
+  border-left-color: var(--estado-faltou);
+}
+.agenda-item-remarcado {
+  border-left-color: var(--estado-remarcado);
+}
+.agenda-item-encaixe {
+  border-left-color: var(--estado-encaixe);
+}
 
 /* Menu da apresentação no celular: a navegação some abaixo de 900px e este botão a substitui. */
 .showroom-header-actions > .showroom-menu-botao {
@@ -6318,7 +5915,6 @@ button.agenda-nome:hover {
   }
 }
 
-
 /* Home de apresentação: estética premium escura com acento oficial da marca. */
 .showroom-page {
   --show-bg: var(--ink);
@@ -6330,62 +5926,265 @@ button.agenda-nome:hover {
   --show-accent-soft: color-mix(in oklab, var(--rosa) 12%, var(--ink2));
   --show-shadow: 0 28px 80px color-mix(in oklab, var(--background) 42%, transparent);
   color-scheme: dark;
-  background: radial-gradient(ellipse at 82% 8%, color-mix(in oklab, var(--rosa) 10%, transparent), transparent 35rem), var(--show-bg);
+  background:
+    radial-gradient(
+      ellipse at 82% 8%,
+      color-mix(in oklab, var(--rosa) 10%, transparent),
+      transparent 35rem
+    ),
+    var(--show-bg);
 }
-.showroom-header { border-bottom-color: color-mix(in oklab, var(--line) 80%, transparent); background: color-mix(in oklab, var(--ink) 90%, transparent); backdrop-filter: blur(18px) saturate(140%); }
-.showroom-header-inner { min-height: 76px; width: min(100% - 2.5rem, 1280px); }
-.showroom-header-inner nav a, .showroom-footer nav a { min-height: 44px; display: inline-flex; align-items: center; transition: color 180ms ease, opacity 180ms ease; }
-.showroom-hero, .showroom-secao, .showroom-dividida, .showroom-cta-final, .showroom-footer { width: min(100% - 2.5rem, 1280px); }
-.showroom-hero { position: relative; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: clamp(2rem, 6vw, 6rem); min-height: min(860px, calc(100svh - 76px)); padding-block: clamp(4rem, 8vw, 8rem); }
-.showroom-hero-copy { position: relative; z-index: 1; max-width: 640px; }
-.showroom-eyebrow { display: inline-flex; align-items: center; gap: .65rem; color: var(--ink2); letter-spacing: .16em; text-transform: uppercase; }
-.showroom-eyebrow::before { width: 1.6rem; height: 1px; background: var(--rosa); content: ""; }
-.showroom-hero h1 { max-width: 12ch; font-size: clamp(3rem, 5.7vw, 5.75rem); line-height: .99; letter-spacing: -.065em; text-wrap: balance; }
-.showroom-hero h1 span:nth-of-type(2) { color: var(--rosa); }
-.showroom-lead { max-width: 46ch; margin-top: 1.4rem; font-size: clamp(1.05rem, 1.5vw, 1.25rem); line-height: 1.7; }
-.showroom-hero-actions { align-items: center; gap: .85rem; margin-top: 1.8rem; }
-.showroom-hero-actions .btn, .showroom-cta-final .btn { min-height: 48px; border-radius: 999px; padding-inline: 1.35rem; }
-.showroom-hero-produto { isolation: isolate; }
-.showroom-hero-produto::before { position: absolute; z-index: -1; inset: 7% -4% -5% 9%; border: 1px solid color-mix(in oklab, var(--rosa) 28%, transparent); border-radius: 2rem; background: linear-gradient(145deg, color-mix(in oklab, var(--rosa) 10%, transparent), transparent 55%); content: ""; transform: rotate(2deg); }
-.showroom-hero-produto > .showroom-agenda { transform: translateY(-.5rem); }
-.showroom-faixa { border-color: color-mix(in oklab, var(--line) 75%, transparent); }
-.showroom-secao-cabecalho h2, .showroom-cta-final h2 { letter-spacing: -.045em; text-wrap: balance; }
-.showroom-produto, .showroom-chat { border-radius: 1.4rem; box-shadow: var(--show-shadow); }
-.showroom-recursos { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem 1.5rem; }
-.showroom-recursos article { min-height: 160px; padding: 1.5rem .5rem 1rem 0; border-top-width: 1px; transition: transform 200ms ease, border-color 200ms ease; }
-.showroom-recursos article:hover { border-color: var(--rosa); transform: translateY(-3px); }
-.showroom-recursos article svg { width: 1.5rem; height: 1.5rem; }
-.showroom-recursos h3 { font-size: 1rem; letter-spacing: -.02em; }
-.showroom-recursos p { max-width: 34ch; font-size: .85rem; line-height: 1.7; }
-.showroom-faq summary { min-height: 48px; display: flex; align-items: center; padding-block: .35rem; }
-.showroom-faq details[open] summary { color: var(--ink2); }
-.showroom-cta-final { position: relative; isolation: isolate; max-width: 100%; width: 100%; padding-inline: max(1.25rem, calc((100% - 900px) / 2)); background: radial-gradient(ellipse at 50% 0%, color-mix(in oklab, var(--rosa) 16%, transparent), transparent 28rem), var(--ink); }
-.showroom-cta-final h2 { max-width: 16ch; margin-inline: auto; }
-.showroom-footer { grid-template-columns: auto minmax(0, 1fr) auto; width: min(100% - 2.5rem, 1280px); gap: 1.25rem; }
+.showroom-header {
+  border-bottom-color: color-mix(in oklab, var(--line) 80%, transparent);
+  background: color-mix(in oklab, var(--ink) 90%, transparent);
+  backdrop-filter: blur(18px) saturate(140%);
+}
+.showroom-header-inner {
+  min-height: 76px;
+  width: min(100% - 2.5rem, 1280px);
+}
+.showroom-header-inner nav a,
+.showroom-footer nav a {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  transition:
+    color 180ms ease,
+    opacity 180ms ease;
+}
+.showroom-hero,
+.showroom-secao,
+.showroom-dividida,
+.showroom-cta-final,
+.showroom-footer {
+  width: min(100% - 2.5rem, 1280px);
+}
+.showroom-hero {
+  position: relative;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  gap: clamp(2rem, 6vw, 6rem);
+  min-height: min(860px, calc(100svh - 76px));
+  padding-block: clamp(4rem, 8vw, 8rem);
+}
+.showroom-hero-copy {
+  position: relative;
+  z-index: 1;
+  max-width: 640px;
+}
+.showroom-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  color: var(--ink2);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+.showroom-eyebrow::before {
+  width: 1.6rem;
+  height: 1px;
+  background: var(--rosa);
+  content: "";
+}
+.showroom-hero h1 {
+  max-width: 12ch;
+  font-size: clamp(3rem, 5.7vw, 5.75rem);
+  line-height: 0.99;
+  letter-spacing: -0.065em;
+  text-wrap: balance;
+}
+.showroom-hero h1 span:nth-of-type(2) {
+  color: var(--rosa);
+}
+.showroom-lead {
+  max-width: 46ch;
+  margin-top: 1.4rem;
+  font-size: clamp(1.05rem, 1.5vw, 1.25rem);
+  line-height: 1.7;
+}
+.showroom-hero-actions {
+  align-items: center;
+  gap: 0.85rem;
+  margin-top: 1.8rem;
+}
+.showroom-hero-actions .btn,
+.showroom-cta-final .btn {
+  min-height: 48px;
+  border-radius: 999px;
+  padding-inline: 1.35rem;
+}
+.showroom-hero-produto {
+  isolation: isolate;
+}
+.showroom-hero-produto::before {
+  position: absolute;
+  z-index: -1;
+  inset: 7% -4% -5% 9%;
+  border: 1px solid color-mix(in oklab, var(--rosa) 28%, transparent);
+  border-radius: 2rem;
+  background: linear-gradient(
+    145deg,
+    color-mix(in oklab, var(--rosa) 10%, transparent),
+    transparent 55%
+  );
+  content: "";
+  transform: rotate(2deg);
+}
+.showroom-hero-produto > .showroom-agenda {
+  transform: translateY(-0.5rem);
+}
+.showroom-faixa {
+  border-color: color-mix(in oklab, var(--line) 75%, transparent);
+}
+.showroom-secao-cabecalho h2,
+.showroom-cta-final h2 {
+  letter-spacing: -0.045em;
+  text-wrap: balance;
+}
+.showroom-produto,
+.showroom-chat {
+  border-radius: 1.4rem;
+  box-shadow: var(--show-shadow);
+}
+.showroom-recursos {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem 1.5rem;
+}
+.showroom-recursos article {
+  min-height: 160px;
+  padding: 1.5rem 0.5rem 1rem 0;
+  border-top-width: 1px;
+  transition:
+    transform 200ms ease,
+    border-color 200ms ease;
+}
+.showroom-recursos article:hover {
+  border-color: var(--rosa);
+  transform: translateY(-3px);
+}
+.showroom-recursos article svg {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+.showroom-recursos h3 {
+  font-size: 1rem;
+  letter-spacing: -0.02em;
+}
+.showroom-recursos p {
+  max-width: 34ch;
+  font-size: 0.85rem;
+  line-height: 1.7;
+}
+.showroom-faq summary {
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  padding-block: 0.35rem;
+}
+.showroom-faq details[open] summary {
+  color: var(--ink2);
+}
+.showroom-cta-final {
+  position: relative;
+  isolation: isolate;
+  max-width: 100%;
+  width: 100%;
+  padding-inline: max(1.25rem, calc((100% - 900px) / 2));
+  background:
+    radial-gradient(
+      ellipse at 50% 0%,
+      color-mix(in oklab, var(--rosa) 16%, transparent),
+      transparent 28rem
+    ),
+    var(--ink);
+}
+.showroom-cta-final h2 {
+  max-width: 16ch;
+  margin-inline: auto;
+}
+.showroom-footer {
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  width: min(100% - 2.5rem, 1280px);
+  gap: 1.25rem;
+}
 @media (max-width: 900px) {
-  .showroom-hero { grid-template-columns: minmax(0, 1fr); min-height: auto; gap: 3rem; padding-block: 4rem; }
-  .showroom-hero-copy { max-width: 720px; }
-  .showroom-hero h1 { max-width: 14ch; font-size: clamp(3rem, 9vw, 5rem); }
-  .showroom-hero-produto { width: min(100%, 720px); margin-inline: auto; }
+  .showroom-hero {
+    grid-template-columns: minmax(0, 1fr);
+    min-height: auto;
+    gap: 3rem;
+    padding-block: 4rem;
+  }
+  .showroom-hero-copy {
+    max-width: 720px;
+  }
+  .showroom-hero h1 {
+    max-width: 14ch;
+    font-size: clamp(3rem, 9vw, 5rem);
+  }
+  .showroom-hero-produto {
+    width: min(100%, 720px);
+    margin-inline: auto;
+  }
 }
 @media (max-width: 640px) {
-  .showroom-header-inner { width: min(100% - 1.25rem, 1280px); gap: .5rem; }
-  .showroom-hero, .showroom-secao, .showroom-dividida, .showroom-footer { width: min(100% - 1.5rem, 1280px); }
-  .showroom-hero { padding-block: 3.25rem; }
-  .showroom-hero h1 { font-size: clamp(2.7rem, 12vw, 4rem); }
-  .showroom-hero-actions { align-items: stretch; flex-direction: column; }
-  .showroom-hero-actions > * { width: 100%; justify-content: center; }
-  .showroom-recursos { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .5rem 1rem; }
-  .showroom-recursos article { min-height: 0; }
-  .showroom-faq { grid-template-columns: minmax(0, 1fr); gap: 2rem; padding-inline: 1rem; }
-  .showroom-footer { grid-template-columns: minmax(0, 1fr); justify-items: start; }
-  .showroom-footer nav { flex-wrap: wrap; gap: .5rem 1rem; }
+  .showroom-header-inner {
+    width: min(100% - 1.25rem, 1280px);
+    gap: 0.5rem;
+  }
+  .showroom-hero,
+  .showroom-secao,
+  .showroom-dividida,
+  .showroom-footer {
+    width: min(100% - 1.5rem, 1280px);
+  }
+  .showroom-hero {
+    padding-block: 3.25rem;
+  }
+  .showroom-hero h1 {
+    font-size: clamp(2.7rem, 12vw, 4rem);
+  }
+  .showroom-hero-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .showroom-hero-actions > * {
+    width: 100%;
+    justify-content: center;
+  }
+  .showroom-recursos {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.5rem 1rem;
+  }
+  .showroom-recursos article {
+    min-height: 0;
+  }
+  .showroom-faq {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2rem;
+    padding-inline: 1rem;
+  }
+  .showroom-footer {
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: start;
+  }
+  .showroom-footer nav {
+    flex-wrap: wrap;
+    gap: 0.5rem 1rem;
+  }
 }
 @media (prefers-reduced-motion: reduce) {
-  .showroom-page, .showroom-page *, .showroom-page *::before, .showroom-page *::after { scroll-behavior: auto; transition-duration: .01ms; animation-duration: .01ms; animation-iteration-count: 1; }
-  .showroom-recursos article:hover { transform: none; }
+  .showroom-page,
+  .showroom-page *,
+  .showroom-page *::before,
+  .showroom-page *::after {
+    scroll-behavior: auto;
+    transition-duration: 0.01ms;
+    animation-duration: 0.01ms;
+    animation-iteration-count: 1;
+  }
+  .showroom-recursos article:hover {
+    transform: none;
+  }
 }
-
 
 /* Cartões da timeline — um padrão só, como nos modelos do dono (18/10/2026): o mesmo fundo para
    todos (claro no tema claro, grafite no escuro) e o estado muda só a cor da barra lateral.
@@ -6394,7 +6193,7 @@ button.agenda-nome:hover {
   --cor-estado: var(--estado-agendado);
   border: 0;
   border-radius: 12px;
-  background: var(--agenda-cartao);
+  background: var(--agenda-cartao-evento, var(--agenda-cartao));
   padding: 8px 12px 8px 20px;
   box-shadow: var(--agenda-cartao-sombra);
   color: var(--paper);
@@ -6411,14 +6210,34 @@ button.agenda-nome:hover {
   background: var(--cor-categoria, var(--cor-estado));
   pointer-events: none;
 }
-.agenda-timeline-confirmado { --cor-estado: var(--estado-confirmado); }
-.agenda-timeline-chegou { --cor-estado: var(--estado-chegou); }
-.agenda-timeline-na_cadeira { --cor-estado: var(--estado-na-cadeira); }
-.agenda-timeline-finalizado { --cor-estado: var(--estado-finalizado); }
-.agenda-timeline-cancelado { --cor-estado: var(--estado-cancelado); }
-.agenda-timeline-nao_compareceu { --cor-estado: var(--estado-faltou); }
-.agenda-timeline-remarcado { --cor-estado: var(--estado-remarcado); }
-.agenda-timeline-encaixe:not(.agenda-timeline-chegou, .agenda-timeline-na_cadeira, .agenda-timeline-finalizado, .agenda-timeline-cancelado, .agenda-timeline-nao_compareceu) {
+.agenda-timeline-confirmado {
+  --cor-estado: var(--estado-confirmado);
+}
+.agenda-timeline-chegou {
+  --cor-estado: var(--estado-chegou);
+}
+.agenda-timeline-na_cadeira {
+  --cor-estado: var(--estado-na-cadeira);
+}
+.agenda-timeline-finalizado {
+  --cor-estado: var(--estado-finalizado);
+}
+.agenda-timeline-cancelado {
+  --cor-estado: var(--estado-cancelado);
+}
+.agenda-timeline-nao_compareceu {
+  --cor-estado: var(--estado-faltou);
+}
+.agenda-timeline-remarcado {
+  --cor-estado: var(--estado-remarcado);
+}
+.agenda-timeline-encaixe:not(
+  .agenda-timeline-chegou,
+  .agenda-timeline-na_cadeira,
+  .agenda-timeline-finalizado,
+  .agenda-timeline-cancelado,
+  .agenda-timeline-nao_compareceu
+) {
   --cor-estado: var(--estado-encaixe);
 }
 .agenda-timeline-bloco .agenda-timeline-bloco-topo strong {
@@ -6449,8 +6268,7 @@ button.agenda-nome:hover {
 }
 .agenda-timeline-bloco.agenda-timeline-selecionado {
   box-shadow:
-    0 0 0 2px color-mix(in oklab, var(--cor-estado) 45%, transparent),
-    var(--agenda-cartao-sombra);
+    0 0 0 2px color-mix(in oklab, var(--cor-estado) 45%, transparent);
 }
 .agenda-timeline-bloco:focus-visible {
   outline: 2px solid color-mix(in oklab, var(--cor-estado) 70%, var(--paper));
@@ -6490,7 +6308,6 @@ button.agenda-nome:hover {
   content: "";
   transform: translateX(-50%);
 }
-
 
 /* Agenda mobile — grade silenciosa: horas cheias orientam; subdivisões viram pequenos ticks. */
 @media (max-width: 767px) {
@@ -6552,7 +6369,7 @@ button.agenda-nome:hover {
   font-size: 20px;
   font-weight: 700;
 }
-.agenda-lista-dia-titulo h3 span,
+.agenda-lista-dia-titulo h3 span:not([data-hoje]),
 .agenda-lista-dia-resumo {
   color: var(--mute);
   font-size: 13px;
@@ -6595,7 +6412,7 @@ button.agenda-nome:hover {
   align-items: stretch;
   gap: 2px;
   border-radius: 12px;
-  background: var(--agenda-cartao);
+  background: var(--agenda-cartao-evento, var(--agenda-cartao));
   box-shadow: var(--agenda-cartao-sombra);
   padding: 10px 11px 10px 17px;
   color: var(--paper);
@@ -6615,8 +6432,7 @@ button.agenda-nome:hover {
 }
 .agenda-lista-cartao-selecionado {
   box-shadow:
-    0 0 0 2px color-mix(in oklab, var(--cor-estado) 45%, transparent),
-    var(--agenda-cartao-sombra);
+    0 0 0 2px color-mix(in oklab, var(--cor-estado) 45%, transparent);
 }
 .agenda-lista-cartao-topo {
   display: flex;
@@ -6656,6 +6472,42 @@ button.agenda-nome:hover {
    da página com cartões padrão, rodapé "Reagendar ⌄" à direita e lista de horários em linhas. */
 .agenda-ficha.agenda-ficha {
   background: var(--ink);
+}
+/* Bloco antigo (já com título e conteúdo próprios) dentro de um cartão de configuração do Figaro: tira a borda e o respiro de cima/baixo que ele trazia. */
+.cartao-config {
+  border-radius: 28px;
+  background: var(--agenda-cartao);
+  padding: 16px;
+}
+.cartao-config > * {
+  border-width: 0;
+  padding-block: 0;
+}
+
+/* Barrinha da ficha, como a do Material 3 do Figaro: pílula de 32×4 dp dentro da folha, com 48 dp de toque. */
+.agenda-ficha-alca {
+  display: flex;
+  flex-shrink: 0;
+  height: 40px;
+  margin-inline: -1rem;
+  align-items: center;
+  justify-content: center;
+  cursor: grab;
+  touch-action: none;
+}
+.agenda-ficha-alca > span {
+  width: 32px;
+  height: 4px;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--mute2) 60%, transparent);
+  transition: background-color 120ms ease;
+}
+.agenda-ficha-alca:active > span,
+.agenda-ficha-alca:focus-visible > span {
+  background: var(--mute2);
+}
+.agenda-ficha-alca:focus-visible {
+  outline: none;
 }
 .agenda-ficha-cartao,
 .agenda-reagendar-cartao {
@@ -6715,6 +6567,19 @@ button.agenda-nome:hover {
   min-height: 44px;
   border-radius: 999px;
 }
+.agenda-ficha-cartao-unico .agenda-ficha-rodape {
+  position: relative;
+  right: auto;
+  bottom: auto;
+  margin-top: 12px;
+  padding-bottom: calc(16px + env(safe-area-inset-bottom));
+}
+.agenda-ficha-cartao-unico .agenda-ficha-menu {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% - 8px);
+  z-index: 2;
+}
 .agenda-ficha-rodape {
   position: absolute;
   right: 16px;
@@ -6739,7 +6604,7 @@ button.agenda-nome:hover {
   min-width: 230px;
   border-radius: 14px;
   background: var(--agenda-cartao);
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--elevacao-3);
   padding: 6px;
   animation: agenda-ficha-menu var(--mov-base, 200ms) var(--ease-saida, ease-out) both;
 }
@@ -6841,7 +6706,7 @@ button.agenda-nome:hover {
   height: 52px;
   border-radius: 999px;
   padding-inline: 22px;
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--elevacao-6);
   transition:
     padding var(--mov-base, 200ms) var(--ease-saida, ease-out),
     opacity var(--mov-base, 200ms) var(--ease-saida, ease-out);
@@ -7091,7 +6956,7 @@ button.agenda-nome:hover {
 /* Edição de um cartão: os outros ficam apagados (Figaro: 40%, 300 ms). */
 .agenda-timeline-esmaecido {
   opacity: 0.4;
-  transition: opacity 280ms var(--ease-saida, ease-out);
+  transition: opacity 300ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 .agenda-linha-agora {
   border-top-width: 1.5px;
@@ -7162,4 +7027,2782 @@ button.agenda-nome:hover {
 .agenda-timeline-bloco .agenda-timeline-horario svg {
   width: 13px;
   height: 13px;
+}
+
+/* Cabeçalho dos dias em Cards: data por extenso sem comprimir a agenda no celular. */
+@media (max-width: 600px) {
+  .agenda-lista-dia-titulo {
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .agenda-lista-dia-titulo h3 {
+    min-width: 0;
+    flex-wrap: wrap;
+  }
+
+  .agenda-lista-dia-resumo {
+    flex: 1 1 100%;
+    white-space: normal;
+  }
+}
+
+/* ---------------------------------------------------------------------------------------------
+   Modelo "Site Completo" do Figaro (landing_peek_site do APK): três temas — Clássico, Rock n' Roll e
+   Retrô. Cores e formas vêm dos quadros do vídeo; as fontes vêm da configuração do tema.
+   --------------------------------------------------------------------------------------------- */
+.fg {
+  --fg-pagina: #eceae8;
+  --fg-texto: #1f1e1d;
+  --fg-mudo: #7a7673;
+  --fg-linha: rgb(0 0 0 / 0.1);
+  --fg-hero-texto: #fff;
+  --fg-veu: rgb(30 32 31 / 0.6);
+  --fg-cta-bg: #e0dddA;
+  --fg-cta-texto: #222;
+  --fg-cta-raio: 2px;
+  --fg-linha-bg: #262424;
+  --fg-linha-texto: #fff;
+  --fg-linha-raio: 4px;
+  --fg-acento: #e8582a;
+  --fg-secao-fonte: var(--brand-heading);
+  background: var(--fg-pagina);
+  color: var(--fg-texto);
+  font-family: var(--brand-body);
+  min-height: 100dvh;
+}
+.fg[data-tema="figaro-rock-n-roll"] {
+  --fg-veu: rgb(14 14 14 / 0.78);
+  --fg-pagina: #e8e5e4;
+  --fg-secao-fonte: "Plus Jakarta Sans", sans-serif;
+}
+.fg[data-tema="figaro-retro"] {
+  --fg-pagina: #f6ecb0;
+  --fg-texto: #2a1f3d;
+  --fg-mudo: #6b6050;
+  --fg-hero-texto: #2a1f3d;
+  --fg-veu: rgb(241 217 92 / 0.86);
+  --fg-cta-bg: #4553d9;
+  --fg-cta-texto: #fff;
+  --fg-cta-raio: 999px;
+  --fg-linha-bg: #4553d9;
+  --fg-linha-raio: 999px;
+  --fg-acento: #4553d9;
+}
+.fg * {
+  box-sizing: border-box;
+}
+.fg h1,
+.fg h2,
+.fg h3,
+.fg p,
+.fg ul {
+  margin: 0;
+}
+.fg ul {
+  padding: 0;
+  list-style: none;
+}
+.fg-hero {
+  position: relative;
+  display: flex;
+  min-height: 100dvh;
+  flex-direction: column;
+  overflow: hidden;
+  background: #1d1f1e;
+  color: var(--fg-hero-texto);
+}
+.is-preview .fg-hero {
+  min-height: 640px;
+}
+.fg-capa {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.fg[data-tema="figaro-rock-n-roll"] .fg-capa {
+  filter: grayscale(1);
+}
+.fg[data-tema="figaro-retro"] .fg-capa {
+  mix-blend-mode: multiply;
+  opacity: 0.55;
+}
+.fg-veu {
+  position: absolute;
+  inset: 0;
+  background: var(--fg-veu);
+}
+.fg-topo {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 24px 28px 0;
+}
+.fg-marca {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.fg-marca strong {
+  max-width: 7.5em;
+  font-family: var(--brand-heading);
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.15;
+}
+.fg[data-tema="figaro-rock-n-roll"] .fg-marca strong {
+  font-family: "Old Standard TT", Georgia, serif;
+}
+.fg-logo {
+  display: none;
+}
+.fg-menu {
+  display: grid;
+  min-width: 48px;
+  min-height: 48px;
+  place-items: center;
+  border: 0;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+}
+.fg-centro {
+  container-type: inline-size;
+  position: relative;
+  z-index: 2;
+  display: grid;
+  flex: 1;
+  place-content: center;
+  justify-items: center;
+  padding: 0 28px;
+  text-align: center;
+}
+.fg-centro h1 {
+  margin-bottom: 20px;
+  font-family: var(--brand-heading);
+  font-size: clamp(2.2rem, 13.5cqw, 4.8rem);
+  text-wrap: balance;
+  font-weight: 400;
+  line-height: 1.1;
+}
+.fg[data-tema="figaro-retro"] .fg-centro h1 {
+  font-style: normal;
+  font-weight: 400;
+}
+.fg-centro p {
+  max-width: 520px;
+  font-size: 1.1rem;
+  line-height: 1.55;
+  opacity: 0.92;
+}
+.fg-centro > div {
+  margin-top: 36px;
+}
+.fg-cta,
+.fg-btn-linha {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  border: 0;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 500;
+  text-decoration: none;
+}
+.fg-cta {
+  min-width: 200px;
+  min-height: 56px;
+  padding: 0 28px;
+  background: var(--fg-cta-bg);
+  color: var(--fg-cta-texto);
+  border-radius: var(--fg-cta-raio);
+}
+.fg-btn-linha {
+  min-height: 44px;
+  padding: 0 20px;
+  background: var(--fg-linha-bg);
+  color: var(--fg-linha-texto);
+  border-radius: var(--fg-linha-raio);
+  font-weight: 600;
+}
+.fg-saiba {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  margin-bottom: 40px;
+  border: 0;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.95rem;
+}
+.fg-diagonal {
+  display: none;
+}
+.fg[data-tema="figaro-rock-n-roll"] .fg-diagonal {
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  z-index: 3;
+  display: block;
+  width: 100%;
+  height: 56px;
+}
+.fg-diagonal-fundo {
+  fill: var(--fg-pagina);
+}
+.fg-diagonal-linha {
+  stroke: var(--fg-acento);
+  stroke-width: 3px;
+}
+.fg-painel-menu {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 32px;
+  padding: 24px 32px;
+  background: var(--fg-pagina);
+  color: var(--fg-texto);
+}
+.fg-painel-menu .fg-fechar {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+}
+.fg-painel-menu li button {
+  min-height: 56px;
+  border: 0;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+  font-family: var(--fg-secao-fonte);
+  font-size: 1.9rem;
+  font-weight: 700;
+  text-align: left;
+}
+.fg-menu-cta .fg-cta {
+  width: 100%;
+}
+.fg-corpo {
+  margin: 0 auto;
+  max-width: 1040px;
+  padding: 0 24px 24px;
+}
+.fg-secao {
+  padding-top: 56px;
+  scroll-margin-top: 16px;
+}
+.fg-secao h2,
+.fg-final h2 {
+  margin-bottom: 24px;
+  font-family: var(--fg-secao-fonte);
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.15;
+}
+.fg-sub {
+  margin: -12px 0 20px;
+  color: var(--fg-mudo);
+  line-height: 1.5;
+}
+.fg-equipe {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+}
+.fg-equipe li {
+  display: grid;
+  flex: none;
+  width: 125px;
+  align-content: start;
+  gap: 2px;
+  text-align: center;
+}
+.fg-equipe img,
+.fg-iniciais {
+  width: 125px;
+  aspect-ratio: 125 / 160;
+  margin-bottom: 10px;
+  object-fit: cover;
+  border: 1px solid var(--fg-linha);
+  box-shadow: 6px 0 0 rgb(0 0 0 / 0.07);
+}
+.fg-iniciais {
+  display: grid;
+  place-items: center;
+  background: rgb(0 0 0 / 0.08);
+  font-size: 2.4rem;
+  font-weight: 700;
+}
+.fg-equipe strong {
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+.fg-equipe small {
+  color: var(--fg-mudo);
+  font-size: 0.95rem;
+}
+.fg-equipe p {
+  margin-top: 6px;
+  color: var(--fg-mudo);
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+.fg-acordeao {
+  border-top: 1px solid var(--fg-linha);
+}
+.fg-grupo {
+  border-bottom: 1px solid var(--fg-linha);
+}
+.fg-grupo-cabecalho {
+  display: flex;
+  width: 100%;
+  min-height: 64px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border: 0;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  font-size: 1.3rem;
+  font-weight: 700;
+  text-align: left;
+}
+.fg-grupo-cabecalho > span:first-child {
+  display: inline-flex;
+  align-items: center;
+}
+.fg-btn-linha svg {
+  display: none;
+}
+.fg-grupo-cabecalho small {
+  color: var(--fg-mudo);
+  font-size: 1.1rem;
+  font-weight: 400;
+}
+.fg-chama {
+  margin-left: 8px;
+  color: var(--fg-acento);
+  vertical-align: -2px;
+}
+.fg-servico {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 0;
+  border-top: 1px solid var(--fg-linha);
+}
+.fg-servico h3 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  line-height: 1.25;
+}
+.fg-servico p {
+  margin-top: 4px;
+  color: var(--fg-mudo);
+}
+.fg-servico p span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 14px;
+}
+.fg-galeria {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.fg-galeria img {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+}
+.fg-nota {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--fg-acento);
+}
+.fg-nota strong {
+  color: var(--fg-texto);
+  font-size: 1.6rem;
+}
+.fg-nota span {
+  color: var(--fg-mudo);
+}
+.fg-link {
+  display: inline-flex;
+  min-height: 48px;
+  align-items: center;
+  gap: 10px;
+  margin: 0 18px 8px 0;
+  color: inherit;
+  font-size: 1.05rem;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.fg-final {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  padding: 72px 0 48px;
+  text-align: center;
+}
+.fg-final h2 {
+  margin-bottom: 16px;
+}
+@media (min-width: 768px) {
+  .fg-topo {
+    padding: 32px 56px 0;
+  }
+  .fg-equipe li,
+  .fg-equipe img,
+  .fg-iniciais {
+    width: 160px;
+  }
+  .fg-equipe img,
+  .fg-iniciais {
+    aspect-ratio: 160 / 200;
+  }
+  .fg-galeria {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+.fg[data-tema="figaro-classico"] .fg-cta svg {
+  display: none;
+}
+
+/* ---------------------------------------------------------------------------------------------
+   Reserva no padrão do Figaro (landing_peek_booking do APK): serviços, folha com dias e horários,
+   "Seus Dados" e a tela verde "Reserva confirmada".
+   --------------------------------------------------------------------------------------------- */
+.fr {
+  --fr-verde: #1d6b58;
+  --fr-fundo: #ededed;
+  --fr-linha: #e3e3e3;
+  --fr-texto: #1f1f1f;
+  --fr-mudo: #6f6f6f;
+  min-height: 100dvh;
+  margin: 0 auto;
+  max-width: 520px;
+  background: var(--fr-fundo);
+  color: var(--fr-texto);
+  font-family: var(--brand-body, "Inter", sans-serif);
+}
+.fr * {
+  box-sizing: border-box;
+}
+.fr h1,
+.fr h2,
+.fr p,
+.fr ul {
+  margin: 0;
+}
+.fr ul {
+  padding: 0;
+  list-style: none;
+}
+.fr button {
+  font: inherit;
+}
+.fr-topo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 12px;
+}
+.fr-topo button,
+.fr-cabecalho button {
+  display: grid;
+  min-width: 48px;
+  min-height: 48px;
+  place-items: center;
+  border: 0;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+}
+.fr-topo strong {
+  font-size: 1.15rem;
+}
+.fr-servicos {
+  padding: 8px 24px 48px;
+}
+.fr-servicos h1 {
+  margin-bottom: 16px;
+  font-size: 2rem;
+  font-weight: 700;
+}
+.fr-servicos li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 0;
+  border-top: 1px solid var(--fr-linha);
+}
+.fr-servicos h2 {
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+.fr-servicos p {
+  margin-top: 4px;
+  color: var(--fr-mudo);
+}
+.fr-servicos p span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 14px;
+}
+.fr-agendar {
+  min-height: 44px;
+  padding: 0 20px;
+  border: 0;
+  border-radius: 6px;
+  background: #262424;
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+}
+.fr-folha {
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 120px;
+}
+.fr-cabecalho {
+  display: grid;
+  grid-template-columns: 48px 1fr 48px;
+  align-items: center;
+  padding: 8px 8px 0;
+  border-bottom: 1px solid var(--fr-linha);
+}
+.fr-cabecalho h1 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  text-align: center;
+}
+.fr-mes {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 16px 8px;
+}
+.fr-mes strong {
+  font-size: 1.2rem;
+  white-space: nowrap;
+}
+.fr-mes strong svg {
+  display: inline-block;
+  vertical-align: -2px;
+}
+.fr-mes button {
+  min-width: 40px;
+  min-height: 40px;
+  border: 0;
+  background: none;
+  color: var(--fr-mudo);
+  cursor: pointer;
+}
+.fr-dias {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 4px 16px 12px;
+  scrollbar-width: none;
+}
+.fr-dia {
+  display: grid;
+  flex: none;
+  width: 52px;
+  justify-items: center;
+  gap: 4px;
+  border: 0;
+  background: none;
+  color: var(--fr-mudo);
+  cursor: pointer;
+}
+.fr-dia b {
+  display: grid;
+  width: 52px;
+  height: 52px;
+  place-items: center;
+  border: 1px solid var(--fr-linha);
+  border-radius: 6px;
+  background: #fff;
+  color: var(--fr-texto);
+  font-size: 1.15rem;
+  font-weight: 600;
+}
+.fr-dia small {
+  font-size: 0.8rem;
+}
+.fr-dia[aria-pressed="true"] b {
+  border-color: var(--fr-verde);
+  background: var(--fr-verde);
+  color: #fff;
+}
+.fr-dia:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+.fr-dia:disabled b {
+  text-decoration: line-through;
+  color: var(--fr-mudo);
+}
+.fr-horarios {
+  display: grid;
+  gap: 8px;
+  padding: 4px 16px;
+}
+.fr-horarios > li {
+  overflow: hidden;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: #e4e4e4;
+}
+.fr-horarios > li[data-aberto] {
+  border-color: var(--fr-verde);
+  background: #e8efec;
+}
+.fr-linha {
+  display: flex;
+  width: 100%;
+  min-height: 56px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 16px;
+  border: 0;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+}
+.fr-linha strong {
+  font-size: 1.15rem;
+  font-variant-numeric: tabular-nums;
+}
+.fr-linha span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--fr-mudo);
+}
+.fr-profissionais li {
+  display: flex;
+  min-height: 48px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 16px;
+  border-top: 1px solid var(--fr-linha);
+}
+.fr-profissionais li[data-marcado] {
+  background: #d9e4e0;
+}
+.fr-profissionais li > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.fr-profissionais li > button {
+  min-height: 40px;
+  border: 0;
+  background: none;
+  color: var(--fr-verde);
+  font-weight: 700;
+  cursor: pointer;
+}
+.fr-selecionado {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: var(--fr-verde);
+  color: #fff;
+  font-size: 0.85rem;
+}
+.fr-vazio {
+  padding: 24px 16px;
+  border: 1px dashed #bbb;
+  border-radius: 8px;
+  background: none !important;
+  color: var(--fr-mudo);
+  text-align: center;
+}
+.fr-barra {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 30;
+  display: flex;
+  max-width: 520px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0 auto;
+  padding: 14px 16px calc(14px + env(safe-area-inset-bottom));
+  border-top: 1px solid var(--fr-linha);
+  background: #efefef;
+}
+.fr-barra small {
+  display: block;
+  color: var(--fr-mudo);
+  font-size: 0.8rem;
+}
+.fr-barra span {
+  color: var(--fr-mudo);
+  font-size: 0.85rem;
+}
+.fr-barra strong {
+  font-size: 0.9rem;
+}
+.fr-continuar {
+  min-height: 48px;
+  padding: 0 22px;
+  border-radius: 6px;
+  background: #262424;
+  color: #fff;
+  font-weight: 700;
+}
+.fr-dados {
+  display: grid;
+  gap: 18px;
+  padding: 20px 16px;
+}
+.fr-dados label {
+  display: grid;
+  gap: 8px;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+.fr-dados input {
+  width: 100%;
+  min-height: 52px;
+  border: 1px solid #d4d4d4;
+  border-radius: 6px;
+  background: #fff;
+  padding: 0 14px;
+  color: var(--fr-texto);
+  font: inherit;
+  font-weight: 400;
+}
+.fr-telefone {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  border: 1px solid #d4d4d4;
+  border-radius: 6px;
+  background: #fff;
+  font-weight: 400 !important;
+}
+.fr-telefone input {
+  border: 0;
+  border-left: 1px solid #d4d4d4;
+  border-radius: 0 6px 6px 0;
+}
+.fr-ddi {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 14px;
+}
+.fr-dados em {
+  color: #b3261e;
+  font-size: 0.85rem;
+  font-style: normal;
+  font-weight: 400;
+}
+.fr-aviso {
+  color: var(--fr-mudo);
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+.fr-alerta,
+.fr-erro {
+  padding: 12px 14px;
+  border: 1px solid #b3261e55;
+  border-radius: 8px;
+  color: #b3261e;
+  font-size: 0.9rem;
+}
+.fr-alerta button {
+  min-height: 44px;
+  margin-top: 8px;
+  border: 1px solid currentcolor;
+  border-radius: 6px;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+}
+.fr-ok {
+  display: grid;
+  min-height: 100dvh;
+  align-content: center;
+  justify-items: center;
+  gap: 8px;
+  padding: 24px;
+  background: #1b6e5c;
+  color: #fff;
+  text-align: center;
+}
+.fr-ok h1 {
+  margin-top: 12px;
+  font-size: 1.6rem;
+  font-weight: 700;
+}
+.fr-ok p {
+  opacity: 0.92;
+}
+.fr-ok-visto {
+  stroke-dasharray: 60;
+  stroke-dashoffset: 60;
+  animation: fr-visto 0.5s 0.25s ease-out forwards;
+}
+@keyframes fr-visto {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .fr-ok-visto {
+    animation: none;
+    stroke-dashoffset: 0;
+  }
+}
+.fg-rapido .fg-hero {
+  min-height: 56dvh;
+}
+.is-preview.fg-rapido .fg-hero,
+.fg-rapido.is-preview .fg-hero {
+  min-height: 420px;
+}
+.fg-rapido .fg-centro > div {
+  margin-top: 28px;
+}
+
+/* Temas femininos do Cortaí (Rosé, Lavanda e Pêssego): mesmos modelos, paletas e fontes delicadas. */
+.fg[data-tema="feminino-rose"] {
+  --fg-pagina: #fceff1;
+  --fg-texto: #4a2130;
+  --fg-mudo: #8c6670;
+  --fg-linha: rgb(140 59 82 / 0.14);
+  --fg-veu: linear-gradient(180deg, rgb(150 70 90 / 0.38), rgb(106 36 60 / 0.74));
+  --fg-cta-bg: #b76e79;
+  --fg-cta-texto: #fff;
+  --fg-cta-raio: 999px;
+  --fg-linha-bg: #b76e79;
+  --fg-linha-raio: 999px;
+  --fg-acento: #b76e79;
+}
+.fg[data-tema="feminino-lavanda"] {
+  --fg-pagina: #f5f0fb;
+  --fg-texto: #33254f;
+  --fg-mudo: #7a6a96;
+  --fg-linha: rgb(91 63 143 / 0.14);
+  --fg-veu: linear-gradient(180deg, rgb(123 92 196 / 0.4), rgb(58 38 108 / 0.76));
+  --fg-cta-bg: #7b5cc4;
+  --fg-cta-texto: #fff;
+  --fg-cta-raio: 999px;
+  --fg-linha-bg: #7b5cc4;
+  --fg-linha-raio: 999px;
+  --fg-acento: #9b7fd9;
+}
+.fg[data-tema="feminino-pessego"] {
+  --fg-pagina: #fff3ea;
+  --fg-texto: #4d2a1f;
+  --fg-mudo: #8f6b5e;
+  --fg-linha: rgb(181 82 59 / 0.15);
+  --fg-veu: linear-gradient(180deg, rgb(224 116 90 / 0.4), rgb(140 54 36 / 0.72));
+  --fg-cta-bg: #e0745a;
+  --fg-cta-texto: #fff;
+  --fg-cta-raio: 999px;
+  --fg-linha-bg: #e0745a;
+  --fg-linha-raio: 999px;
+  --fg-acento: #e0745a;
+}
+.fg[data-tema="feminino-rose"] .fg-centro h1 {
+  font-weight: 500;
+  font-size: clamp(2.4rem, 15cqw, 5.2rem);
+}
+.fg[data-tema="feminino-pessego"] .fg-centro h1,
+.fg[data-tema="feminino-pessego"] .fg-secao h2 {
+  font-weight: 700;
+}
+.fg[data-tema="feminino-pessego"] .fg-centro h1 {
+  font-size: clamp(2.6rem, 15cqw, 5.2rem);
+}
+.fg[data-tema="feminino-rose"] .fg-secao h2,
+.fg[data-tema="feminino-lavanda"] .fg-secao h2 {
+  font-weight: 600;
+}
+
+/* =============================================================================================
+   Estruturas dos temas femininos: cada um muda a composição da página, não só cor e fonte.
+   arco (Rosé) · cartao (Lavanda) · vibrante (Pêssego)
+   ============================================================================================= */
+.fg-arco,
+.fg-onda,
+.fg-chips {
+  display: none;
+}
+.fg-carta {
+  display: grid;
+  gap: 6px;
+}
+.fg-carta h4 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+  line-height: 1.25;
+}
+.fg-carta small {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--fg-mudo);
+}
+.fg-categoria {
+  margin: 28px 0 12px;
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+.fg-cartas ul {
+  display: grid;
+  gap: 12px;
+}
+
+/* ---- Rosé · arco ---- */
+.fg[data-estrutura="arco"] .fg-hero {
+  min-height: auto;
+  padding-bottom: 36px;
+  background: var(--fg-pagina);
+  color: var(--fg-texto);
+}
+.is-preview.fg[data-estrutura="arco"] .fg-hero {
+  min-height: auto;
+}
+.fg[data-estrutura="arco"] .fg-capa,
+.fg[data-estrutura="arco"] .fg-veu {
+  display: none;
+}
+.fg[data-estrutura="arco"] .fg-topo {
+  justify-content: center;
+}
+.fg[data-estrutura="arco"] .fg-topo .fg-menu {
+  position: absolute;
+  top: 18px;
+  right: 14px;
+}
+.fg[data-estrutura="arco"] .fg-marca strong {
+  max-width: none;
+  font-size: 1.7rem;
+  letter-spacing: 0.02em;
+}
+.fg[data-estrutura="arco"] .fg-centro {
+  flex: none;
+  padding-top: 12px;
+}
+.fg[data-estrutura="arco"] .fg-arco {
+  display: block;
+  width: min(72%, 300px);
+  aspect-ratio: 3 / 4;
+  margin: 0 auto 28px;
+  border: 6px solid #fff;
+  border-radius: 999px 999px 28px 28px;
+  box-shadow: 0 18px 40px rgb(140 59 82 / 0.22);
+  object-fit: cover;
+}
+.fg[data-estrutura="arco"] .fg-saiba {
+  color: var(--fg-mudo);
+  margin: 28px 0 0;
+}
+.fg[data-estrutura="arco"] .fg-secao h2 {
+  text-align: center;
+}
+.fg[data-estrutura="arco"] .fg-equipe {
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 22px 18px;
+  overflow: visible;
+}
+.fg[data-estrutura="arco"] .fg-equipe li {
+  width: 120px;
+}
+.fg[data-estrutura="arco"] .fg-equipe img,
+.fg[data-estrutura="arco"] .fg-iniciais {
+  width: 120px;
+  aspect-ratio: 1;
+  border: 4px solid #fff;
+  border-radius: 999px;
+  box-shadow: 0 8px 22px rgb(140 59 82 / 0.18);
+}
+.fg[data-estrutura="arco"] .fg-carta {
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  padding: 18px 20px;
+  border-radius: 22px;
+  background: #fff;
+  box-shadow: 0 6px 20px rgb(140 59 82 / 0.08);
+}
+.fg[data-estrutura="arco"] .fg-carta h4 {
+  grid-column: 1;
+}
+.fg[data-estrutura="arco"] .fg-preco {
+  grid-column: 2;
+  grid-row: 1;
+  color: var(--fg-acento);
+  font-weight: 700;
+}
+.fg[data-estrutura="arco"] .fg-carta small {
+  grid-column: 1;
+}
+.fg[data-estrutura="arco"] .fg-carta .fg-btn-linha {
+  grid-column: 2;
+  grid-row: 2;
+  min-height: 38px;
+  padding: 0 16px;
+  background: none;
+  border: 1.5px solid var(--fg-acento);
+  color: var(--fg-acento);
+}
+.fg[data-estrutura="arco"] .fg-galeria {
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+.fg[data-estrutura="arco"] .fg-galeria img {
+  border-radius: 24px;
+}
+.fg[data-estrutura="arco"] .fg-galeria img:first-child {
+  grid-column: span 2;
+  aspect-ratio: 16 / 10;
+}
+
+/* ---- Lavanda · cartão ---- */
+.fg[data-estrutura="cartao"] {
+  background: linear-gradient(180deg, #ece2fa, #f5f0fb 40%);
+}
+.fg[data-estrutura="cartao"] .fg-hero {
+  min-height: calc(100dvh - 88px);
+  margin: 12px;
+  border-radius: 34px;
+}
+.is-preview.fg[data-estrutura="cartao"] .fg-hero {
+  min-height: 600px;
+}
+.fg[data-estrutura="cartao"] .fg-centro {
+  flex: none;
+  margin: auto 14px 14px;
+  padding: 24px 20px;
+  border: 1px solid rgb(255 255 255 / 0.32);
+  border-radius: 26px;
+  background: rgb(255 255 255 / 0.16);
+  backdrop-filter: blur(14px);
+}
+.fg[data-estrutura="cartao"] .fg-centro h1 {
+  font-size: clamp(2rem, 11cqw, 3.4rem);
+}
+.fg[data-estrutura="cartao"] .fg-centro > div {
+  margin-top: 22px;
+}
+.fg[data-estrutura="cartao"] .fg-saiba {
+  display: none;
+}
+.fg[data-estrutura="cartao"] .fg-chips {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 10px 14px;
+  background: rgb(245 240 251 / 0.88);
+  backdrop-filter: blur(10px);
+  scrollbar-width: none;
+}
+.fg-chips button {
+  flex: none;
+  min-height: 42px;
+  padding: 0 18px;
+  border: 1px solid var(--fg-linha);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--fg-acento);
+  cursor: pointer;
+  font: inherit;
+  font-weight: 600;
+}
+.fg[data-estrutura="cartao"] .fg-secao {
+  padding-top: 40px;
+}
+.fg[data-estrutura="cartao"] .fg-equipe {
+  flex-direction: column;
+  gap: 12px;
+  overflow: visible;
+}
+.fg[data-estrutura="cartao"] .fg-equipe li {
+  display: grid;
+  width: auto;
+  grid-template-columns: 88px 1fr;
+  grid-auto-rows: min-content;
+  align-items: center;
+  column-gap: 16px;
+  padding: 12px;
+  border-radius: 28px;
+  background: #fff;
+  box-shadow: 0 6px 20px rgb(91 63 143 / 0.08);
+  text-align: left;
+}
+.fg[data-estrutura="cartao"] .fg-equipe img,
+.fg[data-estrutura="cartao"] .fg-iniciais {
+  width: 88px;
+  grid-row: span 3;
+  aspect-ratio: 1;
+  margin: 0;
+  border: 0;
+  border-radius: 22px;
+  box-shadow: none;
+}
+.fg[data-estrutura="cartao"] .fg-acordeao {
+  border-top: 0;
+}
+.fg[data-estrutura="cartao"] .fg-grupo {
+  margin-bottom: 10px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 24px;
+  background: #fff;
+  box-shadow: 0 6px 20px rgb(91 63 143 / 0.08);
+}
+.fg[data-estrutura="cartao"] .fg-galeria {
+  display: flex;
+  gap: 12px;
+  margin: 0 -24px;
+  padding: 0 24px 8px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+}
+.fg[data-estrutura="cartao"] .fg-galeria img {
+  flex: none;
+  width: 72%;
+  aspect-ratio: 4 / 5;
+  border-radius: 28px;
+  scroll-snap-align: start;
+}
+
+/* ---- Pêssego · vibrante ---- */
+.fg[data-estrutura="vibrante"] .fg-hero {
+  min-height: 88dvh;
+}
+.is-preview.fg[data-estrutura="vibrante"] .fg-hero {
+  min-height: 600px;
+}
+.fg[data-estrutura="vibrante"] .fg-centro {
+  place-content: end start;
+  justify-items: start;
+  padding: 0 28px 120px;
+  text-align: left;
+}
+.fg[data-estrutura="vibrante"] .fg-centro h1 {
+  max-width: 9ch;
+  font-size: clamp(3rem, 20cqw, 6rem);
+  line-height: 0.98;
+}
+.fg[data-estrutura="vibrante"] .fg-centro p {
+  margin-top: 4px;
+}
+.fg[data-estrutura="vibrante"] .fg-saiba {
+  display: none;
+}
+.fg[data-estrutura="vibrante"] .fg-onda {
+  position: absolute;
+  right: 0;
+  bottom: -1px;
+  left: 0;
+  z-index: 3;
+  display: block;
+  width: 100%;
+  height: 64px;
+  fill: var(--fg-pagina);
+}
+.fg[data-estrutura="vibrante"] .fg-secao h2::after {
+  display: block;
+  width: 56px;
+  height: 5px;
+  margin-top: 10px;
+  border-radius: 999px;
+  background: var(--fg-acento);
+  content: "";
+}
+.fg[data-estrutura="vibrante"] .fg-equipe {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 22px 16px;
+  overflow: visible;
+}
+.fg[data-estrutura="vibrante"] .fg-equipe li {
+  width: auto;
+  padding: 8px 8px 12px;
+  background: #fff;
+  box-shadow: 0 10px 24px rgb(140 54 36 / 0.14);
+  transform: rotate(-2deg);
+}
+.fg[data-estrutura="vibrante"] .fg-equipe li:nth-child(even) {
+  margin-top: 18px;
+  transform: rotate(2.5deg);
+}
+.fg[data-estrutura="vibrante"] .fg-equipe img,
+.fg[data-estrutura="vibrante"] .fg-iniciais {
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  border: 0;
+  box-shadow: none;
+}
+.fg[data-estrutura="vibrante"] .fg-cartas ul {
+  grid-template-columns: repeat(2, 1fr);
+}
+.fg[data-estrutura="vibrante"] .fg-carta {
+  align-content: start;
+  padding: 16px;
+  border-radius: 26px;
+  background: #ffe2d4;
+}
+.fg[data-estrutura="vibrante"] .fg-carta:nth-child(3n + 2) {
+  background: #ffd0bd;
+}
+.fg[data-estrutura="vibrante"] .fg-carta:nth-child(3n) {
+  background: #fff;
+  box-shadow: inset 0 0 0 2px #ffd0bd;
+}
+.fg[data-estrutura="vibrante"] .fg-preco {
+  justify-self: start;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: var(--fg-acento);
+  color: #fff;
+  font-weight: 700;
+}
+.fg[data-estrutura="vibrante"] .fg-carta .fg-btn-linha {
+  width: 100%;
+  margin-top: 6px;
+  min-height: 40px;
+}
+.fg[data-estrutura="vibrante"] .fg-galeria {
+  grid-template-columns: repeat(3, 1fr);
+  grid-auto-rows: 1fr;
+}
+.fg[data-estrutura="vibrante"] .fg-galeria img {
+  border-radius: 18px;
+}
+.fg[data-estrutura="vibrante"] .fg-galeria img:first-child {
+  grid-column: span 2;
+  grid-row: span 2;
+  aspect-ratio: 1;
+}
+.fg-categoria {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--brand-body);
+}
+.fg-categoria .fg-chama {
+  margin-left: 0;
+}
+
+/* =============================================================================================
+   Estilos do chat (Personalizar Chat). `vidro` é o visual de sempre; os demais mudam a forma dos
+   balões, o cabeçalho, o fundo, o avatar, o tamanho do texto e os botões rápidos.
+   ============================================================================================= */
+:is(.chat-sistema, .chat-preview-personalizado)[data-texto="pequeno"] .chat-bolha-ia,
+:is(.chat-sistema, .chat-preview-personalizado)[data-texto="pequeno"] .chat-bolha-cliente {
+  font-size: 13.5px;
+}
+:is(.chat-sistema, .chat-preview-personalizado)[data-texto="grande"] .chat-bolha-ia,
+:is(.chat-sistema, .chat-preview-personalizado)[data-texto="grande"] .chat-bolha-cliente {
+  font-size: 17.5px;
+  line-height: 1.55;
+}
+:is(.chat-sistema, .chat-preview-personalizado)[data-avatar="quadrado"] .chat-header-avatar {
+  border-radius: 12px;
+}
+:is(.chat-sistema, .chat-preview-personalizado)[data-cabecalho="cartao"] .chat-header {
+  top: 8px;
+  margin: 8px 10px 0;
+  padding-top: 0.5rem;
+  border: 1px solid var(--chat-borda);
+  border-radius: 22px;
+  box-shadow: 0 10px 30px -18px rgb(0 0 0 / 0.55);
+}
+:is(.chat-sistema, .chat-preview-personalizado)[data-chips="cartao"] [role="group"][aria-label="Sugestões"] > * {
+  min-height: 3.25rem;
+  border-radius: 14px;
+  background: color-mix(in oklab, var(--chat-surface) 94%, var(--chat-content));
+  font-weight: 600;
+}
+
+/* clássico: balões sólidos, no estilo dos mensageiros */
+:is(.chat-sistema, .chat-preview-personalizado)[data-estilo="classico"] .chat-bolha-ia,
+:is(.chat-sistema, .chat-preview-personalizado)[data-estilo="classico"] [data-from="assistant"] > div {
+  border: 0;
+  border-radius: 18px 18px 18px 4px;
+  background: color-mix(in oklab, var(--chat-surface) 90%, var(--chat-content));
+  backdrop-filter: none;
+  box-shadow: 0 1px 1px rgb(0 0 0 / 0.08);
+}
+:is(.chat-sistema, .chat-preview-personalizado)[data-estilo="classico"] .chat-bolha-cliente {
+  border: 0;
+  border-radius: 18px 18px 4px 18px;
+  background: var(--chat-primary, var(--primary));
+  color: var(--chat-primary-foreground, #fff);
+  box-shadow: 0 1px 1px rgb(0 0 0 / 0.1);
+}
+
+/* suave: pastel e muito arredondado, sem bordas nem sombras */
+:is(.chat-sistema, .chat-preview-personalizado)[data-estilo="suave"] .chat-bolha-ia,
+:is(.chat-sistema, .chat-preview-personalizado)[data-estilo="suave"] [data-from="assistant"] > div {
+  border: 0;
+  border-radius: 28px 28px 28px 10px;
+  background: color-mix(in oklab, var(--chat-primary, var(--primary)) 9%, var(--chat-surface));
+  backdrop-filter: none;
+  box-shadow: none;
+}
+:is(.chat-sistema, .chat-preview-personalizado)[data-estilo="suave"] .chat-bolha-cliente {
+  border: 0;
+  border-radius: 28px 28px 10px 28px;
+  background: color-mix(in oklab, var(--chat-primary, var(--primary)) 22%, var(--chat-surface));
+}
+
+/* mínimo: sem balões, só texto com um filete na cor de destaque */
+:is(.chat-sistema, .chat-preview-personalizado)[data-estilo="minimo"] .chat-bolha-ia,
+:is(.chat-sistema, .chat-preview-personalizado)[data-estilo="minimo"] [data-from="assistant"] > div {
+  border: 0;
+  border-left: 2px solid var(--chat-primary, var(--primary));
+  border-radius: 0;
+  background: transparent;
+  backdrop-filter: none;
+  box-shadow: none;
+  padding-left: 14px;
+}
+:is(.chat-sistema, .chat-preview-personalizado)[data-estilo="minimo"] .chat-bolha-cliente {
+  border: 0;
+  border-right: 2px solid var(--chat-content);
+  border-radius: 0;
+  background: transparent;
+  padding-right: 14px;
+  text-align: right;
+}
+
+/* elegante: filetes finos, cantos discretos e títulos em serifa */
+:is(.chat-sistema, .chat-preview-personalizado)[data-estilo="elegante"] h1,
+:is(.chat-sistema, .chat-preview-personalizado)[data-estilo="elegante"] h2,
+:is(.chat-sistema, .chat-preview-personalizado)[data-estilo="elegante"] h3 {
+  font-family: "Playfair Display", Georgia, serif;
+  letter-spacing: 0.01em;
+}
+:is(.chat-sistema, .chat-preview-personalizado)[data-estilo="elegante"] .chat-bolha-ia,
+:is(.chat-sistema, .chat-preview-personalizado)[data-estilo="elegante"] [data-from="assistant"] > div {
+  border: 1px solid color-mix(in oklab, var(--chat-content) 22%, transparent);
+  border-radius: 4px 16px 16px 16px;
+  background: color-mix(in oklab, var(--chat-surface) 96%, var(--chat-content));
+  backdrop-filter: none;
+  box-shadow: none;
+}
+:is(.chat-sistema, .chat-preview-personalizado)[data-estilo="elegante"] .chat-bolha-cliente {
+  border: 1px solid var(--chat-primary, var(--primary));
+  border-radius: 16px 4px 16px 16px;
+  background: transparent;
+  color: var(--chat-primary, var(--primary));
+  letter-spacing: 0.01em;
+}
+
+/* =============================================================================================
+   Paleta do Figaro, exata (APK: theme/ColorKt, ThemeKt LightColorScheme/DarkColorScheme e
+   Light/DarkExtendedColors; docs/referencia-figaro/apk/1-design-system.md §1). Os tokens `--figaro-*`
+   guardam os papéis do Material 3 do Figaro; depois eles alimentam a base neutra do Cortaí e as cores
+   da Agenda. A marca (ciano e rosa do Cortaí, logo, botões de destaque) continua a do Cortaí.
+   Escuro = padrão do app; claro = classe `.light`. O tema segue o modo escolhido (claro, escuro, sistema).
+   ============================================================================================= */
+:root,
+:root[data-identidade] {
+  --figaro-primary: #9fbef6;
+  --figaro-on-primary: #002e66;
+  --figaro-primary-container: #00408f;
+  --figaro-on-primary-container: #d5e2ff;
+  --figaro-secondary: #f7b5bf;
+  --figaro-on-secondary: #54222e;
+  --figaro-secondary-container: #6e3843;
+  --figaro-on-secondary-container: #ffdade;
+  --figaro-tertiary: #ffa6bf;
+  --figaro-on-tertiary: #65052a;
+  --figaro-tertiary-container: #8e0e3f;
+  --figaro-on-tertiary-container: #ffdade;
+  --figaro-background: #1b1f1c;
+  --figaro-on-background: #dee8e1;
+  --figaro-surface: #1b1f1c;
+  --figaro-on-surface: #dee8e1;
+  --figaro-surface-variant: #4f4644;
+  --figaro-on-surface-variant: #d7c7c2;
+  --figaro-inverse-surface: #dee8e1;
+  --figaro-inverse-on-surface: #322f2e;
+  --figaro-error: #f2b8b5;
+  --figaro-on-error: #601410;
+  --figaro-error-container: #8c1d18;
+  --figaro-on-error-container: #f9dedc;
+  --figaro-outline: #9d8f8b;
+  --figaro-outline-variant: #4f4644;
+  --figaro-surface-bright: #545b56;
+  --figaro-surface-container: #303632;
+  --figaro-surface-container-high: #3e4440;
+  --figaro-surface-container-highest: #4e5550;
+  --figaro-surface-container-low: #2a2f2c;
+  --figaro-surface-container-lowest: #141816;
+  --figaro-surface-dim: #1b1f1c;
+  --figaro-success: #43a047;
+  --figaro-success-container: #1b5e20;
+  --figaro-on-success-container: #c8e6c9;
+  --figaro-warning: #e08e22;
+  --figaro-warning-container: #7a4a07;
+  --figaro-on-warning-container: #ffe0b2;
+  --figaro-action-blue: #9fbef6;
+  --figaro-on-action-blue: #002e66;
+  --figaro-brand-magenta: #d3145d;
+  --figaro-hint: #969391;
+  --figaro-draft-banner: #3e0017;
+  --figaro-card-tile: #3e4440;
+  --figaro-warm-tonal: #4a3625;
+  --figaro-on-warm-tonal: #f7dfc9;
+  --figaro-teal: #0d9b8a;
+}
+.light,
+:root.light,
+:root[data-identidade].light {
+  --figaro-primary: #2467bb;
+  --figaro-on-primary: #ffffff;
+  --figaro-primary-container: #d5e2ff;
+  --figaro-on-primary-container: #001a40;
+  --figaro-secondary: #884f59;
+  --figaro-on-secondary: #ffffff;
+  --figaro-secondary-container: #ffdade;
+  --figaro-on-secondary-container: #3a0e1a;
+  --figaro-tertiary: #b61055;
+  --figaro-on-tertiary: #ffffff;
+  --figaro-tertiary-container: #ffdade;
+  --figaro-on-tertiary-container: #3e0017;
+  --figaro-background: #eaf2ec;
+  --figaro-on-background: #2a2f2c;
+  --figaro-surface: #eaf2ec;
+  --figaro-on-surface: #2a2f2c;
+  --figaro-surface-variant: #f4e1db;
+  --figaro-on-surface-variant: #7b7977;
+  --figaro-inverse-surface: #322f2e;
+  --figaro-inverse-on-surface: #edf5ef;
+  --figaro-error: #b3261e;
+  --figaro-on-error: #ffffff;
+  --figaro-error-container: #f9dedc;
+  --figaro-on-error-container: #410e0b;
+  --figaro-outline: #827572;
+  --figaro-outline-variant: #d7c7c2;
+  --figaro-surface-bright: #f3fbf5;
+  --figaro-surface-container: #eaf2ec;
+  --figaro-surface-container-high: #e4ede7;
+  --figaro-surface-container-highest: #dee8e1;
+  --figaro-surface-container-low: #f0f7f2;
+  --figaro-surface-container-lowest: #ffffff;
+  --figaro-surface-dim: #d6e0d9;
+  --figaro-success: #2e7d32;
+  --figaro-success-container: #c8e6c9;
+  --figaro-on-success-container: #2e7d32;
+  --figaro-warning: #b6730f;
+  --figaro-warning-container: #ffe0b2;
+  --figaro-on-warning-container: #b6730f;
+  --figaro-action-blue: #00509d;
+  --figaro-on-action-blue: #ffffff;
+  --figaro-brand-magenta: #d3145d;
+  --figaro-hint: #7b7977;
+  --figaro-draft-banner: #ffecef;
+  --figaro-card-tile: #ffffff;
+  --figaro-warm-tonal: #f7dfc9;
+  --figaro-on-warm-tonal: #4a2e16;
+  --figaro-teal: #0d9b8a;
+}
+
+/* Base neutra do Cortaí = papéis do Figaro. */
+:root,
+:root[data-identidade] {
+  --fundo: var(--figaro-background);
+  --painel: var(--figaro-surface-container-high);
+  --cartao: var(--figaro-surface-container-low);
+  --linha: var(--figaro-outline-variant);
+  --texto: var(--figaro-on-surface);
+  --texto-suave: var(--figaro-hint);
+  --grafite-line-2: var(--figaro-outline);
+  --drawer-surface: var(--figaro-surface);
+  --drawer-card: var(--figaro-card-tile);
+  --drawer-band: var(--figaro-surface-container-low);
+  --brick: var(--figaro-error);
+  --sage: var(--figaro-success);
+  /* Agenda */
+  --agenda-acao: var(--figaro-action-blue);
+  --agenda-acao-texto: var(--figaro-on-action-blue);
+  --agenda-acao-suave: var(--figaro-primary-container);
+  --agenda-positivo: var(--figaro-success);
+  --agenda-atencao: var(--figaro-brand-magenta);
+  --agenda-aguardo: var(--figaro-warning);
+  --agenda-linha-hora: var(--figaro-outline-variant);
+  --agenda-escolhido: var(--figaro-primary);
+  --agenda-escolhido-texto: var(--figaro-on-primary);
+  --agenda-destaque: var(--figaro-primary);
+  --agenda-cartao: var(--figaro-surface-container-low);
+  /* Cartão de atendimento (timeline e lista): surfaceContainerLowest, como no Figaro (`AgendaServiceEventView`). */
+  --agenda-cartao-evento: var(--figaro-surface-container-lowest);
+  --agenda-listra-base: var(--figaro-surface-container-low);
+  --agenda-listra: color-mix(in oklab, var(--figaro-surface-container-low) 97.5%, var(--figaro-on-surface));
+  /* Estados (glifos do Figaro: AgendaStatusGlyph) */
+  --estado-agendado: var(--figaro-secondary);
+  --estado-confirmado: var(--figaro-primary);
+  --estado-chegou: var(--figaro-warning);
+  --estado-na-cadeira: var(--figaro-teal);
+  --estado-finalizado: var(--figaro-success);
+  --estado-cancelado: var(--figaro-on-surface-variant);
+  --estado-faltou: var(--figaro-error);
+  --estado-remarcado: var(--figaro-tertiary);
+  --estado-encaixe: var(--figaro-teal);
+}
+.light,
+:root.light,
+:root[data-identidade].light {
+  --fundo: var(--figaro-background);
+  --painel: var(--figaro-surface-container-low);
+  --cartao: var(--figaro-surface-container-lowest);
+  --linha: var(--figaro-outline-variant);
+  --texto: var(--figaro-on-surface);
+  --texto-suave: var(--figaro-hint);
+  --line2: var(--figaro-outline);
+  --drawer-surface: var(--figaro-surface);
+  --drawer-card: var(--figaro-card-tile);
+  --drawer-band: var(--figaro-surface-container-low);
+  --brick: var(--figaro-error);
+  --sage: var(--figaro-success);
+  --agenda-cartao: var(--figaro-surface-container-lowest);
+  /* Cartão de atendimento (timeline e lista): surfaceContainerLowest, como no Figaro (`AgendaServiceEventView`). */
+  --agenda-cartao-evento: var(--figaro-surface-container-lowest);
+  --agenda-listra-base: var(--figaro-surface-container-low);
+  --agenda-listra: color-mix(in oklab, var(--figaro-surface-container-low) 97.5%, var(--figaro-on-surface));
+  --estado-na-cadeira: var(--figaro-teal);
+  --agenda-acao: var(--figaro-action-blue);
+  --agenda-acao-texto: var(--figaro-on-action-blue);
+  --agenda-acao-suave: var(--figaro-primary-container);
+  --agenda-positivo: var(--figaro-success);
+  --agenda-atencao: var(--figaro-brand-magenta);
+  --agenda-aguardo: var(--figaro-warning);
+  --agenda-linha-hora: var(--figaro-outline-variant);
+  --agenda-escolhido: var(--figaro-primary);
+  --agenda-escolhido-texto: var(--figaro-on-primary);
+  --agenda-destaque: var(--figaro-primary);
+  --agenda-cartao: var(--figaro-surface-container-low);
+  /* Cartão de atendimento (timeline e lista): surfaceContainerLowest, como no Figaro (`AgendaServiceEventView`). */
+  --agenda-cartao-evento: var(--figaro-surface-container-lowest);
+  --agenda-listra-base: var(--figaro-surface-container-low);
+  --agenda-listra: color-mix(in oklab, var(--figaro-surface-container-low) 97.5%, var(--figaro-on-surface));
+  /* Estados (glifos do Figaro: AgendaStatusGlyph) */
+  --estado-agendado: var(--figaro-secondary);
+  --estado-confirmado: var(--figaro-primary);
+  --estado-chegou: var(--figaro-warning);
+  --estado-na-cadeira: var(--figaro-teal);
+  --estado-finalizado: var(--figaro-success);
+  --estado-cancelado: var(--figaro-on-surface-variant);
+  --estado-faltou: var(--figaro-error);
+  --estado-remarcado: var(--figaro-tertiary);
+  --estado-encaixe: var(--figaro-teal);
+}
+.agenda-cal-dia[data-selecionado] .agenda-cal-numero {
+  color: var(--agenda-acao-texto);
+}
+
+/* ===== Tela de entrada (estilo Figaro, com demos próprias do Cortaí) ===== */
+.entrada {
+  --entrada-fundo: #0b1020;
+  --entrada-ciano: #00b4ff;
+  --entrada-rosa: #ff2d78;
+  --entrada-texto: #f4f7fc;
+  --entrada-suave: #a9b6cc;
+  --entrada-tempo: 5200ms;
+  position: relative;
+  min-height: 100dvh;
+  overflow: hidden;
+  background: var(--entrada-fundo);
+  color: var(--entrada-texto);
+  isolation: isolate;
+}
+.entrada-listras {
+  position: absolute;
+  inset: -20% -20%;
+  z-index: -2;
+  background: repeating-linear-gradient(
+    -45deg,
+    color-mix(in oklab, var(--entrada-ciano) 14%, transparent) 0 22px,
+    transparent 22px 44px,
+    color-mix(in oklab, var(--entrada-rosa) 12%, transparent) 44px 66px,
+    transparent 66px 88px
+  );
+  background-size: 124px 124px;
+  animation: entrada-listras 14s linear infinite;
+}
+.entrada-vinheta {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(120% 80% at 50% 38%, transparent 0%, var(--entrada-fundo) 78%),
+    linear-gradient(to bottom, var(--entrada-fundo) 0%, transparent 22%, transparent 70%, var(--entrada-fundo) 100%);
+}
+@keyframes entrada-listras {
+  to {
+    transform: translate3d(124px, 124px, 0);
+  }
+}
+.entrada-conteudo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  min-height: 100dvh;
+  max-width: 420px;
+  margin: 0 auto;
+  padding: calc(28px + env(safe-area-inset-top)) 20px calc(24px + env(safe-area-inset-bottom));
+}
+.entrada-marca {
+  animation: entrada-sobe 520ms cubic-bezier(0.3, 1.75, 0.4, 1) both;
+}
+.entrada-sequencia {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  width: 100%;
+  margin-top: auto;
+}
+.entrada-cartao {
+  width: 100%;
+  max-width: 279px;
+  border-radius: 28px;
+  overflow: hidden;
+  background: color-mix(in oklab, #fff 7%, var(--entrada-fundo));
+  box-shadow:
+    0 0 0 1px color-mix(in oklab, #fff 12%, transparent),
+    0 24px 60px -18px rgb(0 0 0 / 0.7);
+}
+.entrada-cartao-demo {
+  height: 300px;
+  animation: entrada-troca 280ms ease-out both;
+}
+.entrada-cartao-divisor {
+  height: 2px;
+  background: linear-gradient(90deg, var(--entrada-ciano), var(--entrada-rosa));
+}
+.entrada-cartao-legenda {
+  min-height: 113px;
+  padding: 14px 16px 16px;
+  animation: entrada-troca 280ms ease-out both;
+}
+.entrada-cartao-legenda h2 {
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.25;
+}
+.entrada-cartao-legenda p {
+  margin-top: 6px;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--entrada-suave);
+}
+@keyframes entrada-troca {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 8px, 0);
+  }
+}
+@keyframes entrada-sobe {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 14px, 0) scale(0.96);
+  }
+}
+.entrada-chips {
+  display: flex;
+  gap: 6px;
+  width: 100%;
+  justify-content: center;
+}
+.entrada-chip {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 44px;
+  flex: 0 1 auto;
+  padding: 8px 6px 4px;
+  background: none;
+  border: 0;
+  color: var(--entrada-suave);
+  font-size: 11.5px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: flex-grow 500ms cubic-bezier(0.3, 1.75, 0.4, 1), color 200ms;
+}
+.entrada-chip[data-estado="ativo"] {
+  flex-grow: 1.6;
+  color: var(--entrada-texto);
+}
+.entrada-chip-trilho {
+  height: 3px;
+  border-radius: 2px;
+  background: color-mix(in oklab, #fff 18%, transparent);
+  overflow: hidden;
+}
+.entrada-chip-progresso {
+  display: block;
+  height: 100%;
+  width: 0;
+  border-radius: 2px;
+  background: linear-gradient(90deg, var(--entrada-ciano), var(--entrada-rosa));
+}
+.entrada-chip[data-estado="feito"] .entrada-chip-progresso {
+  width: 100%;
+}
+.entrada-chip[data-estado="ativo"] .entrada-chip-progresso {
+  animation: entrada-progresso linear forwards;
+}
+.entrada-chip-progresso[data-pausado] {
+  animation-play-state: paused !important;
+}
+@keyframes entrada-progresso {
+  to {
+    width: 100%;
+  }
+}
+.entrada-acoes {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+}
+.entrada-cta {
+  height: 52px;
+  border-radius: 999px;
+  border: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: #fff;
+  background: linear-gradient(135deg, #0a63d6, var(--entrada-ciano));
+  box-shadow: 0 10px 28px -10px var(--entrada-ciano);
+}
+.entrada-entrar {
+  min-height: 44px;
+  background: none;
+  border: 0;
+  font-size: 14px;
+  color: var(--entrada-suave);
+}
+.entrada-entrar b {
+  color: var(--entrada-texto);
+  font-weight: 700;
+}
+/* Painel do formulário: sobe sobre a sequência. */
+.entrada-painel {
+  width: 100%;
+  margin-top: auto;
+  padding: 22px 18px 18px;
+  border-radius: 28px 28px 0 0;
+  background: color-mix(in oklab, #fff 6%, var(--entrada-fundo));
+  box-shadow: 0 0 0 1px color-mix(in oklab, #fff 10%, transparent);
+  animation: entrada-painel 320ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+@keyframes entrada-painel {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 40px, 0);
+  }
+}
+
+/* Demonstrações */
+.entrada-demo {
+  position: relative;
+  height: 100%;
+  padding: 18px;
+  display: grid;
+  place-items: center;
+  --d: 5200ms;
+  --ec: var(--entrada-ciano);
+  --er: var(--entrada-rosa);
+}
+.entrada-demo > div {
+  width: 100%;
+}
+.ed-linha {
+  height: 9px;
+  border-radius: 5px;
+  background: color-mix(in oklab, #fff 22%, transparent);
+  margin-top: 8px;
+}
+.ed-linha--titulo {
+  width: 62%;
+  height: 12px;
+}
+.ed-linha--meia {
+  width: 40%;
+}
+/* Seu site */
+.ed-site {
+  position: relative;
+  padding-bottom: 8px;
+}
+.ed-site-capa {
+  height: 96px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #0a3f80, var(--ec) 60%, var(--er));
+  animation: ed-entra 520ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.ed-site-logo {
+  width: 44px;
+  height: 44px;
+  margin: -22px 0 0 14px;
+  border-radius: 50%;
+  border: 3px solid #14192b;
+  background: #fff;
+  animation: ed-entra 520ms 160ms cubic-bezier(0.3, 1.75, 0.4, 1) both;
+}
+.ed-site .ed-linha {
+  animation: ed-entra 400ms 320ms ease-out both;
+}
+.ed-site-servicos {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-top: 12px;
+}
+.ed-site-servicos span {
+  height: 44px;
+  border-radius: 12px;
+  background: color-mix(in oklab, #fff 12%, transparent);
+  animation: ed-entra 400ms ease-out both;
+}
+.ed-site-servicos span:nth-child(1) { animation-delay: 480ms; }
+.ed-site-servicos span:nth-child(2) { animation-delay: 580ms; }
+.ed-site-servicos span:nth-child(3) { animation-delay: 680ms; }
+.ed-site-botao {
+  margin-top: 12px;
+  height: 36px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  font-size: 13px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #0a63d6, var(--ec));
+  animation: ed-entra 400ms 820ms cubic-bezier(0.3, 1.75, 0.4, 1) both,
+    ed-pulso 2s 1.6s ease-in-out infinite;
+}
+@keyframes ed-entra {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 10px, 0) scale(0.97);
+  }
+}
+@keyframes ed-pulso {
+  50% {
+    transform: scale(1.04);
+  }
+}
+/* Agendar */
+.ed-agendar {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.ed-agendar-dias {
+  display: flex;
+  justify-content: space-between;
+}
+.ed-agendar-dias span {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 13px;
+  font-weight: 700;
+  background: color-mix(in oklab, #fff 10%, transparent);
+}
+.ed-agendar-dias span[data-ativo] {
+  background: var(--ec);
+  color: #06245a;
+  animation: ed-entra 400ms 200ms cubic-bezier(0.3, 1.75, 0.4, 1) both;
+}
+.ed-agendar-horas {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.ed-agendar-horas span {
+  height: 36px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  font-size: 12.5px;
+  font-weight: 600;
+  background: rgb(255 255 255 / 0.1);
+  animation: ed-entra 360ms ease-out both;
+}
+.ed-agendar-horas span:nth-child(2) { animation-delay: 60ms; }
+.ed-agendar-horas span:nth-child(3) { animation-delay: 120ms; }
+.ed-agendar-horas span:nth-child(4) { animation-delay: 180ms; }
+.ed-agendar-horas span:nth-child(5) { animation-delay: 240ms; }
+.ed-agendar-horas span:nth-child(6) { animation-delay: 300ms; }
+.ed-agendar-horas span[data-ocupado] {
+  opacity: 0.35;
+  text-decoration: line-through;
+}
+.ed-agendar-horas span[data-alvo] {
+  animation: ed-entra 360ms 180ms ease-out both, ed-escolhe 600ms 1.4s ease-out forwards;
+}
+@keyframes ed-escolhe {
+  to {
+    background: #ff2d78;
+    color: #fff;
+    transform: scale(1.06);
+  }
+}
+.ed-agendar-ok {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: center;
+  height: 40px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 700;
+  background: color-mix(in oklab, var(--ec) 20%, transparent);
+  opacity: 0;
+  animation: ed-entra 400ms 2.2s cubic-bezier(0.3, 1.75, 0.4, 1) both;
+}
+.ed-agendar-ok i {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--ec);
+}
+/* Lembretes */
+.ed-lembretes {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.ed-balao {
+  max-width: 82%;
+  padding: 10px 12px;
+  border-radius: 16px;
+  font-size: 12.5px;
+  line-height: 1.35;
+  background: color-mix(in oklab, #fff 12%, transparent);
+  animation: ed-entra 420ms cubic-bezier(0.3, 1.75, 0.4, 1) both;
+}
+.ed-balao--1 { animation-delay: 150ms; border-bottom-left-radius: 4px; }
+.ed-balao--2 {
+  align-self: flex-end;
+  background: var(--ec);
+  color: #06245a;
+  font-weight: 700;
+  border-bottom-right-radius: 4px;
+  animation-delay: 1.3s;
+}
+.ed-balao--3 { animation-delay: 2.3s; border-bottom-left-radius: 4px; }
+/* Avaliações */
+.ed-aval {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.ed-aval-estrelas {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+}
+.ed-aval-estrelas svg {
+  width: 32px;
+  height: 32px;
+  fill: rgb(255 255 255 / 0.18);
+  animation: ed-estrela 420ms calc(var(--i) * 160ms + 150ms) cubic-bezier(0.3, 1.75, 0.4, 1) forwards;
+}
+@keyframes ed-estrela {
+  to {
+    fill: #ffc233;
+    transform: scale(1.12);
+  }
+}
+.ed-aval-barras {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.ed-aval-barras span {
+  height: 10px;
+  width: var(--w);
+  border-radius: 5px;
+  background: linear-gradient(90deg, var(--ec), var(--er));
+  transform-origin: left;
+  animation: ed-barra 600ms calc(var(--i) * 90ms + 900ms) cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+@keyframes ed-barra {
+  from {
+    transform: scaleX(0);
+  }
+}
+/* Desempenho */
+.ed-desempenho {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.ed-desempenho-valor small {
+  display: block;
+  font-size: 11.5px;
+  color: var(--entrada-suave);
+}
+.ed-desempenho-valor b {
+  font-size: 26px;
+  font-weight: 800;
+  animation: ed-entra 500ms 100ms ease-out both;
+}
+.ed-desempenho-colunas {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  height: 130px;
+}
+.ed-desempenho-colunas span {
+  flex: 1;
+  height: var(--h);
+  border-radius: 8px 8px 4px 4px;
+  background: linear-gradient(to top, #0a63d6, var(--ec));
+  transform-origin: bottom;
+  animation: ed-coluna 600ms calc(var(--i) * 90ms + 200ms) cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.ed-desempenho-colunas span:last-child {
+  background: linear-gradient(to top, var(--ec), var(--er));
+}
+@keyframes ed-coluna {
+  from {
+    transform: scaleY(0);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .entrada-listras,
+  .entrada-marca,
+  .entrada-cartao-demo,
+  .entrada-cartao-legenda,
+  .entrada-painel,
+  .entrada-demo *,
+  .entrada-demo *::before {
+    animation-duration: 1ms !important;
+    animation-delay: 0ms !important;
+    animation-iteration-count: 1 !important;
+  }
+  .entrada-chip {
+    transition: none;
+  }
+}
+
+/* ===== Chat refinado (referências: WhatsApp, Telegram, iMessage) ===== */
+.chat-header-avatar-caixa {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+}
+.chat-presenca {
+  position: absolute;
+  right: -1px;
+  bottom: -1px;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: #25d366;
+  box-shadow: 0 0 0 2px var(--chat-surface, var(--background));
+}
+.chat-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  float: right;
+  margin: 6px 0 -4px 10px;
+  font-size: 10.5px;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: var(--chat-muted, currentColor);
+  opacity: 0.8;
+  animation: chat-meta-entra 200ms 120ms ease-out both;
+}
+@keyframes chat-meta-entra {
+  from {
+    opacity: 0;
+  }
+}
+.chat-vistos {
+  width: 15px;
+  height: 10px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+/* enviado → entregue (segundo visto) → lido (azul) */
+.chat-visto-2 {
+  stroke-dasharray: 12;
+  stroke-dashoffset: 12;
+  animation: chat-visto 220ms 700ms ease-out forwards;
+}
+.chat-vistos {
+  animation: chat-lido 200ms 1500ms ease-out forwards;
+}
+@keyframes chat-visto {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes chat-lido {
+  to {
+    color: #34b7f1;
+  }
+}
+.chat-meta[data-cliente] {
+  color: color-mix(in oklab, var(--chat-content, currentColor) 62%, transparent);
+}
+.chat-dia {
+  display: flex;
+  justify-content: center;
+  animation: chat-meta-entra 300ms ease-out both;
+}
+.chat-dia span {
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  background: var(--chat-glass, rgb(0 0 0 / 0.35));
+  border: 1px solid var(--chat-borda, transparent);
+  color: var(--chat-muted, currentColor);
+  backdrop-filter: blur(8px);
+}
+/* Resposta com foto: imagem em cima, legenda embaixo, como no WhatsApp. */
+.chat-bolha-cliente[data-com-foto] {
+  padding: 4px 4px 8px !important;
+  align-items: flex-end;
+}
+.chat-bolha-foto {
+  width: min(220px, 62vw);
+  max-width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: 16px 16px 6px 16px;
+  flex-basis: 100%;
+  animation: chat-foto 360ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.chat-bolha-cliente[data-com-foto] > span:not(.chat-meta),
+.chat-bolha-cliente[data-com-foto] > svg {
+  margin-left: 10px;
+}
+.chat-bolha-cliente[data-com-foto] .chat-meta {
+  margin-right: 8px;
+}
+@keyframes chat-foto {
+  from {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+}
+.chat-bolha-digitando {
+  min-width: 64px;
+  justify-content: center;
+}
+/* Enviar só aparece "ativo" quando há texto: cresce com mola curta, como no Telegram. */
+.chat-bandeja button[type="submit"] {
+  transition:
+    transform 200ms var(--ease-saida, ease-out),
+    opacity 200ms;
+}
+.chat-bandeja button[type="submit"]:not(:disabled) {
+  transform: scale(1.06);
+}
+@media (prefers-reduced-motion: reduce) {
+  .chat-visto-2 {
+    animation-duration: 1ms;
+    animation-delay: 0ms;
+  }
+  .chat-vistos {
+    animation-duration: 1ms;
+    animation-delay: 0ms;
+  }
+  .chat-meta,
+  .chat-dia,
+  .chat-bolha-foto {
+    animation: none;
+  }
+}
+
+/* ===== Tema Cobre: neutros e destaque da paleta do Claude =====
+   Fundo, cartões, textos e linhas em cinzas quentes (escuro: grafite quase preto; claro: creme com cartões
+   brancos) e o laranja como cor de ação. `html:root` vence a paleta do Figaro, que vem antes no arquivo.
+   Verde, vermelho, âmbar e azul-petróleo dos estados continuam os do Figaro. */
+html:root[data-identidade="copper"] {
+  --figaro-background: #141413;
+  --figaro-surface: #141413;
+  --figaro-surface-dim: #141413;
+  --figaro-surface-container-lowest: #0e0e0d;
+  --figaro-surface-container-low: #1f1e1d;
+  --figaro-surface-container: #262624;
+  --figaro-surface-container-high: #30302e;
+  --figaro-surface-container-highest: #3a3935;
+  --figaro-surface-bright: #454440;
+  --figaro-on-background: #faf9f5;
+  --figaro-on-surface: #faf9f5;
+  --figaro-surface-variant: #3a3935;
+  --figaro-on-surface-variant: #c9c7bc;
+  --figaro-inverse-surface: #faf9f5;
+  --figaro-inverse-on-surface: #1f1e1d;
+  --figaro-outline: #77756d;
+  --figaro-outline-variant: #3a3935;
+  --figaro-hint: #a8a69c;
+  --figaro-card-tile: #30302e;
+  --figaro-draft-banner: #3a2216;
+  --figaro-warm-tonal: #4a3a2c;
+  --figaro-on-warm-tonal: #f3e0cf;
+  --figaro-primary: #d97757;
+  --figaro-on-primary: #141413;
+  --figaro-primary-container: #4a2a1b;
+  --figaro-on-primary-container: #ffdccb;
+  --figaro-secondary: #b0aea5;
+  --figaro-on-secondary: #141413;
+  --figaro-secondary-container: #3a3935;
+  --figaro-on-secondary-container: #faf9f5;
+  --figaro-tertiary: #6a9bcc;
+  --figaro-on-tertiary: #0f1d2b;
+  --figaro-tertiary-container: #1f3347;
+  --figaro-on-tertiary-container: #d4e4f5;
+  --figaro-action-blue: #d97757;
+  --figaro-on-action-blue: #141413;
+}
+html:root[data-identidade="copper"].light {
+  --figaro-background: #f3f1e9;
+  --figaro-surface: #f3f1e9;
+  --figaro-surface-dim: #edeae0;
+  --figaro-surface-container-lowest: #ffffff;
+  --figaro-surface-container-low: #faf9f5;
+  --figaro-surface-container: #edeae0;
+  --figaro-surface-container-high: #e6e3d8;
+  --figaro-surface-container-highest: #dad6ca;
+  --figaro-surface-bright: #ffffff;
+  --figaro-on-background: #141413;
+  --figaro-on-surface: #141413;
+  --figaro-surface-variant: #e6e3d8;
+  --figaro-on-surface-variant: #4a4943;
+  --figaro-inverse-surface: #262624;
+  --figaro-inverse-on-surface: #faf9f5;
+  --figaro-outline: #85837b;
+  --figaro-outline-variant: #e0ddd1;
+  --figaro-hint: #66655e;
+  --figaro-card-tile: #edeae0;
+  --figaro-draft-banner: #fbe3d6;
+  --figaro-warm-tonal: #f3e4d2;
+  --figaro-on-warm-tonal: #3e2a18;
+  --figaro-primary: #ac5435;
+  --figaro-on-primary: #ffffff;
+  --figaro-primary-container: #fbe3d6;
+  --figaro-on-primary-container: #3e1707;
+  --figaro-secondary: #5e5d59;
+  --figaro-on-secondary: #ffffff;
+  --figaro-secondary-container: #e6e3d8;
+  --figaro-on-secondary-container: #141413;
+  --figaro-tertiary: #3a6896;
+  --figaro-on-tertiary: #ffffff;
+  --figaro-tertiary-container: #dce8f3;
+  --figaro-on-tertiary-container: #14283c;
+  --figaro-action-blue: #ac5435;
+  --figaro-on-action-blue: #ffffff;
+}
+
+/* ===== Tema Rosé: neutros rosados e destaque rosa (mesma estrutura do Cobre) ===== */
+html:root[data-identidade="rose"] {
+  --figaro-background: #1c1819;
+  --figaro-surface: #1c1819;
+  --figaro-surface-dim: #1c1819;
+  --figaro-surface-container-lowest: #161213;
+  --figaro-surface-container-low: #252021;
+  --figaro-surface-container: #2d2729;
+  --figaro-surface-container-high: #373032;
+  --figaro-surface-container-highest: #423a3c;
+  --figaro-surface-bright: #4d4446;
+  --figaro-on-background: #f5edea;
+  --figaro-on-surface: #f5edea;
+  --figaro-surface-variant: #3c3436;
+  --figaro-on-surface-variant: #d4c5c4;
+  --figaro-inverse-surface: #f5edea;
+  --figaro-inverse-on-surface: #1c1819;
+  --figaro-outline: #766a6c;
+  --figaro-outline-variant: #3c3436;
+  --figaro-hint: #a89a9b;
+  --figaro-card-tile: #373032;
+  --figaro-primary: #e6b8b0;
+  --figaro-on-primary: #1c1819;
+  --figaro-primary-container: #4a302f;
+  --figaro-on-primary-container: #ffe2dc;
+  --figaro-secondary: #d9c3a8;
+  --figaro-on-secondary: #1c1819;
+  --figaro-secondary-container: #3c3436;
+  --figaro-on-secondary-container: #f5edea;
+  --figaro-tertiary: #a9bfa6;
+  --figaro-on-tertiary: #141c14;
+  --figaro-tertiary-container: #2a3629;
+  --figaro-on-tertiary-container: #dcead9;
+  --figaro-action-blue: #e6b8b0;
+  --figaro-on-action-blue: #1c1819;
+  --figaro-draft-banner: #4a2a32;
+  --figaro-warm-tonal: #3c3436;
+  --figaro-on-warm-tonal: #f5edea;
+}
+html:root[data-identidade="rose"].light {
+  --figaro-background: #f6eeea;
+  --figaro-surface: #f6eeea;
+  --figaro-surface-dim: #f6eeea;
+  --figaro-surface-container-lowest: #ffffff;
+  --figaro-surface-container-low: #fcf8f6;
+  --figaro-surface-container: #eee3de;
+  --figaro-surface-container-high: #e6d9d3;
+  --figaro-surface-container-highest: #d9c9c2;
+  --figaro-surface-bright: #ffffff;
+  --figaro-on-background: #2a2124;
+  --figaro-on-surface: #2a2124;
+  --figaro-surface-variant: #e6d9d3;
+  --figaro-on-surface-variant: #5a4d50;
+  --figaro-inverse-surface: #2a2124;
+  --figaro-inverse-on-surface: #f6eeea;
+  --figaro-outline: #8a7a7e;
+  --figaro-outline-variant: #e8dcd6;
+  --figaro-hint: #70616a;
+  --figaro-card-tile: #e6d9d3;
+  --figaro-primary: #a6485f;
+  --figaro-on-primary: #ffffff;
+  --figaro-primary-container: #f7dfe0;
+  --figaro-on-primary-container: #3f1d25;
+  --figaro-secondary: #6f5f55;
+  --figaro-on-secondary: #ffffff;
+  --figaro-secondary-container: #ece0d3;
+  --figaro-on-secondary-container: #2a2124;
+  --figaro-tertiary: #4f6b52;
+  --figaro-on-tertiary: #ffffff;
+  --figaro-tertiary-container: #e3eee1;
+  --figaro-on-tertiary-container: #1c2d1e;
+  --figaro-action-blue: #a6485f;
+  --figaro-on-action-blue: #ffffff;
+  --figaro-draft-banner: #f7dfe0;
+  --figaro-warm-tonal: #ece0d3;
+  --figaro-on-warm-tonal: #2a2124;
+}
+
+/* ===== Tema Índigo: neutros e destaque próprios (mesma estrutura do Cobre e do Rosé) ===== */
+html:root[data-identidade="indigo"] {
+  --figaro-background: #17181f;
+  --figaro-surface: #17181f;
+  --figaro-surface-dim: #17181f;
+  --figaro-surface-container-lowest: #121319;
+  --figaro-surface-container-low: #1e2029;
+  --figaro-surface-container: #262833;
+  --figaro-surface-container-high: #2f3140;
+  --figaro-surface-container-highest: #3a3c4e;
+  --figaro-surface-bright: #454859;
+  --figaro-on-background: #ecedf5;
+  --figaro-on-surface: #ecedf5;
+  --figaro-surface-variant: #363849;
+  --figaro-on-surface-variant: #c3c5d6;
+  --figaro-inverse-surface: #ecedf5;
+  --figaro-inverse-on-surface: #17181f;
+  --figaro-outline: #6b6e86;
+  --figaro-outline-variant: #363849;
+  --figaro-hint: #9a9db3;
+  --figaro-card-tile: #2f3140;
+  --figaro-primary: #a5abff;
+  --figaro-on-primary: #17181f;
+  --figaro-primary-container: #2b2f66;
+  --figaro-on-primary-container: #dde0ff;
+  --figaro-secondary: #b4b7c9;
+  --figaro-on-secondary: #17181f;
+  --figaro-secondary-container: #363849;
+  --figaro-on-secondary-container: #ecedf5;
+  --figaro-tertiary: #b7a9e8;
+  --figaro-on-tertiary: #1b1530;
+  --figaro-tertiary-container: #35305c;
+  --figaro-on-tertiary-container: #e6ddff;
+  --figaro-action-blue: #a5abff;
+  --figaro-on-action-blue: #17181f;
+}
+html:root[data-identidade="indigo"].light {
+  --figaro-background: #eeeff6;
+  --figaro-surface: #eeeff6;
+  --figaro-surface-dim: #e6e7f1;
+  --figaro-surface-container-lowest: #ffffff;
+  --figaro-surface-container-low: #f8f8fc;
+  --figaro-surface-container: #e6e7f1;
+  --figaro-surface-container-high: #dddfec;
+  --figaro-surface-container-highest: #cfd1e2;
+  --figaro-surface-bright: #ffffff;
+  --figaro-on-background: #14151c;
+  --figaro-on-surface: #14151c;
+  --figaro-surface-variant: #dddfec;
+  --figaro-on-surface-variant: #444659;
+  --figaro-inverse-surface: #14151c;
+  --figaro-inverse-on-surface: #eeeff6;
+  --figaro-outline: #7c7e96;
+  --figaro-outline-variant: #dcddea;
+  --figaro-hint: #5f6178;
+  --figaro-card-tile: #e6e7f1;
+  --figaro-primary: #3f43a6;
+  --figaro-on-primary: #ffffff;
+  --figaro-primary-container: #e0e1ff;
+  --figaro-on-primary-container: #12134a;
+  --figaro-secondary: #5f6178;
+  --figaro-on-secondary: #ffffff;
+  --figaro-secondary-container: #dddfec;
+  --figaro-on-secondary-container: #14151c;
+  --figaro-tertiary: #5b4a99;
+  --figaro-on-tertiary: #ffffff;
+  --figaro-tertiary-container: #e8e0ff;
+  --figaro-on-tertiary-container: #241a4d;
+  --figaro-action-blue: #3f43a6;
+  --figaro-on-action-blue: #ffffff;
+}
+
+/* ===== Tema Clássico: neutros e destaque próprios (mesma estrutura do Cobre e do Rosé) ===== */
+html:root[data-identidade="classico"] {
+  --figaro-background: #0c0b09;
+  --figaro-surface: #0c0b09;
+  --figaro-surface-dim: #0c0b09;
+  --figaro-surface-container-lowest: #070605;
+  --figaro-surface-container-low: #15130f;
+  --figaro-surface-container: #1c1913;
+  --figaro-surface-container-high: #26221a;
+  --figaro-surface-container-highest: #312c21;
+  --figaro-surface-bright: #3b3528;
+  --figaro-on-background: #f2e9d4;
+  --figaro-on-surface: #f2e9d4;
+  --figaro-surface-variant: #3a3220;
+  --figaro-on-surface-variant: #cdbf9f;
+  --figaro-inverse-surface: #f2e9d4;
+  --figaro-inverse-on-surface: #0c0b09;
+  --figaro-outline: #7a6f55;
+  --figaro-outline-variant: #3a3220;
+  --figaro-hint: #a59b83;
+  --figaro-card-tile: #26221a;
+  --figaro-primary: #d6b25a;
+  --figaro-on-primary: #0c0b09;
+  --figaro-primary-container: #3d3010;
+  --figaro-on-primary-container: #f5e2a8;
+  --figaro-secondary: #b3ada0;
+  --figaro-on-secondary: #0c0b09;
+  --figaro-secondary-container: #2a2620;
+  --figaro-on-secondary-container: #f2e9d4;
+  --figaro-tertiary: #a9aeb4;
+  --figaro-on-tertiary: #0d0f12;
+  --figaro-tertiary-container: #26292d;
+  --figaro-on-tertiary-container: #e3e6ea;
+  --figaro-action-blue: #d6b25a;
+  --figaro-on-action-blue: #0c0b09;
+  --figaro-draft-banner: #3d3010;
+  --figaro-warm-tonal: #2a2620;
+  --figaro-on-warm-tonal: #f2e9d4;
+}
+html:root[data-identidade="classico"].light {
+  --figaro-background: #efeadc;
+  --figaro-surface: #efeadc;
+  --figaro-surface-dim: #efeadc;
+  --figaro-surface-container-lowest: #ffffff;
+  --figaro-surface-container-low: #f8f5ec;
+  --figaro-surface-container: #e8e2d0;
+  --figaro-surface-container-high: #ded7c0;
+  --figaro-surface-container-highest: #d0c8ac;
+  --figaro-surface-bright: #ffffff;
+  --figaro-on-background: #14120e;
+  --figaro-on-surface: #14120e;
+  --figaro-surface-variant: #ded7c0;
+  --figaro-on-surface-variant: #4a4434;
+  --figaro-inverse-surface: #14120e;
+  --figaro-inverse-on-surface: #efeadc;
+  --figaro-outline: #857e66;
+  --figaro-outline-variant: #ddd6bf;
+  --figaro-hint: #655e49;
+  --figaro-card-tile: #ded7c0;
+  --figaro-primary: #7d5f14;
+  --figaro-on-primary: #ffffff;
+  --figaro-primary-container: #f3e3b0;
+  --figaro-on-primary-container: #3a2c00;
+  --figaro-secondary: #5c5f63;
+  --figaro-on-secondary: #ffffff;
+  --figaro-secondary-container: #e3ddc8;
+  --figaro-on-secondary-container: #14120e;
+  --figaro-tertiary: #7a5a33;
+  --figaro-on-tertiary: #ffffff;
+  --figaro-tertiary-container: #efe0cc;
+  --figaro-on-tertiary-container: #33200f;
+  --figaro-action-blue: #7d5f14;
+  --figaro-on-action-blue: #ffffff;
+  --figaro-draft-banner: #f3e3b0;
+  --figaro-warm-tonal: #e3ddc8;
+  --figaro-on-warm-tonal: #14120e;
+}
+
+/* ===== Tipografia do Figaro na área do negócio (spec 1 §2) =====
+   Texto em Plus Jakarta Sans (Figaro: `FigarooBodyFontFamily`), títulos grandes em Poppins (display/headline: 24 sp ou mais).
+   Títulos de cartão e de seção (h2/h3) ficam em Jakarta, como `titleLarge`..`titleSmall`. O espaçamento entre letras do corpo
+   (bodyMedium 0,018 em) dá o ar mais aberto do Figaro. Páginas públicas, chat e landing seguem na Manrope. */
+body:has(.management-shell) {
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Poppins", "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: 0.018em;
+}
+body:has(.management-shell) h1,
+body:has(.management-shell) [data-display-title] {
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+body:has(.management-shell) h2,
+body:has(.management-shell) h3 {
+  font-family: var(--font-sans);
+  font-weight: 700;
+  letter-spacing: -0.005em;
+}
+
+/* ===== Temas do aplicativo fora do Padrão: as ações da Agenda seguem a cor do tema =====
+   Os tokens `--agenda-*` acima trazem o azul do Figaro para todos os temas; aqui Rosé, Índigo, Cobre
+   e Clássico voltam a usar o próprio destaque (`--identity-accent` no escuro, `--identity-accent-light`
+   no claro, que tem contraste de texto conferido em contraste-app.test.ts). */
+:root[data-identidade]:not([data-identidade="moderno"]) {
+  --agenda-acao: var(--identity-accent);
+  --agenda-acao-texto: var(--identity-deep);
+  --agenda-acao-suave: color-mix(in oklab, var(--identity-accent) 30%, var(--figaro-surface));
+  --agenda-escolhido: color-mix(in oklab, var(--identity-accent) 70%, white);
+  --agenda-escolhido-texto: var(--identity-deep);
+  --agenda-destaque: var(--identity-accent);
+}
+:root.light[data-identidade]:not([data-identidade="moderno"]) {
+  --agenda-acao: var(--identity-accent-light);
+  --agenda-acao-texto: #ffffff;
+  --agenda-acao-suave: color-mix(in oklab, var(--identity-accent-light) 18%, var(--figaro-surface));
+  --agenda-escolhido: var(--identity-accent-light);
+  --agenda-escolhido-texto: #ffffff;
+  --agenda-destaque: var(--identity-accent-light);
+}
+
+/* Botões e "+" da Agenda nos temas fora do Padrão: a cor de ação do tema (laranja vivo no Cobre) com o texto de
+   contraste, em vez de `--primary` misturado com preto, que deixava a cor barrenta. */
+:root:not([data-identidade="moderno"])[data-identidade] body:has(.management-shell) {
+  --botao-fundo: var(--agenda-acao);
+  --botao-texto: var(--agenda-acao-texto);
+}
+@media (max-width: 600px) {
+  :root:not([data-identidade="moderno"])[data-identidade] body:has(.management-shell) .agenda-acao-fixa .agenda-fab-toggle {
+    background: var(--agenda-acao);
+    box-shadow: var(--elevacao-6);
+  }
+  :root:not([data-identidade="moderno"])[data-identidade] body:has(.management-shell) .agenda-acao-fixa .agenda-fab-toggle .agenda-fab-icone {
+    color: var(--agenda-acao-texto);
+    filter: none;
+  }
+}
+
+/* Rosé claro: botões, "+" e dia escolhido em tom blush com letra vinho (tonal e delicado, sem bloco de rosa forte). */
+html:root.light[data-identidade="rose"][data-identidade] {
+  --agenda-acao: #f0d4d6;
+  --agenda-acao-texto: #5c2233;
+  --agenda-acao-suave: color-mix(in oklab, #a6485f 12%, var(--figaro-surface));
+  --agenda-escolhido: #f0d4d6;
+  --agenda-escolhido-texto: #5c2233;
+  --agenda-destaque: #a6485f;
+}
+
+/* Clássico claro: botões, "+" e dia escolhido em preto com letras douradas, como o letreiro de uma barbearia. */
+html:root.light[data-identidade="classico"][data-identidade] {
+  --agenda-acao: #1a1812;
+  --agenda-acao-texto: #e3c36a;
+  --agenda-acao-suave: color-mix(in oklab, #7d5f14 16%, var(--figaro-surface));
+  --agenda-escolhido: #1a1812;
+  --agenda-escolhido-texto: #e3c36a;
+  --agenda-destaque: #7d5f14;
+}
+
+/* ===== Área do negócio no padrão Figaro (identidade padrão) =====
+   O destaque (botões, links, foco, ícones ativos) é o azul do Figaro, claro e escuro, em todas as telas
+   do menu e da Agenda, só no tema Padrão. Os outros temas do aplicativo (Rosé, Índigo, Cobre, Clássico) mantêm o próprio destaque; as superfícies continuam as do Figaro (bloco mais abaixo).
+   `body:has(...)` alcança também a gaveta e os diálogos, que abrem fora do `.management-shell`. */
+:root:is(:not([data-identidade]), [data-identidade="moderno"]) body:has(.management-shell) {
+  --primary: var(--figaro-primary);
+  --primary-foreground: var(--figaro-on-primary);
+  --gold: var(--figaro-primary);
+  --ring: var(--figaro-primary);
+  --rosa: var(--figaro-brand-magenta);
+  --menu-icone: var(--figaro-on-surface-variant);
+  --menu-icone-fundo: color-mix(in oklab, var(--figaro-primary) 14%, transparent);
+  /* Agenda: as outras identidades (cobre, rosé, índigo, clássico) não mudam a cor das ações. */
+  --agenda-acao: var(--figaro-action-blue);
+  --agenda-acao-texto: var(--figaro-on-action-blue);
+  --agenda-acao-suave: var(--figaro-primary-container);
+  --agenda-escolhido: var(--figaro-primary);
+  --agenda-escolhido-texto: var(--figaro-on-primary);
+  --agenda-destaque: var(--figaro-primary);
+  --identity-primary: var(--figaro-primary);
+  --identity-accent: var(--figaro-primary);
+  --identity-accent-light: var(--figaro-primary);
+}
+/* Gaveta: 348 dp, cantos de 28 dp só do lado de dentro, títulos de seção 14/20 e itens 15/20 (Jakarta). */
+.management-drawer {
+  width: min(348px, 94vw) !important;
+}
+.management-drawer [data-menu-secao] {
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+.management-drawer [data-menu-item] {
+  font-size: 15px;
+  line-height: 20px;
+  font-weight: 500;
+}
+.management-drawer [data-conta-nome] {
+  font-size: 18px;
+  line-height: 24px;
+  font-weight: 700;
+}
+.management-drawer [data-conta-papel] {
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: 500;
+}
+
+/* rústico / grafite: barbearia de couro e madeira, tons neutros e suaves, serifa discreta */
+:is(.chat-sistema, .chat-preview-personalizado)[data-estilo="rustico"] h1,
+:is(.chat-sistema, .chat-preview-personalizado)[data-estilo="rustico"] h2,
+:is(.chat-sistema, .chat-preview-personalizado)[data-estilo="rustico"] h3 {
+  font-family: "Old Standard TT", "Cormorant Garamond", Georgia, serif;
+  letter-spacing: 0.015em;
+}
+:is(.chat-sistema, .chat-preview-personalizado)[data-estilo="rustico"] .chat-bolha-ia,
+:is(.chat-sistema, .chat-preview-personalizado)[data-estilo="rustico"] [data-from="assistant"] > div {
+  border: 1px solid color-mix(in oklab, var(--chat-content) 16%, transparent);
+  border-radius: 6px 18px 18px 18px;
+  background: color-mix(in oklab, var(--chat-surface) 92%, var(--chat-content));
+  backdrop-filter: none;
+  /* costura do couro: filete pontilhado por dentro da borda */
+  box-shadow:
+    inset 0 0 0 3px color-mix(in oklab, var(--chat-surface) 92%, var(--chat-content)),
+    inset 0 0 0 4px color-mix(in oklab, var(--chat-content) 9%, transparent),
+    0 6px 14px -12px rgb(0 0 0 / 0.5);
+}
+:is(.chat-sistema, .chat-preview-personalizado)[data-estilo="rustico"] .chat-bolha-cliente {
+  border: 1px solid color-mix(in oklab, var(--chat-primary, var(--primary)) 40%, transparent);
+  border-radius: 18px 6px 18px 18px;
+  background: color-mix(in oklab, var(--chat-primary, var(--primary)) 24%, var(--chat-surface));
+  color: var(--chat-content);
+  box-shadow: 0 6px 14px -12px rgb(0 0 0 / 0.5);
+}
+:is(.chat-sistema, .chat-preview-personalizado)[data-estilo="rustico"] .chat-dia span {
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 10.5px;
+}
+
+/* Traços de meia hora: só depois do zoom; em repouso a grade mostra apenas as horas cheias. */
+.agenda-timeline-marca:not(.agenda-timeline-hora) {
+  transition: opacity 200ms ease-out;
+}
+.agenda-operacional .agenda-timeline-marca[data-meia-oculta] {
+  opacity: 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  .agenda-timeline-marca:not(.agenda-timeline-hora) {
+    transition: none;
+  }
+}
+
+/* ===== Botões do Figaro na área do negócio =====
+   Primário em `actionBlue`, contorno em `outlineVariant`, texto em `actionBlue`, erro em `error`, tudo em pílula.
+   Fora desta área os botões seguem a cor e o raio da marca de cada tela. */
+:root:is(:not([data-identidade]), [data-identidade="moderno"]) body:has(.management-shell) {
+  --botao-fundo: var(--figaro-action-blue);
+  --botao-texto: var(--figaro-on-action-blue);
+  --botao-contorno: var(--figaro-outline-variant);
+  --botao-link: var(--figaro-action-blue);
+  --botao-erro: var(--figaro-error);
+  --botao-erro-texto: var(--figaro-on-error);
+  --botao-raio: 9999px;
+}
+
+/* "+" da Agenda: `primaryContainer` com ícone `onPrimaryContainer`, como o FAB do Figaro (spec 2 §1.5). */
+:root:is(:not([data-identidade]), [data-identidade="moderno"]) body:has(.management-shell) .agenda-acao-fixa .agenda-fab-toggle {
+  background: var(--figaro-primary-container);
+  box-shadow: var(--elevacao-6);
+}
+:root:is(:not([data-identidade]), [data-identidade="moderno"]) body:has(.management-shell) .agenda-acao-fixa .agenda-fab-toggle .agenda-fab-icone {
+  color: var(--figaro-on-primary-container);
+  filter: none;
+}
+
+/* Sombras dos botões flutuantes da Agenda: as elevações do Figaro nos dois temas (barra "Hoje" 3 dp; "+" e botões
+   redondos 6 dp), sem tinta de cor. O "+" não leva `box-shadow` no estilo da tela, para esta regra valer. */
+.agenda-botao-agora-principal,
+.agenda-voltar-agora {
+  box-shadow: var(--elevacao-3);
+}
+.agenda-acao-redonda,
+.agenda-foco-fab .agenda-acao-redonda,
+.agenda-acao-fixa .agenda-fab-toggle {
+  box-shadow: var(--elevacao-6);
+}
+
+/* Parte do horário original que saiu do horário proposto (Figaro: α 0.5, spec 2-agenda §4.6). */
+.agenda-timeline-fantasma {
+  position: absolute;
+  z-index: 0;
+  pointer-events: none;
+  border-radius: var(--radius);
+  opacity: 0.5;
+  background: repeating-linear-gradient(
+    135deg,
+    color-mix(in oklab, var(--mute) 22%, transparent) 0 3px,
+    transparent 3px 6px
+  );
+  border: 1px dashed color-mix(in oklab, var(--mute) 45%, transparent);
+}
+
+/* Decisão do dono (22/10): cartões da agenda no tema claro são brancos (no Padrão o token é #fff; os outros temas trazem o próprio). */
+.light .agenda-timeline-bloco,
+:root.light .agenda-timeline-bloco,
+:root[data-identidade].light .agenda-timeline-bloco {
+  background: var(--agenda-cartao-evento, #fff);
+  color: #1f2933;
 }

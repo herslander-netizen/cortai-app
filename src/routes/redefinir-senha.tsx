@@ -118,13 +118,18 @@ function RedefinirSenhaPage() {
               return;
             }
             setSalvando(true);
-            const { error } = await supabase.auth.updateUser({ password: senha });
-            setSalvando(false);
-            if (error) {
-              setErro("Não foi possível alterar a senha agora. Peça um novo link e tente de novo.");
-              return;
+            try {
+              const { error } = await supabase.auth.updateUser({ password: senha });
+              if (error) {
+                setErro("Não foi possível alterar a senha agora. Peça um novo link e tente de novo.");
+                return;
+              }
+              setSalvo(true);
+            } catch {
+              setErro("Não foi possível conectar agora. Confira sua internet e tente novamente.");
+            } finally {
+              setSalvando(false);
             }
-            setSalvo(true);
           }}
         >
           <p className="text-sm leading-relaxed text-mute">

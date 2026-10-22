@@ -131,6 +131,14 @@ export type AgendaDia = {
   itens: AgendaItem[];
   /** Bloqueios por data e fora da escala (mesma fonte do motor). Pode faltar em cache antigo. */
   bloqueios?: { profissional_id: string | null; inicio: string; fim: string }[];
+  /** Bloqueios cadastrados no dia, com id e motivo, para a faixa visual da Agenda. */
+  bloqueiosDoDia?: {
+    id: string;
+    profissional_id: string | null;
+    inicio: string;
+    fim: string;
+    motivo: string | null;
+  }[];
   fila: FilaJanela[];
   horarios: {
     diaSemana: number;
@@ -285,7 +293,38 @@ export const getAgendaDia = createServerFn({ method: "GET" })
         profissionalIds: profissionais.map((p) => p.id),
       }).catch(() => [])
     ).map((b) => ({ profissional_id: b.profissional_id, inicio: b.inicio, fim: b.fim }));
-    return { tenant, dia: iso, itens, bloqueios, fila, horarios, fuso, passoMin, profissionais };
+    // Bloqueios cadastrados (com id e motivo) para a faixa visual da linha do tempo. Leitura à
+    // parte: se falhar, a Agenda abre igual, só sem a faixa.
+    const bloqueiosDoDia = await db
+      .from("bloqueios_de_agenda")
+      .select("id, profissional_id, inicio, fim, motivo")
+      .eq("tenant_id", tenant.id)
+      .lt("inicio", ate.toISOString())
+      .gt("fim", de.toISOString())
+      .order("inicio")
+      .then(({ data: linhas, error }) =>
+        error
+          ? []
+          : (linhas ?? []).map((b) => ({
+              id: b.id,
+              profissional_id: b.profissional_id,
+              inicio: b.inicio,
+              fim: b.fim,
+              motivo: b.motivo,
+            })),
+      );
+    return {
+      tenant,
+      dia: iso,
+      itens,
+      bloqueios,
+      bloqueiosDoDia,
+      fila,
+      horarios,
+      fuso,
+      passoMin,
+      profissionais,
+    };
   });
 
 /** Máximo de dias numa leitura de período (o modo lista do celular carrega em blocos). */
@@ -1081,7 +1120,14 @@ export const excluirClientePermanente = createServerFn({ method: "POST" })
 
 export type DadosManual = {
   tenant: { id: string; nome: string };
-  servicos: { id: string; nome: string; duracao_min: number; preco_centavos: number }[];
+  servicos: {
+    id: string;
+    nome: string;
+    duracao_min: number;
+    preco_centavos: number;
+    /** Vazio ou nulo = qualquer profissional faz. */
+    profissional_ids: string[] | null;
+  }[];
   profissionais: { id: string; nome: string }[];
   horarios: ReturnType<typeof mapearHorarios>;
   fuso: string;
@@ -1097,7 +1143,7 @@ export const getDadosAgendamentoManual = createServerFn({ method: "GET" })
     const [servicosRes, profRes, horariosRes] = await Promise.all([
       db
         .from("servicos")
-        .select("id, nome, duracao_min, preco_centavos")
+        .select("id, nome, duracao_min, preco_centavos, profissional_ids")
         .eq("tenant_id", tenant.id)
         .eq("ativo", true)
         .order("ordem"),
@@ -1399,7 +1445,8 @@ export const criarAgendamentoManual = createServerFn({ method: "POST" })
     // Sem cliente vinculado, não há destinatário para a confirmação pelo WhatsApp.
     if (!data.semCliente) {
       try {
-        const { enviarConfirmacaoDeAgendamento } = await import("@/lib/whatsapp/confirmacao.server");
+        const { enviarConfirmacaoDeAgendamento } =
+          await import("@/lib/whatsapp/confirmacao.server");
         await enviarConfirmacaoDeAgendamento(criado.agendamento_id);
       } catch {
         /* o agendamento já está salvo; a falha fica registrada no envio */

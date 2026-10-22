@@ -7,7 +7,7 @@ import { useAlvoNoTopo } from "./useAlvoNoTopo";
  * Celular: põe o conteúdo dentro da barra fixa do app (logo abaixo do título), para o topo e a
  * semana serem uma superfície só, de ponta a ponta, como no modelo.
  */
-export function NaBarraDoTopo({ children }: { children: ReactNode }) {
-  const alvo = useAlvoNoTopo("topo-baixo");
+export function NaBarraDoTopo({ children, alvoId = "topo-baixo" }: { children: ReactNode; alvoId?: "topo-baixo" | "topo-centro" }) {
+  const alvo = useAlvoNoTopo(alvoId);
   return alvo ? createPortal(children, alvo) : null;
 }

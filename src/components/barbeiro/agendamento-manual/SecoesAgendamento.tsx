@@ -46,14 +46,23 @@ function Chip({
 }
 
 export function SecaoServico({ s }: { s: EstadoAgendamentoManual }) {
-  const profissionais = s.base?.profissionais ?? [];
+  const profissionais = s.profissionaisDisponiveis;
+  if (s.base && s.servicosDisponiveis.length === 0) {
+    return (
+      <SecaoDeFormulario rotulo="Serviço">
+        <p className="text-sm text-mute" role="status">
+          Nenhum serviço tem profissional disponível. Em Serviços, escolha quem faz cada um.
+        </p>
+      </SecaoDeFormulario>
+    );
+  }
   return (
     <SecaoDeFormulario rotulo="Serviço">
       <CampoDeEscolha
         rotulo="Serviço"
         valor={s.servicoId}
         onEscolher={s.setServicoId}
-        opcoes={(s.base?.servicos ?? []).map((sv) => ({
+        opcoes={s.servicosDisponiveis.map((sv) => ({
           id: sv.id,
           rotulo: sv.nome,
           detalhe: `${sv.duracao_min} min · ${brl(sv.preco_centavos)}`,

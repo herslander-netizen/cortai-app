@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { normalizarPagina, type PaginaConfig } from "@/lib/pagina-config";
+import { paginaPublicaDisponivel } from "@/lib/pagina-publica-status";
 import { segmentoValido, type Segmento } from "@/lib/segmentos";
 
 export type PaginaPublica = {
@@ -24,7 +25,15 @@ export type PaginaPublica = {
     segmento: Segmento;
     fuso: string;
   };
-  servicos: { id: string; nome: string; duracao_min: number; preco_centavos: number }[];
+  /** `popularidade` = atendimentos finalizados nos últimos 90 dias (só para destacar os mais pedidos). */
+  servicos: {
+    id: string;
+    nome: string;
+    duracao_min: number;
+    preco_centavos: number;
+    categoria: string | null;
+    popularidade: number;
+  }[];
   profissionais: {
     id: string;
     nome: string;
@@ -81,10 +90,11 @@ export const getPaginaPublica = createServerFn({ method: "GET" })
       { data: horarios },
       { data: avaliacoes },
       { data: pageConfig },
+      { data: recentes },
     ] = await Promise.all([
       supabaseAdmin
         .from("servicos")
-        .select("id, nome, duracao_min, preco_centavos")
+        .select("id, nome, duracao_min, preco_centavos, categoria")
         .eq("tenant_id", tenant.id)
         .eq("ativo", true)
         .order("ordem"),
@@ -111,10 +121,23 @@ export const getPaginaPublica = createServerFn({ method: "GET" })
       supabaseAdmin.from("avaliacoes").select("nota").eq("tenant_id", tenant.id),
       supabaseAdmin
         .from("tenant_page_configs")
-        .select("published_config")
+        .select("published_config, is_online")
         .eq("tenant_id", tenant.id)
         .maybeSingle(),
+      supabaseAdmin
+        .from("agendamentos")
+        .select("servico_id")
+        .eq("tenant_id", tenant.id)
+        .eq("status", "finalizado")
+        .gte("inicio", new Date(Date.now() - 90 * 86_400_000).toISOString())
+        .limit(2000),
     ]);
+    const contagem = new Map<string, number>();
+    for (const r of recentes ?? []) {
+      if (r.servico_id) contagem.set(r.servico_id, (contagem.get(r.servico_id) ?? 0) + 1);
+    }
+    if (!paginaPublicaDisponivel(pageConfig?.is_online)) return null;
+
     const { data: regraLoja } = await supabaseAdmin
       .from("recursos_de_plano")
       .select("liberado")
@@ -152,18 +175,32 @@ export const getPaginaPublica = createServerFn({ method: "GET" })
         segmento: segmentoValido(tenant.segmento),
         fuso: tenant.fuso,
       },
-      servicos: servicos ?? [],
-      profissionais: (profissionais ?? []).map((p) => ({
-        id: p.id,
-        nome: p.nome,
-        avatar_url: p.avatar_url,
-        descricao: p.descricao,
-        portfolio: Array.isArray(p.portfolio)
-          ? (p.portfolio as unknown[]).filter((f): f is string => typeof f === "string")
-          : [],
-      })),
+      servicos: (servicos ?? []).map((sv) => ({ ...sv, popularidade: contagem.get(sv.id) ?? 0 })),
+      // O portfólio guarda caminhos de foto do negócio (ou links antigos): o link para mostrar é assinado aqui.
+      profissionais: await Promise.all(
+        (profissionais ?? []).map(async (p) => {
+          const itens = Array.isArray(p.portfolio)
+            ? (p.portfolio as unknown[]).filter((f): f is string => typeof f === "string")
+            : [];
+          const links = await Promise.all(itens.map((f) => signedUrl(supabaseAdmin, f)));
+          return {
+            id: p.id,
+            nome: p.nome,
+            avatar_url: p.avatar_url,
+            descricao: p.descricao,
+            portfolio: links.filter((l): l is string => Boolean(l)),
+          };
+        }),
+      ),
       loja_ativa: lojaAtiva,
-      produtos: lojaAtiva ? (produtos ?? []) : [],
+      produtos: lojaAtiva
+        ? await Promise.all(
+            (produtos ?? []).map(async (p) => ({
+              ...p,
+              foto_url: await signedUrl(supabaseAdmin, p.foto_url),
+            })),
+          )
+        : [],
       horarios: horarios ?? [],
       avaliacoes: {
         media: avaliacoes?.length

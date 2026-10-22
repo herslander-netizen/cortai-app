@@ -1,10 +1,17 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 
+import { ESPERA_MS } from "@/lib/movimento-figaro";
 import { invalidarComandas } from "@/lib/comanda-ticket";
 import { isoNoFusoDaBarbearia } from "@/lib/horarios";
 import { temAlteracoesAgendamentoManual, type Forma } from "./regrasAgendamentoManual";
+import {
+  combinacaoInicial,
+  profissionaisDoServico,
+  profissionalParaOServico,
+  servicosAgendaveis,
+} from "./quem-faz";
 import {
   buscarClientesDaBarbearia,
   criarAgendamentoManual,
@@ -88,15 +95,36 @@ export function useAgendamentoManual({
     enabled: !novo && !clienteId,
   });
 
+  // Serviço e profissional sempre combinam: a lista de serviços tem só o que alguém ativo faz e a de
+  // profissionais, só quem faz o serviço escolhido (o servidor recusa o resto).
+  const servicosDisponiveis = useMemo(
+    () => servicosAgendaveis(base?.servicos ?? [], base?.profissionais ?? []),
+    [base],
+  );
+  const servicoAtual = servicosDisponiveis.find((sv) => sv.id === servicoId);
+  const profissionaisDisponiveis = useMemo(
+    () => profissionaisDoServico(servicoAtual, base?.profissionais ?? []),
+    [servicoAtual, base],
+  );
+  const preferidoId = profissionalInicial
+    ? base?.profissionais.find((p) => p.nome === profissionalInicial)?.id
+    : undefined;
+  const inicial = useMemo(
+    () => combinacaoInicial(base?.servicos ?? [], base?.profissionais ?? [], preferidoId),
+    [base, preferidoId],
+  );
+
   useEffect(() => {
-    if (base && !servicoId && base.servicos[0]) setServicoId(base.servicos[0].id);
-    if (base && !profissionalId && base.profissionais[0]) {
-      const escolhido = profissionalInicial
-        ? base.profissionais.find((p) => p.nome === profissionalInicial)
-        : undefined;
-      setProfissionalId((escolhido ?? base.profissionais[0]).id);
-    }
-  }, [base, servicoId, profissionalId, profissionalInicial]);
+    if (!base || servicoId || profissionalId) return;
+    setServicoId(inicial.servicoId);
+    setProfissionalId(inicial.profissionalId);
+  }, [base, servicoId, profissionalId, inicial]);
+
+  function escolherServico(id: string) {
+    const novo = servicosDisponiveis.find((sv) => sv.id === id);
+    setServicoId(id);
+    setProfissionalId((atual) => profissionalParaOServico(novo, base?.profissionais ?? [], atual));
+  }
 
   const nomeValido = novoNome.trim().length >= 2;
   const telefoneValido = novoTelefone.replace(/\D/g, "").length >= 10;
@@ -104,12 +132,8 @@ export function useAgendamentoManual({
   const pronto = Boolean(clienteOk && servicoId && profissionalId && data && horaMin);
   // Não perder escolhas feitas no formulário: o padrão carregado do catálogo não
   // conta como edição, mas qualquer desvio dos valores iniciais pede confirmação.
-  const servicoInicial = base?.servicos[0]?.id ?? "";
-  const profissionalInicialId = profissionalInicial
-    ? (base?.profissionais.find((p) => p.nome === profissionalInicial)?.id ??
-      base?.profissionais[0]?.id ??
-      "")
-    : (base?.profissionais[0]?.id ?? "");
+  const servicoInicial = inicial.servicoId;
+  const profissionalInicialId = inicial.profissionalId;
   const sujo = temAlteracoesAgendamentoManual({
     clienteId,
     novoNome,
@@ -135,7 +159,11 @@ export function useAgendamentoManual({
     try {
       const r = await criar({
         data: {
-          ...(semCliente ? { semCliente: true } : clienteId ? { clienteId } : { novoNome: novoNome.trim(), novoTelefone }),
+          ...(semCliente
+            ? { semCliente: true }
+            : clienteId
+              ? { clienteId }
+              : { novoNome: novoNome.trim(), novoTelefone }),
           servicoId,
           profissionalId,
           inicio:
@@ -155,7 +183,7 @@ export function useAgendamentoManual({
       setCriado({ agendamentoId, comandaId: r.comandaId ?? null });
       setConfirmado(true);
       // Sem comanda para mostrar, segue direto como antes; com comanda, espera "Concluir".
-      if (!r.comandaId) setTimeout(() => onCriado(agendamentoId), 700);
+      if (!r.comandaId) setTimeout(() => onCriado(agendamentoId), ESPERA_MS.reservaCriada);
     } catch (e) {
       setErro(
         e instanceof Error && e.message
@@ -201,9 +229,11 @@ export function useAgendamentoManual({
     nomeValido,
     telefoneValido,
     servicoId,
-    setServicoId,
+    setServicoId: escolherServico,
+    servicosDisponiveis,
     profissionalId,
     setProfissionalId,
+    profissionaisDisponiveis,
     data,
     setData,
     horaMin,

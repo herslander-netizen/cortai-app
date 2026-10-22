@@ -11,6 +11,8 @@ import { getSessao, type Sessao } from "@/lib/sessao.functions";
 import { Aviso } from "@/components/ui/aviso";
 import { MarcaCortai } from "@/components/marca/MarcaCortai";
 import { sincronizarCorDoNavegador } from "@/lib/aparencia";
+import { mensagemDeErroDeAuth } from "@/lib/auth-flow";
+import { SequenciaDaEntrada } from "@/components/entrada/SequenciaDaEntrada";
 
 export const Route = createFileRoute("/login")({
   ssr: false,
@@ -41,8 +43,15 @@ export const Route = createFileRoute("/login")({
     links: [{ rel: "canonical", href: "https://cortai.dev/login" }],
   }),
   beforeLoad: async () => {
-    const { data } = await supabase.auth.getUser();
-    if (data.user) {
+    let usuario: { id: string } | null = null;
+    try {
+      const resultado = await supabase.auth.getUser();
+      usuario = resultado.data.user;
+    } catch {
+      // Falha de rede ao consultar a sessão não pode impedir a tela de login de abrir.
+      return;
+    }
+    if (usuario) {
       // Uma falha temporária ao carregar o perfil não deve impedir a tela de login
       // de renderizar nem apagar a sessão válida do usuário.
       let sessao: Sessao;
@@ -108,10 +117,15 @@ function LoginPage() {
   );
   const [aviso, setAviso] = useState<string | null>(null);
   const [enviando, setEnviando] = useState(false);
+  // A vitrine animada abre primeiro; quem chega para criar conta, com destino ou com erro de
+  // sessão vai direto ao formulário.
+  const [mostrarForm, setMostrarForm] = useState(
+    aba === "criar" || Boolean(proximo) || erroNaSessao === "perfil",
+  );
 
   useEffect(() => {
     const meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
-    if (meta) meta.content = "#ffffff";
+    if (meta) meta.content = "#0b1020";
     return sincronizarCorDoNavegador;
   }, []);
 
@@ -150,7 +164,7 @@ function LoginPage() {
       });
       if (resultado.error) {
         setEnviando(false);
-        falha(provedor);
+        falha(provedor, resultado.error);
         return;
       }
       if (resultado.redirected) return;
@@ -162,167 +176,223 @@ function LoginPage() {
     }
   }
 
-  const falha = (provedor: "google" | "apple") =>
-    setErro(`Não foi possível continuar com ${provedor === "google" ? "o Google" : "a Apple"}.`);
+  const falha = (provedor: "google" | "apple", detalhe?: unknown) => {
+    const nome = provedor === "google" ? "o Google" : "a Apple";
+    const mensagem =
+      detalhe &&
+      typeof detalhe === "object" &&
+      "message" in detalhe &&
+      typeof detalhe.message === "string"
+        ? detalhe.message.toLowerCase()
+        : "";
+    if (mensagem.includes("provider is not enabled") || mensagem.includes("provider_not_enabled")) {
+      setErro(
+        `O login com ${nome} ainda não está ativado neste ambiente. Entre com e-mail e senha por enquanto.`,
+      );
+      return;
+    }
+    setErro(
+      `Não foi possível continuar com ${nome}. Confira sua conexão ou tente entrar com e-mail e senha.`,
+    );
+  };
 
   const botaoSocial =
     "h-12 w-full justify-center gap-2 rounded-full border-line2 bg-ink2 text-sm font-semibold text-paper";
 
   return (
-    <main className="auth-screen auth-screen--claro auth-login-shell mx-auto flex min-h-[100dvh] w-full max-w-[400px] flex-col justify-center px-6 py-[calc(2rem+env(safe-area-inset-bottom))]">
-      <div className="mb-6 flex flex-col items-center text-center">
-        <MarcaCortai variante="escura" className="h-auto w-36" prioridade />
-        <h1 className="mt-4 text-base font-semibold text-mute">
-          {modo === "entrar" ? "Entrar" : "Criar conta"}
-        </h1>
-      </div>
+    <main className="auth-screen entrada">
+      <div className="entrada-listras" aria-hidden />
+      <div className="entrada-vinheta" aria-hidden />
+      <div className="entrada-conteudo">
+        <div className="entrada-marca">
+          <MarcaCortai variante="clara" className="h-auto w-40" prioridade />
+        </div>
 
-      <div className="space-y-2">
-        <Button
-          type="button"
-          variant="outline"
-          className={botaoSocial}
-          disabled={enviando}
-          onClick={() => void entrarCom("google")}
+        {!mostrarForm ? (
+          <>
+            <SequenciaDaEntrada />
+            <div className="entrada-acoes">
+              <button
+                type="button"
+                className="entrada-cta"
+                onClick={() => {
+                  setModo("criar");
+                  setMostrarForm(true);
+                }}
+              >
+                Criar conta
+              </button>
+              <button
+                type="button"
+                className="entrada-entrar"
+                onClick={() => {
+                  setModo("entrar");
+                  setMostrarForm(true);
+                }}
+              >
+                Já tem conta? <b>Entrar</b>
+              </button>
+            </div>
+          </>
+        ) : (
+          <div className="entrada-painel">
+            <h1 className="mb-4 text-center text-base font-semibold text-mute">
+              {modo === "entrar" ? "Entrar" : "Criar conta"}
+            </h1>
+            <div className="space-y-2">
+              <Button
+                type="button"
+                variant="outline"
+                className={botaoSocial}
+                disabled={enviando}
+                onClick={() => void entrarCom("google")}
+              >
+                <MarcaGoogle /> Continuar com o Google
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                className={botaoSocial}
+                disabled={enviando}
+                onClick={() => void entrarCom("apple")}
+              >
+                <MarcaApple /> Continuar com a Apple
+              </Button>
+            </div>
+
+            <div
+              className="my-5 flex items-center gap-3 text-xs font-medium uppercase tracking-wide text-mute"
+              aria-hidden
+            >
+              <span className="h-px flex-1 bg-line" />
+              ou
+              <span className="h-px flex-1 bg-line" />
+            </div>
+
+            <form
+              className="space-y-3"
+              onSubmit={async (event) => {
+                event.preventDefault();
+                if (enviando) return;
+                setEnviando(true);
+                setErro(null);
+                setAviso(null);
+                try {
+                  if (modo === "entrar") {
+                    const { error } = await supabase.auth.signInWithPassword({
+                      email: email.trim().toLowerCase(),
+                      password: senha,
+                    });
+                    if (error) {
+                      setErro(mensagemDeErroDeAuth(error, "entrar"));
+                      return;
+                    }
+                    await seguirParaMinhaArea();
+                    return;
+                  }
+
+                  const { data, error } = await supabase.auth.signUp({
+                    email: email.trim().toLowerCase(),
+                    password: senha,
+                    options: { emailRedirectTo: window.location.origin },
+                  });
+                  if (error) {
+                    setErro(mensagemDeErroDeAuth(error, "criar"));
+                    return;
+                  }
+                  if (!data.session) {
+                    setAviso(
+                      "Verifique seu e-mail para confirmar sua conta. Se este e-mail já tiver cadastro, nenhuma mensagem nova é enviada: use Entrar ou Esqueceu a senha.",
+                    );
+                    return;
+                  }
+                  await seguirParaMinhaArea();
+                } catch {
+                  setErro(
+                    modo === "entrar"
+                      ? "Não foi possível concluir o acesso. Confira sua conexão e tente novamente."
+                      : "Não foi possível concluir o cadastro. Confira sua conexão e tente novamente.",
+                  );
+                } finally {
+                  setEnviando(false);
+                }
+              }}
+            >
+              <Field label="E-mail">
+                <Input
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  type="email"
+                  autoComplete="email"
+                  required
+                  placeholder="voce@exemplo.com"
+                  className="mt-1.5"
+                />
+              </Field>
+              <Field label="Senha">
+                <Input
+                  value={senha}
+                  onChange={(e) => setSenha(e.target.value)}
+                  type="password"
+                  autoComplete={modo === "entrar" ? "current-password" : "new-password"}
+                  required
+                  minLength={8}
+                  placeholder="Sua senha"
+                  className="mt-1.5"
+                />
+              </Field>
+              {modo === "entrar" ? (
+                <Link
+                  to="/recuperar-senha"
+                  className="flex min-h-11 items-center justify-center text-xs font-medium text-mute hover:text-paper"
+                >
+                  Esqueceu a senha?
+                </Link>
+              ) : null}
+              {erro ? (
+                <p className="text-sm text-brick" role="alert">
+                  {erro}
+                </p>
+              ) : null}
+              {aviso ? <Aviso tom="info">{aviso}</Aviso> : null}
+              <Button className="h-12 w-full rounded-full font-bold" disabled={enviando}>
+                {enviando ? "Aguarde…" : modo === "entrar" ? "Entrar" : "Criar conta"}
+              </Button>
+            </form>
+
+            <p className="mt-4 text-center text-sm text-mute">
+              {modo === "entrar" ? "Ainda não tem conta?" : "Já tem conta?"}{" "}
+              <Button
+                type="button"
+                variant="link"
+                className="h-auto min-h-12 px-1"
+                onClick={() => {
+                  setModo(modo === "entrar" ? "criar" : "entrar");
+                  setErro(null);
+                  setAviso(null);
+                }}
+              >
+                {modo === "entrar" ? "Criar conta" : "Entrar"}
+              </Button>
+            </p>
+
+            <button
+              type="button"
+              className="entrada-entrar mt-2 w-full"
+              onClick={() => setMostrarForm(false)}
+            >
+              Ver como o Cortaí funciona
+            </button>
+          </div>
+        )}
+
+        <Link
+          to="/barbearias"
+          className="flex min-h-11 items-center justify-center text-center text-sm font-medium text-mute hover:text-paper"
         >
-          <MarcaGoogle /> Continuar com o Google
-        </Button>
-        <Button
-          type="button"
-          variant="outline"
-          className={botaoSocial}
-          disabled={enviando}
-          onClick={() => void entrarCom("apple")}
-        >
-          <MarcaApple /> Continuar com a Apple
-        </Button>
+          Sou cliente e quero só agendar
+        </Link>
       </div>
-
-      <div
-        className="my-5 flex items-center gap-3 text-xs font-medium uppercase tracking-wide text-mute"
-        aria-hidden
-      >
-        <span className="h-px flex-1 bg-line" />
-        ou
-        <span className="h-px flex-1 bg-line" />
-      </div>
-
-      <form
-        className="space-y-3"
-        onSubmit={async (event) => {
-          event.preventDefault();
-          setEnviando(true);
-          setErro(null);
-          setAviso(null);
-          if (modo === "entrar") {
-            const { error } = await supabase.auth.signInWithPassword({ email, password: senha });
-            if (error) {
-              setEnviando(false);
-              setErro("E-mail ou senha incorretos.");
-              return;
-            }
-            await seguirParaMinhaArea();
-            setEnviando(false);
-            return;
-          }
-          const { data, error } = await supabase.auth.signUp({
-            email,
-            password: senha,
-            options: { emailRedirectTo: window.location.origin },
-          });
-          setEnviando(false);
-          if (error) {
-            const codigo = (error as { code?: string }).code ?? "";
-            setErro(
-              codigo === "weak_password"
-                ? "Essa senha é fácil de adivinhar ou já apareceu em vazamentos. Escolha outra."
-                : error.status === 429 || codigo.includes("rate_limit")
-                  ? "Muitas tentativas em pouco tempo. Aguarde alguns minutos e tente de novo."
-                  : codigo === "email_address_invalid"
-                    ? "Confira o e-mail digitado."
-                    : "Não foi possível criar a conta agora. Tente novamente em instantes.",
-            );
-            return;
-          }
-          if (!data.session) {
-            setAviso(
-              "Verifique seu e-mail para confirmar sua conta. Se este e-mail já tiver cadastro, nenhuma mensagem nova é enviada: use Entrar ou Esqueceu a senha.",
-            );
-            return;
-          }
-          await seguirParaMinhaArea();
-        }}
-      >
-        <Field label="E-mail">
-          <Input
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            type="email"
-            autoComplete="email"
-            required
-            placeholder="voce@exemplo.com"
-            className="mt-1.5"
-          />
-        </Field>
-        <Field label="Senha">
-          <Input
-            value={senha}
-            onChange={(e) => setSenha(e.target.value)}
-            type="password"
-            autoComplete={modo === "entrar" ? "current-password" : "new-password"}
-            required
-            minLength={8}
-            placeholder="Sua senha"
-            className="mt-1.5"
-          />
-        </Field>
-        {modo === "entrar" ? (
-          <Link
-            to="/recuperar-senha"
-            className="flex min-h-11 items-center justify-center text-xs font-medium text-mute hover:text-paper"
-          >
-            Esqueceu a senha?
-          </Link>
-        ) : null}
-        {erro ? (
-          <p className="text-sm text-brick" role="alert">
-            {erro}
-          </p>
-        ) : null}
-        {aviso ? <Aviso tom="info">{aviso}</Aviso> : null}
-        <Button className="h-12 w-full rounded-full font-bold" disabled={enviando}>
-          {enviando ? "Aguarde…" : modo === "entrar" ? "Entrar" : "Criar conta"}
-        </Button>
-      </form>
-
-      <p className="mt-4 text-center text-sm text-mute">
-        {modo === "entrar" ? "Ainda não tem conta?" : "Já tem conta?"}{" "}
-        <Button
-          type="button"
-          variant="link"
-          className="h-auto min-h-12 px-1"
-          onClick={() => {
-            setModo(modo === "entrar" ? "criar" : "entrar");
-            setErro(null);
-            setAviso(null);
-          }}
-        >
-          {modo === "entrar" ? "Criar conta" : "Entrar"}
-        </Button>
-      </p>
-
-      <Link
-        to="/barbearias"
-        className="mt-6 flex min-h-11 items-center justify-center border-t border-line pt-2 text-center text-sm font-medium text-mute hover:text-paper"
-      >
-        Sou cliente e quero só agendar
-      </Link>
-      <Link
-        to="/comecar"
-        className="mt-2 flex min-h-11 items-center justify-center text-center text-sm font-medium text-mute2 hover:text-paper"
-      >
-        Voltar ao início
-      </Link>
     </main>
   );
 }
