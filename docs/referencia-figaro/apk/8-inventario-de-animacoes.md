@@ -1,4 +1,4 @@
-| V3 | Canal de notificação: horários de lembrete aparecem | fade + altura | `NotificationChannelSheetKt` | ◐ 22/10 `PreferenciasDoCliente`: frequência e silêncio aparecem com fade+altura quando WhatsApp ou celular está ativo; conferir visualmente e validar com o dono se o comportamento condicional é equivalente |
+| V3 | Canal de notificação: horários de lembrete aparecem | fade + altura | `NotificationChannelSheetKt` | ◐ 22/10 `PreferenciasDoCliente`: frequência e silêncio aparecem com fade+altura quando WhatsApp ou celular está ativo; conferir visualmente e validar equivalência |
 
 Decisão do dono (22/10/2026): **recuperar todas as animações, sem exceção**. Este arquivo é a lista de controle:
 uma linha por animação, com valores, fonte e a situação no Cortaí. Substitui como lista-mestra o catálogo parcial
@@ -55,12 +55,12 @@ fica como está).
 | C4 | Odômetro (número que troca dígito a dígito) | desliza a altura, mola 0,8/380 + fade 1/3800 | `FigarooOdometerKt` | ✔ componente · ✘ usar nas telas (assento do plano; desempenho) |
 | C5 | Pulso de estatística | 0,85→1,05 (140 ms)→1 (100 ms); opacidade 0→1 em 240 ms | `FigarooStatPulseKt` | ✔ componente · ✘ usar nas telas |
 | C6 | Progresso de publicação | barra 0→92 % em 8 s linear; depois 85 % em 2,5 s; 100 % em 650 ms; ✓ com escala/opacidade (mola 0,6/800); esperas 700 e 200 ms | `FigarooPublishProgressKt` | ✘ (Cortaí publica em um passo; usar só se a publicação demorar de verdade) |
-| C7 | Cartão de modelo (Layout & Tema) ao selecionar | recuo do cartão 0→8 dp e raio 12→8 dp (mola 1/1500); selo e legenda aparecem com fade padrão | `TemplateCardKt` | ◐ conferir `CartoesDeLayoutTema` |
-| C8 | Miniatura da galeria ao selecionar | recuo 0→8 dp e raio muda (mola 1/1500) | `MediaGalleryPickerScreenKt` | ✘ (conferir seleção de imagens do editor) |
-| C9 | Linha de passo (onboarding): marcador enche de cor; detalhe abre | cor do marcador animada (mola 1/1500); fade + expandir em altura | `StepRowKt` | ✘ (`PrimeirosPassos`) |
-| C10 | Painel de disponibilidade semanal | corpo: fade 1/1600 + `SizeTransform`; seta 0↔180° mola 0,8/380 | `FigarooWeeklyAvailabilityPanelKt` | ✘ (`EditorDeHorarios`) |
+| C7 | Cartão de modelo (Layout & Tema) ao selecionar | recuo do cartão 0→8 dp e raio 12→8 dp (mola 1/1500); selo e legenda aparecem com fade padrão | `TemplateCardKt` | ◐ 22/10 escala suave e raio menor ao selecionar em `SecaoLayoutsETemas`; conferir recuo de 8 dp, selo e legenda |
+| C8 | Miniatura da galeria ao selecionar | recuo 0→8 dp e raio muda (mola 1/1500) | `MediaGalleryPickerScreenKt` | ◐ 22/10 seleção de logo anima escala/raio em `SecaoImagens`; conferir se corresponde à galeria de fotos do Figaro |
+| C9 | Linha de passo (onboarding): marcador enche de cor; detalhe abre | cor do marcador animada (mola 1/1500); fade + expandir em altura | `StepRowKt` | ◐ 22/10 marcador do checklist preenche e o ícone anima em `PrimeirosPassos`; detalhe expansível não existe no componente atual |
+| C10 | Painel de disponibilidade semanal | corpo: fade 1/1600 + `SizeTransform`; seta 0↔180° mola 0,8/380 | `FigarooWeeklyAvailabilityPanelKt` | ◐ 22/10 troca Aberto/Fechado anima altura e fade em `EditorDeHorarios`; painel recolhível e seta não existem no componente atual |
 | C11 | Carregando da página dentro de WebView | fade padrão | `FigarooWebViewKt` | ✘ (prévia em iframe) |
-| C12 | Foto de perfil (enviar): troca com ajuste de tamanho | fade 300 ms FastOutSlowIn | `PhotoUploaderAvatarKt` | ✘ |
+| C12 | Foto de perfil (enviar): troca com ajuste de tamanho | fade 300 ms FastOutSlowIn | `PhotoUploaderAvatarKt` | ◐ 22/10 foto da recepção troca com fade e escala 0,96→1 em 300 ms em `SecaoRecepcao`; confirmar equivalência com foto de perfil |
 | C13 | Folha de baixo | M3 `ModalBottomSheet`: modos meia e do tamanho do conteúdo | `FigarooSheetScaffoldKt` | — sem valor no APK (é o `ModalBottomSheet` padrão do M3); mantém os tempos do Cortaí |
 | C14 | Puxar para atualizar (Notificações, Avaliações, Vendas) | indicador padrão do M3 | `FigarooPullToRefreshBoxKt` | ✘ (PWA: avaliar) |
 | C15 | Cabeçalho grande que encolhe ao rolar (`exitUntilCollapsed`) | o título grande vira pequeno conforme a rolagem; usado nas telas de lista/configuração/notificações e no criar | `FigarooCollapsingHeaderScaffoldKt`, `FigarooTopAppBarKt`, `FigarooCreationFlowScaffoldKt` | ✘ (`Screen` tem título fixo) |
@@ -116,14 +116,14 @@ fica como está).
 
 | ID | Animação | Valores | Fonte | Cortaí |
 |---|---|---|---|---|
-| P1 | Personalizar Página: carregando → conteúdo | fade in 220 ms / out 180 ms | `PageSettingsScreenKt` | ✘ (GPT) |
+| P1 | Personalizar Página: carregando → conteúdo | fade in 220 ms / out 180 ms | `PageSettingsScreenKt` | ✔ 22/10 fade de entrada 220 ms e saída 180 ms em `barbeiro.marca.tsx` |
 | P2 | Banner de rascunho | fade + expandir em altura | idem | ✔ GPT 21/10 (conferir valores) |
-| P3 | Editores Equipe e Localidades: lista ↔ vazio | fade 220/180 + `SizeTransform` | `TeamEditorScreenKt`, `LocationsEditorScreenKt` | ✘ |
+| P3 | Editores Equipe e Localidades: lista ↔ vazio | fade 220/180 + `SizeTransform` | `TeamEditorScreenKt`, `LocationsEditorScreenKt` | ◐ 22/10 transição lista↔vazio em `barbeiro.equipe.tsx`; editor de localidades equivalente não identificado |
 | S1 | Painel do serviço: herói troca | fade 220/180 | `ServiceDashboardScreenKt` | — (sem painel de serviço no Cortaí) |
 | S2 | Seleção de variação do serviço abre | expandir 220 ms + fade 220 ms; seta 0↔180° | `ServiceRateSelectionListKt` | ✘ (`barbeiro.servicos`) |
 | S3 | Grupos de categoria recolhíveis | altura + fade padrão; seta 0↔180° | `CategorisedServicesListKt` | ✘ |
 | S4 | Regras de simultaneidade aparecem | altura + fade padrão | `EditServiceConcurrencyRulesContentKt` | — |
-| L1 | Campos de endereço aparecem depois do CEP | fade padrão | `EditLocationAddressScreenKt` | ✘ |
+| L1 | Campos de endereço aparecem depois do CEP | fade padrão | `EditLocationAddressScreenKt` | — Cortaí não tem etapa de endereço com CEP; endereço atual é texto livre |
 | V1 | Comanda: dinheiro revela "recebido/troco" | fade + `SizeTransform` | `CheckoutPaymentSelectionScreenKt` | ✘ (`comanda/`) |
 | V2 | Painel da venda: ver ↔ editar; blocos abrem | fade + altura (alinhada ao topo); 300 ms nos passos | `SaleDashboardScreenKt` | ✘ |
 | V3 | Canal de notificação: horários de lembrete aparecem | fade + altura | `NotificationChannelSheetKt` | ✘ (`PreferenciasDeAvisos`) |
