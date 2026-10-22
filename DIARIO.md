@@ -665,6 +665,16 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-22 UTC — Claude — Sombras dos botões da Agenda no tema claro
+- Pedido do dono (22/10): sombra bem desenhada nos botões da Agenda no tema claro.
+- Arquivo: `src/styles.css` (bloco no fim, só `:root.light`). Antes, o claro herdava as sombras do escuro
+  (preto a 42%), que ficavam pesadas. Agora há duas sombras em camadas, tingidas de marinho da identidade:
+  uma para os botões de superfície (pílula "Hoje", "Voltar para agora", botões redondos) e uma para o "+"
+  (com a cor primária). Ao tocar, a sombra fica mais leve. O escuro não muda.
+- Testes: Vitest 1794 ok; build ok. **Não vi na tela** (o botão aparece só com a Agenda carregada e logada):
+  conferir no tema claro, em 390 px, na prévia.
+- Sem migração; arquivo de estilo, sem regra nem dado.
+
 ### 2026-10-22 UTC — Claude — Pontinhos piscando na lista da Agenda (celular): corrigido o carregamento sem fim
 - Sintoma (print do dono, 22/10): na lista "Meu dia" com poucos atendimentos, os cinco pontinhos ficavam entrando e
   saindo embaixo do cartão.

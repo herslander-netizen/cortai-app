@@ -9969,3 +9969,30 @@ body:has(.management-shell) .agenda-acao-fixa .agenda-fab-toggle .agenda-fab-ico
   color: var(--figaro-on-primary-container);
   filter: none;
 }
+
+/* Sombras dos botões flutuantes da Agenda no tema claro: uma sombra em camadas, tingida de marinho
+   (identidade Cortaí), que sai da base do botão sem pesar. O escuro segue com as sombras do tema. */
+:root.light {
+  --agenda-sombra-botao:
+    0 1px 2px color-mix(in oklab, #06245a 10%, transparent),
+    0 6px 16px -4px color-mix(in oklab, #06245a 22%, transparent);
+  --agenda-sombra-botao-primario:
+    0 2px 4px color-mix(in oklab, #06245a 16%, transparent),
+    0 12px 26px -8px color-mix(in oklab, var(--primary) 55%, transparent);
+}
+:root.light .agenda-botao-agora-principal,
+:root.light .agenda-voltar-agora,
+:root.light .agenda-acao-redonda,
+:root.light .agenda-foco-fab .agenda-acao-redonda {
+  box-shadow: var(--agenda-sombra-botao);
+}
+:root.light .agenda-botao-agora-principal {
+  border-color: color-mix(in oklab, #06245a 8%, transparent);
+}
+:root.light .agenda-acao-fixa .agenda-fab-toggle {
+  box-shadow: var(--agenda-sombra-botao-primario);
+}
+:root.light .agenda-botao-agora-principal:active,
+:root.light .agenda-acao-redonda:active {
+  box-shadow: var(--agenda-sombra-botao);
+}
