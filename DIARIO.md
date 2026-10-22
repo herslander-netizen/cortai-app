@@ -146,10 +146,8 @@ Pegar a primeira livre; reservar em "Em andamento" antes.
 4. Menores: 13 (remarcação pela IA recria o agendamento), 14 (contagens do ADM presas a 1000 linhas),
    15 (buckets sem tipo/tamanho; contadores não atômicos), 10 (`as never`).
 
-5. **Transições Figaro na prévia (Claude):** conferir no celular, com login, Agenda → área da gaveta → tela interna →
-   voltar, e Agenda → Configurar → voltar. Depois, recuperar as animações de `apk/6-animacoes.md` que o Cortaí ainda
-   não tem (etapas de cadastro em 220 ms, odômetro e pulso dos números do Início, toast do onboarding, conclusão
-   do onboarding com o link digitado).
+5. **Trazer o Figaro para o Cortaí:** seguir o "Plano: trazer o Figaro para o Cortaí (como fazer)" abaixo, na ordem
+   de P.11. Primeiro passo: validar na prévia, no celular, as transições de tela já implementadas (P.4).
 
 Aguardando o dono: Auth do Supabase (URLs, senha vazada, Google/Apple); chaves da IA e do WhatsApp;
 teste real na prévia.
@@ -217,6 +215,213 @@ teste real na prévia.
   - matriz Figaro atualizada para declarar animações como critério obrigatório e registrar as lacunas da prévia.
 - **Ainda não verificado:** execução visual, build, TypeScript e testes. Os status checks disponíveis não retornaram resultados; isso não significa aprovação. Não afirmar que está pronto nem publicar em produção.
 - **Próxima ação:** validar os imports e a compilação após a extração de `CartoesDeLayoutTema.tsx`; depois testar 390 px e 1280 px, transições e movimento reduzido, corrigindo qualquer falha antes de avançar para os editores individuais e onboarding.
+
+## Plano: trazer o Figaro para o Cortaí (como fazer)
+
+Escrito pelo Claude em 22/10/2026, a pedido do dono ("trazer para o Cortaí; documento no diário de como deve
+ser feito, bem detalhado"). Vale para todas as IAs. É o roteiro de execução das specs
+`docs/referencia-figaro/apk/1` a `7`. Cada fase vira tarefas pequenas, cada uma com reserva em "Em andamento",
+commit próprio, validação e entrada no diário. Quem pegar uma fase marca aqui `[em andamento: nome]` e, ao
+terminar, `[feito: commit]`.
+
+### P.1 Regras que não mudam
+
+1. **O que o Figaro traz é forma, caminho e movimento.** Regra de negócio, dados, permissões, cobrança,
+   disponibilidade e banco continuam os do Cortaí. Se o Figaro tem uma regra diferente (ex.: não excluir serviço
+   com agendamento futuro, verificação obrigatória no agendamento, no máximo 2 lembretes), **anote como decisão
+   pendente do dono**; não implemente.
+2. **Identidade Cortaí:** cores, logo, nomes e textos em português do Cortaí. Do Figaro vêm estrutura, ordem,
+   estados e animação. Textos do APK estão em inglês; a tradução da spec é sugestão.
+3. **Nada de backend paralelo.** Reaproveitar rota, componente, consulta e função que já existem. Se falta dado
+   (ex.: "tirar a página do ar", números de visitas), registre a lacuna e pare; não simule.
+4. **Sem evidência, não invente.** Cada valor implementado cita a spec e o parágrafo (comentário curto no código
+   ou no diário). O que não tem fonte fica como "sem evidência".
+5. **Reduzir movimento:** toda animação nova respeita `prefers-reduced-motion` (só esmaece, até 150 ms, ou nada).
+   Gestos ligados ao dedo continuam ligados ao dedo.
+6. **Uma fase por vez, sem misturar com correções alheias.** Não fazer redesign geral.
+7. **Reservas:** antes de mexer, conferir "Em andamento". Hoje estão com o GPT: onboarding (`/barbeiro/configurar`),
+   Início/Ajustes/gaveta (`DrawerAjustes`, `ManagementDrawer`), formulários (`TelaDeFormulario`,
+   `AgendamentoManual`), `motion.ts`/`GlobalDesign`, Personalizar Página (`barbeiro.marca*`) e o cabeçalho de edição
+   da Agenda. Quem for mexer nesses arquivos deixa recado e espera a resposta, ou pede a divisão.
+
+### P.2 Conflito de regra que o dono precisa decidir
+
+O `CLAUDE.md` diz "Movimento: 120/200/280 ms … molas oficiais de `motion.ts`". O Figaro usa 90, 220, 300, 320,
+350, 520 ms e molas próprias. A decisão do dono de 21/10 manda copiar duração e curva do Figaro. **Até o dono
+responder**, seguimos a decisão de 21/10 e guardamos os valores do Figaro num arquivo só (P.3), sem trocar os
+tokens antigos do Cortaí (`--mov-*`, `DURACAO`), que continuam valendo para o que não vem do Figaro. Depois da
+resposta, atualizar `CLAUDE.md` e `AGENTS.md` (linha "Movimento").
+
+### P.3 Fase 0 — Base técnica (Claude)
+
+**Arquivo novo `src/lib/movimento-figaro.ts`** com os valores do Figaro e a conversão para a web. Os valores que
+hoje estão dentro de `src/lib/transicoes-de-tela.ts` passam a ser importados dele.
+
+Conversão Compose → web (usar sempre estas fórmulas):
+
+| Compose | Web (framer-motion / CSS) |
+|---|---|
+| `FastOutSlowInEasing` | `cubic-bezier(0.4, 0, 0.2, 1)` / `[0.4, 0, 0.2, 1]` |
+| `LinearOutSlowInEasing` | `cubic-bezier(0, 0, 0.2, 1)` |
+| `FastOutLinearInEasing` | `cubic-bezier(0.4, 0, 1, 1)` |
+| `LinearEasing` | `linear` |
+| `tween(n)` sem curva | n ms com FastOutSlowIn |
+| `spring(dampingRatio = ζ, stiffness = k)` | `{ type: "spring", stiffness: k, damping: 2·ζ·√k, mass: 1 }` |
+| `dp` / `sp` | 1 dp = 1 px CSS; 1 sp = 1 px (sem escala de fonte do sistema) |
+| `slideInHorizontally { it * f }` | `x: f*100 + "%"` (da própria largura) |
+| `slideInVertically { it }` | `y: "100vh"` quando a tela é a página inteira; `"100%"` para um bloco |
+| `fadeIn()` / `fadeOut()` sem spec | mola k = 400, ζ = 1 → `{ stiffness: 400, damping: 40 }` |
+| `AnimatedVisibility` padrão em coluna | esmaecer + altura de 0 ao natural (mola k = 400) |
+| `animateFloatAsState` sem spec | mola k = 1500, ζ = 1 → `{ stiffness: 1500, damping: 77.5 }` |
+
+Molas prontas (já convertidas):
+
+| Nome no Figaro | ζ / k | framer `damping` |
+|---|---|---|
+| fastSpatial (toque, escala 0,98) | 0,6 / 800 | 33,9 (tem um quique leve, é do Figaro) |
+| defaultSpatial (títulos de etapa, odômetro) | 0,8 / 380 | 31,2 |
+| slowSpatial | 0,8 / 200 | 22,6 |
+| fastEffects (fade do odômetro) | 1 / 3800 | 123,3 |
+| defaultEffects (fade do título da etapa) | 1 / 1600 | 80 |
+| slowEffects (conteúdo da conclusão do onboarding) | 1 / 800 | 56,6 |
+| expandSize (abrir/fechar tamanho) | 1 / 400 | 40 |
+| seta do acordeão | 0,75 / 1500 | 58,1 |
+| padrão do Compose (gaveta, setas) | 1 / 1500 | 77,5 |
+
+Tempos fixos: intra 300 · cruzada 350 · etapas de cadastro 220 · etapas de fluxo interno 300 · botão entra
+220 (atraso 90) e sai 90 · FAB 220 + sucesso 700 · toast 320 · conteúdo da página 220 entra / 180 sai · foto 300 ·
+pulso 140 + 100 (fade 240) · carregando no mínimo 400 · conclusão do onboarding 520, logo aos 800, link 32 por
+letra, cursor 450.
+
+Testes: `src/lib/movimento-figaro.test.ts` confere a conversão (ζ volta a dar o valor da tabela) e que nenhum
+valor muda sem querer.
+
+### P.4 Fase 1 — Troca de tela [feito: Claude, commit 4229840; falta validar no celular]
+
+Já implementado (`src/lib/transicoes-de-tela.ts`, `TransicaoDePagina.tsx`, spec 5 §1). Falta:
+1. **Validar na prévia, no celular, com login:** Agenda → item da gaveta (desliza a tela inteira) → tela interna
+   (desliza 20 %) → voltar pelo botão e pelo gesto do sistema → Agenda; Agenda → `/barbeiro/configurar` (sobe) →
+   voltar (desce). Claro e escuro; 390 px e 1280 px; "reduzir movimento" ligado (só esmaece).
+2. **Medir a Agenda:** a saída copia o DOM da tela. Se a cópia da Agenda travar (mais de 1 quadro perdido no
+   celular), trocar a cópia por uma versão só da área visível (copiar só os filhos que cruzam a janela).
+3. **Rotas novas:** se criar rota em `/barbeiro`, conferir em `tipoDaTransicao` se o movimento é o certo
+   (área da gaveta = nível 1; tela interna = nível 2+; fluxo à parte = acrescentar em `FLUXOS_CRUZADOS`).
+4. **Não aplicar** fora de `/barbeiro` (cliente, página pública e admin continuam com o esmaecer).
+
+### P.5 Fase 2 — Etapas de cadastro (spec 5 §1.5, spec 6 §1)
+
+Objetivo: todo cadastro em etapas troca o conteúdo como o Figaro.
+
+1. **Componente novo `src/components/ui/EtapasAnimadas.tsx`:** recebe `etapa` (número) e os filhos da etapa.
+   Guarda a etapa anterior; se a nova é maior, o conteúdo novo entra pela direita (`x: "100%"`) e o antigo sai
+   pela esquerda (`x: "-100%"`); se é menor, o contrário. Ambos com esmaecer. **220 ms, FastOutSlowIn.** Usar
+   `AnimatePresence mode="popLayout"` com `custom` = sentido, dentro de um contêiner com `overflow-x: clip`.
+   Reduzir movimento: só esmaece.
+2. **Título da etapa** ("Etapa 2 de 4 · Serviço"): desliza a largura inteira no mesmo sentido, mola
+   defaultSpatial (0,8/380) + esmaecer defaultEffects (1/1600). A barrinha de progresso continua; o trecho que
+   acende pode crescer com a mola expandSize.
+3. **Botão "Continuar · N"** quando a etapa escolhe vários itens (ex.: serviços do combo), como no Figaro.
+4. **Onde aplicar** (cada um é um commit): `AgendamentoManual.tsx` (etapas 0–3, reserva do GPT),
+   `barbeiro.configurar.tsx` (onboarding, reserva do GPT), e os cadastros em etapas que existirem em equipe,
+   serviços e clientes. Não transformar formulário de uma tela só em etapas sem decisão do dono.
+5. **Voltar com dados preenchidos** abre "Descartar alterações?" (Descartar / Continuar editando) usando o
+   `useConfirmar` que já existe.
+6. **Testes:** teste do sentido (avançar/voltar) e de "reduzir movimento"; teste de que os dados digitados não
+   se perdem ao voltar e avançar.
+
+### P.6 Fase 3 — Componentes compartilhados (spec 1 §5, spec 6 §2)
+
+Cada item é um commit pequeno em `src/components/ui/`:
+
+1. **Botão principal (`button.tsx`)**: hoje mostra o giro depois de 150 ms e um ✓ fixo. Figaro: troca de
+   conteúdo (texto → carregando → ✓) com entrada `opacity 0→1` + `scale 0.92→1` em 220 ms com atraso de 90 ms,
+   saída `opacity→0` em 90 ms; o carregando fica **no mínimo 400 ms** na tela. Toque: `scale 0.98` com a mola
+   fastSpatial (no lugar do `translate-y-px`). Manter a largura travada que já existe e o bloqueio de clique duplo.
+2. **Botão salvar flutuante (FAB estendido)**: pílula com texto que, ao salvar, encolhe para círculo em 220 ms
+   (LinearOutSlowIn), mostra ✓ por 700 ms e volta. Criar `BotaoSalvarFlutuante.tsx` só se uma tela for usar;
+   senão, documentar e esperar.
+3. **Odômetro (`Odometro.tsx`)**: cada dígito é uma coluna própria; quando muda, o novo sobe de baixo (número
+   aumentou) ou desce de cima (diminuiu), deslize da altura do dígito com defaultSpatial + esmaecer fastEffects.
+   Usar `font-variant-numeric: tabular-nums`. Substitui `ValorAnimado` onde o Figaro usa números de
+   desempenho (spec 6 §3); `ValorAnimado` fica para o resto.
+4. **Pulso de número (`PulsoDeNumero.tsx`)**: ao aparecer, `scale 0.85 → 1.05` (140 ms) `→ 1` (100 ms),
+   `opacity 0 → 1` (240 ms), tudo FastOutSlowIn.
+5. **Acordeão (`accordion.tsx`)**: seta com a mola 0,75/1500 em vez de 260 ms com curva de quique; conteúdo
+   abre com a mola expandSize.
+6. **Folhas (`sheet.tsx`)**: dois modos, como `FigarooSheetExpansion`: "meia" (abre na metade e arrasta até
+   cheia) e "do tamanho do conteúdo". Hoje a folha usa `--mov-*`. Só mudar o tempo se o dono aprovar P.2.
+7. **Carregando (`Carregando.tsx`/`spinner.tsx`)**: exibição mínima de 400 ms para não piscar.
+
+### P.7 Fase 4 — Gaveta e Início (spec 6 §3, spec 7 §2) — reserva do GPT
+
+1. **Ordem dos itens** igual ao Figaro: conta → cartão Sua Página (estado, compartilhar, desempenho de 7 dias)
+   → avisos (notificações, confirmar e-mail, saldo de WhatsApp) → Agenda (hoje, próximo horário) → grupo do
+   negócio (Informações Básicas, Localidades, Serviços, Combos, Equipe, Vendas, Avaliações, Opções de Agendamento)
+   → grupo Fidelidade (Clientes, Campanhas, Pacotes) → Suporte. Mapear cada item para a rota que já existe;
+   item sem rota no Cortaí fica fora (não criar tela vazia).
+2. **Grupos recolhíveis (`GruposDoMenu.tsx`)**: seta de **−90° (fechado) para 0° (aberto)** com a mola padrão
+   (1/1500); hoje gira 90° em 120 ms. Conteúdo abre com esmaecer + altura (mola k = 400), não só esmaecer.
+3. **Faixa de desempenho (`DrawerDestaques.tsx`, `FaixaDesempenho`)**: seta 0° → 180°; números com o Odômetro
+   e o Pulso (P.6); seta ↗ quando subiu. Só com dados reais; sem dado, o texto "O desempenho aparecerá aqui".
+4. **Destaque com fundo escurecido** do vídeo `landing_peek_analytics`: é do vídeo de demonstração; **não fazer**
+   sem decisão do dono.
+
+### P.8 Fase 5 — Telas com animação própria (spec 6 §4 e §5)
+
+| Tela no Cortaí | O que trazer | Valores | Reserva |
+|---|---|---|---|
+| Conclusão do onboarding (`barbeiro.configurar.tsx`, etapa "pronto") | "Preparando sua página…" → sucesso com esmaecer; conteúdo sobe e aparece; logo depois; link digitado letra a letra com cursor; "Copiar link" e "Compartilhar" | 520 ms; slowEffects; logo aos 800 ms; 32 ms por letra; cursor 450 ms; ícone 140 px | GPT |
+| Aviso "Continue configurando" (Agenda; hoje `PrimeirosPassos`/`FaixaPendencias`) | cartão flutuante que sobe de baixo e desce ao sair, com sombra | 320 ms + esmaecer; sombra 8 px | Agenda: combinar |
+| Avaliações (`barbeiro.avaliacoes.tsx`) | nota média conta de 0 até o valor (Odômetro), estrelas enchem, barras 5→1 crescem da esquerda, selo aparece; "ver mais / ver menos" | barras com expandSize; selo com Pulso | livre |
+| Comanda, pagamento em dinheiro (`src/components/comanda/`) | ao escolher dinheiro, área "valor recebido / troco" aparece com esmaecer + altura; atalhos R$ 100 e R$ 200 | mola k = 400 | ler `comanda/AGENTS.md` antes |
+| Reagendar / escolha de horário (ficha) | a linha do horário abre no lugar e mostra os profissionais | esmaecer + altura, mola k = 400 | Agenda: combinar |
+| Página pública de agendamento (`agendar.$slug`, `src/components/agendamento/`) | vídeo `landing_peek_booking`: linha do horário que abre com profissionais e "Selecionar" → pílula "✓ Selecionado"; barra de baixo com data, horário e profissional + "Continuar"; folha "Seus Dados" que sobe; código caixa a caixa | folha sobe como a do app; pílula com Pulso | livre; não mudar a regra de confirmação de telefone |
+| Prévia de tema da página (`PreviaDaExperiencia`) | troca de tema com um círculo que se abre a partir do toque (`clip-path: circle()`) | sem valor no código (vem do vídeo): usar 350 ms FastOutSlowIn e marcar como "vídeo" | GPT |
+| Personalizar Página e painéis | carregando → conteúdo: entra 220 ms, sai 180 ms | esmaecer | GPT |
+| Foto de perfil (envio) | troca de foto com esmaecer 300 ms + ajuste de tamanho | FastOutSlowIn | livre |
+
+### P.9 Fase 6 — Fluxos dos módulos (spec 7)
+
+Para cada módulo, primeiro **um documento de comparação** (o que o Cortaí já tem, o que falta, o que é regra),
+depois as mudanças de tela. Ordem sugerida (do mais usado ao menos usado):
+
+1. **Clientes** (`barbeiro.clientes*`): painel do cliente com as seções do Figaro (próximos agendamentos +
+   histórico, pacote, horário fixo, notas em folha, notificações por canal); selo "Novo"/"Frequente".
+2. **Serviços** (`barbeiro.servicos.tsx`): lista por categoria com grupos recolhíveis; painel do serviço com
+   números de 30 dias, preços, profissionais, regras; desativar e excluir com confirmação e texto do efeito.
+3. **Equipe** (`barbeiro.equipe.tsx`, `profissionais`, `horarios`): painel do profissional; horário semanal com
+   "copiar este dia para outros"; disponibilidade por data; desativar ≠ excluir.
+4. **Cobrança e vendas** (comanda, `caixa`, `financeiro`): resumo → pagamento; barra de totais; dinheiro com
+   troco; reabrir comanda só pelo dono **se** o Cortaí já tiver essa regra.
+5. **Avaliações, notificações (sininho), conta e opções de agendamento**: organização e estados.
+6. **Combos, localidades, pacotes, campanhas, assinatura:** só depois de o dono dizer se quer (envolvem
+   produto e preço).
+
+Padrão de tela a seguir em todos: **Lista → Painel do item → Editor por seção**, criar em etapas (P.5),
+estado vazio que explica, erro com "Tentar novamente", desativar separado de excluir.
+
+### P.10 Como validar cada entrega
+
+1. `bun run tsc --noEmit`, `bun run vitest run`, `bun run eslint <arquivos>`, `bun run build`.
+2. Teste unitário da regra pura (sentido, valores, reduzir movimento).
+3. **Ensaio no navegador sem login** (como foi feito na Fase 1): criar uma pasta temporária fora do commit (ex.:
+   `.tmp-harness/`) com um `vite.config.ts` que aponta `@` para `src`, uma página que monta o componente (ou um
+   roteador de memória do TanStack com rotas de mentira) e um script do Playwright (`/opt/node22/lib/node_modules/playwright`)
+   que tira quadros a 60 ms e 150 ms da animação e confere no fim: `transform: none`, elemento fixo continua
+   fixo ao rolar, sem rolagem lateral (`scrollWidth` = largura). **Apagar a pasta antes do commit.**
+4. **Prévia no celular** com login: 390 px, claro e escuro, "reduzir movimento" ligado e desligado.
+5. Registrar no diário: o que mudou, a spec e o parágrafo de origem, o que foi validado e o que falta.
+6. Nunca dizer "igual ao Figaro" sem a validação no celular.
+
+### P.11 Ordem de execução
+
+1. Fase 0 (base) e validação da Fase 1 na prévia — Claude.
+2. Fase 3 itens 1, 3, 4 (botão, odômetro, pulso) — Claude.
+3. Fase 2 (etapas): componente pelo Claude; aplicação em `AgendamentoManual` e `configurar` pelo GPT (reserva) ou
+   pelo Claude com a reserva liberada.
+4. Fase 5: Avaliações e página pública de agendamento (livres) — Claude; demais conforme as reservas.
+5. Fase 4 (gaveta) — GPT.
+6. Fase 6, módulo por módulo, sempre com o documento de comparação antes.
 
 ## Em andamento
 
@@ -391,6 +596,15 @@ teste real na prévia.
 - Sem alteração no banco, `main` ou produção.
 
 ## Diário
+
+### 2026-10-22 UTC — Claude — Plano detalhado para trazer o Figaro ao Cortaí; trabalho levado para a branch de trabalho
+- A pedido do dono ("trazer para o Cortaí" e "documento no diário de como deve ser feito, bem detalhado"):
+  nova seção **"Plano: trazer o Figaro para o Cortaí (como fazer)"** neste diário, logo antes de "Em andamento".
+  Traz as regras, o conflito de duração com o `CLAUDE.md` (P.2), a conversão Compose → web com as molas já
+  calculadas (P.3), as fases (troca de tela, etapas, componentes, gaveta, telas, módulos), os arquivos do Cortaí
+  de cada item, quem tem a reserva, como validar e a ordem.
+- O trabalho da branch `claude/new-session-75rzv9` (specs 5–7 e troca de tela no padrão Figaro) foi levado para
+  `cloudflare-workers-migration-2026-10-13`, para aparecer na prévia.
 
 ### 2026-10-22 UTC — Claude — APK do Figaro relido por inteiro: navegação, animações e módulos; troca de tela no padrão Figaro
 - O dono reenviou o `Figaroo.apk` completo (5 partes, 88 MB) e pediu para recuperar fluxos, animações e tudo o
