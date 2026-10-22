@@ -665,6 +665,12 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-22 — GPT — Reversão do efeito translúcido ao aumentar duração
+- Pedido do dono: desfazer apenas o efeito visual translúcido e manter a cor branca dos cartões no tema claro.
+- Removida a importação da lógica de prévia translúcida da duração em `AgendaOperacional.tsx`; restaurada a função original `trechosQueSaem` e seu teste correspondente.
+- Mantido o CSS de cartões brancos no tema claro em `src/styles.css`.
+- Commits: `41568e6`, `d799230`, `fef8c50`.
+
 ### 2026-10-22 UTC — GPT — Cartões brancos e transparência no tempo acrescentado
 - Decisão explícita do dono: cartões da agenda no tema claro devem ser brancos; ao segurar um cartão e aumentar a duração, o intervalo novo acrescentado deve aparecer translúcido durante a edição.
 - `src/styles.css`: cartões brancos no tema claro, mantendo a barra lateral da categoria e os tokens/estados atuais.
