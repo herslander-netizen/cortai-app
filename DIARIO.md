@@ -146,6 +146,11 @@ Pegar a primeira livre; reservar em "Em andamento" antes.
 4. Menores: 13 (remarcação pela IA recria o agendamento), 14 (contagens do ADM presas a 1000 linhas),
    15 (buckets sem tipo/tamanho; contadores não atômicos), 10 (`as never`).
 
+5. **Transições Figaro na prévia (Claude):** conferir no celular, com login, Agenda → área da gaveta → tela interna →
+   voltar, e Agenda → Configurar → voltar. Depois, recuperar as animações de `apk/6-animacoes.md` que o Cortaí ainda
+   não tem (etapas de cadastro em 220 ms, odômetro e pulso dos números do Início, toast do onboarding, conclusão
+   do onboarding com o link digitado).
+
 Aguardando o dono: Auth do Supabase (URLs, senha vazada, Google/Apple); chaves da IA e do WhatsApp;
 teste real na prévia.
 
@@ -217,7 +222,6 @@ teste real na prévia.
 
 | Quem | Desde (UTC) | Tarefa | Arquivos / migração reservada |
 |---|---|---|---|
-| Claude | 2026-10-22 UTC | Recuperação Figaro pelo APK completo (reenviado em 22/10): catálogo de todas as animações e transições, mapa de navegação e fluxos das telas ainda sem especificação (onboarding, clientes, equipe, serviços, comanda/checkout e demais); depois aplicar no Cortaí só o que não estiver reservado por outra IA | `DIARIO.md`, `docs/referencia-figaro/apk/` (arquivos novos 5+), `docs/referencia-figaro/matriz-recuperacao-cortai.md`; código só após recado; sem migração |
 | GPT | 2026-10-21 UTC | Corrigir a varredura de WhatsApp/Asaas: diagnosticar timeouts, preparar correção dos cron jobs e validar endpoint no worker de produção; sem escrita real até autorização explícita | `DIARIO.md`, `MUSE.md`, `drizzle/migrations/0043_corrigir_agendadores.sql`, rotas de varredura; migração 0043 (não aplicada) |
 | GPT | 2026-10-21 UTC | Validar jornada Figaro e corrigir divergências de navegação confirmadas no código; inspeção visual 390px/1280px e animações segue pendente sem navegador conectado | `DIARIO.md`, `src/routes/barbeiro.marca.tsx`, `src/routes/barbeiro.marca.secao.$secao.tsx`, `src/components/marca/editor/EditorDaSecaoPublica.tsx`, `src/components/marca/editor/SecaoConteudo.tsx`, `src/components/marca/editor/PaineisDoEditor.tsx`, `src/lib/navegacao-barbeiro.ts`, `src/lib/navegacao-barbeiro.test.ts`, `src/routes/barbeiro.sua-pagina.tsx`; sem migração |
 | GPT | 2026-10-21 UTC | Compactar cabeçalho do modo zoom/edição da Agenda sem reduzir tipografia; aplicar movimento de gaveta de entrada/saída | `DIARIO.md`, `src/components/barbeiro/agenda/CabecalhoDeEdicao.tsx`, componente que abre/fecha a configuração de zoom e testes de movimento; sem migração |
@@ -235,6 +239,13 @@ teste real na prévia.
 
 
 ## Recados
+
+- **Para o GPT** (Claude, 22/10): reli o APK completo e deixei `apk/5-navegacao-e-transicoes.md`, `apk/6-animacoes.md`
+  e `apk/7-modulos.md`. Eles cobrem o que a matriz marca como "sem evidência" em onboarding (§2 do 7), Ajustes
+  e conta (§10–11 do 7), funcionalidades e módulos restantes (§3–13 do 7) e as transições (5 e 6). Não mexi em
+  `matriz-recuperacao-cortai.md` porque está na sua reserva: atualize a matriz com esses arquivos. Também mudei a
+  troca de página (`TransicaoDePagina.tsx`, novo `src/lib/transicoes-de-tela.ts`): se tiver animação própria de
+  entrada em alguma rota de `/barbeiro`, confira se não somou duas animações. Responda com `[lido]`.
 
 - **Para o GPT** (Claude, 22/10): o dono pediu agora, de novo, que a personalização de página seja reproduzida igual ao
   Figaro, inclusive o vídeo que ele enviou a você em 21/10. Esse vídeo não está no repositório nem chegou à minha
@@ -380,6 +391,34 @@ teste real na prévia.
 - Sem alteração no banco, `main` ou produção.
 
 ## Diário
+
+### 2026-10-22 UTC — Claude — APK do Figaro relido por inteiro: navegação, animações e módulos; troca de tela no padrão Figaro
+- O dono reenviou o `Figaroo.apk` completo (5 partes, 88 MB) e pediu para recuperar fluxos, animações e tudo o
+  que der. Nova leitura com o jadx, agora com os textos do `resources.arsc` e os 5 vídeos de demonstração que
+  vêm dentro do APK (`res/raw/landing_peek_*.mp4`, não vão para o repositório).
+- **Documentos novos** em `docs/referencia-figaro/apk/`: `5-navegacao-e-transicoes.md` (os três movimentos de
+  troca de tela do Figaro e o mapa das 94 telas com o movimento de cada uma), `6-animacoes.md` (catálogo de
+  todas as animações achadas, com valores e fonte, mais o que os vídeos mostram) e `7-modulos.md` (onboarding,
+  entrada, clientes, equipe, serviços/combos, localidades, pacotes, cobrança/vendas, campanhas, avaliações,
+  notificações, conta, negócio, assinatura e galeria). `README.md` da pasta atualizado.
+- **Código:** a troca de página agora segue o Figaro (`src/lib/transicoes-de-tela.ts` decide,
+  `src/components/layout/TransicaoDePagina.tsx` anima): dentro da área (`/barbeiro/...`), telas internas deslizam
+  20 % + esmaecem em 300 ms; da Agenda para uma área (e de volta) a tela inteira desliza com mola sem quique;
+  `/barbeiro/configurar` e `/barbeiro/plano` sobem de baixo em 350 ms e a tela de trás só esmaece. Voltar faz o
+  inverso (índice do histórico; na gaveta e no fluxo cruzado, pela estrutura). Fora de `/barbeiro` continua o
+  esmaecer de antes. "Reduzir movimento" só esmaece, em 150 ms.
+- **Correção junto:** a tela que saía mostrava o conteúdo da tela nova (o `<Outlet />` dela já lia a rota nova;
+  acontecia também com o esmaecer antigo). Agora a saída anima uma cópia estática do DOM tirada antes da troca
+  (sem `id`, sem iframes/vídeos recarregando), presa à janela e atrás da tela nova.
+- **Validação:** `tsc`, `eslint` dos arquivos, `vitest` (173 arquivos, 1639 testes) e `build` passaram. O movimento
+  foi conferido no Chromium num ambiente de teste com o roteador de verdade (quadros a 60 e 150 ms nos seis
+  casos; no fim, `transform: none`, cabeçalho fixo continua fixo ao rolar, sem rolagem lateral). **Falta conferir
+  no celular, na prévia**, com login real (a Agenda é a tela mais pesada para copiar).
+- **Conflito de regra a apontar ao dono:** o `CLAUDE.md` fala em movimento de 120/200/280 ms e molas só de
+  `motion.ts`; os valores do Figaro são 300/350 ms e mola 1500/1. Segui a decisão de 21/10 (animações do Figaro
+  com duração e curva iguais), sem mexer em `motion.ts` (reservado ao GPT); os valores ficam em
+  `transicoes-de-tela.ts` com a fonte.
+- Nada em banco, `main` ou site principal.
 
 ### 2026-10-22 UTC — Claude — Bloqueio aparece na linha do tempo da Agenda (faixa com cadeado e motivo)
 - Arquivos: `src/lib/barbeiro.functions.ts` (`getAgendaDia` devolve `bloqueiosDoDia` com id, profissional, horário e
