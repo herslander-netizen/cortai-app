@@ -22,7 +22,8 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sh
 import { alterarStatusPaginaPublica, getMarca, type MarcaData } from "@/lib/marca.functions";
 import { exigirCapacidade } from "@/lib/guarda-capacidade";
 import { urlPublica } from "@/lib/origem-publica";
-import { componenteIds, LAYOUTS, TEMAS } from "@/lib/pagina-config";
+import { componenteIds, LAYOUTS, secoesObrigatoriasAusentes, TEMAS } from "@/lib/pagina-config";
+import { CATALOGO_DE_SECOES } from "@/components/marca/editor/secoes/catalogo";
 import { MiniaturaLayout } from "@/components/marca/editor/CartoesDeLayoutTema";
 
 export const Route = createFileRoute("/barbeiro/marca")({
@@ -143,6 +144,30 @@ function Editor({
     } finally {
       setAlterandoStatus(false);
     }
+  };
+  // Figaro (`PageSettingsViewModel.publish`): seção obrigatória desligada bloqueia a publicação.
+  const publicar = async () => {
+    const ausentes = secoesObrigatoriasAusentes(e.config);
+    if (ausentes.length > 0) {
+      await confirmar({
+        titulo: "Seções obrigatórias ausentes",
+        descricao: `As seções a seguir são obrigatórias para este layout: ${ausentes.map((id) => CATALOGO_DE_SECOES[id].nome).join(", ")}. Ative-as para publicar.`,
+        confirmar: "Entendi",
+        cancelar: "Cancelar",
+      });
+      return;
+    }
+    await e.executar("publish");
+  };
+  const descartarAlteracoes = async () => {
+    const aceitou = await confirmar({
+      titulo: "Descartar alterações?",
+      descricao: "As alterações não publicadas serão perdidas. Esta ação não pode ser desfeita.",
+      confirmar: "Descartar",
+      cancelar: "Cancelar",
+      destrutivo: true,
+    });
+    if (aceitou) await e.descartar();
   };
   const previa = (altura?: string) => (
     <PreviaDaExperiencia
@@ -321,7 +346,7 @@ function Editor({
       </div>
 
       <section className="mb-5 space-y-4" aria-label="Seções da página pública">
-        <SecaoConteudo config={e.config} setPagina={e.setPagina} />
+        <SecaoConteudo config={e.config} />
         <LacunasDaPagina lacunas={initial.lacunas} />
       </section>
 
@@ -346,6 +371,17 @@ function Editor({
               <Eye />
               Ver prévia
             </Button>
+            {e.pendente ? (
+              <Button
+                variant="ghost"
+                className="mb-2 h-12 w-full text-brick"
+                disabled={e.busy}
+                onClick={() => void descartarAlteracoes()}
+              >
+                <Undo2 />
+                Descartar alterações
+              </Button>
+            ) : null}
             <div className="grid grid-cols-2 gap-2">
               <Button
                 variant="outline"
@@ -356,7 +392,7 @@ function Editor({
                 <Save />
                 {e.busy ? "Salvando…" : "Salvar rascunho"}
               </Button>
-              <Button className="h-12" disabled={e.busy} onClick={() => e.executar("publish")}>
+              <Button className="h-12" disabled={e.busy} onClick={() => void publicar()}>
                 <Send />
                 {e.busy ? "Publicando…" : "Publicar"}
               </Button>

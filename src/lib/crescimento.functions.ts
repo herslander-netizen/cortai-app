@@ -580,7 +580,7 @@ export const salvarPerfilProfissional = createServerFn({ method: "POST" })
     z
       .object({
         id: z.string().uuid(),
-        descricao: z.string().trim().max(200),
+        descricao: z.string().trim().max(2000),
         portfolio: z.array(z.string().trim().url().max(400)).max(6),
       })
       .parse(input),

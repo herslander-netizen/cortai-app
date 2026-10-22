@@ -1,196 +1,137 @@
-import { useEffect, useRef } from "react";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Link } from "@tanstack/react-router";
-import {
-  CalendarDays,
-  CheckCircle2,
-  Clock3,
-  House,
-  Images,
-  Instagram,
-  MapPin,
-  MessageCircle,
-  Package,
-  Star,
-  Users,
-  type LucideIcon,
-} from "lucide-react";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { ChevronRight } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
-import { componenteIds, type PaginaConfig } from "@/lib/pagina-config";
-import type { SetPagina } from "./tipos";
+import { MOLA } from "@/lib/movimento-figaro";
+import { componenteIds, SECOES_OBRIGATORIAS, type PaginaConfig } from "@/lib/pagina-config";
+import { CATALOGO_DE_SECOES, FLUXO_DE_AGENDAMENTO, type ComponenteId } from "./secoes/catalogo";
 
-type ComponenteId = (typeof componenteIds)[number];
-
-const SECOES: Record<ComponenteId, { nome: string; descricao: string; icone: LucideIcon }> = {
-  apresentacao: {
-    nome: "Apresentação",
-    descricao: "Frase de boas-vindas e apresentação do negócio.",
-    icone: House,
-  },
-  servicos: {
-    nome: "Serviços",
-    descricao: "Serviços cadastrados, duração e preço.",
-    icone: Clock3,
-  },
-  profissionais: {
-    nome: "Equipe",
-    descricao: "Profissionais e suas informações públicas.",
-    icone: Users,
-  },
-  galeria: {
-    nome: "Galeria",
-    descricao: "Fotos para mostrar o espaço e o trabalho.",
-    icone: Images,
-  },
-  avaliacoes: {
-    nome: "Avaliações",
-    descricao: "Notas e avaliações disponíveis do negócio.",
-    icone: Star,
-  },
-  produtos: {
-    nome: "Produtos",
-    descricao: "Produtos do catálogo, quando a loja estiver ativa.",
-    icone: Package,
-  },
-  instagram: {
-    nome: "Instagram",
-    descricao: "Link para o perfil do Instagram do negócio.",
-    icone: Instagram,
-  },
-  localizacao: {
-    nome: "Localização",
-    descricao: "Endereço público e acesso ao mapa.",
-    icone: MapPin,
-  },
-  horarios: {
-    nome: "Horários",
-    descricao: "Horários de funcionamento do negócio.",
-    icone: Clock3,
-  },
-  whatsapp: {
-    nome: "WhatsApp",
-    descricao: "Atalho de contato pelo WhatsApp ou telefone cadastrado.",
-    icone: MessageCircle,
-  },
-  cta_final: {
-    nome: "Chamada final",
-    descricao: "Convite para o cliente iniciar o agendamento no final da página.",
-    icone: CalendarDays,
-  },
+type Linha = {
+  id: ComponenteId | "fluxo";
+  nome: string;
+  icone: (typeof FLUXO_DE_AGENDAMENTO)["icone"];
+  editavel: boolean;
 };
 
-export function SecaoConteudo({
-  config,
-  setPagina,
-  somente,
-  mostrarEdicao = true,
+function LinhaDeSecao({
+  linha,
+  posicao,
+  reduzirMovimento,
 }: {
-  config: PaginaConfig;
-  setPagina: SetPagina;
-  somente?: ComponenteId;
-  mostrarEdicao?: boolean;
+  linha: Linha;
+  posicao: "unica" | "primeira" | "meio" | "ultima";
+  reduzirMovimento: boolean | null;
 }) {
-  const refs = useRef<Record<ComponenteId, HTMLButtonElement | null>>({} as Record<ComponenteId, HTMLButtonElement | null>);
-  const focoPendente = useRef<ComponenteId | null>(null);
-  const reduzirMovimento = useReducedMotion();
-
-  // Se um bloco mudar de grupo ao ligar/desligar, preserva o foco do teclado.
-  useEffect(() => {
-    const id = focoPendente.current;
-    if (!id) return;
-    refs.current[id]?.focus();
-    focoPendente.current = null;
-  }, [config.componentes]);
-
-  const ids = somente ? [somente] : componenteIds;
-  const ativos = ids.filter((id) => config.componentes[id]);
-  const inativos = ids.filter((id) => !config.componentes[id]);
-
-  const grupo = (ids: ComponenteId[], ativo: boolean) => {
-    if (somente && ids.length === 0) return null;
-    return (
-    <section className="space-y-3" aria-label={ativo ? "Seções ativas" : "Seções inativas"}>
-      <div className="flex items-center justify-between gap-3">
-        <div>
-          <h3 className="text-sm font-semibold text-paper">{ativo ? "Seções ativas" : "Seções inativas"}</h3>
-          <p className="mt-0.5 text-xs text-mute">
-            {ativo ? "Visíveis quando há dados reais para exibir." : "Podem ser ativadas a qualquer momento."}
-          </p>
-        </div>
-        <span className="shrink-0 rounded-full border border-line bg-ink2 px-2.5 py-1 text-xs font-semibold text-mute">
-          {ids.length}
-        </span>
-      </div>
-
-      {ids.length ? (
-        <div className="space-y-2">
-          <AnimatePresence initial={false}>
-            {ids.map((id) => {
-              const secao = SECOES[id];
-              const Icone = secao.icone;
-              return (
-              <motion.div
-                key={id}
-                layout
-                initial={reduzirMovimento ? { opacity: 0 } : { opacity: 0, y: -5, scale: 0.99 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={reduzirMovimento ? { opacity: 0 } : { opacity: 0, y: -5, scale: 0.99 }}
-                transition={{ duration: reduzirMovimento ? 0.12 : 0.2, ease: "easeOut" }}
-                className="surface flex min-h-[76px] items-center gap-3 p-3 sm:gap-4 sm:p-4"
-              >
-                <span className={`flex size-10 shrink-0 items-center justify-center rounded-lg ${ativo ? "bg-gold/10 text-gold" : "bg-ink2 text-mute"}`}>
-                  <Icone size={19} aria-hidden />
-                </span>
-                <span className="min-w-0 flex-1">
-                  <span className="block text-sm font-semibold text-paper">{secao.nome}</span>
-                  <span className="mt-0.5 block text-xs leading-relaxed text-mute">{secao.descricao}</span>
-                </span>
-                {mostrarEdicao ? (
-                  <Button type="button" variant="outline" size="sm" className="min-h-11 shrink-0" asChild>
-                    <Link to="/barbeiro/marca/secao/$secao" params={{ secao: id }}>Editar</Link>
-                  </Button>
-                ) : null}
-                <Switch
-                  ref={(node) => { refs.current[id] = node; }}
-                  checked={ativo}
-                  onCheckedChange={(checked) => {
-                    focoPendente.current = id;
-                    setPagina("componentes", { ...config.componentes, [id]: checked });
-                  }}
-                  aria-label={`${checkedLabel(ativo)} ${secao.nome}`}
-                />
-              </motion.div>
-              );
-            })}
-          </AnimatePresence>
-        </div>
-      ) : (
-        <p className="rounded-lg border border-dashed border-line px-4 py-5 text-center text-sm text-mute">
-          {ativo ? "Nenhuma seção está ativa." : "Todas as seções estão ativas."}
-        </p>
-      )}
-    </section>
-    );
-  };
-
+  const Icone = linha.icone;
+  // Como no Figaro: as linhas formam uma pilha de cartões, com os cantos grandes só nas pontas.
+  const raio = {
+    unica: "rounded-[28px]",
+    primeira: "rounded-t-[28px] rounded-b-md",
+    meio: "rounded-md",
+    ultima: "rounded-t-md rounded-b-[28px]",
+  }[posicao];
+  const conteudo = (
+    <>
+      <Icone size={26} className="shrink-0 text-gold" aria-hidden />
+      <span className="min-w-0 flex-1 text-base text-paper">{linha.nome}</span>
+      {linha.editavel ? (
+        <ChevronRight size={20} className="shrink-0 text-mute" aria-hidden />
+      ) : null}
+    </>
+  );
+  const classes = `flex min-h-[72px] items-center gap-5 bg-ink2 px-6 py-4 ${raio}`;
   return (
-    <div className="space-y-6">
-      <p className="text-sm leading-relaxed text-mute">
-        Organize o que aparece na sua página pública. Os blocos são exibidos quando existe informação real cadastrada; ocultar um bloco não apaga os dados do negócio.
-      </p>
-      {grupo(ativos, true)}
-      <div className="border-t border-line" />
-      {grupo(inativos, false)}
-      <p className="flex items-start gap-2 rounded-lg border border-line bg-ink2 p-3 text-xs leading-relaxed text-mute">
-        <CheckCircle2 size={15} className="mt-0.5 shrink-0 text-sage" aria-hidden />
-        As seções podem ser reativadas sem recadastrar suas informações.
-      </p>
-    </div>
+    <motion.li
+      layout={!reduzirMovimento}
+      initial={reduzirMovimento ? { opacity: 0 } : { opacity: 0, y: -4 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={reduzirMovimento ? { opacity: 0 } : { opacity: 0, y: -4 }}
+      transition={reduzirMovimento ? { duration: 0.12 } : MOLA.padraoCompose}
+    >
+      {linha.editavel && linha.id !== "fluxo" ? (
+        <Link
+          to="/barbeiro/marca/secao/$secao"
+          params={{ secao: linha.id }}
+          className={`${classes} cursor-pointer transition-colors hover:bg-ink3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring`}
+        >
+          {conteudo}
+        </Link>
+      ) : (
+        <div className={classes}>{conteudo}</div>
+      )}
+    </motion.li>
   );
 }
 
-function checkedLabel(ativo: boolean) {
-  return ativo ? "Ocultar" : "Ativar";
+function Grupo({
+  titulo,
+  linhas,
+  reduzirMovimento,
+}: {
+  titulo: string;
+  linhas: Linha[];
+  reduzirMovimento: boolean | null;
+}) {
+  if (linhas.length === 0) return null;
+  return (
+    <section aria-label={titulo} className="space-y-2">
+      <h3 className="px-2 text-sm font-medium text-mute">{titulo}</h3>
+      <ul className="flex flex-col gap-0.5">
+        <AnimatePresence initial={false}>
+          {linhas.map((linha, i) => (
+            <LinhaDeSecao
+              key={linha.id}
+              linha={linha}
+              reduzirMovimento={reduzirMovimento}
+              posicao={
+                linhas.length === 1
+                  ? "unica"
+                  : i === 0
+                    ? "primeira"
+                    : i === linhas.length - 1
+                      ? "ultima"
+                      : "meio"
+              }
+            />
+          ))}
+        </AnimatePresence>
+      </ul>
+    </section>
+  );
+}
+
+/**
+ * Lista de seções da página no padrão do Figaro (`PageSettingsScreen`, spec 4 §2.3): três grupos —
+ * obrigatórias (ativas ou não), ativas e inativas —, cada linha com ícone e nome, sem switch. Tocar abre o
+ * editor da seção, onde se oculta ou ativa. O fluxo de agendamento é sempre obrigatório e não tem editor.
+ */
+export function SecaoConteudo({ config }: { config: PaginaConfig }) {
+  const reduzirMovimento = useReducedMotion();
+  const obrigatorias = SECOES_OBRIGATORIAS[config.layout];
+  const linha = (id: ComponenteId): Linha => ({
+    id,
+    nome: CATALOGO_DE_SECOES[id].nome,
+    icone: CATALOGO_DE_SECOES[id].icone,
+    editavel: true,
+  });
+  const fluxo: Linha = { id: "fluxo", ...FLUXO_DE_AGENDAMENTO, editavel: false };
+  const obrigatoriasLista = [
+    fluxo,
+    ...componenteIds.filter((id) => obrigatorias.includes(id)).map(linha),
+  ];
+  const livres = componenteIds.filter((id) => !obrigatorias.includes(id));
+  const ativas = livres.filter((id) => config.componentes[id]).map(linha);
+  const inativas = livres.filter((id) => !config.componentes[id]).map(linha);
+
+  return (
+    <div className="space-y-6">
+      <Grupo
+        titulo="Seções obrigatórias"
+        linhas={obrigatoriasLista}
+        reduzirMovimento={reduzirMovimento}
+      />
+      <Grupo titulo="Seções ativas" linhas={ativas} reduzirMovimento={reduzirMovimento} />
+      <Grupo titulo="Seções inativas" linhas={inativas} reduzirMovimento={reduzirMovimento} />
+    </div>
+  );
 }

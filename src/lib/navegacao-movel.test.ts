@@ -53,7 +53,7 @@ describe("navegação móvel", () => {
     expect(paginaPrincipal).toContain("Tirar página do ar");
     expect(paginaPrincipal).toContain("alterarStatusPaginaPublica");
     expect(paginaPrincipal).toContain('aria-label="Seções da página pública"');
-    expect(paginaPrincipal).toContain("<SecaoConteudo config={e.config} setPagina={e.setPagina} />");
+    expect(paginaPrincipal).toContain("<SecaoConteudo config={e.config} />");
     expect(paginaPrincipal).toContain("Outras configurações");
     expect(paginaPrincipal).toContain("<AnimatePresence>");
     expect(paginaPrincipal).toContain('height: "auto"');
@@ -76,13 +76,14 @@ describe("navegação móvel", () => {
     for (const secao of ["apresentacao", "servicos", "profissionais", "galeria", "avaliacoes", "produtos", "instagram", "localizacao", "horarios", "whatsapp", "cta_final"]) {
       expect(editor).toContain('case "' + secao + '"');
     }
-    expect(editor).toContain('to="/barbeiro/servicos"');
-    expect(editor).toContain('to="/barbeiro/avaliacoes"');
+    const editores = readFileSync("src/components/marca/editor/secoes/editores.tsx", "utf8");
+    expect(editores).toContain('to="/barbeiro/servicos"');
+    expect(editores).toContain('to="/barbeiro/avaliacoes"');
     expect(editor).toContain('to="/barbeiro/produtos"');
     expect(editor).toContain('to="/barbeiro/horarios"');
-    expect(rota).toContain("<EditorDaSecaoPublica secao={secao} e={e} />");
-    expect(editor).toContain("Fotos da galeria");
-    expect(editor).toContain('e.upload(event, "foto")');
+    expect(rota).toContain("<EditorDaSecaoPublica secao={secao} e={e} reportarErro={reportarErro} />");
+    expect(editores).toContain('titulo="Fotos"');
+    expect(editores).toContain('e.upload(ev, "foto")');
     const hook = readFileSync("src/components/marca/editor/useEditorDaPagina.ts", "utf8");
     expect(hook).toContain("form.fotos.length >= 8");
     expect(hook).toContain("createSignedUrl(path, 60 * 60)");

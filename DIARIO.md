@@ -465,7 +465,6 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 | Quem | Desde (UTC) | Tarefa | Arquivos / migração reservada |
 |---|---|---|---|
-| Claude | 2026-10-22 UTC | **Personalizar Página completa (pedido do dono):** hub de seções (Obrigatórias/Ativas/Inativas), editores por seção com campos e limites do Figaro, obrigatórias por layout, publicar com validação, QR. Fica com o GPT: Layout & Tema (cartões, carrossel, exemplo) e animações | `src/lib/pagina-config.ts`, `src/components/marca/editor/SecaoConteudo.tsx`, `EditorDaSecaoPublica.tsx`, novos `editor/secoes/*`, `src/routes/barbeiro.marca.secao.$secao.tsx`, `src/components/marca/PaginaPublica.tsx`; sem banco |
 | GPT | 2026-10-22 UTC | Continuação do Lote 3 de P.12 a pedido do dono: conferir o que já foi feito e completar animações restantes com testes, sem alterar regras/fluxos | `DIARIO.md`, `docs/referencia-figaro/apk/8-inventario-de-animacoes.md`, `src/components/marca/editor/CartoesDeLayoutTema.tsx`, `src/components/marca/editor/SecaoLayoutsETemas.tsx`, `src/components/marca/editor/SecaoImagens.tsx`, `src/components/marca/editor/SecaoRecepcao.tsx`, `src/components/onboarding/PrimeirosPassos.tsx`, `src/components/onboarding/EditorDeHorarios.tsx`, `src/components/ui/collapsible.tsx`, `src/components/notificacoes/*`, `src/routes/barbeiro.equipe.tsx`, `src/routes/barbeiro.marca.tsx`; sem migração |
 | GPT | 2026-10-21 UTC | Corrigir a varredura de WhatsApp/Asaas: diagnosticar timeouts, preparar correção dos cron jobs e validar endpoint no worker de produção; sem escrita real até autorização explícita | `DIARIO.md`, `MUSE.md`, `drizzle/migrations/0043_corrigir_agendadores.sql`, rotas de varredura; migração 0043 (não aplicada) |
 | GPT | 2026-10-21 UTC | Validar jornada Figaro e corrigir divergências de navegação confirmadas no código; inspeção visual 390px/1280px e animações segue pendente sem navegador conectado | `DIARIO.md`, `src/routes/barbeiro.marca.tsx`, `src/routes/barbeiro.marca.secao.$secao.tsx`, `src/components/marca/editor/EditorDaSecaoPublica.tsx`, `src/components/marca/editor/SecaoConteudo.tsx`, `src/components/marca/editor/PaineisDoEditor.tsx`, `src/lib/navegacao-barbeiro.ts`, `src/lib/navegacao-barbeiro.test.ts`, `src/routes/barbeiro.sua-pagina.tsx`; sem migração |
@@ -658,6 +657,32 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - Sem alteração no banco, `main` ou produção.
 
 ## Diário
+
+### 2026-10-22 UTC — Claude — Personalizar Página: hub, editores por seção, obrigatórias e QR (spec 4)
+- **Hub (`SecaoConteudo`):** agora é a lista do Figaro — grupos **Seções obrigatórias** (inclui "Fluxo de
+  Agendamento", sem editor), **ativas** e **inativas**; cada linha é ícone de 26 px + nome, sem switch e sem texto de
+  descrição; tocar abre o editor. Ativar/ocultar saiu da lista e foi para dentro de cada editor (spec 4 §2.3, §5).
+- **Obrigatórias por layout:** `SECOES_OBRIGATORIAS` em `pagina-config.ts` (layouts Figaro exigem Serviços; os do
+  Cortaí seguem livres). Publicar com obrigatória desligada mostra "Seções obrigatórias ausentes" e o servidor
+  (`publicarPagina`) também recusa. Botão **Descartar alterações** (com confirmação) aparece quando há rascunho.
+- **Campos por seção (`secoes` no schema, aditivo, com padrão que não muda páginas já salvas):** Serviços → serviços
+  populares Mostrar/Ocultar (a página mostra os 3 mais finalizados em 90 dias); Equipe → Mostrar foto, Mostrar
+  detalhes e **bio de cada profissional até 2000** (folha com contador; com detalhes ligados todas são obrigatórias;
+  o limite do servidor subiu de 200 para 2000, sem mudar o banco); Galeria → título (mín. 5, máx. 25), subtítulo
+  (mín. 5, máx. 100) e fotos; Avaliações → resumo ligado/desligado e ordem (Data/Nota); Localização → endereço,
+  detalhes e bio do local (≤ 2000). Redes sociais já tinham validação própria (mais completa que a do Figaro).
+- **Editor de seção (`barbeiro.marca.secao.$secao`):** título = nome da seção; **Salvar alterações** (trava com erro);
+  **Ocultar X** (só se ativa e não obrigatória) e cartão **"X oculta" + Ativar X** gravam na hora e ficam no editor,
+  como no Figaro. `PaginaPublica` usa os campos novos.
+- **QR Code:** variantes **Papel** e **Adesivo** (`qr-cartao.ts`, desenhado no navegador), salvar imagem e imprimir.
+- **Decisões que ficam com o dono:** (1) listar comentários de avaliações na página pública (a ordem Data/Nota já
+  existe no editor, mas só vale quando houver lista; comentários são dados de cliente e há `sinal_atencao`);
+  (2) "Formulário de contato" do Figaro (e-mail de destino) não tem equivalente — a seção Contato do Cortaí é WhatsApp
+  e telefone; (3) limites do Hero (8–25 e 10–100) não foram impostos à frase/sobre atuais (120 e 1200) para não
+  invalidar textos já publicados.
+- Para o GPT: Layout & Tema, o hub principal (`barbeiro.marca.tsx`, só troquei 1 linha, o botão Publicar/Descartar e o
+  diálogo) e as animações seguem com você. Mudei `navegacao-movel.test.ts` para os novos arquivos.
+- Validação: `tsc`, 1685 testes, `build`. Sem banco, sem `main`. Falta celular.
 
 ### 2026-10-22 UTC — Claude — Carregando e confirmações do Figaro, como são
 - **Indicador de carregamento (`IndicadorDeCarregamento`):** porte exato do `LoadingIndicator` do Material 3 que o

@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import QRCode from "qrcode";
+import { desenharCartaoDoQr, VARIANTES_DO_QR, type VarianteDoQr } from "@/lib/qr-cartao";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowUpRight, CheckCircle2, CircleHelp, Eye, LayoutTemplate, Palette, PencilLine, AlertTriangle, QrCode } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -32,7 +33,33 @@ function SuaPagina() {
   const [mensagem, setMensagem] = useState("");
   const [qrCode, setQrCode] = useState<string | null>(null);
   const [mostrarQr, setMostrarQr] = useState(qr === "1");
+  const [varianteDoQr, setVarianteDoQr] = useState<VarianteDoQr>("papel");
+  const [cartaoDoQr, setCartaoDoQr] = useState<string | null>(null);
   useEffect(() => setMostrarQr(qr === "1"), [qr]);
+  const nomeDoNegocio = query.data?.marca?.nome ?? "";
+  useEffect(() => {
+    if (!qrCode) return;
+    let ativo = true;
+    const imagem = new Image();
+    imagem.onload = () => {
+      try {
+        const cor = window.getComputedStyle(document.documentElement).getPropertyValue("--qr-dark").trim() || undefined;
+        const url = desenharCartaoDoQr({ qr: imagem, nome: nomeDoNegocio, variante: varianteDoQr, ...(cor ? { corDaMarca: cor } : {}) });
+        if (ativo) setCartaoDoQr(url);
+      } catch {
+        if (ativo) setMensagem("Não foi possível montar a imagem do QR Code.");
+      }
+    };
+    imagem.src = qrCode;
+    return () => { ativo = false; };
+  }, [qrCode, varianteDoQr, nomeDoNegocio]);
+  const imprimirQr = () => {
+    if (!cartaoDoQr) return;
+    const janela = window.open("", "_blank");
+    if (!janela) { setMensagem("Não foi possível abrir a impressão. Libere pop-ups ou salve a imagem."); return; }
+    janela.document.write(`<!doctype html><title>QR Code</title><style>body{margin:0;display:grid;place-items:center}img{max-width:100%;height:auto}@page{margin:0}</style><img src="${cartaoDoQr}" onload="window.print()">`);
+    janela.document.close();
+  };
   const link = query.data?.marca ? urlPublica(`/${query.data.marca.slug}`) : "";
 
   useEffect(() => {
@@ -40,7 +67,7 @@ function SuaPagina() {
     let ativo = true;
     const estilos = window.getComputedStyle(document.documentElement);
     void QRCode.toDataURL(link, {
-      width: 320,
+      width: 512,
       margin: 1,
       color: {
         dark: estilos.getPropertyValue("--qr-dark").trim() || "#10203A",
@@ -134,9 +161,27 @@ function SuaPagina() {
           </Button>
           {mostrarQr ? (
             <div className="mt-4 rounded-xl border border-line bg-background p-4 text-center">
-              {qrCode ? <img src={qrCode} alt={`QR Code para abrir a página pública de ${marca.nome}`} width={240} height={240} className="mx-auto h-60 w-60 max-w-full rounded-lg bg-qr-light p-2" /> : <p role="status" className="text-sm text-mute">Gerando QR Code…</p>}
+              {qrCode ? <img src={cartaoDoQr ?? qrCode} alt={`QR Code para abrir a página pública de ${marca.nome}`} width={240} className="mx-auto h-auto w-60 max-w-full rounded-lg bg-qr-light" /> : <p role="status" className="text-sm text-mute">Gerando QR Code…</p>}
               <p className="mt-2 text-xs text-mute">Aponte a câmera do celular para abrir sua página pública.</p>
-              {qrCode ? <a href={qrCode} download={`qr-${marca.slug}.png`} className="mt-3 inline-flex min-h-11 items-center justify-center rounded-full border border-line px-4 text-sm font-medium text-paper">Salvar imagem do QR Code</a> : null}
+              <div role="group" aria-label="Tipo de cartão do QR Code" className="mt-4 flex gap-0.5">
+                {(Object.keys(VARIANTES_DO_QR) as VarianteDoQr[]).map((v, i, todas) => (
+                  <button
+                    key={v}
+                    type="button"
+                    aria-pressed={varianteDoQr === v}
+                    onClick={() => setVarianteDoQr(v)}
+                    className={`min-h-12 flex-1 px-4 text-sm font-medium ${i === 0 ? "rounded-l-full rounded-r-md" : i === todas.length - 1 ? "rounded-r-full rounded-l-md" : "rounded-md"} ${varianteDoQr === v ? "bg-gold text-ink" : "bg-ink3 text-paper"}`}
+                  >
+                    {VARIANTES_DO_QR[v].rotulo}
+                  </button>
+                ))}
+              </div>
+              {cartaoDoQr ? (
+                <div className="mt-3 grid grid-cols-2 gap-2">
+                  <a href={cartaoDoQr} download={`qr-${marca.slug}-${varianteDoQr}.png`} className="inline-flex min-h-12 items-center justify-center rounded-full border border-line px-4 text-sm font-medium text-paper">Salvar imagem</a>
+                  <button type="button" onClick={imprimirQr} className="inline-flex min-h-12 items-center justify-center rounded-full border border-line px-4 text-sm font-medium text-paper">Imprimir</button>
+                </div>
+              ) : null}
             </div>
           ) : null}
           {mensagem ? <p role="status" className="mt-3 text-xs text-mute">{mensagem}</p> : null}

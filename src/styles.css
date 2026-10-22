@@ -2586,6 +2586,15 @@ body:has(.auth-screen--claro) {
   grid-column: span 2;
   grid-row: span 2;
 }
+.brand-subtitle {
+  margin: 0 0 12px;
+  font-size: 14px;
+  line-height: 1.5;
+  opacity: 0.72;
+}
+.brand-service-grid + .brand-subtitle {
+  margin-top: 20px;
+}
 .brand-about {
   max-width: 760px;
   font-family: var(--brand-heading);

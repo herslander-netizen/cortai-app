@@ -133,6 +133,25 @@ export function PaginaPublicaConteudo({
   const layout = config.layout;
   const definicao = SEGMENTOS_CONFIG[tenant.segmento];
   const vocabulario = termos(tenant.segmento);
+  const cartaoDeServico = (servico: PaginaPublica["servicos"][number]) => (
+    <article key={servico.id} className="brand-service">
+      <div>
+        <h2>{servico.nome}</h2>
+        <p>
+          <Clock3 size={13} />
+          {servico.duracao_min} min
+        </p>
+      </div>
+      <strong>{brl(servico.preco_centavos)}</strong>
+    </article>
+  );
+  // Serviços populares (Figaro `popularServicesType`): os 3 mais atendidos em 90 dias, se houver o que comparar.
+  const destaques = config.secoes.servicos.populares
+    ? [...data.servicos]
+        .filter((s) => s.popularidade > 0)
+        .sort((a, b) => b.popularidade - a.popularidade)
+        .slice(0, 3)
+    : [];
 
   return (
     <div
@@ -205,20 +224,14 @@ export function PaginaPublicaConteudo({
       <main className="brand-main">
         {config.componentes.servicos && data.servicos.length ? (
           <Secao titulo="Serviços" id="servicos">
-            <div className="brand-service-grid">
-              {data.servicos.map((servico) => (
-                <article key={servico.id} className="brand-service">
-                  <div>
-                    <h2>{servico.nome}</h2>
-                    <p>
-                      <Clock3 size={13} />
-                      {servico.duracao_min} min
-                    </p>
-                  </div>
-                  <strong>{brl(servico.preco_centavos)}</strong>
-                </article>
-              ))}
-            </div>
+            {destaques.length ? (
+              <>
+                <p className="brand-subtitle">Mais pedidos</p>
+                <div className="brand-service-grid">{destaques.map(cartaoDeServico)}</div>
+                <p className="brand-subtitle">Todos os serviços</p>
+              </>
+            ) : null}
+            <div className="brand-service-grid">{data.servicos.map(cartaoDeServico)}</div>
           </Secao>
         ) : null}
 
@@ -227,14 +240,18 @@ export function PaginaPublicaConteudo({
             <div className="brand-people-grid">
               {data.profissionais.map((p) => (
                 <article key={p.id} className="brand-person">
-                  {p.avatar_url ? (
-                    <img src={p.avatar_url} alt={p.nome} loading="lazy" width={96} height={96} />
-                  ) : (
-                    <span>{p.nome.charAt(0)}</span>
-                  )}
+                  {config.secoes.profissionais.mostrarFoto ? (
+                    p.avatar_url ? (
+                      <img src={p.avatar_url} alt={p.nome} loading="lazy" width={96} height={96} />
+                    ) : (
+                      <span>{p.nome.charAt(0)}</span>
+                    )
+                  ) : null}
                   <div>
                     <h3>{p.nome}</h3>
-                    {p.descricao ? <p>{p.descricao}</p> : null}
+                    {config.secoes.profissionais.mostrarDetalhes && p.descricao ? (
+                      <p>{p.descricao}</p>
+                    ) : null}
                   </div>
                 </article>
               ))}
@@ -243,7 +260,10 @@ export function PaginaPublicaConteudo({
         ) : null}
 
         {config.componentes.galeria && tenant.fotos_signed_urls.length ? (
-          <Secao titulo="Destaques" id="galeria">
+          <Secao titulo={config.secoes.galeria.titulo || "Destaques"} id="galeria">
+            {config.secoes.galeria.subtitulo ? (
+              <p className="brand-subtitle">{config.secoes.galeria.subtitulo}</p>
+            ) : null}
             <div className="brand-gallery">
               {tenant.fotos_signed_urls.map((foto, index) => (
                 <img
@@ -267,11 +287,15 @@ export function PaginaPublicaConteudo({
 
         {config.componentes.avaliacoes && data.avaliacoes.quantidade > 0 ? (
           <Secao titulo="Avaliações" id="avaliacoes">
-            <div className="brand-rating">
-              <Star fill="currentColor" />
-              <strong>{mediaPtBr(data.avaliacoes.media)}</strong>
-              <span>{data.avaliacoes.quantidade} avaliações verificadas</span>
-            </div>
+            {config.secoes.avaliacoes.mostrarResumo ? (
+              <div className="brand-rating">
+                <Star fill="currentColor" />
+                <strong>{mediaPtBr(data.avaliacoes.media)}</strong>
+                <span>{data.avaliacoes.quantidade} avaliações verificadas</span>
+              </div>
+            ) : (
+              <p className="brand-subtitle">{data.avaliacoes.quantidade} avaliações verificadas</p>
+            )}
           </Secao>
         ) : null}
 
@@ -337,6 +361,9 @@ export function PaginaPublicaConteudo({
                 <MapPin />
                 {tenant.endereco}
               </a>
+              {config.secoes.localizacao.mostrarDetalhes && config.secoes.localizacao.bio ? (
+                <p className="brand-about">{config.secoes.localizacao.bio}</p>
+              ) : null}
             </Secao>
           ) : null}
           {config.componentes.horarios && data.horarios.length ? (

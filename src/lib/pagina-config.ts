@@ -44,6 +44,21 @@ export const componenteIds = [
   "cta_final",
 ] as const;
 
+/** Nome de cada seção, como aparece no editor e nas mensagens de publicação. */
+export const NOMES_DAS_SECOES: Record<(typeof componenteIds)[number], string> = {
+  apresentacao: "Apresentação",
+  servicos: "Serviços",
+  profissionais: "Equipe",
+  galeria: "Galeria",
+  avaliacoes: "Avaliações",
+  produtos: "Produtos",
+  instagram: "Redes sociais",
+  localizacao: "Localização",
+  horarios: "Horários",
+  whatsapp: "Contato",
+  cta_final: "Chamada final",
+};
+
 export const chatConfigSchema = z.object({
   modo: z.enum(["tradicional", "conversa"]).default("tradicional"),
   nomeRecepcao: z.string().trim().max(40).default("Lisa"),
@@ -59,6 +74,68 @@ export const chatConfigSchema = z.object({
   salvarCalendario: z.boolean().default(true),
   listaEspera: z.boolean().default(true),
 });
+
+/**
+ * Ajustes de cada seção da página (editores do Figaro, spec 4 §5). Todos têm padrão que preserva o
+ * comportamento anterior, então páginas já salvas continuam iguais.
+ */
+export const LIMITES_DA_SECAO = {
+  tituloDaGaleria: { min: 5, max: 25 },
+  subtituloDaGaleria: { min: 5, max: 100 },
+  bio: 2000,
+} as const;
+
+export const secoesConfigSchema = z.object({
+  servicos: z.object({ populares: z.boolean().default(true) }).default({}),
+  profissionais: z
+    .object({
+      mostrarFoto: z.boolean().default(true),
+      /** Mostra a bio de cada profissional. Ligado por padrão: a página já mostrava a descrição. */
+      mostrarDetalhes: z.boolean().default(true),
+    })
+    .default({}),
+  galeria: z
+    .object({
+      titulo: z.string().trim().max(LIMITES_DA_SECAO.tituloDaGaleria.max).default(""),
+      subtitulo: z.string().trim().max(LIMITES_DA_SECAO.subtituloDaGaleria.max).default(""),
+    })
+    .default({}),
+  avaliacoes: z
+    .object({
+      ordem: z.enum(["data", "nota"]).default("data"),
+      mostrarResumo: z.boolean().default(true),
+    })
+    .default({}),
+  localizacao: z
+    .object({
+      mostrarDetalhes: z.boolean().default(false),
+      bio: z.string().trim().max(LIMITES_DA_SECAO.bio).default(""),
+    })
+    .default({}),
+});
+export type SecoesConfig = z.infer<typeof secoesConfigSchema>;
+
+/**
+ * Seções que o layout exige (`isRequired` do Figaro): ocultá-las bloqueia a publicação. Os layouts do
+ * Figaro exigem os serviços; os do Cortaí seguem livres. O fluxo de agendamento é sempre obrigatório e
+ * não tem editor (`booking-flow`), por isso não entra aqui.
+ */
+export const SECOES_OBRIGATORIAS: Record<LayoutId, readonly (typeof componenteIds)[number][]> = {
+  cinematografico: [],
+  "logo-central": [],
+  minimalista: [],
+  "foto-destaque": [],
+  editorial: [],
+  "figaro-site-completo": ["servicos"],
+  "figaro-agendamento": ["servicos"],
+};
+
+/** Seções obrigatórias do layout que estão desligadas na configuração. */
+export function secoesObrigatoriasAusentes(
+  config: Pick<PaginaConfig, "layout" | "componentes">,
+): (typeof componenteIds)[number][] {
+  return SECOES_OBRIGATORIAS[config.layout].filter((id) => !config.componentes[id]);
+}
 
 const hex = z.string().regex(/^#[0-9A-Fa-f]{6}$/);
 export const paginaConfigSchema = z.object({
@@ -90,6 +167,8 @@ export const paginaConfigSchema = z.object({
   experiencia: z.enum(["direta", "vitrine", "conversa"]).default("vitrine"),
   /** Botão "Agendar" fixo no celular. Ausente = ligado. */
   botaoFixo: z.boolean().default(true),
+  /** Ajustes de cada seção (serviços, equipe, galeria, avaliações, localização). */
+  secoes: secoesConfigSchema.default({}),
   /** Redes extras (Instagram, Facebook e WhatsApp ficam nos campos do negócio). */
   redes: z
     .object({

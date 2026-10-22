@@ -18,6 +18,8 @@ import {
   VERSAO_DA_PAGINA,
   preservarFilaDeChegada,
   type PaginaConfig,
+  NOMES_DAS_SECOES,
+  secoesObrigatoriasAusentes,
 } from "@/lib/pagina-config";
 import { SEGMENTOS_CONFIG, segmentoValido, type Segmento } from "@/lib/segmentos";
 
@@ -457,6 +459,12 @@ export const publicarPagina = createServerFn({ method: "POST" })
       .eq("id", tenantId)
       .single();
     if (!tenant) throw new Error("Negócio não encontrado.");
+    const ausentes = secoesObrigatoriasAusentes(data.pagina);
+    if (ausentes.length > 0) {
+      throw new Error(
+        `Seções obrigatórias ausentes para este layout: ${ausentes.map((id) => NOMES_DAS_SECOES[id]).join(", ")}. Ative-as para publicar.`,
+      );
+    }
     const marca = {
       ...data.marca,
       assinatura_visivel: tenant.plano === "essencial" ? true : data.marca.assinatura_visivel,

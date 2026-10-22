@@ -25,7 +25,14 @@ export type PaginaPublica = {
     segmento: Segmento;
     fuso: string;
   };
-  servicos: { id: string; nome: string; duracao_min: number; preco_centavos: number }[];
+  /** `popularidade` = atendimentos finalizados nos últimos 90 dias (só para destacar os mais pedidos). */
+  servicos: {
+    id: string;
+    nome: string;
+    duracao_min: number;
+    preco_centavos: number;
+    popularidade: number;
+  }[];
   profissionais: {
     id: string;
     nome: string;
@@ -82,6 +89,7 @@ export const getPaginaPublica = createServerFn({ method: "GET" })
       { data: horarios },
       { data: avaliacoes },
       { data: pageConfig },
+      { data: recentes },
     ] = await Promise.all([
       supabaseAdmin
         .from("servicos")
@@ -115,7 +123,18 @@ export const getPaginaPublica = createServerFn({ method: "GET" })
         .select("published_config, is_online")
         .eq("tenant_id", tenant.id)
         .maybeSingle(),
+      supabaseAdmin
+        .from("agendamentos")
+        .select("servico_id")
+        .eq("tenant_id", tenant.id)
+        .eq("status", "finalizado")
+        .gte("inicio", new Date(Date.now() - 90 * 86_400_000).toISOString())
+        .limit(2000),
     ]);
+    const contagem = new Map<string, number>();
+    for (const r of recentes ?? []) {
+      if (r.servico_id) contagem.set(r.servico_id, (contagem.get(r.servico_id) ?? 0) + 1);
+    }
     if (!paginaPublicaDisponivel(pageConfig?.is_online)) return null;
 
     const { data: regraLoja } = await supabaseAdmin
@@ -155,7 +174,7 @@ export const getPaginaPublica = createServerFn({ method: "GET" })
         segmento: segmentoValido(tenant.segmento),
         fuso: tenant.fuso,
       },
-      servicos: servicos ?? [],
+      servicos: (servicos ?? []).map((sv) => ({ ...sv, popularidade: contagem.get(sv.id) ?? 0 })),
       profissionais: (profissionais ?? []).map((p) => ({
         id: p.id,
         nome: p.nome,
