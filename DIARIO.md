@@ -544,7 +544,9 @@ teste real na prévia.
 - Os cron jobs ainda apontam para `cortai-reconstruction-test-2026.aprovamaisbarra.workers.dev`. O código da versão 3.3 já contém a rota WhatsApp com `ctx.waitUntil`; a varredura Asaas ainda executa de forma síncrona.
 - Criei `drizzle/migrations/0043_corrigir_agendadores.sql` para trocar somente os comandos que ainda contêm o host antigo por `https://cortaiapp.pages.dev` e definir `timeout_milliseconds := 20000`. Migração não aplicada; exige autorização explícita para escrita no banco real.
 - Commit da migração: `9fdec023503b41ddcc72b72fd623d089db594aa4`. Workflow de validação/publicação da prévia iniciado, ainda pendente no momento deste registro.
-- Nenhum cron, segredo, DNS ou banco real foi alterado.
+- Após autorização explícita do dono em 21/10, apliquei a migração 0043 em `cortai-prod` via Supabase. Consulta posterior confirmou os dois jobs ativos apontando para `https://cortaiapp.pages.dev`, com `timeout_milliseconds := 20000`; nenhum comando contém o host antigo.
+- A validação por simulação SQL passou nos dois jobs antes da aplicação. O Actions para a revisão de documentação/SQL ainda estava na fila; TypeScript/testes/build da revisão anterior concluíram com sucesso, mas o smoke HTTP de produção pós-migração ainda aguarda a próxima execução agendada (WhatsApp a cada 15 min, Asaas a cada 30 min).
+- Não alterei segredos, DNS nem código do site principal.
 
 ### 2026-10-21 UTC — GPT — Zoom armado e transições da Agenda conforme Fígaro
 - Referência consultada: `docs/referencia-figaro/apk/2-agenda.md`, §§4.6 e 6. O toque longo arma o cartão no ponto tocado; a grade aproxima até 4 px/min (preserva zoom maior já escolhido) em 300 ms com curva FastOutSlowIn; mantém o ponto temporal sob o dedo; os outros cartões esmaecem para 40% em 300 ms. Ao encerrar a edição, a escala anterior é restaurada.
