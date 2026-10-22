@@ -310,7 +310,7 @@ function Editor({
               </div>
               <p className="mt-2 text-sm font-semibold text-paper">{LAYOUTS[e.config.layout]}</p>
               <p className="mt-1 text-xs leading-relaxed text-mute">
-                {totalDeSecoesAtivas(e.config)} seções ativas
+                {e.config.layout === "cortai-chat" ? "Atendimento em conversa" : `${totalDeSecoesAtivas(e.config)} seções ativas`}
               </p>
             </div>
             <div className="min-w-0 pl-3">

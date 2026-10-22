@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, MessageCircle } from "lucide-react";
 
 import { MOLA } from "@/lib/movimento-figaro";
 import { SECOES_OBRIGATORIAS, secoesDoLayoutAtual, type PaginaConfig } from "@/lib/pagina-config";
@@ -107,6 +107,34 @@ function Grupo({
  */
 export function SecaoConteudo({ config }: { config: PaginaConfig }) {
   const reduzirMovimento = useReducedMotion();
+  if (config.layout === "cortai-chat") {
+    // Layout Chat: não há seções de página; o que se edita é a conversa.
+    return (
+      <div className="space-y-6">
+        <section aria-label="Atendimento em chat" className="space-y-2">
+          <h3 className="px-2 text-sm font-medium text-mute">Atendimento em chat</h3>
+          <ul className="flex flex-col gap-0.5">
+            <li>
+              <Link
+                to="/barbeiro/marca/chat"
+                className="flex min-h-[72px] items-center gap-5 rounded-t-[28px] rounded-b-md bg-ink2 px-6 py-4 transition-colors hover:bg-ink3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              >
+                <MessageCircle size={26} className="shrink-0 text-gold" aria-hidden />
+                <span className="min-w-0 flex-1 text-base text-paper">Personalizar Chat</span>
+                <ChevronRight size={20} className="shrink-0 text-mute" aria-hidden />
+              </Link>
+            </li>
+            <li className="flex min-h-[72px] items-center gap-5 rounded-b-[28px] rounded-t-md bg-ink2 px-6 py-4">
+              <FLUXO_DE_AGENDAMENTO.icone size={26} className="shrink-0 text-gold" aria-hidden />
+              <span className="min-w-0 flex-1 text-base text-paper">
+                {FLUXO_DE_AGENDAMENTO.nome}
+              </span>
+            </li>
+          </ul>
+        </section>
+      </div>
+    );
+  }
   const obrigatorias = SECOES_OBRIGATORIAS[config.layout];
   const linha = (id: ComponenteId): Linha => ({
     id,

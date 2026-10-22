@@ -665,6 +665,21 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-22 UTC — Claude — Chat como terceiro layout e estilos do chat
+- **Layout Chat (`cortai-chat`)** no catálogo (Site Completo · Agendamento · **Chat**). Escolher o Chat liga a conversa
+  (`aplicarLayout`: `experiencia = "conversa"`, `chat.modo = "conversa"`); sair dele para um site volta à vitrine
+  (quem usa "Direta" não é mexido). Cartão próprio em Layout & Tema ("6 estilos de conversa").
+- **Estilos do chat**, todos com padrão igual ao visual de antes (`chat.*` no schema, aditivo): `estilo` (vidro,
+  sólido, suave, mínimo, elegante), `fundo` (foto do negócio, Cortaí, liso), `superficie` (Cortaí, tema, clara,
+  escura), `cabecalho` (barra, cartão flutuante), `avatar` (redondo, quadrado), `texto` (pequeno, normal, grande) e
+  `chips` (pílula, cartão). CSS `.chat-sistema[data-*]` (vale também na prévia); `agendamentoStyle` aplica a superfície.
+- **Estilos prontos** (`estilos-chat.ts`): Cortaí, Conversa, Suave, Minimal, Elegante e Noturno, com miniatura da
+  conversa. Terceiro painel "Estilo do chat" em Layout & Tema quando o layout é Chat.
+- **Personalizar Chat** (`/barbeiro/marca/chat`): prévia ao vivo, estilos prontos, balões, fundo, cores, cabeçalho,
+  formato da foto, tamanho do texto, botões rápidos e a recepção/mensagens que já existiam. O hub mostra "Personalizar
+  Chat" no lugar da lista de seções quando o layout é Chat.
+- O fluxo da conversa (etapas, regras, agenda) não mudou; só a apresentação. Sem banco.
+
 ### 2026-10-22 UTC — Claude — Temas femininos com estrutura própria
 - Pedido do dono: os temas devem mudar o **layout**, não só cor e fonte. `estruturaDoTema` (em `pagina-config.ts`)
   dá a cada tema feminino uma composição: **Rosé = arco** (foto em arco, título centrado, equipe em círculos,

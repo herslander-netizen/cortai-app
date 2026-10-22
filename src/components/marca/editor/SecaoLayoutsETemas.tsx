@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
-import { ChevronDown, LayoutTemplate } from "lucide-react";
+import { Link } from "@tanstack/react-router";
+import { ChevronDown, LayoutTemplate, MessageCircle } from "lucide-react";
 
 import {
   LAYOUTS,
-  LAYOUTS_DO_FIGARO,
+  LAYOUTS_DO_CATALOGO,
   TEMAS,
   TEMAS_DO_CATALOGO,
   type LayoutId,
@@ -12,10 +13,12 @@ import {
   type TemaId,
 } from "@/lib/pagina-config";
 import { MOLA } from "@/lib/movimento-figaro";
-import { CartaoDeLayout, CartaoDeTema } from "./CartoesDeLayoutTema";
+import { aplicarEstiloDoChat, ESTILOS_DO_CHAT, estiloAtualDoChat } from "@/lib/estilos-chat";
+import { CartaoDeEstiloDoChat, CartaoDeLayout, CartaoDeTema } from "./CartoesDeLayoutTema";
+import { MiniaturaDoChat } from "./chat/MiniaturaDoChat";
 import { CapaDoTema } from "./CapaDoTema";
 
-type Painel = "layout" | "tema" | "";
+type Painel = "layout" | "tema" | "chat" | "";
 
 function Cabecalho({
   rotulo,
@@ -96,11 +99,16 @@ export function SecaoLayoutsETemas({
   config,
   setLayout,
   escolherTema,
+  atualizar,
 }: {
   config: PaginaConfig;
   setLayout: (layout: LayoutId) => void;
   escolherTema: (tema: TemaId) => void;
+  /** Troca a configuração inteira (usado pelos estilos prontos do chat). */
+  atualizar: (config: PaginaConfig) => void;
 }) {
+  const ehChat = config.layout === "cortai-chat";
+  const estiloAtual = estiloAtualDoChat(config.chat);
   const [aberto, setAberto] = useState<Painel>("layout");
   const alternar = (painel: Exclude<Painel, "">) =>
     setAberto((atual) => (atual === painel ? "" : painel));
@@ -122,7 +130,7 @@ export function SecaoLayoutsETemas({
         />
         <Painel aberto={aberto === "layout"}>
           <div className="flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-4">
-            {LAYOUTS_DO_FIGARO.map((layout) => (
+            {LAYOUTS_DO_CATALOGO.map((layout) => (
               <CartaoDeLayout
                 key={layout}
                 layout={layout}
@@ -159,6 +167,51 @@ export function SecaoLayoutsETemas({
           </div>
         </Painel>
       </section>
+
+      {ehChat ? (
+        <section className="overflow-hidden rounded-[28px] bg-ink2" aria-label="Estilo do chat">
+          <Cabecalho
+            rotulo="Estilo do chat"
+            selo={`${ESTILOS_DO_CHAT.length} estilos`}
+            valor={ESTILOS_DO_CHAT.find((e) => e.id === estiloAtual)?.nome ?? "Personalizado"}
+            aberto={aberto === "chat"}
+            onClick={() => alternar("chat")}
+            leading={
+              <span className="size-10 shrink-0 overflow-hidden rounded-xl border border-line">
+                <MiniaturaDoChat
+                  valores={config.chat}
+                  cores={config.cores}
+                  destaque={config.cores.botao}
+                  className="size-full scale-[1.6] origin-top-left"
+                />
+              </span>
+            }
+          />
+          <Painel aberto={aberto === "chat"}>
+            <div className="flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-3">
+              {ESTILOS_DO_CHAT.map((estilo) => (
+                <CartaoDeEstiloDoChat
+                  key={estilo.id}
+                  estilo={estilo}
+                  selecionado={estiloAtual === estilo.id}
+                  escolher={() => atualizar(aplicarEstiloDoChat(config, estilo.id))}
+                  cores={config.cores}
+                  destaque={config.cores.botao}
+                />
+              ))}
+            </div>
+            <div className="px-4 pb-4">
+              <Link
+                to="/barbeiro/marca/chat"
+                className="flex min-h-12 items-center justify-center gap-2 rounded-full border border-line text-sm font-semibold text-paper"
+              >
+                <MessageCircle size={18} aria-hidden />
+                Personalizar o chat
+              </Link>
+            </div>
+          </Painel>
+        </section>
+      ) : null}
     </div>
   );
 }

@@ -9,7 +9,7 @@ import { useEditorDaPagina } from "@/components/marca/editor/useEditorDaPagina";
 import { Button } from "@/components/ui/button";
 import { getMarca } from "@/lib/marca.functions";
 import { exigirCapacidade } from "@/lib/guarda-capacidade";
-import { aplicarTema, layoutIds, LAYOUTS, TEMAS, temaIds } from "@/lib/pagina-config";
+import { aplicarLayout, aplicarTema, layoutIds, LAYOUTS, TEMAS, temaIds } from "@/lib/pagina-config";
 
 export const Route = createFileRoute("/barbeiro/marca/layout-tema/preview")({
   validateSearch: z.object({
@@ -74,7 +74,7 @@ function ConteudoPrevia({
   voltar: () => void;
 }) {
   const e = useEditorDaPagina(initial, () => undefined);
-  const comLayout = { ...e.config, ...(layout ? { layout } : {}) };
+  const comLayout = layout ? aplicarLayout(e.config, layout) : e.config;
   const config = tema ? aplicarTema(comLayout, tema) : comLayout;
 
   return (

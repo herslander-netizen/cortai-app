@@ -164,6 +164,7 @@ export function AgendamentoChat({
       <ChatShell
         capaUrl={data.tenant.capaUrl}
         style={agendamentoStyle(data.pagina)}
+        estilo={data.pagina.chat}
         header={
           <ChatHeader
             nome={nomeDaRecepcao(data.pagina.chat.nomeRecepcao)}

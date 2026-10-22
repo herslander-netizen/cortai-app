@@ -96,6 +96,7 @@ import { Route as ApiPublicAlvoIaRouteImport } from './routes/api/public/alvo-ia
 import { Route as ApiPublicFunilRouteImport } from './routes/api/public/funil'
 import { Route as BarbeiroClientesIndexRouteImport } from './routes/barbeiro.clientes.index'
 import { Route as BarbeiroClientesIdRouteImport } from './routes/barbeiro.clientes.$id'
+import { Route as BarbeiroMarcaChatRouteImport } from './routes/barbeiro.marca.chat'
 import { Route as BarbeiroMarcaLayoutTemaRouteImport } from './routes/barbeiro.marca.layout-tema'
 import { Route as ApiPublicAiSplatRouteImport } from './routes/api/public/ai/$'
 import { Route as ApiPublicAsaasVarreduraRouteImport } from './routes/api/public/asaas/varredura'
@@ -549,6 +550,11 @@ const BarbeiroClientesIdRoute = BarbeiroClientesIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => BarbeiroClientesRoute,
 } as any)
+const BarbeiroMarcaChatRoute = BarbeiroMarcaChatRouteImport.update({
+  id: '/chat',
+  path: '/chat',
+  getParentRoute: () => BarbeiroMarcaRoute,
+} as any)
 const BarbeiroMarcaLayoutTemaRoute = BarbeiroMarcaLayoutTemaRouteImport.update({
   id: '/layout-tema',
   path: '/layout-tema',
@@ -718,6 +724,7 @@ export interface FileRoutesByFullPath {
   '/api/public/alvo-ia': typeof ApiPublicAlvoIaRoute
   '/api/public/funil': typeof ApiPublicFunilRoute
   '/barbeiro/clientes/$id': typeof BarbeiroClientesIdRoute
+  '/barbeiro/marca/chat': typeof BarbeiroMarcaChatRoute
   '/barbeiro/marca/layout-tema': typeof BarbeiroMarcaLayoutTemaRouteWithChildren
   '/barbeiro/clientes/': typeof BarbeiroClientesIndexRoute
   '/api/public/ai/$': typeof ApiPublicAiSplatRoute
@@ -818,6 +825,7 @@ export interface FileRoutesByTo {
   '/api/public/alvo-ia': typeof ApiPublicAlvoIaRoute
   '/api/public/funil': typeof ApiPublicFunilRoute
   '/barbeiro/clientes/$id': typeof BarbeiroClientesIdRoute
+  '/barbeiro/marca/chat': typeof BarbeiroMarcaChatRoute
   '/barbeiro/marca/layout-tema': typeof BarbeiroMarcaLayoutTemaRouteWithChildren
   '/barbeiro/clientes': typeof BarbeiroClientesIndexRoute
   '/api/public/ai/$': typeof ApiPublicAiSplatRoute
@@ -923,6 +931,7 @@ export interface FileRoutesById {
   '/api/public/alvo-ia': typeof ApiPublicAlvoIaRoute
   '/api/public/funil': typeof ApiPublicFunilRoute
   '/barbeiro/clientes/$id': typeof BarbeiroClientesIdRoute
+  '/barbeiro/marca/chat': typeof BarbeiroMarcaChatRoute
   '/barbeiro/marca/layout-tema': typeof BarbeiroMarcaLayoutTemaRouteWithChildren
   '/barbeiro/clientes/': typeof BarbeiroClientesIndexRoute
   '/api/public/ai/$': typeof ApiPublicAiSplatRoute
@@ -1029,6 +1038,7 @@ export interface FileRouteTypes {
     | '/api/public/alvo-ia'
     | '/api/public/funil'
     | '/barbeiro/clientes/$id'
+    | '/barbeiro/marca/chat'
     | '/barbeiro/marca/layout-tema'
     | '/barbeiro/clientes/'
     | '/api/public/ai/$'
@@ -1129,6 +1139,7 @@ export interface FileRouteTypes {
     | '/api/public/alvo-ia'
     | '/api/public/funil'
     | '/barbeiro/clientes/$id'
+    | '/barbeiro/marca/chat'
     | '/barbeiro/marca/layout-tema'
     | '/barbeiro/clientes'
     | '/api/public/ai/$'
@@ -1233,6 +1244,7 @@ export interface FileRouteTypes {
     | '/api/public/alvo-ia'
     | '/api/public/funil'
     | '/barbeiro/clientes/$id'
+    | '/barbeiro/marca/chat'
     | '/barbeiro/marca/layout-tema'
     | '/barbeiro/clientes/'
     | '/api/public/ai/$'
@@ -1909,6 +1921,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BarbeiroClientesIdRouteImport
       parentRoute: typeof BarbeiroClientesRoute
     }
+    '/barbeiro/marca/chat': {
+      id: '/barbeiro/marca/chat'
+      path: '/chat'
+      fullPath: '/barbeiro/marca/chat'
+      preLoaderRoute: typeof BarbeiroMarcaChatRouteImport
+      parentRoute: typeof BarbeiroMarcaRoute
+    }
     '/barbeiro/marca/layout-tema': {
       id: '/barbeiro/marca/layout-tema'
       path: '/layout-tema'
@@ -2101,11 +2120,13 @@ const BarbeiroMarcaLayoutTemaRouteWithChildren =
   )
 
 interface BarbeiroMarcaRouteChildren {
+  BarbeiroMarcaChatRoute: typeof BarbeiroMarcaChatRoute
   BarbeiroMarcaLayoutTemaRoute: typeof BarbeiroMarcaLayoutTemaRouteWithChildren
   BarbeiroMarcaSecaoSecaoRoute: typeof BarbeiroMarcaSecaoSecaoRoute
 }
 
 const BarbeiroMarcaRouteChildren: BarbeiroMarcaRouteChildren = {
+  BarbeiroMarcaChatRoute: BarbeiroMarcaChatRoute,
   BarbeiroMarcaLayoutTemaRoute: BarbeiroMarcaLayoutTemaRouteWithChildren,
   BarbeiroMarcaSecaoSecaoRoute: BarbeiroMarcaSecaoSecaoRoute,
 }

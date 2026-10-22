@@ -31,6 +31,7 @@ export const layoutIds = [
   "editorial",
   "figaro-site-completo",
   "figaro-agendamento",
+  "cortai-chat",
 ] as const;
 export const fonteIds = [
   "inter",
@@ -76,6 +77,7 @@ export const NOMES_DAS_SECOES: Record<(typeof componenteIds)[number], string> = 
   cta_final: "Chamada final",
 };
 
+export const CHAT_ESTILOS = ["vidro", "classico", "suave", "minimo", "elegante"] as const;
 export const chatConfigSchema = z.object({
   modo: z.enum(["tradicional", "conversa"]).default("tradicional"),
   nomeRecepcao: z.string().trim().max(40).default("Lisa"),
@@ -90,6 +92,14 @@ export const chatConfigSchema = z.object({
   comemoracao: z.boolean().default(true),
   salvarCalendario: z.boolean().default(true),
   listaEspera: z.boolean().default(true),
+  /** Estilo visual do chat (todos com padrão igual ao visual anterior). */
+  estilo: z.enum(CHAT_ESTILOS).default("vidro"),
+  fundo: z.enum(["capa", "liso", "padrao"]).default("capa"),
+  superficie: z.enum(["padrao", "tema", "clara", "escura"]).default("padrao"),
+  cabecalho: z.enum(["barra", "cartao"]).default("barra"),
+  avatar: z.enum(["redondo", "quadrado"]).default("redondo"),
+  texto: z.enum(["pequeno", "normal", "grande"]).default("normal"),
+  chips: z.enum(["pilula", "cartao"]).default("pilula"),
 });
 
 /**
@@ -145,6 +155,7 @@ export const SECOES_OBRIGATORIAS: Record<LayoutId, readonly (typeof componenteId
   editorial: [],
   "figaro-site-completo": ["servicos"],
   "figaro-agendamento": ["servicos"],
+  "cortai-chat": [],
 };
 
 /** Seções obrigatórias do layout que estão desligadas na configuração. */
@@ -446,6 +457,7 @@ export const LAYOUTS: Record<LayoutId, string> = {
   editorial: "Editorial",
   "figaro-site-completo": "Site Completo",
   "figaro-agendamento": "Agendamento",
+  "cortai-chat": "Chat",
 };
 export const FONTES: Record<FonteId, string> = {
   inter: "Inter",
@@ -476,9 +488,28 @@ export const TEMAS_FEMININOS = ["feminino-rose", "feminino-lavanda", "feminino-p
 /** Tudo o que a tela Layout & Tema oferece, na ordem. */
 export const TEMAS_DO_CATALOGO = [...TEMAS_DO_FIGARO, ...TEMAS_FEMININOS] as const;
 
+/** Layouts da tela Layout & Tema: os dois do Figaro e o Chat, atendimento em conversa do Cortaí. */
+export const LAYOUTS_DO_CATALOGO = [...LAYOUTS_DO_FIGARO, "cortai-chat"] as const satisfies readonly LayoutId[];
+
+/**
+ * Troca o layout. O Chat é uma experiência de conversa: ao escolhê-lo o link abre o atendimento em chat; ao
+ * sair dele de volta para um site, o link volta à vitrine.
+ */
+export function aplicarLayout(config: PaginaConfig, layout: LayoutId): PaginaConfig {
+  const base = { ...config, layout };
+  if (layout === "cortai-chat") {
+    return { ...base, experiencia: "conversa", chat: { ...config.chat, modo: "conversa" } };
+  }
+  if (config.layout === "cortai-chat" && config.experiencia === "conversa") {
+    return { ...base, experiencia: "vitrine", chat: { ...config.chat, modo: "tradicional" } };
+  }
+  return base;
+}
+
 export const DESCRICAO_DO_LAYOUT: Partial<Record<LayoutId, string>> = {
   "figaro-site-completo": "Layout completo com todas as seções organizadas em rolagem única.",
   "figaro-agendamento": "Layout focado no agendamento rápido de horários.",
+  "cortai-chat": "Atendimento em conversa: uma recepção guia o cliente, por botões, até o horário.",
 };
 
 /**
@@ -503,6 +534,7 @@ export const SECOES_DO_LAYOUT: Record<LayoutId, readonly (typeof componenteIds)[
     "instagram",
   ],
   "figaro-agendamento": ["servicos"],
+  "cortai-chat": [],
 };
 
 /** Seções que o layout oferece (todas, nos layouts antigos). */
@@ -646,16 +678,26 @@ export function paginaStyle(config: PaginaConfig): CSSProperties {
 export function agendamentoStyle(config: PaginaConfig): CSSProperties {
   const corPrincipal = CORES_AGENDAMENTO.destaques[config.chat.corDestaque] ?? config.cores.botao;
   const tokens = tokensDoAgendamento(config.cores.secundaria);
+  // Superfície do chat (Personalizar Chat): padrão do Cortaí, cores do tema, clara ou escura.
+  const superficies = {
+    padrao: null,
+    tema: { pagina: config.cores.fundo, texto: config.cores.texto },
+    clara: { pagina: "#FFFFFF", texto: "#1B1B1F" },
+    escura: { pagina: "#0F1218", texto: "#F1F3F8" },
+  } as const;
+  const sup = superficies[config.chat.superficie];
+  const pagina = sup?.pagina ?? CORES_AGENDAMENTO.pagina;
+  const texto = sup?.texto ?? CORES_AGENDAMENTO.texto;
   return {
-    "--chat-superficie-1": tokens.superficie1,
-    "--chat-superficie-2": tokens.superficie2,
-    "--chat-texto-auxiliar": tokens.textoAuxiliar,
+    "--chat-superficie-1": sup ? `color-mix(in oklab, ${pagina} 94%, ${texto})` : tokens.superficie1,
+    "--chat-superficie-2": sup ? `color-mix(in oklab, ${pagina} 88%, ${texto})` : tokens.superficie2,
+    "--chat-texto-auxiliar": sup ? `color-mix(in oklab, ${texto} 66%, ${pagina})` : tokens.textoAuxiliar,
     "--chat-primary": corPrincipal,
     "--chat-primary-foreground": contrasteDaMarca(corPrincipal),
     "--chat-secondary": config.cores.secundaria,
     "--chat-accent": config.cores.destaque,
-    "--chat-page": CORES_AGENDAMENTO.pagina,
-    "--chat-page-text": CORES_AGENDAMENTO.texto,
+    "--chat-page": pagina,
+    "--chat-page-text": texto,
     "--chat-heading": fontes[config.fonteTitulo],
     "--chat-body": fontes[config.fonteTexto],
   } as CSSProperties;

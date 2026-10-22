@@ -1,5 +1,13 @@
 import { motion, useReducedMotion } from "framer-motion";
-import { Check, Ellipsis, Palette } from "lucide-react";
+import {
+  Check,
+  Ellipsis,
+  ListChecks,
+  MessageCircle,
+  MousePointerClick,
+  Palette,
+  UserRound,
+} from "lucide-react";
 
 import { MOLA } from "@/lib/movimento-figaro";
 import {
@@ -14,11 +22,22 @@ import {
 } from "@/lib/pagina-config";
 import { CATALOGO_DE_SECOES, FLUXO_DE_AGENDAMENTO } from "./secoes/catalogo";
 import { CapaDoTema } from "./CapaDoTema";
+import { ESTILOS_DO_CHAT, type EstiloDoChat } from "@/lib/estilos-chat";
+import { MiniaturaDoChat } from "./chat/MiniaturaDoChat";
 
 export const DESCRICOES_LAYOUT = DESCRICAO_DO_LAYOUT;
 
 /** Seções que o layout oferece, na ordem do Figaro; o fluxo de agendamento sempre existe. */
 export function secoesDoLayout(layout: LayoutId) {
+  if (layout === "cortai-chat") {
+    return [
+      { id: "recepcao", nome: "Recepção virtual", icone: UserRound },
+      { id: "botoes", nome: "Botões rápidos", icone: MousePointerClick },
+      { id: "servicos", nome: "Serviços", icone: ListChecks },
+      { id: "conversa", nome: "Mensagens", icone: MessageCircle },
+      { id: "fluxo", ...FLUXO_DE_AGENDAMENTO },
+    ];
+  }
   const ids = SECOES_DO_LAYOUT[layout] ?? componenteIds;
   const itens = ids.map((id) => ({ id: id as string, ...CATALOGO_DE_SECOES[id] }));
   if (layout === "figaro-agendamento")
@@ -79,7 +98,9 @@ export function CartaoDeLayout({
       </span>
       <span className="mt-3 flex items-center gap-2 text-xs font-semibold text-gold">
         <Palette size={15} aria-hidden />
-        {TEMAS_DO_CATALOGO.length} temas disponíveis
+        {layout === "cortai-chat"
+          ? `${ESTILOS_DO_CHAT.length} estilos de conversa`
+          : `${TEMAS_DO_CATALOGO.length} temas disponíveis`}
       </span>
       <span className="my-3 block h-px bg-line" aria-hidden />
       <span className="grid min-h-[78px] grid-cols-2 gap-x-3 gap-y-3">
@@ -136,6 +157,48 @@ export function CartaoDeTema({
           {definicao.nome}
         </span>
         <span className="mt-1 block text-sm leading-5 text-mute">{definicao.descricao}</span>
+      </span>
+    </button>
+  );
+}
+
+/** Cartão de estilo do chat: miniatura da conversa, nome e descrição. */
+export function CartaoDeEstiloDoChat({
+  estilo,
+  selecionado,
+  escolher,
+  cores,
+  destaque,
+}: {
+  estilo: EstiloDoChat;
+  selecionado: boolean;
+  escolher: () => void;
+  cores: Parameters<typeof MiniaturaDoChat>[0]["cores"];
+  destaque: string;
+}) {
+  return (
+    <button
+      type="button"
+      aria-pressed={selecionado}
+      onClick={escolher}
+      className={`relative flex shrink-0 snap-start flex-col overflow-hidden rounded-[28px] bg-background text-left transition-[border-color] duration-200 motion-reduce:transition-none ${LARGURA_DO_CARTAO} ${selecionado ? "border-2 border-gold" : "border border-line"}`}
+    >
+      <span className="relative block h-36 w-full overflow-hidden">
+        <MiniaturaDoChat
+          valores={estilo.valores}
+          cores={cores}
+          destaque={destaque}
+          className="size-full"
+        />
+        <span className="absolute right-3 top-3">
+          {selecionado ? <IndicadorSelecionado /> : <MarcaVazia />}
+        </span>
+      </span>
+      <span className="block px-4 py-4">
+        <span className="block text-[20px] font-bold leading-6 tracking-tight text-paper">
+          {estilo.nome}
+        </span>
+        <span className="mt-1 block text-sm leading-5 text-mute">{estilo.descricao}</span>
       </span>
     </button>
   );

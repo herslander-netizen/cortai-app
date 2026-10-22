@@ -9,16 +9,39 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import fundo from "@/assets/chat-fundo-cortai.png.asset.json";
+import type { PaginaConfig } from "@/lib/pagina-config";
+
+type ChatConfig = PaginaConfig["chat"];
+
+/** Atributos que ligam o estilo escolhido (Personalizar Chat) ao CSS `.chat-sistema[data-*]`. */
+export function atributosDoChat(chat?: Partial<ChatConfig> | undefined) {
+  return {
+    "data-estilo": chat?.estilo ?? "vidro",
+    "data-fundo": chat?.fundo ?? "capa",
+    "data-cabecalho": chat?.cabecalho ?? "barra",
+    "data-avatar": chat?.avatar ?? "redondo",
+    "data-texto": chat?.texto ?? "normal",
+    "data-chips": chat?.chips ?? "pilula",
+  } as const;
+}
 
 /**
  * Sistema visual compartilhado dos chats do Cortaí.
  * Camadas: fundo → efeitos → cabeçalho → conversa → bandeja inferior.
  * Só apresentação: nenhum estado de agenda ou regra de negócio mora aqui.
  */
-export function ChatBackground({ capaUrl }: { capaUrl?: string | null | undefined }) {
+export function ChatBackground({
+  capaUrl,
+  modo = "capa",
+}: {
+  capaUrl?: string | null | undefined;
+  modo?: ChatConfig["fundo"];
+}) {
+  // capa = foto do negócio (ou o fundo do Cortaí); padrao = sempre o fundo do Cortaí; liso = só a cor.
+  const imagem = modo === "liso" ? null : modo === "padrao" ? fundo.url : capaUrl || fundo.url;
   return (
     <div aria-hidden className="chat-fundo">
-      <img src={capaUrl || fundo.url} alt="" className="chat-fundo-img" decoding="async" />
+      {imagem ? <img src={imagem} alt="" className="chat-fundo-img" decoding="async" /> : null}
       <div className="chat-fundo-veu" />
     </div>
   );
@@ -137,15 +160,22 @@ export function ChatShell({
   children,
   capaUrl,
   style,
+  estilo,
 }: {
   header: ReactNode;
   children: ReactNode;
   capaUrl?: string | null;
   style?: CSSProperties;
+  estilo?: Partial<ChatConfig> | undefined;
 }) {
   return (
-    <main className="chat-sistema" style={style} data-personalizado={capaUrl ? "true" : "false"}>
-      <ChatBackground capaUrl={capaUrl} />
+    <main
+      className="chat-sistema"
+      style={style}
+      data-personalizado={capaUrl ? "true" : "false"}
+      {...atributosDoChat(estilo)}
+    >
+      <ChatBackground capaUrl={capaUrl} modo={estilo?.fundo ?? "capa"} />
       <div className="relative z-10 mx-auto flex h-full w-full max-w-[760px] flex-col overflow-hidden">
         {header}
         {children}

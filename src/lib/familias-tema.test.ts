@@ -26,9 +26,9 @@ describe("famílias de tema", () => {
     expect(SEGMENTOS_CONFIG.salao.familiasRecomendadas).toContain("rose");
   });
 
-  it("19 temas × 7 layouts são configurações válidas", () => {
+  it("19 temas × 8 layouts são configurações válidas", () => {
     expect(temaIds).toHaveLength(19);
-    expect(layoutIds).toHaveLength(7);
+    expect(layoutIds).toHaveLength(8);
     for (const tema of temaIds)
       for (const layout of layoutIds) {
         const c = normalizarPagina({ ...configPadrao(), tema, layout });

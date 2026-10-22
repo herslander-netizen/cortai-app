@@ -1,6 +1,6 @@
 import { CalendarDays, Check, Clock3 } from "lucide-react";
 
-import { ChatHeader } from "@/components/chat/ChatShell";
+import { atributosDoChat, ChatHeader } from "@/components/chat/ChatShell";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { agendamentoStyle, type PaginaConfig } from "@/lib/pagina-config";
@@ -27,8 +27,9 @@ export function ChatPreview({
         ativo ? "border-gold" : "border-line",
       )}
       style={estilo}
+      {...atributosDoChat(config?.chat)}
     >
-      {capaUrl ? (
+      {capaUrl && config?.chat.fundo !== "liso" ? (
         <img src={capaUrl} alt="" className="absolute inset-0 h-full w-full object-cover" />
       ) : null}
       <div className="chat-preview-veil absolute inset-0" />
@@ -40,11 +41,11 @@ export function ChatPreview({
         />
       </div>
       <div className="relative space-y-4 p-4 text-sm">
-        <p className="max-w-[88%] text-paper">
+        <p className="chat-bolha-ia max-w-[88%] px-4 py-3 text-paper">
           {config?.chat.mensagemInicial ??
             "Olá! Que bom receber você. Como posso organizar seu horário?"}
         </p>
-        <p className="chat-bolha-cliente ml-auto w-fit px-3 py-2">Quero agendar</p>
+        <p className="chat-bolha-cliente ml-auto w-fit px-4 py-2.5">Quero agendar</p>
         <div className="grid grid-cols-2 gap-2">
           <span className="chat-opcao-previa rounded-lg px-3 py-3">
             <Clock3 className="mb-2" size={15} />

@@ -11,7 +11,7 @@ import { useEditorDaPagina } from "@/components/marca/editor/useEditorDaPagina";
 import { Button } from "@/components/ui/button";
 import { getMarca, salvarRascunhoPagina } from "@/lib/marca.functions";
 import { exigirCapacidade } from "@/lib/guarda-capacidade";
-import { aplicarTema, TEMAS_DO_CATALOGO, type LayoutId } from "@/lib/pagina-config";
+import { aplicarLayout, aplicarTema, TEMAS_DO_CATALOGO, type LayoutId } from "@/lib/pagina-config";
 
 export const Route = createFileRoute("/barbeiro/marca/layout-tema")({
   beforeLoad: ({ context }) => exigirCapacidade(context.queryClient, "branding_avancado"),
@@ -114,16 +114,17 @@ function EditorLayoutTema({
           config={e.config}
           setLayout={(layout: LayoutId) =>
             e.setConfig((old) => {
-              const comLayout = { ...old, layout };
+              const comLayout = aplicarLayout(old, layout);
               // Tema antigo do Cortaí não existe no catálogo do Figaro: leva o primeiro tema.
               return (TEMAS_DO_CATALOGO as readonly string[]).includes(old.tema)
                 ? comLayout
                 : aplicarTema(comLayout, TEMAS_DO_CATALOGO[0]);
             })
           }
+          atualizar={(config) => e.setConfig(config)}
           escolherTema={(tema) => e.setConfig((old) => aplicarTema(old, tema))}
         />
-        {e.config.experiencia !== "vitrine" ? (
+        {e.config.experiencia !== "vitrine" && e.config.layout !== "cortai-chat" ? (
           <p className="px-2 text-sm leading-relaxed text-mute">
             Sua página abre direto no agendamento. O layout vale quando a experiência do link é
             Vitrine; o tema vale sempre.
