@@ -106,7 +106,7 @@ fica como está).
 
 | ID | Animação | Valores | Fonte | Cortaí |
 |---|---|---|---|---|
-| E1 | Sequência da tela de entrada (5 passos com vídeo) | chip ativo cresce 500 ms com curva de quique (0,3; 1,75; 0,4; 1); brilho 0,35/0,7; vídeo some em 600 ms; marca final entra 600 ms e escurece para 0,5 em 1000 ms; legenda 300 ms; progresso a cada 40 ms; antecipação do próximo vídeo 260 ms linear; esperas 300/340/450/500 ms; tempo limite 20 s | `LandingSequenceViewKt`, `LandingSequenceController` | ✘ (home `/apresentacao`: decidir com o dono se vale recriar) |
+| E1 | Sequência da tela de entrada (5 passos com vídeo) | chip ativo cresce 500 ms com curva de quique (0,3; 1,75; 0,4; 1); brilho 0,35/0,7; vídeo some em 600 ms; marca final entra 600 ms e escurece para 0,5 em 1000 ms; legenda 300 ms; progresso a cada 40 ms; antecipação do próximo vídeo 260 ms linear; esperas 300/340/450/500 ms; tempo limite 20 s | `LandingSequenceViewKt`, `LandingSequenceController` | ◐ feito em `/login` (`SequenciaDaEntrada`): chip 500 ms com quique, legenda 280 ms, progresso; demos próprias do Cortaí em vez de vídeo |
 | E2 | Campo de código de acesso/senha: 1 s de espera (reenvio) | `delay` 1000 | `LoginScreenKt`, `PaywallScreenKt` | — |
 | O1 | Boas-vindas: entrada com fade `fastEffects` na primeira visita + vibração | — | `WelcomeScreenKt` | ✘ |
 | O2 | Passos do onboarding | `intraFlow` | `OnboardingFlowScreenKt` | ✔ via N6 |

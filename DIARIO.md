@@ -665,6 +665,22 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-22 UTC — Claude — Tela de entrada no estilo do Figaro e paleta exata do Figaro
+- **Paleta clara e escura do Figaro** (commit d37f393): tokens `--figaro-*` (Material 3 + extras: primário #2467BB/#9FBEF6,
+  fundo #EAF2EC/#1B1F1C, azul de ação, sucesso, atenção, dica, faixa de rascunho, cartão) remapeados na base neutra e
+  nas cores da Agenda (`--agenda-*`, `--estado-*`), claro e escuro. `paleta-figaro.test.ts` confere os hex exatos.
+  Ressalva: a "dica" clara do Figaro tem contraste ~3,6:1 (fica como no APK).
+- **Tela de entrada (`/login`)**: fundo escuro com listras de barbeiro em ciano/rosa do Cortaí e vinheta, marca,
+  cartão de demonstração (279 px + legenda com divisor em gradiente), 5 chips com progresso (Seu site, Agendar,
+  Lembretes, Avaliações, Desempenho; cada chip ativo cresce 500 ms com a curva do Figaro), avanço automático a
+  5,2 s (pausa com a aba escondida), "Criar conta" e "Já tem conta? Entrar". As demos são do Cortaí (CSS puro,
+  sem foto nem vídeo do Figaro). Ao escolher, o formulário sobe num painel; **a lógica de login não mudou**
+  (`seguirParaMinhaArea`, `entrarComProvedor`, `proximo`/`aba`/`erro`). Com `aba=criar`, `proximo` ou erro de perfil
+  abre direto no formulário. Reduzir movimento respeitado.
+- Arquivos: `src/components/entrada/{DemosDaEntrada,SequenciaDaEntrada}.tsx`, `src/routes/login.tsx`,
+  bloco "Tela de entrada" no fim de `styles.css`. Inventário E1 atualizado.
+- Pendente para o dono: a home pública continua `/apresentacao`; a entrada fica em `/login`.
+
 ### 2026-10-22 UTC — Claude — Chat como terceiro layout e estilos do chat
 - **Layout Chat (`cortai-chat`)** no catálogo (Site Completo · Agendamento · **Chat**). Escolher o Chat liga a conversa
   (`aplicarLayout`: `experiencia = "conversa"`, `chat.modo = "conversa"`); sair dele para um site volta à vitrine
