@@ -1,12 +1,29 @@
 import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
+import { AnimatePresence, motion } from "framer-motion";
 import { Check, Loader2 } from "lucide-react";
 
+import { CURVA, ESCALA, ESPERA_MS, TEMPO } from "@/lib/movimento-figaro";
 import { cn } from "@/lib/utils";
 
+/**
+ * Indicador do botão (carregando ou ✓) no padrão do botão principal do Figaro: entra esmaecendo e
+ * crescendo de 0,92 em 220 ms depois de 90 ms; sai esmaecendo em 90 ms
+ * (`FigarooPrimaryButtonKt`, spec 1 §5).
+ */
+const indicadorEntra = {
+  opacity: 1,
+  scale: 1,
+  transition: { duration: TEMPO.botaoEntra, delay: TEMPO.botaoAtraso, ease: CURVA.rapidaParaLenta },
+};
+const indicadorSai = {
+  opacity: 0,
+  transition: { duration: TEMPO.botaoSai, ease: CURVA.rapidaParaLenta },
+};
+
 const buttonVariants = cva(
-  "inline-flex min-w-0 items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-transparent text-sm font-bold cursor-pointer transition-[color,background-color,border-color,transform,box-shadow] duration-[var(--mov-rapido)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-40 disabled:cursor-not-allowed active:translate-y-px [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  "inline-flex min-w-0 items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-transparent text-sm font-bold cursor-pointer [transition:color_var(--mov-rapido),background-color_var(--mov-rapido),border-color_var(--mov-rapido),box-shadow_var(--mov-rapido),transform_var(--mola-toque-duracao)_var(--mola-toque)] motion-reduce:[transition:none] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-40 disabled:cursor-not-allowed active:scale-[0.98] [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
@@ -80,12 +97,36 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     );
     React.useEffect(() => {
       if (!loading) {
+        esconderCarregando();
+        return;
+      }
+      const timer = window.setTimeout(() => mostrarCarregando(), 150);
+      return () => window.clearTimeout(timer);
+    }, [loading]);
+
+    /** O carregando fica pelo menos 400 ms na tela, para não piscar (Figaro). */
+    const mostradoEm = React.useRef<number | null>(null);
+    const esconder = React.useRef<number | null>(null);
+    function mostrarCarregando() {
+      if (esconder.current) window.clearTimeout(esconder.current);
+      esconder.current = null;
+      if (mostradoEm.current === null) mostradoEm.current = Date.now();
+      setShowSpinner(true);
+    }
+    function esconderCarregando() {
+      if (mostradoEm.current === null) {
         setShowSpinner(false);
         return;
       }
-      const timer = window.setTimeout(() => setShowSpinner(true), 150);
-      return () => window.clearTimeout(timer);
-    }, [loading]);
+      const falta = ESPERA_MS.carregandoMinimo - (Date.now() - mostradoEm.current);
+      const fim = () => {
+        esconder.current = null;
+        mostradoEm.current = null;
+        if (alive.current) setShowSpinner(false);
+      };
+      if (falta <= 0) fim();
+      else esconder.current = window.setTimeout(fim, falta);
+    }
 
     function setRefs(node: HTMLButtonElement | null) {
       internalRef.current = node;
@@ -100,13 +141,13 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       width.current = internalRef.current?.offsetWidth ?? null;
       pendingRef.current = true;
       setPending(true);
-      const timer = window.setTimeout(() => alive.current && setShowSpinner(true), 150);
+      const timer = window.setTimeout(() => alive.current && mostrarCarregando(), 150);
       void Promise.resolve(result).finally(() => {
         window.clearTimeout(timer);
         pendingRef.current = false;
         if (alive.current) {
           setPending(false);
-          setShowSpinner(false);
+          esconderCarregando();
         }
       });
     }
@@ -132,12 +173,34 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         ref={setRefs}
         disabled={disabled || busy}
         aria-busy={busy || undefined}
+        data-carregando={showSpinner || undefined}
         onClick={handleClick}
         style={width.current && busy ? { ...style, minWidth: width.current } : style}
         {...props}
       >
-        {showSpinner ? <Loader2 className="animate-spin" aria-hidden /> : null}
-        {success ? <Check aria-hidden /> : null}
+        <AnimatePresence initial={false}>
+          {showSpinner ? (
+            <motion.span
+              key="carregando"
+              className="inline-flex"
+              initial={{ opacity: 0, scale: ESCALA.botaoEntra }}
+              animate={indicadorEntra}
+              exit={indicadorSai}
+            >
+              <Loader2 className="animate-spin" aria-hidden />
+            </motion.span>
+          ) : success ? (
+            <motion.span
+              key="sucesso"
+              className="inline-flex"
+              initial={{ opacity: 0, scale: ESCALA.botaoEntra }}
+              animate={indicadorEntra}
+              exit={indicadorSai}
+            >
+              <Check aria-hidden />
+            </motion.span>
+          ) : null}
+        </AnimatePresence>
         {children}
       </button>
     );

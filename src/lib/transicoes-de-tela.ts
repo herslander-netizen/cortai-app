@@ -8,6 +8,8 @@
  * - esmaecer: fora da área do negócio, mantém a troca discreta de antes.
  */
 
+import { CURVA, MOLA, TEMPO } from "@/lib/movimento-figaro";
+
 export type TipoDeTransicao = "intra" | "cruzada" | "gaveta" | "esmaecer";
 export type Sentido = "avancar" | "voltar";
 
@@ -23,17 +25,11 @@ const RAIZES = new Set(["/barbeiro", "/barbeiro/agenda", "/barbeiro/hoje"]);
 /** Fluxos à parte, que no Figaro sobem de baixo (onboarding e assinatura). */
 const FLUXOS_CRUZADOS = ["/barbeiro/configurar", "/barbeiro/plano"];
 
-/** FastOutSlowIn do Android. */
-const CURVA_FIGARO = [0.4, 0, 0.2, 1] as const;
-const DURACAO_INTRA = 0.3;
-const DURACAO_CRUZADA = 0.35;
-/** `spring(dampingRatio = 1, stiffness = 1500)`: amortecimento crítico com massa 1. */
-const MOLA_GAVETA = {
-  type: "spring",
-  stiffness: 1500,
-  damping: 2 * Math.sqrt(1500),
-  mass: 1,
-} as const;
+const CURVA_FIGARO = CURVA.rapidaParaLenta;
+const DURACAO_INTRA = TEMPO.trocaIntra;
+const DURACAO_CRUZADA = TEMPO.trocaCruzada;
+/** `slideIntoContainer` sem spec: `spring(dampingRatio = 1, stiffness = 1500)`. */
+const MOLA_GAVETA = MOLA.padraoCompose;
 const DESLIZE_INTRA = "20%";
 /** A ordem das camadas muda na hora, sem interpolar. */
 const CAMADA_NA_HORA = { zIndex: { duration: 0 } } as const;

@@ -256,7 +256,7 @@ responder**, seguimos a decisão de 21/10 e guardamos os valores do Figaro num a
 tokens antigos do Cortaí (`--mov-*`, `DURACAO`), que continuam valendo para o que não vem do Figaro. Depois da
 resposta, atualizar `CLAUDE.md` e `AGENTS.md` (linha "Movimento").
 
-### P.3 Fase 0 — Base técnica (Claude)
+### P.3 Fase 0 — Base técnica (Claude) [feito: Claude, 22/10]
 
 **Arquivo novo `src/lib/movimento-figaro.ts`** com os valores do Figaro e a conversão para a web. Os valores que
 hoje estão dentro de `src/lib/transicoes-de-tela.ts` passam a ser importados dele.
@@ -337,18 +337,18 @@ Objetivo: todo cadastro em etapas troca o conteúdo como o Figaro.
 
 Cada item é um commit pequeno em `src/components/ui/`:
 
-1. **Botão principal (`button.tsx`)**: hoje mostra o giro depois de 150 ms e um ✓ fixo. Figaro: troca de
+1. [feito: Claude, 22/10] **Botão principal (`button.tsx`)**: hoje mostra o giro depois de 150 ms e um ✓ fixo. Figaro: troca de
    conteúdo (texto → carregando → ✓) com entrada `opacity 0→1` + `scale 0.92→1` em 220 ms com atraso de 90 ms,
    saída `opacity→0` em 90 ms; o carregando fica **no mínimo 400 ms** na tela. Toque: `scale 0.98` com a mola
    fastSpatial (no lugar do `translate-y-px`). Manter a largura travada que já existe e o bloqueio de clique duplo.
 2. **Botão salvar flutuante (FAB estendido)**: pílula com texto que, ao salvar, encolhe para círculo em 220 ms
    (LinearOutSlowIn), mostra ✓ por 700 ms e volta. Criar `BotaoSalvarFlutuante.tsx` só se uma tela for usar;
    senão, documentar e esperar.
-3. **Odômetro (`Odometro.tsx`)**: cada dígito é uma coluna própria; quando muda, o novo sobe de baixo (número
+3. [feito: Claude, 22/10; falta usar nas telas] **Odômetro (`Odometro.tsx`)**: cada dígito é uma coluna própria; quando muda, o novo sobe de baixo (número
    aumentou) ou desce de cima (diminuiu), deslize da altura do dígito com defaultSpatial + esmaecer fastEffects.
    Usar `font-variant-numeric: tabular-nums`. Substitui `ValorAnimado` onde o Figaro usa números de
    desempenho (spec 6 §3); `ValorAnimado` fica para o resto.
-4. **Pulso de número (`PulsoDeNumero.tsx`)**: ao aparecer, `scale 0.85 → 1.05` (140 ms) `→ 1` (100 ms),
+4. [feito: Claude, 22/10; falta usar nas telas] **Pulso de número (`PulsoDeNumero.tsx`)**: ao aparecer, `scale 0.85 → 1.05` (140 ms) `→ 1` (100 ms),
    `opacity 0 → 1` (240 ms), tudo FastOutSlowIn.
 5. **Acordeão (`accordion.tsx`)**: seta com a mola 0,75/1500 em vez de 260 ms com curva de quique; conteúdo
    abre com a mola expandSize.
@@ -431,7 +431,6 @@ estado vazio que explica, erro com "Tentar novamente", desativar separado de exc
 
 | Quem | Desde (UTC) | Tarefa | Arquivos / migração reservada |
 |---|---|---|---|
-| Claude | 2026-10-22 UTC | Plano Figaro, fases 0 e 3 (itens 1, 3, 4): `movimento-figaro.ts`, botão principal, odômetro e pulso de número | `DIARIO.md`, `CLAUDE.md`, `AGENTS.md` (linha Movimento), `src/lib/movimento-figaro.ts`, `src/lib/transicoes-de-tela.ts`, `src/components/ui/button.tsx`, `src/components/ui/Odometro.tsx`, `src/components/ui/PulsoDeNumero.tsx`; sem migração |
 | GPT | 2026-10-21 UTC | Corrigir a varredura de WhatsApp/Asaas: diagnosticar timeouts, preparar correção dos cron jobs e validar endpoint no worker de produção; sem escrita real até autorização explícita | `DIARIO.md`, `MUSE.md`, `drizzle/migrations/0043_corrigir_agendadores.sql`, rotas de varredura; migração 0043 (não aplicada) |
 | GPT | 2026-10-21 UTC | Validar jornada Figaro e corrigir divergências de navegação confirmadas no código; inspeção visual 390px/1280px e animações segue pendente sem navegador conectado | `DIARIO.md`, `src/routes/barbeiro.marca.tsx`, `src/routes/barbeiro.marca.secao.$secao.tsx`, `src/components/marca/editor/EditorDaSecaoPublica.tsx`, `src/components/marca/editor/SecaoConteudo.tsx`, `src/components/marca/editor/PaineisDoEditor.tsx`, `src/lib/navegacao-barbeiro.ts`, `src/lib/navegacao-barbeiro.test.ts`, `src/routes/barbeiro.sua-pagina.tsx`; sem migração |
 | GPT | 2026-10-21 UTC | Compactar cabeçalho do modo zoom/edição da Agenda sem reduzir tipografia; aplicar movimento de gaveta de entrada/saída | `DIARIO.md`, `src/components/barbeiro/agenda/CabecalhoDeEdicao.tsx`, componente que abre/fecha a configuração de zoom e testes de movimento; sem migração |
@@ -449,6 +448,12 @@ estado vazio que explica, erro com "Tentar novamente", desativar separado de exc
 
 
 ## Recados
+
+- **Para o GPT** (Claude, 22/10): para a gaveta/Início (P.7 do plano, sua reserva) já existem `Odometro` e
+  `PulsoDeNumero` em `src/components/ui/` (números de desempenho do Figaro), e os valores do Figaro ficam em
+  `src/lib/movimento-figaro.ts` (molas prontas para setas e grupos: `MOLA.padraoCompose`, `MOLA.tamanho`). O botão
+  (`button.tsx`) mudou o toque para escala 0,98; se algum teste seu procura `translate-y-px`, atualize. Há um
+  erro de formatação antigo em `formulario/TelaDeFormulario.test.tsx` (linha 133). Responda com `[lido]`.
 
 - **Para o GPT** (Claude, 22/10): reli o APK completo e deixei `apk/5-navegacao-e-transicoes.md`, `apk/6-animacoes.md`
   e `apk/7-modulos.md`. Eles cobrem o que a matriz marca como "sem evidência" em onboarding (§2 do 7), Ajustes
@@ -601,6 +606,25 @@ estado vazio que explica, erro com "Tentar novamente", desativar separado de exc
 - Sem alteração no banco, `main` ou produção.
 
 ## Diário
+
+### 2026-10-22 UTC — Claude — Plano Figaro: base de movimento, botão, odômetro e pulso
+- **Decisão do dono** registrada (tempos e molas do Figaro valem nas animações do Figaro); `CLAUDE.md` e
+  `AGENTS.md` ganharam a exceção na linha "Movimento".
+- **Fase 0:** `src/lib/movimento-figaro.ts` reúne curvas, molas (convertidas de ζ/k do Compose), tempos, esperas e
+  escalas do APK, com teste que trava os valores (`movimento-figaro.test.ts`). `transicoes-de-tela.ts` passou a
+  usar esses valores (sem mudar o comportamento).
+- **Botão (`src/components/ui/button.tsx`), em todo o app:** ao tocar, encolhe para 0,98 com a mola do Figaro
+  (antes descia 1 px); a mola fica em `--mola-toque` no `styles.css` (curva `linear()` amostrada da mola ζ 0,6 /
+  k 800). O carregando e o ✓ entram esmaecendo e crescendo de 0,92 (220 ms, depois de 90 ms) e saem em 90 ms; o
+  carregando fica no mínimo 400 ms. O botão volta a aceitar toque assim que a ação termina (não espera os 400 ms).
+  Novo atributo `data-carregando` enquanto o indicador aparece. "Reduzir movimento" desliga a transição.
+- **Componentes novos:** `Odometro.tsx` (cada dígito troca deslizando a própria altura; alinhado pela direita;
+  `aria-label` com o número inteiro) com a regra em `src/lib/odometro.ts`, e `PulsoDeNumero.tsx` (0,85 → 1,05 → 1 e
+  esmaecer; repete quando `chave` muda sem remontar o conteúdo). Ainda não estão em nenhuma tela.
+- **Validação:** `tsc`, `vitest` (175 arquivos, 1647 testes), `build` e `eslint` dos arquivos alterados. O único
+  erro do `eslint` em `src/components/ui` é de formatação em `formulario/TelaDeFormulario.test.tsx`, que já
+  existia e é da reserva do GPT. Conferido no Chromium com o CSS do app: os dígitos deslizam, as colunas não alargam
+  e o carregando aparece, fica e some nos tempos certos. Falta ver no celular.
 
 ### 2026-10-22 UTC — Claude — Plano detalhado para trazer o Figaro ao Cortaí; trabalho levado para a branch de trabalho
 - A pedido do dono ("trazer para o Cortaí" e "documento no diário de como deve ser feito, bem detalhado"):

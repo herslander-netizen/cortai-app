@@ -96,7 +96,7 @@ decisão nova contradiz uma regra daqui, apontar o conflito ao dono antes de agi
 - Papéis neutros em todo o código: negócio (tenant), dono, profissional, cliente. Palavras de segmento só na tela via `termos(segmento)`; nunca em rotas, arquivos, funções, tipos, banco, modelos de WhatsApp, textos fixos ou emojis de segmento — o produto atende todo o universo de beleza.
 - WhatsApp: todo envio escolhe o remetente por `conexaoDeEnvio` (próprio → número oficial compartilhado) e toda falha passa por `erros-meta.ts` + `falhas-envio.server.ts` — uma regra só para roteamento, reserva e falhas.
 - Links de tela do painel ficam em `src/lib/links-de-tela.ts` (espelho SQL `link_de_tela`) — a troca de rota acontece num lugar só.
-- Movimento: `MotionConfig` na raiz (GlobalDesign) com reducedMotion="user" e transição padrão de `motion.ts`; molas novas só as oficiais de `motion.ts` (sem quique) — uma base para todo o app.
+- Movimento: `MotionConfig` na raiz (GlobalDesign) com reducedMotion="user" e transição padrão de `motion.ts`; molas novas só as oficiais de `motion.ts` (sem quique) — uma base para todo o app. Exceção (dono, 22/10): animação recuperada do Figaro usa só os valores de `src/lib/movimento-figaro.ts`, com a fonte no APK.
 - Preferências privadas de atendimento estendem a ficha existente em `clientes.preferencias`; validação dupla e acesso por negócio evitam fontes paralelas e exposição pública.
 - Preferências do cliente nunca são lidas pela página pública e só preenchem campos vazios; registros da equipe nunca são sobrescritos.
 - Manifest por área via `manifestDaRota` (um link só) — evita instalar o app errado.
