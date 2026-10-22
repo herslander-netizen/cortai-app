@@ -12,6 +12,7 @@ import {
   salvarLinkAvaliacao,
 } from "@/lib/crescimento.functions";
 import { Carregando } from "@/components/layout/Carregando";
+import { ResumoDasAvaliacoes } from "@/components/avaliacoes/ResumoDasAvaliacoes";
 import { useAcao } from "@/hooks/useAcao";
 import { Button } from "@/components/ui/button";
 
@@ -85,14 +86,13 @@ function AvaliacoesPage() {
       {isLoading ? <Carregando /> : null}
 
       {data ? (
-        <div className="surface px-5 py-5">
-          <p className="text-xs text-mute">Média interna</p>
-          <p className="mt-1 text-[30px] font-bold leading-none text-paper">{data.media ?? "—"}</p>
+        <>
+          <ResumoDasAvaliacoes media={data.media} notas={data.registradas.map((a) => a.nota)} />
           <p className="mt-2 text-xs text-mute2">
-            {data.registradas.length}{" "}
+            Média interna · {data.registradas.length}{" "}
             {data.registradas.length === 1 ? "avaliação registrada" : "avaliações registradas"}
           </p>
-        </div>
+        </>
       ) : null}
 
       <label className="mt-6 block">

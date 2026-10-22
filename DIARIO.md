@@ -376,7 +376,7 @@ Cada item é um commit pequeno em `src/components/ui/`:
 |---|---|---|---|
 | Conclusão do onboarding (`barbeiro.configurar.tsx`, etapa "pronto") | "Preparando sua página…" → sucesso com esmaecer; conteúdo sobe e aparece; logo depois; link digitado letra a letra com cursor; "Copiar link" e "Compartilhar" | 520 ms; slowEffects; logo aos 800 ms; 32 ms por letra; cursor 450 ms; ícone 140 px | GPT |
 | Aviso "Continue configurando" (Agenda; hoje `PrimeirosPassos`/`FaixaPendencias`) | cartão flutuante que sobe de baixo e desce ao sair, com sombra | 320 ms + esmaecer; sombra 8 px | Agenda: combinar |
-| Avaliações (`barbeiro.avaliacoes.tsx`) | nota média conta de 0 até o valor (Odômetro), estrelas enchem, barras 5→1 crescem da esquerda, selo aparece; "ver mais / ver menos" | barras com expandSize; selo com Pulso | livre |
+| [feito: Claude, 22/10; falta celular] Avaliações (`barbeiro.avaliacoes.tsx`) | nota média conta de 0 até o valor (Odômetro), estrelas enchem, barras 5→1 crescem da esquerda, selo aparece; "ver mais / ver menos" | barras com expandSize; selo com Pulso | livre |
 | Comanda, pagamento em dinheiro (`src/components/comanda/`) | ao escolher dinheiro, área "valor recebido / troco" aparece com esmaecer + altura; atalhos R$ 100 e R$ 200 | mola k = 400 | ler `comanda/AGENTS.md` antes |
 | Reagendar / escolha de horário (ficha) | a linha do horário abre no lugar e mostra os profissionais | esmaecer + altura, mola k = 400 | Agenda: combinar |
 | Página pública de agendamento (`agendar.$slug`, `src/components/agendamento/`) | vídeo `landing_peek_booking`: linha do horário que abre com profissionais e "Selecionar" → pílula "✓ Selecionado"; barra de baixo com data, horário e profissional + "Continuar"; folha "Seus Dados" que sobe; código caixa a caixa | folha sobe como a do app; pílula com Pulso | livre; não mudar a regra de confirmação de telefone |
@@ -431,7 +431,6 @@ estado vazio que explica, erro com "Tentar novamente", desativar separado de exc
 
 | Quem | Desde (UTC) | Tarefa | Arquivos / migração reservada |
 |---|---|---|---|
-| Claude | 2026-10-22 UTC | Plano Figaro P.8: resumo da tela Avaliações no padrão Figaro (nota que conta, estrelas, rótulo, barras 5→1) | `DIARIO.md`, `src/routes/barbeiro.avaliacoes.tsx`, `src/components/avaliacoes/` (novo), `src/lib/resumo-avaliacoes.ts` (novo); sem migração |
 | GPT | 2026-10-21 UTC | Corrigir a varredura de WhatsApp/Asaas: diagnosticar timeouts, preparar correção dos cron jobs e validar endpoint no worker de produção; sem escrita real até autorização explícita | `DIARIO.md`, `MUSE.md`, `drizzle/migrations/0043_corrigir_agendadores.sql`, rotas de varredura; migração 0043 (não aplicada) |
 | GPT | 2026-10-21 UTC | Validar jornada Figaro e corrigir divergências de navegação confirmadas no código; inspeção visual 390px/1280px e animações segue pendente sem navegador conectado | `DIARIO.md`, `src/routes/barbeiro.marca.tsx`, `src/routes/barbeiro.marca.secao.$secao.tsx`, `src/components/marca/editor/EditorDaSecaoPublica.tsx`, `src/components/marca/editor/SecaoConteudo.tsx`, `src/components/marca/editor/PaineisDoEditor.tsx`, `src/lib/navegacao-barbeiro.ts`, `src/lib/navegacao-barbeiro.test.ts`, `src/routes/barbeiro.sua-pagina.tsx`; sem migração |
 | GPT | 2026-10-21 UTC | Compactar cabeçalho do modo zoom/edição da Agenda sem reduzir tipografia; aplicar movimento de gaveta de entrada/saída | `DIARIO.md`, `src/components/barbeiro/agenda/CabecalhoDeEdicao.tsx`, componente que abre/fecha a configuração de zoom e testes de movimento; sem migração |
@@ -607,6 +606,22 @@ estado vazio que explica, erro com "Tentar novamente", desativar separado de exc
 - Sem alteração no banco, `main` ou produção.
 
 ## Diário
+
+### 2026-10-22 UTC — Claude — Avaliações: resumo no padrão Figaro (plano P.8)
+- `src/components/avaliacoes/ResumoDasAvaliacoes.tsx` substitui o bloco "Média interna" de `/barbeiro/avaliacoes`
+  pelo cartão do Figaro (`RatingsSummaryCard`): à esquerda a média com vírgula ("4,6"), 5 estrelas (cheia, meia
+  ou vazia, 20 px) e o rótulo; à direita as barras de 5 a 1 (6 px), em dois blocos lado a lado (1 : 1,2). A linha
+  "Média interna · N avaliações registradas" continua embaixo. O resto da tela não mudou.
+- Regras em `src/lib/resumo-avaliacoes.ts`, iguais ao APK: rótulo por faixa (— abaixo de 0,05; Insatisfatório < 2;
+  Regular < 3; Satisfatório < 4; Muito bom < 4,5; Excelente), meia estrela até 0,5 abaixo e percentual inteiro
+  (`total * 100 / soma`). Usa só as notas que a tela já recebia; nenhuma consulta nova.
+- Cores: o Figaro usa verde, verde-água, amarelo, laranja e vermelho; pelo contrato de design ficaram os tokens
+  `sage` (5), `status-arrived` (4), `status-active` (3) e `brick` (2 e 1).
+- Animação (do vídeo `landing_peek_reviews`, o código não anima este cartão): a média conta de 0 até o valor em
+  900 ms com as estrelas acompanhando, o rótulo entra com o `PulsoDeNumero` e as barras crescem da esquerda com
+  a mola `tamanho`, 60 ms uma após a outra. Só na primeira exibição; "reduzir movimento" mostra direto.
+- Validação: `tsc`, `eslint`, `vitest` (176 arquivos, 1651 testes), `build`; conferido no Chromium com o CSS do
+  app (quadros a 300, 700, 1100 e 1600 ms; sem avaliações mostra "—"). Falta ver no celular, com dados reais.
 
 ### 2026-10-22 UTC — Claude — Plano Figaro: base de movimento, botão, odômetro e pulso
 - **Decisão do dono** registrada (tempos e molas do Figaro valem nas animações do Figaro); `CLAUDE.md` e
