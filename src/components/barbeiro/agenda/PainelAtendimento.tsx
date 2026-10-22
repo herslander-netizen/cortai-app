@@ -447,7 +447,7 @@ export function PainelAtendimento(props: Props) {
           <AlertDialogFooter>
             <AlertDialogCancel>Manter agendamento</AlertDialogCancel>
             <AlertDialogAction
-              className="bg-brick text-white hover:bg-brick/90"
+              className="bg-brick text-[color:var(--figaro-on-error)] hover:bg-brick/90"
               onClick={() => {
                 setConfirmarCancelar(false);
                 executar(props.onCancelar)();

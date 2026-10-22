@@ -61,7 +61,8 @@ export function GruposDoMenu({
           <section key={grupo.titulo}>
             <Button
               variant="ghost"
-              className="min-h-12 w-full justify-between pl-5 pr-2 text-base font-semibold text-menu-icone hover:bg-transparent"
+              data-menu-secao=""
+              className="min-h-11 w-full justify-between pl-[18px] pr-2 text-menu-icone hover:bg-transparent"
               aria-expanded={abertos.includes(grupo.titulo)}
               aria-controls={`menu-grupo-${grupo.titulo.replace(/\s+/g, "-")}`}
               onClick={() => onAlternar(grupo.titulo)}
@@ -90,11 +91,12 @@ export function GruposDoMenu({
                         }
                       >
                         <Link
+                          data-menu-item=""
                           to={item.to as never}
                           preload="intent"
                           onClick={onNavegar}
                           aria-current={ativo ? "page" : undefined}
-                          className={`grid min-h-14 grid-cols-[24px_minmax(0,1fr)] items-center gap-4 px-5 py-2 text-base font-medium text-paper transition-colors active:brightness-110 motion-reduce:transition-none ${ativo ? "bg-drawer-band" : ""}`}
+                          className={`grid min-h-14 grid-cols-[24px_minmax(0,1fr)] items-center gap-4 px-5 py-2 text-paper transition-colors active:brightness-110 motion-reduce:transition-none ${ativo ? "bg-drawer-band" : ""}`}
                         >
                           <Icon
                             className={`size-6 ${ativo ? "text-primary" : "text-menu-icone"}`}

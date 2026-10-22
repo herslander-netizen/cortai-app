@@ -172,7 +172,7 @@ function CortaiPage() {
                 type="button"
                 onClick={() => setAba(id)}
                 className={`rounded-full border px-4 py-1.5 text-xs ${
-                  aba === id ? "border-cyan-400 text-cyan-400" : "border-line2 text-mute"
+                  aba === id ? "border-gold text-gold" : "border-line2 text-mute"
                 }`}
               >
                 {rotulo}
@@ -232,7 +232,7 @@ function BlocoExperiencia() {
               <li key={avaliacao.id} className="py-3">
                 <div className="flex items-center justify-between gap-3">
                   <p className="text-sm text-paper">{avaliacao.cliente}</p>
-                  <span className="text-sm font-semibold text-cyan-400">{avaliacao.nota}/5</span>
+                  <span className="text-sm font-semibold text-gold">{avaliacao.nota}/5</span>
                 </div>
                 {avaliacao.comentario ? (
                   <p className="mt-1 text-xs leading-relaxed text-mute">{avaliacao.comentario}</p>
@@ -252,7 +252,7 @@ function BlocoExperiencia() {
 const COR_DO_TOM: Record<TomDoEnvio, string> = {
   enviado: "border-sage/50 text-sage",
   entregue: "border-sage/60 text-sage",
-  lida: "border-cyan-400/60 text-cyan-400",
+  lida: "border-gold/60 text-gold",
   aguardando: "border-line2 text-mute",
   sem_modelo: "border-gold/60 text-gold",
   falhou: "border-brick/50 text-brick",

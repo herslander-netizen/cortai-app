@@ -665,6 +665,23 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-22 UTC — Claude — Chat refinado e auditoria do menu/Agenda (padrão Figaro)
+- **Chat** (referência WhatsApp/Telegram/iMessage; só apresentação): hora em cada mensagem e vistos nas do cliente
+  (enviado → entregue → lido em azul, animados), separador "Hoje", resposta do cliente com **foto** do serviço ou do
+  profissional (imagem com legenda), cabeçalho com "digitando…" e ponto de presença no avatar (verde quando aberto),
+  balão de digitando maior, botão enviar que "acende" com texto. Respeita reduzir movimento. Arquivos:
+  `BolhasDaConversa.tsx`, `AgendamentoChat.tsx`, `ChatShell.tsx`, bloco "Chat refinado" em `styles.css`.
+- **Auditoria da área do negócio** (menu, Agenda e telas das opções): sem hex nem cores Tailwind soltas nas telas (só 4
+  ocorrências, corrigidas: ciano do Cortaí IA → `text-gold`; texto branco sobre o vermelho pálido do escuro → `on-error`
+  do Figaro). Achado: o **destaque** (`--primary`, `--gold`, `--ring`, `--rosa`, ícones do menu) ainda era o azul/ciano do
+  Cortaí. Agora, com a identidade padrão, vale o azul do Figaro (claro #2467BB, escuro #9FBEF6) em toda a área do
+  negócio, inclusive gaveta e diálogos (`body:has(.management-shell)`). Identidades escolhidas em Ajustes (rose, indigo,
+  copper, clássico) mantêm o próprio destaque: é uma escolha do dono, não apaguei.
+- **Gaveta** no tamanho do Figaro: 348 dp, títulos de seção 14/20 bold e itens 15/20 medium.
+- Para o dono decidir: se quiser que **todas** as identidades usem o azul do Figaro, é só remover o seletor
+  `[data-identidade="moderno"]` do bloco "Área do negócio no padrão Figaro".
+- Não consegui abrir as telas reais (precisam de login no banco); conferi gaveta e botão por renderização isolada.
+
 ### 2026-10-22 UTC — Claude — Tela de entrada no estilo do Figaro e paleta exata do Figaro
 - **Paleta clara e escura do Figaro** (commit d37f393): tokens `--figaro-*` (Material 3 + extras: primário #2467BB/#9FBEF6,
   fundo #EAF2EC/#1B1F1C, azul de ação, sucesso, atenção, dica, faixa de rascunho, cartão) remapeados na base neutra e
