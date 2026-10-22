@@ -31,6 +31,7 @@ export type PaginaPublica = {
     nome: string;
     duracao_min: number;
     preco_centavos: number;
+    categoria: string | null;
     popularidade: number;
   }[];
   profissionais: {
@@ -93,7 +94,7 @@ export const getPaginaPublica = createServerFn({ method: "GET" })
     ] = await Promise.all([
       supabaseAdmin
         .from("servicos")
-        .select("id, nome, duracao_min, preco_centavos")
+        .select("id, nome, duracao_min, preco_centavos, categoria")
         .eq("tenant_id", tenant.id)
         .eq("ativo", true)
         .order("ordem"),

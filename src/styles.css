@@ -7637,3 +7637,443 @@ button.agenda-nome:hover {
     white-space: normal;
   }
 }
+
+/* ---------------------------------------------------------------------------------------------
+   Modelo "Site Completo" do Figaro (landing_peek_site do APK): três temas — Clássico, Rock n' Roll e
+   Retrô. Cores e formas vêm dos quadros do vídeo; as fontes vêm da configuração do tema.
+   --------------------------------------------------------------------------------------------- */
+.fg {
+  --fg-pagina: #eceae8;
+  --fg-texto: #1f1e1d;
+  --fg-mudo: #7a7673;
+  --fg-linha: rgb(0 0 0 / 0.1);
+  --fg-hero-texto: #fff;
+  --fg-veu: rgb(30 32 31 / 0.6);
+  --fg-cta-bg: #e0dddA;
+  --fg-cta-texto: #222;
+  --fg-cta-raio: 2px;
+  --fg-linha-bg: #262424;
+  --fg-linha-texto: #fff;
+  --fg-linha-raio: 4px;
+  --fg-acento: #e8582a;
+  --fg-secao-fonte: var(--brand-heading);
+  background: var(--fg-pagina);
+  color: var(--fg-texto);
+  font-family: var(--brand-body);
+  min-height: 100dvh;
+}
+.fg[data-tema="figaro-rock-n-roll"] {
+  --fg-veu: rgb(14 14 14 / 0.78);
+  --fg-pagina: #e8e5e4;
+  --fg-secao-fonte: "Plus Jakarta Sans", sans-serif;
+}
+.fg[data-tema="figaro-retro"] {
+  --fg-pagina: #f6ecb0;
+  --fg-texto: #2a1f3d;
+  --fg-mudo: #6b6050;
+  --fg-hero-texto: #2a1f3d;
+  --fg-veu: rgb(241 217 92 / 0.86);
+  --fg-cta-bg: #4553d9;
+  --fg-cta-texto: #fff;
+  --fg-cta-raio: 999px;
+  --fg-linha-bg: #4553d9;
+  --fg-linha-raio: 999px;
+  --fg-acento: #4553d9;
+}
+.fg * {
+  box-sizing: border-box;
+}
+.fg h1,
+.fg h2,
+.fg h3,
+.fg p,
+.fg ul {
+  margin: 0;
+}
+.fg ul {
+  padding: 0;
+  list-style: none;
+}
+.fg-hero {
+  position: relative;
+  display: flex;
+  min-height: 100dvh;
+  flex-direction: column;
+  overflow: hidden;
+  background: #1d1f1e;
+  color: var(--fg-hero-texto);
+}
+.is-preview .fg-hero {
+  min-height: 640px;
+}
+.fg-capa {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.fg[data-tema="figaro-rock-n-roll"] .fg-capa {
+  filter: grayscale(1);
+}
+.fg[data-tema="figaro-retro"] .fg-capa {
+  mix-blend-mode: multiply;
+  opacity: 0.55;
+}
+.fg-veu {
+  position: absolute;
+  inset: 0;
+  background: var(--fg-veu);
+}
+.fg-topo {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 24px 28px 0;
+}
+.fg-marca {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.fg-marca strong {
+  max-width: 7.5em;
+  font-family: var(--brand-heading);
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.15;
+}
+.fg[data-tema="figaro-rock-n-roll"] .fg-marca strong {
+  font-family: "Old Standard TT", Georgia, serif;
+}
+.fg-logo {
+  display: none;
+}
+.fg-menu {
+  display: grid;
+  min-width: 48px;
+  min-height: 48px;
+  place-items: center;
+  border: 0;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+}
+.fg-centro {
+  container-type: inline-size;
+  position: relative;
+  z-index: 2;
+  display: grid;
+  flex: 1;
+  place-content: center;
+  justify-items: center;
+  padding: 0 28px;
+  text-align: center;
+}
+.fg-centro h1 {
+  margin-bottom: 20px;
+  font-family: var(--brand-heading);
+  font-size: clamp(2.2rem, 13.5cqw, 4.8rem);
+  text-wrap: balance;
+  font-weight: 400;
+  line-height: 1.1;
+}
+.fg[data-tema="figaro-retro"] .fg-centro h1 {
+  font-style: normal;
+  font-weight: 400;
+}
+.fg-centro p {
+  max-width: 520px;
+  font-size: 1.1rem;
+  line-height: 1.55;
+  opacity: 0.92;
+}
+.fg-centro > div {
+  margin-top: 36px;
+}
+.fg-cta,
+.fg-btn-linha {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  border: 0;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 500;
+  text-decoration: none;
+}
+.fg-cta {
+  min-width: 200px;
+  min-height: 56px;
+  padding: 0 28px;
+  background: var(--fg-cta-bg);
+  color: var(--fg-cta-texto);
+  border-radius: var(--fg-cta-raio);
+}
+.fg-btn-linha {
+  min-height: 44px;
+  padding: 0 20px;
+  background: var(--fg-linha-bg);
+  color: var(--fg-linha-texto);
+  border-radius: var(--fg-linha-raio);
+  font-weight: 600;
+}
+.fg-saiba {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  margin-bottom: 40px;
+  border: 0;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.95rem;
+}
+.fg-diagonal {
+  display: none;
+}
+.fg[data-tema="figaro-rock-n-roll"] .fg-diagonal {
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  z-index: 3;
+  display: block;
+  width: 100%;
+  height: 56px;
+}
+.fg-diagonal-fundo {
+  fill: var(--fg-pagina);
+}
+.fg-diagonal-linha {
+  stroke: var(--fg-acento);
+  stroke-width: 3px;
+}
+.fg-painel-menu {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 32px;
+  padding: 24px 32px;
+  background: var(--fg-pagina);
+  color: var(--fg-texto);
+}
+.fg-painel-menu .fg-fechar {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+}
+.fg-painel-menu li button {
+  min-height: 56px;
+  border: 0;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+  font-family: var(--fg-secao-fonte);
+  font-size: 1.9rem;
+  font-weight: 700;
+  text-align: left;
+}
+.fg-menu-cta .fg-cta {
+  width: 100%;
+}
+.fg-corpo {
+  margin: 0 auto;
+  max-width: 1040px;
+  padding: 0 24px 24px;
+}
+.fg-secao {
+  padding-top: 56px;
+  scroll-margin-top: 16px;
+}
+.fg-secao h2,
+.fg-final h2 {
+  margin-bottom: 24px;
+  font-family: var(--fg-secao-fonte);
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.15;
+}
+.fg-sub {
+  margin: -12px 0 20px;
+  color: var(--fg-mudo);
+  line-height: 1.5;
+}
+.fg-equipe {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+}
+.fg-equipe li {
+  display: grid;
+  flex: none;
+  width: 125px;
+  align-content: start;
+  gap: 2px;
+  text-align: center;
+}
+.fg-equipe img,
+.fg-iniciais {
+  width: 125px;
+  aspect-ratio: 125 / 160;
+  margin-bottom: 10px;
+  object-fit: cover;
+  border: 1px solid var(--fg-linha);
+  box-shadow: 6px 0 0 rgb(0 0 0 / 0.07);
+}
+.fg-iniciais {
+  display: grid;
+  place-items: center;
+  background: rgb(0 0 0 / 0.08);
+  font-size: 2.4rem;
+  font-weight: 700;
+}
+.fg-equipe strong {
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+.fg-equipe small {
+  color: var(--fg-mudo);
+  font-size: 0.95rem;
+}
+.fg-equipe p {
+  margin-top: 6px;
+  color: var(--fg-mudo);
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+.fg-acordeao {
+  border-top: 1px solid var(--fg-linha);
+}
+.fg-grupo {
+  border-bottom: 1px solid var(--fg-linha);
+}
+.fg-grupo-cabecalho {
+  display: flex;
+  width: 100%;
+  min-height: 64px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border: 0;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  font-size: 1.3rem;
+  font-weight: 700;
+  text-align: left;
+}
+.fg-grupo-cabecalho > span:first-child {
+  display: inline-flex;
+  align-items: center;
+}
+.fg-btn-linha svg {
+  display: none;
+}
+.fg-grupo-cabecalho small {
+  color: var(--fg-mudo);
+  font-size: 1.1rem;
+  font-weight: 400;
+}
+.fg-chama {
+  margin-left: 8px;
+  color: var(--fg-acento);
+  vertical-align: -2px;
+}
+.fg-servico {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 0;
+  border-top: 1px solid var(--fg-linha);
+}
+.fg-servico h3 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  line-height: 1.25;
+}
+.fg-servico p {
+  margin-top: 4px;
+  color: var(--fg-mudo);
+}
+.fg-servico p span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 14px;
+}
+.fg-galeria {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.fg-galeria img {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+}
+.fg-nota {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--fg-acento);
+}
+.fg-nota strong {
+  color: var(--fg-texto);
+  font-size: 1.6rem;
+}
+.fg-nota span {
+  color: var(--fg-mudo);
+}
+.fg-link {
+  display: inline-flex;
+  min-height: 48px;
+  align-items: center;
+  gap: 10px;
+  margin: 0 18px 8px 0;
+  color: inherit;
+  font-size: 1.05rem;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.fg-final {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  padding: 72px 0 48px;
+  text-align: center;
+}
+.fg-final h2 {
+  margin-bottom: 16px;
+}
+@media (min-width: 768px) {
+  .fg-topo {
+    padding: 32px 56px 0;
+  }
+  .fg-equipe li,
+  .fg-equipe img,
+  .fg-iniciais {
+    width: 160px;
+  }
+  .fg-equipe img,
+  .fg-iniciais {
+    aspect-ratio: 160 / 200;
+  }
+  .fg-galeria {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+.fg[data-tema="figaro-classico"] .fg-cta svg {
+  display: none;
+}
