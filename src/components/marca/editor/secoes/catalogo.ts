@@ -23,7 +23,7 @@ export const CATALOGO_DE_SECOES: Record<
   { nome: string; descricao: string; icone: LucideIcon }
 > = {
   apresentacao: {
-    nome: "Apresentação",
+    nome: "Hero Banner",
     descricao: "Frase de boas-vindas e apresentação do negócio.",
     icone: House,
   },
@@ -53,7 +53,7 @@ export const CATALOGO_DE_SECOES: Record<
     icone: Package,
   },
   instagram: {
-    nome: "Redes sociais",
+    nome: "Redes Sociais",
     descricao: "Links das redes sociais do negócio.",
     icone: Instagram,
   },

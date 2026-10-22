@@ -22,9 +22,9 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sh
 import { alterarStatusPaginaPublica, getMarca, type MarcaData } from "@/lib/marca.functions";
 import { exigirCapacidade } from "@/lib/guarda-capacidade";
 import { urlPublica } from "@/lib/origem-publica";
-import { componenteIds, LAYOUTS, secoesObrigatoriasAusentes, TEMAS } from "@/lib/pagina-config";
+import { LAYOUTS, secoesObrigatoriasAusentes, TEMAS, totalDeSecoesAtivas } from "@/lib/pagina-config";
 import { CATALOGO_DE_SECOES } from "@/components/marca/editor/secoes/catalogo";
-import { MiniaturaLayout } from "@/components/marca/editor/CartoesDeLayoutTema";
+import { CapaDoTema } from "@/components/marca/editor/CapaDoTema";
 
 export const Route = createFileRoute("/barbeiro/marca")({
   beforeLoad: ({ context }) => exigirCapacidade(context.queryClient, "branding_avancado"),
@@ -300,7 +300,7 @@ function Editor({
       <section className="mb-5 overflow-hidden rounded-xl border border-line bg-ink">
         <div className="p-3 sm:p-4">
           <div className="aspect-video overflow-hidden rounded-lg border border-line bg-background">
-            <MiniaturaLayout layout={e.config.layout} cover />
+            <CapaDoTema tema={e.config.tema} />
           </div>
           <div className="mt-4 grid grid-cols-2 divide-x divide-line">
             <div className="min-w-0 pr-3">
@@ -310,7 +310,7 @@ function Editor({
               </div>
               <p className="mt-2 text-sm font-semibold text-paper">{LAYOUTS[e.config.layout]}</p>
               <p className="mt-1 text-xs leading-relaxed text-mute">
-                {componenteIds.filter((id) => e.config.componentes[id]).length} seções ativas
+                {totalDeSecoesAtivas(e.config)} seções ativas
               </p>
             </div>
             <div className="min-w-0 pl-3">

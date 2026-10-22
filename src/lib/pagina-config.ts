@@ -58,13 +58,13 @@ export const componenteIds = [
 
 /** Nome de cada seção, como aparece no editor e nas mensagens de publicação. */
 export const NOMES_DAS_SECOES: Record<(typeof componenteIds)[number], string> = {
-  apresentacao: "Apresentação",
+  apresentacao: "Hero Banner",
   servicos: "Serviços",
   profissionais: "Equipe",
   galeria: "Galeria",
   avaliacoes: "Avaliações",
   produtos: "Produtos",
-  instagram: "Redes sociais",
+  instagram: "Redes Sociais",
   localizacao: "Localização",
   horarios: "Horários",
   whatsapp: "Contato",
@@ -455,6 +455,16 @@ export const SECOES_DO_LAYOUT: Record<LayoutId, readonly (typeof componenteIds)[
   ],
   "figaro-agendamento": ["servicos"],
 };
+
+/** Seções que o layout oferece (todas, nos layouts antigos). */
+export function secoesDoLayoutAtual(layout: LayoutId): readonly (typeof componenteIds)[number][] {
+  return SECOES_DO_LAYOUT[layout] ?? componenteIds;
+}
+
+/** Quantas seções estão ativas, como o Figaro conta: as do layout ligadas mais o fluxo de agendamento. */
+export function totalDeSecoesAtivas(config: Pick<PaginaConfig, "layout" | "componentes">): number {
+  return secoesDoLayoutAtual(config.layout).filter((id) => config.componentes[id]).length + 1;
+}
 
 /** Fontes de cada tema do Figaro (título e texto), como nas páginas de exemplo. */
 export const FONTES_DO_TEMA: Partial<Record<TemaId, { titulo: FonteId; texto: FonteId }>> = {

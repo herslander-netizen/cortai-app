@@ -3,7 +3,7 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { ChevronRight } from "lucide-react";
 
 import { MOLA } from "@/lib/movimento-figaro";
-import { componenteIds, SECOES_OBRIGATORIAS, type PaginaConfig } from "@/lib/pagina-config";
+import { SECOES_OBRIGATORIAS, secoesDoLayoutAtual, type PaginaConfig } from "@/lib/pagina-config";
 import { CATALOGO_DE_SECOES, FLUXO_DE_AGENDAMENTO, type ComponenteId } from "./secoes/catalogo";
 
 type Linha = {
@@ -115,11 +115,12 @@ export function SecaoConteudo({ config }: { config: PaginaConfig }) {
     editavel: true,
   });
   const fluxo: Linha = { id: "fluxo", ...FLUXO_DE_AGENDAMENTO, editavel: false };
+  const doLayout = secoesDoLayoutAtual(config.layout);
   const obrigatoriasLista = [
     fluxo,
-    ...componenteIds.filter((id) => obrigatorias.includes(id)).map(linha),
+    ...doLayout.filter((id) => obrigatorias.includes(id)).map(linha),
   ];
-  const livres = componenteIds.filter((id) => !obrigatorias.includes(id));
+  const livres = doLayout.filter((id) => !obrigatorias.includes(id));
   const ativas = livres.filter((id) => config.componentes[id]).map(linha);
   const inativas = livres.filter((id) => !config.componentes[id]).map(linha);
 

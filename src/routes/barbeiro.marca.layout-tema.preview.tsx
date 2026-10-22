@@ -9,7 +9,7 @@ import { useEditorDaPagina } from "@/components/marca/editor/useEditorDaPagina";
 import { Button } from "@/components/ui/button";
 import { getMarca } from "@/lib/marca.functions";
 import { exigirCapacidade } from "@/lib/guarda-capacidade";
-import { layoutIds, TEMAS, temaIds } from "@/lib/pagina-config";
+import { aplicarTema, layoutIds, LAYOUTS, TEMAS, temaIds } from "@/lib/pagina-config";
 
 export const Route = createFileRoute("/barbeiro/marca/layout-tema/preview")({
   validateSearch: z.object({
@@ -44,7 +44,9 @@ function PreviaLayoutTemaPage() {
       <Screen voltarPara="/barbeiro/marca/layout-tema" title="Ver Exemplo">
         <div className="surface space-y-3 p-4">
           <p className="text-sm text-paper">Não foi possível carregar o exemplo.</p>
-          <Button variant="outline" onClick={() => void query.refetch()}>Tentar novamente</Button>
+          <Button variant="outline" onClick={() => void query.refetch()}>
+            Tentar novamente
+          </Button>
         </div>
       </Screen>
     );
@@ -72,18 +74,16 @@ function ConteudoPrevia({
   voltar: () => void;
 }) {
   const e = useEditorDaPagina(initial, () => undefined);
-  const config = {
-    ...e.config,
-    ...(layout ? { layout } : {}),
-    ...(tema ? { tema, cores: TEMAS[tema].cores } : {}),
-  };
+  const comLayout = { ...e.config, ...(layout ? { layout } : {}) };
+  const config = tema ? aplicarTema(comLayout, tema) : comLayout;
 
   return (
-    <Screen wide voltarPara="/barbeiro/marca/layout-tema" title="Ver Exemplo">
+    <Screen
+      wide
+      voltarPara="/barbeiro/marca/layout-tema"
+      title={`${LAYOUTS[config.layout]} · ${TEMAS[config.tema].nome}`}
+    >
       <div className="space-y-4 pb-6">
-        <p className="text-sm text-mute">
-          {layout ? "Layout selecionado" : "Layout atual"} · {tema ? TEMAS[tema].nome : TEMAS[config.tema].nome}
-        </p>
         <PreviaDaExperiencia
           data={e.previewData}
           config={config}
@@ -94,7 +94,9 @@ function ConteudoPrevia({
           capaUrl={e.coverPreview}
           altura="h-[calc(100dvh-250px)]"
         />
-        <Button variant="outline" className="min-h-12 w-full" onClick={voltar}>Voltar para Layout & Tema</Button>
+        <Button variant="outline" className="min-h-12 w-full" onClick={voltar}>
+          Voltar para Layout & Tema
+        </Button>
       </div>
     </Screen>
   );
