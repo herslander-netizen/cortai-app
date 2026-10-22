@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { Copy, Eye, LayoutTemplate, MoreVertical, Save, Send, Share2, Smartphone, Undo2 } from "lucide-react";
+import { Copy, Eye, LayoutTemplate, MoreVertical, Palette, Save, Send, Share2, Smartphone, Undo2 } from "lucide-react";
 import { useState } from "react";
 
 import { EsqueletoFormulario } from "@/components/layout/Esqueleto";
