@@ -13,6 +13,7 @@ export function BarraDeEdicaoDeHorario({
   motivo,
   avisar,
   salvando,
+  salvo = false,
   semMudanca = false,
   onAvisar,
   onDescartar,
@@ -25,6 +26,8 @@ export function BarraDeEdicaoDeHorario({
   motivo: string | null;
   avisar: boolean;
   salvando: boolean;
+  /** Gravou: mostra "Pronto!" por um instante antes de fechar. */
+  salvo?: boolean;
   /** Nada mudou ainda: Salvar fica desabilitado. */
   semMudanca?: boolean;
   onAvisar: (valor: boolean) => void;
@@ -70,7 +73,7 @@ export function BarraDeEdicaoDeHorario({
           variant="outline"
           className="rounded-full"
           onClick={onDescartar}
-          disabled={salvando}
+          disabled={salvando || salvo}
         >
           Descartar
         </Button>
@@ -78,9 +81,10 @@ export function BarraDeEdicaoDeHorario({
           variant="primary"
           className="rounded-full"
           onClick={onSalvar}
-          disabled={Boolean(motivo) || salvando || semMudanca}
+          disabled={Boolean(motivo) || salvando || salvo || semMudanca}
+          data-salvo={salvo ? "" : undefined}
         >
-          {salvando ? "Salvando…" : "Salvar"}
+          {salvando ? "Salvando…" : salvo ? "Pronto!" : "Salvar"}
         </Button>
       </div>
     </motion.section>

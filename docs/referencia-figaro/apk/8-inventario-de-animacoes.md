@@ -92,7 +92,7 @@ fica como está).
 | G6 | Cartão armado cresce (`armedCardGrowth`) | `Animatable` 300 ms | `AgendaScreenKt` | ✔ |
 | G7 | Calendário ↔ Lista | fade + `SizeTransform` padrão (`agendaViewModeSwap`) | `AgendaScreenKt` | ✔ |
 | G8 | Seletor some no modo lista | slide vertical + fade padrão | idem | ✔ |
-| G9 | Linha "agora" | cor/posição com `fastSpatial` (`AgendaNowIndicatorMinute`); `delay` por minuto | `CurrentMinuteFlowKt` | ◐ |
+| G9 | Linha "agora" | cor/posição com `fastSpatial` (`AgendaNowIndicatorMinute`); `delay` por minuto | `CurrentMinuteFlowKt` | ✔ 22/10 linha com a mola rápida do tema (`--mola-toque`) |
 | G10 | Semana ↔ mês | arrastar âncoras; mola 1/400; limiar 50 % | `FigarooDateSelectorState` | ✔ |
 | G11 | Pílula do dia / anel de hoje / círculo deslizante | cores com `fastSpatial` | `FigarooWeekStripKt` | ✔ |
 | G12 | Faixa da semana e grade do mês | `HorizontalPager` / `VerticalPager` | `FigarooWeekStripKt`, `FigarooMonthGridKt` | ✔ |
@@ -100,7 +100,7 @@ fica como está).
 | G14 | Zoom por pinça | gesto do dedo | `AgendaPinchZoomKt` | ✔ |
 | G15 | Reagendar: linha do horário abre | fade + `SizeTransform` padrão | `TimeSlotSelectorAvailabilityListKt` | ◐ |
 | G16 | Ficha em folha: meia altura → cheia | M3 padrão | `AppointmentDashboardSheetKt` | ✔ |
-| G17 | Toast "Continue configurando" | sobe a altura inteira + fade, 320 ms | `AgendaOnboardingToastKt` | ✘ (`PrimeirosPassos`/`FaixaPendencias`) |
+| G17 | Toast "Continue configurando" | sobe a altura inteira + fade, 320 ms | `AgendaOnboardingToastKt` | ✔ 22/10 `FaixaPendencias` sobe 48 px com fade em 320 ms |
 
 ## 6. Entrada, onboarding e assinatura
 
@@ -134,8 +134,8 @@ fica como está).
 
 | ID | Quando | Tipo | Fonte | Cortaí |
 |---|---|---|---|---|
-| H1 | Armar o cartão da Agenda (segurar) | pressão longa | `AgendaArmableCardKt` | ◐ conferir |
-| H2 | Reagendamento por arrastar salvo | confirmar | `AgendaScreenKt` | ✘ |
+| H1 | Armar o cartão da Agenda (segurar) | pressão longa | `AgendaArmableCardKt` | ✔ 22/10 `vibrar("pressao")` no toque longo da linha do tempo |
+| H2 | Reagendamento por arrastar salvo | confirmar | `AgendaScreenKt` | ✔ 22/10 `vibrar("confirmar")` + "Pronto!" por 1 s (`useRascunhoDeHorario`) |
 | H3 | Assentos +/− na assinatura | pressão longa | `PaywallScreenKt` | ✘ |
 | H4 | Conta criada com sucesso | pressão longa | `SignUpScreenKt` | ✘ |
 | H5 | Entrada concluída | pressão longa | `LoginScreenKt` | ✘ |

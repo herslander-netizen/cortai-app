@@ -665,6 +665,16 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-22 UTC — Claude — Animações da Agenda do Figaro (só movimento, sem mudar configurações)
+- Conferi o §10 de `2-agenda.md` contra o código: a maior parte já estava feita (armar, cromo, zoom, alfa, calendário↔lista,
+  semana↔mês). Fechei o que faltava, **sem tocar em regras, textos de negócio nem ajustes do Cortaí**:
+  - **Vibração** (`vibrar`, até então sem uso): pressão longa ao armar o cartão (H1) e confirmação ao salvar (H2).
+  - **Salvar o horário**: o botão mostra **"Pronto!" por 1 s** antes de fechar a edição (`AgendaArmedSave.SuccessDwellMillis`);
+    `useRascunhoDeHorario` ganhou `salvo` e `permanenciaDoSucesso` (padrão 1000; os testes antigos usam 0).
+  - **Linha "agora"**: anda com a mola rápida do tema (`--mola-toque`) em vez de ease.
+  - **Faixa "Continue configurando"** (G17): sobe com fade em 320 ms.
+- Inventário atualizado (G9, G17, H1, H2). Segue em aberto o que o inventário marca ✘ por decisão do dono (§10).
+
 ### 2026-10-22 UTC — Claude — Chat Grafite e Rústico; `/` abre a tela de entrada
 - **Chat**: dois estilos prontos novos, **Grafite** (grafite quente, destaque areia) e **Rústico** (areia clara, couro,
   cabeçalho em cartão, serifa discreta, balões com filete de costura). Novo balão `rustico`, novas cores da conversa

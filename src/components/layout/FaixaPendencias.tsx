@@ -35,7 +35,14 @@ export function FaixaPendencias() {
       : `Faltam ${pendentes.length} coisas para deixar seu negócio pronto`;
 
   return (
-    <motion.div layout transition={transicaoBase} className="mb-4">
+    // Entrada do Figaro (`AgendaOnboardingToast`): sobe a própria altura com esmaecer, 320 ms.
+    <motion.div
+      layout
+      initial={{ opacity: 0, y: 48 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ ...transicaoBase, duration: 0.32, ease: [0.4, 0, 0.2, 1] }}
+      className="mb-4"
+    >
       <Link
         to={proximo.destino}
         className={`flex items-center gap-2 rounded-full border border-gold/40 bg-gold-soft text-gold transition-transform duration-[120ms] active:scale-[0.98] ${

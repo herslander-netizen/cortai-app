@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 
+import { vibrar } from "@/lib/vibrar";
 import {
   aplicarEdicao,
   motivoDaRecusa,
@@ -27,15 +28,19 @@ export function useRascunhoDeHorario<T extends ItemDeHorario>({
   fuso,
   agora,
   salvar,
+  permanenciaDoSucesso = 1000,
 }: {
   itens: T[];
   dia: string;
   fuso: string;
   agora: number;
   salvar: (original: T, novo: { inicio: string; fim: string }, avisar: boolean) => Promise<boolean>;
+  /** Quanto o "Pronto!" fica na barra antes de fechar a edição (1000 ms no Figaro). */
+  permanenciaDoSucesso?: number;
 }) {
   const [rascunho, setRascunho] = useState<Rascunho | null>(null);
   const [salvando, setSalvando] = useState(false);
+  const [salvo, setSalvo] = useState(false);
 
   // Trocar de dia encerra a edição: o rascunho é só deste dia.
   useEffect(() => setRascunho(null), [dia]);
@@ -104,7 +109,7 @@ export function useRascunhoDeHorario<T extends ItemDeHorario>({
   const semMudanca = !rascunho || (rascunho.deltaInicioMin === 0 && rascunho.deltaDuracaoMin === 0);
 
   async function confirmar() {
-    if (!rascunho || !original || !novo || motivo || salvando || semMudanca) return;
+    if (!rascunho || !original || !novo || motivo || salvando || salvo || semMudanca) return;
     setSalvando(true);
     try {
       const ok = await salvar(
@@ -115,7 +120,17 @@ export function useRascunhoDeHorario<T extends ItemDeHorario>({
         },
         rascunho.avisar,
       );
-      if (ok) setRascunho(null);
+      setSalvando(false);
+      if (ok) {
+        // Figaro (`AgendaArmedSave.SuccessDwellMillis`): confirma com vibração e mantém "Pronto!" por 1 s.
+        vibrar("confirmar");
+        if (permanenciaDoSucesso > 0) {
+          setSalvo(true);
+          await new Promise((resolver) => window.setTimeout(resolver, permanenciaDoSucesso));
+          setSalvo(false);
+        }
+        setRascunho(null);
+      }
     } finally {
       setSalvando(false);
     }
@@ -128,6 +143,7 @@ export function useRascunhoDeHorario<T extends ItemDeHorario>({
     motivo,
     textoDoMotivo: motivo ? TEXTO_DO_MOTIVO[motivo] : null,
     salvando,
+    salvo,
     semMudanca,
     propor,
     /** Entra no modo de edição sem mudar nada (toque longo sem arrastar). */

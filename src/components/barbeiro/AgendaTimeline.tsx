@@ -27,6 +27,7 @@ import { criarBloqueioDeRolagem } from "@/components/barbeiro/agenda/bloqueio-ro
 import { AlcaDeDuracao } from "@/components/barbeiro/agenda/AlcaDeDuracao";
 import { PASSO_DO_AJUSTE_MIN, passoDoGesto } from "@/lib/remarcacao-regras";
 import { aoCorrigirRolagemDoZoom, usePincaDaTimeline, usePxPorMinuto } from "@/components/barbeiro/agenda/zoom-agenda";
+import { vibrar } from "@/lib/vibrar";
 import { criarToqueLongoVazio } from "@/components/barbeiro/agenda/toque-longo-vazio";
 import {
   corDaCategoria,
@@ -594,7 +595,7 @@ export function AgendaTimeline({
         travarRolagemDoToque();
         // Segurar só arma o cartão; o estado de arrasto nasce quando o dedo realmente se move.
         onEditar?.(item, g.y0);
-        navigator.vibrate?.(10);
+        vibrar("pressao");
       }, 280);
     }
     gesto.current = g;

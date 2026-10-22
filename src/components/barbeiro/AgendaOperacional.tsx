@@ -1245,6 +1245,7 @@ export function AgendaOperacional() {
             motivo={edicao.textoDoMotivo}
             avisar={edicao.rascunho.avisar}
             salvando={edicao.salvando}
+            salvo={edicao.salvo}
             semMudanca={edicao.semMudanca}
             onAvisar={edicao.definirAviso}
             onDescartar={edicao.descartar}
