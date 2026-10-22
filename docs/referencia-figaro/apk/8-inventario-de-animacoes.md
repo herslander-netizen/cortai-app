@@ -1,4 +1,4 @@
-| V3 | Canal de notificação: horários de lembrete aparecem | fade + altura | `NotificationChannelSheetKt` | ◐ 22/10 tela de horários de lembrete ainda não localizada; `PreferenciasDeAvisos` controla canais, não horários |
+| V3 | Canal de notificação: horários de lembrete aparecem | fade + altura | `NotificationChannelSheetKt` | ◐ 22/10 `PreferenciasDoCliente`: frequência e silêncio aparecem com fade+altura quando WhatsApp ou celular está ativo; conferir visualmente e validar com o dono se o comportamento condicional é equivalente |
 
 Decisão do dono (22/10/2026): **recuperar todas as animações, sem exceção**. Este arquivo é a lista de controle:
 uma linha por animação, com valores, fonte e a situação no Cortaí. Substitui como lista-mestra o catálogo parcial
