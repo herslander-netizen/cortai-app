@@ -16,10 +16,12 @@ export const DESCRICOES_LAYOUT: Record<LayoutId, string> = {
   "figaro-agendamento": "Layout focado em levar o cliente rapidamente à escolha do serviço e do horário.",
 };
 
-export function MiniaturaLayout({ layout }: { layout: LayoutId }) {
+export function MiniaturaLayout({ layout, cover = false }: { layout: LayoutId; cover?: boolean }) {
   return (
     <div
-      className="flex h-28 w-full flex-col overflow-hidden rounded-md border border-line bg-background p-2"
+      className={cover
+        ? "flex h-full w-full flex-col overflow-hidden rounded-none border-0 bg-background p-3 sm:p-4"
+        : "flex h-28 w-full flex-col overflow-hidden rounded-md border border-line bg-background p-2"}
       aria-hidden
     >
       {layout === "logo-central" ? (
