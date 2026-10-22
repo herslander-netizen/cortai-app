@@ -74,6 +74,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { BarraDeEdicaoDeHorario } from "@/components/barbeiro/agenda/BarraDeEdicaoDeHorario";
 import { CabecalhoDeEdicao } from "@/components/barbeiro/agenda/CabecalhoDeEdicao";
+import { trechosQueSaem } from "@/components/barbeiro/agenda/fantasma-do-horario";
 import { MarcaDoLimiteDoDia, SemanaDoTopo } from "@/components/barbeiro/agenda/SemanaDoTopo";
 import { ListaPeriodo } from "@/components/barbeiro/agenda/ListaPeriodo";
 import {
@@ -867,8 +868,7 @@ export function AgendaOperacional() {
     edicao.propor(item.id, deltaMin);
   }
   function iniciarEdicaoPorGesto(item: AgendaItem, yDoToque?: number) {
-    ancoraZoomEdicao.current =
-      typeof yDoToque === "number" ? { id: item.id, y: yDoToque } : null;
+    ancoraZoomEdicao.current = typeof yDoToque === "number" ? { id: item.id, y: yDoToque } : null;
     edicao.iniciar(item.id);
   }
   function atualizarYDoGesto(id: string, yDoToque: number) {
@@ -876,8 +876,61 @@ export function AgendaOperacional() {
     ancoraZoomEdicao.current = { id, y: yDoToque };
   }
   const cartaoEmEdicao = edicao.original
-    ? { id: edicao.original.id, motivo: edicao.textoDoMotivo }
+    ? {
+        id: edicao.original.id,
+        motivo: edicao.textoDoMotivo,
+        trechos:
+          edicao.novo && edicao.original
+            ? trechosQueSaem(
+                {
+                  inicio: Date.parse(edicao.original.inicio),
+                  fim: Date.parse(edicao.original.fim),
+                },
+                edicao.novo,
+              ).map((t) => ({
+                inicio: new Date(t.inicio).toISOString(),
+                fim: new Date(t.fim).toISOString(),
+              }))
+            : [],
+      }
     : undefined;
+  // Toque curto fora do cartão e das barras sai do modo de edição, como no Figaro (spec 2-agenda §6,
+  // "Toque fora"). Só toque no celular: um toque longo arma o cartão e arrastar não conta como toque.
+  const descartarEdicao = useRef(edicao.descartar);
+  descartarEdicao.current = edicao.descartar;
+  const editando = Boolean(edicao.rascunho);
+  useEffect(() => {
+    if (!editando) return;
+    let toque: { id: number; x: number; y: number; t: number } | null = null;
+    const comecar = (e: PointerEvent) => {
+      toque =
+        e.pointerType === "mouse" || !e.isPrimary
+          ? null
+          : { id: e.pointerId, x: e.clientX, y: e.clientY, t: performance.now() };
+    };
+    const terminar = (e: PointerEvent) => {
+      const inicio = toque;
+      toque = null;
+      if (!inicio || e.pointerId !== inicio.id) return;
+      if (performance.now() - inicio.t > 300) return;
+      if (Math.hypot(e.clientX - inicio.x, e.clientY - inicio.y) > 8) return;
+      const alvo = e.target instanceof Element ? e.target : null;
+      if (
+        !alvo ||
+        alvo.closest(
+          '[data-agendamento],[data-edicao-ui],button,a,input,select,textarea,[role="dialog"],[role="alertdialog"],[role="menu"],[role="listbox"]',
+        )
+      )
+        return;
+      descartarEdicao.current();
+    };
+    document.addEventListener("pointerdown", comecar, true);
+    document.addEventListener("pointerup", terminar, true);
+    return () => {
+      document.removeEventListener("pointerdown", comecar, true);
+      document.removeEventListener("pointerup", terminar, true);
+    };
+  }, [editando]);
   function redimensionarPorAlca(item: AgendaItem, deltaMin: number) {
     edicao.propor(item.id, 0, deltaMin);
   }
@@ -1269,9 +1322,16 @@ export function AgendaOperacional() {
                       key="edicao-topo-mobile"
                       className="col-start-1 row-start-1 w-full"
                       direcao="topo"
-                      animacaoGaveta
                     >
-                      <CabecalhoDeEdicao dia={dia} naBarra onReagendar={() => { const original = edicao.original; edicao.descartar(); if (original) abrirAcao(original, "remarcar"); }} />
+                      <CabecalhoDeEdicao
+                        dia={dia}
+                        naBarra
+                        onReagendar={() => {
+                          const original = edicao.original;
+                          edicao.descartar();
+                          if (original) abrirAcao(original, "remarcar");
+                        }}
+                      />
                     </TransicaoVerticalDoModoEdicao>
                   ) : (
                     <TransicaoVerticalDoModoEdicao
@@ -1511,7 +1571,7 @@ export function AgendaOperacional() {
                   onMover={moverPorArrasto}
                   onRedimensionar={redimensionarPorAlca}
                   onEditar={iniciarEdicaoPorGesto}
-                      onAtualizarYDoToque={atualizarYDoGesto}
+                  onAtualizarYDoToque={atualizarYDoGesto}
                   passoMin={passoMin}
                   edicaoDoCartao={cartaoEmEdicao}
                   onHorarioVazio={(h) => {

@@ -1,37 +1,34 @@
 import type { ReactNode } from "react";
 import { motion } from "framer-motion";
 
+import { CURVA, TEMPO } from "@/lib/movimento-figaro";
+
 type Direcao = "topo" | "baixo";
 
 /**
- * Entrada/saída do cromo do modo armado do Figaro.
- * Isolar este movimento impede que a troca de dia seja confundida com uma animação
- * de tela que começa invisível; a Timeline não é remontada nem esmaecida aqui.
+ * Entrada/saída do cromo do modo armado do Figaro (spec 2-agenda §6, passo 2): a barra de cima sobe e a de
+ * baixo desce, deslizando a própria altura, com fade, em 300 ms na curva FastOutSlowIn. Isolar este movimento
+ * impede que a troca de dia seja confundida com uma animação de tela que começa invisível.
  */
 export function TransicaoVerticalDoModoEdicao({
   children,
   direcao,
   className,
-  animacaoGaveta = false,
 }: {
   children: ReactNode;
   direcao: Direcao;
   className?: string;
-  /** Movimento de gaveta vertical para o cabeçalho mobile de edição. */
-  animacaoGaveta?: boolean;
 }) {
-  const deslocamento = animacaoGaveta ? -84 : direcao === "topo" ? -18 : 32;
+  // Topo sobe e base desce, cada um a própria altura (`slideVertically(±altura)`).
+  const deslocamento = direcao === "topo" ? "-100%" : "100%";
   return (
     <motion.div
       className={className}
+      data-edicao-ui=""
       initial={{ opacity: 0, y: deslocamento }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: deslocamento }}
-      transition={
-        animacaoGaveta
-          ? { duration: 0.48, ease: [0.22, 1, 0.36, 1] }
-          : { duration: 0.3, ease: [0.4, 0, 0.2, 1] }
-      }
+      transition={{ duration: TEMPO.etapaDeFluxo, ease: CURVA.rapidaParaLenta }}
     >
       {children}
     </motion.div>

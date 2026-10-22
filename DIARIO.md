@@ -665,6 +665,24 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-22 UTC — Claude — Modo de edição da Agenda: cabeçalho e barra como no Figaro, parte que sai do horário e toque fora
+- Pedido do dono (print de 22/10 e texto): ao segurar um cartão, cabeçalho e barra entram e saem como no Figaro; ao
+  tocar fora, o modo sai; e aparece a diferença entre o horário normal e o proposto.
+- **Cabeçalho e barra** (`TransicaoVerticalDoModoEdicao.tsx`, `BarraDeEdicaoDeHorario.tsx`): topo sobe e base desce
+  a própria altura, com fade, 300 ms, curva FastOutSlowIn (`TEMPO.etapaDeFluxo`, `CURVA.rapidaParaLenta` de
+  `movimento-figaro.ts`). Antes o celular usava 480 ms e 84 px fixos.
+- **Parte que sai do horário** (`fantasma-do-horario.ts`, com 7 testes; `AgendaTimeline.tsx`; `.agenda-timeline-fantasma`):
+  quando o cartão encurta ou sai do lugar, o trecho que deixou de valer aparece translúcido (α 0.5), na mesma coluna.
+  Pela spec (2-agenda §4.6) é a parte **removida** que fica translúcida; o pedido do dono falava do horário
+  acrescentado. **Decisão a confirmar com o dono.**
+- **Toque fora** (`AgendaOperacional.tsx`): toque curto (até 300 ms, até 8 px), só no celular, fora de cartões, barras,
+  botões e diálogos sai do modo de edição, como o "Toque fora" da spec. **Descarta a mudança não salva**, igual ao
+  Descartar; a escala volta pelo `useZoomDaEdicao`.
+- **Sem evidência / não feito:** tocar na faixa para abrir detalhe; o formato exato do zoom na saída (o Figaro usa `snap`
+  quando desarma, spec G1) continua pelo código atual.
+- Testes: TypeScript ok, Vitest 1801 ok, build ok. **Não vi na tela** (precisa de toque longo no celular): conferir
+  na prévia, inclusive o toque fora e a faixa translúcida ao encurtar um cartão.
+
 ### 2026-10-22 UTC — Claude — Sombras dos botões da Agenda no tema claro
 - Pedido do dono (22/10): sombra bem desenhada nos botões da Agenda no tema claro.
 - Arquivo: `src/styles.css` (bloco no fim, só `:root.light`). Antes, o claro herdava as sombras do escuro

@@ -9996,3 +9996,18 @@ body:has(.management-shell) .agenda-acao-fixa .agenda-fab-toggle .agenda-fab-ico
 :root.light .agenda-acao-redonda:active {
   box-shadow: var(--agenda-sombra-botao);
 }
+
+/* Parte do horário original que saiu do horário proposto (Figaro: α 0.5, spec 2-agenda §4.6). */
+.agenda-timeline-fantasma {
+  position: absolute;
+  z-index: 0;
+  pointer-events: none;
+  border-radius: var(--radius);
+  opacity: 0.5;
+  background: repeating-linear-gradient(
+    135deg,
+    color-mix(in oklab, var(--mute) 22%, transparent) 0 3px,
+    transparent 3px 6px
+  );
+  border: 1px dashed color-mix(in oklab, var(--mute) 45%, transparent);
+}

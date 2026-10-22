@@ -86,7 +86,8 @@ type AgendaTimelineProps = {
   /** Passo do negócio, em minutos (o arrasto e a alça andam sempre de 5 em 5; veja `passoDoGesto`). */
   passoMin?: number;
   /** Cartão em edição: mostra o intervalo novo ou o motivo de não poder salvar. */
-  edicaoDoCartao?: { id: string } | undefined;
+  /** Cartão em edição e os trechos do horário original que saem do horário proposto (ISO). */
+  edicaoDoCartao?: { id: string; trechos?: { inicio: string; fim: string }[] } | undefined;
   onHorarioVazio?: (horaMin: string) => void;
   destaques?: Set<string>;
   itensEscala?: AgendaItem[];
@@ -1013,6 +1014,31 @@ export function AgendaTimeline({
               : { left: "7px", right: "4px" };
             return (
               <Fragment key={item.id}>
+                {edicaoDoCartao?.id === item.id
+                  ? edicaoDoCartao.trechos?.map((trecho) => {
+                      const de = minutosNoFuso(trecho.inicio, fuso);
+                      const ate = minutosNoFuso(trecho.fim, fuso);
+                      if (ate <= de) return null;
+                      return (
+                        <div
+                          key={`${trecho.inicio}-${trecho.fim}`}
+                          className="agenda-timeline-fantasma"
+                          style={{
+                            top: `${(de - escala.inicio) * PX_POR_MINUTO + deslocamentoAte(de)}px`,
+                            height: `${(ate - de) * PX_POR_MINUTO + deslocamentoAte(ate) - deslocamentoAte(de)}px`,
+                            ...(posicao?.colunas
+                              ? {
+                                  left: `calc(7px + (100% - 11px) * ${posicao.coluna ?? 0} / ${posicao.colunas})`,
+                                  right: "auto",
+                                  width: `calc((100% - 11px) / ${posicao.colunas} - 4px)`,
+                                }
+                              : { left: "7px", right: "4px" }),
+                          }}
+                          aria-hidden
+                        />
+                      );
+                    })
+                  : null}
                 {arrasto?.id === item.id ? (
                   <div
                     className="agenda-timeline-alvo"
