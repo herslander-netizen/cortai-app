@@ -650,6 +650,19 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-22 UTC — GPT — Continuação do lote 3 de animações Figaro
+- Retomei a reserva a pedido do dono e implementei animações pequenas, sem mudar regras de negócio:
+  - `SecaoLayoutsETemas.tsx`: cartão de layout ganha escala suave e raio menor ao selecionar (C7; recuo/selo/legenda ainda precisam de conferência visual).
+  - `SecaoImagens.tsx`: miniaturas de logos animam escala/raio quando uma passa a ser a ativa (C8; equivalência com o seletor de mídia do Figaro ainda parcial).
+  - `PrimeirosPassos.tsx`: marcador preenche e o ícone de concluído troca com movimento reduzido respeitado (C9; o checklist atual não tem detalhe expansível).
+  - `EditorDeHorarios.tsx`: transição Aberto/Fechado com fade e altura (C10; não criei painel recolhível nem seta que não existem no componente).
+  - `SecaoRecepcao.tsx`: troca da foto da recepção com fade e ajuste de escala de 300 ms (C12; equivalência à foto de perfil do APK ainda precisa ser conferida).
+  - `barbeiro.marca.tsx`: transição de carregamento/erro/conteúdo com entrada 220 ms e saída 180 ms (P1).
+  - `barbeiro.equipe.tsx`: lista e estado vazio entram/saem com fade e altura (P3, editor de equipe).
+- Inventário atualizado em `docs/referencia-figaro/apk/8-inventario-de-animacoes.md`. L1 fica sem implementação porque o onboarding não tem etapa de CEP (o endereço é texto livre). V3 continua pendente: encontrei preferências de canal/frequência do cliente, mas não uma folha de configuração de horários de lembrete equivalente à do APK; não inventei esse fluxo.
+- Commits de código: `66bfff0f`, `437c7cef`, `fcae1950`, `336659a9`, `a92670eb`, `264326a3`, `7f29b4b0`, `c3375be8`, `a56b57e8`. Inventário: `3e20a24c`.
+- **Validação ainda pendente:** esta sessão não dispõe de terminal para executar TypeScript/Vitest/build; a consulta de status do GitHub não retornou checks. Não considerar o lote pronto nem afirmar que a prévia atualizou até o workflow confirmar. Nenhuma alteração em banco, `main` ou site principal.
+
 ### 2026-10-22 UTC — GPT — Remove Equipe do menu do botão +
 - Removida somente a ação **Equipe** do menu do botão + da Agenda. Permanecem “Agendar horário”, “Atendimento avulso” e “Bloquear horário”; não alterei a rota nem as funções de equipe fora desse menu.
 - Arquivos: `src/components/barbeiro/agenda/MenuAcoesAgenda.tsx`, `src/components/barbeiro/agenda/MenuAcoesAgenda.test.tsx` e `src/components/barbeiro/AgendaOperacional.tsx` (remoção do callback que só servia ao item retirado).
