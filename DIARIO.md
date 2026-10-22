@@ -365,6 +365,16 @@ teste real na prévia.
 
 ## Diário
 
+### 2026-10-22 UTC — GPT — Prévia de Layout & Tema passa a ser uma tela própria
+
+- Divergência confirmada pela especificação `docs/referencia-figaro/apk/4-pagina-publica.md`: o Figaro navega para uma rota de exemplo separada; o Cortaí ainda mostrava a prévia em uma `Sheet`.
+- Criada a rota `/barbeiro/marca/layout-tema/preview`. Ela carrega os dados atuais do negócio e aplica as escolhas de layout e tema recebidas na navegação, para permitir conferir a seleção antes de salvar.
+- Em `src/routes/barbeiro.marca.layout-tema.tsx`, os dois acessos “Ver Exemplo” agora navegam para a rota dedicada; removida a folha sobreposta.
+- Arquivos: `src/routes/barbeiro.marca.layout-tema.preview.tsx`, `src/routes/barbeiro.marca.layout-tema.tsx`, `DIARIO.md`.
+- Commits: `7ca227e`, `5167e80`, `1d24fc6`.
+- Validação: aguardando GitHub Actions no commit mais recente. Ainda falta conferir visualmente em celular e computador; não declarar paridade total.
+- Sem alteração em banco, produção, DNS, `main` ou segredos.
+
 ### 2026-10-22 UTC — GPT — Ajusta seleções visuais da tela Layout & Tema com base no vídeo Figaro
 - O tema selecionado agora usa contorno/realce rosa e indicador rosa, enquanto o layout mantém o realce azul da marca, seguindo a diferença observada no vídeo de 22/10.
 - Removi o botão “Ver Exemplo” duplicado e a faixa explicativa extra dentro do conteúdo. A tela mantém a ação de prévia no rodapé fixo, como no Figaro.
