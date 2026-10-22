@@ -74,7 +74,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { BarraDeEdicaoDeHorario } from "@/components/barbeiro/agenda/BarraDeEdicaoDeHorario";
 import { CabecalhoDeEdicao } from "@/components/barbeiro/agenda/CabecalhoDeEdicao";
-import { trechosDoAjuste } from "@/components/barbeiro/agenda/fantasma-do-horario";
 import { MarcaDoLimiteDoDia, SemanaDoTopo } from "@/components/barbeiro/agenda/SemanaDoTopo";
 import { ListaPeriodo } from "@/components/barbeiro/agenda/ListaPeriodo";
 import {
