@@ -7,7 +7,7 @@ import {
   LAYOUTS,
   LAYOUTS_DO_CATALOGO,
   TEMAS,
-  TEMAS_DO_CATALOGO,
+  temasDoLayout,
   type LayoutId,
   type PaginaConfig,
   type TemaId,
@@ -118,12 +118,12 @@ export function SecaoLayoutsETemas({
       <section className="overflow-hidden rounded-[28px] bg-ink2" aria-label="Layout">
         <Cabecalho
           rotulo="Layout"
-          selo={`${TEMAS_DO_CATALOGO.length} temas`}
+          selo={`${temasDoLayout(config.layout).length} temas`}
           valor={LAYOUTS[config.layout]}
           aberto={aberto === "layout"}
           onClick={() => alternar("layout")}
           leading={
-            <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-ink3 text-gold">
+            <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-ink3 text-gold">
               <LayoutTemplate size={24} aria-hidden />
             </span>
           }
@@ -149,14 +149,14 @@ export function SecaoLayoutsETemas({
           aberto={aberto === "tema"}
           onClick={() => alternar("tema")}
           leading={
-            <span className="size-10 shrink-0 overflow-hidden rounded-xl">
+            <span className="size-10 shrink-0 overflow-hidden rounded-lg">
               <CapaDoTema tema={config.tema} />
             </span>
           }
         />
         <Painel aberto={aberto === "tema"}>
           <div className="flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-4">
-            {TEMAS_DO_CATALOGO.map((tema) => (
+            {temasDoLayout(config.layout).map((tema) => (
               <CartaoDeTema
                 key={tema}
                 tema={tema}

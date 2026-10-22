@@ -16,7 +16,7 @@ import {
   LAYOUTS,
   SECOES_DO_LAYOUT,
   TEMAS,
-  TEMAS_DO_CATALOGO,
+  temasDoLayout,
   type LayoutId,
   type TemaId,
 } from "@/lib/pagina-config";
@@ -100,7 +100,7 @@ export function CartaoDeLayout({
         <Palette size={15} aria-hidden />
         {layout === "cortai-chat"
           ? `${ESTILOS_DO_CHAT.length} estilos de conversa`
-          : `${TEMAS_DO_CATALOGO.length} temas disponíveis`}
+          : `${temasDoLayout(layout).length} temas disponíveis`}
       </span>
       <span className="my-3 block h-px bg-line" aria-hidden />
       <span className="grid min-h-[78px] grid-cols-2 gap-x-3 gap-y-3">

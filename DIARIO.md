@@ -665,6 +665,18 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-22 UTC — Claude — Auditoria e correção do fluxo Layout & Tema (igual ao Figaro)
+- **Achados**: (1) a tela abria com o layout/tema antigos do Cortaí ("Cortaí" escuro no cabeçalho do Tema e nada marcado nos
+  carrosséis); (2) o carrossel de temas não dependia do layout e o selo "N temas" era fixo; (3) trocar de layout não seguia
+  `onLayoutSelected` (mantém o tema se o novo layout o tem, senão o primeiro); (4) **Ver Exemplo** perdia a escolha ao voltar.
+- **Correções** (`pagina-config.ts`: `temasDoLayout`, `ajustarAoCatalogo`, `trocarLayoutNoCatalogo`; `SecaoLayoutsETemas`,
+  `CartoesDeLayoutTema`, rota `layout-tema` e `layout-tema/preview`): a tela abre já com layout e tema do catálogo escolhidos
+  (só na tela, nada é gravado até Salvar); o painel Tema lista os temas do layout escolhido e o selo/cartão mostram a contagem
+  dele; a troca de layout segue a regra do Figaro; ao voltar do Ver Exemplo a escolha continua (parâmetros `layout`/`tema`);
+  miniaturas de 40 px com canto de 8 (`chip`). Teste novo `catalogo-layout-tema.test.ts`.
+- Seguem como no Figaro: acordeão exclusivo, carrossel de 286 px sempre no primeiro item, borda 2 px primary (layout) e
+  magenta (tema), selo de 24 px, barra inferior com Ver Exemplo e Salvar Alterações. O painel "Estilo do chat" é extra do Cortaí.
+
 ### 2026-10-22 UTC — Claude — Botões do Figaro na área do negócio
 - `Button` (`ui/button.tsx`) no padrão de `FigarooPrimaryButton/OutlinedButton/TextButton` (spec 1 §6.1): pílula, rótulo 14/20
   semibold, primário em `actionBlue`, contorno 1 px `outlineVariant` com texto `actionBlue`, texto sem fundo em 13 sp,

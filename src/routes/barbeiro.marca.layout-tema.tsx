@@ -1,8 +1,9 @@
+import { z } from "zod";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { Eye } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { EsqueletoFormulario } from "@/components/layout/Esqueleto";
 import { Screen } from "@/components/layout/Screen";
@@ -11,9 +12,21 @@ import { useEditorDaPagina } from "@/components/marca/editor/useEditorDaPagina";
 import { Button } from "@/components/ui/button";
 import { getMarca, salvarRascunhoPagina } from "@/lib/marca.functions";
 import { exigirCapacidade } from "@/lib/guarda-capacidade";
-import { aplicarLayout, aplicarTema, TEMAS_DO_CATALOGO, type LayoutId } from "@/lib/pagina-config";
+import {
+  aplicarTema,
+  ajustarAoCatalogo,
+  layoutIds,
+  temaIds,
+  trocarLayoutNoCatalogo,
+  type LayoutId,
+} from "@/lib/pagina-config";
 
 export const Route = createFileRoute("/barbeiro/marca/layout-tema")({
+  // Voltando do "Ver Exemplo" a escolha em andamento continua (no Figaro o estado da tela se mantém).
+  validateSearch: z.object({
+    layout: z.enum(layoutIds).optional(),
+    tema: z.enum(temaIds).optional(),
+  }),
   beforeLoad: ({ context }) => exigirCapacidade(context.queryClient, "branding_avancado"),
   head: () => ({
     meta: [
@@ -79,6 +92,21 @@ function EditorLayoutTema({
   const navigate = useNavigate();
   const saveDraft = useServerFn(salvarRascunhoPagina);
   const e = useEditorDaPagina(initial, () => void reload());
+  // Como no Figaro, a tela abre com um layout e um tema do catálogo já escolhidos.
+  const { setConfig } = e;
+  const { layout: layoutPedido, tema: temaPedido } = Route.useSearch();
+  useEffect(
+    () =>
+      setConfig((antigo) => {
+        let c = ajustarAoCatalogo(antigo);
+        if (layoutPedido) c = trocarLayoutNoCatalogo(c, layoutPedido);
+        if (temaPedido) c = aplicarTema(c, temaPedido);
+        return c;
+      }),
+    // Só ao abrir a tela.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
+  );
   const [salvando, setSalvando] = useState(false);
   const [mensagem, setMensagem] = useState("");
   const [erro, setErro] = useState(false);
@@ -113,13 +141,7 @@ function EditorLayoutTema({
         <SecaoLayoutsETemas
           config={e.config}
           setLayout={(layout: LayoutId) =>
-            e.setConfig((old) => {
-              const comLayout = aplicarLayout(old, layout);
-              // Tema antigo do Cortaí não existe no catálogo do Figaro: leva o primeiro tema.
-              return (TEMAS_DO_CATALOGO as readonly string[]).includes(old.tema)
-                ? comLayout
-                : aplicarTema(comLayout, TEMAS_DO_CATALOGO[0]);
-            })
+            e.setConfig((old) => trocarLayoutNoCatalogo(old, layout))
           }
           atualizar={(config) => e.setConfig(config)}
           escolherTema={(tema) => e.setConfig((old) => aplicarTema(old, tema))}

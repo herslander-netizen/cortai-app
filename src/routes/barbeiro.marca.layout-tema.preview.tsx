@@ -9,7 +9,14 @@ import { useEditorDaPagina } from "@/components/marca/editor/useEditorDaPagina";
 import { Button } from "@/components/ui/button";
 import { getMarca } from "@/lib/marca.functions";
 import { exigirCapacidade } from "@/lib/guarda-capacidade";
-import { aplicarLayout, aplicarTema, layoutIds, LAYOUTS, TEMAS, temaIds } from "@/lib/pagina-config";
+import {
+  aplicarLayout,
+  aplicarTema,
+  layoutIds,
+  LAYOUTS,
+  TEMAS,
+  temaIds,
+} from "@/lib/pagina-config";
 
 export const Route = createFileRoute("/barbeiro/marca/layout-tema/preview")({
   validateSearch: z.object({
@@ -57,7 +64,7 @@ function PreviaLayoutTemaPage() {
       initial={query.data.marca}
       layout={layout}
       tema={tema}
-      voltar={() => void navigate({ to: "/barbeiro/marca/layout-tema" })}
+      voltar={() => void navigate({ to: "/barbeiro/marca/layout-tema", search: { layout, tema } })}
     />
   );
 }

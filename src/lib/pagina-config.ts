@@ -493,6 +493,31 @@ export const TEMAS_DO_CATALOGO = [...TEMAS_DO_FIGARO, ...TEMAS_FEMININOS] as con
 /** Layouts da tela Layout & Tema: os dois do Figaro e o Chat, atendimento em conversa do Cortaí. */
 export const LAYOUTS_DO_CATALOGO = [...LAYOUTS_DO_FIGARO, "cortai-chat"] as const satisfies readonly LayoutId[];
 
+/** Temas que cada layout oferece (`availableThemes` do Figaro); os dois sites e o Chat usam os mesmos seis. */
+export function temasDoLayout(_layout: LayoutId): readonly TemaId[] {
+  return TEMAS_DO_CATALOGO;
+}
+
+/**
+ * Leva a página aberta para dentro do catálogo da tela Layout & Tema, como o Figaro: sempre há um layout e um tema
+ * escolhidos. Layout ou tema antigos do Cortaí viram o primeiro do catálogo (só na tela; nada é gravado até salvar).
+ */
+export function ajustarAoCatalogo(config: PaginaConfig): PaginaConfig {
+  const comLayout = (LAYOUTS_DO_CATALOGO as readonly string[]).includes(config.layout)
+    ? config
+    : aplicarLayout(config, LAYOUTS_DO_CATALOGO[0]);
+  return temasDoLayout(comLayout.layout).includes(comLayout.tema)
+    ? comLayout
+    : aplicarTema(comLayout, temasDoLayout(comLayout.layout)[0]!);
+}
+
+/** `onLayoutSelected` do Figaro: mantém o tema se o novo layout o oferece; senão vai para o primeiro. */
+export function trocarLayoutNoCatalogo(config: PaginaConfig, layout: LayoutId): PaginaConfig {
+  const comLayout = aplicarLayout(config, layout);
+  const temas = temasDoLayout(layout);
+  return temas.includes(comLayout.tema) ? comLayout : aplicarTema(comLayout, temas[0]!);
+}
+
 /**
  * Troca o layout. O Chat é uma experiência de conversa: ao escolhê-lo o link abre o atendimento em chat; ao
  * sair dele de volta para um site, o link volta à vitrine.
