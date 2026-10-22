@@ -5,7 +5,6 @@ import { Eye, Save } from "lucide-react";
 
 import { EsqueletoFormulario } from "@/components/layout/Esqueleto";
 import { Screen } from "@/components/layout/Screen";
-import { PreviaDaExperiencia } from "@/components/marca/editor/PreviaDaExperiencia";
 import { SecaoLayoutsETemas } from "@/components/marca/editor/SecaoLayoutsETemas";
 import { useEditorDaPagina } from "@/components/marca/editor/useEditorDaPagina";
 import { Button } from "@/components/ui/button";
