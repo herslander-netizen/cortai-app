@@ -515,6 +515,19 @@ export function totalDeSecoesAtivas(config: Pick<PaginaConfig, "layout" | "compo
   return secoesDoLayoutAtual(config.layout).filter((id) => config.componentes[id]).length + 1;
 }
 
+/**
+ * Estrutura da página de cada tema. `classica` é a do Figaro (abertura em tela cheia, acordeão). Os temas
+ * femininos mudam a composição: `arco` (foto em arco e serviços em cartões), `cartao` (foto em cartão com
+ * painel de vidro, atalhos fixos e carrossel) e `vibrante` (título grande à esquerda, onda e mosaico).
+ */
+export type EstruturaDaPagina = "classica" | "arco" | "cartao" | "vibrante";
+export const ESTRUTURA_DO_TEMA: Partial<Record<TemaId, EstruturaDaPagina>> = {
+  "feminino-rose": "arco",
+  "feminino-lavanda": "cartao",
+  "feminino-pessego": "vibrante",
+};
+export const estruturaDoTema = (tema: TemaId): EstruturaDaPagina => ESTRUTURA_DO_TEMA[tema] ?? "classica";
+
 /** Fontes de cada tema do Figaro (título e texto), como nas páginas de exemplo. */
 export const FONTES_DO_TEMA: Partial<Record<TemaId, { titulo: FonteId; texto: FonteId }>> = {
   "figaro-classico": { titulo: "playfair", texto: "outfit" },

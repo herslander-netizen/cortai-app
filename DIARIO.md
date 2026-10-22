@@ -665,6 +665,14 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-22 UTC — Claude — Temas femininos com estrutura própria
+- Pedido do dono: os temas devem mudar o **layout**, não só cor e fonte. `estruturaDoTema` (em `pagina-config.ts`)
+  dá a cada tema feminino uma composição: **Rosé = arco** (foto em arco, título centrado, equipe em círculos,
+  serviços em cartões, galeria 2 colunas), **Lavanda = cartão** (foto em cartão com painel de vidro, atalhos fixos
+  por seção, equipe em cartões horizontais, serviços em acordeão-cartão, galeria em carrossel) e **Pêssego =
+  vibrante** (título grande à esquerda, onda, equipe em polaroids, serviços em ladrilhos, galeria em mosaico). Os do
+  Figaro mantêm a estrutura `classica`. CSS `.fg[data-estrutura]`; markup em `SiteCompleto.tsx`.
+
 ### 2026-10-22 UTC — Claude — Três temas femininos (Rosé, Lavanda e Pêssego)
 - Novos temas do Cortaí na tela Layout & Tema (agora 6 por layout), usando os modelos Site Completo e Agendamento:
   **Rosé** (rosa suave e ouro rosado, Cormorant + Outfit), **Lavanda** (lilás, Playfair + Poppins) e **Pêssego**

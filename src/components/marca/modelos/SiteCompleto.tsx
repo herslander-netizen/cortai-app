@@ -20,7 +20,7 @@ import { IconeDaRede } from "@/components/marca/editor/IconesDasRedes";
 import { LogoBarbearia } from "@/components/marca/LogoBarbearia";
 import { brl } from "@/lib/format";
 import { MOLA } from "@/lib/movimento-figaro";
-import type { PaginaConfig } from "@/lib/pagina-config";
+import { estruturaDoTema, type PaginaConfig } from "@/lib/pagina-config";
 import type { PaginaPublica } from "@/lib/publico.functions";
 import { linkDaRede } from "@/lib/redes-do-negocio";
 import { termos } from "@/lib/segmentos";
@@ -123,6 +123,7 @@ export function SiteCompleto({
   const reduzir = useReducedMotion();
   const vocabulario = termos(tenant.segmento);
   const rapido = variante === "agendamento";
+  const estrutura = estruturaDoTema(config.tema);
   const on = config.componentes;
   const sec = config.secoes;
   const instagram = tenant.instagram?.replace(/^@/, "") || null;
@@ -159,6 +160,17 @@ export function SiteCompleto({
     </li>
   );
 
+  const cartaDeServico = (s: PaginaPublica["servicos"][number]) => (
+    <li key={s.id} className="fg-carta">
+      <h4>{s.nome}</h4>
+      <span className="fg-preco">{brl(s.preco_centavos)}</span>
+      <small>
+        <Clock3 size={14} aria-hidden /> {s.duracao_min} min
+      </small>
+      {renderAgendar("fg-btn-linha", "Agendar", s.id)}
+    </li>
+  );
+
   const temServicos = on.servicos && data.servicos.length > 0;
   const temEquipe = !rapido && on.profissionais && data.profissionais.length > 0;
   const temGaleria = !rapido && on.galeria && tenant.fotos_signed_urls.length > 0;
@@ -186,6 +198,7 @@ export function SiteCompleto({
     <div
       className={`fg ${preview ? "is-preview" : ""} ${rapido ? "fg-rapido" : ""}`}
       data-tema={config.tema}
+      data-estrutura={estrutura}
     >
       <header className="fg-hero">
         <img
@@ -219,6 +232,9 @@ export function SiteCompleto({
           </button>
         </div>
         <div className="fg-centro">
+          {estrutura === "arco" ? (
+            <img src={capa} alt="" className="fg-arco" width={600} height={760} decoding="async" />
+          ) : null}
           <h1>{config.frase || tenant.nome}</h1>
           {tenant.descricao || tenant.texto_boas_vindas || config.sobre ? (
             <p>{tenant.descricao || tenant.texto_boas_vindas || config.sobre}</p>
@@ -232,6 +248,11 @@ export function SiteCompleto({
             <ChevronDown size={26} aria-hidden />
           </button>
         )}
+        {estrutura === "vibrante" ? (
+          <svg className="fg-onda" viewBox="0 0 100 10" preserveAspectRatio="none" aria-hidden>
+            <path d="M0 6 C 12 0, 25 0, 37 5 S 62 10, 75 5 S 92 0, 100 4 V10 H0Z" />
+          </svg>
+        ) : null}
         <svg className="fg-diagonal" viewBox="0 0 100 12" preserveAspectRatio="none" aria-hidden>
           <polygon points="0,8 18,12 100,3 100,12 0,12" className="fg-diagonal-fundo" />
           <polyline
@@ -242,6 +263,16 @@ export function SiteCompleto({
           />
         </svg>
       </header>
+
+      {estrutura === "cartao" && !rapido && ancoras.length > 0 ? (
+        <nav className="fg-chips" aria-label="Seções da página">
+          {ancoras.map((a) => (
+            <button key={a.id} type="button" onClick={() => ir(a.id)}>
+              {a.nome}
+            </button>
+          ))}
+        </nav>
+      ) : null}
 
       <AnimatePresence>
         {menuAberto ? (
@@ -310,23 +341,42 @@ export function SiteCompleto({
         {temServicos ? (
           <section id="fg-servicos" className="fg-secao">
             <h2>Serviços</h2>
-            <div className="fg-acordeao">
-              {populares.length ? (
-                <GrupoDeServicos titulo="Mais procurados" destaque abertoInicial>
-                  <ul>{populares.map(linhaDeServico)}</ul>
-                </GrupoDeServicos>
-              ) : null}
-              {[...porCategoria.entries()].map(([categoria, lista], i) => (
-                <GrupoDeServicos
-                  key={categoria}
-                  titulo={categoria}
-                  contagem={lista.length}
-                  abertoInicial={!populares.length && i === 0}
-                >
-                  <ul>{lista.map(linhaDeServico)}</ul>
-                </GrupoDeServicos>
-              ))}
-            </div>
+            {estrutura === "arco" || estrutura === "vibrante" ? (
+              <div className="fg-cartas">
+                {populares.length ? (
+                  <>
+                    <h3 className="fg-categoria">
+                      Mais procurados <Flame size={16} className="fg-chama" aria-hidden />
+                    </h3>
+                    <ul>{populares.map(cartaDeServico)}</ul>
+                  </>
+                ) : null}
+                {[...porCategoria.entries()].map(([categoria, lista]) => (
+                  <div key={categoria}>
+                    <h3 className="fg-categoria">{categoria}</h3>
+                    <ul>{lista.map(cartaDeServico)}</ul>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="fg-acordeao">
+                {populares.length ? (
+                  <GrupoDeServicos titulo="Mais procurados" destaque abertoInicial>
+                    <ul>{populares.map(linhaDeServico)}</ul>
+                  </GrupoDeServicos>
+                ) : null}
+                {[...porCategoria.entries()].map(([categoria, lista], i) => (
+                  <GrupoDeServicos
+                    key={categoria}
+                    titulo={categoria}
+                    contagem={lista.length}
+                    abertoInicial={!populares.length && i === 0}
+                  >
+                    <ul>{lista.map(linhaDeServico)}</ul>
+                  </GrupoDeServicos>
+                ))}
+              </div>
+            )}
           </section>
         ) : null}
 
