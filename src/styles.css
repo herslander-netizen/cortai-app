@@ -5601,6 +5601,48 @@ button.agenda-nome:hover {
   font-size: 12px;
   font-weight: 700;
 }
+/* Horário bloqueado (apk/3 §7): faixa mais marcada que o intervalo, com cadeado e motivo. */
+.agenda-timeline-bloqueio {
+  z-index: 2;
+  overflow: hidden;
+  border-left: 3px solid color-mix(in oklab, var(--mute) 55%, transparent);
+  background:
+    repeating-linear-gradient(
+      135deg,
+      transparent 0 6px,
+      color-mix(in oklab, var(--mute) 26%, transparent) 6px 7px
+    ),
+    color-mix(in oklab, var(--mute) 8%, transparent);
+  animation: agenda-bloqueio-entra var(--mov-base) var(--ease-saida) both;
+}
+.agenda-timeline-bloqueio span {
+  display: inline-flex;
+  max-width: calc(100% - 16px);
+  align-items: center;
+  gap: 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--paper);
+}
+.agenda-timeline-bloqueio svg {
+  width: 12px;
+  height: 12px;
+  flex: none;
+}
+@keyframes agenda-bloqueio-entra {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .agenda-timeline-bloqueio {
+    animation: none;
+  }
+}
 .agenda-timeline-toque {
   position: absolute;
   right: 4px;

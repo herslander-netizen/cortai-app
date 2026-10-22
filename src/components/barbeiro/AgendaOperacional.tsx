@@ -607,6 +607,11 @@ export function AgendaOperacional() {
     () => todosItens.filter((item) => !profFiltro || item.profissionalId === profFiltro),
     [todosItens, profFiltro],
   );
+  /** Bloqueios cadastrados do dia; os da equipe toda (sem profissional) valem para qualquer coluna. */
+  const bloqueiosDoDia = (profissional: string | null) =>
+    (agenda.data?.bloqueiosDoDia ?? [])
+      .filter((b) => !b.profissional_id || !profissional || b.profissional_id === profissional)
+      .map((b) => ({ id: b.id, inicio: b.inicio, fim: b.fim, motivo: b.motivo }));
 
   useEffect(() => {
     const lista = agenda.data?.itens;
@@ -1465,6 +1470,7 @@ export function AgendaOperacional() {
                       fuso={fuso}
                       itens={itens.filter((item) => item.profissionalId === p.id)}
                       itensEscala={itens}
+                      bloqueiosDoDia={bloqueiosDoDia(p.id)}
                       alinhado
                       horarios={agenda.data?.horarios ?? []}
                       selecionado={selecionado}
@@ -1498,6 +1504,7 @@ export function AgendaOperacional() {
                   fuso={fuso}
                   itens={itens}
                   itensEscala={todosItens}
+                  bloqueiosDoDia={bloqueiosDoDia(profFiltro)}
                   horarios={agenda.data?.horarios ?? []}
                   selecionado={selecionado}
                   onSelecionar={abrir}

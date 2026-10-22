@@ -374,6 +374,19 @@ teste real na prévia.
 
 ## Diário
 
+### 2026-10-22 UTC — Claude — Bloqueio aparece na linha do tempo da Agenda (faixa com cadeado e motivo)
+- Arquivos: `src/lib/barbeiro.functions.ts` (`getAgendaDia` devolve `bloqueiosDoDia` com id, profissional, horário e
+  motivo; leitura à parte, se falhar a Agenda abre igual), `src/components/barbeiro/AgendaTimeline.tsx` (nova prop
+  `bloqueiosDoDia`, faixa no mesmo padrão do "Intervalo": sem ponteiros, não interfere nos gestos),
+  `src/components/barbeiro/AgendaOperacional.tsx` (passa os bloqueios: na coluna de cada profissional vê o dele e os da
+  equipe toda; na visão geral respeita o filtro) e `src/styles.css` (`.agenda-timeline-bloqueio`).
+- Layout: faixa hachurada mais marcada que o intervalo, barra lateral, cadeado e o motivo (ou "Bloqueado").
+  Animação: só opacidade, 200 ms (`--mov-base`), desligada com movimento reduzido.
+- Antes o bloqueio só impedia agendar e **não aparecia** na Agenda. Detalhe e desbloqueio continuam na folha
+  "Bloquear horário". **Pendente / sem evidência no código:** tocar na faixa para abrir o detalhe e arrastar o bloqueio
+  (o Figaro faz); não fiz para não mexer nos gestos sem poder ver a tela. Os dias vizinhos do gesto ainda não mostram a faixa.
+- Testes: TypeScript ok, Vitest 1623 ok; lint com a mesma contagem de antes (17, todos já existentes). Sem migração.
+
 ### 2026-10-22 UTC — Claude — Bloqueio de horário no padrão Figaro (preserva o que o Cortaí já tinha)
 - Arquivos: `src/components/barbeiro/agenda/BloquearHorarioSheet.tsx`, `bloqueio-janela.ts` e
   `bloqueio-janela.test.ts` (novos). Sem migração, sem mudança de backend.

@@ -1,5 +1,5 @@
 import { OrigemDoAgendamento } from "@/components/barbeiro/agenda/OrigemDoAgendamento";
-import { Clock3 } from "lucide-react";
+import { Clock3, Lock } from "lucide-react";
 import { IconeDoEstado } from "@/components/barbeiro/agenda/IconeDoEstado";
 import {
   Fragment,
@@ -98,6 +98,8 @@ type AgendaTimelineProps = {
   vizinhos?: ReactNode;
   /** Página de um dia vizinho dentro da troca de dia: sem rolagem própria nem alinhamento. */
   emCamada?: boolean;
+  /** Bloqueios do dia (já filtrados para esta coluna): faixa visual, sem ponteiros. */
+  bloqueiosDoDia?: { id: string; inicio: string; fim: string; motivo: string | null }[];
 };
 
 const MARGEM_AGORA_MIN = 90;
@@ -162,6 +164,7 @@ export function AgendaTimeline({
   diaCompleto = false,
   vizinhos,
   emCamada = false,
+  bloqueiosDoDia = [],
 }: AgendaTimelineProps) {
   const relogio = useAgora();
   const agora = agoraProp ?? relogio;
@@ -854,6 +857,28 @@ export function AgendaTimeline({
               {faixa.fechado ? <span>Fechado</span> : null}
             </div>
           ))}
+          {bloqueiosDoDia.map((b) => {
+            const de = Math.max(minutosNoFuso(b.inicio, fuso), escala.inicio);
+            const ate = Math.min(minutosNoFuso(b.fim, fuso) || 24 * 60, escala.fim);
+            if (ate <= de) return null;
+            return (
+              <div
+                key={b.id}
+                className="agenda-timeline-intervalo agenda-timeline-bloqueio"
+                style={{
+                  top: `${(de - escala.inicio) * PX_POR_MINUTO + deslocamentoAte(de)}px`,
+                  height: `${(ate - de) * PX_POR_MINUTO + deslocamentoAte(ate) - deslocamentoAte(de)}px`,
+                }}
+                role="img"
+                aria-label={`Horário bloqueado, ${horaMinuto(de)} às ${horaMinuto(ate)}${b.motivo ? `, ${b.motivo}` : ""}`}
+              >
+                <span>
+                  <Lock aria-hidden />
+                  {b.motivo || "Bloqueado"}
+                </span>
+              </div>
+            );
+          })}
           {intervalo ? (
             <div
               className="agenda-timeline-intervalo"

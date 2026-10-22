@@ -131,6 +131,14 @@ export type AgendaDia = {
   itens: AgendaItem[];
   /** Bloqueios por data e fora da escala (mesma fonte do motor). Pode faltar em cache antigo. */
   bloqueios?: { profissional_id: string | null; inicio: string; fim: string }[];
+  /** Bloqueios cadastrados no dia, com id e motivo, para a faixa visual da Agenda. */
+  bloqueiosDoDia?: {
+    id: string;
+    profissional_id: string | null;
+    inicio: string;
+    fim: string;
+    motivo: string | null;
+  }[];
   fila: FilaJanela[];
   horarios: {
     diaSemana: number;
@@ -285,7 +293,38 @@ export const getAgendaDia = createServerFn({ method: "GET" })
         profissionalIds: profissionais.map((p) => p.id),
       }).catch(() => [])
     ).map((b) => ({ profissional_id: b.profissional_id, inicio: b.inicio, fim: b.fim }));
-    return { tenant, dia: iso, itens, bloqueios, fila, horarios, fuso, passoMin, profissionais };
+    // Bloqueios cadastrados (com id e motivo) para a faixa visual da linha do tempo. Leitura à
+    // parte: se falhar, a Agenda abre igual, só sem a faixa.
+    const bloqueiosDoDia = await db
+      .from("bloqueios_de_agenda")
+      .select("id, profissional_id, inicio, fim, motivo")
+      .eq("tenant_id", tenant.id)
+      .lt("inicio", ate.toISOString())
+      .gt("fim", de.toISOString())
+      .order("inicio")
+      .then(({ data: linhas, error }) =>
+        error
+          ? []
+          : (linhas ?? []).map((b) => ({
+              id: b.id,
+              profissional_id: b.profissional_id,
+              inicio: b.inicio,
+              fim: b.fim,
+              motivo: b.motivo,
+            })),
+      );
+    return {
+      tenant,
+      dia: iso,
+      itens,
+      bloqueios,
+      bloqueiosDoDia,
+      fila,
+      horarios,
+      fuso,
+      passoMin,
+      profissionais,
+    };
   });
 
 /** Máximo de dias numa leitura de período (o modo lista do celular carrega em blocos). */
