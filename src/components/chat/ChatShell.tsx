@@ -65,6 +65,7 @@ export function ChatHeader({
   status,
   detalhe,
   processando = false,
+  online = false,
   voltar,
   acoes = [],
 }: {
@@ -73,6 +74,8 @@ export function ChatHeader({
   status?: string;
   detalhe?: string;
   processando?: boolean;
+  /** Mostra o ponto de presença sobre o avatar, como nos apps de mensagem. */
+  online?: boolean;
   voltar?: { href?: string; onClick?: () => void; rotulo?: string };
   acoes?: AcaoDoCabecalho[];
 }) {
@@ -95,13 +98,16 @@ export function ChatHeader({
           </button>
         )
       ) : null}
-      {avatarUrl ? (
-        <img src={avatarUrl} alt="" className="chat-header-avatar" />
-      ) : (
-        <span className="chat-avatar-letra chat-header-avatar" aria-hidden>
-          {nomeExibido.slice(0, 1).toUpperCase()}
-        </span>
-      )}
+      <span className="chat-header-avatar-caixa">
+        {avatarUrl ? (
+          <img src={avatarUrl} alt="" className="chat-header-avatar" />
+        ) : (
+          <span className="chat-avatar-letra chat-header-avatar" aria-hidden>
+            {nomeExibido.slice(0, 1).toUpperCase()}
+          </span>
+        )}
+        {online ? <span className="chat-presenca" aria-hidden /> : null}
+      </span>
       <div className="min-w-0 flex-1">
         <h1 className="truncate text-base font-extrabold leading-tight">{nomeExibido}</h1>
         {status ? (
@@ -188,7 +194,7 @@ export function ChatShell({
 export function TypingIndicator({ rotulo = "Digitando" }: { rotulo?: string }) {
   return (
     <span
-      className="chat-bolha-ia inline-flex h-10 items-center gap-1 px-4"
+      className="chat-bolha-ia chat-bolha-digitando inline-flex h-10 items-center gap-1 px-4"
       role="status"
       aria-label={rotulo}
     >

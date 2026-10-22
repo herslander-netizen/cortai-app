@@ -9712,3 +9712,140 @@ button.agenda-nome:hover {
     transition: none;
   }
 }
+
+/* ===== Chat refinado (referências: WhatsApp, Telegram, iMessage) ===== */
+.chat-header-avatar-caixa {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+}
+.chat-presenca {
+  position: absolute;
+  right: -1px;
+  bottom: -1px;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: #25d366;
+  box-shadow: 0 0 0 2px var(--chat-surface, var(--background));
+}
+.chat-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  float: right;
+  margin: 6px 0 -4px 10px;
+  font-size: 10.5px;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: var(--chat-muted, currentColor);
+  opacity: 0.8;
+  animation: chat-meta-entra 200ms 120ms ease-out both;
+}
+@keyframes chat-meta-entra {
+  from {
+    opacity: 0;
+  }
+}
+.chat-vistos {
+  width: 15px;
+  height: 10px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+/* enviado → entregue (segundo visto) → lido (azul) */
+.chat-visto-2 {
+  stroke-dasharray: 12;
+  stroke-dashoffset: 12;
+  animation: chat-visto 220ms 700ms ease-out forwards;
+}
+.chat-vistos {
+  animation: chat-lido 200ms 1500ms ease-out forwards;
+}
+@keyframes chat-visto {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes chat-lido {
+  to {
+    color: #34b7f1;
+  }
+}
+.chat-meta[data-cliente] {
+  color: color-mix(in oklab, var(--chat-content, currentColor) 62%, transparent);
+}
+.chat-dia {
+  display: flex;
+  justify-content: center;
+  animation: chat-meta-entra 300ms ease-out both;
+}
+.chat-dia span {
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  background: var(--chat-glass, rgb(0 0 0 / 0.35));
+  border: 1px solid var(--chat-borda, transparent);
+  color: var(--chat-muted, currentColor);
+  backdrop-filter: blur(8px);
+}
+/* Resposta com foto: imagem em cima, legenda embaixo, como no WhatsApp. */
+.chat-bolha-cliente[data-com-foto] {
+  padding: 4px 4px 8px !important;
+  align-items: flex-end;
+}
+.chat-bolha-foto {
+  width: min(220px, 62vw);
+  max-width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: 16px 16px 6px 16px;
+  flex-basis: 100%;
+  animation: chat-foto 360ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.chat-bolha-cliente[data-com-foto] > span:not(.chat-meta),
+.chat-bolha-cliente[data-com-foto] > svg {
+  margin-left: 10px;
+}
+.chat-bolha-cliente[data-com-foto] .chat-meta {
+  margin-right: 8px;
+}
+@keyframes chat-foto {
+  from {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+}
+.chat-bolha-digitando {
+  min-width: 64px;
+  justify-content: center;
+}
+/* Enviar só aparece "ativo" quando há texto: cresce com mola curta, como no Telegram. */
+.chat-bandeja button[type="submit"] {
+  transition:
+    transform 200ms var(--ease-saida, ease-out),
+    opacity 200ms;
+}
+.chat-bandeja button[type="submit"]:not(:disabled) {
+  transform: scale(1.06);
+}
+@media (prefers-reduced-motion: reduce) {
+  .chat-visto-2 {
+    animation-duration: 1ms;
+    animation-delay: 0ms;
+  }
+  .chat-vistos {
+    animation-duration: 1ms;
+    animation-delay: 0ms;
+  }
+  .chat-meta,
+  .chat-dia,
+  .chat-bolha-foto {
+    animation: none;
+  }
+}

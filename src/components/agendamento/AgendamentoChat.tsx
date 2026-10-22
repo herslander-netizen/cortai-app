@@ -18,7 +18,7 @@ import { pausaDaResposta } from "@/lib/pausa-chat";
 import { statusDeFuncionamento } from "@/lib/status-funcionamento";
 import { AberturaDoChat } from "./chat/AberturaDoChat";
 import { BarraDeMensagem } from "./chat/BarraDeMensagem";
-import { BolhaEditavel, Fala, MensagensExtras } from "./chat/BolhasDaConversa";
+import { BolhaEditavel, Fala, MensagensExtras, SeparadorDeDia } from "./chat/BolhasDaConversa";
 import { EtapaDia, EtapaProfissional, EtapaServico } from "./chat/EtapasDoChat";
 import { EtapaDados, EtapaHorario } from "./chat/EtapaHorarioEDados";
 import { linkDaEquipe } from "./chat/respostasRapidas";
@@ -36,7 +36,7 @@ export function statusDoCabecalho(
   respondendo: boolean,
   funcionamento: { aberto: boolean; texto: string } | null,
 ) {
-  if (respondendo) return "Respondendo…";
+  if (respondendo) return "digitando…";
   if (!funcionamento) return "Agenda online";
   return funcionamento.aberto ? "Online agora" : funcionamento.texto;
 }
@@ -171,6 +171,7 @@ export function AgendamentoChat({
             avatarUrl={data.pagina.chat.avatarUrl ?? data.tenant.logoUrl}
             status={statusDoCabecalho(digitando || enviando, funcionamento)}
             processando={digitando || enviando}
+            online={funcionamento?.aberto ?? true}
             voltar={{ href: paginaDoNegocio, rotulo: `Voltar para ${data.tenant.nome}` }}
             acoes={[
               { rotulo: "Recomeçar conversa", icone: <RotateCcw />, onSelect: conversa.recomecar },
@@ -187,6 +188,7 @@ export function AgendamentoChat({
             role="log"
             aria-live="polite"
           >
+            <SeparadorDeDia />
             <Fala>
               {saudacao(memoria?.primeiroNome)} {data.pagina.chat.mensagemInicial}
             </Fala>
@@ -214,6 +216,7 @@ export function AgendamentoChat({
             {s.servico ? (
               <BolhaEditavel
                 texto={s.servico.nome}
+                fotoUrl={s.servico.foto_url}
                 rotulo="serviço"
                 onEditar={() => conversa.corrigir("servico")}
               />
@@ -221,6 +224,11 @@ export function AgendamentoChat({
             {s.servico && conversa.profEscolhido ? (
               <BolhaEditavel
                 texto={profTexto}
+                fotoUrl={
+                  s.profissionalId === "qualquer"
+                    ? null
+                    : data.profissionais.find((p) => p.id === s.profissionalId)?.avatar_url
+                }
                 rotulo="profissional"
                 onEditar={() => conversa.corrigir("profissional")}
               />
