@@ -665,6 +665,14 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-22 UTC — Claude — Chat Grafite e Rústico; `/` abre a tela de entrada
+- **Chat**: dois estilos prontos novos, **Grafite** (grafite quente, destaque areia) e **Rústico** (areia clara, couro,
+  cabeçalho em cartão, serifa discreta, balões com filete de costura). Novo balão `rustico`, novas cores da conversa
+  `grafite` e `rustico` e destaques `areia` e `couro` (aditivo no schema; páginas salvas continuam iguais).
+  Estilos prontos agora podem fixar também o destaque.
+- **`/`** sem sessão passa a abrir a tela de entrada (`/login`) em vez da apresentação (decisão do dono, 22/10). A
+  apresentação continua em `/apresentacao`; o interruptor de `/admin/home` não afeta mais o `/`.
+
 ### 2026-10-22 UTC — Claude — Chat refinado e auditoria do menu/Agenda (padrão Figaro)
 - **Chat** (referência WhatsApp/Telegram/iMessage; só apresentação): hora em cada mensagem e vistos nas do cliente
   (enviado → entregue → lido em azul, animados), separador "Hoje", resposta do cliente com **foto** do serviço ou do

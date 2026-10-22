@@ -9879,3 +9879,36 @@ button.agenda-nome:hover {
   line-height: 20px;
   font-weight: 500;
 }
+
+/* rústico / grafite: barbearia de couro e madeira, tons neutros e suaves, serifa discreta */
+:is(.chat-sistema, .chat-preview-personalizado)[data-estilo="rustico"] h1,
+:is(.chat-sistema, .chat-preview-personalizado)[data-estilo="rustico"] h2,
+:is(.chat-sistema, .chat-preview-personalizado)[data-estilo="rustico"] h3 {
+  font-family: "Old Standard TT", "Cormorant Garamond", Georgia, serif;
+  letter-spacing: 0.015em;
+}
+:is(.chat-sistema, .chat-preview-personalizado)[data-estilo="rustico"] .chat-bolha-ia,
+:is(.chat-sistema, .chat-preview-personalizado)[data-estilo="rustico"] [data-from="assistant"] > div {
+  border: 1px solid color-mix(in oklab, var(--chat-content) 16%, transparent);
+  border-radius: 6px 18px 18px 18px;
+  background: color-mix(in oklab, var(--chat-surface) 92%, var(--chat-content));
+  backdrop-filter: none;
+  /* costura do couro: filete pontilhado por dentro da borda */
+  box-shadow:
+    inset 0 0 0 3px color-mix(in oklab, var(--chat-surface) 92%, var(--chat-content)),
+    inset 0 0 0 4px color-mix(in oklab, var(--chat-content) 9%, transparent),
+    0 6px 14px -12px rgb(0 0 0 / 0.5);
+}
+:is(.chat-sistema, .chat-preview-personalizado)[data-estilo="rustico"] .chat-bolha-cliente {
+  border: 1px solid color-mix(in oklab, var(--chat-primary, var(--primary)) 40%, transparent);
+  border-radius: 18px 6px 18px 18px;
+  background: color-mix(in oklab, var(--chat-primary, var(--primary)) 24%, var(--chat-surface));
+  color: var(--chat-content);
+  box-shadow: 0 6px 14px -12px rgb(0 0 0 / 0.5);
+}
+:is(.chat-sistema, .chat-preview-personalizado)[data-estilo="rustico"] .chat-dia span {
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 10.5px;
+}

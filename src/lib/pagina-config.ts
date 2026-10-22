@@ -77,7 +77,7 @@ export const NOMES_DAS_SECOES: Record<(typeof componenteIds)[number], string> = 
   cta_final: "Chamada final",
 };
 
-export const CHAT_ESTILOS = ["vidro", "classico", "suave", "minimo", "elegante"] as const;
+export const CHAT_ESTILOS = ["vidro", "classico", "suave", "minimo", "elegante", "rustico"] as const;
 export const chatConfigSchema = z.object({
   modo: z.enum(["tradicional", "conversa"]).default("tradicional"),
   nomeRecepcao: z.string().trim().max(40).default("Lisa"),
@@ -88,14 +88,16 @@ export const chatConfigSchema = z.object({
     .max(240)
     .default("Olá! Vou ajudar você a encontrar o melhor horário."),
   textoFinal: z.string().trim().max(240).default("Tudo certo. Seu horário está reservado!"),
-  corDestaque: z.enum(["azul", "ciano", "rosa"]).default("azul"),
+  corDestaque: z.enum(["azul", "ciano", "rosa", "areia", "couro"]).default("azul"),
   comemoracao: z.boolean().default(true),
   salvarCalendario: z.boolean().default(true),
   listaEspera: z.boolean().default(true),
   /** Estilo visual do chat (todos com padrão igual ao visual anterior). */
   estilo: z.enum(CHAT_ESTILOS).default("vidro"),
   fundo: z.enum(["capa", "liso", "padrao"]).default("capa"),
-  superficie: z.enum(["padrao", "tema", "clara", "escura"]).default("padrao"),
+  superficie: z
+    .enum(["padrao", "tema", "clara", "escura", "grafite", "rustico"])
+    .default("padrao"),
   cabecalho: z.enum(["barra", "cartao"]).default("barra"),
   avatar: z.enum(["redondo", "quadrado"]).default("redondo"),
   texto: z.enum(["pequeno", "normal", "grande"]).default("normal"),
@@ -684,6 +686,9 @@ export function agendamentoStyle(config: PaginaConfig): CSSProperties {
     tema: { pagina: config.cores.fundo, texto: config.cores.texto },
     clara: { pagina: "#FFFFFF", texto: "#1B1B1F" },
     escura: { pagina: "#0F1218", texto: "#F1F3F8" },
+    // Barbearia rústica: grafite quente e areia, tons neutros e suaves.
+    grafite: { pagina: "#2A2B2C", texto: "#ECE6DB" },
+    rustico: { pagina: "#EFE8DC", texto: "#3B3027" },
   } as const;
   const sup = superficies[config.chat.superficie];
   const pagina = sup?.pagina ?? CORES_AGENDAMENTO.pagina;

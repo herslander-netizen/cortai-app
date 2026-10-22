@@ -62,6 +62,7 @@ const NOMES_DOS_BALOES: Record<(typeof CHAT_ESTILOS)[number], string> = {
   suave: "Suave",
   minimo: "Mínimo",
   elegante: "Elegante",
+  rustico: "Rústico",
 };
 
 function EditorDoChat({
@@ -191,6 +192,8 @@ function EditorDoChat({
               { valor: "tema", texto: "Tema" },
               { valor: "clara", texto: "Clara" },
               { valor: "escura", texto: "Escura" },
+              { valor: "grafite", texto: "Grafite" },
+              { valor: "rustico", texto: "Rústica" },
             ]}
             onChange={(v) => alterar({ superficie: v })}
           />

@@ -1,7 +1,13 @@
 import type { CSSProperties } from "react";
 
 export const CORES_AGENDAMENTO = {
-  destaques: { azul: "#2F5BEA", ciano: "#00A8E8", rosa: "#E85A8A" },
+  destaques: {
+    azul: "#2F5BEA",
+    ciano: "#00A8E8",
+    rosa: "#E85A8A",
+    areia: "#CDB894",
+    couro: "#8A5A36",
+  },
   pagina: "#F7F9FC",
   texto: "#07152F",
   claro: "#FFFFFF",

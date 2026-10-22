@@ -6,7 +6,8 @@ type ChatConfig = PaginaConfig["chat"];
 export type ValoresDeEstilo = Pick<
   ChatConfig,
   "estilo" | "fundo" | "superficie" | "cabecalho" | "avatar" | "texto" | "chips"
->;
+> &
+  Partial<Pick<ChatConfig, "corDestaque">>;
 
 export type EstiloDoChat = {
   id: string;
@@ -101,6 +102,36 @@ export const ESTILOS_DO_CHAT: readonly EstiloDoChat[] = [
       chips: "pilula",
     },
   },
+  {
+    id: "grafite",
+    nome: "Grafite",
+    descricao: "Grafite quente com balões sólidos e destaque em areia, sóbrio e suave.",
+    valores: {
+      estilo: "rustico",
+      fundo: "liso",
+      superficie: "grafite",
+      cabecalho: "barra",
+      avatar: "redondo",
+      texto: "normal",
+      chips: "pilula",
+      corDestaque: "areia",
+    },
+  },
+  {
+    id: "rustico",
+    nome: "Rústico",
+    descricao: "Barbearia de couro e madeira: areia clara, marrom suave e serifa discreta.",
+    valores: {
+      estilo: "rustico",
+      fundo: "liso",
+      superficie: "rustico",
+      cabecalho: "cartao",
+      avatar: "quadrado",
+      texto: "normal",
+      chips: "cartao",
+      corDestaque: "couro",
+    },
+  },
 ];
 
 const CAMPOS: (keyof ValoresDeEstilo)[] = [
@@ -111,6 +142,7 @@ const CAMPOS: (keyof ValoresDeEstilo)[] = [
   "avatar",
   "texto",
   "chips",
+  "corDestaque",
 ];
 
 /** Aplica um estilo pronto, sem mexer em recepção, mensagens nem cor de destaque. */
@@ -121,5 +153,5 @@ export function aplicarEstiloDoChat(config: PaginaConfig, id: string): PaginaCon
 
 /** Id do estilo pronto que bate com os ajustes atuais, ou `null` se foi personalizado. */
 export function estiloAtualDoChat(chat: ChatConfig): string | null {
-  return ESTILOS_DO_CHAT.find((e) => CAMPOS.every((c) => chat[c] === e.valores[c]))?.id ?? null;
+  return ESTILOS_DO_CHAT.find((e) => CAMPOS.every((c) => e.valores[c] === undefined || chat[c] === e.valores[c]))?.id ?? null;
 }

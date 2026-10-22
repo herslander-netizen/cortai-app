@@ -1,5 +1,5 @@
 import type { PaginaConfig } from "@/lib/pagina-config";
-import { CORES_AGENDAMENTO } from "@/lib/cor-marca";
+import { contrasteDaMarca, CORES_AGENDAMENTO } from "@/lib/cor-marca";
 import type { ValoresDeEstilo } from "@/lib/estilos-chat";
 
 /** Esboço de uma conversa com o estilo escolhido (formas dos balões, cabeçalho, fundo e botões). */
@@ -19,6 +19,8 @@ export function MiniaturaDoChat({
     tema: { fundo: cores.fundo, texto: cores.texto },
     clara: { fundo: "#FFFFFF", texto: "#1B1B1F" },
     escura: { fundo: "#0F1218", texto: "#F1F3F8" },
+    grafite: { fundo: "#2A2B2C", texto: "#ECE6DB" },
+    rustico: { fundo: "#EFE8DC", texto: "#3B3027" },
   }[valores.superficie];
   const mistura = (pct: number) => `color-mix(in oklab, ${sup.fundo} ${100 - pct}%, ${sup.texto})`;
   const e = valores.estilo;
@@ -43,6 +45,8 @@ export function MiniaturaDoChat({
       ? { borderLeft: `2px solid ${destaque}`, paddingLeft: 5 }
       : e === "elegante"
         ? { border: `1px solid ${mistura(22)}`, background: mistura(4) }
+        : e === "rustico"
+          ? { background: mistura(8), border: `1px solid ${mistura(20)}` }
         : e === "suave"
           ? { background: `color-mix(in oklab, ${destaque} 12%, ${sup.fundo})` }
           : e === "classico"
@@ -58,7 +62,7 @@ export function MiniaturaDoChat({
       : e === "elegante"
         ? { border: `1px solid ${destaque}`, color: destaque }
         : e === "classico"
-          ? { background: destaque, color: "#fff" }
+          ? { background: destaque, color: contrasteDaMarca(destaque) }
           : e === "suave"
             ? { background: `color-mix(in oklab, ${destaque} 24%, ${sup.fundo})` }
             : {

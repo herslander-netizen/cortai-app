@@ -136,7 +136,7 @@ export function SecaoRecepcao({
         />
       </label>
       <div className="grid grid-cols-3 gap-2">
-        {(["azul", "ciano", "rosa"] as const).map((cor) => (
+        {(["azul", "ciano", "rosa", "areia", "couro"] as const).map((cor) => (
           <Button
             key={cor}
             type="button"
