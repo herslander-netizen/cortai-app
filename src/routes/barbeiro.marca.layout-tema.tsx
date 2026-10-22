@@ -2,7 +2,6 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { Eye, Save } from "lucide-react";
-import { useState } from "react";
 
 import { EsqueletoFormulario } from "@/components/layout/Esqueleto";
 import { Screen } from "@/components/layout/Screen";
@@ -10,7 +9,6 @@ import { PreviaDaExperiencia } from "@/components/marca/editor/PreviaDaExperienc
 import { SecaoLayoutsETemas } from "@/components/marca/editor/SecaoLayoutsETemas";
 import { useEditorDaPagina } from "@/components/marca/editor/useEditorDaPagina";
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { getMarca, salvarRascunhoPagina } from "@/lib/marca.functions";
 import { exigirCapacidade } from "@/lib/guarda-capacidade";
 import { TEMAS, type LayoutId } from "@/lib/pagina-config";
@@ -76,7 +74,6 @@ function EditorLayoutTema({
 }) {
   const saveDraft = useServerFn(salvarRascunhoPagina);
   const e = useEditorDaPagina(initial, () => void reload());
-  const [previaAberta, setPreviaAberta] = useState(false);
   const [salvando, setSalvando] = useState(false);
   const [mensagem, setMensagem] = useState("");
   const [erro, setErro] = useState(false);
@@ -98,19 +95,6 @@ function EditorLayoutTema({
     }
   };
 
-  const previa = (
-    <PreviaDaExperiencia
-      data={e.previewData}
-      config={e.config}
-      device={e.device}
-      setDevice={e.setDevice}
-      nome={e.form.nome}
-      avatarUrl={e.avatarPreview || e.logoPreview}
-      capaUrl={e.coverPreview}
-      altura="h-[calc(100dvh-140px)]"
-    />
-  );
-
   return (
     <Screen
       wide
@@ -123,14 +107,14 @@ function EditorLayoutTema({
           config={e.config}
           setLayout={(layout: LayoutId) => e.setPagina("layout", layout)}
           escolherTema={(tema) => e.setConfig((old) => ({ ...old, tema, cores: TEMAS[tema].cores }))}
-          onVerExemplo={() => setPreviaAberta(true)}
+          onVerExemplo={() => void navigate({ to: "/barbeiro/marca/layout-tema/preview", search: { layout: e.config.layout, tema: e.config.tema } })}
         />
         {mensagem ? <p role={erro ? "alert" : "status"} className="text-sm text-mute">{mensagem}</p> : null}
       </div>
 
       <div className="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-ink/95 p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] backdrop-blur md:sticky md:bottom-0 md:rounded-xl md:border md:bg-ink">
         <div className="mx-auto flex max-w-[1180px] gap-2">
-          <Button variant="outline" className="min-h-12 flex-1" onClick={() => setPreviaAberta(true)}>
+          <Button variant="outline" className="min-h-12 flex-1" onClick={() => void navigate({ to: "/barbeiro/marca/layout-tema/preview", search: { layout: e.config.layout, tema: e.config.tema } })}>
             <Eye size={17} aria-hidden />
             Ver Exemplo
           </Button>
@@ -141,14 +125,6 @@ function EditorLayoutTema({
         </div>
       </div>
 
-      <Sheet open={previaAberta} onOpenChange={setPreviaAberta}>
-        <SheetContent side="bottom" className="h-[100dvh] overflow-y-auto p-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">
-          <SheetHeader>
-            <SheetTitle>Ver Exemplo</SheetTitle>
-          </SheetHeader>
-          <div className="mt-2">{previa}</div>
-        </SheetContent>
-      </Sheet>
     </Screen>
   );
 }
