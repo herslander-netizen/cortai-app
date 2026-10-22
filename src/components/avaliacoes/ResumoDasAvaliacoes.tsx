@@ -42,11 +42,11 @@ export function ResumoDasAvaliacoes({ media, notas }: { media: number | null; no
         <p className="text-[36px] font-bold leading-none tabular-nums text-paper" aria-hidden>
           {media === null ? "—" : mediaFormatada(atual)}
         </p>
-        <div className="mt-2.5 flex gap-0.5 text-gold" aria-hidden>
+        <div className={`mt-2.5 flex gap-0.5 ${tomDaNota(atual).texto}`} aria-hidden>
           {estrelasDaMedia(atual).map((e, i) =>
             e === "meia" ? (
               <span key={i} className="relative inline-flex">
-                <Star size={20} fill="none" className="text-mute2" />
+                <Star size={20} fill="none" className="text-nota-contorno" />
                 <StarHalf size={20} fill="currentColor" className="absolute inset-0" />
               </span>
             ) : (
@@ -54,12 +54,12 @@ export function ResumoDasAvaliacoes({ media, notas }: { media: number | null; no
                 key={i}
                 size={20}
                 fill={e === "cheia" ? "currentColor" : "none"}
-                className={e === "vazia" ? "text-mute2" : ""}
+                className={e === "vazia" ? "text-nota-contorno" : ""}
               />
             ),
           )}
         </div>
-        <p className="mt-2 min-h-5 text-sm font-semibold text-sage" aria-hidden>
+        <p className="mt-2 min-h-5 text-sm font-semibold text-nota-rotulo" aria-hidden>
           {media !== null && terminou ? <PulsoDeNumero>{rotulo}</PulsoDeNumero> : null}
         </p>
       </div>
@@ -70,9 +70,9 @@ export function ResumoDasAvaliacoes({ media, notas }: { media: number | null; no
         {linhas.map((l, i) => (
           <li key={l.nota} className="flex items-center gap-2.5">
             <span className="w-2.5 text-xs tabular-nums text-mute">{l.nota}</span>
-            <span className="h-1.5 flex-1 overflow-hidden rounded-full bg-ink3">
+            <span className="h-1.5 flex-1 overflow-hidden rounded-full bg-nota-trilho">
               <motion.span
-                className={`block h-full origin-left rounded-full ${tomDaNota(l.nota)}`}
+                className={`block h-full origin-left rounded-full ${tomDaNota(l.nota).fundo}`}
                 style={{ width: `${l.percentual}%` }}
                 initial={{ scaleX: 0 }}
                 animate={{ scaleX: terminou ? 1 : 0 }}

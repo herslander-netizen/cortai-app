@@ -36,14 +36,17 @@ describe("resumo das avaliações (faixas do Figaro)", () => {
     expect(distribuicaoDasNotas([]).every((l) => l.percentual === 0)).toBe(true);
   });
 
-  it("usa só tokens de cor e formata com vírgula", () => {
-    expect([5, 4, 3, 2, 1].map(tomDaNota)).toEqual([
-      "bg-sage",
-      "bg-[var(--status-arrived)]",
-      "bg-[var(--status-active)]",
-      "bg-brick",
-      "bg-brick",
+  it("usa as cores de nota do Figaro, pelas mesmas faixas", () => {
+    expect([5, 4, 3, 2, 1, 0].map((n) => tomDaNota(n).fundo)).toEqual([
+      "bg-nota-5",
+      "bg-nota-4",
+      "bg-nota-3",
+      "bg-nota-2",
+      "bg-nota-1",
+      "bg-mute2",
     ]);
+    expect(tomDaNota(4.6).texto).toBe("text-nota-5");
+    expect(tomDaNota(4.4).texto).toBe("text-nota-4");
     expect(mediaFormatada(4.6)).toBe("4,6");
     expect(mediaFormatada(5)).toBe("5,0");
   });

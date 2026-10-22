@@ -27,6 +27,11 @@ e o que fez. O diário até 17/10/2026 está guardado, sem alterações, em
 7. **Sem segredos:** nunca escreva chaves, senhas ou tokens aqui. Cite só o nome da variável.
 
 ## Decisões do dono
+- 2026-10-22: **Pode usar as mesmas paletas e cores do Figaro** (dono, ao ver as barras de Avaliações adaptadas
+  aos tons do Cortaí). As cores vêm do APK, mas entram como **tokens** do tema (ex.: `--nota-1` a `--nota-5`,
+  `--nota-trilho`, `--nota-contorno`, `--nota-rotulo` em `styles.css`, com versão clara e escura), nunca como hex
+  solto no componente, para o contrato de design continuar valendo. A marca (logo, nome, acento da identidade)
+  continua a do Cortaí.
 - 2026-10-22: **Tempos e molas do Figaro valem** (resposta do dono, "Certo", ao conflito P.2 do plano): nas
   animações que vêm do Figaro usam-se os valores do APK (90, 220, 300, 320, 350, 520 ms e as molas do Figaro),
   guardados em `src/lib/movimento-figaro.ts`. Os tokens antigos do Cortaí (`--mov-*`, `DURACAO` de `motion.ts`)
@@ -606,6 +611,17 @@ estado vazio que explica, erro com "Tentar novamente", desativar separado de exc
 - Sem alteração no banco, `main` ou produção.
 
 ## Diário
+
+### 2026-10-22 UTC — Claude — Avaliações com as cores do Figaro
+- Pela decisão do dono de hoje, o resumo de Avaliações passou a usar as cores do APK: barras por nota
+  (`ratingTone`: vermelho #DD4425, laranja #E2622E, amarelo #FFDC00, verde-água #0D9B8A, verde #3E9B4F), trilho
+  rosado (`secondaryContainer`: #FFDADE claro, #6E3843 escuro), estrelas na cor da média com contorno
+  (`outline`: #827572 claro, #9D8F8B escuro) e rótulo verde (`success`: #2E7D32 claro, #43A047 escuro).
+- Novos tokens em `src/styles.css` (`--nota-*` e `--color-nota-*` no `@theme`); `tomDaNota` em
+  `src/lib/resumo-avaliacoes.ts` devolve as classes completas (texto e fundo) para o Tailwind gerá-las.
+- Validação: `tsc`, `eslint`, `vitest`, `build`; conferido no Chromium nos temas escuro e claro.
+- **Para o GPT** (contrato de design é da sua reserva): acrescentar `nota-*` à lista de tokens permitidos em
+  `docs/contrato-de-design.md` e registrar a decisão de usar as paletas do Figaro como tokens.
 
 ### 2026-10-22 UTC — Claude — Avaliações: resumo no padrão Figaro (plano P.8)
 - `src/components/avaliacoes/ResumoDasAvaliacoes.tsx` substitui o bloco "Média interna" de `/barbeiro/avaliacoes`

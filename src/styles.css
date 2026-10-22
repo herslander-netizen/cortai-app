@@ -106,6 +106,14 @@
   --color-sage-soft: var(--sage-soft);
   --color-brick: var(--brick);
   --color-brick-soft: var(--brick-soft);
+  --color-nota-1: var(--nota-1);
+  --color-nota-2: var(--nota-2);
+  --color-nota-3: var(--nota-3);
+  --color-nota-4: var(--nota-4);
+  --color-nota-5: var(--nota-5);
+  --color-nota-trilho: var(--nota-trilho);
+  --color-nota-contorno: var(--nota-contorno);
+  --color-nota-rotulo: var(--nota-rotulo);
   --color-line: var(--line);
   --color-line2: var(--line2);
   --color-landing-light-surface: var(--landing-light-surface);
@@ -259,6 +267,16 @@
   --sage-soft: color-mix(in oklab, var(--sage) 14%, transparent);
   --brick: #d67161;
   --brick-soft: color-mix(in oklab, var(--brick) 16%, transparent);
+  /* Cores de avaliação do Figaro (decisão do dono, 22/10): ratingTone de 1 a 5, trilho das barras
+     (secondaryContainer), contorno da estrela (outline) e rótulo (success). Fonte: ColorKt/ThemeKt do APK. */
+  --nota-1: #dd4425;
+  --nota-2: #e2622e;
+  --nota-3: #ffdc00;
+  --nota-4: #0d9b8a;
+  --nota-5: #3e9b4f;
+  --nota-trilho: #6e3843;
+  --nota-contorno: #9d8f8b;
+  --nota-rotulo: #43a047;
   --line: var(--grafite-line);
   --line2: var(--grafite-line-2);
   --landing-light-surface: #f7faff;
@@ -398,6 +416,9 @@
   --primary-foreground: #ffffff;
   --sage: #4e785f;
   --brick: #a73923;
+  --nota-trilho: #ffdade;
+  --nota-contorno: #827572;
+  --nota-rotulo: #2e7d32;
   --destructive: var(--brick);
   --destructive-foreground: #ffffff;
   --ring: var(--gold);

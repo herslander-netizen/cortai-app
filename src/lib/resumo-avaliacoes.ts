@@ -36,14 +36,17 @@ export function distribuicaoDasNotas(notas: number[]): LinhaDaDistribuicao[] {
 }
 
 /**
- * Cor da barra de cada nota. O Figaro usa verde (5), verde-água (4), amarelo (3), laranja (2) e
- * vermelho (1); no Cortaí só valem tokens, então ficam os tons mais próximos.
+ * Cor de uma nota (`ThemeKt.ratingTone`): abaixo de 0,5 neutra; depois 1,5, 2,5, 3,5 e 4,5 separam
+ * vermelho, laranja, amarelo, verde-água e verde. Vale para as barras (pela nota da linha) e para as
+ * estrelas (pela média). Tokens `nota-*` com os valores do APK.
  */
-export function tomDaNota(nota: number): string {
-  if (nota >= 4.5) return "bg-sage";
-  if (nota >= 3.5) return "bg-[var(--status-arrived)]";
-  if (nota >= 2.5) return "bg-[var(--status-active)]";
-  return "bg-brick";
+export function tomDaNota(nota: number): { texto: string; fundo: string } {
+  if (nota < 0.5) return { texto: "text-mute2", fundo: "bg-mute2" };
+  if (nota < 1.5) return { texto: "text-nota-1", fundo: "bg-nota-1" };
+  if (nota < 2.5) return { texto: "text-nota-2", fundo: "bg-nota-2" };
+  if (nota < 3.5) return { texto: "text-nota-3", fundo: "bg-nota-3" };
+  if (nota < 4.5) return { texto: "text-nota-4", fundo: "bg-nota-4" };
+  return { texto: "text-nota-5", fundo: "bg-nota-5" };
 }
 
 /** Média com uma casa e vírgula ("4,6"), como na tela do Figaro. */
