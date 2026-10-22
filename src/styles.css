@@ -10011,3 +10011,11 @@ body:has(.management-shell) .agenda-acao-fixa .agenda-fab-toggle .agenda-fab-ico
   );
   border: 1px dashed color-mix(in oklab, var(--mute) 45%, transparent);
 }
+
+/* Decisão do dono (22/10): cartões da agenda no tema claro são brancos. */
+.light .agenda-timeline-bloco,
+:root.light .agenda-timeline-bloco,
+:root[data-identidade].light .agenda-timeline-bloco {
+  background: #fff;
+  color: #1f2933;
+}
