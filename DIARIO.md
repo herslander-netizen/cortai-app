@@ -452,7 +452,7 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 | Lote | IDs | Arquivos principais | Situação |
 |---|---|---|---|
 | 1 Base de componentes | C1 C2 C3 (acordeão), B1 (toque fora do `Button`), B3 (carregando mínimo), C13 (folhas), C16 (cor da barra ao rolar), H (utilitário de vibração) | `ui/accordion.tsx`, `ui/card.tsx`, `styles.css`, `lib/vibrar.ts`, `lib/movimento-figaro.ts` | **feito 22/10** (C16 passou para o lote 3; B3 e C13 sem aplicação, ver inventário) |
-| 2 Gaveta e Início | D1 D2 D3 D4, C4/C5 em uso | `layout/GruposDoMenu.tsx`, `layout/DrawerMenuExtras.tsx`, `layout/DrawerDestaques.tsx` | |
+| 2 Gaveta e Início | D1 D2 D3 D4, C4/C5 em uso | `layout/GruposDoMenu.tsx`, `layout/DrawerMenuExtras.tsx` | **feito 22/10** (falta só o ↗ do D3, que exige o período anterior) |
 | 3 Páginas e editores | C7 C8 C9 C10 C11 C12, P1 P3, L1, V3 | `marca/editor/*`, `onboarding/PrimeirosPassos.tsx`, `onboarding/EditorDeHorarios.tsx`, `painel/PreferenciasDeAvisos` | |
 | 4 Cadastros | N6/N7 nos demais cadastros (serviço, equipe, cliente), S2 S3 | `routes/barbeiro.servicos.tsx`, `equipe`, `clientes` | |
 | 5 Cobrança e comanda | N5 (passos da comanda), V1 V2 V4 | `components/comanda/*` (ler `AGENTS.md` de lá) | |
@@ -465,7 +465,6 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 | Quem | Desde (UTC) | Tarefa | Arquivos / migração reservada |
 |---|---|---|---|
-| Claude | 2026-10-22 UTC | Lote 2 de P.12: gaveta e Início (D1 grupos recolhíveis, D2 faixa de desempenho, D3 números com Odômetro e Pulso); só a animação, sem mudar dados, textos ou regras | `DIARIO.md`, `docs/referencia-figaro/apk/8-inventario-de-animacoes.md`, `src/components/layout/GruposDoMenu.tsx`, `src/components/layout/DrawerMenuExtras.tsx`, `src/components/layout/DrawerDestaques.tsx`; sem migração |
 | GPT | 2026-10-21 UTC | Corrigir a varredura de WhatsApp/Asaas: diagnosticar timeouts, preparar correção dos cron jobs e validar endpoint no worker de produção; sem escrita real até autorização explícita | `DIARIO.md`, `MUSE.md`, `drizzle/migrations/0043_corrigir_agendadores.sql`, rotas de varredura; migração 0043 (não aplicada) |
 | GPT | 2026-10-21 UTC | Validar jornada Figaro e corrigir divergências de navegação confirmadas no código; inspeção visual 390px/1280px e animações segue pendente sem navegador conectado | `DIARIO.md`, `src/routes/barbeiro.marca.tsx`, `src/routes/barbeiro.marca.secao.$secao.tsx`, `src/components/marca/editor/EditorDaSecaoPublica.tsx`, `src/components/marca/editor/SecaoConteudo.tsx`, `src/components/marca/editor/PaineisDoEditor.tsx`, `src/lib/navegacao-barbeiro.ts`, `src/lib/navegacao-barbeiro.test.ts`, `src/routes/barbeiro.sua-pagina.tsx`; sem migração |
 | GPT | 2026-10-21 UTC | Compactar cabeçalho do modo zoom/edição da Agenda sem reduzir tipografia; aplicar movimento de gaveta de entrada/saída | `DIARIO.md`, `src/components/barbeiro/agenda/CabecalhoDeEdicao.tsx`, componente que abre/fecha a configuração de zoom e testes de movimento; sem migração |
@@ -647,6 +646,19 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - Sem alteração no banco, `main` ou produção.
 
 ## Diário
+
+### 2026-10-22 UTC — Claude — Lote 2 das animações (gaveta e Início)
+- **Grupos da gaveta (`GruposDoMenu`):** o conteúdo abre/fecha em **altura com esmaecer pela mola 1/400** (antes só
+  esmaecia, 120 ms, e sumia de uma vez ao fechar) e a seta gira pela mola 1/1500. Medido: altura 57 → 110 → 149 →
+  169 → 172 px; seta 65° → 84° → 89° → 90°; fechando 144 → 85 → 34 → 5 px.
+- **Faixa de desempenho (`FaixaDesempenho`):** a grade abre pela mola de tamanho (antes 150 ms linear), a seta pela
+  mola 1/1500, e os três números usam `Odometro` (cada dígito troca deslizando) dentro de `PulsoDeNumero` (cresce
+  de 0,85 a 1,05 e assenta). O traço "–" de quando ainda não há dado continua.
+- **`Odometro`:** colunas que surgem depois da primeira exibição (o número ganhou um dígito, "–" → "1240") agora
+  entram animadas.
+- Sem mudar dados, textos, rotas ou regras. Não fiz o ↗ do Figaro (precisa comparar com o período anterior e o
+  servidor só devolve os 7 dias atuais). Falta o celular.
+- Validação: `tsc`, `eslint`, `vitest`, `build`; ensaio no Chromium (menu e números).
 
 ### 2026-10-22 UTC — Claude — Lote 1 das animações (base de componentes)
 - **Molas no CSS:** `src/styles.css` ganhou `--mola-tamanho`, `--mola-seta` e `--mola-padrao` (com a `--mola-toque`

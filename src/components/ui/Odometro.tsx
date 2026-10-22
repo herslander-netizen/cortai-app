@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 
 import { MOLA } from "@/lib/movimento-figaro";
@@ -16,6 +16,11 @@ export function Odometro({ texto, className }: { texto: string; className?: stri
     anterior.current = texto;
   }
   const caracteres = [...texto];
+  // A primeira exibição não anima; colunas que aparecem depois (o número ganhou um dígito) entram animadas.
+  const jaMostrou = useRef(false);
+  useEffect(() => {
+    jaMostrou.current = true;
+  }, []);
 
   return (
     <span className={`inline-flex tabular-nums ${className ?? ""}`} aria-label={texto} role="text">
@@ -24,7 +29,7 @@ export function Odometro({ texto, className }: { texto: string; className?: stri
         const sentido = sentidos.current[i] || 1;
         return (
           <span key={`coluna-${coluna}`} aria-hidden className="inline-grid overflow-hidden">
-            <AnimatePresence initial={false} custom={sentido}>
+            <AnimatePresence initial={jaMostrou.current} custom={sentido}>
               <motion.span
                 key={c}
                 // Antigo e novo ocupam a mesma célula, sem alargar a coluna durante a troca.

@@ -3,6 +3,8 @@ import { useQuery } from "@tanstack/react-query";
 import { Bell, ChevronDown, TrendingUp } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { Odometro } from "@/components/ui/Odometro";
+import { PulsoDeNumero } from "@/components/ui/PulsoDeNumero";
 import { getDesempenhoDaSemana } from "@/lib/desempenho-menu.functions";
 import { TEXTO_INSTALAR_PRIMEIRO } from "@/lib/push/ativar";
 import { marcarCartaoDeAvisosNoMenu, useConviteDeAvisos } from "@/lib/push/convite-avisos";
@@ -48,14 +50,20 @@ export function FaixaDesempenho({ tenantId, ativo }: { tenantId: string; ativo: 
   return (
     <div className="overflow-hidden rounded-b-[28px] rounded-t-[10px] bg-drawer-band">
       <div
-        className={`grid transition-[grid-template-rows] duration-[150ms] motion-reduce:transition-none ${aberta ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}
+        className={`grid transition-[grid-template-rows] duration-[var(--mola-tamanho-duracao)] ease-[var(--mola-tamanho)] motion-reduce:transition-none ${aberta ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}
       >
         <div className="overflow-hidden">
           <div className="grid grid-cols-3 gap-2 px-3 pt-3" aria-busy={isLoading}>
             {blocos.map((b) => (
               <div key={b.rotulo} className="rounded-[20px] bg-drawer-card px-4 py-3 text-left">
                 <p className="text-2xl font-semibold tabular-nums text-paper">
-                  {b.valor ?? <span className="text-mute">–</span>}
+                  {b.valor === undefined ? (
+                    <span className="text-mute">–</span>
+                  ) : (
+                    <PulsoDeNumero chave={String(b.valor)}>
+                      <Odometro texto={String(b.valor)} />
+                    </PulsoDeNumero>
+                  )}
                 </p>
                 <p className="mt-1 text-xs text-mute">{b.rotulo}</p>
               </div>
@@ -74,7 +82,7 @@ export function FaixaDesempenho({ tenantId, ativo }: { tenantId: string; ativo: 
           {aberta ? "Desempenho dos últimos 7 dias" : "Ver desempenho · últimos 7 dias"}
         </span>
         <ChevronDown
-          className={`size-4 transition-transform duration-[150ms] motion-reduce:transition-none ${aberta ? "rotate-180" : ""}`}
+          className={`size-4 transition-transform duration-[var(--mola-padrao-duracao)] ease-[var(--mola-padrao)] motion-reduce:transition-none ${aberta ? "rotate-180" : ""}`}
           aria-hidden
         />
       </Button>

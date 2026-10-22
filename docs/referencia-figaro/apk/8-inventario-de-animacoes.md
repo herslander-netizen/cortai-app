@@ -73,10 +73,10 @@ fica como está).
 
 | ID | Animação | Valores | Fonte | Cortaí |
 |---|---|---|---|---|
-| D1 | Grupo recolhível da gaveta | conteúdo: fade + altura (mola 1/400); seta −90°→0° mola 1/1500 | `FigarooDrawerCollapsibleSectionKt` | ✘ (`GruposDoMenu`: 120 ms; GPT) |
-| D2 | Faixa de desempenho 7 dias | abre com fade + altura; seta 0↔180° mola 1/1500 | `FigarooDrawerPageCardKt` | ✘ (`FaixaDesempenho`; GPT) |
-| D3 | Números de desempenho contam e ganham ↗ | [vídeo] `landing_peek_analytics` | ✘ (usar Odômetro e Pulso) |
-| D4 | Gaveta modal arrastável (348 dp) | gesto do dedo, mola padrão do M3 | `FigarooNavigationDrawerKt` | ◐ o Cortaí tem o menu lateral próprio; conferir o gesto |
+| D1 | Grupo recolhível da gaveta | conteúdo: fade + altura (mola 1/400); seta −90°→0° mola 1/1500 | `FigarooDrawerCollapsibleSectionKt` | ✔ 22/10 (`GruposDoMenu`: altura+fade pela mola 1/400, seta pela mola 1/1500) |
+| D2 | Faixa de desempenho 7 dias | abre com fade + altura; seta 0↔180° mola 1/1500 | `FigarooDrawerPageCardKt` | ✔ 22/10 (`FaixaDesempenho`: grade de altura pela mola 1/400; seta pela mola 1/1500) |
+| D3 | Números de desempenho contam e ganham ↗ | [vídeo] `landing_peek_analytics` | ◐ 22/10 contagem por dígito (Odômetro) e pulso nos 3 números · ✘ o ↗ (exige o período anterior, que o servidor não manda) |
+| D4 | Gaveta modal arrastável (348 dp) | gesto do dedo, mola padrão do M3 | `FigarooNavigationDrawerKt` | ✔ o menu já tem arrastar pela borda (`ManagementDrawer`); o deslize em si usa a folha do Cortaí (no APK é o padrão do M3, sem valor) |
 | D5 | Destaque com fundo escurecido nos números | [vídeo] só demonstração | — não implementar sem decisão do dono |
 
 ## 5. Agenda (referência: `2-agenda.md` §10; feito pelo GPT/Claude em 17–21/10, conferir cada item)
