@@ -102,14 +102,14 @@ export function MiniaturaLayout({ layout, cover = false }: { layout: LayoutId; c
   );
 }
 
-export function IndicadorSelecionado() {
+export function IndicadorSelecionado({ tom = "layout" }: { tom?: "layout" | "tema" }) {
   const reduzirMovimento = useReducedMotion();
   return (
     <motion.span
       initial={reduzirMovimento ? false : { opacity: 0, scale: 0.82 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={reduzirMovimento ? { duration: 0 } : { type: "spring", stiffness: 1500, damping: 58 }}
-      className="flex size-6 shrink-0 items-center justify-center rounded-full bg-gold text-ink"
+      className={`flex size-6 shrink-0 items-center justify-center rounded-full text-ink ${tom === "tema" ? "bg-rosa" : "bg-gold"}`}
       aria-hidden
     >
       <Check size={15} />
@@ -134,12 +134,12 @@ export function TemaCartao({
       variant="ghost"
       aria-pressed={selecionado}
       onClick={escolher}
-      className={`relative h-auto min-h-[218px] w-[min(78vw,286px)] shrink-0 snap-start flex-col items-stretch whitespace-normal rounded-xl border p-3 text-left transition-[border-color,background-color,box-shadow] duration-200 ease-out motion-reduce:transition-none ${selecionado ? "border-2 border-gold bg-gold/10" : "border-line bg-ink"}`}
+      className={`relative h-auto min-h-[218px] w-[min(78vw,286px)] shrink-0 snap-start flex-col items-stretch whitespace-normal rounded-xl border p-3 text-left transition-[border-color,background-color,box-shadow] duration-200 ease-out motion-reduce:transition-none ${selecionado ? "border-2 border-rosa bg-rosa/10" : "border-line bg-ink"}`}
     >
       <MiniaturaDoTema cores={definicao.cores} />
       <span className="flex items-center justify-between gap-2 text-sm font-semibold text-paper">
         {definicao.nome}
-        {selecionado ? <IndicadorSelecionado /> : <span className="size-6 shrink-0 rounded-full border border-line2" aria-hidden />}
+        {selecionado ? <IndicadorSelecionado tom="tema" /> : <span className="size-6 shrink-0 rounded-full border border-line2" aria-hidden />}
       </span>
       <span className="mt-1 block text-xs leading-relaxed text-mute">{definicao.descricao}</span>
       <span className="mt-1 block text-[11px] font-medium text-mute">{referenciaFigaro ? "Referência Figaro · paleta adaptada" : "Tema do Cortaí"}</span>
