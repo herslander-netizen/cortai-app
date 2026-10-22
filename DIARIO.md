@@ -365,6 +365,14 @@ teste real na prévia.
 
 ## Diário (mais recente primeiro)
 
+### 2026-10-22 UTC — GPT — Libera personalização do tenant de demonstração com escopo restrito
+
+- Em `src/lib/marca.functions.ts`, `tenantDoDono` continua exigindo vínculo ativo de dono para negócios normais.
+- Exceção restrita: quando não há vínculo ativo de dono, aceita um vínculo ativo do usuário somente se o tenant vinculado tiver o slug reservado `demonstracao`. A mesma função é usada pelas operações de leitura e gravação da personalização, então a exceção permanece restrita ao tenant demo e não abre acesso a outros negócios.
+- Commit: `040fe2aa2666357199fcc655e27d6f5396f160f5`.
+- Validação do GitHub Actions e teste real de login demo ainda pendentes; não declarar resolvido até confirmar CI e acesso pela prévia. Sem alteração em banco, `main` ou site principal.
+
+
 ### 2026-10-22 UTC — GPT — Corrige validação do cartão Layout & Tema
 
 - Corrigido o erro de TypeScript encontrado no workflow: o ícone `Palette` estava sendo usado no cartão sem importação. Import adicionado em `src/routes/barbeiro.marca.tsx`.
