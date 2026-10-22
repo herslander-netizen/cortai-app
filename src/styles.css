@@ -9021,3 +9021,201 @@ button.agenda-nome:hover {
   color: var(--chat-primary, var(--primary));
   letter-spacing: 0.01em;
 }
+
+/* =============================================================================================
+   Paleta do Figaro, exata (APK: theme/ColorKt, ThemeKt LightColorScheme/DarkColorScheme e
+   Light/DarkExtendedColors; docs/referencia-figaro/apk/1-design-system.md §1). Os tokens `--figaro-*`
+   guardam os papéis do Material 3 do Figaro; depois eles alimentam a base neutra do Cortaí e as cores
+   da Agenda. A marca (ciano e rosa do Cortaí, logo, botões de destaque) continua a do Cortaí.
+   Escuro = padrão do app; claro = classe `.light`. O tema segue o modo escolhido (claro, escuro, sistema).
+   ============================================================================================= */
+:root,
+:root[data-identidade] {
+  --figaro-primary: #9fbef6;
+  --figaro-on-primary: #002e66;
+  --figaro-primary-container: #00408f;
+  --figaro-on-primary-container: #d5e2ff;
+  --figaro-secondary: #f7b5bf;
+  --figaro-on-secondary: #54222e;
+  --figaro-secondary-container: #6e3843;
+  --figaro-on-secondary-container: #ffdade;
+  --figaro-tertiary: #ffa6bf;
+  --figaro-on-tertiary: #65052a;
+  --figaro-tertiary-container: #8e0e3f;
+  --figaro-on-tertiary-container: #ffdade;
+  --figaro-background: #1b1f1c;
+  --figaro-on-background: #dee8e1;
+  --figaro-surface: #1b1f1c;
+  --figaro-on-surface: #dee8e1;
+  --figaro-surface-variant: #4f4644;
+  --figaro-on-surface-variant: #d7c7c2;
+  --figaro-inverse-surface: #dee8e1;
+  --figaro-inverse-on-surface: #322f2e;
+  --figaro-error: #f2b8b5;
+  --figaro-on-error: #601410;
+  --figaro-error-container: #8c1d18;
+  --figaro-on-error-container: #f9dedc;
+  --figaro-outline: #9d8f8b;
+  --figaro-outline-variant: #4f4644;
+  --figaro-surface-bright: #545b56;
+  --figaro-surface-container: #303632;
+  --figaro-surface-container-high: #3e4440;
+  --figaro-surface-container-highest: #4e5550;
+  --figaro-surface-container-low: #2a2f2c;
+  --figaro-surface-container-lowest: #141816;
+  --figaro-surface-dim: #1b1f1c;
+  --figaro-success: #43a047;
+  --figaro-success-container: #1b5e20;
+  --figaro-on-success-container: #c8e6c9;
+  --figaro-warning: #e08e22;
+  --figaro-warning-container: #7a4a07;
+  --figaro-on-warning-container: #ffe0b2;
+  --figaro-action-blue: #9fbef6;
+  --figaro-on-action-blue: #002e66;
+  --figaro-brand-magenta: #d3145d;
+  --figaro-hint: #969391;
+  --figaro-draft-banner: #3e0017;
+  --figaro-card-tile: #3e4440;
+  --figaro-warm-tonal: #4a3625;
+  --figaro-on-warm-tonal: #f7dfc9;
+  --figaro-teal: #0d9b8a;
+}
+.light,
+:root.light,
+:root[data-identidade].light {
+  --figaro-primary: #2467bb;
+  --figaro-on-primary: #ffffff;
+  --figaro-primary-container: #d5e2ff;
+  --figaro-on-primary-container: #001a40;
+  --figaro-secondary: #884f59;
+  --figaro-on-secondary: #ffffff;
+  --figaro-secondary-container: #ffdade;
+  --figaro-on-secondary-container: #3a0e1a;
+  --figaro-tertiary: #b61055;
+  --figaro-on-tertiary: #ffffff;
+  --figaro-tertiary-container: #ffdade;
+  --figaro-on-tertiary-container: #3e0017;
+  --figaro-background: #eaf2ec;
+  --figaro-on-background: #2a2f2c;
+  --figaro-surface: #eaf2ec;
+  --figaro-on-surface: #2a2f2c;
+  --figaro-surface-variant: #f4e1db;
+  --figaro-on-surface-variant: #7b7977;
+  --figaro-inverse-surface: #322f2e;
+  --figaro-inverse-on-surface: #edf5ef;
+  --figaro-error: #b3261e;
+  --figaro-on-error: #ffffff;
+  --figaro-error-container: #f9dedc;
+  --figaro-on-error-container: #410e0b;
+  --figaro-outline: #827572;
+  --figaro-outline-variant: #d7c7c2;
+  --figaro-surface-bright: #f3fbf5;
+  --figaro-surface-container: #eaf2ec;
+  --figaro-surface-container-high: #e4ede7;
+  --figaro-surface-container-highest: #dee8e1;
+  --figaro-surface-container-low: #f0f7f2;
+  --figaro-surface-container-lowest: #ffffff;
+  --figaro-surface-dim: #d6e0d9;
+  --figaro-success: #2e7d32;
+  --figaro-success-container: #c8e6c9;
+  --figaro-on-success-container: #2e7d32;
+  --figaro-warning: #b6730f;
+  --figaro-warning-container: #ffe0b2;
+  --figaro-on-warning-container: #b6730f;
+  --figaro-action-blue: #00509d;
+  --figaro-on-action-blue: #ffffff;
+  --figaro-brand-magenta: #d3145d;
+  --figaro-hint: #7b7977;
+  --figaro-draft-banner: #ffecef;
+  --figaro-card-tile: #ffffff;
+  --figaro-warm-tonal: #f7dfc9;
+  --figaro-on-warm-tonal: #4a2e16;
+  --figaro-teal: #0d9b8a;
+}
+
+/* Base neutra do Cortaí = papéis do Figaro. */
+:root,
+:root[data-identidade] {
+  --fundo: var(--figaro-background);
+  --painel: var(--figaro-surface-container-high);
+  --cartao: var(--figaro-surface-container-low);
+  --linha: var(--figaro-outline-variant);
+  --texto: var(--figaro-on-surface);
+  --texto-suave: var(--figaro-hint);
+  --grafite-line-2: var(--figaro-outline);
+  --drawer-surface: var(--figaro-surface);
+  --drawer-card: var(--figaro-card-tile);
+  --drawer-band: var(--figaro-surface-container-low);
+  --brick: var(--figaro-error);
+  --sage: var(--figaro-success);
+  /* Agenda */
+  --agenda-acao: var(--figaro-action-blue);
+  --agenda-acao-texto: var(--figaro-on-action-blue);
+  --agenda-acao-suave: var(--figaro-primary-container);
+  --agenda-positivo: var(--figaro-success);
+  --agenda-atencao: var(--figaro-brand-magenta);
+  --agenda-aguardo: var(--figaro-warning);
+  --agenda-linha-hora: var(--figaro-outline-variant);
+  --agenda-escolhido: var(--figaro-primary);
+  --agenda-escolhido-texto: var(--figaro-on-primary);
+  --agenda-destaque: var(--figaro-primary);
+  --agenda-cartao: var(--figaro-surface-container-low);
+  --agenda-listra-base: var(--figaro-surface-container-low);
+  --agenda-listra: color-mix(in oklab, var(--figaro-surface-container-low) 97.5%, var(--figaro-on-surface));
+  /* Estados (glifos do Figaro: AgendaStatusGlyph) */
+  --estado-agendado: var(--figaro-secondary);
+  --estado-confirmado: var(--figaro-primary);
+  --estado-chegou: var(--figaro-warning);
+  --estado-na-cadeira: var(--figaro-teal);
+  --estado-finalizado: var(--figaro-success);
+  --estado-cancelado: var(--figaro-on-surface-variant);
+  --estado-faltou: var(--figaro-error);
+  --estado-remarcado: var(--figaro-tertiary);
+  --estado-encaixe: var(--figaro-teal);
+}
+.light,
+:root.light,
+:root[data-identidade].light {
+  --fundo: var(--figaro-background);
+  --painel: var(--figaro-surface-container-low);
+  --cartao: var(--figaro-surface-container-lowest);
+  --linha: var(--figaro-outline-variant);
+  --texto: var(--figaro-on-surface);
+  --texto-suave: var(--figaro-hint);
+  --line2: var(--figaro-outline);
+  --drawer-surface: var(--figaro-surface);
+  --drawer-card: var(--figaro-card-tile);
+  --drawer-band: var(--figaro-surface-container-low);
+  --brick: var(--figaro-error);
+  --sage: var(--figaro-success);
+  --agenda-cartao: var(--figaro-surface-container-lowest);
+  --agenda-listra-base: var(--figaro-surface-container-low);
+  --agenda-listra: color-mix(in oklab, var(--figaro-surface-container-low) 97.5%, var(--figaro-on-surface));
+  --estado-na-cadeira: var(--figaro-teal);
+  --agenda-acao: var(--figaro-action-blue);
+  --agenda-acao-texto: var(--figaro-on-action-blue);
+  --agenda-acao-suave: var(--figaro-primary-container);
+  --agenda-positivo: var(--figaro-success);
+  --agenda-atencao: var(--figaro-brand-magenta);
+  --agenda-aguardo: var(--figaro-warning);
+  --agenda-linha-hora: var(--figaro-outline-variant);
+  --agenda-escolhido: var(--figaro-primary);
+  --agenda-escolhido-texto: var(--figaro-on-primary);
+  --agenda-destaque: var(--figaro-primary);
+  --agenda-cartao: var(--figaro-surface-container-low);
+  --agenda-listra-base: var(--figaro-surface-container-low);
+  --agenda-listra: color-mix(in oklab, var(--figaro-surface-container-low) 97.5%, var(--figaro-on-surface));
+  /* Estados (glifos do Figaro: AgendaStatusGlyph) */
+  --estado-agendado: var(--figaro-secondary);
+  --estado-confirmado: var(--figaro-primary);
+  --estado-chegou: var(--figaro-warning);
+  --estado-na-cadeira: var(--figaro-teal);
+  --estado-finalizado: var(--figaro-success);
+  --estado-cancelado: var(--figaro-on-surface-variant);
+  --estado-faltou: var(--figaro-error);
+  --estado-remarcado: var(--figaro-tertiary);
+  --estado-encaixe: var(--figaro-teal);
+}
+.agenda-cal-dia[data-selecionado] .agenda-cal-numero {
+  color: var(--agenda-acao-texto);
+}
