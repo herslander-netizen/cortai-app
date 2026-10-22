@@ -22,6 +22,8 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sh
 import { alterarStatusPaginaPublica, getMarca, type MarcaData } from "@/lib/marca.functions";
 import { exigirCapacidade } from "@/lib/guarda-capacidade";
 import { urlPublica } from "@/lib/origem-publica";
+import { componenteIds, LAYOUTS, TEMAS } from "@/lib/pagina-config";
+import { MiniaturaLayout } from "@/components/marca/editor/CartoesDeLayoutTema";
 
 export const Route = createFileRoute("/barbeiro/marca")({
   beforeLoad: ({ context }) => exigirCapacidade(context.queryClient, "branding_avancado"),
@@ -242,15 +244,38 @@ function Editor({
         ) : null}
       </AnimatePresence>
 
-      <section className="mb-5 rounded-xl border border-line bg-ink p-4 sm:p-5">
-        <div className="flex items-start gap-3">
-          <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-ink2 text-gold"><LayoutTemplate size={20} aria-hidden /></span>
-          <div className="min-w-0 flex-1">
-            <h2 className="text-sm font-semibold text-paper">Layout & Tema</h2>
-            <p className="mt-1 text-sm leading-relaxed text-mute">Escolha o layout e o tema em uma tela própria, como no fluxo do Figaro.</p>
-            <Button asChild variant="outline" className="mt-3 min-h-12 w-full sm:w-auto">
-              <Link to="/barbeiro/marca/layout-tema">Escolher Layout & Tema</Link>
-            </Button>
+      <section className="mb-5 overflow-hidden rounded-xl border border-line bg-ink">
+        <div className="grid grid-cols-1 gap-0 sm:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
+          <div className="border-b border-line p-3 sm:border-b-0 sm:border-r sm:p-4">
+            <div className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-mute">
+              <LayoutTemplate size={15} aria-hidden />
+              Layout atual
+            </div>
+            <MiniaturaLayout layout={e.config.layout} />
+            <p className="mt-2 text-sm font-semibold text-paper">{LAYOUTS[e.config.layout]}</p>
+          </div>
+          <div className="flex min-w-0 flex-col justify-between gap-3 p-3 sm:p-4">
+            <div>
+              <div className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-mute">
+                <span className="size-3 rounded-full border border-line" style={{ background: TEMAS[e.config.tema].cores.principal }} aria-hidden />
+                Tema atual
+              </div>
+              <p className="text-sm font-semibold text-paper">{TEMAS[e.config.tema].nome}</p>
+              <div className="mt-2 flex h-2 overflow-hidden rounded-full" aria-label="Paleta do tema atual">
+                <span className="flex-1" style={{ background: TEMAS[e.config.tema].cores.principal }} />
+                <span className="flex-1" style={{ background: TEMAS[e.config.tema].cores.destaque }} />
+                <span className="flex-1" style={{ background: TEMAS[e.config.tema].cores.fundo }} />
+              </div>
+              <p className="mt-3 text-xs leading-relaxed text-mute">
+                {componenteIds.filter((id) => e.config.componentes[id]).length} seções ativas na página.
+              </p>
+            </div>
+            <div>
+              <p className="text-xs leading-relaxed text-mute">Altere o visual e confira o exemplo antes de salvar.</p>
+              <Button asChild variant="outline" className="mt-3 min-h-12 w-full">
+                <Link to="/barbeiro/marca/layout-tema">Escolher Layout & Tema</Link>
+              </Button>
+            </div>
           </div>
         </div>
       </section>
