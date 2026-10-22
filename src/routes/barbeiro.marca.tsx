@@ -57,8 +57,8 @@ function MarcaPage() {
           key="carregando"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ ...transicaoEntrada, ...transicaoSaida }}
+          exit={{ opacity: 0, transition: transicaoSaida }}
+          transition={transicaoEntrada}
         >
           <Screen voltarPara="/barbeiro" title="Personalizar Página">
             <EsqueletoFormulario campos={6} onTentarDeNovo={() => void query.refetch()} />
@@ -69,8 +69,8 @@ function MarcaPage() {
           key="sem-acesso"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ ...transicaoEntrada, ...transicaoSaida }}
+          exit={{ opacity: 0, transition: transicaoSaida }}
+          transition={transicaoEntrada}
         >
           <Screen title="Personalizar página">
             <p className="text-sm text-brick">
@@ -83,8 +83,8 @@ function MarcaPage() {
           key="conteudo"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ ...transicaoEntrada, ...transicaoSaida }}
+          exit={{ opacity: 0, transition: transicaoSaida }}
+          transition={transicaoEntrada}
         >
           <Editor
             initial={query.data.marca}
