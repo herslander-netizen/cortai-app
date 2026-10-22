@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { itemDeNavegacaoAtivo, MODULOS_DE_NAVEGACAO } from "@/lib/navegacao-barbeiro";
+import { componenteIds } from "@/lib/pagina-config";
 
 const itens = ["/barbeiro", "/barbeiro/clientes", "/barbeiro/caixa", "/barbeiro/fila"];
 
@@ -42,7 +43,7 @@ describe("entrada Figaro de Personalizar Página", () => {
   it.each([
     "/barbeiro/marca",
     "/barbeiro/marca/layout-tema",
-    "/barbeiro/marca/secao/galeria",
+    ...componenteIds.map((secao) => `/barbeiro/marca/secao/${secao}`),
   ])("mantém Sua Página ativa dentro do fluxo %s", (caminho) => {
     expect(itemDeNavegacaoAtivo(caminho, "/barbeiro/marca")).toBe(true);
   });
