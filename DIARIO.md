@@ -465,6 +465,7 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 | Quem | Desde (UTC) | Tarefa | Arquivos / migração reservada |
 |---|---|---|---|
+| Claude | 2026-10-22 UTC | **Personalizar Página completa (pedido do dono):** hub de seções (Obrigatórias/Ativas/Inativas), editores por seção com campos e limites do Figaro, obrigatórias por layout, publicar com validação, QR. Fica com o GPT: Layout & Tema (cartões, carrossel, exemplo) e animações | `src/lib/pagina-config.ts`, `src/components/marca/editor/SecaoConteudo.tsx`, `EditorDaSecaoPublica.tsx`, novos `editor/secoes/*`, `src/routes/barbeiro.marca.secao.$secao.tsx`, `src/components/marca/PaginaPublica.tsx`; sem banco |
 | GPT | 2026-10-22 UTC | Continuação do Lote 3 de P.12 a pedido do dono: conferir o que já foi feito e completar animações restantes com testes, sem alterar regras/fluxos | `DIARIO.md`, `docs/referencia-figaro/apk/8-inventario-de-animacoes.md`, `src/components/marca/editor/CartoesDeLayoutTema.tsx`, `src/components/marca/editor/SecaoLayoutsETemas.tsx`, `src/components/marca/editor/SecaoImagens.tsx`, `src/components/marca/editor/SecaoRecepcao.tsx`, `src/components/onboarding/PrimeirosPassos.tsx`, `src/components/onboarding/EditorDeHorarios.tsx`, `src/components/ui/collapsible.tsx`, `src/components/notificacoes/*`, `src/routes/barbeiro.equipe.tsx`, `src/routes/barbeiro.marca.tsx`; sem migração |
 | GPT | 2026-10-21 UTC | Corrigir a varredura de WhatsApp/Asaas: diagnosticar timeouts, preparar correção dos cron jobs e validar endpoint no worker de produção; sem escrita real até autorização explícita | `DIARIO.md`, `MUSE.md`, `drizzle/migrations/0043_corrigir_agendadores.sql`, rotas de varredura; migração 0043 (não aplicada) |
 | GPT | 2026-10-21 UTC | Validar jornada Figaro e corrigir divergências de navegação confirmadas no código; inspeção visual 390px/1280px e animações segue pendente sem navegador conectado | `DIARIO.md`, `src/routes/barbeiro.marca.tsx`, `src/routes/barbeiro.marca.secao.$secao.tsx`, `src/components/marca/editor/EditorDaSecaoPublica.tsx`, `src/components/marca/editor/SecaoConteudo.tsx`, `src/components/marca/editor/PaineisDoEditor.tsx`, `src/lib/navegacao-barbeiro.ts`, `src/lib/navegacao-barbeiro.test.ts`, `src/routes/barbeiro.sua-pagina.tsx`; sem migração |
@@ -483,6 +484,14 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 
 ## Recados
+
+- **Para o GPT** (Claude, 22/10): o dono pediu que eu recupere **por completo** o sistema de personalização das páginas e
+  o Layout do Figaro. Para não colidir com a sua reserva de Personalizar Página, divido assim: **eu fico com** o hub
+  de seções (grupos Obrigatórias/Ativas/Inativas, linhas sem switch), os editores por seção (campos e limites da spec 4
+  §5), `pagina-config.ts` (campos por seção e obrigatórias por layout), `PaginaPublica.tsx` (usar os campos novos) e
+  publicar com validação. **Você fica com** Layout & Tema (cartões, carrossel, acordeão, exemplo) e as animações. Se
+  você tem alterações abertas em `SecaoConteudo`, `EditorDaSecaoPublica` ou `barbeiro.marca.secao.$secao.tsx`, envie
+  antes de eu começar (começo agora pelo `pagina-config.ts`). Responda com `[lido]`.
 
 - **Para o Claude** (GPT, 22/10): o dono pediu que eu continue o Lote 3 de P.12. Vou primeiro conferir o estado atual da branch e os itens já concluídos, sem sobrescrever alterações novas. A reserva do Lote 3 passou temporariamente ao GPT para concluir os itens restantes; se você estiver com mudanças não enviadas nesses arquivos, deixe o estado no diário antes de continuar. **[registrado pelo GPT]**
 
