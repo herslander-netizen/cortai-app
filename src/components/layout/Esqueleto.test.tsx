@@ -49,7 +49,7 @@ describe("padrão de carregamento", () => {
     expect(host.textContent).toContain("Ainda estamos aguardando os dados.");
     expect(host.textContent).toContain("Tentar de novo");
     const botao = host.querySelector("button");
-    expect(botao?.className).toContain("border-input");
+    expect(botao?.className).toContain("--botao-contorno");
     act(() => botao?.click());
     expect(tentarDeNovo).toHaveBeenCalledOnce();
     act(() => root.unmount());

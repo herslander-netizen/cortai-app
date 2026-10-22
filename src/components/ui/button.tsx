@@ -23,32 +23,56 @@ const indicadorSai = {
   transition: { duration: TEMPO.botaoSai, ease: CURVA.rapidaParaLenta },
 };
 
+/**
+ * Botões no padrão do Figaro (`FigarooPrimaryButton`, `FigarooOutlinedButton`, `FigarooTextButton`, spec 1 §6.1):
+ * rótulo 14/20 semibold, pílula, primário em `actionBlue`, contorno em `outlineVariant`, texto em 13 sp.
+ * Alturas: pequeno 40, padrão 48 (SmallMedium), grande 56 (CTA). Contorno e texto têm 40 dp com a área de toque
+ * ampliada para 48. As cores e a pílula valem na área do negócio (`--botao-*`, styles.css); fora dela o botão
+ * segue a cor e o raio da marca de cada tela.
+ */
 const buttonVariants = cva(
-  "inline-flex min-w-0 items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-transparent text-sm font-bold cursor-pointer [transition:color_var(--mov-rapido),background-color_var(--mov-rapido),border-color_var(--mov-rapido),box-shadow_var(--mov-rapido),transform_var(--mola-toque-duracao)_var(--mola-toque)] motion-reduce:[transition:none] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-40 disabled:data-[ocupado]:opacity-100 disabled:cursor-not-allowed active:scale-[0.98] [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  "relative inline-flex min-w-0 items-center justify-center gap-2 whitespace-nowrap rounded-[var(--botao-raio,0.75rem)] border border-transparent text-sm font-semibold leading-5 tracking-[0.01em] cursor-pointer [transition:color_var(--mov-rapido),background-color_var(--mov-rapido),border-color_var(--mov-rapido),box-shadow_var(--mov-rapido),transform_var(--mola-toque-duracao)_var(--mola-toque)] motion-reduce:[transition:none] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-40 disabled:data-[ocupado]:opacity-100 disabled:cursor-not-allowed active:scale-[0.98] [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground shadow-sm hover:bg-primary/90 hover:shadow-md",
-        primary: "bg-primary text-primary-foreground shadow-sm hover:bg-primary/90 hover:shadow-md",
+        default:
+          "bg-[var(--botao-fundo,var(--primary))] text-[var(--botao-texto,var(--primary-foreground))] hover:brightness-110",
+        primary:
+          "bg-[var(--botao-fundo,var(--primary))] text-[var(--botao-texto,var(--primary-foreground))] hover:brightness-110",
         secondary:
-          "border-input bg-transparent text-foreground hover:border-primary/50 hover:bg-ink3 active:bg-ink2",
+          "border-[var(--botao-contorno,var(--input))] bg-transparent text-[var(--botao-link,var(--foreground))] hover:bg-ink3 active:bg-ink2",
         outline:
-          "border-input bg-transparent text-foreground hover:border-primary/50 hover:bg-ink3 active:bg-ink2",
+          "border-[var(--botao-contorno,var(--input))] bg-transparent text-[var(--botao-link,var(--foreground))] hover:bg-ink3 active:bg-ink2",
         ghost: "bg-transparent text-foreground hover:bg-ink3 active:bg-ink2",
-        text: "bg-transparent px-0 text-foreground underline-offset-4 hover:underline",
-        link: "bg-transparent px-0 text-foreground underline-offset-4 hover:underline",
+        text: "bg-transparent px-0 text-[var(--botao-link,var(--foreground))] hover:underline underline-offset-4",
+        link: "bg-transparent px-0 text-[var(--botao-link,var(--foreground))] hover:underline underline-offset-4",
         icon: "bg-transparent text-foreground hover:bg-ink3 active:bg-ink2",
-        destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
+        destructive:
+          "bg-[var(--botao-erro,var(--destructive))] text-[var(--botao-erro-texto,var(--destructive-foreground))] hover:brightness-110",
       },
       size: {
-        default: "h-12 px-4",
-        sm: "h-12 px-3 text-xs",
+        default: "h-12 px-6",
+        sm: "h-10 px-4 text-[13px] before:absolute before:-inset-y-1 before:inset-x-0 before:content-['']",
         lg: "h-14 px-6 text-base",
         icon: "size-12 p-0",
         bloco:
           "h-auto min-h-12 flex-col items-stretch justify-start gap-1 whitespace-normal p-3 text-left",
       },
     },
+    compoundVariants: [
+      // Contorno e texto do Figaro medem 40 dp; a área de toque continua com 48.
+      {
+        variant: ["outline", "secondary"],
+        size: "default",
+        class: "h-10 px-4 before:absolute before:-inset-y-1 before:inset-x-0 before:content-['']",
+      },
+      {
+        variant: ["text", "link"],
+        size: "default",
+        class:
+          "h-10 text-[13px] before:absolute before:-inset-y-1 before:-inset-x-2 before:content-['']",
+      },
+    ],
     defaultVariants: { variant: "default", size: "default" },
   },
 );

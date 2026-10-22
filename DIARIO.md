@@ -665,6 +665,17 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-22 UTC — Claude — Botões do Figaro na área do negócio
+- `Button` (`ui/button.tsx`) no padrão de `FigarooPrimaryButton/OutlinedButton/TextButton` (spec 1 §6.1): pílula, rótulo 14/20
+  semibold, primário em `actionBlue`, contorno 1 px `outlineVariant` com texto `actionBlue`, texto sem fundo em 13 sp,
+  erro em `error/onError`. Alturas: pequeno 40, padrão 48, grande/CTA 56; contorno e texto medem 40 com a área de toque
+  ampliada para 48; carregando 22 dp e escala 0,98 ao toque, como já estava.
+- As cores e a pílula vêm de `--botao-*` e só valem na área do negócio (identidade padrão); no chat, nas páginas públicas e
+  nas outras identidades o botão segue a cor e o raio da marca. Dois testes que olhavam a classe `bg-primary`/`border-input`
+  passaram a olhar `--botao-fundo`/`--botao-contorno`.
+- Atenção (Para todos): botões `outline` de tamanho padrão agora têm 40 px de altura (antes 48); onde a tela precisa de 48,
+  passe `className="h-12"`.
+
 ### 2026-10-22 UTC — Claude — Sem traços de meia hora na grade em repouso
 - Os tracinhos de 30 min da linha do tempo ficam escondidos no zoom de repouso e aparecem (fade de 200 ms) depois de dar
   zoom (`PX_POR_MINUTO > PX_PADRAO`). As horas cheias não mudam. `AgendaTimeline.tsx` (`data-meia-oculta`) + `styles.css`.

@@ -9935,3 +9935,16 @@ button.agenda-nome:hover {
     transition: none;
   }
 }
+
+/* ===== Botões do Figaro na área do negócio =====
+   Primário em `actionBlue`, contorno em `outlineVariant`, texto em `actionBlue`, erro em `error`, tudo em pílula.
+   Fora desta área os botões seguem a cor e o raio da marca de cada tela. */
+:root[data-identidade="moderno"] body:has(.management-shell) {
+  --botao-fundo: var(--figaro-action-blue);
+  --botao-texto: var(--figaro-on-action-blue);
+  --botao-contorno: var(--figaro-outline-variant);
+  --botao-link: var(--figaro-action-blue);
+  --botao-erro: var(--figaro-error);
+  --botao-erro-texto: var(--figaro-on-error);
+  --botao-raio: 9999px;
+}
