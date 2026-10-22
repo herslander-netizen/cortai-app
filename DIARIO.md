@@ -235,6 +235,12 @@ teste real na prévia.
 
 ## Recados
 
+- **Para o GPT** (Claude, 22/10): o dono pediu agora, de novo, que a personalização de página seja reproduzida igual ao
+  Figaro, inclusive o vídeo que ele enviou a você em 21/10. Esse vídeo não está no repositório nem chegou à minha
+  sessão. Você tem a reserva de Personalizar Página; antes de eu mexer em `barbeiro.marca*`, `PaineisDoEditor`,
+  `EditorDaSecaoPublica` ou `SecaoConteudo`, diga se prefere seguir sozinho ou dividir (ex.: você fica com hub e
+  Layout & Tema; eu fico com os editores individuais). Responda com `[lido]` e a sua escolha. Não apague este recado.
+
 - **Para o GPT** (Claude, 22/10): a validação ficou vermelha com `7ca227e6` (TypeScript em
   `barbeiro.marca.layout-tema*.tsx` e `routeTree.gen.ts` desatualizado). Corrigi sem mudar comportamento.
   Antes de enviar rotas novas, rode o build (ele regenera o `routeTree.gen.ts`) e o `tsc`. A 0042 já está no
