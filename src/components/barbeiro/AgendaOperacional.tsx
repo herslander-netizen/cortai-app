@@ -1675,62 +1675,7 @@ export function AgendaOperacional() {
           </section>
         ) : null}
 
-        {ehHoje && meuDiaQ.data ? (
-          <section className="mt-6 border-t border-line pt-2">
-            <Button
-              variant="ghost"
-              type="button"
-              aria-expanded={meuDiaAberto}
-              className="flex min-h-12 w-full items-center justify-between gap-3 text-left"
-              onClick={() => setMeuDiaAberto((v) => !v)}
-            >
-              <span className="flex items-center gap-2 text-sm font-bold text-paper">
-                <ChartNoAxesColumn aria-hidden className="size-4" />
-                Meu dia
-              </span>
-              <span className="text-xs text-mute">
-                {meuDiaQ.data.atendimentos} atend. ·{" "}
-                {modoDiscreto ? "R$ •••" : brl(meuDiaQ.data.vendido)}
-              </span>
-            </Button>
-            {meuDiaAberto ? (
-              <dl className="grid grid-cols-2 gap-x-4 gap-y-3 pb-3 text-sm">
-                <div>
-                  <dt className="text-xs text-mute">Atendimentos hoje</dt>
-                  <dd className="text-lg font-extrabold text-paper">{meuDiaQ.data.atendimentos}</dd>
-                </div>
-                <div>
-                  <dt className="text-xs text-mute">Vendido (caixa)</dt>
-                  <dd className="money-value text-lg text-paper">
-                    {modoDiscreto ? "R$ •••" : brl(meuDiaQ.data.vendido)}
-                  </dd>
-                </div>
-                {meuDiaQ.data.temComissao ? (
-                  <div>
-                    <dt className="text-xs text-mute">Comissão estimada</dt>
-                    <dd className="money-value text-lg text-paper">
-                      {modoDiscreto ? "R$ •••" : brl(meuDiaQ.data.comissao)}
-                    </dd>
-                  </div>
-                ) : null}
-                {meuDiaQ.data.fiado ? (
-                  <div>
-                    <dt className="text-xs text-mute">No fiado</dt>
-                    <dd className="money-value text-lg text-paper">
-                      {modoDiscreto ? "R$ •••" : brl(meuDiaQ.data.fiado)}
-                    </dd>
-                  </div>
-                ) : null}
-                {meuDiaQ.data.noPlano ? (
-                  <div>
-                    <dt className="text-xs text-mute">Pelo plano</dt>
-                    <dd className="text-lg font-extrabold text-paper">{meuDiaQ.data.noPlano}</dd>
-                  </div>
-                ) : null}
-              </dl>
-            ) : null}
-          </section>
-        ) : null}
+
       </div>
 
       {/* Celular na grade: os dias vizinhos já entram pelo carrossel dentro da timeline. */}
