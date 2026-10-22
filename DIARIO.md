@@ -539,6 +539,13 @@ teste real na prévia.
 - Pendente: verificar CI e conferir o comportamento visual no Android depois da publicação automática da prévia.
 
 
+### 2026-10-21 UTC — GPT — Diagnóstico dos timeouts das automações (migração preparada, aguardando autorização de produção)
+- Evidência no Supabase `cortai-prod`: 34 de 38 respostas HTTP na janela consultada expiraram no timeout de 5.000 ms; a maioria tinha `timed_out=true` e nenhum status HTTP. `cron.job_run_details` marca o enqueue como concluído, não a resposta do endpoint.
+- Os cron jobs ainda apontam para `cortai-reconstruction-test-2026.aprovamaisbarra.workers.dev`. O código da versão 3.3 já contém a rota WhatsApp com `ctx.waitUntil`; a varredura Asaas ainda executa de forma síncrona.
+- Criei `drizzle/migrations/0043_corrigir_agendadores.sql` para trocar somente os comandos que ainda contêm o host antigo por `https://cortaiapp.pages.dev` e definir `timeout_milliseconds := 20000`. Migração não aplicada; exige autorização explícita para escrita no banco real.
+- Commit da migração: `9fdec023503b41ddcc72b72fd623d089db594aa4`. Workflow de validação/publicação da prévia iniciado, ainda pendente no momento deste registro.
+- Nenhum cron, segredo, DNS ou banco real foi alterado.
+
 ### 2026-10-21 UTC — GPT — Zoom armado e transições da Agenda conforme Fígaro
 - Referência consultada: `docs/referencia-figaro/apk/2-agenda.md`, §§4.6 e 6. O toque longo arma o cartão no ponto tocado; a grade aproxima até 4 px/min (preserva zoom maior já escolhido) em 300 ms com curva FastOutSlowIn; mantém o ponto temporal sob o dedo; os outros cartões esmaecem para 40% em 300 ms. Ao encerrar a edição, a escala anterior é restaurada.
 - Transições do topo e da barra de edição entram/saem com deslocamento vertical e fade em 300 ms. O arrasto real só começa quando o dedo se move, sem criar estado falso de arraste ao apenas segurar.
