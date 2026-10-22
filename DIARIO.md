@@ -365,6 +365,15 @@ teste real na prévia.
 
 ## Diário (mais recente primeiro)
 
+### 2026-10-21 UTC — GPT — Resumo visual de Layout & Tema
+
+- A tela Personalizar Página agora apresenta o layout selecionado, o tema atual, uma faixa com suas cores e a quantidade de seções ativas, mantendo o acesso à tela própria Layout & Tema.
+- Arquivo: `src/routes/barbeiro.marca.tsx`.
+- Não altera persistência, permissões nem regras de negócio.
+- Validação ainda pendente: TypeScript, testes, lint, build e conferência visual em 390 px e 1280 px na prévia.
+- Commit do código: `07a17a94d03df47d269563b10c15564519595d52`.
+
+
 ### 2026-10-21 UTC — GPT — Separa divulgação da personalização da página
 - Corrigi a tela auxiliar `/barbeiro/sua-pagina`: agora ela se identifica como **Link público e QR Code**, para não se confundir com a tela principal de Personalizar Página.
 - O botão que prometia editar conteúdo agora abre `/barbeiro/marca`; o cartão independente de Layout & Tema continua abrindo `/barbeiro/marca/layout-tema`.
