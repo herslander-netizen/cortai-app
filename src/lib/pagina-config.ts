@@ -29,7 +29,19 @@ export const layoutIds = [
   "figaro-site-completo",
   "figaro-agendamento",
 ] as const;
-export const fonteIds = ["inter", "poppins", "montserrat", "oswald", "roboto", "serif"] as const;
+export const fonteIds = [
+  "inter",
+  "poppins",
+  "montserrat",
+  "oswald",
+  "roboto",
+  "serif",
+  "playfair",
+  "outfit",
+  "lobster",
+  "jakarta",
+  "oldstandard",
+] as const;
 export const componenteIds = [
   "apresentacao",
   "servicos",
@@ -349,38 +361,38 @@ export const TEMAS: Record<
   },
   "figaro-classico": {
     nome: "Clássico",
-    descricao: "Visual moderno e minimalista, recuperado da referência Figaro. Paleta adaptada para o Cortaí.",
+    descricao: "Visual moderno e minimalista, com tipografia serifada e muito respiro.",
     cores: {
-      principal: "#5F6469",
-      secundaria: "#E5E7E8",
-      botao: "#5F6469",
-      fundo: "#F6F7F7",
-      texto: "#202224",
-      destaque: "#2467BB",
+      principal: "#2B2B2A",
+      secundaria: "#DFDCD9",
+      botao: "#DFDCD9",
+      fundo: "#ECEAE8",
+      texto: "#1F1E1D",
+      destaque: "#8A8683",
     },
   },
   "figaro-retro": {
-    nome: "Retro",
-    descricao: "Uma opção retrô recuperada da referência Figaro, com paleta adaptada para o Cortaí.",
+    nome: "Retrô",
+    descricao: "Cores vibrantes e clima nostálgico, com letras que lembram as antigas barbearias.",
     cores: {
-      principal: "#C4A82D",
-      secundaria: "#F0E2A1",
-      botao: "#D3145D",
-      fundo: "#FFF9E5",
-      texto: "#2B281F",
-      destaque: "#D3145D",
+      principal: "#2A1F3D",
+      secundaria: "#F2D95C",
+      botao: "#4553D9",
+      fundo: "#F4E38A",
+      texto: "#2A1F3D",
+      destaque: "#4553D9",
     },
   },
   "figaro-rock-n-roll": {
     nome: "Rock n' Roll",
-    descricao: "Visual intenso e cheio de atitude, recuperado da referência Figaro; paleta adaptada para o Cortaí.",
+    descricao: "Visual intenso e cheio de atitude, para quem valoriza o impacto.",
     cores: {
-      principal: "#D3145D",
-      secundaria: "#2B2630",
-      botao: "#D3145D",
-      fundo: "#151318",
-      texto: "#F4F4F5",
-      destaque: "#5F6469",
+      principal: "#1F1C1D",
+      secundaria: "#E1DEDD",
+      botao: "#262424",
+      fundo: "#E8E5E4",
+      texto: "#1F1C1D",
+      destaque: "#E8582A",
     },
   },
 };
@@ -401,7 +413,66 @@ export const FONTES: Record<FonteId, string> = {
   oswald: "Oswald",
   roboto: "Roboto",
   serif: "Serif elegante",
+  playfair: "Playfair Display",
+  outfit: "Outfit",
+  lobster: "Lobster",
+  jakarta: "Plus Jakarta Sans",
+  oldstandard: "Old Standard TT",
 };
+
+/**
+ * Catálogo do Figaro (`GET pages/layouts`, spec 4 §4.3): dois layouts com os mesmos três temas. É o que a
+ * tela Layout & Tema oferece. Os layouts e temas antigos do Cortaí continuam válidos em páginas já salvas.
+ */
+export const LAYOUTS_DO_FIGARO = ["figaro-site-completo", "figaro-agendamento"] as const satisfies readonly LayoutId[];
+export const TEMAS_DO_FIGARO = ["figaro-classico", "figaro-rock-n-roll", "figaro-retro"] as const satisfies readonly TemaId[];
+
+export const DESCRICAO_DO_LAYOUT: Partial<Record<LayoutId, string>> = {
+  "figaro-site-completo": "Layout completo com todas as seções organizadas em rolagem única.",
+  "figaro-agendamento": "Layout focado no agendamento rápido de horários.",
+};
+
+/**
+ * Seções que cada layout do Figaro oferece (as demais não existem nele). `null` = todas (layouts antigos).
+ * Site Completo: Hero, Serviços, Equipe, Galeria, Avaliações, Localização, Contato, Redes e o fluxo de
+ * agendamento (9 seções). Agendamento: só Serviços e o fluxo.
+ */
+export const SECOES_DO_LAYOUT: Record<LayoutId, readonly (typeof componenteIds)[number][] | null> = {
+  cinematografico: null,
+  "logo-central": null,
+  minimalista: null,
+  "foto-destaque": null,
+  editorial: null,
+  "figaro-site-completo": [
+    "apresentacao",
+    "servicos",
+    "profissionais",
+    "galeria",
+    "avaliacoes",
+    "localizacao",
+    "whatsapp",
+    "instagram",
+  ],
+  "figaro-agendamento": ["servicos"],
+};
+
+/** Fontes de cada tema do Figaro (título e texto), como nas páginas de exemplo. */
+export const FONTES_DO_TEMA: Partial<Record<TemaId, { titulo: FonteId; texto: FonteId }>> = {
+  "figaro-classico": { titulo: "playfair", texto: "outfit" },
+  "figaro-rock-n-roll": { titulo: "oswald", texto: "inter" },
+  "figaro-retro": { titulo: "lobster", texto: "montserrat" },
+};
+
+/** Troca o tema levando paleta e fontes juntas. */
+export function aplicarTema(config: PaginaConfig, tema: TemaId): PaginaConfig {
+  const fontes = FONTES_DO_TEMA[tema];
+  return {
+    ...config,
+    tema,
+    cores: TEMAS[tema].cores,
+    ...(fontes ? { fonteTitulo: fontes.titulo, fonteTexto: fontes.texto } : {}),
+  };
+}
 
 export function configPadrao(overrides?: Partial<PaginaConfig>): PaginaConfig {
   return paginaConfigSchema.parse({
@@ -470,6 +541,11 @@ const fontes: Record<FonteId, string> = {
   oswald: '"Oswald", sans-serif',
   roboto: '"Roboto", sans-serif',
   serif: '"Libre Baskerville", Georgia, serif',
+  playfair: '"Playfair Display", Georgia, serif',
+  outfit: '"Outfit", sans-serif',
+  lobster: '"Lobster", cursive',
+  jakarta: '"Plus Jakarta Sans", sans-serif',
+  oldstandard: '"Old Standard TT", Georgia, serif',
 };
 
 export function paginaStyle(config: PaginaConfig): CSSProperties {
@@ -515,6 +591,11 @@ const familiasGoogle: Record<FonteId, string> = {
   oswald: "Oswald:wght@400;500;600;700",
   roboto: "Roboto:wght@400;500;700;900",
   serif: "Libre+Baskerville:wght@400;700",
+  playfair: "Playfair+Display:wght@400;500;600;700",
+  outfit: "Outfit:wght@300;400;500;600",
+  lobster: "Lobster",
+  jakarta: "Plus+Jakarta+Sans:wght@400;500;600;700;800",
+  oldstandard: "Old+Standard+TT:wght@400;700",
 };
 
 /** URL única do Google Fonts com as fontes escolhidas pela marca (antes nunca eram carregadas). */

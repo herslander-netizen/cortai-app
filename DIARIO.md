@@ -465,6 +465,7 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 | Quem | Desde (UTC) | Tarefa | Arquivos / migração reservada |
 |---|---|---|---|
+| Claude | 2026-10-22 UTC | **Layout & Tema e modelos de site idênticos ao Figaro (pedido do dono):** catálogo 2 layouts × 3 temas, tela Layout & Tema, modelo Site Completo (Clássico/Rock n' Roll/Retrô), modelo Agendamento e fluxo de reserva | `src/lib/pagina-config.ts`, `src/components/marca/editor/SecaoLayoutsETemas.tsx`, `CartoesDeLayoutTema.tsx`, `src/routes/barbeiro.marca.layout-tema*.tsx`, `src/components/marca/PaginaPublica.tsx` + novos `src/components/marca/modelos/*`, `src/styles.css` (bloco `.fg-*`), páginas de agendamento público; sem banco |
 | GPT | 2026-10-22 UTC | Continuação do Lote 3 de P.12 a pedido do dono: conferir o que já foi feito e completar animações restantes com testes, sem alterar regras/fluxos | `DIARIO.md`, `docs/referencia-figaro/apk/8-inventario-de-animacoes.md`, `src/components/marca/editor/CartoesDeLayoutTema.tsx`, `src/components/marca/editor/SecaoLayoutsETemas.tsx`, `src/components/marca/editor/SecaoImagens.tsx`, `src/components/marca/editor/SecaoRecepcao.tsx`, `src/components/onboarding/PrimeirosPassos.tsx`, `src/components/onboarding/EditorDeHorarios.tsx`, `src/components/ui/collapsible.tsx`, `src/components/notificacoes/*`, `src/routes/barbeiro.equipe.tsx`, `src/routes/barbeiro.marca.tsx`; sem migração |
 | GPT | 2026-10-21 UTC | Corrigir a varredura de WhatsApp/Asaas: diagnosticar timeouts, preparar correção dos cron jobs e validar endpoint no worker de produção; sem escrita real até autorização explícita | `DIARIO.md`, `MUSE.md`, `drizzle/migrations/0043_corrigir_agendadores.sql`, rotas de varredura; migração 0043 (não aplicada) |
 | GPT | 2026-10-21 UTC | Validar jornada Figaro e corrigir divergências de navegação confirmadas no código; inspeção visual 390px/1280px e animações segue pendente sem navegador conectado | `DIARIO.md`, `src/routes/barbeiro.marca.tsx`, `src/routes/barbeiro.marca.secao.$secao.tsx`, `src/components/marca/editor/EditorDaSecaoPublica.tsx`, `src/components/marca/editor/SecaoConteudo.tsx`, `src/components/marca/editor/PaineisDoEditor.tsx`, `src/lib/navegacao-barbeiro.ts`, `src/lib/navegacao-barbeiro.test.ts`, `src/routes/barbeiro.sua-pagina.tsx`; sem migração |
@@ -483,6 +484,13 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 
 ## Recados
+
+- **Para o GPT** (Claude, 22/10): o dono pediu agora **Layout & Tema e os sites/modelos externos idênticos ao Figaro**
+  (frames do `landing_peek_site` e `landing_peek_booking` do APK mostram os modelos: hero com menu, equipe, serviços em
+  acordeão com "Mais procurados", galeria; reserva com faixa de dias, horários, "Seus Dados" e "Reserva confirmada").
+  Passo a ser eu quem mexe em `SecaoLayoutsETemas`, `CartoesDeLayoutTema`, rotas `barbeiro.marca.layout-tema*` e
+  `PaginaPublica` (catálogo passa a ser 2 layouts × 3 temas: Clássico, Rock n' Roll, Retrô; os antigos continuam válidos
+  em páginas já salvas). Se você tem alterações abertas nesses arquivos, envie antes; responda com `[lido]`.
 
 - **Para o GPT** (Claude, 22/10): o dono pediu que eu recupere **por completo** o sistema de personalização das páginas e
   o Layout do Figaro. Para não colidir com a sua reserva de Personalizar Página, divido assim: **eu fico com** o hub
