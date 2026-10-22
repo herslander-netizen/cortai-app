@@ -4,7 +4,7 @@ import { useNavigate, useRouterState, useSearch } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { ChartNoAxesColumn, Clock3, HandCoins, Lock, Plus, UserRoundPlus } from "lucide-react";
+import { Clock3, HandCoins, Lock, Plus, UserRoundPlus } from "lucide-react";
 import type React from "react";
 import { AnimatePresence } from "framer-motion";
 import {
@@ -101,7 +101,7 @@ import {
   type AgendaItem,
   type EstadoAtendimento,
 } from "@/lib/barbeiro.functions";
-import { getAguardandoPagamento, getMeuDia } from "@/lib/financeiro.functions";
+import { getAguardandoPagamento } from "@/lib/financeiro.functions";
 import { brl } from "@/lib/format";
 import {
   chamarProximoDaFila,
@@ -458,13 +458,6 @@ export function AgendaOperacional() {
     queryFn: () => getAguardandoPagamento(),
     staleTime: 30_000,
     refetchOnWindowFocus: true,
-  });
-  const [meuDiaAberto, setMeuDiaAberto] = useState(false);
-  const meuDiaQ = useQuery({
-    queryKey: ["agenda-meu-dia"],
-    queryFn: () => getMeuDia(),
-    staleTime: 60_000,
-    enabled: ehHoje,
   });
   const aReceber = aReceberQ.data ?? [];
   const chegada = filaQ.data?.chegada ?? [];
