@@ -2,6 +2,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { Eye, Save } from "lucide-react";
+import { useState } from "react";
 
 import { EsqueletoFormulario } from "@/components/layout/Esqueleto";
 import { Screen } from "@/components/layout/Screen";
@@ -71,6 +72,7 @@ function EditorLayoutTema({
   reload: () => Promise<void>;
   onVoltar: () => void;
 }) {
+  const navigate = useNavigate();
   const saveDraft = useServerFn(salvarRascunhoPagina);
   const e = useEditorDaPagina(initial, () => void reload());
   const [salvando, setSalvando] = useState(false);

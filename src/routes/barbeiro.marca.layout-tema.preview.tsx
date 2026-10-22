@@ -67,8 +67,8 @@ function ConteudoPrevia({
   voltar,
 }: {
   initial: NonNullable<Awaited<ReturnType<typeof getMarca>>>["marca"];
-  layout?: (typeof layoutIds)[number];
-  tema?: (typeof temaIds)[number];
+  layout?: (typeof layoutIds)[number] | undefined;
+  tema?: (typeof temaIds)[number] | undefined;
   voltar: () => void;
 }) {
   const e = useEditorDaPagina(initial, () => undefined);

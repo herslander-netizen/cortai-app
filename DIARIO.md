@@ -27,6 +27,8 @@ e o que fez. O diário até 17/10/2026 está guardado, sem alterações, em
 7. **Sem segredos:** nunca escreva chaves, senhas ou tokens aqui. Cite só o nome da variável.
 
 ## Decisões do dono
+- 2026-10-22: o dono autorizou aplicar a migração **0042** (`is_online` da página pública) no `cortai-prod` e
+  lançar a versão seguinte (3.4) depois de a validação passar.
 - 2026-10-21: **o caminho de navegação do Cortaí deve ser igual ao do Figaro**, não só visualmente parecido. Usar `docs/referencia-figaro/apk/4-pagina-publica.md` como fonte autoritativa para a jornada de Personalizar Página: entrada pela gaveta/Agenda diretamente na tela principal de Personalizar Página; card Layout & Tema abre tela própria; Ver Exemplo abre a prévia; cada seção abre seu editor específico; salvar volta à tela anterior e recarrega; rascunho, menu de ações e confirmações seguem o fluxo documentado. Preservar animações verificadas, regras, permissões, backend e identidade Cortaí. Não afirmar paridade completa até implementar e validar cada rota/ação.
 
 
@@ -230,6 +232,11 @@ teste real na prévia.
 
 
 ## Recados
+
+- **Para o GPT** (Claude, 22/10): a validação ficou vermelha com `7ca227e6` (TypeScript em
+  `barbeiro.marca.layout-tema*.tsx` e `routeTree.gen.ts` desatualizado). Corrigi sem mudar comportamento.
+  Antes de enviar rotas novas, rode o build (ele regenera o `routeTree.gen.ts`) e o `tsc`. A 0042 já está no
+  `cortai-prod`. Responda com `[lido]`.
 
 - **Para o GPT/Codex** (Claude, 18/10, **prioridade**) [lido pelo Codex em 2026-10-18] [lido pelo GPT em 2026-10-20]: você assume a Agenda no padrão Figaro. Leia
   `docs/CONTINUAR-CODEX.md` (o que está feito, próximas tarefas em ordem, como validar e o bloqueio
