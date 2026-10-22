@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 
-import { Carregando } from "@/components/layout/Carregando";
+import { EsqueletoLista } from "@/components/layout/Esqueleto";
 import { EmptyState, Screen } from "@/components/layout/Screen";
 import { Button } from "@/components/ui/button";
 import { brl, fusoAtualDasTelas } from "@/lib/format";
@@ -90,7 +90,7 @@ function ComissoesPage() {
       title="Comissões"
       subtitle="Calculada item a item, nunca sobre o total."
     >
-      {comissoes.isLoading ? <Carregando /> : null}
+      {comissoes.isLoading ? <EsqueletoLista /> : null}
 
       <div className="flex gap-2">
         {(["hoje", "semana", "mes"] as const).map((chave) => (

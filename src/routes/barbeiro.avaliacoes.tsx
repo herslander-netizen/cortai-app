@@ -11,7 +11,7 @@ import {
   registrarAvaliacao,
   salvarLinkAvaliacao,
 } from "@/lib/crescimento.functions";
-import { Carregando } from "@/components/layout/Carregando";
+import { EsqueletoLista } from "@/components/layout/Esqueleto";
 import { ResumoDasAvaliacoes } from "@/components/avaliacoes/ResumoDasAvaliacoes";
 import { useAcao } from "@/hooks/useAcao";
 import { Button } from "@/components/ui/button";
@@ -83,7 +83,7 @@ function AvaliacoesPage() {
       title="Avaliações"
       subtitle="Feedback interno, convite público só quando faz sentido."
     >
-      {isLoading ? <Carregando /> : null}
+      {isLoading ? <EsqueletoLista onTentarDeNovo={() => void refetch()} /> : null}
 
       {data ? (
         <>

@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 
 import { Screen, EmptyState } from "@/components/layout/Screen";
-import { Carregando } from "@/components/layout/Carregando";
+import { EsqueletoLista, EsqueletoPainel } from "@/components/layout/Esqueleto";
 import { CodigoPorTelefone } from "@/components/ia/CodigoPorTelefone";
 import { QrCodeReal } from "@/components/ia/QrCodeReal";
 import { diagnosticoDoEnvio, type TomDoEnvio } from "@/lib/whatsapp/erros-meta";
@@ -106,7 +106,7 @@ function CortaiPage() {
       title="WhatsApp"
       subtitle="O WhatsApp do seu negócio conversa com clientes e envia os avisos."
     >
-      {painel.isLoading ? <Carregando /> : null}
+      {painel.isLoading ? <EsqueletoPainel /> : null}
       {painel.isError ? (
         <p className="border-y border-line py-8 text-center text-sm text-brick">
           {mensagemDeAcessoNegado(painel.error)
@@ -202,7 +202,7 @@ function BlocoExperiencia() {
     queryKey: ["secretaria-experiencia"],
     queryFn: () => getAvaliacoes(),
   });
-  if (avaliacoes.isLoading) return <Carregando />;
+  if (avaliacoes.isLoading) return <EsqueletoLista />;
   if (avaliacoes.isError)
     return (
       <p className="py-8 text-center text-sm text-brick">
@@ -298,7 +298,7 @@ function AvisosDaMeta() {
 
 function BlocoEnvios({ irParaConexao }: { irParaConexao: () => void }) {
   const envios = useEnviosDaSecretaria();
-  if (envios.isLoading) return <Carregando />;
+  if (envios.isLoading) return <EsqueletoLista />;
   if (envios.isError)
     return (
       <p className="py-8 text-center text-sm text-brick">Não foi possível carregar os envios.</p>

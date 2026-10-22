@@ -1,3 +1,4 @@
+import { EsqueletoLista } from "@/components/layout/Esqueleto";
 import { useQuery } from "@tanstack/react-query";
 import {
   CheckCircle2,
@@ -76,11 +77,15 @@ export function PainelDeLembretes() {
     <section className="mt-8">
       <h2 className="mb-1 text-xs font-semibold uppercase text-mute2">Avisos enviados</h2>
       <p className="mb-3 text-xs text-mute">
-        {lista.length
-          ? `${respondidos} de ${lista.length} responderam`
-          : "Os lembretes aparecem aqui quando saírem."}
+        {isLoading
+          ? "Carregando os avisos…"
+          : lista.length
+            ? `${respondidos} de ${lista.length} responderam`
+            : "Os lembretes aparecem aqui quando saírem."}
       </p>
-      {isLoading ? null : (
+      {isLoading ? (
+        <EsqueletoLista linhas={3} />
+      ) : (
         <ul className="divide-y divide-line border-y border-line">
           {lista.map((e) => {
             const s = situacao(e);

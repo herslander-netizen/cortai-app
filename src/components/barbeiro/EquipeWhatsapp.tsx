@@ -1,3 +1,4 @@
+import { EsqueletoLista } from "@/components/layout/Esqueleto";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { MessageCircle } from "lucide-react";
 
@@ -49,7 +50,7 @@ export function EquipeWhatsapp() {
         Avisos da agenda, fila, Pix e fiado pelo WhatsApp da empresa. Só chegam para quem verificou
         o próprio número.
       </p>
-      {lista.isLoading ? <p className="text-xs text-mute">Carregando…</p> : null}
+      {lista.isLoading ? <EsqueletoLista linhas={2} /> : null}
       <ul className="space-y-2">
         {(lista.data ?? []).map((m) => {
           const s = STATUS[m.status];

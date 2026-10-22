@@ -9,13 +9,15 @@ export function CartaoSuporte({ link = linkDoSuporte() }: { link?: string | null
     <Button
       asChild
       variant="ghost"
-      className="mt-6 grid h-auto min-h-[76px] w-full grid-cols-[28px_minmax(0,1fr)] items-center justify-items-stretch gap-5 whitespace-normal rounded-[28px] border border-drawer-borda bg-drawer-card px-6 py-4 text-left font-normal text-paper hover:bg-drawer-card active:brightness-110"
+      className="mt-6 grid h-auto min-h-[60px] w-full grid-cols-[28px_minmax(0,1fr)] items-center justify-items-stretch gap-4 whitespace-normal rounded-[28px] bg-drawer-card px-5 py-3 text-left font-normal text-paper hover:bg-drawer-card active:brightness-110 [&_svg]:size-7"
     >
       <a href={link} target="_blank" rel="noopener noreferrer">
         <IconeWhatsApp className="size-7 text-whatsapp" />
         <span className="min-w-0">
-          <span className="block truncate text-[17px] font-semibold">Suporte</span>
-          <span className="block truncate text-sm text-mute">Atendimento humano no WhatsApp</span>
+          <span className="block truncate text-[17px] font-semibold leading-6">Suporte</span>
+          <span className="block text-[13px] font-medium leading-[18px] text-mute">
+            Atendimento humano no WhatsApp
+          </span>
         </span>
       </a>
     </Button>

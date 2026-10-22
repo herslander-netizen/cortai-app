@@ -665,6 +665,20 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-22 UTC — Claude — Auditoria de carregamentos/esqueletos e cores fora do padrão
+- **Esqueletos**: (1) o casco da área do negócio usava o esqueleto do Cockpit (outra tela); agora tem o formato real da Agenda
+  (barra do topo, cartões do dia, barra flutuante com "+"); (2) as barras do esqueleto sumiam no tema claro (`ink3` sobre o
+  cartão branco): usam `surface-container-highest` do Figaro; (3) listas e painéis (avaliações, indicações, comissões, CortAI,
+  atividade, avisos enviados, editores, equipe no WhatsApp) mostravam o esqueleto de formulário ou só texto "Carregando…":
+  agora `EsqueletoLista`/`EsqueletoPainel`; "Avisos enviados" não mostra mais "Os lembretes aparecem aqui" enquanto carrega;
+  (4) a gaveta mostrava "Meu negócio / Equipe ·" antes da sessão chegar: agora logo e linhas de esqueleto; (5) cartão
+  "Suporte" da gaveta: o ícone do WhatsApp saía com 16 px por causa de `[&_svg]:size-4` do botão; corrigido e texto sem corte.
+- **Cores fora do padrão**: o destaque do Figaro valia só na identidade padrão; com a identidade Cobre (e Rosé, Índigo,
+  Clássico) o "+" da Agenda ficava marrom e os pontos dos dias bege. Agora, **na área do negócio, todas as identidades usam o
+  azul do Figaro** (botões, "+", pontos, ícones) e o "+" é `primaryContainer` com ícone `onPrimaryContainer` (spec 2 §1.5).
+  Decisão do dono ("botão com variações fora do padrão"). A identidade escolhida em Ajustes segue valendo fora da área do
+  negócio (chat, páginas públicas). Verificado nas 3 identidades, claro e escuro.
+
 ### 2026-10-22 UTC — Claude — Lupa no lugar do calendário na lista da Agenda (celular)
 - Na visão **Lista** do celular o botão do calendário (que não serve ali) vira **lupa** com troca animada (gira e escala, mola
   rápida do Figaro). Tocar na lupa abre o **painel de busca**, que nasce no lugar do botão e corre para a esquerda até cobrir a

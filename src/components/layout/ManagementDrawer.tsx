@@ -53,6 +53,7 @@ import { useMediaQuery } from "@/hooks/use-mobile";
 import { horaNoFuso, saudacaoDoMenu } from "@/lib/saudacao-menu";
 import menuClaro from "@/assets/cortai-menu-light.webp.asset.json";
 import menuEscuro from "@/assets/cortai-menu-dark.webp.asset.json";
+import { Barra, BlocoEsqueleto } from "@/components/layout/Esqueleto";
 import { useLayoutEquipe } from "@/components/layout/ContextoLayoutEquipe";
 
 export function ManagementHeader() {
@@ -228,22 +229,36 @@ export function ManagementHeader() {
               <div className="shrink-0 px-5 pb-4 pt-[max(1.25rem,env(safe-area-inset-top))]">
                 <div className="grid grid-cols-[minmax(0,1fr)_44px] items-center gap-3">
                   <div className="flex min-w-0 items-center gap-3">
-                    <LogoBarbearia
-                      nome={sessao?.tenantNome ?? "Meu negócio"}
-                      url={sessao?.tenantLogoUrl ?? null}
-                      size={44}
-                      className="rounded-full border-0 bg-drawer-card"
-                    />
+                    {sessao ? (
+                      <LogoBarbearia
+                        nome={sessao.tenantNome ?? "Meu negócio"}
+                        url={sessao.tenantLogoUrl ?? null}
+                        size={44}
+                        className="rounded-full border-0 bg-drawer-card"
+                      />
+                    ) : (
+                      <BlocoEsqueleto className="size-11 shrink-0 rounded-full" />
+                    )}
                     <div className="min-w-0">
                       <SheetTitle
                         data-conta-nome=""
-                        className="line-clamp-2 break-words text-paper"
+                        className={sessao ? "line-clamp-2 break-words text-paper" : "sr-only"}
                       >
-                        {sessao?.tenantNome ?? "Meu negócio"}
+                        {sessao?.tenantNome ?? "Menu"}
                       </SheetTitle>
-                      <SheetDescription data-conta-papel="" className="mt-0.5 truncate text-mute">
-                        {sessao?.nome ?? "Equipe"} · {rotuloDoPapel(sessao?.papelNaEquipe)}
-                      </SheetDescription>
+                      {sessao ? (
+                        <SheetDescription data-conta-papel="" className="mt-0.5 truncate text-mute">
+                          {sessao.nome ?? "Equipe"} · {rotuloDoPapel(sessao.papelNaEquipe)}
+                        </SheetDescription>
+                      ) : (
+                        <>
+                          <SheetDescription className="sr-only">Carregando o menu</SheetDescription>
+                          <span aria-hidden className="block space-y-2">
+                            <Barra w="140px" h={16} />
+                            <Barra w="96px" h={12} />
+                          </span>
+                        </>
+                      )}
                     </div>
                   </div>
                   <DrawerAjustes
@@ -291,7 +306,9 @@ export function ManagementHeader() {
         <div className="flex items-center gap-1">
           {mostrarAcoesRapidas ? <AcoesRapidas /> : null}
           {/* A Agenda mantém o topo livre; a CortAI continua acessível nas demais telas. */}
-          {caminho === "/barbeiro" || caminho === "/barbeiro/agenda" ? null : <AtalhoCortaiNoCabecalho />}
+          {caminho === "/barbeiro" || caminho === "/barbeiro/agenda" ? null : (
+            <AtalhoCortaiNoCabecalho />
+          )}
           <SinoDeAvisos />
         </div>
       </div>

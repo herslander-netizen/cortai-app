@@ -1,3 +1,4 @@
+import { EsqueletoLista } from "@/components/layout/Esqueleto";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
@@ -145,7 +146,7 @@ export function EditorDeEquipe({ e, reportarErro }: PropsDoEditor) {
         ) : null}
       </GrupoDeCampos>
       <GrupoDeCampos titulo="Profissionais">
-        {query.isLoading ? <p className="text-sm text-mute">Carregando…</p> : null}
+        {query.isLoading ? <EsqueletoLista linhas={3} /> : null}
         {!query.isLoading && membros.length === 0 ? (
           <p className="text-sm text-mute">Nenhum profissional cadastrado.</p>
         ) : null}
