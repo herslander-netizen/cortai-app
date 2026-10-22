@@ -465,7 +465,6 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 | Quem | Desde (UTC) | Tarefa | Arquivos / migração reservada |
 |---|---|---|---|
-| Claude | 2026-10-22 UTC | **Layout & Tema e modelos de site idênticos ao Figaro (pedido do dono):** catálogo 2 layouts × 3 temas, tela Layout & Tema, modelo Site Completo (Clássico/Rock n' Roll/Retrô), modelo Agendamento e fluxo de reserva | `src/lib/pagina-config.ts`, `src/components/marca/editor/SecaoLayoutsETemas.tsx`, `CartoesDeLayoutTema.tsx`, `src/routes/barbeiro.marca.layout-tema*.tsx`, `src/components/marca/PaginaPublica.tsx` + novos `src/components/marca/modelos/*`, `src/styles.css` (bloco `.fg-*`), páginas de agendamento público; sem banco |
 | GPT | 2026-10-22 UTC | Continuação do Lote 3 de P.12 a pedido do dono: conferir o que já foi feito e completar animações restantes com testes, sem alterar regras/fluxos | `DIARIO.md`, `docs/referencia-figaro/apk/8-inventario-de-animacoes.md`, `src/components/marca/editor/CartoesDeLayoutTema.tsx`, `src/components/marca/editor/SecaoLayoutsETemas.tsx`, `src/components/marca/editor/SecaoImagens.tsx`, `src/components/marca/editor/SecaoRecepcao.tsx`, `src/components/onboarding/PrimeirosPassos.tsx`, `src/components/onboarding/EditorDeHorarios.tsx`, `src/components/ui/collapsible.tsx`, `src/components/notificacoes/*`, `src/routes/barbeiro.equipe.tsx`, `src/routes/barbeiro.marca.tsx`; sem migração |
 | GPT | 2026-10-21 UTC | Corrigir a varredura de WhatsApp/Asaas: diagnosticar timeouts, preparar correção dos cron jobs e validar endpoint no worker de produção; sem escrita real até autorização explícita | `DIARIO.md`, `MUSE.md`, `drizzle/migrations/0043_corrigir_agendadores.sql`, rotas de varredura; migração 0043 (não aplicada) |
 | GPT | 2026-10-21 UTC | Validar jornada Figaro e corrigir divergências de navegação confirmadas no código; inspeção visual 390px/1280px e animações segue pendente sem navegador conectado | `DIARIO.md`, `src/routes/barbeiro.marca.tsx`, `src/routes/barbeiro.marca.secao.$secao.tsx`, `src/components/marca/editor/EditorDaSecaoPublica.tsx`, `src/components/marca/editor/SecaoConteudo.tsx`, `src/components/marca/editor/PaineisDoEditor.tsx`, `src/lib/navegacao-barbeiro.ts`, `src/lib/navegacao-barbeiro.test.ts`, `src/routes/barbeiro.sua-pagina.tsx`; sem migração |
@@ -665,6 +664,36 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - Sem alteração no banco, `main` ou produção.
 
 ## Diário
+
+### 2026-10-22 UTC — Claude — Layout & Tema, modelos de site e reserva idênticos ao Figaro
+- **Fonte dos modelos:** o APK não traz o site público (ele é servido pelo Figaro), mas traz os vídeos
+  `landing_peek_site` e `landing_peek_booking`. Extraí os quadros e reproduzi o que aparece neles; o que não aparece
+  (avaliações, localização, contato, redes) segue o mesmo estilo. **As fotos do Figaro não foram copiadas**: cada
+  tema usa a capa do próprio negócio com véu e ilustrações em SVG.
+- **Catálogo (`pagina-config.ts`):** 2 layouts (**Site Completo**, **Agendamento**) × 3 temas (**Clássico**,
+  **Rock n' Roll**, **Retrô**), com fontes de cada tema (Playfair+Outfit, Oswald+Inter, Lobster+Montserrat),
+  seções por layout (`SECOES_DO_LAYOUT`: Site Completo = 8 do Cortaí + fluxo = "9 seções ativas"; Agendamento =
+  Serviços + fluxo) e `aplicarTema`. Layouts e temas antigos continuam válidos em páginas já salvas, mas não são mais
+  oferecidos na tela.
+- **Layout & Tema (spec 4 §4.2):** dois painéis exclusivos (LAYOUT com selo "3 temas", TEMA com miniatura), seta pela
+  mola 0,75/1500, carrossel com cartões de 286 px: layout (nome 22 px, descrição, "3 temas disponíveis", grade de
+  seções com "+4 seções", borda e ✓ azul) e tema (banner 2,9:1 com pílula de 56×6, borda e ✓ rosa); rodapé
+  "Ver Exemplo" e "Salvar Alterações". `CapaDoTema` desenha a capa de cada tema.
+- **Modelo Site Completo (`marca/modelos/SiteCompleto.tsx`):** topo com nome e menu, abertura em tela cheia (título,
+  texto, botão, "Saiba mais"), Equipe (retratos), Serviços em acordeão ("Mais procurados 🔥" + categorias com
+  contagem e "Agendar"), Galeria de Fotos, Avaliações, Localização, Contato e Redes. Rock n' Roll corta a abertura em
+  diagonal com a faixa laranja; Retrô é amarelo com botão azul em pílula; Clássico é serifado com botão cinza.
+  "Agendamento" usa a mesma base com abertura curta e só os serviços. Estilos em `.fg-*` no `styles.css`.
+- **Reserva (`ReservaFigaro.tsx`, só nos layouts do Figaro e fora do modo conversa):** lista de serviços com
+  "Agendar"; folha com mês, faixa de dias, horários com o profissional livre ("Lucas +2"), escolha do profissional na
+  linha ("Selecionar" / "✓ Selecionado"), barra "28 de Agosto · 09:15 às 10:15 com …" e Continuar; "Seus Dados"
+  (telefone com +55 e nome — o Figaro pede e-mail, o Cortaí identifica por nome e WhatsApp); tela verde "Reserva
+  confirmada" por 1,9 s, depois a confirmação de sempre. Mesmo motor de disponibilidade, mesma criação, mesma verificação
+  por WhatsApp. `?servico=` abre direto no serviço (o "Agendar" de cada linha usa isso).
+- Conferido no Chromium (quadros comparados com os do APK). Falta celular e a prévia real.
+- Para o GPT: reescrevi `SecaoLayoutsETemas`, `CartoesDeLayoutTema` e o miolo de `barbeiro.marca.layout-tema*`;
+  `barbeiro.marca.tsx` só trocou imports/contagem. Se você tinha alterações abertas lá, junte ao puxar.
+- Validação: `tsc`, 1689 testes, `build`. Sem banco, sem `main`.
 
 ### 2026-10-22 UTC — Claude — Personalizar Página: hub, editores por seção, obrigatórias e QR (spec 4)
 - **Hub (`SecaoConteudo`):** agora é a lista do Figaro — grupos **Seções obrigatórias** (inclui "Fluxo de

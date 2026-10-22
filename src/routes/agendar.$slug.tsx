@@ -39,6 +39,8 @@ import { HorariosOcupados } from "@/components/agendamento/HorariosOcupados";
 import { useHistoricoAgendamento } from "@/hooks/useHistoricoAgendamento";
 import { headDaBarbearia, mascaraTelefone } from "@/lib/previa";
 import { agendamentoStyle } from "@/lib/pagina-config";
+import { ReservaConfirmada, ReservaFigaro } from "@/components/agendamento/ReservaFigaro";
+import { horaFinal } from "@/lib/reserva-figaro";
 import {
   agendarComoConvidado,
   cancelarComoConvidado,
@@ -50,9 +52,10 @@ import {
 
 export const Route = createFileRoute("/agendar/$slug")({
   ssr: "data-only",
-  validateSearch: (s: Record<string, unknown>): { origem?: string; de?: string } => ({
+  validateSearch: (s: Record<string, unknown>): { origem?: string; de?: string; servico?: string } => ({
     ...(typeof s["origem"] === "string" ? { origem: s["origem"].slice(0, 30) } : {}),
     ...(typeof s["de"] === "string" ? { de: s["de"].slice(0, 20) } : {}),
+    ...(typeof s["servico"] === "string" ? { servico: s["servico"].slice(0, 40) } : {}),
   }),
   loader: ({ params }) => getPreviaDaBarbearia({ data: { slug: params.slug } }).catch(() => null),
   head: ({ params, loaderData }) => {
@@ -112,6 +115,7 @@ type Situacao =
 
 function AgendamentoPublico() {
   const { slug } = Route.useParams();
+  const { servico: servicoDaUrl } = Route.useSearch();
   const { data, isLoading, refetch } = useQuery({
     queryKey: ["agenda-publica", slug],
     queryFn: () => getAgendaPublica({ data: { slug } }),
@@ -150,6 +154,21 @@ function AgendamentoPublico() {
   } = selecao;
   const [nome, setNome] = useState("");
   const [telefone, setTelefone] = useState("");
+  // Modelos do Figaro: profissional escolhido na linha do horário e a tela verde depois de confirmar.
+  const [profFigaro, setProfFigaro] = useState<string | null>(null);
+  const [telaVerde, setTelaVerde] = useState(false);
+  useEffect(() => {
+    if (!telaVerde) return;
+    const id = window.setTimeout(() => setTelaVerde(false), 1900);
+    return () => window.clearTimeout(id);
+  }, [telaVerde]);
+  const preselecionado = useRef(false);
+  useEffect(() => {
+    if (preselecionado.current || !servicoDaUrl || !data) return;
+    preselecionado.current = true;
+    if (data.servicos.some((x) => x.id === servicoDaUrl)) setServicoId(servicoDaUrl);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [servicoDaUrl, data]);
   const [tocouTelefone, setTocouTelefone] = useState(false);
   const [tocouNome, setTocouNome] = useState(false);
   const [saudacao, setSaudacao] = useState<string | null>(null);
@@ -282,7 +301,7 @@ function AgendamentoPublico() {
         data: {
           slug,
           servicoId: servicoId!,
-          profissionalId: escolhido!.profId,
+          profissionalId: profFigaro ?? escolhido!.profId,
           inicio: escolhido!.iso,
           nome: nome.trim(),
           telefone: digitosTel,
@@ -311,6 +330,7 @@ function AgendamentoPublico() {
       setSubstituiId(null);
       setSituacao("confirmado");
       setConfirmado(res.confirmacao);
+      setTelaVerde(true);
       marcarEtapa("confirmado");
       setFuturoNoChat(false);
       try {
@@ -394,6 +414,7 @@ function AgendamentoPublico() {
     setConfirmado(null);
     setSituacao("confirmado");
     setHorario(null);
+    setProfFigaro(null);
     setSubstituiId(null);
     setErro(null);
   }
@@ -465,6 +486,20 @@ function AgendamentoPublico() {
 
   const modoConversa = fluxo === "conversa";
   const linkSobre = `/b/${slug}?ver=pagina`;
+  const modeloFigaro = data.pagina.layout.startsWith("figaro-") && !modoConversa;
+  if (confirmado && modeloFigaro && telaVerde && situacao === "confirmado") {
+    const inicio = new Date(confirmado.inicio);
+    const hora = inicio.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", timeZone: fuso });
+    const diaTexto = inicio.toLocaleDateString("pt-BR", { weekday: "short", day: "numeric", month: "long", timeZone: fuso });
+    return (
+      <ReservaConfirmada
+        data={diaTexto}
+        hora={hora}
+        horaFim={horaFinal(hora, Math.round((new Date(confirmado.fim).getTime() - inicio.getTime()) / 60000))}
+        profissional={confirmado.profissional}
+      />
+    );
+  }
   if (confirmado && !(modoConversa && futuroNoChat && situacao === "confirmado")) {
     return (
       <div className="agendamento-marca" style={agendamentoStyle(data.pagina)}>
@@ -573,6 +608,52 @@ function AgendamentoPublico() {
           }}
           enviando={criar.isPending}
           erro={erro}
+        />
+        {confirmacaoDoTelefone}
+      </>
+    );
+  }
+
+  if (modeloFigaro) {
+    return (
+      <>
+        <FontesDaMarca config={data.pagina} />
+        <ReservaFigaro
+          nomeDoNegocio={data.tenant.nome}
+          servicos={data.servicos}
+          profissionais={data.profissionais}
+          horarios={data.horarios}
+          ocupados={data.ocupados}
+          regras={data.regras}
+          passoMin={data.regras.passoMin ?? 30}
+          fuso={fuso}
+          selecao={selecao}
+          profissionalId={profFigaro}
+          setProfissionalId={setProfFigaro}
+          nome={nome}
+          setNome={setNome}
+          telefone={telefone}
+          setTelefone={setTelefone}
+          erroNome={erroNome}
+          erroTelefone={erroTelefone}
+          enviando={criar.isPending}
+          erro={erro}
+          conflito={conflito}
+          alterarConflito={() => {
+            if (!conflito) return;
+            setSubstituiId(conflito.agendamentoId);
+            setConflito(null);
+            criar.mutate(conflito.agendamentoId);
+          }}
+          confirmar={() => {
+            if (falta) return;
+            setErro(null);
+            setConflito(null);
+            criar.mutate(undefined);
+          }}
+          substituindo={Boolean(substituiId)}
+          voltarParaPagina={() => window.location.assign(linkSobre)}
+          classeDoTema={data.pagina.tema}
         />
         {confirmacaoDoTelefone}
       </>

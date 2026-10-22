@@ -30,11 +30,13 @@ export type PropsDoModelo = {
   config: PaginaConfig;
   preview: boolean;
   /** Botão de agendar já resolvido pela página (link do fluxo, WhatsApp ou aviso). */
-  renderAgendar: (classe: string, rotulo?: string) => ReactNode;
+  renderAgendar: (classe: string, rotulo?: string, servicoId?: string) => ReactNode;
   linkContato: string | null;
   contatoEhWhatsapp: boolean;
   acoesRef: React.RefObject<HTMLDivElement | null>;
   finalRef: React.RefObject<HTMLElement | null>;
+  /** "agendamento" = layout focado no agendamento rápido: abertura curta e só os serviços. */
+  variante?: "completo" | "agendamento";
 };
 
 const nomeCurto = (nome: string) => {
@@ -114,11 +116,13 @@ export function SiteCompleto({
   contatoEhWhatsapp,
   acoesRef,
   finalRef,
+  variante = "completo",
 }: PropsDoModelo) {
   const { tenant } = data;
   const [menuAberto, setMenuAberto] = useState(false);
   const reduzir = useReducedMotion();
   const vocabulario = termos(tenant.segmento);
+  const rapido = variante === "agendamento";
   const on = config.componentes;
   const sec = config.secoes;
   const instagram = tenant.instagram?.replace(/^@/, "") || null;
@@ -151,17 +155,17 @@ export function SiteCompleto({
           </span>
         </p>
       </div>
-      {renderAgendar("fg-btn-linha", "Agendar")}
+      {renderAgendar("fg-btn-linha", "Agendar", s.id)}
     </li>
   );
 
   const temServicos = on.servicos && data.servicos.length > 0;
-  const temEquipe = on.profissionais && data.profissionais.length > 0;
-  const temGaleria = on.galeria && tenant.fotos_signed_urls.length > 0;
-  const temAvaliacoes = on.avaliacoes && data.avaliacoes.quantidade > 0;
-  const temLocal = on.localizacao && Boolean(tenant.endereco);
-  const temContato = on.whatsapp && Boolean(linkContato);
-  const temRedes = on.instagram && (Boolean(instagram) || extras.length > 0);
+  const temEquipe = !rapido && on.profissionais && data.profissionais.length > 0;
+  const temGaleria = !rapido && on.galeria && tenant.fotos_signed_urls.length > 0;
+  const temAvaliacoes = !rapido && on.avaliacoes && data.avaliacoes.quantidade > 0;
+  const temLocal = !rapido && on.localizacao && Boolean(tenant.endereco);
+  const temContato = !rapido && on.whatsapp && Boolean(linkContato);
+  const temRedes = !rapido && on.instagram && (Boolean(instagram) || extras.length > 0);
   const ancoras = [
     temEquipe && { id: "fg-equipe", nome: "Equipe" },
     temServicos && { id: "fg-servicos", nome: "Serviços" },
@@ -179,7 +183,10 @@ export function SiteCompleto({
   };
 
   return (
-    <div className={`fg ${preview ? "is-preview" : ""}`} data-tema={config.tema}>
+    <div
+      className={`fg ${preview ? "is-preview" : ""} ${rapido ? "fg-rapido" : ""}`}
+      data-tema={config.tema}
+    >
       <header className="fg-hero">
         <img
           src={capa}
@@ -218,11 +225,13 @@ export function SiteCompleto({
           ) : null}
           <div ref={acoesRef}>{renderAgendar("fg-cta", config.cta)}</div>
         </div>
-        <button type="button" className="fg-saiba" onClick={() => ir(ancoras[0]?.id ?? "fg-fim")}>
-          Saiba mais sobre {vocabulario.comArtigo.startsWith("a ") ? "nossa" : "nosso"}{" "}
-          {vocabulario.nome}
-          <ChevronDown size={26} aria-hidden />
-        </button>
+        {rapido ? null : (
+          <button type="button" className="fg-saiba" onClick={() => ir(ancoras[0]?.id ?? "fg-fim")}>
+            Saiba mais sobre {vocabulario.comArtigo.startsWith("a ") ? "nossa" : "nosso"}{" "}
+            {vocabulario.nome}
+            <ChevronDown size={26} aria-hidden />
+          </button>
+        )}
         <svg className="fg-diagonal" viewBox="0 0 100 12" preserveAspectRatio="none" aria-hidden>
           <polygon points="0,8 18,12 100,3 100,12 0,12" className="fg-diagonal-fundo" />
           <polyline

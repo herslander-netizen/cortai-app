@@ -132,12 +132,12 @@ export function PaginaPublicaConteudo({
     onBarraVisivel?.(barraVisivel);
   }, [barraVisivel, onBarraVisivel]);
   const layout = config.layout;
-  const renderAgendar = (classe: string, rotulo?: string) =>
+  const renderAgendar = (classe: string, rotulo?: string, servicoId?: string) =>
     !limiteAtingido ? (
       <Link
         to="/agendar/$slug"
         params={{ slug: tenant.slug }}
-        search={buscaParaAgendar(origem)}
+        search={{ ...buscaParaAgendar(origem), ...(servicoId ? { servico: servicoId } : {}) }}
         className={classe}
       >
         <CalendarDays size={18} aria-hidden />
@@ -187,8 +187,9 @@ export function PaginaPublicaConteudo({
       data-segmento={tenant.segmento}
     >
       <FontesDaMarca config={config} />
-      {layout === "figaro-site-completo" ? (
+      {layout === "figaro-site-completo" || layout === "figaro-agendamento" ? (
         <SiteCompleto
+          variante={layout === "figaro-agendamento" ? "agendamento" : "completo"}
           data={data}
           config={config}
           preview={preview}
