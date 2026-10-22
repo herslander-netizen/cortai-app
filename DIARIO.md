@@ -223,7 +223,6 @@ teste real na prévia.
 
 
 | GPT | 2026-10-20 UTC | Auditoria autônoma de UX de autenticação, onboarding e recuperação de sessão na prévia; validar correção e depois ampliar auditoria geral sem tocar produção | `DIARIO.md`, `src/routes/comecar.tsx`, `src/routes/login.tsx`, `src/lib/guarda.ts`, testes relacionados; sem migração |
-| Claude | 2026-10-22 UTC | Bloqueio de horário no padrão Figaro (`apk/3` §7): janela padrão, início mínimo hoje, escolha do dia, confirmação ao liberar. Mantém bloqueio da equipe toda e a lista do dia. Não toca onboarding, Início, Ajustes nem Personalizar Página | `DIARIO.md`, `src/components/barbeiro/agenda/BloquearHorarioSheet.tsx`, `src/components/barbeiro/agenda/bloqueio-janela.ts` (novo) e teste; sem migração |
 | GPT | 2026-10-22 UTC | Recuperação ampla dos fluxos Figaro fora das reservas específicas: auditar onboarding, Início/painel, configurações e módulos restantes contra APK/matriz; implementar por etapas sem duplicar Personalizar Página nem alterar regras/backend | `DIARIO.md`, `docs/referencia-figaro/matriz-recuperacao-cortai.md`, `docs/referencia-ux-figaroo-cortai.md`, rotas/componentes de onboarding, Início e Ajustes identificados na auditoria; sem migração |
 | GPT | 2026-10-17 UTC | Auditoria e melhoria mobile-first da home de apresentação | `DIARIO.md`, `MUSE.md`, `src/components/apresentacao/ShowroomCortai.tsx`, `src/components/apresentacao/DemoAgendamento.tsx`, `src/components/apresentacao/NarrativaApresentacao.tsx`, estilos já existentes da apresentação |
 | GPT | 2026-10-17 UTC | Refinar movimento global para animações mais fluidas e perceptíveis | `DIARIO.md`, `src/lib/motion.ts`, `src/components/layout/GlobalDesign.tsx` |
@@ -374,6 +373,21 @@ teste real na prévia.
 - Sem alteração no banco, `main` ou produção.
 
 ## Diário
+
+### 2026-10-22 UTC — Claude — Bloqueio de horário no padrão Figaro (preserva o que o Cortaí já tinha)
+- Arquivos: `src/components/barbeiro/agenda/BloquearHorarioSheet.tsx`, `bloqueio-janela.ts` e
+  `bloqueio-janela.test.ts` (novos). Sem migração, sem mudança de backend.
+- Do Figaro (`apk/3` §7), acrescentado: janela padrão (outro dia ou hoje antes das 12h → 12:00–13:00; hoje depois
+  das 12h → próxima hora cheia até +1 h; passando da meia-noite → 23:00–23:59); hoje o início não pode ser antes de
+  agora (arredondado para cima de 5 em 5 min); escolha do dia, de hoje em diante; confirmação ao liberar
+  ("Liberar este horário? Clientes poderão agendar esse horário de novo."), reaproveitando `useConfirmar`.
+- Preservado: bloqueio da equipe toda ou de um profissional, motivo opcional, lista de bloqueios do dia, aviso de
+  atendimentos que continuam marcados e o atalho para expediente e escala.
+- Diferença assumida: se a hora atual já passou de 23:00, a janela começa no início mínimo (ex.: 23:10–23:59), para
+  não abrir com erro. A validação é só da tela; o servidor (`criarBloqueio`) segue como estava.
+- Testes: 11 novos (`bloqueio-janela.test.ts`); Vitest 1623 ok, TypeScript ok, lint dos arquivos ok. Não olhei a tela
+  no celular: falta conferir 390 px, claro/escuro.
+- Fora do meu escopo e **não tocado**: onboarding, Início, Ajustes e Personalizar Página (reservas do GPT).
 
 ### 2026-10-22 UTC — Claude — Versão 3.5 publicada no site principal (com 0042 e correção de compilação)
 - Autorizado pelo dono. A validação estava vermelha desde `7ca227e6`: em `barbeiro.marca.layout-tema.tsx`

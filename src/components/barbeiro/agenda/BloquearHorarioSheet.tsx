@@ -2,9 +2,10 @@ import { Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { CalendarDays, Clock3, Lock, Unlock } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { useConfirmar } from "@/components/ui/useConfirmar";
 import {
   Sheet,
   SheetContent,
@@ -15,8 +16,10 @@ import {
 import type { AgendaDia } from "@/lib/barbeiro.functions";
 import { criarBloqueio, listarBloqueiosDoDia, removerBloqueio } from "@/lib/bloqueios.functions";
 import { aviso } from "@/lib/avisos";
+import { hojeNoFuso } from "@/lib/horarios";
 
-import { dataEditorial } from "./tempo";
+import { janelaPadrao, problemaDoBloqueio } from "./bloqueio-janela";
+import { dataEditorial, minutosNoFuso } from "./tempo";
 
 /** Folha de bloqueio: grava períodos fechados na data escolhida, para um profissional ou a equipe. */
 export function BloquearHorarioSheet({
@@ -34,20 +37,45 @@ export function BloquearHorarioSheet({
   profissionais?: { id: string; nome: string }[];
   fuso: string;
 }) {
-  const dow = new Date(`${dia}T12:00:00Z`).getUTCDay();
-  const h = horarios.find((x) => x.diaSemana === dow);
-  const [de, setDe] = useState("12:00");
-  const [ate, setAte] = useState("13:00");
+  const hoje = hojeNoFuso(fuso);
+  const agoraMin = minutosNoFuso(Date.now(), fuso);
+  const diaInicial = dia < hoje ? hoje : dia;
+  const [diaEscolhido, setDiaEscolhido] = useState(diaInicial);
+  const [de, setDe] = useState(() => janelaPadrao(diaInicial, hoje, agoraMin).de);
+  const [ate, setAte] = useState(() => janelaPadrao(diaInicial, hoje, agoraMin).ate);
   const [prof, setProf] = useState<string>("");
   const [motivo, setMotivo] = useState("");
+  const [confirmar, dialogoDeConfirmacao] = useConfirmar();
+
+  // Cada abertura começa no dia da Agenda (hoje, se for passado) com a janela padrão do Figaro.
+  useEffect(() => {
+    if (!aberto) return;
+    const inicio = dia < hoje ? hoje : dia;
+    const janela = janelaPadrao(inicio, hoje, minutosNoFuso(Date.now(), fuso));
+    setDiaEscolhido(inicio);
+    setDe(janela.de);
+    setAte(janela.ate);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- só reinicia ao abrir ou trocar o dia
+  }, [aberto, dia]);
+
+  const trocarDia = (novo: string) => {
+    if (!novo) return;
+    const janela = janelaPadrao(novo, hoje, agoraMin);
+    setDiaEscolhido(novo);
+    setDe(janela.de);
+    setAte(janela.ate);
+  };
+
+  const dow = new Date(`${diaEscolhido}T12:00:00Z`).getUTCDay();
+  const h = horarios.find((x) => x.diaSemana === dow);
   const qc = useQueryClient();
   const listar = useServerFn(listarBloqueiosDoDia);
   const criar = useServerFn(criarBloqueio);
   const remover = useServerFn(removerBloqueio);
-  const chave = ["bloqueios", dia];
+  const chave = ["bloqueios", diaEscolhido];
   const lista = useQuery({
     queryKey: chave,
-    queryFn: () => listar({ data: { dia } }),
+    queryFn: () => listar({ data: { dia: diaEscolhido } }),
     enabled: aberto,
   });
   const atualizar = () => {
@@ -58,7 +86,7 @@ export function BloquearHorarioSheet({
     mutationFn: () =>
       criar({
         data: {
-          dia,
+          dia: diaEscolhido,
           de,
           ate,
           profissionalId: prof || null,
@@ -92,7 +120,18 @@ export function BloquearHorarioSheet({
     });
   const nomeDe = (id: string | null) =>
     id ? (profissionais.find((p) => p.id === id)?.nome ?? "Profissional") : "Equipe toda";
-  const invalido = ate <= de;
+  const problema = problemaDoBloqueio({ dia: diaEscolhido, hoje, agoraMin, de, ate });
+  const invalido = problema !== null;
+
+  const pedirLiberacao = async (id: string) => {
+    const ok = await confirmar({
+      titulo: "Liberar este horário?",
+      descricao: "Clientes poderão agendar esse horário de novo.",
+      confirmar: "Liberar",
+      cancelar: "Cancelar",
+    });
+    if (ok) liberar.mutate(id);
+  };
 
   return (
     <Sheet open={aberto} onOpenChange={onAberto}>
@@ -103,23 +142,25 @@ export function BloquearHorarioSheet({
         <SheetHeader className="pr-10 text-left">
           <SheetTitle className="text-base text-paper">Bloquear horário</SheetTitle>
           <SheetDescription className="text-sm text-mute">
-            {dataEditorial(dia)} ·{" "}
+            {diaEscolhido === hoje ? "Hoje" : dataEditorial(diaEscolhido)} ·{" "}
             {!h || h.fechado ? "Fechado" : `expediente ${h.abre} – ${h.fecha}`}
           </SheetDescription>
         </SheetHeader>
 
         <div className="mt-5 space-y-3">
-          <div
-            className="field-control flex min-h-12 items-center gap-3"
-            role="group"
-            aria-label={`Dia do bloqueio: ${dataEditorial(dia)}`}
-          >
-            <CalendarDays className="size-5 shrink-0 text-mute" aria-hidden="true" />
-            <div className="min-w-0 flex-1">
-              <p className="text-xs text-mute">Dia</p>
-              <p className="truncate text-sm font-medium text-paper">{dataEditorial(dia)}</p>
-            </div>
-          </div>
+          <label className="block text-sm text-mute">
+            <span className="flex items-center gap-2">
+              <CalendarDays className="size-4 shrink-0" aria-hidden="true" /> Dia
+            </span>
+            <input
+              type="date"
+              value={diaEscolhido}
+              min={hoje}
+              onChange={(e) => trocarDia(e.target.value)}
+              className="field-control mt-1 min-h-12 w-full"
+              aria-label={`Dia do bloqueio: ${dataEditorial(diaEscolhido)}`}
+            />
+          </label>
           <div className="grid grid-cols-2 gap-3">
             <label className="block text-sm text-mute">
               Início
@@ -174,8 +215,10 @@ export function BloquearHorarioSheet({
         <p className="mt-4 rounded-lg bg-ink3 px-3 py-3 text-sm text-mute">
           Clientes não conseguem agendar durante o bloqueio.
         </p>
-        {invalido ? (
-          <p className="mt-2 text-sm text-brick" role="alert">O fim precisa ser depois do início.</p>
+        {problema ? (
+          <p className="mt-2 text-sm text-brick" role="alert">
+            {problema}
+          </p>
         ) : null}
         <div className="mt-4 grid grid-cols-2 gap-3">
           <Button
@@ -217,7 +260,7 @@ export function BloquearHorarioSheet({
                   size="sm"
                   className="min-h-11"
                   disabled={liberar.isPending}
-                  onClick={() => liberar.mutate(b.id)}
+                  onClick={() => void pedirLiberacao(b.id)}
                 >
                   <Unlock /> Liberar
                 </Button>
@@ -231,6 +274,7 @@ export function BloquearHorarioSheet({
             <Clock3 /> Expediente, intervalo e escala da equipe
           </Link>
         </Button>
+        {dialogoDeConfirmacao}
       </SheetContent>
     </Sheet>
   );
