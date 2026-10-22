@@ -1,6 +1,17 @@
+import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
-import { CURVA, ESCALA, ESPERA_MS, MOLA, TEMPO, molaFigaro } from "./movimento-figaro";
+import {
+  CURVA,
+  ESCALA,
+  ESPERA_MS,
+  MOLA,
+  MOLAS_CSS,
+  TEMPO,
+  amostrasDaMola,
+  molaFigaro,
+  respostaDaMola,
+} from "./movimento-figaro";
 
 /** Volta do formato do framer-motion para o `dampingRatio` do Compose. */
 function razao(m: { stiffness: number; damping: number; mass: number }) {
@@ -53,5 +64,32 @@ describe("valores do Figaro (não mudar sem fonte no APK)", () => {
     });
     expect(ESPERA_MS.carregandoMinimo).toBe(400);
     expect(ESCALA).toEqual({ aoTocar: 0.98, botaoEntra: 0.92, pulsoInicio: 0.85, pulsoPico: 1.05 });
+  });
+});
+
+describe("molas do CSS (styles.css) iguais às do TypeScript", () => {
+  const css = readFileSync("src/styles.css", "utf8");
+  const lerCurva = (nome: string) => {
+    const m = new RegExp(`--mola-${nome}:\\s*linear\\(([^)]*)\\)`).exec(css);
+    return m ? m[1]!.split(",").map((v) => Number(v.trim())) : [];
+  };
+  const lerSegundos = (nome: string) => {
+    const m = new RegExp(`--mola-${nome}-duracao:\\s*(\\d+)ms`).exec(css);
+    return m ? Number(m[1]) / 1000 : NaN;
+  };
+
+  it.each(Object.keys(MOLAS_CSS) as (keyof typeof MOLAS_CSS)[])("mola %s", (nome) => {
+    expect(lerCurva(nome)).toEqual(amostrasDaMola(MOLAS_CSS[nome]));
+    expect(lerSegundos(nome)).toBeCloseTo(MOLAS_CSS[nome].segundos, 3);
+  });
+
+  it("a mola assenta perto de 1 no fim e a que tem quique passa de 1", () => {
+    for (const m of Object.values(MOLAS_CSS)) {
+      expect(Math.abs(respostaDaMola(m.amortecimento, m.rigidez, m.segundos) - 1)).toBeLessThan(
+        0.01,
+      );
+    }
+    expect(Math.max(...amostrasDaMola(MOLAS_CSS.toque))).toBeGreaterThan(1.05);
+    expect(Math.max(...amostrasDaMola(MOLAS_CSS.tamanho))).toBeLessThanOrEqual(1);
   });
 });

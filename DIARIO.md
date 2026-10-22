@@ -451,7 +451,7 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 | Lote | IDs | Arquivos principais | Situação |
 |---|---|---|---|
-| 1 Base de componentes | C1 C2 C3 (acordeão), B1 (toque fora do `Button`), B3 (carregando mínimo), C13 (folhas), C16 (cor da barra ao rolar), H (utilitário de vibração) | `ui/accordion.tsx`, `styles.css`, `layout/Carregando.tsx`, `ui/sheet.tsx`, `lib/vibrar.ts` | próximo |
+| 1 Base de componentes | C1 C2 C3 (acordeão), B1 (toque fora do `Button`), B3 (carregando mínimo), C13 (folhas), C16 (cor da barra ao rolar), H (utilitário de vibração) | `ui/accordion.tsx`, `ui/card.tsx`, `styles.css`, `lib/vibrar.ts`, `lib/movimento-figaro.ts` | **feito 22/10** (C16 passou para o lote 3; B3 e C13 sem aplicação, ver inventário) |
 | 2 Gaveta e Início | D1 D2 D3 D4, C4/C5 em uso | `layout/GruposDoMenu.tsx`, `layout/DrawerMenuExtras.tsx`, `layout/DrawerDestaques.tsx` | |
 | 3 Páginas e editores | C7 C8 C9 C10 C11 C12, P1 P3, L1, V3 | `marca/editor/*`, `onboarding/PrimeirosPassos.tsx`, `onboarding/EditorDeHorarios.tsx`, `painel/PreferenciasDeAvisos` | |
 | 4 Cadastros | N6/N7 nos demais cadastros (serviço, equipe, cliente), S2 S3 | `routes/barbeiro.servicos.tsx`, `equipe`, `clientes` | |
@@ -465,7 +465,6 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 | Quem | Desde (UTC) | Tarefa | Arquivos / migração reservada |
 |---|---|---|---|
-| Claude | 2026-10-22 UTC | Lote 1 de P.12 (todas as animações): acordeão (C1–C3), toque fora do Button (B1), carregando mínimo (B3), folhas (C13), cor da barra ao rolar (C16), vibração (H) | `DIARIO.md`, `docs/referencia-figaro/apk/8-inventario-de-animacoes.md`, `src/styles.css` (só variáveis/keyframes de mola), `src/components/ui/accordion.tsx`, `src/components/ui/sheet.tsx`, `src/components/layout/Carregando.tsx`, `src/components/layout/CabecalhoDeTela.tsx`, `src/lib/vibrar.ts`; sem migração |
 | GPT | 2026-10-21 UTC | Corrigir a varredura de WhatsApp/Asaas: diagnosticar timeouts, preparar correção dos cron jobs e validar endpoint no worker de produção; sem escrita real até autorização explícita | `DIARIO.md`, `MUSE.md`, `drizzle/migrations/0043_corrigir_agendadores.sql`, rotas de varredura; migração 0043 (não aplicada) |
 | GPT | 2026-10-21 UTC | Validar jornada Figaro e corrigir divergências de navegação confirmadas no código; inspeção visual 390px/1280px e animações segue pendente sem navegador conectado | `DIARIO.md`, `src/routes/barbeiro.marca.tsx`, `src/routes/barbeiro.marca.secao.$secao.tsx`, `src/components/marca/editor/EditorDaSecaoPublica.tsx`, `src/components/marca/editor/SecaoConteudo.tsx`, `src/components/marca/editor/PaineisDoEditor.tsx`, `src/lib/navegacao-barbeiro.ts`, `src/lib/navegacao-barbeiro.test.ts`, `src/routes/barbeiro.sua-pagina.tsx`; sem migração |
 | GPT | 2026-10-21 UTC | Compactar cabeçalho do modo zoom/edição da Agenda sem reduzir tipografia; aplicar movimento de gaveta de entrada/saída | `DIARIO.md`, `src/components/barbeiro/agenda/CabecalhoDeEdicao.tsx`, componente que abre/fecha a configuração de zoom e testes de movimento; sem migração |
@@ -647,6 +646,22 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - Sem alteração no banco, `main` ou produção.
 
 ## Diário
+
+### 2026-10-22 UTC — Claude — Lote 1 das animações (base de componentes)
+- **Molas no CSS:** `src/styles.css` ganhou `--mola-tamanho`, `--mola-seta` e `--mola-padrao` (com a `--mola-toque`
+  que já existia), cada uma uma curva `linear()` amostrada da mola do Figaro. `movimento-figaro.ts` tem a fórmula
+  (`respostaDaMola`, `amostrasDaMola`, `MOLAS_CSS`) e **um teste lê o `styles.css` e confere que as duas pontas são
+  iguais** (assim ninguém muda um lado sem o outro).
+- **Acordeão (`ui/accordion.tsx`):** a altura abre/fecha com a mola de tamanho (360 ms) e a seta gira com a mola
+  0,75/1500 (220 ms), no lugar de 200 ms linear e 260 ms com quique. Usado em Layout & Tema e nos painéis do editor.
+  Medido no Chromium: 57 → 107 → 146 → 196 → 216 px em 40/80/120/200/400 ms.
+- **`Card` tocável:** encolhe a 0,98 com a mola do toque (antes descia 1 px); `surface` e `elevated` seguem como eram.
+- **`src/lib/vibrar.ts`:** utilitário de vibração (`pressao` 15 ms, `confirmar` [10, 40, 15]; só Android; respeita
+  reduzir movimento). **Ainda não usado em nenhuma tela** (lote 6).
+- **Fora do lote, com motivo (no inventário):** carregando mínimo de 400 ms só vale no botão (o contrato manda
+  esqueleto nas telas); a folha de baixo é o `ModalBottomSheet` padrão do M3 (sem valor no APK); a cor da barra do
+  topo ao rolar fica no lote 3 por ser a barra que o GPT está mexendo.
+- Validação: `tsc`, `eslint` dos arquivos, `vitest`, `build`. Falta celular.
 
 ### 2026-10-22 UTC — Claude — Conclusão do onboarding no padrão Figaro (plano P.8)
 - Novo `src/components/onboarding/ConclusaoDoOnboarding.tsx` (o bloco `pronto` de `barbeiro.configurar.tsx` passou

@@ -38,9 +38,9 @@ fica como está).
 
 | ID | Animação | Valores | Fonte | Cortaí |
 |---|---|---|---|---|
-| B1 | Escala ao tocar (primário, secundário, texto, passo +/−, foto) | 0,98 com mola 0,6/800 | `SnappyPressAnimationKt`, `FigarooTextButtonKt`, `FigarooOutlinedButtonKt`, `FigarooStepperIconButtonKt`, `FigarooPhotoUploadFieldKt` | ✔ 22/10 (`button.tsx`) · ✘ botões fora do `Button` (cartões clicáveis, foto, passo +/−) |
+| B1 | Escala ao tocar (primário, secundário, texto, passo +/−, foto) | 0,98 com mola 0,6/800 | `SnappyPressAnimationKt`, `FigarooTextButtonKt`, `FigarooOutlinedButtonKt`, `FigarooStepperIconButtonKt`, `FigarooPhotoUploadFieldKt` | ✔ 22/10 (`button.tsx` e `Card` tocável) · ✘ foto de perfil e passo +/− (não existem no Cortaí hoje) |
 | B2 | Conteúdo do botão principal (texto → carregando → ✓) | entra 220 ms (atraso 90) com escala 0,92; sai 90 ms | `FigarooPrimaryButtonKt` | ✔ 22/10 |
-| B3 | Carregando fica no mínimo 400 ms | — | `FigarooLoadingIndicatorKt` | ✔ 22/10 (botão) · ✘ indicadores de carregando soltos (`Carregando`) |
+| B3 | Carregando fica no mínimo 400 ms | — | `FigarooLoadingIndicatorKt` | ✔ 22/10 (botão) · — o contrato de design manda esqueleto, não indicador solto |
 | B4 | FAB estendido (salvar): pílula → círculo | 220 ms LinearOutSlowIn; rótulo escala 0,7→1; ✓ por 700 ms; espera 700 ms e volta | `FigarooExtendedFABKt` | ✘ (Cortaí usa botão fixo embaixo; ver decisão no §10) |
 | B5 | Troca do ícone/rótulo do FAB (`FigarooCtaGlyphSwap`) | fade + escala padrão + `SizeTransform` | idem | ✘ junto de B4 |
 | B6 | Seta do botão dividido | gira 0↔180°, `standard().defaultEffects` | `FigarooSplitButtonKt` | ✘ (conferir se há botão dividido no Cortaí: Agenda "+"?) |
@@ -49,9 +49,9 @@ fica como está).
 
 | ID | Animação | Valores | Fonte | Cortaí |
 |---|---|---|---|---|
-| C1 | Corpo do acordeão (abre/fecha) | `AnimatedContent` fade + `SizeTransform` (mola 1/400) | `AccordionSectionKt` | ◐ o acordeão usa `animate-accordion-*` do CSS; trocar pela mola |
-| C2 | Seta do acordeão | 0↔180°, mola 0,75/1500 | idem | ✘ (hoje 260 ms com curva de quique) |
-| C3 | Corpo do acordeão com carrossel (Layout & Tema) | `AnimatedContent` fade + `SizeTransform` | idem (`accordion-body-carousel`) | ◐ conferir `SecaoLayoutsETemas` |
+| C1 | Corpo do acordeão (abre/fecha) | `AnimatedContent` fade + `SizeTransform` (mola 1/400) | `AccordionSectionKt` | ✔ 22/10 (altura com `--mola-tamanho`: 360 ms amostrados da mola 1/400) |
+| C2 | Seta do acordeão | 0↔180°, mola 0,75/1500 | idem | ✔ 22/10 (`--mola-seta`, 220 ms da mola 0,75/1500) |
+| C3 | Corpo do acordeão com carrossel (Layout & Tema) | `AnimatedContent` fade + `SizeTransform` | idem (`accordion-body-carousel`) | ✔ 22/10 (usa o mesmo `Accordion`) |
 | C4 | Odômetro (número que troca dígito a dígito) | desliza a altura, mola 0,8/380 + fade 1/3800 | `FigarooOdometerKt` | ✔ componente · ✘ usar nas telas (assento do plano; desempenho) |
 | C5 | Pulso de estatística | 0,85→1,05 (140 ms)→1 (100 ms); opacidade 0→1 em 240 ms | `FigarooStatPulseKt` | ✔ componente · ✘ usar nas telas |
 | C6 | Progresso de publicação | barra 0→92 % em 8 s linear; depois 85 % em 2,5 s; 100 % em 650 ms; ✓ com escala/opacidade (mola 0,6/800); esperas 700 e 200 ms | `FigarooPublishProgressKt` | ✘ (Cortaí publica em um passo; usar só se a publicação demorar de verdade) |
@@ -61,10 +61,10 @@ fica como está).
 | C10 | Painel de disponibilidade semanal | corpo: fade 1/1600 + `SizeTransform`; seta 0↔180° mola 0,8/380 | `FigarooWeeklyAvailabilityPanelKt` | ✘ (`EditorDeHorarios`) |
 | C11 | Carregando da página dentro de WebView | fade padrão | `FigarooWebViewKt` | ✘ (prévia em iframe) |
 | C12 | Foto de perfil (enviar): troca com ajuste de tamanho | fade 300 ms FastOutSlowIn | `PhotoUploaderAvatarKt` | ✘ |
-| C13 | Folha de baixo | M3 `ModalBottomSheet`: modos meia e do tamanho do conteúdo | `FigarooSheetScaffoldKt` | ◐ `sheet.tsx` usa tempos do Cortaí |
+| C13 | Folha de baixo | M3 `ModalBottomSheet`: modos meia e do tamanho do conteúdo | `FigarooSheetScaffoldKt` | — sem valor no APK (é o `ModalBottomSheet` padrão do M3); mantém os tempos do Cortaí |
 | C14 | Puxar para atualizar (Notificações, Avaliações, Vendas) | indicador padrão do M3 | `FigarooPullToRefreshBoxKt` | ✘ (PWA: avaliar) |
 | C15 | Cabeçalho grande que encolhe ao rolar (`exitUntilCollapsed`) | o título grande vira pequeno conforme a rolagem; usado nas telas de lista/configuração/notificações e no criar | `FigarooCollapsingHeaderScaffoldKt`, `FigarooTopAppBarKt`, `FigarooCreationFlowScaffoldKt` | ✘ (`Screen` tem título fixo) |
-| C16 | Cor da barra do topo ao rolar | `surface` → `surfaceContainer` quando há rolagem (mola `defaultEffects` na Agenda) | `FigarooTopAppBarKt`, `AgendaScreenKt` | ◐ conferir `CabecalhoDeTela` |
+| C16 | Cor da barra do topo ao rolar | `surface` → `surfaceContainer` quando há rolagem (mola `defaultEffects` na Agenda) | `FigarooTopAppBarKt`, `AgendaScreenKt` | ✘ lote 3 (a barra do topo é do GPT: `cabecalho-edicao-mobile`) |
 | C17 | Cartão de avaliação "ver mais/ver menos" | `animateContentSize` padrão (mola 0,5…/ média) | `RatingsReviewCardKt` | ✘ |
 | C18 | Resumo de avaliações | contagem da nota, barras, rótulo | [vídeo] `landing_peek_reviews` | ✔ 22/10 |
 | C19 | Tela "Configurações de notificação" salvando | opacidade 0,6 (sem animação) | `NotificationSettingsScreenKt` | — estática |

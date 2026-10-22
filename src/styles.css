@@ -162,36 +162,24 @@
   --mov-lento: 280ms;
   --ease-saida: cubic-bezier(0.2, 0, 0, 1);
   --ease-entrada: cubic-bezier(0.4, 0, 1, 1);
-  /* Toque do Figaro: escala 0,98 com a mola fastSpatial (ζ 0,6, k 800), amostrada em 300 ms.
-     Fonte: docs/referencia-figaro/apk/1-design-system.md §5; valores em src/lib/movimento-figaro.ts. */
+  /* Molas do Figaro como curvas `linear()` amostradas (valores em src/lib/movimento-figaro.ts, MOLAS_CSS; o teste
+     movimento-figaro.test.ts confere que continuam iguais). Fonte: docs/referencia-figaro/apk/1-design-system.md §5. */
   --mola-toque: linear(
-    0,
-    0.054,
-    0.185,
-    0.352,
-    0.527,
-    0.69,
-    0.827,
-    0.934,
-    1.011,
-    1.06,
-    1.086,
-    1.095,
-    1.091,
-    1.079,
-    1.063,
-    1.047,
-    1.031,
-    1.018,
-    1.007,
-    1,
-    0.995,
-    0.992,
-    0.991,
-    0.991,
-    1
+    0, 0.054, 0.185, 0.352, 0.527, 0.69, 0.827, 0.934, 1.011, 1.06, 1.086, 1.095, 1.091, 1.079, 1.063, 1.047, 1.031, 1.018, 1.007, 1, 0.995, 0.992, 0.991, 0.991, 1
   );
   --mola-toque-duracao: 300ms;
+  --mola-tamanho: linear(
+    0, 0.037, 0.122, 0.228, 0.337, 0.442, 0.537, 0.62, 0.692, 0.751, 0.801, 0.841, 0.874, 0.901, 0.922, 0.939, 0.952, 0.963, 0.971, 0.978, 0.983, 0.987, 0.99, 0.992, 1
+  );
+  --mola-tamanho-duracao: 360ms;
+  --mola-seta: linear(
+    0, 0.053, 0.175, 0.327, 0.481, 0.622, 0.741, 0.836, 0.908, 0.959, 0.993, 1.013, 1.024, 1.028, 1.028, 1.025, 1.021, 1.016, 1.012, 1.009, 1.006, 1.003, 1.002, 1.001, 1
+  );
+  --mola-seta-duracao: 220ms;
+  --mola-padrao: linear(
+    0, 0.038, 0.126, 0.235, 0.347, 0.453, 0.549, 0.632, 0.703, 0.762, 0.811, 0.85, 0.882, 0.907, 0.928, 0.944, 0.956, 0.966, 0.974, 0.98, 0.985, 0.988, 0.991, 0.993, 1
+  );
+  --mola-padrao-duracao: 190ms;
 
   /* Paleta extraída da marca oficial: marinho, azul, ciano e rosa. */
   --identity-accent: #00b7f4;

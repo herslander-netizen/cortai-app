@@ -4,21 +4,21 @@ import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "@/lib/utils";
 
-const cardVariants = cva(
-  "rounded-xl border border-border text-card-foreground transition-[transform,border-color,background-color,box-shadow] duration-[var(--mov-base)]",
-  {
-    variants: {
-      variant: {
-        surface: "bg-card",
-        elevated: "bg-card shadow-md",
-        touchable:
-          "bg-card hover:border-line2 active:translate-y-px active:border-primary/40 active:bg-ink3",
-      },
-      density: { default: "p-4", compact: "p-3", none: "p-0" },
+const cardVariants = cva("rounded-xl border border-border text-card-foreground", {
+  variants: {
+    variant: {
+      surface:
+        "bg-card transition-[border-color,background-color,box-shadow] duration-[var(--mov-base)]",
+      elevated:
+        "bg-card shadow-md transition-[border-color,background-color,box-shadow] duration-[var(--mov-base)]",
+      // Encolhe a 0,98 ao tocar com a mola do Figaro (`SnappyPressAnimation`, spec 6 §2, B1).
+      touchable:
+        "bg-card hover:border-line2 active:scale-[0.98] active:border-primary/40 active:bg-ink3 [transition:border-color_var(--mov-base),background-color_var(--mov-base),box-shadow_var(--mov-base),transform_var(--mola-toque-duracao)_var(--mola-toque)] motion-reduce:[transition:none]",
     },
-    defaultVariants: { variant: "surface", density: "default" },
+    density: { default: "p-4", compact: "p-3", none: "p-0" },
   },
-);
+  defaultVariants: { variant: "surface", density: "default" },
+});
 
 export interface CardProps
   extends React.HTMLAttributes<HTMLDivElement>, VariantProps<typeof cardVariants> {

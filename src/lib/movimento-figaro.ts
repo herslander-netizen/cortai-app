@@ -101,3 +101,45 @@ export const CONCLUSAO = {
   fonteMaxPx: 18,
   fonteMinPx: 14,
 } as const;
+
+/**
+ * Molas do Figaro para o CSS: o CSS não tem mola, então a curva é amostrada (`linear(...)`) numa duração
+ * em que a mola assenta. Os valores prontos ficam em `styles.css` (`--mola-*`); o teste confere que as
+ * duas pontas continuam iguais.
+ */
+export const MOLAS_CSS = {
+  /** Escala ao tocar (fastSpatial). */
+  toque: { amortecimento: 0.6, rigidez: 800, segundos: 0.3 },
+  /** Abrir e fechar tamanho (`expandSizeSpring`). */
+  tamanho: { amortecimento: 1, rigidez: 400, segundos: 0.36 },
+  /** Seta do acordeão. */
+  seta: { amortecimento: 0.75, rigidez: 1500, segundos: 0.22 },
+  /** Padrão do Compose (`animateXAsState`, `slideIntoContainer`). */
+  padrao: { amortecimento: 1, rigidez: 1500, segundos: 0.19 },
+} as const;
+
+/** Resposta de uma mola de massa 1 em `t` segundos, de 0 a (quase) 1. */
+export function respostaDaMola(amortecimento: number, rigidez: number, t: number): number {
+  const w = Math.sqrt(rigidez);
+  if (amortecimento < 1) {
+    const wd = w * Math.sqrt(1 - amortecimento ** 2);
+    return (
+      1 -
+      Math.exp(-amortecimento * w * t) *
+        (Math.cos(wd * t) + (amortecimento / Math.sqrt(1 - amortecimento ** 2)) * Math.sin(wd * t))
+    );
+  }
+  return 1 - (1 + w * t) * Math.exp(-w * t);
+}
+
+/** Amostra a mola em `pontos + 1` valores (o último é 1), no formato de `linear()` do CSS. */
+export function amostrasDaMola(
+  m: { amortecimento: number; rigidez: number; segundos: number },
+  pontos = 24,
+): number[] {
+  return Array.from({ length: pontos + 1 }, (_, i) =>
+    i === pontos
+      ? 1
+      : Number(respostaDaMola(m.amortecimento, m.rigidez, (m.segundos * i) / pontos).toFixed(3)),
+  );
+}
