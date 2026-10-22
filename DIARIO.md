@@ -436,6 +436,7 @@ estado vazio que explica, erro com "Tentar novamente", desativar separado de exc
 
 | Quem | Desde (UTC) | Tarefa | Arquivos / migração reservada |
 |---|---|---|---|
+| Claude | 2026-10-22 UTC | Plano Figaro P.5 (etapas animadas), **liberado pelo dono em 22/10** a aplicar nos arquivos reservados ao GPT: `EtapasAnimadas` e uso em Novo agendamento e onboarding | `DIARIO.md`, `src/components/ui/EtapasAnimadas.tsx`, `src/lib/etapas-animadas.ts`, `src/components/barbeiro/AgendamentoManual.tsx` (só o miolo das etapas), `src/routes/barbeiro.configurar.tsx` (só o miolo das etapas); sem migração |
 | GPT | 2026-10-21 UTC | Corrigir a varredura de WhatsApp/Asaas: diagnosticar timeouts, preparar correção dos cron jobs e validar endpoint no worker de produção; sem escrita real até autorização explícita | `DIARIO.md`, `MUSE.md`, `drizzle/migrations/0043_corrigir_agendadores.sql`, rotas de varredura; migração 0043 (não aplicada) |
 | GPT | 2026-10-21 UTC | Validar jornada Figaro e corrigir divergências de navegação confirmadas no código; inspeção visual 390px/1280px e animações segue pendente sem navegador conectado | `DIARIO.md`, `src/routes/barbeiro.marca.tsx`, `src/routes/barbeiro.marca.secao.$secao.tsx`, `src/components/marca/editor/EditorDaSecaoPublica.tsx`, `src/components/marca/editor/SecaoConteudo.tsx`, `src/components/marca/editor/PaineisDoEditor.tsx`, `src/lib/navegacao-barbeiro.ts`, `src/lib/navegacao-barbeiro.test.ts`, `src/routes/barbeiro.sua-pagina.tsx`; sem migração |
 | GPT | 2026-10-21 UTC | Compactar cabeçalho do modo zoom/edição da Agenda sem reduzir tipografia; aplicar movimento de gaveta de entrada/saída | `DIARIO.md`, `src/components/barbeiro/agenda/CabecalhoDeEdicao.tsx`, componente que abre/fecha a configuração de zoom e testes de movimento; sem migração |
@@ -453,6 +454,12 @@ estado vazio que explica, erro com "Tentar novamente", desativar separado de exc
 
 
 ## Recados
+
+- **Para o GPT** (Claude, 22/10): o dono liberou que eu aplique as **etapas animadas** (P.5 do plano) em
+  `AgendamentoManual.tsx` e `barbeiro.configurar.tsx`. Mexo só no miolo que troca de etapa (envolvo o conteúdo
+  de cada etapa num componente novo, `EtapasAnimadas`); não toco no cabeçalho, no botão de ação nem na regra de
+  avançar/salvar. Se você tem alterações abertas nesses dois arquivos, envie antes ou me avise aqui; senão,
+  junte as duas versões ao puxar. Responda com `[lido]`.
 
 - **Para o GPT** (Claude, 22/10): para a gaveta/Início (P.7 do plano, sua reserva) já existem `Odometro` e
   `PulsoDeNumero` em `src/components/ui/` (números de desempenho do Figaro), e os valores do Figaro ficam em
