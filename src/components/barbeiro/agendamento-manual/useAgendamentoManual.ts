@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 
+import { ESPERA_MS } from "@/lib/movimento-figaro";
 import { invalidarComandas } from "@/lib/comanda-ticket";
 import { isoNoFusoDaBarbearia } from "@/lib/horarios";
 import { temAlteracoesAgendamentoManual, type Forma } from "./regrasAgendamentoManual";
@@ -135,7 +136,11 @@ export function useAgendamentoManual({
     try {
       const r = await criar({
         data: {
-          ...(semCliente ? { semCliente: true } : clienteId ? { clienteId } : { novoNome: novoNome.trim(), novoTelefone }),
+          ...(semCliente
+            ? { semCliente: true }
+            : clienteId
+              ? { clienteId }
+              : { novoNome: novoNome.trim(), novoTelefone }),
           servicoId,
           profissionalId,
           inicio:
@@ -155,7 +160,7 @@ export function useAgendamentoManual({
       setCriado({ agendamentoId, comandaId: r.comandaId ?? null });
       setConfirmado(true);
       // Sem comanda para mostrar, segue direto como antes; com comanda, espera "Concluir".
-      if (!r.comandaId) setTimeout(() => onCriado(agendamentoId), 700);
+      if (!r.comandaId) setTimeout(() => onCriado(agendamentoId), ESPERA_MS.reservaCriada);
     } catch (e) {
       setErro(
         e instanceof Error && e.message

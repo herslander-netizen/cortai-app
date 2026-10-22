@@ -70,6 +70,8 @@ export function TelaDeFormulario({
     onClick: () => void;
     desabilitada?: boolean;
     carregando?: boolean;
+    /** Salvou: o botão mostra ✓ + o rótulo (estado `Success` do Figaro) até a tela sair. */
+    sucesso?: boolean;
   };
   children: ReactNode;
 }) {
@@ -227,6 +229,7 @@ export function TelaDeFormulario({
                 className="min-h-14 w-full rounded-full shadow-[var(--shadow-md)]"
                 disabled={acao.desabilitada || acao.carregando}
                 loading={acao.carregando ?? false}
+                success={acao.sucesso ?? false}
                 onClick={acao.onClick}
               >
                 {acao.rotulo}

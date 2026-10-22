@@ -1,16 +1,9 @@
-import { Loader2Icon } from "lucide-react";
-
+import { IndicadorDeCarregamento } from "@/components/ui/IndicadorDeCarregamento";
 import { cn } from "@/lib/utils";
 
-function Spinner({ className, ...props }: React.ComponentProps<"svg">) {
-  return (
-    <Loader2Icon
-      role="status"
-      aria-label="Loading"
-      className={cn("size-4 animate-spin", className)}
-      {...props}
-    />
-  );
+/** Indicador pequeno de carregamento: o mesmo do Figaro (`IndicadorDeCarregamento`), em 16 px. */
+function Spinner({ className }: { className?: string }) {
+  return <IndicadorDeCarregamento tamanho={16} className={cn("text-current", className)} />;
 }
 
 export { Spinner };

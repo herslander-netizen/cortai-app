@@ -2,8 +2,9 @@ import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
 import { AnimatePresence, motion } from "framer-motion";
-import { Check, Loader2 } from "lucide-react";
 
+import { IconeCheckCircle } from "@/components/ui/IconeCheckCircle";
+import { IndicadorDeCarregamento } from "@/components/ui/IndicadorDeCarregamento";
 import { CURVA, ESCALA, ESPERA_MS, TEMPO } from "@/lib/movimento-figaro";
 import { cn } from "@/lib/utils";
 
@@ -23,7 +24,7 @@ const indicadorSai = {
 };
 
 const buttonVariants = cva(
-  "inline-flex min-w-0 items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-transparent text-sm font-bold cursor-pointer [transition:color_var(--mov-rapido),background-color_var(--mov-rapido),border-color_var(--mov-rapido),box-shadow_var(--mov-rapido),transform_var(--mola-toque-duracao)_var(--mola-toque)] motion-reduce:[transition:none] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-40 disabled:cursor-not-allowed active:scale-[0.98] [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  "inline-flex min-w-0 items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-transparent text-sm font-bold cursor-pointer [transition:color_var(--mov-rapido),background-color_var(--mov-rapido),border-color_var(--mov-rapido),box-shadow_var(--mov-rapido),transform_var(--mola-toque-duracao)_var(--mola-toque)] motion-reduce:[transition:none] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-40 disabled:data-[ocupado]:opacity-100 disabled:cursor-not-allowed active:scale-[0.98] [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
@@ -135,7 +136,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     }
 
     function handleClick(event: React.MouseEvent<HTMLButtonElement>) {
-      if (pendingRef.current || loading) return;
+      if (pendingRef.current || loading || success) return;
       const result = onClick?.(event);
       if (!result || typeof (result as Promise<unknown>).then !== "function") return;
       width.current = internalRef.current?.offsetWidth ?? null;
@@ -173,6 +174,8 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         ref={setRefs}
         disabled={disabled || busy}
         aria-busy={busy || undefined}
+        data-sucesso={success || undefined}
+        data-ocupado={busy || undefined}
         data-carregando={showSpinner || undefined}
         onClick={handleClick}
         style={width.current && busy ? { ...style, minWidth: width.current } : style}
@@ -187,7 +190,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
               animate={indicadorEntra}
               exit={indicadorSai}
             >
-              <Loader2 className="animate-spin" aria-hidden />
+              <IndicadorDeCarregamento tamanho={22} decorativo className="text-current" />
             </motion.span>
           ) : success ? (
             <motion.span
@@ -197,7 +200,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
               animate={indicadorEntra}
               exit={indicadorSai}
             >
-              <Check aria-hidden />
+              <IconeCheckCircle aria-hidden />
             </motion.span>
           ) : null}
         </AnimatePresence>

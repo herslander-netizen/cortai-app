@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { ArrowRight, Check, Loader2, Mic, Send, Square, TriangleAlert, X } from "lucide-react";
+import { ArrowRight, Check, Mic, Send, Square, TriangleAlert, X } from "lucide-react";
 
 import { AgendarNoChat } from "./AgendarNoChat";
 import { IconeDaIA } from "./IconeDaIA";
@@ -13,6 +13,7 @@ import { SeloDaCortai } from "./SeloDaCortai";
 import { CHAVE_DO_ESTADO_DA_CORTAI, useEstadoDaCortai } from "./useEstadoDaCortai";
 import { useProgressoCortai } from "./useProgressoCortai";
 
+import { IndicadorDeCarregamento } from "@/components/ui/IndicadorDeCarregamento";
 import type { Conferencia } from "@/lib/brain/conferencia";
 import { brl } from "@/lib/format";
 import { DIAS_DA_SEMANA, type RespostaDoAssistente } from "@/lib/ia/assistente";
@@ -758,7 +759,7 @@ export function AssistenteCortai({
               }`}
             >
               {voz.estado === "processando" ? (
-                <Loader2 size={17} className="animate-spin" aria-hidden />
+                <IndicadorDeCarregamento tamanho={20} decorativo className="text-current" />
               ) : voz.estado === "gravando" ? (
                 <Square size={15} fill="currentColor" aria-hidden />
               ) : (

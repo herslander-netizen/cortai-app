@@ -39,7 +39,7 @@ describe("Button", () => {
     await act(async () => {
       await vi.advanceTimersByTimeAsync(301);
     });
-    expect(button.querySelector(".animate-spin")).not.toBeNull();
+    expect(button.querySelector("[data-indicador-de-carregamento]")).not.toBeNull();
     vi.useRealTimers();
   });
 

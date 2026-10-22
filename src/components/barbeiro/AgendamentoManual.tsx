@@ -1,6 +1,6 @@
 import { EtapasAnimadas } from "@/components/ui/EtapasAnimadas";
 import { CalendarDays, Check, Clock3, FileText, Scissors, UserRound } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { ConteudoDoTicket } from "@/components/comanda/FolhaDoTicket";
 import { ConfirmacaoRapida } from "@/components/ui/VistoAnimado";
@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { SecaoDeFormulario } from "@/components/ui/formulario/SecaoDeFormulario";
 import { brl } from "@/lib/format";
+import { ESPERA_MS } from "@/lib/movimento-figaro";
 import { TelaDeFormulario } from "@/components/ui/formulario/TelaDeFormulario";
 
 import { SecaoCliente } from "./agendamento-manual/SecaoCliente";
@@ -100,6 +101,15 @@ function Formulario({
   });
   const [verTicket, setVerTicket] = useState(false);
   const [etapa, setEtapa] = useState(0);
+  // Figaro (`CreateReservationFlowScreen`): o botão fica em sucesso (✓ + rótulo) por 1200 ms; só depois
+  // a tela troca para o que vem a seguir (aqui, a comanda).
+  const [mostrarPainel, setMostrarPainel] = useState(false);
+  useEffect(() => {
+    if (!s.confirmado) return;
+    const id = window.setTimeout(() => setMostrarPainel(true), ESPERA_MS.reservaCriada);
+    return () => window.clearTimeout(id);
+  }, [s.confirmado]);
+  const painel = s.confirmado && mostrarPainel;
 
   const servico = s.base?.servicos.find((item) => item.id === s.servicoId);
   const profissional = s.base?.profissionais.find((item) => item.id === s.profissionalId);
@@ -139,25 +149,27 @@ function Formulario({
       subtitulo={etapas[etapa]?.detalhe ?? "Agendamento em etapas."}
       sujo={s.sujo && !s.confirmado}
       onFechar={onFechar}
-      {...(s.confirmado || etapa === 0
+      {...(painel || etapa === 0
         ? {}
         : { onVoltar: () => setEtapa((atual) => Math.max(0, atual - 1)) })}
-      {...(s.confirmado ? {} : { compacto: { passo: etapas[etapa]?.titulo ?? "", indice: etapa } })}
-      {...(s.confirmado
+      {...(painel ? {} : { compacto: { passo: etapas[etapa]?.titulo ?? "", indice: etapa } })}
+      {...(painel
         ? {}
-        : {
-            acao: {
-              rotulo: etapa < etapas.length - 1 ? "Continuar" : "Confirmar agendamento",
-              onClick: () => {
-                if (etapa < etapas.length - 1) setEtapa((atual) => Math.min(atual + 1, 3));
-                else void s.salvar();
+        : s.confirmado
+          ? { acao: { rotulo: "Confirmar agendamento", onClick: () => {}, sucesso: true } }
+          : {
+              acao: {
+                rotulo: etapa < etapas.length - 1 ? "Continuar" : "Confirmar agendamento",
+                onClick: () => {
+                  if (etapa < etapas.length - 1) setEtapa((atual) => Math.min(atual + 1, 3));
+                  else void s.salvar();
+                },
+                desabilitada: !podeAvancar,
+                carregando: s.salvando,
               },
-              desabilitada: !podeAvancar,
-              carregando: s.salvando,
-            },
-          })}
+            })}
     >
-      {s.confirmado ? (
+      {painel ? (
         <>
           <ConfirmacaoRapida texto="Pronto. Agendamento criado." />
           {s.criado?.comandaId && verTicket ? (

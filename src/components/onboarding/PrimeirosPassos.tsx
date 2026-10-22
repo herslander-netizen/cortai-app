@@ -7,6 +7,7 @@ import { Check, ChevronRight, Circle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getSessao } from "@/lib/sessao.functions";
 import { getCapacidades, getUsoDaAgendaOnline } from "@/lib/capacidades.functions";
+import { MOLA } from "@/lib/movimento-figaro";
 import {
   getConfiguracaoInicial,
   ITENS_DO_CHECKLIST,

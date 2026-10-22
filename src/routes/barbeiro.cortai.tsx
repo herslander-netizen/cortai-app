@@ -1,3 +1,4 @@
+import { IndicadorDeCarregamento } from "@/components/ui/IndicadorDeCarregamento";
 import { exigirCapacidade } from "@/lib/guarda-capacidade";
 import { useConfirmar } from "@/components/ui/useConfirmar";
 import { createFileRoute, Link } from "@tanstack/react-router";
@@ -9,7 +10,6 @@ import {
   AlertTriangle,
   CalendarPlus,
   FileWarning,
-  Loader2,
   MessageCircle,
   ShieldCheck,
   Smartphone,
@@ -839,7 +839,7 @@ function CartaoDeConexao({ painel, tipo }: { painel: PainelDoCortai; tipo: TipoD
 
       {conectando && !qrVisivel ? (
         <div className="mt-5 flex items-center gap-3 border-t border-line pt-4">
-          <Loader2 size={16} className="animate-spin text-gold" aria-hidden />
+          <IndicadorDeCarregamento tamanho={20} decorativo />
           <p className="text-xs text-mute">
             {status === "conectando" || qrExpirado
               ? "Conectando seu WhatsApp…"

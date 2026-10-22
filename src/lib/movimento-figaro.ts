@@ -77,6 +77,10 @@ export const ESPERA_MS = {
   carregandoMinimo: 400,
   /** O FAB estendido mostra o sucesso por este tempo. */
   sucessoDoFab: 700,
+  /** Salvar/criar: o botão fica em sucesso (✓ + rótulo) por 700 ms antes de a tela sair (`delay(700)` dos ViewModels). */
+  sucessoDoBotao: 700,
+  /** Reserva criada: o botão fica em sucesso por 1200 ms antes de fechar (`CreateReservationFlowScreen`). */
+  reservaCriada: 1200,
 } as const;
 
 /** Escalas do Figaro. */

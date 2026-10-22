@@ -40,6 +40,7 @@ fica como está).
 |---|---|---|---|---|
 | B1 | Escala ao tocar (primário, secundário, texto, passo +/−, foto) | 0,98 com mola 0,6/800 | `SnappyPressAnimationKt`, `FigarooTextButtonKt`, `FigarooOutlinedButtonKt`, `FigarooStepperIconButtonKt`, `FigarooPhotoUploadFieldKt` | ✔ 22/10 (`button.tsx` e `Card` tocável) · ✘ foto de perfil e passo +/− (não existem no Cortaí hoje) |
 | B2 | Conteúdo do botão principal (texto → carregando → ✓) | entra 220 ms (atraso 90) com escala 0,92; sai 90 ms | `FigarooPrimaryButtonKt` | ✔ 22/10 |
+| B2b | Confirmação no botão (`ButtonState.Success`) e tempo até a tela sair | ✓ `CheckCircle` preenchido de 20 dp + o mesmo rótulo; fica 700 ms (cadastros) ou 1200 ms (reserva criada) | `FigarooPrimaryButtonKt`, `*ViewModel$save`, `CreateReservationFlowScreenKt` | ✔ 22/10 Novo agendamento (1200 ms) e Salvar serviço (700 ms); demais cadastros entram no lote 4 |
 | B3 | Carregando fica no mínimo 400 ms | — | `FigarooLoadingIndicatorKt` | ✔ 22/10 (botão) · — o contrato de design manda esqueleto, não indicador solto |
 | B4 | FAB estendido (salvar): pílula → círculo | 220 ms LinearOutSlowIn; rótulo escala 0,7→1; ✓ por 700 ms; espera 700 ms e volta | `FigarooExtendedFABKt` | ✘ (Cortaí usa botão fixo embaixo; ver decisão no §10) |
 | B5 | Troca do ícone/rótulo do FAB (`FigarooCtaGlyphSwap`) | fade + escala padrão + `SizeTransform` | idem | ✘ junto de B4 |

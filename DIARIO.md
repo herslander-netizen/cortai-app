@@ -650,6 +650,27 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-22 UTC — Claude — Carregando e confirmações do Figaro, como são
+- **Indicador de carregamento (`IndicadorDeCarregamento`):** porte exato do `LoadingIndicator` do Material 3 que o
+  Figaro usa (`FigarooLoadingIndicator`, 48 dp; 22 dp no botão). Foi lida e portada a biblioteca
+  `androidx.graphics.shapes` do APK (`src/lib/formas-m3/`: polígonos arredondados, `Morph`, mapeamento de cantos) e as
+  7 formas de `MaterialShapes` (soft burst, cookie 9, pentágono, pílula, sunny, cookie 4, oval). Linha do tempo em
+  `indicador.ts`: a cada 650 ms uma transição para a próxima forma pela mola 0,6/200 com limiar 0,1 (≈297 ms, com o
+  quique acima de 1), gira 4666 ms por volta mais 90° por forma, escala `fatorDeEscala × 38/48`. Conferido no
+  Chromium quadro a quadro (as 7 formas aparecem na ordem do APK). "Reduzir movimento" deixa parado.
+- **Onde entrou:** botão (`Button` carregando, 22 px), `Spinner`, assistente da CortAI, Central de Automação,
+  Publicar (admin home), `barbeiro.cortai`, faixa de estado do editor da marca. Telas continuam com esqueleto (contrato).
+- **Confirmação no botão (`ButtonState.Success`):** novo `IconeCheckCircle` (✓ vazado no círculo, 20 px) + o mesmo
+  rótulo; `Button` ganhou `success` sem apagar o botão (não fica a 40 % de opacidade) e `TelaDeFormulario.acao.sucesso`.
+  Tempo até a tela sair, igual ao Figaro: **700 ms** nos cadastros (Salvar serviço) e **1200 ms** em reserva criada
+  (Novo agendamento: ✓ por 1200 ms e só então aparece a comanda; sem comanda, fecha em 1200 ms em vez de 700).
+- Constantes em `ESPERA_MS` (`sucessoDoBotao`, `reservaCriada`). Inventário: B3 e B2b.
+- **Para o GPT:** (1) o commit `a92670eb` (`PrimeirosPassos.tsx`) usava `MOLA` sem importar e quebrava o `tsc`; pus a
+  importação (uma linha). (2) Troquei o `Loader2` de `FaixaDeEstado.tsx` pelo indicador novo (só o ícone do estado
+  "salvando"). (3) Se criar botões que salvam e fecham, use `acao.sucesso` e espere `ESPERA_MS.sucessoDoBotao`.
+- Falta: demais cadastros (cliente, equipe, combo) no lote 4; FAB/publicar (B4, C6) seguem nas decisões do dono (§10).
+- Validação: `tsc`, `eslint`, `vitest` (testes novos de formas, linha do tempo e componente), `build`. Falta celular.
+
 ### 2026-10-22 UTC — GPT — Continuação do lote 3 de animações Figaro
 - Retomei a reserva a pedido do dono e implementei animações pequenas, sem mudar regras de negócio:
   - `SecaoLayoutsETemas.tsx`: cartão de layout ganha escala suave e raio menor ao selecionar (C7; recuo/selo/legenda ainda precisam de conferência visual).
