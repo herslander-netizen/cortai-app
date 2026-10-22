@@ -111,7 +111,7 @@ export function DrawerAjustes({
           variant="icon"
           size="icon"
           aria-label="Abrir ajustes"
-          className="size-12 shrink-0 rounded-full text-menu-icone hover:bg-drawer-card"
+          className="size-11 shrink-0 rounded-full text-menu-icone hover:bg-drawer-card"
         >
           <SlidersHorizontal className="size-[22px]" aria-hidden />
         </Button>

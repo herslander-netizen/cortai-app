@@ -32,8 +32,9 @@ export function dentroDeRolagemLateral(alvo: Element | null, limite?: Element | 
 /* ---------- Gesto que acompanha o dedo ---------- */
 export const TRAVA_EIXO = 10;
 export const FRACAO_PARA_COMPLETAR = 0.5;
-export const PETELECO_VELOCIDADE = 0.5; // px/ms
-export const PETELECO_DISTANCIA = 50; // px
+// `HorizontalPager` do Figaro: o fling troca de página a partir de 400 dp/s (padrão do Compose).
+export const PETELECO_VELOCIDADE = 0.4; // px/ms
+export const PETELECO_DISTANCIA = 10; // px
 export const PETELECO_JANELA_MS = 250;
 
 export type Eixo = "x" | "y" | null;

@@ -48,10 +48,11 @@ describe("decidirFimDoGesto", () => {
     expect(decidirFimDoGesto({ ...f, dx: 200 })).toBe(-1);
     expect(decidirFimDoGesto({ ...f, dx: -150 })).toBe(0);
   });
-  it("completa com peteleco (0,5 px/ms e 50 px em 250 ms)", () => {
+  it("completa com peteleco (0,4 px/ms, como o pager do Figaro)", () => {
     expect(decidirFimDoGesto({ ...f, dx: -80, velocidade: -0.8, distanciaRecente: -70 })).toBe(1);
-    expect(decidirFimDoGesto({ ...f, dx: -80, velocidade: -0.8, distanciaRecente: -30 })).toBe(0);
+    expect(decidirFimDoGesto({ ...f, dx: -80, velocidade: -0.8, distanciaRecente: -5 })).toBe(0);
     expect(decidirFimDoGesto({ ...f, dx: -80, velocidade: -0.3, distanciaRecente: -70 })).toBe(0);
+    expect(decidirFimDoGesto({ ...f, dx: -80, velocidade: -0.45, distanciaRecente: -40 })).toBe(1);
   });
   it("cancelado, vertical, borda e arraste nunca trocam", () => {
     expect(decidirFimDoGesto({ ...f, dx: -300, cancelado: true })).toBe(0);

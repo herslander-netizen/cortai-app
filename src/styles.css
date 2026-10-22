@@ -9873,11 +9873,20 @@ button.agenda-nome:hover {
   line-height: 20px;
   font-weight: 700;
   letter-spacing: 0.01em;
-  color: var(--figaro-on-surface-variant);
 }
 .management-drawer [data-menu-item] {
   font-size: 15px;
   line-height: 20px;
+  font-weight: 500;
+}
+.management-drawer [data-conta-nome] {
+  font-size: 18px;
+  line-height: 24px;
+  font-weight: 700;
+}
+.management-drawer [data-conta-papel] {
+  font-size: 13px;
+  line-height: 18px;
   font-weight: 500;
 }
 

@@ -226,21 +226,22 @@ export function ManagementHeader() {
           >
             <div className="flex h-full min-h-0 flex-col">
               <div className="shrink-0 px-5 pb-4 pt-[max(1.25rem,env(safe-area-inset-top))]">
-                <div className="grid grid-cols-[minmax(0,1fr)_48px] items-center gap-3">
+                <div className="grid grid-cols-[minmax(0,1fr)_44px] items-center gap-3">
                   <div className="flex min-w-0 items-center gap-3">
                     <LogoBarbearia
                       nome={sessao?.tenantNome ?? "Meu negócio"}
                       url={sessao?.tenantLogoUrl ?? null}
-                      size={56}
+                      size={44}
                       className="rounded-full border-0 bg-drawer-card"
                     />
                     <div className="min-w-0">
                       <SheetTitle
-                        className={`line-clamp-2 break-words font-bold text-paper ${(sessao?.tenantNome ?? "").length > 28 ? "text-base leading-5" : "text-lg leading-6"}`}
+                        data-conta-nome=""
+                        className="line-clamp-2 break-words text-paper"
                       >
                         {sessao?.tenantNome ?? "Meu negócio"}
                       </SheetTitle>
-                      <SheetDescription className="mt-0.5 truncate text-[13px] text-mute">
+                      <SheetDescription data-conta-papel="" className="mt-0.5 truncate text-mute">
                         {sessao?.nome ?? "Equipe"} · {rotuloDoPapel(sessao?.papelNaEquipe)}
                       </SheetDescription>
                     </div>

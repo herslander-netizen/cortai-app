@@ -665,6 +665,21 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-22 UTC — Claude — Menu lateral no desenho do Figaro e troca de dia no ritmo do pager
+- **Menu lateral** (`GruposDoMenu`, `DrawerDestaques`, `ManagementDrawer`, `DrawerAjustes`) com as medidas do APK
+  (`DrawerSectionRow`, `FigarooDrawerCollapsibleSection`, `Dimensions`): gaveta 348, cabeçalho de seção 32 dp com recuo 18,
+  título e seta **em primary** (seta de 20 dp, 0° aberta e −90° fechada, mola do Compose), linhas de 56 dp em ladrilhos
+  `cardTile` sem divisores, vão de 3 dp, cantos de 28 dp por fora e 4 dp por dentro (`FigarooListGroupShape`), ícone de 24 dp
+  em primary, texto 15/20 medium; conta com avatar de 44, nome 18/24 bold e papel 13/18; cartão da página com miniatura 48 e
+  compartilhar 40; Agenda como linha de 60 dp com ponto de 8. Sem linha ativa destacada: o Figaro fecha a gaveta ao navegar.
+- **Troca de dia**: o gesto que já acompanhava o dedo agora decide como o `HorizontalPager` do Compose: peteleco a partir de
+  400 dp/s (0,4 px/ms, distância mínima 10 px) e metade da largura; ao soltar assenta com a mola de amortecimento 1 e rigidez
+  400 (`MOLA.tamanho`) no lugar da mola lenta anterior. Dias vizinhos, travas e regras de armar seguem como estavam.
+- **Ícones**: os do menu e os da Agenda continuam sendo os equivalentes do **lucide** com o mesmo significado e posição dos do
+  Figaro (círculo-check, relógio, pessoa andando, X em círculo, alerta, check). Não copiei os vetores do APK: são arte
+  licenciada de terceiros (conjunto "duo"/"fill") e não temos direito de redistribuí-los. Se quiser ícones com traço mais
+  próximo, o caminho é desenhar um conjunto próprio ou licenciar um conjunto equivalente.
+
 ### 2026-10-22 UTC — Claude — Animações da Agenda do Figaro (só movimento, sem mudar configurações)
 - Conferi o §10 de `2-agenda.md` contra o código: a maior parte já estava feita (armar, cromo, zoom, alfa, calendário↔lista,
   semana↔mês). Fechei o que faltava, **sem tocar em regras, textos de negócio nem ajustes do Cortaí**:

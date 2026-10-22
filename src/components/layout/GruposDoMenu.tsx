@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "framer-motion";
-import { ChevronRight, type LucideIcon } from "lucide-react";
+import { ChevronDown, type LucideIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { useMenosMovimento } from "@/hooks/useMovimento";
@@ -59,51 +59,58 @@ export function GruposDoMenu({
       {grupos.map((grupo) =>
         grupo.itens.length ? (
           <section key={grupo.titulo}>
-            <Button
-              variant="ghost"
+            {/* Cabeçalho de seção do Figaro: 32 dp, 18 dp de recuo, título e seta em primary (setas 20 dp
+                que giram de 0° aberto a −90° fechado). */}
+            <button
+              type="button"
               data-menu-secao=""
-              className="min-h-11 w-full justify-between pl-[18px] pr-2 text-menu-icone hover:bg-transparent"
+              className="flex h-8 w-full items-center gap-2 pl-[18px] pr-2 text-left text-primary"
               aria-expanded={abertos.includes(grupo.titulo)}
               aria-controls={`menu-grupo-${grupo.titulo.replace(/\s+/g, "-")}`}
               onClick={() => onAlternar(grupo.titulo)}
             >
-              {rotuloDoGrupo(grupo, segmento)}
-              <ChevronRight
-                className={`size-5 transition-transform duration-[var(--mola-padrao-duracao)] ease-[var(--mola-padrao)] motion-reduce:transition-none ${abertos.includes(grupo.titulo) ? "rotate-90" : ""}`}
+              <span className="min-w-0 flex-1 truncate">{rotuloDoGrupo(grupo, segmento)}</span>
+              <ChevronDown
+                className={`size-5 shrink-0 transition-transform duration-[var(--mola-padrao-duracao)] ease-[var(--mola-padrao)] motion-reduce:transition-none ${abertos.includes(grupo.titulo) ? "" : "-rotate-90"}`}
                 aria-hidden
               />
-            </Button>
+            </button>
             <AnimatePresence initial={false}>
               {abertos.includes(grupo.titulo) ? (
                 <motion.ul
                   {...abrirFechar}
                   id={`menu-grupo-${grupo.titulo.replace(/\s+/g, "-")}`}
-                  className="overflow-hidden rounded-[24px] border border-drawer-borda bg-drawer-card"
+                  className="flex flex-col gap-[3px] overflow-hidden pt-2"
                 >
                   {grupo.itens.map((item, indice) => {
                     const Icon = item.icon;
                     const ativo = itemDeNavegacaoAtivo(caminho, item.to);
+                    const total = grupo.itens.length;
+                    // Grupo de linhas do Figaro: 28 dp nos cantos de fora, 4 dp entre as linhas, 3 dp de vão.
+                    const forma =
+                      total <= 1
+                        ? "rounded-[28px]"
+                        : indice === 0
+                          ? "rounded-t-[28px] rounded-b-[4px]"
+                          : indice === total - 1
+                            ? "rounded-b-[28px] rounded-t-[4px]"
+                            : "rounded-[4px]";
                     return (
-                      <li
-                        key={`${grupo.titulo}-${item.label}`}
-                        className={
-                          indice < grupo.itens.length - 1 ? "border-b border-drawer-borda" : ""
-                        }
-                      >
+                      <li key={`${grupo.titulo}-${item.label}`}>
                         <Link
                           data-menu-item=""
                           to={item.to as never}
                           preload="intent"
                           onClick={onNavegar}
                           aria-current={ativo ? "page" : undefined}
-                          className={`grid min-h-14 grid-cols-[24px_minmax(0,1fr)] items-center gap-4 px-5 py-2 text-paper transition-colors active:brightness-110 motion-reduce:transition-none ${ativo ? "bg-drawer-band" : ""}`}
+                          className={`flex min-h-14 w-full items-center gap-4 bg-drawer-card px-4 text-paper transition-[filter,transform] duration-[var(--mola-toque-duracao)] ease-[var(--mola-toque)] active:scale-[0.99] active:brightness-95 motion-reduce:transition-none ${forma}`}
                         >
                           <Icon
-                            className={`size-6 ${ativo ? "text-primary" : "text-menu-icone"}`}
-                            strokeWidth={1.9}
+                            className="size-6 shrink-0 text-primary"
+                            strokeWidth={1.75}
                             aria-hidden
                           />
-                          <span className="truncate">{item.label}</span>
+                          <span className="min-w-0 flex-1 truncate">{item.label}</span>
                         </Link>
                       </li>
                     );
