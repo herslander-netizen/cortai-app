@@ -363,7 +363,17 @@ teste real na prévia.
 - A execução anterior do CI falhou em TypeScript; os novos envios estão sendo validados. Não afirmar que testes/build passaram até concluir o workflow.
 - Sem alteração no banco, `main` ou produção.
 
-## Diário (mais recente primeiro)
+## Diário
+
+### 2026-10-22 UTC — GPT — Ajusta seleções visuais da tela Layout & Tema com base no vídeo Figaro
+- O tema selecionado agora usa contorno/realce rosa e indicador rosa, enquanto o layout mantém o realce azul da marca, seguindo a diferença observada no vídeo de 22/10.
+- Removi o botão “Ver Exemplo” duplicado e a faixa explicativa extra dentro do conteúdo. A tela mantém a ação de prévia no rodapé fixo, como no Figaro.
+- Arquivos: `src/components/marca/editor/CartoesDeLayoutTema.tsx`, `src/components/marca/editor/SecaoLayoutsETemas.tsx`.
+- Commits: `965fcf12dd01ec48083fb7d90990de96271a3e2f`, `dd5142f2469aadfd82be0baf3b8689d8d687520d`.
+- Ainda não declarar paridade: falta validar o workflow após estes commits e conferir a prévia no celular. A prévia atual continua em folha (Sheet), enquanto a especificação do APK descreve rota/tela própria; isso permanece pendente. Os editores específicos e outros comportamentos documentados também precisam ser comparados/validados.
+- Sem alteração de banco, produção, DNS ou branch principal.
+
+ (mais recente primeiro)
 
 ### 2026-10-22 UTC — GPT — Libera personalização do tenant de demonstração com escopo restrito
 
