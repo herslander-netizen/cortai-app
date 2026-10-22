@@ -102,7 +102,7 @@ async function containerSalvo(db: SupabaseClient<Database>, tenantId: string) {
 }
 
 async function tenantDoDono(supabase: SupabaseClient<Database>, userId: string) {
-  const [{ data: vinculos }, { data: perfil }] = await Promise.all([
+  const [{ data: vinculosDono }, { data: perfil }] = await Promise.all([
     supabase
       .from("tenant_usuarios")
       .select("tenant_id, papel, ativo")
@@ -111,11 +111,32 @@ async function tenantDoDono(supabase: SupabaseClient<Database>, userId: string) 
       .order("criado_em", { ascending: true }),
     supabase.from("perfis").select("tenant_ativo").eq("user_id", userId).maybeSingle(),
   ]);
-  // Dono de mais de um negócio: vale o que está em uso, como no resto do servidor.
-  const vinculo = escolherVinculo(vinculos ?? [], perfil?.tenant_ativo);
 
-  if (!vinculo?.ativo) throw new Error("Apenas o dono pode configurar a marca.");
-  return vinculo.tenant_id as string;
+  // O fluxo normal continua exigindo vínculo ativo de dono.
+  const vinculoDono = escolherVinculo(vinculosDono ?? [], perfil?.tenant_ativo);
+  if (vinculoDono?.ativo) return vinculoDono.tenant_id;
+
+  // Exceção restrita à demo: um membro ativo pode personalizar apenas o tenant
+  // explicitamente identificado pelo slug reservado "demonstracao".
+  const { data: vinculosAtivos } = await supabase
+    .from("tenant_usuarios")
+    .select("tenant_id, papel, ativo")
+    .eq("user_id", userId)
+    .eq("ativo", true)
+    .order("criado_em", { ascending: true });
+
+  const ids = [...new Set((vinculosAtivos ?? []).map((v) => v.tenant_id))];
+  if (ids.length) {
+    const { data: tenantDemo } = await supabase
+      .from("tenants")
+      .select("id")
+      .eq("slug", "demonstracao")
+      .in("id", ids)
+      .maybeSingle();
+    if (tenantDemo?.id) return tenantDemo.id;
+  }
+
+  throw new Error("Apenas o dono pode configurar a marca.");
 }
 
 function snapshot(row: Database["public"]["Tables"]["tenants"]["Row"]): MarcaForm {
