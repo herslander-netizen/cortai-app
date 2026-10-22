@@ -80,12 +80,12 @@ export function SecaoImagens({
                     <motion.button
                       type="button"
                       initial={false}
-                      animate={{ scale: ativa ? 0.97 : 1, borderRadius: ativa ? 8 : 12 }}
+                      animate={{ scale: ativa ? 0.97 : 1, padding: ativa ? 16 : 8, borderRadius: ativa ? 8 : 12 }}
                       transition={reduzirMovimento ? { duration: 0 } : MOLA.padraoCompose}
                       disabled={busy || ativa}
                       onClick={() => usarLogo(l.path, l.url)}
                       aria-pressed={ativa}
-                      className={`relative flex w-full flex-col items-center gap-1 border bg-ink2 p-2 text-[11px] ${ativa ? "border-gold text-gold" : "border-line2 text-mute hover:border-gold"}`}
+                      className={`relative flex w-full flex-col items-center gap-1 border bg-ink2 text-[11px] ${ativa ? "border-gold text-gold" : "border-line2 text-mute hover:border-gold"}`}
                     >
                       <img src={l.url} alt="" className="aspect-square w-full object-contain" />
                       {ativa ? (
