@@ -77,7 +77,7 @@ Técnicas (detalhes em "Auditoria e segurança" do `CLAUDE.md`):
 - Sete tabelas com escrita de qualquer membro (`clientes`, escalas, bloqueios, fila, indicações,
   preferências de aviso, onboarding).
 - Permissão por ação para a equipe no WhatsApp.
-- Tarefas agendadas do banco (`cron.job`) foram confirmadas apontando para o Worker temporário antigo; a amostra recente registrou 34 timeouts em 38 respostas HTTP, no limite de 5 s. A migração `drizzle/migrations/0043_corrigir_agendadores.sql` foi preparada para trocar os dois destinos para `https://cortaiapp.pages.dev` e aumentar o timeout para 20 s. **Não aplicada**: aguarda autorização explícita do dono para escrita em `cortai-prod`. Depois de aplicar e confirmar respostas HTTP, avaliar remoção do Worker antigo na Cloudflare.
+- Tarefas agendadas do banco (`cron.job`) foram corrigidas em 21/10/2026 após autorização explícita do dono: migração `0043_corrigir_agendadores` aplicada em `cortai-prod`. Os dois jobs (`cortai-varredura-whatsapp` a cada 15 min e `cortai-varredura-asaas` a cada 30 min) agora chamam `https://cortaiapp.pages.dev` e usam `timeout_milliseconds := 20000`; consulta posterior confirmou que não resta o host temporário nos comandos. A amostra anterior tinha 34 timeouts em 38 respostas HTTP com limite de 5 s. Falta conferir a primeira resposta HTTP de cada job após a alteração; só depois avaliar remoção do Worker antigo na Cloudflare.
 - Menores: remarcação pela IA recria o agendamento; contagens do ADM presas a 1000 linhas;
   contadores não atômicos; buckets sem limite de tipo/tamanho; casts `as never`.
 
