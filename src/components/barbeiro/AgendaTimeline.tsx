@@ -26,7 +26,12 @@ import { ladoDoAgora, publicarAgora } from "@/components/barbeiro/agenda/pilula-
 import { criarBloqueioDeRolagem } from "@/components/barbeiro/agenda/bloqueio-rolagem";
 import { AlcaDeDuracao } from "@/components/barbeiro/agenda/AlcaDeDuracao";
 import { PASSO_DO_AJUSTE_MIN, passoDoGesto } from "@/lib/remarcacao-regras";
-import { aoCorrigirRolagemDoZoom, usePincaDaTimeline, usePxPorMinuto } from "@/components/barbeiro/agenda/zoom-agenda";
+import {
+  aoCorrigirRolagemDoZoom,
+  PX_PADRAO,
+  usePincaDaTimeline,
+  usePxPorMinuto,
+} from "@/components/barbeiro/agenda/zoom-agenda";
 import { vibrar } from "@/lib/vibrar";
 import { criarToqueLongoVazio } from "@/components/barbeiro/agenda/toque-longo-vazio";
 import {
@@ -198,14 +203,15 @@ export function AgendaTimeline({
   } | null>(null);
   const bloqueio = useRef<ReturnType<typeof criarBloqueioDeRolagem> | null>(null);
   useEffect(
-    () => aoCorrigirRolagemDoZoom((destino, delta) => {
-      const g = gesto.current;
-      if (!g?.ativo || !g.longo) return;
-      if ((destino === window && celularAgora()) || destino === rolagemRef.current) {
-        // Não tratar o scroll de ancoragem do zoom como movimento provocado pelo dedo.
-        g.rolagem0 += delta;
-      }
-    }),
+    () =>
+      aoCorrigirRolagemDoZoom((destino, delta) => {
+        const g = gesto.current;
+        if (!g?.ativo || !g.longo) return;
+        if ((destino === window && celularAgora()) || destino === rolagemRef.current) {
+          // Não tratar o scroll de ancoragem do zoom como movimento provocado pelo dedo.
+          g.rolagem0 += delta;
+        }
+      }),
     [],
   );
   function travarRolagemDoToque() {
@@ -907,6 +913,8 @@ export function AgendaTimeline({
             <div
               key={minuto}
               className={`agenda-timeline-marca ${minuto % 60 === 0 ? "agenda-timeline-hora" : ""}`}
+              // Os traços de meia hora só aparecem depois de dar zoom (acima do tamanho de repouso).
+              data-meia-oculta={minuto % 60 !== 0 && PX_POR_MINUTO <= PX_PADRAO ? "" : undefined}
               style={{
                 top: `${(minuto - escala.inicio) * PX_POR_MINUTO + deslocamentoAte(minuto)}px`,
               }}

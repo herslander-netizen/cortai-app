@@ -9922,3 +9922,16 @@ button.agenda-nome:hover {
   letter-spacing: 0.08em;
   font-size: 10.5px;
 }
+
+/* Traços de meia hora: só depois do zoom; em repouso a grade mostra apenas as horas cheias. */
+.agenda-timeline-marca:not(.agenda-timeline-hora) {
+  transition: opacity 200ms ease-out;
+}
+.agenda-operacional .agenda-timeline-marca[data-meia-oculta] {
+  opacity: 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  .agenda-timeline-marca:not(.agenda-timeline-hora) {
+    transition: none;
+  }
+}

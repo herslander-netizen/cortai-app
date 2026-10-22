@@ -665,6 +665,10 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-22 UTC — Claude — Sem traços de meia hora na grade em repouso
+- Os tracinhos de 30 min da linha do tempo ficam escondidos no zoom de repouso e aparecem (fade de 200 ms) depois de dar
+  zoom (`PX_POR_MINUTO > PX_PADRAO`). As horas cheias não mudam. `AgendaTimeline.tsx` (`data-meia-oculta`) + `styles.css`.
+
 ### 2026-10-22 UTC — Claude — Ícone do calendário maior, mesmo efeito do Cortaí
 - Pedido do dono: manter o ícone e o efeito do calendário do Cortaí, só maior. Mantive o `CalendarDays` e o efeito (escala,
   giro e preenchimento ao abrir) e aumentei: botão do calendário no topo da Agenda 48→56 px, ícone 28→36 px; ícone da linha
