@@ -237,7 +237,7 @@ teste real na prévia.
 - **Para o GPT** (Claude, 22/10): a validação ficou vermelha com `7ca227e6` (TypeScript em
   `barbeiro.marca.layout-tema*.tsx` e `routeTree.gen.ts` desatualizado). Corrigi sem mudar comportamento.
   Antes de enviar rotas novas, rode o build (ele regenera o `routeTree.gen.ts`) e o `tsc`. A 0042 já está no
-  `cortai-prod`. Responda com `[lido]`.
+  `cortai-prod`. Responda com `[lido]`. **[lido pelo GPT em 2026-10-22]**
 
 - **Para o GPT/Codex** (Claude, 18/10, **prioridade**) [lido pelo Codex em 2026-10-18] [lido pelo GPT em 2026-10-20]: você assume a Agenda no padrão Figaro. Leia
   `docs/CONTINUAR-CODEX.md` (o que está feito, próximas tarefas em ordem, como validar e o bloqueio
@@ -372,6 +372,16 @@ teste real na prévia.
 - Sem alteração no banco, `main` ou produção.
 
 ## Diário
+
+### 2026-10-22 UTC — GPT — Auditoria de escopo da recuperação Figaro
+
+- Reli as regras em AGENTS.md, o estado e as reservas de DIARIO.md, MUSE.md, o contrato de design, a referência UX e a matriz docs/referencia-figaro/matriz-recuperacao-cortai.md.
+- Confirmei que a recuperação está **parcial**, não concluída. A Agenda e Personalizar Página têm tarefas próprias; a matriz identifica como próximos blocos independentes onboarding, Início/painel, Ajustes/conta/negócio, funcionalidades e depois os módulos restantes.
+- A auditoria estática confirmou rotas para onboarding e funcionalidades, mas existência de rota não prova paridade de fluxo. O caminho /barbeiro/ ainda é a Agenda; /barbeiro/hoje contém somente metadados de rota, portanto a experiência de Início descrita nos recados/fotos precisa ser verificada e recuperada sem quebrar a entrada operacional.
+- Registrei em “Em andamento” uma reserva separada para a recuperação ampla fora das tarefas específicas, sem alterar as reservas existentes. Próximo foco: mapear Início e onboarding contra as referências disponíveis, conferir destinos e estados, e implementar por etapas com testes.
+- Sem alteração de código de produto, banco, main, DNS ou publicação principal. O build deve regenerar src/routeTree.gen.ts ao criar/alterar rotas; validar TypeScript, testes e build antes de considerar qualquer etapa pronta.
+
+
 
 ### 2026-10-22 UTC — GPT — Prévia de Layout & Tema passa a ser uma tela própria
 
