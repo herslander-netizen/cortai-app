@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { motion, useReducedMotion } from "framer-motion";
 import { LayoutTemplate } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -10,6 +11,7 @@ import {
 } from "@/components/ui/accordion";
 import type { LayoutId, PaginaConfig, TemaId } from "@/lib/pagina-config";
 import { componenteIds, LAYOUTS, TEMAS, temaIds } from "@/lib/pagina-config";
+import { MOLA } from "@/lib/movimento-figaro";
 import { DESCRICOES_LAYOUT, IndicadorSelecionado, MiniaturaLayout, TemaCartao } from "./CartoesDeLayoutTema";
 
 const ROTULOS_SECOES: Record<(typeof componenteIds)[number], string> = {
@@ -41,6 +43,7 @@ export function SecaoLayoutsETemas({
   useEffect(() => {
     setPainelAberto(config.experiencia === "vitrine" ? "layout" : "tema");
   }, [config.experiencia]);
+  const reduzirMovimento = useReducedMotion();
   const totalTemas = temaIds.length;
   const temasFigaro = temaIds.filter((tema) => tema.startsWith("figaro-")).length;
   const temasCortai = totalTemas - temasFigaro;
@@ -67,13 +70,20 @@ export function SecaoLayoutsETemas({
                 const visiveis = secoesAtivas.slice(0, 5);
                 const restantes = secoesAtivas.length - visiveis.length;
                 return (
-                  <Button
+                  <motion.div
                     key={layout}
+                    initial={false}
+                    animate={{ scale: selecionado ? 0.97 : 1 }}
+                    transition={reduzirMovimento ? { duration: 0 } : MOLA.padraoCompose}
+                    className="w-[min(78vw,286px)] shrink-0 snap-start"
+                    data-selecionado={selecionado ? "true" : undefined}
+                  >
+                  <Button
                     type="button"
                     variant="ghost"
                     aria-pressed={selecionado}
                     onClick={() => setLayout(layout)}
-                    className={`relative h-auto min-h-[300px] w-[min(78vw,286px)] shrink-0 snap-start flex-col items-stretch whitespace-normal rounded-xl border p-3 text-left transition-[border-color,background-color,box-shadow] duration-200 ease-out motion-reduce:transition-none ${selecionado ? "border-2 border-gold bg-gold/10" : "border-line bg-ink"}`}
+                    className={`relative h-auto min-h-[300px] w-full flex-col items-stretch whitespace-normal border p-3 text-left transition-[border-color,background-color,box-shadow,border-radius] duration-200 ease-out motion-reduce:transition-none ${selecionado ? "rounded-lg border-2 border-gold bg-gold/10" : "rounded-xl border-line bg-ink"}`}
                   >
                     <MiniaturaLayout layout={layout} />
                     <span className="flex items-center justify-between gap-2 text-base font-semibold text-paper">
@@ -95,6 +105,7 @@ export function SecaoLayoutsETemas({
                     )}
                     <span className="pt-1 text-xs text-mute">{totalTemas} temas disponíveis neste editor</span>
                   </Button>
+                  </motion.div>
                 );
               })}
             </div>
