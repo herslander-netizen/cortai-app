@@ -660,7 +660,7 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
   - `barbeiro.marca.tsx`: transição de carregamento/erro/conteúdo com entrada 220 ms e saída 180 ms (P1).
   - `barbeiro.equipe.tsx`: lista e estado vazio entram/saem com fade e altura (P3, editor de equipe).
 - Inventário atualizado em `docs/referencia-figaro/apk/8-inventario-de-animacoes.md`. L1 fica sem implementação porque o onboarding não tem etapa de CEP (o endereço é texto livre). V3: em `PreferenciasDoCliente.tsx`, frequência e silêncio agora aparecem com fade+altura quando WhatsApp ou celular está ativo; os valores salvos são preservados quando os canais ficam desligados. Equivalência visual com a folha do APK ainda precisa ser conferida.
-- Commits de código: `66bfff0f`, `437c7cef`, `fcae1950`, `336659a9`, `a92670eb`, `264326a3`, `7f29b4b0`, `c3375be8`, `a56b57e8`, `ec4ae8d9`. Inventário: `3e20a24c`, `3b2d77eb`.
+- Commits de código: `66bfff0f`, `437c7cef`, `fcae1950`, `336659a9`, `a92670eb`, `264326a3`, `7f29b4b0`, `c3375be8`, `a56b57e8`, `ec4ae8d9`. Inventário: `3e20a24c`, `3b2d77eb`, `745fd17d`.
 - **Validação ainda pendente:** esta sessão não dispõe de terminal para executar TypeScript/Vitest/build; a consulta de status do GitHub não retornou checks. Não considerar o lote pronto nem afirmar que a prévia atualizou até o workflow confirmar. Nenhuma alteração em banco, `main` ou site principal.
 
 ### 2026-10-22 UTC — GPT — Remove Equipe do menu do botão +
