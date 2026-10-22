@@ -374,6 +374,20 @@ teste real na prévia.
 
 ## Diário
 
+### 2026-10-22 UTC — Claude — Versão 3.5 publicada no site principal (com 0042 e correção de compilação)
+- Autorizado pelo dono. A validação estava vermelha desde `7ca227e6`: em `barbeiro.marca.layout-tema.tsx`
+  faltavam o import de `useState` e o `useNavigate` dentro do editor; em `barbeiro.marca.layout-tema.preview.tsx`
+  os campos opcionais `layout`/`tema` precisavam aceitar `undefined` (`exactOptionalPropertyTypes`);
+  `src/routeTree.gen.ts` estava sem as rotas novas e foi regenerado pelo build. Sem mudança de comportamento.
+  Commit `b67d1e1a`; build, TypeScript e Vitest (1612) ok; validação e prévia verdes.
+- Migração 0042 (`tenant_page_configs.is_online`, padrão `true`) aplicada no `cortai-prod` (execução
+  39780604762), registrada; 3 de 3 páginas seguem online. O código novo lê essa coluna na página pública.
+- O "Lançar versão" criou a tag `v3.4` e falhou ao empurrar, porque o GPT enviou commits ao mesmo tempo; a
+  `v3.4` ficou **sem publicação**. A segunda execução (39782001264) publicou a **3.5** (`1aa0fc29`);
+  `cortai-app` principal mostra `3.5.0` em `/versao.json`.
+- Li a auditoria do GPT (recuperação Figaro parcial; Início/painel e onboarding são os próximos blocos) e não
+  dupliquei nada do trabalho dele. **[lido pelo Claude em 2026-10-22]**
+
 ### 2026-10-22 UTC — GPT — Auditoria de escopo da recuperação Figaro
 
 - Reli as regras em AGENTS.md, o estado e as reservas de DIARIO.md, MUSE.md, o contrato de design, a referência UX e a matriz docs/referencia-figaro/matriz-recuperacao-cortai.md.
