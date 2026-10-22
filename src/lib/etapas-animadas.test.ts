@@ -25,4 +25,11 @@ describe("etapas animadas (Figaro, 220 ms)", () => {
     expect(variantesDaEtapa.sai(c)).not.toHaveProperty("x");
     expect(variantesDaEtapa.fica(c).transition.duration).toBe(0.15);
   });
+
+  it("em fluxo (novo agendamento) dura 300 ms e não esmaece", () => {
+    const c = { sentido: 1, menosMovimento: false, fluxo: true } as const;
+    expect(variantesDaEtapa.entra(c)).toEqual({ opacity: 1, x: "100%" });
+    expect(variantesDaEtapa.sai(c)).toMatchObject({ opacity: 1, x: "-100%" });
+    expect(variantesDaEtapa.fica(c).transition).toMatchObject({ duration: 0.3 });
+  });
 });

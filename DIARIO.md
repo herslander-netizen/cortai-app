@@ -27,6 +27,10 @@ e o que fez. O diário até 17/10/2026 está guardado, sem alterações, em
 7. **Sem segredos:** nunca escreva chaves, senhas ou tokens aqui. Cite só o nome da variável.
 
 ## Decisões do dono
+- 2026-10-22: **Novo agendamento não pode parecer onboarding** (dono, com foto da tela no celular: título gigante,
+  barras de progresso e "Etapa 1 de 4"). O fluxo segue o Figaro (`apk/3-fluxos-do-atendimento.md` §4): cabeçalho
+  compacto com voltar e nome do passo, sem barras nem contagem de etapas, botão fixo embaixo. Vale para os
+  próximos fluxos em passos do Cortaí (criar cliente, serviço, combo…): onboarding é só o onboarding.
 - 2026-10-22: **Pode usar as mesmas paletas e cores do Figaro** (dono, ao ver as barras de Avaliações adaptadas
   aos tons do Cortaí). As cores vêm do APK, mas entram como **tokens** do tema (ex.: `--nota-1` a `--nota-5`,
   `--nota-trilho`, `--nota-contorno`, `--nota-rotulo` em `styles.css`, com versão clara e escura), nunca como hex
@@ -436,7 +440,6 @@ estado vazio que explica, erro com "Tentar novamente", desativar separado de exc
 
 | Quem | Desde (UTC) | Tarefa | Arquivos / migração reservada |
 |---|---|---|---|
-| Claude | 2026-10-22 UTC | Novo agendamento sem cara de onboarding: modo compacto do `TelaDeFormulario` (voltar de etapa, título do passo que desliza) e troca de passo em 300 ms sem esmaecer, como no Figaro (dono pediu, 22/10) | `DIARIO.md`, `src/components/ui/formulario/TelaDeFormulario.tsx` (só props novas, aditivo), `src/components/barbeiro/AgendamentoManual.tsx`, `src/components/ui/EtapasAnimadas.tsx`, `src/lib/etapas-animadas.ts`; sem migração |
 | GPT | 2026-10-21 UTC | Corrigir a varredura de WhatsApp/Asaas: diagnosticar timeouts, preparar correção dos cron jobs e validar endpoint no worker de produção; sem escrita real até autorização explícita | `DIARIO.md`, `MUSE.md`, `drizzle/migrations/0043_corrigir_agendadores.sql`, rotas de varredura; migração 0043 (não aplicada) |
 | GPT | 2026-10-21 UTC | Validar jornada Figaro e corrigir divergências de navegação confirmadas no código; inspeção visual 390px/1280px e animações segue pendente sem navegador conectado | `DIARIO.md`, `src/routes/barbeiro.marca.tsx`, `src/routes/barbeiro.marca.secao.$secao.tsx`, `src/components/marca/editor/EditorDaSecaoPublica.tsx`, `src/components/marca/editor/SecaoConteudo.tsx`, `src/components/marca/editor/PaineisDoEditor.tsx`, `src/lib/navegacao-barbeiro.ts`, `src/lib/navegacao-barbeiro.test.ts`, `src/routes/barbeiro.sua-pagina.tsx`; sem migração |
 | GPT | 2026-10-21 UTC | Compactar cabeçalho do modo zoom/edição da Agenda sem reduzir tipografia; aplicar movimento de gaveta de entrada/saída | `DIARIO.md`, `src/components/barbeiro/agenda/CabecalhoDeEdicao.tsx`, componente que abre/fecha a configuração de zoom e testes de movimento; sem migração |
@@ -618,6 +621,25 @@ estado vazio que explica, erro com "Tentar novamente", desativar separado de exc
 - Sem alteração no banco, `main` ou produção.
 
 ## Diário
+
+### 2026-10-22 UTC — Claude — Novo agendamento no padrão Figaro (sem cara de onboarding)
+- **Pedido do dono**, com a foto da tela: o Novo agendamento estava parecendo onboarding. Causas: título gigante
+  ("Novo agendamento"), 4 barras de progresso e "Etapa 1 de 4 · Cliente" com botão "Voltar" na própria etapa. No
+  Figaro (spec 3 §4) o fluxo não tem nada disso.
+- **`TelaDeFormulario`** ganhou duas props **aditivas** (quem já usa, como Serviços, não muda): `compacto`
+  (`{ passo, indice }`) põe o botão e o título numa barra só: texto pequeno com `titulo` ("Novo agendamento") e o
+  nome do passo em destaque, que **desliza** na direção do passo (mola `padraoEspacial` + esmaecer `padraoEfeito`,
+  spec 6 §1); e `onVoltar`, que transforma o botão do topo em "voltar" de passo e também atende o gesto de voltar
+  do celular e o Esc, **sem** perguntar "Sair sem salvar?" (isso só no primeiro passo, onde o X fecha).
+- **`AgendamentoManual`:** removidos barras, "Etapa N de 4" e o botão Voltar do meio da tela; passa `compacto` e
+  `onVoltar` (a partir do passo 2). A descrição do passo fica logo abaixo da barra.
+- **Troca de passo do fluxo:** `EtapasAnimadas` ganhou `fluxo`: largura inteira, **300 ms e sem esmaecer** (spec 5
+  §1.4, fluxos com NavHost interno); os cadastros continuam em 220 ms com esmaecer.
+- `useMenosMovimento` não quebra mais onde não existe `matchMedia` (jsdom).
+- **Atenção, GPT:** `TelaDeFormulario.test.tsx` passou pelo prettier (o erro de formatação da linha 133 era antigo).
+- Validação: `tsc`, `eslint` dos arquivos tocados, `vitest` (177 arquivos, 1656 testes), `build`; conferido no
+  Chromium a 390 px: barra compacta, título do passo deslizando, conteúdo deslizando, voltar sem confirmação.
+  Falta ver no celular.
 
 ### 2026-10-22 UTC — Claude — Etapas animadas nos cadastros (plano P.5)
 - **Liberado pelo dono** ("pode aplicar você mesmo") nos arquivos reservados ao GPT. Componente novo

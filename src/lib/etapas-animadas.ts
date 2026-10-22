@@ -12,20 +12,29 @@ export function sentidoDaEtapa(de: number, para: number): SentidoDaEtapa {
 }
 
 const transicao = { duration: TEMPO.etapaDeCadastro, ease: CURVA.rapidaParaLenta } as const;
+const transicaoDeFluxo = { duration: TEMPO.etapaDeFluxo, ease: CURVA.rapidaParaLenta } as const;
 const reduzida = { duration: 0.15, ease: CURVA.rapidaParaLenta } as const;
 
-export type CustomDaEtapa = { sentido: SentidoDaEtapa; menosMovimento: boolean };
+/**
+ * `fluxo`: passos de um fluxo com NavHost interno (novo agendamento, cobrança): largura inteira,
+ * 300 ms e sem esmaecer (spec 5 §1.4). Sem `fluxo`: cadastro em etapas, 220 ms com esmaecer (§1.5).
+ */
+export type CustomDaEtapa = { sentido: SentidoDaEtapa; menosMovimento: boolean; fluxo?: boolean };
 
 export const variantesDaEtapa = {
-  entra: ({ sentido, menosMovimento }: CustomDaEtapa) =>
-    menosMovimento ? { opacity: 0 } : { opacity: 0, x: `${sentido * 100}%` },
-  fica: ({ menosMovimento }: CustomDaEtapa) => ({
+  entra: ({ sentido, menosMovimento, fluxo }: CustomDaEtapa) =>
+    menosMovimento ? { opacity: 0 } : { opacity: fluxo ? 1 : 0, x: `${sentido * 100}%` },
+  fica: ({ menosMovimento, fluxo }: CustomDaEtapa) => ({
     opacity: 1,
     x: "0%",
-    transition: menosMovimento ? reduzida : transicao,
+    transition: menosMovimento ? reduzida : fluxo ? transicaoDeFluxo : transicao,
   }),
-  sai: ({ sentido, menosMovimento }: CustomDaEtapa) =>
+  sai: ({ sentido, menosMovimento, fluxo }: CustomDaEtapa) =>
     menosMovimento
       ? { opacity: 0, transition: reduzida }
-      : { opacity: 0, x: `${-sentido * 100}%`, transition: transicao },
+      : {
+          opacity: fluxo ? 1 : 0,
+          x: `${-sentido * 100}%`,
+          transition: fluxo ? transicaoDeFluxo : transicao,
+        },
 };

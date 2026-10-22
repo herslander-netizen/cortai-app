@@ -15,7 +15,16 @@ function EtapaDaVez({ children }: { children: ReactNode }) {
  * 220 ms, na direção do passo. Envolva só o miolo de cada etapa; o cabeçalho, o progresso e o botão
  * de ação ficam fora.
  */
-export function EtapasAnimadas({ etapa, children }: { etapa: number; children: ReactNode }) {
+export function EtapasAnimadas({
+  etapa,
+  fluxo = false,
+  children,
+}: {
+  etapa: number;
+  /** Passos de um fluxo (novo agendamento, cobrança): 300 ms, sem esmaecer. */
+  fluxo?: boolean;
+  children: ReactNode;
+}) {
   const menosMovimento = useMenosMovimento();
   const anterior = useRef(etapa);
   const sentido = useRef(sentidoDaEtapa(etapa, etapa));
@@ -23,7 +32,7 @@ export function EtapasAnimadas({ etapa, children }: { etapa: number; children: R
     sentido.current = sentidoDaEtapa(anterior.current, etapa);
     anterior.current = etapa;
   }
-  const custom: CustomDaEtapa = { sentido: sentido.current, menosMovimento };
+  const custom: CustomDaEtapa = { sentido: sentido.current, menosMovimento, fluxo };
 
   return (
     <div className="relative" style={{ overflowX: "clip" }}>

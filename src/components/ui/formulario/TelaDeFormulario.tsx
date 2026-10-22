@@ -1,5 +1,6 @@
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { ArrowLeft, X } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 
 import {
@@ -13,6 +14,8 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import { useMenosMovimento } from "@/hooks/useMovimento";
+import { MOLA } from "@/lib/movimento-figaro";
 
 /** Distância do teclado virtual até a base da tela (0 sem teclado). */
 function useAlturaDoTeclado() {
@@ -42,6 +45,8 @@ export function TelaDeFormulario({
   icone = "fechar",
   sujo = false,
   onFechar,
+  onVoltar,
+  compacto,
   acao,
   children,
 }: {
@@ -50,6 +55,16 @@ export function TelaDeFormulario({
   icone?: "fechar" | "voltar";
   sujo?: boolean;
   onFechar: () => void;
+  /**
+   * Passo anterior de um fluxo em etapas. Com ele, o botão do topo vira "voltar" e o gesto de voltar do
+   * celular também chama `onVoltar`, sem pedir confirmação (só `onFechar` pede).
+   */
+  onVoltar?: () => void;
+  /**
+   * Cabeçalho compacto do Figaro (`FigarooCreationFlowScaffold`): botão e título do passo na mesma
+   * barra, sem o título grande. `titulo` vira o texto pequeno de cima e `passo` o título do passo.
+   */
+  compacto?: { passo: string; indice: number };
   acao?: {
     rotulo: string;
     onClick: () => void;
@@ -64,9 +79,19 @@ export function TelaDeFormulario({
   sujoRef.current = sujo;
   const fecharRef = useRef(onFechar);
   fecharRef.current = onFechar;
+  const voltarRef = useRef(onVoltar);
+  voltarRef.current = onVoltar;
+  const menosMovimento = useMenosMovimento();
+  const indiceAnterior = useRef(compacto?.indice ?? 0);
+  const sentidoDoTitulo = useRef(1);
+  if (compacto && indiceAnterior.current !== compacto.indice) {
+    sentidoDoTitulo.current = compacto.indice > indiceAnterior.current ? 1 : -1;
+    indiceAnterior.current = compacto.indice;
+  }
 
   function pedirFechar() {
-    if (sujoRef.current) setConfirmar(true);
+    if (voltarRef.current) voltarRef.current();
+    else if (sujoRef.current) setConfirmar(true);
     else fecharRef.current();
   }
 
@@ -74,7 +99,10 @@ export function TelaDeFormulario({
   useEffect(() => {
     window.history.pushState({ telaDeFormulario: true }, "");
     const aoVoltar = () => {
-      if (sujoRef.current) {
+      if (voltarRef.current) {
+        window.history.pushState({ telaDeFormulario: true }, "");
+        voltarRef.current();
+      } else if (sujoRef.current) {
         window.history.pushState({ telaDeFormulario: true }, "");
         setConfirmar(true);
       } else fecharRef.current();
@@ -86,7 +114,8 @@ export function TelaDeFormulario({
     };
   }, []);
 
-  const Icone = icone === "voltar" ? ArrowLeft : X;
+  const Icone = icone === "voltar" || onVoltar ? ArrowLeft : X;
+  const rotuloDoBotao = icone === "voltar" || onVoltar ? "Voltar" : "Fechar";
 
   return (
     <DialogPrimitive.Root open onOpenChange={(aberto) => (!aberto ? pedirFechar() : undefined)}>
@@ -100,32 +129,88 @@ export function TelaDeFormulario({
           }}
           onInteractOutside={(e) => e.preventDefault()}
         >
-          <div className="shrink-0 px-4 pt-[calc(0.75rem+env(safe-area-inset-top))]">
+          <div
+            className={`shrink-0 px-4 pt-[calc(0.75rem+env(safe-area-inset-top))] ${compacto ? "flex items-center gap-3" : ""}`}
+          >
             <Button
               type="button"
               variant="ghost"
               size="icon"
-              aria-label={icone === "voltar" ? "Voltar" : "Fechar"}
+              aria-label={rotuloDoBotao}
               onClick={pedirFechar}
-              className="rounded-full bg-ink3"
+              className="shrink-0 rounded-full bg-ink3"
             >
               <Icone size={20} />
             </Button>
+            {compacto ? (
+              <div className="min-w-0 flex-1 overflow-hidden">
+                <DialogPrimitive.Title className="truncate text-xs text-mute">
+                  {titulo}
+                </DialogPrimitive.Title>
+                <div className="relative grid overflow-hidden">
+                  <AnimatePresence initial={false} custom={sentidoDoTitulo.current}>
+                    <motion.p
+                      key={compacto.indice}
+                      className="truncate text-lg font-semibold leading-7 text-paper [grid-area:1/1]"
+                      custom={sentidoDoTitulo.current}
+                      variants={{
+                        entra: (d: number) =>
+                          menosMovimento ? { opacity: 0 } : { x: `${d * 100}%`, opacity: 0 },
+                        fica: {
+                          x: "0%",
+                          opacity: 1,
+                          transition: menosMovimento
+                            ? { duration: 0.15 }
+                            : { x: MOLA.padraoEspacial, opacity: MOLA.padraoEfeito },
+                        },
+                        sai: (d: number) =>
+                          menosMovimento
+                            ? { opacity: 0, transition: { duration: 0.15 } }
+                            : {
+                                x: `${-d * 100}%`,
+                                opacity: 0,
+                                transition: { x: MOLA.padraoEspacial, opacity: MOLA.padraoEfeito },
+                              },
+                      }}
+                      initial="entra"
+                      animate="fica"
+                      exit="sai"
+                    >
+                      {compacto.passo}
+                    </motion.p>
+                  </AnimatePresence>
+                </div>
+              </div>
+            ) : null}
           </div>
           <div className="min-h-0 flex-1 overflow-y-auto px-4 pb-4">
-            <DialogPrimitive.Title className="titulo-tela mt-4 px-1">
-              {titulo}
-            </DialogPrimitive.Title>
-            {subtitulo ? (
-              <DialogPrimitive.Description className="subtitulo-tela mt-2 px-1">
-                {subtitulo}
-              </DialogPrimitive.Description>
+            {compacto ? (
+              subtitulo ? (
+                <DialogPrimitive.Description className="mt-4 px-1 text-sm text-mute">
+                  {subtitulo}
+                </DialogPrimitive.Description>
+              ) : (
+                <DialogPrimitive.Description className="sr-only">
+                  {titulo}
+                </DialogPrimitive.Description>
+              )
             ) : (
-              <DialogPrimitive.Description className="sr-only">
-                {titulo}
-              </DialogPrimitive.Description>
+              <>
+                <DialogPrimitive.Title className="titulo-tela mt-4 px-1">
+                  {titulo}
+                </DialogPrimitive.Title>
+                {subtitulo ? (
+                  <DialogPrimitive.Description className="subtitulo-tela mt-2 px-1">
+                    {subtitulo}
+                  </DialogPrimitive.Description>
+                ) : (
+                  <DialogPrimitive.Description className="sr-only">
+                    {titulo}
+                  </DialogPrimitive.Description>
+                )}
+              </>
             )}
-            <div className="mt-8 space-y-8">{children}</div>
+            <div className={`${compacto ? "mt-5" : "mt-8"} space-y-8`}>{children}</div>
           </div>
           {acao ? (
             <div

@@ -5,6 +5,7 @@ import { prefereMenosMovimento } from "@/lib/motion";
 export function useMenosMovimento() {
   const [menos, setMenos] = useState(false);
   useEffect(() => {
+    if (typeof window.matchMedia !== "function") return;
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
     setMenos(mq.matches);
     const ouvir = (e: MediaQueryListEvent) => setMenos(e.matches);

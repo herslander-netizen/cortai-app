@@ -1,13 +1,5 @@
 import { EtapasAnimadas } from "@/components/ui/EtapasAnimadas";
-import {
-  ArrowLeft,
-  CalendarDays,
-  Check,
-  Clock3,
-  FileText,
-  Scissors,
-  UserRound,
-} from "lucide-react";
+import { CalendarDays, Check, Clock3, FileText, Scissors, UserRound } from "lucide-react";
 import { useState } from "react";
 
 import { ConteudoDoTicket } from "@/components/comanda/FolhaDoTicket";
@@ -147,6 +139,10 @@ function Formulario({
       subtitulo={etapas[etapa]?.detalhe ?? "Agendamento em etapas."}
       sujo={s.sujo && !s.confirmado}
       onFechar={onFechar}
+      {...(s.confirmado || etapa === 0
+        ? {}
+        : { onVoltar: () => setEtapa((atual) => Math.max(0, atual - 1)) })}
+      {...(s.confirmado ? {} : { compacto: { passo: etapas[etapa]?.titulo ?? "", indice: etapa } })}
       {...(s.confirmado
         ? {}
         : {
@@ -189,38 +185,7 @@ function Formulario({
         </>
       ) : (
         <>
-          <div
-            role="group"
-            aria-label={"Etapa " + (etapa + 1) + " de " + etapas.length}
-            className="space-y-3"
-          >
-            <div className="grid grid-cols-4 gap-2" aria-hidden="true">
-              {etapas.map((item, indice) => (
-                <span
-                  key={item.titulo}
-                  className={"h-1.5 rounded-full " + (indice <= etapa ? "bg-gold" : "bg-ink3")}
-                />
-              ))}
-            </div>
-            <div className="flex items-center justify-between gap-3">
-              <p className="text-sm font-semibold text-paper">
-                Etapa {etapa + 1} de {etapas.length} · {etapas[etapa]?.titulo}
-              </p>
-              {etapa > 0 ? (
-                <Button
-                  variant="ghost"
-                  type="button"
-                  className="h-10 rounded-full px-3"
-                  onClick={() => setEtapa((atual) => Math.max(0, atual - 1))}
-                >
-                  <ArrowLeft size={16} aria-hidden />
-                  Voltar
-                </Button>
-              ) : null}
-            </div>
-          </div>
-
-          <EtapasAnimadas etapa={etapa}>
+          <EtapasAnimadas etapa={etapa} fluxo>
             {etapa === 0 ? <SecaoCliente s={s} /> : null}
             {etapa === 1 ? <SecaoServico s={s} /> : null}
             {etapa === 2 ? <SecaoHorario s={s} /> : null}
