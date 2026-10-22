@@ -365,6 +365,13 @@ teste real na prévia.
 
 ## Diário (mais recente primeiro)
 
+### 2026-10-22 UTC — GPT — Corrige validação do cartão Layout & Tema
+
+- Corrigido o erro de TypeScript encontrado no workflow: o ícone `Palette` estava sendo usado no cartão sem importação. Import adicionado em `src/routes/barbeiro.marca.tsx`.
+- O build da alteração anterior passou, mas o TypeScript bloqueou a publicação da prévia; a execução atual deve validar a correção em conjunto com os commits mais recentes.
+- Commit: `86bfdb62bcab1d823c0e2d209f1a7baa36738885`. Nenhuma alteração na `main` ou no site principal.
+
+
 ### 2026-10-22 UTC — GPT — Ajusta cartão Layout & Tema ao padrão Figaro
 
 - O cartão em Personalizar Página agora mostra uma prévia esquemática ampla em proporção 16:9 e duas colunas abaixo: layout com quantidade de seções ativas e tema com a paleta atual. O botão para abrir a tela própria fica em largura total.
