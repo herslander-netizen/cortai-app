@@ -676,6 +676,23 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-23 UTC — Claude — Novo agendamento: serviço e profissional sempre combinam
+- Pedido do dono (foto do Resumo com "Esse profissional não faz esse serviço."): se o profissional não faz o serviço,
+  um dos dois não pode aparecer; o cliente não tem como adivinhar quem faz.
+- **Causa:** a tela escolhia o primeiro serviço e o primeiro profissional separadamente, e `getDadosAgendamentoManual`
+  nem trazia `servicos.profissional_ids`. O erro só aparecia no servidor (`validarAgendamento`), no último passo.
+- **Correção:** `getDadosAgendamentoManual` devolve `profissional_ids`. Novo `quem-faz.ts` (puro, com teste):
+  `profissionaisDoServico`, `servicosAgendaveis`, `profissionalParaOServico`, `combinacaoInicial`. Regras: `profissional_ids`
+  vazio/nulo = todos fazem; a lista de **profissionais** mostra só quem faz o serviço escolhido; a de **serviços** esconde
+  o que ninguém ativo faz; trocar de serviço troca o profissional se o atual não o faz; a combinação inicial respeita o
+  profissional da coluna da Agenda (primeiro serviço dele). Sem nenhum serviço agendável, a etapa avisa para escolher quem
+  faz cada serviço em Serviços.
+- A regra do servidor (`validarAgendamento`) não mudou: continua sendo a trava final.
+- Arquivos: `barbeiro.functions.ts`, `agendamento-manual/{quem-faz.ts,quem-faz.test.ts,useAgendamentoManual.ts,
+  SecoesAgendamento.tsx}`. tsc, vitest (1824) e build verdes. **Não testado no celular**: conferir na prévia com um
+  serviço restrito a um profissional (Serviços → quem faz) e abrir Novo agendamento pela coluna de cada profissional.
+- Fora do escopo desta correção: remarcar e converter da fila têm checagem própria no servidor; não mexi.
+
 ### 2026-10-23 UTC — Claude — Cobre passa a ter as cores do Cloud (Cloud sai do menu)
 - Pedido do dono: "Transforme o tema cobre no tema Cloud… traga suas cores pra lá e ponha o nome Cobre", com todos os
   tons claros e escuros. Fica uma só opção, **Cobre** (id `copper`), com o laranja do Cloud: escuro `#ff9a5c` sobre

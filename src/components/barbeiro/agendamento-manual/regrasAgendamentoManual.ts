@@ -34,14 +34,14 @@ export function temAlteracoesAgendamentoManual({
 }) {
   return Boolean(
     clienteId ||
-      semCliente ||
-      novoNome ||
-      novoTelefone ||
-      termo ||
-      (servicoId && servicoId !== servicoInicial) ||
-      (profissionalId && profissionalId !== profissionalInicialId) ||
-      data !== diaInicial ||
-      horaMin !== horaInicial ||
-      forma !== "balcao",
+    semCliente ||
+    novoNome ||
+    novoTelefone ||
+    termo ||
+    (servicoId && servicoId !== servicoInicial) ||
+    (profissionalId && profissionalId !== profissionalInicialId) ||
+    data !== diaInicial ||
+    horaMin !== horaInicial ||
+    forma !== "balcao",
   );
 }

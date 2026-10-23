@@ -1120,7 +1120,14 @@ export const excluirClientePermanente = createServerFn({ method: "POST" })
 
 export type DadosManual = {
   tenant: { id: string; nome: string };
-  servicos: { id: string; nome: string; duracao_min: number; preco_centavos: number }[];
+  servicos: {
+    id: string;
+    nome: string;
+    duracao_min: number;
+    preco_centavos: number;
+    /** Vazio ou nulo = qualquer profissional faz. */
+    profissional_ids: string[] | null;
+  }[];
   profissionais: { id: string; nome: string }[];
   horarios: ReturnType<typeof mapearHorarios>;
   fuso: string;
@@ -1136,7 +1143,7 @@ export const getDadosAgendamentoManual = createServerFn({ method: "GET" })
     const [servicosRes, profRes, horariosRes] = await Promise.all([
       db
         .from("servicos")
-        .select("id, nome, duracao_min, preco_centavos")
+        .select("id, nome, duracao_min, preco_centavos, profissional_ids")
         .eq("tenant_id", tenant.id)
         .eq("ativo", true)
         .order("ordem"),
@@ -1438,7 +1445,8 @@ export const criarAgendamentoManual = createServerFn({ method: "POST" })
     // Sem cliente vinculado, não há destinatário para a confirmação pelo WhatsApp.
     if (!data.semCliente) {
       try {
-        const { enviarConfirmacaoDeAgendamento } = await import("@/lib/whatsapp/confirmacao.server");
+        const { enviarConfirmacaoDeAgendamento } =
+          await import("@/lib/whatsapp/confirmacao.server");
         await enviarConfirmacaoDeAgendamento(criado.agendamento_id);
       } catch {
         /* o agendamento já está salvo; a falha fica registrada no envio */
