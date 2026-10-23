@@ -670,6 +670,16 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-23 UTC — Claude — Temas de sistema: Classic, Rosé, Índigo, Cobre, Clássico e Cloud
+- Decisão do dono (23/10): o tema atual (cores atuais) passa a se chamar **Classic**; as paletas que já existiam
+  (Rosé, Índigo, Cobre e Clássico) voltam ao menu, com os nomes de antes; e entra o tema **Cloud** (laranja).
+  A entrada anterior, que escondia Rosé, Índigo, Cobre e Clássico, fica substituída por esta.
+- `ThemeToggle.tsx`: seis opções no menu de aparência. `aparencia.ts`: lista de identidades; comentário atualizado.
+- Testes: `contraste-app.test.ts` (inclui todos os temas) ok; Vitest 1813 ok. TypeScript: só o erro de
+  `trechosDoAjuste` da outra IA.
+- Pendente: migração `0044_identidade_cloud` no `cortai-prod` (autorização do dono) antes de publicar o Cloud.
+- **Não vi na tela**: conferir o menu e os seis temas no claro e no escuro.
+
 ### 2026-10-23 UTC — Claude — Temas do app: Padrão (cores atuais) e Cloud (laranja, claro e escuro)
 - Pedido do dono: os temas antigos estão obsoletos; criar o tema com as cores atuais com o nome Padrão, e o tema
   Cloud, em duas cores laranja, com variações clara e escura, em homenagem ao Claude.

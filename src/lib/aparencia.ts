@@ -1,8 +1,6 @@
 export const MODOS = ["claro", "escuro", "sistema"] as const;
-/** Temas escolhíveis. `moderno` é o Padrão (cores atuais do Cortaí); os demais valores antigos continuam válidos
- *  e funcionando para quem já escolheu, mas saíram do menu. */
+/** Temas escolhíveis no menu de aparência: `moderno` é o Classic (cores atuais do Cortaí). */
 export const IDENTIDADES = ["moderno", "rose", "indigo", "copper", "classico", "cloud"] as const;
-export const IDENTIDADES_ESCOLHIVEIS = ["moderno", "cloud"] as const;
 
 export type Modo = (typeof MODOS)[number];
 export type Identidade = (typeof IDENTIDADES)[number];
