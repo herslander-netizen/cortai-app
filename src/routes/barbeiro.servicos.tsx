@@ -310,6 +310,7 @@ function ServicosPage() {
             carregando: estado === "salvando",
             sucesso: estado === "salvo" && modoEditor !== null,
             morfo: true,
+            flutuante: { icone: "visto" },
           }}
         >
           <EditorDeServicos

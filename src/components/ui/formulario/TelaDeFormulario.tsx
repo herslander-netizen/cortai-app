@@ -1,5 +1,5 @@
 import * as DialogPrimitive from "@radix-ui/react-dialog";
-import { ArrowLeft, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, X } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 
@@ -13,6 +13,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { BotaoFab } from "@/components/ui/BotaoFab";
 import { Button } from "@/components/ui/button";
 import { useMenosMovimento } from "@/hooks/useMovimento";
 import { MOLA } from "@/lib/movimento-figaro";
@@ -74,6 +75,11 @@ export function TelaDeFormulario({
     sucesso?: boolean;
     /** Confirmação que vira círculo com ✓ no sucesso (botão flutuante do Figaro). */
     morfo?: boolean;
+    /**
+     * Botão flutuante estendido do Figaro (`FigarooExtendedFAB`), alinhado à direita: a largura acompanha o
+     * rótulo de cada passo e, ao salvar, vira círculo com uma forma girando e depois com o ✓.
+     */
+    flutuante?: { icone: "seta" | "visto" };
   };
   children: ReactNode;
 }) {
@@ -218,25 +224,44 @@ export function TelaDeFormulario({
           </div>
           {acao ? (
             <div
-              className="shrink-0 border-t border-line bg-ink px-4 pt-3"
+              className={`shrink-0 bg-ink px-4 pt-3 ${acao.flutuante ? "" : "border-t border-line"}`}
               style={{
                 marginBottom: teclado ? `${teclado}px` : undefined,
                 paddingBottom: "max(1rem, env(safe-area-inset-bottom))",
               }}
             >
-              <Button
-                type="button"
-                variant="primary"
-                size="lg"
-                className="min-h-14 w-full rounded-full shadow-[var(--shadow-md)]"
-                disabled={acao.desabilitada || acao.carregando}
-                loading={acao.carregando ?? false}
-                success={acao.sucesso ?? false}
-                morfo={acao.morfo ?? false}
-                onClick={acao.onClick}
-              >
-                {acao.rotulo}
-              </Button>
+              {acao.flutuante ? (
+                <div className="flex justify-end">
+                  <BotaoFab
+                    rotulo={acao.rotulo}
+                    icone={
+                      acao.flutuante.icone === "seta" ? (
+                        <ArrowRight size={22} aria-hidden />
+                      ) : (
+                        <Check size={22} aria-hidden />
+                      )
+                    }
+                    onClick={acao.onClick}
+                    desabilitado={acao.desabilitada ?? false}
+                    carregando={acao.carregando ?? false}
+                    sucesso={acao.sucesso ?? false}
+                  />
+                </div>
+              ) : (
+                <Button
+                  type="button"
+                  variant="primary"
+                  size="lg"
+                  className="min-h-14 w-full rounded-full shadow-[var(--shadow-md)]"
+                  disabled={acao.desabilitada || acao.carregando}
+                  loading={acao.carregando ?? false}
+                  success={acao.sucesso ?? false}
+                  morfo={acao.morfo ?? false}
+                  onClick={acao.onClick}
+                >
+                  {acao.rotulo}
+                </Button>
+              )}
             </div>
           ) : null}
         </DialogPrimitive.Content>

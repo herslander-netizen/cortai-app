@@ -162,6 +162,7 @@ function Formulario({
                 onClick: () => {},
                 sucesso: true,
                 morfo: true,
+                flutuante: { icone: "visto" },
               },
             }
           : {
@@ -173,6 +174,7 @@ function Formulario({
                 },
                 desabilitada: !podeAvancar,
                 carregando: s.salvando,
+                flutuante: { icone: etapa < etapas.length - 1 ? "seta" : "visto" },
               },
             })}
     >

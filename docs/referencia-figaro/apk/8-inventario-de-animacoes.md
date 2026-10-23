@@ -42,8 +42,8 @@ fica como está).
 | B2 | Conteúdo do botão principal (texto → carregando → ✓) | entra 220 ms (atraso 90) com escala 0,92; sai 90 ms | `FigarooPrimaryButtonKt` | ✔ 22/10 |
 | B2b | Confirmação no botão (`ButtonState.Success`) e tempo até a tela sair | ✓ `CheckCircle` preenchido de 20 dp + o mesmo rótulo; fica 700 ms (cadastros) ou 1200 ms (reserva criada) | `FigarooPrimaryButtonKt`, `*ViewModel$save`, `CreateReservationFlowScreenKt` | ✔ 22/10 Novo agendamento (1200 ms) e Salvar serviço (700 ms); demais cadastros entram no lote 4 |
 | B3 | Carregando fica no mínimo 400 ms | — | `FigarooLoadingIndicatorKt` | ✔ 22/10 (botão) · — o contrato de design manda esqueleto, não indicador solto |
-| B4 | FAB estendido (salvar): pílula → círculo | 220 ms LinearOutSlowIn; rótulo escala 0,7→1; ✓ por 700 ms; espera 700 ms e volta | `FigarooExtendedFABKt` | ✘ (Cortaí usa botão fixo embaixo; ver decisão no §10) |
-| B5 | Troca do ícone/rótulo do FAB (`FigarooCtaGlyphSwap`) | fade + escala padrão + `SizeTransform` | idem | ✘ junto de B4 |
+| B4 | FAB estendido (salvar): pílula → círculo | 220 ms LinearOutSlowIn; rótulo escala 0,7→1; ✓ por 700 ms; espera 700 ms e volta | `FigarooExtendedFABKt` | ✔ 23/10 `BotaoFab` (largura por mola, círculo em 220 ms, forma girando no carregando, ✓); em Novo agendamento e Salvar serviço |
+| B5 | Troca do ícone/rótulo do FAB (`FigarooCtaGlyphSwap`) | fade + escala padrão + `SizeTransform` | idem | ✔ 23/10 rótulo e ícone trocam com fade + escala; a largura acompanha |
 | B6 | Seta do botão dividido | gira 0↔180°, `standard().defaultEffects` | `FigarooSplitButtonKt` | ✘ (conferir se há botão dividido no Cortaí: Agenda "+"?) |
 
 ## 3. Componentes
@@ -159,7 +159,7 @@ Na web: `navigator.vibrate` (Android/Chrome; iOS não tem). Padrão sugerido: pr
 
 ## 10. Decisões que precisam do dono
 
-1. **FAB estendido de salvar (B4/B5):** o Figaro usa um botão que vira círculo e mostra ✓. O Cortaí usa o botão fixo
+1. **[Decidido 23/10: FAB estendido, à direita; feito em Novo agendamento e Salvar serviço]** **FAB estendido de salvar (B4/B5):** o Figaro usa um botão que vira círculo e mostra ✓. O Cortaí usa o botão fixo
    em pílula embaixo (contrato de design). Recuperar a animação **no botão fixo** (pílula que encolhe e mostra ✓ por
    700 ms) é possível sem mudar o layout; confirmar se é isso que se quer.
 2. **Cabeçalho que encolhe ao rolar (C15):** muda como as telas de gestão se parecem. É característica forte do

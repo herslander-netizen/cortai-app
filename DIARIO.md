@@ -676,6 +676,21 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-23 UTC — Claude — Botão de baixo como FAB estendido do Figaro (largura, círculo, forma girando, ✓)
+- Pedido do dono (mais fotos do Figaro: "Definir endereço", "Definir horários de abertura", "Definir comodidades", "Criar",
+  "Salvar" na folha): quer a animação dos botões, não só o layout. **Responde a decisão em aberto nº 1 do §10 do inventário**
+  (FAB à direita em vez da barra cheia): vale o FAB estendido.
+- Novo `ui/BotaoFab.tsx` (`FigarooExtendedFAB`): 56 dp, folga 20 dp, ícone + rótulo com 12 dp; **a largura acompanha o rótulo de
+  cada passo** com a mola de tamanho do Figaro (medida 187 → 261 px no ensaio); o conteúdo troca com fade + escala (`botaoEntra`
+  220 ms com atraso de 90 ms, saída 90 ms); **ao carregar vira círculo em 220 ms LinearOutSlowIn** com uma forma que gira e muda
+  entre círculo e polígono; no sucesso o ✓ entra depois do círculo. Toque encolhe a 0,98. Reduzir movimento: sem animação de largura.
+- `TelaDeFormulario` ganhou `acao.flutuante` (`{ icone: "seta" | "visto" }`, aditivo): alinha o botão à direita e tira a faixa
+  de borda. Ligado em **Novo agendamento** (seta nos passos, visto no último) e **Salvar serviço** (visto). O onboarding
+  (`barbeiro.configurar.tsx`) continua com a barra própria: fica como ◐ se o dono quiser o FAB lá também.
+- Cuidado: o CSS global `button:disabled` (opacidade 0,48) esmaecia o círculo; o botão colapsado usa `aria-disabled`, não `disabled`.
+- Conferido no Chromium (390 px) em todos os estados; tsc, vitest (1833) e build verdes. **Não testado no celular.**
+- O contrato de design previa "botão fixo em pílula" nesses fluxos; esta é a decisão nova do dono. Nada mudou fora dos dois fluxos.
+
 ### 2026-10-23 UTC — Claude — Animações do onboarding e do salvar (fotos do Figaro)
 - Pedido do dono: fotos do fluxo do Figaro (Equipe → Serviços → Tabela de preços → Profissionais → "Criar" → "Configurando
   sua página…" → "Parabéns! … já pode receber agendamentos online") com "sobre essas animações que eu estava falando".
