@@ -76,7 +76,7 @@ import { BarraDeEdicaoDeHorario } from "@/components/barbeiro/agenda/BarraDeEdic
 import { CabecalhoDeEdicao } from "@/components/barbeiro/agenda/CabecalhoDeEdicao";
 import { trechosQueSaem } from "@/components/barbeiro/agenda/fantasma-do-horario";
 import { MarcaDoLimiteDoDia, SemanaDoTopo } from "@/components/barbeiro/agenda/SemanaDoTopo";
-import { ListaPeriodo } from "@/components/barbeiro/agenda/ListaPeriodo";
+import { ListaPeriodo, opcoesAgendaPeriodo } from "@/components/barbeiro/agenda/ListaPeriodo";
 import {
   RecolheNaLista,
   TrocaDeVisualizacao,
@@ -943,6 +943,17 @@ export function AgendaOperacional() {
   }
 
   const carregandoInicial = agenda.isLoading && !agenda.data;
+  // Celular: deixa a lista de cartões pronta em segundo plano; a troca da linha do tempo para os cartões
+  // não passa por um carregamento.
+  const hojeDaLista = hojeNoFuso(fuso);
+  useEffect(() => {
+    if (!celular || carregandoInicial) return;
+    const id = window.setTimeout(
+      () => void queryClient.prefetchInfiniteQuery(opcoesAgendaPeriodo(hojeDaLista)),
+      1500,
+    );
+    return () => window.clearTimeout(id);
+  }, [celular, carregandoInicial, hojeDaLista, queryClient]);
   const erroInicial = agenda.isError && !agenda.data;
   const mensagemErro = agenda.error instanceof Error ? agenda.error.message : undefined;
   const faixa = (
@@ -1667,8 +1678,6 @@ export function AgendaOperacional() {
             </ul>
           </section>
         ) : null}
-
-
       </div>
 
       {/* Celular na grade: os dias vizinhos já entram pelo carrossel dentro da timeline. */}

@@ -670,6 +670,22 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-23 UTC — Claude — Pontinhos: lista sem carregamento em cadeia e troca de dia sem revalidar à toa
+- Relato do dono: ao arrastar para o lado, "sensação de carregamento em algumas situações"; ao trocar da linha do tempo
+  para os cartões (lista), pontinhos que tentam aparecer e "ficam buscando espaço".
+- **Lista (`ListaPeriodo.tsx`)**: uma lista curta carregava bloco após bloco até 365 dias (a minha correção anterior ainda
+  encadeava), com pontinhos a cada rodada. Medido com teste novo: **8 buscas → 1**. Agora só busca mais por rolagem real
+  (quando a página rola) e há o botão "Ver mais dias". O bloco de carregamento inicial tem altura fixa (sem pulo).
+  A consulta virou `opcoesAgendaPeriodo`, usada na pré-busca.
+- **Pré-busca**: `AgendaOperacional` deixa a lista pronta em segundo plano (celular, 1,5 s após abrir). `useAgendaDia`
+  pré-busca 2 dias de cada lado, com dado de até 15 s.
+- **Troca de dia**: com o tempo real ligado, a consulta do dia fica fresca por 5 min (as mudanças já a invalidam), então
+  a troca não revalida em segundo plano e os pontinhos não correm com os cartões na tela. Sem tempo real, continua 60 s.
+- **Decisão de 17/10 preservada**: os pontinhos seguem indicando toda consulta em andamento, inclusive a periódica
+  (`timeline-rolagem-celular.test.ts`). Uma primeira versão que os escondia por 1,5 s foi descartada por isso.
+- Testes: `ListaPeriodo.carregamento.test.tsx` (falha na versão antiga com 8 buscas). Vitest 1815 ok, TypeScript ok, build ok.
+- **Não vi na tela**: conferir no celular o arrasto lateral e a troca entre linha do tempo e cartões.
+
 ### 2026-10-23 UTC — Claude — TypeScript do branch voltou a passar (`trechosDoAjuste` → `trechosQueSaem`)
 - O branch estava vermelho desde `41568e6d` (22/10 20:04): o revert do GPT removeu a importação da lógica nova, mas
   deixou a chamada `trechosDoAjuste` em `AgendaOperacional.tsx`, que não existe. Isso derrubava a prévia e travava qualquer

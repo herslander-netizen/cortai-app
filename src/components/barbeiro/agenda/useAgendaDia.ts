@@ -55,6 +55,9 @@ export function useAgendaDia(dia: string) {
 
   const agenda = useQuery({
     ...opcoesAgendaDia(dia),
+    // Com o tempo real ligado, as mudanças invalidam a consulta: o dado continua atual e a troca de dia não
+    // precisa revalidar (era isso que fazia os pontinhos correrem com os cartões já na tela).
+    staleTime: aoVivo ? 5 * 60_000 : 60_000,
     refetchOnWindowFocus: true,
     // Polling só como reserva quando o tempo real cair.
     refetchInterval: aoVivo ? false : 15_000,
@@ -62,10 +65,14 @@ export function useAgendaDia(dia: string) {
     placeholderData: keepPreviousData,
   });
 
-  // Pré-busca do dia anterior e do seguinte: a troca já encontra os dados prontos.
+  // Pré-busca dos dois dias de cada lado: a troca (e a seguinte, num arrasto rápido) já encontra dados
+  // prontos e recentes (15 s), então a página que entra não aparece vazia nem dispara revalidação.
   useEffect(() => {
-    for (const vizinho of [somarDias(dia, -1), somarDias(dia, 1)])
-      void queryClient.prefetchQuery(opcoesAgendaDia(vizinho));
+    for (const passo of [-1, 1, -2, 2])
+      void queryClient.prefetchQuery({
+        ...opcoesAgendaDia(somarDias(dia, passo)),
+        staleTime: 15_000,
+      });
   }, [dia, queryClient]);
 
   useEffect(() => {

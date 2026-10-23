@@ -1,5 +1,5 @@
 import { useBuscaDaLista } from "./busca-da-lista";
-import { useInfiniteQuery } from "@tanstack/react-query";
+import { infiniteQueryOptions, useInfiniteQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -63,6 +63,21 @@ export function agruparPorDia(itens: AgendaItem[], fuso: string) {
 }
 
 /**
+ * Consulta da lista de períodos, compartilhada com a pré-busca da Agenda: ao trocar da linha do tempo para
+ * os cartões, os dados já estão prontos e a lista não passa por um carregando.
+ */
+export function opcoesAgendaPeriodo(hoje: string) {
+  return infiniteQueryOptions({
+    queryKey: ["agenda-periodo", hoje],
+    initialPageParam: hoje,
+    queryFn: ({ pageParam }) => getAgendaPeriodo({ data: { de: pageParam, dias: DIAS_POR_BLOCO } }),
+    getNextPageParam: (ultima: { ate: string }) =>
+      diasEntre(hoje, ultima.ate) < DIAS_NO_MAXIMO ? ultima.ate : undefined,
+    staleTime: 15_000,
+  });
+}
+
+/**
  * Modo lista do celular, como no vídeo do dono: os atendimentos de hoje em diante, separados por
  * dia e em ordem, para achar fácil o cliente e o dia marcado. Hoje mantém as ações da lista do dia.
  */
@@ -88,15 +103,7 @@ export function ListaPeriodo({
   const { texto: busca } = useBuscaDaLista();
   const [comCancelados, setComCancelados] = useState(false);
 
-  const periodo = useInfiniteQuery({
-    queryKey: ["agenda-periodo", hoje],
-    initialPageParam: hoje,
-    queryFn: ({ pageParam }) => getAgendaPeriodo({ data: { de: pageParam, dias: DIAS_POR_BLOCO } }),
-    getNextPageParam: (ultima) =>
-      diasEntre(hoje, ultima.ate) < DIAS_NO_MAXIMO ? ultima.ate : undefined,
-    staleTime: 15_000,
-    refetchInterval: 60_000,
-  });
+  const periodo = useInfiniteQuery({ ...opcoesAgendaPeriodo(hoje), refetchInterval: 60_000 });
 
   const todos = useMemo(
     () =>
@@ -111,9 +118,9 @@ export function ListaPeriodo({
   );
   const grupos = agruparPorDia(visiveis, periodo.data?.pages[0]?.fuso ?? fuso);
 
-  // Carrega o próximo bloco de dias quando o fim da lista aparece. O observador é criado uma vez por
-  // mudança de "há mais" e lê o estado atual por referência: recriá-lo a cada carregamento fazia a lista
-  // puxar bloco após bloco, com os pontinhos piscando, quando havia poucos atendimentos.
+  // Carrega o próximo bloco de dias quando o fim da lista aparece **por rolagem**. O observador lê o estado por
+  // referência (recriá-lo a cada carregamento puxava bloco após bloco). Se a lista cabe na tela não há o que
+  // rolar: nada é buscado sozinho, e "Ver mais dias" cobre esse caso (sem pontinhos encadeados).
   const fim = useRef<HTMLDivElement>(null);
   const { hasNextPage, isFetchingNextPage, fetchNextPage } = periodo;
   const carregando = useRef(false);
@@ -125,26 +132,22 @@ export function ListaPeriodo({
     if (!el || !hasNextPage || typeof IntersectionObserver === "undefined") return;
     const observador = new IntersectionObserver(
       (entradas) => {
-        if (entradas.some((e) => e.isIntersecting) && !carregando.current)
-          void buscarMais.current();
+        if (!entradas.some((e) => e.isIntersecting) || carregando.current) return;
+        if (document.documentElement.scrollHeight <= window.innerHeight + 8) return;
+        void buscarMais.current();
       },
       { rootMargin: "400px 0px" },
     );
     observador.observe(el);
     return () => observador.disconnect();
   }, [hasNextPage]);
-  // Quando a lista ainda não enche a tela, o fim continua visível depois de cada bloco: busca o próximo,
-  // mas só enquanto o fim estiver dentro da área de leitura (com a mesma margem do observador).
-  useEffect(() => {
-    const el = fim.current;
-    if (!el || !hasNextPage || isFetchingNextPage) return;
-    if (el.getBoundingClientRect().top < window.innerHeight + 400) void buscarMais.current();
-  }, [hasNextPage, isFetchingNextPage, periodo.data]);
 
   return (
     <div className="agenda-lista-periodo" data-sem-gesto-dia>
       {!periodo.data && !periodo.isError ? (
-        <MarcaDoLimiteDoDia className="my-6" carregando />
+        <div className="flex min-h-64 items-start justify-center pt-8" aria-busy>
+          <MarcaDoLimiteDoDia carregando />
+        </div>
       ) : !periodo.data ? (
         <div className="py-8 text-center text-sm text-mute" role="alert">
           Não deu para carregar a lista.{" "}
@@ -261,6 +264,15 @@ export function ListaPeriodo({
           onClick={() => setComCancelados((v) => !v)}
         >
           {comCancelados ? "Esconder cancelados" : `Mostrar cancelados (${cancelados})`}
+        </Button>
+      ) : null}
+      {hasNextPage && !isFetchingNextPage ? (
+        <Button
+          variant="ghost"
+          className="mt-2 min-h-12 w-full"
+          onClick={() => void buscarMais.current()}
+        >
+          Ver mais dias
         </Button>
       ) : null}
       <div ref={fim} aria-hidden />
