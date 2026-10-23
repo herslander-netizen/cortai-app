@@ -676,6 +676,30 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-23 UTC — Claude — Temas do aplicativo voltam a valer na área do negócio
+- Pedido do dono: "o que aconteceu com os temas do sistema, preciso que funcionem" (e se pesam no desempenho).
+- **Causa:** em 22/10 (entrada "Cores fora do padrão", decisão "botão com variações fora do padrão") um bloco de
+  `styles.css` passou a forçar o azul do Figaro em `--primary`, `--gold`, `--ring`, `--agenda-*` e `--botao-*` para
+  TODOS os temas na área do negócio (`body:has(.management-shell)`). Na prática Rosé, Índigo, Cobre, Clássico e Cloud não
+  mudavam o destaque da Agenda, dos botões nem do menu; só o fundo e pouca coisa mudavam. O Cloud ficava azul.
+- **Conflito com decisão anterior, resolvido pelo pedido novo:** o azul do Figaro agora vale **só no tema Padrão**
+  (`moderno`). Nos outros temas o destaque e as ações da Agenda seguem a cor do tema (`--identity-accent` no escuro,
+  `--identity-accent-light` no claro). Superfícies, fundo e estados continuam os do Figaro em todos os temas.
+- **Flash de Padrão:** o script inicial (`__root.tsx`) abria sempre em Padrão e só depois do login/sessão trocava para o
+  tema do negócio. Agora `aplicarIdentidade` lembra o último tema (`cortai-identidade-v1`) e o script o usa só em
+  `/barbeiro…`; páginas públicas continuam em Padrão.
+- **Desempenho (medido no Chromium, 4500 nós):** trocar de tema custa ~23 ms uma vez (recálculo de estilo) e alternar
+  claro/escuro ~21 ms; nada por quadro e nenhum JavaScript novo. O `body:has(.management-shell)` não mudou o resultado
+  (23,2 ms com e sem). O CSS inteiro tem 358 KB (61 KB comprimido); os seis temas são ~60 linhas disso. Conclusão: os temas
+  não afetam o desempenho da Agenda nem o deslize.
+- Contraste conferido no navegador: texto sobre ação e sobre dia escolhido ≥ 5:1 nos 6 temas, claro e escuro.
+- Arquivos: `src/styles.css`, `src/lib/aparencia.ts`, `src/routes/__root.tsx`; testes: `contraste-app.test.ts` (ações da
+  Agenda por tema + guarda do azul só no Padrão) e `aparencia.test.ts`. tsc, vitest (1831) e build verdes.
+- **Não verificado no celular**: aparência real das telas por tema. Conferir na prévia: Ajustes → Aparência → cada tema,
+  nos modos claro e escuro (botões, "+" da Agenda, dia escolhido, menu).
+- Recado **Para o GPT**: a regra "Agenda/botões em azul do Figaro em todas as identidades" (22/10) foi desfeita a pedido do
+  dono; não reintroduzir `body:has(.management-shell)` sem filtro de tema (há teste que barra).
+
 ### 2026-10-23 UTC — Claude — Etapa 2 da troca de dia: camadas vizinhas em prioridade baixa
 - Pedido do dono: "Parte 2?" (continuação da troca de dia sem sensação de lag). Li como a etapa 2.
 - Mudança mínima: `CamadasVizinhas` usa `useDeferredValue(diaAtual)`. No soltar do dedo, o commit urgente

@@ -9865,11 +9865,33 @@ button.agenda-nome:hover {
   }
 }
 
+/* ===== Temas do aplicativo fora do Padrão: as ações da Agenda seguem a cor do tema =====
+   Os tokens `--agenda-*` acima trazem o azul do Figaro para todos os temas; aqui Rosé, Índigo, Cobre,
+   Clássico e Cloud voltam a usar o próprio destaque (`--identity-accent` no escuro, `--identity-accent-light`
+   no claro, que tem contraste de texto conferido em contraste-app.test.ts). */
+:root[data-identidade]:not([data-identidade="moderno"]) {
+  --agenda-acao: var(--identity-accent);
+  --agenda-acao-texto: var(--identity-deep);
+  --agenda-acao-suave: color-mix(in oklab, var(--identity-accent) 30%, var(--figaro-surface));
+  --agenda-escolhido: color-mix(in oklab, var(--identity-accent) 70%, white);
+  --agenda-escolhido-texto: var(--identity-deep);
+  --agenda-destaque: var(--identity-accent);
+}
+:root.light[data-identidade]:not([data-identidade="moderno"]) {
+  --agenda-acao: var(--identity-accent-light);
+  --agenda-acao-texto: #ffffff;
+  --agenda-acao-suave: color-mix(in oklab, var(--identity-accent-light) 18%, var(--figaro-surface));
+  --agenda-escolhido: var(--identity-accent-light);
+  --agenda-escolhido-texto: #ffffff;
+  --agenda-destaque: var(--identity-accent-light);
+}
+
 /* ===== Área do negócio no padrão Figaro (identidade padrão) =====
    O destaque (botões, links, foco, ícones ativos) é o azul do Figaro, claro e escuro, em todas as telas
-   do menu e da Agenda. As outras identidades escolhidas em Ajustes continuam com o próprio destaque.
+   do menu e da Agenda, só no tema Padrão. Os outros temas do aplicativo (Rosé, Índigo, Cobre, Clássico,
+   Cloud) mantêm o próprio destaque; as superfícies continuam as do Figaro (bloco mais abaixo).
    `body:has(...)` alcança também a gaveta e os diálogos, que abrem fora do `.management-shell`. */
-:root body:has(.management-shell) {
+:root:is(:not([data-identidade]), [data-identidade="moderno"]) body:has(.management-shell) {
   --primary: var(--figaro-primary);
   --primary-foreground: var(--figaro-on-primary);
   --gold: var(--figaro-primary);
@@ -9963,7 +9985,7 @@ button.agenda-nome:hover {
 /* ===== Botões do Figaro na área do negócio =====
    Primário em `actionBlue`, contorno em `outlineVariant`, texto em `actionBlue`, erro em `error`, tudo em pílula.
    Fora desta área os botões seguem a cor e o raio da marca de cada tela. */
-:root body:has(.management-shell) {
+:root:is(:not([data-identidade]), [data-identidade="moderno"]) body:has(.management-shell) {
   --botao-fundo: var(--figaro-action-blue);
   --botao-texto: var(--figaro-on-action-blue);
   --botao-contorno: var(--figaro-outline-variant);
@@ -9974,11 +9996,11 @@ button.agenda-nome:hover {
 }
 
 /* "+" da Agenda: `primaryContainer` com ícone `onPrimaryContainer`, como o FAB do Figaro (spec 2 §1.5). */
-body:has(.management-shell) .agenda-acao-fixa .agenda-fab-toggle {
+:root:is(:not([data-identidade]), [data-identidade="moderno"]) body:has(.management-shell) .agenda-acao-fixa .agenda-fab-toggle {
   background: var(--figaro-primary-container);
   box-shadow: var(--shadow-md);
 }
-body:has(.management-shell) .agenda-acao-fixa .agenda-fab-toggle .agenda-fab-icone {
+:root:is(:not([data-identidade]), [data-identidade="moderno"]) body:has(.management-shell) .agenda-acao-fixa .agenda-fab-toggle .agenda-fab-icone {
   color: var(--figaro-on-primary-container);
   filter: none;
 }

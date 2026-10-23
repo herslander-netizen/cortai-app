@@ -142,3 +142,34 @@ describe.each(IDENTIDADES)("identidade %s", (identidade) => {
     });
   });
 });
+
+// Temas do aplicativo fora do Padrão: as ações da Agenda seguem a cor do tema e o texto sobre elas é legível.
+describe.each(IDENTIDADES.filter((i) => i !== "moderno"))(
+  "ações da Agenda no tema %s",
+  (identidade) => {
+    const escuro = bloco(':root[data-identidade]:not([data-identidade="moderno"])');
+    const claroDoTema = bloco(':root.light[data-identidade]:not([data-identidade="moderno"])');
+    const base = bloco(`:root[data-identidade="${identidade}"]`);
+    it.each([
+      ["escuro", { ...base, ...escuro }],
+      ["claro", { ...base, ...escuro, ...claroDoTema }],
+    ] as const)("texto sobre a ação e sobre o dia escolhido ≥ 4,5:1 (%s)", (_modo, vars) => {
+      const par = (fundo: string, texto: string) =>
+        razao(resolver(`var(${fundo})`, vars).rgb, resolver(`var(${texto})`, vars).rgb);
+      expect(par("--agenda-acao", "--agenda-acao-texto")).toBeGreaterThanOrEqual(4.5);
+      expect(par("--agenda-escolhido", "--agenda-escolhido-texto")).toBeGreaterThanOrEqual(4.5);
+    });
+  },
+);
+
+describe("azul do Figaro só no tema Padrão", () => {
+  it("o destaque forçado na área do negócio não vale para os outros temas", () => {
+    const forcados = css.match(/^:root[^\n{]*body:has\(\.management-shell\)[^\n{]*\{/gm) ?? [];
+    expect(forcados.length).toBeGreaterThanOrEqual(3);
+    for (const seletor of forcados) {
+      expect(seletor).toContain('[data-identidade="moderno"]');
+    }
+    // Nenhuma regra solta de `body:has(.management-shell) { --primary: … }` sem filtro de tema.
+    expect(css).not.toMatch(/^:root body:has\(\.management-shell\) \{/m);
+  });
+});

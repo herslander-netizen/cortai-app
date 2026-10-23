@@ -6,6 +6,8 @@ export type Modo = (typeof MODOS)[number];
 export type Identidade = (typeof IDENTIDADES)[number];
 
 export const MODE_KEY = "cortai-modo-v2";
+/** Último tema do aplicativo aplicado neste aparelho: o script inicial o lê para não abrir sempre em Padrão. */
+export const IDENTIDADE_KEY = "cortai-identidade-v1";
 export const APPEARANCE_EVENT = "cortai-aparencia";
 
 export function modoSalvo(): Modo {
@@ -40,6 +42,11 @@ export function aplicarModo(modo: Modo, persistir = false) {
 
 export function aplicarIdentidade(identidade: Identidade) {
   document.documentElement.dataset["identidade"] = identidade;
+  try {
+    window.localStorage.setItem(IDENTIDADE_KEY, identidade);
+  } catch {
+    // Sem armazenamento (janela privada): o tema vale na sessão e o próximo abrir volta ao Padrão.
+  }
   sincronizarCorDoNavegador();
 }
 

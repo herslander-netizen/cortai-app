@@ -56,8 +56,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { title: "Cortaí — Gestão e tecnologia para negócios de Beleza" },
       {
         name: "description",
-        content:
-          "Agenda, WhatsApp e gestão para barbearias, salões e negócios de beleza.",
+        content: "Agenda, WhatsApp e gestão para barbearias, salões e negócios de beleza.",
       },
       { property: "og:site_name", content: "Cortaí" },
       { property: "og:type", content: "website" },
@@ -94,7 +93,7 @@ function RootShell({ children }: { children: ReactNode }) {
         <HeadContent />
         <script
           dangerouslySetInnerHTML={{
-            __html: `try{var d=document.documentElement,m=localStorage.getItem("cortai-modo-v2")||"escuro",l=m==="claro"||(m==="sistema"&&matchMedia("(prefers-color-scheme: light)").matches);d.dataset.identidade="moderno";d.classList.toggle("light",l);d.classList.toggle("dark",!l);var t=document.createElement("meta");t.name="theme-color";t.content=l?"#E9F1EB":"#1A1F1C";document.head.appendChild(t)}catch{}`,
+            __html: `try{var d=document.documentElement,m=localStorage.getItem("cortai-modo-v2")||"escuro",l=m==="claro"||(m==="sistema"&&matchMedia("(prefers-color-scheme: light)").matches);var i=localStorage.getItem("cortai-identidade-v1");d.dataset.identidade=location.pathname.indexOf("/barbeiro")===0&&/^(moderno|rose|indigo|copper|classico|cloud)$/.test(i)?i:"moderno";d.classList.toggle("light",l);d.classList.toggle("dark",!l);var t=document.createElement("meta");t.name="theme-color";t.content=l?"#E9F1EB":"#1A1F1C";document.head.appendChild(t)}catch{}`,
           }}
         />
       </head>
