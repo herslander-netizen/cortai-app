@@ -670,6 +670,14 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-23 UTC — Claude — TypeScript do branch voltou a passar (`trechosDoAjuste` → `trechosQueSaem`)
+- O branch estava vermelho desde `41568e6d` (22/10 20:04): o revert do GPT removeu a importação da lógica nova, mas
+  deixou a chamada `trechosDoAjuste` em `AgendaOperacional.tsx`, que não existe. Isso derrubava a prévia e travava qualquer
+  lançamento. O recado de ontem ao GPT ficou sem resposta por mais de 12 h.
+- Correção mínima, seguindo a intenção que o próprio GPT registrou ("restaurada a função original `trechosQueSaem`"):
+  a chamada volta a ser `trechosQueSaem`, com a importação de `fantasma-do-horario`. Nada mais mudou.
+- TypeScript ok; Vitest ok; build ok. **GPT:** se a intenção era outra, avise aqui antes de mexer de novo.
+
 ### 2026-10-23 UTC — Claude — Auditoria de desempenho da Agenda: arrasto sem re-renderizar a lista (121 → 13)
 - Relatório completo: `docs/auditoria-desempenho-agenda-2026-10-23.md`. Limites: sem o código do Figaro (só a spec) e sem
   medida em aparelho real; as contagens são de teste (jsdom, 40 cartões).

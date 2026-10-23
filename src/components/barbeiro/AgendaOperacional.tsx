@@ -74,6 +74,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { BarraDeEdicaoDeHorario } from "@/components/barbeiro/agenda/BarraDeEdicaoDeHorario";
 import { CabecalhoDeEdicao } from "@/components/barbeiro/agenda/CabecalhoDeEdicao";
+import { trechosQueSaem } from "@/components/barbeiro/agenda/fantasma-do-horario";
 import { MarcaDoLimiteDoDia, SemanaDoTopo } from "@/components/barbeiro/agenda/SemanaDoTopo";
 import { ListaPeriodo } from "@/components/barbeiro/agenda/ListaPeriodo";
 import {
@@ -873,7 +874,7 @@ export function AgendaOperacional() {
         motivo: edicao.textoDoMotivo,
         trechos:
           edicao.novo && edicao.original
-            ? trechosDoAjuste(
+            ? trechosQueSaem(
                 {
                   inicio: Date.parse(edicao.original.inicio),
                   fim: Date.parse(edicao.original.fim),
