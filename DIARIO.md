@@ -670,6 +670,13 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-23 UTC — Claude — Migração 0044 (tema Cloud) aplicada no `cortai-prod`
+- Autorizada pelo dono. Antes: a restrição atual aceitava 5 valores; os 3 negócios usavam só valores da lista. Ensaio
+  local com todos os testes de banco ok.
+- Aplicada pelo "Aplicar migrações novas" (execução 39939151572, sucesso); registrada em
+  `cortai_controle.migracoes_aplicadas`. A restrição agora inclui `cloud`. Nenhuma linha alterada.
+- Site principal **não** publicado: o Cloud fica pronto para o próximo "Lançar versão" (quando o dono pedir).
+
 ### 2026-10-23 UTC — Claude — Temas de sistema: Classic, Rosé, Índigo, Cobre, Clássico e Cloud
 - Decisão do dono (23/10): o tema atual (cores atuais) passa a se chamar **Padrão** (o dono pediu outro nome para o Classic); as paletas que já existiam
   (Rosé, Índigo, Cobre e Clássico) voltam ao menu, com os nomes de antes; e entra o tema **Cloud** (laranja).
