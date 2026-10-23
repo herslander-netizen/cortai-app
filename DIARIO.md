@@ -27,6 +27,12 @@ e o que fez. O diário até 17/10/2026 está guardado, sem alterações, em
 7. **Sem segredos:** nunca escreva chaves, senhas ou tokens aqui. Cite só o nome da variável.
 
 ## Decisões do dono
+- 2026-10-23: **Vocabulário de "tema"** (dono). **Tema do aplicativo** = os temas do sistema usado pelo negócio
+  (agenda, controle de caixa e demais telas da área do negócio): hoje `identidade_app` (Padrão, Rosé, Índigo, Cobre,
+  Clássico, Cloud) e claro/escuro, em `aparencia.ts` / `ThemeToggle.tsx`. **Tema da página** = as sessões que os
+  clientes dos profissionais veem (página pública do negócio, Personalizar Página / Layout & Tema). Quando o dono
+  disser só "tema", perguntar qual dos dois se não ficar claro pelo contexto. Mudança no tema do aplicativo não
+  mexe na página pública, e vice-versa.
 - 2026-10-22: **Recuperar TODAS as animações do Figaro, sem exceção** (dono: "era a parte que mais deu trabalho").
   A lista de controle é `docs/referencia-figaro/apk/8-inventario-de-animacoes.md`, uma linha por animação, com
   valores, fonte e situação (✔ feito, ◐ conferir, ✘ falta, — sem equivalente). Nada sai da lista sem decisão do
