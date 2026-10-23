@@ -131,3 +131,20 @@ limite (`LIMITES_DA_SECAO.bio`); tirar do ar: já tem o diálogo; ocultar/ativar
 existe** (o Cortaí envia direto do aparelho, sem reaproveitar imagens já enviadas e sem imagens prontas por layout). A única função
 que falta de fato é essa; o limite de envio do Cortaí é 2 MB (regra do projeto), o do Figaro é 5 MB.
 
+## 8. Personalizar Página: o que já existe no Cortaí e o que falta (conferido no código em 23/10)
+
+Já recuperado (conferido em `barbeiro.marca.tsx`, `SecaoConteudo.tsx`, `validacao.ts`, `barbeiro.sua-pagina.tsx`): menu ⋮ (Editar link, QR Code,
+Tirar do ar com diálogo), banner "Alterações não publicadas", Publicar com bloqueio de seções obrigatórias, Descartar com confirmação, grupos
+Obrigatórias/Ativas/Inativas sem switch, Layout & Tema em acordeões com carrossel e "Ver Exemplo", QR Code com Papel/Adesivo, salvar e imprimir,
+limites de galeria (5–25 e até 100) e de bio (2000), bios obrigatórias, handles sem espaço. O progresso de publicação (C6) segue como decisão
+do inventário: só usar se a publicação demorar de verdade.
+
+Falta de fato:
+1. **Hero:** o Figaro tem imagem de fundo escolhida da biblioteca + "Headline" (8–25) e "Subheadline" (10–100). O Cortaí tem "Frase principal" e capa
+   em `SecaoTextos`/`SecaoImagens`, sem esses limites nem o seletor de biblioteca.
+2. **Biblioteca de imagens** ("Minhas imagens" + imagens prontas por layout, seleção única no Hero e múltipla na Galeria): hoje só existe a lista de
+   logos enviadas (`listarLogosDoNegocio`); capa e galeria sempre enviam do aparelho. Imagens prontas exigem assets (decisão do dono).
+3. **Limite de envio:** Figaro 5 MB; Cortaí 2 MB (regra do projeto). Manter 2 MB salvo decisão do dono.
+4. **QR Code** é uma seção no hub, não uma tela própria; "Salvar na galeria" vira download PNG (web).
+Reservas do GPT em `marca/editor/*` e `barbeiro.marca.tsx` valem; qualquer item acima que toque nesses arquivos passa por recado.
+
