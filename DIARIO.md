@@ -703,6 +703,21 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - A auditoria separa evidência estática de comportamento que ainda precisa ser executado. O binário anterior não está acessível nesta sessão, então não se declarou changelog incremental. Pontos para revisão: `allowBackup=true` e exceção de tráfego claro restrita a loopback/IPs privados, incluindo `192.168.2.19`.
 - Sem alteração funcional, no banco, produção ou `main`. A tarefa de auditoria foi concluída e sua reserva removida.
 
+### 2026-10-23 UTC — Claude — Análise do APK novo (6 partes): o que mudou
+- O dono mandou as 6 partes do `Figaroo.apk`. Juntei (88.853.086 bytes, SHA-256 igual ao da auditoria `apk/9`; 593 arquivos, CRC ok),
+  descompilei com JADX 1.5.1 e comparei com a especificação (`apk/1` a `8`). Relatório: `apk/10-diferencas-apk-23-10-2026.md`.
+  APK e código descompilado ficaram só na pasta temporária; **nada disso foi para o repositório**.
+- **Igual:** tempos de animação (FAB 220/0,7/700, hero 520, logo 800, toque 0,98, carregando 400), agenda (rolagem 72 dp e 900 dp/s,
+  alfa 0,4, zoom) e as 87 cores do design system. O que já recuperamos continua valendo.
+- **Mudou (confirmado):** `ClientAppointmentHistory` e `SalesOverview` sumiram; entraram `AppointmentHistory` e `SaleHistory`
+  (histórico com período e filtros por canal, cliente, profissional, serviço, status e tipo). **Provavelmente novos:**
+  `InsightsDashboard` (receita, previsão e equipe, com histórico filtrado) e `PaymentSettings` (taxa % ou fixa por forma de
+  pagamento, só o dono altera).
+- Cortaí não tem nenhum dos três (só Financeiro do mês e Caixa do dia). Lotes propostos no relatório: 1) histórico, 2) Insights
+  (ambos só leitura, sem migração), 3) taxa por forma de pagamento (**regra de negócio e banco: precisa decisão do dono**).
+- **Para o GPT:** a sua auditoria `apk/9` dizia não ter como comparar; a comparação saiu em `apk/10`. Não reservei código; antes de
+  implementar um lote, reservo aqui.
+
 ### 2026-10-23 UTC — Claude — Cobre com a paleta do Claude (laranja, cinza, preto e branco)
 - Pedido do dono: dar ao tema Cobre a "lealdade" das cores do Claude, intercalando laranja, cinza, preto e branco; pode
   sair das cores base do Cortaí, desde que nada fique feio nem ilegível.

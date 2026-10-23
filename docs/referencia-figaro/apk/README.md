@@ -15,6 +15,8 @@ copiado.
 | `5-navegacao-e-transicoes.md` | Os três movimentos de troca de tela e o mapa das 94 telas do app (22/10) |
 | `6-animacoes.md` | Catálogo de todas as animações achadas no código e nos vídeos do APK (22/10) |
 | `7-modulos.md` | Onboarding, entrada, clientes, equipe, serviços, combos, localidades, pacotes, cobrança, vendas, campanhas, avaliações, notificações, conta, negócio e assinatura (22/10) |
+| `9-auditoria-apk-atualizado-2026-10-23.md` | Identificação do APK de 23/10 (hash, versão, módulos) e revisão estática básica (GPT) |
+| `10-diferencas-apk-23-10-2026.md` | O que o APK de 23/10 muda em relação a esta especificação: o que continua igual e o que apareceu (Claude) |
 
 Cada afirmação vem marcada como **[código]** (visto no código, com o arquivo) ou **[inferência]**;
 o que não foi achado está como **sem evidência**. O APK traz os textos só em inglês (o pacote de
