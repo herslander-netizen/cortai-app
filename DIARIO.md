@@ -670,6 +670,16 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-23 UTC — Claude — Auditoria de desempenho da Agenda: arrasto sem re-renderizar a lista (121 → 13)
+- Relatório completo: `docs/auditoria-desempenho-agenda-2026-10-23.md`. Limites: sem o código do Figaro (só a spec) e sem
+  medida em aparelho real; as contagens são de teste (jsdom, 40 cartões).
+- Causa: `AgendaTimeline.tsx` fazia `setRedim`/`setArrasto` a cada `pointermove`, re-renderizando a linha do tempo inteira
+  por pixel. Agora o estado só muda quando o passo de 5 min muda; o deslocamento fino do cartão vai direto no estilo.
+- Medido: 121 renderizações em 120 movimentos → 13. Teste de orçamento `desempenho-timeline.test.tsx` impede a volta.
+- Não alterado, para a próxima rodada: `AgendaOperacional` (19 estados, sem memo, props novas a cada render), leitura de
+  layout no arrasto, lista de períodos longa. Vitest 1814 ok; TypeScript: só o erro de `trechosDoAjuste` (outra IA).
+- **Não vi na tela nem medi quadros por segundo no celular**: conferir o arrasto de cartão e da alça na prévia.
+
 ### 2026-10-23 UTC — Claude — Migração 0044 (tema Cloud) aplicada no `cortai-prod`
 - Autorizada pelo dono. Antes: a restrição atual aceitava 5 valores; os 3 negócios usavam só valores da lista. Ensaio
   local com todos os testes de banco ok.

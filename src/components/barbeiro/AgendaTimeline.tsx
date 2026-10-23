@@ -188,7 +188,11 @@ export function AgendaTimeline({
   const posicionouRef = useRef<string | null>(null);
   const [agoraVisivel, setAgoraVisivel] = useState(true);
   const [arrasto, setArrasto] = useState<{ id: string; dy: number } | null>(null);
-  const [redim, setRedim] = useState<{ id: string; dy: number } | null>(null);
+  const [redim, setRedim] = useState<{ id: string; dy: number } | null>(null); // Desempenho (Figaro só move o cartão arrastado, sem recompor a lista): o estado só muda quando o PASSO
+  // arredondado muda; o deslocamento fino do cartão vai direto no estilo. Sem isto, cada pixel do dedo
+  // re-renderizava a linha do tempo inteira.
+  const ultimoPassoDoArrasto = useRef<number | null>(null);
+  const ultimoPassoDaAlca = useRef<number | null>(null);
   const passo = passoDoGesto(passoMin);
   const gesto = useRef<{
     id: string;
@@ -653,6 +657,11 @@ export function AgendaTimeline({
     g.arrastou = true;
     e.preventDefault();
     g.dy = dy;
+    // Movimento fino direto no cartão (compositor), sem passar pelo React.
+    (e.currentTarget as HTMLElement).style.transform = `translateY(${dy}px) scale(1.02)`;
+    const passoAtual = Math.round(dy / PX_POR_MINUTO / passo);
+    if (ultimoPassoDoArrasto.current === passoAtual) return;
+    ultimoPassoDoArrasto.current = passoAtual;
     setArrasto({ id: g.id, dy });
   }
   function fimGesto(item: AgendaItem, ySolto?: number) {
@@ -663,6 +672,7 @@ export function AgendaTimeline({
     if (!g) return;
     window.clearTimeout(g.timer);
     const dy = g.id === item.id ? g.dy : 0;
+    ultimoPassoDoArrasto.current = null;
     setArrasto(null);
     if (!g.arrastou) {
       // O modo armado já foi aberto no início do toque longo; soltar não deve reabri-lo.
@@ -1088,6 +1098,7 @@ export function AgendaTimeline({
                           if (cancelado) window.clearTimeout(cancelado.timer);
                           gesto.current = null;
                           soltarRolagemDoToque();
+                          ultimoPassoDoArrasto.current = null;
                           setArrasto(null);
                         },
                         onContextMenu: (e: React.MouseEvent) => {
@@ -1164,7 +1175,18 @@ export function AgendaTimeline({
                     }
                     onTravar={travarRolagemDoToque}
                     onSoltar={soltarRolagemDoToque}
-                    onArrastar={(dy) => setRedim(dy === null ? null : { id: item.id, dy })}
+                    onArrastar={(dy) => {
+                      if (dy === null) {
+                        ultimoPassoDaAlca.current = null;
+                        setRedim(null);
+                        return;
+                      }
+                      // Tudo o que usa `redim.dy` já arredonda ao passo: só re-renderiza quando ele muda.
+                      const passoAtual = Math.round(dy / PX_POR_MINUTO / passo);
+                      if (ultimoPassoDaAlca.current === passoAtual) return;
+                      ultimoPassoDaAlca.current = passoAtual;
+                      setRedim({ id: item.id, dy });
+                    }}
                     onConfirmar={(delta) => onRedimensionar(item, delta)}
                   />
                 ) : null}
