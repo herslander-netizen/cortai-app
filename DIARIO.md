@@ -703,6 +703,23 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - A auditoria separa evidência estática de comportamento que ainda precisa ser executado. O binário anterior não está acessível nesta sessão, então não se declarou changelog incremental. Pontos para revisão: `allowBackup=true` e exceção de tráfego claro restrita a loopback/IPs privados, incluindo `192.168.2.19`.
 - Sem alteração funcional, no banco, produção ou `main`. A tarefa de auditoria foi concluída e sua reserva removida.
 
+### 2026-10-23 UTC — Claude — Índigo e Clássico com a mesma ideia do Cobre e do Rosé
+- Pedido do dono: manter Padrão e Cobre como estão e fazer o mesmo com os outros temas. Faltavam **Índigo** e **Clássico**.
+- **Índigo** — escuro: fundo azul-grafite `#17181F`, cartões `#1E2029`/`#2F3140`, texto `#ECEDF5`, apoio `#9A9DB3`, índigo de
+  destaque `#A5ABFF` com texto escuro; claro: fundo lavanda-acinzentado `#EEEFF6`, cartões brancos, texto `#14151C`, índigo
+  `#3F43A6` com texto branco; secundário cinza azulado.
+- **Clássico** — escuro: fundo oliva-preto `#1B1913`, cartões `#232018`/`#36322A`, texto `#F3EEDC`, apoio `#A39C85`, dourado
+  `#D9B96A` com texto escuro; claro: fundo papel `#F4F0E3`, cartões brancos, texto `#1C1A12`, bronze `#7A5C0E` com texto
+  branco; secundário cinza quente.
+- Mesmo mecanismo: `html:root[data-identidade="indigo"|"classico"]` (e `.light`) sobrepõem os `--figaro-*`. **Padrão e Cobre
+  não foram tocados** (a Agenda do Padrão continua azul do Figaro). Menu: cinco temas, todos "… com cinzas …, preto e branco"
+  (exceto o Padrão, "Azul com rosa em destaque").
+- Testes de paleta própria agora cobrem os **quatro** temas (Cobre, Rosé, Índigo, Clássico): texto ≥ 7:1, apoio e secundário
+  ≥ 4,5:1, texto sobre a cor de ação ≥ 4,5:1, cartão separado do fundo, borda ≥ 3:1, branco sobre o botão ≥ 4,5:1. Escolhi as
+  cores com um verificador em Python que repete essas regras, e os quatro conjuntos passaram na primeira rodada.
+  tsc, vitest (1866 testes) e build verdes. Conferido no Chromium com amostra dos tokens reais, claro e escuro. **Não visto no
+  celular**: conferir na prévia (Ajustes → Aparência → cada tema).
+
 ### 2026-10-23 UTC — Claude — Rosé com a mesma ideia do Cobre (rosa, cinzas rosados, preto e branco)
 - Pedido do dono: "usar o mesmo pensamento pra criar o tema rose, com cores voltadas mais para o rosa" (gostou do Cobre).
 - **Escuro:** fundo preto arroxeado `#1D1618`, cartões `#292024`/`#382B30`, texto `#F7ECEF`, apoio `#A8969D`, rosa de destaque

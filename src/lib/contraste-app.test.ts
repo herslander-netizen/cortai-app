@@ -176,7 +176,7 @@ describe("azul do Figaro só no tema Padrão", () => {
 
 // Tema Cobre (paleta do Claude): neutros próprios nos dois modos, lidos do bloco `html:root[...]`.
 describe.each(
-  (["copper", "rose"] as const).flatMap((tema) =>
+  (["copper", "rose", "indigo", "classico"] as const).flatMap((tema) =>
     (["escuro", "claro"] as const).map((modo) => [tema, modo] as const),
   ),
 )("Paleta própria do tema %s, %s", (tema, modo) => {

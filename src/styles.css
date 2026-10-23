@@ -440,14 +440,15 @@
   color-scheme: light;
 }
 
+/* Tema Índigo: índigo de destaque com cinzas azulados, preto e branco. Fundos e textos no bloco `html:root[data-identidade="indigo"]`. */
 :root[data-identidade="indigo"] {
-  --identity-accent: #999dbd;
-  --identity-accent-light: #5e638c;
-  --identity-secondary: #999dbd;
-  --identity-secondary-light: #5e638c;
-  --identity-primary: #666b9b;
-  --identity-secondary-strong: #666b9b;
-  --identity-deep: #292d4a;
+  --identity-accent: #a5abff;
+  --identity-accent-light: #3f43a6;
+  --identity-primary: #4a4fb5;
+  --identity-secondary: #b4b7c9;
+  --identity-secondary-light: #5f6178;
+  --identity-secondary-strong: #8588a3;
+  --identity-deep: #17181f;
 }
 
 /* Tema Rosé: rosa de destaque com cinzas rosados, preto e branco (mesma ideia do Cobre). Aqui só as cores de
@@ -463,14 +464,15 @@
 }
 
 
+/* Tema Clássico: dourado de destaque com cinzas quentes, preto e branco. Fundos e textos no bloco `html:root[data-identidade="classico"]`. */
 :root[data-identidade="classico"] {
-  --identity-accent: #b8a178;
-  --identity-accent-light: #75613e;
-  --identity-secondary: #b8a178;
-  --identity-secondary-light: #75613e;
-  --identity-primary: #75613e;
-  --identity-secondary-strong: #75613e;
-  --identity-deep: #332b1f;
+  --identity-accent: #d9b96a;
+  --identity-accent-light: #7a5c0e;
+  --identity-primary: #8a6a12;
+  --identity-secondary: #bdb7a3;
+  --identity-secondary-light: #67624f;
+  --identity-secondary-strong: #8c866f;
+  --identity-deep: #1b1913;
 }
 
 /* Tema Cobre: a paleta do Claude. Laranja de destaque, cinzas quentes, preto e branco. Aqui só as cores de
@@ -10014,6 +10016,150 @@ html:root[data-identidade="rose"].light {
   --figaro-tertiary-container: #f7dde1;
   --figaro-on-tertiary-container: #3a1a20;
   --figaro-action-blue: #c2185b;
+  --figaro-on-action-blue: #ffffff;
+}
+
+/* ===== Tema Índigo: neutros e destaque próprios (mesma estrutura do Cobre e do Rosé) ===== */
+html:root[data-identidade="indigo"] {
+  --figaro-background: #17181f;
+  --figaro-surface: #17181f;
+  --figaro-surface-dim: #17181f;
+  --figaro-surface-container-lowest: #121319;
+  --figaro-surface-container-low: #1e2029;
+  --figaro-surface-container: #262833;
+  --figaro-surface-container-high: #2f3140;
+  --figaro-surface-container-highest: #3a3c4e;
+  --figaro-surface-bright: #454859;
+  --figaro-on-background: #ecedf5;
+  --figaro-on-surface: #ecedf5;
+  --figaro-surface-variant: #363849;
+  --figaro-on-surface-variant: #c3c5d6;
+  --figaro-inverse-surface: #ecedf5;
+  --figaro-inverse-on-surface: #17181f;
+  --figaro-outline: #6b6e86;
+  --figaro-outline-variant: #363849;
+  --figaro-hint: #9a9db3;
+  --figaro-card-tile: #2f3140;
+  --figaro-primary: #a5abff;
+  --figaro-on-primary: #17181f;
+  --figaro-primary-container: #2b2f66;
+  --figaro-on-primary-container: #dde0ff;
+  --figaro-secondary: #b4b7c9;
+  --figaro-on-secondary: #17181f;
+  --figaro-secondary-container: #363849;
+  --figaro-on-secondary-container: #ecedf5;
+  --figaro-tertiary: #b7a9e8;
+  --figaro-on-tertiary: #1b1530;
+  --figaro-tertiary-container: #35305c;
+  --figaro-on-tertiary-container: #e6ddff;
+  --figaro-action-blue: #a5abff;
+  --figaro-on-action-blue: #17181f;
+}
+html:root[data-identidade="indigo"].light {
+  --figaro-background: #eeeff6;
+  --figaro-surface: #eeeff6;
+  --figaro-surface-dim: #e6e7f1;
+  --figaro-surface-container-lowest: #ffffff;
+  --figaro-surface-container-low: #f8f8fc;
+  --figaro-surface-container: #e6e7f1;
+  --figaro-surface-container-high: #dddfec;
+  --figaro-surface-container-highest: #cfd1e2;
+  --figaro-surface-bright: #ffffff;
+  --figaro-on-background: #14151c;
+  --figaro-on-surface: #14151c;
+  --figaro-surface-variant: #dddfec;
+  --figaro-on-surface-variant: #444659;
+  --figaro-inverse-surface: #14151c;
+  --figaro-inverse-on-surface: #eeeff6;
+  --figaro-outline: #7c7e96;
+  --figaro-outline-variant: #dcddea;
+  --figaro-hint: #5f6178;
+  --figaro-card-tile: #e6e7f1;
+  --figaro-primary: #3f43a6;
+  --figaro-on-primary: #ffffff;
+  --figaro-primary-container: #e0e1ff;
+  --figaro-on-primary-container: #12134a;
+  --figaro-secondary: #5f6178;
+  --figaro-on-secondary: #ffffff;
+  --figaro-secondary-container: #dddfec;
+  --figaro-on-secondary-container: #14151c;
+  --figaro-tertiary: #5b4a99;
+  --figaro-on-tertiary: #ffffff;
+  --figaro-tertiary-container: #e8e0ff;
+  --figaro-on-tertiary-container: #241a4d;
+  --figaro-action-blue: #3f43a6;
+  --figaro-on-action-blue: #ffffff;
+}
+
+/* ===== Tema Clássico: neutros e destaque próprios (mesma estrutura do Cobre e do Rosé) ===== */
+html:root[data-identidade="classico"] {
+  --figaro-background: #1b1913;
+  --figaro-surface: #1b1913;
+  --figaro-surface-dim: #1b1913;
+  --figaro-surface-container-lowest: #15130e;
+  --figaro-surface-container-low: #232018;
+  --figaro-surface-container: #2c2920;
+  --figaro-surface-container-high: #36322a;
+  --figaro-surface-container-highest: #413c32;
+  --figaro-surface-bright: #4c473b;
+  --figaro-on-background: #f3eedc;
+  --figaro-on-surface: #f3eedc;
+  --figaro-surface-variant: #3a362b;
+  --figaro-on-surface-variant: #cfc8b0;
+  --figaro-inverse-surface: #f3eedc;
+  --figaro-inverse-on-surface: #1b1913;
+  --figaro-outline: #766f5a;
+  --figaro-outline-variant: #3a362b;
+  --figaro-hint: #a39c85;
+  --figaro-card-tile: #36322a;
+  --figaro-primary: #d9b96a;
+  --figaro-on-primary: #1b1913;
+  --figaro-primary-container: #4a3d18;
+  --figaro-on-primary-container: #ffe9a8;
+  --figaro-secondary: #bdb7a3;
+  --figaro-on-secondary: #1b1913;
+  --figaro-secondary-container: #3a362b;
+  --figaro-on-secondary-container: #f3eedc;
+  --figaro-tertiary: #c9a98a;
+  --figaro-on-tertiary: #2a1c10;
+  --figaro-tertiary-container: #4a3826;
+  --figaro-on-tertiary-container: #f7e1cc;
+  --figaro-action-blue: #d9b96a;
+  --figaro-on-action-blue: #1b1913;
+}
+html:root[data-identidade="classico"].light {
+  --figaro-background: #f4f0e3;
+  --figaro-surface: #f4f0e3;
+  --figaro-surface-dim: #ece7d6;
+  --figaro-surface-container-lowest: #ffffff;
+  --figaro-surface-container-low: #fbf9f2;
+  --figaro-surface-container: #ece7d6;
+  --figaro-surface-container-high: #e3ddc8;
+  --figaro-surface-container-highest: #d6cfb6;
+  --figaro-surface-bright: #ffffff;
+  --figaro-on-background: #1c1a12;
+  --figaro-on-surface: #1c1a12;
+  --figaro-surface-variant: #e3ddc8;
+  --figaro-on-surface-variant: #4a4636;
+  --figaro-inverse-surface: #1c1a12;
+  --figaro-inverse-on-surface: #f4f0e3;
+  --figaro-outline: #857e66;
+  --figaro-outline-variant: #e2dcc6;
+  --figaro-hint: #67624f;
+  --figaro-card-tile: #ece7d6;
+  --figaro-primary: #7a5c0e;
+  --figaro-on-primary: #ffffff;
+  --figaro-primary-container: #fbebb5;
+  --figaro-on-primary-container: #3a2c00;
+  --figaro-secondary: #67624f;
+  --figaro-on-secondary: #ffffff;
+  --figaro-secondary-container: #e3ddc8;
+  --figaro-on-secondary-container: #1c1a12;
+  --figaro-tertiary: #7b5b3a;
+  --figaro-on-tertiary: #ffffff;
+  --figaro-tertiary-container: #f2e0cc;
+  --figaro-on-tertiary-container: #35220f;
+  --figaro-action-blue: #7a5c0e;
   --figaro-on-action-blue: #ffffff;
 }
 

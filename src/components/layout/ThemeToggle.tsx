@@ -19,9 +19,9 @@ import { salvarIdentidadeApp } from "@/lib/sessao.functions";
 const OPCOES_DE_IDENTIDADE: ReadonlyArray<{ id: Identidade; nome: string; descricao: string }> = [
   { id: "moderno", nome: "Padrão", descricao: "Azul com rosa em destaque" },
   { id: "rose", nome: "Rosé", descricao: "Rosa com cinzas rosados, preto e branco" },
-  { id: "indigo", nome: "Índigo", descricao: "Índigo monocromático" },
+  { id: "indigo", nome: "Índigo", descricao: "Índigo com cinzas azulados, preto e branco" },
   { id: "copper", nome: "Cobre", descricao: "Laranja com cinzas quentes, preto e branco" },
-  { id: "classico", nome: "Clássico", descricao: "Dourado monocromático" },
+  { id: "classico", nome: "Clássico", descricao: "Dourado com cinzas quentes, preto e branco" },
 ];
 
 const MODOS: ReadonlyArray<{ id: Modo; nome: string; icon: typeof Sun }> = [
