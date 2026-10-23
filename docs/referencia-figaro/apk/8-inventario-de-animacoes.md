@@ -110,7 +110,9 @@ fica como está).
 | E2 | Campo de código de acesso/senha: 1 s de espera (reenvio) | `delay` 1000 | `LoginScreenKt`, `PaywallScreenKt` | — |
 | O1 | Boas-vindas: entrada com fade `fastEffects` na primeira visita + vibração | — | `WelcomeScreenKt` | ✘ |
 | O2 | Passos do onboarding | `intraFlow` | `OnboardingFlowScreenKt` | ✔ via N6 |
-| O3 | Conclusão do onboarding | herói 520 ms; conteúdo com `slowEffects`; logo 800 ms depois; link digitado 32 ms/letra; cursor 450 ms | `OnboardingCompleteScreenKt` | ✔ 22/10 |
+| O3 | Conclusão do onboarding | herói 520 ms; conteúdo com `slowEffects`; logo 800 ms depois; link digitado 32 ms/letra; cursor 450 ms | `OnboardingCompleteScreenKt` | ✔ 22/10; 23/10 espera com anel ondulado → visto (O5) |
+| O5 | Espera do onboarding: "Configurando sua página…" | anel ondulado (9 ondas) com arco que gira e trilho claro; ao concluir o arco fecha, as ondas se desfazem até o círculo e o visto é desenhado (520 ms); o texto da espera esmaece por cima do conteúdo | `OnboardingCompleteScreenKt` (fotos do dono, 23/10) | ✔ 23/10 `AnelOndulado` + `ConclusaoDoOnboarding carregando` |
+| O6 | Botão "Criar/Salvar" dos cadastros vira círculo com ✓ | mesma pílula que encolhe (220 ms) e só então o ✓ | `FigarooExtendedFAB` | ✔ 23/10 Novo agendamento e Salvar serviço; ◐ outros cadastros (profissional, cliente) |
 | O4 | Assentos da assinatura | botão da página de plano troca com fade padrão; +/− com vibração | `PaywallScreenKt` | ✘ (`/barbeiro/plano`) |
 
 ## 7. Páginas, serviços, cobrança

@@ -15,7 +15,7 @@ afterEach(() => {
   vi.useRealTimers();
 });
 
-function montar(menos: boolean) {
+function montar(menos: boolean, carregando = false) {
   window.matchMedia = ((query: string) => ({
     matches: menos,
     media: query,
@@ -35,8 +35,8 @@ function montar(menos: boolean) {
     onIrParaAgenda: vi.fn(),
     onRevisar: vi.fn(),
   };
-  act(() => root.render(<ConclusaoDoOnboarding {...props} />));
-  return props;
+  act(() => root.render(<ConclusaoDoOnboarding {...props} carregando={carregando} />));
+  return { props, root };
 }
 
 describe("ConclusaoDoOnboarding", () => {
@@ -69,7 +69,7 @@ describe("ConclusaoDoOnboarding", () => {
   });
 
   it("liga os botões às ações", () => {
-    const p = montar(true);
+    const { props: p } = montar(true);
     const botao = (t: string) =>
       Array.from(host!.querySelectorAll("button")).find((b) => b.textContent?.includes(t))!;
     act(() => botao("Copiar link").click());
@@ -80,5 +80,21 @@ describe("ConclusaoDoOnboarding", () => {
     expect(p.onCompartilhar).toHaveBeenCalled();
     expect(p.onIrParaAgenda).toHaveBeenCalled();
     expect(p.onRevisar).toHaveBeenCalled();
+  });
+
+  it("enquanto carrega mostra só a espera, sem os botões", () => {
+    montar(true, true);
+    expect(host!.textContent).toContain("Configurando sua página…");
+    expect(host!.textContent).toContain("Isso levará apenas um instante.");
+    expect(host!.querySelector("[role=progressbar]")).not.toBeNull();
+    expect(Array.from(host!.querySelectorAll("button"))).toHaveLength(0);
+  });
+
+  it("ao terminar o anel vira o visto e o conteúdo aparece", () => {
+    const { props, root } = montar(true, true);
+    act(() => root.render(<ConclusaoDoOnboarding {...props} carregando={false} />));
+    expect(host!.querySelector("svg[role=img][aria-label='Concluído']")).not.toBeNull();
+    expect(host!.textContent).toContain("Ir para a agenda");
+    expect(host!.textContent).toContain(props.titulo);
   });
 });

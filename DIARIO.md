@@ -676,6 +676,22 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-23 UTC — Claude — Animações do onboarding e do salvar (fotos do Figaro)
+- Pedido do dono: fotos do fluxo do Figaro (Equipe → Serviços → Tabela de preços → Profissionais → "Criar" → "Configurando
+  sua página…" → "Parabéns! … já pode receber agendamentos online") com "sobre essas animações que eu estava falando".
+- **Espera "Configurando sua página…"** (antes eu tinha deixado de fora por achar que não havia espera; as fotos mostram que
+  há): novo `ui/AnelOndulado.tsx` (anel de 9 ondas com arco que gira e trilho claro; ao concluir o arco fecha, as ondas se
+  desfazem até o círculo em 520 ms e o visto é desenhado) e `caminhoOndulado` em `lib/anel-ondulado.ts` (puro, com teste).
+- `ConclusaoDoOnboarding` ganhou `carregando`: a espera e o resultado são o mesmo componente (o texto "Configurando sua
+  página…" esmaece por cima do conteúdo novo, como na foto do meio). Em `barbeiro.configurar.tsx` a tela é cheia e aparece
+  entre tocar em **Concluir** (etapa do link) e a tela final, enquanto a etapa é gravada de verdade. "Ir para a agenda" ganhou o
+  ✓ e "Copiar link/Compartilhar" não quebram mais a linha ("Compartilhar" partido, como na foto).
+- **Botão que encolhe até o círculo com ✓** (`morfo`, já feito no Novo agendamento) agora também no **Salvar serviço**.
+- Conferido no Chromium (390 px): anel girando, morfo para o círculo com visto, texto da espera cruzando com o conteúdo.
+  tsc, vitest (1829) e build verdes. **Não testado no celular.**
+- Não feito: o pequeno carregando em forma de estrela dentro do botão "Criar" e as demais telas de cadastro com o botão que
+  encolhe (profissional, cliente): ficam como ◐ em O6 no inventário. Quer que eu siga por elas?
+
 ### 2026-10-23 UTC — Claude — Novo agendamento: serviço e profissional sempre combinam
 - Pedido do dono (foto do Resumo com "Esse profissional não faz esse serviço."): se o profissional não faz o serviço,
   um dos dois não pode aparecer; o cliente não tem como adivinhar quem faz.

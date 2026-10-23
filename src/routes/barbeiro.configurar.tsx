@@ -238,6 +238,9 @@ function ConfigurarPage() {
   const anterior = () =>
     setEtapaEscolhida(ETAPAS_DO_ONBOARDING[Math.max(0, indice - 1)] ?? "dados");
 
+  /** Entre tocar em Concluir (etapa do link) e a tela final, o Figaro mostra a espera em tela cheia. */
+  const configurando = salvando && etapa === "link";
+
   /** Garante que quem configura aparece na agenda quando ninguém foi cadastrado. */
   async function garantirDonoNaAgenda() {
     if (profissionais.length > 0) return;
@@ -798,20 +801,26 @@ function ConfigurarPage() {
                 )}
               </div>
             ) : null}
-
-            {etapa === "pronto" ? (
-              <ConclusaoDoOnboarding
-                titulo={`${vocabulario.possessivo.charAt(0).toUpperCase()}${vocabulario.possessivo.slice(1)} já pode receber agendamentos.`}
-                link={link}
-                linkCurto={linkCurto}
-                copiado={copiado}
-                onCopiar={copiarLink}
-                onCompartilhar={compartilharLink}
-                onIrParaAgenda={() => void navigate({ to: "/barbeiro" })}
-                onRevisar={() => setEtapaEscolhida("dados")}
-              />
-            ) : null}
           </EtapasAnimadas>
+          {etapa === "pronto" || configurando ? (
+            // Tela cheia como no Figaro: a espera ("Configurando sua página…") e o resultado são o mesmo
+            // componente, então o anel ondulado vira o visto sem trocar de tela.
+            <div className="fixed inset-0 z-50 overflow-y-auto bg-ink px-5 pb-[max(16px,env(safe-area-inset-bottom))] pt-[max(48px,env(safe-area-inset-top))]">
+              <div className="mx-auto flex min-h-full w-full max-w-[420px] flex-col justify-center">
+                <ConclusaoDoOnboarding
+                  carregando={etapa !== "pronto"}
+                  titulo={`${vocabulario.possessivo.charAt(0).toUpperCase()}${vocabulario.possessivo.slice(1)} já pode receber agendamentos.`}
+                  link={link}
+                  linkCurto={linkCurto}
+                  copiado={copiado}
+                  onCopiar={copiarLink}
+                  onCompartilhar={compartilharLink}
+                  onIrParaAgenda={() => void navigate({ to: "/barbeiro" })}
+                  onRevisar={() => setEtapaEscolhida("dados")}
+                />
+              </div>
+            </div>
+          ) : null}
         </>
       ) : null}
     </Screen>

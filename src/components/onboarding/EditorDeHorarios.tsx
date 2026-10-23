@@ -75,7 +75,11 @@ export function EditorDeHorarios({
                     initial={reduzirMovimento ? false : { opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: "auto" }}
                     exit={{ opacity: 0, height: 0 }}
-                    transition={reduzirMovimento ? { duration: 0 } : { height: MOLA.tamanho, opacity: MOLA.padraoEfeito }}
+                    transition={
+                      reduzirMovimento
+                        ? { duration: 0 }
+                        : { height: MOLA.tamanho, opacity: MOLA.padraoEfeito }
+                    }
                     className="overflow-hidden text-xs text-mute2"
                   >
                     Fechado
@@ -86,7 +90,11 @@ export function EditorDeHorarios({
                     initial={reduzirMovimento ? false : { opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: "auto" }}
                     exit={{ opacity: 0, height: 0 }}
-                    transition={reduzirMovimento ? { duration: 0 } : { height: MOLA.tamanho, opacity: MOLA.padraoEfeito }}
+                    transition={
+                      reduzirMovimento
+                        ? { duration: 0 }
+                        : { height: MOLA.tamanho, opacity: MOLA.padraoEfeito }
+                    }
                     className="flex items-center gap-2 overflow-hidden"
                   >
                     <input

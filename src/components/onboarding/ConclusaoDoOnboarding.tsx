@@ -1,10 +1,10 @@
-import { Copy, Share2 } from "lucide-react";
-import { motion } from "framer-motion";
+import { Check, Copy, Share2 } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
 
 import { MarcaCortai } from "@/components/marca/MarcaCortai";
 import { Button } from "@/components/ui/button";
-import { VistoAnimado } from "@/components/ui/VistoAnimado";
+import { AnelOndulado } from "@/components/ui/AnelOndulado";
 import { useMenosMovimento } from "@/hooks/useMovimento";
 import { fonteDoLink, trechoDigitado } from "@/lib/conclusao-do-onboarding";
 import { CONCLUSAO, CURVA, MOLA } from "@/lib/movimento-figaro";
@@ -58,9 +58,10 @@ function LinkDigitado({ texto, parado }: { texto: string; parado: boolean }) {
 }
 
 /**
- * Conclusão do onboarding no padrão do Figaro (`OnboardingCompleteScreen`, spec 6 §4): o herói aparece
- * em 520 ms, o conteúdo sobe e aparece com a mola `lentaEfeito`, o logotipo entra 800 ms depois e o
- * link é digitado. A publicação já foi feita antes (etapa do link); aqui só se mostra o resultado.
+ * Conclusão do onboarding no padrão do Figaro (`OnboardingCompleteScreen`, spec 6 §4). Primeiro a espera
+ * ("Configurando sua página…", anel ondulado girando); quando `carregando` acaba, o anel fecha e vira o
+ * círculo com o visto em 520 ms, o texto da espera esmaece por cima do conteúdo, que sobe e aparece com a
+ * mola `lentaEfeito`; o logotipo entra 800 ms depois e o link é digitado.
  */
 export function ConclusaoDoOnboarding({
   titulo,
@@ -71,6 +72,7 @@ export function ConclusaoDoOnboarding({
   onIrParaAgenda,
   onRevisar,
   copiado,
+  carregando = false,
 }: {
   titulo: string;
   link: string;
@@ -80,6 +82,8 @@ export function ConclusaoDoOnboarding({
   onIrParaAgenda: () => void;
   onRevisar: () => void;
   copiado: boolean;
+  /** A página ainda está sendo publicada: mostra só a espera. */
+  carregando?: boolean;
 }) {
   const menosMovimento = useMenosMovimento();
   const [logo, setLogo] = useState(menosMovimento);
@@ -95,65 +99,84 @@ export function ConclusaoDoOnboarding({
 
   return (
     <div className="pt-2 text-center" data-link={link}>
-      <motion.div
-        className="mx-auto grid place-items-center rounded-full bg-gold-soft"
+      <div
+        className="mx-auto grid place-items-center"
         style={{ width: CONCLUSAO.heroPx, height: CONCLUSAO.heroPx }}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{
-          duration: menosMovimento ? 0.15 : CONCLUSAO.heroSegundos,
-          ease: CURVA.rapidaParaLenta,
-        }}
       >
-        <VistoAnimado tamanho={96} />
-      </motion.div>
-      <motion.div
-        initial={menosMovimento ? { opacity: 0 } : { opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={menosMovimento ? { duration: 0.15 } : MOLA.lentaEfeito}
-      >
-        <h2 className="mt-6 text-xl font-semibold text-paper">{titulo}</h2>
-        <LinkDigitado texto={linkCurto} parado={menosMovimento} />
-        <p className="mt-3 text-sm text-mute">
-          Você pode personalizar o layout e o tema da página quando quiser.
-        </p>
-        <div className="mt-6 grid grid-cols-2 gap-3">
-          <Button type="button" variant="outline" className="min-h-12 text-sm" onClick={onCopiar}>
-            <Copy size={14} className="mr-1.5 inline" aria-hidden />
-            {copiado ? "Copiado" : "Copiar link"}
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            className="min-h-12 text-sm"
-            onClick={onCompartilhar}
+        <AnelOndulado completo={!carregando} tamanho={CONCLUSAO.heroPx} />
+      </div>
+      <AnimatePresence mode="popLayout" initial={false}>
+        {carregando ? (
+          <motion.div
+            key="carregando"
+            role="status"
+            exit={{ opacity: 0 }}
+            transition={{
+              duration: menosMovimento ? 0.15 : CONCLUSAO.heroSegundos,
+              ease: CURVA.rapidaParaLenta,
+            }}
           >
-            <Share2 size={14} className="mr-1.5 inline" aria-hidden />
-            Compartilhar
-          </Button>
-        </div>
-        <Button
-          variant="primary"
-          type="button"
-          className="mt-4 min-h-14 w-full text-sm"
-          onClick={onIrParaAgenda}
-        >
-          Ir para a agenda
-        </Button>
-        <Button
-          variant="ghost"
-          type="button"
-          className="mt-3 min-h-12 w-full text-center text-xs text-mute"
-          onClick={onRevisar}
-        >
-          Revisar configuração
-        </Button>
-      </motion.div>
+            <h2 className="mt-6 text-3xl font-semibold leading-tight text-paper">
+              Configurando sua página…
+            </h2>
+            <p className="mt-3 text-base text-mute">Isso levará apenas um instante.</p>
+          </motion.div>
+        ) : (
+          <motion.div
+            key="pronto"
+            initial={menosMovimento ? { opacity: 0 } : { opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={menosMovimento ? { duration: 0.15 } : MOLA.lentaEfeito}
+          >
+            <h2 className="mt-6 text-xl font-semibold text-paper">{titulo}</h2>
+            <LinkDigitado texto={linkCurto} parado={menosMovimento} />
+            <p className="mt-3 text-sm text-mute">
+              Você pode personalizar o layout e o tema da página quando quiser.
+            </p>
+            <div className="mt-6 grid grid-cols-2 gap-3">
+              <Button
+                type="button"
+                variant="outline"
+                className="min-h-12 whitespace-nowrap text-sm"
+                onClick={onCopiar}
+              >
+                <Copy size={14} className="mr-1.5 inline" aria-hidden />
+                {copiado ? "Copiado" : "Copiar link"}
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                className="min-h-12 whitespace-nowrap text-sm"
+                onClick={onCompartilhar}
+              >
+                <Share2 size={14} className="mr-1.5 inline" aria-hidden />
+                Compartilhar
+              </Button>
+            </div>
+            <Button
+              variant="primary"
+              type="button"
+              className="mt-4 min-h-14 w-full text-sm"
+              onClick={onIrParaAgenda}
+            >
+              <Check aria-hidden /> Ir para a agenda
+            </Button>
+            <Button
+              variant="ghost"
+              type="button"
+              className="mt-3 min-h-12 w-full text-center text-xs text-mute"
+              onClick={onRevisar}
+            >
+              Revisar configuração
+            </Button>
+          </motion.div>
+        )}
+      </AnimatePresence>
       <motion.div
         className="mt-8 flex justify-center"
         aria-label="Cortaí"
         initial={{ opacity: 0 }}
-        animate={{ opacity: logo ? 1 : 0 }}
+        animate={{ opacity: logo && !carregando ? 1 : 0 }}
         transition={{ duration: menosMovimento ? 0.15 : 0.4, ease: CURVA.rapidaParaLenta }}
       >
         <MarcaCortai variante="automatica" className="h-6 w-auto" />

@@ -309,6 +309,7 @@ function ServicosPage() {
             desabilitada: estado === "salvando" || (estado !== "salvo" && !podeSalvar),
             carregando: estado === "salvando",
             sucesso: estado === "salvo" && modoEditor !== null,
+            morfo: true,
           }}
         >
           <EditorDeServicos
