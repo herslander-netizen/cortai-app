@@ -59,7 +59,7 @@ function PainelDeBusca() {
       animate={{ width: "100%", opacity: 1 }}
       exit={{ width: 56, opacity: 0 }}
       transition={MOLA.tamanho}
-      className="absolute inset-y-0 right-0 z-10 flex items-center gap-2 overflow-hidden rounded-full bg-[var(--agenda-cartao)] pl-4 pr-1 shadow-[var(--agenda-cartao-sombra)]"
+      className="absolute inset-y-0 right-0 z-10 flex items-center gap-2 overflow-hidden rounded-full bg-[var(--agenda-cartao)] pl-4 pr-1"
     >
       <Search aria-hidden className="size-5 shrink-0 text-mute" />
       <input

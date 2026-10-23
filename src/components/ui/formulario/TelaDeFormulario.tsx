@@ -252,7 +252,7 @@ export function TelaDeFormulario({
                   type="button"
                   variant="primary"
                   size="lg"
-                  className="min-h-14 w-full rounded-full shadow-[var(--shadow-md)]"
+                  className="min-h-14 w-full rounded-full shadow-[var(--elevacao-6)]"
                   disabled={acao.desabilitada || acao.carregando}
                   loading={acao.carregando ?? false}
                   success={acao.sucesso ?? false}

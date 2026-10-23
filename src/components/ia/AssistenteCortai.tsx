@@ -565,7 +565,7 @@ export function AssistenteCortai({
           <button
             type="button"
             onClick={() => irAoFim()}
-            className="absolute -top-12 left-1/2 -translate-x-1/2 rounded-full border border-gold/30 bg-ink px-3 py-1.5 text-xs text-paper shadow-lg"
+            className="absolute -top-12 left-1/2 -translate-x-1/2 rounded-full border border-gold/30 bg-ink px-3 py-1.5 text-xs text-paper shadow-[var(--elevacao-3)]"
           >
             Nova mensagem ↓
           </button>

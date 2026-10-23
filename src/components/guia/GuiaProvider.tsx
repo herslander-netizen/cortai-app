@@ -325,7 +325,7 @@ function GuiaOverlay({
         aria-modal="true"
         aria-labelledby="guia-titulo"
         aria-describedby="guia-texto"
-        className="absolute rounded-xl border border-line bg-ink3 p-5 shadow-xl transition-all duration-[280ms] ease-out"
+        className="absolute rounded-xl border border-line bg-ink3 p-5 shadow-[var(--elevacao-3)] transition-all duration-[280ms] ease-out"
         style={{ top: topoDica, left: esquerdaDica, width: largura }}
       >
         <p id="guia-titulo" className="flex items-center gap-2 text-sm font-bold text-paper">

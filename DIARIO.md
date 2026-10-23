@@ -703,6 +703,30 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - A auditoria separa evidência estática de comportamento que ainda precisa ser executado. O binário anterior não está acessível nesta sessão, então não se declarou changelog incremental. Pontos para revisão: `allowBackup=true` e exceção de tráfego claro restrita a loopback/IPs privados, incluindo `192.168.2.19`.
 - Sem alteração funcional, no banco, produção ou `main`. A tarefa de auditoria foi concluída e sua reserva removida.
 
+### 2026-10-23 UTC — Claude — Sombras de tudo no padrão do Figaro (elevações do Material 3)
+- Pedido do dono: "reveja a sombra dos botões para o padrão do Figaro" e depois "padronize as sombras com o Figaro em tudo".
+  Fonte: `apk/1-design-system.md` §4.4. **Regra do Figaro:** a hierarquia vem da **cor**, não de sombra. Cartões, folhas, barras
+  e botões comuns = **0 dp**; superfície elevada 2 dp; barra flutuante, menus e borda do seletor de data **3 dp**; "+" (FAB) e botões
+  flutuantes **6 dp**; avisos (toast) **8 dp**.
+- **Tokens novos** em `styles.css`: `--elevacao-2/3/6/8` (sombras do Material 3 em preto, iguais no escuro e no claro). `--shadow-sm/
+  md/lg/xl` passaram a apontar para eles. Saíram as sombras tingidas de marinho, o brilho colorido de 24 px do "+" e
+  `--agenda-sombra-botao*`.
+- **Aplicado:** barra "Hoje" 3 dp; "+", botões redondos, Cortaí FAB, salvar do reagendar e botão de baixo (`BotaoFab`) 6 dp; seletor
+  de data, menu da ficha e cartão arrastado 3 dp; menus/popovers/selects/dica 3 dp; avisos, convite de instalação, cookies 8 dp;
+  **cartões (`Card`), diálogos, folhas e cartões da Agenda sem sombra**; toggle, switch, OTP sem sombra.
+- **Descoberta importante:** as classes `shadow-md`/`shadow-xl` do Tailwind **não leem** `--shadow-*`; saíam com o padrão do
+  Tailwind (`0 4px 6px -1px`). Troquei por `shadow-[var(--elevacao-3)]` e `shadow-[var(--elevacao-8)]` em 16 arquivos. **Para os
+  outros: não use `shadow-sm/md/lg/xl`; use `shadow-none` ou `shadow-[var(--elevacao-N)]`.** Um teste varre `components/` e
+  `routes/` e falha se alguém voltar a usar as classes padrão.
+- O "+" tinha `boxShadow: "none"` escrito direto no estilo (`BotaoAgoraPrincipal`), o que anulava qualquer sombra do CSS: removido.
+- **Não mexi** (decorativo ou de outro assunto): anéis e realces internos (`0 0 0 Npx`, `inset`), o papel do ticket
+  (`drop-shadow` em `TicketComanda`), o efeito de cartão das páginas do cliente (`.fg-*`, tema da página) e do chat público, e a
+  apresentação/landing em CSS próprio (o que usa `var(--shadow-*)` passou à escala nova).
+- Correção do teste `BotaoAgoraPrincipal.test.tsx` (esperava a sombra anulada). tsc, vitest (1873) e build verdes. Conferido no
+  Chromium: "+" 6 dp, barra 3 dp. **Não visto no celular.**
+- Sobre a foto das 17:47: era a versão anterior (a prévia do commit do Cobre novo terminou às 17:52), por isso o "+" ainda estava
+  ferrugem e o círculo do dia salmão; já corrigido no commit `fc1b4ebb`.
+
 ### 2026-10-23 UTC — Claude — Cobre refeito com a paleta oficial da marca Claude; botões e "+" vivos nos temas fora do Padrão
 - Pedido do dono (fotos do app do Claude e da Agenda no Cobre): o Cobre é para ser inspirado nas cores do Claude Code e "não estou vendo
   isso". **Causa:** o "+" da Agenda era `--primary` misturado com 24% de preto (`color-mix(... 76%, black)`), o que dava um ferrugem

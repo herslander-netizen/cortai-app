@@ -95,7 +95,7 @@ describe("BotaoAgoraPrincipal", () => {
     const fab = host?.querySelector<HTMLButtonElement>("[data-acoes-agenda]");
     expect(host?.querySelectorAll("[data-acoes-agenda]")).toHaveLength(1);
     expect(fab?.getAttribute("aria-expanded")).toBe("false");
-    expect(fab?.style.boxShadow).toBe("none");
+    expect(fab?.style.boxShadow).toBe("");
     expect(fab?.style.filter).toBe("none");
     expect(fab?.querySelector(".agenda-fab-icone-aberto")).toBeNull();
     act(() => fab?.click());

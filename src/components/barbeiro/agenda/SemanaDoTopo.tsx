@@ -337,7 +337,7 @@ export function SemanaDoTopo({
               <motion.div
                 key="calendario-expandido"
                 className="absolute -inset-x-2 top-0 z-10 overflow-hidden rounded-b-[24px] px-2 pb-3"
-                style={{ background: "var(--ink2)", boxShadow: "var(--shadow-md)" }}
+                style={{ background: "var(--ink2)", boxShadow: "var(--elevacao-3)" }}
                 initial={{ height: alturaSemana + 12 }}
                 animate={{ height: ALTURA_DO_MES + 12 }}
                 exit={{ height: alturaSemana + 12 }}

@@ -277,9 +277,16 @@
   --surface-raised: var(--ink2);
   --surface-emphasis: var(--ink3);
   --surface-overlay: color-mix(in oklab, var(--ink) 82%, transparent);
-  --shadow-sm: 0 1px 0 color-mix(in oklab, var(--paper) 8%, transparent);
-  --shadow-md: 0 12px 28px color-mix(in oklab, #000000 42%, transparent);
-  --shadow-xl: 0 24px 60px color-mix(in oklab, #000000 52%, transparent);
+  /* Elevação do Figaro (spec 1 §4.4), sombras do Material 3 em preto: 2 dp (superfície elevada), 3 dp (barra flutuante,
+     borda do seletor de data), 6 dp (FAB em repouso), 8 dp (aviso). Botões comuns não têm sombra: a hierarquia é de cor. */
+  --elevacao-2: 0 1px 2px rgb(0 0 0 / 0.3), 0 1px 3px 1px rgb(0 0 0 / 0.15);
+  --elevacao-3: 0 1px 2px rgb(0 0 0 / 0.3), 0 2px 6px 2px rgb(0 0 0 / 0.15);
+  --elevacao-6: 0 1px 3px rgb(0 0 0 / 0.3), 0 4px 8px 3px rgb(0 0 0 / 0.15);
+  --elevacao-8: 0 2px 3px rgb(0 0 0 / 0.3), 0 6px 10px 4px rgb(0 0 0 / 0.15);
+  --shadow-sm: var(--elevacao-2);
+  --shadow-md: var(--elevacao-3);
+  --shadow-lg: var(--elevacao-6);
+  --shadow-xl: var(--elevacao-8);
 
   --space-1: 4px;
   --space-2: 8px;
@@ -366,7 +373,7 @@
   --estado-remarcado: #e0145e;
   --estado-encaixe: #0f9488;
   --agenda-cartao: var(--ink2);
-  --agenda-cartao-sombra: 0 1px 3px color-mix(in oklab, var(--paper) 10%, transparent);
+  --agenda-cartao-sombra: none;
   --agenda-listra-base: #f4f8f5;
   --agenda-listra: color-mix(in oklab, #2a2f2c 3%, #f4f8f5);
   --ink: var(--fundo);
@@ -434,9 +441,9 @@
   --surface-raised: var(--ink2);
   --surface-emphasis: var(--ink3);
   --surface-overlay: color-mix(in oklab, var(--paper) 38%, transparent);
-  --shadow-sm: 0 1px 2px color-mix(in oklab, var(--paper) 8%, transparent);
-  --shadow-md: 0 8px 24px color-mix(in oklab, var(--paper) 10%, transparent);
-  --shadow-xl: 0 16px 40px color-mix(in oklab, var(--paper) 14%, transparent);
+  --shadow-sm: var(--elevacao-2);
+  --shadow-md: var(--elevacao-3);
+  --shadow-xl: var(--elevacao-8);
   color-scheme: light;
 }
 
@@ -1006,7 +1013,7 @@
 
 .management-shell .shadow-xl,
 .management-shell .shadow-lg {
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--elevacao-3);
 }
 .management-shell [class*="backdrop-blur"] {
   backdrop-filter: none;
@@ -1472,7 +1479,7 @@ html.light .brand-logo-on-light,
   max-width: min(82vw, 360px);
   min-height: 56px;
   border-radius: 999px;
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--elevacao-6);
 }
 .agenda-acoes-folha {
   max-height: min(72dvh, 520px);
@@ -2258,7 +2265,7 @@ body:has(.auth-screen--claro) {
   border-radius: 9999px;
   background: var(--rosa-forte);
   color: var(--sobre-rosa);
-  box-shadow: 0 6px 24px color-mix(in oklab, var(--rosa) 28%, transparent);
+  box-shadow: var(--elevacao-6);
   transition: transform 150ms ease;
 }
 .cortai-fab:active {
@@ -3046,7 +3053,7 @@ body:has(.auth-screen--claro) {
 }
 .agenda-arrastando {
   z-index: 6;
-  box-shadow: var(--shadow-lg, var(--shadow-md));
+  box-shadow: var(--elevacao-3);
   outline: 2px solid var(--primary);
   outline-offset: 1px;
   opacity: 0.85;
@@ -3502,7 +3509,7 @@ html:not(.agenda-gesto-ativo) .agenda-previa-vizinho {
 .agenda-foco-fab .agenda-acao-redonda {
   width: 52px;
   height: 52px;
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--elevacao-6);
 }
 .agenda-foco-item {
   position: relative;
@@ -5838,7 +5845,7 @@ button.agenda-nome:hover {
   border: 1px solid transparent;
   border-radius: 999px;
   background: var(--ink2);
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--elevacao-3);
 }
 .agenda-botao-agora-ir {
   height: 50px;
@@ -6044,7 +6051,7 @@ button.agenda-nome:hover {
   padding: var(--space-2) var(--space-3) 0;
   border-radius: 0 0 20px 20px;
   background: var(--painel, var(--ink3));
-  box-shadow: 0 6px 14px color-mix(in oklab, var(--paper) 6%, transparent);
+  box-shadow: var(--elevacao-3);
   touch-action: pan-y;
 }
 .agenda-cal-letras,
@@ -6196,7 +6203,7 @@ button.agenda-nome:hover {
   height: 56px;
   padding: 0;
   border-radius: 999px;
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--elevacao-6);
 }
 .agenda-fab-toggle .agenda-fab-icone {
   width: var(--agenda-fab-icone);
@@ -6235,9 +6242,7 @@ button.agenda-nome:hover {
   .agenda-acao-fixa .agenda-fab-toggle {
     /* Mais presença de azul, sem perder o marinho da identidade Cortaí. */
     background: color-mix(in oklab, var(--primary) 76%, black);
-    box-shadow:
-      0 8px 24px color-mix(in oklab, var(--primary) 30%, transparent),
-      var(--shadow-md);
+    box-shadow: var(--elevacao-6);
   }
   .agenda-acao-fixa .agenda-fab-toggle .agenda-fab-icone {
     color: white;
@@ -6916,8 +6921,7 @@ button.agenda-nome:hover {
 }
 .agenda-timeline-bloco.agenda-timeline-selecionado {
   box-shadow:
-    0 0 0 2px color-mix(in oklab, var(--cor-estado) 45%, transparent),
-    var(--agenda-cartao-sombra);
+    0 0 0 2px color-mix(in oklab, var(--cor-estado) 45%, transparent);
 }
 .agenda-timeline-bloco:focus-visible {
   outline: 2px solid color-mix(in oklab, var(--cor-estado) 70%, var(--paper));
@@ -7081,8 +7085,7 @@ button.agenda-nome:hover {
 }
 .agenda-lista-cartao-selecionado {
   box-shadow:
-    0 0 0 2px color-mix(in oklab, var(--cor-estado) 45%, transparent),
-    var(--agenda-cartao-sombra);
+    0 0 0 2px color-mix(in oklab, var(--cor-estado) 45%, transparent);
 }
 .agenda-lista-cartao-topo {
   display: flex;
@@ -7205,7 +7208,7 @@ button.agenda-nome:hover {
   min-width: 230px;
   border-radius: 14px;
   background: var(--agenda-cartao);
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--elevacao-3);
   padding: 6px;
   animation: agenda-ficha-menu var(--mov-base, 200ms) var(--ease-saida, ease-out) both;
 }
@@ -7307,7 +7310,7 @@ button.agenda-nome:hover {
   height: 52px;
   border-radius: 999px;
   padding-inline: 22px;
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--elevacao-6);
   transition:
     padding var(--mov-base, 200ms) var(--ease-saida, ease-out),
     opacity var(--mov-base, 200ms) var(--ease-saida, ease-out);
@@ -10193,9 +10196,7 @@ html:root[data-identidade="classico"].light {
 @media (max-width: 600px) {
   :root:not([data-identidade="moderno"])[data-identidade] body:has(.management-shell) .agenda-acao-fixa .agenda-fab-toggle {
     background: var(--agenda-acao);
-    box-shadow:
-      0 8px 24px color-mix(in oklab, var(--agenda-acao) 30%, transparent),
-      var(--shadow-md);
+    box-shadow: var(--elevacao-6);
   }
   :root:not([data-identidade="moderno"])[data-identidade] body:has(.management-shell) .agenda-acao-fixa .agenda-fab-toggle .agenda-fab-icone {
     color: var(--agenda-acao-texto);
@@ -10314,38 +10315,23 @@ html:root[data-identidade="classico"].light {
 /* "+" da Agenda: `primaryContainer` com ícone `onPrimaryContainer`, como o FAB do Figaro (spec 2 §1.5). */
 :root:is(:not([data-identidade]), [data-identidade="moderno"]) body:has(.management-shell) .agenda-acao-fixa .agenda-fab-toggle {
   background: var(--figaro-primary-container);
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--elevacao-6);
 }
 :root:is(:not([data-identidade]), [data-identidade="moderno"]) body:has(.management-shell) .agenda-acao-fixa .agenda-fab-toggle .agenda-fab-icone {
   color: var(--figaro-on-primary-container);
   filter: none;
 }
 
-/* Sombras dos botões flutuantes da Agenda no tema claro: uma sombra em camadas, tingida de marinho
-   (identidade Cortaí), que sai da base do botão sem pesar. O escuro segue com as sombras do tema. */
-:root.light {
-  --agenda-sombra-botao:
-    0 1px 2px color-mix(in oklab, #06245a 10%, transparent),
-    0 6px 16px -4px color-mix(in oklab, #06245a 22%, transparent);
-  --agenda-sombra-botao-primario:
-    0 2px 4px color-mix(in oklab, #06245a 16%, transparent),
-    0 12px 26px -8px color-mix(in oklab, var(--primary) 55%, transparent);
+/* Sombras dos botões flutuantes da Agenda: as elevações do Figaro nos dois temas (barra "Hoje" 3 dp; "+" e botões
+   redondos 6 dp), sem tinta de cor. O "+" não leva `box-shadow` no estilo da tela, para esta regra valer. */
+.agenda-botao-agora-principal,
+.agenda-voltar-agora {
+  box-shadow: var(--elevacao-3);
 }
-:root.light .agenda-botao-agora-principal,
-:root.light .agenda-voltar-agora,
-:root.light .agenda-acao-redonda,
-:root.light .agenda-foco-fab .agenda-acao-redonda {
-  box-shadow: var(--agenda-sombra-botao);
-}
-:root.light .agenda-botao-agora-principal {
-  border-color: color-mix(in oklab, #06245a 8%, transparent);
-}
-:root.light .agenda-acao-fixa .agenda-fab-toggle {
-  box-shadow: var(--agenda-sombra-botao-primario);
-}
-:root.light .agenda-botao-agora-principal:active,
-:root.light .agenda-acao-redonda:active {
-  box-shadow: var(--agenda-sombra-botao);
+.agenda-acao-redonda,
+.agenda-foco-fab .agenda-acao-redonda,
+.agenda-acao-fixa .agenda-fab-toggle {
+  box-shadow: var(--elevacao-6);
 }
 
 /* Parte do horário original que saiu do horário proposto (Figaro: α 0.5, spec 2-agenda §4.6). */

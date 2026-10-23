@@ -2,7 +2,7 @@
  * Contraste das superfícies do app (menu lateral e Agenda) lido direto de
  * src/styles.css, resolvendo var() e color-mix(in oklab) com funções puras.
  */
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync, statSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 
@@ -265,4 +265,64 @@ it("Cobre: paleta oficial da marca Claude (preto, marfim, cinza, laranja)", () =
   expect(escuro["--figaro-primary"]).toBe("#d97757");
   expect(escuro["--figaro-secondary"]).toBe("#b0aea5");
   expect(escuro["--figaro-on-surface"]).toBe("#faf9f5");
+});
+
+describe("sombras dos botões no padrão do Figaro", () => {
+  it("usam as elevações do Material 3 (3 dp na barra, 6 dp no +), sem brilho colorido", () => {
+    for (const nivel of ["--elevacao-2", "--elevacao-3", "--elevacao-6", "--elevacao-8"])
+      expect(css).toContain(`${nivel}: `);
+    expect(css).toMatch(/\.agenda-botao-agora-principal \{[^}]*box-shadow: var\(--elevacao-3\)/);
+    expect(css).toMatch(
+      /\.agenda-acao-fixa \.agenda-fab-toggle \{\s*box-shadow: var\(--elevacao-6\)/,
+    );
+    // O brilho de 24 px na cor do tema e as sombras tingidas de marinho saíram.
+    expect(css).not.toMatch(/0 8px 24px color-mix\(in oklab, var\(--(?:primary|agenda-acao)\) 30%/);
+    expect(css).not.toContain("--agenda-sombra-botao");
+  });
+
+  it("o + da Agenda não anula a sombra no estilo da tela", () => {
+    const fonte = readFileSync(
+      resolve(__dirname, "../components/barbeiro/agenda/BotaoAgoraPrincipal.tsx"),
+      "utf8",
+    );
+    expect(fonte).not.toMatch(/boxShadow:\s*"none"/);
+  });
+});
+
+describe("sombras em tudo no padrão do Figaro", () => {
+  const raiz = resolve(__dirname, "..");
+  const fontes: string[] = [];
+  const varrer = (dir: string) => {
+    for (const nome of readdirSync(dir)) {
+      const caminho = resolve(dir, nome);
+      if (statSync(caminho).isDirectory()) varrer(caminho);
+      else if (/\.tsx$/.test(nome) && !/\.test\./.test(nome)) fontes.push(caminho);
+    }
+  };
+  varrer(resolve(raiz, "components"));
+  varrer(resolve(raiz, "routes"));
+
+  it("nenhum componente usa as sombras padrão do Tailwind (shadow-sm/md/lg/xl)", () => {
+    const achados = fontes.filter((f) =>
+      /\bshadow-(sm|md|lg|xl|2xl)\b(?![/\w-])/.test(readFileSync(f, "utf8")),
+    );
+    expect(achados.map((f) => f.replace(raiz, ""))).toEqual([]);
+  });
+
+  it("cartões, diálogos e folhas ficam sem sombra (0 dp); menus e avisos usam as elevações", () => {
+    const ler = (arq: string) => readFileSync(resolve(raiz, arq), "utf8");
+    for (const arq of [
+      "components/ui/card.tsx",
+      "components/ui/dialog.tsx",
+      "components/ui/sheet.tsx",
+    ])
+      expect(ler(arq)).toContain("shadow-none");
+    expect(ler("components/ui/dropdown-menu.tsx")).toContain("shadow-[var(--elevacao-3)]");
+    expect(ler("components/ui/sonner.tsx")).toContain("shadow-[var(--elevacao-8)]");
+  });
+
+  it("os cartões da Agenda não têm sombra", () => {
+    expect(css).toMatch(/--agenda-cartao-sombra: none;/);
+    expect(css).not.toMatch(/--agenda-cartao-sombra: 0/);
+  });
 });

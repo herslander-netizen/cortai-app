@@ -29,7 +29,7 @@ export function DemoAgendamento() {
         <p className="mt-5 max-w-lg text-base leading-7 text-mute sm:text-lg">Experimente uma demonstração guiada de como a escolha pode acontecer. Nomes, serviços, preços e horários são fictícios e servem apenas para ilustrar a experiência.</p>
         <p className="mt-6 inline-flex items-center gap-2 rounded-full border border-line px-4 py-3 text-sm text-mute"><Check className="h-4 w-4 text-ink2" /> Nenhuma reserva será criada</p>
       </div>
-      <div className="overflow-hidden rounded-[1.75rem] border border-line bg-paper shadow-xl shadow-ink/5">
+      <div className="overflow-hidden rounded-[1.75rem] border border-line bg-paper shadow-[var(--elevacao-8)]">
         <div className="border-b border-line bg-background px-5 py-5 sm:px-7">
           <div className="flex items-start justify-between gap-4"><div><p className="text-xs font-semibold uppercase tracking-wider text-mute">Demonstração interativa</p><h3 className="mt-1 text-lg font-bold text-ink">Sua próxima escolha</h3></div><span className="rounded-full bg-gold/10 px-3 py-1 text-xs font-bold text-ink2">Passo {step + 1} de 4</span></div>
           <ol className="mt-5 grid grid-cols-4 gap-2" aria-label="Progresso da demonstração">{labels.map((label, i) => <li key={label} aria-current={i === step ? "step" : undefined}><div className={`h-1.5 rounded-full transition-colors duration-200 ${i <= step ? "bg-gold" : "bg-line"}`} /><span className={`mt-2 block truncate text-[11px] font-semibold sm:text-xs ${i === step ? "text-ink" : "text-mute"}`}>{label}</span></li>)}</ol>

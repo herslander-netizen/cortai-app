@@ -99,7 +99,7 @@ export function BotaoFab({
       className={cn(
         "relative inline-flex h-14 shrink-0 items-center justify-center overflow-hidden rounded-full",
         "bg-[var(--botao-fundo,var(--primary))] text-[var(--botao-texto,var(--primary-foreground))]",
-        "text-sm font-semibold shadow-[var(--shadow-md)] transition-[opacity,scale] duration-150",
+        "text-sm font-semibold shadow-[var(--elevacao-6)] transition-[opacity,scale] duration-150",
         "active:scale-[0.98] disabled:pointer-events-none",
         colapsado ? "pointer-events-none" : "",
         className,

@@ -362,7 +362,7 @@ function Editor({
       <div className="grid gap-6 xl:grid-cols-[minmax(0,520px)_minmax(420px,1fr)]">
         <div>
 
-          <div className="sticky bottom-20 z-20 mt-6 rounded-lg border border-line bg-ink p-2 shadow-xl xl:bottom-4">
+          <div className="sticky bottom-20 z-20 mt-6 rounded-lg border border-line bg-ink p-2 shadow-[var(--elevacao-3)] xl:bottom-4">
             <Button
               variant="ghost"
               className="mb-2 h-12 w-full xl:hidden"
