@@ -670,6 +670,16 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-23 UTC — Claude — Confirmar agendamento: carregando → pílula vira círculo → ✓ (morfo do Figaro)
+- Pedido do dono (23/10): no botão de confirmar, a animação de carregamento aparece, depois o botão se transforma e a
+  forma vira um ✓. É a decisão 1 do §10 (botão flutuante do Figaro, B4), agora decidida pelo dono.
+- `src/components/ui/button.tsx`: nova prop `morfo`. No sucesso, mede a pílula, encolhe a largura até a altura (220 ms,
+  curva do Android) virando círculo, esmaece o texto (90 ms) e só então entra o ✓ (com atraso de 220 ms).
+- `TelaDeFormulario.tsx` aceita `acao.morfo`; `AgendamentoManual.tsx` liga em "Confirmar agendamento".
+- Os demais botões não mudam. O Figaro segura o ✓ 700 ms e volta; aqui o ✓ fica até a tela trocar (1200 ms).
+- Testes: Vitest 1801 ok; build ok. TypeScript: o erro de `trechosDoAjuste` (outra IA, recado no diário) continua.
+- **Não vi na tela**: conferir no celular, no fluxo de novo agendamento.
+
 ### 2026-10-22 — GPT — Reversão do efeito translúcido ao aumentar duração
 - Pedido do dono: desfazer apenas o efeito visual translúcido e manter a cor branca dos cartões no tema claro.
 - Removida a importação da lógica de prévia translúcida da duração em `AgendaOperacional.tsx`; restaurada a função original `trechosQueSaem` e seu teste correspondente.

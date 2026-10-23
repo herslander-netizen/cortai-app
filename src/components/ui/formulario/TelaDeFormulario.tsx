@@ -72,6 +72,8 @@ export function TelaDeFormulario({
     carregando?: boolean;
     /** Salvou: o botão mostra ✓ + o rótulo (estado `Success` do Figaro) até a tela sair. */
     sucesso?: boolean;
+    /** Confirmação que vira círculo com ✓ no sucesso (botão flutuante do Figaro). */
+    morfo?: boolean;
   };
   children: ReactNode;
 }) {
@@ -230,6 +232,7 @@ export function TelaDeFormulario({
                 disabled={acao.desabilitada || acao.carregando}
                 loading={acao.carregando ?? false}
                 success={acao.sucesso ?? false}
+                morfo={acao.morfo ?? false}
                 onClick={acao.onClick}
               >
                 {acao.rotulo}

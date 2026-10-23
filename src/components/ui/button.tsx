@@ -84,6 +84,11 @@ export interface ButtonProps
   asChild?: boolean;
   loading?: boolean;
   success?: boolean;
+  /**
+   * Confirmação no padrão do botão flutuante do Figaro (`FigarooExtendedFAB`, spec 1 §8.4): no sucesso a
+   * pílula encolhe até virar círculo (220 ms) e só então o ✓ aparece. Sem isto, o sucesso só troca o ícone.
+   */
+  morfo?: boolean;
   onClick?: ((event: React.MouseEvent<HTMLButtonElement>) => void | Promise<unknown>) | undefined;
 }
 
@@ -96,6 +101,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       asChild = false,
       loading = false,
       success = false,
+      morfo = false,
       disabled,
       onClick,
       children,
@@ -178,6 +184,38 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     }
 
     const busy = pending || loading;
+    // Morfo de confirmação: mede a pílula no sucesso, mantém a largura por um quadro e então encolhe
+    // até a altura (o círculo). Fora do sucesso, o botão volta ao tamanho natural.
+    const [fase, setFase] = React.useState<"normal" | "medido" | "circulo">("normal");
+    const medida = React.useRef<{ largura: number; altura: number } | null>(null);
+    const morfando = morfo && success;
+    React.useLayoutEffect(() => {
+      if (!morfando) {
+        setFase("normal");
+        medida.current = null;
+        return;
+      }
+      if (fase !== "normal") return;
+      const el = internalRef.current;
+      if (el) medida.current = { largura: el.offsetWidth, altura: el.offsetHeight };
+      setFase("medido");
+    }, [morfando, fase]);
+    React.useEffect(() => {
+      if (fase !== "medido") return;
+      const quadro = window.requestAnimationFrame(() => setFase("circulo"));
+      return () => window.cancelAnimationFrame(quadro);
+    }, [fase]);
+    const estiloMorfo: React.CSSProperties | undefined =
+      morfando && medida.current
+        ? fase === "circulo"
+          ? {
+              width: medida.current.altura,
+              paddingInline: 0,
+              borderRadius: 999,
+              transition: "width 220ms cubic-bezier(0, 0, 0.2, 1)",
+            }
+          : { width: medida.current.largura, transition: "none" }
+        : undefined;
     if (asChild) {
       return (
         <Slot
@@ -202,7 +240,11 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         data-ocupado={busy || undefined}
         data-carregando={showSpinner || undefined}
         onClick={handleClick}
-        style={width.current && busy ? { ...style, minWidth: width.current } : style}
+        style={{
+          ...(width.current && busy ? { ...style, minWidth: width.current } : style),
+          ...estiloMorfo,
+        }}
+        data-morfo={morfando ? fase : undefined}
         {...props}
       >
         <AnimatePresence initial={false}>
@@ -221,14 +263,28 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
               key="sucesso"
               className="inline-flex"
               initial={{ opacity: 0, scale: ESCALA.botaoEntra }}
-              animate={indicadorEntra}
+              // Com morfo, o ✓ só entra quando a pílula já virou círculo (220 ms).
+              animate={
+                morfo
+                  ? { ...indicadorEntra, transition: { ...indicadorEntra.transition, delay: 0.22 } }
+                  : indicadorEntra
+              }
               exit={indicadorSai}
             >
               <IconeCheckCircle aria-hidden />
             </motion.span>
           ) : null}
         </AnimatePresence>
-        {children}
+        {morfo ? (
+          <span
+            className="inline-flex items-center gap-2 transition-opacity duration-[90ms]"
+            style={{ opacity: morfando && fase === "circulo" ? 0 : 1 }}
+          >
+            {children}
+          </span>
+        ) : (
+          children
+        )}
       </button>
     );
   },

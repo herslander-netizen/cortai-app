@@ -156,7 +156,14 @@ function Formulario({
       {...(painel
         ? {}
         : s.confirmado
-          ? { acao: { rotulo: "Confirmar agendamento", onClick: () => {}, sucesso: true } }
+          ? {
+              acao: {
+                rotulo: "Confirmar agendamento",
+                onClick: () => {},
+                sucesso: true,
+                morfo: true,
+              },
+            }
           : {
               acao: {
                 rotulo: etapa < etapas.length - 1 ? "Continuar" : "Confirmar agendamento",
