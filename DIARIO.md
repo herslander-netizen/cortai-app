@@ -670,6 +670,17 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-23 UTC — Claude — Etapa 2 da troca de dia: camadas vizinhas em prioridade baixa
+- Pedido do dono: "Parte 2?" (continuação da troca de dia sem sensação de lag). Li como a etapa 2.
+- Mudança mínima: `CamadasVizinhas` usa `useDeferredValue(diaAtual)`. No soltar do dedo, o commit urgente
+  renderiza só o dia que entra; as duas camadas fora da tela (dia -1 e +1) atualizam logo depois. Antes eram
+  três linhas do tempo renderizadas no mesmo quadro.
+- Não fiz o carrossel de três páginas interativas: a linha do tempo principal depende do estado de
+  `AgendaOperacional` (edição, zoom, arrasto) e a troca ficaria arriscada sem medida no aparelho.
+- Arquivos: `PreviaDiaVizinho.tsx`, teste novo `camadas-vizinhas.test.tsx` (dias corretos após a troca).
+- Validação: tsc, vitest (1818) verdes. **Não medido no celular**: conferir na prévia se o deslize ficou mais leve;
+  se ainda houver engasgo, o próximo passo é o perfil de desempenho do Chrome.
+
 ### 2026-10-23 UTC — Claude — Etapa 1 da troca de dia: linha do tempo memorizada
 - Pedido do dono: "comece pela etapa 1" (estabilizar a linha do tempo para a troca de dia não refazer tudo).
 - `AgendaOperacional.tsx`: os manipuladores passados à linha do tempo têm identidade fixa (`useFuncaoEstavel`, que chama
