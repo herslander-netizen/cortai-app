@@ -17,7 +17,7 @@ import {
 import { salvarIdentidadeApp } from "@/lib/sessao.functions";
 
 const OPCOES_DE_IDENTIDADE: ReadonlyArray<{ id: Identidade; nome: string; descricao: string }> = [
-  { id: "moderno", nome: "Classic", descricao: "Azul com rosa em destaque" },
+  { id: "moderno", nome: "Padrão", descricao: "Azul com rosa em destaque" },
   { id: "rose", nome: "Rosé", descricao: "Rosa em destaque, azul nos detalhes" },
   { id: "indigo", nome: "Índigo", descricao: "Índigo monocromático" },
   { id: "copper", nome: "Cobre", descricao: "Cobre monocromático" },

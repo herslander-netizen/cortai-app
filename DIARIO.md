@@ -671,7 +671,7 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 ## Diário
 
 ### 2026-10-23 UTC — Claude — Temas de sistema: Classic, Rosé, Índigo, Cobre, Clássico e Cloud
-- Decisão do dono (23/10): o tema atual (cores atuais) passa a se chamar **Classic**; as paletas que já existiam
+- Decisão do dono (23/10): o tema atual (cores atuais) passa a se chamar **Padrão** (o dono pediu outro nome para o Classic); as paletas que já existiam
   (Rosé, Índigo, Cobre e Clássico) voltam ao menu, com os nomes de antes; e entra o tema **Cloud** (laranja).
   A entrada anterior, que escondia Rosé, Índigo, Cobre e Clássico, fica substituída por esta.
 - `ThemeToggle.tsx`: seis opções no menu de aparência. `aparencia.ts`: lista de identidades; comentário atualizado.
