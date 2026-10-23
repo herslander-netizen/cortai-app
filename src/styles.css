@@ -10173,6 +10173,28 @@ html:root[data-identidade="classico"].light {
   --figaro-on-warm-tonal: #14120e;
 }
 
+/* ===== Tipografia do Figaro na área do negócio (spec 1 §2) =====
+   Texto em Plus Jakarta Sans (Figaro: `FigarooBodyFontFamily`), títulos grandes em Poppins (display/headline: 24 sp ou mais).
+   Títulos de cartão e de seção (h2/h3) ficam em Jakarta, como `titleLarge`..`titleSmall`. O espaçamento entre letras do corpo
+   (bodyMedium 0,018 em) dá o ar mais aberto do Figaro. Páginas públicas, chat e landing seguem na Manrope. */
+body:has(.management-shell) {
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Poppins", "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: 0.018em;
+}
+body:has(.management-shell) h1,
+body:has(.management-shell) [data-display-title] {
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+body:has(.management-shell) h2,
+body:has(.management-shell) h3 {
+  font-family: var(--font-sans);
+  font-weight: 700;
+  letter-spacing: -0.005em;
+}
+
 /* ===== Temas do aplicativo fora do Padrão: as ações da Agenda seguem a cor do tema =====
    Os tokens `--agenda-*` acima trazem o azul do Figaro para todos os temas; aqui Rosé, Índigo, Cobre
    e Clássico voltam a usar o próprio destaque (`--identity-accent` no escuro, `--identity-accent-light`

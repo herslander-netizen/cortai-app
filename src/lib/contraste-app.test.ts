@@ -368,3 +368,22 @@ it("Rosé claro: botões blush com letra vinho, delicados e legíveis", () => {
     ),
   ).toBeGreaterThanOrEqual(7);
 });
+
+describe("tipografia do Figaro na área do negócio", () => {
+  it("usa Plus Jakarta Sans no texto e Poppins nos títulos grandes, só dentro da área do negócio", () => {
+    expect(css).toMatch(
+      /body:has\(\.management-shell\) \{\s*--font-sans: "Plus Jakarta Sans"[^;]*;\s*--font-display: "Poppins"/,
+    );
+    expect(css).toMatch(
+      /body:has\(\.management-shell\) h2,\s*body:has\(\.management-shell\) h3 \{\s*font-family: var\(--font-sans\)/,
+    );
+    // Páginas públicas e chat continuam na Manrope.
+    expect(css).toMatch(/--font-sans: "Manrope"/);
+  });
+
+  it("as fontes são carregadas no documento", () => {
+    const raiz = readFileSync(resolve(__dirname, "../routes/__root.tsx"), "utf8");
+    expect(raiz).toContain("family=Plus+Jakarta+Sans");
+    expect(raiz).toContain("family=Poppins");
+  });
+});

@@ -703,6 +703,21 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - A auditoria separa evidência estática de comportamento que ainda precisa ser executado. O binário anterior não está acessível nesta sessão, então não se declarou changelog incremental. Pontos para revisão: `allowBackup=true` e exceção de tráfego claro restrita a loopback/IPs privados, incluindo `192.168.2.19`.
 - Sem alteração funcional, no banco, produção ou `main`. A tarefa de auditoria foi concluída e sua reserva removida.
 
+### 2026-10-23 UTC — Claude — Tipografia do Figaro na área do negócio (Plus Jakarta Sans e Poppins)
+- Pedido do dono (foto do menu lateral): "ajuste tamanhos e fontes, o Cortaí tá feio". **Achado:** o menu lateral já está **igual ao
+  Figaro, em pixels**: comparei `docs/referencia-figaro/inicio-1.jpg`/`inicio-2.jpg` com a foto do dono, e os cartões "Confirme seu
+  e-mail", "Ative as notificações" e "Agenda" têm exatamente a mesma altura (391, 391 e 204 px a 1080 px de largura). O que não
+  combinava era a **fonte**: o Cortaí usa **Manrope** em tudo; o Figaro usa **Plus Jakarta Sans** no texto, **Poppins** nos
+  títulos grandes (24 sp ou mais) e JetBrains Mono nos números (`1-design-system.md` §2).
+- **Feito (só na área do negócio, `body:has(.management-shell)`):** `--font-sans` = Plus Jakarta Sans; `--font-display` = Poppins em
+  `h1`/`[data-display-title]` (peso 600, espaçamento -0,01 em); `h2`/`h3` ficam em Jakarta (peso 700), como `titleLarge`..
+  `titleSmall`; espaçamento do corpo 0,018 em (`bodyMedium`). As fontes entram no mesmo link do Google Fonts de `__root.tsx`.
+  Páginas públicas, chat e landing seguem na Manrope. As fontes são abertas (OFL), sem problema de licença.
+- **Não feito:** JetBrains Mono nos horários e valores (muda a largura dos números na Agenda; depende de conferir a tela) e
+  qualquer mudança de **tamanhos**: a escala de 12/14/16 do Cortaí já bate com `bodySmall/Medium/Large`.
+- Teste de guarda (fontes e escopo). tsc, vitest e build verdes. Conferido no Chromium com as fontes reais. **A diferença é sutil**
+  (Manrope e Jakarta são parecidas); se o "feio" for de outras telas, preciso saber quais.
+
 ### 2026-10-23 UTC — Claude — Rosé delicado (salão) e Clássico preto e dourado (barbearia): identidades opostas
 - Pedido do dono: Rosé e Clássico precisam de mais identidade. **Clássico** = barbearia, preto e dourado, masculino ("homem, barba");
   **Rosé** = delicado e bonito como um salão, **sem predominância de rosa**, nos dois modos. Os dois devem ser opostos.
