@@ -703,6 +703,27 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - A auditoria separa evidência estática de comportamento que ainda precisa ser executado. O binário anterior não está acessível nesta sessão, então não se declarou changelog incremental. Pontos para revisão: `allowBackup=true` e exceção de tráfego claro restrita a loopback/IPs privados, incluindo `192.168.2.19`.
 - Sem alteração funcional, no banco, produção ou `main`. A tarefa de auditoria foi concluída e sua reserva removida.
 
+### 2026-10-23 UTC — Claude — Rosé delicado (salão) e Clássico preto e dourado (barbearia): identidades opostas
+- Pedido do dono: Rosé e Clássico precisam de mais identidade. **Clássico** = barbearia, preto e dourado, masculino ("homem, barba");
+  **Rosé** = delicado e bonito como um salão, **sem predominância de rosa**, nos dois modos. Os dois devem ser opostos.
+- **Clássico escuro:** fundo preto quente `#0C0B09`, cartões `#15130F`/`#26221A`, texto champanhe `#F2E9D4`, bordas com tinta
+  dourada `#3A3220`, **dourado `#D6B25A`** nos botões e destaques (texto preto), prata `#A9AEB4` e cinza quente `#B3ADA0` de apoio.
+  **Clássico claro:** pergaminho `#EFEADC` com cartões brancos, texto `#14120E`, dourado antigo `#7D5F14` nos links e
+  **botões, "+" e dia escolhido em preto `#1A1812` com letras douradas `#E3C36A`** (10:1), como o letreiro de uma barbearia.
+- **Rosé escuro:** grafite quente `#1C1819` (quase neutro), cartões `#252021`/`#373032`, texto `#F5EDEA`, **rosé-gold `#E6B8B0`** nos
+  botões, champanhe `#D9C3A8` de apoio e sálvia `#A9BFA6` como terciário. **Rosé claro:** marfim levemente rosado `#F6EEEA`,
+  cartões brancos, texto `#2A2124`, rosa-poeira `#A6485F` só nos links, e **botões, "+" e dia escolhido tonais** (blush
+  `#F0D4D6` com letra vinho `#5C2233`, 8,7:1), sem bloco de rosa forte. A primeira versão tinha botões rosa cheios; ficou pesada
+  e foi suavizada.
+- Como: mesmos blocos `html:root[data-identidade="rose"|"classico"]` (`.light`) sobre os `--figaro-*`, mais dois blocos
+  `html:root.light[data-identidade="..."][data-identidade]` que trocam a cor de ação do claro (o seletor repete o atributo para
+  vencer o bloco genérico dos temas fora do Padrão). Menu: Rosé "Delicado: rosé, champanhe e marfim"; Clássico "Barbearia: preto
+  e dourado".
+- Testes: paletas dos 4 temas (texto ≥ 7:1, apoio e secundário ≥ 4,5:1, texto sobre a ação ≥ 4,5:1, cartão separado, borda ≥ 3:1),
+  par preto/dourado do Clássico claro e blush/vinho do Rosé claro ≥ 7:1, e um teste de identidade (Clássico escuro quase preto com
+  dourado vivo; fundo do Rosé quase neutro). tsc, vitest e build verdes. Conferido no Chromium com amostra dos tokens reais.
+  **Não visto no celular**: conferir na prévia (Ajustes → Aparência → Rosé e Clássico, claro e escuro).
+
 ### 2026-10-23 UTC — Claude — Cartão "Sua Página" abre o Personalizar Página; análise do Personalizar Página no APK novo
 - Pedido do dono: o cartão "Sua Página" do menu lateral deve abrir o Personalizar Página (como o Figaro, `onOpenSuaPagina`) e o
   compartilhar continua compartilhando o link. **Causa:** o GPT alinhou em 21/10 só o item "Sua Página" da lista Ajustes

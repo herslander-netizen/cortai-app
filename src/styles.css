@@ -458,28 +458,29 @@
   --identity-deep: #17181f;
 }
 
-/* Tema Rosé: rosa de destaque com cinzas rosados, preto e branco (mesma ideia do Cobre). Aqui só as cores de
-   destaque; fundos, cartões e textos estão no bloco `html:root[data-identidade="rose"]`. */
+/* Tema Rosé: delicado, de salão. Rosé-gold e champanhe de destaque sobre marfim e grafite suave, com toque de sálvia; o rosa aparece
+   com parcimônia. Fundos e textos no bloco `html:root[data-identidade="rose"]`. */
 :root[data-identidade="rose"] {
-  --identity-accent: #f28bab;
-  --identity-accent-light: #c2185b;
-  --identity-primary: #c2185b;
-  --identity-secondary: #bdaeb3;
-  --identity-secondary-light: #6b5a61;
-  --identity-secondary-strong: #8c7a81;
-  --identity-deep: #1d1618;
+  --identity-accent: #e6b8b0;
+  --identity-accent-light: #a6485f;
+  --identity-primary: #a6485f;
+  --identity-secondary: #d9c3a8;
+  --identity-secondary-light: #6f5f55;
+  --identity-secondary-strong: #a08e80;
+  --identity-deep: #1c1819;
 }
 
 
-/* Tema Clássico: dourado de destaque com cinzas quentes, preto e branco. Fundos e textos no bloco `html:root[data-identidade="classico"]`. */
+/* Tema Clássico: barbearia, preto e dourado. Dourado antigo e prata de destaque sobre preto quente (escuro) ou pergaminho (claro).
+   Fundos e textos no bloco `html:root[data-identidade="classico"]`. */
 :root[data-identidade="classico"] {
-  --identity-accent: #d9b96a;
-  --identity-accent-light: #7a5c0e;
-  --identity-primary: #8a6a12;
-  --identity-secondary: #bdb7a3;
-  --identity-secondary-light: #67624f;
-  --identity-secondary-strong: #8c866f;
-  --identity-deep: #1b1913;
+  --identity-accent: #d6b25a;
+  --identity-accent-light: #7d5f14;
+  --identity-primary: #7d5f14;
+  --identity-secondary: #b3ada0;
+  --identity-secondary-light: #5c5f63;
+  --identity-secondary-strong: #8a8578;
+  --identity-deep: #0c0b09;
 }
 
 /* Tema Cobre: a paleta da marca Claude (preto `#141413`, marfim `#FAF9F5`, cinza `#B0AEA5`, laranja `#D97757`, azul
@@ -9946,80 +9947,80 @@ html:root[data-identidade="copper"].light {
 
 /* ===== Tema Rosé: neutros rosados e destaque rosa (mesma estrutura do Cobre) ===== */
 html:root[data-identidade="rose"] {
-  --figaro-background: #1d1618;
-  --figaro-surface: #1d1618;
-  --figaro-surface-dim: #1d1618;
-  --figaro-surface-container-lowest: #171113;
-  --figaro-surface-container-low: #292024;
-  --figaro-surface-container: #2e2327;
-  --figaro-surface-container-high: #382b30;
-  --figaro-surface-container-highest: #43343a;
-  --figaro-surface-bright: #4f3e45;
-  --figaro-on-background: #f7ecef;
-  --figaro-on-surface: #f7ecef;
-  --figaro-surface-variant: #44343a;
-  --figaro-on-surface-variant: #d1bfc5;
-  --figaro-inverse-surface: #f7ecef;
-  --figaro-inverse-on-surface: #292024;
-  --figaro-outline: #7a676e;
-  --figaro-outline-variant: #44343a;
-  --figaro-hint: #a8969d;
-  --figaro-card-tile: #382b30;
-  --figaro-draft-banner: #3a1626;
-  --figaro-warm-tonal: #4a2f34;
-  --figaro-on-warm-tonal: #ffdfe5;
-  --figaro-primary: #f28bab;
-  --figaro-on-primary: #1d1618;
-  --figaro-primary-container: #4d1f32;
-  --figaro-on-primary-container: #ffd9e5;
-  --figaro-secondary: #bdaeb3;
-  --figaro-on-secondary: #1d1618;
-  --figaro-secondary-container: #44343a;
-  --figaro-on-secondary-container: #f7ecef;
-  --figaro-tertiary: #e8b4b8;
-  --figaro-on-tertiary: #2a1418;
-  --figaro-tertiary-container: #4a2f34;
-  --figaro-on-tertiary-container: #ffdfe5;
-  --figaro-action-blue: #f28bab;
-  --figaro-on-action-blue: #1d1618;
+  --figaro-background: #1c1819;
+  --figaro-surface: #1c1819;
+  --figaro-surface-dim: #1c1819;
+  --figaro-surface-container-lowest: #161213;
+  --figaro-surface-container-low: #252021;
+  --figaro-surface-container: #2d2729;
+  --figaro-surface-container-high: #373032;
+  --figaro-surface-container-highest: #423a3c;
+  --figaro-surface-bright: #4d4446;
+  --figaro-on-background: #f5edea;
+  --figaro-on-surface: #f5edea;
+  --figaro-surface-variant: #3c3436;
+  --figaro-on-surface-variant: #d4c5c4;
+  --figaro-inverse-surface: #f5edea;
+  --figaro-inverse-on-surface: #1c1819;
+  --figaro-outline: #766a6c;
+  --figaro-outline-variant: #3c3436;
+  --figaro-hint: #a89a9b;
+  --figaro-card-tile: #373032;
+  --figaro-primary: #e6b8b0;
+  --figaro-on-primary: #1c1819;
+  --figaro-primary-container: #4a302f;
+  --figaro-on-primary-container: #ffe2dc;
+  --figaro-secondary: #d9c3a8;
+  --figaro-on-secondary: #1c1819;
+  --figaro-secondary-container: #3c3436;
+  --figaro-on-secondary-container: #f5edea;
+  --figaro-tertiary: #a9bfa6;
+  --figaro-on-tertiary: #141c14;
+  --figaro-tertiary-container: #2a3629;
+  --figaro-on-tertiary-container: #dcead9;
+  --figaro-action-blue: #e6b8b0;
+  --figaro-on-action-blue: #1c1819;
+  --figaro-draft-banner: #4a2a32;
+  --figaro-warm-tonal: #3c3436;
+  --figaro-on-warm-tonal: #f5edea;
 }
 html:root[data-identidade="rose"].light {
-  --figaro-background: #f7ecef;
-  --figaro-surface: #f7ecef;
-  --figaro-surface-dim: #f0e0e5;
+  --figaro-background: #f6eeea;
+  --figaro-surface: #f6eeea;
+  --figaro-surface-dim: #f6eeea;
   --figaro-surface-container-lowest: #ffffff;
-  --figaro-surface-container-low: #fdf7f8;
-  --figaro-surface-container: #f0e0e5;
-  --figaro-surface-container-high: #e8d5db;
-  --figaro-surface-container-highest: #dbc4cc;
+  --figaro-surface-container-low: #fcf8f6;
+  --figaro-surface-container: #eee3de;
+  --figaro-surface-container-high: #e6d9d3;
+  --figaro-surface-container-highest: #d9c9c2;
   --figaro-surface-bright: #ffffff;
-  --figaro-on-background: #1c1417;
-  --figaro-on-surface: #1c1417;
-  --figaro-surface-variant: #e8d5db;
-  --figaro-on-surface-variant: #4f3f45;
-  --figaro-inverse-surface: #251c1f;
-  --figaro-inverse-on-surface: #fdf7f8;
-  --figaro-outline: #8a7880;
-  --figaro-outline-variant: #e6d3d9;
-  --figaro-hint: #6b5a61;
-  --figaro-card-tile: #f0e0e5;
-  --figaro-draft-banner: #ffd9e5;
-  --figaro-warm-tonal: #f7dde1;
-  --figaro-on-warm-tonal: #3a1a20;
-  --figaro-primary: #c2185b;
+  --figaro-on-background: #2a2124;
+  --figaro-on-surface: #2a2124;
+  --figaro-surface-variant: #e6d9d3;
+  --figaro-on-surface-variant: #5a4d50;
+  --figaro-inverse-surface: #2a2124;
+  --figaro-inverse-on-surface: #f6eeea;
+  --figaro-outline: #8a7a7e;
+  --figaro-outline-variant: #e8dcd6;
+  --figaro-hint: #70616a;
+  --figaro-card-tile: #e6d9d3;
+  --figaro-primary: #a6485f;
   --figaro-on-primary: #ffffff;
-  --figaro-primary-container: #ffd9e5;
-  --figaro-on-primary-container: #3d0a1d;
-  --figaro-secondary: #6b5a61;
+  --figaro-primary-container: #f7dfe0;
+  --figaro-on-primary-container: #3f1d25;
+  --figaro-secondary: #6f5f55;
   --figaro-on-secondary: #ffffff;
-  --figaro-secondary-container: #e8d5db;
-  --figaro-on-secondary-container: #1c1417;
-  --figaro-tertiary: #8a4a56;
+  --figaro-secondary-container: #ece0d3;
+  --figaro-on-secondary-container: #2a2124;
+  --figaro-tertiary: #4f6b52;
   --figaro-on-tertiary: #ffffff;
-  --figaro-tertiary-container: #f7dde1;
-  --figaro-on-tertiary-container: #3a1a20;
-  --figaro-action-blue: #c2185b;
+  --figaro-tertiary-container: #e3eee1;
+  --figaro-on-tertiary-container: #1c2d1e;
+  --figaro-action-blue: #a6485f;
   --figaro-on-action-blue: #ffffff;
+  --figaro-draft-banner: #f7dfe0;
+  --figaro-warm-tonal: #ece0d3;
+  --figaro-on-warm-tonal: #2a2124;
 }
 
 /* ===== Tema Índigo: neutros e destaque próprios (mesma estrutura do Cobre e do Rosé) ===== */
@@ -10096,74 +10097,80 @@ html:root[data-identidade="indigo"].light {
 
 /* ===== Tema Clássico: neutros e destaque próprios (mesma estrutura do Cobre e do Rosé) ===== */
 html:root[data-identidade="classico"] {
-  --figaro-background: #1b1913;
-  --figaro-surface: #1b1913;
-  --figaro-surface-dim: #1b1913;
-  --figaro-surface-container-lowest: #15130e;
-  --figaro-surface-container-low: #232018;
-  --figaro-surface-container: #2c2920;
-  --figaro-surface-container-high: #36322a;
-  --figaro-surface-container-highest: #413c32;
-  --figaro-surface-bright: #4c473b;
-  --figaro-on-background: #f3eedc;
-  --figaro-on-surface: #f3eedc;
-  --figaro-surface-variant: #3a362b;
-  --figaro-on-surface-variant: #cfc8b0;
-  --figaro-inverse-surface: #f3eedc;
-  --figaro-inverse-on-surface: #1b1913;
-  --figaro-outline: #766f5a;
-  --figaro-outline-variant: #3a362b;
-  --figaro-hint: #a39c85;
-  --figaro-card-tile: #36322a;
-  --figaro-primary: #d9b96a;
-  --figaro-on-primary: #1b1913;
-  --figaro-primary-container: #4a3d18;
-  --figaro-on-primary-container: #ffe9a8;
-  --figaro-secondary: #bdb7a3;
-  --figaro-on-secondary: #1b1913;
-  --figaro-secondary-container: #3a362b;
-  --figaro-on-secondary-container: #f3eedc;
-  --figaro-tertiary: #c9a98a;
-  --figaro-on-tertiary: #2a1c10;
-  --figaro-tertiary-container: #4a3826;
-  --figaro-on-tertiary-container: #f7e1cc;
-  --figaro-action-blue: #d9b96a;
-  --figaro-on-action-blue: #1b1913;
+  --figaro-background: #0c0b09;
+  --figaro-surface: #0c0b09;
+  --figaro-surface-dim: #0c0b09;
+  --figaro-surface-container-lowest: #070605;
+  --figaro-surface-container-low: #15130f;
+  --figaro-surface-container: #1c1913;
+  --figaro-surface-container-high: #26221a;
+  --figaro-surface-container-highest: #312c21;
+  --figaro-surface-bright: #3b3528;
+  --figaro-on-background: #f2e9d4;
+  --figaro-on-surface: #f2e9d4;
+  --figaro-surface-variant: #3a3220;
+  --figaro-on-surface-variant: #cdbf9f;
+  --figaro-inverse-surface: #f2e9d4;
+  --figaro-inverse-on-surface: #0c0b09;
+  --figaro-outline: #7a6f55;
+  --figaro-outline-variant: #3a3220;
+  --figaro-hint: #a59b83;
+  --figaro-card-tile: #26221a;
+  --figaro-primary: #d6b25a;
+  --figaro-on-primary: #0c0b09;
+  --figaro-primary-container: #3d3010;
+  --figaro-on-primary-container: #f5e2a8;
+  --figaro-secondary: #b3ada0;
+  --figaro-on-secondary: #0c0b09;
+  --figaro-secondary-container: #2a2620;
+  --figaro-on-secondary-container: #f2e9d4;
+  --figaro-tertiary: #a9aeb4;
+  --figaro-on-tertiary: #0d0f12;
+  --figaro-tertiary-container: #26292d;
+  --figaro-on-tertiary-container: #e3e6ea;
+  --figaro-action-blue: #d6b25a;
+  --figaro-on-action-blue: #0c0b09;
+  --figaro-draft-banner: #3d3010;
+  --figaro-warm-tonal: #2a2620;
+  --figaro-on-warm-tonal: #f2e9d4;
 }
 html:root[data-identidade="classico"].light {
-  --figaro-background: #f4f0e3;
-  --figaro-surface: #f4f0e3;
-  --figaro-surface-dim: #ece7d6;
+  --figaro-background: #efeadc;
+  --figaro-surface: #efeadc;
+  --figaro-surface-dim: #efeadc;
   --figaro-surface-container-lowest: #ffffff;
-  --figaro-surface-container-low: #fbf9f2;
-  --figaro-surface-container: #ece7d6;
-  --figaro-surface-container-high: #e3ddc8;
-  --figaro-surface-container-highest: #d6cfb6;
+  --figaro-surface-container-low: #f8f5ec;
+  --figaro-surface-container: #e8e2d0;
+  --figaro-surface-container-high: #ded7c0;
+  --figaro-surface-container-highest: #d0c8ac;
   --figaro-surface-bright: #ffffff;
-  --figaro-on-background: #1c1a12;
-  --figaro-on-surface: #1c1a12;
-  --figaro-surface-variant: #e3ddc8;
-  --figaro-on-surface-variant: #4a4636;
-  --figaro-inverse-surface: #1c1a12;
-  --figaro-inverse-on-surface: #f4f0e3;
+  --figaro-on-background: #14120e;
+  --figaro-on-surface: #14120e;
+  --figaro-surface-variant: #ded7c0;
+  --figaro-on-surface-variant: #4a4434;
+  --figaro-inverse-surface: #14120e;
+  --figaro-inverse-on-surface: #efeadc;
   --figaro-outline: #857e66;
-  --figaro-outline-variant: #e2dcc6;
-  --figaro-hint: #67624f;
-  --figaro-card-tile: #ece7d6;
-  --figaro-primary: #7a5c0e;
+  --figaro-outline-variant: #ddd6bf;
+  --figaro-hint: #655e49;
+  --figaro-card-tile: #ded7c0;
+  --figaro-primary: #7d5f14;
   --figaro-on-primary: #ffffff;
-  --figaro-primary-container: #fbebb5;
+  --figaro-primary-container: #f3e3b0;
   --figaro-on-primary-container: #3a2c00;
-  --figaro-secondary: #67624f;
+  --figaro-secondary: #5c5f63;
   --figaro-on-secondary: #ffffff;
   --figaro-secondary-container: #e3ddc8;
-  --figaro-on-secondary-container: #1c1a12;
-  --figaro-tertiary: #7b5b3a;
+  --figaro-on-secondary-container: #14120e;
+  --figaro-tertiary: #7a5a33;
   --figaro-on-tertiary: #ffffff;
-  --figaro-tertiary-container: #f2e0cc;
-  --figaro-on-tertiary-container: #35220f;
-  --figaro-action-blue: #7a5c0e;
+  --figaro-tertiary-container: #efe0cc;
+  --figaro-on-tertiary-container: #33200f;
+  --figaro-action-blue: #7d5f14;
   --figaro-on-action-blue: #ffffff;
+  --figaro-draft-banner: #f3e3b0;
+  --figaro-warm-tonal: #e3ddc8;
+  --figaro-on-warm-tonal: #14120e;
 }
 
 /* ===== Temas do aplicativo fora do Padrão: as ações da Agenda seguem a cor do tema =====
@@ -10202,6 +10209,26 @@ html:root[data-identidade="classico"].light {
     color: var(--agenda-acao-texto);
     filter: none;
   }
+}
+
+/* Rosé claro: botões, "+" e dia escolhido em tom blush com letra vinho (tonal e delicado, sem bloco de rosa forte). */
+html:root.light[data-identidade="rose"][data-identidade] {
+  --agenda-acao: #f0d4d6;
+  --agenda-acao-texto: #5c2233;
+  --agenda-acao-suave: color-mix(in oklab, #a6485f 12%, var(--figaro-surface));
+  --agenda-escolhido: #f0d4d6;
+  --agenda-escolhido-texto: #5c2233;
+  --agenda-destaque: #a6485f;
+}
+
+/* Clássico claro: botões, "+" e dia escolhido em preto com letras douradas, como o letreiro de uma barbearia. */
+html:root.light[data-identidade="classico"][data-identidade] {
+  --agenda-acao: #1a1812;
+  --agenda-acao-texto: #e3c36a;
+  --agenda-acao-suave: color-mix(in oklab, #7d5f14 16%, var(--figaro-surface));
+  --agenda-escolhido: #1a1812;
+  --agenda-escolhido-texto: #e3c36a;
+  --agenda-destaque: #7d5f14;
 }
 
 /* ===== Área do negócio no padrão Figaro (identidade padrão) =====

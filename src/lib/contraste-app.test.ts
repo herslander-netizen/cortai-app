@@ -326,3 +326,45 @@ describe("sombras em tudo no padrão do Figaro", () => {
     expect(css).not.toMatch(/--agenda-cartao-sombra: 0/);
   });
 });
+
+it("Clássico claro: botões pretos com letras douradas legíveis (barbearia)", () => {
+  const v = bloco('html:root.light[data-identidade="classico"][data-identidade]');
+  expect(v["--agenda-acao"]).toBe("#1a1812");
+  expect(
+    razao(resolver("var(--agenda-acao)", v).rgb, resolver("var(--agenda-acao-texto)", v).rgb),
+  ).toBeGreaterThanOrEqual(7);
+  expect(
+    razao(
+      resolver("var(--agenda-escolhido)", v).rgb,
+      resolver("var(--agenda-escolhido-texto)", v).rgb,
+    ),
+  ).toBeGreaterThanOrEqual(7);
+});
+
+it("Rosé e Clássico têm identidades opostas: delicado e claro no Rosé, preto e dourado no Clássico", () => {
+  const rose = bloco('html:root[data-identidade="rose"]');
+  const classico = bloco('html:root[data-identidade="classico"]');
+  expect(razao(resolver("var(--figaro-background)", classico).rgb, [0, 0, 0])).toBeLessThan(1.3); // quase preto
+  expect(
+    razao(
+      resolver("var(--figaro-primary)", classico).rgb,
+      resolver("var(--figaro-background)", classico).rgb,
+    ),
+  ).toBeGreaterThanOrEqual(7); // dourado vivo
+  // O rosé não é rosa dominante: o fundo é quase neutro (pouca diferença entre vermelho e azul).
+  const [r, , b] = resolver("var(--figaro-background)", rose).rgb;
+  expect((r - b) * 255).toBeLessThan(16);
+});
+
+it("Rosé claro: botões blush com letra vinho, delicados e legíveis", () => {
+  const v = bloco('html:root.light[data-identidade="rose"][data-identidade]');
+  expect(
+    razao(resolver("var(--agenda-acao)", v).rgb, resolver("var(--agenda-acao-texto)", v).rgb),
+  ).toBeGreaterThanOrEqual(7);
+  expect(
+    razao(
+      resolver("var(--agenda-escolhido)", v).rgb,
+      resolver("var(--agenda-escolhido-texto)", v).rgb,
+    ),
+  ).toBeGreaterThanOrEqual(7);
+});
