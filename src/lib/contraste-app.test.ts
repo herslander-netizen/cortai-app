@@ -175,12 +175,16 @@ describe("azul do Figaro só no tema Padrão", () => {
 });
 
 // Tema Cobre (paleta do Claude): neutros próprios nos dois modos, lidos do bloco `html:root[...]`.
-describe.each(["escuro", "claro"] as const)("Cobre, paleta %s", (modo) => {
-  const identidade = bloco(':root[data-identidade="copper"]');
+describe.each(
+  (["copper", "rose"] as const).flatMap((tema) =>
+    (["escuro", "claro"] as const).map((modo) => [tema, modo] as const),
+  ),
+)("Paleta própria do tema %s, %s", (tema, modo) => {
+  const identidade = bloco(`:root[data-identidade="${tema}"]`);
   const neutros =
     modo === "escuro"
-      ? bloco('html:root[data-identidade="copper"]')
-      : bloco('html:root[data-identidade="copper"].light');
+      ? bloco(`html:root[data-identidade="${tema}"]`)
+      : bloco(`html:root[data-identidade="${tema}"].light`);
   const vars = { ...identidade, ...neutros };
   const cor = (nome: string) => resolver(`var(${nome})`, vars).rgb;
   const par = (a: string, b: string) => razao(cor(a), cor(b));

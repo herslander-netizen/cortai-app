@@ -703,6 +703,18 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - A auditoria separa evidência estática de comportamento que ainda precisa ser executado. O binário anterior não está acessível nesta sessão, então não se declarou changelog incremental. Pontos para revisão: `allowBackup=true` e exceção de tráfego claro restrita a loopback/IPs privados, incluindo `192.168.2.19`.
 - Sem alteração funcional, no banco, produção ou `main`. A tarefa de auditoria foi concluída e sua reserva removida.
 
+### 2026-10-23 UTC — Claude — Rosé com a mesma ideia do Cobre (rosa, cinzas rosados, preto e branco)
+- Pedido do dono: "usar o mesmo pensamento pra criar o tema rose, com cores voltadas mais para o rosa" (gostou do Cobre).
+- **Escuro:** fundo preto arroxeado `#1D1618`, cartões `#292024`/`#382B30`, texto `#F7ECEF`, apoio `#A8969D`, rosa de destaque
+  `#F28BAB` com texto escuro. **Claro:** fundo rosado claro `#F7ECEF`, cartões brancos, texto `#1C1417`, apoio `#6B5A61`, rosa vivo
+  `#C2185B` com texto branco. Cinza rosado `#BDAEB3`/`#6B5A61` como cor secundária; botão primário `#C2185B` (branco 5,9:1).
+- Mesmo mecanismo do Cobre: bloco `html:root[data-identidade="rose"]` (e `.light`) sobrepõe os `--figaro-*`; o azul antigo do Rosé
+  (secundário azul) saiu. Só o Rosé muda. Menu: "Rosa com cinzas rosados, preto e branco".
+- Os testes de paleta própria do Cobre agora cobrem Cobre **e** Rosé (texto ≥ 7:1, apoio e secundário ≥ 4,5:1, texto sobre a cor de
+  ação ≥ 4,5:1, cartão separado do fundo, borda ≥ 3:1). O teste pegou o cartão escuro com 0,029 de diferença (mínimo 0,03); clareei.
+  tsc, vitest e build verdes. Conferido no Chromium com amostra dos tokens reais ao lado do Cobre, claro e escuro. **Não visto no
+  celular**: conferir na prévia (Ajustes → Aparência → Rosé).
+
 ### 2026-10-23 UTC — Claude — Análise do APK novo (6 partes): o que mudou
 - O dono mandou as 6 partes do `Figaroo.apk`. Juntei (88.853.086 bytes, SHA-256 igual ao da auditoria `apk/9`; 593 arquivos, CRC ok),
   descompilei com JADX 1.5.1 e comparei com a especificação (`apk/1` a `8`). Relatório: `apk/10-diferencas-apk-23-10-2026.md`.
