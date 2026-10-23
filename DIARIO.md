@@ -670,6 +670,13 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-23 UTC — Claude — Pontinhos só na linha do tempo
+- Decisão do dono (23/10): os pontinhos de carregamento ficam **só no modo linha do tempo**.
+- `ListaPeriodo.tsx` não usa mais `MarcaDoLimiteDoDia`: o carregamento inicial reserva o espaço sem animação (leitor de tela
+  ouve "Carregando a lista"), e o carregamento de mais dias aparece no botão "Ver mais dias" (estado de carregando).
+- Teste: `ListaPeriodo.carregamento.test.tsx` falha se a lista voltar a usar os pontinhos. Vitest 1816 ok, build ok.
+- Os pontinhos da linha do tempo, da prévia do dia vizinho e a regra de "toda consulta em andamento" não mudaram.
+
 ### 2026-10-23 UTC — Claude — Pontinhos: lista sem carregamento em cadeia e troca de dia sem revalidar à toa
 - Relato do dono: ao arrastar para o lado, "sensação de carregamento em algumas situações"; ao trocar da linha do tempo
   para os cartões (lista), pontinhos que tentam aparecer e "ficam buscando espaço".

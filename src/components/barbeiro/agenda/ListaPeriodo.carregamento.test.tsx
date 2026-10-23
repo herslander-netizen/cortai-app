@@ -2,6 +2,7 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { act, createElement } from "react";
 import { createRoot } from "react-dom/client";
+import { readFileSync } from "node:fs";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const buscar = vi.hoisted(() => vi.fn());
@@ -59,6 +60,11 @@ afterEach(() => {
 });
 
 describe("lista de períodos: carregamento", () => {
+  it("não usa os pontinhos: eles são só da linha do tempo", () => {
+    const fonte = readFileSync("src/components/barbeiro/agenda/ListaPeriodo.tsx", "utf8");
+    expect(fonte).not.toContain("MarcaDoLimiteDoDia");
+  });
+
   it("lista curta não busca bloco após bloco sozinha, e oferece Ver mais dias", async () => {
     const alvo = document.createElement("div");
     document.body.appendChild(alvo);
@@ -96,5 +102,6 @@ describe("lista de períodos: carregamento", () => {
       await new Promise((r) => setTimeout(r, 50));
     });
     expect(buscar).toHaveBeenCalledTimes(2);
+    expect(alvo.querySelector(".agenda-pontos")).toBeNull();
   });
 });

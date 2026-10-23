@@ -12,7 +12,6 @@ import { termos } from "@/lib/segmentos";
 import { corDaCategoria, glifoDoEstado } from "./cartao-figaro";
 import { IconeDoEstado } from "./IconeDoEstado";
 import { ProgressoDoAtendimento } from "./ListaAgenda";
-import { MarcaDoLimiteDoDia } from "./SemanaDoTopo";
 import { diaNoFuso, estaAtrasado, hora, nomeDaAgenda, ROTULO_ESTADO } from "./tempo";
 
 /** Dias por leitura: a lista abre com 60 dias e carrega mais ao chegar no fim. */
@@ -145,8 +144,10 @@ export function ListaPeriodo({
   return (
     <div className="agenda-lista-periodo" data-sem-gesto-dia>
       {!periodo.data && !periodo.isError ? (
-        <div className="flex min-h-64 items-start justify-center pt-8" aria-busy>
-          <MarcaDoLimiteDoDia carregando />
+        // Os pontinhos são só da linha do tempo (decisão do dono, 23/10): aqui o espaço fica reservado, sem
+        // animação, e o leitor de tela ouve o estado.
+        <div className="min-h-64" aria-busy role="status">
+          <span className="sr-only">Carregando a lista</span>
         </div>
       ) : !periodo.data ? (
         <div className="py-8 text-center text-sm text-mute" role="alert">
@@ -266,17 +267,17 @@ export function ListaPeriodo({
           {comCancelados ? "Esconder cancelados" : `Mostrar cancelados (${cancelados})`}
         </Button>
       ) : null}
-      {hasNextPage && !isFetchingNextPage ? (
+      {hasNextPage ? (
         <Button
           variant="ghost"
           className="mt-2 min-h-12 w-full"
+          loading={isFetchingNextPage}
           onClick={() => void buscarMais.current()}
         >
           Ver mais dias
         </Button>
       ) : null}
       <div ref={fim} aria-hidden />
-      {isFetchingNextPage ? <MarcaDoLimiteDoDia className="my-4" carregando /> : null}
       {grupos.length > 0 ? (
         <p className="mt-3 text-center text-xs text-mute" role="note">
           Toque no cartão para ver opções, remarcar ou cancelar
