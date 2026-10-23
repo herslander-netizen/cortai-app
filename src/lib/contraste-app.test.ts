@@ -247,3 +247,22 @@ it("Cobre: texto branco sobre o laranja dos botões ≥ 4,5:1", () => {
     4.5,
   );
 });
+
+describe("botões e + da Agenda fora do Padrão", () => {
+  it("usam a cor de ação do tema, não o primário misturado com preto", () => {
+    expect(css).toMatch(
+      /:root:not\(\[data-identidade="moderno"\]\)\[data-identidade\] body:has\(\.management-shell\) \{\s*--botao-fundo: var\(--agenda-acao\);\s*--botao-texto: var\(--agenda-acao-texto\);/,
+    );
+    expect(css).toMatch(
+      /\.agenda-acao-fixa \.agenda-fab-toggle \{\s*background: var\(--agenda-acao\);/,
+    );
+  });
+});
+
+it("Cobre: paleta oficial da marca Claude (preto, marfim, cinza, laranja)", () => {
+  const escuro = bloco('html:root[data-identidade="copper"]');
+  expect(escuro["--figaro-background"]).toBe("#141413");
+  expect(escuro["--figaro-primary"]).toBe("#d97757");
+  expect(escuro["--figaro-secondary"]).toBe("#b0aea5");
+  expect(escuro["--figaro-on-surface"]).toBe("#faf9f5");
+});

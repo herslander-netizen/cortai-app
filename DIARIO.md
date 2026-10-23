@@ -703,6 +703,19 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - A auditoria separa evidência estática de comportamento que ainda precisa ser executado. O binário anterior não está acessível nesta sessão, então não se declarou changelog incremental. Pontos para revisão: `allowBackup=true` e exceção de tráfego claro restrita a loopback/IPs privados, incluindo `192.168.2.19`.
 - Sem alteração funcional, no banco, produção ou `main`. A tarefa de auditoria foi concluída e sua reserva removida.
 
+### 2026-10-23 UTC — Claude — Cobre refeito com a paleta oficial da marca Claude; botões e "+" vivos nos temas fora do Padrão
+- Pedido do dono (fotos do app do Claude e da Agenda no Cobre): o Cobre é para ser inspirado nas cores do Claude Code e "não estou vendo
+  isso". **Causa:** o "+" da Agenda era `--primary` misturado com 24% de preto (`color-mix(... 76%, black)`), o que dava um ferrugem
+  barrento; os botões usavam um laranja escuro com texto branco; os fundos eram olivas (`#1F1E1D`), mais amarronzados que o app.
+- **Cobre agora** (paleta oficial da marca): escuro com fundo `#141413`, cartões `#1F1E1D`/`#262624`, texto marfim `#FAF9F5`, cinza
+  `#B0AEA5`, **laranja vivo `#D97757`** com texto `#141413` (5,9:1) e azul `#6A9BCC` como terciário; claro com fundo `#F3F1E9`,
+  cartões brancos, texto `#141413`, laranja `#AC5435` com texto branco (5,2:1), cinza `#5E5D59` e azul `#3A6896`.
+- **Todos os temas fora do Padrão:** os botões principais e o "+" usam a **cor de ação do tema** (`--agenda-acao` com
+  `--agenda-acao-texto`), no lugar do primário escurecido; no escuro ficam a cor viva do tema com texto escuro, como o Padrão já
+  faz com o azul do Figaro. Rosé, Índigo e Clássico também ganham esse botão mais vivo.
+- Testes: guarda para os botões/"+" (cor de ação) e para a paleta do Cobre; os testes de contraste dos quatro temas passam.
+  tsc, vitest (1868) e build verdes. Conferido no Chromium (390 px) com o "+" real. **Não visto no celular**: conferir na prévia.
+
 ### 2026-10-23 UTC — Claude — Índigo e Clássico com a mesma ideia do Cobre e do Rosé
 - Pedido do dono: manter Padrão e Cobre como estão e fazer o mesmo com os outros temas. Faltavam **Índigo** e **Clássico**.
 - **Índigo** — escuro: fundo azul-grafite `#17181F`, cartões `#1E2029`/`#2F3140`, texto `#ECEDF5`, apoio `#9A9DB3`, índigo de

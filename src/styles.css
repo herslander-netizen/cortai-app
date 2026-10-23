@@ -475,17 +475,17 @@
   --identity-deep: #1b1913;
 }
 
-/* Tema Cobre: a paleta do Claude. Laranja de destaque, cinzas quentes, preto e branco. Aqui só as cores de
-   destaque; os fundos, cartões e textos do Cobre estão no bloco `html:root[data-identidade="copper"]`
+/* Tema Cobre: a paleta da marca Claude (preto `#141413`, marfim `#FAF9F5`, cinza `#B0AEA5`, laranja `#D97757`, azul
+   `#6A9BCC`). Aqui só as cores de destaque; fundos, cartões e textos estão no bloco `html:root[data-identidade="copper"]`
    (depois da paleta do Figaro, que ele sobrepõe). Contraste conferido em contraste-app.test.ts. */
 :root[data-identidade="copper"] {
-  --identity-accent: #e58a5f;
-  --identity-accent-light: #ad4a26;
-  --identity-primary: #c2501f;
+  --identity-accent: #d97757;
+  --identity-accent-light: #ac5435;
+  --identity-primary: #ac5435;
   --identity-secondary: #b0aea5;
-  --identity-secondary-light: #67655e;
-  --identity-secondary-strong: #8a8880;
-  --identity-deep: #1f1e1d;
+  --identity-secondary-light: #5e5d59;
+  --identity-secondary-strong: #87867f;
+  --identity-deep: #141413;
 }
 
 /* Sino de avisos: rosa do Cortaí fixo, independente da identidade visual. */
@@ -9865,42 +9865,42 @@ button.agenda-nome:hover {
    brancos) e o laranja como cor de ação. `html:root` vence a paleta do Figaro, que vem antes no arquivo.
    Verde, vermelho, âmbar e azul-petróleo dos estados continuam os do Figaro. */
 html:root[data-identidade="copper"] {
-  --figaro-background: #1f1e1d;
-  --figaro-surface: #1f1e1d;
-  --figaro-surface-dim: #1f1e1d;
-  --figaro-surface-container-lowest: #191817;
-  --figaro-surface-container-low: #262624;
-  --figaro-surface-container: #2e2d2b;
-  --figaro-surface-container-high: #363532;
-  --figaro-surface-container-highest: #403f3b;
-  --figaro-surface-bright: #4a4945;
-  --figaro-on-background: #f0eee6;
-  --figaro-on-surface: #f0eee6;
-  --figaro-surface-variant: #3d3c38;
-  --figaro-on-surface-variant: #c2c0b6;
-  --figaro-inverse-surface: #f0eee6;
-  --figaro-inverse-on-surface: #262624;
+  --figaro-background: #141413;
+  --figaro-surface: #141413;
+  --figaro-surface-dim: #141413;
+  --figaro-surface-container-lowest: #0e0e0d;
+  --figaro-surface-container-low: #1f1e1d;
+  --figaro-surface-container: #262624;
+  --figaro-surface-container-high: #30302e;
+  --figaro-surface-container-highest: #3a3935;
+  --figaro-surface-bright: #454440;
+  --figaro-on-background: #faf9f5;
+  --figaro-on-surface: #faf9f5;
+  --figaro-surface-variant: #3a3935;
+  --figaro-on-surface-variant: #c9c7bc;
+  --figaro-inverse-surface: #faf9f5;
+  --figaro-inverse-on-surface: #1f1e1d;
   --figaro-outline: #77756d;
-  --figaro-outline-variant: #3d3c38;
-  --figaro-hint: #a3a199;
-  --figaro-card-tile: #363532;
+  --figaro-outline-variant: #3a3935;
+  --figaro-hint: #a8a69c;
+  --figaro-card-tile: #30302e;
   --figaro-draft-banner: #3a2216;
   --figaro-warm-tonal: #4a3a2c;
   --figaro-on-warm-tonal: #f3e0cf;
-  --figaro-primary: #e58a5f;
-  --figaro-on-primary: #1f1e1d;
+  --figaro-primary: #d97757;
+  --figaro-on-primary: #141413;
   --figaro-primary-container: #4a2a1b;
   --figaro-on-primary-container: #ffdccb;
   --figaro-secondary: #b0aea5;
-  --figaro-on-secondary: #1f1e1d;
-  --figaro-secondary-container: #3d3c38;
-  --figaro-on-secondary-container: #f0eee6;
-  --figaro-tertiary: #d4a27f;
-  --figaro-on-tertiary: #2a1a0e;
-  --figaro-tertiary-container: #4a3a2c;
-  --figaro-on-tertiary-container: #f3e0cf;
-  --figaro-action-blue: #e58a5f;
-  --figaro-on-action-blue: #1f1e1d;
+  --figaro-on-secondary: #141413;
+  --figaro-secondary-container: #3a3935;
+  --figaro-on-secondary-container: #faf9f5;
+  --figaro-tertiary: #6a9bcc;
+  --figaro-on-tertiary: #0f1d2b;
+  --figaro-tertiary-container: #1f3347;
+  --figaro-on-tertiary-container: #d4e4f5;
+  --figaro-action-blue: #d97757;
+  --figaro-on-action-blue: #141413;
 }
 html:root[data-identidade="copper"].light {
   --figaro-background: #f3f1e9;
@@ -9925,19 +9925,19 @@ html:root[data-identidade="copper"].light {
   --figaro-draft-banner: #fbe3d6;
   --figaro-warm-tonal: #f3e4d2;
   --figaro-on-warm-tonal: #3e2a18;
-  --figaro-primary: #ad4a26;
+  --figaro-primary: #ac5435;
   --figaro-on-primary: #ffffff;
   --figaro-primary-container: #fbe3d6;
   --figaro-on-primary-container: #3e1707;
-  --figaro-secondary: #67655e;
+  --figaro-secondary: #5e5d59;
   --figaro-on-secondary: #ffffff;
   --figaro-secondary-container: #e6e3d8;
   --figaro-on-secondary-container: #141413;
-  --figaro-tertiary: #8a5a35;
+  --figaro-tertiary: #3a6896;
   --figaro-on-tertiary: #ffffff;
-  --figaro-tertiary-container: #f3e4d2;
-  --figaro-on-tertiary-container: #3e2a18;
-  --figaro-action-blue: #ad4a26;
+  --figaro-tertiary-container: #dce8f3;
+  --figaro-on-tertiary-container: #14283c;
+  --figaro-action-blue: #ac5435;
   --figaro-on-action-blue: #ffffff;
 }
 
@@ -10182,6 +10182,25 @@ html:root[data-identidade="classico"].light {
   --agenda-escolhido: var(--identity-accent-light);
   --agenda-escolhido-texto: #ffffff;
   --agenda-destaque: var(--identity-accent-light);
+}
+
+/* Botões e "+" da Agenda nos temas fora do Padrão: a cor de ação do tema (laranja vivo no Cobre) com o texto de
+   contraste, em vez de `--primary` misturado com preto, que deixava a cor barrenta. */
+:root:not([data-identidade="moderno"])[data-identidade] body:has(.management-shell) {
+  --botao-fundo: var(--agenda-acao);
+  --botao-texto: var(--agenda-acao-texto);
+}
+@media (max-width: 600px) {
+  :root:not([data-identidade="moderno"])[data-identidade] body:has(.management-shell) .agenda-acao-fixa .agenda-fab-toggle {
+    background: var(--agenda-acao);
+    box-shadow:
+      0 8px 24px color-mix(in oklab, var(--agenda-acao) 30%, transparent),
+      var(--shadow-md);
+  }
+  :root:not([data-identidade="moderno"])[data-identidade] body:has(.management-shell) .agenda-acao-fixa .agenda-fab-toggle .agenda-fab-icone {
+    color: var(--agenda-acao-texto);
+    filter: none;
+  }
 }
 
 /* ===== Área do negócio no padrão Figaro (identidade padrão) =====
