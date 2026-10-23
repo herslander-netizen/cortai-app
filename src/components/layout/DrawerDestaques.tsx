@@ -1,5 +1,9 @@
 import { Link } from "@tanstack/react-router";
 import { CalendarDays, Link2, Share2 } from "lucide-react";
+import {
+  CartaoDeEmailNoMenu,
+  CartaoDeWhatsappNoMenu,
+} from "@/components/layout/CartoesDeConfiguracaoDoMenu";
 import { CartaoAvisosDoMenu, FaixaDesempenho } from "@/components/layout/DrawerMenuExtras";
 
 import { Button } from "@/components/ui/button";
@@ -49,7 +53,7 @@ export function DrawerDestaques({
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       {slug ? (
         <div className="space-y-2">
           <div
@@ -92,7 +96,10 @@ export function DrawerDestaques({
         </div>
       ) : null}
 
+      {/* Ordem do Figaro: e-mail, notificações do aparelho e alerta de WhatsApp (some quando os dois primeiros aparecem juntos). */}
+      <CartaoDeEmailNoMenu />
       <CartaoAvisosDoMenu tenantId={tenantId} />
+      <CartaoDeWhatsappNoMenu tenantId={tenantId} />
 
       <Link
         to="/barbeiro"

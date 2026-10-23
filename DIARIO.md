@@ -696,6 +696,18 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-23 UTC — Claude — Avisos de configuração no menu lateral (e-mail, notificações, WhatsApp)
+- Pedido do dono: "preciso dessas notificações de configurações". **Correção de uma conclusão minha:** a entrada de tipografia abaixo
+  diz que o menu "já está igual ao Figaro"; isso comparou fotos do Figaro com fotos do Figaro. Os cartões de aviso **não existiam** no Cortaí
+  (só o de notificações push, em outro formato).
+- **Feito:** `CartaoDeAvisoDoMenu` (visual: cantos 28 dp, folga 12 dp, ícone 24 dp, título 16/20, texto 14/21, botões 40 dp; cartão de
+  2 linhas = 132 dp, Figaro 131 dp, conferido no navegador), `CartoesDeConfiguracaoDoMenu` ("Confirme seu e-mail" até o e-mail ser
+  confirmado, reenvia o link; WhatsApp: aviso quando a cota mensal está acabando/pausada, dispensável por mês e faixa),
+  `avisos-do-menu.ts` (regra do Figaro: o aviso do WhatsApp some quando e-mail e notificações aparecem juntos), `whatsapp-limite.functions.ts`
+  (só leitura da cota). O cartão de notificações push foi refeito sobre o mesmo visual. Ordem no menu: e-mail, notificações, WhatsApp.
+- Testes: `avisos-do-menu.test.ts` e `DrawerDestaques.test.ts` (ordem). Sem banco, sem migração.
+- Falta: print do menu do Cortaí do dono para comparar o resto do "tá feio" (Sua Página, Agenda).
+
 ### 2026-10-23 UTC — GPT — Auditoria estática do APK Figaroo atualizado
 - O dono enviou `Figaroo.apk` e identificou a cópia como a versão mais avançada do Figaro para consultas e recuperação no Cortaí.
 - Relatório criado em `docs/referencia-figaro/apk/9-auditoria-apk-atualizado-2026-10-23.md`; package `com.figaroo.android`, versionCode 136, versionName 1.0.0, target SDK 36, 7 DEX e cinco vídeos demonstrativos no pacote.

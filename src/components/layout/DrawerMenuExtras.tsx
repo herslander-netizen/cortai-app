@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Bell, ChevronDown, TrendingUp } from "lucide-react";
 
+import { CartaoDeAvisoDoMenu } from "@/components/layout/CartaoDeAvisoDoMenu";
 import { Button } from "@/components/ui/button";
 import { Odometro } from "@/components/ui/Odometro";
 import { PulsoDeNumero } from "@/components/ui/PulsoDeNumero";
@@ -100,30 +101,27 @@ export function CartaoAvisosDoMenu({ tenantId }: { tenantId: string | null }) {
   }, [visivel]);
   if (!visivel) return null;
   return (
-    <div className="rounded-[28px] border border-drawer-borda bg-drawer-card p-5">
-      <div className="flex items-start gap-3">
-        <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-drawer-band text-primary">
-          <Bell className="size-5" aria-hidden />
-        </span>
-        <div className="min-w-0">
-          <p className="text-base font-semibold text-paper">Ative as notificações</p>
-          <p className="mt-1 text-sm leading-5 text-mute">
-            {instalarPrimeiro
-              ? TEXTO_INSTALAR_PRIMEIRO
-              : "Não perca agendamentos novos e cancelamentos de última hora"}
-          </p>
-        </div>
-      </div>
-      <div className="mt-4 flex items-center gap-2">
-        {instalarPrimeiro ? null : (
-          <Button className="h-12 rounded-full px-6" onClick={() => void ativar()}>
-            Ativar
-          </Button>
-        )}
-        <Button variant="ghost" className="h-12 rounded-full px-4 text-mute" onClick={dispensar}>
-          {instalarPrimeiro ? "Entendi" : "Agora não"}
+    <CartaoDeAvisoDoMenu
+      icone={Bell}
+      titulo="Ative as notificações"
+      texto={
+        instalarPrimeiro
+          ? TEXTO_INSTALAR_PRIMEIRO
+          : "Não perca agendamentos novos e cancelamentos de última hora"
+      }
+    >
+      {instalarPrimeiro ? null : (
+        <Button className="h-10 rounded-full px-5 text-sm" onClick={() => void ativar()}>
+          Ativar
         </Button>
-      </div>
-    </div>
+      )}
+      <Button
+        variant="ghost"
+        className="h-10 rounded-full px-3 text-sm text-mute"
+        onClick={dispensar}
+      >
+        {instalarPrimeiro ? "Entendi" : "Agora não"}
+      </Button>
+    </CartaoDeAvisoDoMenu>
   );
 }

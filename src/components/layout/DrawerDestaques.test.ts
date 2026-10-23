@@ -19,4 +19,13 @@ describe("cartão Sua Página do menu lateral (Figaro: onOpenSuaPagina)", () => 
     );
     expect(fonte).toContain("/b/${slug}");
   });
+
+  it("mostra os avisos de configuração na ordem do Figaro: e-mail, notificações, WhatsApp", () => {
+    const email = fonte.indexOf("<CartaoDeEmailNoMenu />");
+    const aparelho = fonte.indexOf("<CartaoAvisosDoMenu");
+    const whatsapp = fonte.indexOf("<CartaoDeWhatsappNoMenu");
+    expect(email).toBeGreaterThan(-1);
+    expect(email).toBeLessThan(aparelho);
+    expect(aparelho).toBeLessThan(whatsapp);
+  });
 });
