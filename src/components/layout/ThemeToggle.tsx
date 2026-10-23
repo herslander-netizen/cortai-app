@@ -20,7 +20,7 @@ const OPCOES_DE_IDENTIDADE: ReadonlyArray<{ id: Identidade; nome: string; descri
   { id: "moderno", nome: "Padrão", descricao: "Azul com rosa em destaque" },
   { id: "rose", nome: "Rosé", descricao: "Rosa em destaque, azul nos detalhes" },
   { id: "indigo", nome: "Índigo", descricao: "Índigo monocromático" },
-  { id: "copper", nome: "Cobre", descricao: "Laranja, em tons claro e escuro" },
+  { id: "copper", nome: "Cobre", descricao: "Laranja com cinzas quentes, preto e branco" },
   { id: "classico", nome: "Clássico", descricao: "Dourado monocromático" },
 ];
 

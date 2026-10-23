@@ -173,3 +173,73 @@ describe("azul do Figaro só no tema Padrão", () => {
     expect(css).not.toMatch(/^:root body:has\(\.management-shell\) \{/m);
   });
 });
+
+// Tema Cobre (paleta do Claude): neutros próprios nos dois modos, lidos do bloco `html:root[...]`.
+describe.each(["escuro", "claro"] as const)("Cobre, paleta %s", (modo) => {
+  const identidade = bloco(':root[data-identidade="copper"]');
+  const neutros =
+    modo === "escuro"
+      ? bloco('html:root[data-identidade="copper"]')
+      : bloco('html:root[data-identidade="copper"].light');
+  const vars = { ...identidade, ...neutros };
+  const cor = (nome: string) => resolver(`var(${nome})`, vars).rgb;
+  const par = (a: string, b: string) => razao(cor(a), cor(b));
+  const superficies = [
+    "--figaro-background",
+    "--figaro-surface-container-low",
+    "--figaro-surface-container-lowest",
+    "--figaro-surface-container-high",
+  ];
+
+  it("texto principal ≥ 7:1 e secundário ≥ 4,5:1 sobre todas as superfícies", () => {
+    for (const s of superficies) {
+      expect(par("--figaro-on-surface", s)).toBeGreaterThanOrEqual(7);
+      expect(par("--figaro-on-surface-variant", s)).toBeGreaterThanOrEqual(4.5);
+    }
+    // O cinza de apoio (hint) vale nos fundos de leitura; no cartão mais alto do escuro basta 4,5.
+    for (const s of [
+      "--figaro-background",
+      "--figaro-surface-container-low",
+      "--figaro-surface-container-lowest",
+    ])
+      expect(par("--figaro-hint", s)).toBeGreaterThanOrEqual(4.5);
+  });
+
+  it("laranja de destaque e cinza secundário legíveis sobre o fundo e o cartão", () => {
+    for (const s of ["--figaro-background", "--figaro-surface-container-low"]) {
+      expect(par("--figaro-primary", s)).toBeGreaterThanOrEqual(4.5);
+      expect(par("--figaro-secondary", s)).toBeGreaterThanOrEqual(4.5);
+    }
+  });
+
+  it("texto sobre o laranja (botão, ação, contêiner) ≥ 4,5:1", () => {
+    expect(par("--figaro-on-primary", "--figaro-primary")).toBeGreaterThanOrEqual(4.5);
+    expect(par("--figaro-on-action-blue", "--figaro-action-blue")).toBeGreaterThanOrEqual(4.5);
+    expect(
+      par("--figaro-on-primary-container", "--figaro-primary-container"),
+    ).toBeGreaterThanOrEqual(4.5);
+    expect(
+      par("--figaro-on-secondary-container", "--figaro-secondary-container"),
+    ).toBeGreaterThanOrEqual(4.5);
+    expect(
+      par("--figaro-on-tertiary-container", "--figaro-tertiary-container"),
+    ).toBeGreaterThanOrEqual(4.5);
+  });
+
+  it("cartão se separa do fundo e a borda aparece", () => {
+    const fundo = cor("--figaro-background");
+    const cartao = cor(
+      modo === "escuro" ? "--figaro-surface-container-low" : "--figaro-surface-container-lowest",
+    );
+    expect(deltaL(cartao, fundo)).toBeGreaterThanOrEqual(0.03);
+    expect(razao(cor("--figaro-outline"), fundo)).toBeGreaterThanOrEqual(3);
+  });
+});
+
+it("Cobre: texto branco sobre o laranja dos botões ≥ 4,5:1", () => {
+  const v = bloco(':root[data-identidade="copper"]');
+  expect(razao([1, 1, 1], resolver("var(--identity-primary)", v).rgb)).toBeGreaterThanOrEqual(4.5);
+  expect(razao([1, 1, 1], resolver("var(--identity-accent-light)", v).rgb)).toBeGreaterThanOrEqual(
+    4.5,
+  );
+});

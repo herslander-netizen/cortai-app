@@ -676,6 +676,23 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-23 UTC — Claude — Cobre com a paleta do Claude (laranja, cinza, preto e branco)
+- Pedido do dono: dar ao tema Cobre a "lealdade" das cores do Claude, intercalando laranja, cinza, preto e branco; pode
+  sair das cores base do Cortaí, desde que nada fique feio nem ilegível.
+- **Escuro:** fundo grafite quase preto `#1F1E1D`, cartões `#262624`/`#363532`, texto `#F0EEE6`, apoio `#A3A199`, laranja de
+  destaque `#E58A5F` com texto escuro. **Claro:** fundo creme `#F3F1E9`, cartões brancos, texto `#141413`, apoio `#66655E`,
+  laranja queimado `#AD4A26` com texto branco. Cinza quente `#B0AEA5`/`#67655E` como cor secundária (no lugar do rosa), e
+  o botão primário `#C2501F` (branco ≥ 4,5:1).
+- Como: bloco `html:root[data-identidade="copper"]` (e `.light`) em `styles.css` que **sobrepõe os tokens `--figaro-*`**
+  (fundos, superfícies, texto, linhas, primário, secundário, terciário, ação); `html:root` vence a paleta do Figaro sem depender
+  da ordem. Verde, vermelho, âmbar e azul-petróleo dos estados continuam os do Figaro. Só o Cobre muda; Padrão e os outros
+  temas não.
+- Testes novos em `contraste-app.test.ts` (Cobre claro e escuro): texto ≥ 7:1, apoio e secundário ≥ 4,5:1, texto sobre o
+  laranja ≥ 4,5:1, cartão se separa do fundo, borda ≥ 3:1. Ajustei o claro (laranja, cinza e borda um pouco mais escuros) quando
+  o teste mediu 4,48 e 2,98. tsc, vitest e build verdes.
+- Conferido no Chromium com uma amostra dos tokens reais (cartão, botões, ação da Agenda, dia escolhido, estados), Padrão ao
+  lado do Cobre, claro e escuro. **Não visto no celular** nem nas telas reais: conferir na prévia (Ajustes → Aparência → Cobre).
+
 ### 2026-10-23 UTC — Claude — Botão de baixo como FAB estendido do Figaro (largura, círculo, forma girando, ✓)
 - Pedido do dono (mais fotos do Figaro: "Definir endereço", "Definir horários de abertura", "Definir comodidades", "Criar",
   "Salvar" na folha): quer a animação dos botões, não só o layout. **Responde a decisão em aberto nº 1 do §10 do inventário**
