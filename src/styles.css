@@ -460,15 +460,6 @@
   --identity-deep: #2a1720;
 }
 
-:root[data-identidade="copper"] {
-  --identity-accent: #c69a7e;
-  --identity-accent-light: #855a42;
-  --identity-secondary: #c69a7e;
-  --identity-secondary-light: #855a42;
-  --identity-primary: #855a42;
-  --identity-secondary-strong: #855a42;
-  --identity-deep: #43281d;
-}
 
 :root[data-identidade="classico"] {
   --identity-accent: #b8a178;
@@ -480,10 +471,9 @@
   --identity-deep: #332b1f;
 }
 
-/* Tema Cloud: homenagem ao Claude, em duas cores laranja. Escuro usa o laranja claro sobre fundo grafite;
-   claro usa o laranja queimado (`--identity-accent-light`), com contraste de texto conferido em
-   contraste-app.test.ts. */
-:root[data-identidade="cloud"] {
+/* Tema Cobre: duas cores laranja (era o tema Cloud). Escuro usa o laranja claro sobre fundo grafite; claro usa
+   o laranja queimado (`--identity-accent-light`), com contraste de texto conferido em contraste-app.test.ts. */
+:root[data-identidade="copper"] {
   --identity-accent: #ff9a5c;
   --identity-accent-light: #b8480f;
   --identity-secondary: #ffd2b3;
@@ -9866,8 +9856,8 @@ button.agenda-nome:hover {
 }
 
 /* ===== Temas do aplicativo fora do Padrão: as ações da Agenda seguem a cor do tema =====
-   Os tokens `--agenda-*` acima trazem o azul do Figaro para todos os temas; aqui Rosé, Índigo, Cobre,
-   Clássico e Cloud voltam a usar o próprio destaque (`--identity-accent` no escuro, `--identity-accent-light`
+   Os tokens `--agenda-*` acima trazem o azul do Figaro para todos os temas; aqui Rosé, Índigo, Cobre
+   e Clássico voltam a usar o próprio destaque (`--identity-accent` no escuro, `--identity-accent-light`
    no claro, que tem contraste de texto conferido em contraste-app.test.ts). */
 :root[data-identidade]:not([data-identidade="moderno"]) {
   --agenda-acao: var(--identity-accent);
@@ -9888,8 +9878,7 @@ button.agenda-nome:hover {
 
 /* ===== Área do negócio no padrão Figaro (identidade padrão) =====
    O destaque (botões, links, foco, ícones ativos) é o azul do Figaro, claro e escuro, em todas as telas
-   do menu e da Agenda, só no tema Padrão. Os outros temas do aplicativo (Rosé, Índigo, Cobre, Clássico,
-   Cloud) mantêm o próprio destaque; as superfícies continuam as do Figaro (bloco mais abaixo).
+   do menu e da Agenda, só no tema Padrão. Os outros temas do aplicativo (Rosé, Índigo, Cobre, Clássico) mantêm o próprio destaque; as superfícies continuam as do Figaro (bloco mais abaixo).
    `body:has(...)` alcança também a gaveta e os diálogos, que abrem fora do `.management-shell`. */
 :root:is(:not([data-identidade]), [data-identidade="moderno"]) body:has(.management-shell) {
   --primary: var(--figaro-primary);

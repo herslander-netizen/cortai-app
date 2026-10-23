@@ -1,6 +1,6 @@
 export const MODOS = ["claro", "escuro", "sistema"] as const;
 /** Temas escolhíveis no menu de aparência: `moderno` é o Padrão (cores atuais do Cortaí). */
-export const IDENTIDADES = ["moderno", "rose", "indigo", "copper", "classico", "cloud"] as const;
+export const IDENTIDADES = ["moderno", "rose", "indigo", "copper", "classico"] as const;
 
 export type Modo = (typeof MODOS)[number];
 export type Identidade = (typeof IDENTIDADES)[number];
@@ -51,5 +51,7 @@ export function aplicarIdentidade(identidade: Identidade) {
 }
 
 export function identidadeValida(valor: unknown): Identidade {
+  // "cloud" foi o nome provisório do laranja; hoje o laranja é o Cobre.
+  if (valor === "cloud") return "copper";
   return IDENTIDADES.includes(valor as Identidade) ? (valor as Identidade) : "moderno";
 }

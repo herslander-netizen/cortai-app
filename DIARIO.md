@@ -676,6 +676,18 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-23 UTC — Claude — Cobre passa a ter as cores do Cloud (Cloud sai do menu)
+- Pedido do dono: "Transforme o tema cobre no tema Cloud… traga suas cores pra lá e ponha o nome Cobre", com todos os
+  tons claros e escuros. Fica uma só opção, **Cobre** (id `copper`), com o laranja do Cloud: escuro `#ff9a5c` sobre
+  grafite, claro `#b8480f`; secundário `#ffd2b3`/`#7a2e0a`, primário `#e8743b`, fundo profundo `#3a1a0c`.
+- O menu tem cinco temas: Padrão, Rosé, Índigo, Cobre, Clássico. O id `cloud` saiu da lista (`IDENTIDADES`); quem tinha
+  `cloud` salvo passa a ver o Cobre (`identidadeValida` converte). **Sem migração**: o CHECK do banco (0044) continua
+  aceitando `cloud`, e hoje nenhum negócio o usa (3 negócios: clássico, padrão, índigo).
+- Os antigos tons de cobre marrom (`#c69a7e`/`#855a42`) deixaram de existir. Contraste de texto sobre ação e dia escolhido
+  ≥ 5,29:1 (claro) e ≥ 7,5:1 (escuro), conferido no navegador. tsc, vitest e build verdes.
+- Arquivos: `styles.css`, `aparencia.ts`, `ThemeToggle.tsx`, `sessao.functions.ts`, `__root.tsx`, testes de contraste e de
+  aparência. Conferir na prévia: Ajustes → Aparência → Cobre, claro e escuro.
+
 ### 2026-10-23 UTC — Claude — Temas do aplicativo voltam a valer na área do negócio
 - Pedido do dono: "o que aconteceu com os temas do sistema, preciso que funcionem" (e se pesam no desempenho).
 - **Causa:** em 22/10 (entrada "Cores fora do padrão", decisão "botão com variações fora do padrão") um bloco de

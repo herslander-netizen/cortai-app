@@ -3,7 +3,7 @@ import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { PERMISSOES } from "@/lib/permissoes";
-import { IDENTIDADES, type Identidade } from "@/lib/aparencia";
+import { IDENTIDADES, identidadeValida, type Identidade } from "@/lib/aparencia";
 import { SEGMENTOS_CONFIG, segmentoValido, type Segmento } from "@/lib/segmentos";
 import { configPadrao, TEMAS } from "@/lib/pagina-config";
 import { decidirContextos } from "@/lib/contextos";
@@ -249,9 +249,7 @@ export const getSessao = createServerFn({ method: "GET" })
         tenantLogoUrl,
         tenantPaginaPublicada,
         tenantFuso: t?.fuso ?? null,
-        identidadeApp: IDENTIDADES.includes(t?.identidade_app as Identidade)
-          ? (t?.identidade_app as Identidade)
-          : "moderno",
+        identidadeApp: identidadeValida(t?.identidade_app),
         segmento: segmentoValido(t?.segmento),
         tenantModo: t?.modo === "claro" || t?.modo === "sistema" ? t.modo : "escuro",
         papelNaEquipe: vinculo.papel,
@@ -408,7 +406,11 @@ export const criarBarbearia = createServerFn({ method: "POST" })
       .parse(input),
   )
   .handler(async ({ data, context }) => {
-    const diagnostico = (etapa: string, error: { code?: string; message?: string; details?: string; hint?: string } | null | undefined) => {
+    const diagnostico = (
+      etapa: string,
+      error:
+        { code?: string; message?: string; details?: string; hint?: string } | null | undefined,
+    ) => {
       // Nunca registrar CPF, telefone, token, nome do usuário ou chaves de ambiente.
       console.error("[criarBarbearia] Falha no fluxo", {
         etapa,
@@ -420,7 +422,11 @@ export const criarBarbearia = createServerFn({ method: "POST" })
         supabaseUrlConfigurada: Boolean(process.env["SUPABASE_URL"]),
         serviceRoleConfigurada: Boolean(process.env["SUPABASE_SERVICE_ROLE_KEY"]),
         supabaseHost: (() => {
-          try { return new URL(process.env["SUPABASE_URL"] ?? "").host; } catch { return null; }
+          try {
+            return new URL(process.env["SUPABASE_URL"] ?? "").host;
+          } catch {
+            return null;
+          }
         })(),
       });
     };
@@ -428,7 +434,10 @@ export const criarBarbearia = createServerFn({ method: "POST" })
     try {
       db = await admin();
     } catch (error) {
-      diagnostico("inicializar_cliente_admin", error instanceof Error ? { message: error.message } : null);
+      diagnostico(
+        "inicializar_cliente_admin",
+        error instanceof Error ? { message: error.message } : null,
+      );
       throw new Error("Não foi possível conectar ao serviço de cadastro. Tente novamente.");
     }
     const { data: vinculo, error: erroConsultaVinculo } = await db
@@ -509,7 +518,11 @@ export const criarBarbearia = createServerFn({ method: "POST" })
       );
     if (erroPagina) {
       diagnostico("salvar_configuracao_pagina", erroPagina);
-      await db.from("tenant_usuarios").delete().eq("tenant_id", tenantId).eq("user_id", context.userId);
+      await db
+        .from("tenant_usuarios")
+        .delete()
+        .eq("tenant_id", tenantId)
+        .eq("user_id", context.userId);
       await db.from("tenants").delete().eq("id", tenantId);
       throw new Error("Não foi possível preparar a página do negócio.");
     }
@@ -522,9 +535,15 @@ export const criarBarbearia = createServerFn({ method: "POST" })
     if (erroPerfil) {
       diagnostico("atualizar_perfil", erroPerfil);
       await db.from("tenant_page_configs").delete().eq("tenant_id", tenantId);
-      await db.from("tenant_usuarios").delete().eq("tenant_id", tenantId).eq("user_id", context.userId);
+      await db
+        .from("tenant_usuarios")
+        .delete()
+        .eq("tenant_id", tenantId)
+        .eq("user_id", context.userId);
       await db.from("tenants").delete().eq("id", tenantId);
-      throw new Error("O negócio foi iniciado, mas não foi possível configurar seu acesso. Tente novamente.");
+      throw new Error(
+        "O negócio foi iniciado, mas não foi possível configurar seu acesso. Tente novamente.",
+      );
     }
     return {
       tenantId: tenantId as string,
