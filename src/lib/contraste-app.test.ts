@@ -76,7 +76,7 @@ function resolver(valor: string, vars: Record<string, string>): Cor {
   throw new Error(`valor não suportado: ${v}`);
 }
 
-const IDENTIDADES = ["moderno", "indigo", "rose", "copper", "classico"] as const;
+const IDENTIDADES = ["moderno", "indigo", "rose", "copper", "classico", "cloud"] as const;
 const raiz = bloco(':root,\n:root[data-identidade="moderno"]');
 const claro = bloco('.light,\n:root[data-identidade="moderno"].light');
 

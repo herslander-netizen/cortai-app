@@ -480,6 +480,19 @@
   --identity-deep: #332b1f;
 }
 
+/* Tema Cloud: homenagem ao Claude, em duas cores laranja. Escuro usa o laranja claro sobre fundo grafite;
+   claro usa o laranja queimado (`--identity-accent-light`), com contraste de texto conferido em
+   contraste-app.test.ts. */
+:root[data-identidade="cloud"] {
+  --identity-accent: #ff9a5c;
+  --identity-accent-light: #b8480f;
+  --identity-secondary: #ffd2b3;
+  --identity-secondary-light: #7a2e0a;
+  --identity-primary: #e8743b;
+  --identity-secondary-strong: #e8743b;
+  --identity-deep: #3a1a0c;
+}
+
 /* Sino de avisos: rosa do Cortaí fixo, independente da identidade visual. */
 :root {
   --sino-atencao: #ff1670;

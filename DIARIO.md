@@ -670,6 +670,18 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-23 UTC — Claude — Temas do app: Padrão (cores atuais) e Cloud (laranja, claro e escuro)
+- Pedido do dono: os temas antigos estão obsoletos; criar o tema com as cores atuais com o nome Padrão, e o tema
+  Cloud, em duas cores laranja, com variações clara e escura, em homenagem ao Claude.
+- Menu de aparência (`ThemeToggle.tsx`): só **Padrão** (`moderno`, cores atuais) e **Cloud**. Rosé, Índigo, Cobre e
+  Clássico saíram do menu, mas os valores salvos continuam válidos e funcionando (nenhum dado muda).
+- `styles.css`: bloco `:root[data-identidade="cloud"]` com o laranja (`#ff9a5c` no escuro, `#b8480f` no claro, via
+  `--identity-accent-light`) e o pêssego/marrom de apoio. Contraste conferido em `contraste-app.test.ts` (cloud incluído).
+- Migração `0044_identidade_cloud.sql` (aditiva): amplia o CHECK de `tenants.identidade_app` para aceitar `cloud`. Não
+  altera linhas. **Precisa ser aplicada no `cortai-prod` com autorização antes de publicar**, senão escolher Cloud falha.
+- Testes: Vitest 1813 ok; build ok. TypeScript: o erro de `trechosDoAjuste` (outra IA) continua.
+- **Não vi na tela**: conferir o menu e os dois temas no claro e no escuro, em 390 px.
+
 ### 2026-10-23 UTC — Claude — Confirmar agendamento: carregando → pílula vira círculo → ✓ (morfo do Figaro)
 - Pedido do dono (23/10): no botão de confirmar, a animação de carregamento aparece, depois o botão se transforma e a
   forma vira um ✓. É a decisão 1 do §10 (botão flutuante do Figaro, B4), agora decidida pelo dono.
