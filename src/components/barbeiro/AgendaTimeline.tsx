@@ -7,6 +7,7 @@ import {
   useLayoutEffect,
   useMemo,
   useRef,
+  memo,
   useState,
   type ReactNode,
 } from "react";
@@ -147,7 +148,7 @@ function diaDaSemana(dia: string) {
   return new Date(`${dia}T12:00:00Z`).getUTCDay();
 }
 
-export function AgendaTimeline({
+function AgendaTimelineBase({
   dia,
   fuso,
   agora: agoraProp,
@@ -1210,3 +1211,6 @@ export function AgendaTimeline({
     </div>
   );
 }
+
+/** Memorizada: a troca de dia e os gestos da tela só a re-renderizam quando algo dela muda. */
+export const AgendaTimeline = memo(AgendaTimelineBase);

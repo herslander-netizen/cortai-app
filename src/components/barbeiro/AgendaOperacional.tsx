@@ -266,6 +266,16 @@ function FolhaFila(props: {
   );
 }
 
+/**
+ * Função de identidade fixa que sempre chama a versão mais recente (ref). A linha do tempo é memorizada: se os
+ * manipuladores mudassem de identidade a cada render, a troca de dia refaria a grade inteira à toa.
+ */
+function useFuncaoEstavel<A extends unknown[], R>(fn: (...args: A) => R): (...args: A) => R {
+  const atual = useRef(fn);
+  atual.current = fn;
+  return useCallback((...args: A) => atual.current(...args), []);
+}
+
 export function AgendaOperacional() {
   const busca = useSearch({ strict: false });
   const caminho = useRouterState({ select: (estado) => estado.location.pathname });
@@ -868,25 +878,6 @@ export function AgendaOperacional() {
     if (ancoraZoomEdicao.current?.id !== id) return;
     ancoraZoomEdicao.current = { id, y: yDoToque };
   }
-  const cartaoEmEdicao = edicao.original
-    ? {
-        id: edicao.original.id,
-        motivo: edicao.textoDoMotivo,
-        trechos:
-          edicao.novo && edicao.original
-            ? trechosQueSaem(
-                {
-                  inicio: Date.parse(edicao.original.inicio),
-                  fim: Date.parse(edicao.original.fim),
-                },
-                edicao.novo,
-              ).map((t) => ({
-                inicio: new Date(t.inicio).toISOString(),
-                fim: new Date(t.fim).toISOString(),
-              }))
-            : [],
-      }
-    : undefined;
   // Toque curto fora do cartão e das barras sai do modo de edição, como no Figaro (spec 2-agenda §6,
   // "Toque fora"). Só toque no celular: um toque longo arma o cartão e arrastar não conta como toque.
   const descartarEdicao = useRef(edicao.descartar);
@@ -956,6 +947,57 @@ export function AgendaOperacional() {
   }, [celular, carregandoInicial, hojeDaLista, queryClient]);
   const erroInicial = agenda.isError && !agenda.data;
   const mensagemErro = agenda.error instanceof Error ? agenda.error.message : undefined;
+  // Identidades estáveis para a linha do tempo memorizada (veja useFuncaoEstavel).
+  const abrirEstavel = useFuncaoEstavel(abrir);
+  const moverEstavel = useFuncaoEstavel(moverPorArrasto);
+  const redimensionarEstavel = useFuncaoEstavel(redimensionarPorAlca);
+  const editarEstavel = useFuncaoEstavel(iniciarEdicaoPorGesto);
+  const atualizarYEstavel = useFuncaoEstavel(atualizarYDoGesto);
+  const horarioVazioGeralEstavel = useFuncaoEstavel((h: string) => {
+    setHoraVazia(h);
+    setProfVazio(null);
+    setManualAberto(true);
+  });
+  const cartaoEmEdicaoMemo = useMemo(
+    () =>
+      edicao.original
+        ? {
+            id: edicao.original.id,
+            motivo: edicao.textoDoMotivo,
+            trechos:
+              edicao.novo && edicao.original
+                ? trechosQueSaem(
+                    {
+                      inicio: Date.parse(edicao.original.inicio),
+                      fim: Date.parse(edicao.original.fim),
+                    },
+                    edicao.novo,
+                  ).map((t) => ({
+                    inicio: new Date(t.inicio).toISOString(),
+                    fim: new Date(t.fim).toISOString(),
+                  }))
+                : [],
+          }
+        : undefined,
+    [edicao.original, edicao.novo, edicao.textoDoMotivo],
+  );
+  const bloqueiosDoDiaGeral = useMemo(
+    () => bloqueiosDoDia(profFiltro),
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- depende só dos dados e do filtro
+    [agenda.data?.bloqueiosDoDia, profFiltro],
+  );
+  const vizinhosMemo = useMemo(
+    () =>
+      celular ? (
+        <CamadasVizinhas
+          diaAtual={dia}
+          profissionalId={profFiltro}
+          discreto={modoDiscreto}
+          diaCompleto
+        />
+      ) : undefined,
+    [celular, dia, profFiltro, modoDiscreto],
+  );
   const faixa = (
     <FaixaConexao
       online={online}
@@ -1538,13 +1580,13 @@ export function AgendaOperacional() {
                       alinhado
                       horarios={agenda.data?.horarios ?? []}
                       selecionado={selecionado}
-                      onSelecionar={abrir}
-                      onMover={moverPorArrasto}
-                      onRedimensionar={redimensionarPorAlca}
-                      onEditar={iniciarEdicaoPorGesto}
-                      onAtualizarYDoToque={atualizarYDoGesto}
+                      onSelecionar={abrirEstavel}
+                      onMover={moverEstavel}
+                      onRedimensionar={redimensionarEstavel}
+                      onEditar={editarEstavel}
+                      onAtualizarYDoToque={atualizarYEstavel}
                       passoMin={passoMin}
-                      edicaoDoCartao={cartaoEmEdicao}
+                      edicaoDoCartao={cartaoEmEdicaoMemo}
                       onHorarioVazio={(h) => {
                         setHoraVazia(h);
                         setProfVazio(p.id);
@@ -1568,35 +1610,22 @@ export function AgendaOperacional() {
                   fuso={fuso}
                   itens={itens}
                   itensEscala={todosItens}
-                  bloqueiosDoDia={bloqueiosDoDia(profFiltro)}
+                  bloqueiosDoDia={bloqueiosDoDiaGeral}
                   horarios={agenda.data?.horarios ?? []}
                   selecionado={selecionado}
-                  onSelecionar={abrir}
-                  onMover={moverPorArrasto}
-                  onRedimensionar={redimensionarPorAlca}
-                  onEditar={iniciarEdicaoPorGesto}
-                  onAtualizarYDoToque={atualizarYDoGesto}
+                  onSelecionar={abrirEstavel}
+                  onMover={moverEstavel}
+                  onRedimensionar={redimensionarEstavel}
+                  onEditar={editarEstavel}
+                  onAtualizarYDoToque={atualizarYEstavel}
                   passoMin={passoMin}
-                  edicaoDoCartao={cartaoEmEdicao}
-                  onHorarioVazio={(h) => {
-                    setHoraVazia(h);
-                    setProfVazio(null);
-                    setManualAberto(true);
-                  }}
+                  edicaoDoCartao={cartaoEmEdicaoMemo}
+                  onHorarioVazio={horarioVazioGeralEstavel}
                   destaques={novos}
                   mostrarProfissional={!profFiltro && profissionais.length > 1}
                   discreto={modoDiscreto}
                   diaCompleto={celular}
-                  vizinhos={
-                    celular ? (
-                      <CamadasVizinhas
-                        diaAtual={dia}
-                        profissionalId={profFiltro}
-                        discreto={modoDiscreto}
-                        diaCompleto
-                      />
-                    ) : undefined
-                  }
+                  vizinhos={vizinhosMemo}
                 />
                 {celular ? (
                   <MarcaDoLimiteDoDia className="mt-1" carregando={agenda.isFetching} naPagina />

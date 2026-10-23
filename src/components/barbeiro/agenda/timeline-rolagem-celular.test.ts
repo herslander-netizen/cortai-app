@@ -129,7 +129,9 @@ describe("troca de dia em páginas no celular (como no vídeo de referência)", 
   });
 
   it("o dia vizinho entra ao lado com as próprias horas e pontinhos", () => {
-    expect(operacional).toMatch(/vizinhos=\{\s*celular \? \(\s*<CamadasVizinhas/);
+    // O vizinho é memorizado (vizinhosMemo) e passado à linha do tempo.
+    expect(operacional).toMatch(/vizinhos=\{vizinhosMemo\}/);
+    expect(operacional).toMatch(/vizinhosMemo = useMemo\([\s\S]*?celular \? \([\s\S]*?<CamadasVizinhas/);
     expect(previa).toContain("<MarcaDoLimiteDoDia");
     expect(css).not.toMatch(/\.agenda-dia-vizinha \.agenda-timeline-marca/);
     expect(css).toContain("left: calc(-100% - 2 * var(--calha-das-horas) - var(--trilho-vao));");

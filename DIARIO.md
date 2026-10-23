@@ -670,6 +670,17 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-23 UTC — Claude — Etapa 1 da troca de dia: linha do tempo memorizada
+- Pedido do dono: "comece pela etapa 1" (estabilizar a linha do tempo para a troca de dia não refazer tudo).
+- `AgendaOperacional.tsx`: os manipuladores passados à linha do tempo têm identidade fixa (`useFuncaoEstavel`, que chama
+  sempre a versão mais recente); `cartaoEmEdicao`, `bloqueiosDoDia` e o vizinho passam a ser memorizados.
+- `AgendaTimeline.tsx`: exportada como `memo(AgendaTimelineBase)`.
+- Medido: `memo-timeline.test.tsx` — com `memo`, 0 renderizações quando o pai muda por motivo que não afeta a grade; sem
+  `memo`, 3. Não medi a troca de dia real na tela: o efeito no celular precisa do perfil de desempenho.
+- Ajuste em `timeline-rolagem-celular.test.ts`: o teste lê o código-fonte e agora confere o vizinho memorizado
+  (mesma intenção, nova forma).
+- Vitest 1817 ok; TypeScript ok; build ok. Etapa 2 (trio de páginas) não iniciada.
+
 ### 2026-10-23 UTC — Claude — Pontinhos só na linha do tempo
 - Decisão do dono (23/10): os pontinhos de carregamento ficam **só no modo linha do tempo**.
 - `ListaPeriodo.tsx` não usa mais `MarcaDoLimiteDoDia`: o carregamento inicial reserva o espaço sem animação (leitor de tela
