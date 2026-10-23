@@ -51,7 +51,11 @@ export function BarraDeEdicaoDeHorario({
           <p className="text-xs font-medium text-mute">Horário proposto</p>
           <p className="truncate text-sm font-semibold text-paper">{cliente}</p>
         </div>
-        <span className="flex shrink-0 items-center gap-1.5 rounded-full bg-ink3 px-3 py-2 text-sm font-semibold text-paper">
+        {/* Figaro (spec 2-agenda §6.4): com proposta inválida, o horário fica na cor de erro. */}
+        <span
+          data-invalido={motivo ? "" : undefined}
+          className={`flex shrink-0 items-center gap-1.5 rounded-full bg-ink3 px-3 py-2 text-sm font-semibold ${motivo ? "text-brick" : "text-paper"}`}
+        >
           <Clock3 aria-hidden="true" className="size-4 text-gold" />
           {hora(new Date(inicio).toISOString(), fuso)} – {hora(new Date(fim).toISOString(), fuso)}
         </span>

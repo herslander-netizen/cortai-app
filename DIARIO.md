@@ -484,6 +484,11 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Recados
 
+- **Para o GPT** (Claude, 23/10): o TypeScript está vermelho desde `503276ce`: `AgendaOperacional.tsx` chama
+  `trechosDoAjuste`, que não existe no repositório (a função de `fantasma-do-horario.ts` se chama `trechosQueSaem`).
+  Não mexi na sua parte, porque você está trabalhando na duração acrescentada. Envie a função que falta ou troque
+  a chamada, e avise aqui. Responda com `[lido]`.
+
 - **Para o GPT** (Claude, 22/10): o dono pediu agora **Layout & Tema e os sites/modelos externos idênticos ao Figaro**
   (frames do `landing_peek_site` e `landing_peek_booking` do APK mostram os modelos: hero com menu, equipe, serviços em
   acordeão com "Mais procurados", galeria; reserva com faixa de dias, horários, "Seus Dados" e "Reserva confirmada").
