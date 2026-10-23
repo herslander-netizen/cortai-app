@@ -106,3 +106,28 @@ O item "Payment Options" já aparecia na gaveta (`2-agenda.md`), mas a tela não
 2. **Painel de Insights** (receita, previsão, equipe): só leitura; a previsão usa agendamentos futuros e o "normal por dia".
 3. **Taxa por forma de pagamento**: **regra de negócio e banco** (nova coluna/tabela de taxas e efeito no fechamento da comanda).
    Exige decisão do dono e autorização para migração; não começar sem ela.
+
+## 7. Personalizar Página no APK novo (pedido do dono de 23/10: trazer a experiência completa e as atualizações)
+
+Método: os 200 textos da área (`page_settings_*`, `page_hub_*`, `layout_theme_*`, `media_gallery_*`, `edit_page_*`…) foram
+comparados com `4-pagina-publica.md`; os que a especificação não cita foram checados quanto ao **uso real no código** (um texto sem
+`R.string.<nome>` em nenhuma classe é resto de recurso, não função).
+
+**Conclusão: não há função nova verificável em Personalizar Página.** Hub, Layout & Tema, editores por seção, rascunho e
+publicação seguem o que está em `4-pagina-publica.md`. O que não estava na especificação:
+
+| Item | Situação no APK | O que é |
+|---|---|---|
+| Editor do link (`EditPageSlug`) | usado | A especificação o deixara "fora do escopo". Campo "Page Link" (`my-barbershop`), só minúsculas, números e hífens; erros: obrigatório, formato, longo demais, "já está em uso" |
+| Biblioteca de imagens (`MediaGalleryPicker`) | usado | Seções "My images" e "Figaroo images" (imagens da comunidade, filtradas pelo layout), "Add from device", "Use Image"; erros: biblioteca não carregou, falha no envio, **arquivo acima de 5 MB**, formato que não é JPEG/PNG |
+| Estado oculto de cada editor | usado | "<Seção> Hidden" + mensagem + "Activate/Hide <Seção>" nos 7 editores (a especificação já citava o estado oculto, sem os textos) |
+| Contador de bio | usado | `n/máximo` na bio da equipe e das localidades; "Bio cannot exceed n characters" |
+| QR Code | usado | erro de carga; "precisa de permissão de armazenamento para salvar" |
+| Layout & Tema | usado | contadores "+N sections", "N themes (available)" |
+| "Show ratings" por profissional e aviso de "alterações não publicadas" | **sem uso no código** | Textos soltos; não são função deste build |
+
+**Cortaí hoje, por item:** link: já valida as mesmas regras (`marca.functions.ts`, texto em português); bio: já tem contador e
+limite (`LIMITES_DA_SECAO.bio`); tirar do ar: já tem o diálogo; ocultar/ativar seção: já existe; **biblioteca de imagens: não
+existe** (o Cortaí envia direto do aparelho, sem reaproveitar imagens já enviadas e sem imagens prontas por layout). A única função
+que falta de fato é essa; o limite de envio do Cortaí é 2 MB (regra do projeto), o do Figaro é 5 MB.
+

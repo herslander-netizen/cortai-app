@@ -18,6 +18,9 @@ type Props = {
   fechar: () => void;
 };
 
+/** Texto que acompanha o link na folha de compartilhar (`page_hub_share_page_url_message` do Figaro, em termos neutros). */
+export const MENSAGEM_DE_COMPARTILHAR = "Dê uma olhada na nossa página!";
+
 export function DrawerDestaques({
   slug,
   paginaPublicada,
@@ -33,7 +36,8 @@ export function DrawerDestaques({
     if (!slug) return;
     const url = `${window.location.origin}/b/${slug}`;
     try {
-      if (navigator.share) await navigator.share({ title: "Sua Página", url });
+      if (navigator.share)
+        await navigator.share({ title: "Sua Página", text: MENSAGEM_DE_COMPARTILHAR, url });
       else {
         await navigator.clipboard.writeText(url);
         aviso.ok("Link copiado.");
@@ -52,9 +56,10 @@ export function DrawerDestaques({
             className={`overflow-hidden bg-drawer-card ${tenantId && verDesempenho ? "rounded-b-[10px] rounded-t-[28px]" : "rounded-[28px]"}`}
           >
             <div className="grid min-h-16 grid-cols-[minmax(0,1fr)_40px] items-center pl-4 pr-3">
+              {/* Como no Figaro (`onOpenSuaPagina`): o cartão fecha o menu e abre o Personalizar Página; a página
+                  pública abre por "Ver como ficou", dentro dele. */}
               <Link
-                to="/b/$slug"
-                params={{ slug }}
+                to="/barbeiro/marca"
                 onClick={fechar}
                 className="grid min-w-0 grid-cols-[48px_minmax(0,1fr)] items-center gap-3 py-3"
               >

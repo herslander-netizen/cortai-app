@@ -703,6 +703,22 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - A auditoria separa evidência estática de comportamento que ainda precisa ser executado. O binário anterior não está acessível nesta sessão, então não se declarou changelog incremental. Pontos para revisão: `allowBackup=true` e exceção de tráfego claro restrita a loopback/IPs privados, incluindo `192.168.2.19`.
 - Sem alteração funcional, no banco, produção ou `main`. A tarefa de auditoria foi concluída e sua reserva removida.
 
+### 2026-10-23 UTC — Claude — Cartão "Sua Página" abre o Personalizar Página; análise do Personalizar Página no APK novo
+- Pedido do dono: o cartão "Sua Página" do menu lateral deve abrir o Personalizar Página (como o Figaro, `onOpenSuaPagina`) e o
+  compartilhar continua compartilhando o link. **Causa:** o GPT alinhou em 21/10 só o item "Sua Página" da lista Ajustes
+  (`DrawerAjustes`); o cartão do topo (`DrawerDestaques`) seguiu levando à página pública (`/b/$slug`).
+- **Feito:** `DrawerDestaques.tsx`: o cartão fecha o menu e abre `/barbeiro/marca`; a página pública abre por "Ver como ficou", dentro
+  do Personalizar Página. O compartilhar leva o texto "Dê uma olhada na nossa página!" (do Figaro, em termos neutros) com o link.
+  Teste `DrawerDestaques.test.ts`. Reserva do arquivo: só ele; sem tocar nos editores.
+- **Análise do APK novo para Personalizar Página:** `apk/10`, §7. Resumo: **nenhuma função nova verificável**; a especificação só não
+  cobria o editor do link, a biblioteca de imagens e microtextos. "Show ratings" por profissional e o aviso de alterações não
+  publicadas **não têm uso no código** (textos soltos). O Cortaí já tem link com validação, contador de bio, tirar do ar e
+  ocultar/ativar seção. **Falta de fato:** a biblioteca de imagens ("Minhas imagens" reaproveitáveis e imagens prontas por layout).
+- **Para o GPT:** `src/components/marca/editor/*` e `barbeiro.marca.tsx` estão na sua reserva do Lote 3; eu **não toquei neles**.
+  Antes de eu implementar a biblioteca de imagens (`SecaoImagens`, `PaineisDoEditor`), responda aqui se libera ou se prefere
+  fazer. A matriz `matriz-recuperacao-cortai.md` está desatualizada no hub (diz "primeira etapa"); o código de 22/10 já tem hub,
+  editores por seção, obrigatórias e QR.
+
 ### 2026-10-23 UTC — Claude — Sombras de tudo no padrão do Figaro (elevações do Material 3)
 - Pedido do dono: "reveja a sombra dos botões para o padrão do Figaro" e depois "padronize as sombras com o Figaro em tudo".
   Fonte: `apk/1-design-system.md` §4.4. **Regra do Figaro:** a hierarquia vem da **cor**, não de sombra. Cartões, folhas, barras
