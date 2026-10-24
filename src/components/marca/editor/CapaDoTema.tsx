@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 import type { TemaId } from "@/lib/pagina-config";
-import { TEMAS, TEMAS_DO_CATALOGO } from "@/lib/pagina-config";
+import { TEMAS, TEMAS_COM_CAPA } from "@/lib/pagina-config";
 
 /**
  * Imagem de capa de cada tema (no Figaro vem do servidor, `largeCoverImageUri`). Aqui são ilustrações
@@ -12,8 +12,8 @@ import { TEMAS, TEMAS_DO_CATALOGO } from "@/lib/pagina-config";
 export function CapaDoTema({ tema, className = "" }: { tema: TemaId; className?: string }) {
   const [semImagem, setSemImagem] = useState(false);
   const cores = TEMAS[tema].cores;
-  // Temas do catálogo têm captura real da página de exemplo (`scripts/gerar-capas-dos-temas.mjs`).
-  if (!semImagem && (TEMAS_DO_CATALOGO as readonly string[]).includes(tema)) {
+  // Só temas com WebP gerado pelo script usam capturas reais; os demais têm SVG próprio de fallback.
+  if (!semImagem && (TEMAS_COM_CAPA as readonly string[]).includes(tema)) {
     return (
       <img
         src={`/temas/${tema}.webp`}
