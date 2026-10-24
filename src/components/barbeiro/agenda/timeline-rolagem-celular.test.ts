@@ -153,11 +153,16 @@ describe("troca de dia em páginas no celular (como no vídeo de referência)", 
   it("o calendário desce primeiro e a timeline vem atrás: duas molas do Figaro em série (1,0 / 400)", () => {
     expect(semana).not.toContain('mode="wait"');
     // `expandSizeSpringDp` do APK: amortecimento 1 (damping 40 com massa 1) e rigidez 400.
-    expect(semana).toContain("const MOLA_DO_FIGARO = { stiffness: 400, damping: 40, mass: 1 }");
+    expect(semana).toMatch(/const MOLA_DO_FIGARO = \{\s*stiffness: 400,\s*damping: 40,\s*mass: 1,/);
     // Mola 1 leva o painel ao alvo; mola 2 persegue a altura já animada do painel (o espaço da Agenda).
     expect(semana).toContain("const alturaDoPainel = useSpring(alvoDoPainel, MOLA_DO_FIGARO)");
     expect(semana).toContain("const espacoDaAgenda = useSpring(alturaDoPainel, MOLA_DO_FIGARO)");
-    expect(semana).toContain("{ height: espacoDaAgenda }");
+    // Desempenho: a Agenda desce por transform (sem refazer o layout a cada quadro) e os meses são memoizados e
+    // montados em fases depois que as molas assentam.
+    expect(semana).toContain("palco.style.transform = `translate3d(0,${dy}px,0)`");
+    expect(semana).not.toContain("{ height: espacoDaAgenda }");
+    expect(semana).toContain("const MesDoCalendario = memo(");
+    expect(semana).toContain("const FASES_DOS_MESES = [3, 6, 9, MESES_EM_VOLTA]");
     expect(semana).toContain("height: alturaDoPainelMais12");
     expect(semana).toContain("data-calendario-aberto");
     expect(css).toMatch(/html:has\(\[data-calendario-aberto\]\) \{\s*overflow-anchor: none/);

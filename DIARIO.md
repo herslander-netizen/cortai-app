@@ -700,6 +700,18 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-24 UTC — Claude — Calendário engasgando no celular (desempenho da animação de molas)
+- Relato do dono: a animação das duas molas engasgava no celular. **Causas** (medido com CPU 4× mais lenta e 60 cartões):
+  1. A mola 2 mudava a **altura do topo** a cada quadro = refazer o layout da página inteira. Agora a Agenda (`.agenda-operacional`) desce por
+     **transform** (GPU) e a altura real do topo só muda no começo do fechar e no fim do abrir, no mesmo quadro em que o transform sai (sem salto).
+  2. Cada passo da mola re-renderizava os ~25 meses (centenas de botões): o fechar travava o 1º quadro ~990 ms (4×). Agora a lista de meses e cada
+     mês são `memo`, o conjunto de dias com atendimento mantém a mesma referência quando o conteúdo é igual e `onDia` é estável: 990 → ~270 ms.
+  3. Os 24 meses entravam todos de uma vez (~650 ms em 4×) e antes de as molas assentarem. Agora entram em **4 fases** (±3, ±6, ±9, ±12) a cada
+     140 ms **depois** que as molas assentam; as molas têm `restDelta 0.4 / restSpeed 4` (antes a cauda levava ~2 s para "terminar").
+- Trajetória inalterada (painel 236→468 px com a timeline atrás; final igual, folga 26 px). Layouts por abrir+fechar: 108 → 59.
+- Arquivos: `SemanaDoTopo.tsx`, testes `SemanaDoTopo.test.tsx` e `timeline-rolagem-celular.test.ts`.
+- **Pendente:** conferir no celular. Se ainda engasgar, o gargalo restante é o 1º quadro (re-render de `AgendaOperacional` ao mudar `calAberto`).
+
 ### 2026-10-24 UTC — Claude — Calendário × timeline com a animação do Figaro (calendário primeiro, timeline depois)
 - Pedido do dono: reproduzir a sequência do Figaro. **Análise do APK** (`AgendaScreenKt`, `FigarooAgendaDateSelectorKt`, `BrandMotionKt`): o painel do
   seletor cresce com `expandSizeSpring` (amortecimento 1,0, rigidez 400) e o espaço da timeline é `animateDpAsState(altura medida do painel,

@@ -103,11 +103,13 @@ describe("faixa da semana no topo", () => {
   });
   it("aberto, mostra os meses com o dia escolhido marcado", async () => {
     const alvo = await montar({ expandido: true });
-    // Abre com o mês do dia; os outros meses entram logo depois da animação.
+    // Abre com o mês do dia; os outros meses entram em fases, depois que as molas assentam.
     expect(alvo.textContent).toContain("Outubro");
-    await act(async () => {
-      await new Promise((r) => setTimeout(r, 400));
-    });
+    for (let i = 0; i < 40 && !alvo.textContent?.includes("Novembro"); i += 1) {
+      await act(async () => {
+        await new Promise((r) => setTimeout(r, 100));
+      });
+    }
     expect(alvo.textContent).toContain("Novembro");
     const marcado = alvo.querySelectorAll('[aria-label="Calendário"] [aria-pressed="true"]');
     expect(marcado).toHaveLength(1);
