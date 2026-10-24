@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import QRCode from "qrcode";
 import { desenharCartaoDoQr, VARIANTES_DO_QR, type VarianteDoQr } from "@/lib/qr-cartao";
 import { createFileRoute } from "@tanstack/react-router";
-import { ArrowUpRight, CheckCircle2, CircleHelp, Eye, QrCode } from "lucide-react";
+import { ArrowUpRight, CheckCircle2, CircleHelp, QrCode } from "lucide-react";
 import { useEffect, useState } from "react";
 import { z } from "zod";
 
@@ -15,6 +15,7 @@ import { urlPublica } from "@/lib/origem-publica";
 import { OpcoesConectadas } from "@/components/ui/opcoes-conectadas";
 
 export const Route = createFileRoute("/barbeiro/sua-pagina")({
+  // Aceita links antigos com ?qr=1; nesta tela o QR fica sempre visível.
   validateSearch: z.object({ qr: z.string().optional() }),
   beforeLoad: ({ context }) => exigirCapacidade(context.queryClient, "branding_avancado"),
   head: () => ({
@@ -112,7 +113,7 @@ function SuaPagina() {
         <section className="surface overflow-hidden p-4 sm:p-5">
           <div className="flex items-start gap-3">
             <span className="flex size-11 shrink-0 items-center justify-center rounded-lg bg-ink2 text-gold">
-              <Eye size={20} aria-hidden />
+              <QrCode size={20} aria-hidden />
             </span>
             <div className="min-w-0 flex-1">
               <h2 className="text-base font-semibold text-paper">{marca.nome}</h2>
