@@ -3,20 +3,20 @@ import { describe, expect, it } from "vitest";
 import { deveMostrarStatusDoChat } from "./ChatShell";
 
 describe("deveMostrarStatusDoChat", () => {
-  it("esconde presença estática online abaixo do nome", () => {
-    expect(deveMostrarStatusDoChat("Online agora", false)).toBe(false);
-    expect(deveMostrarStatusDoChat("Agenda online", false)).toBe(false);
+  it("mantém o texto Online agora sem o ponto piscante ao lado", () => {
+    expect(deveMostrarStatusDoChat("Online agora")).toBe(true);
+    expect(deveMostrarStatusDoChat("Agenda online")).toBe(true);
   });
 
-  it("mantém estados de atividade como digitando", () => {
-    expect(deveMostrarStatusDoChat("digitando…", true)).toBe(true);
+  it("mantém os estados de atividade como digitando", () => {
+    expect(deveMostrarStatusDoChat("digitando…")).toBe(true);
   });
 
-  it("mantém aviso de funcionamento quando está fechado", () => {
-    expect(deveMostrarStatusDoChat("Fechado agora · abre amanhã às 09:00", false)).toBe(true);
+  it("mantém avisos de funcionamento quando está fechado", () => {
+    expect(deveMostrarStatusDoChat("Fechado agora · abre amanhã às 09:00")).toBe(true);
   });
 
   it("não renderiza uma linha vazia sem status", () => {
-    expect(deveMostrarStatusDoChat(undefined, false)).toBe(false);
+    expect(deveMostrarStatusDoChat(undefined)).toBe(false);
   });
 });
