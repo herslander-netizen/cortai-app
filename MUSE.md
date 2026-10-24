@@ -89,3 +89,15 @@ bun run tsc --noEmit
 bun run vitest run
 bun run build
 ```
+
+
+## Estado do Lote 3 de recuperação do Figaro — 2026-10-24
+
+- C7: recuo animado nos cartões de layout, tema e estilo do chat implementado; teste dedicado criado. Conferência visual em celular pendente.
+- C8: a galeria de logos já tinha escala/recuo/raio de seleção; teste dedicado adicionado. Conferência visual pendente.
+- C10: painel de disponibilidade semanal recolhível com fade/altura/seta, mantendo o painel inicialmente aberto; teste existente.
+- C12: troca de foto da recepção já tinha fade + escala em 300 ms; testes de prévia, remoção e abertura do seletor adicionados. Conferência visual pendente.
+- C16: cabeçalho do modo editar horário muda a superfície ao rolar; teste dedicado criado. Conferência visual pendente.
+- C9 permanece parcial: o checklist atual do Cortaí não contém descrições expansíveis equivalentes ao `StepRow` do APK. Não inventar textos nem mudar a navegação sem evidência.
+- P3 permanece parcial: a lista da equipe tem transição de vazio/lista; não foi localizada uma tela equivalente de editor de localidades no Cortaí. Não criar rota apenas para reproduzir a animação.
+- O teste visual em 390 px/1280 px requer sessão de navegador conectada; sem isso, não afirmar paridade visual completa. A prévia isolada é `https://previa.cortaiapp.pages.dev`. Não publicar no site principal nem alterar banco real para esta tarefa.
