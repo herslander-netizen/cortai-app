@@ -129,7 +129,7 @@ fica como está).
 | L1 | Campos de endereço aparecem depois do CEP | fade padrão | `EditLocationAddressScreenKt` | — Cortaí não tem etapa de endereço com CEP; endereço atual é texto livre |
 | V1 | Comanda: dinheiro revela "recebido/troco" | fade + `SizeTransform` | `CheckoutPaymentSelectionScreenKt` | ✘ (`comanda/`) |
 | V2 | Painel da venda: ver ↔ editar; blocos abrem | fade + altura (alinhada ao topo); 300 ms nos passos | `SaleDashboardScreenKt` | ✘ |
-| V3 | Canal de notificação: horários de lembrete aparecem | fade + altura | `NotificationChannelSheetKt` | ◐ 22/10 `PreferenciasDoCliente`: frequência e silêncio aparecem com fade+altura quando WhatsApp ou celular está ativo; conferir visualmente e validar equivalência |
+| V3 | Canal de notificação: horários de lembrete aparecem | fade + altura | `NotificationChannelSheetKt` | ◐ 24/10 `PreferenciasDoCliente`: painel de horários já usa fade + altura; novo teste cobre canal parcialmente ativo, ambos desativados e preservação das preferências ao alternar. Falta conferência visual em celular |
 | V4 | Cobrança concluída: espera de 1,2 s antes de fechar | `delay` 1200 | `CheckoutFlowScreenKt` | ◐ conferir tempo de `ConfirmacaoRapida` (~600 ms) |
 
 ## 8. Vibração (háptico)

@@ -97,6 +97,7 @@ bun run build
 - C8: a galeria de logos já tinha escala/recuo/raio de seleção; teste dedicado adicionado. Conferência visual pendente.
 - C10: painel de disponibilidade semanal recolhível com fade/altura/seta, mantendo o painel inicialmente aberto; teste existente.
 - C12: troca de foto da recepção já tinha fade + escala em 300 ms; testes de prévia, remoção e abertura do seletor adicionados. Conferência visual pendente.
+- V3: teste adicionado para o painel animado de frequência/silêncio, abrangendo canais ativos, ambos desativados e alternância preservando demais preferências. Conferência visual pendente.
 - C16: cabeçalho do modo editar horário muda a superfície ao rolar; teste dedicado criado. Conferência visual pendente.
 - C9 permanece parcial: o checklist atual do Cortaí não contém descrições expansíveis equivalentes ao `StepRow` do APK. Não inventar textos nem mudar a navegação sem evidência.
 - P3 permanece parcial: a lista da equipe tem transição de vazio/lista; não foi localizada uma tela equivalente de editor de localidades no Cortaí. Não criar rota apenas para reproduzir a animação.
