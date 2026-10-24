@@ -1,11 +1,12 @@
 import { useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Check, ChevronRight, ShieldCheck, Store } from "lucide-react";
+import { Check, ShieldCheck, Store } from "lucide-react";
 import { useState } from "react";
 
 import { definirBarbeariaAtiva, getMinhasBarbearias } from "@/lib/barbearias.functions";
 import { esquecerSessao } from "@/lib/guarda";
 import { escolherContexto, getSessao } from "@/lib/sessao.functions";
+import { GrupoDeLinhas, LinhaDeConfiguracao } from "@/components/ui/formulario/LinhasDeConfiguracao";
 
 /**
  * "Trocar de painel": lista o painel do ADM (só para admin da plataforma) e todos os negócios em
@@ -68,39 +69,22 @@ export function TrocarPainel() {
 
   return (
     <section>
-      <h2 className="mb-2 text-xs font-semibold uppercase text-mute2">Trocar de painel</h2>
-      <ul className="divide-y divide-line border-y border-line">
+      <h2 className="rotulo-secao mb-2">Trocar de painel</h2>
+      <GrupoDeLinhas>
         {opcoes.map((o) => {
           const emUso = o.id === atual;
-          const Icone = o.admin ? ShieldCheck : Store;
           return (
-            <li key={o.id}>
-              <button
-                type="button"
-                onClick={() => void abrir(o.id)}
-                disabled={emUso || abrindo !== null}
-                aria-current={emUso ? "page" : undefined}
-                className="nav-list-item w-full text-left disabled:cursor-default"
-              >
-                <span className="nav-list-icon">
-                  <Icone size={18} />
-                </span>
-                <span className="min-w-0">
-                  <span className="block text-sm font-semibold text-paper">{o.nome}</span>
-                  <span className="mt-1 block text-xs text-mute">
-                    {abrindo === o.id ? "Abrindo…" : emUso ? "Em uso agora" : o.detalhe}
-                  </span>
-                </span>
-                {emUso ? (
-                  <Check size={17} className="shrink-0 text-paper" />
-                ) : (
-                  <ChevronRight size={17} className="shrink-0 text-mute2" />
-                )}
-              </button>
-            </li>
+            <LinhaDeConfiguracao
+              key={o.id}
+              icone={o.admin ? ShieldCheck : Store}
+              titulo={o.nome}
+              suporte={abrindo === o.id ? "Abrindo…" : emUso ? "Em uso agora" : o.detalhe}
+              fim={emUso ? <Check size={18} aria-hidden /> : undefined}
+              {...(emUso || abrindo !== null ? {} : { aoTocar: () => void abrir(o.id) })}
+            />
           );
         })}
-      </ul>
+      </GrupoDeLinhas>
       {erro ? (
         <p className="mt-2 text-sm text-brick" role="alert">
           {erro}

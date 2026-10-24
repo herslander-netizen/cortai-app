@@ -14,6 +14,7 @@ import {
 
 import { TrocarPainel } from "@/components/acesso/TrocarPainel";
 import { AdminScreen } from "@/components/layout/AdminScreen";
+import { GrupoDeLinhas, LinhaDeConfiguracao } from "@/components/ui/formulario/LinhasDeConfiguracao";
 
 export const Route = createFileRoute("/admin/mais")({
   head: () => ({
@@ -115,26 +116,18 @@ function AdminMaisPage() {
         <TrocarPainel />
         {grupos.map((grupo) => (
           <section key={grupo.titulo}>
-            <h2 className="mb-2 text-xs font-semibold uppercase text-mute2">{grupo.titulo}</h2>
-            <ul className="divide-y divide-line border-y border-line">
-              {grupo.itens.map((item) => {
-                const Icon = item.icon;
-                return (
-                  <li key={item.to}>
-                    <Link to={item.to} className="nav-list-item">
-                      <span className="nav-list-icon">
-                        <Icon size={18} />
-                      </span>
-                      <span className="min-w-0">
-                        <span className="block text-sm font-semibold text-paper">{item.label}</span>
-                        <span className="mt-1 block text-xs text-mute">{item.detail}</span>
-                      </span>
-                      <ChevronRight size={17} className="shrink-0 text-mute2" />
-                    </Link>
-                  </li>
-                );
-              })}
-            </ul>
+            <h2 className="rotulo-secao mb-2">{grupo.titulo}</h2>
+            <GrupoDeLinhas>
+              {grupo.itens.map((item) => (
+                <LinhaDeConfiguracao
+                  key={item.to}
+                  icone={item.icon}
+                  titulo={item.label}
+                  suporte={item.detail}
+                  para={item.to}
+                />
+              ))}
+            </GrupoDeLinhas>
           </section>
         ))}
       </div>

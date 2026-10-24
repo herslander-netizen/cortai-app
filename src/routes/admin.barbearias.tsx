@@ -7,6 +7,7 @@ import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { AdminNotice, AdminScreen } from "@/components/layout/AdminScreen";
 import { Button } from "@/components/ui/button";
+import { Chip } from "@/components/ui/chip";
 import { EmptyState } from "@/components/ui/section";
 import {
   Dialog,
@@ -88,15 +89,9 @@ function BarbeariasPage() {
             </label>
             <div className="flex gap-1">
               {(["todas", "pagantes", "risco"] as const).map((item) => (
-                <Button
-                  key={item}
-                  size="sm"
-                  variant={filter === item ? "default" : "ghost"}
-                  aria-pressed={filter === item}
-                  onClick={() => setFilter(item)}
-                >
+                <Chip key={item} selecionado={filter === item} onClick={() => setFilter(item)}>
                   {item === "risco" ? "Em risco" : item.charAt(0).toUpperCase() + item.slice(1)}
-                </Button>
+                </Chip>
               ))}
             </div>
           </div>

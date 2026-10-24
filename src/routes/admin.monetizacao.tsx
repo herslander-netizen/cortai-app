@@ -8,6 +8,7 @@ import { AdminNotice, AdminScreen } from "@/components/layout/AdminScreen";
 import { EsqueletoFormulario, EsqueletoLista } from "@/components/layout/Esqueleto";
 import { Aviso } from "@/components/ui/aviso";
 import { Button } from "@/components/ui/button";
+import { Chip } from "@/components/ui/chip";
 import { Switch } from "@/components/ui/switch";
 import { useAcao } from "@/hooks/useAcao";
 import { brl } from "@/lib/format";
@@ -80,16 +81,9 @@ function MonetizacaoPage() {
         aria-label="Seções de monetização"
       >
         {ABAS.map((a) => (
-          <Button
-            key={a}
-            type="button"
-            variant="ghost"
-            onClick={() => setAba(a)}
-            aria-pressed={aba === a}
-            className={`h-auto min-h-12 whitespace-nowrap rounded-full border px-4 text-xs ${aba === a ? "border-gold bg-gold-soft text-gold" : "border-line text-mute"}`}
-          >
+          <Chip key={a} selecionado={aba === a} onClick={() => setAba(a)} className="whitespace-nowrap">
             {a}
-          </Button>
+          </Chip>
         ))}
       </nav>
       <Link

@@ -704,6 +704,11 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-24 UTC — Claude — Padrão Figaro, lote 5: admin, troca de painel e modo escuro
+- Admin conferido em captura (8 telas, claro): abas de Monetização e filtros de Barbearias viraram `Chip`; "Mais" e "Trocar de painel" viraram `GrupoDeLinhas` com `LinhaDeConfiguracao` (as classes `nav-list-item` e `nav-list-icon` saíram do CSS).
+- Modo escuro conferido em captura em 12 telas do negócio (caixa, clientes, conta, equipe, financeiro, histórico, Sua Página, Layout & Tema, chat, notificações, plano, serviços): sem desvios.
+- Falta conferir em captura: página pública de agendamento do cliente final e telas de acesso; passada final no celular real.
+
 ### 2026-10-24 UTC — Claude — Padrão Figaro, lote 4: app do cliente e fechamento do estado
 - App do cliente: modo de cor (Claro/Escuro/Sistema) em `OpcoesConectadas` (agora com ícone opcional), "Melhor período" da lista de espera em `Chip`, lista de lugares em `GrupoDeLinhas` com seta. Conferido em captura com um cliente fictício.
 - `docs/ordem-padrao-figaro.md` §6 atualizado com o que foi conferido e o que ainda falta conferir (admin com dados, página pública, acesso, tema escuro, celular real).
