@@ -32,18 +32,18 @@ describe("CabecalhoDeEdicao", () => {
     });
 
     const cabecalho = host.querySelector<HTMLElement>("[data-edicao-ui]");
-    expect(cabecalho?.dataset.rolado).toBe("false");
+    expect(cabecalho?.getAttribute("data-rolado")).toBe("false");
 
     await act(async () => {
       Object.defineProperty(window, "scrollY", { configurable: true, value: 80 });
       window.dispatchEvent(new Event("scroll"));
     });
-    expect(cabecalho?.dataset.rolado).toBe("true");
+    expect(cabecalho?.getAttribute("data-rolado")).toBe("true");
 
     await act(async () => {
       Object.defineProperty(window, "scrollY", { configurable: true, value: 0 });
       window.dispatchEvent(new Event("scroll"));
     });
-    expect(cabecalho?.dataset.rolado).toBe("false");
+    expect(cabecalho?.getAttribute("data-rolado")).toBe("false");
   });
 });

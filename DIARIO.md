@@ -707,6 +707,7 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - Não houve mudança em dados, backend, regras, fluxo de publicação ou autenticação. Validação automatizada do commit atual pendente; revisão visual em celular continua pendente.
 
 ### 2026-10-24 UTC — GPT — Cor do cabeçalho ao rolar no modo de edição
+- A primeira validação do teste encontrou TS4111 por acesso a `dataset.rolado`; alterado para `getAttribute("data-rolado")`, conforme a configuração TypeScript do projeto. Nova execução do workflow em andamento.
 - Implementado o movimento C16 no cabeçalho mobile do modo editar horário: ao rolar a página a superfície transita de `--ink2` para `--ink3` com `MOLA.padraoEfeito`, e retorna ao topo ao rolar para cima. A preferência de reduzir movimento remove a transição.
 - Criado `CabecalhoDeEdicao.test.tsx` verificando os estados de topo, rolagem e retorno ao topo. Sem mudanças de regras, dados, permissões ou backend; validação automatizada pendente neste commit e inspeção visual em celular pendente.
 
