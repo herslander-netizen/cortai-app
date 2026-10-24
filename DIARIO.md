@@ -709,6 +709,7 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 ### 2026-10-24 UTC — GPT — Auditoria geral do carregamento de Personalizar Página
 - Em `src/lib/marca.functions.ts`, as URLs assinadas de logo, capa e avatar são pedidas em paralelo; `getMarca` usa um prazo total de 10 segundos para devolver erro recuperável em vez de ficar aguardando indefinidamente.
 - Em `src/lib/guarda-capacidade.ts`, a leitura de capacidades no `beforeLoad` tem limite de 4 segundos; as verificações efetivas de permissões continuam no servidor.
+- `getMarca` agora separa ausência real de acesso de falhas de leitura; valida os erros retornados pelas consultas do Supabase para não transformar falhas em configuração vazia nem contagens iguais a zero.
 - Novo utilitário `src/lib/prazo.ts` coberto por três testes: resultado normal, timeout e distinção de `PrazoEsgotado`.
 - GitHub Actions #1010 verde: TypeScript, Vitest, build, deploy isolado e smoke test da prévia. Prévia: https://previa.cortaiapp.pages.dev.
 - Relatório geral: `docs/auditoria-geral-carregamento-2026-10-24.md`. Atualizei `docs/auditoria-limpeza-2026-10-24.md` e `docs/mapa-do-codigo.md` para reconciliar achados antigos com a limpeza executada e links que já foram centralizados.

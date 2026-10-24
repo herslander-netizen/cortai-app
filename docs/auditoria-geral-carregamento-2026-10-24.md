@@ -22,9 +22,11 @@ Não foi feita escrita em banco, alteração de permissões, publicação na ver
 
 ## Achados abertos — sem conflito com tarefas de outras IAs
 
-### P1 — falha de consulta confundida com falta de acesso
+### P1 — falha de consulta confundida com falta de acesso (parcialmente corrigido)
 
-Em `src/routes/barbeiro.marca.index.tsx`, `MarcaPage` trata `!query.data` como “Entre como responsável pelo negócio”, sem ramificar primeiro em `query.isError` nem oferecer uma ação de repetição para falhas de rede. Isso pode mostrar uma mensagem de permissão incorreta quando a consulta falha. O arquivo estava sendo alterado por outra tarefa, portanto não foi editado nesta revisão; o achado foi enviado como recado para não criar conflito.
+No servidor, `tenantDoDono` ignorava erros de leitura das tabelas de vínculos e perfil; `getMarca` também ignorava `error` em várias consultas ao banco. Isso podia transformar uma falha de rede/RLS em ausência de vínculo, configuração padrão ou contagens zero. **Corrigido em `src/lib/marca.functions.ts`**: só a ausência confirmada de permissão vira `null`; erros das consultas agora propagam uma falha recuperável.
+
+Continua aberto o estado visual: em `src/routes/barbeiro.marca.index.tsx`, `MarcaPage` trata `!query.data` como “Entre como responsável pelo negócio”, sem ramificar primeiro em `query.isError` nem oferecer uma ação de repetição. Isso pode mostrar uma mensagem de permissão incorreta quando a consulta falha. O arquivo estava sendo alterado por outra tarefa; o achado foi enviado como recado ao Claude para não criar conflito.
 
 ### P2 — prazo e cancelamento das chamadas de rede
 

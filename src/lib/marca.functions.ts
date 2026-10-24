@@ -104,16 +104,27 @@ async function containerSalvo(db: SupabaseClient<Database>, tenantId: string) {
   return (data?.published_config ?? data?.draft_config ?? null) as unknown;
 }
 
+class AcessoMarcaNegado extends Error {
+  constructor() {
+    super("Apenas o dono pode configurar a marca.");
+    this.name = "AcessoMarcaNegado";
+  }
+}
+
 async function tenantDoDono(supabase: SupabaseClient<Database>, userId: string) {
-  const [{ data: vinculosDono }, { data: perfil }] = await Promise.all([
-    supabase
-      .from("tenant_usuarios")
-      .select("tenant_id, papel, ativo")
-      .eq("user_id", userId)
-      .eq("papel", "dono")
-      .order("criado_em", { ascending: true }),
-    supabase.from("perfis").select("tenant_ativo").eq("user_id", userId).maybeSingle(),
-  ]);
+  const [{ data: vinculosDono, error: erroVinculosDono }, { data: perfil, error: erroPerfil }] =
+    await Promise.all([
+      supabase
+        .from("tenant_usuarios")
+        .select("tenant_id, papel, ativo")
+        .eq("user_id", userId)
+        .eq("papel", "dono")
+        .order("criado_em", { ascending: true }),
+      supabase.from("perfis").select("tenant_ativo").eq("user_id", userId).maybeSingle(),
+    ]);
+  if (erroVinculosDono || erroPerfil) {
+    throw new Error("Não foi possível verificar o acesso ao negócio. Tente novamente.");
+  }
 
   // O fluxo normal continua exigindo vínculo ativo de dono.
   const vinculoDono = escolherVinculo(vinculosDono ?? [], perfil?.tenant_ativo);
@@ -121,25 +132,31 @@ async function tenantDoDono(supabase: SupabaseClient<Database>, userId: string) 
 
   // Exceção restrita à demo: um membro ativo pode personalizar apenas o tenant
   // explicitamente identificado pelo slug reservado "demonstracao".
-  const { data: vinculosAtivos } = await supabase
+  const { data: vinculosAtivos, error: erroVinculosAtivos } = await supabase
     .from("tenant_usuarios")
     .select("tenant_id, papel, ativo")
     .eq("user_id", userId)
     .eq("ativo", true)
     .order("criado_em", { ascending: true });
+  if (erroVinculosAtivos) {
+    throw new Error("Não foi possível verificar os negócios aos quais você tem acesso. Tente novamente.");
+  }
 
   const ids = [...new Set((vinculosAtivos ?? []).map((v) => v.tenant_id))];
   if (ids.length) {
-    const { data: tenantDemo } = await supabase
+    const { data: tenantDemo, error: erroTenantDemo } = await supabase
       .from("tenants")
       .select("id")
       .eq("slug", "demonstracao")
       .in("id", ids)
       .maybeSingle();
+    if (erroTenantDemo) {
+      throw new Error("Não foi possível verificar o negócio de demonstração. Tente novamente.");
+    }
     if (tenantDemo?.id) return tenantDemo.id;
   }
 
-  throw new Error("Apenas o dono pode configurar a marca.");
+  throw new AcessoMarcaNegado();
 }
 
 function snapshot(row: Database["public"]["Tables"]["tenants"]["Row"]): MarcaForm {
@@ -187,17 +204,17 @@ export const getMarca = createServerFn({ method: "GET" })
       tenantDoDono(context.supabase, context.userId),
       "verificar acesso à página",
     ).catch((error: unknown) => {
-      if (error instanceof PrazoEsgotado) throw error;
+      if (error instanceof PrazoEsgotado || !(error instanceof AcessoMarcaNegado)) throw error;
       return null;
     });
     if (!tenantId) return null;
     const [
-      { data: tenant },
-      { data: versoes },
-      { data: pagina },
-      { count: servicosAtivos },
-      { count: profissionais },
-      { count: diasAbertos },
+      tenantResult,
+      versoesResult,
+      paginaResult,
+      servicosResult,
+      profissionaisResult,
+      diasAbertosResult,
     ] = await comPrazoRestante(Promise.all([
       context.supabase.from("tenants").select("*").eq("id", tenantId).single(),
       context.supabase
@@ -226,6 +243,24 @@ export const getMarca = createServerFn({ method: "GET" })
         .eq("tenant_id", tenantId)
         .eq("fechado", false),
     ]), "carregar os dados da página");
+    if (tenantResult.error) {
+      throw new Error("Não foi possível carregar os dados do negócio. Tente novamente.");
+    }
+    if (
+      versoesResult.error ||
+      paginaResult.error ||
+      servicosResult.error ||
+      profissionaisResult.error ||
+      diasAbertosResult.error
+    ) {
+      throw new Error("Não foi possível carregar todas as configurações da página. Tente novamente.");
+    }
+    const tenant = tenantResult.data;
+    const versoes = versoesResult.data;
+    const pagina = paginaResult.data;
+    const servicosAtivos = servicosResult.count;
+    const profissionais = profissionaisResult.count;
+    const diasAbertos = diasAbertosResult.count;
     if (!tenant) throw new Error("Negócio não encontrado.");
     const atual = snapshot(tenant);
     const draftContainer = pagina?.draft_config as { pagina?: unknown; marca?: unknown } | null;
