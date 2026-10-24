@@ -700,6 +700,12 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-24 UTC — Claude — Layout & Tema: capas reais, exemplo com fotos e correção das subtelas de "Sua Página"
+- **Defeito encontrado (rig):** `barbeiro.marca.tsx` era rota-pai sem `<Outlet/>`, então `/barbeiro/marca/layout-tema`, `/preview`, `/chat` e `/secao/$secao` (editores de Hero, Galeria etc.) mostravam o hub em vez da própria tela. Correção: o hub virou `barbeiro.marca.index.tsx` (rota `/barbeiro/marca/`) e as subtelas são irmãs; o preview é `barbeiro.marca.layout-tema_.preview.tsx` (mesmo caminho de antes). Conferido no rig: Layout & Tema, Hero e preview abrem.
+- **Exemplo:** `src/lib/pagina-exemplo.ts` (Studio Exemplo: serviços, equipe, produtos, horários, 128 avaliações) + 14 ilustrações próprias em `public/exemplos/*.webp` (`scripts/gerar-fotos-de-exemplo.mjs`; não são fotos reais). "Ver Exemplo" usa esse negócio com o layout e o tema escolhidos.
+- **Capas:** `public/temas/<tema>.webp` para os 6 temas do catálogo, capturadas da tela de exemplo (`scripts/gerar-capas-dos-temas.mjs`, precisa do rig); `CapaDoTema` usa a imagem e cai no SVG se faltar.
+- Para o GPT: rota `/barbeiro/marca` agora é `barbeiro.marca.index.tsx`; `routeTree.gen.ts` regenerado.
+
 ### 2026-10-24 UTC — Claude — Layout & Tema: capa de todos os temas
 - `CapaDoTema.tsx`: os temas sem arte própria (13 dos 19) deixavam um retângulo liso; agora mostram uma página em miniatura com as cores reais do tema. Não geramos capturas reais (`public/temas/*.webp`): exigiriam dados públicos de exemplo; fica como melhoria futura. "Ver Exemplo" já existe em `layout-tema/preview`.
 - tsc e vitest verdes.

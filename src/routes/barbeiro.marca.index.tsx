@@ -26,7 +26,7 @@ import { LAYOUTS, secoesObrigatoriasAusentes, TEMAS, totalDeSecoesAtivas } from 
 import { CATALOGO_DE_SECOES } from "@/components/marca/editor/secoes/catalogo";
 import { CapaDoTema } from "@/components/marca/editor/CapaDoTema";
 
-export const Route = createFileRoute("/barbeiro/marca")({
+export const Route = createFileRoute("/barbeiro/marca/")({
   beforeLoad: ({ context }) => exigirCapacidade(context.queryClient, "branding_avancado"),
   head: () => ({
     meta: [

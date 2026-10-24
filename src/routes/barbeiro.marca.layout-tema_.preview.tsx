@@ -7,6 +7,7 @@ import { Screen } from "@/components/layout/Screen";
 import { PreviaDaExperiencia } from "@/components/marca/editor/PreviaDaExperiencia";
 import { useEditorDaPagina } from "@/components/marca/editor/useEditorDaPagina";
 import { Button } from "@/components/ui/button";
+import { paginaDeExemplo } from "@/lib/pagina-exemplo";
 import { getMarca } from "@/lib/marca.functions";
 import { exigirCapacidade } from "@/lib/guarda-capacidade";
 import {
@@ -18,7 +19,7 @@ import {
   temaIds,
 } from "@/lib/pagina-config";
 
-export const Route = createFileRoute("/barbeiro/marca/layout-tema/preview")({
+export const Route = createFileRoute("/barbeiro/marca/layout-tema_/preview")({
   validateSearch: z.object({
     layout: z.enum(layoutIds).optional(),
     tema: z.enum(temaIds).optional(),
@@ -83,6 +84,8 @@ function ConteudoPrevia({
   const e = useEditorDaPagina(initial, () => undefined);
   const comLayout = layout ? aplicarLayout(e.config, layout) : e.config;
   const config = tema ? aplicarTema(comLayout, tema) : comLayout;
+  // Exemplo com um negócio fictício (como no Figaro): mostra o layout e o tema escolhidos sem depender dos dados do negócio.
+  const exemplo = paginaDeExemplo(config);
 
   return (
     <Screen
@@ -92,13 +95,13 @@ function ConteudoPrevia({
     >
       <div className="space-y-4 pb-6">
         <PreviaDaExperiencia
-          data={e.previewData}
+          data={exemplo}
           config={config}
           device={e.device}
           setDevice={e.setDevice}
-          nome={e.form.nome}
-          avatarUrl={e.avatarPreview || e.logoPreview}
-          capaUrl={e.coverPreview}
+          nome={exemplo.tenant.nome}
+          avatarUrl={exemplo.tenant.logo_signed_url}
+          capaUrl={exemplo.tenant.capa_signed_url}
           altura="h-[calc(100dvh-250px)]"
         />
         <Button variant="outline" className="min-h-12 w-full" onClick={voltar}>

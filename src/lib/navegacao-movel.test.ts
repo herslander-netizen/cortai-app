@@ -47,7 +47,7 @@ describe("navegação móvel", () => {
     const editorSecao = readFileSync("src/routes/barbeiro.marca.secao.$secao.tsx", "utf8");
     expect(secoes).toContain('to="/barbeiro/marca/secao/$secao"');
     expect(editorSecao).toContain('NOMES_SECOES[secao]');
-    const paginaPrincipal = readFileSync("src/routes/barbeiro.marca.tsx", "utf8");
+    const paginaPrincipal = readFileSync("src/routes/barbeiro.marca.index.tsx", "utf8");
     expect(paginaPrincipal).toContain('aria-label="Mais ações da página"');
     expect(paginaPrincipal).toContain('search={{ qr: "1" }}');
     expect(paginaPrincipal).toContain("Tirar página do ar");
