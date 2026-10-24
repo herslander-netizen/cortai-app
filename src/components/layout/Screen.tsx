@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { Link, type LinkProps } from "@tanstack/react-router";
-import { ChevronLeft } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { Signature } from "./Signature";
 import { CabecalhoDeTela } from "./CabecalhoDeTela";
 import { BotaoAjuda } from "@/components/guia/BotaoAjuda";
@@ -32,14 +32,15 @@ export function Screen({
     >
       {!hideHeader ? (
         <header className="sticky top-14 z-20 grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4 border-b border-line bg-ink px-5 pb-5 pt-6 md:static md:border-b-0 md:px-8 md:pb-7 md:pt-8">
-          <div className="min-w-0">
+          <div className="flex min-w-0 items-start gap-3">
             {voltarPara ? (
+              // Botão redondo de 44 dp do topo do Figaro (`FigarooAgendaTopBar`, spec 1 §6.5).
               <Link
                 to={voltarPara}
-                className="-ml-2 mb-1 inline-flex min-h-12 items-center gap-1 px-2 text-xs text-mute transition-colors hover:text-paper"
+                aria-label={voltarRotulo}
+                className="flex size-11 shrink-0 items-center justify-center rounded-full bg-[var(--figaro-surface-container-highest,var(--ink3))] text-paper transition-[background-color,transform] duration-150 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring motion-reduce:transition-none"
               >
-                <ChevronLeft size={14} />
-                {voltarRotulo}
+                <ArrowLeft size={24} aria-hidden />
               </Link>
             ) : null}
             <CabecalhoDeTela title={title} {...(subtitle ? { subtitle } : {})} />
