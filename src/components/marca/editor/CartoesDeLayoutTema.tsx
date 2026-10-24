@@ -92,9 +92,10 @@ export function CartaoDeLayout({
       <Button
         type="button"
         variant="ghost"
+        size="bloco"
         aria-pressed={selecionado}
         onClick={escolher}
-        className={`relative flex shrink-0 snap-start flex-col rounded-[28px] bg-background p-5 text-left transition-[border-color,box-shadow,transform] duration-200 motion-reduce:transition-none w-full max-w-full ${selecionado ? "border-2 border-gold shadow-[var(--elevacao-2)]" : "border border-line hover:border-gold/70"}`}
+        className={`relative flex h-auto shrink-0 snap-start flex-col items-stretch justify-start whitespace-normal rounded-[28px] bg-background p-5 text-left transition-[border-color,box-shadow,transform] duration-200 motion-reduce:transition-none w-full max-w-full ${selecionado ? "border-2 border-gold shadow-[var(--elevacao-2)]" : "border border-line hover:border-gold/70"}`}
       >
         <span className="flex items-start justify-between gap-2">
           <span className="min-w-0 truncate text-[22px] font-bold leading-[26px] tracking-tight text-gold">
@@ -155,9 +156,10 @@ export function CartaoDeTema({
       <Button
         type="button"
         variant="ghost"
+        size="bloco"
         aria-pressed={selecionado}
         onClick={escolher}
-        className={`relative flex shrink-0 snap-start flex-col overflow-hidden rounded-[28px] bg-background p-0 text-left transition-[border-color,box-shadow,transform] duration-200 motion-reduce:transition-none w-full max-w-full ${selecionado ? "border-2 border-rosa shadow-[var(--elevacao-2)]" : "border border-line hover:border-rosa/70"}`}
+        className={`relative flex h-auto shrink-0 snap-start flex-col items-stretch justify-start whitespace-normal overflow-hidden rounded-[28px] bg-background p-0 text-left transition-[border-color,box-shadow,transform] duration-200 motion-reduce:transition-none w-full max-w-full ${selecionado ? "border-2 border-rosa shadow-[var(--elevacao-2)]" : "border border-line hover:border-rosa/70"}`}
       >
         <span className="relative block aspect-[2.9/1] w-full overflow-hidden">
           <CapaDoTema tema={tema} />
@@ -206,9 +208,10 @@ export function CartaoDeEstiloDoChat({
       <Button
         type="button"
         variant="ghost"
+        size="bloco"
         aria-pressed={selecionado}
         onClick={escolher}
-        className={`relative flex shrink-0 snap-start flex-col overflow-hidden rounded-[28px] bg-background p-0 text-left transition-[border-color,box-shadow,transform] duration-200 motion-reduce:transition-none w-full max-w-full ${selecionado ? "border-2 border-gold shadow-[var(--elevacao-2)]" : "border border-line hover:border-gold/70"}`}
+        className={`relative flex h-auto shrink-0 snap-start flex-col items-stretch justify-start whitespace-normal overflow-hidden rounded-[28px] bg-background p-0 text-left transition-[border-color,box-shadow,transform] duration-200 motion-reduce:transition-none w-full max-w-full ${selecionado ? "border-2 border-gold shadow-[var(--elevacao-2)]" : "border border-line hover:border-gold/70"}`}
       >
         <span className="relative block h-36 w-full overflow-hidden">
           <MiniaturaDoChat

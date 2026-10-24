@@ -23,7 +23,7 @@ export function ChatPreview({
   return (
     <div
       className={cn(
-        "chat-preview-personalizado relative overflow-hidden rounded-lg border bg-ink2",
+        "chat-preview-personalizado relative isolate overflow-hidden rounded-lg border bg-ink2",
         ativo ? "border-gold" : "border-line",
       )}
       style={estilo}

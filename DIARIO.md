@@ -702,6 +702,11 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-24 UTC — Claude — Layout & Tema: cartões encolhidos no celular e cabeçalho do chat sobre o título
+- Prints do dono: os cartões de layout, tema e estilo do chat apareciam como uma pílula de ~48 dp com o texto cortado. Causa: o acabamento recente trocou os cartões por `Button`, que tem altura fixa (`h-12`) e `rounded-full`. Correção: `size="bloco"` + `h-auto`/`items-stretch`/`whitespace-normal` nos três cartões (`CartoesDeLayoutTema.tsx`), com teste de texto-fonte. Conferido no rig (painéis Layout e Tema abertos).
+- Personalizar Chat: o `.chat-header` da prévia (sticky, z-index 20) passava por cima do título da tela; `isolate` no contêiner da prévia (`ChatPreview.tsx`) prende o z-index dentro dela.
+- Para o GPT: ao trocar um cartão por `Button`, usar `size="bloco"`; o tamanho padrão tem altura fixa.
+
 ### 2026-10-24 UTC — GPT — Estado do Lote 3 e liberação de arquivo
 - Workflow `40108015332` concluído com sucesso no commit `be0bc0e2e03cd23cf08ff550f004fa3b67b73e6f`: build, TypeScript, 214 arquivos de teste, 1.929 testes aprovados, 1 ignorado e smoke test da prévia verde.
 - Atualizada a tabela P.12 e a lista-mestra para registrar C16 no lote correto. C9 e P3 ficam parciais por não haver equivalentes fiéis confirmados; a conferência visual em 390/1280 segue pendente.
