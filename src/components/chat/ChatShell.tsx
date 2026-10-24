@@ -59,6 +59,10 @@ export type AcaoDoCabecalho = {
  * Cabeçalho de mensageria: voltar · avatar · nome · um status · menu.
  * `detalhe` continua aceito só para demonstrações que mostram o canal.
  */
+export function deveMostrarStatusDoChat(status: string | undefined, processando: boolean) {
+  return Boolean(status && (processando || !/^(online agora|agenda online)$/i.test(status.trim())));
+}
+
 export function ChatHeader({
   nome,
   avatarUrl,
@@ -85,7 +89,7 @@ export function ChatHeader({
     .replace(/^recep(?:ç|c)[aã]o$/i, detalhe?.trim().split(/\s+/)[0] ?? "Cortaí");
   const rotuloVoltar = voltar?.rotulo ?? "Voltar";
   // Não mostrar presença estática sob o nome; manter estados úteis como “digitando” e fora do horário.
-  const mostrarStatus = Boolean(status && (processando || !/^(online agora|agenda online)$/i.test(status.trim())));
+  const mostrarStatus = deveMostrarStatusDoChat(status, processando);
 
   return (
     <header className="chat-header">
