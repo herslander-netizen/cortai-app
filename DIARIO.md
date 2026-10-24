@@ -700,6 +700,13 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-24 UTC — Claude — Configurações, lote 2: Notificações no desenho do Figaro
+- Continuação do pedido "siga trazendo as adaptações de tela do Figaro". **Feito:** nova tela `/barbeiro/notificacoes` (antes os avisos ficavam no fim de Ajustes): seção "Mensagens do WhatsApp" com o uso do mês
+  (só durante o teste), "Avisos para você" em grupo de linhas (cada aviso mostra os canais ligados e abre uma folha com os interruptores No app / Celular / WhatsApp), os cartões de "Ative as notificações"
+  e "WhatsApp confirmado" em cartões de 28 dp e o atalho "Automação do WhatsApp". `PreferenciasDeAvisos` foi reescrito para isso (mesmos dados, `notificacoes_preferencias`); Ajustes e o menu lateral
+  apontam para a tela nova. Sem migração. `docs/referencia-figaro/apk/11-configuracoes.md` atualizado.
+- Pendente (doc 11 §4): Opções de pagamento, Verificação/Avaliações em Agendamento, Notificações por evento e público (migração), trocar/verificar e-mail, Excluir conta, cabeçalho que encolhe, Editar link como tela.
+
 ### 2026-10-24 UTC — Claude — Ficha vira cartão na altura do conteúdo (sem parcial, sem rolagem interna)
 - Pedido do dono (vídeo): "quero que seja um cartão e não uma coisa com rolamento interno". **Feito:** a ficha do agendamento (folha de baixo) é um cartão na altura do conteúdo (máx. 92% da tela),
   sem estado parcial; a barrinha (dentro da folha) só fecha (descer mais de um quarto ou rápido fecha de uma vez; senão volta); o botão "Reagendar" fica **dentro do cartão**, no fim (antes flutuava

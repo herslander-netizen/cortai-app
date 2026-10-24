@@ -3,6 +3,7 @@ import { termos } from "@/lib/segmentos";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import {
+  Bell,
   CalendarCog,
   Clock,
   CreditCard,
@@ -19,7 +20,6 @@ import {
   SecaoDeConfiguracao,
 } from "@/components/ui/formulario/LinhasDeConfiguracao";
 import { PreferenciasDicas } from "@/components/guia/PreferenciasDicas";
-import { PreferenciasDeAvisos } from "@/components/notificacoes/PreferenciasDeAvisos";
 import { BotaoAssistente } from "@/components/ia/BotaoAssistente";
 import { SobreOCortai } from "@/components/sistema/SobreOCortai";
 
@@ -74,6 +74,12 @@ function MaisPage() {
               suporte="Horários oferecidos, antecedência e cancelamento"
             />
             <LinhaDeConfiguracao
+              para="/barbeiro/notificacoes"
+              icone={Bell}
+              titulo="Notificações"
+              suporte="Onde receber cada aviso"
+            />
+            <LinhaDeConfiguracao
               para="/barbeiro/horarios"
               icone={Clock}
               titulo="Horários de funcionamento"
@@ -121,7 +127,6 @@ function MaisPage() {
         </GrupoDeLinhas>
       </SecaoDeConfiguracao>
       <PrimeirosPassos />
-      <PreferenciasDeAvisos />
       <PreferenciasDicas />
       <SobreOCortai />
       <Button

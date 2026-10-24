@@ -90,9 +90,9 @@ const ITENS = [
     icon: CreditCard,
   },
   {
-    label: "Avisos e notificações",
-    detalhe: "Preferências de cada aviso",
-    to: "/barbeiro/mais",
+    label: "Notificações",
+    detalhe: "Onde receber cada aviso",
+    to: "/barbeiro/notificacoes",
     icon: Bell,
   },
   { label: "Ajuda e suporte", detalhe: "Ajustes e ajuda", to: "/barbeiro/mais", icon: CircleHelp },

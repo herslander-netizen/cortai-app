@@ -64,8 +64,8 @@ describe("navegação móvel", () => {
     expect(paineis).not.toContain('TabsTrigger value="conteudo"');
     expect(paginaPrincipal).toContain("A vitrine pública deixará de abrir pelo link.");
     expect(pagina).toContain('validateSearch: z.object({ qr: z.string().optional() })');
-    expect(ajustes).not.toContain('hash={item.label === "Avisos e notificações" ? "avisos" : undefined}');
-    expect(ajustes).toContain("Avisos e notificações");
+    expect(ajustes).not.toContain('hash={item.label === "Notificações" ? "avisos" : undefined}');
+    expect(ajustes).toContain('to: "/barbeiro/notificacoes"');
     expect(ajustes).toContain("Ajuda e suporte");
     expect(ajustes).toContain("Sair da conta");
   });
