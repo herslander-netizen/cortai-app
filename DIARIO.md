@@ -700,6 +700,14 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-24 UTC — Claude — Limpeza executada (A–H autorizados pelo dono)
+- Apagados 49 arquivos sem uso (~9.000 linhas): 29 componentes `ui/*` + 2 `ai-elements`, 8 telas órfãs (`SecoesHome`, `AgoraProximos`, `PainelComercial`, `Blocos`,
+  `FaixaPendencias`, `HubModulos`, `RecursoBloqueado`, `BigodeCortai`), ALVO IA legado (`lib/ia/{alvo-ia,ponte,eventos,contrato,limite}`), `painel.functions` +
+  `painel/oportunidades`, motor antigo do WhatsApp (`motor.server`, `agrupador`, `financeiro-cliente`). Removidas 24 dependências (22 de runtime + `drizzle-orm`/`postgres`
+  de dev) e 121 regras/147 seletores de CSS morto (−671 linhas em `styles.css`). `ia/legado-desligado.ts` (410) e `ia/assistente.server.ts` ficaram.
+- Validação: `tsc`, `vitest` (1890) e `build` verdes; `bun install --frozen-lockfile` ok; `knip` sem arquivos sem uso. O que foi apagado continua no histórico do Git.
+- Não mexi nas sobreposições de produto (`/barbeiro/agendamentos`, crescimento/divulgar/indicacoes/redes/fidelidade, equipe × profissionais) nem nos 73 `as never`.
+
 ### 2026-10-24 UTC — Claude — Auditoria de limpeza (só leitura)
 - Pedido do dono: achar funcionalidades repetidas/desnecessárias e código sem uso. Relatório em `docs/auditoria-limpeza-2026-10-24.md` (knip + jscpd +
   varredura de CSS + links entre rotas). **Nada foi apagado**: apagar arquivos exige autorização (`AGENTS.md`). ~8.200 linhas / 44 arquivos / 27

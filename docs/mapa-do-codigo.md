@@ -153,13 +153,9 @@ A guarda de rota é feita por `exigirPapel()` em `src/lib/guarda.ts`, no `before
 - **Avisos:** `notificacoes`, `notificacoes_preferencias`, `push_inscricoes`, `push_entregas`.
 - **Plataforma:** `planos_da_plataforma`, `recursos_de_plano`, `recursos_do_tenant`, `assinaturas`, `faturas`, `eventos_asaas`, `cupons`, `cupons_usos`, `condicoes_comerciais`, `dados_de_cobranca`, `configuracoes_da_plataforma`, `home_publica`, `banners_da_plataforma`, `parceiros_da_plataforma`, `chaves_internas`, `alertas_da_plataforma`, `webhook_limites`, `webhook_rejeicoes`, `exclusoes_permanentes`, `emails_admin_autorizados`.
 
-## Código que ninguém importa (candidatos a revisão, nunca apagar sem autorização)
+## Código que ninguém importa
 
-- **WhatsApp:** `lib/whatsapp/motor/motor.server.ts` (1334 linhas) e `motor/agrupador.server.ts`.
-- **Painel:** `lib/painel.functions.ts` (534 linhas).
-- **Telas:** `components/home/SecoesHome.tsx` (863 linhas), `components/barbeiro/HubModulos.tsx`, `PainelComercial.tsx`, `agenda/AgoraProximos.tsx`, `layout/FaixaPendencias.tsx`, `painel/Blocos.tsx`, `planos/RecursoBloqueado.tsx`.
-- **IA:** `components/ia/FabCortai.tsx`. O plano da CortAI quer reaproveitá-lo no cabeçalho.
-- **Bibliotecas de base:** `components/ai-elements/prompt-input.tsx` e `suggestion.tsx`, e vários componentes shadcn sem uso em `components/ui/` (sidebar, carousel, chart, form, table e outros).
+Limpeza de 24/10/2026 (`docs/auditoria-limpeza-2026-10-24.md`): apagados 49 arquivos sem uso (componentes shadcn e `ai-elements` sem import, telas órfãs, painel antigo, ALVO IA legado em `lib/ia/` e o motor antigo do WhatsApp), 24 dependências npm e ~670 linhas de CSS morto. O `knip` não aponta mais arquivos sem uso. Sobraram só exports sem uso (258 valores) e as sobreposições de funcionalidade listadas na auditoria (decisão do dono).
 
 ## Divergências conhecidas
 
