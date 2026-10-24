@@ -478,8 +478,9 @@ export const FONTES: Record<FonteId, string> = {
 };
 
 /**
- * Catálogo do Figaro (`GET pages/layouts`, spec 4 §4.3): dois layouts com os mesmos três temas. É o que a
- * tela Layout & Tema oferece. Os layouts e temas antigos do Cortaí continuam válidos em páginas já salvas.
+ * Catálogo base recuperado do Figaro (`GET pages/layouts`, spec 4 §4.3): dois layouts e os três temas
+ * originais. A tela Layout & Tema amplia essa base com estilos já definidos no Cortaí. Os IDs antigos
+ * continuam válidos nas páginas salvas; o catálogo visual não muda o formato persistido.
  */
 export const LAYOUTS_DO_FIGARO = ["figaro-site-completo", "figaro-agendamento"] as const satisfies readonly LayoutId[];
 export const TEMAS_DO_FIGARO = ["figaro-classico", "figaro-rock-n-roll", "figaro-retro"] as const satisfies readonly TemaId[];
@@ -487,20 +488,38 @@ export const TEMAS_DO_FIGARO = ["figaro-classico", "figaro-rock-n-roll", "figaro
 /** Temas de estilo e paleta femininos, do Cortaí, que usam os mesmos modelos. */
 export const TEMAS_FEMININOS = ["feminino-rose", "feminino-lavanda", "feminino-pessego"] as const satisfies readonly TemaId[];
 
-/** Tudo o que a tela Layout & Tema oferece, na ordem. */
-export const TEMAS_DO_CATALOGO = [...TEMAS_DO_FIGARO, ...TEMAS_FEMININOS] as const;
+/** Temas adicionais já definidos no Cortaí, selecionados para ampliar a biblioteca inicial. */
+export const TEMAS_ADICIONAIS_DO_CATALOGO = [
+  "cortai",
+  "cortai-creme",
+  "nude",
+  "premium",
+  "clean",
+  "editorial",
+] as const satisfies readonly TemaId[];
+
+/** Tudo o que a tela Layout & Tema oferece: temas Figaro, paletas suaves e estilos adicionais do Cortaí. */
+export const TEMAS_DO_CATALOGO = [
+  ...TEMAS_DO_FIGARO,
+  ...TEMAS_FEMININOS,
+  ...TEMAS_ADICIONAIS_DO_CATALOGO,
+] as const;
+
+/** Capas geradas com capturas reais disponíveis em public/temas. */
+export const TEMAS_COM_CAPA = [...TEMAS_DO_FIGARO, ...TEMAS_FEMININOS] as const;
 
 /** Layouts da tela Layout & Tema: os dois do Figaro e o Chat, atendimento em conversa do Cortaí. */
 export const LAYOUTS_DO_CATALOGO = [...LAYOUTS_DO_FIGARO, "cortai-chat"] as const satisfies readonly LayoutId[];
 
-/** Temas que cada layout oferece (`availableThemes` do Figaro); os dois sites e o Chat usam os mesmos seis. */
+/** Todos os layouts do catálogo oferecem os mesmos 12 temas; a estrutura e o fluxo continuam independentes da paleta. */
 export function temasDoLayout(_layout: LayoutId): readonly TemaId[] {
   return TEMAS_DO_CATALOGO;
 }
 
 /**
- * Leva a página aberta para dentro do catálogo da tela Layout & Tema, como o Figaro: sempre há um layout e um tema
- * escolhidos. Layout ou tema antigos do Cortaí viram o primeiro do catálogo (só na tela; nada é gravado até salvar).
+ * Leva a página aberta para dentro do catálogo da tela Layout & Tema, como no fluxo do Figaro.
+ * Layouts fora do catálogo passam ao primeiro layout; temas já incluídos são preservados. Qualquer ajuste
+ * acontece apenas no estado da tela e só é persistido quando o usuário salva.
  */
 export function ajustarAoCatalogo(config: PaginaConfig): PaginaConfig {
   const comLayout = (LAYOUTS_DO_CATALOGO as readonly string[]).includes(config.layout)
@@ -691,6 +710,7 @@ export function paginaStyle(config: PaginaConfig): CSSProperties {
     "--brand-primary": config.cores.principal,
     "--brand-secondary": config.cores.secundaria,
     "--brand-button": config.cores.botao,
+    "--brand-button-foreground": contrasteDaMarca(config.cores.botao),
     "--brand-background": config.cores.fundo,
     "--brand-text": config.cores.texto,
     "--brand-accent": config.cores.destaque,

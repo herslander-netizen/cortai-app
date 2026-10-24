@@ -176,7 +176,7 @@ function EditorLayoutTema({
           </Button>
           <Button
             className="min-h-12 flex-1 rounded-full"
-            disabled={e.busy}
+            disabled={e.busy || salvando}
             loading={salvando}
             onClick={() => void salvar()}
           >
