@@ -5,6 +5,8 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { exigirRecurso, recursoLiberado } from "@/lib/planos";
 import { exigirPermissao, tenantIdDoMembro } from "@/lib/tenant";
+import { fotoValida } from "@/lib/fotos-do-negocio";
+import { assinarFoto } from "@/lib/fotos.server";
 
 /** Mesma regra de negócio em uso do resto do servidor (antes esta cópia pegava um vínculo qualquer). */
 async function tenantDoMembro(supabase: any, userId: string) {
@@ -64,7 +66,14 @@ export const getProdutos = createServerFn({ method: "GET" })
       recursoLiberado(context.supabase, tenantId, "loja_online"),
     ]);
     if (error) throw new Error(error.message);
-    const produtos = data ?? [];
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    // `foto_url` guarda o caminho da foto; `foto_assinada` é o link temporário para mostrar na lista.
+    const produtos = await Promise.all(
+      (data ?? []).map(async (p: any) => ({
+        ...p,
+        foto_assinada: await assinarFoto(supabaseAdmin, p.foto_url),
+      })),
+    );
     return {
       tenantId,
       produtos,
@@ -113,6 +122,8 @@ export const salvarProduto = createServerFn({ method: "POST" })
       tenantId,
       "loja_online",
     );
+    if (data.foto_url && !fotoValida(data.foto_url, tenantId))
+      throw new Error("Escolha a foto pela galeria de fotos.");
     const payload = {
       nome: data.nome,
       foto_url: data.foto_url,

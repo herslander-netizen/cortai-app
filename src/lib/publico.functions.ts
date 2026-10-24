@@ -176,17 +176,31 @@ export const getPaginaPublica = createServerFn({ method: "GET" })
         fuso: tenant.fuso,
       },
       servicos: (servicos ?? []).map((sv) => ({ ...sv, popularidade: contagem.get(sv.id) ?? 0 })),
-      profissionais: (profissionais ?? []).map((p) => ({
-        id: p.id,
-        nome: p.nome,
-        avatar_url: p.avatar_url,
-        descricao: p.descricao,
-        portfolio: Array.isArray(p.portfolio)
-          ? (p.portfolio as unknown[]).filter((f): f is string => typeof f === "string")
-          : [],
-      })),
+      // O portfólio guarda caminhos de foto do negócio (ou links antigos): o link para mostrar é assinado aqui.
+      profissionais: await Promise.all(
+        (profissionais ?? []).map(async (p) => {
+          const itens = Array.isArray(p.portfolio)
+            ? (p.portfolio as unknown[]).filter((f): f is string => typeof f === "string")
+            : [];
+          const links = await Promise.all(itens.map((f) => signedUrl(supabaseAdmin, f)));
+          return {
+            id: p.id,
+            nome: p.nome,
+            avatar_url: p.avatar_url,
+            descricao: p.descricao,
+            portfolio: links.filter((l): l is string => Boolean(l)),
+          };
+        }),
+      ),
       loja_ativa: lojaAtiva,
-      produtos: lojaAtiva ? (produtos ?? []) : [],
+      produtos: lojaAtiva
+        ? await Promise.all(
+            (produtos ?? []).map(async (p) => ({
+              ...p,
+              foto_url: await signedUrl(supabaseAdmin, p.foto_url),
+            })),
+          )
+        : [],
       horarios: horarios ?? [],
       avaliacoes: {
         media: avaliacoes?.length

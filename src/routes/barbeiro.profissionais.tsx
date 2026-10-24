@@ -3,6 +3,8 @@ import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
 
+import { ListaDeFotos, type FotoDaLista } from "@/components/fotos/SeletorDeFoto";
+import { MAX_FOTOS_DO_PORTFOLIO } from "@/lib/fotos-do-negocio";
 import { EmptyState, Screen } from "@/components/layout/Screen";
 import { getProfissionaisPerfil, salvarPerfilProfissional } from "@/lib/crescimento.functions";
 import { useAcao } from "@/hooks/useAcao";
@@ -34,15 +36,13 @@ function ProfissionaisPage() {
     queryFn: () => getProfissionaisPerfil(),
   });
 
-  const [form, setForm] = useState<Record<string, { descricao: string; fotos: string }>>({});
+  const [form, setForm] = useState<Record<string, { descricao: string; fotos: FotoDaLista[] }>>({});
   const acao = useAcao();
 
   useEffect(() => {
     if (!data) return;
     setForm(
-      Object.fromEntries(
-        data.map((p) => [p.id, { descricao: p.descricao ?? "", fotos: p.portfolio.join("\n") }]),
-      ),
+      Object.fromEntries(data.map((p) => [p.id, { descricao: p.descricao ?? "", fotos: p.fotos }])),
     );
   }, [data]);
 
@@ -57,7 +57,7 @@ function ProfissionaisPage() {
 
       <ul className="space-y-6">
         {(data ?? []).map((p) => {
-          const atual = form[p.id] ?? { descricao: "", fotos: "" };
+          const atual = form[p.id] ?? { descricao: "", fotos: [] };
           return (
             <li key={p.id} className="border-b border-line bg-ink2 px-1 py-5">
               <p className="text-sm font-semibold text-paper">{p.nome}</p>
@@ -74,20 +74,18 @@ function ProfissionaisPage() {
                   placeholder="Especialista nos serviços que oferece."
                 />
               </label>
-              <label className="mt-4 block">
-                <span className="text-xs text-mute2">
-                  Portfólio — um link de foto por linha (até 6)
+              <div className="mt-4">
+                <span className="mb-2 block text-xs text-mute2">
+                  Portfólio: até {MAX_FOTOS_DO_PORTFOLIO} fotos do seu trabalho
                 </span>
-                <textarea
-                  rows={3}
-                  value={atual.fotos}
-                  onChange={(e) =>
-                    setForm((s) => ({ ...s, [p.id]: { ...atual, fotos: e.target.value } }))
-                  }
-                  className="field-control mt-1 w-full resize-none"
-                  placeholder="https://"
+                <ListaDeFotos
+                  fotos={atual.fotos}
+                  max={MAX_FOTOS_DO_PORTFOLIO}
+                  prefixo="profissional"
+                  titulo={`Portfólio de ${p.nome}`}
+                  onChange={(fotos) => setForm((s) => ({ ...s, [p.id]: { ...atual, fotos } }))}
                 />
-              </label>
+              </div>
               <Button
                 variant="ghost"
                 type="button"
@@ -102,10 +100,8 @@ function ProfissionaisPage() {
                           id: p.id,
                           descricao: atual.descricao,
                           portfolio: atual.fotos
-                            .split("\n")
-                            .map((f) => f.trim())
-                            .filter(Boolean)
-                            .slice(0, 6),
+                            .map((f) => f.valor)
+                            .slice(0, MAX_FOTOS_DO_PORTFOLIO),
                         },
                       }),
                     {

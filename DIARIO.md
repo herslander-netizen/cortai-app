@@ -700,6 +700,18 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-24 UTC — Claude — Fotos por galeria (sem "URL da foto") e busca da Agenda com um "x" só
+- Pedido do dono: tirar tudo que pede foto por link e criar galeria com envio da galeria do aparelho/câmera. **Feito:** `GaleriaDeFotos` (gaveta com as fotos já enviadas pelo
+  negócio + "Enviar do aparelho" + "Tirar foto"), `SeletorDeFoto` (uma foto) e `ListaDeFotos` (várias, com "x" e "Adicionar"). Telas trocadas: **Produtos** (campo "URL da foto"),
+  **Profissionais** (portfólio, antes "um link por linha") e **assistente de configuração** (campo "Link da logo", que não tinha como enviar arquivo antes de existir o negócio:
+  a logo continua no onboarding com envio). Links `https://` já salvos continuam aparecendo.
+- Servidor: `fotos.functions.ts` (`listarFotosDoNegocio`, `enviarFotoDoNegocio`: confere JPEG/PNG/WebP pelos bytes, máx. 2 MB, guarda em `tenant-logos/<negócio>/`; vale para quem tem
+  permissão de estoque ou de equipe, não só o dono), `fotos.server.ts` (assina o link na hora de mostrar), `fotos-do-negocio.ts` (regras e `caminhoDoNegocio`: o caminho salvo precisa ser da pasta do
+  próprio negócio, já que a assinatura usa credencial de servidor). O banco passa a guardar o **caminho**; `salvarProduto` e `salvarPerfilProfissional` validam; loja, página pública, destaques do
+  cliente e lista de produtos assinam o link. Sem migração.
+- Busca da Agenda: o campo era `type=search` e mostrava o "x" nativo **e** o de fechar (dois "x"). Agora é `type=text` + `inputMode=search` (teclado com a tecla de busca) e fica só o de fechar.
+- Testes: `fotos-do-negocio.test.ts`, `SeletorDeFoto.test.tsx`. Pendente: conferir no celular o envio real (câmera e galeria do Android).
+
 ### 2026-10-24 UTC — Claude — Ficha do agendamento em dois estados e barrinha de puxar (padrão Figaro)
 - Pedido do dono (prints da ficha): a barrinha ficava solta acima do cartão (colada na borda) e a ficha abria sempre do mesmo jeito. No Figaro (`FigarooSheetScaffold`
   `Partial`, spec 6 §46) a folha **abre parcial e a barrinha leva até cheia**. **Feito:** a ficha abre a 55% da tela; puxar a barrinha para cima expande (92%), puxar

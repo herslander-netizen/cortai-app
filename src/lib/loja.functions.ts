@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { assinarFoto } from "@/lib/fotos.server";
 import { segmentoParaApresentacao, type Segmento } from "@/lib/segmentos";
 
 export type ProdutoPublico = {
@@ -73,6 +74,13 @@ export const getLojaPublica = createServerFn({ method: "GET" })
       .order("destaque", { ascending: false })
       .order("nome");
 
+    const produtosComFoto = await Promise.all(
+      (produtos ?? []).map(async (p) => ({
+        ...p,
+        foto_url: await assinarFoto(supabaseAdmin, p.foto_url),
+      })),
+    );
+
     let logo = tenant.logo_url;
     if (logo && !logo.startsWith("https://")) {
       const { data: assinada } = await supabaseAdmin.storage
@@ -92,7 +100,7 @@ export const getLojaPublica = createServerFn({ method: "GET" })
         logo_url: logo,
         segmento: segmentoParaApresentacao(tenant.segmento),
       },
-      produtos: produtos ?? [],
-      destaques: (produtos ?? []).filter((p) => p.destaque),
+      produtos: produtosComFoto,
+      destaques: produtosComFoto.filter((p) => p.destaque),
     };
   });

@@ -71,6 +71,11 @@ export const getContextoCliente = createServerFn({ method: "GET" })
           .limit(4)
       : { data: [] };
 
+    // `foto_url` guarda o caminho da foto no armazenamento (ou um link antigo): assina o link para mostrar.
+    const destaquesComFoto = await Promise.all(
+      (destaques ?? []).map(async (d) => ({ ...d, foto_url: await assinada(db, d.foto_url) })),
+    );
+
     return {
       nome: linha.nome,
       slug: linha.slug,
@@ -79,6 +84,6 @@ export const getContextoCliente = createServerFn({ method: "GET" })
       logo_signed_url: await assinada(db, linha.logo_url),
       capa_signed_url: await assinada(db, linha.capa_url),
       segmento: segmentoParaApresentacao(linha.segmento),
-      loja: { ativa: lojaAtiva && (destaques ?? []).length > 0, destaques: destaques ?? [] },
+      loja: { ativa: lojaAtiva && (destaques?.length ?? 0) > 0, destaques: destaquesComFoto },
     };
   });

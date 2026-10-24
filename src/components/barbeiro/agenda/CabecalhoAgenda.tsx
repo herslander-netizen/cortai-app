@@ -65,7 +65,11 @@ function PainelDeBusca() {
       <input
         // eslint-disable-next-line jsx-a11y/no-autofocus
         autoFocus
-        type="search"
+        // `text` + `inputMode="search"`: mantém a tecla de busca e evita o "x" nativo, que duplicava o botão de fechar.
+        type="text"
+        inputMode="search"
+        enterKeyHint="search"
+        autoComplete="off"
         value={texto}
         onChange={(e) => buscaDaLista.texto(e.target.value)}
         onKeyDown={(e) => {

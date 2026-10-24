@@ -252,12 +252,6 @@ function ConfigurarMinhaBarbearia() {
               onChange={(v) => atualizar({ endereco: v })}
             />
             <Campo
-              rotulo="Link da logo (opcional)"
-              valor={dados.logoUrl}
-              onChange={(v) => atualizar({ logoUrl: v })}
-              placeholder="https://…"
-            />
-            <Campo
               rotulo="Primeiro profissional"
               valor={dados.profissional}
               onChange={(v) => atualizar({ profissional: v })}

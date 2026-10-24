@@ -4,6 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { AlertTriangle, PackagePlus, ShoppingBag, Store } from "lucide-react";
 import { useState } from "react";
 
+import { SeletorDeFoto } from "@/components/fotos/SeletorDeFoto";
 import { EmptyState, Screen } from "@/components/layout/Screen";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -96,6 +97,8 @@ function ProdutosPage() {
   const [erro, setErro] = useState<string | null>(null);
 
   const [form, setForm] = useState<Form>(FORM_VAZIO);
+  // Link para mostrar a foto escolhida agora (o que vai para o banco é só o caminho em `form.foto_url`).
+  const [fotoPreview, setFotoPreview] = useState<string | null>(null);
   const NUMEROS_VAZIOS = { custo: "", preco: "", quantidade: "0", estoque_minimo: "3" };
   const [numeros, setNumeros] = useState(NUMEROS_VAZIOS);
 
@@ -216,6 +219,7 @@ function ProdutosPage() {
                 aoConcluir: async () => {
                   setNovo(false);
                   setForm(FORM_VAZIO);
+                  setFotoPreview(null);
                   setNumeros(NUMEROS_VAZIOS);
                   await query.refetch();
                 },
@@ -230,11 +234,19 @@ function ProdutosPage() {
             onChange={(e) => setForm({ ...form, nome: e.target.value })}
             className="field-control"
           />
-          <input
-            placeholder="URL da foto"
-            value={form.foto_url ?? ""}
-            onChange={(e) => setForm({ ...form, foto_url: e.target.value || null })}
-            className="field-control"
+          <SeletorDeFoto
+            rotulo="Foto do produto"
+            prefixo="produto"
+            temFoto={Boolean(form.foto_url)}
+            previewUrl={fotoPreview}
+            onEscolher={(foto) => {
+              setForm({ ...form, foto_url: foto.path });
+              setFotoPreview(foto.url);
+            }}
+            onRemover={() => {
+              setForm({ ...form, foto_url: null });
+              setFotoPreview(null);
+            }}
           />
           <input
             required
@@ -334,9 +346,9 @@ function ProdutosPage() {
               key={produto.id}
               className="grid grid-cols-[48px_minmax(0,1fr)_auto] items-center gap-3 border-b border-line py-4"
             >
-              {produto.foto_url ? (
+              {produto.foto_assinada ? (
                 <img
-                  src={produto.foto_url}
+                  src={produto.foto_assinada}
                   alt={produto.nome}
                   loading="lazy"
                   className="h-12 w-12 rounded-lg object-cover"
