@@ -4,7 +4,8 @@ import { TEMAS } from "@/lib/pagina-config";
 /**
  * Imagem de capa de cada tema (no Figaro vem do servidor, `largeCoverImageUri`). Aqui são ilustrações
  * próprias, desenhadas em SVG, que lembram o clima de cada modelo: facetas cinza (Clássico), palco escuro
- * com faixa laranja (Rock n' Roll) e círculo amarelo (Retrô).
+ * com faixa laranja (Rock n' Roll) e círculo amarelo (Retrô). Os demais temas mostram uma página em miniatura
+ * com as cores reais do tema.
  */
 export function CapaDoTema({ tema, className = "" }: { tema: TemaId; className?: string }) {
   const cores = TEMAS[tema].cores;
@@ -71,7 +72,17 @@ export function CapaDoTema({ tema, className = "" }: { tema: TemaId; className?:
           <path d="M0 84 Q70 64 140 86 T290 80 V100 H0Z" fill="#FFF3EA" />
         </>
       ) : (
-        <rect width="290" height="100" fill={cores.fundo} />
+        <>
+          <rect width="290" height="100" fill={cores.fundo} />
+          <rect x="0" y="0" width="290" height="46" fill={cores.secundaria} />
+          <circle cx="28" cy="23" r="9" fill={cores.principal} />
+          <rect x="46" y="16" width="86" height="8" rx="4" fill={cores.texto} opacity="0.9" />
+          <rect x="46" y="29" width="56" height="5" rx="2.5" fill={cores.texto} opacity="0.45" />
+          <rect x="18" y="58" width="254" height="14" rx="7" fill={cores.secundaria} />
+          <rect x="18" y="78" width="254" height="14" rx="7" fill={cores.secundaria} />
+          <rect x="196" y="55" width="76" height="20" rx="10" fill={cores.botao} />
+          <circle cx="258" cy="23" r="5" fill={cores.destaque} />
+        </>
       )}
     </svg>
   );

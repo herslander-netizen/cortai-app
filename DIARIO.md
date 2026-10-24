@@ -700,6 +700,10 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-24 UTC — Claude — Layout & Tema: capa de todos os temas
+- `CapaDoTema.tsx`: os temas sem arte própria (13 dos 19) deixavam um retângulo liso; agora mostram uma página em miniatura com as cores reais do tema. Não geramos capturas reais (`public/temas/*.webp`): exigiriam dados públicos de exemplo; fica como melhoria futura. "Ver Exemplo" já existe em `layout-tema/preview`.
+- tsc e vitest verdes.
+
 ### 2026-10-24 UTC — Claude — Hero e Galeria da página como no Figaro
 - Personalizar Página: a seção "Foto em Destaque" (`apresentacao`) agora é `EditorDeHero` (imagem de fundo pela galeria de fotos/upload, frase com mínimo de 8 caracteres, sobre, chamada e botão fixo); `SecaoTextos.tsx` removido. A seção Galeria usa `ListaDeFotos` (até 8 fotos, upload ou galeria do aparelho, reordenar/remover). Hook `useEditorDaPagina` ganhou `escolherCapa`, `removerCapa`, `definirFotos`.
 - Arquivos em `src/components/marca/editor/*` (reservados ao GPT) tocados só nessas seções. Teste `navegacao-movel.test.ts` atualizado. tsc, vitest (1906) e build verdes.
