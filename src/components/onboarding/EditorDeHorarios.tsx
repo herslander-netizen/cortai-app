@@ -83,115 +83,115 @@ export function EditorDeHorarios({
             </Button>
 
             <ul className="mt-4 divide-y divide-line border-y border-line">
-            {horarios
-              .slice()
-              .sort((a, b) => a.diaSemana - b.diaSemana)
-              .map((h) => (
-                <li key={h.diaSemana} className="flex flex-wrap items-center gap-3 py-3">
-                  <span className="w-20 shrink-0 text-sm text-paper">
-                    {DIAS_DA_SEMANA[h.diaSemana]}
-                  </span>
-                  <label className="flex items-center gap-2 text-xs text-mute">
-                    <input
-                      type="checkbox"
-                      checked={!h.fechado}
-                      aria-label={`${DIAS_DA_SEMANA[h.diaSemana]} aberto`}
-                      onChange={(e) => atualizar(h.diaSemana, { fechado: !e.target.checked })}
-                    />
-                    Aberto
-                  </label>
-                  <AnimatePresence initial={false} mode="wait">
-                    {h.fechado ? (
-                      <motion.div
-                        key="fechado"
-                        initial={reduzirMovimento ? false : { opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: "auto" }}
-                        exit={{ opacity: 0, height: 0 }}
-                        transition={
-                          reduzirMovimento
-                            ? { duration: 0 }
-                            : { height: MOLA.tamanho, opacity: MOLA.padraoEfeito }
-                        }
-                        className="overflow-hidden text-xs text-mute2"
-                      >
-                        Fechado
-                      </motion.div>
-                    ) : (
-                      <motion.div
-                        key="aberto"
-                        initial={reduzirMovimento ? false : { opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: "auto" }}
-                        exit={{ opacity: 0, height: 0 }}
-                        transition={
-                          reduzirMovimento
-                            ? { duration: 0 }
-                            : { height: MOLA.tamanho, opacity: MOLA.padraoEfeito }
-                        }
-                        className="flex items-center gap-2 overflow-hidden"
-                      >
-                        <input
-                          type="time"
-                          aria-label={`${DIAS_DA_SEMANA[h.diaSemana]} abre`}
-                          value={h.abre}
-                          onChange={(e) => atualizar(h.diaSemana, { abre: e.target.value })}
-                          className="field-control w-auto px-2 text-sm"
-                        />
-                        <span className="text-xs text-mute2">às</span>
-                        <input
-                          type="time"
-                          aria-label={`${DIAS_DA_SEMANA[h.diaSemana]} fecha`}
-                          value={h.fecha}
-                          onChange={(e) => atualizar(h.diaSemana, { fecha: e.target.value })}
-                          className="field-control w-auto px-2 text-sm"
-                        />
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                  {!h.fechado ? (
-                    h.intervaloInicio && h.intervaloFim ? (
-                      <span className="flex w-full flex-wrap items-center gap-2 pl-0 text-xs text-mute sm:flex-nowrap sm:pl-20">
-                        Intervalo
-                        <input
-                          type="time"
-                          aria-label={`${DIAS_DA_SEMANA[h.diaSemana]} início do intervalo`}
-                          value={h.intervaloInicio}
-                          onChange={(e) => atualizar(h.diaSemana, { intervaloInicio: e.target.value })}
-                          className="field-control w-auto px-2 text-sm"
-                        />
-                        <span className="text-mute2">às</span>
-                        <input
-                          type="time"
-                          aria-label={`${DIAS_DA_SEMANA[h.diaSemana]} fim do intervalo`}
-                          value={h.intervaloFim}
-                          onChange={(e) => atualizar(h.diaSemana, { intervaloFim: e.target.value })}
-                          className="field-control w-auto px-2 text-sm"
-                        />
+              {horarios
+                .slice()
+                .sort((a, b) => a.diaSemana - b.diaSemana)
+                .map((h) => (
+                  <li key={h.diaSemana} className="flex flex-wrap items-center gap-3 py-3">
+                    <span className="w-20 shrink-0 text-sm text-paper">
+                      {DIAS_DA_SEMANA[h.diaSemana]}
+                    </span>
+                    <label className="flex items-center gap-2 text-xs text-mute">
+                      <input
+                        type="checkbox"
+                        checked={!h.fechado}
+                        aria-label={`${DIAS_DA_SEMANA[h.diaSemana]} aberto`}
+                        onChange={(e) => atualizar(h.diaSemana, { fechado: !e.target.checked })}
+                      />
+                      Aberto
+                    </label>
+                    <AnimatePresence initial={false} mode="wait">
+                      {h.fechado ? (
+                        <motion.div
+                          key="fechado"
+                          initial={reduzirMovimento ? false : { opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: "auto" }}
+                          exit={{ opacity: 0, height: 0 }}
+                          transition={
+                            reduzirMovimento
+                              ? { duration: 0 }
+                              : { height: MOLA.tamanho, opacity: MOLA.padraoEfeito }
+                          }
+                          className="overflow-hidden text-xs text-mute2"
+                        >
+                          Fechado
+                        </motion.div>
+                      ) : (
+                        <motion.div
+                          key="aberto"
+                          initial={reduzirMovimento ? false : { opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: "auto" }}
+                          exit={{ opacity: 0, height: 0 }}
+                          transition={
+                            reduzirMovimento
+                              ? { duration: 0 }
+                              : { height: MOLA.tamanho, opacity: MOLA.padraoEfeito }
+                          }
+                          className="flex items-center gap-2 overflow-hidden"
+                        >
+                          <input
+                            type="time"
+                            aria-label={`${DIAS_DA_SEMANA[h.diaSemana]} abre`}
+                            value={h.abre}
+                            onChange={(e) => atualizar(h.diaSemana, { abre: e.target.value })}
+                            className="field-control w-auto px-2 text-sm"
+                          />
+                          <span className="text-xs text-mute2">às</span>
+                          <input
+                            type="time"
+                            aria-label={`${DIAS_DA_SEMANA[h.diaSemana]} fecha`}
+                            value={h.fecha}
+                            onChange={(e) => atualizar(h.diaSemana, { fecha: e.target.value })}
+                            className="field-control w-auto px-2 text-sm"
+                          />
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                    {!h.fechado ? (
+                      h.intervaloInicio && h.intervaloFim ? (
+                        <span className="flex w-full flex-wrap items-center gap-2 pl-0 text-xs text-mute sm:flex-nowrap sm:pl-20">
+                          Intervalo
+                          <input
+                            type="time"
+                            aria-label={`${DIAS_DA_SEMANA[h.diaSemana]} início do intervalo`}
+                            value={h.intervaloInicio}
+                            onChange={(e) => atualizar(h.diaSemana, { intervaloInicio: e.target.value })}
+                            className="field-control w-auto px-2 text-sm"
+                          />
+                          <span className="text-mute2">às</span>
+                          <input
+                            type="time"
+                            aria-label={`${DIAS_DA_SEMANA[h.diaSemana]} fim do intervalo`}
+                            value={h.intervaloFim}
+                            onChange={(e) => atualizar(h.diaSemana, { intervaloFim: e.target.value })}
+                            className="field-control w-auto px-2 text-sm"
+                          />
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            className="h-auto min-h-12 px-2 text-mute underline"
+                            onClick={() =>
+                              atualizar(h.diaSemana, { intervaloInicio: null, intervaloFim: null })
+                            }
+                          >
+                            Tirar
+                          </Button>
+                        </span>
+                      ) : (
                         <Button
                           type="button"
                           variant="ghost"
-                          className="h-auto min-h-12 px-2 text-mute underline"
+                          className="ml-20 h-auto min-h-12 text-xs text-mute underline"
                           onClick={() =>
-                            atualizar(h.diaSemana, { intervaloInicio: null, intervaloFim: null })
+                            atualizar(h.diaSemana, { intervaloInicio: "12:00", intervaloFim: "13:00" })
                           }
                         >
-                          Tirar
+                          + Intervalo
                         </Button>
-                      </span>
-                    ) : (
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        className="ml-20 h-auto min-h-12 text-xs text-mute underline"
-                        onClick={() =>
-                          atualizar(h.diaSemana, { intervaloInicio: "12:00", intervaloFim: "13:00" })
-                        }
-                      >
-                        + Intervalo
-                      </Button>
-                    )
-                  ) : null}
-                </li>
-              ))}
+                      )
+                    ) : null}
+                  </li>
+                ))}
             </ul>
           </div>
         </motion.div>
