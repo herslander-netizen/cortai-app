@@ -3,15 +3,15 @@ import { act, createElement, type ReactNode } from "react";
 import { createRoot } from "react-dom/client";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
+import { EditorDeHorarios } from "./EditorDeHorarios";
+
 vi.mock("@tanstack/react-start", () => ({ useServerFn: () => vi.fn() }));
 vi.mock("@/lib/assistente.functions", () => ({ interpretarHorarios: vi.fn() }));
-
-import { EditorDeHorarios } from "./EditorDeHorarios";
 
 (globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT: boolean }).IS_REACT_ACT_ENVIRONMENT =
   true;
 
-let mounted: Array<{ host: HTMLDivElement; root: ReturnType<typeof createRoot> }> = [];
+const mounted: Array<{ host: HTMLDivElement; root: ReturnType<typeof createRoot> }> = [];
 
 async function montar(element: ReactNode) {
   const host = document.createElement("div");
