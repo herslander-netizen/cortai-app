@@ -56,6 +56,7 @@ describe("navegação móvel", () => {
     expect(paginaPrincipal).not.toContain('search={{ qr: "1" }}');
     expect(paginaPrincipal).not.toContain("Ver como ficou");
     expect(paginaPrincipal).toContain("Ver prévia");
+    expect(paginaPrincipal).not.toContain("Prévia do rascunho");
     expect(paginaPrincipal).not.toContain("<Copy />");
     expect(paginaPrincipal).toContain("Compartilhar link");
     expect(qrPage).toContain('title="QR Code e link público"');
