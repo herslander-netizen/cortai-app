@@ -700,6 +700,11 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-23 UTC — Claude — Loading piscava em outro tema (Padrão antes do Rosé)
+- Vídeo do dono: ao carregar, a tela trocava de cor de forma estranha. **Causa:** `ManagementDrawer` aplicava `identidadeValida(undefined)` = Padrão
+  enquanto a sessão carregava (e gravava "moderno" no `localStorage`, apagando o tema lembrado). **Correção:** só aplica quando a sessão chegou;
+  teste `ManagementDrawer.tema.test.ts`. Sem banco.
+
 ### 2026-10-23 UTC — Claude — Avisos de configuração no menu lateral (e-mail, notificações, WhatsApp)
 - Pedido do dono: "preciso dessas notificações de configurações". **Correção de uma conclusão minha:** a entrada de tipografia abaixo
   diz que o menu "já está igual ao Figaro"; isso comparou fotos do Figaro com fotos do Figaro. Os cartões de aviso **não existiam** no Cortaí

@@ -106,7 +106,8 @@ export function ManagementHeader() {
     : null;
 
   useEffect(() => {
-    aplicarIdentidade(identidadeValida(sessao?.identidadeApp));
+    // Sem a sessão carregada, mantém o tema que o script inicial lembrou (aplicar "Padrão" aqui piscava o loading).
+    if (sessao) aplicarIdentidade(identidadeValida(sessao.identidadeApp));
     if (sessao?.tenantModo && !window.localStorage.getItem(MODE_KEY))
       aplicarModo(sessao.tenantModo, true);
   }, [sessao?.identidadeApp, sessao?.tenantModo]);
