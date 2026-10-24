@@ -131,7 +131,7 @@ export function SecaoLayoutsETemas({
           }
         />
         <Painel aberto={aberto === "layout"}>
-          <div className="flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-4">
+          <div className="sem-barra flex snap-x snap-mandatory gap-3 overflow-x-auto overscroll-x-contain px-4 pb-4 scroll-px-4 touch-pan-x">
             {LAYOUTS_DO_CATALOGO.map((layout) => (
               <CartaoDeLayout
                 key={layout}
@@ -157,7 +157,7 @@ export function SecaoLayoutsETemas({
           }
         />
         <Painel aberto={aberto === "tema"}>
-          <div className="flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-4">
+          <div className="sem-barra flex snap-x snap-mandatory gap-3 overflow-x-auto overscroll-x-contain px-4 pb-4 scroll-px-4 touch-pan-x">
             {temasDoLayout(config.layout).map((tema) => (
               <CartaoDeTema
                 key={tema}
@@ -190,7 +190,7 @@ export function SecaoLayoutsETemas({
             }
           />
           <Painel aberto={aberto === "chat"}>
-            <div className="flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-3">
+            <div className="sem-barra flex snap-x snap-mandatory gap-3 overflow-x-auto overscroll-x-contain px-4 pb-3 scroll-px-4 touch-pan-x">
               {ESTILOS_DO_CHAT.map((estilo) => (
                 <CartaoDeEstiloDoChat
                   key={estilo.id}

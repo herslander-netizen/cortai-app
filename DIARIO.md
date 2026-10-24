@@ -706,6 +706,10 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - Cartões selecionados agora recebem a elevação do Figaro e cartões não selecionados ganham realce de borda no foco/hover; nenhum dado, rota, regra de seleção ou contrato de backend foi alterado.
 - Validação: `bun run tsc --noEmit` passou. Quatro testes focados executaram; 8 testes passaram e `SecaoTema.test.tsx` ficou bloqueado pelo erro transitório de sandbox/temp do Vitest no Windows (ENOENT fora do projeto), sem falha de asserção.
 
+### 2026-10-24 UTC — GPT — Fluidez do carrossel e da prévia de Layout & Tema
+- Os três carrosséis passaram a esconder a barra nativa, preservar snap/rolagem por toque e impedir o overscroll lateral da página. A prévia ao vivo agora usa o raio de 28 dp e a elevação do Figaro, mantendo o conteúdo e os dispositivos existentes.
+- Validação adicional: `bun run tsc --noEmit` passou.
+
 ### 2026-10-24 UTC — Claude — Tela "Selecione um Plano" no estilo Figaro (`/barbeiro/plano`)
 - Print do dono (paywall do Figaro + folha "Recursos") encaixado em `EscolhaDePlano`: selo de situação (teste terminou / pausada / dias de teste), título, seletor − / + e preço, "Todos os recursos incluídos" abrindo a folha "Recursos", aviso legal e botão grande fixo ("Assinar · R$/mês", "Reativar Assinatura", "Continuar no Essencial", "Gerenciar assinatura").
 - **Não copiei o preço do Figaro** (R$ 99 + R$ 20 por cadeira): o Cortaí cobra por plano. O "quantos profissionais" escolhe o plano mais barato que comporta a equipe (`escolha-de-plano.ts`, com teste), com preços, limites e recursos reais de `planos_da_plataforma`. Preço por assento seria decisão de produto.
