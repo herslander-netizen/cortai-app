@@ -473,7 +473,6 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 | Quem | Desde (UTC) | Tarefa | Arquivos / migração reservada |
 |---|---|---|---|
-| GPT | 2026-10-24 UTC | Remover o indicador textual de presença “Online agora” e sua bolinha verde do cabeçalho do chat público; preservar estados de digitação/fora do horário | `DIARIO.md`, `src/components/chat/ChatShell.tsx`, teste de ChatHeader; sem migração |
 
 | GPT | 2026-10-22 UTC | Lote 3 de P.12: C7, C8, C10, C12, C16 e V3 implementados/testados; workflow e smoke test da prévia verdes no commit `be0bc0e`. C9/P3 parciais; revisão visual pendente. `SecaoImagens.tsx` liberada para a tarefa separada do seletor de biblioteca | `DIARIO.md`, `docs/referencia-figaro/apk/8-inventario-de-animacoes.md`, `src/components/marca/editor/CartoesDeLayoutTema.tsx`, `src/components/marca/editor/CartoesDeLayoutTema.test.tsx`, `src/components/marca/editor/SecaoImagens.test.tsx`, `src/components/marca/editor/SecaoRecepcao.tsx`, `src/components/marca/editor/SecaoRecepcao.test.tsx`, `src/components/notificacoes/PreferenciasDoCliente.test.tsx`, `src/components/onboarding/PrimeirosPassos.tsx`, `src/components/onboarding/EditorDeHorarios.tsx`, `src/components/barbeiro/agenda/CabecalhoDeEdicao.tsx`, `src/components/barbeiro/agenda/CabecalhoDeEdicao.test.tsx`, `src/components/ui/collapsible.tsx`, `src/components/notificacoes/*`, `src/routes/barbeiro.equipe.tsx`, `src/routes/barbeiro.marca.tsx`; sem migração |
 | GPT | 2026-10-21 UTC | Corrigir a varredura de WhatsApp/Asaas: diagnosticar timeouts, preparar correção dos cron jobs e validar endpoint no worker de produção; sem escrita real até autorização explícita | `DIARIO.md`, `MUSE.md`, `drizzle/migrations/0043_corrigir_agendadores.sql`, rotas de varredura; migração 0043 (não aplicada) |
@@ -704,6 +703,13 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - Sem alteração no banco, `main` ou produção.
 
 ## Diário
+
+### 2026-10-24 UTC — GPT — Remove presença estática do cabeçalho do chat
+- Em `src/components/chat/ChatShell.tsx`, o cabeçalho deixa de mostrar a linha “Online agora” / “Agenda online” e sua bolinha abaixo do nome. Estados úteis continuam: “digitando…” durante resposta e mensagens de funcionamento quando o negócio está fechado. A bolinha de presença sobre o avatar não foi alterada.
+- Teste novo `src/components/chat/ChatShell.test.ts` cobre os status escondidos e os que devem continuar visíveis.
+- Commits: `d14d08a` (regra visual), `e060d5b` (helper testável), `1ada9ca` (testes). Reserva encerrada.
+- Aguardando GitHub Actions para TypeScript, testes, build e publicação automática da prévia. Sem banco, main ou site principal.
+
 
 ### 2026-10-24 UTC — Claude — Padrão Figaro, lote 5: admin, troca de painel e modo escuro
 - Admin conferido em captura (8 telas, claro): abas de Monetização e filtros de Barbearias viraram `Chip`; "Mais" e "Trocar de painel" viraram `GrupoDeLinhas` com `LinhaDeConfiguracao` (as classes `nav-list-item` e `nav-list-icon` saíram do CSS).
