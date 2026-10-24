@@ -57,3 +57,12 @@ describe("padrão Figaro nos primitivos", () => {
     expect(css).toMatch(/@utility surface \{\s*border: 0;\s*border-radius: 12px;/);
   });
 });
+
+describe("ordem permanente", () => {
+  it("o documento existe e está ligado nos arquivos de regra", () => {
+    const ordem = readFileSync("docs/ordem-padrao-figaro.md", "utf8");
+    expect(ordem).toContain("ORDEM PERMANENTE");
+    expect(readFileSync("AGENTS.md", "utf8")).toContain("docs/ordem-padrao-figaro.md");
+    expect(readFileSync("CLAUDE.md", "utf8")).toContain("docs/ordem-padrao-figaro.md");
+  });
+});

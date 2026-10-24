@@ -150,7 +150,7 @@ function PreviaDaAcao({
   if (!acao.precisaConfirmar || (!temServicos && !temHorarios)) return null;
 
   return (
-    <div className="mt-3 rounded-xl border border-line2 bg-ink px-4 py-4">
+    <div className="mt-3 rounded-xl border-0 bg-[var(--agenda-cartao,var(--ink2))] px-4 py-4">
       {temServicos ? (
         <ul className="space-y-2">
           {acao.servicos!.map((s, i) => (
@@ -451,7 +451,7 @@ export function AssistenteCortai({
                 <button
                   key={a}
                   type="button"
-                  className="flex w-full items-center justify-between gap-3 rounded-xl border border-line2 bg-ink px-4 py-3 text-left text-xs text-paper transition-colors hover:border-gold/40"
+                  className="flex w-full items-center justify-between gap-3 rounded-xl border-0 bg-[var(--agenda-cartao,var(--ink2))] px-4 py-3 text-left text-xs text-paper transition-colors hover:border-gold/40"
                   onClick={() => void enviar(a)}
                 >
                   <span className="min-w-0">{a}</span>
@@ -671,7 +671,7 @@ export function AssistenteCortai({
                       );
                       if (enviou) setOpcoesDispensadas((a) => new Set(a).add(ultimaId));
                     }}
-                    className="flex min-h-11 w-full items-center justify-between gap-3 rounded-xl border border-line2 bg-ink2 px-3.5 py-2 text-left text-sm text-paper transition-colors hover:border-gold/50 disabled:opacity-50"
+                    className="flex min-h-11 w-full items-center justify-between gap-3 rounded-xl border-0 bg-[var(--agenda-cartao,var(--ink2))] px-3.5 py-2 text-left text-sm text-paper transition-colors hover:border-gold/50 disabled:opacity-50"
                   >
                     <span className="min-w-0 truncate">{o.rotulo}</span>
                     {o.detalhe ? (
@@ -737,7 +737,7 @@ export function AssistenteCortai({
             }}
             rows={1}
             placeholder="Escreva aqui…"
-            className="max-h-28 min-h-[44px] flex-1 resize-none rounded-2xl border border-line2 bg-ink px-4 py-3 text-sm text-paper outline-none transition-colors placeholder:text-mute2 focus:border-gold/45"
+            className="max-h-28 min-h-[44px] flex-1 resize-none rounded-xl border-0 bg-[var(--agenda-cartao,var(--ink2))] px-4 py-3 text-sm text-paper outline-none transition-colors placeholder:text-mute2 focus:border-gold/45"
           />
           {voz.suportado ? (
             <button

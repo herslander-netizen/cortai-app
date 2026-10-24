@@ -38,7 +38,7 @@ export const Route = createFileRoute("/escolher")({
 });
 
 const CARTAO =
-  "grid min-h-[76px] w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4 rounded-[var(--raio-bloco)] border border-line bg-ink2 px-4 py-4 text-left transition-colors hover:bg-ink3 disabled:opacity-60";
+  "grid min-h-[76px] w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4 rounded-xl border-0 bg-[var(--agenda-cartao,var(--ink2))] px-4 py-4 text-left transition-colors hover:bg-ink3 disabled:opacity-60";
 
 function chaveDaOpcao(o: OpcaoDeEntrada) {
   return o.tipo === "negocio" ? o.tenantId : o.tipo;

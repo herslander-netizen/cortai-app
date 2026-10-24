@@ -20,7 +20,7 @@ export function GrupoDeLinhas({
   return (
     <ul
       className={cn(
-        "flex flex-col gap-0.5 [&>li]:overflow-hidden [&>li]:rounded-[4px] [&>li]:bg-[var(--agenda-cartao)] [&>li:first-child]:rounded-t-[28px] [&>li:last-child]:rounded-b-[28px]",
+        "flex flex-col gap-0.5 [&>li]:overflow-hidden [&>li]:rounded-[4px] [&>li]:bg-[var(--agenda-cartao,var(--ink2))] [&>li:first-child]:rounded-t-[28px] [&>li:last-child]:rounded-b-[28px]",
         className,
       )}
     >
@@ -195,7 +195,7 @@ export function CartaoDePerfil({
   avatar?: ReactNode;
 }) {
   return (
-    <div className="flex items-center gap-4 rounded-[28px] bg-[var(--agenda-cartao)] p-4">
+    <div className="flex items-center gap-4 rounded-[28px] bg-[var(--agenda-cartao,var(--ink2))] p-4">
       <span className="grid size-14 shrink-0 place-items-center overflow-hidden rounded-full bg-ink3 text-lg font-bold text-paper">
         {avatar ?? nome.trim().charAt(0).toUpperCase()}
       </span>

@@ -133,7 +133,7 @@ function ContaAsaasPage() {
               autoComplete="off"
               spellCheck={false}
               placeholder="$aact_prod_… ou $aact_hmlg_…"
-              className="min-h-12 w-full rounded-md border border-line2 bg-ink2 px-4 text-base text-paper outline-none focus:border-gold focus:ring-2 focus:ring-gold-soft"
+              className="min-h-12 w-full rounded-xl border-0 bg-[var(--agenda-cartao,var(--ink2))] px-4 text-base text-paper outline-none focus:border-gold focus:ring-2 focus:ring-gold-soft"
             />
             <Button type="submit" size="lg" disabled={acao.ocupado} className="w-full sm:w-auto">
               {acao.estaEm("salvar")

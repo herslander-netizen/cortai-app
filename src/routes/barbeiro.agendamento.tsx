@@ -108,7 +108,7 @@ function OpcoesDeAgendamentoPage() {
       <div className="pb-8">
         {isLoading ? <p className="mt-8 text-sm text-mute">Carregando…</p> : null}
         {isError && !data ? (
-          <div role="alert" className="mt-8 rounded-[28px] bg-[var(--agenda-cartao)] p-5">
+          <div role="alert" className="mt-8 rounded-[28px] bg-[var(--agenda-cartao,var(--ink2))] p-5">
             <p className="text-sm text-paper">
               Não foi possível carregar as opções de agendamento. Verifique sua conexão e tente de
               novo.

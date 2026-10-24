@@ -90,7 +90,7 @@ function RetornoPage() {
           <p className="text-sm text-brick">{erro}</p>
           <button
             type="button"
-            className="mt-4 h-11 rounded-lg border border-line2 bg-ink2 px-5 text-sm font-semibold text-paper"
+            className="mt-4 h-11 rounded-xl border-0 bg-[var(--agenda-cartao,var(--ink2))] px-5 text-sm font-semibold text-paper"
             onClick={() => void navigate({ to: "/comecar", replace: true })}
           >
             Voltar ao início

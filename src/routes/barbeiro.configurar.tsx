@@ -434,7 +434,7 @@ function ConfigurarPage() {
                     variant="ghost"
                     type="button"
                     onClick={() => arquivoRef.current?.click()}
-                    className="grid h-20 w-20 shrink-0 place-items-center overflow-hidden rounded-xl border-0 bg-[var(--agenda-cartao)]"
+                    className="grid h-20 w-20 shrink-0 place-items-center overflow-hidden rounded-xl border-0 bg-[var(--agenda-cartao,var(--ink2))]"
                     aria-label="Enviar logo ou foto"
                   >
                     {logo?.previa || data.tenant.logoAssinada ? (
@@ -519,7 +519,7 @@ function ConfigurarPage() {
                     })
                   }
                   disabled={salvando}
-                  className="flex h-auto min-h-14 w-full items-center gap-3 whitespace-normal rounded-xl border-0 bg-[var(--agenda-cartao)] px-4 py-3 text-left"
+                  className="flex h-auto min-h-14 w-full items-center gap-3 whitespace-normal rounded-xl border-0 bg-[var(--agenda-cartao,var(--ink2))] px-4 py-3 text-left"
                 >
                   <UserRound size={18} className="shrink-0 text-paper" aria-hidden />
                   <span className="min-w-0 flex-1">
@@ -651,7 +651,7 @@ function ConfigurarPage() {
                     proxima(() => gravarRegras({ data: REGRAS_RECOMENDADAS }));
                   }}
                   disabled={salvando}
-                  className="flex h-auto min-h-14 w-full items-center gap-3 whitespace-normal rounded-xl border-0 bg-[var(--agenda-cartao)] px-4 py-3 text-left"
+                  className="flex h-auto min-h-14 w-full items-center gap-3 whitespace-normal rounded-xl border-0 bg-[var(--agenda-cartao,var(--ink2))] px-4 py-3 text-left"
                 >
                   <Check size={18} className="shrink-0 text-paper" aria-hidden />
                   <span className="min-w-0 flex-1">
@@ -719,7 +719,7 @@ function ConfigurarPage() {
                 <p className="text-sm text-paper">
                   Este é o link {vocabulario.de}. Mande para seus clientes agendarem.
                 </p>
-                <p className="mt-4 break-all rounded-xl border-0 bg-[var(--agenda-cartao)] px-4 py-4 text-base font-semibold text-paper">
+                <p className="mt-4 break-all rounded-xl border-0 bg-[var(--agenda-cartao,var(--ink2))] px-4 py-4 text-base font-semibold text-paper">
                   {linkCurto}
                 </p>
                 <div className="mt-3 grid grid-cols-2 gap-3">

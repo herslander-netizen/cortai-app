@@ -132,7 +132,7 @@ export function AgendarNoChat({ onConcluido }: { onConcluido?: () => void }) {
   }
 
   return (
-    <div className="mt-3 rounded-2xl border border-line2 bg-ink px-4 py-4">
+    <div className="mt-3 rounded-xl border-0 bg-[var(--agenda-cartao,var(--ink2))] px-4 py-4">
       <p className="text-xs font-semibold uppercase tracking-wide text-mute2">Marcar um horário</p>
 
       {/* Serviço */}

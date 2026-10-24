@@ -151,7 +151,7 @@ function DesignSystemPage() {
                       type="color"
                       value={form[key]}
                       onChange={(e) => setForm({ ...form, [key]: e.target.value.toUpperCase() })}
-                      className="mt-2 h-12 w-full rounded-md border border-line bg-ink2 p-1"
+                      className="mt-2 h-12 w-full rounded-xl border-0 bg-[var(--agenda-cartao,var(--ink2))] p-1"
                     />
                     <span className="mt-1 block text-xs text-mute2">{form[key]}</span>
                   </label>

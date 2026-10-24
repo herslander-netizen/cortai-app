@@ -213,14 +213,14 @@ function AvisosNoCelular({ tenantId }: { tenantId: string }) {
   useEffect(() => setAtivo(pushAtivoNesteAparelho()), []);
   if (ativo) {
     return (
-      <p className="flex min-h-14 items-center gap-2 rounded-[28px] bg-[var(--agenda-cartao)] px-4 text-sm text-paper">
+      <p className="flex min-h-14 items-center gap-2 rounded-[28px] bg-[var(--agenda-cartao,var(--ink2))] px-4 text-sm text-paper">
         <Check className="h-4 w-4 text-primary" aria-hidden /> Avisos no celular ativos neste
         aparelho
       </p>
     );
   }
   return (
-    <div className="rounded-[28px] bg-[var(--agenda-cartao)] p-4">
+    <div className="rounded-[28px] bg-[var(--agenda-cartao,var(--ink2))] p-4">
       <p className="text-[15px] font-semibold leading-5 text-paper">Ative as notificações</p>
       <p className="mt-1 text-sm text-mute">
         Não perca agendamentos novos e cancelamentos de última hora.
@@ -244,7 +244,7 @@ function AvisosNoCelular({ tenantId }: { tenantId: string }) {
         Ativar avisos no celular
       </Button>
       {instalar ? (
-        <p className="mt-2 rounded-lg border border-line bg-ink px-3 py-3 text-xs leading-relaxed text-mute">
+        <p className="mt-2 rounded-xl border-0 bg-[var(--agenda-cartao,var(--ink2))] px-3 py-3 text-xs leading-relaxed text-mute">
           {TEXTO_INSTALAR_PRIMEIRO}
         </p>
       ) : null}
@@ -266,14 +266,14 @@ function MeuWhatsappNoCortai() {
 
   if (data?.verificadoEm && !codigo) {
     return (
-      <p className="flex min-h-14 items-center gap-2 rounded-[28px] bg-[var(--agenda-cartao)] px-4 py-3 text-sm text-paper">
+      <p className="flex min-h-14 items-center gap-2 rounded-[28px] bg-[var(--agenda-cartao,var(--ink2))] px-4 py-3 text-sm text-paper">
         <Check className="h-4 w-4 shrink-0 text-primary" aria-hidden /> WhatsApp confirmado:
         converse com o CortAI e receba avisos por lá
       </p>
     );
   }
   return (
-    <div className="rounded-[28px] bg-[var(--agenda-cartao)] p-4">
+    <div className="rounded-[28px] bg-[var(--agenda-cartao,var(--ink2))] p-4">
       <p className="text-[15px] font-semibold leading-5 text-paper">
         Conversar com o CortAI pelo WhatsApp
       </p>

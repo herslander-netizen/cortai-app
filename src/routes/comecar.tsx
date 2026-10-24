@@ -178,7 +178,7 @@ function ComecarPage() {
           </Button>
         </div>
       ) : modo === "escolha" ? (
-        <div className="mt-8 divide-y divide-line overflow-hidden rounded-2xl border border-line bg-ink2">
+        <div className="mt-8 divide-y divide-line overflow-hidden rounded-xl border-0 bg-[var(--agenda-cartao,var(--ink2))]">
           <Button
             variant="ghost"
             className="grid h-auto w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center justify-items-stretch gap-4 whitespace-normal rounded-none px-4 py-5 text-left font-normal"
@@ -217,7 +217,7 @@ function ComecarPage() {
           </Button>
         </div>
       ) : modo === "segmento" ? (
-        <div className="mt-8 divide-y divide-line overflow-hidden rounded-2xl border border-line bg-ink2">
+        <div className="mt-8 divide-y divide-line overflow-hidden rounded-xl border-0 bg-[var(--agenda-cartao,var(--ink2))]">
           {LISTA_DE_SEGMENTOS.map((item) => {
             const Icon = item.icone;
             return (
@@ -361,7 +361,7 @@ function InicioPublico() {
         Escolha por onde começar. Você pode voltar e trocar de caminho depois.
       </p>
 
-      <div className="mt-10 divide-y divide-line overflow-hidden rounded-2xl border border-line bg-ink2">
+      <div className="mt-10 divide-y divide-line overflow-hidden rounded-xl border-0 bg-[var(--agenda-cartao,var(--ink2))]">
         <Button
           variant="ghost"
           className="grid h-auto w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4 rounded-none px-5 py-6 text-left font-normal"

@@ -74,7 +74,7 @@ export function LinhaDeOpcoes<T extends string | number>({
                       setAberta(false);
                       if (!marcada) aoEscolher(o.valor);
                     }}
-                    className="flex min-h-14 w-full items-center gap-3 rounded-[4px] bg-[var(--agenda-cartao)] px-4 py-3 text-left first:rounded-t-[28px] last:rounded-b-[28px] active:bg-paper/5"
+                    className="flex min-h-14 w-full items-center gap-3 rounded-[4px] bg-[var(--agenda-cartao,var(--ink2))] px-4 py-3 text-left first:rounded-t-[28px] last:rounded-b-[28px] active:bg-paper/5"
                   >
                     <span className="min-w-0 flex-1">
                       <span className="block text-[15px] font-semibold leading-5 text-paper">

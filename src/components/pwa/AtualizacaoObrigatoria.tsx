@@ -99,7 +99,7 @@ export function AtualizacaoObrigatoria() {
         aria-modal="true"
         aria-labelledby="titulo-atualizacao"
         aria-describedby="texto-atualizacao"
-        className="w-full max-w-sm rounded-2xl border border-line2 bg-ink2 p-6 text-center"
+        className="w-full max-w-sm rounded-xl border-0 bg-[var(--agenda-cartao,var(--ink2))] p-6 text-center"
       >
         <h2 id="titulo-atualizacao" className="text-base font-semibold text-paper">
           Atualização necessária

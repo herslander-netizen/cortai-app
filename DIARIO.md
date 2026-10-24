@@ -27,6 +27,7 @@ e o que fez. O diário até 17/10/2026 está guardado, sem alterações, em
 7. **Sem segredos:** nunca escreva chaves, senhas ou tokens aqui. Cite só o nome da variável.
 
 ## Decisões do dono
+- 2026-10-24: **Ordem permanente do padrão Figaro** (dono: "gere uma ordem de todas as páginas criadas terem esse layout como padrão"). Texto oficial em `docs/ordem-padrao-figaro.md`: toda página, nova ou refeita, usa só os primitivos de `src/components/ui` (tabela no documento), sem estilo ad hoc; o teste `estilo-figaro.test.ts` segura isso. Vale para Claude, GPT e Muse.
 - 2026-10-24: **Toda página criada já nasce no estilo Figaro** (dono: "toda página criada já precisa ter o estilo figaroo, deixe isso claro"). Vale para telas novas e refeitas, de qualquer IA; regra também no `AGENTS.md`. Referência: `docs/referencia-figaro/apk/`.
 - 2026-10-23: **Vocabulário de "tema"** (dono). **Tema do aplicativo** = os temas do sistema usado pelo negócio
   (agenda, controle de caixa e demais telas da área do negócio): hoje `identidade_app` (Padrão, Rosé, Índigo, Cobre,
@@ -702,6 +703,11 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - Sem alteração no banco, `main` ou produção.
 
 ## Diário
+
+### 2026-10-24 UTC — Claude — Ordem permanente do padrão Figaro e cartões nas demais áreas
+- Criado `docs/ordem-padrao-figaro.md` (regra, tabela "preciso de… → use…", proibições, fluxo obrigatório, estado da unificação) e ligado no `AGENTS.md`, `CLAUDE.md` e em "Decisões do dono".
+- Cartões ad hoc do app do cliente, do admin, das telas de acesso e dos avisos de instalação viraram o cartão do Figaro (`rounded-xl border-0 bg-[var(--agenda-cartao,var(--ink2))]`), com a cor de cartão caindo em `--ink2` se o token não existir.
+- **Para todos (GPT e Muse):** leiam `docs/ordem-padrao-figaro.md` antes de qualquer tela. Chip, OpcoesConectadas, cartões `surface`/`Card`, `field-control` e o voltar redondo do `Screen` são obrigatórios; o teste de guarda falha se aparecer chip local, botão com caixa própria ou `<select>` sem `field-control`.
 
 ### 2026-10-24 UTC — GPT — Auditoria dos fluxos e expansão inicial da biblioteca de temas
 - Auditoria: a rota Layout & Tema aplica tema localmente com `aplicarTema`, mantém layout/tema na query string de “Ver Exemplo”, salva somente como rascunho e retorna ao editor; a publicação segue no fluxo principal com validação de seções obrigatórias. Restauração de versões continua no editor principal. Nenhuma alteração de banco/backend.

@@ -43,7 +43,7 @@ export function InstalarCortai() {
         <Download size={16} className="text-mute2" />
       </Button>
       {verInstrucao && !podeInstalarAgora ? (
-        <p className="mb-3 rounded-lg border border-line bg-ink px-3 py-3 text-xs leading-relaxed text-mute">
+        <p className="mb-3 rounded-xl border-0 bg-[var(--agenda-cartao,var(--ink2))] px-3 py-3 text-xs leading-relaxed text-mute">
           {instrucao}
         </p>
       ) : null}

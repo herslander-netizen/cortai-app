@@ -69,7 +69,7 @@ export function AvisoDeVersao() {
 
   return (
     <div className="pointer-events-none fixed inset-x-0 bottom-0 z-50 flex justify-center px-3 pb-[calc(12px+env(safe-area-inset-bottom))]">
-      <div className="pointer-events-auto flex w-full max-w-md flex-wrap items-center gap-2 rounded-xl border border-line2 bg-ink2 p-3">
+      <div className="pointer-events-auto flex w-full max-w-md flex-wrap items-center gap-2 rounded-xl border-0 bg-[var(--agenda-cartao,var(--ink2))] p-3">
         <Button
           variant="ghost"
           type="button"

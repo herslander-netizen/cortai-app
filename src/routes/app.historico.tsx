@@ -132,7 +132,7 @@ function HistoricoPage() {
               <div
                 key={p.id}
                 {...(indice === 0 ? { "data-guia": "historico-proximo" } : {})}
-                className="mt-3 rounded-md border border-line bg-ink2 px-4 py-4"
+                className="mt-3 rounded-xl border-0 bg-[var(--agenda-cartao,var(--ink2))] px-4 py-4"
               >
                 <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4">
                   <div className="min-w-0">

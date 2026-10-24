@@ -44,7 +44,7 @@ export function DescobrirBarbearias({
 
       <label className={discreto ? "mt-4 block" : "mt-6 block"}>
         <span className="sr-only">Buscar lugar</span>
-        <span className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3 rounded-lg border border-line2 bg-ink2 px-4">
+        <span className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3 rounded-xl border-0 bg-[var(--agenda-cartao,var(--ink2))] px-4">
           <Search size={17} className="text-mute" aria-hidden />
           <input
             value={termo}

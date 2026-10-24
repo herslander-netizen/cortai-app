@@ -119,7 +119,7 @@ function VisitantePage() {
         {modo === "criar" ? (
           <label className="block text-xs font-medium text-mute">
             Seu nome
-            <span className="mt-2 grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3 rounded-lg border border-line2 bg-ink2 px-4">
+            <span className="mt-2 grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3 rounded-xl border-0 bg-[var(--agenda-cartao,var(--ink2))] px-4">
               <User size={17} aria-hidden />
               <input
                 value={nome}
@@ -133,7 +133,7 @@ function VisitantePage() {
         ) : null}
         <label className="block text-xs font-medium text-mute">
           E-mail
-          <span className="mt-2 grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3 rounded-lg border border-line2 bg-ink2 px-4">
+          <span className="mt-2 grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3 rounded-xl border-0 bg-[var(--agenda-cartao,var(--ink2))] px-4">
             <Mail size={17} aria-hidden />
             <input
               value={email}
@@ -147,7 +147,7 @@ function VisitantePage() {
         </label>
         <label className="block text-xs font-medium text-mute">
           Senha
-          <span className="mt-2 grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3 rounded-lg border border-line2 bg-ink2 px-4">
+          <span className="mt-2 grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3 rounded-xl border-0 bg-[var(--agenda-cartao,var(--ink2))] px-4">
             <LockKeyhole size={17} aria-hidden />
             <input
               value={senha}
@@ -181,7 +181,7 @@ function VisitantePage() {
 
       <button
         type="button"
-        className="mt-4 h-12 w-full rounded-lg border border-line2 bg-ink2 text-sm font-semibold text-paper"
+        className="mt-4 h-12 w-full rounded-xl border-0 bg-[var(--agenda-cartao,var(--ink2))] text-sm font-semibold text-paper"
         disabled={enviando}
         onClick={async () => {
           setErro(null);

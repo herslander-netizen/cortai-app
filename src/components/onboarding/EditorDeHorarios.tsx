@@ -236,7 +236,7 @@ export function EditorDeHorarios({
           </Button>
 
           {previa ? (
-            <div className="mt-4 rounded-xl border-0 bg-[var(--agenda-cartao)] px-4 py-3">
+            <div className="mt-4 rounded-xl border-0 bg-[var(--agenda-cartao,var(--ink2))] px-4 py-3">
               <p className="text-xs text-mute">Prévia — confira antes de aplicar:</p>
               <ul className="mt-2 space-y-1">
                 {previa.map((h) => (

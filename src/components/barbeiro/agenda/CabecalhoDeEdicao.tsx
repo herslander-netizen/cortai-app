@@ -73,7 +73,7 @@ export function CabecalhoDeEdicao({
       </motion.div>
     );
   return (
-    <header data-edicao-ui="" className="mb-3 rounded-xl border-0 bg-[var(--agenda-cartao)] px-5 py-3">
+    <header data-edicao-ui="" className="mb-3 rounded-xl border-0 bg-[var(--agenda-cartao,var(--ink2))] px-5 py-3">
       <p className="text-lg font-bold text-paper first-letter:uppercase">{extenso}</p>
       <p className="mt-0.5 text-sm text-mute">
         Para mudar de dia, use{" "}

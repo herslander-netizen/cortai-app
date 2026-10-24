@@ -89,7 +89,7 @@ export function ConviteDeInstalacao({ posicao = "base" }: { posicao?: "base" | "
         </div>
 
         {verComoNoIphone ? (
-          <p className="mt-3 rounded-lg border border-line bg-ink px-3 py-3 text-xs leading-relaxed text-mute">
+          <p className="mt-3 rounded-xl border-0 bg-[var(--agenda-cartao,var(--ink2))] px-3 py-3 text-xs leading-relaxed text-mute">
             {instrucaoDeInstalacao(plataforma)}
           </p>
         ) : null}

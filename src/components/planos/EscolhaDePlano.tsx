@@ -69,7 +69,7 @@ export function EscolhaDePlano({
           </p>
         </div>
 
-        <div className="mx-4 -mt-5 rounded-[28px] bg-[var(--agenda-cartao)] px-6 py-8 text-center sm:mx-0">
+        <div className="mx-4 -mt-5 rounded-[28px] bg-[var(--agenda-cartao,var(--ink2))] px-6 py-8 text-center sm:mx-0">
           <p className="text-base font-semibold text-paper">Quantos profissionais você precisa?</p>
           <div className="mt-6 flex items-center justify-between gap-4">
             <button
@@ -111,7 +111,7 @@ export function EscolhaDePlano({
         <button
           type="button"
           onClick={() => setRecursos(true)}
-          className="mx-4 mt-6 flex min-h-[68px] w-[calc(100%-2rem)] items-center gap-4 rounded-[20px] bg-[var(--agenda-cartao)] px-5 text-left text-base font-semibold text-paper focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:mx-0 sm:w-full"
+          className="mx-4 mt-6 flex min-h-[68px] w-[calc(100%-2rem)] items-center gap-4 rounded-[20px] bg-[var(--agenda-cartao,var(--ink2))] px-5 text-left text-base font-semibold text-paper focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:mx-0 sm:w-full"
         >
           <Sparkles size={24} className="shrink-0 text-gold" aria-hidden />
           <span className="min-w-0 flex-1">Todos os recursos incluídos</span>
@@ -157,7 +157,7 @@ export function EscolhaDePlano({
             </SheetDescription>
           </SheetHeader>
           {plano ? (
-            <ul className="mt-6 flex flex-col rounded-[28px] bg-[var(--agenda-cartao)] px-6 py-2">
+            <ul className="mt-6 flex flex-col rounded-[28px] bg-[var(--agenda-cartao,var(--ink2))] px-6 py-2">
               {plano.recursos
                 .filter((r) => r.liberado)
                 .map((r) => (

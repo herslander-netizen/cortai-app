@@ -129,7 +129,7 @@ function CarteiraPage() {
 
       {data ? (
         <>
-          <div className="flex min-h-[118px] overflow-hidden rounded-md border border-line bg-ink2">
+          <div className="flex min-h-[118px] overflow-hidden rounded-xl border-0 bg-[var(--agenda-cartao,var(--ink2))]">
             <div
               className={`w-1.5 shrink-0 ${negativo ? "bg-brick" : "barber-pole"}`}
               aria-hidden="true"

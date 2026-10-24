@@ -112,7 +112,7 @@ function InicioCliente() {
             <Link
               to="/app/historico"
               search={{ b: data.slug }}
-              className="mt-3 flex min-h-[72px] items-center gap-4 rounded-2xl border border-line bg-ink2 p-4"
+              className="mt-3 flex min-h-[72px] items-center gap-4 rounded-xl border-0 bg-[var(--agenda-cartao,var(--ink2))] p-4"
             >
               <span className="min-w-0 flex-1">
                 <span className="flex flex-wrap items-center gap-2">
@@ -138,7 +138,7 @@ function InicioCliente() {
           ) : agendamentos.isLoading ? (
             <EsqueletoLista linhas={1} />
           ) : (
-            <div className="mt-3 rounded-2xl border border-line bg-ink2 p-4">
+            <div className="mt-3 rounded-xl border-0 bg-[var(--agenda-cartao,var(--ink2))] p-4">
               <p className="text-base font-semibold text-paper">Nenhum horário marcado</p>
               <p className="mt-1 text-sm text-mute">
                 Escolha o melhor dia para o próximo atendimento.
@@ -181,7 +181,7 @@ function InicioCliente() {
           <Link
             to="/app/espera"
             search={{ b: data.slug }}
-            className="flex min-h-[64px] items-center justify-between gap-4 rounded-2xl border border-line bg-ink2 p-4"
+            className="flex min-h-[64px] items-center justify-between gap-4 rounded-xl border-0 bg-[var(--agenda-cartao,var(--ink2))] p-4"
           >
             <span className="min-w-0">
               <span className="block text-sm font-semibold text-paper">

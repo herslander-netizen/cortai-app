@@ -60,7 +60,7 @@ TanStack Start (React 19), Tailwind 4, shadcn/Radix, Supabase, Drizzle (migraç�
 - Navy #06245A → #0A3F80, branco, cyan #00B4FF, pink #FF2D78.
 - Pílula arredondada com gradiente diagonal.
 - Logo "cortaí" branca, com o ponto do "í" pink e a haste cyan.
-- Contrato de design obrigatório: `docs/contrato-de-design.md`. Ícone da CortAI via `IconeDaIA`.
+- Contrato de design obrigatório: `docs/contrato-de-design.md`. **Ordem permanente (24/10/2026): toda página nasce no padrão Figaro, só com os primitivos de `src/components/ui`: `docs/ordem-padrao-figaro.md`.** Ícone da CortAI via `IconeDaIA`.
 - Movimento: 120/200/280 ms, só transform/opacity, `MotionConfig` com reducedMotion="user" e as molas oficiais de `motion.ts`.
   **Exceção (decisão do dono, 22/10):** animação que vem do Figaro usa os tempos e molas do APK, só de
   `src/lib/movimento-figaro.ts` (com a fonte na spec `docs/referencia-figaro/apk/`).
