@@ -6,6 +6,7 @@ import { Screen } from "@/components/layout/Screen";
 import { brl } from "@/lib/format";
 import { getFinanceiro } from "@/lib/gestao.functions";
 import { EsqueletoPainel } from "@/components/layout/Esqueleto";
+import { Aviso } from "@/components/ui/aviso";
 
 export const Route = createFileRoute("/barbeiro/financeiro")({
   head: () => ({
@@ -35,9 +36,7 @@ function FinanceiroPage() {
     <Screen title="Financeiro" subtitle="Receitas do mês, sem complicação.">
       {isLoading ? <EsqueletoPainel onTentarDeNovo={() => void refetch()} /> : null}
       {isError ? (
-        <p className="border-l-2 border-brick pl-4 text-sm text-brick">
-          Entre com uma conta vinculada ao negócio para ver o financeiro.
-        </p>
+        <Aviso tom="acao">Entre com uma conta vinculada ao negócio para ver o financeiro.</Aviso>
       ) : null}
       {data ? (
         <>

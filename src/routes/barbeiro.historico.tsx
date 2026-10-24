@@ -17,6 +17,7 @@ import {
 } from "@/lib/historico.functions";
 import { PERIODOS, type PeriodoId } from "@/lib/historico-periodo";
 import { OpcoesConectadas } from "@/components/ui/opcoes-conectadas";
+import { Aviso } from "@/components/ui/aviso";
 
 export const Route = createFileRoute("/barbeiro/historico")({
   head: () => ({
@@ -274,11 +275,11 @@ function HistoricoPage() {
         <EsqueletoLista onTentarDeNovo={() => void ativa.refetch()} />
       ) : ativa.isError ? (
         <div className="mt-6 space-y-3">
-          <p className="border-l-2 border-brick pl-4 text-sm text-brick">
+          <Aviso tom="acao">
             {ativa.error instanceof Error
               ? ativa.error.message
               : "Não consegui carregar o histórico agora."}
-          </p>
+          </Aviso>
           <Button variant="outline" className="min-h-11" onClick={() => void ativa.refetch()}>
             Tentar de novo
           </Button>

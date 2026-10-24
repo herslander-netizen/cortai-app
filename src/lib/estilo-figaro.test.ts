@@ -36,6 +36,16 @@ describe("padrão Figaro nos primitivos", () => {
     expect(fora).toEqual([]);
   });
 
+  it("erro e aviso dentro da tela usam Aviso, não texto com faixa lateral", () => {
+    // A faixa de status do item da lista da Agenda é marcador de estado (Figaro), não aviso.
+    const fora = FONTES.filter(
+      (f) =>
+        !f.caminho.endsWith("agenda/ListaAgenda.tsx") &&
+        /border-l-2 border-(brick|gold)[^"]*pl-\d/.test(f.texto),
+    ).map((f) => f.caminho);
+    expect(fora).toEqual([]);
+  });
+
   it("todo <select> usa field-control (campo preenchido do Figaro)", () => {
     const fora: string[] = [];
     for (const f of FONTES) {

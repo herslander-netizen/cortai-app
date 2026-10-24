@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { CabecalhoDeTela } from "@/components/layout/CabecalhoDeTela";
+import { Aviso } from "@/components/ui/aviso";
 
 export function AdminScreen({
   title,
@@ -31,9 +32,8 @@ export function AdminNotice({ error }: { error: unknown }) {
       ? error.message
       : "Entre com a conta do dono da plataforma para ver estes dados.";
   return (
-    <div className="border-l-2 border-brick py-2 pl-4">
-      <p className="text-sm font-semibold text-paper">Acesso restrito</p>
-      <p className="mt-1 text-sm text-mute">{message}</p>
-    </div>
+    <Aviso tom="acao" titulo="Acesso restrito">
+      {message}
+    </Aviso>
   );
 }

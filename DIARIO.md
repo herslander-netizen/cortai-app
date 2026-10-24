@@ -704,6 +704,11 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-24 UTC — Claude — Padrão Figaro, lote 3: avisos e erros
+- `Aviso` (`ui/aviso.tsx`) agora é o banner tonal de 20 dp do Figaro, sem faixa lateral. Os erros e avisos soltos com `border-l-2` (Financeiro, Histórico, Hoje, Visão Casa, Atendimento manual, Admin) viraram `Aviso`; o teste de guarda proíbe o padrão antigo (exceção: faixa de estado da lista da Agenda).
+- Sugestões do assistente CortAI usam o `Chip`.
+- Pendente (lista em `docs/ordem-padrao-figaro.md` §6): revisão visual do app do cliente e do admin com dados, e a passada final no celular.
+
 ### 2026-10-24 UTC — Claude — Ordem permanente do padrão Figaro e cartões nas demais áreas
 - Criado `docs/ordem-padrao-figaro.md` (regra, tabela "preciso de… → use…", proibições, fluxo obrigatório, estado da unificação) e ligado no `AGENTS.md`, `CLAUDE.md` e em "Decisões do dono".
 - Cartões ad hoc do app do cliente, do admin, das telas de acesso e dos avisos de instalação viraram o cartão do Figaro (`rounded-xl border-0 bg-[var(--agenda-cartao,var(--ink2))]`), com a cor de cartão caindo em `--ink2` se o token não existir.

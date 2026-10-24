@@ -24,6 +24,7 @@ import {
   salvarChaveAsaas,
   testarConexaoAsaas,
 } from "@/lib/admin.functions";
+import { Aviso } from "@/components/ui/aviso";
 
 export const Route = createFileRoute("/admin/asaas")({
   head: () => ({
@@ -98,13 +99,10 @@ function ContaAsaasPage() {
           <h2 className="text-base font-semibold text-paper">
             {estado?.configurada ? "Substituir chave de API" : "Informar chave de API"}
           </h2>
-          <div className="mt-3 flex gap-3 border-l-2 border-gold py-1 pl-4">
-            <ShieldAlert className="mt-0.5 shrink-0 text-gold" size={20} aria-hidden />
-            <p className="text-sm leading-relaxed text-mute">
-              A chave é sensível. Crie-a no painel web do Asaas e informe somente neste campo; nunca
-              envie a chave por chat. Depois de salva, ela não poderá ser visualizada.
-            </p>
-          </div>
+          <Aviso tom="atencao" className="mt-3">
+            A chave é sensível. Crie-a no painel web do Asaas e informe somente neste campo; nunca
+            envie a chave por chat. Depois de salva, ela não poderá ser visualizada.
+          </Aviso>
           <form
             ref={formulario}
             className="mt-5 space-y-4"

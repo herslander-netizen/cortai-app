@@ -26,6 +26,7 @@ import {
 import { transcreverComandoDeVozDoPainel } from "@/lib/voz.functions";
 import { SEGMENTOS_CONFIG, segmentoParaApresentacao, type Segmento } from "@/lib/segmentos";
 import { SELO_DA_CORTAI } from "@/lib/brain/estado-cortai";
+import { Chip } from "@/components/ui/chip";
 
 function atalhosDo(segmento: Segmento | undefined) {
   const s = segmentoParaApresentacao(segmento);
@@ -532,13 +533,9 @@ export function AssistenteCortai({
                 </p>
                 <AgendarNoChat />
               </div>
-              <button
-                type="button"
-                onClick={() => setAgendando(false)}
-                className="mt-2 rounded-full border border-line2 px-3.5 py-1.5 text-xs text-mute"
-              >
+              <Chip className="mt-2" onClick={() => setAgendando(false)}>
                 Fechar agenda
-              </button>
+              </Chip>
             </div>
           </div>
         ) : null}
@@ -586,15 +583,9 @@ export function AssistenteCortai({
               Marcar horário
             </button>
             {SUGESTOES.map((s) => (
-              <button
-                key={s}
-                type="button"
-                disabled={enviando}
-                onClick={() => void enviar(s)}
-                className="shrink-0 rounded-full border border-line2 bg-ink px-3.5 py-1.5 text-xs text-mute transition-colors hover:border-gold/40 hover:text-paper disabled:opacity-50"
-              >
+              <Chip key={s} disabled={enviando} onClick={() => void enviar(s)}>
                 {s}
-              </button>
+              </Chip>
             ))}
           </div>
         ) : null}

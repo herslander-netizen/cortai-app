@@ -35,8 +35,8 @@ const TOM = {
 } as const;
 
 /**
- * Linguagem única de aviso do Cortaí: faixa lateral sólida + ícone + texto
- * em alto contraste. Nunca parece card de conteúdo nem item de navegação.
+ * Aviso no padrão Figaro (`DraftBanner`/erro em linha): container tonal de 20 dp com ícone e texto em
+ * alto contraste, sem faixa lateral. Nunca parece card de conteúdo nem item de navegação.
  */
 export function Aviso({
   tom = "info",
@@ -56,11 +56,10 @@ export function Aviso({
   return (
     <div
       role={tom === "info" ? "status" : "alert"}
-      className={`flex items-stretch overflow-hidden rounded-lg ${t.fundo} ${className}`}
+      className={`overflow-hidden rounded-[20px] ${t.fundo} ${className}`}
     >
-      <span aria-hidden className={`w-1 shrink-0 ${t.faixa}`} />
-      <div className="flex flex-1 items-start gap-3 px-4 py-3.5">
-        <Icone size={17} className={`mt-0.5 shrink-0 ${t.icone}`} />
+      <div className="flex flex-1 items-start gap-3 px-4 py-4">
+        <Icone size={20} className={`mt-0.5 shrink-0 ${t.icone}`} />
         <div className="min-w-0 flex-1">
           {titulo ? (
             <p className={`text-sm font-semibold leading-snug ${t.titulo}`}>{titulo}</p>

@@ -18,6 +18,7 @@ import { BotaoAjuda } from "@/components/guia/BotaoAjuda";
 import { Button } from "@/components/ui/button";
 import { brl } from "@/lib/format";
 import { getHojeDoDono, type Metricas } from "@/lib/dono.functions";
+import { Aviso } from "@/components/ui/aviso";
 
 const SecaoOperacao = lazy(() =>
   import("@/components/dono/Secoes").then((m) => ({ default: m.SecaoOperacao })),
@@ -124,9 +125,9 @@ function HojePage() {
     return (
       <Screen title="Hoje" hideHeader>
         <CabecalhoHoje />
-        <p className="mt-5 border-l-2 border-brick pl-4 text-sm text-paper">
+        <Aviso tom="info" className="mt-5">
           Esta visão é do dono e da gerência.
-        </p>
+        </Aviso>
       </Screen>
     );
 

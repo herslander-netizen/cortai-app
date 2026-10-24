@@ -40,7 +40,8 @@ Contrato de design do projeto: `docs/contrato-de-design.md`. Esta ordem diz **co
 | Confirmação | `useConfirmar` / `AlertDialog` | diálogo de 28 dp |
 | Selo de estado / contagem | `Badge` | pílula |
 | Carregando | `Esqueleto*` (`layout/Esqueleto.tsx`) | esqueleto com o desenho da tela |
-| Aviso rápido | `aviso` (`lib/avisos`) | snackbar |
+| Aviso rápido (some sozinho) | `aviso` (`lib/avisos`) | snackbar |
+| Aviso ou erro dentro da tela | `Aviso` (`ui/aviso.tsx`, `tom` `info`, `atencao`, `sucesso`, `acao`) | banner tonal de 20 dp, sem faixa lateral |
 
 ## 3. Proibido (o teste de guarda falha)
 
@@ -48,6 +49,7 @@ Contrato de design do projeto: `docs/contrato-de-design.md`. Esta ordem diz **co
 - `className` de botão com caixa própria (`rounded-md border border-line`) em vez de `variant`.
 - Cartão feito com `rounded-* border border-line bg-ink*` em vez de `surface`/`Card`.
 - `<select>` ou `<input>` sem `field-control`.
+- Mensagem de erro/aviso com faixa lateral (`border-l-2 border-brick`) em vez de `Aviso`.
 - Link "Voltar" em texto: o voltar é o botão redondo do `Screen`.
 - Botão com altura fixa (`h-12`) usado como cartão de conteúdo.
 - Cor em hex, sombra ou raio inventados; animação com mola ou duração fora de `motion.ts`.

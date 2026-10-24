@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Chip } from "@/components/ui/chip";
 import { buscarClientesDaBarbearia } from "@/lib/barbeiro.functions";
 import { getDadosAtendimentoRapido, iniciarAtendimentoAgora } from "@/lib/atendimento.functions";
+import { Aviso } from "@/components/ui/aviso";
 
 type Props = {
   onFechar: () => void;
@@ -164,12 +165,7 @@ export function AtendimentoRapido({ onFechar, onIniciado }: Props) {
             </section>
 
             {erro ? (
-              <p
-                role="alert"
-                className="border-l-2 border-brick pl-3 text-sm font-semibold text-paper"
-              >
-                {erro}
-              </p>
+              <Aviso tom="acao">{erro}</Aviso>
             ) : null}
 
             <div className="sticky bottom-0 -mx-5 border-t border-line bg-ink2 px-5 pt-3">

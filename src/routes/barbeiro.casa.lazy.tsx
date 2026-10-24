@@ -11,6 +11,7 @@ import { StatusBadge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { brl } from "@/lib/format";
 import { getVisaoCasa, type LinhaDaCasa } from "@/lib/dono.functions";
+import { Aviso } from "@/components/ui/aviso";
 
 export const Route = createLazyFileRoute("/barbeiro/casa")({ component: CasaPage });
 
@@ -132,9 +133,7 @@ function CasaPage() {
   if (q.isError)
     return (
       <Screen title="Visão Casa" voltarPara="/barbeiro">
-        <p className="border-l-2 border-brick pl-4 text-sm text-paper">
-          A Visão Casa é para dono, gerência e recepção.
-        </p>
+        <Aviso tom="info">A Visão Casa é para dono, gerência e recepção.</Aviso>
       </Screen>
     );
   const d = q.data;

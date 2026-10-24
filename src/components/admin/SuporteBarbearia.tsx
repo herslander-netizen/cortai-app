@@ -24,6 +24,7 @@ import {
   getBarbeariaParaSuporte,
   salvarBarbeariaComoSuporte,
 } from "@/lib/suporte.functions";
+import { Aviso } from "@/components/ui/aviso";
 
 const TEXTO: { campo: string; rotulo: string; area?: boolean }[] = [
   { campo: "nome", rotulo: "Nome" },
@@ -134,11 +135,10 @@ export function SuporteBarbearia({ tenantId }: { tenantId: string }) {
 
   return (
     <div className="space-y-5">
-      <p className="flex items-start gap-2 border-l-2 border-gold pl-3 text-xs leading-relaxed text-mute">
-        <ShieldCheck size={14} className="mt-0.5 shrink-0 text-sage" />
+      <Aviso tom="atencao">
         Você está alterando dados em nome do suporte, sem entrar na conta da barbearia. Toda mudança
         fica registrada com seu e-mail.
-      </p>
+      </Aviso>
 
       <form
         className="space-y-3"
