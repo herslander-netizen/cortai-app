@@ -2,6 +2,7 @@ import { useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import {
   Bell,
+  CalendarCog,
   ChevronRight,
   CircleHelp,
   CreditCard,
@@ -12,6 +13,7 @@ import {
   Settings,
   Share2,
   SlidersHorizontal,
+  Store,
 } from "lucide-react";
 
 import { IconeDoMenu } from "@/components/layout/IconeDoMenu";
@@ -46,8 +48,20 @@ type Props = {
 
 const ITENS = [
   {
-    label: "Conta e negócio",
-    detalhe: "Dados pessoais e do negócio",
+    label: "Informações básicas",
+    detalhe: "Nome, logo e contato do negócio",
+    to: "/barbeiro/negocio",
+    icon: Store,
+  },
+  {
+    label: "Opções de agendamento",
+    detalhe: "Horários oferecidos, antecedência e cancelamento",
+    to: "/barbeiro/agendamento",
+    icon: CalendarCog,
+  },
+  {
+    label: "Opções da conta",
+    detalhe: "Perfil, formas de entrar e segurança",
     to: "/barbeiro/conta",
     icon: Settings,
   },

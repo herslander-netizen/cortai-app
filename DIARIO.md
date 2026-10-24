@@ -700,6 +700,18 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-24 UTC — Claude — Páginas de configuração no padrão do Figaro (lote 1)
+- Pedido do dono: analisar as páginas de configuração, recuperar o layout das do Figaro e adaptar as que não existem ao mesmo padrão. **Análise** (código do APK + `strings.xml`) em
+  `docs/referencia-figaro/apk/11-configuracoes.md`: 13 telas, com estrutura, textos, peças comuns e o que o Cortaí tem.
+- **Feito:** peças novas `GrupoDeLinhas` (cantos 28/4 dp, 2 dp entre linhas), `LinhaDeConfiguracao` (56 dp+, ícone de 48 dp, valor/seta), `LinhaComInterruptor`, `LinhaDeOpcoes` (valor + folha com
+  ponto de rádio), `SecaoDeConfiguracao`, `CartaoDePerfil`, `AvisoDeConfiguracao` (`ui/formulario/`, testadas). Telas: **Opções da conta** (`/barbeiro/conta`, refeita: perfil, aviso de e-mail com
+  reenvio, Formas de entrar, Assinatura, Seu negócio, versão, Sair); **Informações básicas** (`/barbeiro/negocio`, nova: logo pela galeria, nome, WhatsApp, FAB "Salvar alterações"); **Opções de agendamento**
+  (`/barbeiro/agendamento`, nova: intervalo dos horários, antecedência máxima/mínima, cancelamento, intervalo entre atendimentos e encaixe, salvando na hora; antes só dava para mudar na configuração
+  inicial); **Ajustes** (`/barbeiro/mais`) em grupos; menu lateral com as duas telas novas. Reaproveitei `salvarDadosDaBarbearia`, `salvarRegrasDeAgendamento` e `getImplantacao`: sem migração.
+- **Pendente** (lista e motivos no doc §4): Opções de pagamento/taxa (decisão + migração), Verificação e Pedir avaliações (ligar aos dados), refazer Notificações, trocar/verificar e-mail por código,
+  Excluir conta (decisão do dono), cabeçalho que encolhe (C15), tela própria para Editar link.
+- Testes: `LinhasDeConfiguracao.test.tsx`. Conferi o desenho no navegador (escuro e Rosé claro).
+
 ### 2026-10-24 UTC — Claude — Fotos por galeria (sem "URL da foto") e busca da Agenda com um "x" só
 - Pedido do dono: tirar tudo que pede foto por link e criar galeria com envio da galeria do aparelho/câmera. **Feito:** `GaleriaDeFotos` (gaveta com as fotos já enviadas pelo
   negócio + "Enviar do aparelho" + "Tirar foto"), `SeletorDeFoto` (uma foto) e `ListaDeFotos` (várias, com "x" e "Adicionar"). Telas trocadas: **Produtos** (campo "URL da foto"),

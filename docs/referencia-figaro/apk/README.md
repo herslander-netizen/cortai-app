@@ -29,3 +29,4 @@ Em 22/10/2026 o dono reenviou o APK completo (5 partes, 88 MB). A nova leitura a
 5, 6 e 7, os textos do `resources.arsc` (que na primeira leitura não tinham sido usados) e os cinco
 vídeos de demonstração que vêm dentro do APK (`res/raw/landing_peek_*.mp4`). Os vídeos também não vão
 para o repositório; os documentos descrevem o que eles mostram.
+- `11-configuracoes.md`: páginas de configuração do Figaro (conta, informações básicas, agendamento, notificações, pagamento), comparação com o Cortaí e o que foi refeito em 24/10.

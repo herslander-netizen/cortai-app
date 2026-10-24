@@ -1,9 +1,23 @@
 import { PrimeirosPassos } from "@/components/onboarding/PrimeirosPassos";
 import { termos } from "@/lib/segmentos";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { ChevronRight, CreditCard, LogOut, Settings, Store } from "lucide-react";
+import {
+  CalendarCog,
+  Clock,
+  CreditCard,
+  Globe,
+  ListChecks,
+  LogOut,
+  Settings,
+  Store,
+} from "lucide-react";
 import { Screen } from "@/components/layout/Screen";
+import {
+  GrupoDeLinhas,
+  LinhaDeConfiguracao,
+  SecaoDeConfiguracao,
+} from "@/components/ui/formulario/LinhasDeConfiguracao";
 import { PreferenciasDicas } from "@/components/guia/PreferenciasDicas";
 import { PreferenciasDeAvisos } from "@/components/notificacoes/PreferenciasDeAvisos";
 import { BotaoAssistente } from "@/components/ia/BotaoAssistente";
@@ -38,67 +52,74 @@ function MaisPage() {
   });
   const tSeg = termos(sessao?.segmento ?? "outro");
   const barbeiroSeg = sessao?.segmento === "barbearia";
-  const sistema = [
-    {
-      to: "/barbeiro/conta",
-      label: barbeiroSeg ? "Conta e barbearia" : `Conta e ${tSeg.nome}`,
-      detail: "Dados pessoais e do negócio",
-      icon: Settings,
-    },
-    {
-      to: "/barbeiro/plano",
-      label: "Minha assinatura",
-      detail: "Plano, cobranças e histórico",
-      icon: CreditCard,
-    },
-    {
-      to: "/barbeiro/barbearias",
-      label: barbeiroSeg ? "Minhas barbearias" : "Meus negócios",
-      detail: "Trocar o negócio em uso",
-      icon: Store,
-    },
-  ] as const;
   return (
     <Screen title="Ajustes e ajuda" subtitle={rotuloDoPapel(sessao?.papelNaEquipe)}>
-      <div data-guia="mais-lista" className="space-y-8">
+      <div data-guia="mais-lista">
         <div className="mt-6">
           <TrocarPainel />
         </div>
-        <section className="mt-6">
-          <h2 className="mb-2 text-xs font-semibold uppercase text-mute2">Sistema</h2>
-          <ul className="divide-y divide-line border-y border-line">
-            {sistema.map((item) => {
-              const Icon = item.icon;
-              return (
-                <li key={item.to}>
-                  <Link to={item.to} className="nav-list-item">
-                    <span className="nav-list-icon">
-                      <Icon size={18} />
-                    </span>
-                    <span className="min-w-0">
-                      <span className="block text-sm font-semibold text-paper">{item.label}</span>
-                      <span className="mt-1 block text-xs text-mute">{item.detail}</span>
-                    </span>
-                    <ChevronRight size={17} className="text-mute2" />
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
-        </section>
+        {/* Mesmos grupos das opções do Figaro: o negócio, o agendamento e a conta, cada um num grupo de linhas. */}
+        <SecaoDeConfiguracao titulo={`Seu ${tSeg.nome}`}>
+          <GrupoDeLinhas>
+            <LinhaDeConfiguracao
+              para="/barbeiro/negocio"
+              icone={Store}
+              titulo="Informações básicas"
+              suporte="Nome, logo e contato"
+            />
+            <LinhaDeConfiguracao
+              para="/barbeiro/agendamento"
+              icone={CalendarCog}
+              titulo="Opções de agendamento"
+              suporte="Horários oferecidos, antecedência e cancelamento"
+            />
+            <LinhaDeConfiguracao
+              para="/barbeiro/horarios"
+              icone={Clock}
+              titulo="Horários de funcionamento"
+              suporte="Dias e horários em que você atende"
+            />
+            <LinhaDeConfiguracao
+              para="/barbeiro/marca"
+              icone={Globe}
+              titulo="Sua Página"
+              suporte="Layout, tema e seções da página pública"
+            />
+          </GrupoDeLinhas>
+        </SecaoDeConfiguracao>
+        <SecaoDeConfiguracao titulo="Conta">
+          <GrupoDeLinhas>
+            <LinhaDeConfiguracao
+              para="/barbeiro/conta"
+              icone={Settings}
+              titulo="Opções da conta"
+              suporte="Perfil, formas de entrar e segurança"
+            />
+            <LinhaDeConfiguracao
+              para="/barbeiro/plano"
+              icone={CreditCard}
+              titulo="Minha assinatura"
+              suporte="Plano, cobranças e histórico"
+            />
+            <LinhaDeConfiguracao
+              para="/barbeiro/barbearias"
+              icone={Store}
+              titulo={barbeiroSeg ? "Minhas barbearias" : "Meus negócios"}
+              suporte="Trocar o negócio em uso"
+            />
+          </GrupoDeLinhas>
+        </SecaoDeConfiguracao>
       </div>
-      <section className="mt-8">
-        <h2 className="mb-2 text-xs font-semibold uppercase text-mute2">Ajuda e preferências</h2>
-        <div className="border-t border-line">
-          <Link
-            to="/barbeiro/configurar"
-            className="flex w-full items-center gap-3 border-b border-line py-4 text-left"
-          >
-            <span className="text-sm text-paper">Rever configuração inicial</span>
-          </Link>
-          <BotaoAssistente variante="linha" />
-        </div>
-      </section>
+      <SecaoDeConfiguracao titulo="Ajuda e preferências">
+        <GrupoDeLinhas>
+          <LinhaDeConfiguracao
+            para="/barbeiro/configurar"
+            icone={ListChecks}
+            titulo="Rever configuração inicial"
+          />
+          <BotaoAssistente variante="grupo" />
+        </GrupoDeLinhas>
+      </SecaoDeConfiguracao>
       <PrimeirosPassos />
       <PreferenciasDeAvisos />
       <PreferenciasDicas />

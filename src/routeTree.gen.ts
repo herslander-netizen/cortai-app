@@ -54,6 +54,7 @@ import { Route as BSlugRouteImport } from './routes/b.$slug'
 import { Route as BarbeariaIdRouteImport } from './routes/barbearia.$id'
 import { Route as BarbeiroIndexRouteImport } from './routes/barbeiro.index'
 import { Route as BarbeiroAgendaRouteImport } from './routes/barbeiro.agenda'
+import { Route as BarbeiroAgendamentoRouteImport } from './routes/barbeiro.agendamento'
 import { Route as BarbeiroAgendamentosRouteImport } from './routes/barbeiro.agendamentos'
 import { Route as BarbeiroAutomacaoRouteImport } from './routes/barbeiro.automacao'
 import { Route as BarbeiroAvaliacoesRouteImport } from './routes/barbeiro.avaliacoes'
@@ -78,6 +79,7 @@ import { Route as BarbeiroHorariosRouteImport } from './routes/barbeiro.horarios
 import { Route as BarbeiroIndicacoesRouteImport } from './routes/barbeiro.indicacoes'
 import { Route as BarbeiroMaisRouteImport } from './routes/barbeiro.mais'
 import { Route as BarbeiroMarcaRouteImport } from './routes/barbeiro.marca'
+import { Route as BarbeiroNegocioRouteImport } from './routes/barbeiro.negocio'
 import { Route as BarbeiroPlanoRouteImport } from './routes/barbeiro.plano'
 import { Route as BarbeiroProdutosRouteImport } from './routes/barbeiro.produtos'
 import { Route as BarbeiroProfissionaisRouteImport } from './routes/barbeiro.profissionais'
@@ -340,6 +342,11 @@ const BarbeiroAgendaRoute = BarbeiroAgendaRouteImport.update({
   path: '/agenda',
   getParentRoute: () => BarbeiroRoute,
 } as any)
+const BarbeiroAgendamentoRoute = BarbeiroAgendamentoRouteImport.update({
+  id: '/agendamento',
+  path: '/agendamento',
+  getParentRoute: () => BarbeiroRoute,
+} as any)
 const BarbeiroAgendamentosRoute = BarbeiroAgendamentosRouteImport.update({
   id: '/agendamentos',
   path: '/agendamentos',
@@ -458,6 +465,11 @@ const BarbeiroMaisRoute = BarbeiroMaisRouteImport.update({
 const BarbeiroMarcaRoute = BarbeiroMarcaRouteImport.update({
   id: '/marca',
   path: '/marca',
+  getParentRoute: () => BarbeiroRoute,
+} as any)
+const BarbeiroNegocioRoute = BarbeiroNegocioRouteImport.update({
+  id: '/negocio',
+  path: '/negocio',
   getParentRoute: () => BarbeiroRoute,
 } as any)
 const BarbeiroPlanoRoute = BarbeiroPlanoRouteImport.update({
@@ -680,6 +692,7 @@ export interface FileRoutesByFullPath {
   '/b/$slug': typeof BSlugRoute
   '/barbearia/$id': typeof BarbeariaIdRoute
   '/barbeiro/agenda': typeof BarbeiroAgendaRoute
+  '/barbeiro/agendamento': typeof BarbeiroAgendamentoRoute
   '/barbeiro/agendamentos': typeof BarbeiroAgendamentosRoute
   '/barbeiro/automacao': typeof BarbeiroAutomacaoRoute
   '/barbeiro/avaliacoes': typeof BarbeiroAvaliacoesRoute
@@ -704,6 +717,7 @@ export interface FileRoutesByFullPath {
   '/barbeiro/indicacoes': typeof BarbeiroIndicacoesRoute
   '/barbeiro/mais': typeof BarbeiroMaisRoute
   '/barbeiro/marca': typeof BarbeiroMarcaRouteWithChildren
+  '/barbeiro/negocio': typeof BarbeiroNegocioRoute
   '/barbeiro/plano': typeof BarbeiroPlanoRoute
   '/barbeiro/produtos': typeof BarbeiroProdutosRoute
   '/barbeiro/profissionais': typeof BarbeiroProfissionaisRoute
@@ -782,6 +796,7 @@ export interface FileRoutesByTo {
   '/b/$slug': typeof BSlugRoute
   '/barbearia/$id': typeof BarbeariaIdRoute
   '/barbeiro/agenda': typeof BarbeiroAgendaRoute
+  '/barbeiro/agendamento': typeof BarbeiroAgendamentoRoute
   '/barbeiro/agendamentos': typeof BarbeiroAgendamentosRoute
   '/barbeiro/automacao': typeof BarbeiroAutomacaoRoute
   '/barbeiro/avaliacoes': typeof BarbeiroAvaliacoesRoute
@@ -805,6 +820,7 @@ export interface FileRoutesByTo {
   '/barbeiro/indicacoes': typeof BarbeiroIndicacoesRoute
   '/barbeiro/mais': typeof BarbeiroMaisRoute
   '/barbeiro/marca': typeof BarbeiroMarcaRouteWithChildren
+  '/barbeiro/negocio': typeof BarbeiroNegocioRoute
   '/barbeiro/plano': typeof BarbeiroPlanoRoute
   '/barbeiro/produtos': typeof BarbeiroProdutosRoute
   '/barbeiro/profissionais': typeof BarbeiroProfissionaisRoute
@@ -887,6 +903,7 @@ export interface FileRoutesById {
   '/b/$slug': typeof BSlugRoute
   '/barbearia/$id': typeof BarbeariaIdRoute
   '/barbeiro/agenda': typeof BarbeiroAgendaRoute
+  '/barbeiro/agendamento': typeof BarbeiroAgendamentoRoute
   '/barbeiro/agendamentos': typeof BarbeiroAgendamentosRoute
   '/barbeiro/automacao': typeof BarbeiroAutomacaoRoute
   '/barbeiro/avaliacoes': typeof BarbeiroAvaliacoesRoute
@@ -911,6 +928,7 @@ export interface FileRoutesById {
   '/barbeiro/indicacoes': typeof BarbeiroIndicacoesRoute
   '/barbeiro/mais': typeof BarbeiroMaisRoute
   '/barbeiro/marca': typeof BarbeiroMarcaRouteWithChildren
+  '/barbeiro/negocio': typeof BarbeiroNegocioRoute
   '/barbeiro/plano': typeof BarbeiroPlanoRoute
   '/barbeiro/produtos': typeof BarbeiroProdutosRoute
   '/barbeiro/profissionais': typeof BarbeiroProfissionaisRoute
@@ -994,6 +1012,7 @@ export interface FileRouteTypes {
     | '/b/$slug'
     | '/barbearia/$id'
     | '/barbeiro/agenda'
+    | '/barbeiro/agendamento'
     | '/barbeiro/agendamentos'
     | '/barbeiro/automacao'
     | '/barbeiro/avaliacoes'
@@ -1018,6 +1037,7 @@ export interface FileRouteTypes {
     | '/barbeiro/indicacoes'
     | '/barbeiro/mais'
     | '/barbeiro/marca'
+    | '/barbeiro/negocio'
     | '/barbeiro/plano'
     | '/barbeiro/produtos'
     | '/barbeiro/profissionais'
@@ -1096,6 +1116,7 @@ export interface FileRouteTypes {
     | '/b/$slug'
     | '/barbearia/$id'
     | '/barbeiro/agenda'
+    | '/barbeiro/agendamento'
     | '/barbeiro/agendamentos'
     | '/barbeiro/automacao'
     | '/barbeiro/avaliacoes'
@@ -1119,6 +1140,7 @@ export interface FileRouteTypes {
     | '/barbeiro/indicacoes'
     | '/barbeiro/mais'
     | '/barbeiro/marca'
+    | '/barbeiro/negocio'
     | '/barbeiro/plano'
     | '/barbeiro/produtos'
     | '/barbeiro/profissionais'
@@ -1200,6 +1222,7 @@ export interface FileRouteTypes {
     | '/b/$slug'
     | '/barbearia/$id'
     | '/barbeiro/agenda'
+    | '/barbeiro/agendamento'
     | '/barbeiro/agendamentos'
     | '/barbeiro/automacao'
     | '/barbeiro/avaliacoes'
@@ -1224,6 +1247,7 @@ export interface FileRouteTypes {
     | '/barbeiro/indicacoes'
     | '/barbeiro/mais'
     | '/barbeiro/marca'
+    | '/barbeiro/negocio'
     | '/barbeiro/plano'
     | '/barbeiro/produtos'
     | '/barbeiro/profissionais'
@@ -1627,6 +1651,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BarbeiroAgendaRouteImport
       parentRoute: typeof BarbeiroRoute
     }
+    '/barbeiro/agendamento': {
+      id: '/barbeiro/agendamento'
+      path: '/agendamento'
+      fullPath: '/barbeiro/agendamento'
+      preLoaderRoute: typeof BarbeiroAgendamentoRouteImport
+      parentRoute: typeof BarbeiroRoute
+    }
     '/barbeiro/agendamentos': {
       id: '/barbeiro/agendamentos'
       path: '/agendamentos'
@@ -1793,6 +1824,13 @@ declare module '@tanstack/react-router' {
       path: '/marca'
       fullPath: '/barbeiro/marca'
       preLoaderRoute: typeof BarbeiroMarcaRouteImport
+      parentRoute: typeof BarbeiroRoute
+    }
+    '/barbeiro/negocio': {
+      id: '/barbeiro/negocio'
+      path: '/negocio'
+      fullPath: '/barbeiro/negocio'
+      preLoaderRoute: typeof BarbeiroNegocioRouteImport
       parentRoute: typeof BarbeiroRoute
     }
     '/barbeiro/plano': {
@@ -2137,6 +2175,7 @@ const BarbeiroMarcaRouteWithChildren = BarbeiroMarcaRoute._addFileChildren(
 
 interface BarbeiroRouteChildren {
   BarbeiroAgendaRoute: typeof BarbeiroAgendaRoute
+  BarbeiroAgendamentoRoute: typeof BarbeiroAgendamentoRoute
   BarbeiroAgendamentosRoute: typeof BarbeiroAgendamentosRoute
   BarbeiroAutomacaoRoute: typeof BarbeiroAutomacaoRoute
   BarbeiroAvaliacoesRoute: typeof BarbeiroAvaliacoesRoute
@@ -2161,6 +2200,7 @@ interface BarbeiroRouteChildren {
   BarbeiroIndicacoesRoute: typeof BarbeiroIndicacoesRoute
   BarbeiroMaisRoute: typeof BarbeiroMaisRoute
   BarbeiroMarcaRoute: typeof BarbeiroMarcaRouteWithChildren
+  BarbeiroNegocioRoute: typeof BarbeiroNegocioRoute
   BarbeiroPlanoRoute: typeof BarbeiroPlanoRoute
   BarbeiroProdutosRoute: typeof BarbeiroProdutosRoute
   BarbeiroProfissionaisRoute: typeof BarbeiroProfissionaisRoute
@@ -2173,6 +2213,7 @@ interface BarbeiroRouteChildren {
 
 const BarbeiroRouteChildren: BarbeiroRouteChildren = {
   BarbeiroAgendaRoute: BarbeiroAgendaRoute,
+  BarbeiroAgendamentoRoute: BarbeiroAgendamentoRoute,
   BarbeiroAgendamentosRoute: BarbeiroAgendamentosRoute,
   BarbeiroAutomacaoRoute: BarbeiroAutomacaoRoute,
   BarbeiroAvaliacoesRoute: BarbeiroAvaliacoesRoute,
@@ -2197,6 +2238,7 @@ const BarbeiroRouteChildren: BarbeiroRouteChildren = {
   BarbeiroIndicacoesRoute: BarbeiroIndicacoesRoute,
   BarbeiroMaisRoute: BarbeiroMaisRoute,
   BarbeiroMarcaRoute: BarbeiroMarcaRouteWithChildren,
+  BarbeiroNegocioRoute: BarbeiroNegocioRoute,
   BarbeiroPlanoRoute: BarbeiroPlanoRoute,
   BarbeiroProdutosRoute: BarbeiroProdutosRoute,
   BarbeiroProfissionaisRoute: BarbeiroProfissionaisRoute,

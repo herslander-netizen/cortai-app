@@ -6473,6 +6473,17 @@ button.agenda-nome:hover {
 .agenda-ficha.agenda-ficha {
   background: var(--ink);
 }
+/* Bloco antigo (já com título e conteúdo próprios) dentro de um cartão de configuração do Figaro: tira a borda e o respiro de cima/baixo que ele trazia. */
+.cartao-config {
+  border-radius: 28px;
+  background: var(--agenda-cartao);
+  padding: 16px;
+}
+.cartao-config > * {
+  border-width: 0;
+  padding-block: 0;
+}
+
 /* Barrinha da ficha, como a do Material 3 do Figaro: pílula de 32×4 dp dentro da folha, com 48 dp de toque. */
 .agenda-ficha-alca {
   display: flex;
