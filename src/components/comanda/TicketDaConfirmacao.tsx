@@ -62,17 +62,17 @@ export function TicketDaConfirmacao({
   const textoComprovante = `Olá! Segue o comprovante do Pix da comanda #${ticket.codigo}, ${brl(ticket.totalCentavos)}.`;
 
   return (
-    <section className="mt-6 rounded-[var(--raio-bloco)] border border-line p-4">
-      <Button variant="outline" className="mt-1 w-full justify-between" aria-expanded={aberto} onClick={() => setAberto((v) => !v)}>
-        <span className="flex min-w-0 items-center gap-2">
+    <section className="mt-4 rounded-[var(--raio-bloco)] border border-line p-3 sm:mt-6 sm:p-4">
+      <Button variant="outline" className="min-h-12 w-full justify-between gap-2 whitespace-normal text-left" aria-expanded={aberto} onClick={() => setAberto((v) => !v)}>
+        <span className="flex min-w-0 flex-1 flex-wrap items-center gap-x-2 gap-y-1 text-left">
           <ReceiptText size={18} className="shrink-0 text-gold" aria-hidden />
-          <span className="truncate">Comanda #{ticket.codigo}</span>
+          <span className="min-w-0 break-all">Comanda #{ticket.codigo}</span>
           <span className="shrink-0 text-xs font-normal text-mute">{rotuloEstado}</span>
         </span>
         <ChevronDown className={aberto ? "shrink-0 rotate-180 transition-transform duration-200" : "shrink-0 transition-transform duration-200"} aria-hidden />
       </Button>
       {mostrarPix && aberto ? (
-        <div className="mt-3 rounded-[var(--raio-folha)] bg-[var(--ticket-fundo)] p-3">
+        <div className="mt-3 min-w-0 rounded-[var(--raio-folha)] bg-[var(--ticket-fundo)] p-3">
           <p className="text-xs text-mute">Valor</p>
           <p className="text-xl font-bold text-paper">{brl(ticket.totalCentavos)}</p>
           <p className="mt-2 text-xs text-mute">Chave Pix</p>
@@ -91,9 +91,9 @@ export function TicketDaConfirmacao({
         </div>
       ) : null}
       {aberto ? (
-        <div className="mt-3 rounded-[var(--raio-folha)] bg-[var(--ticket-fundo)] px-3 py-4">
+        <div className="mt-3 min-w-0 rounded-[var(--raio-folha)] bg-[var(--ticket-fundo)] px-3 py-3 sm:px-4 sm:py-4">
           <TicketComanda ticket={ticket} onCopiarCodigo={acoes.copiarCodigo} />
-          <div className="mx-auto mt-4 grid w-full max-w-[360px] gap-2">
+          <div className="mx-auto mt-3 grid w-full max-w-[360px] gap-2 sm:mt-4">
             <Button size="lg" className="h-12 rounded-full" onClick={acoes.enviarWhatsApp} disabled={Boolean(acoes.gerando)}><IconeWhatsApp />{acoes.gerando === "whatsapp" ? "Gerando imagem…" : "Enviar no WhatsApp"}</Button>
             <div className="grid grid-cols-2 gap-2">
               <Button variant="secondary" className="h-12 rounded-full" onClick={acoes.baixar} disabled={Boolean(acoes.gerando)}><Download aria-hidden />{acoes.gerando === "baixar" ? "Gerando…" : "Baixar imagem"}</Button>
