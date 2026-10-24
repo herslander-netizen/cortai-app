@@ -6473,6 +6473,31 @@ button.agenda-nome:hover {
 .agenda-ficha.agenda-ficha {
   background: var(--ink);
 }
+/* Barrinha da ficha, como a do Material 3 do Figaro: pílula de 32×4 dp dentro da folha, com 48 dp de toque. */
+.agenda-ficha-alca {
+  display: flex;
+  flex-shrink: 0;
+  height: 40px;
+  margin-inline: -1rem;
+  align-items: center;
+  justify-content: center;
+  cursor: grab;
+  touch-action: none;
+}
+.agenda-ficha-alca > span {
+  width: 32px;
+  height: 4px;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--mute2) 60%, transparent);
+  transition: background-color 120ms ease;
+}
+.agenda-ficha-alca:active > span,
+.agenda-ficha-alca:focus-visible > span {
+  background: var(--mute2);
+}
+.agenda-ficha-alca:focus-visible {
+  outline: none;
+}
 .agenda-ficha-cartao,
 .agenda-reagendar-cartao {
   overflow: hidden;

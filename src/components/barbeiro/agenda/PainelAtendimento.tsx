@@ -18,7 +18,7 @@ import {
   UserX,
   type LucideIcon,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import {
   AlertDialog,
@@ -42,6 +42,8 @@ import { VerTicketDoAgendamento } from "@/components/comanda/VerTicketDoAgendame
 import type { AgendaItem } from "@/lib/barbeiro.functions";
 import { brl } from "@/lib/format";
 import { useAgora } from "@/hooks/useAgora";
+import { useFolhaEmDoisEstados } from "@/hooks/useFolhaEmDoisEstados";
+import { FOLHA_CHEIA, FOLHA_PARCIAL } from "@/lib/folha-dois-estados";
 import { hojeNoFuso, isoNoFusoDaBarbearia } from "@/lib/horarios";
 import { useSegmentoDoPainel } from "@/lib/segmento-contexto";
 import { termos } from "@/lib/segmentos";
@@ -110,11 +112,24 @@ export function PainelAtendimento(props: Props) {
   const [confirmarCancelar, setConfirmarCancelar] = useState(false);
   const agora = useAgora();
   const segmento = useSegmentoDoPainel();
+  // Como no Figaro: a ficha abre parcial e a barrinha a leva até cheia (e de volta, ou fecha).
+  const [expandida, setExpandida] = useState(false);
+  const [folha, setFolha] = useState<HTMLDivElement | null>(null);
+  const [alca, setAlca] = useState<HTMLDivElement | null>(null);
+  const { onFechar } = props;
+  const fecharFicha = useCallback(() => onFechar(), [onFechar]);
+  useFolhaEmDoisEstados(folha, alca, {
+    ativo: props.aberto && !props.lateral,
+    expandida,
+    onExpandida: setExpandida,
+    onFechar: fecharFicha,
+  });
 
   useEffect(() => {
     if (!props.aberto) {
       setRemarcado(null);
       setTrocado(null);
+      setExpandida(false);
     }
   }, [props.aberto]);
   useEffect(() => {
@@ -215,10 +230,34 @@ export function PainelAtendimento(props: Props) {
     <>
       <Sheet open={props.aberto && Boolean(item)} onOpenChange={(v) => !v && props.onFechar()}>
         <SheetContent
+          ref={setFolha}
           side={props.lateral ? "right" : "bottom"}
-          arrastarParaFechar
-          className={`agenda-painel agenda-ficha mov-agenda-painel border-0 bg-ink px-4 pt-3 sm:px-5 sm:pt-5 ${props.lateral ? "w-[380px]" : "mx-auto flex max-h-[92dvh] w-full max-w-[520px] flex-col overflow-hidden rounded-t-[28px]"}`}
+          arrastarParaFechar={props.lateral ?? false}
+          style={
+            props.lateral
+              ? {}
+              : { maxHeight: `${(expandida ? FOLHA_CHEIA : FOLHA_PARCIAL) * 100}dvh` }
+          }
+          className={`agenda-painel agenda-ficha mov-agenda-painel border-0 bg-ink px-4 sm:px-5 ${props.lateral ? "pt-3 sm:pt-5 w-[380px]" : "mx-auto flex w-full max-w-[520px] flex-col overflow-hidden rounded-t-[28px] pt-0 transition-[max-height] duration-[260ms] ease-[cubic-bezier(0.2,0,0,1)]"}`}
         >
+          {!props.lateral ? (
+            <div
+              ref={setAlca}
+              role="button"
+              tabIndex={0}
+              aria-label={expandida ? "Recolher a ficha" : "Expandir a ficha"}
+              className="agenda-ficha-alca"
+              onClick={() => setExpandida((v) => !v)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  setExpandida((v) => !v);
+                }
+              }}
+            >
+              <span aria-hidden />
+            </div>
+          ) : null}
           {item && estado ? (
             <>
               <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain pb-28 [scrollbar-width:thin]">

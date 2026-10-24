@@ -700,6 +700,15 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-24 UTC — Claude — Ficha do agendamento em dois estados e barrinha de puxar (padrão Figaro)
+- Pedido do dono (prints da ficha): a barrinha ficava solta acima do cartão (colada na borda) e a ficha abria sempre do mesmo jeito. No Figaro (`FigarooSheetScaffold`
+  `Partial`, spec 6 §46) a folha **abre parcial e a barrinha leva até cheia**. **Feito:** a ficha abre a 55% da tela; puxar a barrinha para cima expande (92%), puxar
+  para baixo volta ao parcial e, do parcial, fecha; toque na barrinha alterna parcial/cheia (também por teclado). Encaixe: puxada rápida decide (uma etapa por vez), sem
+  pressa vale o estado mais próximo (`decidirEncaixe`). A barrinha agora é a pílula do Material 3 (32×4 dp) **dentro** da folha, com 40 px de toque e folga acima do conteúdo.
+- Arquivos: `PainelAtendimento.tsx` (só a folha de baixo; a lateral do desktop segue igual), `hooks/useFolhaEmDoisEstados.ts`, `lib/folha-dois-estados.ts` (+teste), `styles.css`
+  (`.agenda-ficha-alca`). Medido em 390×800 com toque simulado: 440 px (parcial) → 736 px (cheia) → 440 px → fecha.
+- Pendente: conferir no celular real (o ajuste do arrasto e a cara da barrinha).
+
 ### 2026-10-24 UTC — Claude — Limpeza executada (A–H autorizados pelo dono)
 - Apagados 49 arquivos sem uso (~9.000 linhas): 29 componentes `ui/*` + 2 `ai-elements`, 8 telas órfãs (`SecoesHome`, `AgoraProximos`, `PainelComercial`, `Blocos`,
   `FaixaPendencias`, `HubModulos`, `RecursoBloqueado`, `BigodeCortai`), ALVO IA legado (`lib/ia/{alvo-ia,ponte,eventos,contrato,limite}`), `painel.functions` +
