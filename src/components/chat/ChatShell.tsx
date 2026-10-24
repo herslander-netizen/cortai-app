@@ -84,6 +84,8 @@ export function ChatHeader({
     .replace(/^recep(?:ç|c)[aã]o\s+/i, "")
     .replace(/^recep(?:ç|c)[aã]o$/i, detalhe?.trim().split(/\s+/)[0] ?? "Cortaí");
   const rotuloVoltar = voltar?.rotulo ?? "Voltar";
+  // Não mostrar presença estática sob o nome; manter estados úteis como “digitando” e fora do horário.
+  const mostrarStatus = Boolean(status && (processando || !/^(online agora|agenda online)$/i.test(status.trim())));
 
   return (
     <header className="chat-header">
@@ -110,7 +112,7 @@ export function ChatHeader({
       </span>
       <div className="min-w-0 flex-1">
         <h1 className="truncate text-base font-extrabold leading-tight">{nomeExibido}</h1>
-        {status ? (
+        {mostrarStatus ? (
           <p className="flex items-center gap-1.5 truncate text-xs font-semibold" role="status" aria-live="polite" aria-atomic="true">
             {detalhe ? (
               <>
