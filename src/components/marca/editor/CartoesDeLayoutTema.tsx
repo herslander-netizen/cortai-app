@@ -90,45 +90,45 @@ export function CartaoDeLayout({
       transition={reduzirMovimento ? { duration: 0 } : MOLA.padraoCompose}
     >
       <Button
-      type="button"
-      variant="ghost"
-      aria-pressed={selecionado}
-      onClick={escolher}
-      className={`relative flex shrink-0 snap-start flex-col rounded-[28px] bg-background p-5 text-left transition-[border-color,box-shadow,transform] duration-200 motion-reduce:transition-none w-full max-w-full ${selecionado ? "border-2 border-gold shadow-[var(--elevacao-2)]" : "border border-line hover:border-gold/70"}`}
-    >
-      <span className="flex items-start justify-between gap-2">
-        <span className="min-w-0 truncate text-[22px] font-bold leading-[26px] tracking-tight text-gold">
-          {LAYOUTS[layout]}
-        </span>
-        {selecionado ? <IndicadorSelecionado /> : <MarcaVazia />}
-      </span>
-      <span className="mt-2 line-clamp-2 min-h-10 text-sm leading-5 text-mute">
-        {DESCRICAO_DO_LAYOUT[layout]}
-      </span>
-      <span className="mt-3 flex items-center gap-2 text-xs font-semibold text-gold">
-        <Palette size={15} aria-hidden />
-        {layout === "cortai-chat"
-          ? `${ESTILOS_DO_CHAT.length} estilos de conversa`
-          : `${temasDoLayout(layout).length} temas disponíveis`}
-      </span>
-      <span className="my-3 block h-px bg-line" aria-hidden />
-      <span className="grid min-h-[78px] grid-cols-2 gap-x-3 gap-y-3">
-        {mostrar.map((s) => {
-          const Icone = s.icone;
-          return (
-            <span key={s.id} className="flex items-center gap-2 text-[13px] text-paper">
-              <Icone size={18} className="shrink-0 text-mute" aria-hidden />
-              <span className="min-w-0 truncate">{s.nome}</span>
-            </span>
-          );
-        })}
-        {restantes > 0 ? (
-          <span className="flex items-center gap-2 text-[13px] font-semibold text-gold">
-            <Ellipsis size={18} aria-hidden />+{restantes} seções
+        type="button"
+        variant="ghost"
+        aria-pressed={selecionado}
+        onClick={escolher}
+        className={`relative flex shrink-0 snap-start flex-col rounded-[28px] bg-background p-5 text-left transition-[border-color,box-shadow,transform] duration-200 motion-reduce:transition-none w-full max-w-full ${selecionado ? "border-2 border-gold shadow-[var(--elevacao-2)]" : "border border-line hover:border-gold/70"}`}
+      >
+        <span className="flex items-start justify-between gap-2">
+          <span className="min-w-0 truncate text-[22px] font-bold leading-[26px] tracking-tight text-gold">
+            {LAYOUTS[layout]}
           </span>
-        ) : null}
-      </span>
-      </Button>
+          {selecionado ? <IndicadorSelecionado /> : <MarcaVazia />}
+        </span>
+        <span className="mt-2 line-clamp-2 min-h-10 text-sm leading-5 text-mute">
+          {DESCRICAO_DO_LAYOUT[layout]}
+        </span>
+        <span className="mt-3 flex items-center gap-2 text-xs font-semibold text-gold">
+          <Palette size={15} aria-hidden />
+          {layout === "cortai-chat"
+            ? `${ESTILOS_DO_CHAT.length} estilos de conversa`
+            : `${temasDoLayout(layout).length} temas disponíveis`}
+        </span>
+        <span className="my-3 block h-px bg-line" aria-hidden />
+        <span className="grid min-h-[78px] grid-cols-2 gap-x-3 gap-y-3">
+          {mostrar.map((s) => {
+            const Icone = s.icone;
+            return (
+              <span key={s.id} className="flex items-center gap-2 text-[13px] text-paper">
+                <Icone size={18} className="shrink-0 text-mute" aria-hidden />
+                <span className="min-w-0 truncate">{s.nome}</span>
+              </span>
+            );
+          })}
+          {restantes > 0 ? (
+            <span className="flex items-center gap-2 text-[13px] font-semibold text-gold">
+              <Ellipsis size={18} aria-hidden />+{restantes} seções
+            </span>
+          ) : null}
+        </span>
+        </Button>
     </motion.div>
   );
 }
@@ -153,30 +153,30 @@ export function CartaoDeTema({
       transition={reduzirMovimento ? { duration: 0 } : MOLA.padraoCompose}
     >
       <Button
-      type="button"
-      variant="ghost"
-      aria-pressed={selecionado}
-      onClick={escolher}
-      className={`relative flex shrink-0 snap-start flex-col overflow-hidden rounded-[28px] bg-background p-0 text-left transition-[border-color,box-shadow,transform] duration-200 motion-reduce:transition-none w-full max-w-full ${selecionado ? "border-2 border-rosa shadow-[var(--elevacao-2)]" : "border border-line hover:border-rosa/70"}`}
-    >
-      <span className="relative block aspect-[2.9/1] w-full overflow-hidden">
-        <CapaDoTema tema={tema} />
-        <span
-          aria-hidden
-          className="absolute bottom-3 left-3.5 block h-1.5 w-14 rounded-full"
-          style={{ backgroundColor: definicao.cores.destaque }}
-        />
-        <span className="absolute right-3 top-3">
-          {selecionado ? <IndicadorSelecionado tom="tema" /> : <MarcaVazia />}
+        type="button"
+        variant="ghost"
+        aria-pressed={selecionado}
+        onClick={escolher}
+        className={`relative flex shrink-0 snap-start flex-col overflow-hidden rounded-[28px] bg-background p-0 text-left transition-[border-color,box-shadow,transform] duration-200 motion-reduce:transition-none w-full max-w-full ${selecionado ? "border-2 border-rosa shadow-[var(--elevacao-2)]" : "border border-line hover:border-rosa/70"}`}
+      >
+        <span className="relative block aspect-[2.9/1] w-full overflow-hidden">
+          <CapaDoTema tema={tema} />
+          <span
+            aria-hidden
+            className="absolute bottom-3 left-3.5 block h-1.5 w-14 rounded-full"
+            style={{ backgroundColor: definicao.cores.destaque }}
+          />
+          <span className="absolute right-3 top-3">
+            {selecionado ? <IndicadorSelecionado tom="tema" /> : <MarcaVazia />}
+          </span>
         </span>
-      </span>
-      <span className="block px-4 py-5">
-        <span className="block text-[22px] font-bold leading-[26px] tracking-tight text-paper">
-          {definicao.nome}
+        <span className="block px-4 py-5">
+          <span className="block text-[22px] font-bold leading-[26px] tracking-tight text-paper">
+            {definicao.nome}
+          </span>
+          <span className="mt-1 block text-sm leading-5 text-mute">{definicao.descricao}</span>
         </span>
-        <span className="mt-1 block text-sm leading-5 text-mute">{definicao.descricao}</span>
-      </span>
-      </Button>
+        </Button>
     </motion.div>
   );
 }
@@ -204,30 +204,30 @@ export function CartaoDeEstiloDoChat({
       transition={reduzirMovimento ? { duration: 0 } : MOLA.padraoCompose}
     >
       <Button
-      type="button"
-      variant="ghost"
-      aria-pressed={selecionado}
-      onClick={escolher}
-      className={`relative flex shrink-0 snap-start flex-col overflow-hidden rounded-[28px] bg-background p-0 text-left transition-[border-color,box-shadow,transform] duration-200 motion-reduce:transition-none w-full max-w-full ${selecionado ? "border-2 border-gold shadow-[var(--elevacao-2)]" : "border border-line hover:border-gold/70"}`}
-    >
-      <span className="relative block h-36 w-full overflow-hidden">
-        <MiniaturaDoChat
-          valores={estilo.valores}
-          cores={cores}
-          destaque={destaque}
-          className="size-full"
-        />
-        <span className="absolute right-3 top-3">
-          {selecionado ? <IndicadorSelecionado /> : <MarcaVazia />}
+        type="button"
+        variant="ghost"
+        aria-pressed={selecionado}
+        onClick={escolher}
+        className={`relative flex shrink-0 snap-start flex-col overflow-hidden rounded-[28px] bg-background p-0 text-left transition-[border-color,box-shadow,transform] duration-200 motion-reduce:transition-none w-full max-w-full ${selecionado ? "border-2 border-gold shadow-[var(--elevacao-2)]" : "border border-line hover:border-gold/70"}`}
+      >
+        <span className="relative block h-36 w-full overflow-hidden">
+          <MiniaturaDoChat
+            valores={estilo.valores}
+            cores={cores}
+            destaque={destaque}
+            className="size-full"
+          />
+          <span className="absolute right-3 top-3">
+            {selecionado ? <IndicadorSelecionado /> : <MarcaVazia />}
+          </span>
         </span>
-      </span>
-      <span className="block px-4 py-4">
-        <span className="block text-[20px] font-bold leading-6 tracking-tight text-paper">
-          {estilo.nome}
+        <span className="block px-4 py-4">
+          <span className="block text-[20px] font-bold leading-6 tracking-tight text-paper">
+            {estilo.nome}
+          </span>
+          <span className="mt-1 block text-sm leading-5 text-mute">{estilo.descricao}</span>
         </span>
-        <span className="mt-1 block text-sm leading-5 text-mute">{estilo.descricao}</span>
-      </span>
-      </Button>
+        </Button>
     </motion.div>
   );
 }
