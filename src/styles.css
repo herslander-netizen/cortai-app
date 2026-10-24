@@ -6567,6 +6567,19 @@ button.agenda-nome:hover {
   min-height: 44px;
   border-radius: 999px;
 }
+.agenda-ficha-cartao-unico .agenda-ficha-rodape {
+  position: relative;
+  right: auto;
+  bottom: auto;
+  margin-top: 12px;
+  padding-bottom: calc(16px + env(safe-area-inset-bottom));
+}
+.agenda-ficha-cartao-unico .agenda-ficha-menu {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% - 8px);
+  z-index: 2;
+}
 .agenda-ficha-rodape {
   position: absolute;
   right: 16px;

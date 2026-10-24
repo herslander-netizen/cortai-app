@@ -43,7 +43,6 @@ import type { AgendaItem } from "@/lib/barbeiro.functions";
 import { brl } from "@/lib/format";
 import { useAgora } from "@/hooks/useAgora";
 import { useFolhaEmDoisEstados } from "@/hooks/useFolhaEmDoisEstados";
-import { FOLHA_CHEIA, FOLHA_PARCIAL } from "@/lib/folha-dois-estados";
 import { hojeNoFuso, isoNoFusoDaBarbearia } from "@/lib/horarios";
 import { useSegmentoDoPainel } from "@/lib/segmento-contexto";
 import { termos } from "@/lib/segmentos";
@@ -112,24 +111,23 @@ export function PainelAtendimento(props: Props) {
   const [confirmarCancelar, setConfirmarCancelar] = useState(false);
   const agora = useAgora();
   const segmento = useSegmentoDoPainel();
-  // Como no Figaro: a ficha abre parcial e a barrinha a leva até cheia (e de volta, ou fecha).
-  const [expandida, setExpandida] = useState(false);
+  // Cartão de um estado só (decisão do dono, 24/10): na altura do conteúdo, sem parcial; a barrinha só fecha.
   const [folha, setFolha] = useState<HTMLDivElement | null>(null);
   const [alca, setAlca] = useState<HTMLDivElement | null>(null);
   const { onFechar } = props;
   const fecharFicha = useCallback(() => onFechar(), [onFechar]);
   useFolhaEmDoisEstados(folha, alca, {
     ativo: props.aberto && !props.lateral,
-    expandida,
-    onExpandida: setExpandida,
+    expandida: false,
+    onExpandida: () => {},
     onFechar: fecharFicha,
+    soFechar: true,
   });
 
   useEffect(() => {
     if (!props.aberto) {
       setRemarcado(null);
       setTrocado(null);
-      setExpandida(false);
     }
   }, [props.aberto]);
   useEffect(() => {
@@ -233,25 +231,20 @@ export function PainelAtendimento(props: Props) {
           ref={setFolha}
           side={props.lateral ? "right" : "bottom"}
           arrastarParaFechar={props.lateral ?? false}
-          style={
-            props.lateral
-              ? {}
-              : { maxHeight: `${(expandida ? FOLHA_CHEIA : FOLHA_PARCIAL) * 100}dvh` }
-          }
-          className={`agenda-painel agenda-ficha mov-agenda-painel border-0 bg-ink px-4 sm:px-5 ${props.lateral ? "pt-3 sm:pt-5 w-[380px]" : "mx-auto flex w-full max-w-[520px] flex-col overflow-hidden rounded-t-[28px] pt-0 transition-[max-height] duration-[260ms] ease-[cubic-bezier(0.2,0,0,1)]"}`}
+          className={`agenda-painel agenda-ficha mov-agenda-painel border-0 bg-ink px-4 sm:px-5 ${props.lateral ? "pt-3 sm:pt-5 w-[380px]" : "agenda-ficha-cartao-unico mx-auto flex max-h-[92dvh] w-full max-w-[520px] flex-col overflow-hidden rounded-t-[28px] pt-0"}`}
         >
           {!props.lateral ? (
             <div
               ref={setAlca}
               role="button"
               tabIndex={0}
-              aria-label={expandida ? "Recolher a ficha" : "Expandir a ficha"}
+              aria-label="Fechar a ficha"
               className="agenda-ficha-alca"
-              onClick={() => setExpandida((v) => !v)}
+              onClick={props.onFechar}
               onKeyDown={(e) => {
                 if (e.key === "Enter" || e.key === " ") {
                   e.preventDefault();
-                  setExpandida((v) => !v);
+                  props.onFechar();
                 }
               }}
             >
@@ -260,11 +253,10 @@ export function PainelAtendimento(props: Props) {
           ) : null}
           {item && estado ? (
             <>
+              {/* Cartão na altura do conteúdo, sem rolagem por dentro. A rolagem só existe como último recurso,
+                  em tela tão baixa que a ficha não caberia; o botão do rodapé fica fora dela. */}
               <div
-                className={`min-h-0 flex-1 overscroll-contain pb-28 [scrollbar-width:thin] ${
-                  // Parcial: sem rolagem por dentro (o toque no conteúdo não mexe nele); só a ficha cheia rola.
-                  props.lateral || expandida ? "overflow-y-auto" : "overflow-hidden"
-                }`}
+                className={`min-h-0 flex-1 overflow-y-auto overscroll-contain [scrollbar-width:thin] ${props.lateral ? "pb-28" : "pb-2"}`}
               >
                 {/* Como no Figaro (`AppointmentHeroGroup`): o serviço, o estado, quando e com
                     quem; o cliente num bloco logo abaixo. */}

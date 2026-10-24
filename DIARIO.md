@@ -700,6 +700,12 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-24 UTC — Claude — Ficha vira cartão na altura do conteúdo (sem parcial, sem rolagem interna)
+- Pedido do dono (vídeo): "quero que seja um cartão e não uma coisa com rolamento interno". **Feito:** a ficha do agendamento (folha de baixo) é um cartão na altura do conteúdo (máx. 92% da tela),
+  sem estado parcial; a barrinha (dentro da folha) só fecha (descer mais de um quarto ou rápido fecha de uma vez; senão volta); o botão "Reagendar" fica **dentro do cartão**, no fim (antes flutuava
+  sobre o texto e exigia folga de 112 px que obrigava a rolar). A rolagem interna só existe como último recurso em tela baixa demais. A ficha lateral do desktop segue igual.
+  Conferido no navegador de teste (390×800): 562 px de altura, sem rolagem; descer 50 px volta; descer 220 px fecha. Substitui a ficha em dois estados de hoje cedo (`useFolhaEmDoisEstados` agora só no modo `soFechar`).
+
 ### 2026-10-24 UTC — Claude — Cor dos cartões de atendimento igual à do Figaro
 - Pergunta do dono (print da timeline): qual é a cor do Figaro. **Resposta, conferida no APK** (`AgendaServiceEventViewKt` usa `surfaceContainerLowest`): **#141816 no escuro**
   (um pouco mais escuro que o fundo #1B1F1C) e **#FFFFFF no claro**. O Cortaí usava `surfaceContainerLow` (#2A2F2C, mais claro que o fundo). **Feito:** token novo

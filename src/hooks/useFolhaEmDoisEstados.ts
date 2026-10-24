@@ -17,9 +17,11 @@ export function useFolhaEmDoisEstados(
     expandida: boolean;
     onExpandida: (v: boolean) => void;
     onFechar: () => void;
+    /** Folha de um estado só (cartão): a barrinha só fecha; puxar para cima não faz nada. */
+    soFechar?: boolean;
   },
 ) {
-  const { ativo, expandida, onExpandida, onFechar } = o;
+  const { ativo, expandida, onExpandida, onFechar, soFechar = false } = o;
   useEffect(() => {
     if (!ativo || !folha || !alca) return;
     const reduzido = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
@@ -36,7 +38,9 @@ export function useFolhaEmDoisEstados(
     // Para cima a folha cresce até a cheia; para baixo ela inteira desce com o dedo (nada encolhe nem rola por dentro).
     const aplicar = (h: number) => {
       const h0 = inicio?.h ?? h;
-      if (h <= h0) {
+      if (soFechar && h > h0) {
+        folha.style.transform = "";
+      } else if (h <= h0) {
         folha.style.maxHeight = `${h0}px`;
         folha.style.transform = `translateY(${h0 - Math.max(0, h)}px)`;
       } else {
@@ -82,15 +86,24 @@ export function useFolhaEmDoisEstados(
         return;
       }
       const altura = inicio.h - ultimo.dy;
-      const decisao = decidirEncaixe({
+      let decisao = decidirEncaixe({
         altura,
         inicio: inicio.h,
         parcial: parcial(),
         cheio: cheio(),
         velocidade,
       });
+      const alturaInicial = inicio.h;
       inicio = null;
       arrastando = false;
+      if (soFechar) {
+        // Cartão: desceu mais de um quarto (ou rápido) fecha de uma vez; senão volta ao lugar.
+        decisao = altura < alturaInicial * 0.75 || velocidade > 0.5 ? "fechar" : "parcial";
+        if (decisao === "parcial") {
+          assentar(folha.style.maxHeight || "");
+          return;
+        }
+      }
       if (decisao === "fechar") {
         folha.dataset["arrastado"] = "true";
         folha.style.transition = reduzido ? "none" : "transform 200ms ease-out";
@@ -112,5 +125,5 @@ export function useFolhaEmDoisEstados(
       alca.removeEventListener("touchend", terminar);
       alca.removeEventListener("touchcancel", terminar);
     };
-  }, [ativo, folha, alca, expandida, onExpandida, onFechar]);
+  }, [ativo, folha, alca, expandida, onExpandida, onFechar, soFechar]);
 }
