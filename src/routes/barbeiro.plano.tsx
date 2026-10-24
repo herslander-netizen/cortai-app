@@ -141,7 +141,7 @@ function PlanoPage() {
     assinatura && ["aguardando_pagamento", "pendente", "suspensa"].includes(assinatura.status);
 
   return (
-    <Screen title="Minha assinatura">
+    <Screen title="Minha assinatura" voltarPara="/barbeiro/conta">
       {isLoading || cobranca.isLoading || !data || !cobranca.data ? (
         <EsqueletoLista
           linhas={3}
