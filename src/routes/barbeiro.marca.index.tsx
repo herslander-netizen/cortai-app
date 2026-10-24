@@ -279,10 +279,6 @@ function Editor({
             <p className="mt-1 text-sm leading-relaxed text-mute">
               Há um rascunho que ainda não aparece na sua página pública.
             </p>
-            <Button variant="outline" className="mt-3 min-h-12" onClick={() => setPreviaAberta(true)}>
-              <Eye size={17} aria-hidden />
-              Prévia do rascunho
-            </Button>
           </motion.section>
         ) : null}
       </AnimatePresence>
