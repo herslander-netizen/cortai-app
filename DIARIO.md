@@ -704,7 +704,7 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 ### 2026-10-24 UTC — GPT — Painel animado de disponibilidade semanal
 - O editor de horários agora agrupa os dias em um painel recolhível “Disponibilidade semanal”, inicialmente aberto para não esconder campos existentes. A seta usa `MOLA.padraoEspacial`; corpo usa fade + altura com as molas do Figaro e respeita reduzir movimento.
 - Preservados os horários, intervalos, padrões, interpretação por IA e o comportamento de salvar; mudança somente visual/estado local do painel.
-- Adicionado teste de abrir/fechar e acessibilidade (`aria-expanded`, `aria-hidden` e `inert`). A validação completa será conferida no workflow.
+- Adicionado teste de abrir/fechar e acessibilidade (`aria-expanded`, `aria-hidden` e `inert`), com seletor de campo de hora independente do rótulo localizado. A validação completa será conferida no workflow.
 
 ### 2026-10-24 UTC — GPT — Recuo animado nos cartões de Layout & Tema
 - Aplicado recuo animado de 0→8 px nos cartões de layout, tema e estilo do chat ao selecionar, com a mola `MOLA.padraoCompose` e respeito a reduzir movimento. A largura externa do carrossel permanece fixa; a seleção e os cliques continuam nos botões originais.
