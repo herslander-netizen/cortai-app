@@ -6193,7 +6193,7 @@ button.agenda-nome:hover {
   --cor-estado: var(--estado-agendado);
   border: 0;
   border-radius: 12px;
-  background: var(--agenda-cartao);
+  background: var(--agenda-cartao-evento, var(--agenda-cartao));
   padding: 8px 12px 8px 20px;
   box-shadow: var(--agenda-cartao-sombra);
   color: var(--paper);
@@ -6412,7 +6412,7 @@ button.agenda-nome:hover {
   align-items: stretch;
   gap: 2px;
   border-radius: 12px;
-  background: var(--agenda-cartao);
+  background: var(--agenda-cartao-evento, var(--agenda-cartao));
   box-shadow: var(--agenda-cartao-sombra);
   padding: 10px 11px 10px 17px;
   color: var(--paper);
@@ -8556,6 +8556,8 @@ button.agenda-nome:hover {
   --agenda-escolhido-texto: var(--figaro-on-primary);
   --agenda-destaque: var(--figaro-primary);
   --agenda-cartao: var(--figaro-surface-container-low);
+  /* Cartão de atendimento (timeline e lista): surfaceContainerLowest, como no Figaro (`AgendaServiceEventView`). */
+  --agenda-cartao-evento: var(--figaro-surface-container-lowest);
   --agenda-listra-base: var(--figaro-surface-container-low);
   --agenda-listra: color-mix(in oklab, var(--figaro-surface-container-low) 97.5%, var(--figaro-on-surface));
   /* Estados (glifos do Figaro: AgendaStatusGlyph) */
@@ -8585,6 +8587,8 @@ button.agenda-nome:hover {
   --brick: var(--figaro-error);
   --sage: var(--figaro-success);
   --agenda-cartao: var(--figaro-surface-container-lowest);
+  /* Cartão de atendimento (timeline e lista): surfaceContainerLowest, como no Figaro (`AgendaServiceEventView`). */
+  --agenda-cartao-evento: var(--figaro-surface-container-lowest);
   --agenda-listra-base: var(--figaro-surface-container-low);
   --agenda-listra: color-mix(in oklab, var(--figaro-surface-container-low) 97.5%, var(--figaro-on-surface));
   --estado-na-cadeira: var(--figaro-teal);
@@ -8599,6 +8603,8 @@ button.agenda-nome:hover {
   --agenda-escolhido-texto: var(--figaro-on-primary);
   --agenda-destaque: var(--figaro-primary);
   --agenda-cartao: var(--figaro-surface-container-low);
+  /* Cartão de atendimento (timeline e lista): surfaceContainerLowest, como no Figaro (`AgendaServiceEventView`). */
+  --agenda-cartao-evento: var(--figaro-surface-container-lowest);
   --agenda-listra-base: var(--figaro-surface-container-low);
   --agenda-listra: color-mix(in oklab, var(--figaro-surface-container-low) 97.5%, var(--figaro-on-surface));
   /* Estados (glifos do Figaro: AgendaStatusGlyph) */
@@ -9780,10 +9786,10 @@ html:root.light[data-identidade="classico"][data-identidade] {
   border: 1px dashed color-mix(in oklab, var(--mute) 45%, transparent);
 }
 
-/* Decisão do dono (22/10): cartões da agenda no tema claro são brancos. */
+/* Decisão do dono (22/10): cartões da agenda no tema claro são brancos (no Padrão o token é #fff; os outros temas trazem o próprio). */
 .light .agenda-timeline-bloco,
 :root.light .agenda-timeline-bloco,
 :root[data-identidade].light .agenda-timeline-bloco {
-  background: #fff;
+  background: var(--agenda-cartao-evento, #fff);
   color: #1f2933;
 }

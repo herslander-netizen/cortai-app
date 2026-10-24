@@ -387,3 +387,17 @@ describe("tipografia do Figaro na área do negócio", () => {
     expect(raiz).toContain("family=Poppins");
   });
 });
+
+describe("cartão de atendimento da Agenda (cor do Figaro)", () => {
+  it("usa surfaceContainerLowest (#141816 no escuro, #fff no claro) na timeline e na lista", () => {
+    expect(css).toMatch(/--figaro-surface-container-lowest: #141816;/);
+    expect(css).toMatch(/--figaro-surface-container-lowest: #ffffff;/);
+    expect(css).toMatch(/--agenda-cartao-evento: var\(--figaro-surface-container-lowest\);/);
+    expect(css).toMatch(
+      /\.agenda-timeline-bloco \{[^}]*background: var\(--agenda-cartao-evento, var\(--agenda-cartao\)\);/,
+    );
+    expect(css).toMatch(
+      /\.agenda-lista-cartao\.agenda-lista-cartao \{[^}]*background: var\(--agenda-cartao-evento, var\(--agenda-cartao\)\);/,
+    );
+  });
+});

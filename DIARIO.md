@@ -700,6 +700,12 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-24 UTC — Claude — Cor dos cartões de atendimento igual à do Figaro
+- Pergunta do dono (print da timeline): qual é a cor do Figaro. **Resposta, conferida no APK** (`AgendaServiceEventViewKt` usa `surfaceContainerLowest`): **#141816 no escuro**
+  (um pouco mais escuro que o fundo #1B1F1C) e **#FFFFFF no claro**. O Cortaí usava `surfaceContainerLow` (#2A2F2C, mais claro que o fundo). **Feito:** token novo
+  `--agenda-cartao-evento` (= `--figaro-surface-container-lowest`), usado só nos cartões da timeline e da lista (`.agenda-timeline-bloco`, `.agenda-lista-cartao`); os outros cartões
+  da tela seguem em `--agenda-cartao`. Os 4 temas escolhidos acompanham o próprio tom (escuro: cartão sempre mais escuro que o fundo; claro: branco, decisão de 22/10). Texto/cartão ≥ 14:1.
+
 ### 2026-10-24 UTC — Claude — Ficha: descer fecha de uma vez e sem rolagem no parcial
 - Vídeo do dono: ao descer a ficha ela parava no meio (parcial) e o conteúdo rolava por dentro ("esquisito"). **Agora:** puxar a barrinha para baixo **fecha de uma vez**, mesmo vindo da ficha
   cheia (a folha inteira desce com o dedo, sem encolher); para cima abre a cheia; no parcial a rolagem interna fica travada (só a ficha cheia rola). `decidirEncaixe` e o teste mudaram.
