@@ -396,6 +396,7 @@ Cada item é um commit pequeno em `src/components/ui/`:
 
 | Tela no Cortaí | O que trazer | Valores | Reserva |
 |---|---|---|---|
+| GPT | 2026-10-24 UTC | Auditoria e expansão segura do catálogo Layout & Tema: validar seleção, prévia, salvar rascunho, publicação/restauração e paletas; ampliar catálogo sem alterar backend | `DIARIO.md`, `src/lib/pagina-config.ts`, `src/components/marca/editor/SecaoLayoutsETemas.tsx`, `src/components/marca/editor/CapaDoTema.tsx`, testes associados; sem migração |
 | [feito: Claude, 22/10; falta celular] Conclusão do onboarding (`barbeiro.configurar.tsx`, etapa "pronto") | "Preparando sua página…" → sucesso com esmaecer; conteúdo sobe e aparece; logo depois; link digitado letra a letra com cursor; "Copiar link" e "Compartilhar" | 520 ms; slowEffects; logo aos 800 ms; 32 ms por letra; cursor 450 ms; ícone 140 px | GPT |
 | Aviso "Continue configurando" (Agenda; hoje `PrimeirosPassos`/`FaixaPendencias`) | cartão flutuante que sobe de baixo e desce ao sair, com sombra | 320 ms + esmaecer; sombra 8 px | Agenda: combinar |
 | [feito: Claude, 22/10; falta celular] Avaliações (`barbeiro.avaliacoes.tsx`) | nota média conta de 0 até o valor (Odômetro), estrelas enchem, barras 5→1 crescem da esquerda, selo aparece; "ver mais / ver menos" | barras com expandSize; selo com Pulso | livre |
@@ -470,7 +471,6 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Em andamento
 
-| GPT | 2026-10-24 UTC | Auditoria e expansão segura do catálogo Layout & Tema: validar seleção, prévia, salvar rascunho, publicação/restauração e paletas; ampliar catálogo sem alterar backend | `DIARIO.md`, `src/lib/pagina-config.ts`, `src/components/marca/editor/SecaoLayoutsETemas.tsx`, `src/components/marca/editor/CapaDoTema.tsx`, testes associados; sem migração |
 | Quem | Desde (UTC) | Tarefa | Arquivos / migração reservada |
 |---|---|---|---|
 | GPT | 2026-10-22 UTC | Lote 3 de P.12: C7, C8, C10, C12, C16 e V3 implementados/testados; workflow e smoke test da prévia verdes no commit `be0bc0e`. C9/P3 parciais; revisão visual pendente. `SecaoImagens.tsx` liberada para a tarefa separada do seletor de biblioteca | `DIARIO.md`, `docs/referencia-figaro/apk/8-inventario-de-animacoes.md`, `src/components/marca/editor/CartoesDeLayoutTema.tsx`, `src/components/marca/editor/CartoesDeLayoutTema.test.tsx`, `src/components/marca/editor/SecaoImagens.test.tsx`, `src/components/marca/editor/SecaoRecepcao.tsx`, `src/components/marca/editor/SecaoRecepcao.test.tsx`, `src/components/notificacoes/PreferenciasDoCliente.test.tsx`, `src/components/onboarding/PrimeirosPassos.tsx`, `src/components/onboarding/EditorDeHorarios.tsx`, `src/components/barbeiro/agenda/CabecalhoDeEdicao.tsx`, `src/components/barbeiro/agenda/CabecalhoDeEdicao.test.tsx`, `src/components/ui/collapsible.tsx`, `src/components/notificacoes/*`, `src/routes/barbeiro.equipe.tsx`, `src/routes/barbeiro.marca.tsx`; sem migração |
