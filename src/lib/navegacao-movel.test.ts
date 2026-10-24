@@ -40,7 +40,7 @@ describe("navegação móvel", () => {
     expect(ajustes).toContain('to: "/barbeiro/marca"');
     const pagina = readFileSync("src/routes/barbeiro.sua-pagina.tsx", "utf8");
     const layoutTema = readFileSync("src/routes/barbeiro.marca.layout-tema.tsx", "utf8");
-    expect(pagina).toContain('to="/barbeiro/marca/layout-tema"');
+    expect(pagina).not.toContain('to="/barbeiro/marca/layout-tema"');
     expect(layoutTema).toContain('title="Layout & Tema"');
     expect(layoutTema).toContain('to: "/barbeiro/marca"');
     const secoes = readFileSync("src/components/marca/editor/SecaoConteudo.tsx", "utf8");
