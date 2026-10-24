@@ -78,16 +78,23 @@ export function CartaoDeLayout({
   selecionado: boolean;
   escolher: () => void;
 }) {
+  const reduzirMovimento = useReducedMotion();
   const secoes = secoesDoLayout(layout);
   const mostrar = secoes.length > 6 ? secoes.slice(0, 5) : secoes;
   const restantes = secoes.length - mostrar.length;
   return (
-    <Button
+    <motion.div
+      data-recuo={selecionado ? "ativo" : "inativo"}
+      className={`shrink-0 snap-start ${LARGURA_DO_CARTAO}`}
+      animate={{ padding: selecionado ? 8 : 0 }}
+      transition={reduzirMovimento ? { duration: 0 } : MOLA.padraoCompose}
+    >
+      <Button
       type="button"
       variant="ghost"
       aria-pressed={selecionado}
       onClick={escolher}
-      className={`relative flex shrink-0 snap-start flex-col rounded-[28px] bg-background p-5 text-left transition-[border-color,box-shadow,transform] duration-200 motion-reduce:transition-none ${LARGURA_DO_CARTAO} ${selecionado ? "border-2 border-gold shadow-[var(--elevacao-2)]" : "border border-line hover:border-gold/70"}`}
+      className={`relative flex shrink-0 snap-start flex-col rounded-[28px] bg-background p-5 text-left transition-[border-color,box-shadow,transform] duration-200 motion-reduce:transition-none w-full max-w-full ${selecionado ? "border-2 border-gold shadow-[var(--elevacao-2)]" : "border border-line hover:border-gold/70"}`}
     >
       <span className="flex items-start justify-between gap-2">
         <span className="min-w-0 truncate text-[22px] font-bold leading-[26px] tracking-tight text-gold">
@@ -121,7 +128,8 @@ export function CartaoDeLayout({
           </span>
         ) : null}
       </span>
-    </Button>
+      </Button>
+    </motion.div>
   );
 }
 
@@ -135,14 +143,21 @@ export function CartaoDeTema({
   selecionado: boolean;
   escolher: () => void;
 }) {
+  const reduzirMovimento = useReducedMotion();
   const definicao = TEMAS[tema];
   return (
-    <Button
+    <motion.div
+      data-recuo={selecionado ? "ativo" : "inativo"}
+      className={`shrink-0 snap-start ${LARGURA_DO_CARTAO}`}
+      animate={{ padding: selecionado ? 8 : 0 }}
+      transition={reduzirMovimento ? { duration: 0 } : MOLA.padraoCompose}
+    >
+      <Button
       type="button"
       variant="ghost"
       aria-pressed={selecionado}
       onClick={escolher}
-      className={`relative flex shrink-0 snap-start flex-col overflow-hidden rounded-[28px] bg-background p-0 text-left transition-[border-color,box-shadow,transform] duration-200 motion-reduce:transition-none ${LARGURA_DO_CARTAO} ${selecionado ? "border-2 border-rosa shadow-[var(--elevacao-2)]" : "border border-line hover:border-rosa/70"}`}
+      className={`relative flex shrink-0 snap-start flex-col overflow-hidden rounded-[28px] bg-background p-0 text-left transition-[border-color,box-shadow,transform] duration-200 motion-reduce:transition-none w-full max-w-full ${selecionado ? "border-2 border-rosa shadow-[var(--elevacao-2)]" : "border border-line hover:border-rosa/70"}`}
     >
       <span className="relative block aspect-[2.9/1] w-full overflow-hidden">
         <CapaDoTema tema={tema} />
@@ -161,7 +176,8 @@ export function CartaoDeTema({
         </span>
         <span className="mt-1 block text-sm leading-5 text-mute">{definicao.descricao}</span>
       </span>
-    </Button>
+      </Button>
+    </motion.div>
   );
 }
 
@@ -179,13 +195,20 @@ export function CartaoDeEstiloDoChat({
   cores: Parameters<typeof MiniaturaDoChat>[0]["cores"];
   destaque: string;
 }) {
+  const reduzirMovimento = useReducedMotion();
   return (
-    <Button
+    <motion.div
+      data-recuo={selecionado ? "ativo" : "inativo"}
+      className={`shrink-0 snap-start ${LARGURA_DO_CARTAO}`}
+      animate={{ padding: selecionado ? 8 : 0 }}
+      transition={reduzirMovimento ? { duration: 0 } : MOLA.padraoCompose}
+    >
+      <Button
       type="button"
       variant="ghost"
       aria-pressed={selecionado}
       onClick={escolher}
-      className={`relative flex shrink-0 snap-start flex-col overflow-hidden rounded-[28px] bg-background p-0 text-left transition-[border-color,box-shadow,transform] duration-200 motion-reduce:transition-none ${LARGURA_DO_CARTAO} ${selecionado ? "border-2 border-gold shadow-[var(--elevacao-2)]" : "border border-line hover:border-gold/70"}`}
+      className={`relative flex shrink-0 snap-start flex-col overflow-hidden rounded-[28px] bg-background p-0 text-left transition-[border-color,box-shadow,transform] duration-200 motion-reduce:transition-none w-full max-w-full ${selecionado ? "border-2 border-gold shadow-[var(--elevacao-2)]" : "border border-line hover:border-gold/70"}`}
     >
       <span className="relative block h-36 w-full overflow-hidden">
         <MiniaturaDoChat
@@ -204,6 +227,7 @@ export function CartaoDeEstiloDoChat({
         </span>
         <span className="mt-1 block text-sm leading-5 text-mute">{estilo.descricao}</span>
       </span>
-    </Button>
+      </Button>
+    </motion.div>
   );
 }

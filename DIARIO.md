@@ -472,7 +472,6 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 | Quem | Desde (UTC) | Tarefa | Arquivos / migração reservada |
 |---|---|---|---|
-| GPT | 2026-10-24 UTC | Revalidar e publicar na prévia o estado já enviado da branch, sem tocar no site principal nem em banco real | `DIARIO.md`; sem migração |
 | GPT | 2026-10-22 UTC | Continuação do Lote 3 de P.12 a pedido do dono: conferir o que já foi feito e completar animações restantes com testes, sem alterar regras/fluxos | `DIARIO.md`, `docs/referencia-figaro/apk/8-inventario-de-animacoes.md`, `src/components/marca/editor/CartoesDeLayoutTema.tsx`, `src/components/marca/editor/SecaoLayoutsETemas.tsx`, `src/components/marca/editor/SecaoImagens.tsx`, `src/components/marca/editor/SecaoRecepcao.tsx`, `src/components/onboarding/PrimeirosPassos.tsx`, `src/components/onboarding/EditorDeHorarios.tsx`, `src/components/ui/collapsible.tsx`, `src/components/notificacoes/*`, `src/routes/barbeiro.equipe.tsx`, `src/routes/barbeiro.marca.tsx`; sem migração |
 | GPT | 2026-10-21 UTC | Corrigir a varredura de WhatsApp/Asaas: diagnosticar timeouts, preparar correção dos cron jobs e validar endpoint no worker de produção; sem escrita real até autorização explícita | `DIARIO.md`, `MUSE.md`, `drizzle/migrations/0043_corrigir_agendadores.sql`, rotas de varredura; migração 0043 (não aplicada) |
 | GPT | 2026-10-21 UTC | Validar jornada Figaro e corrigir divergências de navegação confirmadas no código; inspeção visual 390px/1280px e animações segue pendente sem navegador conectado | `DIARIO.md`, `src/routes/barbeiro.marca.tsx`, `src/routes/barbeiro.marca.secao.$secao.tsx`, `src/components/marca/editor/EditorDaSecaoPublica.tsx`, `src/components/marca/editor/SecaoConteudo.tsx`, `src/components/marca/editor/PaineisDoEditor.tsx`, `src/lib/navegacao-barbeiro.ts`, `src/lib/navegacao-barbeiro.test.ts`, `src/routes/barbeiro.sua-pagina.tsx`; sem migração |
@@ -701,6 +700,12 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - Sem alteração no banco, `main` ou produção.
 
 ## Diário
+
+### 2026-10-24 UTC — GPT — Recuo animado nos cartões de Layout & Tema
+- Aplicado recuo animado de 0→8 px nos cartões de layout, tema e estilo do chat ao selecionar, com a mola `MOLA.padraoCompose` e respeito a reduzir movimento. A largura externa do carrossel permanece fixa; a seleção e os cliques continuam nos botões originais.
+- Os cantos de 28 px foram mantidos conforme a diretriz mais recente do dono, sem restaurar o raio antigo de 8 px do APK.
+- Adicionado `CartoesDeLayoutTema.test.tsx` cobrindo os três tipos de cartão, estado acessível de seleção e acionamento do clique.
+- Validação automática de TypeScript, testes e build será conferida no workflow disparado por este commit; inspeção visual em celular ainda pendente.
 
 ### 2026-10-24 UTC — GPT — Assets fotorrealistas de exemplos e capas de tema
 - Substituídas as ilustrações programáticas de `public/exemplos/*.webp` por imagens fotorrealistas sintéticas de salão, manicure, barbearia, produtos e profissionais diversos. Mantidos nomes, dimensões e contratos usados por `src/lib/pagina-exemplo.ts`; o logo existente foi preservado.
