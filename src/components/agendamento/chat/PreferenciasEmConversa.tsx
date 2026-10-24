@@ -1,7 +1,9 @@
 import { useState } from "react";
+import { ChevronDown } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
 
 import { Button } from "@/components/ui/button";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import {
   deveMostrarPreferencias,
   lembrarPreferencias,
@@ -63,6 +65,7 @@ export function PreferenciasEmConversa({
   slug: string;
 }) {
   const [visivel] = useState(() => deveMostrarPreferencias(slug));
+  const [aberto, setAberto] = useState(false);
   const [indice, setIndice] = useState(0);
   const [respostas, setRespostas] = useState<PreferenciasCliente>({});
   const salvar = useMutation({
@@ -87,7 +90,15 @@ export function PreferenciasEmConversa({
 
   const pergunta = PERGUNTAS[indice];
   return (
-    <section className="mt-6 surface px-5 py-5" aria-live="polite">
+    <Collapsible open={aberto} onOpenChange={setAberto} className="mt-3">
+      <CollapsibleTrigger asChild>
+        <Button variant="ghost" className="w-full justify-between px-1 text-sm font-semibold">
+          Personalizar meu atendimento (opcional)
+          <ChevronDown className={`transition-transform duration-200 ${aberto ? "rotate-180" : ""}`} aria-hidden />
+        </Button>
+      </CollapsibleTrigger>
+      <CollapsibleContent className="mt-2">
+        <section className="surface px-4 py-4" aria-live="polite">
       {pergunta ? (
         <>
           <p className="text-xs font-semibold text-mute">
@@ -123,6 +134,8 @@ export function PreferenciasEmConversa({
               : "Anotado! Até lá."}
         </p>
       )}
-    </section>
+        </section>
+      </CollapsibleContent>
+    </Collapsible>
   );
 }
