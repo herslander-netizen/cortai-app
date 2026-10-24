@@ -488,7 +488,7 @@ export function SemanaDoTopo({
     if (lista && mes) lista.scrollTop = mes.offsetTop;
   }, [expandido, mesDoDiaEscolhido, raioDosMeses]);
   return (
-    <div data-sem-gesto-dia data-calendario-aberto={expandido || undefined}>
+    <div data-sem-gesto-dia data-calendario-aberto={expandido || painelVisivel || undefined}>
       <div className="px-2 pb-3 rounded-b-xl">
         <div className="grid grid-cols-7 text-center text-sm font-medium text-mute" aria-hidden>
           {LETRAS_SEMANA.map((letra, i) => (

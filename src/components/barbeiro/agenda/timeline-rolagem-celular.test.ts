@@ -164,7 +164,11 @@ describe("troca de dia em páginas no celular (como no vídeo de referência)", 
     expect(semana).toContain("const MesDoCalendario = memo(");
     expect(semana).toContain("const FASES_DOS_MESES = [3, 6, 9, MESES_EM_VOLTA]");
     expect(semana).toContain("height: alturaDoPainelMais12");
-    expect(semana).toContain("data-calendario-aberto");
+    expect(semana).toContain("data-calendario-aberto={expandido || painelVisivel || undefined}");
+    // Uma sombra só durante todo o movimento (a do painel); a do cabeçalho idêntica volta quando o painel sai.
+    expect(css).toMatch(
+      /html:has\(\[data-calendario-aberto\]\) \.management-header \{\s*box-shadow: none !important/,
+    );
     expect(css).toMatch(/html:has\(\[data-calendario-aberto\]\) \{\s*overflow-anchor: none/);
   });
 

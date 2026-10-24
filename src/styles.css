@@ -3221,6 +3221,12 @@ html.agenda-gesto-ativo body {
 html:has([data-calendario-aberto]) {
   overflow-anchor: none;
 }
+/* A sombra do topo é a do painel do mês (mesma elevação) enquanto ele existe: com a do cabeçalho também, ela só
+   aparecia inteira no fim da animação, quando o topo cresce, e dobrava a sombra. Ao sumir o painel, a do cabeçalho
+   (idêntica) assume sem salto. */
+html:has([data-calendario-aberto]) .management-header {
+  box-shadow: none !important;
+}
 
 /* Fora do gesto, a prévia nunca aparece, mesmo que um transform tenha ficado para trás. */
 html:not(.agenda-gesto-ativo) .agenda-previa-vizinho {

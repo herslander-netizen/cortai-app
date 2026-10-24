@@ -700,6 +700,13 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-24 UTC — Claude — Sombra do calendário chegava depois na animação
+- Relato do dono: a sombra aparecia só no fim. **Causa:** o topo (cabeçalho) tem a própria sombra (`--shadow-md` = `--elevacao-3`, a mesma do painel do
+  mês) e, como o topo só cresce no fim da animação, durante o movimento só havia a sombra do painel e no fim entrava a do cabeçalho por cima (sombra
+  dobrada e mais escura). **Correção:** enquanto o painel existe (`data-calendario-aberto` = aberto **ou** animando) a sombra do cabeçalho some
+  (`styles.css`) e só vale a do painel; ao sumir o painel a do cabeçalho (idêntica) volta no mesmo quadro. Medido: perfil da sombra fechado = aberto
+  (única) e a troca de dono da sombra acontece no mesmo quadro (sem intervalo sem sombra nem dobrada). `SemanaDoTopo.tsx`, `styles.css`, teste.
+
 ### 2026-10-24 UTC — Claude — Calendário engasgando no celular (desempenho da animação de molas)
 - Relato do dono: a animação das duas molas engasgava no celular. **Causas** (medido com CPU 4× mais lenta e 60 cartões):
   1. A mola 2 mudava a **altura do topo** a cada quadro = refazer o layout da página inteira. Agora a Agenda (`.agenda-operacional`) desce por
