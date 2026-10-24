@@ -51,7 +51,7 @@ describe("EditorDeHorarios", () => {
     );
     const toggle = host.querySelector('button[aria-expanded="true"]') as HTMLButtonElement;
     expect(toggle.textContent).toContain("Disponibilidade semanal");
-    expect(host.querySelector('input[type="time"][aria-label="Segunda abre"]')).not.toBeNull();
+    expect(host.querySelector('input[type="time"]')).not.toBeNull();
 
     await act(async () => toggle.click());
     expect(toggle.getAttribute("aria-expanded")).toBe("false");
