@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { Link } from "@tanstack/react-router";
-import { CheckCircle2, Clock, Copy, Download, Home, ReceiptText } from "lucide-react";
+import { CheckCircle2, ChevronDown, Clock, Copy, Download, Home, ReceiptText } from "lucide-react";
 import { toast } from "sonner";
 import { useState } from "react";
 
@@ -63,15 +63,18 @@ export function TicketDaConfirmacao({
 
   return (
     <section className="mt-6 rounded-[var(--raio-bloco)] border border-line p-4">
-      <p className="flex items-center gap-2 text-sm font-semibold text-paper">
-        <ReceiptText size={16} className="text-gold" aria-hidden />
-        Comanda #{ticket.codigo}
-        <span className="ml-auto text-xs font-normal text-mute">{rotuloEstado}</span>
-      </p>
-      {mostrarPix ? (
-        <div className="mt-3 rounded-[var(--raio-bloco)] border border-line p-3">
+      <Button variant="outline" className="mt-1 w-full justify-between" aria-expanded={aberto} onClick={() => setAberto((v) => !v)}>
+        <span className="flex min-w-0 items-center gap-2">
+          <ReceiptText size={18} className="shrink-0 text-gold" aria-hidden />
+          <span className="truncate">Comanda #{ticket.codigo}</span>
+          <span className="shrink-0 text-xs font-normal text-mute">{rotuloEstado}</span>
+        </span>
+        <ChevronDown className={aberto ? "shrink-0 rotate-180 transition-transform duration-200" : "shrink-0 transition-transform duration-200"} aria-hidden />
+      </Button>
+      {mostrarPix && aberto ? (
+        <div className="mt-3 rounded-[var(--raio-folha)] bg-[var(--ticket-fundo)] p-3">
           <p className="text-xs text-mute">Valor</p>
-          <p className="text-2xl font-bold text-paper">{brl(ticket.totalCentavos)}</p>
+          <p className="text-xl font-bold text-paper">{brl(ticket.totalCentavos)}</p>
           <p className="mt-2 text-xs text-mute">Chave Pix</p>
           <p className="break-all text-sm text-paper">{ticket.pixChave}</p>
           {etapa === "pagamento_informado" ? (
@@ -81,87 +84,23 @@ export function TicketDaConfirmacao({
             </p>
           ) : null}
           <div className="mt-3 grid gap-2">
-            <Button variant="outline" onClick={() => void acoes.copiarPix()}>
-              <Copy aria-hidden />
-              Copiar chave Pix
-            </Button>
-            {ticket.pixWhatsapp ? (
-              <Button variant="outline" asChild>
-                <a
-                  href={`https://wa.me/${ticket.pixWhatsapp}?text=${encodeURIComponent(textoComprovante)}`}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  <IconeWhatsApp />
-                  Enviar comprovante pelo WhatsApp
-                </a>
-              </Button>
-            ) : null}
-            {ticket.podeInformarPix ? (
-              <Button
-                size="lg"
-                className="h-12"
-                loading={jaPaguei.isPending}
-                disabled={jaPaguei.isPending}
-                onClick={() => jaPaguei.mutate()}
-              >
-                <CheckCircle2 aria-hidden />
-                Já paguei
-              </Button>
-            ) : null}
+            <Button variant="outline" onClick={() => void acoes.copiarPix()}><Copy aria-hidden />Copiar chave Pix</Button>
+            {ticket.pixWhatsapp ? <Button variant="outline" asChild><a href={`https://wa.me/${ticket.pixWhatsapp}?text=${encodeURIComponent(textoComprovante)}`} target="_blank" rel="noreferrer"><IconeWhatsApp />Enviar comprovante pelo WhatsApp</a></Button> : null}
+            {ticket.podeInformarPix ? <Button size="lg" className="h-12 rounded-full" loading={jaPaguei.isPending} disabled={jaPaguei.isPending} onClick={() => jaPaguei.mutate()}><CheckCircle2 aria-hidden />Já paguei</Button> : null}
           </div>
         </div>
       ) : null}
-      <div className="mt-3 grid gap-2">
-        <Button variant="outline" aria-expanded={aberto} onClick={() => setAberto((v) => !v)}>
-          <ReceiptText aria-hidden />
-          {aberto ? "Ocultar comanda" : "Ver comanda"}
-        </Button>
-        <Button variant="outline" onClick={acoes.copiarCodigo}>
-          <Copy aria-hidden />
-          Copiar código
-        </Button>
-        <Button asChild variant="ghost">
-          <Link to="/b/$slug" params={{ slug }}>
-            <Home aria-hidden />
-            Voltar para a página inicial
-          </Link>
-        </Button>
-      </div>
-
       {aberto ? (
-        <div className="mt-4 rounded-[var(--raio-folha)] bg-[var(--ticket-fundo)] px-4 py-6">
+        <div className="mt-3 rounded-[var(--raio-folha)] bg-[var(--ticket-fundo)] px-3 py-4">
           <TicketComanda ticket={ticket} onCopiarCodigo={acoes.copiarCodigo} />
-          <div className="mx-auto mt-6 grid w-full max-w-[360px] gap-2">
-            <Button
-              size="lg"
-              className="h-14 rounded-full"
-              onClick={acoes.enviarWhatsApp}
-              disabled={Boolean(acoes.gerando)}
-            >
-              <IconeWhatsApp />
-              {acoes.gerando === "whatsapp" ? "Gerando imagem…" : "Enviar no WhatsApp"}
-            </Button>
+          <div className="mx-auto mt-4 grid w-full max-w-[360px] gap-2">
+            <Button size="lg" className="h-12 rounded-full" onClick={acoes.enviarWhatsApp} disabled={Boolean(acoes.gerando)}><IconeWhatsApp />{acoes.gerando === "whatsapp" ? "Gerando imagem…" : "Enviar no WhatsApp"}</Button>
             <div className="grid grid-cols-2 gap-2">
-              <Button
-                variant="secondary"
-                className="h-12 rounded-full"
-                onClick={acoes.baixar}
-                disabled={Boolean(acoes.gerando)}
-              >
-                <Download aria-hidden />
-                {acoes.gerando === "baixar" ? "Gerando…" : "Baixar imagem"}
-              </Button>
-              <Button
-                variant="secondary"
-                className="h-12 rounded-full"
-                onClick={acoes.copiarCodigo}
-              >
-                <Copy aria-hidden />
-                Copiar código
-              </Button>
+              <Button variant="secondary" className="h-12 rounded-full" onClick={acoes.baixar} disabled={Boolean(acoes.gerando)}><Download aria-hidden />{acoes.gerando === "baixar" ? "Gerando…" : "Baixar imagem"}</Button>
+              <Button variant="secondary" className="h-12 rounded-full" onClick={acoes.copiarCodigo}><Copy aria-hidden />Copiar código</Button>
             </div>
           </div>
+          <Button variant="ghost" className="mt-2 w-full" asChild><Link to="/b/$slug" params={{ slug }}><Home aria-hidden />Voltar para a página inicial</Link></Button>
         </div>
       ) : null}
     </section>
