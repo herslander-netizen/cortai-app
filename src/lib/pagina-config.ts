@@ -478,8 +478,9 @@ export const FONTES: Record<FonteId, string> = {
 };
 
 /**
- * Catálogo do Figaro (`GET pages/layouts`, spec 4 §4.3): dois layouts com os mesmos três temas. É o que a
- * tela Layout & Tema oferece. Os layouts e temas antigos do Cortaí continuam válidos em páginas já salvas.
+ * Catálogo base recuperado do Figaro (`GET pages/layouts`, spec 4 §4.3): dois layouts e os três temas
+ * originais. A tela Layout & Tema amplia essa base com estilos já definidos no Cortaí. Os IDs antigos
+ * continuam válidos nas páginas salvas; o catálogo visual não muda o formato persistido.
  */
 export const LAYOUTS_DO_FIGARO = ["figaro-site-completo", "figaro-agendamento"] as const satisfies readonly LayoutId[];
 export const TEMAS_DO_FIGARO = ["figaro-classico", "figaro-rock-n-roll", "figaro-retro"] as const satisfies readonly TemaId[];
@@ -516,8 +517,9 @@ export function temasDoLayout(_layout: LayoutId): readonly TemaId[] {
 }
 
 /**
- * Leva a página aberta para dentro do catálogo da tela Layout & Tema, como o Figaro: sempre há um layout e um tema
- * escolhidos. Layout ou tema antigos do Cortaí viram o primeiro do catálogo (só na tela; nada é gravado até salvar).
+ * Leva a página aberta para dentro do catálogo da tela Layout & Tema, como no fluxo do Figaro.
+ * Layouts fora do catálogo passam ao primeiro layout; temas já incluídos são preservados. Qualquer ajuste
+ * acontece apenas no estado da tela e só é persistido quando o usuário salva.
  */
 export function ajustarAoCatalogo(config: PaginaConfig): PaginaConfig {
   const comLayout = (LAYOUTS_DO_CATALOGO as readonly string[]).includes(config.layout)
