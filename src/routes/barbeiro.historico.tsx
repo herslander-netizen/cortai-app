@@ -16,6 +16,7 @@ import {
   type VendaDoHistorico,
 } from "@/lib/historico.functions";
 import { PERIODOS, type PeriodoId } from "@/lib/historico-periodo";
+import { OpcoesConectadas } from "@/components/ui/opcoes-conectadas";
 
 export const Route = createFileRoute("/barbeiro/historico")({
   head: () => ({
@@ -158,24 +159,16 @@ function HistoricoPage() {
       subtitle="Atendimentos e vendas de qualquer período."
       voltarPara="/barbeiro/financeiro"
     >
-      <div
-        role="tablist"
-        aria-label="Tipo de histórico"
-        className="mb-4 flex gap-1 rounded-full bg-[var(--agenda-cartao)] p-1"
-      >
-        {(["atendimentos", "vendas"] as const).map((id) => (
-          <button
-            key={id}
-            type="button"
-            role="tab"
-            aria-selected={aba === id}
-            className={`min-h-11 flex-1 rounded-full text-sm font-semibold transition-colors duration-200 motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${aba === id ? "bg-gold text-background" : "text-mute"}`}
-            onClick={() => setAba(id)}
-          >
-            {id === "atendimentos" ? "Atendimentos" : "Vendas"}
-          </button>
-        ))}
-      </div>
+      <OpcoesConectadas
+        rotulo="Tipo de histórico"
+        className="mb-4"
+        valor={aba}
+        opcoes={[
+          { valor: "atendimentos", texto: "Atendimentos" },
+          { valor: "vendas", texto: "Vendas" },
+        ]}
+        onChange={setAba}
+      />
 
       <GrupoDeLinhas>
         <li>

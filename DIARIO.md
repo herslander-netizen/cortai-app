@@ -702,6 +702,10 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-24 UTC — Claude — Padrão Figaro em tudo, lote 2: voltar redondo e controle segmentado
+- `Screen`: botão de voltar redondo de 44 dp (como `FigarooAgendaTopBar`) no lugar do link "Voltar".
+- `ui/opcoes-conectadas.tsx` (`FigarooConnectedButtonGroup`): selecionado em container primário, demais em superfície alta. Usado em Período (Comissões e Agendamentos), Atendimentos/Vendas (Histórico), tipo de cartão do QR e ciclo/forma de pagamento no plano. `pecas.tsx` reexporta o mesmo componente.
+
 ### 2026-10-24 UTC — Claude — Padrão Figaro em tudo, lote 1: primitivos (chip, cartão, diálogo, selo, campos)
 - Pedido do dono: "manter o padrão Figaro SEMPRE EM TUDO". Estratégia: corrigir os **primitivos** (o que vale para todas as telas) e depois varrer as telas.
 - **Chip único** (`ui/chip.tsx`, `FilterChip` do Figaro: 36 dp, raio 8 dp, borda `outlineVariant`, selecionado em container secundário) substitui os seletores em pílula ad hoc: horários e formas do Novo agendamento, Atendimento manual (busca agora é `field-control`), filtro de profissional da agenda, divulgação, ficha do cliente, filtros de comandas, registro do CortAI e o app do cliente.

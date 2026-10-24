@@ -10,6 +10,7 @@ import {
   listarAgendamentosConfirmados,
   type AgendamentoConfirmado,
 } from "@/lib/agendamentos.functions";
+import { OpcoesConectadas } from "@/components/ui/opcoes-conectadas";
 
 export const Route = createFileRoute("/barbeiro/agendamentos")({
   ssr: false,
@@ -100,24 +101,13 @@ function AgendamentosPage() {
       title="Agendamentos confirmados"
       subtitle="Nome, WhatsApp e horário de cada cliente. Atualiza sozinho a cada minuto."
     >
-      <div className="mb-4 grid grid-cols-3 gap-2" role="group" aria-label="Período">
-        {PERIODOS.map((p) => (
-          <Button
-            variant="ghost"
-            key={p.chave}
-            type="button"
-            onClick={() => setPeriodo(p.chave)}
-            aria-pressed={periodo === p.chave}
-            className={`min-h-12 rounded-lg border px-3 text-xs ${
-              periodo === p.chave
-                ? "border-gold/45 bg-gold-soft text-paper"
-                : "border-line bg-ink2 text-mute"
-            }`}
-          >
-            {p.rotulo}
-          </Button>
-        ))}
-      </div>
+      <OpcoesConectadas
+        rotulo="Período"
+        className="mb-4"
+        valor={periodo}
+        opcoes={PERIODOS.map((p) => ({ valor: p.chave, texto: p.rotulo }))}
+        onChange={setPeriodo}
+      />
 
       <div className="mb-4 flex items-center justify-between">
         <p className="text-xs text-mute2">

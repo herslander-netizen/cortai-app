@@ -13,6 +13,7 @@ import {
 
 import { Screen } from "@/components/layout/Screen";
 import { EsqueletoLista } from "@/components/layout/Esqueleto";
+import { OpcoesConectadas } from "@/components/ui/opcoes-conectadas";
 import { EscolhaDePlano } from "@/components/planos/EscolhaDePlano";
 import { profissionaisDoPlano, situacaoDoPaywall } from "@/lib/escolha-de-plano";
 import { aviso } from "@/lib/avisos";
@@ -182,38 +183,27 @@ function PlanoPage() {
               <h2 id="confirmar-plano" className="font-bold text-paper">
                 Confirmar assinatura
               </h2>
-              <div
-                className="mt-4 grid grid-cols-2 gap-2"
-                role="group"
-                aria-label="Ciclo da assinatura"
-              >
-                {(["mensal", "anual"] as Ciclo[]).map((item) => (
-                  <Button
-                    key={item}
-                    variant={ciclo === item ? "primary" : "outline"}
-                    aria-pressed={ciclo === item}
-                    onClick={() => setCiclo(item)}
-                  >
-                    {item === "mensal" ? "Mensal" : "Anual"}
-                  </Button>
-                ))}
-              </div>
-              <div
-                className="mt-2 grid grid-cols-3 gap-2"
-                role="group"
-                aria-label="Forma de pagamento"
-              >
-                {(["pix", "boleto", "cartao"] as Forma[]).map((item) => (
-                  <Button
-                    key={item}
-                    variant={forma === item ? "primary" : "outline"}
-                    aria-pressed={forma === item}
-                    onClick={() => setForma(item)}
-                  >
-                    {item === "cartao" ? "Cartão" : item === "boleto" ? "Boleto" : "Pix"}
-                  </Button>
-                ))}
-              </div>
+              <OpcoesConectadas
+                rotulo="Ciclo da assinatura"
+                className="mt-4"
+                valor={ciclo}
+                opcoes={[
+                  { valor: "mensal", texto: "Mensal" },
+                  { valor: "anual", texto: "Anual" },
+                ]}
+                onChange={setCiclo}
+              />
+              <OpcoesConectadas
+                rotulo="Forma de pagamento"
+                className="mt-2"
+                valor={forma}
+                opcoes={[
+                  { valor: "pix", texto: "Pix" },
+                  { valor: "boleto", texto: "Boleto" },
+                  { valor: "cartao", texto: "Cartão" },
+                ]}
+                onChange={setForma}
+              />
               <div className="mt-4 flex flex-col gap-2 sm:flex-row">
                 <Button
                   size="lg"

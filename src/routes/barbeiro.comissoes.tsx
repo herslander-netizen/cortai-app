@@ -14,6 +14,7 @@ import {
   pagarComissao,
   salvarConfiguracaoFinanceira,
 } from "@/lib/financeiro.functions";
+import { OpcoesConectadas } from "@/components/ui/opcoes-conectadas";
 
 export const Route = createFileRoute("/barbeiro/comissoes")({
   ssr: false,
@@ -92,18 +93,16 @@ function ComissoesPage() {
     >
       {comissoes.isLoading ? <EsqueletoLista /> : null}
 
-      <div className="flex gap-2">
-        {(["hoje", "semana", "mes"] as const).map((chave) => (
-          <Button
-            key={chave}
-            size="sm"
-            variant={filtro === chave ? "default" : "outline"}
-            onClick={() => setFiltro(chave)}
-          >
-            {chave === "hoje" ? "Hoje" : chave === "semana" ? "Semana" : "Mês"}
-          </Button>
-        ))}
-      </div>
+      <OpcoesConectadas
+        rotulo="Período"
+        valor={filtro}
+        opcoes={[
+          { valor: "hoje", texto: "Hoje" },
+          { valor: "semana", texto: "Semana" },
+          { valor: "mes", texto: "Mês" },
+        ]}
+        onChange={setFiltro}
+      />
 
       {(comissoes.data ?? []).length === 0 && !comissoes.isLoading ? (
         <div className="mt-5">

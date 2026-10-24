@@ -35,42 +35,4 @@ export function LinhaComSwitch({
   );
 }
 
-/** Botões conectados (Mostrar | Ocultar, Data | Nota): uma opção marcada por vez. */
-export function OpcoesConectadas<T extends string>({
-  rotulo,
-  valor,
-  opcoes,
-  onChange,
-}: {
-  rotulo: string;
-  valor: T;
-  opcoes: ReadonlyArray<{ valor: T; texto: string }>;
-  onChange: (valor: T) => void;
-}) {
-  return (
-    <div role="group" aria-label={rotulo} className="flex gap-0.5">
-      {opcoes.map((o, i) => {
-        const marcada = o.valor === valor;
-        const raio =
-          i === 0
-            ? "rounded-l-full rounded-r-md"
-            : i === opcoes.length - 1
-              ? "rounded-r-full rounded-l-md"
-              : "rounded-md";
-        return (
-          <button
-            key={o.valor}
-            type="button"
-            aria-pressed={marcada}
-            onClick={() => onChange(o.valor)}
-            className={`min-h-12 flex-1 px-4 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${raio} ${
-              marcada ? "bg-gold text-ink" : "bg-ink3 text-paper hover:bg-ink3/80"
-            }`}
-          >
-            {o.texto}
-          </button>
-        );
-      })}
-    </div>
-  );
-}
+export { OpcoesConectadas } from "@/components/ui/opcoes-conectadas";

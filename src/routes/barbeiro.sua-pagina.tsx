@@ -13,6 +13,7 @@ import { getMarca } from "@/lib/marca.functions";
 import { exigirCapacidade } from "@/lib/guarda-capacidade";
 import { urlPublica } from "@/lib/origem-publica";
 import { componenteIds, LAYOUTS, TEMAS } from "@/lib/pagina-config";
+import { OpcoesConectadas } from "@/components/ui/opcoes-conectadas";
 
 export const Route = createFileRoute("/barbeiro/sua-pagina")({
   validateSearch: z.object({ qr: z.string().optional() }),
@@ -163,19 +164,13 @@ function SuaPagina() {
             <div className="mt-4 rounded-xl border-0 bg-[var(--agenda-cartao)] p-4 text-center">
               {qrCode ? <img src={cartaoDoQr ?? qrCode} alt={`QR Code para abrir a página pública de ${marca.nome}`} width={240} className="mx-auto h-auto w-60 max-w-full rounded-lg bg-qr-light" /> : <p role="status" className="text-sm text-mute">Gerando QR Code…</p>}
               <p className="mt-2 text-xs text-mute">Aponte a câmera do celular para abrir sua página pública.</p>
-              <div role="group" aria-label="Tipo de cartão do QR Code" className="mt-4 flex gap-0.5">
-                {(Object.keys(VARIANTES_DO_QR) as VarianteDoQr[]).map((v, i, todas) => (
-                  <button
-                    key={v}
-                    type="button"
-                    aria-pressed={varianteDoQr === v}
-                    onClick={() => setVarianteDoQr(v)}
-                    className={`min-h-12 flex-1 px-4 text-sm font-medium ${i === 0 ? "rounded-l-full rounded-r-md" : i === todas.length - 1 ? "rounded-r-full rounded-l-md" : "rounded-md"} ${varianteDoQr === v ? "bg-gold text-ink" : "bg-ink3 text-paper"}`}
-                  >
-                    {VARIANTES_DO_QR[v].rotulo}
-                  </button>
-                ))}
-              </div>
+              <OpcoesConectadas
+                rotulo="Tipo de cartão do QR Code"
+                className="mt-4"
+                valor={varianteDoQr}
+                opcoes={(Object.keys(VARIANTES_DO_QR) as VarianteDoQr[]).map((v) => ({ valor: v, texto: VARIANTES_DO_QR[v].rotulo }))}
+                onChange={setVarianteDoQr}
+              />
               {cartaoDoQr ? (
                 <div className="mt-3 grid grid-cols-2 gap-2">
                   <a href={cartaoDoQr} download={`qr-${marca.slug}-${varianteDoQr}.png`} className="inline-flex min-h-12 items-center justify-center rounded-full border border-line px-4 text-sm font-medium text-paper">Salvar imagem</a>
