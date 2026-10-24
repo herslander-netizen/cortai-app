@@ -701,6 +701,13 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-24 UTC — GPT — Assets fotorrealistas de exemplos e capas de tema
+- Substituídas as ilustrações programáticas de `public/exemplos/*.webp` por imagens fotorrealistas sintéticas de salão, manicure, barbearia, produtos e profissionais diversos. Mantidos nomes, dimensões e contratos usados por `src/lib/pagina-exemplo.ts`; o logo existente foi preservado.
+- Substituídas as seis capas de `public/temas/*.webp` por cenas com identidades próprias: Clássico, Rock n' Roll, Retrô, Rosé, Lavanda e Pêssego. O enquadramento foi composto para o recorte horizontal 2,9:1.
+- Criado `docs/creditos-de-imagens.md` com origem, escopo e licença aplicável. Os scripts antigos foram preservados e não são mais a fonte dos assets.
+- Pesos verificados: exemplos abaixo de 150 KB e capas abaixo de 80 KB; dimensões preservadas (capa 1600×900, galeria 900×900, profissionais 480×480, produtos 600×600, capas 780×439).
+- Validação: `bun run tsc --noEmit` passou; `bun run build` passou; `bun run vitest run` teve 1.780 testes aprovados e 23 falhas preexistentes nos testes de tokens CSS (`contraste-app`/`paleta-figaro`), sem relação com os assets. Sem banco, segredos, `main` ou produção.
+
 ### 2026-10-24 UTC — GPT — Fallback da rota Sua Página no mobile
 - A rota `/barbeiro/marca` não tinha `pendingComponent` nem tratamento de erro local. Durante a carga do bundle, da capacidade ou de uma falha recuperável, o shell do painel podia permanecer visível com o outlet vazio, como no print enviado pelo dono.
 - Adicionados skeleton explícito (`MarcaPendente`) e `RouteError` na rota do editor. Não houve alteração de dados, permissões, contratos ou navegação.

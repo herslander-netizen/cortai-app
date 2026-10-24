@@ -3,7 +3,7 @@ import type { PaginaPublica } from "@/lib/publico.functions";
 
 /**
  * Negócio de exemplo para "Ver Exemplo" e para as capas dos temas (no Figaro vem do servidor).
- * As imagens são ilustrações próprias em `public/exemplos`, geradas por `scripts/gerar-fotos-de-exemplo.mjs`.
+ * As imagens são fotografias sintéticas fotorrealistas em `public/exemplos`, geradas para esta prévia.
  */
 export function paginaDeExemplo(config: PaginaConfig): PaginaPublica {
   const img = (nome: string) => `/exemplos/${nome}.webp`;
