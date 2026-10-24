@@ -11,14 +11,15 @@ import { isRedirect, redirect } from "@tanstack/react-router";
 
 import { getCapacidades } from "@/lib/capacidades.functions";
 import type { ChaveDeRecurso } from "@/lib/planos";
+import { comPrazo } from "@/lib/prazo";
 
 export async function exigirCapacidade(queryClient: QueryClient, recurso: ChaveDeRecurso) {
   try {
-    const capacidades = await queryClient.ensureQueryData({
+    const capacidades = await comPrazo(queryClient.ensureQueryData({
       queryKey: ["capacidades"],
       queryFn: () => getCapacidades(),
       staleTime: 300_000,
-    });
+    }), 4_000, "consultar as capacidades do plano");
     if (capacidades.liberados[recurso] === false) {
       throw redirect({ to: "/barbeiro/plano" });
     }

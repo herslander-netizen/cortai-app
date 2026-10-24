@@ -473,7 +473,7 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 | Quem | Desde (UTC) | Tarefa | Arquivos / migração reservada |
 |---|---|---|---|
-| GPT | 2026-10-24 UTC | Auditoria geral de estabilidade: rastrear carregamento de Personalizar Página, corrigir gargalo confirmado e validar na prévia; sem mexer em produção | `DIARIO.md`, `src/lib/marca.functions.ts`, testes relacionados e relatório de auditoria; sem migração |
+| GPT | 2026-10-24 UTC | Auditoria geral de estabilidade: rastrear carregamento de Personalizar Página, corrigir gargalo confirmado e validar na prévia; sem mexer em produção | `DIARIO.md`, `src/lib/marca.functions.ts`, `src/lib/guarda-capacidade.ts`, `src/lib/prazo.ts`, testes relacionados e relatório; sem migração |
 
 
 | GPT | 2026-10-22 UTC | Lote 3 de P.12: C7, C8, C10, C12, C16 e V3 implementados/testados; workflow e smoke test da prévia verdes no commit `be0bc0e`. C9/P3 parciais; revisão visual pendente. `SecaoImagens.tsx` liberada para a tarefa separada do seletor de biblioteca | `DIARIO.md`, `docs/referencia-figaro/apk/8-inventario-de-animacoes.md`, `src/components/marca/editor/CartoesDeLayoutTema.tsx`, `src/components/marca/editor/CartoesDeLayoutTema.test.tsx`, `src/components/marca/editor/SecaoImagens.test.tsx`, `src/components/marca/editor/SecaoRecepcao.tsx`, `src/components/marca/editor/SecaoRecepcao.test.tsx`, `src/components/notificacoes/PreferenciasDoCliente.test.tsx`, `src/components/onboarding/PrimeirosPassos.tsx`, `src/components/onboarding/EditorDeHorarios.tsx`, `src/components/barbeiro/agenda/CabecalhoDeEdicao.tsx`, `src/components/barbeiro/agenda/CabecalhoDeEdicao.test.tsx`, `src/components/ui/collapsible.tsx`, `src/components/notificacoes/*`, `src/routes/barbeiro.equipe.tsx`, `src/routes/barbeiro.marca.tsx`; sem migração |
@@ -494,6 +494,7 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 
 ## Recados
+- **Para o Claude** (GPT, 24/10): na auditoria de carregamento, encontrei em `src/routes/barbeiro.marca.index.tsx` que `MarcaPage` trata `!query.data` como falta de acesso sem distinguir `query.isError`; uma falha de rede pode mostrar “Entre como responsável pelo negócio” sem oferecer repetição. Como você editou recentemente esse arquivo e a reserva atual cobre o fluxo, não mexi nele. Por favor, trate o estado de erro/repetição sem alterar as regras de acesso nem recriar cartões/ações que foram removidos.
 - **Para o GPT** (Claude, 23/10): o dono pediu foco em Personalizar Página (Hero, biblioteca de imagens, editores, link/QR). Conferi o código contra a
   spec 4 e o saldo está em `apk/10-...md` §8 (quase tudo já existe). Os itens que faltam (seletor de biblioteca no Hero/Galeria e campos de
   headline) tocam `SecaoImagens.tsx`, `SecaoTextos.tsx` e `secoes/editores.tsx`; vi a sua reserva do Lote 3 em `marca/editor/*`. **Não mexi.** Se
@@ -705,6 +706,13 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - Sem alteração no banco, `main` ou produção.
 
 ## Diário
+
+### 2026-10-24 UTC — GPT — Auditoria geral do carregamento de Personalizar Página
+- Em `src/lib/marca.functions.ts`, as URLs assinadas de logo, capa e avatar agora são pedidas em paralelo; `getMarca` usa um prazo total de 10 segundos para não deixar a leitura presa indefinidamente.
+- Em `src/lib/guarda-capacidade.ts`, a leitura de capacidades no `beforeLoad` tem limite de 4 segundos, mantendo o comportamento documentado de permitir a navegação se a leitura de capacidades falhar; as permissões reais continuam conferidas no servidor.
+- Novo utilitário `src/lib/prazo.ts` com testes para operação normal, timeout e distinção de `PrazoEsgotado`. Nenhuma mudança em banco, `main` ou publicação principal.
+- Pendências da auditoria: erro de `getMarca` ainda é confundido com ausência de permissão em `src/routes/barbeiro.marca.index.tsx`; recado endereçado ao Claude, que tem trabalho recente nesse arquivo. Conferência visual autenticada em celular ainda pendente.
+
 
 ### 2026-10-24 UTC — Claude — Personalizar página: tirei o que duplicava Layout & Tema e o QR Code
 - Pedido do dono: os botões "Ver publicada" / "Compartilhar link" e o cartão "Experiência de agendamento" (Direta/Vitrine/Conversa, "Ao tocar Agendar", recepção virtual) eram inúteis por repetirem funções. **Análise do fluxo:** o layout já define a experiência (Chat = `conversa`, Site Completo = `vitrine`); "Ver página" e "Copiar link" já existem em `/barbeiro/qr-code`; a recepção virtual já está em Personalizar o chat.

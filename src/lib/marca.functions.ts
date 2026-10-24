@@ -11,6 +11,7 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import type { Database, Json } from "@/integrations/supabase/types";
 import { exigirRecurso } from "@/lib/planos";
+import { comPrazo, PrazoEsgotado } from "@/lib/prazo";
 import { escolherVinculo } from "@/lib/vinculo-ativo";
 import {
   normalizarPagina,
@@ -175,8 +176,20 @@ async function signedLogo(supabase: any, path: string | null) {
 export const getMarca = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<{ marca: MarcaData; versoes: MarcaVersion[] } | null> => {
-    // Quem não é dono vê o aviso da tela, sem erro.
-    const tenantId = await tenantDoDono(context.supabase, context.userId).catch(() => null);
+    // Uma tela nunca pode ficar no esqueleto indefinidamente por uma leitura pendurada.
+    // O prazo é total: acesso, consultas e URLs assinadas compartilham os mesmos 10 segundos.
+    const prazoFinal = Date.now() + 10_000;
+    const comPrazoRestante = <T>(operacao: PromiseLike<T>, etapa: string) =>
+      comPrazo(operacao, Math.max(1, prazoFinal - Date.now()), etapa);
+
+    // Quem não é dono vê o aviso da tela, sem erro; timeout de rede deve continuar sendo erro.
+    const tenantId = await comPrazoRestante(
+      tenantDoDono(context.supabase, context.userId),
+      "verificar acesso à página",
+    ).catch((error: unknown) => {
+      if (error instanceof PrazoEsgotado) throw error;
+      return null;
+    });
     if (!tenantId) return null;
     const [
       { data: tenant },
@@ -185,7 +198,7 @@ export const getMarca = createServerFn({ method: "GET" })
       { count: servicosAtivos },
       { count: profissionais },
       { count: diasAbertos },
-    ] = await Promise.all([
+    ] = await comPrazoRestante(Promise.all([
       context.supabase.from("tenants").select("*").eq("id", tenantId).single(),
       context.supabase
         .from("tenant_branding_versions")
@@ -212,7 +225,7 @@ export const getMarca = createServerFn({ method: "GET" })
         .select("dia_semana", { count: "exact", head: true })
         .eq("tenant_id", tenantId)
         .eq("fechado", false),
-    ]);
+    ]), "carregar os dados da página");
     if (!tenant) throw new Error("Negócio não encontrado.");
     const atual = snapshot(tenant);
     const draftContainer = pagina?.draft_config as { pagina?: unknown; marca?: unknown } | null;
@@ -227,14 +240,14 @@ export const getMarca = createServerFn({ method: "GET" })
     });
     // As três URLs não dependem uma da outra. Gerá-las em paralelo evita
     // somar três viagens ao Storage antes de liberar a tela de personalização.
-    const [logoSignedUrl, capaSignedUrl, avatarSignedUrl] = await Promise.all([
+    const [logoSignedUrl, capaSignedUrl, avatarSignedUrl] = await comPrazoRestante(Promise.all([
       signedLogo(
         context.supabase,
         marcaRascunho.success ? marcaRascunho.data.logo_url : atual.logo_url,
       ),
       signedLogo(context.supabase, atual.capa_url),
       signedLogo(context.supabase, paginaRascunho.chat.avatarUrl),
-    ]);
+    ]), "preparar imagens da página");
     return {
       marca: {
         id: tenant.id,
