@@ -9805,3 +9805,55 @@ html:root.light[data-identidade="classico"][data-identidade] {
   background: var(--agenda-cartao-evento, #fff);
   color: #1f2933;
 }
+
+/* Caixa de seleção quadrada do Figaro (`FigarooSquareCheckbox`: 18 dp, raio 5 dp, ✓ de 13 dp). */
+input[type="checkbox"] {
+  appearance: none;
+  display: inline-grid;
+  place-content: center;
+  inline-size: 18px;
+  block-size: 18px;
+  flex: none;
+  margin: 0;
+  border: 2px solid var(--figaro-outline, var(--line2));
+  border-radius: 5px;
+  background: transparent;
+  cursor: pointer;
+  transition:
+    background-color 120ms ease,
+    border-color 120ms ease;
+}
+input[type="checkbox"]::after {
+  content: "";
+  inline-size: 13px;
+  block-size: 13px;
+  background-color: var(--figaro-on-primary, var(--ink));
+  clip-path: polygon(14% 52%, 0 66%, 38% 100%, 100% 22%, 86% 8%, 38% 72%);
+  transform: scale(0);
+  transition: transform 120ms ease;
+}
+input[type="checkbox"]:checked {
+  border-color: var(--figaro-primary, var(--gold));
+  background: var(--figaro-primary, var(--gold));
+}
+input[type="checkbox"]:checked::after {
+  transform: scale(1);
+}
+input[type="checkbox"]:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+input[type="checkbox"]:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+@media (prefers-reduced-motion: reduce) {
+  input[type="checkbox"],
+  input[type="checkbox"]::after {
+    transition: none;
+  }
+}
+/* Controles nativos restantes (deslizante) na cor de ação do app. */
+input[type="range"] {
+  accent-color: var(--figaro-primary, var(--gold));
+}
