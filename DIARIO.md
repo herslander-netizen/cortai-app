@@ -706,9 +706,9 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ### 2026-10-24 UTC — GPT — Simplifica navegação de Personalizar Página e ferramenta de QR Code
 - Em `src/routes/barbeiro.marca.index.tsx`, removi “Ver como ficou”, que abria a mesma prévia do botão fixo “Ver prévia”, e unifiquei “Compartilhar” + “Copiar link” numa única ação “Compartilhar link” (com cópia como fallback do navegador).
-- Em `src/routes/barbeiro.sua-pagina.tsx`, mantive a rota por compatibilidade, mas a ferramenta agora tem foco em link/QR: o QR fica visível ao entrar, com opções de cartão, salvar e imprimir; removi o resumo visual de Layout & Tema, alertas de configuração e o atalho repetido para Personalizar Página. Mantidos “Ver página”, “Copiar link” e o aviso de rascunho.
-- O caminho do menu “QR Code” não precisa mais de `?qr=1`; a rota continua aceitando esse parâmetro antigo. `/barbeiro/temas` agora redireciona diretamente para `/barbeiro/marca/layout-tema`, sem remover a rota compatível.
-- `src/lib/navegacao-movel.test.ts` ganhou verificações para a prévia única, ações de link sem duplicação, a tela dedicada ao QR e o destino da rota antiga.
+- Criei `src/routes/barbeiro.qr-code.tsx` como rota dedicada à ferramenta de QR Code: QR visível ao entrar, opções de cartão, salvar/imprimir e ações “Ver página” / “Copiar link”. Removi da ferramenta o resumo visual de Layout & Tema, os alertas de configuração e o atalho repetido para Personalizar Página.
+- `src/routes/barbeiro.sua-pagina.tsx` agora é apenas uma compatibilidade: sem parâmetro redireciona para o editor canônico `/barbeiro/marca`; com o antigo `?qr=1`, redireciona para `/barbeiro/qr-code`. O menu principal aponta diretamente para a rota QR nova. `/barbeiro/temas` continua como redirecionamento direto para `/barbeiro/marca/layout-tema`.
+- `src/lib/navegacao-movel.test.ts` ganhou verificações para a prévia única, ações de link sem duplicação, a rota QR dedicada e os redirecionamentos compatíveis.
 - Nenhuma alteração em banco, backend ou publicação principal. TypeScript, testes, build e deploy da prévia ainda aguardam o GitHub Actions desta ponta; revisão visual manual em 390 px e 1280 px também pendente.
 
 ### 2026-10-24 UTC — Claude — Padrão Figaro, lote 3: avisos e erros
