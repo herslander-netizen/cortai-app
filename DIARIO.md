@@ -473,7 +473,7 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 | Quem | Desde (UTC) | Tarefa | Arquivos / migração reservada |
 |---|---|---|---|
-| GPT | 2026-10-24 UTC | Refinar a finalização pública de agendamento no padrão Figaro: hierarquia, animações e ações secundárias compactas, sem alterar regras da reserva | `DIARIO.md`, `src/components/agendamento/ConfirmacaoAgendamento.tsx`, `src/components/agendamento/PreferenciasEmConversa.tsx`, `src/components/agendamento/PreferenciasAposAgendamento.tsx`, `src/components/comanda/TicketDaConfirmacao.tsx`, `src/routes/agendar.$slug.tsx`, testes relacionados; sem migração |
+
 
 | GPT | 2026-10-22 UTC | Lote 3 de P.12: C7, C8, C10, C12, C16 e V3 implementados/testados; workflow e smoke test da prévia verdes no commit `be0bc0e`. C9/P3 parciais; revisão visual pendente. `SecaoImagens.tsx` liberada para a tarefa separada do seletor de biblioteca | `DIARIO.md`, `docs/referencia-figaro/apk/8-inventario-de-animacoes.md`, `src/components/marca/editor/CartoesDeLayoutTema.tsx`, `src/components/marca/editor/CartoesDeLayoutTema.test.tsx`, `src/components/marca/editor/SecaoImagens.test.tsx`, `src/components/marca/editor/SecaoRecepcao.tsx`, `src/components/marca/editor/SecaoRecepcao.test.tsx`, `src/components/notificacoes/PreferenciasDoCliente.test.tsx`, `src/components/onboarding/PrimeirosPassos.tsx`, `src/components/onboarding/EditorDeHorarios.tsx`, `src/components/barbeiro/agenda/CabecalhoDeEdicao.tsx`, `src/components/barbeiro/agenda/CabecalhoDeEdicao.test.tsx`, `src/components/ui/collapsible.tsx`, `src/components/notificacoes/*`, `src/routes/barbeiro.equipe.tsx`, `src/routes/barbeiro.marca.tsx`; sem migração |
 | GPT | 2026-10-21 UTC | Corrigir a varredura de WhatsApp/Asaas: diagnosticar timeouts, preparar correção dos cron jobs e validar endpoint no worker de produção; sem escrita real até autorização explícita | `DIARIO.md`, `MUSE.md`, `drizzle/migrations/0043_corrigir_agendadores.sql`, rotas de varredura; migração 0043 (não aplicada) |
@@ -704,6 +704,14 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - Sem alteração no banco, `main` ou produção.
 
 ## Diário
+
+### 2026-10-24 UTC — GPT — Refina finalização do agendamento no padrão Figaro
+- Em `src/components/agendamento/ConfirmacaoAgendamento.tsx`, compacte o espaço vertical, priorizei “Adicionar à agenda” logo após o resumo e recolhi Alterar/Cancelar/Fazer outro agendamento em “Gerenciar agendamento”. Compartilhar/guardar continua disponível em uma seção recolhível.
+- Em `src/components/agendamento/chat/PreferenciasEmConversa.tsx`, as preferências não aparecem mais como questionário automático na confirmação; ficam opcionais em “Personalizar meu atendimento”.
+- Em `src/components/comanda/TicketDaConfirmacao.tsx`, a comanda começa como uma linha compacta com código e estado; Pix, recibo/imagem, copiar e voltar à página ficam dentro da expansão.
+- Em `src/routes/agendar.$slug.tsx`, o estado de sucesso usa o tempo oficial Figaro `ESPERA_MS.reservaCriada` (1.2 s), sem duração improvisada.
+- Mantidos o motor de reserva, validação, confirmação, cancelamento, ticket e preferências existentes. Sem migração, banco, main ou publicação principal.
+- Validação automática e conferência visual em 390 px: pendentes no workflow da prévia; não afirmar conclusão até conferir.
 
 ### 2026-10-24 UTC — GPT — Remove apenas o ponto piscante ao lado do status do chat
 - Correção após esclarecimento do dono: manter o texto “Online agora” e os demais status, além da bolinha verde sobre a foto de perfil. Removido somente o ponto verde/piscante que aparecia ao lado do texto do status em `src/components/chat/ChatShell.tsx`.
