@@ -89,7 +89,7 @@ function SuaPagina() {
 
   if (query.isError || !query.data?.marca) {
     return (
-      <Screen voltarPara="/barbeiro" title="Link público e QR Code" subtitle="Compartilhe sua página pública com clientes.">
+      <Screen voltarPara="/barbeiro" title="QR Code e link público" subtitle="Compartilhe sua página pública com clientes.">
         <div className="surface space-y-3 p-5">
           <CircleHelp className="text-mute" size={24} aria-hidden />
           <p className="text-sm text-paper">
@@ -153,7 +153,7 @@ function SuaPagina() {
               Copiar link
             </Button>
           </div>
-            <div className="mt-4 rounded-xl border-0 bg-[var(--agenda-cartao,var(--ink2))] p-4 text-center">
+          <div className="mt-4 rounded-xl border-0 bg-[var(--agenda-cartao,var(--ink2))] p-4 text-center">
               {qrCode ? <img src={cartaoDoQr ?? qrCode} alt={`QR Code para abrir a página pública de ${marca.nome}`} width={240} className="mx-auto h-auto w-60 max-w-full rounded-lg bg-qr-light" /> : <p role="status" className="text-sm text-mute">Gerando QR Code…</p>}
               <p className="mt-2 text-xs text-mute">Aponte a câmera do celular para abrir sua página pública.</p>
               <OpcoesConectadas
@@ -169,7 +169,7 @@ function SuaPagina() {
                   <button type="button" onClick={imprimirQr} className="inline-flex min-h-12 items-center justify-center rounded-full border border-line px-4 text-sm font-medium text-paper">Imprimir</button>
                 </div>
               ) : null}
-            </div>
+          </div>
           {mensagem ? <p role="status" className="mt-3 text-xs text-mute">{mensagem}</p> : null}
         </section>
 
