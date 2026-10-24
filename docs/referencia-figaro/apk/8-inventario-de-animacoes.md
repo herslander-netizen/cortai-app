@@ -58,9 +58,9 @@ fica como está).
 | C6 | Progresso de publicação | barra 0→92 % em 8 s linear; depois 85 % em 2,5 s; 100 % em 650 ms; ✓ com escala/opacidade (mola 0,6/800); esperas 700 e 200 ms | `FigarooPublishProgressKt` | ✘ (Cortaí publica em um passo; usar só se a publicação demorar de verdade) |
 | C7 | Cartão de modelo (Layout & Tema) ao selecionar | recuo do cartão 0→8 dp e raio 12→8 dp (mola 1/1500); selo e legenda aparecem com fade padrão | `TemplateCardKt` | ◐ 24/10 recuo animado 0→8 px aplicado aos cartões de layout, tema e estilo do chat; cantos de 28 px preservados pela diretriz atual do dono; selo com entrada animada; falta conferência visual no celular |
 | C8 | Miniatura da galeria ao selecionar | recuo 0→8 dp e raio muda (mola 1/1500) | `MediaGalleryPickerScreenKt` | ◐ 24/10 `SecaoImagens`: miniatura ativa usa escala 0,97, padding 16 px e raio 8 px; inativas usam 1, 8 px e 12 px. Teste cobre estados/seleção; falta conferência visual em celular |
-| C9 | Linha de passo (onboarding): marcador enche de cor; detalhe abre | cor do marcador animada (mola 1/1500); fade + expandir em altura | `StepRowKt` | ◐ 22/10 marcador do checklist preenche e o ícone anima em `PrimeirosPassos`; detalhe expansível não existe no componente atual |
+| C9 | Linha de passo (onboarding): marcador enche de cor; detalhe abre | cor do marcador animada (mola 1/1500); fade + expandir em altura | `StepRowKt` | ◐ 24/10 marcador e ícone já animam em `PrimeirosPassos`; expansão de detalhe e fluxo de três etapas do APK não têm equivalente fiel no checklist atual de quatro itens. Não inventar textos nem navegação |
 | C10 | Painel de disponibilidade semanal | corpo: fade 1/1600 + `SizeTransform`; seta 0↔180° mola 0,8/380 | `FigarooWeeklyAvailabilityPanelKt` | ◐ 24/10 `EditorDeHorarios`: painel semanal recolhível com fade/altura e seta animada; falta conferência visual no celular |
-| C11 | Carregando da página dentro de WebView | fade padrão | `FigarooWebViewKt` | ✘ (prévia em iframe) |
+| C11 | Carregando da página dentro de WebView | fade padrão | `FigarooWebViewKt` | — Cortaí é PWA e não tem WebView Android nativo; não implementar animação específica de WebView sem componente equivalente |
 | C12 | Foto de perfil (enviar): troca com ajuste de tamanho | fade 300 ms FastOutSlowIn | `PhotoUploaderAvatarKt` | ◐ 24/10 `SecaoRecepcao`: fade + escala 0,96→1 em 300 ms; teste cobre prévia, remoção e acionamento do seletor. Falta conferência visual em celular |
 | C13 | Folha de baixo | M3 `ModalBottomSheet`: modos meia e do tamanho do conteúdo | `FigarooSheetScaffoldKt` | — sem valor no APK (é o `ModalBottomSheet` padrão do M3); mantém os tempos do Cortaí |
 | C14 | Puxar para atualizar (Notificações, Avaliações, Vendas) | indicador padrão do M3 | `FigarooPullToRefreshBoxKt` | ✘ (PWA: avaliar) |
@@ -121,7 +121,7 @@ fica como está).
 |---|---|---|---|---|
 | P1 | Personalizar Página: carregando → conteúdo | fade in 220 ms / out 180 ms | `PageSettingsScreenKt` | ✔ 22/10 fade de entrada 220 ms e saída 180 ms em `barbeiro.marca.tsx` |
 | P2 | Banner de rascunho | fade + expandir em altura | idem | ✔ GPT 21/10 (conferir valores) |
-| P3 | Editores Equipe e Localidades: lista ↔ vazio | fade 220/180 + `SizeTransform` | `TeamEditorScreenKt`, `LocationsEditorScreenKt` | ◐ 22/10 transição lista↔vazio em `barbeiro.equipe.tsx`; editor de localidades equivalente não identificado |
+| P3 | Editores Equipe e Localidades: lista ↔ vazio | fade 220/180 + `SizeTransform` | `TeamEditorScreenKt`, `LocationsEditorScreenKt` | ◐ 24/10 transição lista↔vazio existe em `barbeiro.equipe.tsx`; não foi encontrada rota/editor separado de localidades no Cortaí. Não criar tela apenas para ter a animação |
 | S1 | Painel do serviço: herói troca | fade 220/180 | `ServiceDashboardScreenKt` | — (sem painel de serviço no Cortaí) |
 | S2 | Seleção de variação do serviço abre | expandir 220 ms + fade 220 ms; seta 0↔180° | `ServiceRateSelectionListKt` | ✘ (`barbeiro.servicos`) |
 | S3 | Grupos de categoria recolhíveis | altura + fade padrão; seta 0↔180° | `CategorisedServicesListKt` | ✘ |

@@ -92,6 +92,7 @@ bun run build
 
 
 ## Estado do Lote 3 de recuperação do Figaro — 2026-10-24
+- Validação verde: workflow `40108015332`, commit `be0bc0e2e03cd23cf08ff550f004fa3b67b73e6f`; build/TypeScript passaram, 214 arquivos de teste, 1.929 testes passaram, 1 foi ignorado e smoke test da prévia passou. `https://previa.cortaiapp.pages.dev` está servindo esse commit. Nenhuma publicação principal ou escrita em banco real.
 
 - C7: recuo animado nos cartões de layout, tema e estilo do chat implementado; teste dedicado criado. Conferência visual em celular pendente.
 - C8: a galeria de logos já tinha escala/recuo/raio de seleção; teste dedicado adicionado. Conferência visual pendente.
