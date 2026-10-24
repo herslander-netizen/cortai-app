@@ -710,6 +710,7 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - Em `src/components/agendamento/chat/PreferenciasEmConversa.tsx`, as preferências não aparecem mais como questionário automático na confirmação; ficam opcionais em “Personalizar meu atendimento”.
 - Em `src/components/comanda/TicketDaConfirmacao.tsx`, a comanda começa como uma linha compacta com código e estado; Pix, recibo/imagem, copiar e voltar à página ficam dentro da expansão.
 - Em `src/routes/agendar.$slug.tsx`, o estado de sucesso usa o tempo oficial Figaro `ESPERA_MS.reservaCriada` (1.2 s), sem duração improvisada.
+- Reforço mobile-first: `ConfirmacaoAgendamento.tsx` usa espaçamento compacto e tipografia responsiva; `TicketDaConfirmacao.tsx` evita overflow do código/estado e reduz o bloco no celular; `PreferenciasEmConversa.tsx` adapta os botões a uma grade confortável em telas estreitas. O desktop continua responsivo, sem orientar as decisões de layout.
 - Mantidos o motor de reserva, validação, confirmação, cancelamento, ticket e preferências existentes. Sem migração, banco, main ou publicação principal.
 - Validação automática e conferência visual em 390 px: pendentes no workflow da prévia; não afirmar conclusão até conferir.
 
