@@ -106,7 +106,7 @@ function SuaPagina() {
   return (
     <Screen
       voltarPara="/barbeiro"
-      title="Link público e QR Code"
+      title="QR Code e link público"
       subtitle="Copie o link e gere um QR Code para salvar ou imprimir."
     >
       <div className="space-y-4">
