@@ -22,7 +22,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sh
 import { alterarStatusPaginaPublica, getMarca, type MarcaData } from "@/lib/marca.functions";
 import { exigirCapacidade } from "@/lib/guarda-capacidade";
 import { urlPublica } from "@/lib/origem-publica";
-import { LAYOUTS, secoesObrigatoriasAusentes, TEMAS, totalDeSecoesAtivas } from "@/lib/pagina-config";
+import { ajustarAoCatalogo, LAYOUTS, secoesObrigatoriasAusentes, TEMAS, totalDeSecoesAtivas } from "@/lib/pagina-config";
 import { CATALOGO_DE_SECOES } from "@/components/marca/editor/secoes/catalogo";
 import { CapaDoTema } from "@/components/marca/editor/CapaDoTema";
 
@@ -108,6 +108,8 @@ function Editor({
   reload: () => Promise<unknown> | void;
 }) {
   const e = useEditorDaPagina(initial, reload);
+  // Como no Figaro, sempre há um layout e um tema do catálogo escolhidos (só na tela; nada é gravado).
+  const visual = ajustarAoCatalogo(e.config);
   const alterarStatus = useServerFn(alterarStatusPaginaPublica);
   const [paginaOnline, setPaginaOnline] = useState(initial.pagina_online);
   const [alterandoStatus, setAlterandoStatus] = useState(false);
@@ -297,10 +299,10 @@ function Editor({
         ) : null}
       </AnimatePresence>
 
-      <section className="mb-5 overflow-hidden rounded-xl border border-line bg-ink">
+      <section className="mb-5 overflow-hidden rounded-[28px] bg-ink2">
         <div className="p-3 sm:p-4">
-          <div className="aspect-video overflow-hidden rounded-lg border border-line bg-background">
-            <CapaDoTema tema={e.config.tema} />
+          <div className="aspect-video overflow-hidden rounded-[20px] bg-background">
+            <CapaDoTema tema={visual.tema} />
           </div>
           <div className="mt-4 grid grid-cols-2 divide-x divide-line">
             <div className="min-w-0 pr-3">
@@ -308,9 +310,9 @@ function Editor({
                 <LayoutTemplate size={16} aria-hidden />
                 Layout
               </div>
-              <p className="mt-2 text-sm font-semibold text-paper">{LAYOUTS[e.config.layout]}</p>
+              <p className="mt-2 text-sm font-semibold text-paper">{LAYOUTS[visual.layout]}</p>
               <p className="mt-1 text-xs leading-relaxed text-mute">
-                {e.config.layout === "cortai-chat" ? "Atendimento em conversa" : `${totalDeSecoesAtivas(e.config)} seções ativas`}
+                {visual.layout === "cortai-chat" ? "Atendimento em conversa" : `${totalDeSecoesAtivas(e.config)} seções ativas`}
               </p>
             </div>
             <div className="min-w-0 pl-3">
@@ -318,11 +320,11 @@ function Editor({
                 <Palette size={16} aria-hidden />
                 Tema
               </div>
-              <p className="mt-2 text-sm font-semibold text-paper">{TEMAS[e.config.tema].nome}</p>
+              <p className="mt-2 text-sm font-semibold text-paper">{TEMAS[visual.tema].nome}</p>
               <div className="mt-2 flex h-2 overflow-hidden rounded-full" aria-label="Paleta do tema atual">
-                <span className="flex-1" style={{ background: TEMAS[e.config.tema].cores.principal }} />
-                <span className="flex-1" style={{ background: TEMAS[e.config.tema].cores.destaque }} />
-                <span className="flex-1" style={{ background: TEMAS[e.config.tema].cores.fundo }} />
+                <span className="flex-1" style={{ background: TEMAS[visual.tema].cores.principal }} />
+                <span className="flex-1" style={{ background: TEMAS[visual.tema].cores.destaque }} />
+                <span className="flex-1" style={{ background: TEMAS[visual.tema].cores.fundo }} />
               </div>
             </div>
           </div>

@@ -700,6 +700,10 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-24 UTC — Claude — Painel de escolha de tema: capas refeitas e cartão do hub
+- Pedido do dono: o painel de escolha de tema estava "esquisito". Causas: capas eram capturas de página com texto minúsculo (ou SVG cortado no cartão 16:9 do hub) e o hub mostrava o tema antigo fora do catálogo. Agora `scripts/gerar-capas-dos-temas.mjs` compõe a capa 16:9 de cada tema do catálogo (nome, título, botão e foto de exemplo nas cores reais) e o hub usa `ajustarAoCatalogo` (sempre um layout e tema do catálogo, só na tela), com o cartão no padrão de 28 dp.
+- Dúvida aberta: o dono falou em "outras opções novas" para acrescentar; a hipótese é a biblioteca de imagens prontas por layout do Figaro ("Imagens do Figaro") no Hero/Galeria — não implementada, aguardando confirmação.
+
 ### 2026-10-24 UTC — Claude — Histórico com período e filtros (lote 1 do APK novo)
 - Nova tela `/barbeiro/historico` (link "Ver histórico completo" em Financeiro): abas Atendimentos e Vendas, períodos do Figaro (hoje, semana, mês, ano, últimos 7/30, todo o período, próximos 7/30, futuros, personalizado até 1 ano), filtros (situação, canal, profissional, serviço; forma de pagamento nas vendas), "Limpar filtros", carregar mais (30 por página), vazios e erro com tentar de novo.
 - `src/lib/historico-periodo.ts` (+teste, dias no fuso do negócio) e `src/lib/historico.functions.ts` (só leitura; atendimentos exigem `visualizar_clientes`, vendas `visualizar_financeiro`). Sem migração.

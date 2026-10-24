@@ -18,11 +18,11 @@ export function CapaDoTema({ tema, className = "" }: { tema: TemaId; className?:
       <img
         src={`/temas/${tema}.webp`}
         alt=""
-        width={870}
-        height={300}
+        width={780}
+        height={439}
         loading="lazy"
         onError={() => setSemImagem(true)}
-        className={`block size-full object-cover ${className}`}
+        className={`block size-full object-cover object-[50%_22%] ${className}`}
       />
     );
   }
