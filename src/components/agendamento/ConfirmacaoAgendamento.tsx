@@ -84,8 +84,8 @@ export function ConfirmacaoAgendamento({
     [confirmacao, fuso],
   );
   return (
-    <main className="agendamento-confirmacao min-h-dvh pb-[calc(3rem+env(safe-area-inset-bottom))]">
-      <header className="relative overflow-hidden px-5 pb-6 pt-[max(24px,env(safe-area-inset-top))]">
+    <main className="agendamento-confirmacao min-h-dvh pb-[calc(1.5rem+env(safe-area-inset-bottom))]">
+      <header className="relative overflow-hidden px-5 pb-4 pt-[max(16px,env(safe-area-inset-top))]">
         {capaUrl ? (
           <img
             src={capaUrl}
@@ -102,13 +102,13 @@ export function ConfirmacaoAgendamento({
           </div>
         </div>
       </header>
-      <section className="mx-auto w-full max-w-[520px] px-5 pt-7">
+      <section className="mx-auto w-full max-w-[520px] px-5 pt-5">
         <span
           className={`mov-confirmacao flex size-14 items-center justify-center rounded-full ${ativo ? "bg-gold/15 text-gold" : "bg-brick/15 text-brick"}`}
         >
           {ativo ? <VistoAnimado tamanho={56} /> : <CalendarX size={28} aria-hidden />}
         </span>
-        <h1 className="mt-5 text-2xl font-bold text-paper">{titulo}</h1>
+        <h1 className="mt-3 text-2xl font-bold text-paper">{titulo}</h1>
         {ativo && textoFinal ? <p className="mt-2 text-sm text-mute">{textoFinal}</p> : null}
         {ativo && confirmacao.endereco ? (
           <p className="mt-2 flex items-start gap-2 text-sm text-mute">
@@ -117,7 +117,7 @@ export function ConfirmacaoAgendamento({
           </p>
         ) : null}
         {ativo ? (
-          <div className="mt-6">
+          <div className="mt-4">
             <IngressoAgendamento
               negocio={confirmacao.barbearia}
               servico={confirmacao.servico}
@@ -137,7 +137,7 @@ export function ConfirmacaoAgendamento({
           </p>
         ) : null}
         {ativo ? (
-          <div className="mt-6 grid gap-2">
+          <div className="mt-4 grid gap-2">
             <Button asChild size="lg" variant="primary" className="rounded-full">
               <a href={linkGoogleAgenda(confirmacao)} target="_blank" rel="noopener noreferrer">
                 <CalendarPlus />
@@ -181,36 +181,43 @@ export function ConfirmacaoAgendamento({
                 ) : null}
               </CollapsibleContent>
             </Collapsible>
-            <Button variant="outline" disabled={cancelando} onClick={onAlterar}>
-              Alterar agendamento
-            </Button>
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button variant="ghost" className="text-brick" disabled={cancelando}>
-                  Cancelar agendamento
+            <Collapsible>
+              <CollapsibleTrigger asChild>
+                <Button variant="outline" className="w-full justify-between">
+                  Gerenciar agendamento
+                  <ChevronDown aria-hidden />
                 </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Cancelar este horário?</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    O horário ficará disponível para outra pessoa.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Manter</AlertDialogCancel>
-                  <AlertDialogAction
-                    className="bg-destructive text-destructive-foreground"
-                    onClick={onCancelar}
-                  >
-                    Cancelar horário
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-            <Button variant="ghost" onClick={onNovo}>
-              Fazer outro agendamento
-            </Button>
+              </CollapsibleTrigger>
+              <CollapsibleContent className="mt-2 grid gap-2">
+                <Button variant="outline" disabled={cancelando} onClick={onAlterar}>
+                  Alterar agendamento
+                </Button>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="ghost" className="text-brick" disabled={cancelando}>
+                      Cancelar agendamento
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Cancelar este horário?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        O horário ficará disponível para outra pessoa.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Manter</AlertDialogCancel>
+                      <AlertDialogAction className="bg-destructive text-destructive-foreground" onClick={onCancelar}>
+                        Cancelar horário
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+                <Button variant="ghost" onClick={onNovo}>
+                  Fazer outro agendamento
+                </Button>
+              </CollapsibleContent>
+            </Collapsible>
           </div>
         ) : (
           <Button className="mt-6 w-full" onClick={onNovo}>
