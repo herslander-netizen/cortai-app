@@ -65,7 +65,10 @@ describe("navegação móvel", () => {
     expect(qrPage).toContain("Aponte a câmera do celular");
     expect(qrPage).toContain("Imprimir");
     const temasLegado = readFileSync("src/routes/barbeiro.temas.tsx", "utf8");
-    expect(temasLegado).toContain('to: "/barbeiro/marca/layout-tema"');
+    expect(temasLegado).toContain('to: "/barbeiro/conta"');
+    const funcionalidades = readFileSync("src/lib/funcionalidades.ts", "utf8");
+    expect(funcionalidades).toContain('detalhe: "Cores e estilo do app"');
+    expect(funcionalidades).toContain('configurar: "/barbeiro/temas"');
     expect(paginaPrincipal).toContain("Tirar página do ar");
     expect(paginaPrincipal).toContain("alterarStatusPaginaPublica");
     expect(paginaPrincipal).toContain('aria-label="Seções da página pública"');
