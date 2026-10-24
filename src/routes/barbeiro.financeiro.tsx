@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { Banknote, PackageCheck, Scissors, Shapes } from "lucide-react";
 
@@ -74,6 +74,12 @@ function FinanceiroPage() {
               );
             })}
           </div>
+          <Link
+            to="/barbeiro/historico"
+            className="mt-6 flex min-h-12 items-center justify-center rounded-full border border-line px-5 text-sm font-semibold text-paper md:max-w-xl"
+          >
+            Ver histórico completo
+          </Link>
           <h2 className="mt-8 text-sm font-semibold text-paper">Movimentações recentes</h2>
           <ul data-guia="financeiro-movimentos" className="mt-2">
             {data.vendas.map((venda) => (

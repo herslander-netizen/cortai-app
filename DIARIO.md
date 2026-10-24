@@ -700,6 +700,12 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-24 UTC — Claude — Histórico com período e filtros (lote 1 do APK novo)
+- Nova tela `/barbeiro/historico` (link "Ver histórico completo" em Financeiro): abas Atendimentos e Vendas, períodos do Figaro (hoje, semana, mês, ano, últimos 7/30, todo o período, próximos 7/30, futuros, personalizado até 1 ano), filtros (situação, canal, profissional, serviço; forma de pagamento nas vendas), "Limpar filtros", carregar mais (30 por página), vazios e erro com tentar de novo.
+- `src/lib/historico-periodo.ts` (+teste, dias no fuso do negócio) e `src/lib/historico.functions.ts` (só leitura; atendimentos exigem `visualizar_clientes`, vendas `visualizar_financeiro`). Sem migração.
+- Limitações: a soma mostrada é só do que foi carregado; "Package"/"Former members" do Figaro não existem no Cortaí. Conferido no rig só o estado vazio (o mock não tem agendamentos).
+- Próximo: Painel de Insights (só leitura). Taxa por forma de pagamento segue parada (migração, precisa de autorização).
+
 ### 2026-10-24 UTC — Claude — Prévias por seção do Figaro: não existem na interface
 - Procurei no APK descompilado quem usa `compactPreviewImageUri`/`expandedPreviewImageUri`: só DTO, modelo e mapeadores; nenhuma tela as mostra. Nada a implementar; registrado em `apk/4-pagina-publica.md` §4.3.
 

@@ -74,6 +74,7 @@ import { Route as BarbeiroFidelidadeRouteImport } from './routes/barbeiro.fideli
 import { Route as BarbeiroFilaRouteImport } from './routes/barbeiro.fila'
 import { Route as BarbeiroFinanceiroRouteImport } from './routes/barbeiro.financeiro'
 import { Route as BarbeiroFuncionalidadesRouteImport } from './routes/barbeiro.funcionalidades'
+import { Route as BarbeiroHistoricoRouteImport } from './routes/barbeiro.historico'
 import { Route as BarbeiroHojeRouteImport } from './routes/barbeiro.hoje'
 import { Route as BarbeiroHorariosRouteImport } from './routes/barbeiro.horarios'
 import { Route as BarbeiroIndicacoesRouteImport } from './routes/barbeiro.indicacoes'
@@ -443,6 +444,11 @@ const BarbeiroFuncionalidadesRoute = BarbeiroFuncionalidadesRouteImport.update({
   path: '/funcionalidades',
   getParentRoute: () => BarbeiroRoute,
 } as any)
+const BarbeiroHistoricoRoute = BarbeiroHistoricoRouteImport.update({
+  id: '/historico',
+  path: '/historico',
+  getParentRoute: () => BarbeiroRoute,
+} as any)
 const BarbeiroHojeRoute = BarbeiroHojeRouteImport.update({
   id: '/hoje',
   path: '/hoje',
@@ -718,6 +724,7 @@ export interface FileRoutesByFullPath {
   '/barbeiro/fila': typeof BarbeiroFilaRoute
   '/barbeiro/financeiro': typeof BarbeiroFinanceiroRoute
   '/barbeiro/funcionalidades': typeof BarbeiroFuncionalidadesRoute
+  '/barbeiro/historico': typeof BarbeiroHistoricoRoute
   '/barbeiro/hoje': typeof BarbeiroHojeRoute
   '/barbeiro/horarios': typeof BarbeiroHorariosRoute
   '/barbeiro/indicacoes': typeof BarbeiroIndicacoesRoute
@@ -822,6 +829,7 @@ export interface FileRoutesByTo {
   '/barbeiro/fila': typeof BarbeiroFilaRoute
   '/barbeiro/financeiro': typeof BarbeiroFinanceiroRoute
   '/barbeiro/funcionalidades': typeof BarbeiroFuncionalidadesRoute
+  '/barbeiro/historico': typeof BarbeiroHistoricoRoute
   '/barbeiro/hoje': typeof BarbeiroHojeRoute
   '/barbeiro/horarios': typeof BarbeiroHorariosRoute
   '/barbeiro/indicacoes': typeof BarbeiroIndicacoesRoute
@@ -931,6 +939,7 @@ export interface FileRoutesById {
   '/barbeiro/fila': typeof BarbeiroFilaRoute
   '/barbeiro/financeiro': typeof BarbeiroFinanceiroRoute
   '/barbeiro/funcionalidades': typeof BarbeiroFuncionalidadesRoute
+  '/barbeiro/historico': typeof BarbeiroHistoricoRoute
   '/barbeiro/hoje': typeof BarbeiroHojeRoute
   '/barbeiro/horarios': typeof BarbeiroHorariosRoute
   '/barbeiro/indicacoes': typeof BarbeiroIndicacoesRoute
@@ -1041,6 +1050,7 @@ export interface FileRouteTypes {
     | '/barbeiro/fila'
     | '/barbeiro/financeiro'
     | '/barbeiro/funcionalidades'
+    | '/barbeiro/historico'
     | '/barbeiro/hoje'
     | '/barbeiro/horarios'
     | '/barbeiro/indicacoes'
@@ -1145,6 +1155,7 @@ export interface FileRouteTypes {
     | '/barbeiro/fila'
     | '/barbeiro/financeiro'
     | '/barbeiro/funcionalidades'
+    | '/barbeiro/historico'
     | '/barbeiro/hoje'
     | '/barbeiro/horarios'
     | '/barbeiro/indicacoes'
@@ -1253,6 +1264,7 @@ export interface FileRouteTypes {
     | '/barbeiro/fila'
     | '/barbeiro/financeiro'
     | '/barbeiro/funcionalidades'
+    | '/barbeiro/historico'
     | '/barbeiro/hoje'
     | '/barbeiro/horarios'
     | '/barbeiro/indicacoes'
@@ -1803,6 +1815,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BarbeiroFuncionalidadesRouteImport
       parentRoute: typeof BarbeiroRoute
     }
+    '/barbeiro/historico': {
+      id: '/barbeiro/historico'
+      path: '/historico'
+      fullPath: '/barbeiro/historico'
+      preLoaderRoute: typeof BarbeiroHistoricoRouteImport
+      parentRoute: typeof BarbeiroRoute
+    }
     '/barbeiro/hoje': {
       id: '/barbeiro/hoje'
       path: '/hoje'
@@ -2184,6 +2203,7 @@ interface BarbeiroRouteChildren {
   BarbeiroFilaRoute: typeof BarbeiroFilaRoute
   BarbeiroFinanceiroRoute: typeof BarbeiroFinanceiroRoute
   BarbeiroFuncionalidadesRoute: typeof BarbeiroFuncionalidadesRoute
+  BarbeiroHistoricoRoute: typeof BarbeiroHistoricoRoute
   BarbeiroHojeRoute: typeof BarbeiroHojeRoute
   BarbeiroHorariosRoute: typeof BarbeiroHorariosRoute
   BarbeiroIndicacoesRoute: typeof BarbeiroIndicacoesRoute
@@ -2227,6 +2247,7 @@ const BarbeiroRouteChildren: BarbeiroRouteChildren = {
   BarbeiroFilaRoute: BarbeiroFilaRoute,
   BarbeiroFinanceiroRoute: BarbeiroFinanceiroRoute,
   BarbeiroFuncionalidadesRoute: BarbeiroFuncionalidadesRoute,
+  BarbeiroHistoricoRoute: BarbeiroHistoricoRoute,
   BarbeiroHojeRoute: BarbeiroHojeRoute,
   BarbeiroHorariosRoute: BarbeiroHorariosRoute,
   BarbeiroIndicacoesRoute: BarbeiroIndicacoesRoute,
