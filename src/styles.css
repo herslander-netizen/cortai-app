@@ -3210,6 +3210,12 @@ html.agenda-gesto-ativo body {
   inset-inline: 0;
   top: -19.5px;
 }
+/* Fim da página vizinha: 12 px abaixo da última hora, igual aos pontos do dia atual. */
+.agenda-dia-vizinha-pontos-fim {
+  position: absolute;
+  inset-inline: 0;
+  top: calc(100% + 7.5px);
+}
 
 /* Com o mês aberto a Agenda desce junto: sem reancorar a rolagem a cada quadro da animação. */
 html:has([data-calendario-aberto]) {

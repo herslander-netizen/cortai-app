@@ -167,6 +167,11 @@ describe("troca de dia em páginas no celular (como no vídeo de referência)", 
     expect(operacional).toContain('className="mb-[-2.5px] mt-[6.5px]"');
     expect(operacional).toContain('className="mt-[-2.5px] mb-0.5"');
     expect(css).toMatch(/\.agenda-dia-vizinha-pontos \{[^}]*top: -19\.5px/);
+    // Os pontos do fim também vêm na página vizinha (antes só os do topo: os de baixo apareciam do nada).
+    expect(readFileSync("src/components/barbeiro/agenda/PreviaDiaVizinho.tsx", "utf8")).toContain(
+      "agenda-dia-vizinha-pontos-fim",
+    );
+    expect(css).toMatch(/\.agenda-dia-vizinha-pontos-fim \{[^}]*top: calc\(100% \+ 7\.5px\)/);
   });
 
   it("o dia vizinho mostra o fora do expediente durante o gesto", () => {

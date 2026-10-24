@@ -700,6 +700,12 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-24 UTC — Claude — Cinco pontos aparecem do nada na troca de dia
+- Feedback do dono: na mudança de lado os pontos surgiam do nada. **Causa:** a página vizinha trazia só os pontos do **topo**; os do **fim** do
+  dia só existiam no dia atual e apareciam quando a página assentava. **Correção:** `CamadaVizinha` (`PreviaDiaVizinho.tsx`) agora leva também os
+  pontos do fim (`.agenda-dia-vizinha-pontos-fim`, 12 px abaixo da última hora). Medido: topo e fim de cada vizinha na mesma altura dos do dia
+  atual (−15/−12 px e +2892/+2895 px), deslocados só pela largura da página. Teste em `timeline-rolagem-celular.test.ts`.
+
 ### 2026-10-24 UTC — Claude — Ajuste fino da Agenda: cinco pontos e calendário que empurra a timeline
 - Pedido do dono (3 ajustes, referência Figaro). Lido `AGENTS.md`, `MUSE.md`, Em andamento/Recados; sem reserva nos arquivos tocados.
 - **1. Distância:** os cinco pontos ficavam a 18 px da primeira hora (o vão total era 26 px, mas os pontos colavam no calendário). Agora ficam a

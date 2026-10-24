@@ -205,6 +205,8 @@ function CamadaVizinha({
         discreto={discreto}
         diaCompleto={diaCompleto}
       />
+      {/* Os pontos do fim também vêm com a página: não podem aparecer do nada quando ela assenta. */}
+      <MarcaDoLimiteDoDia className="agenda-dia-vizinha-pontos-fim" />
     </div>
   );
 }
