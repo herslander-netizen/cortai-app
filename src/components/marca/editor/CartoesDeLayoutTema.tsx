@@ -24,6 +24,7 @@ import { CATALOGO_DE_SECOES, FLUXO_DE_AGENDAMENTO } from "./secoes/catalogo";
 import { CapaDoTema } from "./CapaDoTema";
 import { ESTILOS_DO_CHAT, type EstiloDoChat } from "@/lib/estilos-chat";
 import { MiniaturaDoChat } from "./chat/MiniaturaDoChat";
+import { Button } from "@/components/ui/button";
 
 export const DESCRICOES_LAYOUT = DESCRICAO_DO_LAYOUT;
 
@@ -81,11 +82,12 @@ export function CartaoDeLayout({
   const mostrar = secoes.length > 6 ? secoes.slice(0, 5) : secoes;
   const restantes = secoes.length - mostrar.length;
   return (
-    <button
+    <Button
       type="button"
+      variant="ghost"
       aria-pressed={selecionado}
       onClick={escolher}
-      className={`relative flex shrink-0 snap-start flex-col rounded-[28px] bg-background p-5 text-left transition-[border-color] duration-200 motion-reduce:transition-none ${LARGURA_DO_CARTAO} ${selecionado ? "border-2 border-gold" : "border border-line"}`}
+      className={`relative flex shrink-0 snap-start flex-col rounded-[28px] bg-background p-5 text-left transition-[border-color,box-shadow,transform] duration-200 motion-reduce:transition-none ${LARGURA_DO_CARTAO} ${selecionado ? "border-2 border-gold shadow-[var(--elevacao-2)]" : "border border-line hover:border-gold/70"}`}
     >
       <span className="flex items-start justify-between gap-2">
         <span className="min-w-0 truncate text-[22px] font-bold leading-[26px] tracking-tight text-gold">
@@ -119,7 +121,7 @@ export function CartaoDeLayout({
           </span>
         ) : null}
       </span>
-    </button>
+    </Button>
   );
 }
 
@@ -135,11 +137,12 @@ export function CartaoDeTema({
 }) {
   const definicao = TEMAS[tema];
   return (
-    <button
+    <Button
       type="button"
+      variant="ghost"
       aria-pressed={selecionado}
       onClick={escolher}
-      className={`relative flex shrink-0 snap-start flex-col overflow-hidden rounded-[28px] bg-background text-left transition-[border-color] duration-200 motion-reduce:transition-none ${LARGURA_DO_CARTAO} ${selecionado ? "border-2 border-rosa" : "border border-line"}`}
+      className={`relative flex shrink-0 snap-start flex-col overflow-hidden rounded-[28px] bg-background p-0 text-left transition-[border-color,box-shadow,transform] duration-200 motion-reduce:transition-none ${LARGURA_DO_CARTAO} ${selecionado ? "border-2 border-rosa shadow-[var(--elevacao-2)]" : "border border-line hover:border-rosa/70"}`}
     >
       <span className="relative block aspect-[2.9/1] w-full overflow-hidden">
         <CapaDoTema tema={tema} />
@@ -158,7 +161,7 @@ export function CartaoDeTema({
         </span>
         <span className="mt-1 block text-sm leading-5 text-mute">{definicao.descricao}</span>
       </span>
-    </button>
+    </Button>
   );
 }
 
@@ -177,11 +180,12 @@ export function CartaoDeEstiloDoChat({
   destaque: string;
 }) {
   return (
-    <button
+    <Button
       type="button"
+      variant="ghost"
       aria-pressed={selecionado}
       onClick={escolher}
-      className={`relative flex shrink-0 snap-start flex-col overflow-hidden rounded-[28px] bg-background text-left transition-[border-color] duration-200 motion-reduce:transition-none ${LARGURA_DO_CARTAO} ${selecionado ? "border-2 border-gold" : "border border-line"}`}
+      className={`relative flex shrink-0 snap-start flex-col overflow-hidden rounded-[28px] bg-background p-0 text-left transition-[border-color,box-shadow,transform] duration-200 motion-reduce:transition-none ${LARGURA_DO_CARTAO} ${selecionado ? "border-2 border-gold shadow-[var(--elevacao-2)]" : "border border-line hover:border-gold/70"}`}
     >
       <span className="relative block h-36 w-full overflow-hidden">
         <MiniaturaDoChat
@@ -200,6 +204,6 @@ export function CartaoDeEstiloDoChat({
         </span>
         <span className="mt-1 block text-sm leading-5 text-mute">{estilo.descricao}</span>
       </span>
-    </button>
+    </Button>
   );
 }

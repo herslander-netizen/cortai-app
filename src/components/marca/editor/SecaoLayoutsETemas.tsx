@@ -17,6 +17,7 @@ import { aplicarEstiloDoChat, ESTILOS_DO_CHAT, estiloAtualDoChat } from "@/lib/e
 import { CartaoDeEstiloDoChat, CartaoDeLayout, CartaoDeTema } from "./CartoesDeLayoutTema";
 import { MiniaturaDoChat } from "./chat/MiniaturaDoChat";
 import { CapaDoTema } from "./CapaDoTema";
+import { Button } from "@/components/ui/button";
 
 type Painel = "layout" | "tema" | "chat" | "";
 
@@ -37,11 +38,12 @@ function Cabecalho({
 }) {
   const reduzirMovimento = useReducedMotion();
   return (
-    <button
+    <Button
       type="button"
+      variant="ghost"
       onClick={onClick}
       aria-expanded={aberto}
-      className="flex min-h-[68px] w-full items-center gap-3 px-5 py-3 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      className="h-auto min-h-[68px] w-full justify-start gap-3 rounded-none px-5 py-3 text-left"
     >
       {leading}
       <span className="min-w-0 flex-1">
@@ -67,7 +69,7 @@ function Cabecalho({
       >
         <ChevronDown size={26} />
       </motion.span>
-    </button>
+    </Button>
   );
 }
 
