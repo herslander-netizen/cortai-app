@@ -84,6 +84,7 @@ import { Route as BarbeiroNotificacoesRouteImport } from './routes/barbeiro.noti
 import { Route as BarbeiroPlanoRouteImport } from './routes/barbeiro.plano'
 import { Route as BarbeiroProdutosRouteImport } from './routes/barbeiro.produtos'
 import { Route as BarbeiroProfissionaisRouteImport } from './routes/barbeiro.profissionais'
+import { Route as BarbeiroQrCodeRouteImport } from './routes/barbeiro.qr-code'
 import { Route as BarbeiroRedesRouteImport } from './routes/barbeiro.redes'
 import { Route as BarbeiroServicosRouteImport } from './routes/barbeiro.servicos'
 import { Route as BarbeiroSuaPaginaRouteImport } from './routes/barbeiro.sua-pagina'
@@ -494,6 +495,11 @@ const BarbeiroProfissionaisRoute = BarbeiroProfissionaisRouteImport.update({
   path: '/profissionais',
   getParentRoute: () => BarbeiroRoute,
 } as any)
+const BarbeiroQrCodeRoute = BarbeiroQrCodeRouteImport.update({
+  id: '/qr-code',
+  path: '/qr-code',
+  getParentRoute: () => BarbeiroRoute,
+} as any)
 const BarbeiroRedesRoute = BarbeiroRedesRouteImport.update({
   id: '/redes',
   path: '/redes',
@@ -734,6 +740,7 @@ export interface FileRoutesByFullPath {
   '/barbeiro/plano': typeof BarbeiroPlanoRoute
   '/barbeiro/produtos': typeof BarbeiroProdutosRoute
   '/barbeiro/profissionais': typeof BarbeiroProfissionaisRoute
+  '/barbeiro/qr-code': typeof BarbeiroQrCodeRoute
   '/barbeiro/redes': typeof BarbeiroRedesRoute
   '/barbeiro/servicos': typeof BarbeiroServicosRoute
   '/barbeiro/sua-pagina': typeof BarbeiroSuaPaginaRoute
@@ -839,6 +846,7 @@ export interface FileRoutesByTo {
   '/barbeiro/plano': typeof BarbeiroPlanoRoute
   '/barbeiro/produtos': typeof BarbeiroProdutosRoute
   '/barbeiro/profissionais': typeof BarbeiroProfissionaisRoute
+  '/barbeiro/qr-code': typeof BarbeiroQrCodeRoute
   '/barbeiro/redes': typeof BarbeiroRedesRoute
   '/barbeiro/servicos': typeof BarbeiroServicosRoute
   '/barbeiro/sua-pagina': typeof BarbeiroSuaPaginaRoute
@@ -949,6 +957,7 @@ export interface FileRoutesById {
   '/barbeiro/plano': typeof BarbeiroPlanoRoute
   '/barbeiro/produtos': typeof BarbeiroProdutosRoute
   '/barbeiro/profissionais': typeof BarbeiroProfissionaisRoute
+  '/barbeiro/qr-code': typeof BarbeiroQrCodeRoute
   '/barbeiro/redes': typeof BarbeiroRedesRoute
   '/barbeiro/servicos': typeof BarbeiroServicosRoute
   '/barbeiro/sua-pagina': typeof BarbeiroSuaPaginaRoute
@@ -1060,6 +1069,7 @@ export interface FileRouteTypes {
     | '/barbeiro/plano'
     | '/barbeiro/produtos'
     | '/barbeiro/profissionais'
+    | '/barbeiro/qr-code'
     | '/barbeiro/redes'
     | '/barbeiro/servicos'
     | '/barbeiro/sua-pagina'
@@ -1165,6 +1175,7 @@ export interface FileRouteTypes {
     | '/barbeiro/plano'
     | '/barbeiro/produtos'
     | '/barbeiro/profissionais'
+    | '/barbeiro/qr-code'
     | '/barbeiro/redes'
     | '/barbeiro/servicos'
     | '/barbeiro/sua-pagina'
@@ -1274,6 +1285,7 @@ export interface FileRouteTypes {
     | '/barbeiro/plano'
     | '/barbeiro/produtos'
     | '/barbeiro/profissionais'
+    | '/barbeiro/qr-code'
     | '/barbeiro/redes'
     | '/barbeiro/servicos'
     | '/barbeiro/sua-pagina'
@@ -1885,6 +1897,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BarbeiroProfissionaisRouteImport
       parentRoute: typeof BarbeiroRoute
     }
+    '/barbeiro/qr-code': {
+      id: '/barbeiro/qr-code'
+      path: '/qr-code'
+      fullPath: '/barbeiro/qr-code'
+      preLoaderRoute: typeof BarbeiroQrCodeRouteImport
+      parentRoute: typeof BarbeiroRoute
+    }
     '/barbeiro/redes': {
       id: '/barbeiro/redes'
       path: '/redes'
@@ -2213,6 +2232,7 @@ interface BarbeiroRouteChildren {
   BarbeiroPlanoRoute: typeof BarbeiroPlanoRoute
   BarbeiroProdutosRoute: typeof BarbeiroProdutosRoute
   BarbeiroProfissionaisRoute: typeof BarbeiroProfissionaisRoute
+  BarbeiroQrCodeRoute: typeof BarbeiroQrCodeRoute
   BarbeiroRedesRoute: typeof BarbeiroRedesRoute
   BarbeiroServicosRoute: typeof BarbeiroServicosRoute
   BarbeiroSuaPaginaRoute: typeof BarbeiroSuaPaginaRoute
@@ -2257,6 +2277,7 @@ const BarbeiroRouteChildren: BarbeiroRouteChildren = {
   BarbeiroPlanoRoute: BarbeiroPlanoRoute,
   BarbeiroProdutosRoute: BarbeiroProdutosRoute,
   BarbeiroProfissionaisRoute: BarbeiroProfissionaisRoute,
+  BarbeiroQrCodeRoute: BarbeiroQrCodeRoute,
   BarbeiroRedesRoute: BarbeiroRedesRoute,
   BarbeiroServicosRoute: BarbeiroServicosRoute,
   BarbeiroSuaPaginaRoute: BarbeiroSuaPaginaRoute,

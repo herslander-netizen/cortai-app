@@ -708,6 +708,13 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - App do cliente: modo de cor (Claro/Escuro/Sistema) em `OpcoesConectadas` (agora com ícone opcional), "Melhor período" da lista de espera em `Chip`, lista de lugares em `GrupoDeLinhas` com seta. Conferido em captura com um cliente fictício.
 - `docs/ordem-padrao-figaro.md` §6 atualizado com o que foi conferido e o que ainda falta conferir (admin com dados, página pública, acesso, tema escuro, celular real).
 
+### 2026-10-24 UTC — GPT — Simplifica navegação de Personalizar Página e ferramenta de QR Code
+- Em `src/routes/barbeiro.marca.index.tsx`, removi “Ver como ficou”, que abria a mesma prévia do botão fixo “Ver prévia”, e unifiquei “Compartilhar” + “Copiar link” numa única ação “Compartilhar link” (com cópia como fallback do navegador).
+- Criei `src/routes/barbeiro.qr-code.tsx` como rota dedicada à ferramenta de QR Code: QR visível ao entrar, opções de cartão, salvar/imprimir e ações “Ver página” / “Copiar link”. Removi da ferramenta o resumo visual de Layout & Tema, os alertas de configuração e o atalho repetido para Personalizar Página.
+- `src/routes/barbeiro.sua-pagina.tsx` agora é apenas uma compatibilidade: sem parâmetro redireciona para o editor canônico `/barbeiro/marca`; com o antigo `?qr=1`, redireciona para `/barbeiro/qr-code`. O menu principal aponta diretamente para a rota QR nova. `/barbeiro/temas` continua como redirecionamento direto para `/barbeiro/marca/layout-tema`.
+- `src/lib/navegacao-movel.test.ts` ganhou verificações para a prévia única, ações de link sem duplicação, a rota QR dedicada e os redirecionamentos compatíveis.
+- Nenhuma alteração em banco, backend ou publicação principal. TypeScript, testes, build e deploy da prévia ainda aguardam o GitHub Actions desta ponta; revisão visual manual em 390 px e 1280 px também pendente.
+
 ### 2026-10-24 UTC — Claude — Padrão Figaro, lote 3: avisos e erros
 - `Aviso` (`ui/aviso.tsx`) agora é o banner tonal de 20 dp do Figaro, sem faixa lateral. Os erros e avisos soltos com `border-l-2` (Financeiro, Histórico, Hoje, Visão Casa, Atendimento manual, Admin) viraram `Aviso`; o teste de guarda proíbe o padrão antigo (exceção: faixa de estado da lista da Agenda).
 - Sugestões do assistente CortAI usam o `Chip`.
