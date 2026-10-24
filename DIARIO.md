@@ -704,11 +704,10 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
-### 2026-10-24 UTC — GPT — Remove presença estática do cabeçalho do chat
-- Em `src/components/chat/ChatShell.tsx`, o cabeçalho deixa de mostrar a linha “Online agora” / “Agenda online” e sua bolinha abaixo do nome. Estados úteis continuam: “digitando…” durante resposta e mensagens de funcionamento quando o negócio está fechado. A bolinha de presença sobre o avatar não foi alterada.
-- Teste novo `src/components/chat/ChatShell.test.ts` cobre os status escondidos e os que devem continuar visíveis.
-- Commits: `d14d08a` (regra visual), `e060d5b` (helper testável), `1ada9ca` (testes). Reserva encerrada.
-- Aguardando GitHub Actions para TypeScript, testes, build e publicação automática da prévia. Sem banco, main ou site principal.
+### 2026-10-24 UTC — GPT — Remove apenas o ponto piscante ao lado do status do chat
+- Correção após esclarecimento do dono: manter o texto “Online agora” e os demais status, além da bolinha verde sobre a foto de perfil. Removido somente o ponto verde/piscante que aparecia ao lado do texto do status em `src/components/chat/ChatShell.tsx`.
+- Preservadas as animações de “digitando…” e os avisos de funcionamento. Testes em `src/components/chat/ChatShell.test.ts` cobrem a permanência do texto de status.
+- Commits da correção: `daa44ca` (remoção somente do ponto ao lado do status), `fbbccc0` (teste atualizado). Sem banco, main ou site principal.
 
 
 ### 2026-10-24 UTC — Claude — Padrão Figaro, lote 5: admin, troca de painel e modo escuro
