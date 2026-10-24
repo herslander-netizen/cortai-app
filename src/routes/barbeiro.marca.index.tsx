@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { Copy, Eye, LayoutTemplate, MoreVertical, Palette, Save, Send, Share2, Smartphone, Undo2 } from "lucide-react";
+import { Eye, LayoutTemplate, MoreVertical, Palette, Save, Send, Share2, Undo2 } from "lucide-react";
 import { useState } from "react";
 
 import { EsqueletoFormulario } from "@/components/layout/Esqueleto";
@@ -213,15 +213,6 @@ function Editor({
         <Button
           variant="outline"
           size="sm"
-          className="xl:hidden"
-          onClick={() => setPreviaAberta(true)}
-        >
-          <Smartphone />
-          Ver como ficou
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
           onClick={async () => {
             try {
               if (navigator.share) {
@@ -238,22 +229,7 @@ function Editor({
           }}
         >
           <Share2 />
-          Compartilhar
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={async () => {
-            try {
-              await navigator.clipboard.writeText(link);
-              e.setStatus("Link copiado.");
-            } catch {
-              e.setStatus("Não foi possível copiar o link. Tente novamente.", true);
-            }
-          }}
-        >
-          <Copy />
-          Copiar link
+          Compartilhar link
         </Button>
         <p role="status" className="self-center text-xs text-mute">
           {paginaOnline ? "Página pública online" : "Página pública fora do ar"}
@@ -274,7 +250,7 @@ function Editor({
               Editar link
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
-              <Link to="/barbeiro/sua-pagina" search={{ qr: "1" }}>QR Code</Link>
+              <Link to="/barbeiro/sua-pagina">QR Code</Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem disabled={alterandoStatus} onSelect={() => void mudarStatusPagina()}>
