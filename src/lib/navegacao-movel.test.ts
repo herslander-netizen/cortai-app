@@ -68,7 +68,7 @@ describe("navegação móvel", () => {
     expect(temasLegado).toContain('to: "/barbeiro/conta"');
     const funcionalidades = readFileSync("src/lib/funcionalidades.ts", "utf8");
     expect(funcionalidades).toContain('detalhe: "Cores e estilo do app"');
-    expect(funcionalidades).toContain('configurar: "/barbeiro/temas"');
+    expect(funcionalidades).toContain('configurar: "/barbeiro/conta"');
     expect(paginaPrincipal).toContain("Tirar página do ar");
     expect(paginaPrincipal).toContain("alterarStatusPaginaPublica");
     expect(paginaPrincipal).toContain('aria-label="Seções da página pública"');
