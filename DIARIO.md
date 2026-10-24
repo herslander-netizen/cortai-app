@@ -473,6 +473,7 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 | Quem | Desde (UTC) | Tarefa | Arquivos / migração reservada |
 |---|---|---|---|
+| GPT | 2026-10-24 UTC | Auditoria geral de estabilidade: rastrear carregamento de Personalizar Página, corrigir gargalo confirmado e validar na prévia; sem mexer em produção | `DIARIO.md`, `src/lib/marca.functions.ts`, testes relacionados e relatório de auditoria; sem migração |
 
 
 | GPT | 2026-10-22 UTC | Lote 3 de P.12: C7, C8, C10, C12, C16 e V3 implementados/testados; workflow e smoke test da prévia verdes no commit `be0bc0e`. C9/P3 parciais; revisão visual pendente. `SecaoImagens.tsx` liberada para a tarefa separada do seletor de biblioteca | `DIARIO.md`, `docs/referencia-figaro/apk/8-inventario-de-animacoes.md`, `src/components/marca/editor/CartoesDeLayoutTema.tsx`, `src/components/marca/editor/CartoesDeLayoutTema.test.tsx`, `src/components/marca/editor/SecaoImagens.test.tsx`, `src/components/marca/editor/SecaoRecepcao.tsx`, `src/components/marca/editor/SecaoRecepcao.test.tsx`, `src/components/notificacoes/PreferenciasDoCliente.test.tsx`, `src/components/onboarding/PrimeirosPassos.tsx`, `src/components/onboarding/EditorDeHorarios.tsx`, `src/components/barbeiro/agenda/CabecalhoDeEdicao.tsx`, `src/components/barbeiro/agenda/CabecalhoDeEdicao.test.tsx`, `src/components/ui/collapsible.tsx`, `src/components/notificacoes/*`, `src/routes/barbeiro.equipe.tsx`, `src/routes/barbeiro.marca.tsx`; sem migração |
