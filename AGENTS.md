@@ -75,6 +75,7 @@ decisão nova contradiz uma regra daqui, apontar o conflito ao dono antes de agi
 - Sobreposição travada no banco (`agendamentos_sem_sobreposicao`); só membros criam encaixes.
 - Webhooks públicos: `webhook-guard.server.ts` com contadores persistidos (instâncias sem memória comum).
 - Cortaí = Beleza; barbearia é segmento. Linguagem em `src/lib/segmentos.ts`; sem segmento, neutro.
+- **Toda tela nova ou refeita nasce no estilo Figaro** (decisão do dono, 24/10/2026): cartões em grupo com cantos de 28 dp nas pontas, hero arredondado, folhas de baixo, botão grande de pílula embaixo, mesmas molas e tokens `--figaro-*`; referência em `docs/referencia-figaro/apk/`. Não entregar tela em estilo próprio.
 - Contrato de design (obrigatório em toda tela): `docs/contrato-de-design.md`. Ícone CortAI via `IconeDaIA`.
 - Desfazer: atômico no banco, 5 s, mesmo negócio e autor.
 - Contexto do cliente: slug persistido e revalidado; nunca escolher ficha silenciosamente.

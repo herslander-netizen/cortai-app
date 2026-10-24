@@ -27,6 +27,7 @@ e o que fez. O diário até 17/10/2026 está guardado, sem alterações, em
 7. **Sem segredos:** nunca escreva chaves, senhas ou tokens aqui. Cite só o nome da variável.
 
 ## Decisões do dono
+- 2026-10-24: **Toda página criada já nasce no estilo Figaro** (dono: "toda página criada já precisa ter o estilo figaroo, deixe isso claro"). Vale para telas novas e refeitas, de qualquer IA; regra também no `AGENTS.md`. Referência: `docs/referencia-figaro/apk/`.
 - 2026-10-23: **Vocabulário de "tema"** (dono). **Tema do aplicativo** = os temas do sistema usado pelo negócio
   (agenda, controle de caixa e demais telas da área do negócio): hoje `identidade_app` (Padrão, Rosé, Índigo, Cobre,
   Clássico, Cloud) e claro/escuro, em `aparencia.ts` / `ThemeToggle.tsx`. **Tema da página** = as sessões que os
@@ -699,6 +700,12 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - Sem alteração no banco, `main` ou produção.
 
 ## Diário
+
+### 2026-10-24 UTC — Claude — Tela "Selecione um Plano" no estilo Figaro (`/barbeiro/plano`)
+- Print do dono (paywall do Figaro + folha "Recursos") encaixado em `EscolhaDePlano`: selo de situação (teste terminou / pausada / dias de teste), título, seletor − / + e preço, "Todos os recursos incluídos" abrindo a folha "Recursos", aviso legal e botão grande fixo ("Assinar · R$/mês", "Reativar Assinatura", "Continuar no Essencial", "Gerenciar assinatura").
+- **Não copiei o preço do Figaro** (R$ 99 + R$ 20 por cadeira): o Cortaí cobra por plano. O "quantos profissionais" escolhe o plano mais barato que comporta a equipe (`escolha-de-plano.ts`, com teste), com preços, limites e recursos reais de `planos_da_plataforma`. Preço por assento seria decisão de produto.
+- Abaixo ficam, como antes: assinatura atual, dados de cobrança, confirmação (ciclo e forma) e histórico. `TabelaDePlanos` segue só na apresentação.
+- Fluxos do Figaro ainda sem equivalente: "Ajustar equipe" (marcar quem sai quando o plano tem menos vagas) e "Cadeira Cativa". Conferido só no rig, com planos fictícios.
 
 ### 2026-10-24 UTC — Claude — Painel de escolha de tema: capas refeitas e cartão do hub
 - Pedido do dono: o painel de escolha de tema estava "esquisito". Causas: capas eram capturas de página com texto minúsculo (ou SVG cortado no cartão 16:9 do hub) e o hub mostrava o tema antigo fora do catálogo. Agora `scripts/gerar-capas-dos-temas.mjs` compõe a capa 16:9 de cada tema do catálogo (nome, título, botão e foto de exemplo nas cores reais) e o hub usa `ajustarAoCatalogo` (sempre um layout e tema do catálogo, só na tela), com o cartão no padrão de 28 dp.
