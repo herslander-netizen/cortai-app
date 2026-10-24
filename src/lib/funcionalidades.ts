@@ -304,7 +304,7 @@ export const GRUPOS_DE_FUNCIONALIDADES: GrupoDeFuncionalidades[] = [
         detalhe: "Cores e estilo do app",
         fonte: { tipo: "sem_interruptor" },
         plano: null,
-        configurar: "/barbeiro/temas",
+        configurar: "/barbeiro/conta",
       }),
     ],
   },
