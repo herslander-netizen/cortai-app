@@ -260,7 +260,12 @@ export function PainelAtendimento(props: Props) {
           ) : null}
           {item && estado ? (
             <>
-              <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain pb-28 [scrollbar-width:thin]">
+              <div
+                className={`min-h-0 flex-1 overscroll-contain pb-28 [scrollbar-width:thin] ${
+                  // Parcial: sem rolagem por dentro (o toque no conteúdo não mexe nele); só a ficha cheia rola.
+                  props.lateral || expandida ? "overflow-y-auto" : "overflow-hidden"
+                }`}
+              >
                 {/* Como no Figaro (`AppointmentHeroGroup`): o serviço, o estado, quando e com
                     quem; o cliente num bloco logo abaixo. */}
                 <section className="agenda-ficha-cartao">

@@ -33,16 +33,15 @@ export function useFolhaEmDoisEstados(
     const parcial = () => Math.min(tela() * FOLHA_PARCIAL, inicio ? inicio.h : Infinity);
     const cheio = () => tela() * FOLHA_CHEIA;
 
+    // Para cima a folha cresce até a cheia; para baixo ela inteira desce com o dedo (nada encolhe nem rola por dentro).
     const aplicar = (h: number) => {
-      const p =
-        inicio && !expandida ? Math.min(tela() * FOLHA_PARCIAL, inicio.h) : tela() * FOLHA_PARCIAL;
-      const alvo = Math.max(0, Math.min(h, cheio()));
-      if (alvo >= p) {
-        folha.style.maxHeight = `${alvo}px`;
-        folha.style.transform = "";
+      const h0 = inicio?.h ?? h;
+      if (h <= h0) {
+        folha.style.maxHeight = `${h0}px`;
+        folha.style.transform = `translateY(${h0 - Math.max(0, h)}px)`;
       } else {
-        folha.style.maxHeight = `${p}px`;
-        folha.style.transform = `translateY(${p - alvo}px)`;
+        folha.style.maxHeight = `${Math.min(h, cheio())}px`;
+        folha.style.transform = "";
       }
     };
     const assentar = (css: string) => {

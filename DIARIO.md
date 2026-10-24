@@ -700,6 +700,12 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-24 UTC — Claude — Ficha: descer fecha de uma vez e sem rolagem no parcial
+- Vídeo do dono: ao descer a ficha ela parava no meio (parcial) e o conteúdo rolava por dentro ("esquisito"). **Agora:** puxar a barrinha para baixo **fecha de uma vez**, mesmo vindo da ficha
+  cheia (a folha inteira desce com o dedo, sem encolher); para cima abre a cheia; no parcial a rolagem interna fica travada (só a ficha cheia rola). `decidirEncaixe` e o teste mudaram.
+  Se o dono preferir uma ficha de um estado só (sem parcial), é só desligar `useFolhaEmDoisEstados`: **confirmar com o dono**.
+- De passagem: `navegacao-movel.test.ts` esperava o rótulo antigo "Conta e negócio" (agora "Opções da conta") e estava vermelho no commit anterior; corrigido.
+
 ### 2026-10-24 UTC — Claude — Páginas de configuração no padrão do Figaro (lote 1)
 - Pedido do dono: analisar as páginas de configuração, recuperar o layout das do Figaro e adaptar as que não existem ao mesmo padrão. **Análise** (código do APK + `strings.xml`) em
   `docs/referencia-figaro/apk/11-configuracoes.md`: 13 telas, com estrutura, textos, peças comuns e o que o Cortaí tem.

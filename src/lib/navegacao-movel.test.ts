@@ -33,7 +33,7 @@ describe("navegação móvel", () => {
     expect(drawer).not.toContain("ModeMenuItem");
     expect(drawer).toContain("DrawerDestaques");
     expect(drawer).toContain("saudacao.titulo");
-    expect(ajustes).toContain("Conta e negócio");
+    expect(ajustes).toContain("Opções da conta");
     expect(ajustes).toContain("Plano");
     expect(ajustes).toContain("Aparência do aplicativo");
     expect(ajustes).toContain("Sua Página");
