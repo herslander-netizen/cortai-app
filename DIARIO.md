@@ -700,6 +700,15 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-24 UTC — Claude — "Sua Página" não carregava para o Bella Rosa (tema desconhecido na marca)
+- Relato do dono (print): ao tocar em Sua Página a tela ficava sem conteúdo. **Reproduzido** num rig local novo (dev server + servidor falso do Supabase com os dados reais do Bella Rosa, lidos com SELECT
+  no `cortai-prod`, sem escrita): `tenants.tema = "rose-creme"` (tema da **página**, gravado pela demonstração) não está nos 8 temas da **marca** (`TEMAS_MARCA`), então `getMarca` lançava no
+  `marcaSchema.parse` e a Personalizar Página caía no estado de erro. **Correção:** `snapshot()` em `marca.functions.ts` coage tema desconhecido para "cortai". Com a correção a tela abre com
+  "Foto em Destaque · Rosé Creme" e as 12 seções; teste de guarda `marca-tema-legado.test.ts`. Conta, Sua Página (QR) e as telas novas também abrem no rig.
+- **Rig de teste** (fora do repositório; script no scratchpad da sessão): `.dev.vars` com `SUPABASE_URL=http://127.0.0.1:9999` + `bun run dev` + um servidor HTTP que responde o REST/Auth do Supabase com
+  fixtures; o Playwright injeta a sessão no `localStorage` (`sb-127-auth-token`). Serve para ver qualquer tela autenticada sem tocar no banco.
+- Pendente: se o print do dono era outro defeito (tela totalmente vazia, sem a mensagem de erro), pedir o horário/fluxo exato para reproduzir de novo.
+
 ### 2026-10-24 UTC — Claude — Configurações, lote 2: Notificações no desenho do Figaro
 - Continuação do pedido "siga trazendo as adaptações de tela do Figaro". **Feito:** nova tela `/barbeiro/notificacoes` (antes os avisos ficavam no fim de Ajustes): seção "Mensagens do WhatsApp" com o uso do mês
   (só durante o teste), "Avisos para você" em grupo de linhas (cada aviso mostra os canais ligados e abre uma folha com os interruptores No app / Celular / WhatsApp), os cartões de "Ative as notificações"

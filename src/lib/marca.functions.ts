@@ -149,7 +149,8 @@ function snapshot(row: Database["public"]["Tables"]["tenants"]["Row"]): MarcaFor
     instagram: row.instagram ?? null,
     whatsapp: row.whatsapp ?? null,
     facebook: row.facebook ?? null,
-    tema: row.tema,
+    // A coluna aceita qualquer texto (a demonstração grava "rose-creme", que é tema da página): sem coerção a leitura toda quebrava.
+    tema: temaConhecido(row.tema) ? row.tema : "cortai",
     cor_primaria: row.cor_primaria ?? "#1653A1",
     cor_secundaria: row.cor_secundaria ?? "#1F2024",
     cor_accent: row.cor_accent ?? "#C41F61",
