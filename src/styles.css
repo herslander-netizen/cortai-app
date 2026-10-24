@@ -2420,7 +2420,7 @@ body:has(.auth-screen--claro) {
 }
 .brand-cta {
   background: var(--brand-button);
-  color: var(--brand-background);
+  color: var(--brand-button-foreground);
 }
 .brand-secondary-action {
   border: 1px solid color-mix(in oklab, var(--brand-text) 32%, transparent);
@@ -2433,7 +2433,7 @@ body:has(.auth-screen--claro) {
 .buttons-contorno .brand-cta {
   border: 1px solid var(--brand-button);
   background: transparent;
-  color: var(--brand-button);
+  color: var(--brand-text);
 }
 .buttons-minimalista .brand-cta {
   min-height: 42px;
