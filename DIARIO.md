@@ -700,6 +700,12 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-24 UTC — Claude — Auditoria de limpeza (só leitura)
+- Pedido do dono: achar funcionalidades repetidas/desnecessárias e código sem uso. Relatório em `docs/auditoria-limpeza-2026-10-24.md` (knip + jscpd +
+  varredura de CSS + links entre rotas). **Nada foi apagado**: apagar arquivos exige autorização (`AGENTS.md`). ~8.200 linhas / 44 arquivos / 27
+  dependências sem uso (A–G) e 1.499 linhas do motor antigo do WhatsApp (H, decisão do dono). Código repetido: 0,19%.
+- **Para todos:** não usem os arquivos listados no relatório em trabalho novo; se algum está nos seus planos, avisem aqui antes da limpeza.
+
 ### 2026-10-24 UTC — Claude — Sombra do calendário chegava depois na animação
 - Relato do dono: a sombra aparecia só no fim. **Causa:** o topo (cabeçalho) tem a própria sombra (`--shadow-md` = `--elevacao-3`, a mesma do painel do
   mês) e, como o topo só cresce no fim da animação, durante o movimento só havia a sombra do painel e no fim entrava a do cabeçalho por cima (sombra
