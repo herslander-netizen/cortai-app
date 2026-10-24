@@ -704,6 +704,13 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-24 UTC — GPT — Simplifica navegação de Personalizar Página e ferramenta de QR Code
+- Em `src/routes/barbeiro.marca.index.tsx`, removi “Ver como ficou”, que abria a mesma prévia do botão fixo “Ver prévia”, e unifiquei “Compartilhar” + “Copiar link” numa única ação “Compartilhar link” (com cópia como fallback do navegador).
+- Em `src/routes/barbeiro.sua-pagina.tsx`, mantive a rota por compatibilidade, mas a ferramenta agora tem foco em link/QR: o QR fica visível ao entrar, com opções de cartão, salvar e imprimir; removi o resumo visual de Layout & Tema, alertas de configuração e o atalho repetido para Personalizar Página. Mantidos “Ver página”, “Copiar link” e o aviso de rascunho.
+- O caminho do menu “QR Code” não precisa mais de `?qr=1`; a rota continua aceitando esse parâmetro antigo. `/barbeiro/temas` agora redireciona diretamente para `/barbeiro/marca/layout-tema`, sem remover a rota compatível.
+- `src/lib/navegacao-movel.test.ts` ganhou verificações para a prévia única, ações de link sem duplicação, a tela dedicada ao QR e o destino da rota antiga.
+- Nenhuma alteração em banco, backend ou publicação principal. TypeScript, testes, build e deploy da prévia ainda aguardam o GitHub Actions desta ponta; revisão visual manual em 390 px e 1280 px também pendente.
+
 ### 2026-10-24 UTC — Claude — Padrão Figaro, lote 3: avisos e erros
 - `Aviso` (`ui/aviso.tsx`) agora é o banner tonal de 20 dp do Figaro, sem faixa lateral. Os erros e avisos soltos com `border-l-2` (Financeiro, Histórico, Hoje, Visão Casa, Atendimento manual, Admin) viraram `Aviso`; o teste de guarda proíbe o padrão antigo (exceção: faixa de estado da lista da Agenda).
 - Sugestões do assistente CortAI usam o `Chip`.
