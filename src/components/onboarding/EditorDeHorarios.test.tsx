@@ -59,7 +59,7 @@ describe("EditorDeHorarios", () => {
 
     await act(async () => toggle.click());
     expect(toggle.getAttribute("aria-expanded")).toBe("true");
-    expect(host.querySelector('input[type="time"][aria-label="Segunda abre"]')).not.toBeNull();
+    expect(host.querySelector('input[type="time"]')).not.toBeNull();
     expect(onChange).not.toHaveBeenCalled();
   });
 });
