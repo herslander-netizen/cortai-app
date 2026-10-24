@@ -130,7 +130,6 @@ export function ConfirmacaoAgendamento({
         ) : (
           <p className="mt-4 text-sm text-mute">Escolha outro horário quando quiser.</p>
         )}
-        {extras}
         {erro ? (
           <p className="mt-4 text-sm text-brick" role="alert">
             {erro}
@@ -144,6 +143,7 @@ export function ConfirmacaoAgendamento({
                 Adicionar à agenda
               </a>
             </Button>
+            {extras}
             <Collapsible>
               <CollapsibleTrigger asChild>
                 <Button variant="ghost" className="w-full">
