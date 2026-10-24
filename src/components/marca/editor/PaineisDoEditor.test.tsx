@@ -11,7 +11,6 @@ vi.mock("@/components/marca/editor/LacunasDaPagina", () => ({ LacunasDaPagina: (
 vi.mock("@/components/marca/editor/FaixaDeEstado", () => ({ FaixaDeEstado: () => null }));
 vi.mock("@/components/marca/editor/SecaoAjustesFinos", () => ({ SecaoAjustesFinos: () => null }));
 vi.mock("@/components/marca/editor/SecaoConteudo", () => ({ SecaoConteudo: () => null }));
-vi.mock("@/components/marca/editor/SecaoExperiencia", () => ({ SecaoExperiencia: () => null }));
 vi.mock("@/components/marca/editor/SecaoImagens", () => ({ SecaoImagens: () => null }));
 vi.mock("@/components/marca/editor/SecaoLink", () => ({ SecaoLink: () => null }));
 vi.mock("@/components/marca/editor/SecaoRedes", () => ({ SecaoRedes: () => null }));

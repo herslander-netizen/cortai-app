@@ -2,15 +2,13 @@ import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { Eye, LayoutTemplate, MoreVertical, Palette, Save, Send, Share2, Undo2 } from "lucide-react";
+import { Eye, LayoutTemplate, MoreVertical, Palette, Save, Send, Undo2 } from "lucide-react";
 import { useState } from "react";
 
 import { EsqueletoFormulario } from "@/components/layout/Esqueleto";
 import { RouteError } from "@/components/layout/RouteError";
 import { LacunasDaPagina } from "@/components/marca/editor/LacunasDaPagina";
 import { SecaoConteudo } from "@/components/marca/editor/SecaoConteudo";
-import { SecaoExperiencia } from "@/components/marca/editor/SecaoExperiencia";
-import { SecaoRecepcao } from "@/components/marca/editor/SecaoRecepcao";
 import { Screen } from "@/components/layout/Screen";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { PaineisDoEditor, type AbaPainelDoEditor } from "@/components/marca/editor/PaineisDoEditor";
@@ -203,35 +201,8 @@ function Editor({
       title="Personalizar página"
       subtitle="Escolha o layout, tema e quais seções aparecem na página pública."
     >
-      <div className="mb-5 flex flex-wrap items-center gap-2">
-        <Button variant="outline" size="sm" asChild>
-          <a href={link} target="_blank" rel="noreferrer">
-            <Eye />
-            Ver publicada
-          </a>
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={async () => {
-            try {
-              if (navigator.share) {
-                await navigator.share({ title: e.form.nome, url: link });
-                e.setStatus("Link compartilhado.");
-              } else {
-                await navigator.clipboard.writeText(link);
-                e.setStatus("Link copiado.");
-              }
-            } catch (error) {
-              if (error instanceof Error && error.name === "AbortError") return;
-              e.setStatus("Não foi possível compartilhar o link. Tente copiá-lo.", true);
-            }
-          }}
-        >
-          <Share2 />
-          Compartilhar link
-        </Button>
-        <p role="status" className="self-center text-xs text-mute">
+      <div className="mb-5 flex items-center justify-between gap-3">
+        <p role="status" className="min-w-0 truncate text-sm text-mute">
           {paginaOnline ? "Página pública online" : "Página pública fora do ar"}
         </p>
         <DropdownMenu>
@@ -241,6 +212,11 @@ function Editor({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
+            <DropdownMenuItem asChild>
+              <a href={link} target="_blank" rel="noreferrer">
+                Ver página publicada
+              </a>
+            </DropdownMenuItem>
             <DropdownMenuItem
               onSelect={() => {
                 setAbaAtiva("divulgacao");
@@ -250,7 +226,7 @@ function Editor({
               Editar link
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
-              <Link to="/barbeiro/qr-code">QR Code</Link>
+              <Link to="/barbeiro/qr-code">QR Code e compartilhar</Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem disabled={alterandoStatus} onSelect={() => void mudarStatusPagina()}>
@@ -318,18 +294,6 @@ function Editor({
           </Button>
         </div>
       </section>
-
-      <div className="mb-5 rounded-xl border-0 bg-[var(--agenda-cartao,var(--ink2))] p-4 sm:p-5">
-        <h2 className="text-sm font-semibold text-paper">Experiência de agendamento</h2>
-        <p className="mb-4 mt-1 text-sm leading-relaxed text-mute">Defina como o cliente começa a marcar um horário. Esta configuração é própria do Cortaí.</p>
-        <SecaoExperiencia config={e.config} setPagina={e.setPagina} />
-        {e.usaConversa ? (
-          <div className="mt-5 border-t border-line pt-5">
-            <h3 className="mb-3 text-sm font-semibold text-paper">Recepção virtual</h3>
-            <SecaoRecepcao config={e.config} setPagina={e.setPagina} avatarRef={e.avatarRef} avatarPreview={e.avatarPreview} setAvatarPreview={e.setAvatarPreview} upload={e.upload} />
-          </div>
-        ) : null}
-      </div>
 
       <section className="mb-5 space-y-4" aria-label="Seções da página pública">
         <SecaoConteudo config={e.config} />

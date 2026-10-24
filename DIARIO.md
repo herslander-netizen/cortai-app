@@ -705,6 +705,12 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-24 UTC — Claude — Personalizar página: tirei o que duplicava Layout & Tema e o QR Code
+- Pedido do dono: os botões "Ver publicada" / "Compartilhar link" e o cartão "Experiência de agendamento" (Direta/Vitrine/Conversa, "Ao tocar Agendar", recepção virtual) eram inúteis por repetirem funções. **Análise do fluxo:** o layout já define a experiência (Chat = `conversa`, Site Completo = `vitrine`); "Ver página" e "Copiar link" já existem em `/barbeiro/qr-code`; a recepção virtual já está em Personalizar o chat.
+- Hub (`barbeiro.marca.index.tsx`): ficou só o status da página e o menu ⋮ (Ver página publicada, Editar link, QR Code e compartilhar, Tirar do ar). `SecaoExperiencia.tsx` foi removido.
+- O que precisava continuar foi para **Layout & Tema**, em "Como o cliente agenda": "Ao abrir o link" (Página completa / Direto no agendamento = `experiencia` vitrine/direta), "Ao tocar em Agendar" (Passo a passo / Conversa, só na página completa) e "Personalizar o chat" (quando o atendimento usa conversa). Comportamento do link e do agendamento inalterado.
+- Para o GPT: `navegacao-movel.test.ts` e `PaineisDoEditor.test.tsx` foram ajustados; não recriar o cartão de experiência no hub.
+
 ### 2026-10-24 UTC — GPT — Refina finalização do agendamento no padrão Figaro
 - Em `src/components/agendamento/ConfirmacaoAgendamento.tsx`, compacte o espaço vertical, priorizei “Adicionar à agenda” logo após o resumo e recolhi Alterar/Cancelar/Fazer outro agendamento em “Gerenciar agendamento”. Compartilhar/guardar continua disponível em uma seção recolhível.
 - Em `src/components/agendamento/chat/PreferenciasEmConversa.tsx`, as preferências não aparecem mais como questionário automático na confirmação; ficam opcionais em “Personalizar meu atendimento”.
