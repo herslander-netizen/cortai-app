@@ -41,6 +41,7 @@ import { headDaBarbearia, mascaraTelefone } from "@/lib/previa";
 import { agendamentoStyle } from "@/lib/pagina-config";
 import { ReservaConfirmada, ReservaFigaro } from "@/components/agendamento/ReservaFigaro";
 import { horaFinal } from "@/lib/reserva-figaro";
+import { ESPERA_MS } from "@/lib/movimento-figaro";
 import {
   agendarComoConvidado,
   cancelarComoConvidado,
@@ -159,7 +160,7 @@ function AgendamentoPublico() {
   const [telaVerde, setTelaVerde] = useState(false);
   useEffect(() => {
     if (!telaVerde) return;
-    const id = window.setTimeout(() => setTelaVerde(false), 1900);
+    const id = window.setTimeout(() => setTelaVerde(false), ESPERA_MS.reservaCriada);
     return () => window.clearTimeout(id);
   }, [telaVerde]);
   const preselecionado = useRef(false);
