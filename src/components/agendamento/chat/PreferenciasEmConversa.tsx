@@ -92,25 +92,25 @@ export function PreferenciasEmConversa({
   return (
     <Collapsible open={aberto} onOpenChange={setAberto} className="mt-3">
       <CollapsibleTrigger asChild>
-        <Button variant="ghost" className="w-full justify-between px-1 text-sm font-semibold">
+        <Button variant="ghost" className="min-h-12 w-full justify-between whitespace-normal px-1 text-left text-sm font-semibold">
           Personalizar meu atendimento (opcional)
           <ChevronDown className={`transition-transform duration-200 ${aberto ? "rotate-180" : ""}`} aria-hidden />
         </Button>
       </CollapsibleTrigger>
       <CollapsibleContent className="mt-2">
-        <section className="surface px-4 py-4" aria-live="polite">
+        <section className="surface min-w-0 px-3 py-3 sm:px-4 sm:py-4" aria-live="polite">
       {pergunta ? (
         <>
           <p className="text-xs font-semibold text-mute">
             Pra deixar tudo do seu jeito ({indice + 1}/{PERGUNTAS.length})
           </p>
           <p className="mt-1 text-base font-semibold text-paper">{pergunta.texto}</p>
-          <div className="mt-3 flex flex-wrap gap-2">
+          <div className="mt-3 grid grid-cols-1 gap-2 min-[360px]:grid-cols-2 sm:flex sm:flex-wrap">
             {pergunta.opcoes.map((o) => (
               <Button
                 key={o.valor}
                 variant="outline"
-                className="h-12 rounded-full px-4"
+                className="min-h-12 h-auto whitespace-normal rounded-full px-4 py-2"
                 onClick={() => avancar({ ...respostas, [pergunta.campo]: o.valor })}
               >
                 {o.rotulo}
