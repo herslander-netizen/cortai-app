@@ -1,26 +1,26 @@
 # Auditoria de limpeza — 24/10/2026
 
-Método (só leitura, nada foi apagado): `knip` (arquivos, exports e dependências sem uso, com as rotas e os testes como entradas), `jscpd`
-(código repetido), varredura das classes de `styles.css` contra `src/` e conferência dos links entre rotas. Os testes contam como uso:
-tudo abaixo que aparece como "sem uso" não é importado nem por tela, nem por servidor, nem por teste.
+**Estado atualizado em 24/10/2026:** este relatório registra o diagnóstico original, antes da limpeza. A execução posterior dos itens A–H foi confirmada no `DIARIO.md` (“Limpeza executada (A–H autorizados pelo dono”): 49 arquivos, 24 dependências e CSS morto foram removidos; `tsc`, `vitest`, build, `bun install --frozen-lockfile` e `knip` passaram naquela execução. A tabela abaixo foi atualizada para não tratar essa limpeza concluída como trabalho pendente.
+
+**Método original:** `knip` (arquivos, exports e dependências sem uso, com rotas e testes como entradas), `jscpd` (código repetido), varredura de `styles.css` e conferência dos links entre rotas.
 
 ## Resumo
 
 | Item | Tamanho | Risco de apagar | Situação |
 |---|---|---|---|
-| A. Componentes shadcn sem uso (`components/ui/*`, 29 arquivos) | 3.370 linhas | nenhum (ninguém importa) | pendente de autorização |
-| B. `components/ai-elements/prompt-input.tsx` e `suggestion.tsx` | 1.355 linhas | nenhum | pendente |
-| C. Dependências npm sem uso (25 + `drizzle-orm`/`postgres` de dev) | só `package.json`/`bun.lock` | baixo (conferir build) | pendente; vem junto com A |
-| D. Telas órfãs (8 arquivos) | 1.541 linhas | baixo | pendente |
-| E. ALVO IA legado em `lib/ia/` (5 arquivos; rotas já respondem 410) | 519 linhas | baixo | pendente |
-| F. Painel antigo (`painel.functions.ts`, `painel/oportunidades.server.ts`) | 716 linhas | baixo | pendente |
-| G. CSS morto em `styles.css` (62 classes, ~118 regras) | ~740 linhas | baixo (conferir visual) | pendente |
-| H. Motor antigo do WhatsApp (`motor.server.ts`, `agrupador`, `financeiro-cliente`) | 1.499 linhas | **decisão do dono** | pendente |
+| A. Componentes shadcn sem uso (`components/ui/*`, 29 arquivos) | 3.370 linhas | nenhum (ninguém importa) | **concluído** |
+| B. `components/ai-elements/prompt-input.tsx` e `suggestion.tsx` | 1.355 linhas | nenhum | **concluído** |
+| C. Dependências npm sem uso | 24 dependências removidas; `bun.lock` validado | baixo | **concluído** |
+| D. Telas órfãs (8 arquivos) | 1.541 linhas | baixo | **concluído** |
+| E. ALVO IA legado em `lib/ia/` (5 arquivos; rotas já respondem 410) | 519 linhas | baixo | **concluído** |
+| F. Painel antigo (`painel.functions.ts`, `painel/oportunidades.server.ts`) | 716 linhas | baixo | **concluído** |
+| G. CSS morto em `styles.css` (62 classes, ~118 regras) | ~740 linhas | baixo | **concluído** (121 regras/147 seletores; −671 linhas) |
+| H. Motor antigo do WhatsApp (`motor.server.ts`, `agrupador`, `financeiro-cliente`) | 1.499 linhas | decisão do dono (resolvida) | **concluído com autorização** |
 | I. Exports sem uso (258 valores, 246 tipos) | só tirar `export` | nenhum | opcional |
-| J. 73 `as never` em chamadas ao banco | — | médio (pode mostrar erros de tipo) | decisão |
+| J. Casts `as never` em chamadas ao banco | — | médio (pode esconder erros de tipo) | **auditar antes de mudar**; a contagem diverge entre documentos (63/73) |
 | K. Rotas/funcionalidades sobrepostas | — | **decisão do dono** | lista abaixo |
 
-Total apagável sem decisão de produto (A–G): **~8.200 linhas** em 44 arquivos + 27 dependências. Com H: ~9.700.
+Limpeza concluída: **49 arquivos (~9.000 linhas), 24 dependências e 671 linhas de CSS** removidos. Os itens I–K continuam como observações separadas; casts e sobreposições precisam de nova contagem/decisão antes de qualquer modificação.
 
 ## Detalhe
 
@@ -55,6 +55,5 @@ usa outro caminho (`mapa-do-codigo.md` §119). Só apagar se o dono confirmar qu
 `.auth-google-mark`, `.auth-login-brand`, `.chat-hero`, `.chat-status-online`, `.cortai-clipper-lamina`, `.cortai-lamina`, `.cortai-ponto`, `.cortai-progresso`, `.cortai-pulso`, `.cortai-splash`, `.drawer-link-active`, `.landing-page`, `.modo-foco-ao-vivo`, `.modo-foco-cliente`, `.modo-foco-cockpit`, `.modo-foco-contexto`, `.modo-foco-corpo`, `.modo-foco-cronometro`, `.modo-foco-data`, `.modo-foco-estado`, `.modo-foco-observacao`, `.modo-foco-principal`, `.modo-foco-profissionais`, `.modo-foco-resumo`, `.modo-foco-rotulo`, `.modo-foco-rotulo-atendimento`, `.modo-foco-rotulo-atrasado`, `.modo-foco-rotulo-chegou`, `.modo-foco-rotulo-encaixe`, `.modo-foco-sair`, `.modo-foco-secundarias`, `.modo-foco-sem-atendimento`, `.modo-foco-sequencia`, `.modo-foco-sequencia-topo`, `.modo-foco-sequencia-vazia`, `.modo-foco-tempo-livre`, `.modo-foco-tempo-livre-textura`, `.modo-foco-topo`, `.modo-foco-topo-acoes`, `.modo-foco-vazio`, `.mov-conteudo-entrada`, `.presentation-controls`, `.presentation-copy`, `.presentation-final-media`, `.presentation-header`, `.presentation-hero-media`, `.presentation-phone`, `.presentation-product`, `.presentation-progress`, `.presentation-progress-active`, `.presentation-scene`, `.presentation-signature`, `.presentation-stage`, `.presentation-visual`, `.shadow-lg`, `.shadow-xl`, `.showroom-foco-cliente`, `.showroom-foco-demo`, `.showroom-foco-nota`, `.showroom-hero-cliente`, `.showroom-prova-pontos`, `.showroom-proximo`
 `modo-foco-*`, `showroom-*` e `presentation-*` vêm de telas que já não usam essas classes.
 
-## Como executar (depois da autorização)
-1. Apagar os arquivos aprovados; 2. `bun install` para atualizar o `bun.lock` sem as dependências; 3. `bun run tsc --noEmit`,
-`bun run vitest run`, `bun run build`; 4. nova rodada do `knip` para achar o que ficou sem uso por causa da remoção; 5. registrar no `DIARIO.md`.
+## Estado de execução
+Os itens A–H foram removidos e validados na branch de migração, conforme a entrada “Limpeza executada” no `DIARIO.md`. **Não repetir o plano de remoção** como uma tarefa pendente. O que resta: decidir se os 258 exports sem uso (246 tipos) devem perder o `export`, recontar os casts `as never` em uma única varredura e discutir as sobreposições de módulos/rotas listadas no item K. Nenhum desses itens foi modificado por esta auditoria.

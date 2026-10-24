@@ -473,7 +473,6 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 | Quem | Desde (UTC) | Tarefa | Arquivos / migração reservada |
 |---|---|---|---|
-| GPT | 2026-10-24 UTC | Auditoria geral de estabilidade: rastrear carregamento de Personalizar Página, corrigir gargalo confirmado e validar na prévia; sem mexer em produção | `DIARIO.md`, `src/lib/marca.functions.ts`, `src/lib/guarda-capacidade.ts`, `src/lib/prazo.ts`, testes relacionados e relatório; sem migração |
 
 
 | GPT | 2026-10-22 UTC | Lote 3 de P.12: C7, C8, C10, C12, C16 e V3 implementados/testados; workflow e smoke test da prévia verdes no commit `be0bc0e`. C9/P3 parciais; revisão visual pendente. `SecaoImagens.tsx` liberada para a tarefa separada do seletor de biblioteca | `DIARIO.md`, `docs/referencia-figaro/apk/8-inventario-de-animacoes.md`, `src/components/marca/editor/CartoesDeLayoutTema.tsx`, `src/components/marca/editor/CartoesDeLayoutTema.test.tsx`, `src/components/marca/editor/SecaoImagens.test.tsx`, `src/components/marca/editor/SecaoRecepcao.tsx`, `src/components/marca/editor/SecaoRecepcao.test.tsx`, `src/components/notificacoes/PreferenciasDoCliente.test.tsx`, `src/components/onboarding/PrimeirosPassos.tsx`, `src/components/onboarding/EditorDeHorarios.tsx`, `src/components/barbeiro/agenda/CabecalhoDeEdicao.tsx`, `src/components/barbeiro/agenda/CabecalhoDeEdicao.test.tsx`, `src/components/ui/collapsible.tsx`, `src/components/notificacoes/*`, `src/routes/barbeiro.equipe.tsx`, `src/routes/barbeiro.marca.tsx`; sem migração |
@@ -708,10 +707,12 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 ## Diário
 
 ### 2026-10-24 UTC — GPT — Auditoria geral do carregamento de Personalizar Página
-- Em `src/lib/marca.functions.ts`, as URLs assinadas de logo, capa e avatar agora são pedidas em paralelo; `getMarca` usa um prazo total de 10 segundos para não deixar a leitura presa indefinidamente.
-- Em `src/lib/guarda-capacidade.ts`, a leitura de capacidades no `beforeLoad` tem limite de 4 segundos, mantendo o comportamento documentado de permitir a navegação se a leitura de capacidades falhar; as permissões reais continuam conferidas no servidor.
-- Novo utilitário `src/lib/prazo.ts` com testes para operação normal, timeout e distinção de `PrazoEsgotado`. Nenhuma mudança em banco, `main` ou publicação principal.
-- Pendências da auditoria: erro de `getMarca` ainda é confundido com ausência de permissão em `src/routes/barbeiro.marca.index.tsx`; recado endereçado ao Claude, que tem trabalho recente nesse arquivo. Conferência visual autenticada em celular ainda pendente.
+- Em `src/lib/marca.functions.ts`, as URLs assinadas de logo, capa e avatar são pedidas em paralelo; `getMarca` usa um prazo total de 10 segundos para devolver erro recuperável em vez de ficar aguardando indefinidamente.
+- Em `src/lib/guarda-capacidade.ts`, a leitura de capacidades no `beforeLoad` tem limite de 4 segundos; as verificações efetivas de permissões continuam no servidor.
+- Novo utilitário `src/lib/prazo.ts` coberto por três testes: resultado normal, timeout e distinção de `PrazoEsgotado`.
+- GitHub Actions #1010 verde: TypeScript, Vitest, build, deploy isolado e smoke test da prévia. Prévia: https://previa.cortaiapp.pages.dev.
+- Relatório geral: `docs/auditoria-geral-carregamento-2026-10-24.md`. Atualizei `docs/auditoria-limpeza-2026-10-24.md` e `docs/mapa-do-codigo.md` para reconciliar achados antigos com a limpeza executada e links que já foram centralizados.
+- Pendente: correção do estado de erro de `getMarca` em `src/routes/barbeiro.marca.index.tsx` está com recado para o Claude porque essa rota está na tarefa recente dele; teste manual autenticado em Android a 390 px também continua pendente. Sem escrita em banco, `main` ou publicação principal.
 
 
 ### 2026-10-24 UTC — Claude — Personalizar página: tirei o que duplicava Layout & Tema e o QR Code

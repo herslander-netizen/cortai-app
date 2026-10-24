@@ -159,11 +159,25 @@ Limpeza de 24/10/2026 (`docs/auditoria-limpeza-2026-10-24.md`): apagados 49 arqu
 
 ## Divergências conhecidas
 
-- **Rota `/painel` inexistente:** o Knowledge diz que a área do negócio é `/painel/...`, com `/barbeiro` só redirecionando. No código, tudo está em `/barbeiro`. Mesmo assim, alguns avisos apontam para `/painel` e caem na página "não encontrada": `whatsapp/fluxo.server.ts` (cliente pediu atendimento humano) e o link padrão em `push/aviso-sininho.server.ts`.
-- **Casts sem efeito:** há 63 `as never` em chamadas ao banco, mas os tipos (`types.ts`) já incluem essas tabelas e RPCs. Os casts são sobras que só escondem erros de tipo.
-- **Auditoria de segurança:** `docs/auditoria-2026-10-09.md`.
+- **Links de avisos / área do negócio:** código atual centraliza destinos em `src/lib/links-de-tela.ts`, e a função SQL `public.link_de_tela` mapeia para `/barbeiro/*`. A afirmação antiga de que `fluxo.server.ts` e `aviso-sininho.server.ts` enviavam para `/painel` está desatualizada para o código atual. Esta auditoria não leu notificações já persistidas no banco; portanto, não conclui se existe algum registro antigo com link legado.
+- **Casts de tipo:** existem usos de `as never` em chamadas ao banco e há divergência de contagem entre documentos (63/73). Recontar na branch atual antes de planejar a remoção.
+- **Auditoria de segurança histórica:** `docs/historico/auditoria-2026-10-09.md`; suas conclusões são daquele snapshot e não devem ser tratadas automaticamente como estado atual.
 
-## Estado da verificação (09/10/2026, commit `7ed1c6a`)
+## Estado da verificação atual (24/10/2026)
+
+| Verificação | Resultado |
+|---|---|
+| GitHub Actions #1010 — TypeScript | aprovado |
+| GitHub Actions #1010 — testes Vitest | aprovado |
+| GitHub Actions #1010 — build | aprovado |
+| Deploy na prévia isolada + smoke test | aprovado |
+| Conferência autenticada manual em Android a 390 px | **pendente** |
+
+Run: https://github.com/herslander-netizen/cortai-app/actions/runs/40132866087. O smoke test automatizado confirma a publicação da prévia, mas não substitui a verificação da navegação real com sessão autenticada em um aparelho.
+
+## Snapshot histórico de verificação (09/10/2026, commit `7ed1c6a`; não representa o estado atual)
+
+
 
 | Verificação | Resultado |
 |---|---|

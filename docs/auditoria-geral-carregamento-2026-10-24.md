@@ -32,10 +32,10 @@ O novo prazo do `getMarca` melhora o estado visível, mas não cancela automatic
 
 ## Demais achados do repositório já registrados
 
-A auditoria estática de limpeza de 24/10 identificou 8 telas órfãs, 62 classes CSS sem uso, 25 dependências sem referências aparentes, 73 usos de `as never` e sobreposições de rotas/módulos. Esses itens continuam separados: exclusões e consolidações com risco funcional ou decisão de produto não foram feitas neste pedido.
+A lista A–H da auditoria de limpeza de 24/10 foi **executada depois do relatório**: a branch confirma a remoção de 49 arquivos, 24 dependências e CSS morto, com validação verde registrada no `DIARIO.md`. O relatório de limpeza foi atualizado para refletir isso. Os itens ainda abertos são os exports sem uso, a recontagem de casts `as never` (a contagem diverge entre documentos) e as sobreposições de produto, que exigem decisão; não foram alterados aqui.
 
 A auditoria da Agenda de 23/10 mediu redução de 121 para 13 renderizações em 120 movimentos da alça no teste com 40 cartões; o ganho em quadros por segundo no celular real continua pendente de medição. Também mantém como próximos riscos a recomposição da timeline e a renderização da lista de períodos carregada.
 
 ## Validação
 
-Os testes de prazo foram adicionados. O workflow da branch deve confirmar TypeScript, build, testes e smoke test da prévia antes da correção ser declarada pronta. A prévia não substitui a inspeção manual em 390 px; a versão principal e o banco de produção permanecem intocados.
+**Validação concluída:** o GitHub Actions #1010 passou em TypeScript, Vitest, build e deploy isolado; o smoke test da prévia publicada também passou. A correção está na prévia em https://previa.cortaiapp.pages.dev. Ela não foi enviada à versão principal e não houve escrita em banco. A inspeção manual autenticada em 390 px, no Android real, continua pendente.
