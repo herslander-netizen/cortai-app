@@ -701,6 +701,11 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-24 UTC — GPT — Fallback da rota Sua Página no mobile
+- A rota `/barbeiro/marca` não tinha `pendingComponent` nem tratamento de erro local. Durante a carga do bundle, da capacidade ou de uma falha recuperável, o shell do painel podia permanecer visível com o outlet vazio, como no print enviado pelo dono.
+- Adicionados skeleton explícito (`MarcaPendente`) e `RouteError` na rota do editor. Não houve alteração de dados, permissões, contratos ou navegação.
+- Validação prevista: TypeScript, workflow da prévia e resposta HTTP do deploy. Sem banco, sem produção e sem `main`.
+
 ### 2026-10-24 UTC — GPT — Acabamento dos controles de Layout & Tema
 - Mantidos o catálogo, as capas locais e a navegação já implementados pelo Claude. Os cabeçalhos dos acordeões e os cartões de layout, tema e estilo de chat passaram a usar o `Button` do design system, preservando áreas de toque, foco visível, pressão e redução de movimento.
 - Cartões selecionados agora recebem a elevação do Figaro e cartões não selecionados ganham realce de borda no foco/hover; nenhum dado, rota, regra de seleção ou contrato de backend foi alterado.

@@ -6,6 +6,7 @@ import { Copy, Eye, LayoutTemplate, MoreVertical, Palette, Save, Send, Share2, S
 import { useState } from "react";
 
 import { EsqueletoFormulario } from "@/components/layout/Esqueleto";
+import { RouteError } from "@/components/layout/RouteError";
 import { LacunasDaPagina } from "@/components/marca/editor/LacunasDaPagina";
 import { SecaoConteudo } from "@/components/marca/editor/SecaoConteudo";
 import { SecaoExperiencia } from "@/components/marca/editor/SecaoExperiencia";
@@ -28,6 +29,8 @@ import { CapaDoTema } from "@/components/marca/editor/CapaDoTema";
 
 export const Route = createFileRoute("/barbeiro/marca/")({
   beforeLoad: ({ context }) => exigirCapacidade(context.queryClient, "branding_avancado"),
+  pendingComponent: MarcaPendente,
+  errorComponent: RouteError,
   head: () => ({
     meta: [
       { title: "Personalizar Página — Cortaí" },
@@ -44,6 +47,15 @@ export const Route = createFileRoute("/barbeiro/marca/")({
   }),
   component: MarcaPage,
 });
+
+/** Evita o outlet vazio enquanto o bundle da tela ou os dados do negócio chegam no celular. */
+function MarcaPendente() {
+  return (
+    <Screen voltarPara="/barbeiro" title="Personalizar página">
+      <EsqueletoFormulario campos={6} />
+    </Screen>
+  );
+}
 
 function MarcaPage() {
   const query = useQuery({ queryKey: ["marca"], queryFn: () => getMarca(), retry: false });
