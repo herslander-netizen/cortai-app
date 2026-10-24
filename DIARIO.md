@@ -700,6 +700,18 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-24 UTC — Claude — Calendário × timeline com a animação do Figaro (calendário primeiro, timeline depois)
+- Pedido do dono: reproduzir a sequência do Figaro. **Análise do APK** (`AgendaScreenKt`, `FigarooAgendaDateSelectorKt`, `BrandMotionKt`): o painel do
+  seletor cresce com `expandSizeSpring` (amortecimento 1,0, rigidez 400) e o espaço da timeline é `animateDpAsState(altura medida do painel,
+  expandSizeSpringDp())`, ou seja, uma **segunda mola igual que persegue a altura já animada do painel** (o `onSizeChanged` do seletor alimenta o alvo).
+  Por isso o calendário desce primeiro e a timeline vem depois; o painel é uma camada sobre a timeline (Box), que passa por baixo dele.
+- **Feito** (`SemanaDoTopo.tsx`): `MOLA_DO_FIGARO` (damping 40, massa 1, rigidez 400); `alturaDoPainel = useSpring(alvo)` e
+  `espacoDaAgenda = useSpring(alturaDoPainel)` em série; o painel e o espaço ficam montados até cada mola assentar (abrir e fechar); movimento
+  reduzido salta direto. Substitui a transição de 0,3 s de ontem (a folga fixa de 26 px só vale com o calendário fechado).
+- **Medido** (390 px, a cada ~50 ms): abrindo, painel.bottom 236→450 px em ~340 ms enquanto a timeline fica em 213 e só então sobe a 495
+  (389 em 343 ms, 459 em ~685 ms); fechando, painel 251→186 enquanto a timeline ainda está em 490 e desce a 213 depois. Final igual ao anterior
+  (folga 26 px). Teste atualizado em `timeline-rolagem-celular.test.ts`.
+
 ### 2026-10-24 UTC — Claude — Cinco pontos aparecem do nada na troca de dia
 - Feedback do dono: na mudança de lado os pontos surgiam do nada. **Causa:** a página vizinha trazia só os pontos do **topo**; os do **fim** do
   dia só existiam no dia atual e apareciam quando a página assentava. **Correção:** `CamadaVizinha` (`PreviaDiaVizinho.tsx`) agora leva também os
