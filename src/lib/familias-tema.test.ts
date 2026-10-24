@@ -41,7 +41,6 @@ describe("famílias de tema", () => {
     expect(SEGMENTOS_CONFIG.salao.familiasRecomendadas).toContain("rose");
   });
 
-
   it("oferece 12 temas no catálogo sem remover os seis originais", () => {
     expect(TEMAS_DO_CATALOGO).toHaveLength(12);
     expect(new Set(TEMAS_DO_CATALOGO).size).toBe(12);
