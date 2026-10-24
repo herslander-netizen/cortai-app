@@ -225,17 +225,24 @@ export const getMarca = createServerFn({ method: "GET" })
       frase: tenant.texto_boas_vindas ?? "Cuidado, estilo e horário reservado para você.",
       sobre: tenant.descricao ?? "",
     });
+    // As três URLs não dependem uma da outra. Gerá-las em paralelo evita
+    // somar três viagens ao Storage antes de liberar a tela de personalização.
+    const [logoSignedUrl, capaSignedUrl, avatarSignedUrl] = await Promise.all([
+      signedLogo(
+        context.supabase,
+        marcaRascunho.success ? marcaRascunho.data.logo_url : atual.logo_url,
+      ),
+      signedLogo(context.supabase, atual.capa_url),
+      signedLogo(context.supabase, paginaRascunho.chat.avatarUrl),
+    ]);
     return {
       marca: {
         id: tenant.id,
         plano: tenant.plano,
         ...(marcaRascunho.success ? marcaRascunho.data : atual),
-        logo_signed_url: await signedLogo(
-          context.supabase,
-          marcaRascunho.success ? marcaRascunho.data.logo_url : atual.logo_url,
-        ),
-        capa_signed_url: await signedLogo(context.supabase, atual.capa_url),
-        avatar_signed_url: await signedLogo(context.supabase, paginaRascunho.chat.avatarUrl),
+        logo_signed_url: logoSignedUrl,
+        capa_signed_url: capaSignedUrl,
+        avatar_signed_url: avatarSignedUrl,
         slug: tenant.slug,
         pagina: paginaRascunho,
         publicada: normalizarPagina(publishedContainer?.pagina, {
