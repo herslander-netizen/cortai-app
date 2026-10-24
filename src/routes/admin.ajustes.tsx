@@ -121,7 +121,7 @@ function DesignSystemPage() {
                     inputMode="decimal"
                     value={precos[plan]}
                     onChange={(e) => setPrecos({ ...precos, [plan]: e.target.value })}
-                    className="mt-2 w-full rounded-md border border-line2 bg-ink2 px-3 py-3 text-sm text-paper"
+                    className="field-control mt-2 w-full"
                   />
                   <span className="mt-1 block text-xs text-mute2">R$ por mês</span>
                 </label>
@@ -166,7 +166,7 @@ function DesignSystemPage() {
                 <select
                   value={form.tipografia}
                   onChange={(e) => setForm({ ...form, tipografia: e.target.value })}
-                  className="mt-2 w-full rounded-md border border-line2 bg-ink2 px-3 py-3 text-sm text-paper"
+                  className="field-control mt-2 w-full"
                 >
                   <option>Montserrat</option>
                   <option>Work Sans</option>
@@ -195,7 +195,7 @@ function DesignSystemPage() {
                 placeholder="(11) 99999-9999"
                 value={form.whatsapp_alvo ?? ""}
                 onChange={(e) => setForm({ ...form, whatsapp_alvo: e.target.value })}
-                className="mt-2 w-full rounded-md border border-line2 bg-ink2 px-3 py-3 text-sm text-paper"
+                className="field-control mt-2 w-full"
               />
               <span className="mt-1 block text-xs text-mute2">
                 Deixe vazio para esconder o contato. DDD obrigatório; o código 55 é adicionado

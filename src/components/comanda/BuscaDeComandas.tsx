@@ -8,6 +8,7 @@ import { brl } from "@/lib/format";
 import { buscarComandas } from "@/lib/comanda-ticket.functions";
 import { rotuloDaForma, rotuloDoEstado, type EstadoDoTicket } from "@/lib/comanda-ticket";
 import { FolhaDoTicket } from "./FolhaDoTicket";
+import { Chip } from "@/components/ui/chip";
 
 const FILTROS: Array<{ v: "todos" | EstadoDoTicket; r: string }> = [
   { v: "todos", r: "Todas" },
@@ -61,16 +62,9 @@ export function BuscaDeComandas() {
       </label>
       <div className="mt-3 flex gap-2 overflow-x-auto">
         {FILTROS.map((f) => (
-          <Button
-            variant="ghost"
-            key={f.v}
-            type="button"
-            onClick={() => setEstado(f.v)}
-            aria-pressed={estado === f.v}
-            className={`h-12 shrink-0 rounded-full border px-4 text-sm ${estado === f.v ? "border-gold bg-gold-soft text-paper" : "border-line text-mute"}`}
-          >
+          <Chip key={f.v} selecionado={estado === f.v} onClick={() => setEstado(f.v)}>
             {f.r}
-          </Button>
+          </Chip>
         ))}
       </div>
       <ul className="mt-3 grid gap-1">

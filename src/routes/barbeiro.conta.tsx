@@ -210,7 +210,7 @@ function ContaPage() {
           <label className="block text-xs font-medium text-mute">
             Tipo de negócio
             <select
-              className="mt-2 h-12 w-full rounded-lg border border-line2 bg-ink2 px-3 text-sm text-paper"
+              className="field-control mt-2 w-full"
               value={segmento}
               onChange={(event) => setSegmento(event.target.value as typeof segmento)}
             >

@@ -87,6 +87,7 @@ export function EditorDetalhes({ p, onSalvo }: { p: PerfilCliente; onSalvo: () =
   );
 }
 import { ROTULOS_PREFERENCIAS, type PreferenciasCliente } from "@/lib/preferencias-cliente";
+import { Chip } from "@/components/ui/chip";
 
 const OPCOES = {
   conversa: ["papo", "silencio", "tanto_faz"],
@@ -140,16 +141,13 @@ export function EditorPreferencias({ p, onSalvo }: { p: PerfilCliente; onSalvo: 
           </legend>
           <div className="flex flex-wrap gap-2">
             {OPCOES[chave].map((valor) => (
-              <Button
+              <Chip
                 key={valor}
-                type="button"
-                variant={preferencias[chave] === valor ? "secondary" : "ghost"}
-                className="min-h-12 rounded-full border border-line"
-                aria-pressed={preferencias[chave] === valor}
+                selecionado={preferencias[chave] === valor}
                 onClick={() => setPreferencias((atual) => ({ ...atual, [chave]: valor }))}
               >
                 {String((ROTULOS_PREFERENCIAS[chave] as Record<string, string>)[valor])}
-              </Button>
+              </Chip>
             ))}
           </div>
         </fieldset>
@@ -219,17 +217,9 @@ export function EditorFicha({ p, onSalvo }: { p: PerfilCliente; onSalvo: () => v
           {opcoes.map((c) => {
             const ativo = chips.includes(c);
             return (
-              <Button
-                key={c}
-                type="button"
-                variant={ativo ? "primary" : "secondary"}
-                size="sm"
-                aria-pressed={ativo}
-                onClick={() => alternar(c)}
-                className="min-h-12 rounded-full"
-              >
+              <Chip key={c} selecionado={ativo} onClick={() => alternar(c)}>
                 {c}
-              </Button>
+              </Chip>
             );
           })}
         </div>

@@ -51,7 +51,7 @@ function AvisoDoLimiteMensal() {
     <Link
       to="/barbeiro/plano"
       role="status"
-      className="mt-4 flex min-h-12 w-full basis-full items-center justify-between gap-3 rounded-xl border border-line2 bg-ink2 px-4 py-2 text-left"
+      className="mt-4 flex min-h-12 w-full basis-full items-center justify-between gap-3 rounded-xl border-0 bg-[var(--agenda-cartao)] px-4 py-2 text-left"
     >
       <span className="min-w-0 flex-1">
         <span className="block text-sm font-semibold text-paper">
@@ -103,7 +103,7 @@ function ListaDePrimeirosPassos() {
     return (
       <Link
         to="/barbeiro/configurar"
-        className="mt-4 flex w-full basis-full text-left min-h-14 items-center gap-3 rounded-xl border border-line2 bg-ink2 px-4"
+        className="mt-4 flex w-full basis-full text-left min-h-14 items-center gap-3 rounded-xl border-0 bg-[var(--agenda-cartao)] px-4"
       >
         <span className="min-w-0 flex-1">
           <span className="block text-sm font-semibold text-paper">Termine de configurar</span>

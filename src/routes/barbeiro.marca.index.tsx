@@ -347,7 +347,7 @@ function Editor({
         </div>
       </section>
 
-      <div className="mb-5 rounded-xl border border-line bg-ink p-4 sm:p-5">
+      <div className="mb-5 rounded-xl border-0 bg-[var(--agenda-cartao)] p-4 sm:p-5">
         <h2 className="text-sm font-semibold text-paper">Experiência de agendamento</h2>
         <p className="mb-4 mt-1 text-sm leading-relaxed text-mute">Defina como o cliente começa a marcar um horário. Esta configuração é própria do Cortaí.</p>
         <SecaoExperiencia config={e.config} setPagina={e.setPagina} />
@@ -365,7 +365,7 @@ function Editor({
       </section>
 
       <Accordion type="single" collapsible value={avancadoAberto ? "avancado" : ""} onValueChange={(value) => setAvancadoAberto(value === "avancado")} className="mb-6">
-        <AccordionItem value="avancado" className="rounded-xl border border-line bg-ink px-4">
+        <AccordionItem value="avancado" className="rounded-xl border-0 bg-[var(--agenda-cartao)] px-4">
           <AccordionTrigger className="min-h-14 text-sm font-semibold text-paper hover:no-underline">Outras configurações</AccordionTrigger>
           <AccordionContent>
             <PaineisDoEditor e={e} initial={initial} versions={versions} abaAtiva={abaAtiva} onAbaChange={setAbaAtiva} />
@@ -376,7 +376,7 @@ function Editor({
       <div className="grid gap-6 xl:grid-cols-[minmax(0,520px)_minmax(420px,1fr)]">
         <div>
 
-          <div className="sticky bottom-20 z-20 mt-6 rounded-lg border border-line bg-ink p-2 shadow-[var(--elevacao-3)] xl:bottom-4">
+          <div className="sticky bottom-20 z-20 mt-6 rounded-xl border-0 bg-[var(--agenda-cartao)] p-2 shadow-[var(--elevacao-3)] xl:bottom-4">
             <Button
               variant="ghost"
               className="mb-2 h-12 w-full xl:hidden"

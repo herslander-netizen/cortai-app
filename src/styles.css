@@ -1780,11 +1780,11 @@ option {
   line-height: 1.5;
 }
 
+/* Cartão do Figaro (`brandShapes.card`, 12 dp): sem contorno, sobre o container do cartão. */
 @utility surface-card {
-  border: 1px solid var(--line);
-  border-radius: var(--radius-md);
-  background-color: var(--surface-raised);
-  box-shadow: inset 0 1px 0 color-mix(in oklab, var(--paper) 4%, transparent);
+  border: 0;
+  border-radius: 12px;
+  background-color: var(--agenda-cartao, var(--surface-raised));
 }
 
 @utility empty-state {
@@ -3338,10 +3338,9 @@ html:not(.agenda-gesto-ativo) .agenda-previa-vizinho {
 
 /* Etapa 5: superfície única (cartão) usada por todas as telas */
 @utility surface {
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  background: var(--ink2);
-  box-shadow: inset 0 1px 0 color-mix(in oklab, var(--paper) 4%, transparent);
+  border: 0;
+  border-radius: 12px;
+  background: var(--agenda-cartao, var(--ink2));
 }
 
 /* Modo Foco ocupa toda a altura disponível no celular. */

@@ -18,7 +18,7 @@ import { termos, type Segmento } from "@/lib/segmentos";
 import { useSegmentoDoPainel } from "@/lib/segmento-contexto";
 
 const badgeVariants = cva(
-  "inline-flex min-h-6 shrink-0 items-center gap-1 rounded-md border px-2 py-0.5 text-xs font-bold whitespace-nowrap [&_svg]:size-3.5",
+  "inline-flex min-h-6 shrink-0 items-center gap-1 rounded-full border px-2.5 py-0.5 text-xs font-bold whitespace-nowrap [&_svg]:size-3.5",
   {
     variants: {
       variant: {

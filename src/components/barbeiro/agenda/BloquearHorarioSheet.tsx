@@ -220,17 +220,18 @@ export function BloquearHorarioSheet({
             {problema}
           </p>
         ) : null}
-        <div className="mt-4 grid grid-cols-2 gap-3">
+        <div className="mt-4 grid grid-cols-[minmax(0,2fr)_minmax(0,3fr)] gap-3">
           <Button
             variant="outline"
             size="lg"
+            className="min-w-0 px-4"
             disabled={salvar.isPending}
             onClick={() => onAberto(false)}
           >
             Cancelar
           </Button>
           <Button
-            className="w-full"
+            className="w-full min-w-0 px-4"
             size="lg"
             disabled={invalido || salvar.isPending}
             onClick={() => salvar.mutate()}

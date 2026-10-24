@@ -83,7 +83,7 @@ export function SecaoAjustesFinos({
                 <input
                   type="color"
                   aria-label={`Escolher cor ${key}`}
-                  className="h-12 w-12 shrink-0 rounded-md border border-line bg-ink2 p-1"
+                  className="h-12 w-12 shrink-0 rounded-xl border-0 bg-[var(--agenda-cartao)] p-1"
                   value={value}
                   onChange={(event) => trocar(event.target.value)}
                 />

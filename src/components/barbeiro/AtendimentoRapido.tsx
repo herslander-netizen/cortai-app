@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 
 import { EsqueletoAgenda } from "@/components/layout/Esqueleto";
 import { Button } from "@/components/ui/button";
+import { Chip } from "@/components/ui/chip";
 import { buscarClientesDaBarbearia } from "@/lib/barbeiro.functions";
 import { getDadosAtendimentoRapido, iniciarAtendimentoAgora } from "@/lib/atendimento.functions";
 
@@ -65,7 +66,6 @@ export function AtendimentoRapido({ onFechar, onIniciado }: Props) {
     }
   }
 
-  const chip = (ativo: boolean) => `agenda-chip ${ativo ? "agenda-chip-ativo" : ""}`;
 
   return (
     <div
@@ -95,7 +95,7 @@ export function AtendimentoRapido({ onFechar, onIniciado }: Props) {
         ) : (
           <div className="space-y-5">
             <section aria-label="Cliente">
-              <p className="mb-2 text-xs font-bold uppercase text-mute">Cliente</p>
+              <p className="mb-2 rotulo-secao !pl-0">Cliente</p>
               <label className="relative block">
                 <Search
                   aria-hidden
@@ -106,29 +106,25 @@ export function AtendimentoRapido({ onFechar, onIniciado }: Props) {
                   value={termo}
                   onChange={(e) => setTermo(e.target.value)}
                   placeholder="Buscar por nome ou telefone"
-                  className="h-12 w-full rounded-lg border border-line bg-ink pl-9 pr-3 text-sm text-paper outline-none focus:border-paper"
+                  className="field-control pl-10"
                 />
               </label>
               <div className="mt-2 flex flex-wrap gap-2">
-                <Button
-                  variant="ghost"
-                  type="button"
-                  className={chip(!cliente)}
+                <Chip
+                  selecionado={!cliente}
                   onClick={() => setCliente(null)}
                 >
                   <UserRound aria-hidden size={14} />
                   Cliente avulso
-                </Button>
+                </Chip>
                 {opcoes.map((c) => (
-                  <Button
-                    variant="ghost"
+                  <Chip
+                    selecionado={cliente?.id === c.id}
                     key={c.id}
-                    type="button"
-                    className={chip(cliente?.id === c.id)}
                     onClick={() => setCliente({ id: c.id, nome: c.nome })}
                   >
                     {c.nome}
-                  </Button>
+                  </Chip>
                 ))}
               </div>
               {!cliente ? (
@@ -137,36 +133,32 @@ export function AtendimentoRapido({ onFechar, onIniciado }: Props) {
             </section>
 
             <section aria-label="Serviço">
-              <p className="mb-2 text-xs font-bold uppercase text-mute">Serviço</p>
+              <p className="mb-2 rotulo-secao !pl-0">Serviço</p>
               <div className="flex flex-wrap gap-2">
                 {dados.data?.servicos.map((s) => (
-                  <Button
-                    variant="ghost"
+                  <Chip
+                    selecionado={servicoId === s.id}
                     key={s.id}
-                    type="button"
-                    className={chip(servicoId === s.id)}
                     onClick={() => setServicoId(s.id)}
                   >
                     {s.nome} · {s.duracao_min} min
-                  </Button>
+                  </Chip>
                 ))}
               </div>
             </section>
 
             <section aria-label="Profissional">
-              <p className="mb-2 text-xs font-bold uppercase text-mute">Profissional</p>
+              <p className="mb-2 rotulo-secao !pl-0">Profissional</p>
               <div className="flex flex-wrap gap-2">
                 {dados.data?.profissionais.map((p) => (
-                  <Button
-                    variant="ghost"
+                  <Chip
+                    selecionado={profissionalId === p.id}
                     key={p.id}
-                    type="button"
-                    className={chip(profissionalId === p.id)}
                     onClick={() => setProfissionalId(p.id)}
                   >
                     {p.nome}
                     {p.livre ? "" : " · ocupado"}
-                  </Button>
+                  </Chip>
                 ))}
               </div>
             </section>

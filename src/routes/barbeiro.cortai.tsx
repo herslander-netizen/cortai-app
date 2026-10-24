@@ -411,7 +411,7 @@ function BlocoSecretaria({ painel }: { painel: PainelDoCortai }) {
               max={180}
               value={retorno}
               onChange={(e) => setRetorno(e.target.value)}
-              className="mt-1 h-11 w-full rounded-md border border-line2 bg-ink px-3 text-paper"
+              className="field-control mt-1 w-full"
             />
           </label>
         ) : null}
@@ -422,7 +422,7 @@ function BlocoSecretaria({ painel }: { painel: PainelDoCortai }) {
           onChange={(e) =>
             setConfig({ ...config, tom: e.target.value as ConfiguracaoDoAtendimento["tom"] })
           }
-          className="h-11 w-full rounded-md border border-line2 bg-ink px-3 text-sm text-paper"
+          className="field-control w-full"
         >
           {Object.entries(TONS).map(([valor, rotulo]) => (
             <option key={valor} value={valor}>
@@ -873,27 +873,27 @@ function CartaoDeConexao({ painel, tipo }: { painel: PainelDoCortai; tipo: TipoD
         {status === "conectado" ? (
           <>
             <Button
-              variant="ghost"
+              variant="outline"
               type="button"
-              className="w-full rounded-md border border-line2 py-2.5 text-sm text-paper disabled:opacity-50"
+              className="w-full text-paper disabled:opacity-50"
               disabled={acao.isPending || estado.isFetching}
               onClick={() => void estado.refetch()}
             >
               {estado.isFetching ? "Atualizando…" : "Atualizar conexão"}
             </Button>
             <Button
-              variant="ghost"
+              variant="outline"
               type="button"
-              className="w-full rounded-md border border-line2 py-2.5 text-sm text-paper disabled:opacity-50"
+              className="w-full text-paper disabled:opacity-50"
               disabled={acao.isPending}
               onClick={() => acao.mutate("reconectar")}
             >
               {acao.isPending ? "Aguarde…" : "Reconectar"}
             </Button>
             <Button
-              variant="ghost"
+              variant="outline"
               type="button"
-              className="w-full rounded-md border border-line2 py-2.5 text-sm text-brick disabled:opacity-50"
+              className="w-full text-brick disabled:opacity-50"
               disabled={acao.isPending}
               onClick={async () => {
                 if (
@@ -926,9 +926,9 @@ function CartaoDeConexao({ painel, tipo }: { painel: PainelDoCortai; tipo: TipoD
             ) : null}
             {qrVisivel ? (
               <Button
-                variant="ghost"
+                variant="outline"
                 type="button"
-                className="w-full rounded-md border border-line2 py-2.5 text-sm text-paper disabled:opacity-50"
+                className="w-full text-paper disabled:opacity-50"
                 disabled={acao.isPending}
                 onClick={() => acao.mutate("qr")}
               >
@@ -1175,9 +1175,9 @@ function ModalQr({
         ) : null}
 
         <Button
-          variant="ghost"
+          variant="outline"
           type="button"
-          className="mt-5 w-full rounded-md border border-line2 py-2.5 text-sm text-paper disabled:opacity-50"
+          className="mt-5 w-full text-paper disabled:opacity-50"
           disabled={gerando}
           onClick={aoGerarNovo}
         >

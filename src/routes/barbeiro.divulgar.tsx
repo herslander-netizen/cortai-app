@@ -11,6 +11,7 @@ import { PainelPublicacao } from "@/components/divulgacao/PainelPublicacao";
 import { canvasParaArquivo, desenharArte } from "@/components/divulgacao/arte";
 import { getDadosDivulgacao } from "@/lib/divulgacao.functions";
 import { REDES, legenda, linkRastreado, textoPadrao, type Modelo, type Rede } from "@/lib/divulgacao";
+import { Chip } from "@/components/ui/chip";
 
 export const Route = createFileRoute("/barbeiro/divulgar")({
   head: () => ({
@@ -36,19 +37,6 @@ const MODELOS: { id: Modelo; rotulo: string }[] = [
 
 const real = (c: number | null) =>
   c == null ? undefined : (c / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
-
-function Chip({ ativo, onClick, children }: { ativo: boolean; onClick: () => void; children: React.ReactNode }) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      aria-pressed={ativo}
-      className={`min-h-12 rounded-full border px-4 text-sm font-medium ${ativo ? "border-gold bg-gold/15 text-paper" : "border-line text-mute"}`}
-    >
-      {children}
-    </button>
-  );
-}
 
 function DivulgarPage() {
   const buscar = useServerFn(getDadosDivulgacao);
@@ -126,7 +114,7 @@ function DivulgarPage() {
             <p className="rotulo-secao">Tipo de post</p>
             <div className="flex flex-wrap gap-2">
               {MODELOS.map((m) => (
-                <Chip key={m.id} ativo={modelo === m.id} onClick={() => setModelo(m.id)}>{m.rotulo}</Chip>
+                <Chip key={m.id} selecionado={modelo === m.id} onClick={() => setModelo(m.id)}>{m.rotulo}</Chip>
               ))}
             </div>
           </section>
@@ -135,7 +123,7 @@ function DivulgarPage() {
             <p className="rotulo-secao">Onde vai publicar</p>
             <div className="flex flex-wrap gap-2">
               {(Object.keys(REDES) as Rede[]).map((r) => (
-                <Chip key={r} ativo={rede === r} onClick={() => setRede(r)}>{REDES[r].nome}</Chip>
+                <Chip key={r} selecionado={rede === r} onClick={() => setRede(r)}>{REDES[r].nome}</Chip>
               ))}
             </div>
           </section>

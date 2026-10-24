@@ -702,6 +702,14 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-24 UTC — Claude — Padrão Figaro em tudo, lote 1: primitivos (chip, cartão, diálogo, selo, campos)
+- Pedido do dono: "manter o padrão Figaro SEMPRE EM TUDO". Estratégia: corrigir os **primitivos** (o que vale para todas as telas) e depois varrer as telas.
+- **Chip único** (`ui/chip.tsx`, `FilterChip` do Figaro: 36 dp, raio 8 dp, borda `outlineVariant`, selecionado em container secundário) substitui os seletores em pílula ad hoc: horários e formas do Novo agendamento, Atendimento manual (busca agora é `field-control`), filtro de profissional da agenda, divulgação, ficha do cliente, filtros de comandas, registro do CortAI e o app do cliente.
+- **Cartões:** `.surface` e `.surface-card` sem contorno, raio 12 dp, sobre `--agenda-cartao`; `Card` idem; 22 cartões ad hoc (`rounded-* border border-line bg-ink*`) viraram o mesmo cartão. **Diálogos** com 28 dp (`Dialog`, `AlertDialog`), **selos** em pílula, selects restantes com `field-control`, botões fantasma com contorno improvisado viraram `outline`.
+- Corrigido o botão cortado da folha "Bloquear horário" (grade 2fr/3fr).
+- `src/lib/estilo-figaro.test.ts` segura isso: sem chip local nem `agenda-chip`, sem botão fantasma com caixa ad hoc, todo `<select>` com `field-control`, raios dos primitivos.
+- Para o GPT: novo seletor de escolha = `Chip` de `ui/chip.tsx`; cartão = `surface`/`Card`; nada de `rounded-md border border-line` em botão.
+
 ### 2026-10-24 UTC — Claude — Layout & Tema: cartões encolhidos no celular e cabeçalho do chat sobre o título
 - Prints do dono: os cartões de layout, tema e estilo do chat apareciam como uma pílula de ~48 dp com o texto cortado. Causa: o acabamento recente trocou os cartões por `Button`, que tem altura fixa (`h-12`) e `rounded-full`. Correção: `size="bloco"` + `h-auto`/`items-stretch`/`whitespace-normal` nos três cartões (`CartoesDeLayoutTema.tsx`), com teste de texto-fonte. Conferido no rig (painéis Layout e Tema abertos).
 - Personalizar Chat: o `.chat-header` da prévia (sticky, z-index 20) passava por cima do título da tela; `isolate` no contêiner da prévia (`ChatPreview.tsx`) prende o z-index dentro dela.

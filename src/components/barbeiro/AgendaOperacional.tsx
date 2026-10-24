@@ -72,6 +72,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import { Chip } from "@/components/ui/chip";
 import { BarraDeEdicaoDeHorario } from "@/components/barbeiro/agenda/BarraDeEdicaoDeHorario";
 import { CabecalhoDeEdicao } from "@/components/barbeiro/agenda/CabecalhoDeEdicao";
 import { trechosQueSaem } from "@/components/barbeiro/agenda/fantasma-do-horario";
@@ -209,16 +210,14 @@ function FolhaFila(props: {
                   aria-label="Profissional que vai atender"
                 >
                   {props.profissionais.map((p) => (
-                    <Button
-                      variant="ghost"
+                    <Chip
                       key={p.id}
-                      type="button"
-                      className={`agenda-chip ${props.profEscolhido === p.id ? "agenda-chip-ativo" : ""}`}
+                      selecionado={props.profEscolhido === p.id}
                       onClick={() => props.onProf(p.id)}
                     >
                       {p.nome}
                       {p.livre ? " · livre" : ""}
-                    </Button>
+                    </Chip>
                   ))}
                 </div>
               ) : null}

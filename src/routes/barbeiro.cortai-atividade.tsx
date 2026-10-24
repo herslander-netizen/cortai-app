@@ -15,6 +15,7 @@ import {
   type MetricasDoCortai,
   type TermoNaoEntendido,
 } from "@/lib/whatsapp.functions";
+import { Chip } from "@/components/ui/chip";
 
 export const Route = createFileRoute("/barbeiro/cortai-atividade")({
   ssr: false,
@@ -193,17 +194,9 @@ function AtividadePage() {
       <section className="mt-5" aria-label="Registro das ações">
         <div className="flex items-center justify-between gap-3">
           <h2 className="text-sm text-paper">Registro das ações</h2>
-          <Button
-            variant="ghost"
-            type="button"
-            onClick={() => setApenasFalhas((v) => !v)}
-            className={`rounded-full border px-3 py-1.5 text-xs ${
-              apenasFalhas ? "border-brick text-brick" : "border-line2 text-mute"
-            }`}
-            aria-pressed={apenasFalhas}
-          >
+          <Chip selecionado={apenasFalhas} onClick={() => setApenasFalhas((v) => !v)}>
             Só o que falhou
-          </Button>
+          </Chip>
         </div>
 
         {atividade.data && atividade.data.registros.length === 0 ? (

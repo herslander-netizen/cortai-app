@@ -79,9 +79,9 @@ export function CodigoPorTelefone({
   if (!aberto) {
     return (
       <Button
-        variant="ghost"
+        variant="outline"
         type="button"
-        className="min-h-12 w-full rounded-md border border-line2 text-sm text-paper"
+        className="min-h-12 w-full text-paper"
         onClick={() => setAberto(true)}
       >
         <Smartphone aria-hidden />
@@ -121,9 +121,9 @@ export function CodigoPorTelefone({
             <li>3. Escolha “Conectar com número de telefone” e digite o código acima.</li>
           </ol>
           <Button
-            variant="ghost"
+            variant="outline"
             type="button"
-            className="mt-4 min-h-12 w-full rounded-md border border-line2 text-sm text-paper"
+            className="mt-4 min-h-12 w-full text-paper"
             onClick={() => void copiar()}
           >
             <Copy aria-hidden />

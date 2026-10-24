@@ -128,7 +128,7 @@ export function EsqueletoMetricas({
       onTentarDeNovo={onTentarDeNovo}
     >
       {Array.from({ length: colunas }).map((_, i) => (
-        <div key={i} className="min-h-24 rounded-md border border-line bg-ink2 px-3 py-4">
+        <div key={i} className="min-h-24 rounded-xl border-0 bg-[var(--agenda-cartao)] px-3 py-4">
           <Barra w="60%" h={10} />
           <Barra w="45%" h={24} className="mt-3" />
         </div>
@@ -156,7 +156,7 @@ export function EsqueletoTimeline({
       {Array.from({ length: blocos }).map((_, i) => (
         <div
           key={`b${i}`}
-          className="absolute space-y-2 rounded-md border border-line bg-ink2 p-3"
+          className="absolute space-y-2 rounded-xl border-0 bg-[var(--agenda-cartao)] p-3"
           style={{ top: 20 + i * 130, left: 56, right: 4, height: 72 }}
         >
           <Barra w="50%" h={13} />
@@ -285,7 +285,7 @@ export function EsqueletoCockpit() {
         <Barra w="44px" h={44} className="justify-self-end rounded-full" />
       </div>
       <div className="mt-3 grid flex-1 gap-3 lg:grid-cols-[1.45fr_.8fr]">
-        <div className="rounded-md border border-line bg-ink2 p-5">
+        <div className="rounded-xl border-0 bg-[var(--agenda-cartao)] p-5">
           <Barra w="28%" h={15} />
           <Barra w="68%" h={40} className="mt-7" />
           <Barra w="42%" h={16} className="mt-3" />

@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { getConexoesSociais } from "@/lib/redes-sociais.functions";
 import { cancelarPostagemSocial, criarPostagemSocial, getPostagensSociais, type PostagemSocial } from "@/lib/postagens-sociais.functions";
 import { ROTULO_PLATAFORMA, type PlataformaSocial } from "@/lib/redes-sociais";
+import { Chip } from "@/components/ui/chip";
 
 const ROTULO_STATUS: Record<PostagemSocial["status"], string> = {
   agendada: "Agendada",
@@ -80,11 +81,10 @@ export function PainelPublicacao({ gerarImagem, legenda }: { gerarImagem: () => 
             {ativas.map((c) => {
               const ativo = escolhidas.includes(c.plataforma);
               return (
-                <button key={c.id} type="button" aria-pressed={ativo} onClick={() => alternar(c.plataforma)}
-                  className={`min-h-12 rounded-full border px-4 text-sm font-medium ${ativo ? "border-gold bg-gold/15 text-paper" : "border-line text-mute"}`}>
+                <Chip key={c.id} selecionado={ativo} onClick={() => alternar(c.plataforma)}>
                   {ROTULO_PLATAFORMA[c.plataforma]}
                   {c.status === "simulada" && <span className="ml-1 text-xs text-mute">· demonstração</span>}
-                </button>
+                </Chip>
               );
             })}
           </div>

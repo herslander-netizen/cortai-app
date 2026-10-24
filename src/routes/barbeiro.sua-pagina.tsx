@@ -160,7 +160,7 @@ function SuaPagina() {
             {mostrarQr ? "Ocultar QR Code" : "Mostrar QR Code"}
           </Button>
           {mostrarQr ? (
-            <div className="mt-4 rounded-xl border border-line bg-background p-4 text-center">
+            <div className="mt-4 rounded-xl border-0 bg-[var(--agenda-cartao)] p-4 text-center">
               {qrCode ? <img src={cartaoDoQr ?? qrCode} alt={`QR Code para abrir a página pública de ${marca.nome}`} width={240} className="mx-auto h-auto w-60 max-w-full rounded-lg bg-qr-light" /> : <p role="status" className="text-sm text-mute">Gerando QR Code…</p>}
               <p className="mt-2 text-xs text-mute">Aponte a câmera do celular para abrir sua página pública.</p>
               <div role="group" aria-label="Tipo de cartão do QR Code" className="mt-4 flex gap-0.5">

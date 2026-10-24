@@ -6,6 +6,7 @@ import { salvarPersonalizacaoCliente, type FichaCliente } from "@/lib/barbeiro.f
 import { Button } from "@/components/ui/button";
 import { Field, Textarea } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { Chip } from "@/components/ui/chip";
 
 type Participa = "padrao" | "sim" | "nao";
 
@@ -19,17 +20,9 @@ function Opcao({
   children: string;
 }) {
   return (
-    <Button
-      variant="ghost"
-      type="button"
-      aria-pressed={ativo}
-      onClick={onClick}
-      className={`rounded-full border px-4 py-2 text-sm transition-colors ${
-        ativo ? "border-gold bg-gold font-semibold text-ink" : "border-line2 bg-ink2 text-paper"
-      }`}
-    >
+    <Chip selecionado={ativo} onClick={onClick}>
       {children}
-    </Button>
+    </Chip>
   );
 }
 

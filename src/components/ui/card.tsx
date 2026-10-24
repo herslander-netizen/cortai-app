@@ -4,16 +4,16 @@ import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "@/lib/utils";
 
-const cardVariants = cva("rounded-xl border border-border text-card-foreground", {
+const cardVariants = cva("rounded-[12px] border-0 text-card-foreground", {
   variants: {
     variant: {
       surface:
-        "bg-card transition-[border-color,background-color,box-shadow] duration-[var(--mov-base)]",
+        "bg-[var(--agenda-cartao,var(--card))] transition-[border-color,background-color,box-shadow] duration-[var(--mov-base)]",
       elevated:
-        "bg-card shadow-none transition-[border-color,background-color,box-shadow] duration-[var(--mov-base)]",
+        "bg-[var(--agenda-cartao,var(--card))] shadow-none transition-[border-color,background-color,box-shadow] duration-[var(--mov-base)]",
       // Encolhe a 0,98 ao tocar com a mola do Figaro (`SnappyPressAnimation`, spec 6 §2, B1).
       touchable:
-        "bg-card hover:border-line2 active:scale-[0.98] active:border-primary/40 active:bg-ink3 [transition:border-color_var(--mov-base),background-color_var(--mov-base),box-shadow_var(--mov-base),transform_var(--mola-toque-duracao)_var(--mola-toque)] motion-reduce:[transition:none]",
+        "bg-[var(--agenda-cartao,var(--card))] active:scale-[0.98] active:bg-ink3 [transition:border-color_var(--mov-base),background-color_var(--mov-base),box-shadow_var(--mov-base),transform_var(--mola-toque-duracao)_var(--mola-toque)] motion-reduce:[transition:none]",
     },
     density: { default: "p-4", compact: "p-3", none: "p-0" },
   },

@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { opcoesAgendaDia } from "@/components/barbeiro/agenda/useAgendaDia";
 import { Aviso } from "@/components/ui/aviso";
 import { Button } from "@/components/ui/button";
+import { Chip } from "@/components/ui/chip";
 import { CampoDeEscolha } from "@/components/ui/formulario/CampoDeEscolha";
 import { SecaoDeFormulario } from "@/components/ui/formulario/SecaoDeFormulario";
 import { brl } from "@/lib/format";
@@ -19,31 +20,6 @@ const FORMAS: [Forma, string][] = [
   ["fiado", "Fiado"],
   ["credito", "Crédito"],
 ];
-
-function Chip({
-  ativo,
-  onClick,
-  children,
-}: {
-  ativo: boolean;
-  onClick: () => void;
-  children: React.ReactNode;
-}) {
-  return (
-    <Button
-      variant="ghost"
-      type="button"
-      aria-pressed={ativo}
-      onClick={onClick}
-      className={cn(
-        "rounded-full border px-4 text-sm",
-        ativo ? "border-gold bg-gold-soft text-gold" : "border-line2 text-mute",
-      )}
-    >
-      {children}
-    </Button>
-  );
-}
 
 export function SecaoServico({ s }: { s: EstadoAgendamentoManual }) {
   const profissionais = s.profissionaisDisponiveis;
@@ -147,17 +123,14 @@ export function SecaoHorario({ s }: { s: EstadoAgendamentoManual }) {
     <SecaoDeFormulario rotulo="Horário">
       {livre ? (
         <Button
-          variant="ghost"
+          variant="outline"
           type="button"
           aria-pressed={s.horaMin === livre}
           onClick={() => {
             s.setData(hojeNoFuso(s.base?.fuso ?? "America/Sao_Paulo"));
             s.setHoraMin(livre);
           }}
-          className={cn(
-            "w-full rounded-full border text-base",
-            s.horaMin === livre ? "border-gold bg-gold-soft text-gold" : "border-gold/60 text-gold",
-          )}
+          className={cn("w-full", s.horaMin === livre && "bg-gold-soft")}
         >
           Atender agora · livre às {livre}
         </Button>
@@ -178,24 +151,20 @@ export function SecaoHorario({ s }: { s: EstadoAgendamentoManual }) {
           if (info?.estado === "ocupado") {
             const quem = info.ocupantes[0];
             return (
-              <Button
+              <Chip
                 key={h}
-                variant="ghost"
-                type="button"
-                aria-pressed={detalhe?.label === h}
+                tracejado
+                selecionado={detalhe?.label === h}
                 aria-label={`${h}, ocupado${quem ? ` por ${quem.cliente}, ${quem.servico}` : ""}`}
                 onClick={() => {
                   setConfirmarEncaixe(false);
                   setDetalhe(info);
                 }}
-                className={cn(
-                  "h-auto min-h-11 flex-col gap-0 rounded-2xl border border-dashed px-3 py-1 text-sm",
-                  detalhe?.label === h ? "border-brick text-paper" : "border-brick/50 text-mute",
-                )}
+                className="h-auto min-h-9 flex-col gap-0 py-1"
               >
                 <span className="font-semibold">{h}</span>
                 <span className="text-xs text-brick">Ocupado</span>
-              </Button>
+              </Chip>
             );
           }
           if (info?.estado === "bloqueado") {
@@ -203,7 +172,7 @@ export function SecaoHorario({ s }: { s: EstadoAgendamentoManual }) {
               <span
                 key={h}
                 aria-label={`${h}, bloqueado`}
-                className="inline-flex min-h-11 items-center rounded-full border border-line px-4 text-sm text-mute2 line-through opacity-60"
+                className="inline-flex h-9 items-center rounded-lg border border-dashed border-line px-4 text-sm text-mute2 line-through opacity-60"
               >
                 {h}
               </span>
@@ -212,7 +181,7 @@ export function SecaoHorario({ s }: { s: EstadoAgendamentoManual }) {
           return (
             <Chip
               key={h}
-              ativo={s.horaMin === h}
+              selecionado={s.horaMin === h}
               onClick={() => {
                 setDetalhe(null);
                 s.setHoraMin(h);
@@ -297,7 +266,7 @@ export function SecaoPagamento({ s }: { s: EstadoAgendamentoManual }) {
     <SecaoDeFormulario rotulo="Pagamento">
       <div className="flex flex-wrap gap-2" role="group" aria-label="Forma de pagamento">
         {FORMAS.map(([v, rotulo]) => (
-          <Chip key={v} ativo={s.forma === v} onClick={() => s.setForma(v)}>
+          <Chip key={v} selecionado={s.forma === v} onClick={() => s.setForma(v)}>
             {rotulo}
           </Chip>
         ))}
@@ -328,7 +297,7 @@ export function AvisosAgendamento({ s }: { s: EstadoAgendamentoManual }) {
               {s.conflito.sugestoes.map((sg) => (
                 <Chip
                   key={sg.iso}
-                  ativo={false}
+                  selecionado={false}
                   onClick={() => {
                     s.setHoraMin(sg.label);
                     void s.salvar(sg.iso);

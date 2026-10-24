@@ -18,6 +18,7 @@ import { EsqueletoFormulario } from "@/components/layout/Esqueleto";
 import { TiraHorizontal } from "@/components/ui/tira-horizontal";
 import { useContextoCliente } from "@/lib/contexto-cliente";
 import { Button } from "@/components/ui/button";
+import { Chip } from "@/components/ui/chip";
 import { rotuloForma } from "@/lib/pagamento";
 
 export const Route = createFileRoute("/app/agendar")({
@@ -45,7 +46,7 @@ export const Route = createFileRoute("/app/agendar")({
 
 type Forma = "credito" | "pix" | "balcao" | "fiado" | "saldo";
 
-function Chip({
+function OpcaoDeEscolha({
   label,
   sub,
   selected,
@@ -61,24 +62,15 @@ function Chip({
   onClick?: () => void;
 }) {
   return (
-    <Button
-      type="button"
-      variant="ghost"
-      disabled={disabled}
+    <Chip
+      selecionado={Boolean(selected)}
+      disabled={Boolean(disabled)}
       onClick={onClick}
-      aria-pressed={selected}
-      className={[
-        "min-h-12 rounded-full border px-4 text-sm transition-colors",
-        selected ? "border-gold bg-gold font-semibold text-ink" : "border-line2 bg-ink2 text-paper",
-        disabled ? "cursor-not-allowed border-line text-mute2 opacity-60" : "",
-        strike ? "line-through" : "",
-      ].join(" ")}
+      className={strike ? "line-through" : ""}
     >
       {label}
-      {sub ? (
-        <span className={`ml-2 text-xs ${selected ? "text-ink" : "text-mute"}`}>{sub}</span>
-      ) : null}
-    </Button>
+      {sub ? <span className="text-xs opacity-70">{sub}</span> : null}
+    </Chip>
   );
 }
 
@@ -372,7 +364,7 @@ function Fluxo({
       <Passo n={1} titulo="Serviço" guia="agendar-servico">
         <div className="flex flex-wrap gap-2">
           {dados.servicos.map((s) => (
-            <Chip
+            <OpcaoDeEscolha
               key={s.id}
               label={s.nome}
               sub={brl(s.preco_centavos)}
@@ -389,7 +381,7 @@ function Fluxo({
       <Passo n={2} titulo="Profissional" guia="agendar-profissional">
         <div className="flex flex-wrap gap-2">
           {[{ id: "qualquer", nome: "Qualquer profissional" }, ...aptos].map((p) => (
-            <Chip
+            <OpcaoDeEscolha
               key={p.id}
               label={p.nome}
               selected={p.id === profId}
@@ -409,7 +401,7 @@ function Fluxo({
             const fechado = Boolean(porDia.get(d)?.fechado);
             return (
               <div key={d} className="shrink-0 snap-start">
-                <Chip
+                <OpcaoDeEscolha
                   label={fechado ? `${sem} ${num}/${mes} · Fechado` : `${sem} ${num}/${mes}`}
                   selected={d === dia}
                   disabled={fechado}
@@ -432,7 +424,7 @@ function Fluxo({
         ) : agenda?.opcoes.length ? (
           <div className="flex flex-wrap gap-2">
             {agenda.opcoes.map((h) => (
-              <Chip
+              <OpcaoDeEscolha
                 key={h.iso}
                 label={h.label}
                 selected={h.iso === inicio}

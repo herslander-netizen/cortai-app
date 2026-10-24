@@ -161,7 +161,7 @@ function EquipePage() {
             >
               <label className="block text-xs font-medium text-mute">
                 E-mail da conta
-                <span className="mt-2 grid min-h-12 grid-cols-[auto_minmax(0,1fr)] items-center gap-3 rounded-lg border border-line2 bg-ink px-3">
+                <span className="mt-2 grid min-h-12 grid-cols-[auto_minmax(0,1fr)] items-center gap-3 rounded-xl border-0 bg-[var(--agenda-cartao)] px-3">
                   <Mail size={16} aria-hidden className="text-mute" />
                   <input
                     value={email}
@@ -387,7 +387,7 @@ function CartaoMembro({
           {ajusteFino ? (
             <div className="space-y-3">
               {MODULOS.map((modulo) => (
-                <fieldset key={modulo.id} className="rounded-lg border border-line bg-ink p-3">
+                <fieldset key={modulo.id} className="rounded-xl border-0 bg-[var(--agenda-cartao)] p-3">
                   <legend className="px-1 text-xs font-semibold uppercase tracking-wide text-gold">
                     {modulo.titulo}
                   </legend>
