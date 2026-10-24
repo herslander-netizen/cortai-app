@@ -337,7 +337,12 @@ export function SemanaDoTopo({
               <motion.div
                 key="calendario-expandido"
                 className="absolute -inset-x-2 top-0 z-10 overflow-hidden rounded-b-[24px] px-2 pb-3"
-                style={{ background: "var(--ink2)", boxShadow: "var(--elevacao-3)" }}
+                // O recorte deixa a sombra só embaixo: no topo ela desenhava uma linha entre as letras da semana e o mês.
+                style={{
+                  background: "var(--ink2)",
+                  boxShadow: "var(--elevacao-3)",
+                  clipPath: "inset(0 -16px -24px -16px)",
+                }}
                 initial={{ height: alturaSemana + 12 }}
                 animate={{ height: ALTURA_DO_MES + 12 }}
                 exit={{ height: alturaSemana + 12 }}

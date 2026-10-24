@@ -700,6 +700,10 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-24 UTC — Claude — Linha entre as letras da semana e o mês no calendário da Agenda
+- Foto do dono: uma linha (sombra) separava "D S T Q Q S S" de "Outubro", que no Figaro não existe. Era o topo da sombra do painel do calendário
+  expandido (`SemanaDoTopo.tsx`); agora a sombra é recortada (`clipPath`) e sai só por baixo. Sem banco.
+
 ### 2026-10-23 UTC — Claude — Loading piscava em outro tema (Padrão antes do Rosé)
 - Vídeo do dono: ao carregar, a tela trocava de cor de forma estranha. **Causa:** `ManagementDrawer` aplicava `identidadeValida(undefined)` = Padrão
   enquanto a sessão carregava (e gravava "moderno" no `localStorage`, apagando o tema lembrado). **Correção:** só aplica quando a sessão chegou;
