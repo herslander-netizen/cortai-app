@@ -708,6 +708,7 @@ export function paginaStyle(config: PaginaConfig): CSSProperties {
     "--brand-primary": config.cores.principal,
     "--brand-secondary": config.cores.secundaria,
     "--brand-button": config.cores.botao,
+    "--brand-button-foreground": contrasteDaMarca(config.cores.botao),
     "--brand-background": config.cores.fundo,
     "--brand-text": config.cores.texto,
     "--brand-accent": config.cores.destaque,
