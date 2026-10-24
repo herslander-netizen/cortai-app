@@ -74,6 +74,9 @@ describe("navegação móvel", () => {
     const funcionalidades = readFileSync("src/lib/funcionalidades.ts", "utf8");
     expect(funcionalidades).toContain('detalhe: "Cores e estilo do app"');
     expect(funcionalidades).toContain('configurar: "/barbeiro/conta"');
+    expect(paginaPrincipal).toContain("query.isError && !query.data");
+    expect(paginaPrincipal).toContain('titulo="Não foi possível carregar sua página"');
+    expect(paginaPrincipal).toContain("Tentar novamente");
     expect(paginaPrincipal).toContain("Tirar página do ar");
     expect(paginaPrincipal).toContain("alterarStatusPaginaPublica");
     expect(paginaPrincipal).toContain('aria-label="Seções da página pública"');

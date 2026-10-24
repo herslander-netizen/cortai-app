@@ -26,7 +26,7 @@ Não foi feita escrita em banco, alteração de permissões, publicação na ver
 
 No servidor, `tenantDoDono` ignorava erros de leitura das tabelas de vínculos e perfil; `getMarca` também ignorava `error` em várias consultas ao banco. Isso podia transformar uma falha de rede/RLS em ausência de vínculo, configuração padrão ou contagens zero. **Corrigido em `src/lib/marca.functions.ts`**: só a ausência confirmada de permissão vira `null`; erros das consultas agora propagam uma falha recuperável.
 
-Continua aberto o estado visual: em `src/routes/barbeiro.marca.index.tsx`, `MarcaPage` trata `!query.data` como “Entre como responsável pelo negócio”, sem ramificar primeiro em `query.isError` nem oferecer uma ação de repetição. Isso pode mostrar uma mensagem de permissão incorreta quando a consulta falha. O arquivo estava sendo alterado por outra tarefa; o achado foi enviado como recado ao Claude para não criar conflito.
+**Corrigido também na interface** em `src/routes/barbeiro.marca.index.tsx`: `query.isError && !query.data` agora mostra o aviso Figaro de falha recuperável e botão “Tentar novamente”; só a resposta bem-sucedida sem vínculo exibe a mensagem de acesso. Foi acrescentada uma verificação de regressão em `src/lib/navegacao-movel.test.ts`.
 
 ### P2 — prazo e cancelamento das chamadas de rede
 
@@ -40,4 +40,4 @@ A auditoria da Agenda de 23/10 mediu redução de 121 para 13 renderizações em
 
 ## Validação
 
-**Validação concluída:** o GitHub Actions #1010 passou em TypeScript, Vitest, build e deploy isolado; o smoke test da prévia publicada também passou. A correção está na prévia em https://previa.cortaiapp.pages.dev. Ela não foi enviada à versão principal e não houve escrita em banco. A inspeção manual autenticada em 390 px, no Android real, continua pendente.
+**Validação em andamento para a última correção de interface.** O GitHub Actions #1010 já passou em TypeScript, Vitest, build e deploy isolado para a versão anterior desta revisão; o novo teste e a mensagem de erro serão confirmados pelo workflow do commit desta auditoria. A prévia está em https://previa.cortaiapp.pages.dev. A inspeção manual autenticada em 390 px, no Android real, continua pendente; a versão principal e o banco de produção permanecem intocados.

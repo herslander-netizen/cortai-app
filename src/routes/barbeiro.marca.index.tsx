@@ -15,6 +15,7 @@ import { PaineisDoEditor, type AbaPainelDoEditor } from "@/components/marca/edit
 import { useConfirmar } from "@/components/ui/useConfirmar";
 import { PreviaDaExperiencia } from "@/components/marca/editor/PreviaDaExperiencia";
 import { useEditorDaPagina } from "@/components/marca/editor/useEditorDaPagina";
+import { Aviso } from "@/components/ui/aviso";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
@@ -73,6 +74,31 @@ function MarcaPage() {
         >
           <Screen voltarPara="/barbeiro" title="Personalizar Página">
             <EsqueletoFormulario campos={6} onTentarDeNovo={() => void query.refetch()} />
+          </Screen>
+        </motion.div>
+      ) : query.isError && !query.data ? (
+        <motion.div
+          key="erro-carregamento"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0, transition: transicaoSaida }}
+          transition={transicaoEntrada}
+        >
+          <Screen voltarPara="/barbeiro" title="Personalizar Página">
+            <div className="space-y-4">
+              <Aviso tom="acao" titulo="Não foi possível carregar sua página">
+                Confira a conexão e tente novamente. Seus dados não foram alterados.
+              </Aviso>
+              <Button
+                variant="outline"
+                className="min-h-12"
+                loading={query.isFetching}
+                disabled={query.isFetching}
+                onClick={() => void query.refetch()}
+              >
+                Tentar novamente
+              </Button>
+            </div>
           </Screen>
         </motion.div>
       ) : !query.data ? (
