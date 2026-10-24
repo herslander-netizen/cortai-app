@@ -250,7 +250,7 @@ function Editor({
               Editar link
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
-              <Link to="/barbeiro/sua-pagina" search={{ qr: "1" }}>QR Code</Link>
+              <Link to="/barbeiro/sua-pagina">QR Code</Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem disabled={alterandoStatus} onSelect={() => void mudarStatusPagina()}>
