@@ -25,10 +25,10 @@ export const Route = createFileRoute("/barbeiro/sua-pagina")({
       { name: "robots", content: "noindex, nofollow" },
     ],
   }),
-  component: SuaPagina,
+  component: QrCodeDaPagina,
 });
 
-function SuaPagina() {
+function QrCodeDaPagina() {
   const query = useQuery({ queryKey: ["marca"], queryFn: () => getMarca(), retry: false });
   const [mensagem, setMensagem] = useState("");
   const [qrCode, setQrCode] = useState<string | null>(null);
@@ -154,21 +154,21 @@ function SuaPagina() {
             </Button>
           </div>
           <div className="mt-4 rounded-xl border-0 bg-[var(--agenda-cartao,var(--ink2))] p-4 text-center">
-              {qrCode ? <img src={cartaoDoQr ?? qrCode} alt={`QR Code para abrir a página pública de ${marca.nome}`} width={240} className="mx-auto h-auto w-60 max-w-full rounded-lg bg-qr-light" /> : <p role="status" className="text-sm text-mute">Gerando QR Code…</p>}
-              <p className="mt-2 text-xs text-mute">Aponte a câmera do celular para abrir sua página pública.</p>
-              <OpcoesConectadas
-                rotulo="Tipo de cartão do QR Code"
-                className="mt-4"
-                valor={varianteDoQr}
-                opcoes={(Object.keys(VARIANTES_DO_QR) as VarianteDoQr[]).map((v) => ({ valor: v, texto: VARIANTES_DO_QR[v].rotulo }))}
-                onChange={setVarianteDoQr}
-              />
-              {cartaoDoQr ? (
-                <div className="mt-3 grid grid-cols-2 gap-2">
-                  <a href={cartaoDoQr} download={`qr-${marca.slug}-${varianteDoQr}.png`} className="inline-flex min-h-12 items-center justify-center rounded-full border border-line px-4 text-sm font-medium text-paper">Salvar imagem</a>
-                  <button type="button" onClick={imprimirQr} className="inline-flex min-h-12 items-center justify-center rounded-full border border-line px-4 text-sm font-medium text-paper">Imprimir</button>
-                </div>
-              ) : null}
+            {qrCode ? <img src={cartaoDoQr ?? qrCode} alt={`QR Code para abrir a página pública de ${marca.nome}`} width={240} className="mx-auto h-auto w-60 max-w-full rounded-lg bg-qr-light" /> : <p role="status" className="text-sm text-mute">Gerando QR Code…</p>}
+            <p className="mt-2 text-xs text-mute">Aponte a câmera do celular para abrir sua página pública.</p>
+            <OpcoesConectadas
+              rotulo="Tipo de cartão do QR Code"
+              className="mt-4"
+              valor={varianteDoQr}
+              opcoes={(Object.keys(VARIANTES_DO_QR) as VarianteDoQr[]).map((v) => ({ valor: v, texto: VARIANTES_DO_QR[v].rotulo }))}
+              onChange={setVarianteDoQr}
+            />
+            {cartaoDoQr ? (
+              <div className="mt-3 grid grid-cols-2 gap-2">
+                <a href={cartaoDoQr} download={`qr-${marca.slug}-${varianteDoQr}.png`} className="inline-flex min-h-12 items-center justify-center rounded-full border border-line px-4 text-sm font-medium text-paper">Salvar imagem</a>
+                <button type="button" onClick={imprimirQr} className="inline-flex min-h-12 items-center justify-center rounded-full border border-line px-4 text-sm font-medium text-paper">Imprimir</button>
+              </div>
+            ) : null}
           </div>
           {mensagem ? <p role="status" className="mt-3 text-xs text-mute">{mensagem}</p> : null}
         </section>
