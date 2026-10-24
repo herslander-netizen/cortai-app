@@ -1603,7 +1603,7 @@ export function AgendaOperacional() {
             ) : visualizacao !== "lista" ? (
               <>
                 {celular ? (
-                  <MarcaDoLimiteDoDia className="mb-1" carregando={agenda.isFetching} naPagina />
+                  <MarcaDoLimiteDoDia className="mb-[-2.5px] mt-[6.5px]" carregando={agenda.isFetching} naPagina />
                 ) : null}
                 <AgendaTimeline
                   dia={dia}
@@ -1628,7 +1628,7 @@ export function AgendaOperacional() {
                   vizinhos={vizinhosMemo}
                 />
                 {celular ? (
-                  <MarcaDoLimiteDoDia className="mt-1" carregando={agenda.isFetching} naPagina />
+                  <MarcaDoLimiteDoDia className="mt-[-2.5px] mb-0.5" carregando={agenda.isFetching} naPagina />
                 ) : null}
               </>
             ) : celular ? (

@@ -3208,7 +3208,12 @@ html.agenda-gesto-ativo body {
 .agenda-dia-vizinha-pontos {
   position: absolute;
   inset-inline: 0;
-  top: -26px;
+  top: -19.5px;
+}
+
+/* Com o mês aberto a Agenda desce junto: sem reancorar a rolagem a cada quadro da animação. */
+html:has([data-calendario-aberto]) {
+  overflow-anchor: none;
 }
 
 /* Fora do gesto, a prévia nunca aparece, mesmo que um transform tenha ficado para trás. */
@@ -6474,7 +6479,7 @@ button.agenda-nome:hover {
 @keyframes agenda-pontos-correr {
   0% {
     transform: translate3d(0, 0, 0);
-    opacity: 0.6;
+    opacity: 0.45;
     animation-timing-function: cubic-bezier(0.55, 0, 0.9, 0.5);
   }
   45% {
@@ -6488,7 +6493,7 @@ button.agenda-nome:hover {
   }
   100% {
     transform: translate3d(0, 0, 0);
-    opacity: 0.6;
+    opacity: 0.45;
   }
 }
 .agenda-pontos[data-correndo] > span {

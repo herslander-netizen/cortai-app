@@ -150,10 +150,23 @@ describe("troca de dia em páginas no celular (como no vídeo de referência)", 
     expect(semana).not.toContain("translate3d(${lado * 36}%,0,0)");
   });
 
-  it("o calendário do mês cresce por cima da Agenda, sem empurrar a página", () => {
+  it("o calendário do mês empurra a Agenda junto (como no Figaro), na mesma curva do painel e sem reancorar a rolagem", () => {
     expect(semana).not.toContain('mode="wait"');
+    // O painel e o espaço que ele ocupa usam a mesma transição: a timeline desce colada, sem descolar.
     expect(semana).toContain("animate={{ height: ALTURA_DO_MES + 12 }}");
-    expect(semana).not.toContain('height: expandido ? ALTURA_DO_MES : "auto"');
+    expect(semana).toContain('animate={{ height: expandido ? ALTURA_DO_MES : "auto" }}');
+    expect(semana.match(/transition=\{TRANSICAO_DO_MES\}/g)?.length).toBe(2);
+    expect(semana).toContain("data-calendario-aberto");
+    expect(css).toMatch(/html:has\(\[data-calendario-aberto\]\) \{\s*overflow-anchor: none/);
+  });
+
+  it("os cinco pontos são discretos (3 px, vão de 8 px, alfa 0,45) e ficam a 12 px da grade", () => {
+    expect(semana).toContain('className="size-[3px] rounded-full bg-mute2 opacity-[0.45]"');
+    expect(semana).toContain("gap-2");
+    expect(css).not.toMatch(/agenda-pontos-correr[\s\S]{0,400}opacity: 0\.6/);
+    expect(operacional).toContain('className="mb-[-2.5px] mt-[6.5px]"');
+    expect(operacional).toContain('className="mt-[-2.5px] mb-0.5"');
+    expect(css).toMatch(/\.agenda-dia-vizinha-pontos \{[^}]*top: -19\.5px/);
   });
 
   it("o dia vizinho mostra o fora do expediente durante o gesto", () => {

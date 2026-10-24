@@ -700,6 +700,21 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-24 UTC — Claude — Ajuste fino da Agenda: cinco pontos e calendário que empurra a timeline
+- Pedido do dono (3 ajustes, referência Figaro). Lido `AGENTS.md`, `MUSE.md`, Em andamento/Recados; sem reserva nos arquivos tocados.
+- **1. Distância:** os cinco pontos ficavam a 18 px da primeira hora (o vão total era 26 px, mas os pontos colavam no calendário). Agora ficam a
+  12 px da grade e a 11 px do calendário (vão total ainda 26 px, então a timeline e os dias vizinhos não mudam de lugar). `AgendaOperacional.tsx`
+  (só as duas classes de margem) e `.agenda-dia-vizinha-pontos { top: -19.5px }` para os dias vizinhos alinharem.
+- **2. Calendário × timeline:** o mês crescia por cima da timeline (decisão de 18/10 por causa da piscada das fotos da equipe). Agora, como no
+  Figaro, o espaço do mês anima na **mesma transição do painel** (`TRANSICAO_DO_MES`, 0,3 s) e a timeline desce junto; `overflow-anchor: none`
+  enquanto o mês está aberto (`data-calendario-aberto`) para o navegador não reancorar a rolagem, que era a causa da piscada. `SemanaDoTopo.tsx`.
+  Medido no navegador (390 px): header 187→469 px ao abrir e volta; folga header→timeline constante em 26 px em todos os quadros, inclusive
+  com 8 toques rápidos de abrir/fechar (105 quadros, min = max = 26); rolagem da página sem mudança.
+- **3. Pontos discretos:** 4→3 px, vão 6→8 px, opacidade 0,6→0,45 (também na animação de "carregando"), cor `mute2` (token do tema).
+  Conferido nos 5 temas × claro/escuro (contraste ≈2,3–2,6 no escuro, ≈1,2–1,4 no claro, sempre visíveis e discretos).
+- Testes: `timeline-rolagem-celular.test.ts` (o teste antigo que proibia empurrar foi trocado pelo novo comportamento). `tsc` e `vitest` verdes.
+- **Pendente:** conferir no celular real (a prévia) se as fotos da equipe não piscam ao abrir o calendário.
+
 ### 2026-10-24 UTC — Claude — Linha entre as letras da semana e o mês no calendário da Agenda
 - Foto do dono: uma linha (sombra) separava "D S T Q Q S S" de "Outubro", que no Figaro não existe. Era o topo da sombra do painel do calendário
   expandido (`SemanaDoTopo.tsx`); agora a sombra é recortada (`clipPath`) e sai só por baixo. Sem banco.

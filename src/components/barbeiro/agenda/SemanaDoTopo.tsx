@@ -30,6 +30,8 @@ import { somarDias } from "./tempo";
 const MESES_EM_VOLTA = 12;
 /** Altura do calendário do mês aberto (a lista rola por dentro). */
 const ALTURA_DO_MES = 344;
+/** Mesma curva e duração para o painel do mês e para o espaço que ele ocupa: a timeline desce junto, sem descolar. */
+const TRANSICAO_DO_MES = { duration: 0.3, ease: [0.22, 1, 0.36, 1] } as const;
 /** A faixa tem três semanas; a do meio é a visível. `dx` acompanha o dedo ou a troca. */
 const posicaoDaFaixa = (dx: number) => `translate3d(calc(-100% / 3 + ${dx}px),0,0)`;
 
@@ -256,7 +258,7 @@ export function SemanaDoTopo({
     if (lista && mes) lista.scrollTop = mes.offsetTop;
   }, [expandido, mesDoDiaEscolhido, mesesProntos]);
   return (
-    <div data-sem-gesto-dia>
+    <div data-sem-gesto-dia data-calendario-aberto={expandido || undefined}>
       <div className="px-2 pb-3 rounded-b-xl">
         <div className="grid grid-cols-7 text-center text-sm font-medium text-mute" aria-hidden>
           {LETRAS_SEMANA.map((letra, i) => (
@@ -265,10 +267,15 @@ export function SemanaDoTopo({
             </span>
           ))}
         </div>
-        {/* Como no modelo: a superfície cresce até o mês e a semana dá lugar a ele ao mesmo tempo.
-            O mês cresce por cima da Agenda, sem empurrar a página: empurrar fazia o navegador
-            corrigir a rolagem um quadro depois e a linha da equipe piscava embaixo. */}
-        <div className="relative">
+        {/* Como no Figaro: a superfície cresce até o mês e a semana dá lugar a ele ao mesmo tempo, e a
+            Agenda abaixo desce junto (o espaço do mês anima na mesma curva do painel). A rolagem do mês
+            é só por dentro e o navegador não reancora a página (`overflow-anchor` em styles.css). */}
+        <motion.div
+          className="relative"
+          initial={false}
+          animate={{ height: expandido ? ALTURA_DO_MES : "auto" }}
+          transition={TRANSICAO_DO_MES}
+        >
           <motion.div
             ref={camadaSemana}
             initial={false}
@@ -346,7 +353,7 @@ export function SemanaDoTopo({
                 initial={{ height: alturaSemana + 12 }}
                 animate={{ height: ALTURA_DO_MES + 12 }}
                 exit={{ height: alturaSemana + 12 }}
-                transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                transition={TRANSICAO_DO_MES}
               >
                 <motion.div
                   initial={{ opacity: 0 }}
@@ -391,7 +398,7 @@ export function SemanaDoTopo({
               </motion.div>
             ) : null}
           </AnimatePresence>
-        </div>
+        </motion.div>
       </div>
     </div>
   );
@@ -437,7 +444,7 @@ export function MarcaDoLimiteDoDia({
       aria-hidden
       data-correndo={correndo || undefined}
       data-trilho-dia={naPagina ? "" : undefined}
-      className={`agenda-pontos flex h-3 items-center justify-center gap-[6px] ${className}`}
+      className={`agenda-pontos flex h-3 items-center justify-center gap-2 ${className}`}
     >
       {[0, 1, 2, 3, 4].map((i) => (
         <span
@@ -445,7 +452,7 @@ export function MarcaDoLimiteDoDia({
           data-ultimo={i === 0 ? "1" : undefined}
           style={{ animationDelay: `${(4 - i) * 140}ms` }}
           onAnimationIteration={aoVoltar}
-          className="size-1 rounded-full bg-mute2 opacity-60"
+          className="size-[3px] rounded-full bg-mute2 opacity-[0.45]"
         />
       ))}
     </div>
