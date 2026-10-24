@@ -94,7 +94,7 @@ export function ConfirmacaoAgendamento({
             decoding="async"
           />
         ) : null}
-        <div className="relative mx-auto flex max-w-[520px] items-center gap-3">
+        <div className="relative mx-auto flex w-full max-w-[520px] items-center gap-3">
           <LogoBarbearia nome={confirmacao.barbearia} url={logoUrl ?? null} size={56} />
           <div>
             <p className="text-sm font-semibold text-mute">Seu horário em</p>
@@ -102,16 +102,16 @@ export function ConfirmacaoAgendamento({
           </div>
         </div>
       </header>
-      <section className="mx-auto w-full max-w-[520px] px-5 pt-5">
+      <section className="mx-auto w-full max-w-[520px] px-4 pt-4 sm:px-5 sm:pt-5">
         <span
           className={`mov-confirmacao flex size-14 items-center justify-center rounded-full ${ativo ? "bg-gold/15 text-gold" : "bg-brick/15 text-brick"}`}
         >
           {ativo ? <VistoAnimado tamanho={56} /> : <CalendarX size={28} aria-hidden />}
         </span>
-        <h1 className="mt-3 text-2xl font-bold text-paper">{titulo}</h1>
+        <h1 className="mt-3 text-2xl font-bold leading-tight text-paper sm:text-3xl">{titulo}</h1>
         {ativo && textoFinal ? <p className="mt-2 text-sm text-mute">{textoFinal}</p> : null}
         {ativo && confirmacao.endereco ? (
-          <p className="mt-2 flex items-start gap-2 text-sm text-mute">
+          <p className="mt-2 flex items-start gap-2 text-sm leading-relaxed text-mute">
             <MapPin size={16} className="mt-0.5 shrink-0" aria-hidden />
             {confirmacao.endereco}
           </p>
@@ -136,8 +136,8 @@ export function ConfirmacaoAgendamento({
           </p>
         ) : null}
         {ativo ? (
-          <div className="mt-4 grid gap-2">
-            <Button asChild size="lg" variant="primary" className="rounded-full">
+          <div className="mt-4 grid gap-2 sm:gap-3">
+            <Button asChild size="lg" variant="primary" className="min-h-12 rounded-full sm:min-h-14">
               <a href={linkGoogleAgenda(confirmacao)} target="_blank" rel="noopener noreferrer">
                 <CalendarPlus />
                 Adicionar à agenda
@@ -146,7 +146,7 @@ export function ConfirmacaoAgendamento({
             {extras}
             <Collapsible>
               <CollapsibleTrigger asChild>
-                <Button variant="ghost" className="w-full">
+                <Button variant="ghost" className="min-h-12 w-full justify-between">
                   Mais formas de guardar e enviar
                   <ChevronDown aria-hidden />
                 </Button>
@@ -183,7 +183,7 @@ export function ConfirmacaoAgendamento({
             </Collapsible>
             <Collapsible>
               <CollapsibleTrigger asChild>
-                <Button variant="outline" className="w-full justify-between">
+                <Button variant="outline" className="min-h-12 w-full justify-between">
                   Gerenciar agendamento
                   <ChevronDown aria-hidden />
                 </Button>
@@ -229,7 +229,7 @@ export function ConfirmacaoAgendamento({
             href="/apresentacao"
             target="_blank"
             rel="noopener"
-            className="mx-auto mt-10 flex min-h-12 w-fit items-center px-3 text-xs font-semibold text-mute"
+            className="mx-auto mt-6 flex min-h-12 w-fit items-center px-3 text-xs font-semibold text-mute sm:mt-10"
           >
             Agendado com Cortaí
           </a>
