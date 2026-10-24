@@ -5,6 +5,7 @@ import { useState } from "react";
 
 import { Screen } from "@/components/layout/Screen";
 import { Button } from "@/components/ui/button";
+import { Chip } from "@/components/ui/chip";
 import { useAcao } from "@/hooks/useAcao";
 import { entrarNaFila } from "@/lib/fila-cliente.functions";
 import { useContextoCliente } from "@/lib/contexto-cliente";
@@ -101,18 +102,11 @@ function EsperaPage() {
           {horario ? null : (
             <fieldset className="mt-6">
               <legend className="text-xs text-mute2">Melhor período</legend>
-              <div className="mt-2 grid grid-cols-2 gap-2">
+              <div className="mt-2 flex flex-wrap gap-2">
                 {JANELAS.map((j, i) => (
-                  <Button
-                    key={j.rotulo}
-                    type="button"
-                    variant="ghost"
-                    aria-pressed={i === janela}
-                    onClick={() => setJanela(i)}
-                    className={`min-h-12 rounded-lg border px-3 text-xs ${i === janela ? "border-gold text-paper" : "border-line2 text-mute"}`}
-                  >
+                  <Chip key={j.rotulo} selecionado={i === janela} onClick={() => setJanela(i)}>
                     {j.rotulo}
-                  </Button>
+                  </Chip>
                 ))}
               </div>
             </fieldset>

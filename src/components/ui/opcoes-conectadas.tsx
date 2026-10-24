@@ -1,3 +1,5 @@
+import type { ReactNode } from "react";
+
 import { cn } from "@/lib/utils";
 
 /**
@@ -14,7 +16,7 @@ export function OpcoesConectadas<T extends string>({
 }: {
   rotulo: string;
   valor: T;
-  opcoes: ReadonlyArray<{ valor: T; texto: string }>;
+  opcoes: ReadonlyArray<{ valor: T; texto: string; icone?: ReactNode }>;
   onChange: (valor: T) => void;
   className?: string;
 }) {
@@ -37,14 +39,15 @@ export function OpcoesConectadas<T extends string>({
             aria-pressed={marcada}
             onClick={() => onChange(o.valor)}
             className={cn(
-              "min-h-12 min-w-0 flex-1 px-4 text-sm font-medium transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring motion-reduce:transition-none",
+              "inline-flex min-h-12 min-w-0 flex-1 items-center justify-center gap-2 px-4 text-sm font-medium transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring motion-reduce:transition-none",
               raio,
               marcada
                 ? "bg-[var(--figaro-primary-container,var(--gold))] text-[var(--figaro-on-primary-container,var(--ink))]"
                 : "bg-[var(--figaro-surface-container-highest,var(--ink3))] text-paper",
             )}
           >
-            {o.texto}
+            {o.icone}
+            <span className="truncate">{o.texto}</span>
           </button>
         );
       })}

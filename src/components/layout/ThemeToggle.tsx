@@ -4,6 +4,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 
 import { Button } from "@/components/ui/button";
+import { OpcoesConectadas } from "@/components/ui/opcoes-conectadas";
 import { aviso } from "@/lib/avisos";
 import {
   APPEARANCE_EVENT,
@@ -139,24 +140,15 @@ export function ThemeToggle({
 
       <div className="mt-4">
         <p className="mb-2 text-xs font-semibold text-mute">Modo</p>
-        <div className="grid grid-cols-3 gap-2" role="group" aria-label="Modo de cor">
-          {MODOS.map((item) => {
+        <OpcoesConectadas
+          rotulo="Modo de cor"
+          valor={modo}
+          opcoes={MODOS.map((item) => {
             const Icon = item.icon;
-            return (
-              <Button
-                key={item.id}
-                type="button"
-                variant={modo === item.id ? "default" : "outline"}
-                onClick={() => alterarModo(item.id)}
-                aria-pressed={modo === item.id}
-                className="h-12 min-w-0 px-2"
-              >
-                <Icon strokeWidth={1.75} />
-                <span className="truncate">{item.nome}</span>
-              </Button>
-            );
+            return { valor: item.id, texto: item.nome, icone: <Icon size={18} strokeWidth={1.75} aria-hidden /> };
           })}
-        </div>
+          onChange={alterarModo}
+        />
       </div>
     </section>
   );

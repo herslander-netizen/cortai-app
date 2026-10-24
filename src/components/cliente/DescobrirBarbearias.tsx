@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
+import { GrupoDeLinhas } from "@/components/ui/formulario/LinhasDeConfiguracao";
 import { useQuery } from "@tanstack/react-query";
-import { MapPin, Search } from "lucide-react";
+import { ChevronRight, MapPin, Search } from "lucide-react";
 import { useState } from "react";
 
 import { buscarBarbearias } from "@/lib/descoberta.functions";
@@ -77,13 +78,13 @@ export function DescobrirBarbearias({
           </p>
         ) : null}
 
-        <ul>
+        <GrupoDeLinhas>
           {resultados.map((barbearia) => (
             <li key={barbearia.id}>
               <Link
                 to="/b/$slug"
                 params={{ slug: barbearia.slug }}
-                className={`flex items-center justify-between gap-4 border-b border-line ${discreto ? "min-h-[56px] py-3" : "min-h-[64px] py-4"}`}
+                className={`flex items-center justify-between gap-4 px-5 ${discreto ? "min-h-[56px] py-3" : "min-h-[72px] py-4"}`}
               >
                 <span className="min-w-0">
                   <span
@@ -101,11 +102,11 @@ export function DescobrirBarbearias({
                     </span>
                   ) : null}
                 </span>
-                <span className="shrink-0 text-xs text-gold">Ver</span>
+                <ChevronRight size={20} className="shrink-0 text-mute" aria-hidden />
               </Link>
             </li>
           ))}
-        </ul>
+        </GrupoDeLinhas>
       </div>
     </section>
   );
