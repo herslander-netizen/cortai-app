@@ -703,6 +703,14 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-24 UTC — GPT — Auditoria dos fluxos e expansão inicial da biblioteca de temas
+- Auditoria: a rota Layout & Tema aplica tema localmente com `aplicarTema`, mantém layout/tema na query string de “Ver Exemplo”, salva somente como rascunho e retorna ao editor; a publicação segue no fluxo principal com validação de seções obrigatórias. Restauração de versões continua no editor principal. Nenhuma alteração de banco/backend.
+- Catálogo ampliado de 6 para 12 temas sem remover os 3 temas originais do Figaro nem as 3 paletas suaves existentes. Adicionados ao catálogo os temas já definidos Cortaí, Cortaí Creme, Nude, Premium, Clean e Editorial. Todos os layouts do catálogo compartilham as 12 paletas.
+- As capas WebP continuam restritas aos seis temas que possuem imagens geradas; os seis novos temas usam a miniatura SVG existente, evitando requisições 404 por imagens que não existem.
+- Auditoria de acessibilidade encontrou texto dos botões públicos ligado à cor do fundo, não à cor do botão. Criado o token `--brand-button-foreground`, aplicado no CTA sólido; o CTA em contorno usa o texto da página. Teste verifica contraste mínimo 4,5:1 nos 19 temas definidos.
+- O botão “Salvar Alterações” agora fica desabilitado durante o próprio salvamento para evitar envio duplicado. Testes adicionados para tamanho/uniquidade do catálogo, troca de layout entre site e chat, preservação de conteúdo ao selecionar tema e contraste dos botões.
+- Commits de código: `5cfc2e8`, `1b4cf82`, `caf17bc`, `36b92b9`, `d558760`, `c56bee0`, `4e9a43f`, `fa47795`, `e9f8346`. Validação automatizada da ponta `e9f8346` em andamento no GitHub Actions; não afirmar build/testes nem prévia atualizada até o workflow concluir. Conferência visual em 390/1280 px ainda pendente.
+
 ### 2026-10-24 UTC — Claude — Padrão Figaro em tudo, lote 2: voltar redondo e controle segmentado
 - `Screen`: botão de voltar redondo de 44 dp (como `FigarooAgendaTopBar`) no lugar do link "Voltar".
 - `ui/opcoes-conectadas.tsx` (`FigarooConnectedButtonGroup`): selecionado em container primário, demais em superfície alta. Usado em Período (Comissões e Agendamentos), Atendimentos/Vendas (Histórico), tipo de cartão do QR e ciclo/forma de pagamento no plano. `pecas.tsx` reexporta o mesmo componente.
