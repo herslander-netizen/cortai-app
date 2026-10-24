@@ -162,6 +162,22 @@ export function useEditorDaPagina(initial: MarcaData, reload: () => void) {
     }
   };
 
+  // Capa e fotos escolhidas na galeria de fotos do negócio (as imagens já estão no armazenamento).
+  const escolherCapa = (path: string, url: string) => {
+    setMarca("capa_url", path);
+    setCoverPreview(url);
+    setStatus("Imagem de fundo escolhida. Salve ou publique para aplicar.");
+  };
+  const removerCapa = () => {
+    setMarca("capa_url", null);
+    setCoverPreview(null);
+    setStatus("Imagem de fundo removida. Salve ou publique para aplicar.");
+  };
+  const definirFotos = (paths: string[]) => {
+    setForm((old) => ({ ...old, fotos: paths.slice(0, 8) }));
+    setStatus("Galeria atualizada. Salve o rascunho para guardar a alteração.");
+  };
+
   const usarLogo = (path: string, url: string) => {
     setMarca("logo_url", path);
     setLogoPreview(url);
@@ -287,6 +303,9 @@ export function useEditorDaPagina(initial: MarcaData, reload: () => void) {
     setAvatarPreview,
     fotosPreview,
     removerFoto,
+    escolherCapa,
+    removerCapa,
+    definirFotos,
     upload,
     usarLogo,
     removerLogo,

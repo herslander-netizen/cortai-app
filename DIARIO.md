@@ -700,6 +700,12 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-24 UTC — Claude — Hero e Galeria da página como no Figaro
+- Personalizar Página: a seção "Foto em Destaque" (`apresentacao`) agora é `EditorDeHero` (imagem de fundo pela galeria de fotos/upload, frase com mínimo de 8 caracteres, sobre, chamada e botão fixo); `SecaoTextos.tsx` removido. A seção Galeria usa `ListaDeFotos` (até 8 fotos, upload ou galeria do aparelho, reordenar/remover). Hook `useEditorDaPagina` ganhou `escolherCapa`, `removerCapa`, `definirFotos`.
+- Arquivos em `src/components/marca/editor/*` (reservados ao GPT) tocados só nessas seções. Teste `navegacao-movel.test.ts` atualizado. tsc, vitest (1906) e build verdes.
+- **Para o GPT:** conferir que não há edição sua pendente em `EditorDaSecaoPublica.tsx`/`secoes/editores.tsx` antes de mexer.
+- Próximo: Layout & Tema com capas reais por tema e "Ver Exemplo" em tela cheia.
+
 ### 2026-10-24 UTC — Claude — "Sua Página" não carregava para o Bella Rosa (tema desconhecido na marca)
 - Relato do dono (print): ao tocar em Sua Página a tela ficava sem conteúdo. **Reproduzido** num rig local novo (dev server + servidor falso do Supabase com os dados reais do Bella Rosa, lidos com SELECT
   no `cortai-prod`, sem escrita): `tenants.tema = "rose-creme"` (tema da **página**, gravado pela demonstração) não está nos 8 temas da **marca** (`TEMAS_MARCA`), então `getMarca` lançava no

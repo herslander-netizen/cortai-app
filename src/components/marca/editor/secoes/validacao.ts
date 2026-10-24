@@ -21,6 +21,14 @@ export function erroDoSubtituloDaGaleria(subtitulo: string): string | null {
   return null;
 }
 
+/** Texto obrigatório com mínimo de caracteres (frase do Hero): "Obrigatório" ou "Mínimo de N caracteres". */
+export function textoMinimo(texto: string, minimo: number): string | null {
+  const t = texto.trim();
+  if (t.length === 0) return "Obrigatório";
+  if (t.length < minimo) return `Mínimo de ${minimo} caracteres`;
+  return null;
+}
+
 export function erroDaBio(bio: string): string | null {
   if (bio.trim().length > LIMITES_DA_SECAO.bio)
     return `A bio não pode passar de ${LIMITES_DA_SECAO.bio} caracteres.`;

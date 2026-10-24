@@ -82,8 +82,8 @@ describe("navegação móvel", () => {
     expect(editor).toContain('to="/barbeiro/produtos"');
     expect(editor).toContain('to="/barbeiro/horarios"');
     expect(rota).toContain("<EditorDaSecaoPublica secao={secao} e={e} reportarErro={reportarErro} />");
-    expect(editores).toContain('titulo="Fotos"');
-    expect(editores).toContain('e.upload(ev, "foto")');
+    expect(editores).toContain('titulo="Fotos da galeria da página"');
+    expect(editores).toContain("e.definirFotos(");
     const hook = readFileSync("src/components/marca/editor/useEditorDaPagina.ts", "utf8");
     expect(hook).toContain("form.fotos.length >= 8");
     expect(hook).toContain("createSignedUrl(path, 60 * 60)");

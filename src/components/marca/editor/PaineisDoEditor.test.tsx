@@ -17,7 +17,6 @@ vi.mock("@/components/marca/editor/SecaoLink", () => ({ SecaoLink: () => null })
 vi.mock("@/components/marca/editor/SecaoRedes", () => ({ SecaoRedes: () => null }));
 vi.mock("@/components/marca/editor/SecaoRecepcao", () => ({ SecaoRecepcao: () => null }));
 vi.mock("@/components/marca/editor/SecaoTema", () => ({ SecaoTema: () => null }));
-vi.mock("@/components/marca/editor/SecaoTextos", () => ({ SecaoTextos: () => null }));
 vi.mock("@/components/marca/editor/SecaoVersoes", () => ({ SecaoVersoes: () => null }));
 
 (globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT: boolean }).IS_REACT_ACT_ENVIRONMENT =

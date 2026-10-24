@@ -2,8 +2,8 @@ import { EsqueletoLista } from "@/components/layout/Esqueleto";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { ImagePlus, Trash2 } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { ListaDeFotos } from "@/components/fotos/SeletorDeFoto";
+import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -224,7 +224,6 @@ export function EditorDeEquipe({ e, reportarErro }: PropsDoEditor) {
 /** Galeria (`photo-gallery`): título, subtítulo e fotos. */
 export function EditorDeGaleria({ e, reportarErro }: PropsDoEditor) {
   const [secao, alterar] = useSecao(e, "galeria");
-  const inputRef = useRef<HTMLInputElement>(null);
   const erroTitulo = erroDoTituloDaGaleria(secao.titulo);
   const erroSubtitulo = erroDoSubtituloDaGaleria(secao.subtitulo);
   const erro = erroTitulo ?? erroSubtitulo;
@@ -233,64 +232,16 @@ export function EditorDeGaleria({ e, reportarErro }: PropsDoEditor) {
     <>
       <GrupoDeCampos titulo="Fotos">
         <p className="text-sm leading-relaxed text-mute">
-          Adicione até 8 fotos JPG, PNG ou WebP. Remover uma foto da galeria não apaga o arquivo.
+          Escolha até 8 fotos na galeria ou envie novas do aparelho. Remover uma foto da galeria não
+          apaga o arquivo.
         </p>
-        {e.fotosPreview.length ? (
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-            {e.fotosPreview.map((foto, index) => (
-              <article
-                key={foto.path}
-                className="overflow-hidden rounded-2xl border border-line bg-ink3"
-              >
-                {foto.url ? (
-                  <img
-                    src={foto.url}
-                    alt={`Foto ${index + 1} da galeria`}
-                    className="aspect-square w-full object-cover"
-                  />
-                ) : (
-                  <div className="flex aspect-square items-center justify-center px-3 text-center text-xs text-mute">
-                    Imagem indisponível
-                  </div>
-                )}
-                <div className="p-2">
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    className="min-h-11 w-full"
-                    disabled={e.busy}
-                    onClick={() => e.removerFoto(foto.path)}
-                    aria-label={`Remover foto ${index + 1}`}
-                  >
-                    <Trash2 size={16} aria-hidden />
-                    Remover foto
-                  </Button>
-                </div>
-              </article>
-            ))}
-          </div>
-        ) : (
-          <p className="rounded-2xl border border-dashed border-line px-4 py-6 text-center text-sm text-mute">
-            Nenhuma foto adicionada à galeria.
-          </p>
-        )}
-        <input
-          ref={inputRef}
-          type="file"
-          accept="image/png,image/jpeg,image/webp"
-          className="hidden"
-          onChange={(ev) => void e.upload(ev, "foto")}
+        <ListaDeFotos
+          fotos={e.fotosPreview.map((f) => ({ valor: f.path, url: f.url ?? "" }))}
+          max={8}
+          prefixo="foto"
+          titulo="Fotos da galeria da página"
+          onChange={(fotos) => e.definirFotos(fotos.map((f) => f.valor))}
         />
-        <Button
-          type="button"
-          variant="outline"
-          className="min-h-12 w-full"
-          disabled={e.busy || e.form.fotos.length >= 8}
-          onClick={() => inputRef.current?.click()}
-        >
-          <ImagePlus size={17} aria-hidden />
-          {e.form.fotos.length >= 8 ? "Limite de 8 fotos atingido" : "Adicionar foto"}
-        </Button>
       </GrupoDeCampos>
       <GrupoDeCampos titulo="Título">
         <Campo

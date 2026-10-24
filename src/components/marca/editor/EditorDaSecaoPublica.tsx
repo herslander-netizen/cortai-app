@@ -4,7 +4,6 @@ import { CalendarDays, ExternalLink, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { SecaoRedes } from "@/components/marca/editor/SecaoRedes";
-import { SecaoTextos } from "@/components/marca/editor/SecaoTextos";
 import { Campo } from "@/components/marca/editor/campos";
 import { useEditorDaPagina } from "@/components/marca/editor/useEditorDaPagina";
 import { componenteIds } from "@/lib/pagina-config";
@@ -16,6 +15,7 @@ import {
   EditorDeServicos,
   type PropsDoEditor,
 } from "./secoes/editores";
+import { EditorDeHero } from "./secoes/EditorDeHero";
 
 type Secao = (typeof componenteIds)[number];
 type Editor = ReturnType<typeof useEditorDaPagina>;
@@ -57,15 +57,7 @@ function IrParaGestao({
 export function EditorDaSecaoPublica({ secao, e, reportarErro }: { secao: Secao } & PropsDoEditor) {
   switch (secao) {
     case "apresentacao":
-      return (
-        <SecaoTextos
-          config={e.config}
-          setPagina={e.setPagina}
-          form={e.form}
-          setMarca={e.setMarca}
-          vocabulario={e.vocabulario}
-        />
-      );
+      return <EditorDeHero e={e} reportarErro={reportarErro} />;
     case "servicos":
       return <EditorDeServicos e={e} reportarErro={reportarErro} />;
     case "profissionais":
