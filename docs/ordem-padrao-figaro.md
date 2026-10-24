@@ -76,7 +76,13 @@ raio e movimento.
 
 ## 6. Estado da unificação (24/10/2026)
 
-Feito: Chip único, cartões sem contorno, diálogos de 28 dp, selos em pílula, campos, selects, caixas de
-seleção, controle segmentado conectado, botão de voltar redondo, cartões de Layout & Tema e plano em estilo
-Figaro. Teste de guarda ativo. Pendente: revisão visual completa do app do cliente, das telas de acesso, do
-admin e da página pública, e a passada final no celular real. Novos itens entram aqui.
+**Feito e conferido em captura (390 px, claro):** Chip único, cartões sem contorno, diálogos de 28 dp, selos em
+pílula, `Aviso` em banner tonal, campos e selects, caixas de seleção quadradas, controle segmentado conectado,
+botão de voltar redondo, Layout & Tema, plano, as 36 telas da área do negócio e as telas principais do app do
+cliente (Início, Lista de espera, Perfil, Agendar). Teste de guarda ativo (`src/lib/estilo-figaro.test.ts`).
+
+**Ainda não conferido em captura (conferir e corrigir quando mexer):** telas do admin com dados, página pública
+de agendamento do cliente final, telas de acesso (login em fluxo animado do Figaro; recuperar e redefinir senha
+em fundo claro próprio), tema escuro de todas as telas e a passada final no celular real do dono.
+
+Novos itens e exceções decididas pelo dono entram aqui.

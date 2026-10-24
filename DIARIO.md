@@ -704,6 +704,10 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-24 UTC — Claude — Padrão Figaro, lote 4: app do cliente e fechamento do estado
+- App do cliente: modo de cor (Claro/Escuro/Sistema) em `OpcoesConectadas` (agora com ícone opcional), "Melhor período" da lista de espera em `Chip`, lista de lugares em `GrupoDeLinhas` com seta. Conferido em captura com um cliente fictício.
+- `docs/ordem-padrao-figaro.md` §6 atualizado com o que foi conferido e o que ainda falta conferir (admin com dados, página pública, acesso, tema escuro, celular real).
+
 ### 2026-10-24 UTC — Claude — Padrão Figaro, lote 3: avisos e erros
 - `Aviso` (`ui/aviso.tsx`) agora é o banner tonal de 20 dp do Figaro, sem faixa lateral. Os erros e avisos soltos com `border-l-2` (Financeiro, Histórico, Hoje, Visão Casa, Atendimento manual, Admin) viraram `Aviso`; o teste de guarda proíbe o padrão antigo (exceção: faixa de estado da lista da Agenda).
 - Sugestões do assistente CortAI usam o `Chip`.
