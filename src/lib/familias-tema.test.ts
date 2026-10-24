@@ -8,6 +8,7 @@ import {
   LAYOUTS_DO_CATALOGO,
   layoutIds,
   normalizarPagina,
+  paginaStyle,
   TEMAS,
   TEMAS_ADICIONAIS_DO_CATALOGO,
   TEMAS_DO_CATALOGO,
@@ -17,6 +18,7 @@ import {
   temasDoLayout,
   trocarLayoutNoCatalogo,
 } from "@/lib/pagina-config";
+import { contraste } from "@/lib/cor-marca";
 import { SEGMENTOS, SEGMENTOS_CONFIG } from "@/lib/segmentos";
 
 describe("famílias de tema", () => {
@@ -69,6 +71,15 @@ describe("famílias de tema", () => {
     expect(site.layout).toBe("figaro-site-completo");
     expect(site.tema).toBe("premium");
     expect(site.experiencia).toBe("vitrine");
+  });
+
+  it("mantém contraste AA no texto dos botões de todos os temas", () => {
+    for (const tema of temaIds) {
+      const config = aplicarTema(configPadrao(), tema);
+      const estilo = paginaStyle(config) as Record<string, unknown>;
+      const foreground = String(estilo["--brand-button-foreground"]);
+      expect(contraste(foreground, config.cores.botao)).toBeGreaterThanOrEqual(4.5);
+    }
   });
 
   it("aplicar um tema altera a paleta sem apagar o conteúdo e os ajustes do layout", () => {
