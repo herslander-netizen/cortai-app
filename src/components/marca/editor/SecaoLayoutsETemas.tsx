@@ -93,9 +93,9 @@ function Painel({ aberto, children }: { aberto: boolean; children: React.ReactNo
 }
 
 /**
- * Layout & Tema do Figaro (`LayoutThemeScreen`, spec 4 §4): dois painéis exclusivos — LAYOUT e TEMA — com
- * carrossel de cartões de 286 px. O catálogo é o do Figaro (2 layouts × 3 temas). O layout ou tema antigo do
- * Cortaí, se for o atual, aparece só como valor no cabeçalho até a pessoa escolher outro.
+ * Layout & Tema no padrão de interação do Figaro: dois painéis exclusivos — LAYOUT e TEMA — com
+ * carrossel de cartões de 286 px. O catálogo mantém os três layouts e reúne 12 temas; a paleta não altera
+ * a estrutura do layout. A seleção e o salvamento continuam sob responsabilidade da rota/hook existentes.
  */
 export function SecaoLayoutsETemas({
   config,
