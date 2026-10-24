@@ -711,10 +711,11 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - Em `src/lib/guarda-capacidade.ts`, a leitura de capacidades no `beforeLoad` tem limite de 4 segundos; as verificações efetivas de permissões continuam no servidor.
 - `getMarca` agora separa ausência real de acesso de falhas de leitura; valida os erros retornados pelas consultas do Supabase para não transformar falhas em configuração vazia nem contagens iguais a zero.
 - Novo utilitário `src/lib/prazo.ts` coberto por três testes: resultado normal, timeout e distinção de `PrazoEsgotado`.
-- GitHub Actions #1010 verde: TypeScript, Vitest, build, deploy isolado e smoke test da prévia. Prévia: https://previa.cortaiapp.pages.dev.
+- GitHub Actions #1013 verde no commit `34823c14`: TypeScript, Vitest (218 arquivos, 1.947 aprovados/1 ignorado), build, deploy isolado e smoke test da prévia. Prévia: https://previa.cortaiapp.pages.dev.
 - Relatório geral: `docs/auditoria-geral-carregamento-2026-10-24.md`. Atualizei `docs/auditoria-limpeza-2026-10-24.md` e `docs/mapa-do-codigo.md` para reconciliar achados antigos com a limpeza executada e links que já foram centralizados.
 - Corrigi também `src/routes/barbeiro.marca.index.tsx`: quando a consulta falha sem dados, a tela mostra aviso recuperável e botão “Tentar novamente”; não confunde erro de rede com ausência de acesso. O teste de regressão foi acrescentado a `src/lib/navegacao-movel.test.ts`.
-- Pendente: validar esta revisão pelo GitHub Actions e fazer teste manual autenticado em Android a 390 px. Sem escrita em banco, `main` ou publicação principal.
+- Próximo item fora desta correção: `src/lib/guarda.ts` espera `getSessao()` sem prazo na guarda de rotas protegidas; pertence à reserva antiga da auditoria de autenticação/sessão e pode manter uma navegação direta em estado pendente se a promessa não resolver.
+- Pendente apenas o teste manual autenticado em Android a 390 px. Sem escrita em banco, `main` ou publicação principal.
 
 
 ### 2026-10-24 UTC — Claude — Personalizar página: tirei o que duplicava Layout & Tema e o QR Code

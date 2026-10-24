@@ -28,6 +28,10 @@ No servidor, `tenantDoDono` ignorava erros de leitura das tabelas de vínculos e
 
 **Corrigido também na interface** em `src/routes/barbeiro.marca.index.tsx`: `query.isError && !query.data` agora mostra o aviso Figaro de falha recuperável e botão “Tentar novamente”; só a resposta bem-sucedida sem vínculo exibe a mensagem de acesso. Foi acrescentada uma verificação de regressão em `src/lib/navegacao-movel.test.ts`.
 
+### P1 — guarda de sessão sem prazo máximo (fora da correção desta rodada)
+
+Em `src/lib/guarda.ts`, `exigirPapel` aguarda `sessaoDoUsuario`, que por sua vez aguarda `getSessao()` sem limite total de duração. Num acesso direto/refresh para uma rota protegida, uma chamada de servidor que nunca resolve pode manter a rota no estado de carregamento; a promessa pendente também fica no cache da sessão por até cinco minutos. Esse arquivo faz parte da auditoria de autenticação/sessão já reservada no `DIARIO.md`, então foi registrado como próximo item e não foi alterado nesta correção.
+
 ### P2 — prazo e cancelamento das chamadas de rede
 
 O novo prazo do `getMarca` melhora o estado visível, mas não cancela automaticamente as operações de Supabase que já começaram. É recomendável propagar `AbortSignal` nas consultas que suportam cancelamento e conferir tempos reais no aparelho com rede móvel.
@@ -40,4 +44,4 @@ A auditoria da Agenda de 23/10 mediu redução de 121 para 13 renderizações em
 
 ## Validação
 
-**Validação em andamento para a última correção de interface.** O GitHub Actions #1010 já passou em TypeScript, Vitest, build e deploy isolado para a versão anterior desta revisão; o novo teste e a mensagem de erro serão confirmados pelo workflow do commit desta auditoria. A prévia está em https://previa.cortaiapp.pages.dev. A inspeção manual autenticada em 390 px, no Android real, continua pendente; a versão principal e o banco de produção permanecem intocados.
+**Validação concluída:** o GitHub Actions #1013 passou em build, TypeScript, Vitest (218 arquivos: 1.947 testes aprovados e 1 ignorado), deploy isolado e smoke test da prévia publicada. A versão atual está em https://previa.cortaiapp.pages.dev. A inspeção manual autenticada em 390 px, no Android real, continua pendente; a versão principal e o banco de produção permanecem intocados.
