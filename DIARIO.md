@@ -472,7 +472,7 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 | Quem | Desde (UTC) | Tarefa | Arquivos / migração reservada |
 |---|---|---|---|
-| GPT | 2026-10-22 UTC | Lote 3 de P.12: C7 (recuo dos cartões) e C10 (painel semanal) implementados; CI e prévia verdes. Continuar conferência visual de C7/C8/C12 e pendências C9/C16/P3 sem alterar regras/fluxos | `DIARIO.md`, `docs/referencia-figaro/apk/8-inventario-de-animacoes.md`, `src/components/marca/editor/CartoesDeLayoutTema.tsx`, `src/components/marca/editor/SecaoLayoutsETemas.tsx`, `src/components/marca/editor/SecaoImagens.tsx`, `src/components/marca/editor/SecaoRecepcao.tsx`, `src/components/onboarding/PrimeirosPassos.tsx`, `src/components/onboarding/EditorDeHorarios.tsx`, `src/components/ui/collapsible.tsx`, `src/components/notificacoes/*`, `src/routes/barbeiro.equipe.tsx`, `src/routes/barbeiro.marca.tsx`; sem migração |
+| GPT | 2026-10-22 UTC | Lote 3 de P.12: C7, C10 e C16 implementados com testes; validar workflow/prévia e seguir conferência de C8/C12 e pendências C9/P3 sem alterar regras/fluxos | `DIARIO.md`, `docs/referencia-figaro/apk/8-inventario-de-animacoes.md`, `src/components/marca/editor/CartoesDeLayoutTema.tsx`, `src/components/marca/editor/SecaoLayoutsETemas.tsx`, `src/components/marca/editor/SecaoImagens.tsx`, `src/components/marca/editor/SecaoRecepcao.tsx`, `src/components/onboarding/PrimeirosPassos.tsx`, `src/components/onboarding/EditorDeHorarios.tsx`, `src/components/barbeiro/agenda/CabecalhoDeEdicao.tsx`, `src/components/ui/collapsible.tsx`, `src/components/notificacoes/*`, `src/routes/barbeiro.equipe.tsx`, `src/routes/barbeiro.marca.tsx`; sem migração |
 | GPT | 2026-10-21 UTC | Corrigir a varredura de WhatsApp/Asaas: diagnosticar timeouts, preparar correção dos cron jobs e validar endpoint no worker de produção; sem escrita real até autorização explícita | `DIARIO.md`, `MUSE.md`, `drizzle/migrations/0043_corrigir_agendadores.sql`, rotas de varredura; migração 0043 (não aplicada) |
 | GPT | 2026-10-21 UTC | Validar jornada Figaro e corrigir divergências de navegação confirmadas no código; inspeção visual 390px/1280px e animações segue pendente sem navegador conectado | `DIARIO.md`, `src/routes/barbeiro.marca.tsx`, `src/routes/barbeiro.marca.secao.$secao.tsx`, `src/components/marca/editor/EditorDaSecaoPublica.tsx`, `src/components/marca/editor/SecaoConteudo.tsx`, `src/components/marca/editor/PaineisDoEditor.tsx`, `src/lib/navegacao-barbeiro.ts`, `src/lib/navegacao-barbeiro.test.ts`, `src/routes/barbeiro.sua-pagina.tsx`; sem migração |
 | GPT | 2026-10-21 UTC | Compactar cabeçalho do modo zoom/edição da Agenda sem reduzir tipografia; aplicar movimento de gaveta de entrada/saída | `DIARIO.md`, `src/components/barbeiro/agenda/CabecalhoDeEdicao.tsx`, componente que abre/fecha a configuração de zoom e testes de movimento; sem migração |
@@ -700,6 +700,10 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - Sem alteração no banco, `main` ou produção.
 
 ## Diário
+
+### 2026-10-24 UTC — GPT — Cor do cabeçalho ao rolar no modo de edição
+- Implementado o movimento C16 no cabeçalho mobile do modo editar horário: ao rolar a página a superfície transita de `--ink2` para `--ink3` com `MOLA.padraoEfeito`, e retorna ao topo ao rolar para cima. A preferência de reduzir movimento remove a transição.
+- Criado `CabecalhoDeEdicao.test.tsx` verificando os estados de topo, rolagem e retorno ao topo. Sem mudanças de regras, dados, permissões ou backend; validação automatizada pendente neste commit e inspeção visual em celular pendente.
 
 ### 2026-10-24 UTC — GPT — Painel animado de disponibilidade semanal
 - O editor de horários agora agrupa os dias em um painel recolhível “Disponibilidade semanal”, inicialmente aberto para não esconder campos existentes. A seta usa `MOLA.padraoEspacial`; corpo usa fade + altura com as molas do Figaro e respeita reduzir movimento.

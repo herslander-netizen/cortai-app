@@ -65,7 +65,7 @@ fica como está).
 | C13 | Folha de baixo | M3 `ModalBottomSheet`: modos meia e do tamanho do conteúdo | `FigarooSheetScaffoldKt` | — sem valor no APK (é o `ModalBottomSheet` padrão do M3); mantém os tempos do Cortaí |
 | C14 | Puxar para atualizar (Notificações, Avaliações, Vendas) | indicador padrão do M3 | `FigarooPullToRefreshBoxKt` | ✘ (PWA: avaliar) |
 | C15 | Cabeçalho grande que encolhe ao rolar (`exitUntilCollapsed`) | o título grande vira pequeno conforme a rolagem; usado nas telas de lista/configuração/notificações e no criar | `FigarooCollapsingHeaderScaffoldKt`, `FigarooTopAppBarKt`, `FigarooCreationFlowScaffoldKt` | ✘ (`Screen` tem título fixo) |
-| C16 | Cor da barra do topo ao rolar | `surface` → `surfaceContainer` quando há rolagem (mola `defaultEffects` na Agenda) | `FigarooTopAppBarKt`, `AgendaScreenKt` | ✘ lote 3 (a barra do topo é do GPT: `cabecalho-edicao-mobile`) |
+| C16 | Cor da barra do topo ao rolar | `surface` → `surfaceContainer` quando há rolagem (mola `defaultEffects` na Agenda) | `FigarooTopAppBarKt`, `AgendaScreenKt` | ◐ 24/10 `CabecalhoDeEdicao` mobile alterna `--ink2`→`--ink3` pela rolagem com `MOLA.padraoEfeito` e respeita reduzir movimento; teste cobre rolar e voltar ao topo; falta conferência visual no celular |
 | C17 | Cartão de avaliação "ver mais/ver menos" | `animateContentSize` padrão (mola 0,5…/ média) | `RatingsReviewCardKt` | ✘ |
 | C18 | Resumo de avaliações | contagem da nota, barras, rótulo | [vídeo] `landing_peek_reviews` | ✔ 22/10 |
 | C19 | Tela "Configurações de notificação" salvando | opacidade 0,6 (sem animação) | `NotificationSettingsScreenKt` | — estática |

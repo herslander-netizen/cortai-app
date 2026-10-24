@@ -1,3 +1,8 @@
+import { motion, useReducedMotion } from "framer-motion";
+import { useEffect, useState } from "react";
+
+import { MOLA } from "@/lib/movimento-figaro";
+
 /** Topo da Agenda no modo "editar horário": cabeçalho compacto, sem logomarca. */
 export function CabecalhoDeEdicao({
   dia,
@@ -8,6 +13,16 @@ export function CabecalhoDeEdicao({
   naBarra?: boolean;
   onReagendar?: () => void;
 }) {
+  const reduzirMovimento = useReducedMotion();
+  const [rolado, setRolado] = useState(false);
+
+  useEffect(() => {
+    const atualizarRolagem = () => setRolado(window.scrollY > 0);
+    window.addEventListener("scroll", atualizarRolagem, { passive: true });
+    atualizarRolagem();
+    return () => window.removeEventListener("scroll", atualizarRolagem);
+  }, []);
+
   const data = new Date(`${dia}T12:00:00Z`);
   const extenso = new Intl.DateTimeFormat("pt-BR", {
     weekday: "long",
@@ -30,8 +45,12 @@ export function CabecalhoDeEdicao({
   // sem logomarca e com a borda inferior arredondada mantida.
   if (naBarra)
     return (
-      <div
+      <motion.div
+        initial={false}
         data-edicao-ui=""
+        data-rolado={rolado ? "true" : "false"}
+        animate={{ backgroundColor: rolado ? "var(--ink3)" : "var(--ink2)" }}
+        transition={reduzirMovimento ? { duration: 0 } : MOLA.padraoEfeito}
         className="cabecalho-edicao-mobile relative z-10 mx-auto flex min-h-[64px] w-full flex-col justify-center bg-ink2 px-3 py-1 text-center"
         role="status"
         aria-label={`Editando horário. ${extenso}. Para mudar de dia, use Reagendar.`}
@@ -51,7 +70,7 @@ export function CabecalhoDeEdicao({
           </button>
           .
         </p>
-      </div>
+      </motion.div>
     );
   return (
     <header data-edicao-ui="" className="mb-3 rounded-xl border border-line bg-ink2 px-5 py-3">
