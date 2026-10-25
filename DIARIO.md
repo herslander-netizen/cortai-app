@@ -473,7 +473,6 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 | Quem | Desde (UTC) | Tarefa | Arquivos / migração reservada |
 |---|---|---|---|
-| GPT | 2026-10-24 UTC | Auditar e habilitar intervalo personalizado dos horários públicos, mantendo disponibilidade/duração/conflict checking no motor existente; sem aplicar migração | `DIARIO.md`, `src/lib/onboarding-regras.ts`, `src/lib/agenda-regras.server.ts`, `src/lib/barbeiro.functions.ts`, `src/lib/onboarding.functions.ts`, `src/lib/agendamento-publico.functions.ts`, rotas/configuração de agendamento identificadas na auditoria, testes correspondentes, `drizzle/migrations`; sem migração aplicada |
 
 
 | GPT | 2026-10-22 UTC | Lote 3 de P.12: C7, C8, C10, C12, C16 e V3 implementados/testados; workflow e smoke test da prévia verdes no commit `be0bc0e`. C9/P3 parciais; revisão visual pendente. `SecaoImagens.tsx` liberada para a tarefa separada do seletor de biblioteca | `DIARIO.md`, `docs/referencia-figaro/apk/8-inventario-de-animacoes.md`, `src/components/marca/editor/CartoesDeLayoutTema.tsx`, `src/components/marca/editor/CartoesDeLayoutTema.test.tsx`, `src/components/marca/editor/SecaoImagens.test.tsx`, `src/components/marca/editor/SecaoRecepcao.tsx`, `src/components/marca/editor/SecaoRecepcao.test.tsx`, `src/components/notificacoes/PreferenciasDoCliente.test.tsx`, `src/components/onboarding/PrimeirosPassos.tsx`, `src/components/onboarding/EditorDeHorarios.tsx`, `src/components/barbeiro/agenda/CabecalhoDeEdicao.tsx`, `src/components/barbeiro/agenda/CabecalhoDeEdicao.test.tsx`, `src/components/ui/collapsible.tsx`, `src/components/notificacoes/*`, `src/routes/barbeiro.equipe.tsx`, `src/routes/barbeiro.marca.tsx`; sem migração |
@@ -706,6 +705,13 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - Sem alteração no banco, `main` ou produção.
 
 ## Diário
+
+### 2026-10-25 UTC — GPT — Intervalo personalizado dos horários de agendamento
+- Auditoria da causa: a tela de Opções de agendamento oferecia somente 15/20/30/40 min; o schema Zod rejeitava outros valores e a constraint do banco `tenants_passo_horarios_chk` também limitava a lista. A geração de slots ainda confundia passo entre inícios com duração do serviço.
+- Implementação na branch `cloudflare-workers-migration-2026-10-13`: `src/routes/barbeiro.agendamento.tsx` adiciona folha mobile no padrão Figaro para informar um inteiro de 5 a 120 min; `src/lib/onboarding-regras.ts` e `src/lib/agenda-regras.server.ts` validam o intervalo; `src/routes/barbeiro.configurar.tsx` preserva a exibição do valor personalizado já salvo. `src/lib/horarios.ts`, `src/lib/barbeiro.functions.ts`, `src/lib/agenda-chat.functions.ts` e `src/components/barbeiro/agendamento-manual/SecoesAgendamento.tsx` respeitam o intervalo e a duração real do serviço, preservando a fonte oficial de disponibilidade/conflitos.
+- Testes acrescentados em `src/lib/erro-amigavel.test.ts` e `src/lib/horarios.test.ts`. Workflow 1032, commit `43a2e86faea3f99cec6fdbc7fa4c73dec45b52a4`: build, TypeScript e Vitest passaram. Publicação na prévia isolada estava em andamento no momento deste registro; conferir o resultado final antes de afirmar que a prévia está disponível.
+- Migração `drizzle/migrations/0045_intervalo_personalizado.sql` preparada. Durante a auditoria, foi detectado `0044_identidade_cloud.sql`; a migração nova foi numerada como 0045 e o arquivo conflitante criado por engano nesta tarefa foi retirado. **A 0045 não foi aplicada em nenhum banco**: a gravação de valores personalizados na prévia exige aplicar a migration no banco isolado `cortai-preview`, com autorização específica. Nenhuma escrita em banco, alteração em `main` ou publicação principal foi feita.
+- Conferência visual manual em celular ainda pendente; nenhuma alegação de teste manual em dispositivo.
 
 ### 2026-10-24 UTC — GPT — Auditoria geral do carregamento de Personalizar Página
 - Em `src/lib/marca.functions.ts`, as URLs assinadas de logo, capa e avatar são pedidas em paralelo; `getMarca` usa um prazo total de 10 segundos para devolver erro recuperável em vez de ficar aguardando indefinidamente.
