@@ -59,13 +59,13 @@ export function DrawerDestaques({
           <div
             className={`overflow-hidden bg-drawer-card ${tenantId && verDesempenho ? "rounded-b-[10px] rounded-t-[28px]" : "rounded-[28px]"}`}
           >
-            <div className="grid min-h-16 grid-cols-[minmax(0,1fr)_40px] items-center pl-4 pr-3">
+            <div className="grid min-h-[60px] grid-cols-[minmax(0,1fr)_40px] items-center pl-4 pr-3">
               {/* Como no Figaro (`onOpenSuaPagina`): o cartão fecha o menu e abre o Personalizar Página; a página
                   pública abre por "Ver como ficou", dentro dele. */}
               <Link
                 to="/barbeiro/marca"
                 onClick={fechar}
-                className="grid min-w-0 grid-cols-[48px_minmax(0,1fr)] items-center gap-3 py-3"
+                className="grid min-w-0 grid-cols-[48px_minmax(0,1fr)] items-center gap-3 py-2"
               >
                 <IconeDoMenu icone={Link2} destaque />
                 <span className="min-w-0">
@@ -73,7 +73,7 @@ export function DrawerDestaques({
                     Sua Página
                   </span>
                   {paginaPublicada ? (
-                    <span className="mt-0.5 flex items-center gap-2 text-[13px] font-medium leading-[18px] text-sage">
+                    <span className="flex items-center gap-2 text-base font-medium leading-5 text-sage">
                       <span className="size-[7px] rounded-full bg-sage" aria-hidden /> Online
                     </span>
                   ) : null}
@@ -105,14 +105,14 @@ export function DrawerDestaques({
         to="/barbeiro"
         onClick={fechar}
         aria-current={agendaAtiva ? "page" : undefined}
-        className={`grid min-h-[60px] grid-cols-[56px_minmax(0,1fr)_8px] items-center gap-3 rounded-[28px] bg-drawer-card px-5 py-3 ${agendaAtiva ? "ring-2 ring-primary/30" : ""}`}
+        className={`grid min-h-[76px] grid-cols-[56px_minmax(0,1fr)_8px] items-center gap-3 rounded-[28px] bg-drawer-card px-5 py-4 ${agendaAtiva ? "ring-2 ring-primary/30" : ""}`}
       >
-        <IconeDoMenu icone={CalendarDays} destaque grande ativo={agendaAtiva} />
+        <IconeDoMenu icone={CalendarDays} destaque ativo={agendaAtiva} />
         <span className="min-w-0">
-          <span className="block truncate text-[22px] font-semibold leading-tight text-paper">
+          <span className="block truncate text-lg font-semibold leading-6 text-paper">
             Agenda
           </span>
-          <span className="mt-0.5 block truncate text-[13px] font-medium leading-[18px] text-mute">
+          <span className="block truncate text-base font-medium leading-5 text-mute">
             {operacaoAberta === false ? "Hoje · fechado" : (resumoDaAgenda ?? "Hoje")}
           </span>
         </span>
