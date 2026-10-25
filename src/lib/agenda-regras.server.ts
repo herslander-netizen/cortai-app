@@ -10,6 +10,7 @@ import {
   type Ocupado,
 } from "@/lib/disponibilidade";
 import { normalizarFuso, type HorarioDeFuncionamento } from "@/lib/horarios";
+import { PASSO_MAXIMO_MINUTOS, PASSO_MINIMO_MINUTOS } from "@/lib/onboarding-regras";
 
 import { STATUS_QUE_OCUPAM } from "@/lib/disponibilidade";
 export { STATUS_QUE_OCUPAM };
@@ -26,14 +27,15 @@ export function mapearHorarios(linhas: Record<string, any>[]): HorarioDeFunciona
   }));
 }
 
-export const PASSOS_PERMITIDOS = [15, 20, 30, 40, 50] as const;
+/** Valores sugeridos; o motor também aceita intervalo personalizado válido. */
+export const PASSOS_PERMITIDOS = [15, 20, 30, 40] as const;
 export function janelaValida(v: unknown): number {
   const n = Number(v);
   return Number.isFinite(n) && n >= 7 && n <= 90 ? Math.round(n) : 30;
 }
 export function passoValido(v: unknown): number {
   const n = Number(v);
-  return (PASSOS_PERMITIDOS as readonly number[]).includes(n) ? n : 30;
+  return Number.isInteger(n) && n >= PASSO_MINIMO_MINUTOS && n <= PASSO_MAXIMO_MINUTOS ? n : 30;
 }
 
 export async function regrasDaBarbearia(db: any, tenantId: string) {
