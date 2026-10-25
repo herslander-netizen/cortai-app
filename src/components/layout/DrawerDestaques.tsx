@@ -103,11 +103,11 @@ export function DrawerDestaques({
               >
                 <ElosDaPagina />
                 <span className="min-w-0">
-                  <span className="block truncate text-[20px] font-semibold leading-6 text-paper">
+                  <span className="block truncate text-[18px] font-semibold leading-6 text-paper">
                     Sua Página
                   </span>
                   {paginaPublicada ? (
-                    <span className="flex items-center gap-2 text-base font-medium leading-5 text-mute">
+                    <span className="flex items-center gap-2 text-[15px] font-medium leading-5 text-mute">
                       <span className="size-[7px] rounded-full bg-sage" aria-hidden /> Online
                     </span>
                   ) : null}

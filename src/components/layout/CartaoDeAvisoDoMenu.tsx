@@ -19,11 +19,11 @@ export function CartaoDeAvisoDoMenu({
 }) {
   return (
     <div className="rounded-[28px] bg-drawer-card p-3">
-      <div className="grid grid-cols-[24px_minmax(0,1fr)] gap-x-3">
-        <Icone className="mt-px size-6 text-primary/70" aria-hidden />
+      <div className="grid grid-cols-[28px_minmax(0,1fr)] gap-x-3">
+        <Icone className="mt-px size-7 text-primary/70" aria-hidden />
         <div className="min-w-0">
-          <p className="text-base font-semibold leading-5 text-paper">{titulo}</p>
-          <p className="text-sm leading-[21px] text-mute">{texto}</p>
+          <p className="text-[18px] font-semibold leading-6 text-paper">{titulo}</p>
+          <p className="text-[15px] leading-[22px] text-mute">{texto}</p>
           <div className="mt-1.5 flex items-center gap-2">{children}</div>
         </div>
       </div>

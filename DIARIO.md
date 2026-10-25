@@ -708,6 +708,12 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-25 UTC — Claude — Gaveta toda na escala do cartão "Sua Página"
+- Pedido do dono ("quero desse tamanho tudo", alcance: toda a gaveta). Cartões (Sua Página, Agenda, Suporte, avisos): título
+  18/24 semibold, subtítulo 15/20, ícone de 48 a 56, altura mínima de 64. Linhas do menu: 60 de altura, ícone 28, texto 17/24.
+  Títulos de seção 16/22; papel da conta 15/20. Substitui os 15/20 e 14/20 da primeira passada (fontes de tamanho em
+  `styles.css` `[data-menu-*]`). Se ficar grande demais, o ajuste é uma linha em cada bloco.
+
 ### 2026-10-25 UTC — Claude — Cartão "Sua Página" da gaveta no visual do Figaro
 - Capturas do dono (referência do Figaro): sem ladrilho atrás do ícone, **dois elos em verdes diferentes** (estado no ar),
   título maior, "Online" em cinza com ponto verde de 7 px e compartilhar em azul. Refeito em `DrawerDestaques.tsx`

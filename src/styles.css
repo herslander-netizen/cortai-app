@@ -9775,14 +9775,14 @@ html:root.light[data-identidade="classico"][data-identidade] {
   width: min(348px, 94vw) !important;
 }
 .management-drawer [data-menu-secao] {
-  font-size: 14px;
-  line-height: 20px;
+  font-size: 16px;
+  line-height: 22px;
   font-weight: 700;
   letter-spacing: 0.01em;
 }
 .management-drawer [data-menu-item] {
-  font-size: 15px;
-  line-height: 20px;
+  font-size: 17px;
+  line-height: 24px;
   font-weight: 500;
 }
 .management-drawer [data-conta-nome] {
@@ -9791,8 +9791,8 @@ html:root.light[data-identidade="classico"][data-identidade] {
   font-weight: 700;
 }
 .management-drawer [data-conta-papel] {
-  font-size: 13px;
-  line-height: 18px;
+  font-size: 15px;
+  line-height: 20px;
   font-weight: 500;
 }
 

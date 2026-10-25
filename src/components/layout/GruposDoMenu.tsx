@@ -64,7 +64,7 @@ export function GruposDoMenu({
             <button
               type="button"
               data-menu-secao=""
-              className="flex h-8 w-full items-center gap-2 pl-[18px] pr-2 text-left text-primary"
+              className="flex h-9 w-full items-center gap-2 pl-[18px] pr-2 text-left text-primary"
               aria-expanded={abertos.includes(grupo.titulo)}
               aria-controls={`menu-grupo-${grupo.titulo.replace(/\s+/g, "-")}`}
               onClick={() => onAlternar(grupo.titulo)}
@@ -103,7 +103,7 @@ export function GruposDoMenu({
                           preload="intent"
                           onClick={onNavegar}
                           aria-current={ativo ? "page" : undefined}
-                          className={`flex min-h-14 w-full items-center gap-4 bg-drawer-card px-4 text-paper transition-[filter,transform] duration-[var(--mola-toque-duracao)] ease-[var(--mola-toque)] active:scale-[0.99] active:brightness-95 motion-reduce:transition-none ${forma}`}
+                          className={`flex min-h-[60px] w-full items-center gap-4 bg-drawer-card px-4 text-paper transition-[filter,transform] duration-[var(--mola-toque-duracao)] ease-[var(--mola-toque)] active:scale-[0.99] active:brightness-95 motion-reduce:transition-none ${forma}`}
                         >
                           <Icon
                             className="size-6 shrink-0 text-primary"
