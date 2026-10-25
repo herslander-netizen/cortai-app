@@ -22,6 +22,7 @@ import {
 } from "@/lib/pagina-config";
 import { LinhaDeOpcoes } from "@/components/ui/formulario/LinhaDeOpcoes";
 import { GrupoDeLinhas, LinhaDeConfiguracao } from "@/components/ui/formulario/LinhasDeConfiguracao";
+import { RouteError } from "@/components/layout/RouteError";
 
 export const Route = createFileRoute("/barbeiro/marca/layout-tema")({
   // Voltando do "Ver Exemplo" a escolha em andamento continua (no Figaro o estado da tela se mantém).
@@ -30,6 +31,8 @@ export const Route = createFileRoute("/barbeiro/marca/layout-tema")({
     tema: z.enum(temaIds).optional(),
   }),
   beforeLoad: ({ context }) => exigirCapacidade(context.queryClient, "branding_avancado"),
+  pendingComponent: LayoutTemaPendente,
+  errorComponent: RouteError,
   head: () => ({
     meta: [
       { title: "Layout & Tema — Cortaí" },
@@ -39,6 +42,15 @@ export const Route = createFileRoute("/barbeiro/marca/layout-tema")({
   }),
   component: LayoutTemaPage,
 });
+
+/** Esqueleto da tela enquanto o código ou os dados chegam (evita o painel com a área vazia no celular). */
+function LayoutTemaPendente() {
+  return (
+    <Screen voltarPara="/barbeiro/marca" title="Layout & Tema">
+      <EsqueletoFormulario campos={4} />
+    </Screen>
+  );
+}
 
 function LayoutTemaPage() {
   const queryClient = useQueryClient();

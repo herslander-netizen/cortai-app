@@ -18,6 +18,7 @@ import {
   TEMAS,
   temaIds,
 } from "@/lib/pagina-config";
+import { RouteError } from "@/components/layout/RouteError";
 
 export const Route = createFileRoute("/barbeiro/marca/layout-tema_/preview")({
   validateSearch: z.object({
@@ -25,6 +26,7 @@ export const Route = createFileRoute("/barbeiro/marca/layout-tema_/preview")({
     tema: z.enum(temaIds).optional(),
   }),
   beforeLoad: ({ context }) => exigirCapacidade(context.queryClient, "branding_avancado"),
+  errorComponent: RouteError,
   head: () => ({
     meta: [
       { title: "Ver Exemplo — Layout & Tema — Cortaí" },
