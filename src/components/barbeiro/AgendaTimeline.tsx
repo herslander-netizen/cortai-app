@@ -324,7 +324,7 @@ function AgendaTimelineBase({
 
   const marcas = useMemo(() => {
     const resultado: number[] = [];
-    const ultimo = diaCompleto ? escala.fim - 30 : escala.fim;
+    const ultimo = diaCompleto ? escala.fim - 15 : escala.fim;
     // Figaro: uma linha tracejada a cada 15 min; a hora cheia continua como linha principal.
     for (let minuto = escala.inicio; minuto <= ultimo; minuto += 15) resultado.push(minuto);
     return resultado;
