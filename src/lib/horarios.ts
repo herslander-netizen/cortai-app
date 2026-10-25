@@ -151,6 +151,7 @@ export function slotsDoDia(
   horarios: HorarioDeFuncionamento[] | undefined | null,
   passoMin = 30,
   fuso: string = FUSO_BARBEARIA,
+  duracaoMin = passoMin,
 ): {
   fechado: boolean;
   abre: string;
@@ -166,17 +167,15 @@ export function slotsDoDia(
   const slots: SlotDaAgenda[] = [];
   const pausaIni = info.intervaloInicio ? minutos(info.intervaloInicio) : null;
   const pausaFim = info.intervaloFim ? minutos(info.intervaloFim) : null;
-  // O passo é a frequência entre inícios sugeridos, não a duração do serviço.
-  // O motor de disponibilidade verifica depois se o serviço cabe antes do fechamento/pausa.
-  for (let t = inicio; t < fim; t += passoMin) {
+  // passoMin controla a frequência entre os inícios; duracaoMin controla
+  // se o serviço cabe antes do fechamento ou da pausa.
+  for (let t = inicio; t + duracaoMin <= fim; t += passoMin) {
     const minutoDoDia = t % 1440;
-    // Não sugerir inícios dentro da pausa. Um serviço que começa antes dela é
-    // validado pela duração real no motor único de disponibilidade.
     if (
       pausaIni != null &&
       pausaFim != null &&
-      minutoDoDia >= pausaIni &&
-      minutoDoDia < pausaFim
+      minutoDoDia < pausaFim &&
+      minutoDoDia + duracaoMin > pausaIni
     ) continue;
     const tt = t % 1440;
     const h = Math.floor(tt / 60);
