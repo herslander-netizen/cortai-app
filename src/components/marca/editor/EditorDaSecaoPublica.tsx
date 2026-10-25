@@ -11,6 +11,7 @@ import {
   EditorDeAvaliacoes,
   EditorDeEquipe,
   EditorDeGaleria,
+  EditorDaLinhaDoTempo,
   EditorDeLocalizacao,
   EditorDeServicos,
   type PropsDoEditor,
@@ -24,7 +25,8 @@ type DestinoGestao =
   | "/barbeiro/profissionais"
   | "/barbeiro/avaliacoes"
   | "/barbeiro/produtos"
-  | "/barbeiro/horarios";
+  | "/barbeiro/horarios"
+  | "/barbeiro/pacotes";
 
 function IrParaGestao({
   to,
@@ -72,6 +74,16 @@ export function EditorDaSecaoPublica({ secao, e, reportarErro }: { secao: Secao 
           to="/barbeiro/produtos"
           titulo="Catálogo de produtos"
           descricao="Gerencie produtos, fotos, preços e disponibilidade da loja."
+        />
+      );
+    case "linha_do_tempo":
+      return <EditorDaLinhaDoTempo e={e} reportarErro={reportarErro} />;
+    case "pacotes":
+      return (
+        <IrParaGestao
+          to="/barbeiro/pacotes"
+          titulo="Pacotes e combos"
+          descricao="Crie pacotes de várias visitas e combos de serviços com desconto. Só os ativos aparecem na página."
         />
       );
     case "instagram":

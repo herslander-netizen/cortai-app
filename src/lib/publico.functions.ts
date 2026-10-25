@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { montarPacotes, type PacoteDoNegocio } from "@/lib/pacotes";
 import { normalizarPagina, type PaginaConfig } from "@/lib/pagina-config";
 import { paginaPublicaDisponivel } from "@/lib/pagina-publica-status";
 import { segmentoValido, type Segmento } from "@/lib/segmentos";
@@ -41,6 +42,8 @@ export type PaginaPublica = {
     descricao: string | null;
     portfolio: string[];
   }[];
+  /** Pacotes e combos ativos (layout Raízes). Vazio enquanto a migração 0046 não foi aplicada. */
+  pacotes: PacoteDoNegocio[];
   loja_ativa: boolean;
   produtos: {
     id: string;
@@ -146,6 +149,34 @@ export const getPaginaPublica = createServerFn({ method: "GET" })
       .maybeSingle();
     const lojaAtiva = Boolean(tenant.loja_ativa) && (regraLoja?.liberado ?? true);
 
+    // As tabelas chegam com a migração 0046: sem elas (ou com erro), a página simplesmente não mostra pacotes.
+    const pacotes = await (async (): Promise<PacoteDoNegocio[]> => {
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const db = supabaseAdmin as any;
+        const [linhas, itens] = await Promise.all([
+          db
+            .from("pacotes")
+            .select("id, tipo, nome, descricao, preco_centavos, validade_dias, destaque, ativo")
+            .eq("tenant_id", tenant.id)
+            .eq("ativo", true)
+            .order("ordem")
+            .order("criado_em")
+            .limit(24),
+          db
+            .from("pacote_itens")
+            .select("pacote_id, servico_id, quantidade")
+            .eq("tenant_id", tenant.id),
+        ]);
+        if (linhas.error || itens.error) return [];
+        return montarPacotes(linhas.data ?? [], itens.data ?? [], servicos ?? []).filter(
+          (p) => p.itens.length > 0,
+        );
+      } catch {
+        return [];
+      }
+    })();
+
     const fotos = Array.isArray(tenant.fotos)
       ? tenant.fotos.filter((item): item is string => typeof item === "string").slice(0, 8)
       : [];
@@ -192,6 +223,7 @@ export const getPaginaPublica = createServerFn({ method: "GET" })
           };
         }),
       ),
+      pacotes,
       loja_ativa: lojaAtiva,
       produtos: lojaAtiva
         ? await Promise.all(

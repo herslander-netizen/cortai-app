@@ -2,6 +2,8 @@ import {
   CalendarCheck,
   CalendarDays,
   Clock3,
+  Milestone,
+  Percent,
   House,
   Images,
   Instagram,
@@ -72,6 +74,16 @@ export const CATALOGO_DE_SECOES: Record<
     nome: "Chamada final",
     descricao: "Convite para o cliente iniciar o agendamento no final da página.",
     icone: CalendarDays,
+  },
+  pacotes: {
+    nome: "Pacotes e Combos",
+    descricao: "Pacotes com várias visitas e combos de serviços com desconto.",
+    icone: Percent,
+  },
+  linha_do_tempo: {
+    nome: "Linha do Tempo",
+    descricao: "Os três capítulos da página: de onde você veio, o trabalho de hoje e o convite para agendar.",
+    icone: Milestone,
   },
 };
 

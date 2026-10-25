@@ -706,6 +706,17 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-25 — Claude — Layout Raízes (tema Contraste) e Pacotes e Combos
+- Origem: dois vídeos do dono com o layout novo do Figaro, "Raízes · Contraste". Dono pediu o completo, com Pacotes e Combos.
+- **Layout `figaro-raizes`** no catálogo (cartão com descrição, seções e "6 temas"): `components/marca/modelos/Raizes.tsx` + CSS `.rz-*`. Capítulos Ontem (quem corta), Hoje (O trabalho, Num relance) e Amanhã (agendar, serviços, pacotes, combos, onde a cadeira está), abertura em foto, menu em tela cheia, entrada ao rolar só com transform/opacity. Escuro e claro vêm do tema (`lib/raizes.ts`).
+- **Tema `contraste`** (só do Raízes) + 5 temas do catálogo (premium, editorial, clean, cortai-creme, nude): lista própria em `temasDoLayout`. Os outros layouts continuam com 12. Os outros 5 temas do Raízes no Figaro eu não vi; os que usei são escolha minha, trocar é uma linha (`TEMAS_DO_RAIZES`).
+- **Seções novas:** `pacotes` ("Pacotes e Combos", leva à gestão) e `linha_do_tempo` (três frases editáveis). "Quem corta" usa o campo Sobre do Hero.
+- **Pacotes e combos:** migração `drizzle/migrations/0046_pacotes_e_combos.sql` (duas tabelas novas, RLS, anônimo sem acesso), **NÃO aplicada no banco real: precisa de autorização do dono.** Ensaiada no banco local descartável, com teste novo `supabase/tests/pacotes.sql` (o teste achou que o anônimo herdava leitura; corrigido com REVOKE). Gestão em `/barbeiro/pacotes` (`pacotes.functions.ts`, permissão `alterar_dados_barbearia`); sem a tabela a tela avisa "ainda não liberado" e a página pública simplesmente não mostra pacotes.
+- **Decisão de produto minha (conferir com o dono):** "Quero este pacote" abre o WhatsApp do negócio (ou o agendamento, sem WhatsApp). Não há venda nem cobrança online de pacote, e nada confirma pagamento: o pacote é vendido no local, como diz o texto da página.
+- Não feito: mapa com imagem (não guardamos coordenadas; hoje é endereço + "Abrir no mapa"); fotos de abertura/capas do tema Contraste para o seletor (usa miniatura SVG).
+- Validação: tsc, vitest (inclui `raizes.test.ts`), ensaio local do banco e captura a 390 px do Ver Exemplo.
+
+
 ### 2026-10-25 UTC — GPT — Extrai boas-vindas, testa progresso e aprofunda o desenho de Localidades
 - Extraí a apresentação de `src/routes/barbeiro.configurar.tsx` para `src/components/onboarding/BoasVindasDoOnboarding.tsx`; a rota foi reduzida de 1.038 para 904 linhas e continua usando os mesmos callbacks/etapas de servidor.
 - Criei `BoasVindasDoOnboarding.test.tsx` para estados e bloqueio de passos futuros, callbacks do CTA, e retomada da etapa salva. Corrigi a tipagem de `children` em `PrimeirosPassos.test.tsx`.

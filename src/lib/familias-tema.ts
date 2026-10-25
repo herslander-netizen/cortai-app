@@ -20,6 +20,7 @@ export const familiaIds = [
   "feminino-rose",
   "feminino-lavanda",
   "feminino-pessego",
+  "contraste",
 ] as const;
 export type FamiliaId = (typeof familiaIds)[number];
 
@@ -132,6 +133,12 @@ export const FAMILIAS_DE_TEMA: FamiliaDeTema[] = [
     nome: "Pêssego",
     descricao: "Tons de pêssego e coral.",
     variantes: [{ tema: "feminino-pessego", rotulo: "Cortaí" }],
+  },
+  {
+    id: "contraste",
+    nome: "Contraste",
+    descricao: "Preto e branco com uma única cor de sinal, do layout Raízes.",
+    variantes: [{ tema: "contraste", rotulo: "Contraste" }],
   },
 ];
 

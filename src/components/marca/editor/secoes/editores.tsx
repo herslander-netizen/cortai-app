@@ -17,7 +17,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { Field } from "@/components/ui/field";
 import { Campo } from "@/components/marca/editor/campos";
 import { getProfissionaisPerfil, salvarPerfilProfissional } from "@/lib/crescimento.functions";
-import { LIMITES_DA_SECAO, type PaginaConfig } from "@/lib/pagina-config";
+import {
+  FRASES_DA_LINHA_DO_TEMPO,
+  LIMITES_DA_SECAO,
+  MAXIMO_DA_FRASE_DO_CAPITULO,
+  type PaginaConfig,
+} from "@/lib/pagina-config";
 import type { useEditorDaPagina } from "../useEditorDaPagina";
 import { GrupoDeCampos, LinhaComSwitch, OpcoesConectadas } from "./pecas";
 import {
@@ -348,6 +353,34 @@ export function EditorDeLocalizacao({ e, reportarErro }: PropsDoEditor) {
           </p>
         ) : null}
       </GrupoDeCampos>
+    </>
+  );
+}
+
+/** Linha do Tempo (layout Raízes): a frase de cada capítulo da página. */
+export function EditorDaLinhaDoTempo({ e, reportarErro }: PropsDoEditor) {
+  const [secao, alterar] = useSecao(e, "linhaDoTempo");
+  useEffect(() => reportarErro(null), [reportarErro]);
+  const capitulos = [
+    { chave: "ontem", titulo: "Ontem" },
+    { chave: "hoje", titulo: "Hoje" },
+    { chave: "amanha", titulo: "Amanhã" },
+  ] as const;
+  return (
+    <>
+      {capitulos.map(({ chave, titulo }) => (
+        <GrupoDeCampos key={chave} titulo={titulo}>
+          <Campo
+            label="Frase do capítulo"
+            value={secao[chave]}
+            placeholder={FRASES_DA_LINHA_DO_TEMPO[chave]}
+            onChange={(v) => alterar({ [chave]: v.slice(0, MAXIMO_DA_FRASE_DO_CAPITULO) })}
+          />
+        </GrupoDeCampos>
+      ))}
+      <p className="px-2 text-sm leading-relaxed text-mute">
+        O texto de “Quem corta”, no capítulo Ontem, vem do campo Sobre do Hero Banner.
+      </p>
     </>
   );
 }

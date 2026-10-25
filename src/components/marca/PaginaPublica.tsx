@@ -21,6 +21,7 @@ import { buscaParaAgendar, origemDaVisita, type OrigemFunil } from "@/lib/funil"
 import coverNeutra from "@/assets/cortai-cover-official.png.asset.json";
 import coverBarbearia from "@/assets/cortai-barbershop-cover.jpg.asset.json";
 import { LogoBarbearia } from "@/components/marca/LogoBarbearia";
+import { Raizes } from "@/components/marca/modelos/Raizes";
 import { SiteCompleto } from "@/components/marca/modelos/SiteCompleto";
 import { StatusFuncionamento } from "@/components/agendamento/StatusFuncionamento";
 import { brl } from "@/lib/format";
@@ -187,7 +188,18 @@ export function PaginaPublicaConteudo({
       data-segmento={tenant.segmento}
     >
       <FontesDaMarca config={config} />
-      {layout === "figaro-site-completo" || layout === "figaro-agendamento" ? (
+      {layout === "figaro-raizes" ? (
+        <Raizes
+          data={data}
+          config={config}
+          preview={preview}
+          renderAgendar={renderAgendar}
+          linkContato={linkContato}
+          contatoEhWhatsapp={Boolean(whatsapp)}
+          acoesRef={acoesRef}
+          finalRef={finalRef}
+        />
+      ) : layout === "figaro-site-completo" || layout === "figaro-agendamento" ? (
         <SiteCompleto
           variante={layout === "figaro-agendamento" ? "agendamento" : "completo"}
           data={data}

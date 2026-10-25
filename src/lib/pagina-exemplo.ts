@@ -39,6 +39,33 @@ export function paginaDeExemplo(config: PaginaConfig): PaginaPublica {
       { id: "p2", nome: "Bruno Alves", avatar_url: img("profissional-2"), descricao: "Cortes e barba", portfolio: [img("galeria-4")] },
       { id: "p3", nome: "Marina Costa", avatar_url: img("profissional-3"), descricao: "Unhas e sobrancelhas", portfolio: [img("galeria-2")] },
     ],
+    pacotes: [
+      {
+        id: "pc1",
+        tipo: "pacote",
+        nome: "Cuidado mensal",
+        descricao: null,
+        precoCentavos: 32000,
+        validadeDias: 30,
+        destaque: true,
+        ativo: true,
+        itens: [{ servicoId: "s1", nome: "Corte e finalização", quantidade: 4, precoCentavos: 9000 }],
+      },
+      {
+        id: "pc2",
+        tipo: "combo",
+        nome: "Corte + Sobrancelha",
+        descricao: null,
+        precoCentavos: 12500,
+        validadeDias: null,
+        destaque: false,
+        ativo: true,
+        itens: [
+          { servicoId: "s1", nome: "Corte e finalização", quantidade: 1, precoCentavos: 9000 },
+          { servicoId: "s4", nome: "Design de sobrancelhas", quantidade: 1, precoCentavos: 5000 },
+        ],
+      },
+    ],
     loja_ativa: true,
     produtos: [
       { id: "pr1", nome: "Esmalte cremoso", categoria: "Unhas", preco_centavos: 2400, foto_url: img("produto-1") },

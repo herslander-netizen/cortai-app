@@ -22,10 +22,10 @@ import { contraste } from "@/lib/cor-marca";
 import { SEGMENTOS, SEGMENTOS_CONFIG } from "@/lib/segmentos";
 
 describe("famílias de tema", () => {
-  it("cobrem os 19 temas exatamente uma vez", () => {
+  it("cobrem os 20 temas exatamente uma vez", () => {
     const temas = FAMILIAS_DE_TEMA.flatMap((f) => f.variantes.map((v) => v.tema));
     expect(temas.sort()).toEqual([...temaIds].sort());
-    expect(FAMILIAS_DE_TEMA).toHaveLength(15);
+    expect(FAMILIAS_DE_TEMA).toHaveLength(16);
   });
 
   it("encontra a família de cada tema", () => {
@@ -52,8 +52,12 @@ describe("famílias de tema", () => {
       ...TEMAS_ADICIONAIS_DO_CATALOGO,
     ]);
     for (const tema of TEMAS_DO_CATALOGO) expect(temaIds).toContain(tema);
-    for (const layout of LAYOUTS_DO_CATALOGO)
+    for (const layout of LAYOUTS_DO_CATALOGO.filter((l) => l !== "figaro-raizes"))
       expect(temasDoLayout(layout)).toEqual(TEMAS_DO_CATALOGO);
+    // O Raízes tem a própria lista: o Contraste (só dele) e cinco do catálogo.
+    expect(temasDoLayout("figaro-raizes")).toHaveLength(6);
+    expect(temasDoLayout("figaro-raizes")[0]).toBe("contraste");
+    expect(TEMAS_DO_CATALOGO).not.toContain("contraste");
   });
 
   it("mantém o tema ao ajustar layouts e alternar entre site e chat", () => {
@@ -96,9 +100,9 @@ describe("famílias de tema", () => {
     expect(atualizado.frase).toBe("Atendimento do seu jeito");
   });
 
-  it("19 temas × 8 layouts são configurações válidas", () => {
-    expect(temaIds).toHaveLength(19);
-    expect(layoutIds).toHaveLength(8);
+  it("20 temas × 9 layouts são configurações válidas", () => {
+    expect(temaIds).toHaveLength(20);
+    expect(layoutIds).toHaveLength(9);
     for (const tema of temaIds)
       for (const layout of layoutIds) {
         const c = normalizarPagina({ ...configPadrao(), tema, layout });

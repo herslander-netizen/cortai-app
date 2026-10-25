@@ -22,6 +22,7 @@ export const temaIds = [
   "feminino-rose",
   "feminino-lavanda",
   "feminino-pessego",
+  "contraste",
 ] as const;
 export const layoutIds = [
   "cinematografico",
@@ -31,6 +32,7 @@ export const layoutIds = [
   "editorial",
   "figaro-site-completo",
   "figaro-agendamento",
+  "figaro-raizes",
   "cortai-chat",
 ] as const;
 export const fonteIds = [
@@ -60,6 +62,8 @@ export const componenteIds = [
   "horarios",
   "whatsapp",
   "cta_final",
+  "pacotes",
+  "linha_do_tempo",
 ] as const;
 
 /** Nome de cada seção, como aparece no editor e nas mensagens de publicação. */
@@ -75,9 +79,18 @@ export const NOMES_DAS_SECOES: Record<(typeof componenteIds)[number], string> = 
   horarios: "Horários",
   whatsapp: "Contato",
   cta_final: "Chamada final",
+  pacotes: "Pacotes e Combos",
+  linha_do_tempo: "Linha do Tempo",
 };
 
-export const CHAT_ESTILOS = ["vidro", "classico", "suave", "minimo", "elegante", "rustico"] as const;
+export const CHAT_ESTILOS = [
+  "vidro",
+  "classico",
+  "suave",
+  "minimo",
+  "elegante",
+  "rustico",
+] as const;
 export const chatConfigSchema = z.object({
   modo: z.enum(["tradicional", "conversa"]).default("tradicional"),
   nomeRecepcao: z.string().trim().max(40).default("Lisa"),
@@ -95,9 +108,7 @@ export const chatConfigSchema = z.object({
   /** Estilo visual do chat (todos com padrão igual ao visual anterior). */
   estilo: z.enum(CHAT_ESTILOS).default("vidro"),
   fundo: z.enum(["capa", "liso", "padrao"]).default("capa"),
-  superficie: z
-    .enum(["padrao", "tema", "clara", "escura", "grafite", "rustico"])
-    .default("padrao"),
+  superficie: z.enum(["padrao", "tema", "clara", "escura", "grafite", "rustico"]).default("padrao"),
   cabecalho: z.enum(["barra", "cartao"]).default("barra"),
   avatar: z.enum(["redondo", "quadrado"]).default("redondo"),
   texto: z.enum(["pequeno", "normal", "grande"]).default("normal"),
@@ -114,7 +125,34 @@ export const LIMITES_DA_SECAO = {
   bio: 2000,
 } as const;
 
+export const FRASES_DA_LINHA_DO_TEMPO = {
+  ontem: "De onde eu vim.",
+  hoje: "Uma cadeira. Uma história.",
+  amanha: "O próximo capítulo é seu.",
+} as const;
+export const MAXIMO_DA_FRASE_DO_CAPITULO = 60;
+
 export const secoesConfigSchema = z.object({
+  /** Frases dos três capítulos do layout Raízes (Ontem, Hoje, Amanhã). */
+  linhaDoTempo: z
+    .object({
+      ontem: z
+        .string()
+        .trim()
+        .max(MAXIMO_DA_FRASE_DO_CAPITULO)
+        .default(FRASES_DA_LINHA_DO_TEMPO.ontem),
+      hoje: z
+        .string()
+        .trim()
+        .max(MAXIMO_DA_FRASE_DO_CAPITULO)
+        .default(FRASES_DA_LINHA_DO_TEMPO.hoje),
+      amanha: z
+        .string()
+        .trim()
+        .max(MAXIMO_DA_FRASE_DO_CAPITULO)
+        .default(FRASES_DA_LINHA_DO_TEMPO.amanha),
+    })
+    .default({}),
   servicos: z.object({ populares: z.boolean().default(true) }).default({}),
   profissionais: z
     .object({
@@ -157,6 +195,7 @@ export const SECOES_OBRIGATORIAS: Record<LayoutId, readonly (typeof componenteId
   editorial: [],
   "figaro-site-completo": ["servicos"],
   "figaro-agendamento": ["servicos"],
+  "figaro-raizes": ["servicos"],
   "cortai-chat": [],
 };
 
@@ -437,6 +476,19 @@ export const TEMAS: Record<
       destaque: "#9B7FD9",
     },
   },
+  contraste: {
+    nome: "Contraste",
+    descricao:
+      "Monocromático e afiado, com uma laranja de sinal que só aparece na hora de agendar.",
+    cores: {
+      principal: "#FF5A1F",
+      secundaria: "#EDEDED",
+      botao: "#FF5A1F",
+      fundo: "#0B0B0B",
+      texto: "#F2F2F0",
+      destaque: "#FF5A1F",
+    },
+  },
   "feminino-pessego": {
     nome: "Pêssego",
     descricao: "Tons de pêssego e coral, leve, solar e cheio de charme.",
@@ -459,6 +511,7 @@ export const LAYOUTS: Record<LayoutId, string> = {
   editorial: "Editorial",
   "figaro-site-completo": "Site Completo",
   "figaro-agendamento": "Agendamento",
+  "figaro-raizes": "Raízes",
   "cortai-chat": "Chat",
 };
 export const FONTES: Record<FonteId, string> = {
@@ -482,11 +535,23 @@ export const FONTES: Record<FonteId, string> = {
  * originais. A tela Layout & Tema amplia essa base com estilos já definidos no Cortaí. Os IDs antigos
  * continuam válidos nas páginas salvas; o catálogo visual não muda o formato persistido.
  */
-export const LAYOUTS_DO_FIGARO = ["figaro-site-completo", "figaro-agendamento"] as const satisfies readonly LayoutId[];
-export const TEMAS_DO_FIGARO = ["figaro-classico", "figaro-rock-n-roll", "figaro-retro"] as const satisfies readonly TemaId[];
+export const LAYOUTS_DO_FIGARO = [
+  "figaro-site-completo",
+  "figaro-agendamento",
+  "figaro-raizes",
+] as const satisfies readonly LayoutId[];
+export const TEMAS_DO_FIGARO = [
+  "figaro-classico",
+  "figaro-rock-n-roll",
+  "figaro-retro",
+] as const satisfies readonly TemaId[];
 
 /** Temas de estilo e paleta femininos, do Cortaí, que usam os mesmos modelos. */
-export const TEMAS_FEMININOS = ["feminino-rose", "feminino-lavanda", "feminino-pessego"] as const satisfies readonly TemaId[];
+export const TEMAS_FEMININOS = [
+  "feminino-rose",
+  "feminino-lavanda",
+  "feminino-pessego",
+] as const satisfies readonly TemaId[];
 
 /** Temas adicionais já definidos no Cortaí, selecionados para ampliar a biblioteca inicial. */
 export const TEMAS_ADICIONAIS_DO_CATALOGO = [
@@ -509,11 +574,24 @@ export const TEMAS_DO_CATALOGO = [
 export const TEMAS_COM_CAPA = [...TEMAS_DO_FIGARO, ...TEMAS_FEMININOS] as const;
 
 /** Layouts da tela Layout & Tema: os dois do Figaro e o Chat, atendimento em conversa do Cortaí. */
-export const LAYOUTS_DO_CATALOGO = [...LAYOUTS_DO_FIGARO, "cortai-chat"] as const satisfies readonly LayoutId[];
+export const LAYOUTS_DO_CATALOGO = [
+  ...LAYOUTS_DO_FIGARO,
+  "cortai-chat",
+] as const satisfies readonly LayoutId[];
 
-/** Todos os layouts do catálogo oferecem os mesmos 12 temas; a estrutura e o fluxo continuam independentes da paleta. */
-export function temasDoLayout(_layout: LayoutId): readonly TemaId[] {
-  return TEMAS_DO_CATALOGO;
+/** Temas do layout Raízes: o Contraste, que é só dele, e cinco do catálogo que combinam com a narrativa. */
+export const TEMAS_DO_RAIZES = [
+  "contraste",
+  "premium",
+  "editorial",
+  "clean",
+  "cortai-creme",
+  "nude",
+] as const satisfies readonly TemaId[];
+
+/** Os outros layouts oferecem os mesmos 12 temas; o Raízes tem a própria lista. */
+export function temasDoLayout(layout: LayoutId): readonly TemaId[] {
+  return layout === "figaro-raizes" ? TEMAS_DO_RAIZES : TEMAS_DO_CATALOGO;
 }
 
 /**
@@ -561,7 +639,10 @@ export function aplicarLayout(config: PaginaConfig, layout: LayoutId): PaginaCon
 
 export const DESCRICAO_DO_LAYOUT: Partial<Record<LayoutId, string>> = {
   "figaro-site-completo": "Layout completo com todas as seções organizadas em rolagem única.",
-  "figaro-agendamento": "Maneira direta: o cliente abre já na escolha do serviço, do profissional e do horário.",
+  "figaro-agendamento":
+    "Maneira direta: o cliente abre já na escolha do serviço, do profissional e do horário.",
+  "figaro-raizes":
+    "Layout que conta a história do negócio: de onde você veio, o trabalho de hoje e o próximo capítulo do cliente.",
   "cortai-chat": "Atendimento em conversa: uma recepção guia o cliente, por botões, até o horário.",
 };
 
@@ -570,25 +651,37 @@ export const DESCRICAO_DO_LAYOUT: Partial<Record<LayoutId, string>> = {
  * Site Completo: Hero, Serviços, Equipe, Galeria, Avaliações, Localização, Contato, Redes e o fluxo de
  * agendamento (9 seções). Agendamento: só Serviços e o fluxo.
  */
-export const SECOES_DO_LAYOUT: Record<LayoutId, readonly (typeof componenteIds)[number][] | null> = {
-  cinematografico: null,
-  "logo-central": null,
-  minimalista: null,
-  "foto-destaque": null,
-  editorial: null,
-  "figaro-site-completo": [
-    "apresentacao",
-    "servicos",
-    "profissionais",
-    "galeria",
-    "avaliacoes",
-    "localizacao",
-    "whatsapp",
-    "instagram",
-  ],
-  "figaro-agendamento": ["servicos"],
-  "cortai-chat": [],
-};
+export const SECOES_DO_LAYOUT: Record<LayoutId, readonly (typeof componenteIds)[number][] | null> =
+  {
+    cinematografico: null,
+    "logo-central": null,
+    minimalista: null,
+    "foto-destaque": null,
+    editorial: null,
+    "figaro-site-completo": [
+      "apresentacao",
+      "servicos",
+      "profissionais",
+      "galeria",
+      "avaliacoes",
+      "localizacao",
+      "whatsapp",
+      "instagram",
+    ],
+    "figaro-agendamento": ["servicos"],
+    "figaro-raizes": [
+      "apresentacao",
+      "linha_do_tempo",
+      "profissionais",
+      "galeria",
+      "servicos",
+      "avaliacoes",
+      "pacotes",
+      "localizacao",
+      "instagram",
+    ],
+    "cortai-chat": [],
+  };
 
 /** Seções que o layout oferece (todas, nos layouts antigos). */
 export function secoesDoLayoutAtual(layout: LayoutId): readonly (typeof componenteIds)[number][] {
@@ -611,7 +704,8 @@ export const ESTRUTURA_DO_TEMA: Partial<Record<TemaId, EstruturaDaPagina>> = {
   "feminino-lavanda": "cartao",
   "feminino-pessego": "vibrante",
 };
-export const estruturaDoTema = (tema: TemaId): EstruturaDaPagina => ESTRUTURA_DO_TEMA[tema] ?? "classica";
+export const estruturaDoTema = (tema: TemaId): EstruturaDaPagina =>
+  ESTRUTURA_DO_TEMA[tema] ?? "classica";
 
 /** Fontes de cada tema do Figaro (título e texto), como nas páginas de exemplo. */
 export const FONTES_DO_TEMA: Partial<Record<TemaId, { titulo: FonteId; texto: FonteId }>> = {
@@ -621,6 +715,7 @@ export const FONTES_DO_TEMA: Partial<Record<TemaId, { titulo: FonteId; texto: Fo
   "feminino-rose": { titulo: "cormorant", texto: "outfit" },
   "feminino-lavanda": { titulo: "playfair", texto: "poppins" },
   "feminino-pessego": { titulo: "dancing", texto: "montserrat" },
+  contraste: { titulo: "oswald", texto: "inter" },
 };
 
 /** Troca o tema levando paleta e fontes juntas. */
@@ -750,9 +845,15 @@ export function agendamentoStyle(config: PaginaConfig): CSSProperties {
   const pagina = sup?.pagina ?? CORES_AGENDAMENTO.pagina;
   const texto = sup?.texto ?? CORES_AGENDAMENTO.texto;
   return {
-    "--chat-superficie-1": sup ? `color-mix(in oklab, ${pagina} 94%, ${texto})` : tokens.superficie1,
-    "--chat-superficie-2": sup ? `color-mix(in oklab, ${pagina} 88%, ${texto})` : tokens.superficie2,
-    "--chat-texto-auxiliar": sup ? `color-mix(in oklab, ${texto} 66%, ${pagina})` : tokens.textoAuxiliar,
+    "--chat-superficie-1": sup
+      ? `color-mix(in oklab, ${pagina} 94%, ${texto})`
+      : tokens.superficie1,
+    "--chat-superficie-2": sup
+      ? `color-mix(in oklab, ${pagina} 88%, ${texto})`
+      : tokens.superficie2,
+    "--chat-texto-auxiliar": sup
+      ? `color-mix(in oklab, ${texto} 66%, ${pagina})`
+      : tokens.textoAuxiliar,
     "--chat-primary": corPrincipal,
     "--chat-primary-foreground": contrasteDaMarca(corPrincipal),
     "--chat-secondary": config.cores.secundaria,
