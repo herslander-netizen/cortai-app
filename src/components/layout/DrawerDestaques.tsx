@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { CalendarDays, Link2, Share2 } from "lucide-react";
+import { CalendarDays, Share2 } from "lucide-react";
 import {
   CartaoDeEmailNoMenu,
   CartaoDeWhatsappNoMenu,
@@ -24,6 +24,40 @@ type Props = {
 
 /** Texto que acompanha o link na folha de compartilhar (`page_hub_share_page_url_message` do Figaro, em termos neutros). */
 export const MENSAGEM_DE_COMPARTILHAR = "Dê uma olhada na nossa página!";
+
+/** Dois elos entrelaçados em duas tonalidades de verde (estado "no ar" do cartão Sua Página, como no Figaro). */
+function ElosDaPagina() {
+  return (
+    <span aria-hidden className="grid size-12 shrink-0 place-items-center">
+      <svg
+        viewBox="0 0 48 48"
+        className="size-11"
+        fill="none"
+        strokeLinecap="round"
+        strokeWidth="5"
+      >
+        <rect
+          x="21"
+          y="12"
+          width="21"
+          height="14"
+          rx="7"
+          transform="rotate(35 31.5 19)"
+          className="stroke-sage/40"
+        />
+        <rect
+          x="6"
+          y="20"
+          width="21"
+          height="14"
+          rx="7"
+          transform="rotate(35 16.5 27)"
+          className="stroke-sage"
+        />
+      </svg>
+    </span>
+  );
+}
 
 export function DrawerDestaques({
   slug,
@@ -67,13 +101,13 @@ export function DrawerDestaques({
                 onClick={fechar}
                 className="grid min-w-0 grid-cols-[48px_minmax(0,1fr)] items-center gap-3 py-2"
               >
-                <IconeDoMenu icone={Link2} destaque />
+                <ElosDaPagina />
                 <span className="min-w-0">
-                  <span className="block truncate text-lg font-semibold leading-6 text-paper">
+                  <span className="block truncate text-[20px] font-semibold leading-6 text-paper">
                     Sua Página
                   </span>
                   {paginaPublicada ? (
-                    <span className="flex items-center gap-2 text-base font-medium leading-5 text-sage">
+                    <span className="flex items-center gap-2 text-base font-medium leading-5 text-mute">
                       <span className="size-[7px] rounded-full bg-sage" aria-hidden /> Online
                     </span>
                   ) : null}
@@ -109,9 +143,7 @@ export function DrawerDestaques({
       >
         <IconeDoMenu icone={CalendarDays} destaque ativo={agendaAtiva} />
         <span className="min-w-0">
-          <span className="block truncate text-lg font-semibold leading-6 text-paper">
-            Agenda
-          </span>
+          <span className="block truncate text-lg font-semibold leading-6 text-paper">Agenda</span>
           <span className="block truncate text-base font-medium leading-5 text-mute">
             {operacaoAberta === false ? "Hoje · fechado" : (resumoDaAgenda ?? "Hoje")}
           </span>

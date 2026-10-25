@@ -708,6 +708,11 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-25 UTC — Claude — Cartão "Sua Página" da gaveta no visual do Figaro
+- Capturas do dono (referência do Figaro): sem ladrilho atrás do ícone, **dois elos em verdes diferentes** (estado no ar),
+  título maior, "Online" em cinza com ponto verde de 7 px e compartilhar em azul. Refeito em `DrawerDestaques.tsx`
+  (`ElosDaPagina`, SVG próprio; não copiei o vetor do APK). A faixa de desempenho recolhível segue como estava.
+
 ### 2026-10-25 UTC — Claude — Esqueletos de outras telas ao abrir a Agenda e as demais telas
 - **Causa**: ao abrir `/barbeiro`, empilhavam-se esqueletos de telas diferentes: o casco, depois a espera padrão das rotas
   filhas (`EsqueletoGenerico`, página inteira com `min-h-dvh` e fundo próprio, por cima do menu e do topo) e, no celular
