@@ -325,7 +325,8 @@ function AgendaTimelineBase({
   const marcas = useMemo(() => {
     const resultado: number[] = [];
     const ultimo = diaCompleto ? escala.fim - 30 : escala.fim;
-    for (let minuto = escala.inicio; minuto <= ultimo; minuto += 30) resultado.push(minuto);
+    // Figaro: uma linha tracejada a cada 15 min; a hora cheia continua como linha principal.
+    for (let minuto = escala.inicio; minuto <= ultimo; minuto += 15) resultado.push(minuto);
     return resultado;
   }, [escala.fim, escala.inicio, diaCompleto]);
 
@@ -925,8 +926,6 @@ function AgendaTimelineBase({
             <div
               key={minuto}
               className={`agenda-timeline-marca ${minuto % 60 === 0 ? "agenda-timeline-hora" : ""}`}
-              // Os traços de meia hora só aparecem depois de dar zoom (acima do tamanho de repouso).
-              data-meia-oculta={minuto % 60 !== 0 && PX_POR_MINUTO <= PX_PADRAO ? "" : undefined}
               style={{
                 top: `${(minuto - escala.inicio) * PX_POR_MINUTO + deslocamentoAte(minuto)}px`,
               }}
