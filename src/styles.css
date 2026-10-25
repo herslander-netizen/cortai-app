@@ -6365,16 +6365,23 @@ button.agenda-nome:hover {
   transform: translateX(-50%);
 }
 
-/* Agenda mobile — grade silenciosa: horas cheias orientam; subdivisões viram pequenos ticks. */
+/* Agenda no padrão Figaro: hora cheia em linha principal; subdivisões tracejadas e discretas. */
+.agenda-timeline-marca:not(.agenda-timeline-hora) {
+  border-top: 1px dashed color-mix(in oklab, var(--figaro-on-surface-variant) 20%, transparent);
+}
+.agenda-timeline-marca span {
+  color: var(--figaro-on-surface-variant, var(--mute2));
+}
 @media (max-width: 767px) {
   .agenda-operacional .agenda-timeline-marca:not(.agenda-timeline-hora) {
-    right: auto;
-    width: 8px;
-    border-top-color: color-mix(in oklab, var(--line) 72%, transparent);
-    opacity: 0.65;
+    right: 0;
+    left: 0;
+    width: auto;
+    border-top: 1px dashed color-mix(in oklab, var(--figaro-on-surface-variant) 20%, transparent);
+    opacity: 1;
   }
 
-  /* A precisão de 5 min continua ativa ao editar, sem riscar a largura inteira da agenda. */
+  /* A precisão de 5 min continua ativa durante arrasto/edição, sem poluir a grade em repouso. */
   .agenda-operacional .agenda-timeline-ajuste-5 {
     right: auto;
     width: 14px;
@@ -9822,13 +9829,7 @@ html:root.light[data-identidade="classico"][data-identidade] {
   font-size: 10.5px;
 }
 
-/* Traços de meia hora: só depois do zoom; em repouso a grade mostra apenas as horas cheias. */
-.agenda-timeline-marca:not(.agenda-timeline-hora) {
-  transition: opacity 200ms ease-out;
-}
-.agenda-operacional .agenda-timeline-marca[data-meia-oculta] {
-  opacity: 0;
-}
+/* As subdivisões tracejadas permanecem visíveis; redução de movimento não altera a leitura da grade. */
 @media (prefers-reduced-motion: reduce) {
   .agenda-timeline-marca:not(.agenda-timeline-hora) {
     transition: none;
