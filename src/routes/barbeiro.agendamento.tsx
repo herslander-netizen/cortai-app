@@ -39,7 +39,7 @@ const PASSOS = [15, 20, 30, 40].map((v) => ({ valor: v, rotulo: `${v} min` }));
 const VALOR_PERSONALIZADO = -1;
 
 function opcoesDePasso(passoAtual: number) {
-  const opcoes = [...PASSOS];
+  const opcoes: { valor: number; rotulo: string; detalhe?: string }[] = [...PASSOS];
   if (!PASSOS.some((opcao) => opcao.valor === passoAtual)) {
     opcoes.push({ valor: passoAtual, rotulo: `${passoAtual} min · personalizado` });
   }
