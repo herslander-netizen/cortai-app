@@ -5,6 +5,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { EtapasAnimadas } from "@/components/ui/EtapasAnimadas";
 import { ConclusaoDoOnboarding } from "@/components/onboarding/ConclusaoDoOnboarding";
 import { useMemo, useRef, useState, type ChangeEvent } from "react";
+import { motion, useReducedMotion } from "framer-motion";
 import {
   Camera,
   Check,
@@ -53,6 +54,7 @@ import {
 } from "@/lib/onboarding.functions";
 import { SEGMENTOS_CONFIG, termos } from "@/lib/segmentos";
 import { ChatPreview } from "@/components/agendamento/ChatPreview";
+import { MOLA } from "@/lib/movimento-figaro";
 
 export const Route = createFileRoute("/barbeiro/configurar")({
   ssr: false,
@@ -165,6 +167,7 @@ const FUNCOES: { valor: Funcao; rotulo: string; detalhe: string }[] = [
 
 function ConfigurarPage() {
   const navigate = useNavigate();
+  const reduzirMovimento = useReducedMotion();
   const queryClient = useQueryClient();
   const salvarDados = useServerFn(salvarDadosDaBarbearia);
   const gravarHorarios = useServerFn(salvarHorarios);
@@ -455,7 +458,12 @@ function ConfigurarPage() {
       {data ? (
         <>
           {mostrarBoasVindas ? (
-            <div className="mx-auto flex min-h-[calc(100dvh-8rem)] w-full max-w-[520px] flex-col gap-4 py-4">
+            <motion.div
+              initial={reduzirMovimento ? false : { opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={reduzirMovimento ? { duration: 0 } : MOLA.rapidaEfeito}
+              className="mx-auto flex min-h-[calc(100dvh-8rem)] w-full max-w-[520px] flex-col gap-4 py-4"
+            >
               <Card
                 variant="surface"
                 density="none"
@@ -555,7 +563,7 @@ function ConfigurarPage() {
                   Fazer isso depois
                 </Button>
               </div>
-            </div>
+            </motion.div>
           ) : null}
 
           {!mostrarBoasVindas && etapa !== "pronto" ? (
