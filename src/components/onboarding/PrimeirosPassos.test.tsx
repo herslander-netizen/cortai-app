@@ -50,7 +50,7 @@ vi.mock("framer-motion", async () => {
           const filtered = Object.fromEntries(
             Object.entries(props).filter(([key]) => !["initial", "animate", "exit", "transition", "layout"].includes(key)),
           );
-          return React.createElement(tag as any, { ...filtered, ref } as any, props.children as ReactNode);
+          return React.createElement(tag as any, { ...filtered, ref } as any, props["children"] as ReactNode);
         }),
     },
   );

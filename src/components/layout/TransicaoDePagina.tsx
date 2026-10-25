@@ -1,4 +1,4 @@
-import { useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { motion } from "framer-motion";
 import { useRouterState } from "@tanstack/react-router";
 
@@ -12,6 +12,9 @@ import {
   tipoDaTransicao,
   type EstadoDaTransicao,
 } from "@/lib/transicoes-de-tela";
+
+const PRAZO_DA_TELA_MS = 700;
+const PRAZO_DA_COPIA_MS = 900;
 
 type TelaSaindo = {
   id: number;
@@ -58,8 +61,30 @@ export function TransicaoDePagina({ children }: { children: ReactNode }) {
     anterior.current = { caminho, indice };
   }
 
+  // Rede de segurança: se a animação demorar a começar (aparelho ocupado carregando a tela), a tela nova
+  // fica fora do lugar, invisível, e a cópia antiga continua por cima: parece tela em branco. Passado o
+  // prazo, a tela nova vai direto ao lugar e a cópia sai.
+  const [forcadoEm, forcar] = useState<string | null>(null);
+  useEffect(() => {
+    const prazoDaTela = window.setTimeout(() => forcar(caminho), PRAZO_DA_TELA_MS);
+    const prazoDaCopia = window.setTimeout(() => {
+      if (!saindo.current) return;
+      saindo.current = null;
+      atualizar((n) => n + 1);
+    }, PRAZO_DA_COPIA_MS);
+    return () => {
+      window.clearTimeout(prazoDaTela);
+      window.clearTimeout(prazoDaCopia);
+    };
+  }, [caminho]);
+
   const atual = estado.current ? { ...estado.current, menosMovimento } : null;
   const fantasma = saindo.current;
+  const noLugar = atual
+    ? forcadoEm === caminho
+      ? { ...telaNoLugar(atual), transition: { duration: 0 } }
+      : telaNoLugar(atual)
+    : undefined;
 
   return (
     <div style={{ overflowX: "clip" }}>
@@ -92,8 +117,8 @@ export function TransicaoDePagina({ children }: { children: ReactNode }) {
         {...(atual && atual.tipo !== "esmaecer"
           ? { style: { backgroundColor: "var(--color-background)" } }
           : {})}
-        {...(atual
-          ? { initial: entradaDaTela(atual), animate: telaNoLugar(atual) }
+        {...(atual && noLugar
+          ? { initial: entradaDaTela(atual), animate: noLugar }
           : { initial: false })}
       >
         {children}

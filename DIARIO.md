@@ -706,6 +706,13 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-25 — Claude — Tela em branco entre telas (vídeo do dono)
+- No vídeo, ao abrir Sua Página e voltar ao menu, o corpo ficava vazio por 1 a 4 s (só o cabeçalho) e depois a tela aparecia deslizando. Leitura: a tela nova fica fora do lugar/invisível esperando a animação começar enquanto a cópia antiga cobre tudo. Não reproduzi no ambiente de teste (nem com CPU lenta, rede lenta e voltar rápido).
+- `TransicaoDePagina`: rede de segurança. Em 700 ms a tela nova vai direto ao lugar e em 900 ms a cópia antiga sai, mesmo que a animação não tenha começado. Não muda o movimento normal.
+- Corrigido de passagem o erro de tipo em `PrimeirosPassos.test.tsx` (acesso a `children`), que quebrava o `tsc`.
+- Dono: confirmar no celular se o branco sumiu; se persistir, gravar de novo (o relógio da gravação ajuda a achar o ponto).
+
+
 ### 2026-10-25 — Claude — Agendamento (maneira direta) com composição própria por tema
 - Pedido do dono: "só tem mudança de cores, caprichar na personalização". Agora cada tema do catálogo tem uma estrutura (`classica`, `palco`, `retro`, `arco`, `cartao`, `vibrante`) que muda cabeçalho, capa, formas e cartões, além das cores.
 - Arquivos: `src/lib/tema-da-agenda-direta.ts` (+ teste), `components/agendamento/CabecalhoDaAgendaDireta.tsx`, `routes/agendar.$slug.tsx`, `components/marca/editor/PreviaDireta.tsx` (mesma composição na prévia), CSS `.agendamento-marca[data-estrutura]` em `styles.css`.
