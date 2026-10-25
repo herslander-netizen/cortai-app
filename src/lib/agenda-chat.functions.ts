@@ -111,7 +111,7 @@ export const getGradeDoDia = createServerFn({ method: "GET" })
       profissionais,
     };
 
-    const grade = slotsDoDia(dia, regras.horarios, regras.passoMin, regras.fuso);
+    const grade = slotsDoDia(dia, regras.horarios, regras.passoMin, regras.fuso, duracaoMin);
     if (!servico || grade.fechado) {
       return { ...base, fechado: grade.fechado, abre: grade.abre, fecha: grade.fecha, slots: [] };
     }
