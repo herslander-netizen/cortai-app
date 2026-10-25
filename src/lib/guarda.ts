@@ -3,6 +3,7 @@ import { redirect } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { getSessao, type Papel, type Sessao } from "@/lib/sessao.functions";
 
+import { efeitoDoEventoDeAutenticacao } from "@/lib/auth-eventos";
 import { precisaEscolherContexto } from "@/lib/contextos";
 
 export type Destino = "/admin" | "/barbeiro" | "/app" | "/comecar" | "/escolher";
@@ -49,9 +50,21 @@ export function esquecerSessao() {
   cacheDaSessao = null;
 }
 
+/** Última sessão carregada com sucesso: segura a navegação se a próxima leitura falhar por instabilidade. */
+let ultimaSessaoBoa: { userId: string; sessao: Sessao } | null = null;
+
+export function sessaoDeReserva(userId: string): Sessao | null {
+  return ultimaSessaoBoa?.userId === userId ? ultimaSessaoBoa.sessao : null;
+}
+
 if (typeof window !== "undefined") {
-  supabase.auth.onAuthStateChange((evento) => {
-    if (evento !== "TOKEN_REFRESHED") esquecerSessao();
+  let contaConhecida: string | null = null;
+  supabase.auth.onAuthStateChange((evento, sessaoAuth) => {
+    const conta = sessaoAuth?.user?.id ?? null;
+    const efeito = efeitoDoEventoDeAutenticacao(evento, contaConhecida, conta);
+    contaConhecida = conta;
+    if (efeito !== "nada") esquecerSessao();
+    if (efeito === "conta") ultimaSessaoBoa = null;
   });
 }
 
@@ -67,7 +80,9 @@ export async function sessaoDoUsuario(userId: string): Promise<Sessao> {
   const promessa = getSessao();
   cacheDaSessao = { userId, em: agora, promessa };
   try {
-    return await promessa;
+    const sessao = await promessa;
+    ultimaSessaoBoa = { userId, sessao };
+    return sessao;
   } catch (erro) {
     esquecerSessao();
     throw erro;
@@ -99,6 +114,10 @@ export async function exigirPapel(papel: Exclude<Papel, "pendente">): Promise<Se
   try {
     sessao = await sessaoDoUsuario(usuario.id);
   } catch {
+    // Instabilidade passageira: segue com a última sessão boa da mesma conta, sem mandar ao login
+    // (o desvio pelo login descartava o toque e devolvia à tela anterior).
+    const reserva = sessaoDeReserva(usuario.id);
+    if (reserva) return reserva;
     // Falha ao carregar o perfil não prova que a sessão é inválida.
     // Preserve os tokens e permita nova tentativa na tela de login.
     esquecerSessao();

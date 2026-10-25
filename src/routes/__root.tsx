@@ -24,6 +24,7 @@ import { AvisoDeVersao } from "@/components/pwa/AvisoDeVersao";
 import { AvisosDoApp } from "@/components/layout/AvisosDoApp";
 import { TransicaoDePagina } from "@/components/layout/TransicaoDePagina";
 import { NovidadesDaVersao } from "@/components/sistema/NovidadesDaVersao";
+import { efeitoDoEventoDeAutenticacao } from "@/lib/auth-eventos";
 
 function NotFoundComponent() {
   return (
@@ -115,11 +116,16 @@ function RootComponent() {
   }, []);
 
   useEffect(() => {
-    const { data } = supabase.auth.onAuthStateChange((event) => {
-      if (event !== "SIGNED_IN" && event !== "SIGNED_OUT" && event !== "USER_UPDATED") return;
+    let contaConhecida: string | null = null;
+    const { data } = supabase.auth.onAuthStateChange((event, sessaoAuth) => {
+      const conta = sessaoAuth?.user?.id ?? null;
+      const efeito = efeitoDoEventoDeAutenticacao(event, contaConhecida, conta);
+      contaConhecida = conta;
+      if (efeito === "nada") return;
       if (event === "SIGNED_OUT") limparCacheAgenda();
-      router.invalidate();
-      if (event !== "SIGNED_OUT") queryClient.invalidateQueries();
+      // Reemissão para a mesma conta (voltar ao app) não reinicia rotas nem consultas.
+      if (efeito === "conta") void router.invalidate();
+      if (event !== "SIGNED_OUT") void queryClient.invalidateQueries();
     });
     return () => data.subscription.unsubscribe();
   }, [router, queryClient]);
