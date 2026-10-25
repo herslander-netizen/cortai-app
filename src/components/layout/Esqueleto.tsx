@@ -1,3 +1,4 @@
+import { useRouterState } from "@tanstack/react-router";
 import { useEffect, useState, type CSSProperties, type ReactNode } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -128,7 +129,10 @@ export function EsqueletoMetricas({
       onTentarDeNovo={onTentarDeNovo}
     >
       {Array.from({ length: colunas }).map((_, i) => (
-        <div key={i} className="min-h-24 rounded-xl border-0 bg-[var(--agenda-cartao,var(--ink2))] px-3 py-4">
+        <div
+          key={i}
+          className="min-h-24 rounded-xl border-0 bg-[var(--agenda-cartao,var(--ink2))] px-3 py-4"
+        >
           <Barra w="60%" h={10} />
           <Barra w="45%" h={24} className="mt-3" />
         </div>
@@ -396,5 +400,63 @@ export function EsqueletoGenerico() {
         ))}
       </div>
     </RegiaoDeEsqueleto>
+  );
+}
+
+/**
+ * Espera padrão das rotas filhas. Dentro da área do negócio, do cliente ou do ADM o casco (topo, menu) já está na tela:
+ * mostra só o miolo, no formato da própria tela, e nunca outra tela inteira por cima. Fora delas, a tela genérica.
+ */
+export function EsqueletoDaRota() {
+  const caminho = useRouterState({ select: (estado) => estado.location.pathname });
+  if (caminho === "/barbeiro" || caminho === "/barbeiro/agenda") {
+    return (
+      <div className="px-4 pt-4">
+        <EsqueletoAgenda linhas={5} />
+      </div>
+    );
+  }
+  if (
+    caminho.startsWith("/barbeiro/") ||
+    caminho.startsWith("/app/") ||
+    caminho.startsWith("/admin/")
+  ) {
+    return (
+      <div className="px-4 pt-2 md:px-0">
+        <EsqueletoLista />
+      </div>
+    );
+  }
+  return <EsqueletoGenerico />;
+}
+
+/** Miolo do modo foco da Agenda (cartão do atendimento e próximos): cabe dentro da tela, sem ocupar a página inteira. */
+export function EsqueletoFoco() {
+  return (
+    <RegiaoDeEsqueleto className="mt-3 space-y-3">
+      <div className="rounded-[28px] bg-ink2 p-5">
+        <Barra w="28%" h={14} />
+        <Barra w="62%" h={34} className="mt-5" />
+        <Barra w="40%" h={14} className="mt-3" />
+        <BlocoEsqueleto className="mt-6 h-12 w-full rounded-full" />
+      </div>
+      <EsqueletoAgendaLinhas linhas={2} />
+    </RegiaoDeEsqueleto>
+  );
+}
+
+function EsqueletoAgendaLinhas({ linhas }: { linhas: number }) {
+  return (
+    <div className="space-y-2">
+      {Array.from({ length: linhas }).map((_, i) => (
+        <div
+          key={i}
+          className="grid min-h-[72px] grid-cols-[56px_minmax(0,1fr)] items-center gap-3 rounded-[12px] bg-ink2 p-3"
+        >
+          <Barra w="42px" h={14} />
+          <Linhas linhas={2} />
+        </div>
+      ))}
+    </div>
   );
 }

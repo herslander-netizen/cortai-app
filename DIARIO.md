@@ -708,6 +708,15 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-25 UTC — Claude — Esqueletos de outras telas ao abrir a Agenda e as demais telas
+- **Causa**: ao abrir `/barbeiro`, empilhavam-se esqueletos de telas diferentes: o casco, depois a espera padrão das rotas
+  filhas (`EsqueletoGenerico`, página inteira com `min-h-dvh` e fundo próprio, por cima do menu e do topo) e, no celular
+  em modo foco, o esqueleto do Cockpit (outra tela) antes do da Agenda.
+- **Correção**: `EsqueletoDaRota` (usado em `router.tsx` como espera padrão) mostra só o miolo no formato da tela: Agenda
+  (`/barbeiro`, `/barbeiro/agenda`, igual ao de `AgendaLazy`, sem salto), lista nas demais telas de `/barbeiro`, `/app` e
+  `/admin`; a tela genérica fica só fora dessas áreas. O modo foco usa `EsqueletoFoco` (cartão + próximos, sem ocupar a
+  página). Sequência agora: casco → miolo da Agenda → conteúdo.
+
 ### 2026-10-25 — Claude — Tela que carrega e some: auditoria com dados reais, proteção e telemetria
 - Vídeo do dono (10:06): ao abrir Personalizar Página, o conteúdo aparece e ~0,2 s depois some (volta o esqueleto da rota e fica só o cabeçalho). Acontece logo após o app abrir do zero.
 - Fatos levantados (sem suposição): registros do Supabase da prévia (`cortai-preview`) no horário do vídeo — o app pediu sessão, capacidades, `getMarca` e a página pública normalmente; no instante em que a tela some **não há nenhuma chamada de rede**: o defeito é dentro do aparelho (roteador/tela). Não houve publicação nova durante o vídeo (a identidade publicada era igual à do código).
