@@ -14,21 +14,30 @@ const PADROES =
 export function ehErroDeChunk(erro: unknown): boolean {
   if (!erro) return false;
   const e = erro as { name?: string; message?: string };
-  return e.name === "ChunkLoadError" || PADROES.test(`${e.name ?? ""} ${e.message ?? String(erro)}`);
+  return (
+    e.name === "ChunkLoadError" || PADROES.test(`${e.name ?? ""} ${e.message ?? String(erro)}`)
+  );
 }
 
-export type TipoDeErro = "chunk" | "autenticacao" | "permissao" | "rede" | "servidor" | "desconhecido";
+export type TipoDeErro =
+  "chunk" | "autenticacao" | "permissao" | "rede" | "servidor" | "desconhecido";
 
 export function classificarErro(erro: unknown): TipoDeErro {
   if (ehErroDeChunk(erro)) return "chunk";
   const e = erro as { status?: number; message?: string } | null;
   const status = typeof e?.status === "number" ? e.status : undefined;
   const msg = erro instanceof Error ? erro.message : String(erro ?? "");
-  if (status === 401 || /unauthorized|não autenticad|sessão expirada|jwt expired|status.?401/i.test(msg))
+  if (
+    status === 401 ||
+    /unauthorized|não autenticad|sessão expirada|jwt expired|status.?401/i.test(msg)
+  )
     return "autenticacao";
   if (status === 403 || /sem permiss[aã]o|não tem permiss[aã]o|forbidden|status.?403/i.test(msg))
     return "permissao";
-  if ((status && status >= 500) || /status.?5\d\d|internal server error|bad gateway|service unavailable/i.test(msg))
+  if (
+    (status && status >= 500) ||
+    /status.?5\d\d|internal server error|bad gateway|service unavailable/i.test(msg)
+  )
     return "servidor";
   if (
     (typeof navigator !== "undefined" && navigator.onLine === false) ||
@@ -39,13 +48,29 @@ export function classificarErro(erro: unknown): TipoDeErro {
 }
 
 /** Pode recarregar agora? (não houve recuperação nos últimos 30 s) */
-export function podeRecuperar(agora = Date.now(), armazenamento: Pick<Storage, "getItem"> = sessionStorage) {
+export function podeRecuperar(
+  agora = Date.now(),
+  armazenamento: Pick<Storage, "getItem"> = sessionStorage,
+) {
   try {
     const ultimo = Number(armazenamento.getItem(CHAVE) ?? 0);
     return !ultimo || agora - ultimo > JANELA_MS;
   } catch {
     return true;
   }
+}
+
+/** Cobre a tela enquanto o app recarrega, para não parecer travado ou em branco. */
+function mostrarAtualizando() {
+  if (typeof document === "undefined" || document.getElementById("cortai-atualizando")) return;
+  const camada = document.createElement("div");
+  camada.id = "cortai-atualizando";
+  camada.setAttribute("role", "status");
+  camada.style.cssText =
+    "position:fixed;inset:0;z-index:2147483647;display:grid;place-content:center;gap:12px;text-align:center;padding:24px;font:600 16px system-ui,sans-serif;background:var(--color-background,#0b1220);color:var(--color-foreground,#fff)";
+  camada.innerHTML =
+    '<span>Atualizando o Cortaí…</span><span style="font-weight:400;font-size:14px;opacity:.7">Uma versão nova acabou de sair. Só um instante.</span>';
+  document.body.appendChild(camada);
 }
 
 /** Atualiza o SW, apaga só caches de assets e recarrega. `forcar` ignora a trava (clique do usuário). */
@@ -57,6 +82,7 @@ export function recuperarDeChunk(forcar = false): boolean {
   } catch {
     /* segue */
   }
+  mostrarAtualizando();
   void (async () => {
     try {
       const reg = await navigator.serviceWorker?.getRegistration();
@@ -68,7 +94,9 @@ export function recuperarDeChunk(forcar = false): boolean {
     try {
       if (typeof caches !== "undefined") {
         const nomes = await caches.keys();
-        await Promise.all(nomes.filter((n) => n.startsWith("cortai-assets-")).map((n) => caches.delete(n)));
+        await Promise.all(
+          nomes.filter((n) => n.startsWith("cortai-assets-")).map((n) => caches.delete(n)),
+        );
       }
     } catch {
       /* segue */
@@ -89,7 +117,9 @@ export function instalarRecuperacaoDeChunk() {
 }
 
 /** React.lazy que recarrega uma vez quando o chunk sumiu; senão repassa o erro ao RouteError. */
-export function lazyComRecuperacao<T extends ComponentType<any>>(fabrica: () => Promise<{ default: T }>) {
+export function lazyComRecuperacao<T extends ComponentType<any>>(
+  fabrica: () => Promise<{ default: T }>,
+) {
   return lazy(() =>
     fabrica().catch((erro: unknown) => {
       if (ehErroDeChunk(erro) && recuperarDeChunk()) return new Promise<{ default: T }>(() => {});

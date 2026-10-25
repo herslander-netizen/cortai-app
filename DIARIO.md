@@ -706,6 +706,14 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-25 — Claude — Tela em branco: causa encontrada (publicação nova com o app aberto)
+- Auditoria do vídeo de 07:34 (e dos anteriores). Reproduzido no ensaio local com o build de produção: abrir o app, publicar uma versão nova (arquivos das telas mudam de nome), tocar em "Sua Página". O servidor devolve HTML no lugar do arquivo antigo (`text/html`, 404), a tela não carrega, o app recarrega sozinho e fica em branco até terminar; no celular, com rede lenta, são segundos. Como GPT, Claude e Codex enviam a cada poucos minutos, quase todo toque depois de alguns minutos de uso cai nisso. Era a causa que o "branco, às vezes sim, às vezes não" e o "volta para a tela anterior" sempre apontaram; as correções anteriores (rede de segurança da transição, reemissão de login) eram de causas menores.
+- Correção: (1) `vite.config.ts` grava a identidade de cada publicação em `build-id.json` (commit do GitHub) e no código; (2) `lib/pwa/defasagem.ts` compara as duas ao abrir, ao voltar ao app, antes do toque (a cada 15 s no máximo) e a cada 45 s; (3) `__root.tsx`: com a publicação defasada, o toque de navegação vira uma navegação normal do navegador direto ao destino (sem tela quebrada); (4) se ainda assim o arquivo falhar, a recarga automática agora cobre a tela com "Atualizando o Cortaí…" em vez de branco. Teste `defasagem.test.ts`.
+- Conferido no ensaio: antes da correção, 404 do arquivo + recarga + branco; depois, navegação direta ao destino, sem 404.
+- Limite: publicação nova no meio exato de um toque ainda recarrega uma vez (agora com aviso). Não há mais o que fazer no código além de publicar menos vezes em sequência.
+- Achado à parte: o banco da prévia é o projeto `cortai-preview` (não o `cortai-prod`); a migração 0046 (pacotes) vale para os dois, e nenhum recebeu ainda.
+
+
 ### 2026-10-25 — Claude — Layout Raízes (tema Contraste) e Pacotes e Combos
 - Origem: dois vídeos do dono com o layout novo do Figaro, "Raízes · Contraste". Dono pediu o completo, com Pacotes e Combos.
 - **Layout `figaro-raizes`** no catálogo (cartão com descrição, seções e "6 temas"): `components/marca/modelos/Raizes.tsx` + CSS `.rz-*`. Capítulos Ontem (quem corta), Hoje (O trabalho, Num relance) e Amanhã (agendar, serviços, pacotes, combos, onde a cadeira está), abertura em foto, menu em tela cheia, entrada ao rolar só com transform/opacity. Escuro e claro vêm do tema (`lib/raizes.ts`).

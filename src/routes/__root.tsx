@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import appCss from "../styles.css?url";
 import { manifestDaRota } from "@/lib/manifest";
 import { iniciarServiceWorker } from "@/lib/pwa/registro";
+import { appDefasado, vigiarDefasagem } from "@/lib/pwa/defasagem";
 import { instalarRecuperacaoDeChunk } from "@/lib/pwa/recuperar-chunk";
 import { RouteError } from "@/components/layout/RouteError";
 import { GlobalDesign } from "@/components/layout/GlobalDesign";
@@ -113,7 +114,18 @@ function RootComponent() {
   useEffect(() => {
     instalarRecuperacaoDeChunk();
     void iniciarServiceWorker();
+    vigiarDefasagem();
   }, []);
+
+  // Publicação nova com o app aberto: os arquivos das telas mudaram de nome. Em vez de abrir uma tela cujo
+  // arquivo não existe mais (branco e recarga), o toque vira uma navegação normal do navegador, ao destino.
+  useEffect(
+    () =>
+      router.subscribe("onBeforeNavigate", ({ toLocation, pathChanged }) => {
+        if (pathChanged && appDefasado()) window.location.assign(toLocation.href);
+      }),
+    [router],
+  );
 
   useEffect(() => {
     let contaConhecida: string | null = null;
