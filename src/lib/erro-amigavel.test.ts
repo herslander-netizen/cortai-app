@@ -12,13 +12,18 @@ const base = {
 };
 
 describe("regras", () => {
-  it("50 rejeitado; 15/20/30/40 aceitos", () => {
-    expect(esquemaRegrasDeAgendamento.safeParse({ ...base, passoMin: 50 }).success).toBe(false);
-    for (const p of [15, 20, 30, 40])
+  it("aceita intervalos sugeridos e personalizados entre 5 e 120 minutos", () => {
+    for (const p of [5, 10, 15, 20, 25, 30, 40, 50, 75, 120])
       expect(esquemaRegrasDeAgendamento.safeParse({ ...base, passoMin: p }).success).toBe(true);
   });
-  it("valor fora da lista é exibido como 30", () => {
-    expect(passoValido(50)).toBe(30);
+  it("rejeita intervalos fora dos limites e valores fracionários", () => {
+    for (const p of [4, 121, 5.5])
+      expect(esquemaRegrasDeAgendamento.safeParse({ ...base, passoMin: p }).success).toBe(false);
+  });
+  it("normaliza valores inválidos para 30 e preserva intervalos personalizados válidos", () => {
+    expect(passoValido(5)).toBe(5);
+    expect(passoValido(75)).toBe(75);
+    expect(passoValido(121)).toBe(30);
     expect(passoValido(20)).toBe(20);
   });
 });
