@@ -3,28 +3,46 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Eye, LayoutTemplate, MoreVertical, Palette, Save, Send, Undo2 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { EsqueletoFormulario } from "@/components/layout/Esqueleto";
 import { RouteError } from "@/components/layout/RouteError";
 import { LacunasDaPagina } from "@/components/marca/editor/LacunasDaPagina";
 import { SecaoConteudo } from "@/components/marca/editor/SecaoConteudo";
 import { Screen } from "@/components/layout/Screen";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { PaineisDoEditor, type AbaPainelDoEditor } from "@/components/marca/editor/PaineisDoEditor";
 import { useConfirmar } from "@/components/ui/useConfirmar";
 import { PreviaDaExperiencia } from "@/components/marca/editor/PreviaDaExperiencia";
 import { useEditorDaPagina } from "@/components/marca/editor/useEditorDaPagina";
 import { Aviso } from "@/components/ui/aviso";
 import { Button } from "@/components/ui/button";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { alterarStatusPaginaPublica, getMarca, type MarcaData } from "@/lib/marca.functions";
 import { exigirCapacidade } from "@/lib/guarda-capacidade";
 import { urlPublica } from "@/lib/origem-publica";
-import { ajustarAoCatalogo, LAYOUTS, secoesObrigatoriasAusentes, TEMAS, totalDeSecoesAtivas } from "@/lib/pagina-config";
+import {
+  ajustarAoCatalogo,
+  LAYOUTS,
+  secoesObrigatoriasAusentes,
+  TEMAS,
+  totalDeSecoesAtivas,
+} from "@/lib/pagina-config";
 import { CATALOGO_DE_SECOES } from "@/components/marca/editor/secoes/catalogo";
 import { CapaDoTema } from "@/components/marca/editor/CapaDoTema";
+import { registrar } from "@/lib/diagnostico/telemetria";
 
 export const Route = createFileRoute("/barbeiro/marca/")({
   beforeLoad: ({ context }) => exigirCapacidade(context.queryClient, "branding_avancado"),
@@ -58,6 +76,17 @@ function MarcaPendente() {
 
 function MarcaPage() {
   const query = useQuery({ queryKey: ["marca"], queryFn: () => getMarca(), retry: false });
+  const ramo = query.isLoading
+    ? "carregando"
+    : query.isError && !query.data
+      ? "erro"
+      : !query.data
+        ? "sem-acesso"
+        : "conteudo";
+  useEffect(() => {
+    registrar("marca", { ramo });
+    return () => registrar("marca", { ramo: `${ramo}-desmontou` });
+  }, [ramo]);
   const reduzirMovimento = useReducedMotion();
   const transicaoEntrada = { opacity: { duration: reduzirMovimento ? 0 : 0.22 } };
   const transicaoSaida = { opacity: { duration: reduzirMovimento ? 0 : 0.18 } };
@@ -271,9 +300,27 @@ function Editor({
           <motion.section
             key="rascunho-banner"
             layout
-            initial={reduzirMovimento ? { opacity: 0 } : { opacity: 0, height: 0, paddingTop: 0, paddingBottom: 0, marginBottom: 0 }}
-            animate={reduzirMovimento ? { opacity: 1 } : { opacity: 1, height: "auto", paddingTop: 16, paddingBottom: 16, marginBottom: 16 }}
-            exit={reduzirMovimento ? { opacity: 0 } : { opacity: 0, height: 0, paddingTop: 0, paddingBottom: 0, marginBottom: 0 }}
+            initial={
+              reduzirMovimento
+                ? { opacity: 0 }
+                : { opacity: 0, height: 0, paddingTop: 0, paddingBottom: 0, marginBottom: 0 }
+            }
+            animate={
+              reduzirMovimento
+                ? { opacity: 1 }
+                : {
+                    opacity: 1,
+                    height: "auto",
+                    paddingTop: 16,
+                    paddingBottom: 16,
+                    marginBottom: 16,
+                  }
+            }
+            exit={
+              reduzirMovimento
+                ? { opacity: 0 }
+                : { opacity: 0, height: 0, paddingTop: 0, paddingBottom: 0, marginBottom: 0 }
+            }
             transition={{ duration: reduzirMovimento ? 0.15 : 0.22 }}
             className="overflow-hidden rounded-xl border border-gold/40 bg-gold/5 p-4 sm:p-5"
           >
@@ -298,7 +345,9 @@ function Editor({
               </div>
               <p className="mt-2 text-sm font-semibold text-paper">{LAYOUTS[visual.layout]}</p>
               <p className="mt-1 text-xs leading-relaxed text-mute">
-                {visual.layout === "cortai-chat" ? "Atendimento em conversa" : `${totalDeSecoesAtivas(e.config)} seções ativas`}
+                {visual.layout === "cortai-chat"
+                  ? "Atendimento em conversa"
+                  : `${totalDeSecoesAtivas(e.config)} seções ativas`}
               </p>
             </div>
             <div className="min-w-0 pl-3">
@@ -307,14 +356,25 @@ function Editor({
                 Tema
               </div>
               <p className="mt-2 text-sm font-semibold text-paper">{TEMAS[visual.tema].nome}</p>
-              <div className="mt-2 flex h-2 overflow-hidden rounded-full" aria-label="Paleta do tema atual">
-                <span className="flex-1" style={{ background: TEMAS[visual.tema].cores.principal }} />
-                <span className="flex-1" style={{ background: TEMAS[visual.tema].cores.destaque }} />
+              <div
+                className="mt-2 flex h-2 overflow-hidden rounded-full"
+                aria-label="Paleta do tema atual"
+              >
+                <span
+                  className="flex-1"
+                  style={{ background: TEMAS[visual.tema].cores.principal }}
+                />
+                <span
+                  className="flex-1"
+                  style={{ background: TEMAS[visual.tema].cores.destaque }}
+                />
                 <span className="flex-1" style={{ background: TEMAS[visual.tema].cores.fundo }} />
               </div>
             </div>
           </div>
-          <p className="mt-4 text-xs leading-relaxed text-mute">Altere o visual e confira o exemplo antes de salvar.</p>
+          <p className="mt-4 text-xs leading-relaxed text-mute">
+            Altere o visual e confira o exemplo antes de salvar.
+          </p>
           <Button asChild className="mt-3 min-h-12 w-full">
             <Link to="/barbeiro/marca/layout-tema">Escolher Layout & Tema</Link>
           </Button>
@@ -326,18 +386,34 @@ function Editor({
         <LacunasDaPagina lacunas={initial.lacunas} />
       </section>
 
-      <Accordion type="single" collapsible value={avancadoAberto ? "avancado" : ""} onValueChange={(value) => setAvancadoAberto(value === "avancado")} className="mb-6">
-        <AccordionItem value="avancado" className="rounded-xl border-0 bg-[var(--agenda-cartao,var(--ink2))] px-4">
-          <AccordionTrigger className="min-h-14 text-sm font-semibold text-paper hover:no-underline">Outras configurações</AccordionTrigger>
+      <Accordion
+        type="single"
+        collapsible
+        value={avancadoAberto ? "avancado" : ""}
+        onValueChange={(value) => setAvancadoAberto(value === "avancado")}
+        className="mb-6"
+      >
+        <AccordionItem
+          value="avancado"
+          className="rounded-xl border-0 bg-[var(--agenda-cartao,var(--ink2))] px-4"
+        >
+          <AccordionTrigger className="min-h-14 text-sm font-semibold text-paper hover:no-underline">
+            Outras configurações
+          </AccordionTrigger>
           <AccordionContent>
-            <PaineisDoEditor e={e} initial={initial} versions={versions} abaAtiva={abaAtiva} onAbaChange={setAbaAtiva} />
+            <PaineisDoEditor
+              e={e}
+              initial={initial}
+              versions={versions}
+              abaAtiva={abaAtiva}
+              onAbaChange={setAbaAtiva}
+            />
           </AccordionContent>
         </AccordionItem>
       </Accordion>
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,520px)_minmax(420px,1fr)]">
         <div>
-
           <div className="sticky bottom-20 z-20 mt-6 rounded-xl border-0 bg-[var(--agenda-cartao,var(--ink2))] p-2 shadow-[var(--elevacao-3)] xl:bottom-4">
             <Button
               variant="ghost"
@@ -383,7 +459,10 @@ function Editor({
 
       {dialogo}
       <Sheet open={previaAberta} onOpenChange={setPreviaAberta}>
-        <SheetContent side="bottom" className="h-[100dvh] overflow-y-auto p-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">
+        <SheetContent
+          side="bottom"
+          className="h-[100dvh] overflow-y-auto p-4 pb-[calc(1rem+env(safe-area-inset-bottom))]"
+        >
           <SheetHeader>
             <SheetTitle>Prévia da página</SheetTitle>
           </SheetHeader>

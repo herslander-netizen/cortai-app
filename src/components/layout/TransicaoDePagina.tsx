@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { useRouterState } from "@tanstack/react-router";
 
 import { useMenosMovimento } from "@/hooks/useMovimento";
+import { registrar } from "@/lib/diagnostico/telemetria";
 import {
   copiaDaTela,
   entradaDaTela,
@@ -45,6 +46,7 @@ export function TransicaoDePagina({ children }: { children: ReactNode }) {
   // A troca é detectada durante a renderização, enquanto o DOM ainda mostra a tela anterior.
   if (anterior.current.caminho !== caminho) {
     const de = anterior.current;
+    registrar("transicao", { de: de.caminho, para: caminho });
     estado.current = {
       tipo: tipoDaTransicao(de.caminho, caminho),
       sentido: sentidoDaNavegacao(de.caminho, caminho, de.indice, indice),

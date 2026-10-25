@@ -26,6 +26,8 @@ import { AvisosDoApp } from "@/components/layout/AvisosDoApp";
 import { TransicaoDePagina } from "@/components/layout/TransicaoDePagina";
 import { NovidadesDaVersao } from "@/components/sistema/NovidadesDaVersao";
 import { efeitoDoEventoDeAutenticacao } from "@/lib/auth-eventos";
+import { fotoDoRoteador, instalarTelemetria, registrar } from "@/lib/diagnostico/telemetria";
+import { vigiarTela } from "@/lib/diagnostico/vigia-de-tela";
 
 function NotFoundComponent() {
   return (
@@ -115,23 +117,49 @@ function RootComponent() {
     instalarRecuperacaoDeChunk();
     void iniciarServiceWorker();
     vigiarDefasagem();
+    instalarTelemetria();
   }, []);
+
+  // Tela vazia não fica vazia: recarrega as rotas e, se preciso, a página (com aviso). Ver vigia-de-tela.ts.
+  useEffect(() => {
+    vigiarTela(router);
+    const sair = (["onBeforeNavigate", "onResolved"] as const).map((ev) =>
+      router.subscribe(ev, (e) =>
+        registrar("rota", {
+          ev,
+          de: e.fromLocation?.pathname ?? null,
+          para: e.toLocation.pathname,
+          mudou: e.pathChanged ? 1 : 0,
+          ...fotoDoRoteador(router),
+        }),
+      ),
+    );
+    return () => sair.forEach((f) => f());
+  }, [router]);
 
   // Publicação nova com o app aberto: os arquivos das telas mudaram de nome. Em vez de abrir uma tela cujo
   // arquivo não existe mais (branco e recarga), o toque vira uma navegação normal do navegador, ao destino.
   useEffect(
     () =>
       router.subscribe("onBeforeNavigate", ({ toLocation, pathChanged }) => {
-        if (pathChanged && appDefasado()) window.location.assign(toLocation.href);
+        if (pathChanged && appDefasado()) {
+          registrar("defasagem", { para: toLocation.pathname }, true);
+          window.location.assign(toLocation.href);
+        }
       }),
     [router],
   );
 
   useEffect(() => {
-    let contaConhecida: string | null = null;
+    let contaConhecida: string | null | undefined = undefined;
     const { data } = supabase.auth.onAuthStateChange((event, sessaoAuth) => {
       const conta = sessaoAuth?.user?.id ?? null;
       const efeito = efeitoDoEventoDeAutenticacao(event, contaConhecida, conta);
+      registrar("auth", {
+        ev: event,
+        efeito,
+        antes: contaConhecida === undefined ? "?" : contaConhecida ? 1 : 0,
+      });
       contaConhecida = conta;
       if (efeito === "nada") return;
       if (event === "SIGNED_OUT") limparCacheAgenda();

@@ -5,6 +5,7 @@ import { getSessao, type Papel, type Sessao } from "@/lib/sessao.functions";
 
 import { efeitoDoEventoDeAutenticacao } from "@/lib/auth-eventos";
 import { precisaEscolherContexto } from "@/lib/contextos";
+import { registrar } from "@/lib/diagnostico/telemetria";
 
 export type Destino = "/admin" | "/barbeiro" | "/app" | "/comecar" | "/escolher";
 
@@ -58,10 +59,11 @@ export function sessaoDeReserva(userId: string): Sessao | null {
 }
 
 if (typeof window !== "undefined") {
-  let contaConhecida: string | null = null;
+  let contaConhecida: string | null | undefined = undefined;
   supabase.auth.onAuthStateChange((evento, sessaoAuth) => {
     const conta = sessaoAuth?.user?.id ?? null;
     const efeito = efeitoDoEventoDeAutenticacao(evento, contaConhecida, conta);
+    registrar("auth-guarda", { ev: evento, efeito });
     contaConhecida = conta;
     if (efeito !== "nada") esquecerSessao();
     if (efeito === "conta") ultimaSessaoBoa = null;
@@ -100,6 +102,7 @@ async function usuarioAtual(): Promise<{ id: string } | null> {
 export async function exigirPapel(papel: Exclude<Papel, "pendente">): Promise<Sessao> {
   const usuario = await usuarioAtual();
   if (!usuario) {
+    registrar("guarda-sem-usuario", { papel }, true);
     throw redirect({
       to: "/login",
       search: {
@@ -113,10 +116,19 @@ export async function exigirPapel(papel: Exclude<Papel, "pendente">): Promise<Se
   let sessao: Sessao;
   try {
     sessao = await sessaoDoUsuario(usuario.id);
-  } catch {
+  } catch (erro) {
     // Instabilidade passageira: segue com a última sessão boa da mesma conta, sem mandar ao login
     // (o desvio pelo login descartava o toque e devolvia à tela anterior).
     const reserva = sessaoDeReserva(usuario.id);
+    registrar(
+      "guarda-falha",
+      {
+        papel,
+        reserva: reserva ? 1 : 0,
+        msg: erro instanceof Error ? erro.message.slice(0, 120) : "?",
+      },
+      true,
+    );
     if (reserva) return reserva;
     // Falha ao carregar o perfil não prova que a sessão é inválida.
     // Preserve os tokens e permita nova tentativa na tela de login.
@@ -134,6 +146,11 @@ export async function exigirPapel(papel: Exclude<Papel, "pendente">): Promise<Se
   }
   const destino = destinoDoPapel(sessao);
   if (sessao.papel !== papel || (papel === "barbeiro" && !sessao.tenantId)) {
+    registrar(
+      "guarda-desvio",
+      { papel, tem: sessao.papel, destino, tenant: sessao.tenantId ? 1 : 0 },
+      true,
+    );
     throw redirect({ to: destino });
   }
   return sessao;

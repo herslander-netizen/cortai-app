@@ -3,6 +3,7 @@ import { ArrowLeft, RotateCcw } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { classificarErro, recuperarDeChunk, type TipoDeErro } from "@/lib/pwa/recuperar-chunk";
+import { registrar } from "@/lib/diagnostico/telemetria";
 import { useEffect } from "react";
 
 export function mensagemDeAcessoNegado(error: unknown) {
@@ -48,6 +49,14 @@ export function RouteError({ error, reset }: ErrorComponentProps) {
   const t = TEXTOS[tipo];
 
   useEffect(() => {
+    registrar(
+      "erro-rota",
+      {
+        tipo,
+        msg: error instanceof Error ? error.message.slice(0, 160) : String(error).slice(0, 160),
+      },
+      true,
+    );
     // Chunk antigo: tenta recarregar sozinho uma vez (a trava evita loop).
     if (tipo === "chunk") recuperarDeChunk();
   }, [error, tipo]);

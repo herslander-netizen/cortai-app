@@ -707,6 +707,15 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-25 — Claude — Tela que carrega e some: auditoria com dados reais, proteção e telemetria
+- Vídeo do dono (10:06): ao abrir Personalizar Página, o conteúdo aparece e ~0,2 s depois some (volta o esqueleto da rota e fica só o cabeçalho). Acontece logo após o app abrir do zero.
+- Fatos levantados (sem suposição): registros do Supabase da prévia (`cortai-preview`) no horário do vídeo — o app pediu sessão, capacidades, `getMarca` e a página pública normalmente; no instante em que a tela some **não há nenhuma chamada de rede**: o defeito é dentro do aparelho (roteador/tela). Não houve publicação nova durante o vídeo (a identidade publicada era igual à do código).
+- Não reproduzi no ensaio com o build de produção, mesmo imitando o evento de login atrasado, rede lenta, sessão vencida e recargas de rota em sequência.
+- Corrigido o que o ensaio comprovou: (1) o primeiro evento de login ao abrir o app (`INITIAL_SESSION`) era lido como "conta nova" e reiniciava rotas e consultas e esquecia a sessão a cada abertura (`auth-eventos.ts` agora distingue "ainda não sei" de "sem conta"; testes); (2) a identidade do build local mudava entre os ambientes do mesmo build (`vite.config.ts` agora usa `GITHUB_SHA`/commit, estável); na prévia e no site já era estável.
+- Proteção: `lib/diagnostico/vigia-de-tela.ts` — se a área da tela ficar sem nada desenhado com o roteador parado, recarrega as rotas em 1 s e, se continuar vazia, recarrega a página com aviso em 2,5 s (no máximo 1 vez a cada 30 s). Testado no ensaio forçando a área vazia: voltou sozinha.
+- Telemetria temporária (só em `previa.*`): `lib/diagnostico/telemetria.ts` envia eventos curtos (rota, estado de cada trecho do roteador a cada 100 ms quando muda, eventos de login, erros, tela vazia, ramo da tela Personalizar Página) como consulta a `/rest/v1/diag_cortai_tela` (404, nada gravado no banco). Ler com o registro do Supabase da prévia (`edge_logs`, filtro `diag_cortai_tela`) e o script de leitura; o endereço é cortado perto de 1000 caracteres, por isso os lotes vão em pedaços de 600. **Remover quando a causa estiver confirmada.**
+
+
 ### 2026-10-25 — Claude — Agenda: marcas de 5 min só na edição
 - `opacidadeDasLinhasDe5` (`agenda/cartao-figaro.ts`): fora da edição devolve 0 em qualquer zoom; durante arrasto/edição continua 1. Teste atualizado. A hora cheia e o tracejado de 15 min não mudaram.
 

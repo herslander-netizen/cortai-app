@@ -61,16 +61,43 @@ export function podeRecuperar(
 }
 
 /** Cobre a tela enquanto o app recarrega, para não parecer travado ou em branco. */
-function mostrarAtualizando() {
+function mostrarAtualizando(
+  titulo = "Atualizando o Cortaí…",
+  texto = "Uma versão nova acabou de sair. Só um instante.",
+) {
   if (typeof document === "undefined" || document.getElementById("cortai-atualizando")) return;
   const camada = document.createElement("div");
   camada.id = "cortai-atualizando";
   camada.setAttribute("role", "status");
   camada.style.cssText =
     "position:fixed;inset:0;z-index:2147483647;display:grid;place-content:center;gap:12px;text-align:center;padding:24px;font:600 16px system-ui,sans-serif;background:var(--color-background,#0b1220);color:var(--color-foreground,#fff)";
-  camada.innerHTML =
-    '<span>Atualizando o Cortaí…</span><span style="font-weight:400;font-size:14px;opacity:.7">Uma versão nova acabou de sair. Só um instante.</span>';
+  const principal = document.createElement("span");
+  principal.textContent = titulo;
+  const apoio = document.createElement("span");
+  apoio.textContent = texto;
+  apoio.style.cssText = "font-weight:400;font-size:14px;opacity:.7";
+  camada.append(principal, apoio);
   document.body.appendChild(camada);
+}
+
+const CHAVE_DA_TELA = "cortai:recuperacao-tela";
+
+/**
+ * Recarrega a página quando a tela ficou vazia e não voltou sozinha (vigia de tela). Usa a mesma janela de
+ * 30 s da recuperação de arquivos, com trava própria: no máximo uma recarga por janela, nunca em ciclo.
+ */
+export function recarregarTelaVazia(agora = Date.now()): boolean {
+  if (typeof window === "undefined") return false;
+  try {
+    const ultimo = Number(sessionStorage.getItem(CHAVE_DA_TELA) ?? 0);
+    if (ultimo && agora - ultimo <= JANELA_MS) return false;
+    sessionStorage.setItem(CHAVE_DA_TELA, String(agora));
+  } catch {
+    /* sem armazenamento: segue uma vez */
+  }
+  mostrarAtualizando("Abrindo a tela de novo…", "Ela não carregou direito. Só um instante.");
+  window.location.reload();
+  return true;
 }
 
 /** Atualiza o SW, apaga só caches de assets e recarrega. `forcar` ignora a trava (clique do usuário). */
