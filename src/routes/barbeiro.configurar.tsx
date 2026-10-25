@@ -8,12 +8,17 @@ import { useMemo, useRef, useState, type ChangeEvent } from "react";
 import {
   Camera,
   Check,
+  ChevronRight,
+  Circle,
   Copy,
   ExternalLink,
+  MapPin,
   MessageCircle,
   Plus,
   Scissors,
+  UsersRound,
   UserRound,
+  type LucideIcon,
 } from "lucide-react";
 
 import { Screen } from "@/components/layout/Screen";
@@ -27,7 +32,9 @@ import { toast } from "sonner";
 import { avancarSeSalvar } from "@/lib/erro-amigavel";
 import { convidarMembro } from "@/lib/equipe.functions";
 import { getSessao } from "@/lib/sessao.functions";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { EsqueletoFormulario } from "@/components/layout/Esqueleto";
 import {
   adicionarProfissional,
@@ -81,6 +88,32 @@ const ROTULOS: Record<Etapa, string> = {
   link: "Link",
   pronto: "Pronto",
 };
+
+const PASSOS_INICIAIS: {
+  etapa: "dados" | "equipe" | "servicos";
+  titulo: string;
+  descricao: string;
+  icone: LucideIcon;
+}[] = [
+  {
+    etapa: "dados",
+    titulo: "Definir seu espaço",
+    descricao: "Comece com os dados, contato e endereço do seu negócio.",
+    icone: MapPin,
+  },
+  {
+    etapa: "equipe",
+    titulo: "Adicionar equipe",
+    descricao: "Quem faz acontecer.",
+    icone: UsersRound,
+  },
+  {
+    etapa: "servicos",
+    titulo: "Configurar serviços",
+    descricao: "O que você oferece de melhor.",
+    icone: Scissors,
+  },
+];
 
 /** Etapas antigas salvas antes da revisão caem no passo equivalente. */
 function etapaSalva(valor: string): Etapa {
@@ -156,10 +189,15 @@ function ConfigurarPage() {
   });
 
   const [etapaEscolhida, setEtapaEscolhida] = useState<Etapa | null>(null);
+  const [mostrandoBoasVindas, setMostrandoBoasVindas] = useState(true);
   const [salvando, setSalvando] = useState(false);
   const etapa: Etapa =
     etapaEscolhida ?? (data ? (data.concluidoEm ? "pronto" : etapaSalva(data.etapa)) : "dados");
   const indice = ETAPAS_DO_ONBOARDING.indexOf(etapa);
+  const indicePersistido = data
+    ? ETAPAS_DO_ONBOARDING.indexOf(etapaSalva(data.etapa))
+    : 0;
+  const mostrarBoasVindas = Boolean(data && mostrandoBoasVindas && !data.concluidoEm);
 
   // Rascunhos: nascem com o que já está salvo.
   const [nome, setNome] = useState<string | null>(null);
@@ -237,6 +275,12 @@ function ConfigurarPage() {
     );
   const anterior = () =>
     setEtapaEscolhida(ETAPAS_DO_ONBOARDING[Math.max(0, indice - 1)] ?? "dados");
+
+  function abrirPassoInicial(destino: "dados" | "equipe" | "servicos") {
+    setEtapaEscolhida(destino);
+    setMostrandoBoasVindas(false);
+    if (typeof window !== "undefined") window.scrollTo({ top: 0 });
+  }
 
   /** Entre tocar em Concluir (etapa do link) e a tela final, o Figaro mostra a espera em tela cheia. */
   const configurando = salvando && etapa === "link";
@@ -389,15 +433,20 @@ function ConfigurarPage() {
   return (
     <Screen
       title={
-        etapa === "pronto"
-          ? "Tudo pronto"
-          : `${vocabulario.possessivo.charAt(0).toUpperCase()}${vocabulario.possessivo.slice(1)} em 5 minutos`
+        mostrarBoasVindas
+          ? "Bem-vindo ao Cortaí"
+          : etapa === "pronto"
+            ? "Tudo pronto"
+            : `${vocabulario.possessivo.charAt(0).toUpperCase()}${vocabulario.possessivo.slice(1)} em 5 minutos`
       }
       subtitle={
-        etapa === "pronto"
-          ? "Seu link já recebe agendamentos."
-          : "O progresso fica salvo. Dá para parar e voltar depois."
+        mostrarBoasVindas
+          ? "Seu negócio agora tem uma nova casa."
+          : etapa === "pronto"
+            ? "Seu link já recebe agendamentos."
+            : "O progresso fica salvo. Dá para parar e voltar depois."
       }
+      hideHeader={Boolean(mostrandoBoasVindas && (!data || !data.concluidoEm))}
     >
       {isLoading && !data ? (
         <EsqueletoFormulario campos={4} onTentarDeNovo={() => void refetch()} />
@@ -405,12 +454,116 @@ function ConfigurarPage() {
 
       {data ? (
         <>
-          {etapa !== "pronto" ? (
+          {mostrarBoasVindas ? (
+            <div className="mx-auto flex min-h-[calc(100dvh-8rem)] w-full max-w-[520px] flex-col gap-4 py-4">
+              <Card
+                variant="surface"
+                density="none"
+                className="rounded-[28px] px-5 py-6 text-center"
+              >
+                <p className="mb-3 text-sm text-mute">Bem-vindo ao</p>
+                <MarcaCortai variante="automatica" className="mx-auto h-9 w-auto" />
+                <p className="mt-4 text-sm leading-relaxed text-mute">
+                  Seu negócio agora tem uma nova casa.
+                </p>
+              </Card>
+
+              <Card variant="surface" density="none" className="overflow-hidden rounded-[28px]">
+                <div className="px-5 pb-4 pt-5 text-center">
+                  <Badge
+                    variant="default"
+                    className="border-transparent bg-[var(--gold)] px-4 py-1.5 text-[11px] text-[var(--ink)]"
+                  >
+                    3 PASSOS
+                  </Badge>
+                  <p className="mt-4 text-base font-semibold leading-relaxed text-paper">
+                    Seu negócio pronto para receber agendamentos online.
+                  </p>
+                </div>
+                <div className="divide-y divide-line">
+                  {PASSOS_INICIAIS.map((passo) => {
+                    const indicePasso = ETAPAS_DO_ONBOARDING.indexOf(passo.etapa);
+                    const concluido = Boolean(data.concluidoEm) || indicePersistido > indicePasso;
+                    const atual = !concluido && indicePersistido === indicePasso;
+                    const bloqueado = !concluido && indicePersistido < indicePasso;
+                    const IconePasso = passo.icone;
+
+                    return (
+                      <Button
+                        key={passo.etapa}
+                        type="button"
+                        variant="ghost"
+                        size="bloco"
+                        disabled={bloqueado}
+                        aria-current={atual ? "step" : undefined}
+                        onClick={() => abrirPassoInicial(passo.etapa)}
+                        className="min-h-[76px] w-full flex-row items-center gap-3 rounded-none px-4 py-3 text-left"
+                      >
+                        <span
+                          className={`grid size-14 shrink-0 place-items-center rounded-[18px] ${
+                            concluido || atual
+                              ? "bg-[var(--gold)] text-[var(--ink)]"
+                              : "bg-[var(--figaro-surface-container-highest,var(--ink3))] text-mute"
+                          }`}
+                          aria-hidden
+                        >
+                          {concluido ? <Check size={22} /> : <IconePasso size={22} />}
+                        </span>
+                        <span className="min-w-0 flex-1">
+                          <span
+                            className={`block text-sm font-semibold ${
+                              bloqueado ? "text-mute" : "text-paper"
+                            }`}
+                          >
+                            {passo.titulo}
+                          </span>
+                          <span className="mt-1 block text-xs leading-relaxed text-mute">
+                            {passo.descricao}
+                          </span>
+                          <span className="mt-1 block text-[11px] text-mute2">
+                            {concluido ? "Concluído" : atual ? "Etapa atual" : "Não iniciado"}
+                          </span>
+                        </span>
+                        {bloqueado ? (
+                          <Circle size={18} className="shrink-0 text-mute2" aria-hidden />
+                        ) : (
+                          <ChevronRight size={20} className="shrink-0 text-[var(--gold)]" aria-hidden />
+                        )}
+                      </Button>
+                    );
+                  })}
+                </div>
+              </Card>
+
+              <div className="sticky bottom-0 z-10 -mx-5 mt-auto border-t border-line bg-ink px-5 pb-[max(12px,env(safe-area-inset-bottom))] pt-3">
+                <Button
+                  variant="primary"
+                  size="lg"
+                  type="button"
+                  className="w-full"
+                  onClick={() => setMostrandoBoasVindas(false)}
+                >
+                  {indicePersistido > 0 ? "Continuar configuração" : "Começar configuração"}
+                  <ChevronRight size={18} aria-hidden />
+                </Button>
+                <Button
+                  variant="ghost"
+                  type="button"
+                  className="mt-2 min-h-12 w-full text-xs text-mute"
+                  onClick={() => void navigate({ to: "/barbeiro" })}
+                >
+                  Fazer isso depois
+                </Button>
+              </div>
+            </div>
+          ) : null}
+
+          {!mostrarBoasVindas && etapa !== "pronto" ? (
             <div className="mb-5 flex justify-center" aria-label="Cortaí">
               <MarcaCortai variante="automatica" className="h-7 w-auto" />
             </div>
           ) : null}
-          {etapa !== "pronto" ? (
+          {!mostrarBoasVindas && etapa !== "pronto" ? (
             <div className="mb-6">
               <div className="flex gap-1.5" aria-hidden>
                 {ETAPAS_DO_ONBOARDING.slice(0, -1).map((e, i) => (
@@ -426,7 +579,7 @@ function ConfigurarPage() {
             </div>
           ) : null}
 
-          <EtapasAnimadas etapa={indice}>
+          {!mostrarBoasVindas ? <EtapasAnimadas etapa={indice}>
             {etapa === "dados" ? (
               <div className="space-y-4">
                 <div className="flex items-center gap-4">
@@ -811,7 +964,7 @@ function ConfigurarPage() {
                 )}
               </div>
             ) : null}
-          </EtapasAnimadas>
+          </EtapasAnimadas> : null}
           {etapa === "pronto" || configurando ? (
             // Tela cheia como no Figaro: a espera ("Configurando sua página…") e o resultado são o mesmo
             // componente, então o anel ondulado vira o visto sem trocar de tela.
