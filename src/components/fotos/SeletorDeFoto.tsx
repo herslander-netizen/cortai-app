@@ -14,7 +14,10 @@ export function SeletorDeFoto({
   prefixo = "foto",
   onEscolher,
   onRemover,
+  formato = "miniatura",
 }: {
+  /** `cartao`: imagem grande com "Alterar imagem" por cima, como o Hero do Figaro. */
+  formato?: "miniatura" | "cartao";
   rotulo?: string;
   /** Link para mostrar a foto (assinado pelo servidor ou o que acabou de ser enviado). */
   previewUrl: string | null;
@@ -24,6 +27,42 @@ export function SeletorDeFoto({
   onRemover: () => void;
 }) {
   const [aberta, setAberta] = useState(false);
+  if (formato === "cartao") {
+    return (
+      <div className="space-y-2">
+        <div className="relative aspect-video overflow-hidden rounded-[20px] bg-background">
+          {previewUrl ? (
+            <img src={previewUrl} alt="" className="size-full object-cover" />
+          ) : (
+            <div className="grid size-full place-items-center text-mute">
+              <ImagePlus size={28} aria-hidden />
+            </div>
+          )}
+          <Button
+            type="button"
+            size="sm"
+            className="absolute bottom-3 right-3 rounded-full bg-[var(--figaro-primary-container)] text-[var(--figaro-on-primary-container)]"
+            onClick={() => setAberta(true)}
+          >
+            <ImagePlus aria-hidden />
+            {temFoto ? "Alterar imagem" : "Escolher imagem"}
+          </Button>
+        </div>
+        {temFoto ? (
+          <Button type="button" variant="text" size="sm" onClick={onRemover}>
+            Remover
+          </Button>
+        ) : null}
+        <GaleriaDeFotos
+          aberto={aberta}
+          onAberto={setAberta}
+          prefixo={prefixo}
+          titulo={`${rotulo}: galeria de fotos`}
+          onEscolher={([foto]) => foto && onEscolher(foto)}
+        />
+      </div>
+    );
+  }
   return (
     <div className="flex items-center gap-3">
       <button

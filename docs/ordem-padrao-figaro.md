@@ -38,6 +38,7 @@ Contrato de design do projeto: `docs/contrato-de-design.md`. Esta ordem diz **co
 | Interruptor | `Switch` | `FigarooSwitch` |
 | Folha de baixo | `Sheet` (`side="bottom"`) com alça | `ModalBottomSheet` 28 dp só no topo |
 | Confirmação | `useConfirmar` / `AlertDialog` | diálogo de 28 dp |
+| Ação principal flutuante ("Salvar alterações") | `BotaoFlutuante` (`ui/botao-flutuante.tsx`) | `ExtendedFloatingActionButton` |
 | Selo de estado / contagem | `Badge` | pílula |
 | Carregando | `Esqueleto*` (`layout/Esqueleto.tsx`) | esqueleto com o desenho da tela |
 | Aviso rápido (some sozinho) | `aviso` (`lib/avisos`) | snackbar |

@@ -1,7 +1,7 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { EyeOff } from "lucide-react";
+import { Check, EyeOff } from "lucide-react";
 import { useCallback, useState } from "react";
 
 import { EsqueletoFormulario } from "@/components/layout/Esqueleto";
@@ -9,6 +9,7 @@ import { Screen } from "@/components/layout/Screen";
 import { CATALOGO_DE_SECOES } from "@/components/marca/editor/secoes/catalogo";
 import { EditorDaSecaoPublica } from "@/components/marca/editor/EditorDaSecaoPublica";
 import { useEditorDaPagina } from "@/components/marca/editor/useEditorDaPagina";
+import { BotaoFlutuante } from "@/components/ui/botao-flutuante";
 import { Button } from "@/components/ui/button";
 import { getMarca, salvarRascunhoPagina } from "@/lib/marca.functions";
 import { exigirCapacidade } from "@/lib/guarda-capacidade";
@@ -142,7 +143,7 @@ function EditorSecao({
       title={nome}
       subtitle={CATALOGO_DE_SECOES[secao].descricao}
     >
-      <div className="space-y-5 pb-36">
+      <div className="space-y-5 pb-28">
         {!ativa ? (
           <section className="space-y-3 rounded-[28px] bg-ink2 p-5" aria-label={`${nome} oculta`}>
             <h3 className="text-base font-semibold text-paper">{nome} oculta</h3>
@@ -165,6 +166,22 @@ function EditorSecao({
             Esta seção é obrigatória neste layout e não pode ser ocultada.
           </p>
         ) : null}
+        {erroDaSecao ? (
+          <p role="alert" className="px-2 text-sm text-brick">
+            {erroDaSecao}
+          </p>
+        ) : null}
+        {ativa && !obrigatoria ? (
+          <Button
+            className="rounded-full"
+            disabled={salvando}
+            loading={trocando}
+            onClick={() => void alternar(false)}
+          >
+            <EyeOff aria-hidden />
+            Esconder {nome}
+          </Button>
+        ) : null}
         {mensagem ? (
           <p
             role={erro ? "alert" : "status"}
@@ -174,33 +191,14 @@ function EditorSecao({
           </p>
         ) : null}
       </div>
-      <div className="fixed inset-x-0 bottom-0 z-30 space-y-2 border-t border-line bg-ink/95 p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] backdrop-blur md:sticky md:bottom-0 md:rounded-xl md:border md:bg-ink">
-        {erroDaSecao ? (
-          <p role="alert" className="px-1 text-sm text-brick">
-            {erroDaSecao}
-          </p>
-        ) : null}
-        <Button
-          className="min-h-14 w-full rounded-full"
-          disabled={e.busy || trocando || Boolean(erroDaSecao)}
-          loading={salvando}
-          onClick={() => void salvar()}
-        >
-          Salvar alterações
-        </Button>
-        {ativa && !obrigatoria ? (
-          <Button
-            variant="ghost"
-            className="min-h-12 w-full rounded-full"
-            disabled={salvando}
-            loading={trocando}
-            onClick={() => void alternar(false)}
-          >
-            <EyeOff aria-hidden />
-            Ocultar {nome}
-          </Button>
-        ) : null}
-      </div>
+      <BotaoFlutuante
+        disabled={e.busy || trocando || Boolean(erroDaSecao)}
+        loading={salvando}
+        onClick={() => void salvar()}
+      >
+        <Check aria-hidden />
+        Salvar alterações
+      </BotaoFlutuante>
     </Screen>
   );
 }

@@ -28,6 +28,7 @@ export function EditorDeHero({ e, reportarErro }: PropsDoEditor) {
           </p>
         ) : null}
         <SeletorDeFoto
+          formato="cartao"
           rotulo="Imagem de fundo"
           prefixo="foto"
           temFoto={Boolean(e.form.capa_url)}
@@ -38,7 +39,7 @@ export function EditorDeHero({ e, reportarErro }: PropsDoEditor) {
       </GrupoDeCampos>
       <GrupoDeCampos titulo="Textos">
         <Campo
-          label="Frase principal"
+          label="Título principal"
           value={frase}
           placeholder="Ex: Seu estilo é a nossa prioridade"
           onChange={(v) => e.setPagina("frase", v.slice(0, MAXIMO_DA_FRASE))}

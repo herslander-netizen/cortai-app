@@ -706,6 +706,13 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-25 — Claude — Editor das seções igual ao vídeo do Figaro
+- Comparado o vídeo do dono (Personalizar Página e as 7 seções) com o Cortaí: o hub (cartão Layout e tema, obrigatórias/ativas/inativas) já estava no padrão. Ajustado o editor de cada seção.
+- Novo primitivo `ui/botao-flutuante.tsx` (`BotaoFlutuante`, FAB estendido tonal): "Salvar alterações" flutua embaixo à direita. "Esconder {seção}" virou botão em pílula dentro da página (some nas obrigatórias); a barra fixa saiu. Registrar na tabela de `docs/ordem-padrao-figaro.md` se for reutilizado.
+- `SeletorDeFoto` ganhou `formato="cartao"` (imagem grande com "Alterar imagem" por cima), usado no Hero. Rótulos como no Figaro: "Título principal", "Exibir foto/detalhes/estatísticas", "Ordenar por Data | Avaliação", "Detalhes extra".
+- Conferido em captura (390 px) Hero, Equipe e Avaliações; tsc e vitest verdes.
+
+
 ### 2026-10-25 — Claude — Tela em branco entre telas (vídeo do dono)
 - No vídeo, ao abrir Sua Página e voltar ao menu, o corpo ficava vazio por 1 a 4 s (só o cabeçalho) e depois a tela aparecia deslizando. Leitura: a tela nova fica fora do lugar/invisível esperando a animação começar enquanto a cópia antiga cobre tudo. Não reproduzi no ambiente de teste (nem com CPU lenta, rede lenta e voltar rápido).
 - `TransicaoDePagina`: rede de segurança. Em 700 ms a tela nova vai direto ao lugar e em 900 ms a cópia antiga sai, mesmo que a animação não tenha começado. Não muda o movimento normal.

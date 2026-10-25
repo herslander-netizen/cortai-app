@@ -128,14 +128,12 @@ export function EditorDeEquipe({ e, reportarErro }: PropsDoEditor) {
     <>
       <GrupoDeCampos titulo="Exibição">
         <LinhaComSwitch
-          rotulo="Mostrar foto"
-          dica="A foto de perfil de cada profissional aparece na página."
+          rotulo="Exibir foto"
           marcado={secao.mostrarFoto}
           onChange={(v) => alterar({ mostrarFoto: v })}
         />
         <LinhaComSwitch
-          rotulo="Mostrar detalhes"
-          dica="Mostra a bio de cada profissional."
+          rotulo="Exibir detalhes"
           marcado={secao.mostrarDetalhes}
           onChange={(v) => alterar({ mostrarDetalhes: v })}
         />
@@ -286,15 +284,14 @@ export function EditorDeAvaliacoes({ e, reportarErro }: PropsDoEditor) {
           valor={secao.ordem}
           opcoes={[
             { valor: "data", texto: "Data" },
-            { valor: "nota", texto: "Nota" },
+            { valor: "nota", texto: "Avaliação" },
           ]}
           onChange={(v) => alterar({ ordem: v })}
         />
       </GrupoDeCampos>
       <GrupoDeCampos titulo="Resumo">
         <LinhaComSwitch
-          rotulo="Mostrar resumo"
-          dica="Média, estrelas e quantidade de avaliações no topo da seção."
+          rotulo="Exibir estatísticas"
           marcado={secao.mostrarResumo}
           onChange={(v) => alterar({ mostrarResumo: v })}
         />
@@ -328,10 +325,9 @@ export function EditorDeLocalizacao({ e, reportarErro }: PropsDoEditor) {
           onChange={(v) => e.setMarca("endereco", v || null)}
         />
       </GrupoDeCampos>
-      <GrupoDeCampos titulo="Detalhes extras">
+      <GrupoDeCampos titulo="Detalhes extra">
         <LinhaComSwitch
-          rotulo="Mostrar detalhes"
-          dica="Mostra a bio do local para criar vínculo com os clientes."
+          rotulo="Exibir detalhes"
           marcado={secao.mostrarDetalhes}
           onChange={(v) => alterar({ mostrarDetalhes: v })}
         />
