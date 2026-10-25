@@ -706,6 +706,11 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-25 — Claude — Seções restantes no padrão de grupos (continuação)
+- Contato, Redes Sociais e Chamada final agora usam `GrupoDeCampos` (cartão de 28 dp com rótulo) e `LinhaComSwitch`, como as demais seções; o interruptor "Botão fixo no celular" do Hero também. Nenhum campo foi removido.
+- Conferido em captura (390 px) Galeria, Localização, Contato, Redes Sociais e Chamada final; tsc e vitest verdes.
+
+
 ### 2026-10-25 — Claude — Editor das seções igual ao vídeo do Figaro
 - Comparado o vídeo do dono (Personalizar Página e as 7 seções) com o Cortaí: o hub (cartão Layout e tema, obrigatórias/ativas/inativas) já estava no padrão. Ajustado o editor de cada seção.
 - Novo primitivo `ui/botao-flutuante.tsx` (`BotaoFlutuante`, FAB estendido tonal): "Salvar alterações" flutua embaixo à direita. "Esconder {seção}" virou botão em pílula dentro da página (some nas obrigatórias); a barra fixa saiu. Registrar na tabela de `docs/ordem-padrao-figaro.md` se for reutilizado.

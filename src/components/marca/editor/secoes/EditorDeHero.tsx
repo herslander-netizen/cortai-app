@@ -2,10 +2,9 @@ import { useEffect } from "react";
 
 import { SeletorDeFoto } from "@/components/fotos/SeletorDeFoto";
 import { Campo } from "@/components/marca/editor/campos";
-import { Switch } from "@/components/ui/switch";
 import { textoMinimo } from "./validacao";
 import type { PropsDoEditor } from "./editores";
-import { GrupoDeCampos } from "./pecas";
+import { GrupoDeCampos, LinhaComSwitch } from "./pecas";
 
 export const MINIMO_DA_FRASE = 8;
 const MAXIMO_DA_FRASE = 120;
@@ -65,14 +64,11 @@ export function EditorDeHero({ e, reportarErro }: PropsDoEditor) {
           placeholder="Ex: Agendar horário"
           onChange={(v) => e.setPagina("cta", v)}
         />
-        <label className="flex min-h-12 items-center justify-between gap-4 rounded-lg border border-line px-4 py-2">
-          <span className="text-sm text-paper">Botão fixo no celular</span>
-          <Switch
-            checked={e.config.botaoFixo}
-            onCheckedChange={(v) => e.setPagina("botaoFixo", v)}
-            aria-label="Botão de agendamento fixo no celular"
-          />
-        </label>
+        <LinhaComSwitch
+          rotulo="Botão fixo no celular"
+          marcado={e.config.botaoFixo}
+          onChange={(v) => e.setPagina("botaoFixo", v)}
+        />
       </GrupoDeCampos>
     </>
   );

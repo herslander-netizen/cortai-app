@@ -1,9 +1,9 @@
 import { Link } from "@tanstack/react-router";
-import { CalendarDays, ExternalLink, MessageCircle } from "lucide-react";
+import { ExternalLink } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
 import { SecaoRedes } from "@/components/marca/editor/SecaoRedes";
+import { GrupoDeCampos, LinhaComSwitch } from "./secoes/pecas";
 import { Campo } from "@/components/marca/editor/campos";
 import { useEditorDaPagina } from "@/components/marca/editor/useEditorDaPagina";
 import { componenteIds } from "@/lib/pagina-config";
@@ -76,7 +76,14 @@ export function EditorDaSecaoPublica({ secao, e, reportarErro }: { secao: Secao 
       );
     case "instagram":
       return (
-        <SecaoRedes form={e.form} setMarca={e.setMarca} config={e.config} setPagina={e.setPagina} />
+        <GrupoDeCampos titulo="Links">
+          <SecaoRedes
+            form={e.form}
+            setMarca={e.setMarca}
+            config={e.config}
+            setPagina={e.setPagina}
+          />
+        </GrupoDeCampos>
       );
     case "localizacao":
       return <EditorDeLocalizacao e={e} reportarErro={reportarErro} />;
@@ -90,10 +97,7 @@ export function EditorDaSecaoPublica({ secao, e, reportarErro }: { secao: Secao 
       );
     case "whatsapp":
       return (
-        <div className="space-y-4">
-          <div className="flex items-center gap-2 text-sm font-semibold text-paper">
-            <MessageCircle size={18} aria-hidden /> Canais de contato
-          </div>
+        <GrupoDeCampos titulo="Canais de contato">
           <Campo
             label="WhatsApp público"
             value={e.form.whatsapp}
@@ -106,29 +110,23 @@ export function EditorDaSecaoPublica({ secao, e, reportarErro }: { secao: Secao 
             onChange={(value) => e.setMarca("telefone", value || null)}
             placeholder="DDD + número"
           />
-        </div>
+        </GrupoDeCampos>
       );
     case "cta_final":
       return (
-        <div className="space-y-4">
-          <div className="flex items-center gap-2 text-sm font-semibold text-paper">
-            <CalendarDays size={18} aria-hidden /> Chamada para agendar
-          </div>
+        <GrupoDeCampos titulo="Chamada para agendar">
           <Campo
             label="Texto do botão"
             value={e.config.cta}
             onChange={(value) => e.setPagina("cta", value)}
             placeholder="Agendar agora"
           />
-          <label className="flex min-h-12 items-center justify-between gap-4 rounded-lg border border-line px-4 py-2">
-            <span className="text-sm text-paper">Manter botão de agendamento fixo no celular</span>
-            <Switch
-              checked={e.config.botaoFixo}
-              onCheckedChange={(checked) => e.setPagina("botaoFixo", checked)}
-              aria-label="Botão de agendamento fixo no celular"
-            />
-          </label>
-        </div>
+          <LinhaComSwitch
+            rotulo="Botão de agendamento fixo no celular"
+            marcado={e.config.botaoFixo}
+            onChange={(checked) => e.setPagina("botaoFixo", checked)}
+          />
+        </GrupoDeCampos>
       );
     default:
       return (
