@@ -49,6 +49,14 @@ describe("rolagem da Timeline no celular", () => {
     expect(timeline).not.toContain('clipPath: "inset(0 -100vw -100vh -100vw)"');
   });
 
+  it("mantém as linhas principais por hora e mostra subdivisões tracejadas a cada 15 minutos", () => {
+    expect(timeline).toContain("minuto += 15");
+    expect(timeline).not.toContain("data-meia-oculta");
+    expect(css).toContain("border-top: 1px dashed color-mix(in oklab, var(--figaro-on-surface-variant) 20%, transparent);");
+    expect(css).toContain("color: var(--figaro-on-surface-variant, var(--mute2));");
+    expect(css).not.toMatch(/\.agenda-operacional \.agenda-timeline-marca:not\(\.agenda-timeline-hora\)\s*\{[^}]*width:\s*8px/);
+  });
+
   it("mantém horários passados visíveis, apenas com tratamento visual discreto", () => {
     expect(timeline).toContain('"agenda-timeline-passado"');
     expect(css).toContain(".agenda-timeline-passado:not(.agenda-timeline-na_cadeira)");
