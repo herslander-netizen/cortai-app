@@ -1,8 +1,9 @@
+import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { Check, ChevronRight, Circle } from "lucide-react";
+import { Check, ChevronDown, ChevronRight, Circle } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { getSessao } from "@/lib/sessao.functions";
@@ -70,6 +71,17 @@ function AvisoDoLimiteMensal() {
   );
 }
 
+const DETALHES_DO_CHECKLIST: Record<(typeof ITENS_DO_CHECKLIST)[number]["chave"], string> = {
+  cadastrar_servicos:
+    "Defina os serviços, a duração e os preços para que seus clientes possam escolher o que desejam agendar.",
+  cadastrar_profissionais:
+    "Adicione as pessoas que atendem e organize a equipe para disponibilizar os horários corretos.",
+  whatsapp:
+    "Conecte o WhatsApp para habilitar os canais de mensagens e notificações configurados no Cortaí.",
+  compartilhar_link:
+    "Envie sua página de agendamento para que os clientes consultem os serviços e escolham um horário.",
+};
+
 export function PrimeirosPassos() {
   return (
     <>
@@ -84,6 +96,7 @@ function ListaDePrimeirosPassos() {
   const reduzirMovimento = useReducedMotion();
   const marcar = useServerFn(marcarItemDoChecklist);
   const queryClient = useQueryClient();
+  const [detalheAberto, setDetalheAberto] = useState<string | null>(null);
   const { data: sessao } = useQuery({
     queryKey: ["sessao"],
     queryFn: () => getSessao(),
@@ -133,70 +146,113 @@ function ListaDePrimeirosPassos() {
       <ul className="mt-1">
         {ITENS_DO_CHECKLIST.map((item) => {
           const feito = Boolean(data.itens[item.chave]);
+          const aberto = detalheAberto === item.chave;
           return (
-            <li key={item.chave} className="flex items-center gap-2">
-              <Link
-                to={item.destino}
-                className="flex min-h-12 flex-1 items-center gap-3"
-                onClick={() => {
-                  // Compartilhar o link é o único que não dá para detectar sozinho.
-                  if (feito || item.chave !== "compartilhar_link") return;
-                  void marcar({ data: { chave: item.chave, feito: true } }).then(() =>
-                    queryClient.invalidateQueries({ queryKey: ["configuracao-inicial"] }),
-                  );
-                }}
-              >
-                <motion.span
-                  className="grid size-4 shrink-0 place-items-center overflow-hidden rounded-full border"
-                  animate={{
-                    backgroundColor: feito ? "var(--paper)" : "transparent",
-                    borderColor: feito ? "var(--paper)" : "var(--mute2)",
+            <li key={item.chave} className="py-1">
+              <div className="flex items-center gap-1">
+                <Link
+                  to={item.destino}
+                  className="flex min-h-12 min-w-0 flex-1 items-center gap-3"
+                  onClick={() => {
+                    // Compartilhar o link é o único que não dá para detectar sozinho.
+                    if (feito || item.chave !== "compartilhar_link") return;
+                    void marcar({ data: { chave: item.chave, feito: true } }).then(() =>
+                      queryClient.invalidateQueries({ queryKey: ["configuracao-inicial"] }),
+                    );
                   }}
-                  transition={reduzirMovimento ? { duration: 0 } : MOLA.padraoCompose}
-                  aria-hidden
                 >
-                  <AnimatePresence initial={false} mode="wait">
-                    {feito ? (
-                      <motion.span
-                        key="feito"
-                        initial={reduzirMovimento ? false : { opacity: 0, scale: 0.7 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.7 }}
-                        transition={reduzirMovimento ? { duration: 0 } : MOLA.padraoCompose}
-                      >
-                        <Check size={12} className="text-ink" />
-                      </motion.span>
-                    ) : (
-                      <motion.span
-                        key="pendente"
-                        initial={reduzirMovimento ? false : { opacity: 0, scale: 0.7 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.7 }}
-                        transition={reduzirMovimento ? { duration: 0 } : MOLA.padraoCompose}
-                      >
-                        <Circle size={16} className="text-mute2" />
-                      </motion.span>
-                    )}
-                  </AnimatePresence>
-                </motion.span>
-                <span className={`text-sm ${feito ? "text-mute line-through" : "text-paper"}`}>
-                  {item.rotulo}
-                </span>
-              </Link>
-              {feito ? null : (
+                  <motion.span
+                    className="grid size-4 shrink-0 place-items-center overflow-hidden rounded-full border"
+                    animate={{
+                      backgroundColor: feito ? "var(--paper)" : "transparent",
+                      borderColor: feito ? "var(--paper)" : "var(--mute2)",
+                    }}
+                    transition={reduzirMovimento ? { duration: 0 } : MOLA.padraoCompose}
+                    aria-hidden
+                  >
+                    <AnimatePresence initial={false} mode="wait">
+                      {feito ? (
+                        <motion.span
+                          key="feito"
+                          initial={reduzirMovimento ? false : { opacity: 0, scale: 0.7 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          exit={{ opacity: 0, scale: 0.7 }}
+                          transition={reduzirMovimento ? { duration: 0 } : MOLA.padraoCompose}
+                        >
+                          <Check size={12} className="text-ink" />
+                        </motion.span>
+                      ) : (
+                        <motion.span
+                          key="pendente"
+                          initial={reduzirMovimento ? false : { opacity: 0, scale: 0.7 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          exit={{ opacity: 0, scale: 0.7 }}
+                          transition={reduzirMovimento ? { duration: 0 } : MOLA.padraoCompose}
+                        >
+                          <Circle size={16} className="text-mute2" />
+                        </motion.span>
+                      )}
+                    </AnimatePresence>
+                  </motion.span>
+                  <span className={`min-w-0 text-sm ${feito ? "text-mute line-through" : "text-paper"}`}>
+                    {item.rotulo}
+                  </span>
+                </Link>
                 <Button
                   type="button"
                   variant="ghost"
-                  className="h-auto min-h-12 px-3 text-xs font-medium text-mute"
-                  onClick={() =>
-                    void marcar({ data: { chave: item.chave, feito: true } }).then(() =>
-                      queryClient.invalidateQueries({ queryKey: ["configuracao-inicial"] }),
-                    )
-                  }
+                  aria-label={`${aberto ? "Ocultar" : "Ver"} detalhes: ${item.rotulo}`}
+                  aria-expanded={aberto}
+                  aria-controls={`detalhe-primeiro-passo-${item.chave}`}
+                  className="size-12 shrink-0 px-0 text-mute"
+                  onClick={() => setDetalheAberto(aberto ? null : item.chave)}
                 >
-                  Pular
+                  <motion.span
+                    aria-hidden
+                    animate={{ rotate: aberto ? 180 : 0 }}
+                    transition={reduzirMovimento ? { duration: 0 } : MOLA.padraoCompose}
+                  >
+                    <ChevronDown size={16} />
+                  </motion.span>
                 </Button>
-              )}
+                {feito ? null : (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    className="h-auto min-h-12 shrink-0 px-2 text-xs font-medium text-mute"
+                    onClick={() =>
+                      void marcar({ data: { chave: item.chave, feito: true } }).then(() =>
+                        queryClient.invalidateQueries({ queryKey: ["configuracao-inicial"] }),
+                      )
+                    }
+                  >
+                    Pular
+                  </Button>
+                )}
+              </div>
+              <AnimatePresence initial={false}>
+                {aberto ? (
+                  <motion.div
+                    key={item.chave}
+                    id={`detalhe-primeiro-passo-${item.chave}`}
+                    role="region"
+                    aria-label={`Detalhes de ${item.rotulo}`}
+                    initial={reduzirMovimento ? false : { height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={
+                      reduzirMovimento
+                        ? { duration: 0 }
+                        : { height: MOLA.tamanho, opacity: MOLA.padraoEfeito }
+                    }
+                    className="overflow-hidden"
+                  >
+                    <p className="ml-7 mr-2 pb-3 pr-2 text-xs leading-relaxed text-mute">
+                      {DETALHES_DO_CHECKLIST[item.chave]}
+                    </p>
+                  </motion.div>
+                ) : null}
+              </AnimatePresence>
             </li>
           );
         })}
