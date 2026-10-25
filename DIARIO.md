@@ -706,6 +706,11 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-24 UTC — Claude — Layout "Agendamento" não pode parecer o site
+- Print do dono: com o layout Agendamento escolhido, a página aparecia como o Site Completo. Causa: a variante `agendamento` só escondia as seções (Equipe, Galeria…), mas mantinha a abertura em tela cheia, o menu e, nos temas femininos, as estruturas próprias (arco, cartão, vibrante) por cima do CSS compacto.
+- Agora é um cabeçalho compacto (marca, frase curta de até 2 linhas e botão) com os serviços logo abaixo, sem foto de abertura em tela cheia, sem menu nem "Saiba mais", em todos os temas (`styles.css`, regras `.fg.fg-rapido[data-estrutura]`). Conferido na prévia do Ver Exemplo com Clássico, Rock n' Roll, Rosé, Lavanda e Pêssego.
+- Layout & Tema já abre sem o branco (o dono mandou o print da tela funcionando).
+
 ### 2026-10-24 UTC — Claude — Tela em branco ao tocar em "Escolher Layout & Tema" (e ao abrir Sua Página)
 - Dois vídeos do dono mostram a mesma sequência: toque no botão/menu → tela em branco → esqueleto do **casco inteiro** (o pendente da rota `/barbeiro`, ou seja, `exigirPapel` rodou de novo) → volta à tela anterior (o hub) → às vezes repete. Não reproduzi no ambiente de teste (rede lenta, CPU lenta, movimento reduzido, tocar e reiniciar rotas: tudo normal).
 - **Causa provável (não confirmada no aparelho):** o Supabase reemite `SIGNED_IN`/`INITIAL_SESSION` da mesma conta ao voltar ao app. O app tratava isso como novo login: limpava o cache da sessão (`guarda.ts`) e chamava `router.invalidate()` + `invalidateQueries()` (`__root.tsx`). No celular a leitura da sessão passa a ir à rede, o casco fica pendente, a navegação em andamento se perde e, se a leitura falha, o desvio pelo login devolve à tela de antes.

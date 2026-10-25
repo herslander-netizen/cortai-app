@@ -7862,15 +7862,45 @@ button.agenda-nome:hover {
     stroke-dashoffset: 0;
   }
 }
-.fg-rapido .fg-hero {
-  min-height: 56dvh;
-}
+/*
+ * Layout "Agendamento" (Figaro: "focado no agendamento rápido"): não é o site com menos seções.
+ * Cabeçalho compacto (marca, frase curta e botão) e os serviços logo abaixo, sem foto de abertura em
+ * tela cheia, sem menu e sem "Saiba mais".
+ */
+.fg-rapido .fg-hero,
 .is-preview.fg-rapido .fg-hero,
 .fg-rapido.is-preview .fg-hero {
-  min-height: 420px;
+  min-height: 0;
+  padding-bottom: 28px;
+}
+.fg-rapido .fg-menu,
+.fg-rapido .fg-arco {
+  display: none;
+}
+.fg-rapido .fg-centro {
+  flex: none;
+  place-content: start center;
+  padding-top: 20px;
+}
+.fg-rapido .fg-centro h1 {
+  margin-bottom: 8px;
+  font-size: clamp(1.7rem, 9cqw, 2.5rem);
+}
+.fg-rapido .fg-centro p {
+  display: -webkit-box;
+  overflow: hidden;
+  font-size: 0.95rem;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
 }
 .fg-rapido .fg-centro > div {
-  margin-top: 28px;
+  margin-top: 18px;
+}
+.fg-rapido .fg-cta {
+  min-width: 0;
+}
+.fg-rapido .fg-secao:first-child {
+  padding-top: 32px;
 }
 
 /* Temas femininos do Cortaí (Rosé, Lavanda e Pêssego): mesmos modelos, paletas e fontes delicadas. */
@@ -9833,4 +9863,41 @@ input[type="checkbox"]:disabled {
 /* Controles nativos restantes (deslizante) na cor de ação do app. */
 input[type="range"] {
   accent-color: var(--figaro-primary, var(--gold));
+}
+
+/* Agendamento compacto também nas estruturas dos temas femininos (arco, cartão e vibrante). */
+.fg.fg-rapido[data-estrutura] .fg-hero,
+.is-preview.fg.fg-rapido[data-estrutura] .fg-hero {
+  min-height: 0;
+  padding-bottom: 24px;
+}
+.fg.fg-rapido[data-estrutura="cartao"] .fg-hero,
+.is-preview.fg.fg-rapido[data-estrutura="cartao"] .fg-hero {
+  padding-bottom: 0;
+}
+.fg.fg-rapido[data-estrutura] .fg-arco,
+.fg.fg-rapido[data-estrutura] .fg-topo .fg-menu {
+  display: none;
+}
+.fg.fg-rapido[data-estrutura] .fg-centro {
+  flex: none;
+  place-content: start center;
+  margin: 0 14px 14px;
+  padding-top: 14px;
+}
+.fg.fg-rapido[data-estrutura="arco"] .fg-centro,
+.fg.fg-rapido[data-estrutura="vibrante"] .fg-centro {
+  margin: 0;
+  padding: 14px 24px 0;
+}
+.fg.fg-rapido[data-estrutura] .fg-centro h1 {
+  margin-bottom: 8px;
+  font-size: clamp(1.7rem, 9cqw, 2.5rem);
+}
+.fg.fg-rapido[data-estrutura] .fg-centro > div {
+  margin-top: 16px;
+}
+.fg.fg-rapido[data-estrutura="vibrante"] .fg-hero,
+.is-preview.fg.fg-rapido[data-estrutura="vibrante"] .fg-hero {
+  padding-bottom: 64px;
 }
