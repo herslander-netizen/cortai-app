@@ -706,6 +706,12 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-25 — Claude — Agendamento (maneira direta) com composição própria por tema
+- Pedido do dono: "só tem mudança de cores, caprichar na personalização". Agora cada tema do catálogo tem uma estrutura (`classica`, `palco`, `retro`, `arco`, `cartao`, `vibrante`) que muda cabeçalho, capa, formas e cartões, além das cores.
+- Arquivos: `src/lib/tema-da-agenda-direta.ts` (+ teste), `components/agendamento/CabecalhoDaAgendaDireta.tsx`, `routes/agendar.$slug.tsx`, `components/marca/editor/PreviaDireta.tsx` (mesma composição na prévia), CSS `.agendamento-marca[data-estrutura]` em `styles.css`.
+- Só vale para o layout Agendamento; os outros layouts não mudam. Conferido em captura (390 px) com Rock, Retrô, Rosé e Pêssego; tsc e vitest verdes.
+
+
 ### 2026-10-24 UTC — Claude — Layout Agendamento = maneira direta
 - Correção do entendimento (dono): o layout "Agendamento" é a **maneira direta** de agendar (a que existia antes como "Direta"), não o site compacto. Agora `aplicarLayout` faz Agendamento ⇒ `experiencia: "direta"` (link abre em `/agendar` na escolha de serviço, profissional, dia e horário) e sair dele volta à `vitrine`; páginas já salvas com Agendamento + vitrine passam a abrir direto (`normalizarPagina`). Chat segue `conversa`.
 - Layout & Tema: a linha "Ao abrir o link" saiu (o layout decide); no Agendamento aparece só uma explicação; "Ao tocar em Agendar" continua só no Site Completo.

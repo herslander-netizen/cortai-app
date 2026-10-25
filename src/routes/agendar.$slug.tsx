@@ -8,9 +8,23 @@ import { fluxoDoAgendamento } from "@/lib/experiencia-link";
 import { montarSchemaNegocio } from "@/lib/schema-negocio";
 import { termos } from "@/lib/segmentos";
 import { detectarExperiencia, origemDaVisita, registrarEtapa, type EtapaFunil } from "@/lib/funil";
+import { CabecalhoDaAgendaDireta } from "@/components/agendamento/CabecalhoDaAgendaDireta";
+import {
+  atributosDaAgendaDireta,
+  agendaDiretaComTema,
+  estiloDaAgendaDireta,
+} from "@/lib/tema-da-agenda-direta";
 import { FontesDaMarca } from "@/components/marca/FontesDaMarca";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { ArrowLeft, ArrowRight, Check, Clock3, MessageCircle, Scissors, UserRound } from "lucide-react";
+import {
+  ArrowLeft,
+  ArrowRight,
+  Check,
+  Clock3,
+  MessageCircle,
+  Scissors,
+  UserRound,
+} from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -53,7 +67,9 @@ import {
 
 export const Route = createFileRoute("/agendar/$slug")({
   ssr: "data-only",
-  validateSearch: (s: Record<string, unknown>): { origem?: string; de?: string; servico?: string } => ({
+  validateSearch: (
+    s: Record<string, unknown>,
+  ): { origem?: string; de?: string; servico?: string } => ({
     ...(typeof s["origem"] === "string" ? { origem: s["origem"].slice(0, 30) } : {}),
     ...(typeof s["de"] === "string" ? { de: s["de"].slice(0, 20) } : {}),
     ...(typeof s["servico"] === "string" ? { servico: s["servico"].slice(0, 40) } : {}),
@@ -490,13 +506,25 @@ function AgendamentoPublico() {
   const modeloFigaro = data.pagina.layout.startsWith("figaro-") && !modoConversa;
   if (confirmado && modeloFigaro && telaVerde && situacao === "confirmado") {
     const inicio = new Date(confirmado.inicio);
-    const hora = inicio.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", timeZone: fuso });
-    const diaTexto = inicio.toLocaleDateString("pt-BR", { weekday: "short", day: "numeric", month: "long", timeZone: fuso });
+    const hora = inicio.toLocaleTimeString("pt-BR", {
+      hour: "2-digit",
+      minute: "2-digit",
+      timeZone: fuso,
+    });
+    const diaTexto = inicio.toLocaleDateString("pt-BR", {
+      weekday: "short",
+      day: "numeric",
+      month: "long",
+      timeZone: fuso,
+    });
     return (
       <ReservaConfirmada
         data={diaTexto}
         hora={hora}
-        horaFim={horaFinal(hora, Math.round((new Date(confirmado.fim).getTime() - inicio.getTime()) / 60000))}
+        horaFim={horaFinal(
+          hora,
+          Math.round((new Date(confirmado.fim).getTime() - inicio.getTime()) / 60000),
+        )}
         profissional={confirmado.profissional}
       />
     );
@@ -661,22 +689,41 @@ function AgendamentoPublico() {
     );
   }
 
+  const comTema = agendaDiretaComTema(data.pagina);
+
   return (
     <main
       className="agendamento-marca mx-auto min-h-screen w-full max-w-[520px] px-5 pb-[calc(10rem+env(safe-area-inset-bottom))] pt-10"
-      style={agendamentoStyle(data.pagina)}
+      style={estiloDaAgendaDireta(data.pagina)}
+      {...atributosDaAgendaDireta(data.pagina)}
     >
       <FontesDaMarca config={data.pagina} />
-      <div className="flex items-center justify-between gap-3">
-        <p className="text-xs font-semibold uppercase tracking-wide text-gold">Agendar horário</p>
-        {data.pagina.experiencia === "direta" ? (
-          <a href={linkSobre} className="text-xs text-mute underline-offset-4 hover:underline">
-            Conhecer {termos(data.tenant.segmento).comArtigo}
-          </a>
-        ) : null}
-      </div>
-      <h1 className="mt-1 text-2xl font-bold text-paper">{data.tenant.nome}</h1>
-      <StatusFuncionamento horarios={data.horarios} fuso={fuso} />
+      {comTema ? (
+        <CabecalhoDaAgendaDireta
+          nome={data.tenant.nome}
+          logoUrl={data.tenant.logoUrl}
+          capaUrl={data.tenant.capaUrl}
+          horarios={data.horarios}
+          fuso={fuso}
+          linkSobre={data.pagina.experiencia === "direta" ? linkSobre : undefined}
+          rotuloSobre={`Conhecer ${termos(data.tenant.segmento).comArtigo}`}
+        />
+      ) : (
+        <>
+          <div className="flex items-center justify-between gap-3">
+            <p className="text-xs font-semibold uppercase tracking-wide text-gold">
+              Agendar horário
+            </p>
+            {data.pagina.experiencia === "direta" ? (
+              <a href={linkSobre} className="text-xs text-mute underline-offset-4 hover:underline">
+                Conhecer {termos(data.tenant.segmento).comArtigo}
+              </a>
+            ) : null}
+          </div>
+          <h1 className="mt-1 text-2xl font-bold text-paper">{data.tenant.nome}</h1>
+          <StatusFuncionamento horarios={data.horarios} fuso={fuso} />
+        </>
+      )}
       {substituiId ? (
         <p
           className="mt-3 rounded-xl border border-line px-4 py-3 text-sm text-paper"
@@ -685,9 +732,12 @@ function AgendamentoPublico() {
           Escolha o novo horário. O anterior só é liberado quando o novo for confirmado.
         </p>
       ) : null}
-      <p className="mt-1 text-sm text-mute">
-        {saudacao ? `Olá, ${saudacao}. ` : ""}Sem cadastro e sem senha: escolha o horário e pronto.
-      </p>
+      {saudacao || !comTema ? (
+        <p className="mt-1 text-sm text-mute">
+          {saudacao ? `Olá, ${saudacao}. ` : ""}
+          {comTema ? "" : "Sem cadastro e sem senha: escolha o horário e pronto."}
+        </p>
+      ) : null}
 
       <Bloco titulo="Serviço">
         <div className="grid gap-2">
@@ -701,8 +751,8 @@ function AgendamentoPublico() {
                 setServicoId(s.id);
                 setHorario(null);
               }}
-              className={`grid h-auto w-full grid-cols-[auto_minmax(0,1fr)_auto] justify-start gap-3 whitespace-normal rounded-xl border px-4 py-3 text-left ${
-                servicoId === s.id ? "border-gold bg-ink2" : "border-line bg-ink2/60"
+              className={`ag-servico grid h-auto w-full grid-cols-[auto_minmax(0,1fr)_auto] justify-start gap-3 whitespace-normal rounded-xl border px-4 py-3 text-left ${
+                servicoId === s.id ? "is-ativo border-gold bg-ink2" : "border-line bg-ink2/60"
               }`}
             >
               <Scissors size={16} className="text-gold" aria-hidden />
@@ -732,8 +782,8 @@ function AgendamentoPublico() {
                   setProfId(p.id);
                   setHorario(null);
                 }}
-                className={`h-auto min-h-12 whitespace-normal rounded-full border px-4 py-2 text-sm ${
-                  profId === p.id ? "border-gold text-paper" : "border-line text-mute"
+                className={`ag-chip h-auto min-h-12 whitespace-normal rounded-full border px-4 py-2 text-sm ${
+                  profId === p.id ? "is-ativo border-gold text-paper" : "border-line text-mute"
                 }`}
               >
                 <UserRound size={14} aria-hidden />
@@ -749,10 +799,22 @@ function AgendamentoPublico() {
           <div className="mb-2 flex items-center justify-between gap-3">
             <p className="text-sm font-bold capitalize text-paper">{rotuloMes}</p>
             <div className="flex gap-1">
-              <Button type="button" variant="ghost" size="icon" aria-label="Dias anteriores" onClick={() => moverFaixaDias(-1)}>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                aria-label="Dias anteriores"
+                onClick={() => moverFaixaDias(-1)}
+              >
                 <ArrowLeft />
               </Button>
-              <Button type="button" variant="ghost" size="icon" aria-label="Próximos dias" onClick={() => moverFaixaDias(1)}>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                aria-label="Próximos dias"
+                onClick={() => moverFaixaDias(1)}
+              >
                 <ArrowRight />
               </Button>
             </div>
@@ -781,11 +843,11 @@ function AgendamentoPublico() {
                     setDia(d);
                     setHorario(null);
                   }}
-                  className={`h-16 w-14 shrink-0 flex-col rounded-xl border px-0 ${
+                  className={`ag-dia h-16 w-14 shrink-0 flex-col rounded-xl border px-0 ${
                     fechado
                       ? "cursor-not-allowed border-line text-mute2 opacity-50"
                       : dia === d
-                        ? "border-gold bg-ink2 text-paper"
+                        ? "is-ativo border-gold bg-ink2 text-paper"
                         : "border-line text-mute"
                   }`}
                 >
@@ -809,7 +871,8 @@ function AgendamentoPublico() {
           ) : agenda.opcoes.length ? (
             <div className="grid gap-2" role="group" aria-label="Horários disponíveis">
               {agenda.opcoes.map((o) => {
-                const profissional = data.profissionais.find((p) => p.id === o.profId)?.nome ?? "Equipe";
+                const profissional =
+                  data.profissionais.find((p) => p.id === o.profId)?.nome ?? "Equipe";
                 const ativo = horario === o.iso;
                 return (
                   <Button
@@ -822,9 +885,9 @@ function AgendamentoPublico() {
                       setHorario(o.iso);
                       setConflito(null);
                     }}
-                    className={`h-auto min-h-14 w-full justify-between rounded-xl border px-4 py-3 text-left ${
+                    className={`ag-hora h-auto min-h-14 w-full justify-between rounded-xl border px-4 py-3 text-left ${
                       ativo
-                        ? "border-gold bg-gold/15 text-paper"
+                        ? "is-ativo border-gold bg-gold/15 text-paper"
                         : "border-line bg-ink2/60 text-mute"
                     }`}
                   >

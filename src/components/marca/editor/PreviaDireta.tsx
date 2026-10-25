@@ -1,8 +1,14 @@
 import { Clock3, Scissors, UserRound } from "lucide-react";
 
+import { CabecalhoDaAgendaDireta } from "@/components/agendamento/CabecalhoDaAgendaDireta";
 import { StatusFuncionamento } from "@/components/agendamento/StatusFuncionamento";
 import { FontesDaMarca } from "@/components/marca/FontesDaMarca";
 import { agendamentoStyle, type PaginaConfig } from "@/lib/pagina-config";
+import {
+  agendaDiretaComTema,
+  atributosDaAgendaDireta,
+  estiloDaAgendaDireta,
+} from "@/lib/tema-da-agenda-direta";
 import type { PaginaPublica } from "@/lib/publico.functions";
 
 const preco = (centavos: number) =>
@@ -27,27 +33,46 @@ function Bloco({ titulo, children }: { titulo: string; children: React.ReactNode
 export function PreviaDireta({ data, config }: { data: PaginaPublica; config: PaginaConfig }) {
   const { tenant } = data;
   const profissionais = data.profissionais.slice(0, 4);
+  const comTema = agendaDiretaComTema(config);
+  const horarios = data.horarios.map((h) => ({
+    diaSemana: h.dia_semana,
+    fechado: h.fechado,
+    abre: h.abre,
+    fecha: h.fecha,
+  }));
+  const fuso = tenant.fuso || "America/Sao_Paulo";
   return (
     <div
       className="agendamento-marca min-h-full px-5 pb-24 pt-8"
-      style={agendamentoStyle(config)}
+      style={comTema ? estiloDaAgendaDireta(config) : agendamentoStyle(config)}
+      {...atributosDaAgendaDireta(config)}
     >
       <FontesDaMarca config={config} />
-      <div className="flex items-center justify-between gap-3">
-        <p className="text-xs font-semibold uppercase tracking-wide text-gold">Agendar horário</p>
-        <span className="text-xs text-mute underline-offset-4">Conhecer o negócio</span>
-      </div>
-      <h1 className="mt-1 text-2xl font-bold text-paper">{tenant.nome}</h1>
-      <StatusFuncionamento
-        horarios={data.horarios.map((h) => ({
-          diaSemana: h.dia_semana,
-          fechado: h.fechado,
-          abre: h.abre,
-          fecha: h.fecha,
-        }))}
-        fuso={tenant.fuso || "America/Sao_Paulo"}
-      />
-      <p className="mt-1 text-sm text-mute">Sem cadastro e sem senha: escolha o horário e pronto.</p>
+      {comTema ? (
+        <CabecalhoDaAgendaDireta
+          nome={tenant.nome}
+          logoUrl={tenant.logo_signed_url}
+          capaUrl={tenant.capa_signed_url}
+          horarios={horarios}
+          fuso={fuso}
+          linkSobre="#"
+          rotuloSobre="Conhecer o negócio"
+        />
+      ) : (
+        <>
+          <div className="flex items-center justify-between gap-3">
+            <p className="text-xs font-semibold uppercase tracking-wide text-gold">
+              Agendar horário
+            </p>
+            <span className="text-xs text-mute underline-offset-4">Conhecer o negócio</span>
+          </div>
+          <h1 className="mt-1 text-2xl font-bold text-paper">{tenant.nome}</h1>
+          <StatusFuncionamento horarios={horarios} fuso={fuso} />
+          <p className="mt-1 text-sm text-mute">
+            Sem cadastro e sem senha: escolha o horário e pronto.
+          </p>
+        </>
+      )}
 
       <Bloco titulo="Serviço">
         <div className="grid gap-2">
@@ -55,8 +80,8 @@ export function PreviaDireta({ data, config }: { data: PaginaPublica; config: Pa
             data.servicos.slice(0, 4).map((s, i) => (
               <div
                 key={s.id}
-                className={`grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 rounded-xl border px-4 py-3 ${
-                  i === 0 ? "border-gold bg-ink2" : "border-line bg-ink2/60"
+                className={`ag-servico grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 rounded-xl border px-4 py-3 ${
+                  i === 0 ? "is-ativo border-gold bg-ink2" : "border-line bg-ink2/60"
                 }`}
               >
                 <Scissors size={16} className="text-gold" aria-hidden />
@@ -81,8 +106,8 @@ export function PreviaDireta({ data, config }: { data: PaginaPublica; config: Pa
           {[{ id: "qualquer", nome: "Qualquer profissional" }, ...profissionais].map((p, i) => (
             <span
               key={p.id}
-              className={`inline-flex min-h-10 items-center gap-1.5 rounded-full border px-4 text-sm ${
-                i === 0 ? "border-gold text-paper" : "border-line text-mute"
+              className={`ag-chip inline-flex min-h-10 items-center gap-1.5 rounded-full border px-4 text-sm ${
+                i === 0 ? "is-ativo border-gold text-paper" : "border-line text-mute"
               }`}
             >
               <UserRound size={14} aria-hidden />
@@ -97,8 +122,8 @@ export function PreviaDireta({ data, config }: { data: PaginaPublica; config: Pa
           {DIAS.map((d, i) => (
             <span
               key={d}
-              className={`flex min-w-14 flex-col items-center rounded-xl border px-3 py-2 text-xs ${
-                i === 1 ? "border-gold bg-ink2 text-paper" : "border-line text-mute"
+              className={`ag-dia flex min-w-14 flex-col items-center rounded-xl border px-3 py-2 text-xs ${
+                i === 1 ? "is-ativo border-gold bg-ink2 text-paper" : "border-line text-mute"
               }`}
             >
               {d}
@@ -113,8 +138,8 @@ export function PreviaDireta({ data, config }: { data: PaginaPublica; config: Pa
           {HORARIOS.map((h, i) => (
             <span
               key={h}
-              className={`inline-flex min-h-10 items-center rounded-lg border px-4 text-sm ${
-                i === 2 ? "border-gold bg-ink2 text-paper" : "border-line text-mute"
+              className={`ag-hora inline-flex min-h-10 items-center rounded-lg border px-4 text-sm ${
+                i === 2 ? "is-ativo border-gold bg-ink2 text-paper" : "border-line text-mute"
               }`}
             >
               {h}

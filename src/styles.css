@@ -896,6 +896,86 @@
 .agendamento-marca h3 {
   font-family: var(--chat-heading, "Manrope", sans-serif);
 }
+/* Maneira direta com tema: cada estrutura muda a composição (cabeçalho, cartões, formas), não só as cores. */
+.agendamento-marca[data-direto] .ag-topo { position: relative; margin: -2.5rem -1.25rem 0; padding: 2.5rem 1.25rem 1rem; overflow: hidden; }
+.agendamento-marca[data-direto] .ag-capa { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.agendamento-marca[data-direto] .ag-topo-conteudo { position: relative; }
+.agendamento-marca[data-direto] .ag-marca { margin-bottom: 0.75rem; }
+.agendamento-marca[data-direto] .ag-logo { border-radius: 9999px; }
+.agendamento-marca[data-direto] .ag-servico.is-ativo,
+.agendamento-marca[data-direto] .ag-hora.is-ativo { box-shadow: 0 0 0 2px var(--gold); }
+
+/* classica: cabeçalho centrado, filetes e linhas planas */
+.agendamento-marca[data-estrutura="classica"] .ag-topo-conteudo { text-align: center; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
+.agendamento-marca[data-estrutura="classica"] .ag-marca { display: flex; justify-content: center; }
+.agendamento-marca[data-estrutura="classica"] .ag-topo-conteudo > div:nth-of-type(2) { justify-content: center; flex-direction: column; gap: 0.25rem; }
+.agendamento-marca[data-estrutura="classica"] .ag-topo-conteudo h1 { font-size: 1.75rem; letter-spacing: 0.02em; }
+.agendamento-marca[data-estrutura="classica"] .ag-capa { opacity: 0.18; }
+.agendamento-marca[data-estrutura="classica"] .ag-servico,
+.agendamento-marca[data-estrutura="classica"] .ag-dia,
+.agendamento-marca[data-estrutura="classica"] .ag-hora { border-radius: 0; border-width: 0 0 1px; background: transparent; }
+.agendamento-marca[data-estrutura="classica"] .ag-servico.is-ativo,
+.agendamento-marca[data-estrutura="classica"] .ag-hora.is-ativo { box-shadow: inset 3px 0 0 var(--gold); background: var(--gold-soft); }
+
+/* palco: palco escuro, foto em cinza, borda de cor embaixo, títulos em caixa alta */
+.agendamento-marca[data-estrutura="palco"] .ag-topo { min-height: 13rem; display: flex; align-items: flex-end; border-bottom: 4px solid var(--gold); }
+.agendamento-marca[data-estrutura="palco"] .ag-capa { filter: grayscale(1) contrast(1.1); opacity: 0.32; }
+.agendamento-marca[data-estrutura="palco"] .ag-sub,
+.agendamento-marca[data-estrutura="palco"] .ag-kicker { color: var(--paper); }
+.agendamento-marca[data-estrutura="retro"] .ag-sub { color: var(--paper); }
+.agendamento-marca[data-estrutura="retro"] .ag-capa { opacity: 0.16; }
+.agendamento-marca[data-estrutura="palco"] .ag-topo-conteudo { width: 100%; }
+.agendamento-marca[data-estrutura="palco"] h1 { text-transform: uppercase; letter-spacing: 0.06em; font-size: 1.9rem; }
+.agendamento-marca[data-estrutura="palco"] section > p:first-child { text-transform: uppercase; letter-spacing: 0.14em; }
+.agendamento-marca[data-estrutura="palco"] .ag-servico,
+.agendamento-marca[data-estrutura="palco"] .ag-dia,
+.agendamento-marca[data-estrutura="palco"] .ag-hora { border-radius: 2px; }
+.agendamento-marca[data-estrutura="palco"] .ag-chip { border-radius: 2px; text-transform: uppercase; letter-spacing: 0.06em; }
+.agendamento-marca[data-estrutura="palco"] .ag-servico.is-ativo { box-shadow: inset 4px 0 0 var(--gold); }
+
+/* retro: amarelo, contornos grossos e sombra dura */
+.agendamento-marca[data-estrutura="retro"] .ag-topo { margin-bottom: 0.5rem; border-bottom: 3px solid var(--paper); background: var(--gold-soft); }
+.agendamento-marca[data-estrutura="retro"] .ag-capa { opacity: 0.25; mix-blend-mode: multiply; }
+.agendamento-marca[data-estrutura="retro"] h1 { font-size: 2.1rem; line-height: 1.05; }
+.agendamento-marca[data-estrutura="retro"] .ag-servico,
+.agendamento-marca[data-estrutura="retro"] .ag-dia,
+.agendamento-marca[data-estrutura="retro"] .ag-hora,
+.agendamento-marca[data-estrutura="retro"] .ag-chip { border: 2.5px solid var(--paper); box-shadow: 3px 3px 0 var(--paper); }
+.agendamento-marca[data-estrutura="retro"] .ag-servico.is-ativo,
+.agendamento-marca[data-estrutura="retro"] .ag-hora.is-ativo { background: var(--gold); color: var(--primary-foreground); box-shadow: 3px 3px 0 var(--paper); }
+.agendamento-marca[data-estrutura="retro"] .ag-servico.is-ativo *,
+.agendamento-marca[data-estrutura="retro"] .ag-hora.is-ativo * { color: var(--primary-foreground); }
+
+/* arco: foto em arco e cartões brancos suaves */
+.agendamento-marca[data-estrutura="arco"] .ag-topo { padding-top: 1.5rem; text-align: center; }
+.agendamento-marca[data-estrutura="arco"] .ag-capa { position: relative; display: block; width: 62%; height: 12rem; margin: 0 auto 0.5rem; border-radius: 9999px 9999px 1.25rem 1.25rem; }
+.agendamento-marca[data-estrutura="arco"] .ag-marca { display: flex; justify-content: center; }
+.agendamento-marca[data-estrutura="arco"] .ag-topo-conteudo > div:nth-of-type(2) { justify-content: center; flex-direction: column; gap: 0.25rem; }
+.agendamento-marca[data-estrutura="arco"] .ag-servico,
+.agendamento-marca[data-estrutura="arco"] .ag-dia,
+.agendamento-marca[data-estrutura="arco"] .ag-hora { border-radius: 20px; border-color: transparent; background: var(--ink2); }
+
+/* cartao: capa em cartão arredondado com painel de vidro */
+.agendamento-marca[data-estrutura="cartao"] .ag-topo { margin: 0 0 0.5rem; padding: 1rem; border-radius: 28px; min-height: 11rem; display: flex; align-items: flex-end; }
+.agendamento-marca[data-estrutura="cartao"] .ag-topo-conteudo { padding: 0.875rem 1rem; border-radius: 22px; background: color-mix(in oklab, var(--ink) 62%, transparent); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); width: 100%; }
+.agendamento-marca[data-estrutura="cartao"] .ag-servico,
+.agendamento-marca[data-estrutura="cartao"] .ag-dia,
+.agendamento-marca[data-estrutura="cartao"] .ag-hora { border-radius: 22px; border-color: transparent; background: color-mix(in oklab, var(--ink2) 70%, transparent); }
+
+/* vibrante: cabeçalho na cor principal com curva embaixo e cartões alternados */
+.agendamento-marca[data-estrutura="vibrante"] .ag-topo { padding-bottom: 2.25rem; background: var(--gold); color: var(--primary-foreground); border-radius: 0 0 36px 36px; margin-bottom: 0.5rem; }
+.agendamento-marca[data-estrutura="vibrante"] .ag-topo h1,
+.agendamento-marca[data-estrutura="vibrante"] .ag-topo .ag-kicker,
+.agendamento-marca[data-estrutura="vibrante"] .ag-topo .ag-sobre,
+.agendamento-marca[data-estrutura="vibrante"] .ag-topo .ag-sub { color: var(--primary-foreground); }
+.agendamento-marca[data-estrutura="vibrante"] .ag-capa { opacity: 0.22; mix-blend-mode: multiply; }
+.agendamento-marca[data-estrutura="vibrante"] h1 { font-size: 2.25rem; line-height: 1.05; }
+.agendamento-marca[data-estrutura="vibrante"] .ag-servico,
+.agendamento-marca[data-estrutura="vibrante"] .ag-dia,
+.agendamento-marca[data-estrutura="vibrante"] .ag-hora { border-color: transparent; background: var(--gold-soft); }
+.agendamento-marca[data-estrutura="vibrante"] .ag-servico:nth-child(even) { background: var(--ink2); }
+.agendamento-marca[data-estrutura="vibrante"] .ag-chip { border-radius: 9999px; border-color: var(--gold); }
+
 .agendamento-marca-barra {
   background: color-mix(in oklab, var(--chat-page, var(--background)) 94%, transparent);
   backdrop-filter: blur(16px);
