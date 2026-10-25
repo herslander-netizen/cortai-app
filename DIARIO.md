@@ -708,6 +708,17 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-25 UTC — Claude — Troca de tela sem casco piscando nem corpo em branco (gravação do dono, 15:11)
+- **O que a gravação mostrou** ao abrir Personalizar Página: (1) corpo em branco por ~1,5 s, só com o topo; (2) o **casco**
+  (esqueleto com topo próprio) substituindo o topo e o menu por um instante, como se fosse outra tela; (3) só depois o
+  esqueleto da própria tela; (4) mais um corpo em branco ao seguir para Layout & Tema.
+- **Correções**: `/barbeiro`, `/app` e `/admin` só mostram o casco depois de 1,2 s (abertura fria); trocar de tela dentro da
+  área não o chama mais. As rotas filhas mostram o esqueleto a partir de 100 ms (antes 150) e ele entra em 40 ms (antes
+  150), sem corpo em branco. Capacidades do plano são aquecidas ao entrar em `/barbeiro` (as rotas conferem esse dado antes
+  de abrir). A rede de segurança da `TransicaoDePagina` cai de 700/900 ms para 400/600 ms (tela nova vai ao lugar mais cedo).
+- Não consegui reproduzir no navegador daqui (precisa de login); conferido pela gravação e pelo código. Se ainda houver
+  branco, mandar nova gravação com o horário do trecho.
+
 ### 2026-10-25 UTC — Claude — Gaveta toda na escala do cartão "Sua Página"
 - Pedido do dono ("quero desse tamanho tudo", alcance: toda a gaveta). Cartões (Sua Página, Agenda, Suporte, avisos): título
   18/24 semibold, subtítulo 15/20, ícone de 48 a 56, altura mínima de 64. Linhas do menu: 60 de altura, ícone 28, texto 17/24.

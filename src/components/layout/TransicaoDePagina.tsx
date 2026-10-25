@@ -14,8 +14,8 @@ import {
   type EstadoDaTransicao,
 } from "@/lib/transicoes-de-tela";
 
-const PRAZO_DA_TELA_MS = 700;
-const PRAZO_DA_COPIA_MS = 900;
+const PRAZO_DA_TELA_MS = 400;
+const PRAZO_DA_COPIA_MS = 600;
 
 type TelaSaindo = {
   id: number;

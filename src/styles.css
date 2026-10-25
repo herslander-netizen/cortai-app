@@ -3249,7 +3249,7 @@ html:not(.agenda-gesto-ativo) .agenda-previa-vizinho {
 }
 .esqueleto-regiao {
   opacity: 0;
-  animation: esqueleto-aparecer 150ms var(--ease-saida) 150ms forwards;
+  animation: esqueleto-aparecer 120ms var(--ease-saida) 40ms forwards;
 }
 .esqueleto-barra {
   /* Um degrau acima do cartão, nos dois temas: `ink3` no claro some sobre o cartão branco. */

@@ -27,6 +27,8 @@ export const Route = createFileRoute("/admin")({
   ssr: false,
   beforeLoad: () => exigirPapel("admin"),
   pendingComponent: EsqueletoCascoAdmin,
+  pendingMs: 1200,
+  pendingMinMs: 0,
   component: AdminLayout,
 });
 

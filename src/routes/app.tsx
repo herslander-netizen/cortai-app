@@ -24,6 +24,8 @@ export const Route = createFileRoute("/app")({
   ssr: false,
   beforeLoad: () => exigirPapel("cliente"),
   pendingComponent: EsqueletoCascoCliente,
+  pendingMs: 1200,
+  pendingMinMs: 0,
   component: ClientLayout,
 });
 

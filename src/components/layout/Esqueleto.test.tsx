@@ -32,7 +32,7 @@ describe("padrão de carregamento", () => {
     expect(css).toMatch(
       /@keyframes esqueleto-brilho\s*{\s*from\s*{\s*background-position: -100vw 0;\s*}\s*to\s*{\s*background-position: 100vw 0;/,
     );
-    expect(css).toContain("animation: esqueleto-aparecer 150ms");
+    expect(css).toContain("animation: esqueleto-aparecer 120ms");
     expect(css).toMatch(
       /prefers-reduced-motion: reduce[\s\S]*\.esqueleto-barra[\s\S]*animation: none/,
     );
