@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { act, createElement } from "react";
+import { act, createElement, type ReactNode } from "react";
 import { createRoot } from "react-dom/client";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
@@ -35,8 +35,8 @@ vi.mock("@tanstack/react-start", () => ({
 vi.mock("@tanstack/react-router", async () => {
   const React = await import("react");
   return {
-    Link: ({ to, children, ...props }: { to: string; children: React.ReactNode; [key: string]: unknown }) =>
-      React.createElement("a", { href: to, ...props }, children),
+    Link: ({ to, children, ...props }: { to: string; children: ReactNode; [key: string]: unknown }) =>
+      React.createElement("a" as any, { href: to, ...props } as any, children),
   };
 });
 
@@ -47,13 +47,15 @@ vi.mock("framer-motion", async () => {
     {
       get: (_target, tag: string) =>
         React.forwardRef<HTMLElement, Record<string, unknown>>((props, ref) => {
-          const { initial, animate, exit, transition, layout, ...rest } = props;
-          return React.createElement(tag, { ...rest, ref }, props.children as React.ReactNode);
+          const filtered = Object.fromEntries(
+            Object.entries(props).filter(([key]) => !["initial", "animate", "exit", "transition", "layout"].includes(key)),
+          );
+          return React.createElement(tag as any, { ...filtered, ref } as any, props.children as ReactNode);
         }),
     },
   );
   return {
-    AnimatePresence: ({ children }: { children: React.ReactNode }) =>
+    AnimatePresence: ({ children }: { children: ReactNode }) =>
       React.createElement(React.Fragment, null, children),
     motion,
     useReducedMotion: () => false,
