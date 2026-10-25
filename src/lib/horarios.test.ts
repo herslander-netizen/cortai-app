@@ -13,7 +13,7 @@ describe("slotsDoDia com intervalo personalizado", () => {
   };
 
   it("inclui o último início possível mesmo quando falta menos que um passo para fechar", () => {
-    const slots = slotsDoDia("2026-10-26", [horario], 45, "America/Maceio").slots;
+    const slots = slotsDoDia("2026-10-26", [horario], 45, "America/Maceio", 15).slots;
 
     expect(slots.map((slot) => slot.label)).toEqual(["09:00", "09:45", "10:30"]);
   });
@@ -31,6 +31,7 @@ describe("slotsDoDia com intervalo personalizado", () => {
       ],
       45,
       "America/Maceio",
+      15,
     ).slots;
 
     expect(slots.map((slot) => slot.label)).toEqual(["09:00", "09:45", "10:30", "11:15"]);
@@ -52,7 +53,6 @@ describe("slotsDoDia com intervalo personalizado", () => {
       "10:40",
       "11:05",
       "11:30",
-      "11:55",
     ]);
   });
 });
