@@ -31,7 +31,7 @@ Esta é uma auditoria estática do APK, da documentação técnica derivada dele
 - `src/components/onboarding/BoasVindasDoOnboarding.tsx`: hero de marca, cartão agrupado, selo de três passos, estados, CTA fixo e fade com `MOLA.rapidaEfeito`; respeita `prefers-reduced-motion`. As opções futuras ficam bloqueadas até chegar à etapa salva.
 - `src/components/onboarding/BoasVindasDoOnboarding.test.tsx`: testa três passos, estados/bloqueio, navegação por etapa, CTA e retomada do progresso.
 - `src/components/onboarding/PrimeirosPassos.tsx` + `PrimeirosPassos.test.tsx`: detalhes expansíveis/recolhíveis nos quatro itens; botão acessível (`aria-expanded`/`aria-controls`), animação de altura/opacidade com molas oficiais e respeito a redução de movimento.
-- Nenhuma alteração de banco, regra de negócio, permissão, integração ou site principal. CI da última extração aguarda deploy/smoke test; a validação anterior do onboarding já havia passado.
+- Nenhuma alteração de banco, regra de negócio, permissão, integração ou site principal. Validação concluída no commit `f8d04c37288019b0f3c16a8c8fb20527767d1e7f`, execução GitHub Actions `40176916449`: build, TypeScript, Vitest, deploy isolado e smoke test passaram; o teste confirmou o marcador/commit na URL `https://previa.cortaiapp.pages.dev`.
 
 ## Dependências de dados confirmadas para Localidades
 
@@ -56,7 +56,7 @@ A revisão das migrações base e das rotinas de disponibilidade confirmou que a
 
 ## Plano de execução priorizado
 
-1. Validar por CI a tela inicial e o teste do checklist; corrigir falhas de TypeScript/Vitest/build antes de considerar a entrega pronta.
+1. Conferir manualmente a apresentação inicial e o checklist no Android a 390 px, claro/escuro e redução de movimento; o CI já passou, mas não substitui a revisão visual.
 2. Planejar a capacidade de Localidades: inspecionar o schema e todos os pontos que assumem endereço/horário únicos por negócio; definir chaves, permissões, vínculos com equipe e agendamentos e migração estritamente aditiva. Ensaiar em banco descartável e só aplicar no banco de teste autorizado pelo fluxo do projeto.
 3. Fechar os estados do onboarding inicial com base em dados reais de configuração e, depois da criação do módulo Localidades, substituir o rótulo “Definir seu espaço” pela jornada real de localidades.
 4. Recuperar N6/N7 nos cadastros de serviço, equipe e cliente, com testes de movimento, retorno e preservação do rascunho.
