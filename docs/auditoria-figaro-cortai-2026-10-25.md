@@ -16,7 +16,7 @@ Esta é uma auditoria estática do APK, da documentação técnica derivada dele
 
 | Prioridade | Área | Evidência do Figaro | Estado verificado no Cortaí | Ação recomendada |
 |---|---|---|---|---|
-| P0 | Localidades/unidades | `apk/7-modulos.md` §6: lista e criação em quatro etapas — detalhes, endereço com CEP, horário semanal e comodidades; painel com mapa, horários especiais e equipe disponível. As capturas fornecidas mostram os mesmos passos. | Não foi localizada uma rota/modelo equivalente de Localidades. O cadastro de negócio contém endereço textual e o editor de horários opera por negócio. A especificação de animações registra P3/L1 como ausente/parcial. | Projetar um modelo aditivo de localidades e seus vínculos antes de criar a interface. Confirmar impacto em equipe, horários, agendamentos e página pública; ensaiar migração na prévia. Não apresentar uma tela de múltiplas unidades que não persista os dados. |
+| P0 | Localidades/unidades | `apk/7-modulos.md` §6: lista e criação em quatro etapas — detalhes, endereço com CEP, horário semanal e comodidades; painel com mapa, horários especiais e equipe disponível. As capturas fornecidas mostram os mesmos passos. | Não há rota/tabela `localidades` nem `agendamentos.localidade_id`. `tenants` guarda um único endereço/telefone; `horarios_de_funcionamento` tem `UNIQUE (tenant_id, dia_semana)`; `escalas_de_profissional` tem `UNIQUE (profissional_id, dia_semana)`. Bloqueios e validações consultam agenda por `tenant_id`, e a reserva pública/IA também herda horários de negócio. | Não implementar só a UI. Fazer migração estritamente aditiva com uma localidade principal de compatibilidade para cada negócio, depois associar horários, escalas e agendamentos, adaptar o motor único de disponibilidade, RLS e fluxos públicos/IA. Preservar que um profissional não pode ser reservado em duas localidades ao mesmo tempo. Testar em banco descartável e na prévia isolada; não aplicar no banco real sem autorização. |
 | P1 | Boas-vindas/checklist | `apk/7-modulos.md` §2: cartão de boas-vindas, três passos principais (localidades, equipe, serviços), estados concluído/atual/não iniciado e “Configurar depois”. `apk/8-inventario-de-animacoes.md` C9/O1/O2: marcadores, detalhes expansíveis, entrada da tela inicial e transição de etapa. | O checklist pós-onboarding de `PrimeirosPassos.tsx` tem quatro ações úteis; a tela inicial do fluxo `barbeiro.configurar.tsx` não tinha a apresentação inicial do Figaro. O fluxo Cortaí mantém etapas extras e seu backend de cadastro único. | Implementados: tela de boas-vindas com cartões agrupados, três passos, estados, CTA inferior e fade de entrada pela mola oficial `MOLA.rapidaEfeito`, com redução de movimento respeitada; descrições expansíveis no checklist pós-onboarding com acessibilidade e movimento reduzido. O primeiro passo foi rotulado “Definir seu espaço”, não “Definir localidades”, porque o Cortaí ainda não tem o modelo persistente multi-localidade. Háptico e equivalência completa continuam pendentes. |
 | P1 | Horários semanais | Captura do Figaro: cartões compactos por dia, estado aberto/fechado e faixa de horário; painel de horários especiais descrito em `apk/7-modulos.md`. | `EditorDeHorarios.tsx` já permite abrir/fechar dias, editar início/fim e configurar intervalos; o grupo semanal é recolhível e usa `MOLA`. | Conferir hierarquia visual, quebras em 390 px, foco/toque, modo claro/escuro e redução de movimento. Não declarar cópia exata do fluxo antes da conferência manual. |
 | P1 | Cadastros em etapas | `apk/6-animacoes.md` e `apk/8-inventario-de-animacoes.md` N6/N7: criação de serviço, profissional, cliente e localidade com transição direcional de 220 ms, esmaecimento e título animado. | O onboarding geral usa `EtapasAnimadas`, mas o inventário ainda marca vários cadastros individuais como sem recuperação das transições de cadastro. | Aplicar os primitivos compartilhados por rota, em lotes pequenos, com testes de avanço/retorno e preservação do rascunho. |
@@ -27,10 +27,32 @@ Esta é uma auditoria estática do APK, da documentação técnica derivada dele
 
 ## Alterações implementadas nesta rodada
 
-- `src/routes/barbeiro.configurar.tsx`: adicionada uma tela inicial de boas-vindas inspirada nas capturas do Figaro, com hero de marca, cartão agrupado, selo de três passos, estados de progresso e CTA fixo inferior. O conteúdo entra com fade usando `MOLA.rapidaEfeito` e respeita `prefers-reduced-motion`. Mantém as oito etapas reais do Cortaí depois da apresentação, permite retomar a etapa salva e não elimina horários, regras, tipo de agendamento ou link.
-- `src/components/onboarding/PrimeirosPassos.tsx`: adicionados detalhes expansíveis/recolhíveis aos quatro itens existentes; cada descrição tem botão acessível (`aria-expanded`/`aria-controls`), animação de altura + opacidade pelas molas oficiais do Figaro e respeito a `prefers-reduced-motion`.
-- `src/components/onboarding/PrimeirosPassos.test.tsx`: cobertura proposta para expansão/recolhimento, região acessível e preservação do link de navegação.
-- Não houve alteração de banco, regra de negócio, permissão, integração ou site principal nesta rodada. A revisão de CI/TypeScript/Vitest/build ainda não foi confirmada.
+- `src/routes/barbeiro.configurar.tsx`: a rota integra a tela de boas-vindas por componente; as oito etapas reais do Cortaí continuam preservadas e a retomada continua usando a etapa salva.
+- `src/components/onboarding/BoasVindasDoOnboarding.tsx`: hero de marca, cartão agrupado, selo de três passos, estados, CTA fixo e fade com `MOLA.rapidaEfeito`; respeita `prefers-reduced-motion`. As opções futuras ficam bloqueadas até chegar à etapa salva.
+- `src/components/onboarding/BoasVindasDoOnboarding.test.tsx`: testa três passos, estados/bloqueio, navegação por etapa, CTA e retomada do progresso.
+- `src/components/onboarding/PrimeirosPassos.tsx` + `PrimeirosPassos.test.tsx`: detalhes expansíveis/recolhíveis nos quatro itens; botão acessível (`aria-expanded`/`aria-controls`), animação de altura/opacidade com molas oficiais e respeito a redução de movimento.
+- Nenhuma alteração de banco, regra de negócio, permissão, integração ou site principal. CI da última extração aguarda deploy/smoke test; a validação anterior do onboarding já havia passado.
+
+## Dependências de dados confirmadas para Localidades
+
+A revisão das migrações base e das rotinas de disponibilidade confirmou que a ausência de Localidades é estrutural, não apenas visual:
+
+- `tenants` hoje reúne `nome`, `telefone` e `endereco`; o slug público é único por negócio.
+- `horarios_de_funcionamento` tem linhas por dia, com unicidade `(tenant_id, dia_semana)`. Rotinas como `regrasDaBarbearia`, onboarding, chat e agendamento público consultam esses horários apenas pelo `tenant_id`.
+- `escalas_de_profissional` é única por `(profissional_id, dia_semana)`, sem lugar associado. `bloqueios_de_agenda` também não registra localidade.
+- `agendamentos` registra negócio, profissional, serviço e intervalo, mas não a localidade. As funções de validação verificam conflitos do profissional pelo período, além dos bloqueios, escala, fuso e horários do negócio.
+- O onboarding atual salva o endereço em `tenants.endereco`; não há criação, edição ou seleção persistente de localidade.
+
+### Sequência segura para recuperar esse módulo
+
+1. Criar tabela `localidades` com isolamento por tenant, estado ativo/inativo, endereço estruturado, CEP, telefone público, comodidades e horários especiais; definir RLS e permissões equivalentes às demais configurações do negócio.
+2. Para compatibilidade, adicionar uma localidade principal por negócio existente, preenchida com os dados atuais de `tenants`. Não remover nem reescrever esses campos enquanto consumidores antigos ainda os utilizarem.
+3. Adicionar `localidade_id` de forma inicialmente compatível às tabelas de horário, escala profissional, bloqueios e agendamentos; associar os dados históricos à localidade principal antes de tornar a relação obrigatória. Rever índices e unicidade das escalas por localidade.
+4. Atualizar um único motor de disponibilidade e suas chamadas (painel, público, chat e IA) para considerar a unidade escolhida, sem permitir dupla reserva do mesmo profissional em unidades diferentes.
+5. Integrar a seleção de localidade à página pública e aos resumos operacionais; implementar o cadastro de quatro etapas, painel, horários especiais, comodidades e disponibilidade da equipe.
+6. Ensaiar migração e permissões em banco descartável; validar fluxos na prévia isolada com casos de negócio antigo (uma unidade), negócio com várias unidades, equipe compartilhada, conflito simultâneo e horário especial.
+
+**Não executado nesta rodada:** nenhuma migração foi criada/aplicada e nenhum banco foi escrito. Essa implementação deve ser feita em lote próprio porque afeta regras de disponibilidade e reserva, não apenas o onboarding.
 
 ## Plano de execução priorizado
 
