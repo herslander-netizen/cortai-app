@@ -2,7 +2,7 @@ import { z } from "zod";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { Eye, ListChecks, MessageCircle, MousePointerClick } from "lucide-react";
+import { Eye, ListChecks, MessageCircle } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { EsqueletoFormulario } from "@/components/layout/Esqueleto";
@@ -160,52 +160,44 @@ function EditorLayoutTema({
           atualizar={(config) => e.setConfig(config)}
           escolherTema={(tema) => e.setConfig((old) => aplicarTema(old, tema))}
         />
-        <section aria-label="Como o cliente agenda" className="space-y-2">
-          <h2 className="rotulo-secao">Como o cliente agenda</h2>
-          <GrupoDeLinhas>
-            {e.config.layout !== "cortai-chat" ? (
-              <li>
-                <LinhaDeOpcoes
-                  icone={MousePointerClick}
-                  titulo="Ao abrir o link"
-                  tituloDaFolha="Ao abrir o link"
-                  opcoes={[
-                    { valor: "vitrine", rotulo: "Página completa", detalhe: "Mostra a página e o botão de agendar." },
-                    { valor: "direta", rotulo: "Direto no agendamento", detalhe: "Abre já na escolha do serviço." },
-                  ]}
-                  valor={e.config.experiencia === "direta" ? "direta" : "vitrine"}
-                  aoEscolher={(valor) => e.setPagina("experiencia", valor)}
-                />
-              </li>
-            ) : null}
-            {e.config.layout !== "cortai-chat" && e.config.experiencia === "vitrine" ? (
-              <li>
-                <LinhaDeOpcoes
-                  icone={ListChecks}
-                  titulo="Ao tocar em Agendar"
-                  tituloDaFolha="Ao tocar em Agendar"
-                  opcoes={[
-                    { valor: "tradicional", rotulo: "Passo a passo" },
-                    { valor: "conversa", rotulo: "Conversa" },
-                  ]}
-                  valor={e.config.chat.modo === "conversa" ? "conversa" : "tradicional"}
-                  aoEscolher={(modo) => e.setPagina("chat", { ...e.config.chat, modo })}
-                />
-              </li>
-            ) : null}
-            {e.usaConversa ? (
-              <LinhaDeConfiguracao
-                icone={MessageCircle}
-                titulo="Personalizar o chat"
-                suporte="Recepção virtual, mensagens e estilo da conversa."
-                para="/barbeiro/marca/chat"
-              />
-            ) : null}
-          </GrupoDeLinhas>
-          <p className="px-4 text-xs leading-relaxed text-mute">
-            Nada muda para seus clientes até você publicar.
+        {e.config.layout === "figaro-agendamento" ? (
+          <p className="px-4 text-sm leading-relaxed text-mute">
+            No layout Agendamento o link abre direto na escolha do serviço, do profissional e do
+            horário. Nada muda para seus clientes até você publicar.
           </p>
-        </section>
+        ) : (
+          <section aria-label="Como o cliente agenda" className="space-y-2">
+            <h2 className="rotulo-secao">Como o cliente agenda</h2>
+            <GrupoDeLinhas>
+              {e.config.layout === "figaro-site-completo" && e.config.experiencia === "vitrine" ? (
+                <li>
+                  <LinhaDeOpcoes
+                    icone={ListChecks}
+                    titulo="Ao tocar em Agendar"
+                    tituloDaFolha="Ao tocar em Agendar"
+                    opcoes={[
+                      { valor: "tradicional", rotulo: "Passo a passo" },
+                      { valor: "conversa", rotulo: "Conversa" },
+                    ]}
+                    valor={e.config.chat.modo === "conversa" ? "conversa" : "tradicional"}
+                    aoEscolher={(modo) => e.setPagina("chat", { ...e.config.chat, modo })}
+                  />
+                </li>
+              ) : null}
+              {e.usaConversa ? (
+                <LinhaDeConfiguracao
+                  icone={MessageCircle}
+                  titulo="Personalizar o chat"
+                  suporte="Recepção virtual, mensagens e estilo da conversa."
+                  para="/barbeiro/marca/chat"
+                />
+              ) : null}
+            </GrupoDeLinhas>
+            <p className="px-4 text-xs leading-relaxed text-mute">
+              Nada muda para seus clientes até você publicar.
+            </p>
+          </section>
+        )}
         {mensagem ? (
           <p role={erro ? "alert" : "status"} className="text-sm text-mute">
             {mensagem}

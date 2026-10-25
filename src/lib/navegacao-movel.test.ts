@@ -61,7 +61,7 @@ describe("navegação móvel", () => {
     expect(paginaPrincipal).toContain("Ver página publicada");
     expect(paginaPrincipal).not.toContain("Compartilhar link");
     expect(paginaPrincipal).not.toContain("Experiência de agendamento");
-    expect(layoutTema).toContain("Ao abrir o link");
+    expect(layoutTema).toContain("No layout Agendamento o link abre direto");
     expect(layoutTema).toContain("Ao tocar em Agendar");
     expect(qrPage).toContain('title="QR Code e link público"');
     expect(qrPage).not.toContain("Layout & Tema");

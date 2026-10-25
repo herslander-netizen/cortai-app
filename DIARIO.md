@@ -706,6 +706,12 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-24 UTC — Claude — Layout Agendamento = maneira direta
+- Correção do entendimento (dono): o layout "Agendamento" é a **maneira direta** de agendar (a que existia antes como "Direta"), não o site compacto. Agora `aplicarLayout` faz Agendamento ⇒ `experiencia: "direta"` (link abre em `/agendar` na escolha de serviço, profissional, dia e horário) e sair dele volta à `vitrine`; páginas já salvas com Agendamento + vitrine passam a abrir direto (`normalizarPagina`). Chat segue `conversa`.
+- Layout & Tema: a linha "Ao abrir o link" saiu (o layout decide); no Agendamento aparece só uma explicação; "Ao tocar em Agendar" continua só no Site Completo.
+- Ver Exemplo e a prévia do editor mostram a tela direta de verdade (`PreviaDireta`, espelho de `agendar.$slug.tsx` com a paleta do tema). O cabeçalho compacto do Agendamento em `styles.css` fica só para a página "Conhecer o negócio" (`?ver=pagina`).
+- Testes: `pagina-config.agendamento.test.ts`.
+
 ### 2026-10-24 UTC — Claude — Layout "Agendamento" não pode parecer o site
 - Print do dono: com o layout Agendamento escolhido, a página aparecia como o Site Completo. Causa: a variante `agendamento` só escondia as seções (Equipe, Galeria…), mas mantinha a abertura em tela cheia, o menu e, nos temas femininos, as estruturas próprias (arco, cartão, vibrante) por cima do CSS compacto.
 - Agora é um cabeçalho compacto (marca, frase curta de até 2 linhas e botão) com os serviços logo abaixo, sem foto de abertura em tela cheia, sem menu nem "Saiba mais", em todos os temas (`styles.css`, regras `.fg.fg-rapido[data-estrutura]`). Conferido na prévia do Ver Exemplo com Clássico, Rock n' Roll, Rosé, Lavanda e Pêssego.

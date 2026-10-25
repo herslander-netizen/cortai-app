@@ -546,15 +546,22 @@ export function aplicarLayout(config: PaginaConfig, layout: LayoutId): PaginaCon
   if (layout === "cortai-chat") {
     return { ...base, experiencia: "conversa", chat: { ...config.chat, modo: "conversa" } };
   }
+  // Agendamento é a maneira direta: o link abre já na escolha de serviço, profissional e horário.
+  if (layout === "figaro-agendamento") {
+    return { ...base, experiencia: "direta", chat: { ...config.chat, modo: "tradicional" } };
+  }
   if (config.layout === "cortai-chat" && config.experiencia === "conversa") {
     return { ...base, experiencia: "vitrine", chat: { ...config.chat, modo: "tradicional" } };
+  }
+  if (config.layout === "figaro-agendamento" && config.experiencia === "direta") {
+    return { ...base, experiencia: "vitrine" };
   }
   return base;
 }
 
 export const DESCRICAO_DO_LAYOUT: Partial<Record<LayoutId, string>> = {
   "figaro-site-completo": "Layout completo com todas as seções organizadas em rolagem única.",
-  "figaro-agendamento": "Layout focado no agendamento rápido de horários.",
+  "figaro-agendamento": "Maneira direta: o cliente abre já na escolha do serviço, do profissional e do horário.",
   "cortai-chat": "Atendimento em conversa: uma recepção guia o cliente, por botões, até o horário.",
 };
 
@@ -684,6 +691,10 @@ export function normalizarPagina(value: unknown, fallback?: Partial<PaginaConfig
   saida["componentes"] = Object.fromEntries(
     componenteIds.map((id) => [id, typeof comps[id] === "boolean" ? comps[id] : compsBase[id]]),
   );
+  // Páginas salvas com o layout Agendamento antes dele ser a maneira direta passam a abrir direto.
+  if (saida["layout"] === "figaro-agendamento" && saida["experiencia"] === "vitrine") {
+    saida["experiencia"] = "direta";
+  }
   return saida as PaginaConfig;
 }
 
