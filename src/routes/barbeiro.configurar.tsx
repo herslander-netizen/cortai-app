@@ -579,7 +579,8 @@ function ConfigurarPage() {
             </div>
           ) : null}
 
-          {!mostrarBoasVindas ? <EtapasAnimadas etapa={indice}>
+          {!mostrarBoasVindas ? (
+            <EtapasAnimadas etapa={indice}>
             {etapa === "dados" ? (
               <div className="space-y-4">
                 <div className="flex items-center gap-4">
@@ -964,7 +965,8 @@ function ConfigurarPage() {
                 )}
               </div>
             ) : null}
-          </EtapasAnimadas> : null}
+            </EtapasAnimadas>
+          ) : null}
           {etapa === "pronto" || configurando ? (
             // Tela cheia como no Figaro: a espera ("Configurando sua página…") e o resultado são o mesmo
             // componente, então o anel ondulado vira o visto sem trocar de tela.
