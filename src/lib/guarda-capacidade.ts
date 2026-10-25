@@ -19,7 +19,7 @@ export async function exigirCapacidade(queryClient: QueryClient, recurso: ChaveD
       queryKey: ["capacidades"],
       queryFn: () => getCapacidades(),
       staleTime: 300_000,
-    }), 4_000, "consultar as capacidades do plano");
+    }), 900, "consultar as capacidades do plano");
     if (capacidades.liberados[recurso] === false) {
       throw redirect({ to: "/barbeiro/plano" });
     }

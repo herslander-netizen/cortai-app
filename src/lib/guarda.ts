@@ -79,8 +79,20 @@ export async function sessaoDoUsuario(userId: string): Promise<Sessao> {
   ) {
     return cacheDaSessao.promessa;
   }
+  // Cache vencido, mas já há uma sessão boa desta conta: navega com ela agora e renova por trás. Esperar a rede
+  // aqui deixava a troca de tela parada (e o casco aparecendo) toda vez que o cache expirava. A proteção de
+  // verdade continua em cada função do servidor.
+  const anterior = ultimaSessaoBoa?.userId === userId ? ultimaSessaoBoa.sessao : null;
   const promessa = getSessao();
   cacheDaSessao = { userId, em: agora, promessa };
+  if (anterior) {
+    promessa
+      .then((sessao) => {
+        ultimaSessaoBoa = { userId, sessao };
+      })
+      .catch(() => esquecerSessao());
+    return anterior;
+  }
   try {
     const sessao = await promessa;
     ultimaSessaoBoa = { userId, sessao };

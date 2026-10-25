@@ -709,6 +709,14 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-25 UTC — Claude — Navegação não espera mais a rede (gravação 15:25)
+- A gravação mostrou ~6 s de corpo em branco e depois o casco ao abrir Personalizar Página pela gaveta. Causa provável: o
+  cache da sessão (5 min) vencia e `exigirPapel` esperava `getSessao()` pela rede a cada troca (o casco aparece quando o pai
+  fica pendente); e `exigirCapacidade` esperava até 4 s pelas capacidades.
+- `guarda.ts`: com cache vencido e uma sessão boa da mesma conta, navega com ela e renova por trás (a proteção real segue
+  em cada função do servidor). `guarda-capacidade.ts`: prazo de 4 s → 900 ms (falha de leitura já deixava passar).
+- Pendente: se ainda houver branco, medir no aparelho qual chamada demora (`registrar("transicao")` e rede).
+
 ### 2026-10-25 UTC — Claude — Tracejado da grade só com zoom
 - `AgendaTimeline.tsx`: marcas de 15/30/45 min ganham `data-sub-oculta` em repouso; `styles.css` (fim) esconde com `!important`
   (a regra do celular forçava `opacity: 1`) e faz fade ao dar zoom. Hora cheia inalterada.
