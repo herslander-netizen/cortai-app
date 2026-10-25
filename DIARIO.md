@@ -27,6 +27,7 @@ e o que fez. O diário até 17/10/2026 está guardado, sem alterações, em
 7. **Sem segredos:** nunca escreva chaves, senhas ou tokens aqui. Cite só o nome da variável.
 
 ## Decisões do dono
+- 2026-10-25: **Tracejado de 15 min só depois do zoom** (dono, com captura do celular: "não é pra aparecer as listras pontilhadas o tempo todo"). Em repouso a grade mostra só a hora cheia; o tracejado de 15 min aparece (fade de 200 ms) quando o zoom passa do tamanho de repouso (`PX_POR_MINUTO > PX_PADRAO`). Substitui, para o tracejado, o trecho "mantém o tracejado de 15 min" da decisão de hoje abaixo e o pedido anterior de linhas de 15 min no celular. As linhas de 5 min seguem só na edição.
 - 2026-10-25: **Grade da Agenda sem as marcas de 5 min em repouso** (dono, com captura do celular): com zoom, as pequenas marcas de 5 em 5 minutos não precisam aparecer. Em repouso a grade mostra só a hora cheia (linha contínua e igual) e o tracejado de 15 min; as linhas de 5 min aparecem apenas durante a edição (arrastar ou redimensionar), por cima da grade. Isto substitui o "aparecem a partir de 2,5 px/min" copiado do Figaro.
 - 2026-10-24: **Ordem permanente do padrão Figaro** (dono: "gere uma ordem de todas as páginas criadas terem esse layout como padrão"). Texto oficial em `docs/ordem-padrao-figaro.md`: toda página, nova ou refeita, usa só os primitivos de `src/components/ui` (tabela no documento), sem estilo ad hoc; o teste `estilo-figaro.test.ts` segura isso. Vale para Claude, GPT e Muse.
 - 2026-10-24: **Toda página criada já nasce no estilo Figaro** (dono: "toda página criada já precisa ter o estilo figaroo, deixe isso claro"). Vale para telas novas e refeitas, de qualquer IA; regra também no `AGENTS.md`. Referência: `docs/referencia-figaro/apk/`.
@@ -707,6 +708,10 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - Sem alteração no banco, `main` ou produção.
 
 ## Diário
+
+### 2026-10-25 UTC — Claude — Tracejado da grade só com zoom
+- `AgendaTimeline.tsx`: marcas de 15/30/45 min ganham `data-sub-oculta` em repouso; `styles.css` (fim) esconde com `!important`
+  (a regra do celular forçava `opacity: 1`) e faz fade ao dar zoom. Hora cheia inalterada.
 
 ### 2026-10-25 UTC — Claude — Troca de tela sem casco piscando nem corpo em branco (gravação do dono, 15:11)
 - **O que a gravação mostrou** ao abrir Personalizar Página: (1) corpo em branco por ~1,5 s, só com o topo; (2) o **casco**

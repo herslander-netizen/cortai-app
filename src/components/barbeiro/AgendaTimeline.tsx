@@ -926,6 +926,8 @@ function AgendaTimelineBase({
             <div
               key={minuto}
               className={`agenda-timeline-marca ${minuto % 60 === 0 ? "agenda-timeline-hora" : ""}`}
+              // Em repouso só a hora cheia; o tracejado de 15 min aparece depois de dar zoom (dono, 25/10).
+              data-sub-oculta={minuto % 60 !== 0 && PX_POR_MINUTO <= PX_PADRAO ? "" : undefined}
               style={{
                 top: `${(minuto - escala.inicio) * PX_POR_MINUTO + deslocamentoAte(minuto)}px`,
               }}

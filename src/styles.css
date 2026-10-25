@@ -10589,3 +10589,16 @@ input[type="range"] {
     scroll-behavior: auto;
   }
 }
+
+/* Tracejado de 15 min: só depois do zoom. Em repouso a grade mostra apenas as horas cheias. */
+.agenda-timeline-marca:not(.agenda-timeline-hora) {
+  transition: opacity 200ms ease-out;
+}
+.agenda-operacional .agenda-timeline-marca[data-sub-oculta] {
+  opacity: 0 !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  .agenda-timeline-marca:not(.agenda-timeline-hora) {
+    transition: none;
+  }
+}
