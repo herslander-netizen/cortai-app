@@ -69,7 +69,7 @@ export function DrawerDestaques({
               >
                 <IconeDoMenu icone={Link2} destaque />
                 <span className="min-w-0">
-                  <span className="block truncate text-lg font-semibold text-paper">
+                  <span className="block truncate text-lg font-semibold leading-6 text-paper">
                     Sua Página
                   </span>
                   {paginaPublicada ? (
