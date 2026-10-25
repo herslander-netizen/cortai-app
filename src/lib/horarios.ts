@@ -166,8 +166,18 @@ export function slotsDoDia(
   const slots: SlotDaAgenda[] = [];
   const pausaIni = info.intervaloInicio ? minutos(info.intervaloInicio) : null;
   const pausaFim = info.intervaloFim ? minutos(info.intervaloFim) : null;
-  for (let t = inicio; t + passoMin <= fim; t += passoMin) {
-    if (pausaIni != null && pausaFim != null && t < pausaFim && t + passoMin > pausaIni) continue;
+  // O passo é a frequência entre inícios sugeridos, não a duração do serviço.
+  // O motor de disponibilidade verifica depois se o serviço cabe antes do fechamento/pausa.
+  for (let t = inicio; t < fim; t += passoMin) {
+    const minutoDoDia = t % 1440;
+    // Não sugerir inícios dentro da pausa. Um serviço que começa antes dela é
+    // validado pela duração real no motor único de disponibilidade.
+    if (
+      pausaIni != null &&
+      pausaFim != null &&
+      minutoDoDia >= pausaIni &&
+      minutoDoDia < pausaFim
+    ) continue;
     const tt = t % 1440;
     const h = Math.floor(tt / 60);
     const m = tt % 60;
