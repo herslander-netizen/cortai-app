@@ -690,7 +690,17 @@ function ConfigurarPage() {
                 />
                 <Escolha
                   titulo="Horários oferecidos a cada"
-                  opcoes={PASSOS}
+                  opcoes={
+                    PASSOS.some((opcao) => opcao.valor === valorRegras.passoMin)
+                      ? PASSOS
+                      : [
+                          ...PASSOS,
+                          {
+                            valor: valorRegras.passoMin,
+                            rotulo: `${valorRegras.passoMin} min (personalizado)`,
+                          },
+                        ]
+                  }
                   valor={valorRegras.passoMin}
                   onChange={(v) => setRegras({ ...valorRegras, passoMin: v })}
                 />
