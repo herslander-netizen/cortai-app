@@ -112,11 +112,13 @@ export function SecaoHorario({ s }: { s: EstadoAgendamentoManual }) {
   const estados = useEstadosDaEquipe(s);
   const [detalhe, setDetalhe] = useState<HorarioComEstado<OcupadoDaEquipe> | null>(null);
   const [confirmarEncaixe, setConfirmarEncaixe] = useState(false);
-  const slots = s.base
-    ? slotsDoDia(s.data, s.base.horarios, s.base.passoMin ?? 30, s.base.fuso).slots.map(
-        (slot) => slot.label,
-      )
-    : [];
+  const duracaoMin = s.base?.servicos.find((sv) => sv.id === s.servicoId)?.duracao_min;
+  const slots =
+    s.base && duracaoMin
+      ? slotsDoDia(s.data, s.base.horarios, s.base.passoMin ?? 30, s.base.fuso, duracaoMin).slots.map(
+          (slot) => slot.label,
+        )
+      : [];
   const porLabel = new Map((estados?.horarios ?? []).map((h) => [h.label, h]));
   const livre = s.proximo.data?.label;
   return (
