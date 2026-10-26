@@ -486,6 +486,8 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 | 8 Conferência da Agenda | G1…G16 | `components/barbeiro/agenda/*` | |
 | 9 Decisões do dono | B4 B5 B6 C6 C14 C15 E1 M4 | — | depende do §10 do inventário |
 
+- 2026-10-26: **Cabeçalho do menu mobile mais compacto** (dono aprovou a reformulação após captura: logo menor, nome do negócio com hierarquia discreta, papel secundário, ajustes alinhados e menos espaço vazio; manter nome em até duas linhas quando necessário, sem afetar a Agenda).
+
 ## Em andamento
 
 | GPT | 2026-10-26 UTC | Polimento de interação mobile fora da Agenda: seleção/cópia contextual, toque e arrasto nativos, zoom acidental sem bloquear acessibilidade; criar CSS isolado e testes, preservando Agenda e campos copiáveis | `DIARIO.md`, `src/routes/__root.tsx`, `src/styles/mobile-interactions.css`, `src/styles/mobile-interactions.test.ts`; sem migração |
@@ -737,6 +739,11 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - Documentação adicionada: docs/auditoria-inbarber-cortai-2026-10-26.md e docs/propostas/widget-android-inbarber-cortai.md. O widget permanece especificado, não implementado: o repositório não tem projeto Android nativo, pacote/assinatura ou fluxo de autenticação para o widget.
 - Sem mudanças na interface da Agenda, migrações, bancos de dados, segredos, main ou site principal. TypeScript, Vitest, build e smoke test aguardam a validação automática do commit.
 ## Diário
+
+### 2026-10-26 UTC — GPT — Compacta o cabeçalho do menu mobile
+- `src/components/layout/ManagementDrawer.tsx`: logo reduzida de 44 para 40 dp; nome do estabelecimento explicitamente definido em 18/24, negrito e limitado a duas linhas; papel definido em 13/18; reduzido o espaçamento vertical do topo.
+- Mudança isolada do menu lateral, sem alterar a Agenda, navegação ou regras de negócio. Commit de código: `a377bbcd92f505e59738e03fd7d29500e9715e30`.
+- A validação automatizada e a publicação na prévia ainda precisam ser confirmadas; não houve publicação principal nem alteração de banco.
 
 ### 2026-10-26 UTC — GPT — Endurece a ordem do workflow de lançamento
 - Em `.github/workflows/lancar-versao.yml`, separar a preparação da versão candidata da gravação Git: o workflow atualiza `src/lib/versao.ts` e `public/versao.json` apenas no workspace, executa o build e **só depois** cria o commit/tag e faz push.
