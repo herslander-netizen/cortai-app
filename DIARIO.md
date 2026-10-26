@@ -483,6 +483,8 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Em andamento
 
+| GPT | 2026-10-26 UTC | InBarber → Cortaí: seletor de contatos com fallback mobile; resumo do negócio fora da Agenda; estudo de viabilidade e especificação do widget Android | `DIARIO.md`, `src/components/barbeiro/AgendamentoManual.tsx`, `src/components/barbeiro/agendamento-manual/*`, rotas/componentes de resumo fora da Agenda, testes e documentação técnica; sem migração |
+
 | Quem | Desde (UTC) | Tarefa | Arquivos / migração reservada |
 |---|---|---|---|
 
