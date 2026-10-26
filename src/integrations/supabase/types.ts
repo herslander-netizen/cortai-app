@@ -927,6 +927,10 @@ export type Database = {
       clientes: {
         Row: {
           alergias: string | null
+          agendamento_bloqueado: boolean
+          agendamento_bloqueado_em: string | null
+          agendamento_bloqueado_por: string | null
+          agendamento_bloqueio_motivo: string | null
           arquivado_em: string | null
           condicoes_especiais: string | null
           criado_em: string
@@ -954,6 +958,10 @@ export type Database = {
         }
         Insert: {
           alergias?: string | null
+          agendamento_bloqueado?: boolean
+          agendamento_bloqueado_em?: string | null
+          agendamento_bloqueado_por?: string | null
+          agendamento_bloqueio_motivo?: string | null
           arquivado_em?: string | null
           condicoes_especiais?: string | null
           criado_em?: string
@@ -981,6 +989,10 @@ export type Database = {
         }
         Update: {
           alergias?: string | null
+          agendamento_bloqueado?: boolean
+          agendamento_bloqueado_em?: string | null
+          agendamento_bloqueado_por?: string | null
+          agendamento_bloqueio_motivo?: string | null
           arquivado_em?: string | null
           condicoes_especiais?: string | null
           criado_em?: string

@@ -1,5 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
-import { inicioDoDiaNoFuso, inicioDoMesNoFuso } from "@/lib/horarios";
+import { diaDaSemanaDoDia, inicioDoDiaNoFuso, inicioDoMesNoFuso, isoNoFusoDaBarbearia, hojeNoFuso, somarDias } from "@/lib/horarios";
 import { fusoDoTenant } from "@/lib/fuso.server";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
@@ -15,11 +15,25 @@ async function tenantDoMembro(supabase: any, userId: string) {
 
 export const getFinanceiro = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
+  .validator((input: unknown) =>
+    z.object({ periodo: z.enum(["semana", "mes"]).default("mes") }).parse(input ?? {}),
+  )
+  .handler(async ({ context, data }) => {
     const tenantId = await tenantDoMembro(context.supabase, context.userId);
     await exigirPermissao(context, tenantId, "visualizar_financeiro");
-    const inicio = inicioDoMesNoFuso(await fusoDoTenant(tenantId));
-    const [{ data: atendimentos }, { data: vendas }] = await Promise.all([
+    const fuso = await fusoDoTenant(tenantId);
+    const hoje = hojeNoFuso(fuso);
+    const inicio =
+      data.periodo === "semana"
+        ? new Date(
+            isoNoFusoDaBarbearia(
+              somarDias(hoje, -((diaDaSemanaDoDia(hoje) + 6) % 7)),
+              "00:00",
+              fuso,
+            ),
+          )
+        : inicioDoMesNoFuso(fuso);
+    const [{ data: atendimentos }, { data: vendas }, { data: ganhosExtrasRes }] = await Promise.all([
       context.supabase
         .from("agendamentos")
         .select("id, valor_centavos, inicio, servicos(nome)")
@@ -32,6 +46,13 @@ export const getFinanceiro = createServerFn({ method: "GET" })
         .eq("tenant_id", tenantId)
         .gte("criado_em", inicio.toISOString())
         .order("criado_em", { ascending: false }),
+      context.supabase
+        .from("caixa_movimentos")
+        .select("valor_centavos")
+        .eq("tenant_id", tenantId)
+        .eq("tipo", "entrada")
+        .in("categoria", ["ganho_extra_gorjeta", "ganho_extra_servico_extra", "ganho_extra_outro"])
+        .gte("criado_em", inicio.toISOString()),
     ]);
     const servicos = (atendimentos ?? []).reduce((total, item) => total + item.valor_centavos, 0);
     const produtos = (vendas ?? [])
@@ -40,11 +61,17 @@ export const getFinanceiro = createServerFn({ method: "GET" })
     const outros = (vendas ?? [])
       .filter((item) => item.categoria === "outros")
       .reduce((total, item) => total + item.total_centavos, 0);
+    const ganhosExtras = (ganhosExtrasRes ?? []).reduce(
+      (total, item) => total + item.valor_centavos,
+      0,
+    );
     return {
+      periodo: data.periodo,
       servicos,
       produtos,
       outros,
-      total: servicos + produtos + outros,
+      ganhosExtras,
+      total: servicos + produtos + outros + ganhosExtras,
       atendimentos: atendimentos ?? [],
       vendas: vendas ?? [],
     };

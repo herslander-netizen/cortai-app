@@ -564,7 +564,7 @@ export const getCaixa = createServerFn({ method: "GET" })
     await exigirPermissao(context, tenantId, "visualizar_financeiro");
     const db = await admin();
     const inicio = inicioDoDiaNoFuso(await fusoDoTenant(tenantId));
-    const [{ data: movimentos }, { data: fiados }, { data: sessao }] = await Promise.all([
+    const [{ data: movimentos }, { data: fiados }, { data: sessao }, { data: profissionais }] = await Promise.all([
       db
         .from("caixa_movimentos")
         .select(
@@ -584,6 +584,7 @@ export const getCaixa = createServerFn({ method: "GET" })
         .eq("tenant_id", tenantId)
         .eq("status", "aberto")
         .maybeSingle(),
+      db.from("profissionais").select("id, nome").eq("tenant_id", tenantId).eq("ativo", true).order("nome"),
     ]);
     const lista = movimentos ?? [];
     const entradas = lista
@@ -598,6 +599,7 @@ export const getCaixa = createServerFn({ method: "GET" })
         .reduce((s: number, m: any) => s + m.valor_centavos, 0);
     return {
       sessao,
+      profissionais: profissionais ?? [],
       movimentos: lista,
       resumo: {
         entradas,
@@ -831,6 +833,57 @@ export const registrarMovimentoDeCaixa = createServerFn({ method: "POST" })
       categoria: data.tipo,
       descricao: data.descricao,
       valor_centavos: data.valorCentavos,
+      criado_por: context.userId,
+    });
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+/** Registra uma gorjeta ou receita adicional no caixa, separada das vendas/comandas. */
+export const registrarGanhoExtra = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((input: unknown) =>
+    z
+      .object({
+        categoria: z.enum(["gorjeta", "servico_extra", "outro"]),
+        descricao: z.string().trim().min(3).max(120),
+        valorCentavos: z.number().int().positive().max(100_000_000),
+        profissionalId: z.string().uuid().nullable().optional(),
+        formaPagamento: z.enum(["pix", "dinheiro", "cartao"]).nullable().optional(),
+      })
+      .parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    const tenantId = await tenantIdDoMembro(context);
+    await exigirPermissao(context, tenantId, "caixa_movimentar");
+    const db = await admin();
+
+    if (data.profissionalId) {
+      const { data: profissional } = await db
+        .from("profissionais")
+        .select("id")
+        .eq("id", data.profissionalId)
+        .eq("tenant_id", tenantId)
+        .eq("ativo", true)
+        .maybeSingle();
+      if (!profissional) throw new Error("Profissional não encontrado neste negócio.");
+    }
+
+    const { data: sessao } = await db
+      .from("caixa_sessoes")
+      .select("id")
+      .eq("tenant_id", tenantId)
+      .eq("status", "aberto")
+      .maybeSingle();
+    const { error } = await db.from("caixa_movimentos").insert({
+      tenant_id: tenantId,
+      caixa_sessao_id: sessao?.id ?? null,
+      tipo: "entrada",
+      categoria: `ganho_extra_${data.categoria}`,
+      descricao: data.descricao,
+      valor_centavos: data.valorCentavos,
+      profissional_id: data.profissionalId ?? null,
+      forma_pagamento: data.formaPagamento ?? null,
       criado_por: context.userId,
     });
     if (error) throw new Error(error.message);

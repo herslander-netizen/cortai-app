@@ -18,6 +18,7 @@ import {
 import { PERIODOS, type PeriodoId } from "@/lib/historico-periodo";
 import { OpcoesConectadas } from "@/components/ui/opcoes-conectadas";
 import { Aviso } from "@/components/ui/aviso";
+import { RepetirAtendimento } from "@/components/historico/RepetirAtendimento";
 
 export const Route = createFileRoute("/barbeiro/historico")({
   head: () => ({
@@ -305,7 +306,7 @@ function HistoricoPage() {
             {aba === "atendimentos"
               ? itensAtendimento.map((a) => (
                   <li key={a.id} className="flex items-start justify-between gap-3 py-3">
-                    <span className="min-w-0">
+                    <div className="min-w-0">
                       <span className="block truncate text-sm font-semibold text-paper">
                         {a.clienteNome ?? "Sem cliente"}
                       </span>
@@ -317,7 +318,13 @@ function HistoricoPage() {
                         {new Date(a.inicio).getTime() > agora ? " · Futuro" : ""}
                         {a.online ? " · Online" : ""}
                       </span>
-                    </span>
+                      {a.clienteNome &&
+                      !["cancelado", "nao_compareceu", "remarcado", "estornado"].includes(a.status) ? (
+                        <div className="mt-2">
+                          <RepetirAtendimento agendamentoId={a.id} />
+                        </div>
+                      ) : null}
+                    </div>
                     <span className="shrink-0 text-sm font-semibold text-paper">
                       {brl(a.valorCentavos)}
                     </span>

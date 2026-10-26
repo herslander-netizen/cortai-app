@@ -17,6 +17,7 @@ import {
 } from "@/lib/barbeiro.functions";
 import { EsqueletoFicha } from "@/components/layout/Esqueleto";
 import { PersonalizacaoCliente } from "@/components/barbeiro/PersonalizacaoCliente";
+import { BloqueioDeAgendamento } from "@/components/cliente-perfil/BloqueioDeAgendamento";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/barbeiro/clientes/$id")({
@@ -61,7 +62,6 @@ function FichaPage() {
   const [erro, setErro] = useState<string | null>(null);
   const [valor, setValor] = useState("");
   const [aviso, setAviso] = useState<string | null>(null);
-
   const { data, isLoading, refetch } = useQuery({
     queryKey: ["ficha-cliente", id],
     queryFn: () => getFichaCliente({ data: { clienteId: id } }),
@@ -239,6 +239,8 @@ function FichaPage() {
           ) : null}
 
           <PersonalizacaoCliente ficha={data} onSalvo={() => refetch()} />
+
+          <BloqueioDeAgendamento clienteId={id} />
 
           <section className="mt-10 border-t border-line pt-6">
             <h2 className="text-sm font-semibold text-paper">Situação do cliente</h2>

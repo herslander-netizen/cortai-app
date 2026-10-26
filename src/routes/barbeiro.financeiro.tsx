@@ -1,6 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 import { Banknote, PackageCheck, Scissors, Shapes } from "lucide-react";
+import { OpcoesConectadas } from "@/components/ui/opcoes-conectadas";
 
 import { Screen } from "@/components/layout/Screen";
 import { brl } from "@/lib/format";
@@ -27,13 +29,27 @@ export const Route = createFileRoute("/barbeiro/financeiro")({
 });
 
 function FinanceiroPage() {
+  const [periodo, setPeriodo] = useState<"semana" | "mes">("mes");
   const { data, isLoading, isError, refetch } = useQuery({
-    queryKey: ["financeiro"],
-    queryFn: () => getFinanceiro(),
+    queryKey: ["financeiro", periodo],
+    queryFn: () => getFinanceiro({ data: { periodo } }),
     retry: false,
   });
   return (
-    <Screen title="Financeiro" subtitle="Receitas do mês, sem complicação.">
+    <Screen
+      title="Financeiro"
+      subtitle={periodo === "semana" ? "Receitas desta semana, sem complicação." : "Receitas do mês, sem complicação."}
+    >
+      <OpcoesConectadas
+        rotulo="Período do financeiro"
+        valor={periodo}
+        opcoes={[
+          { valor: "semana", texto: "Semana" },
+          { valor: "mes", texto: "Mês" },
+        ]}
+        onChange={setPeriodo}
+        className="mt-4"
+      />
       {isLoading ? <EsqueletoPainel onTentarDeNovo={() => void refetch()} /> : null}
       {isError ? (
         <Aviso tom="acao">Entre com uma conta vinculada ao negócio para ver o financeiro.</Aviso>
@@ -41,7 +57,7 @@ function FinanceiroPage() {
       {data ? (
         <>
           <section data-guia="financeiro-total" className="surface-card bg-ink3 p-5 md:max-w-xl">
-            <p className="text-xs text-mute">Faturamento no mês</p>
+            <p className="text-xs text-mute">{periodo === "semana" ? "Faturamento na semana" : "Faturamento no mês"}</p>
             <p className="mt-2 text-[32px] font-bold leading-none text-paper">{brl(data.total)}</p>
             <div className="mt-5 h-1.5 overflow-hidden rounded-full bg-ink3">
               <div
@@ -54,12 +70,13 @@ function FinanceiroPage() {
           </section>
           <div
             data-guia="financeiro-categorias"
-            className="mt-6 grid grid-cols-3 gap-2 md:max-w-3xl md:gap-4"
+            className="mt-6 grid grid-cols-2 gap-2 md:max-w-3xl md:grid-cols-4 md:gap-4"
           >
             {[
               { label: "Serviços", value: data.servicos, icon: Scissors },
               { label: "Produtos", value: data.produtos, icon: PackageCheck },
               { label: "Outros", value: data.outros, icon: Shapes },
+              { label: "Ganhos extras", value: data.ganhosExtras, icon: Banknote },
             ].map((item) => {
               const Icon = item.icon;
               return (

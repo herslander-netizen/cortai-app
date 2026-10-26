@@ -8,6 +8,7 @@ import { EsqueletoPainel } from "@/components/layout/Esqueleto";
 import { EmptyState, Screen } from "@/components/layout/Screen";
 import { Button } from "@/components/ui/button";
 import { BuscaDeComandas } from "@/components/comanda/BuscaDeComandas";
+import { RegistrarGanhoExtra } from "@/components/financeiro/RegistrarGanhoExtra";
 import { brl, dataCurta, hora } from "@/lib/format";
 import {
   abrirOuFecharCaixa,
@@ -53,6 +54,7 @@ function Linha({ rotulo, valor, cor }: { rotulo: string; valor: string; cor?: st
 type CaixaDados = {
   sessao: { saldo_inicial_centavos: number; aberto_em: string | null } | null;
   movimentos: any[];
+  profissionais: { id: string; nome: string }[];
   resumo: {
     liquido: number;
     entradas: number;
@@ -225,6 +227,8 @@ function CaixaPage() {
             </Button>
           </section>
 
+          <RegistrarGanhoExtra profissionais={caixa.data.profissionais ?? []} />
+
           <h2 className="mt-8 text-sm font-semibold text-paper">Movimentações de hoje</h2>
           {caixa.data.movimentos.length === 0 ? (
             <div className="mt-3">
@@ -276,7 +280,13 @@ function CaixaPage() {
                       </div>
                       <div>
                         <dt className="text-mute2">Categoria</dt>
-                        <dd className="capitalize text-paper">{m.categoria}</dd>
+                        <dd className="capitalize text-paper">
+                          {({
+                            ganho_extra_gorjeta: "Gorjeta",
+                            ganho_extra_servico_extra: "Serviço extra",
+                            ganho_extra_outro: "Outro ganho",
+                          } as Record<string, string>)[String(m.categoria)] ?? m.categoria}
+                        </dd>
                       </div>
                       <div>
                         <dt className="text-mute2">Cliente</dt>
