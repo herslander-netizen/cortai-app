@@ -730,6 +730,12 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - Também: o commit do fantasma da Agenda (`38d9bc63`) não tinha chegado à branch de trabalho (a remota andou e o envio
   foi barrado sem aviso); juntado em `ca0bb491`.
 
+### 2026-10-26 UTC — GPT — Endurece a criação de séries recorrentes
+- A migração ainda não aplicada `0048_series_agendamentos.sql` agora rejeita iniciar outra série a partir de qualquer ocorrência já vinculada a uma série existente.
+- Novas ocorrências ficam para pagamento no próprio atendimento: a série não reutiliza o meio de pagamento do original para debitar créditos/saldo ou registrar fiado antecipadamente. A folha de confirmação informa isso antes da criação.
+- Atualizei a auditoria para registrar essas regras. Nenhuma migração foi aplicada e o banco/site principal não foi alterado.
+- A validação automática do commit anterior (`ca0bb491`) passou build, TypeScript e Vitest; a execução da prévia isolada ainda estava em andamento no momento desta revisão. A nova validação será conferida após este commit.
+
 ### 2026-10-26 UTC — Claude — Agenda: fantasma do horário original ao encurtar e ao esticar
 - `fantasma-do-horario.ts`: `trechosQueSaem` (só os pedaços que saíam, desenhados com listras tracejadas) virou
   `fantasmaDoHorario`: o horário original inteiro, sempre que o horário mostrado muda (inclusive ao esticar).
