@@ -180,6 +180,8 @@ export type DadosDaMensagem = {
   /** Texto de retorno já preenchido (personalização > padrão do segmento). */
   textoRetorno?: string | null;
   linkAvaliacao?: string | null;
+  /** Créditos pré-pagos restantes após a reserva; omitido quando não há carteira. */
+  creditosDisponiveis?: number | null;
 };
 
 /**
@@ -196,6 +198,7 @@ export function montarMensagem(
   const linha = (texto: string | null | undefined, prefixo: string) =>
     texto && String(texto).trim() ? `${prefixo}${String(texto).trim()}` : null;
 
+  const creditos = (d.creditosDisponiveis ?? 0) > 0 ? `Créditos de atendimento disponíveis: ${d.creditosDisponiveis}` : null;
   const blocos: (string | null)[] = [];
   const barbearia = d.segmento === "barbearia";
   const em = barbearia ? `na ${d.barbearia}` : `em ${d.barbearia}`;
@@ -211,6 +214,7 @@ export function montarMensagem(
       `Horário: ${horaBr(d.inicio, d.fuso)}`,
       d.valorCentavos > 0 ? `Valor: ${reais(d.valorCentavos)}` : null,
       linha(d.endereco, "📍 "),
+      creditos,
     );
     if (d.linkPagamento) blocos.push("", "💳 Pagar agora", d.linkPagamento);
     blocos.push("", "Até lá!");
@@ -224,6 +228,7 @@ export function montarMensagem(
       `${dataBr(d.inicio, d.fuso)} às ${horaBr(d.inicio, d.fuso)}.`,
       "",
       "Você pode confirmar, remarcar ou cancelar.",
+      creditos,
     );
   } else if (tipo === "lembrete_2h" || tipo === "aviso_proximo") {
     blocos.push(
@@ -233,6 +238,7 @@ export function montarMensagem(
       linha(d.profissional, "Profissional: "),
       `Hoje às ${horaBr(d.inicio, d.fuso)}.`,
       linha(d.endereco, "📍 "),
+      creditos,
     );
   } else if (tipo === "alteracao_agendamento" || tipo === "remarcacao") {
     blocos.push(
@@ -744,6 +750,19 @@ async function executar(agendamentoId: string, tipo: TipoDeNotificacao): Promise
   const { gatewayDoProvedor } = await import("./gateway.server");
   const oficial = gatewayDoProvedor(conexao?.provedor ?? null).capacidades().botoes;
   const fusoModelo = await fusoDoTenant(ag.tenant_id);
+  let creditosDisponiveis: number | null = null;
+  if (
+    ag.cliente_id &&
+    ["confirmacao_agendamento", "lembrete_24h", "lembrete_2h"].includes(tipo)
+  ) {
+    const { data: carteira } = await db
+      .from("carteiras")
+      .select("saldo_creditos")
+      .eq("tenant_id", ag.tenant_id)
+      .eq("cliente_id", ag.cliente_id)
+      .maybeSingle();
+    creditosDisponiveis = carteira?.saldo_creditos ?? null;
+  }
   const texto = montarMensagem(
     tipo,
     {
@@ -758,6 +777,7 @@ async function executar(agendamentoId: string, tipo: TipoDeNotificacao): Promise
       segmento: tenant?.segmento ?? null,
       textoRetorno,
       linkAvaliacao,
+      creditosDisponiveis,
       linkAgendamento: tenant?.slug ? urlPublica(`/agendar/${tenant.slug}`) : null,
       linkPagamento:
         tipo === "confirmacao_agendamento" &&
