@@ -37,6 +37,13 @@ O APK reencontrado `Figaroo.apk` é a referência original para layout, cartões
 - Não reescrever histórico git (sem rebase/force-push). `bun.lock` só muda por `bun install` com motivo.
 - O que cada IA faz sozinha e o que precisa de autorização está no topo do `AGENTS.md`.
 
+## Ativação AgendaClick no banco de prévia — 2026-10-26
+
+- Com autorização do dono, aplicadas somente em `cortai-preview` (`pfkxvindedkuktogbcsv`) as migrações `0047_bloqueio_cliente_agendamento.sql` e `0048_series_agendamentos.sql`.
+- Verificação pós-aplicação confirmou as tabelas de série, a função transacional de criação e o trigger de bloqueio de novos agendamentos por cliente.
+- `cortai-prod`, site principal e DNS permanecem intocados. Não repetir essas migrações em produção sem nova autorização explícita.
+- As duas tabelas de série têm RLS habilitado sem policies; acesso direto é intencionalmente restrito a `service_role` por grants explícitos. Rever o aviso do linter se a arquitetura de acesso mudar.
+
 ## Prévia e versões
 
 - Em 19/10, o fluxo de novo agendamento no padrão Figaro foi validado automaticamente e publicado na prévia com o banco isolado `cortai-preview`; teste manual no celular ainda pendente. Migrações 0039–0042 são exclusivas da prévia.
