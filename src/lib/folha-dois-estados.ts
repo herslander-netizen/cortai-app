@@ -1,5 +1,6 @@
 /** Fatias da altura da tela nos dois estados da folha, como no Figaro (`Partial` abre na metade e arrasta até cheia). */
-export const FOLHA_PARCIAL = 0.55;
+// Ficha da Agenda (dono, 26/10: "abrir essa gaveta parcial e aparecer mais informações"): 62% da tela.
+export const FOLHA_PARCIAL = 0.62;
 export const FOLHA_CHEIA = 0.92;
 
 export type EncaixeDaFolha = "fechar" | "parcial" | "cheio";

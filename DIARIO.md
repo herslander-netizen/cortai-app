@@ -27,6 +27,7 @@ e o que fez. O diário até 17/10/2026 está guardado, sem alterações, em
 7. **Sem segredos:** nunca escreva chaves, senhas ou tokens aqui. Cite só o nome da variável.
 
 ## Decisões do dono
+- 2026-10-26: **Ficha do agendamento em duas etapas — pedido específico para a Agenda** (dono, com captura da ficha: "ao clicar no cliente abrir essa gaveta parcial e aparecer mais informações e quando clicar expandir todas as informações dela, não deixar rolagem"). Reativa a decisão suspensa: abre em 62% da tela; o toque na barrinha (ou puxar para cima) mostra tudo, na altura do conteúdo; sem rolagem; puxar para baixo fecha de uma vez.
 - 2026-10-26: Autorizada a execução da auditoria InBarber → Cortaí: seletor de contatos com fallback, visão financeira “Hoje” no fuso do negócio e especificação do widget Android. Manter a Agenda visual protegida; não publicar no site principal nem escrever em banco de produção.
 - 2026-10-26: **Barra do sistema contínua com o topo do app** (dono: "tirar essa diferença de cor entre os ícones superiores e as telas, eles precisam dar a impressão de continuidade"). A cor da barra do relógio/bateria acompanha o que está no topo da tela.
 - 2026-10-26: **autorizada a ativação das migrações 0047 e 0048 somente no banco isolado `cortai-preview`**. Esta autorização não inclui `cortai-prod`, site principal, DNS nem outros bancos.
@@ -732,6 +733,13 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - Documentação adicionada: docs/auditoria-inbarber-cortai-2026-10-26.md e docs/propostas/widget-android-inbarber-cortai.md. O widget permanece especificado, não implementado: o repositório não tem projeto Android nativo, pacote/assinatura ou fluxo de autenticação para o widget.
 - Sem mudanças na interface da Agenda, migrações, bancos de dados, segredos, main ou site principal. TypeScript, Vitest, build e smoke test aguardam a validação automática do commit.
 ## Diário
+
+### 2026-10-26 UTC — Claude — Ficha em duas etapas (agora pedida para a Agenda)
+- Reaplicada só a parte da ficha de `eae2c825` (sem a linha das gavetas): `PainelAtendimento.tsx` +
+  `useFolhaEmDoisEstados.ts` (`alturaDoConteudo`). Novo: primeira etapa 62% (`FOLHA_PARCIAL`, usada só pela ficha) e
+  toque na barrinha que expande quando há conteúdo guardado (`tocarNaBarrinha`) e fecha quando a ficha já está inteira.
+  Sem rolagem na primeira etapa; "X" solto escondido no celular. Teste `ficha-duas-etapas.test.ts`.
+- Nada fora da ficha mudou (sem `sheet.tsx`, sem CSS global). tsc, 2024 testes e build ok.
 
 ### 2026-10-26 UTC — Claude — Notificações: título não invade o horário e valores em reais
 - Capturas do dono: o título comprido ("Não conseguimos avisar Isabela Oliveira · confi…") passava por baixo do horário e
