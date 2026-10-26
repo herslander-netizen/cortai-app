@@ -52,7 +52,16 @@ function Linha({ rotulo, valor, cor }: { rotulo: string; valor: string; cor?: st
 }
 
 type CaixaDados = {
-  sessao: { saldo_inicial_centavos: number; aberto_em: string | null } | null;
+  sessao: { id: string; saldo_inicial_centavos: number; aberto_em: string | null } | null;
+  ultimoFechamento: {
+    id: string;
+    saldo_inicial_centavos: number;
+    saldo_informado_centavos: number;
+    saldo_esperado_centavos: number;
+    diferenca_calculada_centavos: number;
+    aberto_em: string;
+    fechado_em: string;
+  } | null;
   movimentos: any[];
   profissionais: { id: string; nome: string }[];
   resumo: {
@@ -63,6 +72,7 @@ type CaixaDados = {
     dinheiro: number;
     cartao: number;
     fiado: number;
+    dinheiroEsperadoCentavos: number | null;
   };
 };
 
@@ -85,6 +95,7 @@ function CaixaPage() {
     tipo: "saida" as "saida" | "sangria" | "despesa",
     descricao: "",
     valor: "",
+    formaPagamento: "dinheiro" as "dinheiro" | "pix" | "cartao",
   });
   const [ocupado, setOcupado] = useState(false);
   const [aviso, setAviso] = useState<string | null>(null);
@@ -127,15 +138,27 @@ function CaixaPage() {
               {brl(caixa.data.resumo.liquido)}
             </p>
             <p className="mt-1 text-xs text-mute2">
-              Saldo inicial {brl(caixa.data.sessao?.saldo_inicial_centavos ?? 0)}
-              {caixa.data.sessao?.aberto_em ? ` · desde ${hora(caixa.data.sessao.aberto_em)}` : ""}
+              Movimentação líquida de hoje: entradas menos saídas em todas as formas de pagamento.
             </p>
+            {sessaoAberta && caixa.data.sessao ? (
+              <div className="surface mt-4 p-3">
+                <p className="text-xs text-mute2">Dinheiro esperado na gaveta</p>
+                <p className="mt-1 text-xl font-semibold text-paper">
+                  {brl(caixa.data.resumo.dinheiroEsperadoCentavos ?? caixa.data.sessao.saldo_inicial_centavos)}
+                </p>
+                <p className="mt-1 text-xs text-mute2">
+                  Saldo inicial {brl(caixa.data.sessao.saldo_inicial_centavos)}
+                  {caixa.data.sessao.aberto_em ? ` · aberto às ${hora(caixa.data.sessao.aberto_em)}` : ""}.
+                  Pix e cartão não entram na contagem física.
+                </p>
+              </div>
+            ) : null}
             <div className="mt-4 grid grid-cols-2 gap-2">
               <Linha rotulo="Entradas" valor={brl(caixa.data.resumo.entradas)} cor="text-sage" />
               <Linha rotulo="Saídas" valor={brl(caixa.data.resumo.saidas)} cor="text-brick" />
               <Linha rotulo="Pix" valor={brl(caixa.data.resumo.pix)} />
-              <Linha rotulo="Dinheiro" valor={brl(caixa.data.resumo.dinheiro)} />
-              <Linha rotulo="Cartão" valor={brl(caixa.data.resumo.cartao)} />
+              <Linha rotulo="Dinheiro recebido" valor={brl(caixa.data.resumo.dinheiro)} />
+              <Linha rotulo="Cartão recebido" valor={brl(caixa.data.resumo.cartao)} />
               <Linha
                 rotulo="Fiado em aberto"
                 valor={brl(caixa.data.resumo.fiado)}
@@ -143,19 +166,22 @@ function CaixaPage() {
               />
             </div>
             <div className="mt-4 grid gap-2 border-t border-line pt-4 sm:grid-cols-[minmax(0,1fr)_auto]">
-              <input
-                className="field-control"
-                type="number"
-                min="0"
-                step="0.01"
-                inputMode="decimal"
-                placeholder={sessaoAberta ? "Valor contado ao fechar" : "Saldo inicial"}
-                value={valorCaixa}
-                onChange={(e) => setValorCaixa(e.target.value)}
-              />
+              <label className="flex min-w-0 flex-col gap-1 text-xs text-mute">
+                {sessaoAberta ? "Dinheiro contado ao fechar" : "Saldo inicial para troco"}
+                <input
+                  className="field-control"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  inputMode="decimal"
+                  placeholder="0,00"
+                  value={valorCaixa}
+                  onChange={(e) => setValorCaixa(e.target.value)}
+                />
+              </label>
               <Button
                 variant="outline"
-                disabled={ocupado}
+                disabled={ocupado || (sessaoAberta && !valorCaixa.trim()) || (!sessaoAberta && !valorCaixa.trim())}
                 onClick={() =>
                   void executar(
                     () =>
@@ -165,8 +191,8 @@ function CaixaPage() {
                           valorCentavos: Math.round(Number(valorCaixa || 0) * 100),
                         },
                       }),
-                    sessaoAberta ? "Caixa fechado." : "Caixa aberto.",
-                  )
+                    sessaoAberta ? "Caixa fechado e diferença registrada." : "Caixa aberto.",
+                  ).then(() => setValorCaixa(""))
                 }
               >
                 {sessaoAberta ? "Fechar caixa" : "Abrir caixa"}
@@ -174,37 +200,92 @@ function CaixaPage() {
             </div>
           </section>
 
+          {!sessaoAberta && caixa.data.ultimoFechamento ? (
+            <section className="surface-card mt-4 p-4 md:max-w-3xl" aria-label="Resumo do último fechamento">
+              <h2 className="text-sm font-semibold text-paper">Último fechamento de hoje</h2>
+              <p className="mt-1 text-xs text-mute2">
+                {dataCurta(caixa.data.ultimoFechamento.fechado_em)} · {hora(caixa.data.ultimoFechamento.fechado_em)}
+              </p>
+              <div className="mt-3 grid grid-cols-2 gap-2">
+                <Linha rotulo="Dinheiro esperado" valor={brl(caixa.data.ultimoFechamento.saldo_esperado_centavos)} />
+                <Linha rotulo="Dinheiro contado" valor={brl(caixa.data.ultimoFechamento.saldo_informado_centavos)} />
+                <Linha
+                  rotulo="Diferença"
+                  valor={brl(caixa.data.ultimoFechamento.diferenca_calculada_centavos)}
+                  cor={caixa.data.ultimoFechamento.diferenca_calculada_centavos < 0 ? "text-brick" : caixa.data.ultimoFechamento.diferenca_calculada_centavos > 0 ? "text-sage" : "text-paper"}
+                />
+              </div>
+              <p className="mt-3 text-xs text-mute2">
+                {caixa.data.ultimoFechamento.diferenca_calculada_centavos < 0
+                  ? `Faltaram ${brl(Math.abs(caixa.data.ultimoFechamento.diferenca_calculada_centavos))} na gaveta.`
+                  : caixa.data.ultimoFechamento.diferenca_calculada_centavos > 0
+                    ? `Sobrou ${brl(caixa.data.ultimoFechamento.diferenca_calculada_centavos)} na gaveta.`
+                    : "A contagem bateu com o valor esperado."}
+              </p>
+            </section>
+          ) : null}
+
           <BuscaDeComandas />
 
           <section className="surface-card mt-5 p-4 md:max-w-3xl md:p-5">
             <h2 className="text-sm font-semibold text-paper">Registrar saída</h2>
-            <div className="mt-3 grid gap-2 sm:grid-cols-3">
-              <select
-                className="field-control"
-                value={saida.tipo}
-                onChange={(e) => setSaida({ ...saida, tipo: e.target.value as typeof saida.tipo })}
-                aria-label="Tipo de saída"
-              >
-                <option value="saida">Saída</option>
-                <option value="sangria">Sangria</option>
-                <option value="despesa">Despesa</option>
-              </select>
-              <input
-                className="field-control"
-                placeholder="Descrição"
-                value={saida.descricao}
-                onChange={(e) => setSaida({ ...saida, descricao: e.target.value })}
-              />
-              <input
-                className="field-control"
-                type="number"
-                min="0"
-                step="0.01"
-                inputMode="decimal"
-                placeholder="Valor"
-                value={saida.valor}
-                onChange={(e) => setSaida({ ...saida, valor: e.target.value })}
-              />
+            <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+              <label className="flex min-w-0 flex-col gap-1 text-xs text-mute">
+                Tipo
+                <select
+                  className="field-control"
+                  value={saida.tipo}
+                  onChange={(e) => {
+                    const tipo = e.target.value as typeof saida.tipo;
+                    setSaida((atual) => ({
+                      ...atual,
+                      tipo,
+                      formaPagamento: tipo === "sangria" ? "dinheiro" : atual.formaPagamento,
+                    }));
+                  }}
+                  aria-label="Tipo de saída"
+                >
+                  <option value="saida">Saída</option>
+                  <option value="sangria">Sangria (dinheiro)</option>
+                  <option value="despesa">Despesa</option>
+                </select>
+              </label>
+              <label className="flex min-w-0 flex-col gap-1 text-xs text-mute">
+                Forma de pagamento
+                <select
+                  className="field-control"
+                  value={saida.formaPagamento}
+                  disabled={saida.tipo === "sangria"}
+                  onChange={(e) => setSaida({ ...saida, formaPagamento: e.target.value as typeof saida.formaPagamento })}
+                  aria-label="Forma de pagamento da saída"
+                >
+                  <option value="dinheiro">Dinheiro</option>
+                  <option value="pix">Pix</option>
+                  <option value="cartao">Cartão</option>
+                </select>
+              </label>
+              <label className="flex min-w-0 flex-col gap-1 text-xs text-mute">
+                Descrição
+                <input
+                  className="field-control"
+                  placeholder="Ex.: compra de material"
+                  value={saida.descricao}
+                  onChange={(e) => setSaida({ ...saida, descricao: e.target.value })}
+                />
+              </label>
+              <label className="flex min-w-0 flex-col gap-1 text-xs text-mute">
+                Valor (R$)
+                <input
+                  className="field-control"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  inputMode="decimal"
+                  placeholder="0,00"
+                  value={saida.valor}
+                  onChange={(e) => setSaida({ ...saida, valor: e.target.value })}
+                />
+              </label>
             </div>
             <Button
               variant="outline"
@@ -217,13 +298,14 @@ function CaixaPage() {
                       tipo: saida.tipo,
                       descricao: saida.descricao.trim(),
                       valorCentavos: Math.round(Number(saida.valor) * 100),
+                      formaPagamento: saida.formaPagamento,
                     },
                   });
-                  setSaida({ tipo: "saida", descricao: "", valor: "" });
+                  setSaida({ tipo: "saida", descricao: "", valor: "", formaPagamento: "dinheiro" });
                 }, "Saída registrada.")
               }
             >
-              Registrar
+              Registrar saída
             </Button>
           </section>
 

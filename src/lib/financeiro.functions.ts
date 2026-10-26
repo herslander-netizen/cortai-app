@@ -6,6 +6,7 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { exigirPermissao, tenantIdDoMembro } from "@/lib/tenant";
 import { hojeNoFuso, isoNoFusoDaBarbearia, normalizarFuso } from "@/lib/horarios";
+import { calcularDiferencaDoFechamento, calcularSaldoEsperadoNaGaveta } from "@/lib/caixa-regras";
 
 async function admin() {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -564,7 +565,13 @@ export const getCaixa = createServerFn({ method: "GET" })
     await exigirPermissao(context, tenantId, "visualizar_financeiro");
     const db = await admin();
     const inicio = inicioDoDiaNoFuso(await fusoDoTenant(tenantId));
-    const [{ data: movimentos }, { data: fiados }, { data: sessao }, { data: profissionais }] = await Promise.all([
+    const [
+      { data: movimentos },
+      { data: fiados },
+      { data: sessao },
+      { data: profissionais },
+      { data: ultimaSessaoFechada },
+    ] = await Promise.all([
       db
         .from("caixa_movimentos")
         .select(
@@ -585,7 +592,65 @@ export const getCaixa = createServerFn({ method: "GET" })
         .eq("status", "aberto")
         .maybeSingle(),
       db.from("profissionais").select("id, nome").eq("tenant_id", tenantId).eq("ativo", true).order("nome"),
+      db
+        .from("caixa_sessoes")
+        .select("id, saldo_inicial_centavos, saldo_informado_centavos, aberto_em, fechado_em")
+        .eq("tenant_id", tenantId)
+        .eq("status", "fechado")
+        .gte("fechado_em", inicio.toISOString())
+        .order("fechado_em", { ascending: false })
+        .limit(1)
+        .maybeSingle(),
     ]);
+
+    let dinheiroEsperadoCentavos: number | null = null;
+    if (sessao) {
+      const { data: movimentosDaSessao, error } = await db
+        .from("caixa_movimentos")
+        .select("tipo, valor_centavos, forma_pagamento")
+        .eq("tenant_id", tenantId)
+        .eq("caixa_sessao_id", sessao.id);
+      if (error) throw new Error(error.message);
+      dinheiroEsperadoCentavos = calcularSaldoEsperadoNaGaveta(
+        sessao.saldo_inicial_centavos,
+        movimentosDaSessao ?? [],
+      );
+    }
+
+    let fechamentoAnterior: {
+      id: string;
+      saldo_inicial_centavos: number;
+      saldo_informado_centavos: number;
+      saldo_esperado_centavos: number;
+      diferenca_calculada_centavos: number;
+      aberto_em: string;
+      fechado_em: string;
+    } | null = null;
+    if (ultimaSessaoFechada?.id && ultimaSessaoFechada.fechado_em && ultimaSessaoFechada.saldo_informado_centavos !== null) {
+      const { data: movimentosDaSessao, error } = await db
+        .from("caixa_movimentos")
+        .select("tipo, valor_centavos, forma_pagamento")
+        .eq("tenant_id", tenantId)
+        .eq("caixa_sessao_id", ultimaSessaoFechada.id);
+      if (error) throw new Error(error.message);
+      const saldoEsperado = calcularSaldoEsperadoNaGaveta(
+        ultimaSessaoFechada.saldo_inicial_centavos,
+        movimentosDaSessao ?? [],
+      );
+      fechamentoAnterior = {
+        id: ultimaSessaoFechada.id,
+        saldo_inicial_centavos: ultimaSessaoFechada.saldo_inicial_centavos,
+        saldo_informado_centavos: ultimaSessaoFechada.saldo_informado_centavos,
+        saldo_esperado_centavos: saldoEsperado,
+        diferenca_calculada_centavos: calcularDiferencaDoFechamento(
+          saldoEsperado,
+          ultimaSessaoFechada.saldo_informado_centavos,
+        ),
+        aberto_em: ultimaSessaoFechada.aberto_em,
+        fechado_em: ultimaSessaoFechada.fechado_em,
+      };
+    }
+
     const lista = movimentos ?? [];
     const entradas = lista
       .filter((m: any) => m.tipo === "entrada")
@@ -599,12 +664,14 @@ export const getCaixa = createServerFn({ method: "GET" })
         .reduce((s: number, m: any) => s + m.valor_centavos, 0);
     return {
       sessao,
+      ultimoFechamento: fechamentoAnterior,
       profissionais: profissionais ?? [],
       movimentos: lista,
       resumo: {
         entradas,
         saidas,
         liquido: entradas - saidas,
+        dinheiroEsperadoCentavos: dinheiroEsperadoCentavos,
         pix: porForma("pix"),
         dinheiro: porForma("dinheiro"),
         cartao: porForma("cartao"),
@@ -778,20 +845,20 @@ export const abrirOuFecharCaixa = createServerFn({ method: "POST" })
       return { ok: true, status: "aberto" as const };
     }
     if (!aberta) throw new Error("Nenhum caixa aberto para fechar.");
-    const { data: movimentos } = await db
+    const { data: movimentos, error: movimentosErro } = await db
       .from("caixa_movimentos")
-      .select("tipo, valor_centavos")
+      .select("tipo, valor_centavos, forma_pagamento")
+      .eq("tenant_id", tenantId)
       .eq("caixa_sessao_id", aberta.id);
-    const esperado = (movimentos ?? []).reduce(
-      (s: number, m: any) => s + (m.tipo === "entrada" ? m.valor_centavos : -m.valor_centavos),
-      aberta.saldo_inicial_centavos,
-    );
+    if (movimentosErro) throw new Error(movimentosErro.message);
+    const esperado = calcularSaldoEsperadoNaGaveta(aberta.saldo_inicial_centavos, movimentos ?? []);
+    const diferencaCentavos = calcularDiferencaDoFechamento(esperado, data.valorCentavos);
     const { error } = await db
       .from("caixa_sessoes")
       .update({
         status: "fechado",
         saldo_informado_centavos: data.valorCentavos,
-        diferenca_centavos: data.valorCentavos - esperado,
+        diferenca_centavos: diferencaCentavos,
         fechado_por: context.userId,
         fechado_em: new Date().toISOString(),
       })
@@ -801,7 +868,7 @@ export const abrirOuFecharCaixa = createServerFn({ method: "POST" })
       ok: true,
       status: "fechado" as const,
       esperadoCentavos: esperado,
-      diferencaCentavos: data.valorCentavos - esperado,
+      diferencaCentavos,
     };
   });
 
@@ -813,6 +880,7 @@ export const registrarMovimentoDeCaixa = createServerFn({ method: "POST" })
         tipo: z.enum(["saida", "sangria", "despesa"]),
         descricao: z.string().trim().min(3).max(120),
         valorCentavos: z.number().int().positive(),
+        formaPagamento: z.enum(["pix", "dinheiro", "cartao"]).optional(),
       })
       .parse(input),
   )
@@ -820,6 +888,10 @@ export const registrarMovimentoDeCaixa = createServerFn({ method: "POST" })
     const tenantId = await tenantIdDoMembro(context);
     await exigirPermissao(context, tenantId, "caixa_movimentar");
     const db = await admin();
+    if (data.tipo === "sangria" && data.formaPagamento && data.formaPagamento !== "dinheiro") {
+      throw new Error("Sangria precisa ser registrada em dinheiro.");
+    }
+    const formaPagamento = data.tipo === "sangria" ? "dinheiro" : (data.formaPagamento ?? "dinheiro");
     const { data: sessao } = await db
       .from("caixa_sessoes")
       .select("id")
@@ -833,6 +905,7 @@ export const registrarMovimentoDeCaixa = createServerFn({ method: "POST" })
       categoria: data.tipo,
       descricao: data.descricao,
       valor_centavos: data.valorCentavos,
+      forma_pagamento: formaPagamento,
       criado_por: context.userId,
     });
     if (error) throw new Error(error.message);
