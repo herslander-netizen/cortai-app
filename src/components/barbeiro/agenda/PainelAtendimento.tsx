@@ -43,6 +43,7 @@ import type { AgendaItem } from "@/lib/barbeiro.functions";
 import { brl } from "@/lib/format";
 import { useAgora } from "@/hooks/useAgora";
 import { useFolhaEmDoisEstados } from "@/hooks/useFolhaEmDoisEstados";
+import { FOLHA_CHEIA } from "@/lib/folha-dois-estados";
 import { hojeNoFuso, isoNoFusoDaBarbearia } from "@/lib/horarios";
 import { useSegmentoDoPainel } from "@/lib/segmento-contexto";
 import { termos } from "@/lib/segmentos";
@@ -114,7 +115,6 @@ export function PainelAtendimento(props: Props) {
   // Duas etapas (decisão do dono, 26/10; substitui o cartão de um estado só de 24/10): abre na metade da tela,
   // a barrinha sobe até a altura exata do conteúdo (tudo à vista, sem rolar) e, para baixo, fecha de uma vez.
   const [folha, setFolha] = useState<HTMLDivElement | null>(null);
-  const [alca, setAlca] = useState<HTMLDivElement | null>(null);
   const [conteudo, setConteudo] = useState<HTMLDivElement | null>(null);
   const [expandida, setExpandida] = useState(false);
   const { onFechar } = props;
@@ -126,7 +126,8 @@ export function PainelAtendimento(props: Props) {
         : window.innerHeight,
     [folha, conteudo],
   );
-  useFolhaEmDoisEstados(folha, alca, {
+  // O gesto vale na ficha inteira (sem rolagem por dentro, puxar em qualquer ponto move a ficha).
+  useFolhaEmDoisEstados(folha, folha, {
     ativo: props.aberto && !props.lateral,
     expandida,
     onExpandida: setExpandida,
@@ -144,7 +145,7 @@ export function PainelAtendimento(props: Props) {
     }
     const reduzido = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
     folha.style.transition = reduzido ? "none" : "max-height 280ms cubic-bezier(0.2, 0, 0, 1)";
-    folha.style.maxHeight = `${Math.round(Math.min(alturaDoConteudo(), window.innerHeight * 0.92))}px`;
+    folha.style.maxHeight = `${Math.round(Math.min(alturaDoConteudo(), window.innerHeight * FOLHA_CHEIA))}px`;
     window.setTimeout(() => (folha.style.transition = ""), reduzido ? 0 : 300);
     setExpandida(true);
   };
@@ -261,7 +262,6 @@ export function PainelAtendimento(props: Props) {
         >
           {!props.lateral ? (
             <div
-              ref={setAlca}
               role="button"
               tabIndex={0}
               aria-label={expandida ? "Fechar a ficha" : "Ver a ficha inteira"}
@@ -279,12 +279,11 @@ export function PainelAtendimento(props: Props) {
           ) : null}
           {item && estado ? (
             <>
-              {/* Sem rolagem: na primeira etapa o resto fica guardado e aparece ao subir a barrinha. Só na etapa
-                  cheia, em tela tão baixa que nem ela caiba, a rolagem volta como último recurso. O botão do
-                  rodapé fica fora deste bloco, sempre à vista. */}
+              {/* Nunca rola (dono, 26/10): na primeira etapa o resto fica guardado; puxando, a ficha vai até a
+                  altura do conteúdo, que pode ocupar a tela toda. O botão do rodapé fica fora, sempre à vista. */}
               <div
                 ref={setConteudo}
-                className={`min-h-0 flex-1 ${props.lateral || expandida ? "overflow-y-auto overscroll-contain [scrollbar-width:thin]" : "overflow-hidden"} ${props.lateral ? "pb-28" : "pb-2"}`}
+                className={`min-h-0 flex-1 ${props.lateral ? "overflow-y-auto overscroll-contain pb-28 [scrollbar-width:thin]" : "overflow-hidden pb-2"}`}
               >
                 {/* Como no Figaro (`AppointmentHeroGroup`): o serviço, o estado, quando e com
                     quem; o cliente num bloco logo abaixo. */}

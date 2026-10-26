@@ -10,9 +10,13 @@ describe("ficha em duas etapas (dono, 26/10)", () => {
     expect(ficha).toContain("max-h-[62dvh]");
   });
 
-  it("não rola na primeira etapa", () => {
-    expect(ficha).toContain('expandida ? "overflow-y-auto');
-    expect(ficha).toContain(': "overflow-hidden"');
+  it("nunca rola por dentro no celular, nem na etapa cheia", () => {
+    expect(ficha).toContain('"overflow-hidden pb-2"');
+    expect(ficha).not.toContain('expandida ? "overflow-y-auto');
+  });
+
+  it("o gesto vale na ficha inteira", () => {
+    expect(ficha).toContain("useFolhaEmDoisEstados(folha, folha, {");
   });
 
   it("tocar na barrinha expande quando há conteúdo guardado", () => {
