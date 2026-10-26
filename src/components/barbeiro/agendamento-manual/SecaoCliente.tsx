@@ -27,7 +27,7 @@ export function SecaoCliente({ s }: { s: EstadoAgendamentoManual }) {
       setContatoImportado(contato);
       s.escolherCliente(null);
       s.setNovo(false);
-      s.setTermo(contato.telefone || contato.nome);
+      s.setTermo(mascaraTelefone(contato.telefone) || contato.nome);
       setMensagemContato(
         "Contato selecionado. Confira se já existe uma ficha antes de cadastrar novamente.",
       );
