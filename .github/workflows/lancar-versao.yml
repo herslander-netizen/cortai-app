@@ -103,7 +103,8 @@ jobs:
           echo "anterior=${ultima:-nenhuma}" >> "$GITHUB_OUTPUT"
           echo "Versão anterior: ${ultima:-nenhuma} → nova: $nova"
 
-      - name: Gravar o número da versão no app
+      # Prepara os arquivos de versão no workspace, sem commit/tag/push ainda.
+      - name: Preparar o número da versão
         env:
           NOVA: ${{ steps.versao.outputs.nova }}
         run: |
@@ -111,19 +112,26 @@ jobs:
           sed -i -E "s/^export const VERSAO_INSTALADA = \"[0-9.]+\";/export const VERSAO_INSTALADA = \"$NOVA.0\";/" src/lib/versao.ts
           grep -q "VERSAO_INSTALADA = \"$NOVA.0\"" src/lib/versao.ts
           jq --arg v "$NOVA.0" '.atual = $v' public/versao.json > /tmp/versao.json && mv /tmp/versao.json public/versao.json
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add src/lib/versao.ts public/versao.json
-          git commit -m "Versão $NOVA"
-          git tag "v$NOVA"
-          git push origin "HEAD:$RAMO" "v$NOVA"
 
+      # O build do artefato exato da versão candidata precisa passar antes de gravar tag ou commit.
       - name: Build
         env:
           VITE_SUPABASE_URL: ${{ env.SUPABASE_URL_PUBLICA }}
           VITE_SUPABASE_PUBLISHABLE_KEY: ${{ env.SUPABASE_CHAVE_PUBLICA }}
           VITE_CORTAI_PUBLIC_URL: https://cortaiapp.pages.dev
         run: bunx vite build
+
+      - name: Registrar commit e tag da versão validada
+        env:
+          NOVA: ${{ steps.versao.outputs.nova }}
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/lib/versao.ts public/versao.json
+          git commit -m "Versão $NOVA"
+          git tag "v$NOVA"
+          git push origin "HEAD:$RAMO" "v$NOVA"
 
       # O build gera um Worker (dist/server) e os estáticos (dist/client). No Pages o Worker vai
       # em _worker.js/ e os estáticos são servidos direto (lista em _routes.json).
