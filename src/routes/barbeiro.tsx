@@ -12,6 +12,7 @@ import { usePushNoApp } from "@/lib/push/use-push-no-app";
 import { AbasDaSecao } from "@/components/layout/AbasDaSecao";
 import { EsqueletoCascoEquipe } from "@/components/layout/Esqueleto";
 import { ProvedorLayoutEquipe } from "@/components/layout/ContextoLayoutEquipe";
+import { useCorDoTopoNaBarraDoSistema } from "@/lib/pwa/cor-do-topo";
 
 export const Route = createFileRoute("/barbeiro")({
   ssr: false,
@@ -51,6 +52,8 @@ function useMarcaDaTelaDaAgenda() {
 function BarberLayout() {
   const { userId } = Route.useRouteContext();
   useMarcaDaTelaDaAgenda();
+  // Barra do sistema na cor do topo da tela (dono, 26/10): continuidade entre os ícones do aparelho e o app.
+  useCorDoTopoNaBarraDoSistema();
   useSessaoTempoReal(userId);
   usePushNoApp();
   const { data: sessao } = useQuery({

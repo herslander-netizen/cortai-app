@@ -27,6 +27,7 @@ e o que fez. O diário até 17/10/2026 está guardado, sem alterações, em
 7. **Sem segredos:** nunca escreva chaves, senhas ou tokens aqui. Cite só o nome da variável.
 
 ## Decisões do dono
+- 2026-10-26: **Barra do sistema contínua com o topo do app** (dono: "tirar essa diferença de cor entre os ícones superiores e as telas, eles precisam dar a impressão de continuidade"). A cor da barra do relógio/bateria acompanha o que está no topo da tela.
 - 2026-10-26: **autorizada a ativação das migrações 0047 e 0048 somente no banco isolado `cortai-preview`**. Esta autorização não inclui `cortai-prod`, site principal, DNS nem outros bancos.
 - 2026-10-26: **Gavetas sem linhas marrons** (dono: "não gostei das linhas nas gavetas, faça isso apenas quando tiver um contraste grande… não deixe a tela cheia de linha marrom"). Fora da Agenda, as divisórias das gavetas viram um traço neutro quase imperceptível e a borda da gaveta some; com o modo de alto contraste do aparelho as linhas voltam. A Agenda fica de fora (regra "Agenda protegida").
 - 2026-10-26: **Agenda protegida** (dono: "qualquer mudança do calendário deve ser específica, um pedido meu de algo tipo gavetas não pode mudar nada visual na agenda"). Mudança visual na Agenda (calendário, grade, cartões, ficha, gavetas abertas nela) só com pedido específico para a Agenda; pedidos gerais (todas as gavetas, `ui/`, CSS global) excluem a Agenda de propósito. Regra no `AGENTS.md` da raiz e no da Agenda. **Revertido** o envio "Ficha em duas etapas… e linha discreta no topo das gavetas" (`eae2c825`), que mexeu na Agenda; a decisão "Ficha do agendamento em duas etapas" abaixo fica **suspensa** até o dono pedir de novo.
@@ -721,6 +722,14 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - Sem alteração no banco, `main` ou produção.
 
 ## Diário
+
+### 2026-10-26 UTC — Claude — Barra do sistema na cor do topo da tela (área do negócio)
+- `lib/pwa/cor-do-topo.ts` (novo): `useCorDoTopoNaBarraDoSistema` lê, a cada 300 ms e na rolagem, a cor vista no alto da
+  tela (empilha os fundos translúcidos sobre `--background`, converte qualquer cor CSS pelo canvas) e põe em
+  `meta[name="theme-color"]`; ao sair, volta a `sincronizarCorDoNavegador`. Ligado em `barbeiro.tsx`. Nenhuma cor do app
+  muda, só a barra do sistema.
+- Conferido num Chromium: cabeçalho a 94% → `#292f2d`; cabeçalho transparente → cor da página. Teste `cor-do-topo.test.ts`.
+  tsc, 2012 testes e build ok. Só vale para quem instalou o app (PWA) ou usa o Chrome no Android.
 
 ### 2026-10-26 UTC — Claude — Agenda: painel de cima da edição entra e sai como gaveta, e mais baixo
 - Pedido do dono (captura do topo "Seg., 26 de out. de 2026 · use Reagendar"): o painel não seguia o entrar/recolher das
