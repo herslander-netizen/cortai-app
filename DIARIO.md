@@ -737,6 +737,13 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - Sem mudanças na interface da Agenda, migrações, bancos de dados, segredos, main ou site principal. TypeScript, Vitest, build e smoke test aguardam a validação automática do commit.
 ## Diário
 
+### 2026-10-26 UTC — Claude — Pé da Agenda: cores com uma lógica só
+- Dono: os botões "ficam brancos e coloridos de forma aleatória". Causa: quatro regras por estado (parado cinza; foco e
+  pressionado brancos via `button:focus/:active`; hover — que gruda no celular — com `--agenda-destaque`; e o azul novo).
+- `styles.css`: "Agora" e o filtro sempre `--paper`; visualização sempre `--figaro-primary`, em qualquer estado (`:is(...)`
+  com especificidade acima das antigas). Conferido num Chromium com o CSS do build: mesma cor parado, em foco, com hover,
+  pressionado e depois. Teste `agenda/cores-do-pe.test.ts`.
+
 ### 2026-10-26 UTC — Claude — Agenda: zoom e botões do pé como no vídeo do Figaro
 - Medido no vídeo (19:09): só linhas de hora até ~2 px/min; tracejado a cada 5 min a partir de ~2,5–3 px/min (spec 2-agenda
   §2.2: `clamp((px − 2,5)/0,5, 0, 1)`, traço 4/vão 2, 2/3 dp, onSurfaceHint α 0,5; armado = 1).

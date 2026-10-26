@@ -10670,8 +10670,14 @@ input[type="range"] {
   );
 }
 
-/* Botão de visualização do pé da Agenda em azul, como no Figaro (vídeo do dono, 26/10). */
-.agenda-botao-agora-principal .agenda-botao-agora-visualizacao,
-.agenda-botao-agora-principal .agenda-botao-agora-visualizacao:hover {
+/* Cores do pé da Agenda com uma lógica só, como no Figaro (dono, 26/10: "ficam brancos e coloridos de forma
+   aleatória"): "Agora" e o filtro sempre brancos; o botão de visualização sempre azul. Tocar, focar ou o "hover"
+   que gruda no celular não trocam a cor; o toque só afunda o botão (transform). */
+.agenda-botao-agora-principal button:is(.agenda-botao-agora-ir, .agenda-filtro-gatilho),
+.agenda-botao-agora-principal button:is(.agenda-botao-agora-ir, .agenda-filtro-gatilho):is(:hover, :focus, :focus-visible, :active) {
+  color: var(--paper);
+}
+.agenda-botao-agora-principal button.agenda-botao-agora-visualizacao,
+.agenda-botao-agora-principal button.agenda-botao-agora-visualizacao:is(:hover, :focus, :focus-visible, :active) {
   color: var(--figaro-primary, var(--primary));
 }
