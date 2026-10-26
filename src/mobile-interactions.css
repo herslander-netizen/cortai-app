@@ -1,0 +1,72 @@
+/*
+ * Interações mobile com sensação nativa.
+ * Intencionalmente fora da Agenda: html[data-tela-agenda] não recebe estas regras.
+ * Não desativar o zoom por pinça da página inteira: ele é uma função de acessibilidade.
+ */
+
+/* Controles devem responder ao toque sem realce azul do navegador nem zoom de duplo toque. */
+html:not([data-tela-agenda]) :is(
+  button,
+  a,
+  [role="button"],
+  [role="tab"],
+  [role="menuitem"],
+  [role="option"],
+  [data-slot="dropdown-menu-trigger"],
+  [data-slot="select-trigger"],
+  input[type="button"],
+  input[type="submit"],
+  input[type="reset"]
+) {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+  touch-action: manipulation;
+}
+
+/* Elementos de interface não devem virar texto selecionável por um toque longo. */
+html:not([data-tela-agenda]) :is(
+  .management-header,
+  .management-shell nav,
+  [data-slot="card"],
+  .surface,
+  .app-control,
+  .icon-button
+) {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* Ícones e imagens decorativas não devem ser arrastados como arquivos pelo navegador. */
+html:not([data-tela-agenda]) :is(button, a, [role="button"]) img,
+html:not([data-tela-agenda]) img[aria-hidden="true"],
+html:not([data-tela-agenda]) svg[aria-hidden="true"] {
+  -webkit-user-drag: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Campos e conteúdo explicitamente copiável continuam selecionáveis e editáveis. */
+html:not([data-tela-agenda]) :is(
+  input,
+  textarea,
+  select,
+  [contenteditable="true"],
+  [data-selectable="true"],
+  .select-text,
+  pre,
+  code
+) {
+  -webkit-touch-callout: default;
+  -webkit-user-select: text;
+  user-select: text;
+  touch-action: auto;
+}
+
+/* Permite seleção/cópia de texto em elementos interativos que a declaram explicitamente. */
+html:not([data-tela-agenda]) [data-selectable="true"] {
+  -webkit-user-select: text;
+  user-select: text;
+}
