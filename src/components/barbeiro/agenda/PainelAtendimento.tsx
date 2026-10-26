@@ -111,18 +111,31 @@ export function PainelAtendimento(props: Props) {
   const [confirmarCancelar, setConfirmarCancelar] = useState(false);
   const agora = useAgora();
   const segmento = useSegmentoDoPainel();
-  // Cartão de um estado só (decisão do dono, 24/10): na altura do conteúdo, sem parcial; a barrinha só fecha.
+  // Duas etapas (decisão do dono, 26/10; substitui o cartão de um estado só de 24/10): abre na metade da tela,
+  // a barrinha sobe até a altura exata do conteúdo (tudo à vista, sem rolar) e, para baixo, fecha de uma vez.
   const [folha, setFolha] = useState<HTMLDivElement | null>(null);
   const [alca, setAlca] = useState<HTMLDivElement | null>(null);
+  const [conteudo, setConteudo] = useState<HTMLDivElement | null>(null);
+  const [expandida, setExpandida] = useState(false);
   const { onFechar } = props;
   const fecharFicha = useCallback(() => onFechar(), [onFechar]);
+  const alturaDoConteudo = useCallback(
+    () =>
+      folha && conteudo
+        ? folha.offsetHeight - conteudo.clientHeight + conteudo.scrollHeight
+        : window.innerHeight,
+    [folha, conteudo],
+  );
   useFolhaEmDoisEstados(folha, alca, {
     ativo: props.aberto && !props.lateral,
-    expandida: false,
-    onExpandida: () => {},
+    expandida,
+    onExpandida: setExpandida,
     onFechar: fecharFicha,
-    soFechar: true,
+    alturaDoConteudo,
   });
+  useEffect(() => {
+    if (props.aberto) setExpandida(false);
+  }, [props.aberto, props.item?.id]);
 
   useEffect(() => {
     if (!props.aberto) {
@@ -231,14 +244,15 @@ export function PainelAtendimento(props: Props) {
           ref={setFolha}
           side={props.lateral ? "right" : "bottom"}
           arrastarParaFechar={props.lateral ?? false}
-          className={`agenda-painel agenda-ficha mov-agenda-painel border-0 bg-ink px-4 sm:px-5 ${props.lateral ? "pt-3 sm:pt-5 w-[380px]" : "agenda-ficha-cartao-unico mx-auto flex max-h-[92dvh] w-full max-w-[520px] flex-col overflow-hidden rounded-t-[28px] pt-0"}`}
+          esconderX={!props.lateral}
+          className={`agenda-painel agenda-ficha mov-agenda-painel border-0 bg-ink px-4 sm:px-5 ${props.lateral ? "pt-3 sm:pt-5 w-[380px]" : "agenda-ficha-cartao-unico mx-auto flex max-h-[55dvh] w-full max-w-[520px] flex-col overflow-hidden rounded-t-[28px] pt-0"}`}
         >
           {!props.lateral ? (
             <div
               ref={setAlca}
               role="button"
               tabIndex={0}
-              aria-label="Fechar a ficha"
+              aria-label="Fechar a ficha (arraste para cima para ver tudo)"
               className="agenda-ficha-alca"
               onClick={props.onFechar}
               onKeyDown={(e) => {
@@ -253,10 +267,12 @@ export function PainelAtendimento(props: Props) {
           ) : null}
           {item && estado ? (
             <>
-              {/* Cartão na altura do conteúdo, sem rolagem por dentro. A rolagem só existe como último recurso,
-                  em tela tão baixa que a ficha não caberia; o botão do rodapé fica fora dela. */}
+              {/* Sem rolagem: na primeira etapa o resto fica guardado e aparece ao subir a barrinha. Só na etapa
+                  cheia, em tela tão baixa que nem ela caiba, a rolagem volta como último recurso. O botão do
+                  rodapé fica fora deste bloco, sempre à vista. */}
               <div
-                className={`min-h-0 flex-1 overflow-y-auto overscroll-contain [scrollbar-width:thin] ${props.lateral ? "pb-28" : "pb-2"}`}
+                ref={setConteudo}
+                className={`min-h-0 flex-1 ${props.lateral || expandida ? "overflow-y-auto overscroll-contain [scrollbar-width:thin]" : "overflow-hidden"} ${props.lateral ? "pb-28" : "pb-2"}`}
               >
                 {/* Como no Figaro (`AppointmentHeroGroup`): o serviço, o estado, quando e com
                     quem; o cliente num bloco logo abaixo. */}

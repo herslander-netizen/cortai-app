@@ -27,6 +27,7 @@ e o que fez. O diário até 17/10/2026 está guardado, sem alterações, em
 7. **Sem segredos:** nunca escreva chaves, senhas ou tokens aqui. Cite só o nome da variável.
 
 ## Decisões do dono
+- 2026-10-26: **Ficha do agendamento em duas etapas** (dono, com captura: "subir em duas etapas e sair em uma etapa só, ajustar o conteúdo e tirar a função de rolagem, ... aparecer por completo na segunda etapa"): abre na metade da tela, a barrinha sobe até a altura do conteúdo inteiro e, para baixo, fecha de uma vez; sem rolagem por dentro. **Substitui o "cartão de um estado só" de 24/10.** Junto: **uma linha bem discreta na borda de cima de todas as gavetas de baixo**.
 - 2026-10-26: **Fantasma do horário original ao editar o cartão** (dono, com duas capturas: "fica um fantasma, uma imagem transparente para se atentar qual a hora estava, o mesmo comportamento pra aumentar e tirar esse tracejado"). Ao encurtar, esticar ou mover, o horário original aparece como o próprio cartão a 50% (Figaro `DurationChangeAlpha`) com um contorno por cima; sem listras tracejadas.
 - 2026-10-26: **Implementar as melhorias encontradas na auditoria AgendaClick**: série de agendamentos semanais/quinzenais/mensais com validação de conflitos; bloqueio de novos agendamentos por cliente, separado do arquivamento; ganhos extras identificados por tipo e período; informações de créditos de atendimento nas confirmações/lembretes. A implementação pode preparar migrações aditivas, mas **não as aplica em banco real nem publica no site principal sem autorização específica**.
 - 2026-10-26: **Topo da gaveta, cartão Sua Página e faixa de desempenho iguais ao Figaro** (dono, com captura do Figaro: "deixar o tamanho onde está escrito 'o desempenho aparecerá aqui' e limpar o nome, deixar as fontes com mesmo tamanho e tudo igualzinho o figaro"). Medido na captura: nome 18/24 negrito, "pessoa · papel" 13/18, "Sua Página" 16, "Online" 13, faixa de 36 dp com texto 13 e ícone 14; sem a saudação "Bom dia…". Sem números na semana a faixa diz "O desempenho aparecerá aqui" (sem seta). Substitui, para esses itens, o "quero desse tamanho tudo" de 25/10; as linhas do menu não mudaram.
@@ -716,6 +717,18 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - Sem alteração no banco, `main` ou produção.
 
 ## Diário
+
+### 2026-10-26 UTC — Claude — Ficha em duas etapas e linha discreta no topo das gavetas
+- `PainelAtendimento.tsx`: a ficha deixou de ser `soFechar`; abre em `max-h-[55dvh]` e a barrinha leva à etapa cheia na
+  altura exata do conteúdo (`alturaDoConteudo`, até 92% da tela); para baixo fecha de uma vez (`decidirEncaixe` já fazia).
+  Sem rolagem na primeira etapa (`overflow-hidden`); na cheia só rola se nem ela couber. Rodapé sempre à vista. O "X"
+  solto some no celular (`esconderX`).
+- `useFolhaEmDoisEstados.ts`: opção `alturaDoConteudo` (a etapa cheia para no conteúdo, em px).
+- `sheet.tsx` + `styles.css`: toda gaveta de baixo leva `.gaveta-borda-de-cima` (sombra interna de 1 px,
+  `--paper` a 14%), que acompanha o canto arredondado.
+- Teste `agenda/ficha-duas-etapas.test.ts`. tsc, 2009 testes e build ok. Gesto e visual no celular pendentes de conferência.
+- Também: o commit do fantasma da Agenda (`38d9bc63`) não tinha chegado à branch de trabalho (a remota andou e o envio
+  foi barrado sem aviso); juntado em `ca0bb491`.
 
 ### 2026-10-26 UTC — Claude — Agenda: fantasma do horário original ao encurtar e ao esticar
 - `fantasma-do-horario.ts`: `trechosQueSaem` (só os pedaços que saíam, desenhados com listras tracejadas) virou

@@ -19,21 +19,24 @@ export function useFolhaEmDoisEstados(
     onFechar: () => void;
     /** Folha de um estado só (cartão): a barrinha só fecha; puxar para cima não faz nada. */
     soFechar?: boolean;
+    /** Altura do conteúdo inteiro (px): a etapa cheia para nela, sem sobrar espaço nem rolar. */
+    alturaDoConteudo?: () => number;
   },
 ) {
-  const { ativo, expandida, onExpandida, onFechar, soFechar = false } = o;
+  const { ativo, expandida, onExpandida, onFechar, soFechar = false, alturaDoConteudo } = o;
   useEffect(() => {
     if (!ativo || !folha || !alca) return;
     const reduzido = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
     const cssParcial = `${FOLHA_PARCIAL * 100}dvh`;
-    const cssCheio = `${FOLHA_CHEIA * 100}dvh`;
+    const cheioDaTela = () => window.innerHeight * FOLHA_CHEIA;
     let inicio: { y: number; h: number; t: number } | null = null;
     let arrastando = false;
     let ultimo = { dy: 0, t: 0 };
     let velocidade = 0;
     const tela = () => window.innerHeight;
     const parcial = () => Math.min(tela() * FOLHA_PARCIAL, inicio ? inicio.h : Infinity);
-    const cheio = () => tela() * FOLHA_CHEIA;
+    const cheio = () =>
+      alturaDoConteudo ? Math.min(cheioDaTela(), alturaDoConteudo()) : cheioDaTela();
 
     // Para cima a folha cresce até a cheia; para baixo ela inteira desce com o dedo (nada encolhe nem rola por dentro).
     const aplicar = (h: number) => {
@@ -111,7 +114,13 @@ export function useFolhaEmDoisEstados(
         onFechar();
         return;
       }
-      assentar(decisao === "cheio" ? cssCheio : cssParcial);
+      assentar(
+        decisao === "cheio"
+          ? alturaDoConteudo
+            ? `${Math.round(cheio())}px`
+            : `${FOLHA_CHEIA * 100}dvh`
+          : cssParcial,
+      );
       onExpandida(decisao === "cheio");
     };
 
@@ -125,5 +134,5 @@ export function useFolhaEmDoisEstados(
       alca.removeEventListener("touchend", terminar);
       alca.removeEventListener("touchcancel", terminar);
     };
-  }, [ativo, folha, alca, expandida, onExpandida, onFechar, soFechar]);
+  }, [ativo, folha, alca, expandida, onExpandida, onFechar, soFechar, alturaDoConteudo]);
 }
