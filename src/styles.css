@@ -9790,6 +9790,16 @@ html:root.light[data-identidade="classico"][data-identidade] {
 .management-drawer {
   width: min(348px, 94vw) !important;
 }
+/* Topo do menu preso por cima da lista (dono, 26/10, vídeo do Figaro): a lista passa por baixo e some em degradê.
+   Figaro `DrawerHeaderScrimAlpha`: 0,95 até 72% da altura e 0 no fim. */
+.menu-topo-degrade {
+  background: linear-gradient(
+    to bottom,
+    color-mix(in oklab, var(--drawer-surface) 95%, transparent) 0%,
+    color-mix(in oklab, var(--drawer-surface) 95%, transparent) 72%,
+    transparent 100%
+  );
+}
 /* Menu lateral sem a barrinha à direita (dono, 26/10); o arrasto para fechar continua na mesma faixa. */
 .management-drawer [data-alca-gaveta] > span {
   opacity: 0;

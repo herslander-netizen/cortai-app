@@ -735,6 +735,14 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - Sem mudanças na interface da Agenda, migrações, bancos de dados, segredos, main ou site principal. TypeScript, Vitest, build e smoke test aguardam a validação automática do commit.
 ## Diário
 
+### 2026-10-26 UTC — Claude — Menu: lista some em degradê atrás do topo; Suporte numa linha
+- Vídeo do Figaro do dono (18:19): ao rolar o menu, a lista passa por baixo do topo, que esmaece em degradê.
+- `ManagementDrawer.tsx`: o menu inteiro rola num só bloco; o topo (logo, nome, ajustes) é `sticky` por cima, com
+  `.menu-topo-degrade` (`styles.css`): `--drawer-surface` a 95% até 72% da altura e 0 no fim (Figaro
+  `DrawerHeaderScrimAlpha`). Conferido num Chromium com o CSS do build.
+- `CartaoSuporte.tsx`: "Atendimento humano no WhatsApp" em 13/18 e `truncate` (uma linha, tamanho do subtítulo do Figaro).
+- tsc, 2036 testes e build ok. Só o menu lateral.
+
 ### 2026-10-26 UTC — Claude — Bloquear horário: relógio do Cortaí no lugar do nativo (cortado)
 - Captura do dono: o relógio nativo do Android (`<input type="time">`) saía cortado à direita e escondia o "Definir".
 - `ui/seletor-de-horario.tsx` (novo, `SeletorDeHorario`): relógio no padrão do Figaro (`TimePickerDialog` M3, spec

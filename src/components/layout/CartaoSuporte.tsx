@@ -15,7 +15,8 @@ export function CartaoSuporte({ link = linkDoSuporte() }: { link?: string | null
         <IconeWhatsApp className="size-7 text-whatsapp" />
         <span className="min-w-0">
           <span className="block truncate text-[18px] font-semibold leading-6">Suporte</span>
-          <span className="block text-[15px] font-medium leading-5 text-mute">
+          {/* Uma linha só, no tamanho do subtítulo do Figaro (13/18). */}
+          <span className="block truncate text-[13px] font-medium leading-[18px] text-mute">
             Atendimento humano no WhatsApp
           </span>
         </span>

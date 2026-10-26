@@ -220,9 +220,10 @@ export function ManagementHeader() {
             esconderX
             className="management-drawer overflow-hidden rounded-r-[28px] border-0 bg-drawer-surface p-0 duration-200"
           >
-            <div className="flex h-full min-h-0 flex-col">
+            {/* Rola o menu inteiro; o topo fica preso por cima e a lista some por baixo dele em degradê (Figaro). */}
+            <div className="h-full min-h-0 overflow-y-auto overscroll-contain">
               {/* Como no Figaro: logo, nome e "pessoa · papel", sem saudação; 38 dp até o cartão Sua Página. */}
-              <div className="shrink-0 px-4 pb-[38px] pt-[max(1.25rem,env(safe-area-inset-top))]">
+              <div className="menu-topo-degrade sticky top-0 z-10 px-4 pb-[38px] pt-[max(1.25rem,env(safe-area-inset-top))]">
                 <div className="grid grid-cols-[minmax(0,1fr)_44px] items-center gap-3">
                   <div className="flex min-w-0 items-center gap-4">
                     {sessao ? (
@@ -268,7 +269,7 @@ export function ManagementHeader() {
 
               <nav
                 aria-label="Módulos do negócio"
-                className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 pb-[calc(1.5rem+env(safe-area-inset-bottom))]"
+                className="px-4 pb-[calc(1.5rem+env(safe-area-inset-bottom))]"
               >
                 <DrawerDestaques
                   slug={sessao?.tenantSlug}
