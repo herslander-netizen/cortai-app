@@ -63,7 +63,7 @@ export function RepetirAtendimento({ agendamentoId }: { agendamentoId: string })
             <SheetTitle>Repetir atendimento</SheetTitle>
             <SheetDescription>
               Cria os próximos horários usando o mesmo cliente, profissional e serviço. O atendimento
-              atual será a primeira ocorrência da série.
+              atual será a primeira ocorrência da série. Cada novo horário fica para pagamento no atendimento; créditos, saldo ou fiado do original não são reutilizados antecipadamente.
             </SheetDescription>
           </SheetHeader>
           <div className="space-y-2">

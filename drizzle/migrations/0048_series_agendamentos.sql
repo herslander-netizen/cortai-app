@@ -91,6 +91,15 @@ BEGIN
     RAISE EXCEPTION 'atendimento ja pertence a uma serie';
   END IF;
 
+  IF EXISTS (
+    SELECT 1
+      FROM public.agendamento_serie_ocorrencias o
+     WHERE o.agendamento_id = _agendamento_base_id
+       AND o.tenant_id = _tenant_id
+  ) THEN
+    RAISE EXCEPTION 'atendimento ja pertence a uma serie';
+  END IF;
+
   INSERT INTO public.agendamento_series (
     tenant_id, agendamento_base_id, cliente_id, profissional_id, servico_id,
     periodicidade, ocorrencias_planejadas, criado_por
@@ -128,7 +137,8 @@ BEGIN
       v_base.profissional_id,
       v_base.servico_id,
       v_inicio,
-      COALESCE(v_base.forma_pagamento, 'balcao'),
+      -- Pagamento no atendimento futuro: sem debitar créditos/saldo ou lançar fiado antecipadamente.
+      'balcao',
       false,
       true
     );
