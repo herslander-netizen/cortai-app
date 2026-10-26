@@ -128,8 +128,7 @@ BEGIN
       v_base.profissional_id,
       v_base.servico_id,
       v_inicio,
-      CASE WHEN v_base.forma_pagamento = 'credito' THEN 'balcao'
-           ELSE COALESCE(v_base.forma_pagamento, 'balcao') END,
+      COALESCE(v_base.forma_pagamento, 'balcao'),
       false,
       true
     );

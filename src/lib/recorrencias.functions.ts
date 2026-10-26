@@ -65,6 +65,11 @@ export const criarSerieAgendamentos = createServerFn({ method: "POST" })
       if (/cliente bloqueado/i.test(error.message)) {
         throw new Error("Este cliente está bloqueado para novos agendamentos.");
       }
+      if (/fora do periodo de agendamento|fora do período de agendamento/i.test(error.message)) {
+        throw new Error(
+          "Uma ou mais datas passam do limite de antecedência configurado pelo negócio. Escolha menos ocorrências para esta série.",
+        );
+      }
       if (/criar_serie_agendamentos|schema cache|function .* does not exist/i.test(error.message)) {
         throw new Error(
           "A criação de séries está preparada, mas ainda depende da migração do banco. Nenhum horário novo foi criado.",
