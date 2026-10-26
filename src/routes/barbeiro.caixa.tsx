@@ -402,11 +402,11 @@ function CaixaPage() {
                       <div>
                         <dt className="text-mute2">Categoria</dt>
                         <dd className="capitalize text-paper">
-                          {{
+                          ({
                             ganho_extra_gorjeta: "Gorjeta",
                             ganho_extra_servico_extra: "Serviço extra",
                             ganho_extra_outro: "Outro ganho",
-                          }[m.categoria] ?? m.categoria}
+                          } as Record<string, string>)[String(m.categoria)] ?? m.categoria
                         </dd>
                       </div>
                       <div>
