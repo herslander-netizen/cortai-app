@@ -33,7 +33,7 @@ export const getFinanceiro = createServerFn({ method: "GET" })
             ),
           )
         : inicioDoMesNoFuso(fuso);
-    const [{ data: atendimentos }, { data: vendas }, { data: ganhosExtras }] = await Promise.all([
+    const [{ data: atendimentos }, { data: vendas }, { data: ganhosExtrasRes }] = await Promise.all([
       context.supabase
         .from("agendamentos")
         .select("id, valor_centavos, inicio, servicos(nome)")
@@ -61,7 +61,7 @@ export const getFinanceiro = createServerFn({ method: "GET" })
     const outros = (vendas ?? [])
       .filter((item) => item.categoria === "outros")
       .reduce((total, item) => total + item.total_centavos, 0);
-    const ganhosExtras = (ganhosExtras ?? []).reduce(
+    const ganhosExtras = (ganhosExtrasRes ?? []).reduce(
       (total, item) => total + item.valor_centavos,
       0,
     );
