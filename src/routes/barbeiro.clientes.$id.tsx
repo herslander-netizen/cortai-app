@@ -1,7 +1,7 @@
 import { useSegmentoDoPainel, useTermosDoPainel } from "@/lib/segmento-contexto";
 import { PerfilClienteConteudo } from "@/components/cliente-perfil/PerfilClienteSheet";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 
@@ -17,8 +17,8 @@ import {
 } from "@/lib/barbeiro.functions";
 import { EsqueletoFicha } from "@/components/layout/Esqueleto";
 import { PersonalizacaoCliente } from "@/components/barbeiro/PersonalizacaoCliente";
+import { BloqueioDeAgendamento } from "@/components/cliente-perfil/BloqueioDeAgendamento";
 import { Button } from "@/components/ui/button";
-import { getBloqueioAgendamentoCliente, definirBloqueioAgendamentoCliente } from "@/lib/bloqueio-cliente.functions";
 
 export const Route = createFileRoute("/barbeiro/clientes/$id")({
   head: () => ({
@@ -55,23 +55,13 @@ function FichaPage() {
   const segmento = useSegmentoDoPainel();
   const { id } = Route.useParams();
   const navigate = Route.useNavigate();
-  const queryClient = useQueryClient();
   const baixar = useServerFn(registrarBaixaFiado);
-  const definirBloqueio = useServerFn(definirBloqueioAgendamentoCliente);
   const arquivar = useServerFn(arquivarCliente);
   const excluir = useServerFn(excluirClientePermanente);
   const [arquivando, setArquivando] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
   const [valor, setValor] = useState("");
   const [aviso, setAviso] = useState<string | null>(null);
-  const [alterandoBloqueio, setAlterandoBloqueio] = useState(false);
-  const [motivoBloqueio, setMotivoBloqueio] = useState("");
-  const bloqueio = useQuery({
-    queryKey: ["bloqueio-agendamento-cliente", id],
-    queryFn: () => getBloqueioAgendamentoCliente({ data: { clienteId: id } }),
-    retry: false,
-  });
-
   const { data, isLoading, refetch } = useQuery({
     queryKey: ["ficha-cliente", id],
     queryFn: () => getFichaCliente({ data: { clienteId: id } }),
@@ -250,85 +240,7 @@ function FichaPage() {
 
           <PersonalizacaoCliente ficha={data} onSalvo={() => refetch()} />
 
-          <section className="mt-8 border-t border-line pt-6">
-            <h2 className="text-sm font-semibold text-paper">Novos agendamentos</h2>
-            {bloqueio.isLoading ? (
-              <p className="mt-2 text-xs text-mute">Consultando a situação de agendamento…</p>
-            ) : bloqueio.isError ? (
-              <Aviso tom="atencao" className="mt-3">
-                Não foi possível consultar o bloqueio de novos agendamentos. Tente novamente.
-              </Aviso>
-            ) : !bloqueio.data?.disponivel ? (
-              <Aviso tom="info" className="mt-3">
-                O bloqueio específico ficará disponível depois que a migração aditiva do banco for aplicada.
-                Arquivar o cliente continua sendo uma ação separada e não bloqueia novos agendamentos por si só.
-              </Aviso>
-            ) : (
-              <>
-                <p className="mt-2 text-xs text-mute">
-                  {bloqueio.data.bloqueado
-                    ? "Este cliente está impedido de criar novos agendamentos. Os atendimentos existentes permanecem no histórico."
-                    : "O cliente pode agendar normalmente. Bloquear novos agendamentos não arquiva o cadastro nem altera horários já marcados."}
-                </p>
-                {bloqueio.data.bloqueado && bloqueio.data.motivo ? (
-                  <p className="mt-3 surface px-4 py-3 text-sm text-mute">
-                    Motivo interno: {bloqueio.data.motivo}
-                  </p>
-                ) : null}
-                {!bloqueio.data.bloqueado ? (
-                  <label className="mt-3 flex flex-col gap-1.5 text-xs text-mute">
-                    Motivo interno (opcional)
-                    <input
-                      className="field-control"
-                      value={motivoBloqueio}
-                      maxLength={300}
-                      placeholder="Ex.: confirmar com a recepção antes de aceitar"
-                      onChange={(e) => setMotivoBloqueio(e.target.value)}
-                      disabled={alterandoBloqueio}
-                    />
-                  </label>
-                ) : null}
-                <Button
-                  variant="outline"
-                  type="button"
-                  disabled={alterandoBloqueio}
-                  className="mt-3 min-h-12 w-full"
-                  onClick={async () => {
-                    setAlterandoBloqueio(true);
-                    setErro(null);
-                    try {
-                      await definirBloqueio({
-                        data: {
-                          clienteId: id,
-                          bloqueado: !bloqueio.data?.bloqueado,
-                          motivo: bloqueio.data?.bloqueado ? null : motivoBloqueio.trim() || null,
-                        },
-                      });
-                      setMotivoBloqueio("");
-                      setAviso(
-                        bloqueio.data?.bloqueado
-                          ? "Novos agendamentos liberados."
-                          : "Novos agendamentos bloqueados para este cliente.",
-                      );
-                      await queryClient.invalidateQueries({
-                        queryKey: ["bloqueio-agendamento-cliente", id],
-                      });
-                    } catch (e) {
-                      setErro(e instanceof Error ? e.message : "Não foi possível mudar o bloqueio.");
-                    } finally {
-                      setAlterandoBloqueio(false);
-                    }
-                  }}
-                >
-                  {alterandoBloqueio
-                    ? "Salvando…"
-                    : bloqueio.data.bloqueado
-                      ? "Desbloquear novos agendamentos"
-                      : "Bloquear novos agendamentos"}
-                </Button>
-              </>
-            )}
-          </section>
+          <BloqueioDeAgendamento clienteId={id} />
 
           <section className="mt-10 border-t border-line pt-6">
             <h2 className="text-sm font-semibold text-paper">Situação do cliente</h2>

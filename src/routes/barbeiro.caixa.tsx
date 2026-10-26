@@ -8,6 +8,7 @@ import { EsqueletoPainel } from "@/components/layout/Esqueleto";
 import { EmptyState, Screen } from "@/components/layout/Screen";
 import { Button } from "@/components/ui/button";
 import { BuscaDeComandas } from "@/components/comanda/BuscaDeComandas";
+import { RegistrarGanhoExtra } from "@/components/financeiro/RegistrarGanhoExtra";
 import { brl, dataCurta, hora } from "@/lib/format";
 import {
   abrirOuFecharCaixa,
@@ -15,7 +16,6 @@ import {
   getCaixa,
   getFiados,
   quitarFiado,
-  registrarGanhoExtra,
   registrarMovimentoDeCaixa,
 } from "@/lib/financeiro.functions";
 
@@ -75,7 +75,6 @@ function CaixaPage() {
   const fiados = useQuery({ queryKey: ["fiados"], queryFn: () => getFiados(), retry: false });
   const abrirFechar = useServerFn(abrirOuFecharCaixa);
   const registrar = useServerFn(registrarMovimentoDeCaixa);
-  const registrarExtra = useServerFn(registrarGanhoExtra);
   const quitar = useServerFn(quitarFiado);
   const estornar = useServerFn(estornarPagamento);
   const [motivoEstorno, setMotivoEstorno] = useState("");
@@ -86,13 +85,6 @@ function CaixaPage() {
     tipo: "saida" as "saida" | "sangria" | "despesa",
     descricao: "",
     valor: "",
-  });
-  const [ganhoExtra, setGanhoExtra] = useState({
-    categoria: "gorjeta" as "gorjeta" | "servico_extra" | "outro",
-    descricao: "",
-    valor: "",
-    profissionalId: "",
-    formaPagamento: "dinheiro" as "pix" | "dinheiro" | "cartao",
   });
   const [ocupado, setOcupado] = useState(false);
   const [aviso, setAviso] = useState<string | null>(null);
@@ -235,120 +227,7 @@ function CaixaPage() {
             </Button>
           </section>
 
-          <section className="surface-card mt-5 p-4 md:max-w-3xl md:p-5">
-            <h2 className="text-sm font-semibold text-paper">Registrar ganho extra</h2>
-            <p className="mt-1 text-xs text-mute">
-              Gorjetas e receitas adicionais ficam separadas das comandas e entram nos relatórios.
-            </p>
-            <div className="mt-3 grid gap-3 sm:grid-cols-2">
-              <label className="flex flex-col gap-1.5 text-xs text-mute">
-                Tipo de ganho
-                <select
-                  className="field-control"
-                  value={ganhoExtra.categoria}
-                  onChange={(e) =>
-                    setGanhoExtra({
-                      ...ganhoExtra,
-                      categoria: e.target.value as typeof ganhoExtra.categoria,
-                    })
-                  }
-                >
-                  <option value="gorjeta">Gorjeta</option>
-                  <option value="servico_extra">Serviço extra</option>
-                  <option value="outro">Outro ganho</option>
-                </select>
-              </label>
-              <label className="flex flex-col gap-1.5 text-xs text-mute">
-                Forma de recebimento
-                <select
-                  className="field-control"
-                  value={ganhoExtra.formaPagamento}
-                  onChange={(e) =>
-                    setGanhoExtra({
-                      ...ganhoExtra,
-                      formaPagamento: e.target.value as typeof ganhoExtra.formaPagamento,
-                    })
-                  }
-                >
-                  <option value="dinheiro">Dinheiro</option>
-                  <option value="pix">Pix</option>
-                  <option value="cartao">Cartão</option>
-                </select>
-              </label>
-              <label className="flex flex-col gap-1.5 text-xs text-mute">
-                Descrição
-                <input
-                  className="field-control"
-                  placeholder="Ex.: gorjeta do atendimento"
-                  value={ganhoExtra.descricao}
-                  onChange={(e) => setGanhoExtra({ ...ganhoExtra, descricao: e.target.value })}
-                  maxLength={120}
-                />
-              </label>
-              <label className="flex flex-col gap-1.5 text-xs text-mute">
-                Valor (R$)
-                <input
-                  className="field-control"
-                  type="number"
-                  min="0.01"
-                  step="0.01"
-                  inputMode="decimal"
-                  placeholder="0,00"
-                  value={ganhoExtra.valor}
-                  onChange={(e) => setGanhoExtra({ ...ganhoExtra, valor: e.target.value })}
-                />
-              </label>
-              <label className="flex flex-col gap-1.5 text-xs text-mute sm:col-span-2">
-                Profissional (opcional)
-                <select
-                  className="field-control"
-                  value={ganhoExtra.profissionalId}
-                  onChange={(e) =>
-                    setGanhoExtra({ ...ganhoExtra, profissionalId: e.target.value })
-                  }
-                >
-                  <option value="">Sem profissional específico</option>
-                  {(caixa.data.profissionais ?? []).map((p) => (
-                    <option key={p.id} value={p.id}>
-                      {p.nome}
-                    </option>
-                  ))}
-                </select>
-              </label>
-            </div>
-            <Button
-              variant="outline"
-              className="mt-3 w-full"
-              disabled={
-                ocupado ||
-                ganhoExtra.descricao.trim().length < 3 ||
-                !Number.isFinite(Number(ganhoExtra.valor)) ||
-                Number(ganhoExtra.valor) <= 0
-              }
-              onClick={() =>
-                void executar(async () => {
-                  await registrarExtra({
-                    data: {
-                      categoria: ganhoExtra.categoria,
-                      descricao: ganhoExtra.descricao.trim(),
-                      valorCentavos: Math.round(Number(ganhoExtra.valor) * 100),
-                      profissionalId: ganhoExtra.profissionalId || null,
-                      formaPagamento: ganhoExtra.formaPagamento,
-                    },
-                  });
-                  setGanhoExtra({
-                    categoria: "gorjeta",
-                    descricao: "",
-                    valor: "",
-                    profissionalId: "",
-                    formaPagamento: "dinheiro",
-                  });
-                }, "Ganho extra registrado.")
-              }
-            >
-              Registrar ganho extra
-            </Button>
-          </section>
+          <RegistrarGanhoExtra profissionais={caixa.data.profissionais ?? []} />
 
           <h2 className="mt-8 text-sm font-semibold text-paper">Movimentações de hoje</h2>
           {caixa.data.movimentos.length === 0 ? (
