@@ -223,14 +223,14 @@ export function ManagementHeader() {
             {/* Rola o menu inteiro; o topo fica preso por cima e a lista some por baixo dele em degradê (Figaro). */}
             <div className="h-full min-h-0 overflow-y-auto overscroll-contain">
               {/* Como no Figaro: logo, nome e "pessoa · papel", sem saudação; 38 dp até o cartão Sua Página. */}
-              <div className="menu-topo-degrade sticky top-0 z-10 px-4 pb-[38px] pt-[max(1.25rem,env(safe-area-inset-top))]">
+              <div className="menu-topo-degrade sticky top-0 z-10 px-4 pb-6 pt-[max(1rem,env(safe-area-inset-top))]">
                 <div className="grid grid-cols-[minmax(0,1fr)_44px] items-center gap-3">
-                  <div className="flex min-w-0 items-center gap-4">
+                  <div className="flex min-w-0 items-center gap-3">
                     {sessao ? (
                       <LogoBarbearia
                         nome={sessao.tenantNome ?? "Meu negócio"}
                         url={sessao.tenantLogoUrl ?? null}
-                        size={44}
+                        size={40}
                         className="rounded-full border-0 bg-drawer-card"
                       />
                     ) : (
@@ -239,12 +239,12 @@ export function ManagementHeader() {
                     <div className="min-w-0">
                       <SheetTitle
                         data-conta-nome=""
-                        className={sessao ? "line-clamp-2 break-words text-paper" : "sr-only"}
+                        className={sessao ? "line-clamp-2 break-words text-lg font-bold leading-6 tracking-normal text-paper" : "sr-only"}
                       >
                         {sessao?.tenantNome ?? "Menu"}
                       </SheetTitle>
                       {sessao ? (
-                        <SheetDescription data-conta-papel="" className="mt-0.5 truncate text-mute">
+                        <SheetDescription data-conta-papel="" className="mt-0.5 truncate text-[13px] leading-[18px] text-mute">
                           {sessao.nome ?? "Equipe"} · {rotuloDoPapel(sessao.papelNaEquipe)}
                         </SheetDescription>
                       ) : (
