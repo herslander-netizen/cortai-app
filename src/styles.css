@@ -9786,6 +9786,10 @@ html:root.light[data-identidade="classico"][data-identidade] {
 .management-drawer {
   width: min(348px, 94vw) !important;
 }
+/* Menu lateral sem a barrinha à direita (dono, 26/10); o arrasto para fechar continua na mesma faixa. */
+.management-drawer [data-alca-gaveta] > span {
+  opacity: 0;
+}
 .management-drawer [data-menu-secao] {
   font-size: 16px;
   line-height: 22px;

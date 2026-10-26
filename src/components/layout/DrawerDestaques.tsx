@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { CalendarDays, Share2 } from "lucide-react";
+import { Share2 } from "lucide-react";
 import {
   CartaoDeEmailNoMenu,
   CartaoDeWhatsappNoMenu,
@@ -7,8 +7,8 @@ import {
 import { CartaoAvisosDoMenu, FaixaDesempenho } from "@/components/layout/DrawerMenuExtras";
 
 import { Button } from "@/components/ui/button";
+import { IconeAgendaFigaro } from "@/components/ui/icones-figaro";
 import { aviso } from "@/lib/avisos";
-import { IconeDoMenu } from "@/components/layout/IconeDoMenu";
 
 type Props = {
   slug: string | null | undefined;
@@ -139,9 +139,10 @@ export function DrawerDestaques({
         to="/barbeiro"
         onClick={fechar}
         aria-current={agendaAtiva ? "page" : undefined}
-        className={`grid min-h-[76px] grid-cols-[56px_minmax(0,1fr)_8px] items-center gap-3 rounded-[28px] bg-drawer-card px-5 py-4 ${agendaAtiva ? "ring-2 ring-primary/30" : ""}`}
+        className={`grid min-h-[76px] grid-cols-[24px_minmax(0,1fr)_8px] items-center gap-4 rounded-[28px] bg-drawer-card px-5 py-4 ${agendaAtiva ? "ring-2 ring-primary/30" : ""}`}
       >
-        <IconeDoMenu icone={CalendarDays} destaque ativo={agendaAtiva} />
+        {/* Como no Figaro: calendário cheio, sem ladrilho atrás. */}
+        <IconeAgendaFigaro className="size-6" />
         <span className="min-w-0">
           <span className="block truncate text-lg font-semibold leading-6 text-paper">Agenda</span>
           <span className="block truncate text-base font-medium leading-5 text-mute">

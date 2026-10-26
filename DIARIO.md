@@ -721,6 +721,14 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-26 UTC — Claude — Menu lateral: sem a barrinha e com os ícones do Figaro
+- Pedido do dono (captura do menu): tirar a barrinha da gaveta do menu e usar os ícones de Agenda e de ajustes do Figaro.
+- `styles.css`: `.management-drawer [data-alca-gaveta] > span` invisível; a faixa de arrastar para fechar continua.
+- `ui/icones-figaro.tsx` (novo): `IconeAjustesFigaro` (três linhas com bolinhas vazadas) e `IconeAgendaFigaro` (calendário
+  cheio, faixa e argolas em `--figaro-primary`, corpo misturado ao cartão), desenhados a partir de `inicio-1/2.jpg`
+  (comparados lado a lado num Chromium). Usados em `DrawerAjustes.tsx` (botão de ajustes) e `DrawerDestaques.tsx`
+  (cartão Agenda sem o ladrilho; coluna de 24 px e 16 px até o texto). Só o menu; a tela da Agenda não mudou.
+
 ### 2026-10-26 UTC — Claude — Gavetas sem linhas marrons (fora da Agenda)
 - O marrom era o `--figaro-outline-variant` (#4f4644) do tema escuro, usado em toda divisória (`border-line`).
 - `styles.css`: em `@media not (prefers-contrast: more)`, `html:not([data-tela-agenda]) .mov-sheet:not([class*="agenda-"])`

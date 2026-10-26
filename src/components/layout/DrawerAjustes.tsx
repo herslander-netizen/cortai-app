@@ -18,6 +18,7 @@ import {
 
 import { IconeDoMenu } from "@/components/layout/IconeDoMenu";
 import { Button } from "@/components/ui/button";
+import { IconeAjustesFigaro } from "@/components/ui/icones-figaro";
 import {
   Sheet,
   SheetContent,
@@ -127,7 +128,7 @@ export function DrawerAjustes({
           aria-label="Abrir ajustes"
           className="size-11 shrink-0 rounded-full text-menu-icone hover:bg-drawer-card"
         >
-          <SlidersHorizontal className="size-[22px]" aria-hidden />
+          <IconeAjustesFigaro className="size-6" />
         </Button>
       </SheetTrigger>
       <SheetContent
