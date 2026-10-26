@@ -22,7 +22,11 @@ const tabsBase: TabItem[] = [
 
 export const Route = createFileRoute("/app")({
   ssr: false,
-  beforeLoad: () => exigirPapel("cliente"),
+  beforeLoad: async ({ context }) => {
+    const sessao = await exigirPapel("cliente");
+    context.queryClient.setQueryData(["sessao"], sessao);
+    return sessao;
+  },
   pendingComponent: EsqueletoCascoCliente,
   pendingMs: 1200,
   pendingMinMs: 0,

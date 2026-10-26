@@ -34,11 +34,15 @@ export function PreviaDiaVizinho({
   const queryClient = useQueryClient();
   // A prévia do vizinho aquece os dados antes da conclusão do gesto.
   // Mantém a consulta reutilizável para que a troca do dia não comece do zero.
+  // Espera o dia principal assentar antes de aquecer os vizinhos: na abertura eles disputavam a rede com ele.
   useEffect(() => {
-    void queryClient.prefetchQuery({
-      ...opcoesAgendaDia(dia),
-      staleTime: 15_000,
-    });
+    const id = window.setTimeout(() => {
+      void queryClient.prefetchQuery({
+        ...opcoesAgendaDia(dia),
+        staleTime: 15_000,
+      });
+    }, 2_000);
+    return () => window.clearTimeout(id);
   }, [dia, queryClient]);
   const consulta = useQuery({
     ...opcoesAgendaDia(dia),

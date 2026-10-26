@@ -21,7 +21,10 @@ export const Route = createFileRoute("/barbeiro")({
       queryFn: () => getCapacidades(),
       staleTime: 300_000,
     });
-    return exigirPapel("barbeiro");
+    const sessao = await exigirPapel("barbeiro");
+    // O guarda já leu a sessão: entrega ao cache das telas para o topo e o menu não pedirem de novo.
+    context.queryClient.setQueryData(["sessao"], sessao);
+    return sessao;
   },
   // O casco só aparece na abertura fria do app; ao navegar entre telas o topo e o menu ficam onde estão.
   pendingComponent: EsqueletoCascoEquipe,

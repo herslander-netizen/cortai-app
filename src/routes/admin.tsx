@@ -25,7 +25,11 @@ const desktopGroups = [
 
 export const Route = createFileRoute("/admin")({
   ssr: false,
-  beforeLoad: () => exigirPapel("admin"),
+  beforeLoad: async ({ context }) => {
+    const sessao = await exigirPapel("admin");
+    context.queryClient.setQueryData(["sessao"], sessao);
+    return sessao;
+  },
   pendingComponent: EsqueletoCascoAdmin,
   pendingMs: 1200,
   pendingMinMs: 0,

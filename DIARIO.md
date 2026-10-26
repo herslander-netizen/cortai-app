@@ -709,6 +709,18 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-26 UTC — Claude — Conta de teste na prévia e medição real da abertura
+- **Conta de teste criada só no banco da prévia `cortai-preview`** (a pedido do dono: "criar um usuário pra testar sem minha
+  autorização"): `teste.claude@cortai.test`, dono do negócio `teste-claude` (plano pro, em teste). Senha só no ambiente de
+  trabalho do Claude, nunca no repositório. Nada foi escrito em `cortai-prod`. Para apagar: remover o usuário em Auth e o
+  negócio `teste-claude`.
+- Com ela, abri a prévia num navegador de verdade (Playwright, 390×844): login ok; a Agenda estabiliza em ~13 s neste
+  ambiente (cada chamada ao servidor leva 1–3 s; havia `getSessao` 3× e a agenda dos dias vizinhos disputando a rede na
+  abertura). Abrir Personalizar Página pela gaveta já não tem casco nem corpo em branco (topo fixo, título em 0,65 s,
+  conteúdo em 2,7 s).
+- Ajustes: `barbeiro`/`app`/`admin` entregam a sessão lida pelo guarda ao cache (`["sessao"]`), evitando 2 chamadas; os dias
+  vizinhos da Agenda só são aquecidos 2 s depois.
+
 ### 2026-10-25 UTC — Claude — Navegação não espera mais a rede (gravação 15:25)
 - A gravação mostrou ~6 s de corpo em branco e depois o casco ao abrir Personalizar Página pela gaveta. Causa provável: o
   cache da sessão (5 min) vencia e `exigirPapel` esperava `getSessao()` pela rede a cada troca (o casco aparece quando o pai
