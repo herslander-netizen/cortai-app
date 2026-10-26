@@ -3244,6 +3244,18 @@ html:not(.agenda-gesto-ativo) .agenda-previa-vizinho {
 .mov-overlay {
   animation-duration: var(--mov-base) !important;
 }
+/* Gavetas fora da Agenda (dono, 26/10: "não gostei das linhas… só quando tiver um contraste grande"): as
+   divisórias perdem o marrom do outline do tema e viram um traço neutro quase imperceptível; a borda da gaveta
+   some. Com o modo de alto contraste do aparelho, as linhas voltam como eram. A Agenda fica de fora (regra
+   "Agenda protegida": tela da Agenda marcada em `barbeiro.tsx` e gavetas da Agenda pelas classes `agenda-*`). */
+@media not (prefers-contrast: more) {
+  html:not([data-tela-agenda]) .mov-sheet:not([class*="agenda-"]) {
+    --line: color-mix(in oklab, var(--paper) 7%, transparent);
+    --line2: color-mix(in oklab, var(--paper) 12%, transparent);
+    --border: color-mix(in oklab, var(--paper) 7%, transparent);
+    border-color: transparent;
+  }
+}
 .mov-sheet {
   transition-timing-function: var(--ease-saida) !important;
 }

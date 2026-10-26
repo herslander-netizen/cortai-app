@@ -1,4 +1,5 @@
-import { createFileRoute, Outlet } from "@tanstack/react-router";
+import { createFileRoute, Outlet, useRouterState } from "@tanstack/react-router";
+import { useEffect } from "react";
 import { exigirPapel } from "@/lib/guarda";
 import { useSessaoTempoReal } from "@/lib/use-sessao-tempo-real";
 import { useQuery } from "@tanstack/react-query";
@@ -33,8 +34,23 @@ export const Route = createFileRoute("/barbeiro")({
   component: BarberLayout,
 });
 
+/** Agenda protegida (dono, 26/10): marca a página enquanto a Agenda está na tela, para estilos gerais a excluírem. */
+function useMarcaDaTelaDaAgenda() {
+  const caminho = useRouterState({ select: (s) => s.location.pathname });
+  const naAgenda = /^\/barbeiro(\/agenda)?\/?$/.test(caminho);
+  useEffect(() => {
+    const raiz = document.documentElement;
+    if (naAgenda) raiz.dataset["telaAgenda"] = "";
+    else delete raiz.dataset["telaAgenda"];
+    return () => {
+      delete raiz.dataset["telaAgenda"];
+    };
+  }, [naAgenda]);
+}
+
 function BarberLayout() {
   const { userId } = Route.useRouteContext();
+  useMarcaDaTelaDaAgenda();
   useSessaoTempoReal(userId);
   usePushNoApp();
   const { data: sessao } = useQuery({

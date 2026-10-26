@@ -27,6 +27,7 @@ e o que fez. O diário até 17/10/2026 está guardado, sem alterações, em
 7. **Sem segredos:** nunca escreva chaves, senhas ou tokens aqui. Cite só o nome da variável.
 
 ## Decisões do dono
+- 2026-10-26: **Gavetas sem linhas marrons** (dono: "não gostei das linhas nas gavetas, faça isso apenas quando tiver um contraste grande… não deixe a tela cheia de linha marrom"). Fora da Agenda, as divisórias das gavetas viram um traço neutro quase imperceptível e a borda da gaveta some; com o modo de alto contraste do aparelho as linhas voltam. A Agenda fica de fora (regra "Agenda protegida").
 - 2026-10-26: **Agenda protegida** (dono: "qualquer mudança do calendário deve ser específica, um pedido meu de algo tipo gavetas não pode mudar nada visual na agenda"). Mudança visual na Agenda (calendário, grade, cartões, ficha, gavetas abertas nela) só com pedido específico para a Agenda; pedidos gerais (todas as gavetas, `ui/`, CSS global) excluem a Agenda de propósito. Regra no `AGENTS.md` da raiz e no da Agenda. **Revertido** o envio "Ficha em duas etapas… e linha discreta no topo das gavetas" (`eae2c825`), que mexeu na Agenda; a decisão "Ficha do agendamento em duas etapas" abaixo fica **suspensa** até o dono pedir de novo.
 - 2026-10-26: **Ficha do agendamento em duas etapas** (dono, com captura: "subir em duas etapas e sair em uma etapa só, ajustar o conteúdo e tirar a função de rolagem, ... aparecer por completo na segunda etapa"): abre na metade da tela, a barrinha sobe até a altura do conteúdo inteiro e, para baixo, fecha de uma vez; sem rolagem por dentro. **Substitui o "cartão de um estado só" de 24/10.** Junto: **uma linha bem discreta na borda de cima de todas as gavetas de baixo**.
 - 2026-10-26: **Fantasma do horário original ao editar o cartão** (dono, com duas capturas: "fica um fantasma, uma imagem transparente para se atentar qual a hora estava, o mesmo comportamento pra aumentar e tirar esse tracejado"). Ao encurtar, esticar ou mover, o horário original aparece como o próprio cartão a 50% (Figaro `DurationChangeAlpha`) com um contorno por cima; sem listras tracejadas.
@@ -719,6 +720,16 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - Sem alteração no banco, `main` ou produção.
 
 ## Diário
+
+### 2026-10-26 UTC — Claude — Gavetas sem linhas marrons (fora da Agenda)
+- O marrom era o `--figaro-outline-variant` (#4f4644) do tema escuro, usado em toda divisória (`border-line`).
+- `styles.css`: em `@media not (prefers-contrast: more)`, `html:not([data-tela-agenda]) .mov-sheet:not([class*="agenda-"])`
+  troca `--line`/`--line2`/`--border` por `--paper` a 7–12% e deixa a borda da gaveta transparente. Alto contraste: igual a antes.
+- Agenda protegida: `barbeiro.tsx` marca `html[data-tela-agenda]` em `/barbeiro` e `/barbeiro/agenda`; as gavetas da Agenda
+  abertas de outras telas são excluídas pelas classes `agenda-*` (a gaveta "Profissional" do Reagendar ganhou só a classe
+  `agenda-reagendar-escolha`, sem efeito visual).
+- Conferido num Chromium com o CSS do build: fora da Agenda a divisória sai de rgb(79,70,68) para o traço neutro; na tela da
+  Agenda, na ficha e com alto contraste, continua rgb(79,70,68). Teste `linhas-das-gavetas.test.ts`; tsc, 2007 testes e build ok.
 
 ### 2026-10-26 UTC — Claude — Revertido o envio das gavetas; regra da Agenda protegida
 - O dono avisou que o envio `eae2c825` (ficha em duas etapas + linha no topo de todas as gavetas de baixo) mexeu no

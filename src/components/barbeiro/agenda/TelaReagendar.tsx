@@ -419,7 +419,10 @@ export function TelaReagendar({
         </div>
 
         <Sheet open={escolhendoProfissional} onOpenChange={setEscolhendoProfissional}>
-          <SheetContent side="bottom" className="rounded-t-[28px] border-0 bg-ink px-4 pb-6 pt-3">
+          <SheetContent
+            side="bottom"
+            className="agenda-reagendar-escolha rounded-t-[28px] border-0 bg-ink px-4 pb-6 pt-3"
+          >
             <SheetTitle className="mb-3 mt-4 text-base font-medium text-paper">
               Profissional
             </SheetTitle>
