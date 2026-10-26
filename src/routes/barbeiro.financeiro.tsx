@@ -49,7 +49,8 @@ function FinanceiroPage() {
         ? "Faturamento na semana"
         : "Faturamento no mês";
 
-  return <Screen title="Financeiro" subtitle={subtitulo}>
+  return (
+    <Screen title="Financeiro" subtitle={subtitulo}>
       <OpcoesConectadas
         rotulo="Período do financeiro"
         valor={periodo}
