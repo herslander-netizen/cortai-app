@@ -2,7 +2,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { ArrowLeft, CheckCheck } from "lucide-react";
 
-import { agrupar, type Notificacao } from "@/lib/notificacoes";
+import { agrupar, valoresEmReais, type Notificacao } from "@/lib/notificacoes";
 import { ConvitesNoSino } from "@/components/notificacoes/ConvitesNoSino";
 import { useMenosMovimento } from "@/hooks/useMovimento";
 import { Button } from "@/components/ui/button";
@@ -116,22 +116,26 @@ export function TelaDeAvisos({
                       type="button"
                       variant="ghost"
                       onClick={() => onAbrir(aviso)}
-                      className="h-auto min-h-14 w-full grid grid-cols-[auto_minmax(0,1fr)_auto] items-start gap-3 px-5 py-3 text-left active:bg-card"
+                      className="h-auto min-h-14 w-full grid grid-cols-[auto_minmax(0,1fr)_auto] items-start gap-3 whitespace-normal px-5 py-3 text-left active:bg-card"
                     >
                       <span
                         className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${aviso.lida_em ? "bg-transparent" : "bg-gold"}`}
                       />
                       <span className="min-w-0">
                         <span
-                          className={`block text-sm ${aviso.lida_em ? "text-mute" : "font-semibold text-paper"}`}
+                          className={`line-clamp-2 break-words text-sm ${aviso.lida_em ? "text-mute" : "font-semibold text-paper"}`}
                         >
                           {aviso.titulo}
                         </span>
                         {aviso.corpo ? (
-                          <span className="block truncate text-xs text-mute2">{aviso.corpo}</span>
+                          <span className="block truncate text-xs text-mute2">
+                            {valoresEmReais(aviso.corpo)}
+                          </span>
                         ) : null}
                       </span>
-                      <span className="text-xs text-mute2">{quando(aviso.criado_em)}</span>
+                      <span className="shrink-0 text-xs tabular-nums text-mute2">
+                        {quando(aviso.criado_em)}
+                      </span>
                     </Button>
                   </li>
                 ))}

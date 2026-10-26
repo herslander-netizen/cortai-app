@@ -725,6 +725,14 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-26 UTC — Claude — Notificações: título não invade o horário e valores em reais
+- Capturas do dono: o título comprido ("Não conseguimos avisar Isabela Oliveira · confi…") passava por baixo do horário e
+  saía da tela (o `Button` força uma linha só); "Pix recebido" mostrava "R$ 220.00".
+- `TelaDeAvisos.tsx`: linha com `whitespace-normal`, título em até 2 linhas (`line-clamp-2`), horário fixo à direita.
+- `lib/notificacoes.ts`: `valoresEmReais` mostra "R$ 220,00" (milhares com ponto). O texto vem do gatilho
+  `notificar_pix` do banco (`to_char` com ponto); corrigido na tela para valer também nos avisos já gravados, sem migração.
+  Teste `notificacoes-valores.test.ts`.
+
 ### 2026-10-26 UTC — Claude — Barra do sistema na cor do topo da tela (área do negócio)
 - `lib/pwa/cor-do-topo.ts` (novo): `useCorDoTopoNaBarraDoSistema` lê, a cada 300 ms e na rolagem, a cor vista no alto da
   tela (empilha os fundos translúcidos sobre `--background`, converte qualquer cor CSS pelo canvas) e põe em

@@ -62,3 +62,14 @@ export function agrupar(itens: Notificacao[]): GrupoDeAvisos[] {
   }
   return grupos.filter((g) => g.itens.length > 0);
 }
+
+/**
+ * Valores em reais no padrão brasileiro: avisos montados no banco chegam como "R$ 220.00" (ex.: Pix recebido);
+ * a tela mostra "R$ 220,00". Vale também para os avisos já gravados.
+ */
+export function valoresEmReais(texto: string): string {
+  return texto.replace(/R\$ ?(\d+)\.(\d{2})(?!\d)/g, (_, inteiro: string, centavos: string) => {
+    const milhares = inteiro.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    return `R$ ${milhares},${centavos}`;
+  });
+}
