@@ -22,6 +22,22 @@ import { brl } from "@/lib/format";
 import { canvasParaJpg, desenharTicket } from "./desenhar-ticket";
 import { SIMBOLO_CORTAI, TicketComanda } from "./TicketComanda";
 
+/** Copia a comanda como imagem (o navegador só copia PNG) para colar na conversa; falhar não atrapalha o envio. */
+function copiarImagem(desenho: Promise<HTMLCanvasElement>) {
+  try {
+    if (typeof ClipboardItem === "undefined" || !navigator.clipboard?.write) return;
+    const png = desenho.then(
+      (c) =>
+        new Promise<Blob>((ok, falha) =>
+          c.toBlob((b) => (b ? ok(b) : falha(new Error("sem imagem"))), "image/png"),
+        ),
+    );
+    void navigator.clipboard.write([new ClipboardItem({ "image/png": png })]).catch(() => {});
+  } catch {
+    // Área de transferência indisponível: a imagem segue baixada.
+  }
+}
+
 export function IconeWhatsApp({ className = "size-5" }: { className?: string }) {
   return (
     <svg viewBox="0 0 24 24" className={className} fill="currentColor" aria-hidden>
@@ -46,10 +62,6 @@ export function useAcoesDoTicket(
   opcoes: { direto?: boolean } = {},
 ) {
   const [gerando, setGerando] = useState<"whatsapp" | "baixar" | null>(null);
-  async function arquivo() {
-    const canvas = await desenharTicket(ticket!, SIMBOLO_CORTAI);
-    return canvasParaJpg(canvas, `comanda-${ticket!.codigo}.jpg`);
-  }
   function baixarArquivo(f: File) {
     const url = URL.createObjectURL(f);
     const a = document.createElement("a");
@@ -61,30 +73,48 @@ export function useAcoesDoTicket(
   async function executar(tipo: "whatsapp" | "baixar") {
     if (!ticket || gerando) return;
     const numero = numeroParaWhatsApp(ticket.cliente.telefone);
-    const texto =
-      opcoes.direto && numero
-        ? textoDaComandaParaWhatsApp(ticket, brl(ticket.totalCentavos))
-        : `Comanda #${ticket.codigo}`;
+    const nome = `comanda-${ticket.codigo}.jpg`;
+    // Começa antes de qualquer espera: copiar para a área de transferência precisa do toque ainda "fresco".
+    const desenho = desenharTicket(ticket, SIMBOLO_CORTAI);
+    const conversaDireta = tipo === "whatsapp" && Boolean(opcoes.direto && numero);
+    if (conversaDireta) copiarImagem(desenho);
     setGerando(tipo);
     try {
-      const f = await arquivo();
+      const f = await canvasParaJpg(await desenho, nome);
       if (!f) throw new Error();
-      // Celular: o compartilhar leva a imagem ao WhatsApp; nenhum app consegue abrir a conversa de um
-      // contato já com anexo (wa.me só aceita texto), então o contato é escolhido no WhatsApp.
+      if (conversaDireta) {
+        // Equipe com o telefone do cliente: baixa e copia o JPG e abre a conversa dele com o texto da
+        // comanda. O WhatsApp não aceita anexo pelo link, então a imagem entra pelo 📎 › Galeria ou colando.
+        baixarArquivo(f);
+        aviso.info(
+          "Comanda baixada e copiada. Na conversa, toque em 📎 › Galeria ou cole a imagem.",
+        );
+        const texto = textoDaComandaParaWhatsApp(ticket, brl(ticket.totalCentavos));
+        window.open(
+          `https://wa.me/${numero}?text=${encodeURIComponent(texto)}`,
+          "_blank",
+          "noopener",
+        );
+        return;
+      }
+      if (tipo === "whatsapp" && opcoes.direto)
+        aviso.info("Cliente sem telefone válido. Escolha o contato no WhatsApp.");
       if (tipo === "whatsapp" && navigator.canShare?.({ files: [f] })) {
         try {
-          await navigator.share({ files: [f], text: texto, title: `Comanda #${ticket.codigo}` });
+          await navigator.share({
+            files: [f],
+            text: `Comanda #${ticket.codigo}`,
+            title: `Comanda #${ticket.codigo}`,
+          });
         } catch (e) {
           if ((e as Error)?.name !== "AbortError") throw e;
         }
       } else {
         baixarArquivo(f);
         if (tipo === "whatsapp") {
-          if (opcoes.direto && !numero)
-            aviso.info("Cliente sem telefone válido. Escolha o contato no WhatsApp.");
           aviso.info("Imagem baixada. Anexe no WhatsApp para enviar.");
           window.open(
-            `https://wa.me/${numero ?? ""}?text=${encodeURIComponent(texto)}`,
+            `https://wa.me/?text=${encodeURIComponent(`Comanda #${ticket.codigo}`)}`,
             "_blank",
             "noopener",
           );

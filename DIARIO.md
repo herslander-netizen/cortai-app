@@ -710,6 +710,13 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-26 UTC — Claude — Comanda: baixa, copia e abre a conversa do cliente
+- Pedido do dono: "baixada a foto e logo o sistema abre na conversa com ela". Na equipe, com telefone válido, "Enviar no
+  WhatsApp" agora baixa o JPG, copia a imagem (área de transferência só aceita PNG; a cópia começa no toque) e abre
+  `wa.me/<telefone>` com o texto da comanda; aviso: "toque em 📎 › Galeria ou cole a imagem". O WhatsApp não aceita
+  anexo por link, então esse toque fica. Sem telefone: compartilhar do celular com o JPG, como antes.
+- Corrigido o tipo do teste `desenhar-ticket.test.ts` (o envio anterior, `36ef6ca7`, falhava no tsc).
+
 ### 2026-10-26 UTC — Claude — Comanda em JPG pelo compartilhar do celular
 - `useAcoesDoTicket` (`FolhaDoTicket.tsx`): na equipe, "Enviar no WhatsApp" não abre mais só o texto; gera o JPG da comanda
   e abre o compartilhar do celular com a imagem e o texto da comanda (legenda). Sem compartilhar (computador): baixa o JPG
