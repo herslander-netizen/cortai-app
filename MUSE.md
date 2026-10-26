@@ -61,6 +61,7 @@ O APK reencontrado `Figaroo.apk` é a referência original para layout, cartões
 - `preview-migration.yml` — a cada envio: validação e prévia.
 - `validate.yml` — validação extra em envios e PRs.
 - `lancar-versao.yml` — manual: versão nova no site principal.
+  O workflow prepara a versão candidata e executa o build antes de criar commit/tag/push; se o build falhar, não deve deixar uma versão registrada sem publicação. A primeira execução após essa correção ainda precisa ser observada.
 - `voltar-versao.yml` — manual: volta uma versão.
 - `aplicar-migracoes-novas.yml` — manual: informe os arquivos e digite `APLICAR`. Cada arquivo numa
   transação; registro em `cortai_controle.migracoes_aplicadas` (já aplicadas são puladas).
