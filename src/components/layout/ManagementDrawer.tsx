@@ -50,7 +50,6 @@ import {
   MODE_KEY,
 } from "@/lib/aparencia";
 import { useMediaQuery } from "@/hooks/use-mobile";
-import { horaNoFuso, saudacaoDoMenu } from "@/lib/saudacao-menu";
 import menuClaro from "@/assets/cortai-menu-light.webp.asset.json";
 import menuEscuro from "@/assets/cortai-menu-dark.webp.asset.json";
 import { Barra, BlocoEsqueleto } from "@/components/layout/Esqueleto";
@@ -91,11 +90,6 @@ export function ManagementHeader() {
   });
   const horarioDeHoje = agenda ? horarioDoDia(hoje, agenda.horarios) : null;
   const operacaoAberta = horarioDeHoje ? !horarioDeHoje.fechado : null;
-  const saudacao = saudacaoDoMenu({
-    dia: hoje,
-    hora: horaNoFuso(fuso),
-    nome: sessao?.nome ?? null,
-  });
   const atendimentosDeHoje = agenda?.itens.filter(
     (item) => !["cancelado", "remarcado", "nao_compareceu"].includes(item.status),
   ).length;
@@ -227,9 +221,10 @@ export function ManagementHeader() {
             className="management-drawer overflow-hidden rounded-r-[28px] border-0 bg-drawer-surface p-0 duration-200"
           >
             <div className="flex h-full min-h-0 flex-col">
-              <div className="shrink-0 px-5 pb-4 pt-[max(1.25rem,env(safe-area-inset-top))]">
+              {/* Como no Figaro: logo, nome e "pessoa · papel", sem saudação; 38 dp até o cartão Sua Página. */}
+              <div className="shrink-0 px-4 pb-[38px] pt-[max(1.25rem,env(safe-area-inset-top))]">
                 <div className="grid grid-cols-[minmax(0,1fr)_44px] items-center gap-3">
-                  <div className="flex min-w-0 items-center gap-3">
+                  <div className="flex min-w-0 items-center gap-4">
                     {sessao ? (
                       <LogoBarbearia
                         nome={sessao.tenantNome ?? "Meu negócio"}
@@ -269,10 +264,6 @@ export function ManagementHeader() {
                     fecharDrawer={() => setAberto(false)}
                   />
                 </div>
-                <p className="mt-3 line-clamp-2 text-xs leading-5 text-mute">
-                  <strong className="font-semibold text-paper">{saudacao.titulo}</strong> ·{" "}
-                  {saudacao.frase}
-                </p>
               </div>
 
               <nav

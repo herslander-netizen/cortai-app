@@ -13,8 +13,9 @@ import { marcarCartaoDeAvisosNoMenu, useConviteDeAvisos } from "@/lib/push/convi
 const CHAVE_FAIXA = "cortai-menu-desempenho-aberto";
 
 /**
- * Faixa recolhível de desempenho, logo abaixo do cartão Sua Página. Fechada: uma linha
- * "Ver desempenho · últimos 7 dias". Aberta: as três métricas em cima e o rótulo embaixo.
+ * Faixa de desempenho logo abaixo do cartão Sua Página, como no Figaro (captura do dono, 26/10): 36 dp, texto 13.
+ * Sem visitas nem agendamentos na semana: só "O desempenho aparecerá aqui". Com números, recolhível:
+ * "Ver desempenho · últimos 7 dias"; aberta, as três métricas em cima e o rótulo embaixo.
  */
 export function FaixaDesempenho({ tenantId, ativo }: { tenantId: string; ativo: boolean }) {
   const [aberta, setAberta] = useState(false);
@@ -30,9 +31,11 @@ export function FaixaDesempenho({ tenantId, ativo }: { tenantId: string; ativo: 
     queryFn: () => getDesempenhoDaSemana({ data: { tenantId } }),
     staleTime: 60_000,
     retry: false,
-    enabled: ativo && aberta,
+    enabled: ativo,
   });
   if (isError) return null;
+  const temNumeros = Boolean(data && (data.visitas > 0 || data.agendamentos > 0));
+  const mostrar = aberta && temNumeros;
   function alternar() {
     setAberta((a) => {
       try {
@@ -48,10 +51,24 @@ export function FaixaDesempenho({ tenantId, ativo }: { tenantId: string; ativo: 
     { rotulo: "Agend.", valor: data?.agendamentos },
     { rotulo: "Conversão", valor: data ? `${data.conversao}%` : undefined },
   ];
+  const rotulo = (
+    <>
+      <TrendingUp className="size-[14px] shrink-0" aria-hidden />
+      <span className="flex-1 truncate">
+        {!temNumeros
+          ? "O desempenho aparecerá aqui"
+          : mostrar
+            ? "Desempenho dos últimos 7 dias"
+            : "Ver desempenho · últimos 7 dias"}
+      </span>
+    </>
+  );
+  const linha =
+    "flex min-h-9 w-full items-center gap-1.5 px-3 text-left text-[13px] font-medium leading-[18px] text-mute";
   return (
     <div className="overflow-hidden rounded-b-[28px] rounded-t-[10px] bg-drawer-band">
       <div
-        className={`grid transition-[grid-template-rows] duration-[var(--mola-tamanho-duracao)] ease-[var(--mola-tamanho)] motion-reduce:transition-none ${aberta ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}
+        className={`grid transition-[grid-template-rows] duration-[var(--mola-tamanho-duracao)] ease-[var(--mola-tamanho)] motion-reduce:transition-none ${mostrar ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}
       >
         <div className="overflow-hidden">
           <div className="grid grid-cols-3 gap-2 px-3 pt-3" aria-busy={isLoading}>
@@ -72,21 +89,22 @@ export function FaixaDesempenho({ tenantId, ativo }: { tenantId: string; ativo: 
           </div>
         </div>
       </div>
-      <Button
-        variant="ghost"
-        onClick={alternar}
-        aria-expanded={aberta}
-        className="min-h-12 w-full justify-start gap-2 whitespace-normal px-5 py-2 text-left text-sm font-normal text-mute hover:bg-transparent"
-      >
-        <TrendingUp className="size-4 shrink-0" aria-hidden />
-        <span className="flex-1 truncate">
-          {aberta ? "Desempenho dos últimos 7 dias" : "Ver desempenho · últimos 7 dias"}
-        </span>
-        <ChevronDown
-          className={`size-4 transition-transform duration-[var(--mola-padrao-duracao)] ease-[var(--mola-padrao)] motion-reduce:transition-none ${aberta ? "rotate-180" : ""}`}
-          aria-hidden
-        />
-      </Button>
+      {temNumeros ? (
+        <Button
+          variant="ghost"
+          onClick={alternar}
+          aria-expanded={mostrar}
+          className={`${linha} h-auto justify-start rounded-none whitespace-normal hover:bg-transparent`}
+        >
+          {rotulo}
+          <ChevronDown
+            className={`size-[14px] transition-transform duration-[var(--mola-padrao-duracao)] ease-[var(--mola-padrao)] motion-reduce:transition-none ${mostrar ? "rotate-180" : ""}`}
+            aria-hidden
+          />
+        </Button>
+      ) : (
+        <p className={linha}>{rotulo}</p>
+      )}
     </div>
   );
 }

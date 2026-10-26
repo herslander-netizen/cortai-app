@@ -32,7 +32,8 @@ describe("navegação móvel", () => {
     expect(drawer).not.toContain('titulo: "Sistema"');
     expect(drawer).not.toContain("ModeMenuItem");
     expect(drawer).toContain("DrawerDestaques");
-    expect(drawer).toContain("saudacao.titulo");
+    // Topo como no Figaro (dono, 26/10): logo, nome e "pessoa · papel", sem saudação.
+    expect(drawer).not.toContain("saudacao.titulo");
     expect(ajustes).toContain("Opções da conta");
     expect(ajustes).toContain("Plano");
     expect(ajustes).toContain("Aparência do aplicativo");

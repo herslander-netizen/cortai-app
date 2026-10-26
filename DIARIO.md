@@ -27,6 +27,7 @@ e o que fez. O diário até 17/10/2026 está guardado, sem alterações, em
 7. **Sem segredos:** nunca escreva chaves, senhas ou tokens aqui. Cite só o nome da variável.
 
 ## Decisões do dono
+- 2026-10-26: **Topo da gaveta, cartão Sua Página e faixa de desempenho iguais ao Figaro** (dono, com captura do Figaro: "deixar o tamanho onde está escrito 'o desempenho aparecerá aqui' e limpar o nome, deixar as fontes com mesmo tamanho e tudo igualzinho o figaro"). Medido na captura: nome 18/24 negrito, "pessoa · papel" 13/18, "Sua Página" 16, "Online" 13, faixa de 36 dp com texto 13 e ícone 14; sem a saudação "Bom dia…". Sem números na semana a faixa diz "O desempenho aparecerá aqui" (sem seta). Substitui, para esses itens, o "quero desse tamanho tudo" de 25/10; as linhas do menu não mudaram.
 - 2026-10-26: **Comanda com duas ações em destaque** (dono: "coloca a opção de compartilhar e de abrir a conversa no whatsapp em destaque"): "Abrir conversa" (principal, só com telefone válido: baixa e copia o JPG e abre a conversa do cliente) e "Compartilhar" (tonal: compartilhar do celular com o JPG). Sem telefone, só "Compartilhar". O ideal seria um toque só, mas o WhatsApp não aceita anexo por link.
 - 2026-10-26: **Comanda vai ao WhatsApp como imagem JPG** (dono: "o botão whatsapp já mandar a imagem da comanda direto no whatsapp do cliente em jpg"; escolheu "os dois"). Agora: o botão gera o JPG e abre o compartilhar do celular (o contato é escolhido no WhatsApp, porque nenhum app abre a conversa de um contato já com anexo). Depois: envio automático do JPG pelo número oficial, quando o WhatsApp oficial estiver ativo e houver modelo com imagem aprovado pela Meta (custo por mensagem fora da janela de 24 h exige aval do dono).
 - 2026-10-25: **Tracejado de 15 min só depois do zoom** (dono, com captura do celular: "não é pra aparecer as listras pontilhadas o tempo todo"). Em repouso a grade mostra só a hora cheia; o tracejado de 15 min aparece (fade de 200 ms) quando o zoom passa do tamanho de repouso (`PX_POR_MINUTO > PX_PADRAO`). Substitui, para o tracejado, o trecho "mantém o tracejado de 15 min" da decisão de hoje abaixo e o pedido anterior de linhas de 15 min no celular. As linhas de 5 min seguem só na edição.
@@ -710,6 +711,17 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - Sem alteração no banco, `main` ou produção.
 
 ## Diário
+
+### 2026-10-26 UTC — Claude — Topo da gaveta e "Sua Página" no tamanho do Figaro
+- Medidas tiradas da captura do Figaro do dono (1080 px, calibradas pelo nome = 18 da spec `drawerAccountName`).
+- `ManagementDrawer.tsx`: sem a saudação (a `saudacao-menu.ts` ficou, sem uso na gaveta); logo a 16 dp da borda, 16 dp
+  até o nome, 38 dp até o cartão. `styles.css`: `[data-conta-papel]` 15/20 → 13/18.
+- `DrawerDestaques.tsx`: "Sua Página" 18 → 16, "Online" 15 → 13/18; ícone a 4 dp da borda do cartão e 3 dp até o texto;
+  3 dp entre o cartão e a faixa.
+- `DrawerMenuExtras.tsx` (`FaixaDesempenho`): 36 dp, texto 13/18, ícone 14; lê os números ao abrir o menu e, sem visitas
+  nem agendamentos, mostra só "O desempenho aparecerá aqui" (sem seta); com números, a faixa recolhível de antes.
+- `navegacao-movel.test.ts` agora exige a gaveta sem saudação. tsc, 2002 testes, eslint e build ok. Conferência visual no
+  celular pendente.
 
 ### 2026-10-26 UTC — Claude — Comanda: "Abrir conversa" e "Compartilhar" lado a lado
 - `FolhaDoTicket.tsx` (`ConteudoDoTicket`, tela da equipe): o botão único "Enviar no WhatsApp" virou dois botões de 56 px

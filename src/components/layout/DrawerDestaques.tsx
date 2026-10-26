@@ -89,25 +89,25 @@ export function DrawerDestaques({
   return (
     <div className="space-y-6">
       {slug ? (
-        <div className="space-y-2">
+        <div className="space-y-[3px]">
           <div
             className={`overflow-hidden bg-drawer-card ${tenantId && verDesempenho ? "rounded-b-[10px] rounded-t-[28px]" : "rounded-[28px]"}`}
           >
-            <div className="grid min-h-[60px] grid-cols-[minmax(0,1fr)_40px] items-center pl-4 pr-3">
+            <div className="grid min-h-[60px] grid-cols-[minmax(0,1fr)_40px] items-center pl-1 pr-3">
               {/* Como no Figaro (`onOpenSuaPagina`): o cartão fecha o menu e abre o Personalizar Página; a página
                   pública abre por "Ver como ficou", dentro dele. */}
               <Link
                 to="/barbeiro/marca"
                 onClick={fechar}
-                className="grid min-w-0 grid-cols-[48px_minmax(0,1fr)] items-center gap-3 py-2"
+                className="grid min-w-0 grid-cols-[48px_minmax(0,1fr)] items-center gap-[3px] py-2"
               >
                 <ElosDaPagina />
                 <span className="min-w-0">
-                  <span className="block truncate text-[18px] font-semibold leading-6 text-paper">
+                  <span className="block truncate text-[16px] font-semibold leading-6 text-paper">
                     Sua Página
                   </span>
                   {paginaPublicada ? (
-                    <span className="flex items-center gap-2 text-[15px] font-medium leading-5 text-mute">
+                    <span className="flex items-center gap-2 text-[13px] font-medium leading-[18px] text-mute">
                       <span className="size-[7px] rounded-full bg-sage" aria-hidden /> Online
                     </span>
                   ) : null}

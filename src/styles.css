@@ -9791,8 +9791,9 @@ html:root.light[data-identidade="classico"][data-identidade] {
   font-weight: 700;
 }
 .management-drawer [data-conta-papel] {
-  font-size: 15px;
-  line-height: 20px;
+  /* Figaro drawerHeroSubtitle (captura do dono, 26/10): 13/18. */
+  font-size: 13px;
+  line-height: 18px;
   font-weight: 500;
 }
 
