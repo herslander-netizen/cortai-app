@@ -5649,6 +5649,11 @@ button.agenda-nome:hover {
   :root {
     --agenda-fab-direita: var(--agenda-fab-margem);
     --agenda-fab-pe: var(--agenda-controle-pe);
+    /* Altura do Figaro (dono, 26/10, captura): barra flutuante e "+" de 64 dp, a 16 dp do pé mais a área da barra do
+       sistema (`navigationBarsPadding` + 16). Topo dos botões a ~96 do pé, como lá. */
+    --agenda-fab-tamanho: 64px;
+    --agenda-controle-pe: calc(16px + var(--agenda-area-segura));
+    --agenda-respiro-inferior: 104px;
   }
   .agenda-acao-fixa {
     right: var(--agenda-fab-direita);

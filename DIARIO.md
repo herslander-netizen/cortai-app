@@ -27,6 +27,7 @@ e o que fez. O diário até 17/10/2026 está guardado, sem alterações, em
 7. **Sem segredos:** nunca escreva chaves, senhas ou tokens aqui. Cite só o nome da variável.
 
 ## Decisões do dono
+- 2026-10-26: **Botões de baixo da Agenda na altura do Figaro** (dono, com captura do Figaro: "colocar os botões do cortaí nessa altura, referência de baixo pra cima"): barra "Hoje" e "+" com 64 dp, a 16 dp do pé mais a área da barra do sistema.
 - 2026-10-26: **Ficha: tocou abre uma etapa; puxou mostra tudo; arrastou ou fechou recolhe toda; nada de rolagem** (dono, com vídeo de 16:54). Substitui os detalhes da decisão anterior da ficha: etapa cheia pode ocupar a tela toda e nunca rola; qualquer arrasto para baixo fecha.
 - 2026-10-26: **Ficha do agendamento em duas etapas — pedido específico para a Agenda** (dono, com captura da ficha: "ao clicar no cliente abrir essa gaveta parcial e aparecer mais informações e quando clicar expandir todas as informações dela, não deixar rolagem"). Reativa a decisão suspensa: abre em 62% da tela; o toque na barrinha (ou puxar para cima) mostra tudo, na altura do conteúdo; sem rolagem; puxar para baixo fecha de uma vez.
 - 2026-10-26: Autorizada a execução da auditoria InBarber → Cortaí: seletor de contatos com fallback, visão financeira “Hoje” no fuso do negócio e especificação do widget Android. Manter a Agenda visual protegida; não publicar no site principal nem escrever em banco de produção.
@@ -734,6 +735,13 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - Documentação adicionada: docs/auditoria-inbarber-cortai-2026-10-26.md e docs/propostas/widget-android-inbarber-cortai.md. O widget permanece especificado, não implementado: o repositório não tem projeto Android nativo, pacote/assinatura ou fluxo de autenticação para o widget.
 - Sem mudanças na interface da Agenda, migrações, bancos de dados, segredos, main ou site principal. TypeScript, Vitest, build e smoke test aguardam a validação automática do commit.
 ## Diário
+
+### 2026-10-26 UTC — Claude — Agenda: barra de baixo e "+" na altura do Figaro
+- Medido nas capturas (mesmo celular): Figaro 64 de altura e base a ~33 do pé (spec: `FigarooFloatingToolbar`,
+  `navigationBarsPadding` + 16 dp); Cortaí 56 e ~30.
+- `styles.css` (só celular, `max-width: 600px`): `--agenda-fab-tamanho` 56 → 64, `--agenda-controle-pe` 14 → 16 px +
+  área segura, `--agenda-respiro-inferior` 96 → 104 (o fim da lista não fica atrás dos botões). Menu do "+" acompanha.
+- 2036 testes e build ok. Pedido específico para a Agenda.
 
 ### 2026-10-26 UTC — Claude — Menu: lista some em degradê atrás do topo; Suporte numa linha
 - Vídeo do Figaro do dono (18:19): ao rolar o menu, a lista passa por baixo do topo, que esmaece em degradê.
