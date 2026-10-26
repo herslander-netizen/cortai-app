@@ -289,7 +289,7 @@ function FichaPage() {
                   </label>
                 ) : null}
                 <Button
-                  variant={bloqueio.data.bloqueado ? "outline" : "destructive"}
+                  variant="outline"
                   type="button"
                   disabled={alterandoBloqueio}
                   className="mt-3 min-h-12 w-full"

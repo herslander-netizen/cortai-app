@@ -52,7 +52,6 @@ export function RepetirAtendimento({ agendamentoId }: { agendamentoId: string })
         variant="outline"
         size="sm"
         type="button"
-        className="min-h-10 rounded-full"
         onClick={() => setAberto(true)}
       >
         <Repeat2 aria-hidden size={16} />

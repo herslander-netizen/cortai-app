@@ -306,7 +306,7 @@ function HistoricoPage() {
             {aba === "atendimentos"
               ? itensAtendimento.map((a) => (
                   <li key={a.id} className="flex items-start justify-between gap-3 py-3">
-                    <span className="min-w-0">
+                    <div className="min-w-0">
                       <span className="block truncate text-sm font-semibold text-paper">
                         {a.clienteNome ?? "Sem cliente"}
                       </span>
@@ -324,7 +324,7 @@ function HistoricoPage() {
                           <RepetirAtendimento agendamentoId={a.id} />
                         </div>
                       ) : null}
-                    </span>
+                    </div>
                     <span className="shrink-0 text-sm font-semibold text-paper">
                       {brl(a.valorCentavos)}
                     </span>
