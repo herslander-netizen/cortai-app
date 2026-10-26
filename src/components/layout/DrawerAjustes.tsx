@@ -128,7 +128,8 @@ export function DrawerAjustes({
           aria-label="Abrir ajustes"
           className="size-11 shrink-0 rounded-full text-menu-icone hover:bg-drawer-card"
         >
-          <IconeAjustesFigaro className="size-6" />
+          {/* O botão encolhe todo ícone para 16 px; aqui ele sai no tamanho do Figaro (~20 de desenho). */}
+          <IconeAjustesFigaro className="!size-[26px]" />
         </Button>
       </SheetTrigger>
       <SheetContent

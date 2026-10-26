@@ -735,6 +735,14 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - Sem mudanças na interface da Agenda, migrações, bancos de dados, segredos, main ou site principal. TypeScript, Vitest, build e smoke test aguardam a validação automática do commit.
 ## Diário
 
+### 2026-10-26 UTC — Claude — Ficha mais compacta (cabe sem rolar) e ícone de ajustes no tamanho certo
+- Captura do dono: na etapa cheia a nota "Em andamento…" ficava cortada (a ficha passava da tela). Respiros menores, letras
+  iguais: `.agenda-ficha-secao` 32 → 20 px em cima; `.agenda-ficha-alca` 40 → 32 px; rodapé 12 → 8 px; linhas dos cartões
+  de serviços, total e observações `p-4` → `px-4 py-3` (`PainelAtendimento.tsx`). Ganho de ~50 px.
+- Menu: o `Button` força `[&_svg]:size-4`, então o `IconeAjustesFigaro` saía com 16 px; agora `!size-[26px]` (~20 de
+  desenho, como no Figaro), em `DrawerAjustes.tsx`.
+- tsc, 2033 testes e build ok.
+
 
 ### 2026-10-26 UTC — GPT — Caixa: contagem física separada dos recebimentos digitais
 - Pesquisa registrada em `docs/relatorio-caixa-cortai-2026-10-26.md`, com Trinks, Reservei, Barbeiro.app, AppBarber/AppBeleza e referências do Sebrae.

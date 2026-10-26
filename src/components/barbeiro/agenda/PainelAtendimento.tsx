@@ -378,7 +378,7 @@ export function PainelAtendimento(props: Props) {
 
                 <p className="agenda-ficha-secao">Serviços</p>
                 <section className="agenda-ficha-cartao">
-                  <div className="flex items-start justify-between gap-3 p-4">
+                  <div className="flex items-start justify-between gap-3 px-4 py-3">
                     <div className="min-w-0">
                       <p className="truncate font-bold text-paper">{item.servico}</p>
                       <p className="truncate text-sm font-medium text-mute">{item.profissional}</p>
@@ -390,7 +390,7 @@ export function PainelAtendimento(props: Props) {
                       <p className="font-mono text-sm tabular-nums text-mute">{faixaDeHorario}</p>
                     </div>
                   </div>
-                  <div className="flex items-center justify-between border-t border-line p-4">
+                  <div className="flex items-center justify-between border-t border-line px-4 py-3">
                     <span className="font-bold text-paper">Total</span>
                     <span className="text-lg font-bold tabular-nums text-paper">
                       {brl(item.valor_centavos ?? 0)}
@@ -401,7 +401,7 @@ export function PainelAtendimento(props: Props) {
                 {item.ficha ? (
                   <>
                     <p className="agenda-ficha-secao">Observações</p>
-                    <section className="agenda-ficha-cartao whitespace-pre-line p-4 text-sm text-paper">
+                    <section className="agenda-ficha-cartao whitespace-pre-line px-4 py-3 text-sm text-paper">
                       {item.ficha}
                     </section>
                   </>

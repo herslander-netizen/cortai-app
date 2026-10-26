@@ -6566,7 +6566,7 @@ button.agenda-nome:hover {
 .agenda-ficha-alca {
   display: flex;
   flex-shrink: 0;
-  height: 40px;
+  height: 32px;
   margin-inline: -1rem;
   align-items: center;
   justify-content: center;
@@ -6649,7 +6649,7 @@ button.agenda-nome:hover {
   position: relative;
   right: auto;
   bottom: auto;
-  margin-top: 12px;
+  margin-top: 8px;
   padding-bottom: calc(16px + env(safe-area-inset-bottom));
 }
 .agenda-ficha-cartao-unico .agenda-ficha-menu {
@@ -6877,8 +6877,9 @@ button.agenda-nome:hover {
 .agenda-ficha-estado.is-erro {
   color: var(--estado-faltou);
 }
+/* Ficha sem rolagem (dono, 26/10): respiros menores para tudo caber; letras iguais. */
 .agenda-ficha-secao {
-  margin: 32px 0 8px;
+  margin: 20px 0 8px;
   font-size: 14px;
   font-weight: 600;
   color: var(--mute);
