@@ -29,21 +29,33 @@ export const Route = createFileRoute("/barbeiro/financeiro")({
 });
 
 function FinanceiroPage() {
-  const [periodo, setPeriodo] = useState<"semana" | "mes">("mes");
+  const [periodo, setPeriodo] = useState<"hoje" | "semana" | "mes">("hoje");
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["financeiro", periodo],
     queryFn: () => getFinanceiro({ data: { periodo } }),
     retry: false,
   });
+  const subtitulo =
+    periodo === "hoje"
+      ? "Resumo das receitas e dos atendimentos concluídos hoje."
+      : periodo === "semana"
+        ? "Receitas desta semana, sem complicação."
+        : "Receitas do mês, sem complicação.";
+
+  const rotuloFaturamento =
+    periodo === "hoje"
+      ? "Faturamento hoje"
+      : periodo === "semana"
+        ? "Faturamento na semana"
+        : "Faturamento no mês";
+
   return (
-    <Screen
-      title="Financeiro"
-      subtitle={periodo === "semana" ? "Receitas desta semana, sem complicação." : "Receitas do mês, sem complicação."}
-    >
+    <Screen title="Financeiro" subtitle={subtitulo}>
       <OpcoesConectadas
         rotulo="Período do financeiro"
         valor={periodo}
         opcoes={[
+          { valor: "hoje", texto: "Hoje" },
           { valor: "semana", texto: "Semana" },
           { valor: "mes", texto: "Mês" },
         ]}
@@ -57,8 +69,11 @@ function FinanceiroPage() {
       {data ? (
         <>
           <section data-guia="financeiro-total" className="surface-card bg-ink3 p-5 md:max-w-xl">
-            <p className="text-xs text-mute">{periodo === "semana" ? "Faturamento na semana" : "Faturamento no mês"}</p>
+            <p className="text-xs text-mute">{rotuloFaturamento}</p>
             <p className="mt-2 text-[32px] font-bold leading-none text-paper">{brl(data.total)}</p>
+            <p className="mt-2 text-sm text-mute">
+              {data.atendimentos.length} {data.atendimentos.length === 1 ? "atendimento concluído" : "atendimentos concluídos"}
+            </p>
             <div className="mt-5 h-1.5 overflow-hidden rounded-full bg-ink3">
               <div
                 className="h-full rounded-full bg-gold"

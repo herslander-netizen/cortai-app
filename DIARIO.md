@@ -27,6 +27,7 @@ e o que fez. O diário até 17/10/2026 está guardado, sem alterações, em
 7. **Sem segredos:** nunca escreva chaves, senhas ou tokens aqui. Cite só o nome da variável.
 
 ## Decisões do dono
+- 2026-10-26: Autorizada a execução da auditoria InBarber → Cortaí: seletor de contatos com fallback, visão financeira “Hoje” no fuso do negócio e especificação do widget Android. Manter a Agenda visual protegida; não publicar no site principal nem escrever em banco de produção.
 - 2026-10-26: **Barra do sistema contínua com o topo do app** (dono: "tirar essa diferença de cor entre os ícones superiores e as telas, eles precisam dar a impressão de continuidade"). A cor da barra do relógio/bateria acompanha o que está no topo da tela.
 - 2026-10-26: **autorizada a ativação das migrações 0047 e 0048 somente no banco isolado `cortai-preview`**. Esta autorização não inclui `cortai-prod`, site principal, DNS nem outros bancos.
 - 2026-10-26: **Gavetas sem linhas marrons** (dono: "não gostei das linhas nas gavetas, faça isso apenas quando tiver um contraste grande… não deixe a tela cheia de linha marrom"). Fora da Agenda, as divisórias das gavetas viram um traço neutro quase imperceptível e a borda da gaveta some; com o modo de alto contraste do aparelho as linhas voltam. A Agenda fica de fora (regra "Agenda protegida").
@@ -483,7 +484,7 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Em andamento
 
-| GPT | 2026-10-26 UTC | InBarber → Cortaí: seletor de contatos com fallback mobile; resumo do negócio fora da Agenda; estudo de viabilidade e especificação do widget Android | `DIARIO.md`, `src/components/barbeiro/AgendamentoManual.tsx`, `src/components/barbeiro/agendamento-manual/*`, rotas/componentes de resumo fora da Agenda, testes e documentação técnica; sem migração |
+
 
 | Quem | Desde (UTC) | Tarefa | Arquivos / migração reservada |
 |---|---|---|---|
@@ -723,6 +724,13 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - A execução anterior do CI falhou em TypeScript; os novos envios estão sendo validados. Não afirmar que testes/build passaram até concluir o workflow.
 - Sem alteração no banco, `main` ou produção.
 
+
+### 2026-10-26 UTC — GPT — Implementa melhorias selecionadas na auditoria InBarber
+- Implementado seletor progressivo de contato em src/components/barbeiro/agendamento-manual/SecaoCliente.tsx usando somente nome e telefone; quando disponível, pesquisa primeiro o cliente existente para reduzir duplicidades. Navegadores sem Contact Picker mantêm busca e cadastro manual com aviso claro.
+- src/lib/contatos-do-aparelho.ts e src/lib/contatos-do-aparelho.test.ts: helper isolado e testes para indisponibilidade, cancelamento, campos vazios e seleção de nome/telefone.
+- Financeiro: incluído filtro “Hoje” com intervalo fechado-aberto calculado no fuso do negócio e resumo da quantidade de atendimentos finalizados; filtros semana/mês preservados.
+- Documentação adicionada: docs/auditoria-inbarber-cortai-2026-10-26.md e docs/propostas/widget-android-inbarber-cortai.md. O widget permanece especificado, não implementado: o repositório não tem projeto Android nativo, pacote/assinatura ou fluxo de autenticação para o widget.
+- Sem mudanças na interface da Agenda, migrações, bancos de dados, segredos, main ou site principal. TypeScript, Vitest, build e smoke test aguardam a validação automática do commit.
 ## Diário
 
 ### 2026-10-26 UTC — Claude — Notificações: título não invade o horário e valores em reais
