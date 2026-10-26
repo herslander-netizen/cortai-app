@@ -736,6 +736,12 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - Sem mudanças na interface da Agenda, migrações, bancos de dados, segredos, main ou site principal. TypeScript, Vitest, build e smoke test aguardam a validação automática do commit.
 ## Diário
 
+### 2026-10-26 UTC — Claude — Elos do cartão "Sua Página" idênticos ao Figaro
+- Captura do Figaro do dono ("deixe o desenho idêntico, apenas mantenha a melhora dos textos").
+- `DrawerDestaques.tsx` (`ElosDaPagina`): elos subindo para a direita (−40°), frente `#43a047` e trás `#406843` (cores
+  medidas), estádio 10,8 × 6,6 com traço 2,4, entrelaçados (o de trás volta por cima no cruzamento de baixo, calculado).
+  Comparado lado a lado num Chromium. Textos, cartão e faixa sem mudança (faixa já era o `surface-container-low` do Figaro).
+
 ### 2026-10-26 UTC — Claude — Agenda: barra de baixo e "+" na altura do Figaro
 - Medido nas capturas (mesmo celular): Figaro 64 de altura e base a ~33 do pé (spec: `FigarooFloatingToolbar`,
   `navigationBarsPadding` + 16 dp); Cortaí 56 e ~30.

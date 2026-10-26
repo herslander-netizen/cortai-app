@@ -25,35 +25,35 @@ type Props = {
 /** Texto que acompanha o link na folha de compartilhar (`page_hub_share_page_url_message` do Figaro, em termos neutros). */
 export const MENSAGEM_DE_COMPARTILHAR = "Dê uma olhada na nossa página!";
 
-/** Dois elos entrelaçados em duas tonalidades de verde (estado "no ar" do cartão Sua Página, como no Figaro). */
+/**
+ * Dois elos entrelaçados do cartão Sua Página, como no Figaro (captura do dono, 26/10): sobem para a direita (−45°),
+ * o da frente em verde vivo e o de trás em verde escuro; o de trás volta por cima no cruzamento de baixo.
+ */
 function ElosDaPagina() {
+  // Estádio de 10,8 × 6,6 (traço 2,4) girado −40°; cruzamento de baixo calculado em (23,61; 27,19).
+  const elo = (cx: number, cy: number) => (
+    <rect
+      x={cx - 5.4}
+      y={cy - 3.3}
+      width="10.8"
+      height="6.6"
+      rx="3.3"
+      transform={`rotate(-40 ${cx} ${cy})`}
+    />
+  );
   return (
     <span aria-hidden className="grid size-12 shrink-0 place-items-center">
-      <svg
-        viewBox="0 0 48 48"
-        className="size-11"
-        fill="none"
-        strokeLinecap="round"
-        strokeWidth="5"
-      >
-        <rect
-          x="21"
-          y="12"
-          width="21"
-          height="14"
-          rx="7"
-          transform="rotate(35 31.5 19)"
-          className="stroke-sage/40"
-        />
-        <rect
-          x="6"
-          y="20"
-          width="21"
-          height="14"
-          rx="7"
-          transform="rotate(35 16.5 27)"
-          className="stroke-sage"
-        />
+      <svg viewBox="10 12 28 24" className="h-6 w-7" fill="none" strokeWidth="2.4">
+        <defs>
+          <clipPath id="elos-cruzamento">
+            <circle cx="23.61" cy="27.19" r="2.4" />
+          </clipPath>
+        </defs>
+        <g stroke="#406843">{elo(26.9, 23)}</g>
+        <g stroke="#43a047">{elo(21.2, 24.9)}</g>
+        <g stroke="#406843" clipPath="url(#elos-cruzamento)">
+          {elo(26.9, 23)}
+        </g>
       </svg>
     </span>
   );
