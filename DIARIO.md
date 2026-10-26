@@ -27,6 +27,7 @@ e o que fez. O diário até 17/10/2026 está guardado, sem alterações, em
 7. **Sem segredos:** nunca escreva chaves, senhas ou tokens aqui. Cite só o nome da variável.
 
 ## Decisões do dono
+- 2026-10-26: **Zoom e botões do pé da Agenda iguais ao Figaro** (dono, vídeo do Figaro de 19:09: "preste atenção no zoom e nos ícones dos botões e replicar o mesmo comportamento e cores"). Grade: só a hora cheia como linha fixa; linhas de 5 em 5 min surgem com o zoom (invisíveis até 2,5 px/min, inteiras em 3,0; cheias na edição), tracejado 4/2, 2/3 dp, hint a 50%. **Substitui as decisões de 25/10** ("tracejado de 15 min só depois do zoom" e "marcas de 5 min só na edição"). Botão de visualização: ícone de lista na grade, ícone de agenda na lista, em azul; "Hoje" vira "Agora".
 - 2026-10-26: **Botões de baixo da Agenda na altura do Figaro** (dono, com captura do Figaro: "colocar os botões do cortaí nessa altura, referência de baixo pra cima"): barra "Hoje" e "+" com 64 dp, a 16 dp do pé mais a área da barra do sistema.
 - 2026-10-26: **Ficha: tocou abre uma etapa; puxou mostra tudo; arrastou ou fechou recolhe toda; nada de rolagem** (dono, com vídeo de 16:54). Substitui os detalhes da decisão anterior da ficha: etapa cheia pode ocupar a tela toda e nunca rola; qualquer arrasto para baixo fecha.
 - 2026-10-26: **Ficha do agendamento em duas etapas — pedido específico para a Agenda** (dono, com captura da ficha: "ao clicar no cliente abrir essa gaveta parcial e aparecer mais informações e quando clicar expandir todas as informações dela, não deixar rolagem"). Reativa a decisão suspensa: abre em 62% da tela; o toque na barrinha (ou puxar para cima) mostra tudo, na altura do conteúdo; sem rolagem; puxar para baixo fecha de uma vez.
@@ -735,6 +736,15 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - Documentação adicionada: docs/auditoria-inbarber-cortai-2026-10-26.md e docs/propostas/widget-android-inbarber-cortai.md. O widget permanece especificado, não implementado: o repositório não tem projeto Android nativo, pacote/assinatura ou fluxo de autenticação para o widget.
 - Sem mudanças na interface da Agenda, migrações, bancos de dados, segredos, main ou site principal. TypeScript, Vitest, build e smoke test aguardam a validação automática do commit.
 ## Diário
+
+### 2026-10-26 UTC — Claude — Agenda: zoom e botões do pé como no vídeo do Figaro
+- Medido no vídeo (19:09): só linhas de hora até ~2 px/min; tracejado a cada 5 min a partir de ~2,5–3 px/min (spec 2-agenda
+  §2.2: `clamp((px − 2,5)/0,5, 0, 1)`, traço 4/vão 2, 2/3 dp, onSurfaceHint α 0,5; armado = 1).
+- `cartao-figaro.ts` `opacidadeDasLinhasDe5` com a fórmula do Figaro; `AgendaTimeline.tsx`: marcas só de hora (sem as de 15
+  min nem `data-sub-oculta`); `styles.css`: `.agenda-timeline-ajuste-5` de largura inteira no tracejado do Figaro.
+- `BotaoAgoraPrincipal.tsx`: mapeamento corrigido (era invertido): na grade `IconeListaFigaro`, na lista
+  `IconeAgendaFigaroDoPe` (desenhados do vídeo e comparados num Chromium), em `--figaro-primary`; rótulo "Agora".
+- Testes atualizados (`cartao-figaro`, `timeline-rolagem-celular`); tsc, 2036 testes e build ok.
 
 ### 2026-10-26 UTC — Claude — Elos do cartão "Sua Página" idênticos ao Figaro
 - Captura do Figaro do dono ("deixe o desenho idêntico, apenas mantenha a melhora dos textos").

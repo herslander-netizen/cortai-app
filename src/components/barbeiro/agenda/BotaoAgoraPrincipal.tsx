@@ -1,4 +1,4 @@
-import { Clock, Crosshair, Plus } from "lucide-react";
+import { Crosshair, Plus } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   useCallback,
@@ -19,22 +19,37 @@ import { solicitarAgora } from "./pilula-agora";
 import { alturaDoTopoDaAgenda } from "./tempo";
 import { useToqueLongo } from "./useToqueLongo";
 
-/** Ícone da visualização em cartões: duas linhas acima do cartão arredondado. */
-function IconeAcompanhamentoCard() {
+/**
+ * Ícones do botão de visualização, como no Figaro (vídeo do dono, 26/10; spec 2-agenda §1.4): o botão mostra para
+ * onde vai — na grade, `icon_agenda_list`; na lista, `icon_agenda_schedule`. Medidas tiradas do vídeo (grade de 24).
+ */
+function IconeListaFigaro() {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 24 24" className="size-6" fill="currentColor">
+      {[6.1, 12, 17.9].map((y) => (
+        <g key={y}>
+          <circle cx="4.5" cy={y} r="1.7" />
+          <rect x="8.4" y={y - 1.3} width="13.1" height="2.6" rx="1.3" />
+        </g>
+      ))}
+    </svg>
+  );
+}
+
+function IconeAgendaFigaroDoPe() {
   return (
     <svg
       aria-hidden="true"
-      viewBox="0 0 28 28"
+      viewBox="0 0 24 24"
       fill="none"
-      className="size-7"
+      className="size-6"
       stroke="currentColor"
-      strokeWidth="1.8"
+      strokeWidth="2"
       strokeLinecap="round"
-      strokeLinejoin="round"
     >
-      <path d="M8 4.5h12" />
-      <path d="M5.5 8.5h17" />
-      <rect x="4" y="12" width="20" height="12" rx="2.5" />
+      <path d="M6.2 4.3h11.6" />
+      <path d="M4.2 8h15.6" />
+      <rect x="2.6" y="11.2" width="18.8" height="10" rx="3" />
     </svg>
   );
 }
@@ -146,8 +161,8 @@ export function BotaoAgoraPrincipal({
             onPointerUp={soltarFocoDoToque}
           >
             <Crosshair aria-hidden />
-            {/* Figaro: "Today" (volta para hoje e rola até agora). */}
-            <span>Hoje</span>
+            {/* Figaro (vídeo do dono, 26/10): "Agora" (volta para hoje e rola até agora). */}
+            <span>Agora</span>
           </Button>
           <span className="agenda-botao-agora-separador" aria-hidden />
           <Button
@@ -179,11 +194,7 @@ export function BotaoAgoraPrincipal({
                   transition: { duration: menosMovimento ? 0 : 0.07, ease: SUAVE },
                 }}
               >
-                {proxima === "timeline" ? (
-                  <Clock aria-hidden className="size-7" />
-                ) : (
-                  <IconeAcompanhamentoCard />
-                )}
+                {proxima === "lista" ? <IconeListaFigaro /> : <IconeAgendaFigaroDoPe />}
               </motion.span>
             </AnimatePresence>
           </Button>

@@ -10653,3 +10653,25 @@ input[type="range"] {
     transition: none;
   }
 }
+
+/* Linhas de 5 em 5 min como no Figaro (`AgendaArmedGrid`, spec 2-agenda §2.2; dono, 26/10): largura inteira,
+   tracejado de 4 com vão de 2, espessura de 2/3, cor hint a 50%. A opacidade vem do zoom (`opacidadeDasLinhasDe5`). */
+.agenda-timeline-ajuste-5,
+.agenda-operacional .agenda-timeline-ajuste-5 {
+  right: 0;
+  left: 0;
+  width: auto;
+  height: 0.67px;
+  border-top: 0;
+  background-image: repeating-linear-gradient(
+    to right,
+    color-mix(in oklab, var(--figaro-hint, var(--mute2)) 50%, transparent) 0 4px,
+    transparent 4px 6px
+  );
+}
+
+/* Botão de visualização do pé da Agenda em azul, como no Figaro (vídeo do dono, 26/10). */
+.agenda-botao-agora-principal .agenda-botao-agora-visualizacao,
+.agenda-botao-agora-principal .agenda-botao-agora-visualizacao:hover {
+  color: var(--figaro-primary, var(--primary));
+}

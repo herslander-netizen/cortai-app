@@ -29,7 +29,6 @@ import { AlcaDeDuracao } from "@/components/barbeiro/agenda/AlcaDeDuracao";
 import { PASSO_DO_AJUSTE_MIN, passoDoGesto } from "@/lib/remarcacao-regras";
 import {
   aoCorrigirRolagemDoZoom,
-  PX_PADRAO,
   usePincaDaTimeline,
   usePxPorMinuto,
 } from "@/components/barbeiro/agenda/zoom-agenda";
@@ -328,9 +327,10 @@ function AgendaTimelineBase({
 
   const marcas = useMemo(() => {
     const resultado: number[] = [];
-    const ultimo = diaCompleto ? escala.fim - 15 : escala.fim;
-    // Figaro: uma linha tracejada a cada 15 min; a hora cheia continua como linha principal.
-    for (let minuto = escala.inicio; minuto <= ultimo; minuto += 15) resultado.push(minuto);
+    const ultimo = diaCompleto ? escala.fim - 60 : escala.fim;
+    // Figaro: só a hora cheia é linha fixa; as de 5 em 5 min surgem com o zoom (ver `opacidadeDasLinhasDe5`).
+    const primeira = Math.ceil(escala.inicio / 60) * 60;
+    for (let minuto = primeira; minuto <= ultimo; minuto += 60) resultado.push(minuto);
     return resultado;
   }, [escala.fim, escala.inicio, diaCompleto]);
 
@@ -930,8 +930,6 @@ function AgendaTimelineBase({
             <div
               key={minuto}
               className={`agenda-timeline-marca ${minuto % 60 === 0 ? "agenda-timeline-hora" : ""}`}
-              // Em repouso só a hora cheia; o tracejado de 15 min aparece depois de dar zoom (dono, 25/10).
-              data-sub-oculta={minuto % 60 !== 0 && PX_POR_MINUTO <= PX_PADRAO ? "" : undefined}
               style={{
                 top: `${(minuto - escala.inicio) * PX_POR_MINUTO + deslocamentoAte(minuto)}px`,
               }}

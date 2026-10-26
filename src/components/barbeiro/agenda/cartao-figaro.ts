@@ -105,9 +105,11 @@ export const ROTULO_DO_GLIFO: Record<GlifoDoEstado, string> = {
 };
 
 /**
- * Linhas de 5 em 5 minutos: só aparecem durante a edição (arrastar ou redimensionar um horário), por cima da
- * grade. Em repouso, mesmo com zoom, a grade mostra só a hora cheia e a linha tracejada de 15 min.
+ * Linhas de 5 em 5 minutos, como no Figaro (`AgendaArmedGrid`, spec 2-agenda §2.2; dono, 26/10, vídeo de 19:09:
+ * "replicar o mesmo comportamento"): na edição, cheias; em repouso surgem com o zoom, invisíveis até 2,5 px/min e
+ * inteiras a partir de 3,0. Substitui as decisões de 25/10 (15 min com zoom; 5 min só na edição).
  */
-export function opacidadeDasLinhasDe5(_pxPorMinuto: number, editando: boolean) {
-  return editando ? 1 : 0;
+export function opacidadeDasLinhasDe5(pxPorMinuto: number, editando: boolean) {
+  if (editando) return 1;
+  return Math.min(1, Math.max(0, (pxPorMinuto - 2.5) / 0.5));
 }

@@ -49,13 +49,14 @@ describe("rolagem da Timeline no celular", () => {
     expect(timeline).not.toContain('clipPath: "inset(0 -100vw -100vh -100vw)"');
   });
 
-  it("mantém as linhas principais por hora e mostra subdivisões tracejadas a cada 15 minutos", () => {
-    expect(timeline).toContain("minuto += 15");
-    expect(timeline).toContain("escala.fim - 15");
-    expect(timeline).not.toContain("data-meia-oculta");
-    expect(css).toContain("border-top: 1px dashed color-mix(in oklab, var(--figaro-on-surface-variant) 20%, transparent);");
+  it("como no Figaro: só a hora cheia é linha fixa; as de 5 min surgem com o zoom (dono, 26/10)", () => {
+    expect(timeline).toContain("minuto += 60");
+    expect(timeline).not.toContain("minuto += 15");
+    expect(timeline).not.toContain("data-sub-oculta");
     expect(css).toContain("color: var(--figaro-on-surface-variant, var(--mute2));");
-    expect(css).not.toMatch(/\.agenda-operacional \.agenda-timeline-marca:not\(\.agenda-timeline-hora\)\s*\{[^}]*width:\s*8px/);
+    expect(css).toMatch(
+      /\.agenda-operacional \.agenda-timeline-ajuste-5 \{[^}]*height: 0\.67px;[^}]*0 4px,[^}]*transparent 4px 6px/,
+    );
   });
 
   it("mantém horários passados visíveis, apenas com tratamento visual discreto", () => {
