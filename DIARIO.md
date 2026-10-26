@@ -741,7 +741,7 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - Confirmado no código que o fechamento comparava o dinheiro contado com todos os movimentos, incluindo Pix/cartão. Corrigido para comparar somente movimentos que afetam fisicamente a gaveta; lançamentos antigos de saída sem forma são tratados como dinheiro para compatibilidade.
 - Formulário de saídas registra dinheiro/Pix/cartão e o servidor força sangria a dinheiro; caixa aberto mostra o saldo físico esperado e, sem sessão aberta, o resumo do último fechamento do dia.
 - Arquivos: `src/routes/barbeiro.caixa.tsx`, `src/lib/financeiro.functions.ts`, novos `src/lib/caixa-regras.ts` e `src/lib/caixa-regras.test.ts`, relatório acima.
-- Sem migração nem escrita em banco. Nenhuma alteração na Agenda, `main`, segredos, DNS ou site principal. Aguardando CI de TypeScript, Vitest, build e smoke test da prévia.
+- Sem migração nem escrita em banco. Nenhuma alteração na Agenda, `main`, segredos, DNS ou site principal. Validação concluída no commit `c1c990e6971eb987884b52420c65b6f5e90572fd`: build, TypeScript e Vitest passaram (239 arquivos, 2.033 testes aprovados, 1 ignorado); deploy isolado e smoke test passaram na execução 40395675747. Nenhuma migração aplicada.
 
 ### 2026-10-26 UTC — Claude — Ficha: tudo visível ao puxar, sem rolagem nenhuma
 - Vídeo do dono (16:54): ao puxar, a ficha parava em 92% e o conteúdo (Serviços, Observações, nota) ainda rolava por dentro.
