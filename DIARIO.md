@@ -722,6 +722,17 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-26 UTC — Claude — Agenda: painel de cima da edição entra e sai como gaveta, e mais baixo
+- Pedido do dono (captura do topo "Seg., 26 de out. de 2026 · use Reagendar"): o painel não seguia o entrar/recolher das
+  gavetas e podia ser menor, sem reduzir as letras.
+- Causa: o fundo arredondado era do cabeçalho (via `:has`), aplicado de uma vez; só o texto deslizava. E ao sair da edição o
+  `NaBarraDoTopo` trocava de alvo (`topo-centro` → `topo-baixo`), remontando tudo e perdendo a saída.
+- `AgendaOperacional.tsx`: dois `NaBarraDoTopo` fixos: o painel sempre em `topo-centro` com `AnimatePresence` próprio
+  (entra e sai deslizando, `TransicaoVerticalDoModoEdicao`); a faixa da semana em `topo-baixo`, sem animação, como antes.
+- `styles.css`: durante a edição o cabeçalho fica transparente e o fundo é do painel (desce junto); altura 84 → 60 px,
+  respiro 6/8 px; letras iguais.
+- tsc, 2010 testes e build ok. Conferência no celular pendente.
+
 ### 2026-10-26 UTC — Claude — Agenda: esticar o cartão com o mesmo visual de encurtar
 - Pedido do dono (duas capturas): o contorno do original dentro do cartão esticado parecia uma caixa solta.
 - `fantasma-do-horario.ts`: `formaDoFantasma` (encolheu / cresceu / moveu), com testes.

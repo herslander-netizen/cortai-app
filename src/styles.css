@@ -12,20 +12,23 @@
       background-color 380ms ease;
   }
 
+  /* Editar horário (dono, 26/10): o painel desce e sobe como as gavetas, levando o fundo junto; o topo só
+     abre espaço (transparente) e fica o mais baixo possível sem diminuir as letras. */
   .management-header:has(#topo-centro .cabecalho-edicao-mobile) {
-    height: 84px;
-    min-height: 84px;
+    height: 60px;
+    min-height: 60px;
     overflow: hidden;
-    border-radius: 0 0 28px 28px;
-    background: var(--ink2);
-    border-bottom-color: var(--line);
+    border-radius: 0;
+    background: transparent;
+    border-bottom-color: transparent;
+    box-shadow: none;
     backdrop-filter: none;
   }
 
   .management-header:has(#topo-centro .cabecalho-edicao-mobile) > div:first-child {
     position: relative;
-    height: 84px !important;
-    min-height: 84px;
+    height: 60px !important;
+    min-height: 60px;
     justify-content: center;
     gap: 0;
     padding: 0;
@@ -56,11 +59,11 @@
   .management-header:has(#topo-centro .cabecalho-edicao-mobile) .cabecalho-edicao-mobile {
     width: 100%;
     max-width: none;
-    min-height: 84px;
+    min-height: 60px;
     justify-content: center;
     border: 0;
     border-radius: 0 0 28px 28px;
-    padding: 8px 12px 10px;
+    padding: 6px 12px 8px;
     box-shadow: none;
   }
 }

@@ -1347,45 +1347,44 @@ export function AgendaOperacional() {
       >
         {celular ? (
           <>
-            <NaBarraDoTopo alvoId={edicao.rascunho ? "topo-centro" : "topo-baixo"}>
-              <div className="grid w-full">
-                <AnimatePresence initial={false} mode="sync">
-                  {edicao.rascunho ? (
-                    <TransicaoVerticalDoModoEdicao
-                      key="edicao-topo-mobile"
-                      className="col-start-1 row-start-1 w-full"
-                      direcao="topo"
-                    >
-                      <CabecalhoDeEdicao
-                        dia={dia}
-                        naBarra
-                        onReagendar={() => {
-                          const original = edicao.original;
-                          edicao.descartar();
-                          if (original) abrirAcao(original, "remarcar");
-                        }}
-                      />
-                    </TransicaoVerticalDoModoEdicao>
-                  ) : (
-                    <TransicaoVerticalDoModoEdicao
-                      key="semana-topo-mobile"
-                      className="col-start-1 row-start-1 w-full"
-                      direcao="topo"
-                    >
-                      <RecolheNaLista visivel={visualizacao !== "lista"}>
-                        <SemanaDoTopo
-                          dia={dia}
-                          hoje={hojeNoFuso(fuso)}
-                          profissionalId={profFiltro}
-                          onDia={mudarDia}
-                          expandido={calAberto}
-                          onExpandido={setCalAberto}
-                        />
-                      </RecolheNaLista>
-                    </TransicaoVerticalDoModoEdicao>
-                  )}
-                </AnimatePresence>
-              </div>
+            {/* O painel de edição fica sempre no centro do topo, com a própria entrada e saída (desce e sobe como
+                as gavetas, levando o fundo junto); a faixa da semana fica no lugar dela, como antes, sem animar. */}
+            <NaBarraDoTopo alvoId="topo-centro">
+              <AnimatePresence initial={false}>
+                {edicao.rascunho ? (
+                  <TransicaoVerticalDoModoEdicao
+                    key="edicao-topo-mobile"
+                    className="w-full"
+                    direcao="topo"
+                  >
+                    <CabecalhoDeEdicao
+                      dia={dia}
+                      naBarra
+                      onReagendar={() => {
+                        const original = edicao.original;
+                        edicao.descartar();
+                        if (original) abrirAcao(original, "remarcar");
+                      }}
+                    />
+                  </TransicaoVerticalDoModoEdicao>
+                ) : null}
+              </AnimatePresence>
+            </NaBarraDoTopo>
+            <NaBarraDoTopo alvoId="topo-baixo">
+              {edicao.rascunho ? null : (
+                <div className="w-full">
+                  <RecolheNaLista visivel={visualizacao !== "lista"}>
+                    <SemanaDoTopo
+                      dia={dia}
+                      hoje={hojeNoFuso(fuso)}
+                      profissionalId={profFiltro}
+                      onDia={mudarDia}
+                      expandido={calAberto}
+                      onExpandido={setCalAberto}
+                    />
+                  </RecolheNaLista>
+                </div>
+              )}
             </NaBarraDoTopo>
           </>
         ) : null}
