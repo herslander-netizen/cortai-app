@@ -39,6 +39,7 @@ Contrato de design do projeto: `docs/contrato-de-design.md`. Esta ordem diz **co
 | Folha de baixo | `Sheet` (`side="bottom"`) com alça | `ModalBottomSheet` 28 dp só no topo |
 | Confirmação | `useConfirmar` / `AlertDialog` | diálogo de 28 dp |
 | Ação principal flutuante ("Salvar alterações") | `BotaoFlutuante` (`ui/botao-flutuante.tsx`) | `ExtendedFloatingActionButton` |
+| Escolher um horário (nunca `<input type="time">`: o relógio do Android sai cortado) | `SeletorDeHorario` (`ui/seletor-de-horario.tsx`) | `TimePickerDialog` do Material 3 |
 | Selo de estado / contagem | `Badge` | pílula |
 | Carregando | `Esqueleto*` (`layout/Esqueleto.tsx`) | esqueleto com o desenho da tela |
 | Aviso rápido (some sozinho) | `aviso` (`lib/avisos`) | snackbar |

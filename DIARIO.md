@@ -735,6 +735,15 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - Sem mudanças na interface da Agenda, migrações, bancos de dados, segredos, main ou site principal. TypeScript, Vitest, build e smoke test aguardam a validação automática do commit.
 ## Diário
 
+### 2026-10-26 UTC — Claude — Bloquear horário: relógio do Cortaí no lugar do nativo (cortado)
+- Captura do dono: o relógio nativo do Android (`<input type="time">`) saía cortado à direita e escondia o "Definir".
+- `ui/seletor-de-horario.tsx` (novo, `SeletorDeHorario`): relógio no padrão do Figaro (`TimePickerDialog` M3, spec
+  3-fluxos): título, horário grande com hora/minuto tocáveis, mostrador 24 h (00–11 fora, 12–23 dentro), minutos de 5 em 5,
+  Cancelar/OK; largura `min(328px, 100vw − 2rem)`. Registrado em `docs/ordem-padrao-figaro.md`.
+- `BloquearHorarioSheet.tsx`: Início e Fim viram campos que abrem o relógio. Testado num Chromium a 360 px: cabe inteiro e
+  grava o horário. Teste `seletor-de-horario.test.ts`.
+- Restam 12 `<input type="time">` fora da Agenda (horários de funcionamento etc.): mesmo problema; trocar quando o dono pedir.
+
 ### 2026-10-26 UTC — Claude — Ficha mais compacta (cabe sem rolar) e ícone de ajustes no tamanho certo
 - Captura do dono: na etapa cheia a nota "Em andamento…" ficava cortada (a ficha passava da tela). Respiros menores, letras
   iguais: `.agenda-ficha-secao` 32 → 20 px em cima; `.agenda-ficha-alca` 40 → 32 px; rodapé 12 → 8 px; linhas dos cartões

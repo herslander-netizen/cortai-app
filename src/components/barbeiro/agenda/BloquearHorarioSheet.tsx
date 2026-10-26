@@ -5,6 +5,7 @@ import { CalendarDays, Clock3, Lock, Unlock } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { SeletorDeHorario } from "@/components/ui/seletor-de-horario";
 import { useConfirmar } from "@/components/ui/useConfirmar";
 import {
   Sheet,
@@ -45,6 +46,7 @@ export function BloquearHorarioSheet({
   const [ate, setAte] = useState(() => janelaPadrao(diaInicial, hoje, agoraMin).ate);
   const [prof, setProf] = useState<string>("");
   const [motivo, setMotivo] = useState("");
+  const [relogio, setRelogio] = useState<"inicio" | "fim" | null>(null);
   const [confirmar, dialogoDeConfirmacao] = useConfirmar();
 
   // Cada abertura começa no dia da Agenda (hoje, se for passado) com a janela padrão do Figaro.
@@ -161,29 +163,35 @@ export function BloquearHorarioSheet({
               aria-label={`Dia do bloqueio: ${dataEditorial(diaEscolhido)}`}
             />
           </label>
+          {/* Relógio do Cortaí (padrão Figaro) no lugar do nativo do Android, que saía cortado (dono, 26/10). */}
           <div className="grid grid-cols-2 gap-3">
-            <label className="block text-sm text-mute">
-              Início
-              <input
-                type="time"
-                value={de}
-                onChange={(e) => setDe(e.target.value)}
-                className="field-control mt-1 min-h-12 w-full"
-                aria-label="Horário de início do bloqueio"
-              />
-            </label>
-            <label className="block text-sm text-mute">
-              Fim
-              <input
-                type="time"
-                value={ate}
-                onChange={(e) => setAte(e.target.value)}
-                className="field-control mt-1 min-h-12 w-full"
-                aria-label="Horário de fim do bloqueio"
-              />
-            </label>
+            {(
+              [
+                { qual: "inicio", rotulo: "Início", valor: de },
+                { qual: "fim", rotulo: "Fim", valor: ate },
+              ] as const
+            ).map(({ qual, rotulo, valor }) => (
+              <div key={qual} className="text-sm text-mute">
+                {rotulo}
+                <button
+                  type="button"
+                  onClick={() => setRelogio(qual)}
+                  className="field-control mt-1 flex min-h-12 w-full items-center text-left tabular-nums text-paper"
+                  aria-label={`Horário de ${rotulo.toLowerCase()} do bloqueio: ${valor || "escolher"}`}
+                >
+                  {valor || "--:--"}
+                </button>
+              </div>
+            ))}
           </div>
         </div>
+        <SeletorDeHorario
+          aberto={relogio !== null}
+          titulo={relogio === "fim" ? "Fim" : "Início"}
+          valor={relogio === "fim" ? ate : de}
+          onAberto={(v) => !v && setRelogio(null)}
+          onEscolher={(v) => (relogio === "fim" ? setAte(v) : setDe(v))}
+        />
         {profissionais.length > 1 ? (
           <label className="mt-3 block text-sm text-mute">
             Para quem
