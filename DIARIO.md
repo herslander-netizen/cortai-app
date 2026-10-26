@@ -488,6 +488,7 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Em andamento
 
+| GPT | 2026-10-26 UTC | Polimento de interação mobile fora da Agenda: seleção/cópia contextual, toque e arrasto nativos, zoom acidental sem bloquear acessibilidade; criar CSS isolado e testes, preservando Agenda e campos copiáveis | `DIARIO.md`, `src/routes/__root.tsx`, `src/styles/mobile-interactions.css`, `src/styles/mobile-interactions.test.ts`; sem migração |
 
 
 | Quem | Desde (UTC) | Tarefa | Arquivos / migração reservada |
