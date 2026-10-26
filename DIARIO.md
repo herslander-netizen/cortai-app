@@ -27,6 +27,7 @@ e o que fez. O diário até 17/10/2026 está guardado, sem alterações, em
 7. **Sem segredos:** nunca escreva chaves, senhas ou tokens aqui. Cite só o nome da variável.
 
 ## Decisões do dono
+- 2026-10-26: **autorizada a ativação das migrações 0047 e 0048 somente no banco isolado `cortai-preview`**. Esta autorização não inclui `cortai-prod`, site principal, DNS nem outros bancos.
 - 2026-10-26: **Gavetas sem linhas marrons** (dono: "não gostei das linhas nas gavetas, faça isso apenas quando tiver um contraste grande… não deixe a tela cheia de linha marrom"). Fora da Agenda, as divisórias das gavetas viram um traço neutro quase imperceptível e a borda da gaveta some; com o modo de alto contraste do aparelho as linhas voltam. A Agenda fica de fora (regra "Agenda protegida").
 - 2026-10-26: **Agenda protegida** (dono: "qualquer mudança do calendário deve ser específica, um pedido meu de algo tipo gavetas não pode mudar nada visual na agenda"). Mudança visual na Agenda (calendário, grade, cartões, ficha, gavetas abertas nela) só com pedido específico para a Agenda; pedidos gerais (todas as gavetas, `ui/`, CSS global) excluem a Agenda de propósito. Regra no `AGENTS.md` da raiz e no da Agenda. **Revertido** o envio "Ficha em duas etapas… e linha discreta no topo das gavetas" (`eae2c825`), que mexeu na Agenda; a decisão "Ficha do agendamento em duas etapas" abaixo fica **suspensa** até o dono pedir de novo.
 - 2026-10-26: **Ficha do agendamento em duas etapas** (dono, com captura: "subir em duas etapas e sair em uma etapa só, ajustar o conteúdo e tirar a função de rolagem, ... aparecer por completo na segunda etapa"): abre na metade da tela, a barrinha sobe até a altura do conteúdo inteiro e, para baixo, fecha de uma vez; sem rolagem por dentro. **Substitui o "cartão de um estado só" de 24/10.** Junto: **uma linha bem discreta na borda de cima de todas as gavetas de baixo**.
@@ -718,6 +719,15 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - Commits: `ae7cf8913f6fa14bcfa87c1a3b89e0b77af20243`, `5f174bf6a4f91619ad6e8c3232b7c20d8f2fa73e`, `bdbfc8f2458dc5018d3bfe7d5bf9d5580d46f0ec`.
 - A execução anterior do CI falhou em TypeScript; os novos envios estão sendo validados. Não afirmar que testes/build passaram até concluir o workflow.
 - Sem alteração no banco, `main` ou produção.
+
+## Diário
+
+### 2026-10-26 UTC — GPT — Ativadas as melhorias AgendaClick no banco isolado de prévia
+- Autorização recebida do dono para ativar somente no projeto Supabase `cortai-preview` (`pfkxvindedkuktogbcsv`).
+- Aplicadas com sucesso as migrações `0047_bloqueio_cliente_agendamento.sql` e `0048_series_agendamentos.sql` por `apply_migration`; registradas no histórico do Supabase como `bloqueio_cliente_agendamento` e `series_agendamentos`.
+- Verificação pós-aplicação confirmou as colunas de bloqueio, o trigger `trg_impedir_agendamento_cliente_bloqueado`, as tabelas `agendamento_series` e `agendamento_serie_ocorrencias` e a função `criar_serie_agendamentos`. Nenhum atendimento ou cliente foi alterado pela migração.
+- `cortai-prod`, o site principal e DNS não foram tocados. A prévia mais recente (commit `193474abedf5bb20e67c15f0aeb478d1ab229621`, workflow 40382483874) passou build, TypeScript, deploy isolado e smoke test.
+- O linter de segurança sinaliza RLS habilitado sem policies nas duas tabelas de série; isso é intencional no desenho atual porque as tabelas revogam acesso de `anon`/ `authenticated` e concedem acesso apenas a `service_role`. Seguir monitorando os avisos preexistentes do projeto.
 
 ## Diário
 
