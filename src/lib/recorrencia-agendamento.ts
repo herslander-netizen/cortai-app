@@ -18,15 +18,15 @@ function partesLocais(instante: Date, fuso: string): PartesLocais {
   for (const parte of fmt.formatToParts(instante)) {
     if (parte.type !== "literal") parts[parte.type] = parte.value;
   }
-  const ano = Number(parts.year);
-  const mes = Number(parts.month);
-  const diaMes = Number(parts.day);
+  const ano = Number(parts["year"]);
+  const mes = Number(parts["month"]);
+  const diaMes = Number(parts["day"]);
   return {
     ano,
     mes,
     diaMes,
     dia: `${String(ano).padStart(4, "0")}-${String(mes).padStart(2, "0")}-${String(diaMes).padStart(2, "0")}`,
-    hora: `${parts.hour ?? "00"}:${parts.minute ?? "00"}`,
+    hora: `${parts["hour"] ?? "00"}:${parts["minute"] ?? "00"}`,
   };
 }
 
