@@ -90,6 +90,7 @@ decisão nova contradiz uma regra daqui, apontar o conflito ao dono antes de agi
 - Edição administrativa de barbearia separa visão geral, contato e suporte; ações comerciais nunca dividem contexto com alterações operacionais.
 - Home pública oficial é só `/apresentacao` (`ShowroomCortai`), com textos/SEO editados em `/admin/home` (campo `apresentacao` de `home_publica`); `/` despacha auth; `/b/$slug` com aliases.
 - Agenda: regras em `src/components/barbeiro/agenda/AGENTS.md`.
+- **Agenda protegida (decisão do dono, 26/10/2026):** qualquer mudança na Agenda (grade, calendário, cartões, ficha e as gavetas e painéis abertos dentro dela) só com pedido **específico** do dono para a Agenda. Pedido geral ou de outro elemento ("todas as gavetas", primitivos de `src/components/ui`, estilo global em `styles.css`, temas) **não pode mudar nada visual na Agenda**: exclua a Agenda de propósito e confira no diff que nenhum arquivo ou classe da Agenda foi afetado. Na dúvida, pergunte antes.
 - Elementos flutuantes da Agenda dependem da rota ativa e do contexto de sobreposição compartilhado pelo layout — evita portais persistirem entre telas.
 - Ações rápidas do cabeçalho aparecem só em rotas operacionais explicitamente permitidas; a Agenda mantém seu FAB próprio — evita ações globais fora de contexto.
 - Movimento: escala 120/200/280 ms, só transform/opacity, cascata até 6 itens, redução de movimento global.

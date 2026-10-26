@@ -3244,11 +3244,6 @@ html:not(.agenda-gesto-ativo) .agenda-previa-vizinho {
 .mov-overlay {
   animation-duration: var(--mov-base) !important;
 }
-/* Gavetas de baixo (dono, 26/10): uma linha bem discreta acompanha a borda de cima arredondada, para a
-   gaveta não se perder no fundo escurecido. Sombra interna: fica presa ao topo mesmo com rolagem. */
-.gaveta-borda-de-cima {
-  box-shadow: inset 0 1px 0 0 color-mix(in oklab, var(--paper) 14%, transparent) !important;
-}
 .mov-sheet {
   transition-timing-function: var(--ease-saida) !important;
 }

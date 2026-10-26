@@ -27,6 +27,7 @@ e o que fez. O diário até 17/10/2026 está guardado, sem alterações, em
 7. **Sem segredos:** nunca escreva chaves, senhas ou tokens aqui. Cite só o nome da variável.
 
 ## Decisões do dono
+- 2026-10-26: **Agenda protegida** (dono: "qualquer mudança do calendário deve ser específica, um pedido meu de algo tipo gavetas não pode mudar nada visual na agenda"). Mudança visual na Agenda (calendário, grade, cartões, ficha, gavetas abertas nela) só com pedido específico para a Agenda; pedidos gerais (todas as gavetas, `ui/`, CSS global) excluem a Agenda de propósito. Regra no `AGENTS.md` da raiz e no da Agenda. **Revertido** o envio "Ficha em duas etapas… e linha discreta no topo das gavetas" (`eae2c825`), que mexeu na Agenda; a decisão "Ficha do agendamento em duas etapas" abaixo fica **suspensa** até o dono pedir de novo.
 - 2026-10-26: **Ficha do agendamento em duas etapas** (dono, com captura: "subir em duas etapas e sair em uma etapa só, ajustar o conteúdo e tirar a função de rolagem, ... aparecer por completo na segunda etapa"): abre na metade da tela, a barrinha sobe até a altura do conteúdo inteiro e, para baixo, fecha de uma vez; sem rolagem por dentro. **Substitui o "cartão de um estado só" de 24/10.** Junto: **uma linha bem discreta na borda de cima de todas as gavetas de baixo**.
 - 2026-10-26: **Fantasma do horário original ao editar o cartão** (dono, com duas capturas: "fica um fantasma, uma imagem transparente para se atentar qual a hora estava, o mesmo comportamento pra aumentar e tirar esse tracejado"). Ao encurtar, esticar ou mover, o horário original aparece como o próprio cartão a 50% (Figaro `DurationChangeAlpha`) com um contorno por cima; sem listras tracejadas.
 - 2026-10-26: **Implementar as melhorias encontradas na auditoria AgendaClick**: série de agendamentos semanais/quinzenais/mensais com validação de conflitos; bloqueio de novos agendamentos por cliente, separado do arquivamento; ganhos extras identificados por tipo e período; informações de créditos de atendimento nas confirmações/lembretes. A implementação pode preparar migrações aditivas, mas **não as aplica em banco real nem publica no site principal sem autorização específica**.
@@ -718,6 +719,13 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - Sem alteração no banco, `main` ou produção.
 
 ## Diário
+
+### 2026-10-26 UTC — Claude — Revertido o envio das gavetas; regra da Agenda protegida
+- O dono avisou que o envio `eae2c825` (ficha em duas etapas + linha no topo de todas as gavetas de baixo) mexeu no
+  calendário da Agenda. Revertido inteiro com `git revert` (sem reescrever histórico): `PainelAtendimento.tsx`,
+  `useFolhaEmDoisEstados.ts`, `sheet.tsx` e `styles.css` voltaram ao estado anterior; teste `ficha-duas-etapas` removido.
+  O fantasma da Agenda (`38d9bc63`, pedido específico) continua.
+- Regra nova no topo das regras da Agenda e no `AGENTS.md` da raiz: pedido geral nunca altera a Agenda.
 
 ### 2026-10-26 UTC — GPT — Auditoria AgendaClick implementada e validada
 - Implementados na branch de trabalho: séries semanais/quinzenais/mensais criadas a partir de um atendimento existente (até 51 futuras), bloqueio de novos agendamentos separado do arquivamento, registro de ganhos extras por categoria/profissional/forma de recebimento e créditos reais nas confirmações/lembretes.
