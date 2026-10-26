@@ -27,6 +27,7 @@ e o que fez. O diário até 17/10/2026 está guardado, sem alterações, em
 7. **Sem segredos:** nunca escreva chaves, senhas ou tokens aqui. Cite só o nome da variável.
 
 ## Decisões do dono
+- 2026-10-26: **Comanda com duas ações em destaque** (dono: "coloca a opção de compartilhar e de abrir a conversa no whatsapp em destaque"): "Abrir conversa" (principal, só com telefone válido: baixa e copia o JPG e abre a conversa do cliente) e "Compartilhar" (tonal: compartilhar do celular com o JPG). Sem telefone, só "Compartilhar". O ideal seria um toque só, mas o WhatsApp não aceita anexo por link.
 - 2026-10-26: **Comanda vai ao WhatsApp como imagem JPG** (dono: "o botão whatsapp já mandar a imagem da comanda direto no whatsapp do cliente em jpg"; escolheu "os dois"). Agora: o botão gera o JPG e abre o compartilhar do celular (o contato é escolhido no WhatsApp, porque nenhum app abre a conversa de um contato já com anexo). Depois: envio automático do JPG pelo número oficial, quando o WhatsApp oficial estiver ativo e houver modelo com imagem aprovado pela Meta (custo por mensagem fora da janela de 24 h exige aval do dono).
 - 2026-10-25: **Tracejado de 15 min só depois do zoom** (dono, com captura do celular: "não é pra aparecer as listras pontilhadas o tempo todo"). Em repouso a grade mostra só a hora cheia; o tracejado de 15 min aparece (fade de 200 ms) quando o zoom passa do tamanho de repouso (`PX_POR_MINUTO > PX_PADRAO`). Substitui, para o tracejado, o trecho "mantém o tracejado de 15 min" da decisão de hoje abaixo e o pedido anterior de linhas de 15 min no celular. As linhas de 5 min seguem só na edição.
 - 2026-10-25: **Grade da Agenda sem as marcas de 5 min em repouso** (dono, com captura do celular): com zoom, as pequenas marcas de 5 em 5 minutos não precisam aparecer. Em repouso a grade mostra só a hora cheia (linha contínua e igual) e o tracejado de 15 min; as linhas de 5 min aparecem apenas durante a edição (arrastar ou redimensionar), por cima da grade. Isto substitui o "aparecem a partir de 2,5 px/min" copiado do Figaro.
@@ -709,6 +710,14 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - Sem alteração no banco, `main` ou produção.
 
 ## Diário
+
+### 2026-10-26 UTC — Claude — Comanda: "Abrir conversa" e "Compartilhar" lado a lado
+- `FolhaDoTicket.tsx` (`ConteudoDoTicket`, tela da equipe): o botão único "Enviar no WhatsApp" virou dois botões de 56 px
+  lado a lado: "Abrir conversa" (cheio) e "Compartilhar" (tonal, `Share2`); sem telefone válido, só "Compartilhar" na
+  linha toda. "Baixar imagem" e "Copiar código" ficam embaixo. `useAcoesDoTicket` sem a opção `direto`: expõe
+  `temConversa`, `abrirConversa`, `compartilhar` (a tela do cliente, `TicketDaConfirmacao`, segue com `enviarWhatsApp` =
+  compartilhar).
+- Validação: tsc, 2002 testes e build ok. Conferência visual no celular pendente (sem sessão de navegador logada).
 
 ### 2026-10-26 UTC — Claude — Comanda: baixa, copia e abre a conversa do cliente
 - Pedido do dono: "baixada a foto e logo o sistema abre na conversa com ela". Na equipe, com telefone válido, "Enviar no

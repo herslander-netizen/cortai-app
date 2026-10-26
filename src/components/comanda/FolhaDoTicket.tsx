@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Copy, Download } from "lucide-react";
+import { Copy, Download, Share2 } from "lucide-react";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -56,12 +56,9 @@ async function copiar(texto: string, ok: string) {
 }
 
 /** Ações da comanda: mesma imagem do ticket (JPG) para WhatsApp e download. */
-export function useAcoesDoTicket(
-  ticket: DadosDoTicket | undefined,
-  /** Equipe: a mensagem vai para o telefone do cliente cadastrado, com o texto da comanda. */
-  opcoes: { direto?: boolean } = {},
-) {
-  const [gerando, setGerando] = useState<"whatsapp" | "baixar" | null>(null);
+export function useAcoesDoTicket(ticket: DadosDoTicket | undefined) {
+  const [gerando, setGerando] = useState<"conversa" | "compartilhar" | "baixar" | null>(null);
+  const numero = ticket ? numeroParaWhatsApp(ticket.cliente.telefone) : null;
   function baixarArquivo(f: File) {
     const url = URL.createObjectURL(f);
     const a = document.createElement("a");
@@ -70,36 +67,29 @@ export function useAcoesDoTicket(
     a.click();
     window.setTimeout(() => URL.revokeObjectURL(url), 2000);
   }
-  async function executar(tipo: "whatsapp" | "baixar") {
+  function abrirWhatsApp(destino: string, texto: string) {
+    window.open(`https://wa.me/${destino}?text=${encodeURIComponent(texto)}`, "_blank", "noopener");
+  }
+  async function executar(tipo: "conversa" | "compartilhar" | "baixar") {
     if (!ticket || gerando) return;
-    const numero = numeroParaWhatsApp(ticket.cliente.telefone);
-    const nome = `comanda-${ticket.codigo}.jpg`;
     // Começa antes de qualquer espera: copiar para a área de transferência precisa do toque ainda "fresco".
     const desenho = desenharTicket(ticket, SIMBOLO_CORTAI);
-    const conversaDireta = tipo === "whatsapp" && Boolean(opcoes.direto && numero);
-    if (conversaDireta) copiarImagem(desenho);
+    const conversa = tipo === "conversa" && numero ? numero : null;
+    if (conversa) copiarImagem(desenho);
     setGerando(tipo);
     try {
-      const f = await canvasParaJpg(await desenho, nome);
+      const f = await canvasParaJpg(await desenho, `comanda-${ticket.codigo}.jpg`);
       if (!f) throw new Error();
-      if (conversaDireta) {
-        // Equipe com o telefone do cliente: baixa e copia o JPG e abre a conversa dele com o texto da
-        // comanda. O WhatsApp não aceita anexo pelo link, então a imagem entra pelo 📎 › Galeria ou colando.
+      if (conversa) {
+        // Conversa do cliente: baixa e copia o JPG e abre a conversa com o texto da comanda. O WhatsApp
+        // não aceita anexo pelo link, então a imagem entra pelo 📎 › Galeria ou colando.
         baixarArquivo(f);
         aviso.info(
           "Comanda baixada e copiada. Na conversa, toque em 📎 › Galeria ou cole a imagem.",
         );
-        const texto = textoDaComandaParaWhatsApp(ticket, brl(ticket.totalCentavos));
-        window.open(
-          `https://wa.me/${numero}?text=${encodeURIComponent(texto)}`,
-          "_blank",
-          "noopener",
-        );
-        return;
-      }
-      if (tipo === "whatsapp" && opcoes.direto)
-        aviso.info("Cliente sem telefone válido. Escolha o contato no WhatsApp.");
-      if (tipo === "whatsapp" && navigator.canShare?.({ files: [f] })) {
+        abrirWhatsApp(conversa, textoDaComandaParaWhatsApp(ticket, brl(ticket.totalCentavos)));
+      } else if (tipo !== "baixar" && navigator.canShare?.({ files: [f] })) {
+        // Compartilhar do celular: a imagem segue pronta; o app e o contato são escolhidos ali.
         try {
           await navigator.share({
             files: [f],
@@ -111,14 +101,11 @@ export function useAcoesDoTicket(
         }
       } else {
         baixarArquivo(f);
-        if (tipo === "whatsapp") {
+        if (tipo === "baixar") aviso.ok("Imagem da comanda baixada.");
+        else {
           aviso.info("Imagem baixada. Anexe no WhatsApp para enviar.");
-          window.open(
-            `https://wa.me/?text=${encodeURIComponent(`Comanda #${ticket.codigo}`)}`,
-            "_blank",
-            "noopener",
-          );
-        } else aviso.ok("Imagem da comanda baixada.");
+          abrirWhatsApp("", `Comanda #${ticket.codigo}`);
+        }
       }
     } catch {
       aviso.erro("Não foi possível gerar a imagem. Tente de novo.");
@@ -128,7 +115,12 @@ export function useAcoesDoTicket(
   }
   return {
     gerando,
-    enviarWhatsApp: () => void executar("whatsapp"),
+    /** Há telefone válido do cliente para abrir a conversa dele. */
+    temConversa: Boolean(numero),
+    abrirConversa: () => void executar("conversa"),
+    compartilhar: () => void executar("compartilhar"),
+    /** Tela do cliente: compartilhar a própria comanda. */
+    enviarWhatsApp: () => void executar("compartilhar"),
     baixar: () => void executar("baixar"),
     copiarCodigo: () => ticket && void copiar(`#${ticket.codigo}`, "Código copiado"),
     copiarPix: () => ticket?.pixChave && void copiar(ticket.pixChave, "Chave Pix copiada"),
@@ -143,7 +135,7 @@ export function ConteudoDoTicket({ comandaId }: { comandaId: string }) {
     queryFn: () => buscar({ data: { comandaId } }),
     staleTime: 30_000,
   });
-  const acoes = useAcoesDoTicket(q.data, { direto: true });
+  const acoes = useAcoesDoTicket(q.data);
   return (
     <>
       {q.isLoading ? (
@@ -162,15 +154,30 @@ export function ConteudoDoTicket({ comandaId }: { comandaId: string }) {
             onCopiarCodigo={acoes.copiarCodigo}
           />
           <div className="mx-auto mt-6 grid w-full max-w-[360px] gap-2">
-            <Button
-              size="lg"
-              className="h-14 rounded-full"
-              onClick={acoes.enviarWhatsApp}
-              disabled={Boolean(acoes.gerando)}
-            >
-              <IconeWhatsApp />
-              {acoes.gerando === "whatsapp" ? "Gerando imagem…" : "Enviar no WhatsApp"}
-            </Button>
+            {/* Em destaque, um toque cada: a conversa do cliente (vai para a pessoa certa) e o compartilhar. */}
+            <div className={acoes.temConversa ? "grid grid-cols-2 gap-2" : "grid"}>
+              {acoes.temConversa ? (
+                <Button
+                  size="lg"
+                  className="h-14 rounded-full"
+                  onClick={acoes.abrirConversa}
+                  disabled={Boolean(acoes.gerando)}
+                >
+                  <IconeWhatsApp />
+                  {acoes.gerando === "conversa" ? "Gerando…" : "Abrir conversa"}
+                </Button>
+              ) : null}
+              <Button
+                size="lg"
+                variant={acoes.temConversa ? "secondary" : "default"}
+                className="h-14 rounded-full"
+                onClick={acoes.compartilhar}
+                disabled={Boolean(acoes.gerando)}
+              >
+                <Share2 aria-hidden />
+                {acoes.gerando === "compartilhar" ? "Gerando…" : "Compartilhar"}
+              </Button>
+            </div>
             <div className="grid grid-cols-2 gap-2">
               <Button
                 variant="secondary"

@@ -94,7 +94,7 @@ export function TicketDaConfirmacao({
         <div className="mt-3 min-w-0 rounded-[var(--raio-folha)] bg-[var(--ticket-fundo)] px-3 py-3 sm:px-4 sm:py-4">
           <TicketComanda ticket={ticket} onCopiarCodigo={acoes.copiarCodigo} />
           <div className="mx-auto mt-3 grid w-full max-w-[360px] gap-2 sm:mt-4">
-            <Button size="lg" className="h-12 rounded-full" onClick={acoes.enviarWhatsApp} disabled={Boolean(acoes.gerando)}><IconeWhatsApp />{acoes.gerando === "whatsapp" ? "Gerando imagem…" : "Enviar no WhatsApp"}</Button>
+            <Button size="lg" className="h-12 rounded-full" onClick={acoes.enviarWhatsApp} disabled={Boolean(acoes.gerando)}><IconeWhatsApp />{acoes.gerando === "compartilhar" ? "Gerando imagem…" : "Enviar no WhatsApp"}</Button>
             <div className="grid grid-cols-2 gap-2">
               <Button variant="secondary" className="h-12 rounded-full" onClick={acoes.baixar} disabled={Boolean(acoes.gerando)}><Download aria-hidden />{acoes.gerando === "baixar" ? "Gerando…" : "Baixar imagem"}</Button>
               <Button variant="secondary" className="h-12 rounded-full" onClick={acoes.copiarCodigo}><Copy aria-hidden />Copiar código</Button>
