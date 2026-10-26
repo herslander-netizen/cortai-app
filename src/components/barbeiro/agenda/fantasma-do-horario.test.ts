@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { fantasmaDoHorario } from "./fantasma-do-horario";
+import { fantasmaDoHorario, formaDoFantasma } from "./fantasma-do-horario";
 
 const f = (inicio: number, fim: number) => ({ inicio, fim });
 
@@ -23,5 +23,19 @@ describe("fantasmaDoHorario", () => {
 
   it("original vazio não gera fantasma", () => {
     expect(fantasmaDoHorario(f(60, 60), f(60, 90))).toBeNull();
+  });
+});
+
+describe("formaDoFantasma", () => {
+  it("encurtar = encolheu", () => {
+    expect(formaDoFantasma(f(60, 90), f(60, 75))).toBe("encolheu");
+  });
+  it("esticar = cresceu (o pedaço novo fica a 50%)", () => {
+    expect(formaDoFantasma(f(60, 90), f(60, 120))).toBe("cresceu");
+    expect(formaDoFantasma(f(60, 90), f(45, 90))).toBe("cresceu");
+  });
+  it("mudar de lugar = moveu", () => {
+    expect(formaDoFantasma(f(60, 90), f(75, 105))).toBe("moveu");
+    expect(formaDoFantasma(f(60, 90), f(120, 150))).toBe("moveu");
   });
 });

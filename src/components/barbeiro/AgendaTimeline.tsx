@@ -35,7 +35,10 @@ import {
 } from "@/components/barbeiro/agenda/zoom-agenda";
 import { vibrar } from "@/lib/vibrar";
 import { criarToqueLongoVazio } from "@/components/barbeiro/agenda/toque-longo-vazio";
-import { fantasmaDoHorario } from "@/components/barbeiro/agenda/fantasma-do-horario";
+import {
+  fantasmaDoHorario,
+  formaDoFantasma,
+} from "@/components/barbeiro/agenda/fantasma-do-horario";
 import {
   corDaCategoria,
   faixaDoCartao,
@@ -1027,28 +1030,56 @@ function AgendaTimelineBase({
               : { left: "7px", right: "4px" };
             // Fantasma do horário original (Figaro, cartão a 50%), ao encurtar, esticar ou mover.
             const original = edicaoDoCartao?.id === item.id ? edicaoDoCartao.original : undefined;
+            const mostrado = {
+              inicio: inicio + passoArrasto,
+              fim: Math.max(inicio + 1, fim) + passoArrasto + passoRedim,
+            };
             const fantasma = original
               ? fantasmaDoHorario(
                   {
                     inicio: minutosNoFuso(original.inicio, fuso),
                     fim: minutosNoFuso(original.fim, fuso),
                   },
-                  {
-                    inicio: inicio + passoArrasto,
-                    fim: Math.max(inicio + 1, fim) + passoArrasto + passoRedim,
-                  },
+                  mostrado,
                 )
               : null;
-            const estiloDoFantasma = fantasma
-              ? {
-                  top: `${(fantasma.inicio - escala.inicio) * PX_POR_MINUTO + deslocamentoAte(fantasma.inicio) + (alinhado ? RESPIRO_DO_CARTAO : 0)}px`,
-                  height: `${(fantasma.fim - fantasma.inicio) * PX_POR_MINUTO + deslocamentoAte(fantasma.fim) - deslocamentoAte(fantasma.inicio) - (alinhado ? 2 * RESPIRO_DO_CARTAO : 0)}px`,
-                  ...faixaDaColuna,
-                }
-              : null;
+            const forma = fantasma ? formaDoFantasma(fantasma, mostrado) : null;
+            const respiro = alinhado ? RESPIRO_DO_CARTAO : 0;
+            const naGrade = (min: number) =>
+              (min - escala.inicio) * PX_POR_MINUTO + deslocamentoAte(min);
+            // Encolheu ou moveu: o original atrás do cartão.
+            const estiloDoFantasma =
+              fantasma && forma !== "cresceu"
+                ? {
+                    top: `${naGrade(fantasma.inicio) + respiro}px`,
+                    height: `${naGrade(fantasma.fim) - naGrade(fantasma.inicio) - 2 * respiro}px`,
+                    ...faixaDaColuna,
+                  }
+                : null;
+            // Contorno em volta de tudo: do original ao encolher, do cartão ao crescer.
+            const estiloDoContorno =
+              forma === "encolheu"
+                ? estiloDoFantasma
+                : forma === "cresceu"
+                  ? {
+                      top: `${topo + respiro}px`,
+                      height: `${alturaDoBloco - 2 * respiro}px`,
+                      ...faixaDaColuna,
+                    }
+                  : null;
+            // Cresceu: o pedaço acrescentado do próprio cartão a 50% (máscara, como o `DstIn` do Figaro).
+            const mascaraDoCartao =
+              fantasma && forma === "cresceu"
+                ? (() => {
+                    const de = naGrade(fantasma.inicio) - naGrade(mostrado.inicio);
+                    const ate = naGrade(fantasma.fim) - naGrade(mostrado.inicio) - respiro;
+                    const m = `linear-gradient(to bottom, rgba(0,0,0,0.5) ${de}px, #000 ${de}px, #000 ${ate}px, rgba(0,0,0,0.5) ${ate}px)`;
+                    return { maskImage: m, WebkitMaskImage: m };
+                  })()
+                : {};
             return (
               <Fragment key={item.id}>
-                {fantasma ? (
+                {estiloDoFantasma ? (
                   <div
                     className="agenda-timeline-fantasma"
                     style={{
@@ -1093,6 +1124,7 @@ function AgendaTimelineBase({
                     ...(arrasto?.id === item.id
                       ? { transform: `translateY(${arrasto.dy}px) scale(1.02)` }
                       : {}),
+                    ...mascaraDoCartao,
                   }}
                   aria-pressed={selecionado === item.id}
                   tabIndex={previa ? -1 : undefined}
@@ -1172,11 +1204,11 @@ function AgendaTimelineBase({
                     </>
                   ) : null}
                 </Button>
-                {/* Contorno por cima: ao esticar, mostra dentro do cartão até onde ia o horário antes. */}
-                {estiloDoFantasma ? (
+                {/* Contorno por cima, em volta de tudo: do original ao encolher, do cartão ao crescer. */}
+                {estiloDoContorno ? (
                   <div
                     className="agenda-timeline-fantasma-contorno"
-                    style={estiloDoFantasma}
+                    style={estiloDoContorno}
                     aria-hidden
                   />
                 ) : null}

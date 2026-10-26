@@ -722,6 +722,14 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-26 UTC — Claude — Agenda: esticar o cartão com o mesmo visual de encurtar
+- Pedido do dono (duas capturas): o contorno do original dentro do cartão esticado parecia uma caixa solta.
+- `fantasma-do-horario.ts`: `formaDoFantasma` (encolheu / cresceu / moveu), com testes.
+- `AgendaTimeline.tsx`: **cresceu** → máscara no próprio cartão (`mask-image`, como o `DstIn` do Figaro): o pedaço
+  acrescentado fica a 50% e o contorno envolve o cartão inteiro; **encolheu** → como antes (original atrás a 50% e
+  contorno nele); **moveu** → só o original atrás, sem contorno cruzando o cartão.
+- tsc, 2010 testes, eslint e build ok.
+
 ### 2026-10-26 UTC — Claude — Menu lateral: sem a barrinha e com os ícones do Figaro
 - Pedido do dono (captura do menu): tirar a barrinha da gaveta do menu e usar os ícones de Agenda e de ajustes do Figaro.
 - `styles.css`: `.management-drawer [data-alca-gaveta] > span` invisível; a faixa de arrastar para fechar continua.
