@@ -1,4 +1,4 @@
-/** Desenha a mesma comanda da tela em imagem (PNG), para baixar ou enviar no WhatsApp. */
+/** Desenha a mesma comanda da tela em imagem (JPG), para baixar ou enviar no WhatsApp. */
 import { brl } from "@/lib/format";
 import {
   barrasDoCodigo,
@@ -374,8 +374,13 @@ function desenhar(
   return y + 30;
 }
 
-export function canvasParaPng(canvas: HTMLCanvasElement, nome: string): Promise<File | null> {
+/** JPG (pedido do dono): abre em qualquer WhatsApp e pesa menos. O fundo do ticket é opaco, sem áreas pretas. */
+export function canvasParaJpg(canvas: HTMLCanvasElement, nome: string): Promise<File | null> {
   return new Promise((ok) =>
-    canvas.toBlob((b) => ok(b ? new File([b], nome, { type: "image/png" }) : null), "image/png"),
+    canvas.toBlob(
+      (b) => ok(b ? new File([b], nome, { type: "image/jpeg" }) : null),
+      "image/jpeg",
+      0.92,
+    ),
   );
 }

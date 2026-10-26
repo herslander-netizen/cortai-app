@@ -19,7 +19,7 @@ import {
   type DadosDoTicket,
 } from "@/lib/comanda-ticket";
 import { brl } from "@/lib/format";
-import { canvasParaPng, desenharTicket } from "./desenhar-ticket";
+import { canvasParaJpg, desenharTicket } from "./desenhar-ticket";
 import { SIMBOLO_CORTAI, TicketComanda } from "./TicketComanda";
 
 export function IconeWhatsApp({ className = "size-5" }: { className?: string }) {
@@ -39,16 +39,16 @@ async function copiar(texto: string, ok: string) {
   }
 }
 
-/** Ações da comanda: mesma imagem do ticket para WhatsApp e download. */
+/** Ações da comanda: mesma imagem do ticket (JPG) para WhatsApp e download. */
 export function useAcoesDoTicket(
   ticket: DadosDoTicket | undefined,
-  /** Equipe: abre a conversa direto no telefone do cliente cadastrado (a imagem segue em "Baixar imagem"). */
+  /** Equipe: a mensagem vai para o telefone do cliente cadastrado, com o texto da comanda. */
   opcoes: { direto?: boolean } = {},
 ) {
   const [gerando, setGerando] = useState<"whatsapp" | "baixar" | null>(null);
   async function arquivo() {
     const canvas = await desenharTicket(ticket!, SIMBOLO_CORTAI);
-    return canvasParaPng(canvas, `comanda-${ticket!.codigo}.png`);
+    return canvasParaJpg(canvas, `comanda-${ticket!.codigo}.jpg`);
   }
   function baixarArquivo(f: File) {
     const url = URL.createObjectURL(f);
@@ -60,36 +60,31 @@ export function useAcoesDoTicket(
   }
   async function executar(tipo: "whatsapp" | "baixar") {
     if (!ticket || gerando) return;
-    if (tipo === "whatsapp" && opcoes.direto) {
-      const numero = numeroParaWhatsApp(ticket.cliente.telefone);
-      if (numero) {
-        const texto = textoDaComandaParaWhatsApp(ticket, brl(ticket.totalCentavos));
-        window.open(
-          `https://wa.me/${numero}?text=${encodeURIComponent(texto)}`,
-          "_blank",
-          "noopener",
-        );
-        return;
-      }
-      aviso.info("Cliente sem telefone válido. Escolha o contato no WhatsApp.");
-    }
+    const numero = numeroParaWhatsApp(ticket.cliente.telefone);
+    const texto =
+      opcoes.direto && numero
+        ? textoDaComandaParaWhatsApp(ticket, brl(ticket.totalCentavos))
+        : `Comanda #${ticket.codigo}`;
     setGerando(tipo);
     try {
       const f = await arquivo();
       if (!f) throw new Error();
+      // Celular: o compartilhar leva a imagem ao WhatsApp; nenhum app consegue abrir a conversa de um
+      // contato já com anexo (wa.me só aceita texto), então o contato é escolhido no WhatsApp.
       if (tipo === "whatsapp" && navigator.canShare?.({ files: [f] })) {
         try {
-          await navigator.share({ files: [f], title: `Comanda #${ticket.codigo}` });
+          await navigator.share({ files: [f], text: texto, title: `Comanda #${ticket.codigo}` });
         } catch (e) {
           if ((e as Error)?.name !== "AbortError") throw e;
         }
       } else {
         baixarArquivo(f);
         if (tipo === "whatsapp") {
+          if (opcoes.direto && !numero)
+            aviso.info("Cliente sem telefone válido. Escolha o contato no WhatsApp.");
           aviso.info("Imagem baixada. Anexe no WhatsApp para enviar.");
-          const numero = numeroParaWhatsApp(ticket.cliente.telefone) ?? "";
           window.open(
-            `https://wa.me/${numero}?text=${encodeURIComponent(`Comanda #${ticket.codigo}`)}`,
+            `https://wa.me/${numero ?? ""}?text=${encodeURIComponent(texto)}`,
             "_blank",
             "noopener",
           );

@@ -27,6 +27,7 @@ e o que fez. O diário até 17/10/2026 está guardado, sem alterações, em
 7. **Sem segredos:** nunca escreva chaves, senhas ou tokens aqui. Cite só o nome da variável.
 
 ## Decisões do dono
+- 2026-10-26: **Comanda vai ao WhatsApp como imagem JPG** (dono: "o botão whatsapp já mandar a imagem da comanda direto no whatsapp do cliente em jpg"; escolheu "os dois"). Agora: o botão gera o JPG e abre o compartilhar do celular (o contato é escolhido no WhatsApp, porque nenhum app abre a conversa de um contato já com anexo). Depois: envio automático do JPG pelo número oficial, quando o WhatsApp oficial estiver ativo e houver modelo com imagem aprovado pela Meta (custo por mensagem fora da janela de 24 h exige aval do dono).
 - 2026-10-25: **Tracejado de 15 min só depois do zoom** (dono, com captura do celular: "não é pra aparecer as listras pontilhadas o tempo todo"). Em repouso a grade mostra só a hora cheia; o tracejado de 15 min aparece (fade de 200 ms) quando o zoom passa do tamanho de repouso (`PX_POR_MINUTO > PX_PADRAO`). Substitui, para o tracejado, o trecho "mantém o tracejado de 15 min" da decisão de hoje abaixo e o pedido anterior de linhas de 15 min no celular. As linhas de 5 min seguem só na edição.
 - 2026-10-25: **Grade da Agenda sem as marcas de 5 min em repouso** (dono, com captura do celular): com zoom, as pequenas marcas de 5 em 5 minutos não precisam aparecer. Em repouso a grade mostra só a hora cheia (linha contínua e igual) e o tracejado de 15 min; as linhas de 5 min aparecem apenas durante a edição (arrastar ou redimensionar), por cima da grade. Isto substitui o "aparecem a partir de 2,5 px/min" copiado do Figaro.
 - 2026-10-24: **Ordem permanente do padrão Figaro** (dono: "gere uma ordem de todas as páginas criadas terem esse layout como padrão"). Texto oficial em `docs/ordem-padrao-figaro.md`: toda página, nova ou refeita, usa só os primitivos de `src/components/ui` (tabela no documento), sem estilo ad hoc; o teste `estilo-figaro.test.ts` segura isso. Vale para Claude, GPT e Muse.
@@ -708,6 +709,17 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - Sem alteração no banco, `main` ou produção.
 
 ## Diário
+
+### 2026-10-26 UTC — Claude — Comanda em JPG pelo compartilhar do celular
+- `useAcoesDoTicket` (`FolhaDoTicket.tsx`): na equipe, "Enviar no WhatsApp" não abre mais só o texto; gera o JPG da comanda
+  e abre o compartilhar do celular com a imagem e o texto da comanda (legenda). Sem compartilhar (computador): baixa o JPG
+  e abre a conversa do cliente (`wa.me/<telefone>`) com o texto. "Baixar imagem" também sai em JPG.
+- `desenhar-ticket.ts`: `canvasParaPng` → `canvasParaJpg` (qualidade 0,92; fundo do ticket já é opaco). Teste novo
+  `desenhar-ticket.test.ts`.
+- **Parte 2 pendente (envio automático pelo Cortaí):** precisa das chaves do WhatsApp oficial, de um modelo UTILIDADE com
+  cabeçalho de imagem aprovado na Meta e do aval do dono para o custo por mensagem; o gateway ainda não envia imagem
+  (`type: "image"` na Cloud API, `sendMedia` na Evolution) e a imagem teria de ir para o Storage com link assinado.
+  Seguir `decidirFormato`/`conexaoDeEnvio`/`falhas-envio` (`src/lib/whatsapp/AGENTS.md`).
 
 ### 2026-10-26 UTC — Claude — Personalizar Página que aparece e some: causa achada (fontes da prévia)
 - Vídeo do dono (10:22) + telemetria da prévia no mesmo horário: a tela abre, mostra o conteúdo, volta ao esqueleto de
