@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { CalendarClock, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Chip } from "@/components/ui/chip";
 import { useState } from "react";
 
 import { EmptyState, Screen } from "@/components/layout/Screen";
@@ -10,6 +11,7 @@ import { getClientesCRM, type ClienteCRM } from "@/lib/crescimento.functions";
 import { EsqueletoLista, EsqueletoMetricas } from "@/components/layout/Esqueleto";
 import { useDebounce } from "@/hooks/useMovimento";
 import { ItemCascata } from "@/components/layout/ItemCascata";
+import { contarClientesCRM, filtrarClientesCRM, SEGMENTOS_CLIENTES, type SegmentoClientesCRM } from "@/lib/segmentacao-clientes";
 
 export const Route = createFileRoute("/barbeiro/clientes/")({
   head: () => ({
@@ -57,16 +59,19 @@ function ClientesPage() {
   const { data, isLoading } = consulta;
   const [busca, setBusca] = useState("");
   const [soHoraDeVoltar, setSoHoraDeVoltar] = useState(false);
+  const [segmentoSelecionado, setSegmentoSelecionado] = useState<SegmentoClientesCRM>("todos");
   const segmentoClientes = data?.tenant.segmento ?? "barbearia";
   const ehBarbearia = segmentoClientes === "barbearia";
   const buscaAdiada = useDebounce(busca, 250);
 
-  const lista = (data?.clientes ?? []).filter(
-    (c) =>
-      c.nome.toLowerCase().includes(buscaAdiada.trim().toLowerCase()) &&
-      (!soHoraDeVoltar || c.horaDeVoltar),
-  );
-  const totalHoraDeVoltar = (data?.clientes ?? []).filter((c) => c.horaDeVoltar).length;
+  const clientes = data?.clientes ?? [];
+  const lista = filtrarClientesCRM(clientes, {
+    busca: buscaAdiada,
+    segmento: segmentoSelecionado,
+    soHoraDeVoltar,
+  });
+  const contagens = contarClientesCRM(clientes);
+  const totalHoraDeVoltar = clientes.filter((c) => c.horaDeVoltar).length;
 
   return (
     <Screen title="Clientes" subtitle="Histórico, frequência e quem está na hora de voltar.">
@@ -137,6 +142,16 @@ function ClientesPage() {
         placeholder="Buscar cliente"
         className="field-control mt-6 w-full"
       />
+      <section className="mt-4" aria-label="Segmentação de clientes">
+        <p className="text-xs font-semibold text-mute2">Segmento de clientes</p>
+        <div role="group" aria-label="Filtrar clientes por segmento" className="mt-2 flex flex-wrap gap-2">
+          {SEGMENTOS_CLIENTES.map((opcao) => (
+            <Chip key={opcao.valor} selecionado={segmentoSelecionado === opcao.valor} onClick={() => setSegmentoSelecionado(opcao.valor)}>
+              {opcao.texto} ({contagens[opcao.valor]})
+            </Chip>
+          ))}
+        </div>
+      </section>
       <div className="mt-3 flex flex-wrap gap-2">
         <Button
           type="button"
