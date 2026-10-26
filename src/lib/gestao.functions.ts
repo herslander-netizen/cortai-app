@@ -16,7 +16,7 @@ async function tenantDoMembro(supabase: any, userId: string) {
 export const getFinanceiro = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .validator((input: unknown) =>
-    z.object({ periodo: z.enum(["semana", "mes"]).default("mes") }).parse(input ?? {}),
+    z.object({ periodo: z.enum(["hoje", "semana", "mes"]).default("mes") }).parse(input ?? {}),
   )
   .handler(async ({ context, data }) => {
     const tenantId = await tenantDoMembro(context.supabase, context.userId);
@@ -24,35 +24,51 @@ export const getFinanceiro = createServerFn({ method: "GET" })
     const fuso = await fusoDoTenant(tenantId);
     const hoje = hojeNoFuso(fuso);
     const inicio =
-      data.periodo === "semana"
-        ? new Date(
-            isoNoFusoDaBarbearia(
-              somarDias(hoje, -((diaDaSemanaDoDia(hoje) + 6) % 7)),
-              "00:00",
-              fuso,
-            ),
-          )
-        : inicioDoMesNoFuso(fuso);
+      data.periodo === "hoje"
+        ? new Date(isoNoFusoDaBarbearia(hoje, "00:00", fuso))
+        : data.periodo === "semana"
+          ? new Date(
+              isoNoFusoDaBarbearia(
+                somarDias(hoje, -((diaDaSemanaDoDia(hoje) + 6) % 7)),
+                "00:00",
+                fuso,
+              ),
+            )
+          : inicioDoMesNoFuso(fuso);
+    // "Hoje" usa [início do dia, início do próximo dia) no fuso do negócio.
+    const fimExclusivo =
+      data.periodo === "hoje"
+        ? new Date(isoNoFusoDaBarbearia(somarDias(hoje, 1), "00:00", fuso)).toISOString()
+        : null;
+
+    const atendimentosQuery = context.supabase
+      .from("agendamentos")
+      .select("id, valor_centavos, inicio, servicos(nome)")
+      .eq("tenant_id", tenantId)
+      .eq("status", "finalizado")
+      .gte("inicio", inicio.toISOString());
+    const vendasQuery = context.supabase
+      .from("vendas")
+      .select("id, categoria, descricao, total_centavos, criado_em")
+      .eq("tenant_id", tenantId)
+      .gte("criado_em", inicio.toISOString())
+      .order("criado_em", { ascending: false });
+    const ganhosExtrasQuery = context.supabase
+      .from("caixa_movimentos")
+      .select("valor_centavos")
+      .eq("tenant_id", tenantId)
+      .eq("tipo", "entrada")
+      .in("categoria", ["ganho_extra_gorjeta", "ganho_extra_servico_extra", "ganho_extra_outro"])
+      .gte("criado_em", inicio.toISOString());
+    if (fimExclusivo) {
+      atendimentosQuery.lt("inicio", fimExclusivo);
+      vendasQuery.lt("criado_em", fimExclusivo);
+      ganhosExtrasQuery.lt("criado_em", fimExclusivo);
+    }
     const [{ data: atendimentos }, { data: vendas }, { data: ganhosExtrasRes }] = await Promise.all([
-      context.supabase
-        .from("agendamentos")
-        .select("id, valor_centavos, inicio, servicos(nome)")
-        .eq("tenant_id", tenantId)
-        .eq("status", "finalizado")
-        .gte("inicio", inicio.toISOString()),
-      context.supabase
-        .from("vendas")
-        .select("id, categoria, descricao, total_centavos, criado_em")
-        .eq("tenant_id", tenantId)
-        .gte("criado_em", inicio.toISOString())
-        .order("criado_em", { ascending: false }),
-      context.supabase
-        .from("caixa_movimentos")
-        .select("valor_centavos")
-        .eq("tenant_id", tenantId)
-        .eq("tipo", "entrada")
-        .in("categoria", ["ganho_extra_gorjeta", "ganho_extra_servico_extra", "ganho_extra_outro"])
-        .gte("criado_em", inicio.toISOString()),
+      atendimentosQuery,
+      vendasQuery,
+      ganhosExtrasQuery,
     ]);
     const servicos = (atendimentos ?? []).reduce((total, item) => total + item.valor_centavos, 0);
     const produtos = (vendas ?? [])

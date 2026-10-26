@@ -1,4 +1,4 @@
-import { Search } from "lucide-react";
+import { ContactRound, Search } from "lucide-react";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -6,11 +6,65 @@ import { CampoDeFormulario } from "@/components/ui/formulario/CampoDeFormulario"
 import { GrupoDeCartoes } from "@/components/ui/formulario/GrupoDeCartoes";
 import { SecaoDeFormulario } from "@/components/ui/formulario/SecaoDeFormulario";
 import { mascaraTelefone } from "@/lib/previa";
+import { selecionarContatoDoAparelho } from "@/lib/contatos-do-aparelho";
 
 import type { EstadoAgendamentoManual } from "./useAgendamentoManual";
 
 export function SecaoCliente({ s }: { s: EstadoAgendamentoManual }) {
   const [tocado, setTocado] = useState({ nome: false, telefone: false });
+  const [importandoContato, setImportandoContato] = useState(false);
+  const [mensagemContato, setMensagemContato] = useState<string | null>(null);
+  const [contatoImportado, setContatoImportado] = useState<{ nome: string; telefone: string } | null>(
+    null,
+  );
+
+  async function importarContato() {
+    setImportandoContato(true);
+    setMensagemContato(null);
+    try {
+      const contato = await selecionarContatoDoAparelho();
+      if (!contato) return;
+      setContatoImportado(contato);
+      s.escolherCliente(null);
+      s.setNovo(false);
+      s.setTermo(contato.telefone || contato.nome);
+      setMensagemContato(
+        "Contato selecionado. Confira se já existe uma ficha antes de cadastrar novamente.",
+      );
+    } catch (erro) {
+      if (erro instanceof Error && erro.name === "AbortError") return;
+      setMensagemContato(
+        erro instanceof Error && erro.message === "CONTATO_PICKER_INDISPONIVEL"
+          ? "Seu navegador não permite acessar os contatos. Você pode buscar ou preencher o cadastro manualmente."
+          : "Não foi possível abrir os contatos. Tente novamente ou preencha os dados manualmente.",
+      );
+    } finally {
+      setImportandoContato(false);
+    }
+  }
+
+  function acaoSelecionarContato() {
+    return (
+      <Button
+        variant="outline"
+        type="button"
+        className="w-full rounded-full"
+        disabled={importandoContato}
+        onClick={() => void importarContato()}
+      >
+        <ContactRound size={16} aria-hidden />
+        {importandoContato ? "Abrindo contatos…" : "Selecionar contato do celular"}
+      </Button>
+    );
+  }
+
+  function avisoContato() {
+    return mensagemContato ? (
+      <p className="px-1 text-sm text-mute" role="status">
+        {mensagemContato}
+      </p>
+    ) : null;
+  }
 
   if (s.semCliente) {
     return (
@@ -59,6 +113,8 @@ export function SecaoCliente({ s }: { s: EstadoAgendamentoManual }) {
     return (
       <>
         <SecaoDeFormulario rotulo="Identificação">
+          {acaoSelecionarContato()}
+          {avisoContato()}
           <CampoDeFormulario
             rotulo="Nome completo"
             obrigatorio
@@ -112,6 +168,8 @@ export function SecaoCliente({ s }: { s: EstadoAgendamentoManual }) {
   const clientes = s.busca.data ?? [];
   return (
     <SecaoDeFormulario rotulo="Cliente">
+      {acaoSelecionarContato()}
+      {avisoContato()}
       <div className="relative">
         <Search
           size={18}
@@ -123,7 +181,11 @@ export function SecaoCliente({ s }: { s: EstadoAgendamentoManual }) {
           aria-label="Buscar cliente"
           enterKeyHint="search"
           value={s.termo}
-          onChange={(e) => s.setTermo(e.target.value)}
+          onChange={(e) => {
+            setContatoImportado(null);
+            setMensagemContato(null);
+            s.setTermo(e.target.value);
+          }}
         />
       </div>
       {s.busca.isLoading ? (
@@ -143,7 +205,11 @@ export function SecaoCliente({ s }: { s: EstadoAgendamentoManual }) {
                 variant="ghost"
                 type="button"
                 className="h-auto min-h-14 w-full justify-between gap-3 rounded-[inherit] px-4 py-3 text-left"
-                onClick={() => s.escolherCliente(c.id, c.nome)}
+                onClick={() => {
+                  setContatoImportado(null);
+                  setMensagemContato(null);
+                  s.escolherCliente(c.id, c.nome);
+                }}
               >
                 <span className="truncate text-base font-normal text-paper">{c.nome}</span>
                 <span className="shrink-0 text-sm font-normal text-mute">{c.telefone}</span>
@@ -158,7 +224,13 @@ export function SecaoCliente({ s }: { s: EstadoAgendamentoManual }) {
         className="w-full rounded-full"
         onClick={() => {
           s.setNovo(true);
-          s.setNovoNome(s.termo.replace(/\d/g, "").trim());
+          s.setNovoNome(contatoImportado?.nome ?? s.termo.replace(/\d/g, "").trim());
+          s.setNovoTelefone(mascaraTelefone(contatoImportado?.telefone ?? ""));
+          setMensagemContato(
+            contatoImportado
+              ? "Confira nome e telefone. A ficha só será criada quando você confirmar o agendamento."
+              : null,
+          );
         }}
       >
         Novo cliente
