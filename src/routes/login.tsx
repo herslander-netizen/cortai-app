@@ -6,8 +6,13 @@ import { Field } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { entrarComProvedor } from "@/lib/auth/entrar-com-provedor";
-import { destinoAposEntrar, destinoDoPapel, destinoSolicitadoPermitido } from "@/lib/guarda";
-import { getSessao, type Sessao } from "@/lib/sessao.functions";
+import {
+  destinoAposEntrar,
+  destinoDoPapel,
+  destinoSolicitadoPermitido,
+  sessaoCompartilhada,
+} from "@/lib/guarda";
+import type { Sessao } from "@/lib/sessao.functions";
 import { Aviso } from "@/components/ui/aviso";
 import { MarcaCortai } from "@/components/marca/MarcaCortai";
 import { sincronizarCorDoNavegador } from "@/lib/aparencia";
@@ -56,7 +61,7 @@ export const Route = createFileRoute("/login")({
       // de renderizar nem apagar a sessão válida do usuário.
       let sessao: Sessao;
       try {
-        sessao = await getSessao();
+        sessao = await sessaoCompartilhada();
       } catch {
         return;
       }
@@ -132,7 +137,7 @@ function LoginPage() {
   async function seguirParaMinhaArea() {
     let sessao: Sessao;
     try {
-      sessao = await getSessao();
+      sessao = await sessaoCompartilhada();
     } catch {
       // O login pode ter sido bem-sucedido mesmo se o perfil estiver indisponível.
       // Não apague a sessão: informe o problema e permita tentar novamente.

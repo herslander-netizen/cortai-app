@@ -3,8 +3,12 @@ import { useEffect, useRef, useState } from "react";
 
 import { TelaDeCarregamento } from "@/components/layout/Carregando";
 import { supabase } from "@/integrations/supabase/client";
-import { destinoAposEntrar, destinoDoPapel, destinoSolicitadoPermitido } from "@/lib/guarda";
-import { getSessao } from "@/lib/sessao.functions";
+import {
+  destinoAposEntrar,
+  destinoDoPapel,
+  destinoSolicitadoPermitido,
+  sessaoCompartilhada,
+} from "@/lib/guarda";
 
 /**
  * Retorno estável do login social. Espera a sessão ficar disponível,
@@ -44,7 +48,7 @@ function RetornoPage() {
       if (finalizando.current) return;
       finalizando.current = true;
       try {
-        const sessao = await getSessao();
+        const sessao = await sessaoCompartilhada();
         if (!ativo) return;
         const pedido = destinoSolicitadoPermitido(proximo, destinoDoPapel(sessao));
         const destino = destinoAposEntrar(sessao);

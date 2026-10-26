@@ -709,6 +709,11 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-26 UTC — Claude — Menos idas ao servidor na abertura (medido na prévia com a conta de teste)
+- Cronologia medida após o login: `getSessao` era pedida 3× (login, guarda de `/barbeiro`, topo/menu) e cada uma leva 1,6–3 s no servidor, então o casco ficava ~5 s.
+  `sessaoCompartilhada()` (`guarda.ts`) faz login, retorno do provedor e `/` usarem o mesmo cache/chamada do guarda; dentro de
+  `getSessao` a consulta de e-mails autorizados sai em paralelo com a do perfil. Efeito esperado: uma chamada de sessão em vez de três.
+
 ### 2026-10-26 UTC — Claude — Conta de teste na prévia e medição real da abertura
 - **Conta de teste criada só no banco da prévia `cortai-preview`** (a pedido do dono: "criar um usuário pra testar sem minha
   autorização"): `teste.claude@cortai.test`, dono do negócio `teste-claude` (plano pro, em teste). Senha só no ambiente de

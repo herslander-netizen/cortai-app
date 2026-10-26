@@ -103,6 +103,17 @@ export async function sessaoDoUsuario(userId: string): Promise<Sessao> {
   }
 }
 
+/**
+ * Sessão da conta que está logada, pelo mesmo cache e a mesma chamada em andamento do guarda de rotas. Quem lê a sessão
+ * logo antes de navegar (login, retorno do provedor, "/") usa esta função: a rota seguinte reaproveita o resultado em vez de
+ * pedir de novo ao servidor.
+ */
+export async function sessaoCompartilhada(): Promise<Sessao> {
+  const { data } = await supabase.auth.getSession();
+  const id = data.session?.user?.id;
+  return id ? sessaoDoUsuario(id) : getSessao();
+}
+
 /** Usuário autenticado lido da sessão local (sem ida à rede quando o token é válido). */
 async function usuarioAtual(): Promise<{ id: string } | null> {
   const { data } = await supabase.auth.getSession();

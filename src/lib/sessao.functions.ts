@@ -57,6 +57,10 @@ async function garantirPerfil(userId: string, email: string | null, nome: string
   const consultarPerfil = () =>
     db.from("perfis").select("tipo, nome").eq("user_id", userId).maybeSingle();
 
+  // A lista de e-mails autorizados não depende do perfil: sai junto com a consulta dele (uma ida ao banco a menos).
+  const consultaAutorizados = email
+    ? db.from("emails_admin_autorizados").select("email").limit(500)
+    : null;
   const { data: perfilExistente, error: erroConsultaPerfil } = await consultarPerfil();
   if (erroConsultaPerfil) throw new Error("Não foi possível verificar seu perfil.");
   let perfil = perfilExistente;
@@ -83,12 +87,9 @@ async function garantirPerfil(userId: string, email: string | null, nome: string
     }
   }
 
-  if (email) {
+  if (email && consultaAutorizados) {
     // Comparação exata: o e-mail de quem entra nunca vira padrão de busca (`_`/`%` seriam curingas).
-    const { data: autorizados, error: erroAutorizados } = await db
-      .from("emails_admin_autorizados")
-      .select("email")
-      .limit(500);
+    const { data: autorizados, error: erroAutorizados } = await consultaAutorizados;
     if (erroAutorizados) throw new Error("Não foi possível verificar as permissões da conta.");
     const autorizado = (autorizados ?? []).some((linha) => mesmoEmail(linha.email, email));
     if (autorizado) {

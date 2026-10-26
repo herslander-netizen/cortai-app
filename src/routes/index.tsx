@@ -1,8 +1,7 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 
 import { supabase } from "@/integrations/supabase/client";
-import { destinoDoPapel } from "@/lib/guarda";
-import { getSessao } from "@/lib/sessao.functions";
+import { destinoDoPapel, sessaoCompartilhada } from "@/lib/guarda";
 
 /**
  * "/": com sessão, vai para a área do papel; sem sessão, abre a tela de entrada (sequência animada
@@ -13,7 +12,7 @@ export const Route = createFileRoute("/")({
   beforeLoad: async () => {
     const { data } = await supabase.auth.getUser();
     if (!data.user) throw redirect({ to: "/login", replace: true });
-    const sessao = await getSessao();
+    const sessao = await sessaoCompartilhada();
     throw redirect({ to: destinoDoPapel(sessao) });
   },
 });
