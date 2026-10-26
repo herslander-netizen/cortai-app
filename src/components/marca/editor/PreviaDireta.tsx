@@ -47,7 +47,8 @@ export function PreviaDireta({ data, config }: { data: PaginaPublica; config: Pa
       style={comTema ? estiloDaAgendaDireta(config) : agendamentoStyle(config)}
       {...atributosDaAgendaDireta(config)}
     >
-      <FontesDaMarca config={config} />
+      {/* Só aparece no editor: carregar a fonte não pode segurar a tela (ver FontesDaMarca). */}
+      <FontesDaMarca config={config} semEspera />
       {comTema ? (
         <CabecalhoDaAgendaDireta
           nome={tenant.nome}

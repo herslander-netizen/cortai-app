@@ -709,6 +709,20 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-26 UTC — Claude — Personalizar Página que aparece e some: causa achada (fontes da prévia)
+- Vídeo do dono (10:22) + telemetria da prévia no mesmo horário: a tela abre, mostra o conteúdo, volta ao esqueleto de
+  "Personalizar página" e fica em branco; o roteador estava parado e a tela **não foi desmontada** (sem troca de rota,
+  sem erro). Era o React suspendendo a tela já pronta.
+- **Causa:** no celular a tela montava, escondida (`hidden xl:block`), a prévia do computador. Quando os dados da prévia
+  chegavam, `FontesDaMarca` desenhava `<link rel="stylesheet" precedence>` do Google Fonts; no React 19 esse link segura
+  a tela inteira (esconde o conteúdo e mostra o esqueleto da rota) até a folha baixar. Rede lenta = segundos em branco;
+  com a fonte em cache abria normal ("às vezes dá"). Provado num Chromium real com a folha atrasada 3 s: com `precedence`
+  o conteúdo some até a folha chegar; sem, nunca some.
+- **Correção:** `FontesDaMarca` ganhou `semEspera` (link sem `precedence`), usado só nas prévias do editor
+  (`PaginaPublicaConteudo` com `preview` e `PreviaDireta`); a página pública dos clientes não mudou. A prévia lateral de
+  `barbeiro.marca.index.tsx` só é montada em tela ≥ 1280 px (`useMediaQuery`). Teste `FontesDaMarca.test.tsx`.
+- Validação: tsc, 2000 testes, eslint dos arquivos e build ok. Telemetria e vigia continuam até o dono confirmar.
+
 ### 2026-10-26 UTC — Claude — Menos idas ao servidor na abertura (medido na prévia com a conta de teste)
 - Cronologia medida após o login: `getSessao` era pedida 3× (login, guarda de `/barbeiro`, topo/menu) e cada uma leva 1,6–3 s no servidor, então o casco ficava ~5 s.
   `sessaoCompartilhada()` (`guarda.ts`) faz login, retorno do provedor e `/` usarem o mesmo cache/chamada do guarda; dentro de

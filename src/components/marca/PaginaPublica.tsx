@@ -187,7 +187,7 @@ export function PaginaPublicaConteudo({
       data-hide-signature={tenant.assinatura_visivel === false}
       data-segmento={tenant.segmento}
     >
-      <FontesDaMarca config={config} />
+      <FontesDaMarca config={config} semEspera={preview} />
       {layout === "figaro-raizes" ? (
         <Raizes
           data={data}

@@ -20,6 +20,7 @@ import { PaineisDoEditor, type AbaPainelDoEditor } from "@/components/marca/edit
 import { useConfirmar } from "@/components/ui/useConfirmar";
 import { PreviaDaExperiencia } from "@/components/marca/editor/PreviaDaExperiencia";
 import { useEditorDaPagina } from "@/components/marca/editor/useEditorDaPagina";
+import { useMediaQuery } from "@/hooks/use-mobile";
 import { Aviso } from "@/components/ui/aviso";
 import { Button } from "@/components/ui/button";
 import {
@@ -181,6 +182,7 @@ function Editor({
   const [previaAberta, setPreviaAberta] = useState(false);
   const [abaAtiva, setAbaAtiva] = useState<AbaPainelDoEditor>("detalhes");
   const [avancadoAberto, setAvancadoAberto] = useState(false);
+  const telaLarga = useMediaQuery("(min-width: 1280px)");
   const reduzirMovimento = useReducedMotion();
   const [confirmar, dialogo] = useConfirmar();
   const link = urlPublica(`/${e.slug}`);
@@ -452,9 +454,12 @@ function Editor({
           </div>
         </div>
 
-        <aside className="hidden xl:block">
-          <div className="sticky top-5">{previa()}</div>
-        </aside>
+        {/* Só no computador: no celular a prévia escondida carregava dados e fontes à toa. */}
+        {telaLarga ? (
+          <aside>
+            <div className="sticky top-5">{previa()}</div>
+          </aside>
+        ) : null}
       </div>
 
       {dialogo}
