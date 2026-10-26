@@ -18,6 +18,7 @@ import {
 import { PERIODOS, type PeriodoId } from "@/lib/historico-periodo";
 import { OpcoesConectadas } from "@/components/ui/opcoes-conectadas";
 import { Aviso } from "@/components/ui/aviso";
+import { RepetirAtendimento } from "@/components/historico/RepetirAtendimento";
 
 export const Route = createFileRoute("/barbeiro/historico")({
   head: () => ({
@@ -317,6 +318,12 @@ function HistoricoPage() {
                         {new Date(a.inicio).getTime() > agora ? " · Futuro" : ""}
                         {a.online ? " · Online" : ""}
                       </span>
+                      {a.clienteNome &&
+                      !["cancelado", "nao_compareceu", "remarcado", "estornado"].includes(a.status) ? (
+                        <div className="mt-2">
+                          <RepetirAtendimento agendamentoId={a.id} />
+                        </div>
+                      ) : null}
                     </span>
                     <span className="shrink-0 text-sm font-semibold text-paper">
                       {brl(a.valorCentavos)}
