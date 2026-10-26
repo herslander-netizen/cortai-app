@@ -35,6 +35,7 @@ import {
 } from "@/components/barbeiro/agenda/zoom-agenda";
 import { vibrar } from "@/lib/vibrar";
 import { criarToqueLongoVazio } from "@/components/barbeiro/agenda/toque-longo-vazio";
+import { fantasmaDoHorario } from "@/components/barbeiro/agenda/fantasma-do-horario";
 import {
   corDaCategoria,
   faixaDoCartao,
@@ -87,8 +88,8 @@ type AgendaTimelineProps = {
   /** Passo do negócio, em minutos (o arrasto e a alça andam sempre de 5 em 5; veja `passoDoGesto`). */
   passoMin?: number;
   /** Cartão em edição: mostra o intervalo novo ou o motivo de não poder salvar. */
-  /** Cartão em edição e os trechos do horário original que saem do horário proposto (ISO). */
-  edicaoDoCartao?: { id: string; trechos?: { inicio: string; fim: string }[] } | undefined;
+  /** Cartão em edição e o horário original dele (ISO), para o fantasma. */
+  edicaoDoCartao?: { id: string; original?: { inicio: string; fim: string } } | undefined;
   onHorarioVazio?: (horaMin: string) => void;
   destaques?: Set<string>;
   itensEscala?: AgendaItem[];
@@ -1024,33 +1025,39 @@ function AgendaTimelineBase({
                   width: `calc((100% - 11px) / ${posicao.colunas} - 4px)`,
                 }
               : { left: "7px", right: "4px" };
+            // Fantasma do horário original (Figaro, cartão a 50%), ao encurtar, esticar ou mover.
+            const original = edicaoDoCartao?.id === item.id ? edicaoDoCartao.original : undefined;
+            const fantasma = original
+              ? fantasmaDoHorario(
+                  {
+                    inicio: minutosNoFuso(original.inicio, fuso),
+                    fim: minutosNoFuso(original.fim, fuso),
+                  },
+                  {
+                    inicio: inicio + passoArrasto,
+                    fim: Math.max(inicio + 1, fim) + passoArrasto + passoRedim,
+                  },
+                )
+              : null;
+            const estiloDoFantasma = fantasma
+              ? {
+                  top: `${(fantasma.inicio - escala.inicio) * PX_POR_MINUTO + deslocamentoAte(fantasma.inicio) + (alinhado ? RESPIRO_DO_CARTAO : 0)}px`,
+                  height: `${(fantasma.fim - fantasma.inicio) * PX_POR_MINUTO + deslocamentoAte(fantasma.fim) - deslocamentoAte(fantasma.inicio) - (alinhado ? 2 * RESPIRO_DO_CARTAO : 0)}px`,
+                  ...faixaDaColuna,
+                }
+              : null;
             return (
               <Fragment key={item.id}>
-                {edicaoDoCartao?.id === item.id
-                  ? edicaoDoCartao.trechos?.map((trecho) => {
-                      const de = minutosNoFuso(trecho.inicio, fuso);
-                      const ate = minutosNoFuso(trecho.fim, fuso);
-                      if (ate <= de) return null;
-                      return (
-                        <div
-                          key={`${trecho.inicio}-${trecho.fim}`}
-                          className="agenda-timeline-fantasma"
-                          style={{
-                            top: `${(de - escala.inicio) * PX_POR_MINUTO + deslocamentoAte(de)}px`,
-                            height: `${(ate - de) * PX_POR_MINUTO + deslocamentoAte(ate) - deslocamentoAte(de)}px`,
-                            ...(posicao?.colunas
-                              ? {
-                                  left: `calc(7px + (100% - 11px) * ${posicao.coluna ?? 0} / ${posicao.colunas})`,
-                                  right: "auto",
-                                  width: `calc((100% - 11px) / ${posicao.colunas} - 4px)`,
-                                }
-                              : { left: "7px", right: "4px" }),
-                          }}
-                          aria-hidden
-                        />
-                      );
-                    })
-                  : null}
+                {fantasma ? (
+                  <div
+                    className="agenda-timeline-fantasma"
+                    style={{
+                      ["--cor-categoria" as string]: corDaCategoria(item.categoriaIndice),
+                      ...estiloDoFantasma,
+                    }}
+                    aria-hidden
+                  />
+                ) : null}
                 {arrasto?.id === item.id ? (
                   <div
                     className="agenda-timeline-alvo"
@@ -1165,6 +1172,14 @@ function AgendaTimelineBase({
                     </>
                   ) : null}
                 </Button>
+                {/* Contorno por cima: ao esticar, mostra dentro do cartão até onde ia o horário antes. */}
+                {estiloDoFantasma ? (
+                  <div
+                    className="agenda-timeline-fantasma-contorno"
+                    style={estiloDoFantasma}
+                    aria-hidden
+                  />
+                ) : null}
                 {!previa && onRedimensionar && podeMover(item) && edicaoDoCartao?.id === item.id ? (
                   <AlcaDeDuracao
                     rotulo={`Esticar a duração de ${nome}`}

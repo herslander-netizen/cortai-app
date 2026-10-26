@@ -9873,18 +9873,33 @@ html:root.light[data-identidade="classico"][data-identidade] {
 }
 
 /* Parte do horário original que saiu do horário proposto (Figaro: α 0.5, spec 2-agenda §4.6). */
+/* Fantasma do horário original na edição (Figaro `DurationChangeAlpha`: o cartão a 50%; dono, 26/10: sem
+   tracejado, vale ao encurtar e ao esticar). O fundo fica atrás do cartão; o contorno, por cima. */
 .agenda-timeline-fantasma {
   position: absolute;
   z-index: 0;
   pointer-events: none;
-  border-radius: var(--radius);
+  border-radius: 12px;
   opacity: 0.5;
-  background: repeating-linear-gradient(
-    135deg,
-    color-mix(in oklab, var(--mute) 22%, transparent) 0 3px,
-    transparent 3px 6px
-  );
-  border: 1px dashed color-mix(in oklab, var(--mute) 45%, transparent);
+  background: var(--agenda-cartao-evento, var(--agenda-cartao));
+  box-shadow: var(--agenda-cartao-sombra);
+}
+.agenda-timeline-fantasma::before {
+  content: "";
+  position: absolute;
+  top: 6px;
+  bottom: 6px;
+  left: 6px;
+  width: 3.5px;
+  border-radius: 2px;
+  background: var(--cor-categoria, var(--estado-agendado));
+}
+.agenda-timeline-fantasma-contorno {
+  position: absolute;
+  z-index: 3;
+  pointer-events: none;
+  border-radius: 12px;
+  border: 1.5px solid color-mix(in oklab, var(--paper) 30%, transparent);
 }
 
 /* Decisão do dono (22/10): cartões da agenda no tema claro são brancos (no Padrão o token é #fff; os outros temas trazem o próprio). */

@@ -1,36 +1,27 @@
 import { describe, expect, it } from "vitest";
 
-import { trechosQueSaem } from "./fantasma-do-horario";
+import { fantasmaDoHorario } from "./fantasma-do-horario";
 
-const M = 60_000;
-const f = (inicio: number, fim: number) => ({ inicio: inicio * M, fim: fim * M });
+const f = (inicio: number, fim: number) => ({ inicio, fim });
 
-describe("trechosQueSaem", () => {
-  it("sem mudança, nada sai", () => {
-    expect(trechosQueSaem(f(60, 90), f(60, 90))).toEqual([]);
+describe("fantasmaDoHorario", () => {
+  it("sem mudança, não há fantasma", () => {
+    expect(fantasmaDoHorario(f(60, 90), f(60, 90))).toBeNull();
   });
 
-  it("encurtar pelo fim deixa o trecho do fim translúcido", () => {
-    expect(trechosQueSaem(f(60, 90), f(60, 75))).toEqual([f(75, 90)]);
+  it("encurtar mostra o horário original inteiro", () => {
+    expect(fantasmaDoHorario(f(60, 90), f(60, 75))).toEqual(f(60, 90));
   });
 
-  it("encurtar pelo início deixa o trecho do começo translúcido", () => {
-    expect(trechosQueSaem(f(60, 90), f(70, 90))).toEqual([f(60, 70)]);
+  it("esticar também mostra o horário original (dono, 26/10)", () => {
+    expect(fantasmaDoHorario(f(60, 90), f(60, 120))).toEqual(f(60, 90));
   });
 
-  it("estender a duração não marca trecho como removido", () => {
-    expect(trechosQueSaem(f(60, 90), f(60, 120))).toEqual([]);
+  it("mover mostra onde o cartão estava", () => {
+    expect(fantasmaDoHorario(f(60, 90), f(120, 150))).toEqual(f(60, 90));
   });
 
-  it("mover para outro horário sem sobrepor tira o original inteiro", () => {
-    expect(trechosQueSaem(f(60, 90), f(120, 150))).toEqual([f(60, 90)]);
-  });
-
-  it("mover um pouco deixa só o pedaço que ficou para trás", () => {
-    expect(trechosQueSaem(f(60, 90), f(75, 105))).toEqual([f(60, 75)]);
-  });
-
-  it("original vazio não gera trecho", () => {
-    expect(trechosQueSaem(f(60, 60), f(60, 90))).toEqual([]);
+  it("original vazio não gera fantasma", () => {
+    expect(fantasmaDoHorario(f(60, 60), f(60, 90))).toBeNull();
   });
 });

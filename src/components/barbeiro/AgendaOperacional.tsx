@@ -75,7 +75,6 @@ import { Button } from "@/components/ui/button";
 import { Chip } from "@/components/ui/chip";
 import { BarraDeEdicaoDeHorario } from "@/components/barbeiro/agenda/BarraDeEdicaoDeHorario";
 import { CabecalhoDeEdicao } from "@/components/barbeiro/agenda/CabecalhoDeEdicao";
-import { trechosQueSaem } from "@/components/barbeiro/agenda/fantasma-do-horario";
 import { MarcaDoLimiteDoDia, SemanaDoTopo } from "@/components/barbeiro/agenda/SemanaDoTopo";
 import { ListaPeriodo, opcoesAgendaPeriodo } from "@/components/barbeiro/agenda/ListaPeriodo";
 import {
@@ -963,22 +962,11 @@ export function AgendaOperacional() {
         ? {
             id: edicao.original.id,
             motivo: edicao.textoDoMotivo,
-            trechos:
-              edicao.novo && edicao.original
-                ? trechosQueSaem(
-                    {
-                      inicio: Date.parse(edicao.original.inicio),
-                      fim: Date.parse(edicao.original.fim),
-                    },
-                    edicao.novo,
-                  ).map((t) => ({
-                    inicio: new Date(t.inicio).toISOString(),
-                    fim: new Date(t.fim).toISOString(),
-                  }))
-                : [],
+            // O cartão desenha o fantasma do horário original quando o horário mostrado muda.
+            original: { inicio: edicao.original.inicio, fim: edicao.original.fim },
           }
         : undefined,
-    [edicao.original, edicao.novo, edicao.textoDoMotivo],
+    [edicao.original, edicao.textoDoMotivo],
   );
   const bloqueiosDoDiaGeral = useMemo(
     () => bloqueiosDoDia(profFiltro),
@@ -1602,7 +1590,11 @@ export function AgendaOperacional() {
             ) : visualizacao !== "lista" ? (
               <>
                 {celular ? (
-                  <MarcaDoLimiteDoDia className="mb-[-2.5px] mt-[6.5px]" carregando={agenda.isFetching} naPagina />
+                  <MarcaDoLimiteDoDia
+                    className="mb-[-2.5px] mt-[6.5px]"
+                    carregando={agenda.isFetching}
+                    naPagina
+                  />
                 ) : null}
                 <AgendaTimeline
                   dia={dia}
@@ -1627,7 +1619,11 @@ export function AgendaOperacional() {
                   vizinhos={vizinhosMemo}
                 />
                 {celular ? (
-                  <MarcaDoLimiteDoDia className="mt-[-2.5px] mb-0.5" carregando={agenda.isFetching} naPagina />
+                  <MarcaDoLimiteDoDia
+                    className="mt-[-2.5px] mb-0.5"
+                    carregando={agenda.isFetching}
+                    naPagina
+                  />
                 ) : null}
               </>
             ) : celular ? (
