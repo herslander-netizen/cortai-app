@@ -91,8 +91,7 @@ export function PreferenciasDoCliente() {
         <Button
           type="button"
           variant="ghost"
-          role="switch"
-          aria-checked={p.whatsapp_ativo}
+          aria-pressed={p.whatsapp_ativo}
           className={chip(p.whatsapp_ativo)}
           onClick={() => mudar({ whatsapp_ativo: !p.whatsapp_ativo })}
         >
@@ -101,8 +100,7 @@ export function PreferenciasDoCliente() {
         <Button
           type="button"
           variant="ghost"
-          role="switch"
-          aria-checked={p.push_ativo}
+          aria-pressed={p.push_ativo}
           className={chip(p.push_ativo)}
           onClick={() => mudar({ push_ativo: !p.push_ativo })}
         >
