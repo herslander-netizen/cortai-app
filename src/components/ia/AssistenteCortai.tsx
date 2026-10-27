@@ -233,6 +233,9 @@ export function AssistenteCortai({
   const perguntar = useServerFn(perguntarAoCortai);
   const transcrever = useServerFn(transcreverComandoDeVozDoPainel);
   const [texto, setTexto] = useState("");
+  // Mantém a origem do rascunho para que uma transcrição revisada continue passando pelas
+  // proteções específicas de comandos de voz no servidor.
+  const [origemRascunho, setOrigemRascunho] = useState<"texto" | "voz">("texto");
   const [enviando, setEnviando] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
   const [conversaId, setConversaId] = useState<string | null>(null);
@@ -295,9 +298,12 @@ export function AssistenteCortai({
   const conferenciaDoCartao = confirmacaoAtual ? (ultimaMensagem?.acao?.conferencia ?? null) : null;
 
   const voz = useGravadorDeVoz({
-    // Caminho gratuito: o navegador entende a fala; o texto segue como qualquer mensagem.
-    aoReconhecer: async (texto) => {
-      await enviar(texto, "voz");
+    // A fala vira rascunho editável; só o toque explícito em Enviar chama a CortAI.
+    aoReconhecer: async (transcricao) => {
+      setTexto(transcricao);
+      setOrigemRascunho("voz");
+      setErro(null);
+      requestAnimationFrame(() => campo.current?.focus());
     },
     aoGravar: async ({ blob, mimeType, duracaoS }) => {
       const r = await transcrever({
@@ -305,8 +311,10 @@ export function AssistenteCortai({
       });
       if ("motivo" in r)
         throw new Error(MOTIVOS_DA_VOZ[r.motivo] ?? "Não consegui entender o áudio.");
-      // O comando falado aparece na conversa como qualquer mensagem e segue o mesmo caminho.
-      await enviar(r.texto, "voz");
+      setTexto(r.texto);
+      setOrigemRascunho("voz");
+      setErro(null);
+      requestAnimationFrame(() => campo.current?.focus());
     },
   });
 
@@ -341,6 +349,7 @@ export function AssistenteCortai({
         : crypto.randomUUID();
     tentativa.current = { texto: limpo, id, escolha: clienteEscolhidoId };
     setTexto("");
+    setOrigemRascunho("texto");
     setErro(null);
     setEnviando(true);
     const idLocal = `local-${Date.now()}`;
@@ -709,11 +718,29 @@ export function AssistenteCortai({
             )}
           </div>
         ) : null}
+        {origemRascunho === "voz" && texto.trim() ? (
+          <div className="mb-2 flex min-h-8 items-center gap-2 rounded-lg border border-line bg-ink px-3 py-1.5 text-xs">
+            <Mic size={13} className="shrink-0 text-gold" aria-hidden />
+            <span className="min-w-0 flex-1 text-mute">Transcrição pronta. Revise antes de enviar.</span>
+            <button
+              type="button"
+              onClick={() => {
+                setTexto("");
+                setOrigemRascunho("texto");
+                setErro(null);
+                campo.current?.focus();
+              }}
+              className="shrink-0 rounded-full px-2 py-1 font-medium text-paper"
+            >
+              Descartar
+            </button>
+          </div>
+        ) : null}
         <form
           className="flex items-end gap-2"
           onSubmit={(e) => {
             e.preventDefault();
-            void enviar(texto);
+            void enviar(texto, origemRascunho);
           }}
         >
           <textarea
@@ -723,7 +750,7 @@ export function AssistenteCortai({
             onKeyDown={(e) => {
               if (e.key === "Enter" && !e.shiftKey) {
                 e.preventDefault();
-                void enviar(texto);
+                void enviar(texto, origemRascunho);
               }
             }}
             rows={1}
