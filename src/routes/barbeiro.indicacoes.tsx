@@ -125,7 +125,7 @@ function IndicacoesPage() {
           <Button
             variant="ghost"
             type="button"
-            className="btn-tertiary mt-2 flex items-center gap-2 text-xs"
+            className="mt-2 flex items-center gap-2 text-xs"
             onClick={async () => {
               await navigator.clipboard.writeText(link);
               setCopiado(true);
@@ -223,7 +223,7 @@ function IndicacoesPage() {
                 <Button
                   variant="ghost"
                   type="button"
-                  className="btn-tertiary text-xs disabled:opacity-60"
+                  className="text-xs disabled:opacity-60"
                   disabled={acao.ocupado}
                   onClick={() =>
                     acao.executar(
