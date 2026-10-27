@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any -- respostas simuladas do provedor */
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { assistenteConfigurado, pensar } from "./assistente.server";
+import { assistenteConfigurado, extrairCadastroEstruturado } from "./assistente.server";
 
 const contexto = {
   nome: "Aurora",
@@ -51,7 +51,7 @@ describe("fluxos estruturados do painel usam o provedor gratuito quando configur
     gratuito();
     const buscar = vi.fn(async (_u: any, _i: any) => resposta(completar(JSON_OK)));
     vi.stubGlobal("fetch", buscar);
-    const r = await pensar({ mensagem: "cadastre corte de 45 reais", contexto });
+    const r = await extrairCadastroEstruturado({ mensagem: "cadastre corte de 45 reais", contexto });
     expect(String(buscar.mock.calls[0]![0])).toBe(
       "https://api.groq.exemplo.test/openai/v1/chat/completions",
     );
@@ -72,7 +72,7 @@ describe("fluxos estruturados do painel usam o provedor gratuito quando configur
       .mockResolvedValueOnce(resposta("response_format não suportado", 400))
       .mockResolvedValueOnce(resposta(completar(JSON_OK)));
     vi.stubGlobal("fetch", buscar);
-    const r = await pensar({ mensagem: "cadastre corte", contexto });
+    const r = await extrairCadastroEstruturado({ mensagem: "cadastre corte", contexto });
     expect(buscar).toHaveBeenCalledTimes(2);
     const segundo = JSON.parse(buscar.mock.calls[1]![1].body);
     expect(segundo.response_format).toEqual({ type: "json_object" });
@@ -84,7 +84,7 @@ describe("fluxos estruturados do painel usam o provedor gratuito quando configur
     vi.stubEnv("CORTAI_AI_PROVIDER", "");
     const buscar = vi.fn(async (_u: any, _i: any) => resposta(completar(JSON_OK)));
     vi.stubGlobal("fetch", buscar);
-    const r = await pensar({ mensagem: "cadastre corte", contexto });
+    const r = await extrairCadastroEstruturado({ mensagem: "cadastre corte", contexto });
     expect(r.disponivel).toBe(false);
     expect(buscar).not.toHaveBeenCalled();
   });
@@ -95,6 +95,6 @@ describe("fluxos estruturados do painel usam o provedor gratuito quando configur
       "fetch",
       vi.fn(async () => resposta("rate limit", 429)),
     );
-    await expect(pensar({ mensagem: "x", contexto })).rejects.toThrow(/sobrecarregado/);
+    await expect(extrairCadastroEstruturado({ mensagem: "x", contexto })).rejects.toThrow(/sobrecarregado/);
   });
 });
