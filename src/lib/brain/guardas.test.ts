@@ -29,6 +29,7 @@ describe("guardas do cérebro CortAI", () => {
       expect(mensagemPareceAjustarPendente(texto)).toBe(true);
       expect(confirmacaoInequivoca(texto)).toBe(false);
     }
+    expect(mensagemPareceAjustarPendente("16")).toBe(false);
     for (const texto of ["sim", "pode", "não", "quanto custa?"]) {
       expect(mensagemPareceAjustarPendente(texto)).toBe(false);
     }
