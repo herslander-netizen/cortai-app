@@ -494,6 +494,8 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Em andamento
 
+- GPT | 2026-10-27 UTC | CortAI: resolver referências conversacionais com segurança ("esse cliente", "aquele horário", "ele") e auditar que as capacidades do chat correspondem às ações/permissões reais; ampliar testes de ambiguidade, falha de ferramenta e linguagem informal | `DIARIO.md`, `src/lib/brain/agente.server.ts`, `src/lib/brain/acoes.server.ts`, testes do cérebro; sem migração
+
 
 - GPT | 2026-10-27 UTC | Auditoria mobile-first dos botões e telas fora do padrão: começar pelo defeito visível em PersonalizacaoCliente (switch WhatsApp deformado/quebrando linha), padronizar com o primitivo Switch e revisar os achados de botões/controles nas telas não reservadas; definir inventário de páginas e corrigir em lotes validados. Excluir Agenda e não mexer em regras/backend/bancos | `DIARIO.md`, `src/components/barbeiro/PersonalizacaoCliente.tsx`, testes UI/estilo e inventário UX; sem migração |
 
