@@ -87,7 +87,11 @@ describe("paridade Figaro dos cartões da Lista", () => {
     const lista = host!.querySelector("ul")!;
     const cartao = host!.querySelector<HTMLElement>(".agenda-item")!;
     const barra = cartao.querySelector<HTMLElement>(".pointer-events-none")!;
+    const glifo = cartao.querySelector<HTMLElement>(".agenda-lista-glifo");
 
+    expect(glifo).not.toBeNull();
+    expect(glifo?.className).toContain("size-[17px]");
+    expect(glifo?.style.color).toBeTruthy();
     expect(lista.className).toContain("space-y-2.5");
     expect((lista as HTMLElement).style.fontFamily).toBe("Roboto, sans-serif");
     expect(lista.className).not.toContain("divide-y");
