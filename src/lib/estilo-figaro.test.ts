@@ -29,6 +29,19 @@ describe("padrão Figaro nos primitivos", () => {
     expect(chip).toContain("rounded-lg");
   });
 
+  it("interruptores de tela usam o primitivo Switch, nunca botão artesanal com role= switch", () => {
+    const fora = FONTES.filter(
+      (f) => f.texto.includes('role="switch"') && !f.caminho.endsWith("ui/switch.tsx"),
+    ).map((f) => f.caminho);
+    expect(fora).toEqual([]);
+  });
+
+  it("a regra permanente define o celular como alvo principal antes do desktop", () => {
+    const ordem = readFileSync("docs/ordem-padrao-figaro.md", "utf8");
+    expect(ordem).toContain("Mobile é o alvo principal e vem primeiro");
+    expect(ordem).toContain("conferir 360 px");
+  });
+
   it("botão fantasma não vira caixa com contorno ad hoc", () => {
     const fora = FONTES.filter((f) =>
       /variant="ghost"[^>]{0,300}rounded-md border border-line/.test(f.texto),
