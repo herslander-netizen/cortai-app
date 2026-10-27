@@ -1,7 +1,7 @@
 // Conversa Padrão de Excelência (docs/conversa-padrao.md).
 // Textos padrão por situação; cada negócio pode sobrescrever (config_atendimento_ia.textos_conversa)
 // e desligar situações (config_atendimento_ia.situacoes_desligadas). Dados sempre por variável.
-import { segmentoValido, type Segmento } from "@/lib/segmentos";
+import { segmentoParaApresentacao, type Segmento } from "@/lib/segmentos";
 
 export const SITUACOES = {
   saudacao_nova: "Oi! Você está falando com {{negocio}}. Como posso ajudar?",
@@ -87,7 +87,7 @@ export function textoDaSituacao(
   if (p?.desligadas?.includes(chave)) return null;
   const custom = p?.textos?.[chave]?.trim();
   if (custom) return custom;
-  const porSegmento = segmentoValido(segmento) === "barbearia" ? null : PADRAO_BELEZA[chave];
+  const porSegmento = segmentoParaApresentacao(segmento) === "barbearia" ? null : PADRAO_BELEZA[chave];
   return (
     porSegmento ??
     (SITUACOES as Record<string, string>)[chave] ??
