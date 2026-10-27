@@ -172,10 +172,10 @@ export const HOME_PADRAO: ConfigHome = {
   versao: 1,
   hero: {
     ativo: true,
-    etiqueta: "Gestão e tecnologia para Beleza",
+    etiqueta: "Gestão e tecnologia para negócios de serviços",
     mostrarSelo: true,
     titulo: "Seu negócio. Do seu jeito. Sob seu controle.",
-    texto: "Tudo o que seu negócio de Beleza precisa para operar melhor, em um só lugar.",
+    texto: "Tudo o que seu negócio de serviços precisa para operar melhor, em um só lugar.",
     ctaTexto: "Começar agora",
     ctaDestino: "/comecar",
     cta2Texto: "Conhecer o Cortaí",
@@ -226,9 +226,9 @@ export const HOME_PADRAO: ConfigHome = {
       ativo: true,
       tema: "claro",
       etiqueta: "Um lugar. Toda a operação.",
-      titulo: "Tudo o que acontece na cadeira, organizado no seu celular.",
+      titulo: "Tudo o que acontece no seu atendimento, organizado no celular.",
       texto:
-        "Do primeiro horário do dia ao fechamento do caixa, o Cortaí acompanha a rotina sem tirar o foco do atendimento.",
+        "Da primeira tarefa do dia ao fechamento do caixa, o Cortaí acompanha a rotina sem tirar o foco do atendimento.",
       ctaTexto: "Começar agora",
       ctaDestino: "/comecar",
       itens: [
@@ -415,9 +415,9 @@ export const HOME_PADRAO: ConfigHome = {
     tipografia: "Manrope",
   },
   seo: {
-    titulo: "Cortaí — Gestão e tecnologia para negócios de Beleza",
+    titulo: "Cortaí — Gestão para negócios de serviços",
     descricao:
-      "Agenda, clientes, equipe, vendas, caixa e presença digital para negócios de Beleza.",
+      "Agenda, clientes, equipe, vendas, caixa e presença digital para negócios que atendem por serviço.",
     imagem: "",
     canonica: "https://cortai.dev",
   },
