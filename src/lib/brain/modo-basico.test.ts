@@ -200,9 +200,9 @@ describe("modo básico — consultas e ajuda", () => {
   it("quanto entrou hoje consulta o caixa e não a contagem de agendamentos", () => {
     const r = rodar([{ role: "user", text: "Quanto entrou hoje?" }], UM);
     expect(r.chamadas[0]?.name).toBe("consultar_caixa_hoje");
-    expect(r.texto).toContain("entradas registradas de R$ 200,00");
-    expect(r.texto).toContain("saídas de R$ 50,00");
-    expect(r.texto).toContain("saldo líquido dos movimentos de R$ 150,00");
+    expect(r.texto).toMatch(/entradas registradas de R\$\s?200,00/);
+    expect(r.texto).toMatch(/saídas de R\$\s?50,00/);
+    expect(r.texto).toMatch(/saldo líquido dos movimentos de R\$\s?150,00/);
     expect(r.texto).toContain("não lucro contábil");
     expect(r.texto).not.toContain("agendamento(s)");
   });
