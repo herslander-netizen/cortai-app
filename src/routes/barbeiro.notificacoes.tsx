@@ -49,12 +49,12 @@ function NotificacoesPage() {
       title="Notificações"
       subtitle="Escolha onde receber cada aviso e acompanhe as mensagens do WhatsApp."
     >
-      <div className="pb-8 pt-6">
+      <div className="space-y-4 pb-8 pt-2">
         {cotaEmUso ? (
           <SecaoDeConfiguracao
             titulo="Mensagens do WhatsApp"
             rodape="Cada mensagem automática usa 1 crédito no período de teste."
-            className="mt-0 mb-8"
+            className="mt-0 mb-4"
           >
             <GrupoDeLinhas>
               <LinhaDeConfiguracao

@@ -63,7 +63,7 @@ export function CentralDeAutomacao() {
   if (!consulta.data && consulta.isLoading) return <Carregando />;
   if (!consulta.data)
     return (
-      <p className="border-y border-line py-8 text-center text-sm text-brick" role="alert">
+      <p className="rounded-[28px] bg-[var(--figaro-surface-container,var(--ink2))] px-5 py-8 text-center text-sm text-brick" role="alert">
         Não conseguimos carregar a automação agora. Tente de novo em instantes.
       </p>
     );
@@ -77,7 +77,7 @@ export function CentralDeAutomacao() {
   return (
     <div className="space-y-4">
       <section
-        className="surface p-5"
+        className="rounded-[28px] bg-[var(--figaro-surface-container,var(--ink2))] p-5"
         aria-labelledby="cartao-principal-automacao"
         data-tom={central.principal.tom}
       >
@@ -147,9 +147,9 @@ export function CentralDeAutomacao() {
         ) : null}
       </section>
 
-      <section aria-label="Estado de cada parte" className="surface divide-y divide-line">
+      <section aria-label="Estado de cada parte" className="grid gap-2">
         {linhas.map((l) => (
-          <div key={l.chave} className="flex min-h-12 items-center justify-between gap-3 px-5 py-3">
+          <div key={l.chave} className="flex min-h-12 items-center justify-between gap-3 rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))] px-4 py-3">
             <span className="text-sm text-paper">{l.rotulo}</span>
             <span className={`flex items-center gap-2 text-sm font-medium ${TEXTO_DO_TOM[l.tom]}`}>
               <span aria-hidden className={`size-2 rounded-full ${COR_DO_TOM[l.tom]}`} />
@@ -157,7 +157,7 @@ export function CentralDeAutomacao() {
             </span>
           </div>
         ))}
-        <div className="space-y-1 px-5 py-3 text-xs text-mute2">
+        <div className="space-y-1 rounded-[12px] bg-[var(--figaro-surface-container-high,var(--ink3))] px-4 py-3 text-xs text-mute2">
           <p>Última verificação: {haQuanto(central.ultimaVerificacaoEm, agora)}</p>
           {ultimaFalha ? (
             <p>
@@ -185,11 +185,11 @@ export function CentralDeAutomacao() {
         </Button>
         {verHistorico ? (
           historico.length === 0 ? (
-            <p className="px-1 py-3 text-sm text-mute2">Nenhuma ocorrência registrada ainda.</p>
+            <p className="rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))] px-4 py-3 text-sm text-mute2">Nenhuma ocorrência registrada ainda.</p>
           ) : (
-            <ul className="surface divide-y divide-line">
+            <ul className="space-y-2">
               {historico.map((o) => (
-                <li key={o.id} className="flex items-start justify-between gap-3 px-5 py-3">
+                <li key={o.id} className="flex items-start justify-between gap-3 rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))] px-4 py-3">
                   <span className="flex items-start gap-2 text-sm text-paper">
                     <span
                       aria-hidden
@@ -219,11 +219,11 @@ export function CentralDeAutomacao() {
 export function CabecalhoDaAutomacao() {
   return (
     <div className="flex items-center gap-3">
-      <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-drawer-card text-[var(--whatsapp)]">
+      <span className="flex size-11 shrink-0 items-center justify-center rounded-[12px] bg-[var(--figaro-primary-container,var(--ink2))] text-[var(--whatsapp)]">
         <IconeWhatsApp className="size-5" />
       </span>
       <div className="min-w-0">
-        <h1 className="text-xl font-semibold text-paper">Automação do WhatsApp</h1>
+        <h1 className="text-3xl font-bold leading-tight tracking-tight text-[var(--figaro-on-background,var(--paper))]">Automação do WhatsApp</h1>
         <p className="text-sm text-mute">Atendimento e avisos inteligentes</p>
       </div>
     </div>

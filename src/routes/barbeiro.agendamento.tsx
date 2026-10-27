@@ -129,14 +129,14 @@ function OpcoesDeAgendamentoPage() {
       <div className="pb-8">
         {isLoading ? <p className="mt-8 text-sm text-mute">Carregando…</p> : null}
         {isError && !data ? (
-          <div role="alert" className="mt-8 rounded-[28px] bg-[var(--agenda-cartao,var(--ink2))] p-5">
+          <div role="alert" className="mt-8 rounded-[28px] bg-[var(--figaro-surface-container,var(--ink2))] p-5">
             <p className="text-sm text-paper">
               Não foi possível carregar as opções de agendamento. Verifique sua conexão e tente de
               novo.
             </p>
             <button
               type="button"
-              className="mt-3 text-sm font-semibold text-primary"
+              className="mt-3 text-sm font-semibold text-[var(--figaro-primary,var(--primary))]"
               onClick={() => void refetch()}
             >
               Tentar de novo

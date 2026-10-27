@@ -192,7 +192,7 @@ function HistoricoPage() {
                 value={de}
                 max={ate || undefined}
                 onChange={(e) => setDe(e.target.value)}
-                className="min-h-11 rounded-md border border-line bg-transparent px-3 text-sm text-paper"
+                className="min-h-12 rounded-[12px] border-0 bg-[var(--figaro-surface-container,var(--ink2))] px-3 text-sm text-paper"
               />
             </label>
             <label className="flex flex-1 flex-col gap-1 text-xs text-mute">
@@ -295,17 +295,19 @@ function HistoricoPage() {
         </p>
       ) : (
         <>
-          <p className="mt-6 text-xs text-mute">
-            {aba === "atendimentos" ? "Receita dos atendimentos finalizados" : "Total recebido"}
-          </p>
-          <p className="text-[28px] font-bold leading-tight text-paper">{brl(total)}</p>
-          {ativa.hasNextPage ? (
-            <p className="text-xs text-mute">Soma só do que já foi carregado.</p>
-          ) : null}
-          <ul className="mt-3 divide-y divide-line">
+          <section className="mt-6 rounded-[28px] bg-[var(--figaro-surface-container,var(--ink2))] p-4">
+            <p className="text-xs text-mute">
+              {aba === "atendimentos" ? "Receita dos atendimentos finalizados" : "Total recebido"}
+            </p>
+            <p className="mt-1 text-[28px] font-bold leading-tight text-paper">{brl(total)}</p>
+            {ativa.hasNextPage ? (
+              <p className="mt-2 text-xs text-mute">Soma só do que já foi carregado.</p>
+            ) : null}
+          </section>
+          <ul className="mt-3 space-y-2">
             {aba === "atendimentos"
               ? itensAtendimento.map((a) => (
-                  <li key={a.id} className="flex items-start justify-between gap-3 py-3">
+                  <li key={a.id} className="flex items-start justify-between gap-3 rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))] px-4 py-3">
                     <div className="min-w-0">
                       <span className="block truncate text-sm font-semibold text-paper">
                         {a.clienteNome ?? "Sem cliente"}

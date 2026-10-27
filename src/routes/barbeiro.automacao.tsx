@@ -18,7 +18,7 @@ export const Route = createFileRoute("/barbeiro/automacao")({
 function AutomacaoPage() {
   return (
     <Screen title="Automação do WhatsApp" hideHeader>
-      <div className="space-y-5 pt-2">
+      <div className="space-y-4 pt-2">
         <CabecalhoDaAutomacao />
         <CentralDeAutomacao />
       </div>
