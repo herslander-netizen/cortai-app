@@ -61,6 +61,7 @@ async function montar(props: Partial<Parameters<typeof SemanaDoTopo>[0]> = {}) {
 describe("medidas visuais Figaro no seletor de data", () => {
   it("usa círculo de 38 px e texto de 16 px na faixa da semana", async () => {
     const alvo = await montar();
+    expect(alvo.querySelector<HTMLElement>("[data-sem-gesto-dia]")?.style.fontFamily).toBe("Roboto, sans-serif");
     const selecionado = alvo.querySelector<HTMLButtonElement>(
       '[aria-label="Dias da semana"] button[aria-pressed="true"]',
     );
