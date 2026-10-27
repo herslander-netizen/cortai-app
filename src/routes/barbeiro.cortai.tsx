@@ -717,9 +717,9 @@ function CartaoDeConexao({ painel, tipo }: { painel: PainelDoCortai; tipo: TipoD
           </div>
         </div>
         <Button
-          variant="ghost"
+          variant="primary"
           type="button"
-          className="btn-primary mt-5 w-full opacity-50"
+          className="mt-5 w-full"
           disabled
           aria-disabled
         >
@@ -917,9 +917,9 @@ function CartaoDeConexao({ painel, tipo }: { painel: PainelDoCortai; tipo: TipoD
           <>
             {!qrExpirado ? (
               <Button
-                variant="ghost"
+                variant="primary"
                 type="button"
-                className="btn-primary w-full"
+                className="w-full"
                 disabled={acao.isPending}
                 onClick={() => acao.mutate(status === "qr_pronto" ? "qr" : "conectar")}
               >

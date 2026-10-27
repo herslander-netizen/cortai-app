@@ -202,7 +202,7 @@ function HistoricoPage() {
                 value={ate}
                 min={de || undefined}
                 onChange={(e) => setAte(e.target.value)}
-                className="min-h-11 rounded-md border border-line bg-transparent px-3 text-sm text-paper"
+                className="min-h-12 rounded-[12px] border-0 bg-[var(--figaro-surface-container,var(--ink2))] px-3 text-sm text-paper"
               />
             </label>
             <p className="w-full text-xs text-mute">Escolha um período de até 1 ano.</p>
