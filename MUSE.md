@@ -16,7 +16,7 @@ A estrutura foi pensada para só gerar custo quando houver clientes.
 | Site principal | https://cortaiapp.pages.dev (Cloudflare Pages, projeto `cortaiapp`) — só pelo "Lançar versão" |
 | Banco de produção | Supabase `cortai-prod` (`ibsberidejlbczxrweqg`); teste de permissões `supabase/tests/rbac.sql` |
 | Banco da prévia | Supabase de teste `cortai-preview` (projeto `pfkxvindedkuktogbcsv`, região São Paulo); secrets `PREVIEW_SUPABASE_URL`, `PREVIEW_SUPABASE_PUBLISHABLE_KEY` e `PREVIEW_SUPABASE_SERVICE_ROLE_KEY` cadastrados e validados pelo workflow em 2026-10-19 |
-| IA | Provedor compatível com OpenAI (`CORTAI_AI_*`) ou modo por regras; sem configuração, fica indisponível |
+| IA | Gateway próprio: provedor compatível primário (`CORTAI_AI_*`) e fallback técnico opcional (`CORTAI_AI_FALLBACK_*`); sem configuração, fica indisponível |
 | Voz | Navegador (grátis) ou provedor de transcrição (`CORTAI_STT_*`) |
 | WhatsApp | Cloud API da Meta direto (`META_WHATSAPP_*`) ou Evolution API (`EVOLUTION_*`) |
 | Domínio `cortai.dev` | Reservado; ainda não aponta para o site principal |
@@ -43,6 +43,29 @@ O APK reencontrado `Figaroo.apk` é a referência original para layout, cartões
 - Verificação pós-aplicação confirmou as tabelas de série, a função transacional de criação e o trigger de bloqueio de novos agendamentos por cliente.
 - `cortai-prod`, site principal e DNS permanecem intocados. Não repetir essas migrações em produção sem nova autorização explícita.
 - As duas tabelas de série têm RLS habilitado sem policies; acesso direto é intencionalmente restrito a `service_role` por grants explícitos. Rever o aviso do linter se a arquitetura de acesso mudar.
+
+## Provedores de IA (gateway do cérebro)
+
+O cérebro continua único em `src/lib/brain`; o gateway pode usar um provedor primário e um
+secundário compatível com Chat Completions. O secundário só é tentado quando o primário retorna
+429, 5xx, timeout ou falha de rede. Erros de credencial (401), crédito (402) ou bloqueio (403)
+não são mascarados por fallback. A confirmação, permissões, validação e execução das ações continuam
+no Cortaí; os provedores só interpretam e propõem ferramentas.
+
+Variáveis de ambiente opcionais para o secundário (não colocar valores no repositório):
+- `CORTAI_AI_FALLBACK_BASE_URL` — URL-base HTTPS terminada em `/v1` (por exemplo, serviço LocalAI protegido).
+- `CORTAI_AI_FALLBACK_MODEL` — identificador exato do modelo instalado no secundário.
+- `CORTAI_AI_FALLBACK_API_KEY` — chave do endpoint secundário.
+- `CORTAI_AI_FALLBACK_TIMEOUT_MS` — opcional, 1.000–120.000 ms; padrão 45.000.
+- `CORTAI_AI_FALLBACK_REASONING_EFFORT` — opcional: `low`, `medium` ou `high`.
+
+Para usar Ollama Cloud como primário, o dono configura `CORTAI_AI_BASE_URL=https://ollama.com/v1`,
+`CORTAI_AI_MODEL` com um modelo habilitado na conta e `CORTAI_AI_API_KEY` com a chave privada.
+Para LocalAI como secundário, hospedar primeiro o serviço em URL HTTPS acessível pelo Worker, habilitar
+autenticação e escolher um modelo com chamadas de ferramentas testadas. **A implementação do fallback
+não configura credenciais, não cria hospedagem nem ativa cobranças por si só.** Aplicar os secrets
+de prévia/produção é uma operação separada e precisa ser feita com as chaves do dono; nunca reutilizar
+as credenciais da prévia em produção.
 
 ## Prévia e versões
 
