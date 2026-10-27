@@ -494,8 +494,6 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Em andamento
 
-- GPT | 2026-10-27 UTC | Unificar o fluxo de cadastro estruturado de serviços/horários ao cérebro único CortAI, removendo o motor conversacional paralelo sem perder extração JSON, contexto, confirmação e validação; auditar nomes públicos da IA e ampliar testes. Respeitar escopo e permissões por canal; sem migração, banco real, produção, main ou DNS | `DIARIO.md`, `src/lib/assistente.functions.ts`, `src/lib/ia/assistente.server.ts`, contratos e testes relacionados; sem migração |
-
 
 - GPT | 2026-10-27 UTC | Integrar recursos financeiros inspirados no Mobills sem duplicar módulos do Cortaí: auditar categorias, fiado, pagamentos, taxas, recorrências e orçamento; implementar em etapas compatíveis, com migração aditiva apenas para prévia após revisão e testes. Não tocar Agenda, produção, main ou DNS | `DIARIO.md`, `docs/auditoria-mobills-cortai-2026-10-27.md`, `src/lib/financeiro*`, `src/routes/barbeiro.financeiro.tsx`, `src/routes/barbeiro.caixa.tsx`, componentes financeiros e migrações novas se necessárias; sem aplicar migrações nesta tarefa | 
 
@@ -763,6 +761,7 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - Sem mudanças na interface da Agenda, migrações, bancos de dados, segredos, main ou site principal. TypeScript, Vitest, build e smoke test aguardam a validação automática do commit.
 ## Diário
 
+- GPT | 2026-10-27 UTC | Primeira etapa da unificação CortAI: renomeei a função de extração de cadastro estruturado de `pensar` para `extrairCadastroEstruturado`, atualizei os três pontos de chamada no painel e alinhei os testes correspondentes. O prompt desta capacidade agora identifica a inteligência como “Cortaí”, sem alterar o contrato JSON, o gateway compartilhado, a confirmação dos cadastros ou as regras de tenant. Isto remove o nome genérico de “segundo pensador”, mas **não declara concluída a unificação funcional**: extração estruturada continua sendo uma capacidade especializada, enquanto o catálogo central ainda precisa de ações explícitas para cadastrar serviços e horários. Sem migração, banco real, produção, main ou DNS. Os commits desta etapa são `310e1be`, `3ac903a` e `fe2a293`; aguardar GitHub Actions para validar TypeScript, testes, build e prévia.
 - GPT | 2026-10-27 UTC | Diagnóstico e correção do CortAI + auditoria mobile
   - Gateway: o código não permite confirmar o valor dos secrets nem uma chamada real a partir do checkout; a prévia só encaminha `PREVIEW_CORTAI_AI_*`. O provedor continua sendo um único gateway compatível, agora aceitando os aliases `ollama`/`ollama_cloud` para Ollama Cloud sem criar outro cérebro. `CORTAI_AI_CANAIS` continua validado e o painel segue o canal padrão.
   - Observabilidade: erros do provedor agora registram somente evento, host e status HTTP; o corpo da resposta não é mais gravado. Eventos de chamada recebem categoria não sensível (`autenticacao`, `credito`, `permissao`, `limite`, `temporario` ou `rede`). A mensagem 401 deixou de fingir que é configuração ausente.
