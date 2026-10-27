@@ -191,7 +191,7 @@ export const getSessao = createServerFn({ method: "GET" })
       tenantPaginaPublicada: false,
       tenantFuso: null,
       identidadeApp: "moderno" as Identidade,
-      segmento: "barbearia" as Segmento,
+      segmento: "outro" as Segmento,
       tenantModo: "escuro" as const,
       papelNaEquipe: null,
       permissoes: [] as string[],
