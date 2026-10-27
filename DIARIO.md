@@ -492,7 +492,7 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Em andamento
 
-| GPT | 2026-10-27 UTC | Implementar fallback técnico opcional de provedor de IA: Ollama Cloud primário e LocalAI secundário, sem trocar o cérebro/ações do Cortaí; fallback apenas em falhas transitórias, configuração por secrets, testes e validação | `DIARIO.md`, `MUSE.md`, `src/lib/brain/gateway.server.ts`, `src/lib/brain/gateway-compativel.server.ts`, testes do gateway; sem migração |
+| GPT | 2026-10-27 UTC | Implementar fallback técnico opcional de provedor de IA: Ollama Cloud primário e LocalAI secundário, sem trocar o cérebro/ações do Cortaí; fallback apenas em falhas transitórias, configuração por secrets, testes e validação | `DIARIO.md`, `MUSE.md`, `.github/workflows/preview-migration.yml`, `.github/workflows/lancar-versao.yml`, `src/lib/brain/gateway.server.ts`, `src/lib/brain/gateway-compativel.server.ts`, testes do gateway; sem migração |
 
 
 
@@ -749,8 +749,8 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 ### 2026-10-27 UTC — GPT — Gateway de IA com fallback opcional Ollama Cloud → LocalAI
 - O gateway continua com um único cérebro e as mesmas ferramentas/guardas. Adicionado provedor secundário opcional via `CORTAI_AI_FALLBACK_*`, sem mudar o provedor primário já configurado.
 - O secundário só é tentado após 429, 5xx, timeout ou falha de rede do primário. Erros 401/402/403 não são mascarados. A observabilidade registra a falha do primário e o resultado do secundário sem conteúdo de conversa.
-- Testes adicionados para configuração completa/incompleta, fallback em 503 e ausência de fallback em 402. Documentação de variáveis e limites atualizada em `MUSE.md`.
-- Commits: `5000869`, `bf6b607`, `1200d66`, `a4a800b`, `a558122`, `796cad8`, `06ca939`, `ab3d1e2`.
+- Testes adicionados para configuração completa/incompleta, fallback em 503 e ausência de fallback em 402. Documentação de variáveis e limites atualizada em `MUSE.md`; os workflows da prévia e de lançamento agora encaminham os secrets opcionais do fallback para o Worker, sem definir nenhum segredo.
+- Commits: `5000869`, `bf6b607`, `1200d66`, `a4a800b`, `a558122`, `796cad8`, `06ca939`, `ab3d1e2`, `d80f768`, `ea0309a`.
 - **Validação pendente:** não há execução de TypeScript/Vitest/build confirmada neste ambiente e o status de CI ainda não retornou checks. Manter a tarefa reservada até confirmar o workflow e corrigir eventuais falhas.
 - **Não ativado em runtime:** nenhuma chave ou URL de provedor foi adicionada aos secrets; não houve hospedagem criada nem custo iniciado. O dono precisa configurar os secrets da prévia e testar o serviço LocalAI HTTPS antes de habilitar o fallback.
 
