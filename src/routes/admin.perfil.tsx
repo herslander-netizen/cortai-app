@@ -66,7 +66,7 @@ function AdminPerfilPage() {
             <ChevronRight size={16} className="text-mute2" />
           </Link>
         </li>
-        <li className="border-b border-line">
+        <li className="rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))] px-4">
           <Button
             type="button"
             variant="ghost"

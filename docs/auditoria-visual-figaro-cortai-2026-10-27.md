@@ -89,3 +89,6 @@ Esta entrega corrige a base compartilhada e exemplos concretos de duas áreas; *
 - **Regressões:** testes verificam a ausência de divisores legados em `app.agendar.tsx` e a escala do título em `avaliar.$token.tsx`.
 - **Preservação:** o fluxo público `/agendar/$slug`, que pode ter personalização visual do negócio, não foi alterado nesta tranche.
 - **Estado:** aguardando CI e smoke test do commit final; ainda não há navegação manual por navegador conectado nem conferência visual de todos os estados em 390/360 px, temas claro/escuro e movimento reduzido.
+
+
+- **Ajuste adicional:** a primeira execução de testes detectou que a linha “Sair da conta” ainda mantinha `border-b border-line`. Essa segunda ocorrência foi convertida para cartão neutro; o teste de regressão foi mantido para impedir o retorno do divisor.
