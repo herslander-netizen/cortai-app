@@ -12,6 +12,7 @@ const estado = vi.hoisted(() => ({
   respostaDaIa: "Obrigado por confirmar sua presença!",
   executadas: [] as string[],
   falhar: false,
+  falharIa: false,
   chamadasIa: 0,
   bloqueio: null as string | null,
   instrucoes: [] as string[],
@@ -32,6 +33,7 @@ vi.mock("./gateway.server", () => ({
     responder: async ({ instrucoes }: { instrucoes: string }) => {
       estado.instrucoes.push(instrucoes);
       estado.chamadasIa += 1;
+      if (estado.falharIa) throw new Error("falha simulada do provedor");
       return [{ type: "message", content: estado.respostaDaIa }];
     },
   }),
@@ -83,6 +85,7 @@ beforeEach(() => {
   estado.respostaDaIa = "Obrigado por confirmar sua presença!";
   estado.executadas = [];
   estado.falhar = false;
+  estado.falharIa = false;
   estado.chamadasIa = 0;
   estado.bloqueio = null;
   estado.instrucoes = [];
@@ -158,6 +161,14 @@ describe("barreira de saída", () => {
     const r = await pensar("ok, mas quanto custa?");
     expect(estado.executadas).toEqual([]);
     expect(r.pendente?.id).toBe("p1");
+  });
+
+  it("falha do provedor ao responder pergunta paralela preserva a pendência", async () => {
+    estado.falharIa = true;
+    const r = await pensar("quanto custa?");
+    expect(estado.executadas).toEqual([]);
+    expect(r.pendente?.id).toBe("p1");
+    expect(r.indisponivel).toContain("falha simulada");
   });
 
   it("com pendente, a troca repete o resumo e pede confirmação", () => {
