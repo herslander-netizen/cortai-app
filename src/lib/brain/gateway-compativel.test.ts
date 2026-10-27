@@ -78,6 +78,44 @@ describe("lerConfigDoProvedor", () => {
     const r2 = lerConfigDoProvedor({ ...base, CORTAI_AI_TIMEOUT_MS: "20000" });
     expect(r2.ok && r2.config.tipo === "compativel" && r2.config.tempoLimiteMs).toBe(20_000);
   });
+
+  it("aceita fallback completo e mantém o provedor secundário separado", () => {
+    const r = lerConfigDoProvedor({
+      ...base,
+      CORTAI_AI_FALLBACK_BASE_URL: "https://localai.exemplo.test/v1/",
+      CORTAI_AI_FALLBACK_MODEL: "qwen3-4b",
+      CORTAI_AI_FALLBACK_API_KEY: "chave-secundaria",
+      CORTAI_AI_FALLBACK_TIMEOUT_MS: "15000",
+    });
+    expect(r.ok && r.config.tipo === "compativel" && r.config).toMatchObject({
+      nome: "api.exemplo.test",
+      modelo: "openai/gpt-oss-20b",
+      fallback: {
+        nome: "localai.exemplo.test",
+        baseUrl: "https://localai.exemplo.test/v1",
+        modelo: "qwen3-4b",
+        tempoLimiteMs: 15_000,
+      },
+    });
+    expect(JSON.stringify(r)).not.toContain("chave-secundaria");
+  });
+
+  it("fallback parcialmente configurado ou inseguro deixa a configuração indisponível", () => {
+    expect(
+      lerConfigDoProvedor({
+        ...base,
+        CORTAI_AI_FALLBACK_BASE_URL: "https://localai.exemplo.test/v1",
+      }).ok,
+    ).toBe(false);
+    expect(
+      lerConfigDoProvedor({
+        ...base,
+        CORTAI_AI_FALLBACK_BASE_URL: "http://localai.exemplo.test/v1",
+        CORTAI_AI_FALLBACK_MODEL: "qwen3-4b",
+        CORTAI_AI_FALLBACK_API_KEY: "chave-secundaria",
+      }).ok,
+    ).toBe(false);
+  });
 });
 
 describe("tradução de formatos", () => {
