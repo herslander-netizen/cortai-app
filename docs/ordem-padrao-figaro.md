@@ -25,7 +25,7 @@ Contrato de design do projeto: `docs/contrato-de-design.md`. Esta ordem diz **co
    nada de cinza improvisado. Claro e escuro têm que funcionar (contraste mínimo 4,5:1 no texto).
 4. **Movimento só com as molas e tempos oficiais** (`src/lib/motion.ts` e `src/lib/movimento-figaro.ts`),
    `transform` e `opacity`, respeitando `prefers-reduced-motion`.
-5. **Mobile primeiro, 390 px de referência**, área de toque de 48 dp, nada de rolagem horizontal da página.
+5. **Mobile é o alvo principal e vem primeiro**: desenhar, implementar e validar inicialmente em 390 px e conferir 360 px; só depois adaptar para desktop. Nenhuma decisão de layout ou animação é aprovada apenas pela aparência em tela grande. Alvos de toque de 48 dp quando aplicável, sem rolagem horizontal, sobreposição de conteúdo, gestos conflitantes ou zoom acidental fora das superfícies previstas. Conferir claro/escuro e `prefers-reduced-motion` no fluxo móvel.
 6. **Textos neutros de segmento** no código (`termos(segmento)` só na tela) e em português do Brasil.
 
 ## 3. O que usar em cada caso
