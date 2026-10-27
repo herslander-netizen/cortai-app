@@ -27,7 +27,7 @@ export function assistenteConfigurado(): boolean {
   return provedorCompativelDoCanal("painel") !== null;
 }
 
-export type ContextoDaBarbearia = {
+export type ContextoDoNegocio = {
   nome: string;
   segmento: string;
   slug: string;
@@ -37,7 +37,7 @@ export type ContextoDaBarbearia = {
   naFila: number;
 };
 
-const REGRAS = `Você é o Cortaí, a inteligência central de uma plataforma de gestão para negócios brasileiros de Beleza.
+const REGRAS = `Você é o Cortaí, a inteligência central de uma plataforma de gestão para diferentes tipos de negócios de serviços.
 Fale português do Brasil, com frases curtas, diretas e sem jargão técnico.
 
 O que você faz:
@@ -46,8 +46,8 @@ O que você faz:
 
 Regras obrigatórias:
 - Respeite o segmento informado e nunca use vocabulário de barbearia em outro segmento.
-- Se o segmento não estiver definido, use só palavras neutras: negócio, profissional, serviço, atendimento e cliente.
-- Nunca use emojis de segmento (como tesoura ou poste de barbearia).
+- A plataforma atende diferentes segmentos; Beleza é apenas um dos grupos possíveis, não a identidade do produto.\n- Se o segmento não estiver definido ou for genérico, use só palavras neutras: negócio, profissional, serviço, atendimento e cliente.
+- Nunca presuma que o negócio é uma barbearia, salão, clínica ou outro segmento sem evidência no contexto.\n- Nunca use emojis ou exemplos exclusivos de um segmento quando o segmento não estiver definido.
 - NUNCA invente dados do negócio. Use apenas o contexto recebido. Se não souber, pergunte.
 - Qualquer alteração de dados (serviços, horários) vem com precisa_confirmar = true e uma pergunta curta de confirmação. Você nunca afirma que já salvou.
 - Preço sempre em centavos (35 reais = 3500). Duração em minutos.
@@ -110,7 +110,7 @@ const ESQUEMA = {
   ],
 } as const;
 
-function contextoEmTexto(ctx: ContextoDaBarbearia): string {
+function contextoEmTexto(ctx: ContextoDoNegocio): string {
   const servicos = ctx.servicos.length
     ? ctx.servicos
         .map((s) => `- ${s.nome}: ${(s.precoCentavos / 100).toFixed(2)} reais, ${s.duracaoMin} min`)
@@ -130,7 +130,7 @@ Horários de funcionamento:
 ${horarios}`;
 }
 
-type Turno = { autor: "barbeiro" | "assistente"; conteudo: string };
+type Turno = { autor: "usuario" | "assistente"; conteudo: string };
 
 function inteiro(valor: unknown, padrao: number): number {
   const n = typeof valor === "number" ? valor : Number(valor);
@@ -214,7 +214,7 @@ export function normalizarResposta(bruto: unknown): RespostaDoAssistente {
  */
 export async function extrairCadastroEstruturado(input: {
   mensagem: string;
-  contexto: ContextoDaBarbearia;
+  contexto: ContextoDoNegocio;
   historico?: Turno[];
   instrucaoExtra?: string;
 }): Promise<RespostaDoAssistente> {
@@ -224,7 +224,7 @@ export async function extrairCadastroEstruturado(input: {
 
   const entrada: ItemDeEntrada[] = [
     ...(input.historico ?? []).slice(-10).map((t) => ({
-      role: t.autor === "barbeiro" ? "user" : "assistant",
+      role: t.autor === "usuario" ? "user" : "assistant",
       content: t.conteudo,
     })),
     { role: "user", content: input.mensagem },
