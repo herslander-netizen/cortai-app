@@ -27,6 +27,7 @@ e o que fez. O diário até 17/10/2026 está guardado, sem alterações, em
 7. **Sem segredos:** nunca escreva chaves, senhas ou tokens aqui. Cite só o nome da variável.
 
 ## Decisões do dono
+- 2026-10-27: **Identidade Cortaí unificada em todo o produto** (pedido do dono): quando “Cortaí” for referido sem limitar a uma tela, aplicar a direção visual global. Wordmark arredondado minimalista, letras em marinho profundo e ponto coral sobre o “í”; superfícies neutras, coral de marca e azul Figaro para ações. Composição, componentes, cartões, folhas e movimento seguem a referência Figaro. Linguagem neutra para negócios de beleza. Temas escolhidos para páginas públicas continuam preservados.
 - 2026-10-26: **Gatilho “Modo dev”**: quando o dono escrever exatamente “Modo dev”, ativar a execução autônoma de engenharia descrita em `AGENTS.md`. Reproduzir apenas o fluxo de trabalho de investigação, implementação e validação que ele apreciava; o Lovable não é usado nem deve ser reintroduzido.
 - 2026-10-26: **Ações da comanda simplificadas em todos os fluxos** (dono): remover o botão/ícone de copiar código da comanda; destacar a ação do WhatsApp com rótulo explícito e manter apenas Compartilhar e Baixar imagem como ações secundárias. A cópia da chave Pix continua disponível.
 - 2026-10-26: **Zoom e botões do pé da Agenda iguais ao Figaro** (dono, vídeo do Figaro de 19:09: "preste atenção no zoom e nos ícones dos botões e replicar o mesmo comportamento e cores"). Grade: só a hora cheia como linha fixa; linhas de 5 em 5 min surgem com o zoom (invisíveis até 2,5 px/min, inteiras em 3,0; cheias na edição), tracejado 4/2, 2/3 dp, hint a 50%. **Substitui as decisões de 25/10** ("tracejado de 15 min só depois do zoom" e "marcas de 5 min só na edição"). Botão de visualização: ícone de lista na grade, ícone de agenda na lista, em azul; "Hoje" vira "Agora".
@@ -500,7 +501,7 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 
 | Quem | Desde (UTC) | Tarefa | Arquivos / migração reservada |
-| GPT | 2026-10-27 UTC | Unificar a identidade visual-base do Cortaí: comparar a paleta atual com a marca nova (marinho + coral) e a referência Figaro; preservar componentes, raios e movimento Figaro, padronizar tokens globais e documentar a regra permanente; verificar tema claro/escuro, contraste e movimento reduzido. Sem alterar regras de negócio nem banco | `DIARIO.md`, `docs/contrato-de-design.md`, `docs/ordem-padrao-figaro.md`, `src/styles.css`, `src/lib/contraste-app.test.ts` e testes de identidade; sem migração |
+
 |---|---|---|---|
 
 
@@ -522,6 +523,8 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 
 ## Recados
+
+- **Para todos (GPT, 27/10):** o dono estabeleceu identidade Cortaí global baseada em estrutura/movimento Figaro e marca própria (marinho, wordmark arredondado e ponto coral). A paleta padrão e os documentos de design foram atualizados; temas públicos customizados continuam preservados. O commit `cd41bcb` está aguardando CI da prévia; não publicar no site principal sem pedido.
 
 - **Para todos (GPT, 26/10):** a implementação da auditoria AgendaClick está na branch de trabalho e a validação/deploy isolado da prévia passou no commit `44f1df5bcf1299c5f47f551fe1a8d139e06109f6`. As migrações `0047` e `0048` foram preparadas, mas NÃO aplicadas. Não as apliquem em nenhum banco até autorização específica do dono.
 
@@ -746,6 +749,15 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - Documentação adicionada: docs/auditoria-inbarber-cortai-2026-10-26.md e docs/propostas/widget-android-inbarber-cortai.md. O widget permanece especificado, não implementado: o repositório não tem projeto Android nativo, pacote/assinatura ou fluxo de autenticação para o widget.
 - Sem mudanças na interface da Agenda, migrações, bancos de dados, segredos, main ou site principal. TypeScript, Vitest, build e smoke test aguardam a validação automática do commit.
 ## Diário
+
+### 2026-10-27 — Identidade Cortaí baseada no Figaro (GPT)
+- **Direção:** o Figaro governa estrutura, hierarquia, primitivos, superfícies, folhas e movimento; a marca é própria do Cortaí: wordmark arredondado minimalista, marinho profundo e ponto coral sobre o “í”. Azul continua sendo cor de ação; coral sinaliza a marca sem dominar todas as telas.
+- **Código:** paleta padrão clara/escura e tokens globais em `src/styles.css`; cartão de preferências pós-agendamento agora é o primitivo `Card` com uma única expansão opcional; o teste de gateway desabilita o modo básico para verificar especificamente que erros de crédito/credenciais não acionam fallback.
+- **Documentação:** identidade universal registrada em `CLAUDE.md`, `docs/contrato-de-design.md`, `docs/ordem-padrao-figaro.md` e em “Decisões do dono”.
+- **Arquivos:** `src/styles.css`, `src/components/agendamento/PreferenciasAposAgendamento.tsx`, `src/lib/contraste-app.test.ts`, `src/lib/brain/gateway-despacho.test.ts`, os três documentos acima e `DIARIO.md`.
+- **Validação:** TypeScript, testes, build e publicação isolada da prévia aguardam a execução do workflow deste commit. Não foi feita conferência visual manual em 390px/1280px nesta sessão. Nenhuma alteração ao banco ou site principal.
+- **Para todos:** a identidade é global, mas este lote altera tokens e a forma dos cartões, sem mudar regras funcionais ou estrutura da Agenda. Comparar a prévia em claro/escuro antes de qualquer publicação principal.
+
 
 ### 2026-10-27 UTC — GPT — Simplifica a experiência pós-agendamento externo
 - Vídeos do celular mostram o bloco de preferências ocupando a tela imediatamente após a confirmação, com fundo escuro e baixo contraste em relação à página clara; a ficha ainda expõe muitas opções e campos de uma só vez.
