@@ -10,15 +10,27 @@ describe("guardas do cérebro CortAI", () => {
   });
   it("só aceita confirmação inequívoca", () => {
     expect(confirmacaoInequivoca("Sim")).toBe(true);
-    expect(confirmacaoInequivoca("pode marcar")).toBe(true);
+    expect(confirmacaoInequivoca("pode")).toBe(true);
     expect(confirmacaoInequivoca("sim, mas às 15h")).toBe(false);
     expect(confirmacaoInequivoca("talvez")).toBe(false);
     expect(recusaInequivoca("não")).toBe(true);
   });
-  it("pendente expira em 15 minutos", () => {
+  it("vincula confirmações que nomeiam uma operação à ação pendente correspondente", () => {
+    expect(confirmacaoInequivoca("pode marcar", "criar_agendamento")).toBe(true);
+    expect(confirmacaoInequivoca("pode marcar", "cancelar_agendamento")).toBe(false);
+    expect(confirmacaoInequivoca("pode cancelar", "cancelar_agendamento")).toBe(true);
+    expect(confirmacaoInequivoca("pode cancelar", "criar_agendamento")).toBe(false);
+    expect(confirmacaoInequivoca("pode remarcar", "reagendar_agendamento")).toBe(true);
+    expect(confirmacaoInequivoca("pode remarcar", "criar_agendamento")).toBe(false);
+    expect(confirmacaoInequivoca("pode cancelar")).toBe(false);
+  });
+  it("pendente expira em 15 minutos e rejeita data futura ou inválida", () => {
     const agora = Date.now();
     expect(pendenteValida(new Date(agora - 60_000).toISOString(), agora)).toBe(true);
+    expect(pendenteValida(new Date(agora - 15 * 60_000).toISOString(), agora)).toBe(true);
     expect(pendenteValida(new Date(agora - 16 * 60_000).toISOString(), agora)).toBe(false);
+    expect(pendenteValida(new Date(agora + 60_000).toISOString(), agora)).toBe(false);
+    expect(pendenteValida("não é uma data", agora)).toBe(false);
     expect(pendenteValida(undefined, agora)).toBe(false);
   });
 });
