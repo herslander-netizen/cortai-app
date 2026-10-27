@@ -69,6 +69,11 @@ describe("medidas visuais Figaro no seletor de data", () => {
     expect(circulo?.className).toContain("text-base");
     expect(selecionado?.className).toContain("h-12");
     expect(selecionado?.querySelector('[aria-hidden="true"]')?.className).toContain("size-[5px]");
+    const circuloDeslizante = alvo.querySelector<HTMLElement>(
+      '[aria-label="Dias da semana"] .pointer-events-none',
+    );
+    expect(circuloDeslizante?.className).toContain("top-[5px]");
+    expect(circuloDeslizante?.querySelector("i")?.className).toContain("size-[38px]");
     const rotulos = Array.from(alvo.querySelectorAll<HTMLElement>("div")).find((el) =>
       el.className.includes("text-[11.5px]"),
     );
