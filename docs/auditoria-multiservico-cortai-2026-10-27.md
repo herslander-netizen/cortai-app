@@ -137,12 +137,13 @@ Um resultado só é considerado concluído depois de TypeScript, testes, build, 
 
 **Correção aplicada**
 - Rascunhos novos usam segmento `outro` e horários genéricos; dados de rascunhos já salvos com segmento explícito permanecem intactos.
+- A leitura dos defaults de onboarding (`src/lib/onboarding.functions.ts`) usa `segmentoParaApresentacao()` para horários e chips de ficha quando o segmento está ausente/desconhecido.
 - Sessões sem negócio começam com segmento neutro; ao carregar um negócio com segmento ausente/desconhecido, a sessão usa `segmentoParaApresentacao()` para não expor um rótulo de barbearia.
 - O vocabulário conversacional usa `outro` quando o chamador omite o segmento; a escolha explícita de barbearia continua reconhecendo os aliases de corte.
 - Hashtags sem segmento agora são `#servicos`, `#atendimento` e `#agendamento`; os segmentos de salão, cabeleireiro, esmalteria, sobrancelha/cílios e estética receberam grupos específicos.
 - As legendas padrão usam a preposição neutra “em” no lugar de “na”, que pressupunha o gênero de “barbearia”.
 
-**Arquivos:** `src/lib/rascunho.functions.ts`, `src/lib/sessao.functions.ts`, `src/lib/whatsapp/motor/vocabulario.ts`, `src/lib/whatsapp/motor/escolha-servico.test.ts`, `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`.
+**Arquivos:** `src/lib/rascunho.functions.ts`, `src/lib/sessao.functions.ts`, `src/lib/onboarding.functions.ts`, `src/lib/whatsapp/motor/vocabulario.ts`, `src/lib/whatsapp/motor/escolha-servico.test.ts`, `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`.
 
 **Limite:** `segmentoValido()` continua com o fallback legado para consumidores de dados históricos. Novos textos, interfaces e conteúdo de demonstração devem preferir `segmentoParaApresentacao()` quando o segmento puder estar ausente.
 
