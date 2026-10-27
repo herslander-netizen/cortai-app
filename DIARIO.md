@@ -744,6 +744,13 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - Sem mudanças na interface da Agenda, migrações, bancos de dados, segredos, main ou site principal. TypeScript, Vitest, build e smoke test aguardam a validação automática do commit.
 ## Diário
 
+### 2026-10-26 UTC — GPT — Define o gatilho “Modo dev”
+- Registrado em `AGENTS.md` o modo de execução autônoma: investigar, implementar diretamente, revisar efeitos colaterais, validar e informar evidências sem parar a cada etapa reversível.
+- Registrado em “Decisões do dono” que a frase exata **“Modo dev”** ativa esse comportamento. Foi explícito que isso reproduz apenas o fluxo de trabalho apreciado, sem voltar a usar Lovable.
+- Mantidos os limites atuais: trabalhar na branch de migração, respeitar a Agenda protegida e as reservas, não publicar no site principal nem alterar bancos reais sem autorização.
+- Commits: `6d36b90418dda7fa21d8b2f84729fedc7f3f0239` (`AGENTS.md`) e `78548b63685499aaef73cbca9c3a0ad9bf467fa0` (decisão no diário). Alteração documental; nenhuma execução de testes necessária.
+
+
 ### 2026-10-26 UTC — GPT — Simplifica ações da comanda
 - Removidos o botão “Copiar código” e o ícone de cópia do código do ticket em `TicketComanda.tsx`; removida a ação `copiarCodigo` do hook em `FolhaDoTicket.tsx`.
 - Nos fluxos interno e de confirmação pública, WhatsApp fica em botão principal com texto explícito; “Compartilhar” e “Baixar imagem” ficam como secundários. A confirmação pública agora também oferece “Compartilhar”.
