@@ -37,6 +37,9 @@ export type ContextoDoNegocio = {
   naFila: number;
 };
 
+/** Alias de compatibilidade para consumidores legados; o contexto é de qualquer negócio. */
+export type ContextoDaBarbearia = ContextoDoNegocio;
+
 const REGRAS = `Você é o Cortaí, a inteligência central de uma plataforma de gestão para diferentes tipos de negócios de serviços.
 Fale português do Brasil, com frases curtas, diretas e sem jargão técnico.
 
@@ -130,7 +133,7 @@ Horários de funcionamento:
 ${horarios}`;
 }
 
-type Turno = { autor: "usuario" | "assistente"; conteudo: string };
+type Turno = { autor: "barbeiro" | "assistente"; conteudo: string };
 
 function inteiro(valor: unknown, padrao: number): number {
   const n = typeof valor === "number" ? valor : Number(valor);
@@ -224,7 +227,7 @@ export async function extrairCadastroEstruturado(input: {
 
   const entrada: ItemDeEntrada[] = [
     ...(input.historico ?? []).slice(-10).map((t) => ({
-      role: t.autor === "usuario" ? "user" : "assistant",
+      role: t.autor === "barbeiro" ? "user" : "assistant",
       content: t.conteudo,
     })),
     { role: "user", content: input.mensagem },
