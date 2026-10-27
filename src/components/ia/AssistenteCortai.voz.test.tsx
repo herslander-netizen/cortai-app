@@ -132,10 +132,10 @@ describe("CortAI aberta por 'Agendar por voz'", () => {
     expect(botao("Falar um comando")).not.toBeNull();
   });
 
-  it("falar → transcrever → enviar como voz, com id de idempotência, e atualizar a agenda", async () => {
+  it("transcreve para um rascunho editável e só envia depois do toque explícito", async () => {
     mocks.transcrever.mockResolvedValue({ texto: "marque Leandro Silva amanhã às 15h para corte" });
     mocks.perguntar.mockResolvedValue(
-      RESPOSTA("Pronto ✅ Concluído: Agendar Corte para Leandro Silva."),
+      RESPOSTA("Entendi assim: Agendar Corte para Leandro Silva. Posso confirmar?"),
     );
     await montar(true);
     await avancar(200);
@@ -147,18 +147,28 @@ describe("CortAI aberta por 'Agendar por voz'", () => {
       audioBase64: "QUJDREVGRw==",
       mimeType: "audio/webm",
     });
+    const campo = document.querySelector<HTMLTextAreaElement>("textarea")!;
+    expect(campo.value).toBe("marque Leandro Silva amanhã às 15h para corte");
+    expect(document.body.textContent).toMatch(/Transcrição pronta. Revise antes de enviar/);
+    expect(mocks.perguntar).not.toHaveBeenCalled();
+    expect(qc.invalidateQueries).not.toHaveBeenCalled();
+
+    // Corrigir um possível erro de reconhecimento antes de chamar o cérebro.
+    await act(async () => {
+      const setter = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, "value")!.set!;
+      setter.call(campo, "marque Leandro Silva amanhã às 16h para corte");
+      campo.dispatchEvent(new Event("input", { bubbles: true }));
+    });
+    await act(async () => botao("Enviar")!.click());
+    await avancar(0);
     expect(mocks.perguntar).toHaveBeenCalledTimes(1);
     const enviado = mocks.perguntar.mock.calls[0]![0].data;
     expect(enviado).toMatchObject({
-      mensagem: "marque Leandro Silva amanhã às 15h para corte",
+      mensagem: "marque Leandro Silva amanhã às 16h para corte",
       origem: "voz",
     });
     expect(enviado.idDaMensagem).toMatch(/^[0-9a-f-]{36}$/);
-    // A fala aparece na conversa e o resultado do sistema também.
-    expect(document.body.textContent).toContain("marque Leandro Silva amanhã às 15h para corte");
-    expect(document.body.textContent).toContain("Pronto ✅ Concluído");
-    expect(qc.invalidateQueries).toHaveBeenCalledWith({ queryKey: ["agenda-dia"] });
-    // O microfone foi solto.
+    expect(document.body.textContent).toContain("Entendi assim: Agendar Corte");
     expect(trilhas.every((t) => t.stop.mock.calls.length > 0)).toBe(true);
   });
 
