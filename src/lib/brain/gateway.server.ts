@@ -222,10 +222,59 @@ export function criarSessaoDoGateway(opcoes?: {
           uso,
         });
         return itens;
-      } catch (erro) {
-        const status = erro instanceof ErroDoProvedor ? erro.status : 500;
-        avisar({ ...base, latenciaMs: Date.now() - inicio, ok: false, httpStatus: status });
-        throw new ErroDoGateway(status, mensagemSegura(status), identidade.provedor);
+      } catch (erroPrimario) {
+        const statusPrimario = erroPrimario instanceof ErroDoProvedor ? erroPrimario.status : 500;
+        avisar({
+          ...base,
+          latenciaMs: Date.now() - inicio,
+          ok: false,
+          httpStatus: statusPrimario,
+        });
+
+        // Só falhas transitórias acionam o secundário. Erros de credencial, bloqueio
+        // ou crédito (401/402/403) não são mascarados por outro provedor.
+        const fallback = leitura.config.fallback;
+        const transitoria = statusPrimario === 429 || statusPrimario >= 500;
+        if (!fallback || !transitoria) {
+          throw new ErroDoGateway(statusPrimario, mensagemSegura(statusPrimario), identidade.provedor);
+        }
+
+        const inicioFallback = Date.now();
+        const configFallback: ConfigCompativel = {
+          ...leitura.config,
+          ...fallback,
+          fallback: undefined,
+        };
+        const identidadeFallback = { provedor: fallback.nome, modelo: fallback.modelo };
+        const baseFallback = {
+          ...identidadeFallback,
+          ferramentas: [] as string[],
+          geroutexto: false,
+        };
+        try {
+          const { itens, uso } = await chamarCompativel(configFallback, input);
+          avisar({
+            ...baseFallback,
+            ...resumo(itens),
+            latenciaMs: Date.now() - inicioFallback,
+            ok: true,
+            uso,
+          });
+          return itens;
+        } catch (erroFallback) {
+          const statusFallback = erroFallback instanceof ErroDoProvedor ? erroFallback.status : 500;
+          avisar({
+            ...baseFallback,
+            latenciaMs: Date.now() - inicioFallback,
+            ok: false,
+            httpStatus: statusFallback,
+          });
+          throw new ErroDoGateway(
+            statusFallback,
+            mensagemSegura(statusFallback),
+            identidadeFallback.provedor,
+          );
+        }
       }
     }
 
