@@ -109,7 +109,7 @@ function QrCodeDaPagina() {
       <div className="space-y-4">
         <section className="surface overflow-hidden p-4 sm:p-5">
           <div className="flex items-start gap-3">
-            <span className="flex size-11 shrink-0 items-center justify-center rounded-lg bg-ink2 text-gold">
+            <span className="flex size-11 shrink-0 items-center justify-center rounded-[12px] bg-[var(--figaro-primary-container,var(--ink2))] text-[var(--figaro-primary,var(--primary))]">
               <QrCode size={20} aria-hidden />
             </span>
             <div className="min-w-0 flex-1">
@@ -150,7 +150,7 @@ function QrCodeDaPagina() {
               Copiar link
             </Button>
           </div>
-          <div className="mt-4 rounded-xl border-0 bg-[var(--agenda-cartao,var(--ink2))] p-4 text-center">
+          <div className="mt-4 rounded-[12px] border-0 bg-[var(--figaro-surface-container,var(--ink2))] p-4 text-center">
             {qrCode ? <img src={cartaoDoQr ?? qrCode} alt={`QR Code para abrir a página pública de ${marca.nome}`} width={240} className="mx-auto h-auto w-60 max-w-full rounded-lg bg-qr-light" /> : <p role="status" className="text-sm text-mute">Gerando QR Code…</p>}
             <p className="mt-2 text-xs text-mute">Aponte a câmera do celular para abrir sua página pública.</p>
             <OpcoesConectadas
@@ -162,8 +162,10 @@ function QrCodeDaPagina() {
             />
             {cartaoDoQr ? (
               <div className="mt-3 grid grid-cols-2 gap-2">
-                <a href={cartaoDoQr} download={`qr-${marca.slug}-${varianteDoQr}.png`} className="inline-flex min-h-12 items-center justify-center rounded-full border border-line px-4 text-sm font-medium text-paper">Salvar imagem</a>
-                <button type="button" onClick={imprimirQr} className="inline-flex min-h-12 items-center justify-center rounded-full border border-line px-4 text-sm font-medium text-paper">Imprimir</button>
+                <Button asChild variant="outline" size="lg" className="w-full">
+                  <a href={cartaoDoQr} download={`qr-${marca.slug}-${varianteDoQr}.png`}>Salvar imagem</a>
+                </Button>
+                <Button type="button" variant="outline" size="lg" className="w-full" onClick={imprimirQr}>Imprimir</Button>
               </div>
             ) : null}
           </div>

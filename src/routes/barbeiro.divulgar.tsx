@@ -7,6 +7,7 @@ import { toast } from "sonner";
 
 import { Screen } from "@/components/layout/Screen";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { PainelPublicacao } from "@/components/divulgacao/PainelPublicacao";
 import { canvasParaArquivo, desenharArte } from "@/components/divulgacao/arte";
 import { getDadosDivulgacao } from "@/lib/divulgacao.functions";
@@ -101,35 +102,35 @@ function DivulgarPage() {
 
   return (
     <Screen voltarPara="/barbeiro/mais" title="Divulgar nas redes" subtitle="Crie o post, confira e publique em 1 toque.">
-      <div className="grid gap-6 md:grid-cols-[320px_1fr]">
+      <div className="grid gap-4 md:grid-cols-[320px_1fr]">
         <div className="mx-auto w-full max-w-[320px]">
-          <canvas ref={canvas} className="aspect-[9/16] w-full rounded-2xl border border-line" aria-label="Prévia do post" />
+          <canvas ref={canvas} className="aspect-[9/16] w-full rounded-[28px] border-0" aria-label="Prévia do post" />
           <p className="mt-2 text-center text-xs text-mute">
             {REDES[rede].nome} · {REDES[rede].limite} · melhor horário {REDES[rede].pico}
           </p>
         </div>
 
-        <div className="space-y-5">
-          <section className="space-y-2">
-            <p className="rotulo-secao">Tipo de post</p>
+        <div className="space-y-3">
+          <Card density="default" className="space-y-2">
+            <p className="text-base font-semibold text-paper">Tipo de post</p>
             <div className="flex flex-wrap gap-2">
               {MODELOS.map((m) => (
                 <Chip key={m.id} selecionado={modelo === m.id} onClick={() => setModelo(m.id)}>{m.rotulo}</Chip>
               ))}
             </div>
-          </section>
+          </Card>
 
-          <section className="space-y-2">
-            <p className="rotulo-secao">Onde vai publicar</p>
+          <Card density="default" className="space-y-2">
+            <p className="text-base font-semibold text-paper">Onde vai publicar</p>
             <div className="flex flex-wrap gap-2">
               {(Object.keys(REDES) as Rede[]).map((r) => (
                 <Chip key={r} selecionado={rede === r} onClick={() => setRede(r)}>{REDES[r].nome}</Chip>
               ))}
             </div>
-          </section>
+          </Card>
 
           {(modelo === "foto" || modelo === "promocao") && (
-            <label className="flex min-h-12 cursor-pointer items-center gap-2 rounded-2xl border border-dashed border-line px-4 py-3 text-sm text-paper">
+            <label className="flex min-h-12 cursor-pointer items-center gap-2 rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))] px-4 py-3 text-sm text-paper transition-colors active:bg-[var(--figaro-surface-container-high,var(--ink3))]">
               <ImagePlus className="size-5" /> {foto ? "Trocar foto" : "Escolher foto"}
               <input type="file" accept="image/*" className="sr-only" onChange={(e) => escolherFoto(e.target.files?.[0])} />
             </label>
@@ -146,22 +147,22 @@ function DivulgarPage() {
             <input className="field-control" value={promo} onChange={(e) => setPromo(e.target.value)} aria-label="Promoção" />
           )}
 
-          <section className="space-y-2">
-            <p className="rotulo-secao">Legenda</p>
+          <Card density="default" className="space-y-2">
+            <p className="text-base font-semibold text-paper">Legenda</p>
             <textarea className="field-control min-h-24 py-3" value={textoFinal} onChange={(e) => setTexto(e.target.value)} aria-label="Texto da legenda" />
-            <pre className="whitespace-pre-wrap rounded-2xl bg-ink2 p-3 text-xs text-mute">{textoLegenda}</pre>
-          </section>
+            <pre className="whitespace-pre-wrap rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))] p-3 text-xs text-mute">{textoLegenda}</pre>
+          </Card>
 
-          <div className="flex flex-wrap gap-2">
-            <Button variant="primary" className="min-h-12 rounded-full" onClick={() => void compartilhar()}>
+          <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
+            <Button variant="primary" className="min-h-12 w-full sm:w-auto" onClick={() => void compartilhar()}>
               <Share2 className="size-4" /> Compartilhar
             </Button>
-            <Button variant="ghost" className="min-h-12 rounded-full" onClick={baixar}>
+            <Button variant="ghost" className="min-h-12 w-full sm:w-auto" onClick={baixar}>
               <Download className="size-4" /> Baixar
             </Button>
             <Button
               variant="ghost"
-              className="min-h-12 rounded-full"
+              className="min-h-12 w-full sm:w-auto"
               onClick={() => void navigator.clipboard.writeText(textoLegenda).then(() => toast.success("Legenda copiada."))}
             >
               <Copy className="size-4" /> Copiar legenda

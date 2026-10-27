@@ -11,7 +11,8 @@ import {
   ShieldCheck,
 } from "lucide-react";
 
-import { Screen } from "@/components/layout/Screen";
+import { EmptyState, Screen } from "@/components/layout/Screen";
+import { Card } from "@/components/ui/card";
 import { EsqueletoLista } from "@/components/layout/Esqueleto";
 import { OpcoesConectadas } from "@/components/ui/opcoes-conectadas";
 import { EscolhaDePlano } from "@/components/planos/EscolhaDePlano";
@@ -311,10 +312,10 @@ function PlanoPage() {
               </Button>
             </div>
             {cobranca.data.cadastro && !editandoCadastro ? (
-              <div className="mt-3 border-y border-line py-3 text-sm text-mute">
+              <Card density="default" className="mt-3 text-sm text-mute">
                 <strong className="text-paper">{cobranca.data.cadastro.nome}</strong> ·{" "}
                 {cobranca.data.cadastro.documento} · {cobranca.data.cadastro.email}
-              </div>
+              </Card>
             ) : null}
             {editandoCadastro || !cobranca.data.cadastro ? (
               <div className="mt-4 grid gap-3 sm:grid-cols-2">
@@ -373,12 +374,10 @@ function PlanoPage() {
               <ReceiptText className="size-4" /> Histórico de cobranças
             </h2>
             {cobranca.data.historico.length ? (
-              <ul className="mt-3 divide-y divide-line border-y border-line">
+              <ul className="mt-3 space-y-2">
                 {cobranca.data.historico.map((fatura) => (
-                  <li
-                    key={fatura.id}
-                    className="flex min-h-16 items-center justify-between gap-3 py-3"
-                  >
+                  <li key={fatura.id}>
+                    <Card density="default" className="flex min-h-16 items-center justify-between gap-3">
                     <span>
                       <strong className="block text-sm text-paper">
                         {brl(fatura.valorCentavos)}
@@ -405,13 +404,12 @@ function PlanoPage() {
                         </Button>
                       ) : null}
                     </span>
+                    </Card>
                   </li>
                 ))}
               </ul>
             ) : (
-              <p className="mt-3 border-y border-line py-6 text-center text-sm text-mute">
-                Nenhuma cobrança registrada ainda.
-              </p>
+              <div className="mt-3"><EmptyState text="Nenhuma cobrança registrada ainda." /></div>
             )}
           </section>
           {!data.podeTrocar ? (

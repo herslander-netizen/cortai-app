@@ -191,7 +191,7 @@ function PacotesPage() {
         </Aviso>
       ) : null}
       {data?.disponivel ? (
-        <div className="space-y-6 pb-8">
+        <div className="space-y-4 pb-8">
           <div className="grid grid-cols-2 gap-2">
             <Button
               disabled={servicos.length === 0}
