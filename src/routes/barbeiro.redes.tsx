@@ -7,6 +7,7 @@ import { Instagram, Music2, Share2 } from "lucide-react";
 import { Screen } from "@/components/layout/Screen";
 import { EsqueletoFormulario } from "@/components/layout/Esqueleto";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -149,21 +150,22 @@ function RedesPage() {
         <EsqueletoFormulario campos={2} onTentarDeNovo={() => void q.refetch()} />
       ) : null}
       {q.isError ? (
-        <p className="rounded-3xl bg-ink2 p-4 text-sm text-mute">
+        <p className="surface-card p-4 text-sm text-mute">
           Não foi possível carregar agora. Verifique a internet e tente de novo.
         </p>
       ) : null}
 
       {q.data ? (
-        <ul className="space-y-3">
+        <ul className="space-y-2">
           {PLATAFORMAS.map((plataforma) => {
             const conexao = porPlataforma.get(plataforma);
             const Icone = ICONE_DA_PLATAFORMA[plataforma];
             return (
-              <li key={plataforma} className="rounded-3xl bg-ink2 p-4">
+              <li key={plataforma}>
+              <Card density="default">
                 <div className="flex items-center gap-3">
-                  <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-ink3">
-                    <Icone className="size-6 text-paper" aria-hidden />
+                  <span className="grid size-12 shrink-0 place-items-center rounded-[12px] bg-[var(--figaro-primary-container,var(--ink2))]">
+                    <Icone className="size-6 text-[var(--figaro-primary,var(--primary))]" aria-hidden />
                   </span>
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-base font-semibold text-paper">
@@ -197,7 +199,8 @@ function RedesPage() {
                     </Button>
                   )}
                 </div>
-              </li>
+              </Card>
+            </li>
             );
           })}
         </ul>

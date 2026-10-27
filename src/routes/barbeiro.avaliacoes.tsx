@@ -15,6 +15,7 @@ import { EsqueletoLista } from "@/components/layout/Esqueleto";
 import { ResumoDasAvaliacoes } from "@/components/avaliacoes/ResumoDasAvaliacoes";
 import { useAcao } from "@/hooks/useAcao";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 
 export const Route = createFileRoute("/barbeiro/avaliacoes")({
   head: () => ({
@@ -50,7 +51,7 @@ function Estrelas({ nota, onChange }: { nota: number; onChange?: (n: number) => 
           aria-label={`${n} ${n === 1 ? "estrela" : "estrelas"}`}
           aria-pressed={n === nota}
           onClick={() => onChange?.(n)}
-          className={`h-12 w-12 p-0 ${n <= nota ? "text-gold" : "text-mute2"}`}
+          className={`h-12 w-12 p-0 ${n <= nota ? "text-[var(--figaro-primary,var(--primary))]" : "text-mute2"}`}
         >
           <Star size={18} fill={n <= nota ? "currentColor" : "none"} />
         </Button>
@@ -125,11 +126,12 @@ function AvaliacoesPage() {
       {data && data.pendentes.length === 0 ? (
         <EmptyState text="Todos os atendimentos recentes já foram avaliados." />
       ) : null}
-      <ul>
+      <ul className="space-y-2">
         {(data?.pendentes ?? []).map((p) => {
           const nota = notas[p.id] ?? 0;
           return (
-            <li key={p.id} className="border-b border-line py-4">
+            <li key={p.id}>
+              <Card density="default">
               <p className="text-sm text-paper">{p.cliente}</p>
               <p className="mt-0.5 text-xs text-mute">
                 {p.servico} · {dataCurta(p.inicio)}
@@ -183,6 +185,7 @@ function AvaliacoesPage() {
                   </Button>
                 </>
               ) : null}
+              </Card>
             </li>
           );
         })}
@@ -198,15 +201,17 @@ function AvaliacoesPage() {
       {data && data.registradas.length === 0 ? (
         <EmptyState text="Nenhuma avaliação ainda." />
       ) : null}
-      <ul>
+      <ul className="space-y-2">
         {(data?.registradas ?? []).map((a) => (
-          <li key={a.id} className="border-b border-line py-4">
+          <li key={a.id}>
+            <Card density="default">
             <div className="flex items-center justify-between gap-4">
               <p className="truncate text-sm text-paper">{a.cliente}</p>
               <Estrelas nota={a.nota} />
             </div>
             {a.comentario ? <p className="mt-1 text-xs text-mute">{a.comentario}</p> : null}
             <p className="mt-0.5 text-xs text-mute2">{dataCurta(a.criadoEm)}</p>
+            </Card>
           </li>
         ))}
       </ul>

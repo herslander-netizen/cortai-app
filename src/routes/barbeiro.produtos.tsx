@@ -7,6 +7,7 @@ import { useState } from "react";
 import { SeletorDeFoto } from "@/components/fotos/SeletorDeFoto";
 import { EmptyState, Screen } from "@/components/layout/Screen";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { brl } from "@/lib/format";
 import { useAcao } from "@/hooks/useAcao";
@@ -76,7 +77,7 @@ function Escolha({
 }) {
   return (
     <label
-      className={`flex cursor-pointer items-start justify-between gap-4 rounded-xl border p-4 transition-colors ${ativo ? "border-gold/60 bg-gold/5" : "border-line bg-ink"}`}
+      className={`flex cursor-pointer items-start justify-between gap-4 rounded-[12px] p-4 transition-colors ${ativo ? "bg-[var(--figaro-primary-container,var(--ink2))]" : "bg-[var(--figaro-surface-container,var(--ink2))]"}`}
     >
       <span className="min-w-0">
         <span className="block text-sm font-semibold text-paper">{titulo}</span>
@@ -117,7 +118,7 @@ function ProdutosPage() {
           <div className="flex items-start justify-between gap-4">
             <div className="min-w-0">
               <p className="flex items-center gap-2 text-sm font-semibold text-paper">
-                <Store size={15} className="text-gold" />
+                <Store size={15} className="text-[var(--figaro-primary,var(--primary))]" />
                 Loja online
               </p>
               <p className="mt-1 text-xs leading-relaxed text-mute">
@@ -140,11 +141,11 @@ function ProdutosPage() {
             />
           </div>
           {!loja.liberada ? (
-            <p className="mt-3 rounded-lg border border-dashed border-line px-3 py-2 text-xs text-mute2">
+            <p className="mt-3 rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))] px-3 py-3 text-sm text-mute">
               A loja online não está incluída no seu plano atual. Fale com o Cortaí para liberar.
             </p>
           ) : null}
-          <dl className="mt-4 grid grid-cols-3 gap-3 border-t border-line pt-4 text-center">
+          <dl className="mt-4 grid grid-cols-3 gap-3 pt-2 text-center">
             <div>
               <dt className="text-xs uppercase text-mute2">Situação</dt>
               <dd
@@ -320,7 +321,7 @@ function ProdutosPage() {
               onChange={(v) => setForm({ ...form, disponivel_venda: v })}
             />
           </div>
-          <Button className="h-11 w-full font-bold" disabled={acao.ocupado}>
+          <Button variant="primary" size="lg" className="w-full" disabled={acao.ocupado}>
             {acao.estaEm("novo-produto") ? "Salvando…" : "Salvar produto"}
           </Button>
         </form>
@@ -338,23 +339,21 @@ function ProdutosPage() {
         </div>
       ) : null}
 
-      <ul data-guia="produtos-lista" className="mt-5">
+      <ul data-guia="produtos-lista" className="mt-5 space-y-2">
         {query.data?.produtos.map((produto: any) => {
           const baixo = produto.controla_estoque && produto.quantidade <= produto.estoque_minimo;
           return (
-            <li
-              key={produto.id}
-              className="grid grid-cols-[48px_minmax(0,1fr)_auto] items-center gap-3 border-b border-line py-4"
-            >
+            <li key={produto.id}>
+              <Card density="default" className="grid grid-cols-[48px_minmax(0,1fr)] items-center gap-3 sm:grid-cols-[48px_minmax(0,1fr)_auto]">
               {produto.foto_assinada ? (
                 <img
                   src={produto.foto_assinada}
                   alt={produto.nome}
                   loading="lazy"
-                  className="h-12 w-12 rounded-lg object-cover"
+                  className="h-12 w-12 rounded-[12px] object-cover"
                 />
               ) : (
-                <span className="flex h-12 w-12 items-center justify-center rounded-lg bg-ink2 text-mute">
+                <span className="flex h-12 w-12 items-center justify-center rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))] text-mute">
                   <ShoppingBag size={18} />
                 </span>
               )}
@@ -365,12 +364,12 @@ function ProdutosPage() {
                 </p>
                 <p className="mt-1.5 flex flex-wrap items-center gap-1.5">
                   {produto.controla_estoque ? (
-                    <span className="rounded border border-line2 px-1.5 py-0.5 text-xs uppercase text-mute">
+                    <span className="rounded-full bg-[var(--figaro-surface-container,var(--ink2))] px-2 py-1 text-xs text-mute">
                       Estoque
                     </span>
                   ) : null}
                   {produto.disponivel_venda && produto.preco_centavos > 0 ? (
-                    <span className="rounded border border-gold/50 px-1.5 py-0.5 text-xs uppercase text-gold">
+                    <span className="rounded-full bg-[var(--figaro-primary-container,var(--ink2))] px-2 py-1 text-xs font-medium text-[var(--figaro-primary,var(--primary))]">
                       À venda
                     </span>
                   ) : null}
@@ -380,7 +379,7 @@ function ProdutosPage() {
                   </span>
                 </p>
               </div>
-              <div className="grid gap-1.5">
+              <div className="col-span-2 grid grid-cols-2 gap-2 sm:col-span-1 sm:grid-cols-1">
                 <Button
                   data-guia="produtos-venda"
                   size="sm"
@@ -406,7 +405,7 @@ function ProdutosPage() {
                 </Button>
                 <Button
                   size="sm"
-                  variant="ghost"
+                  variant="outline"
                   className="text-xs"
                   disabled={acao.ocupado}
                   onClick={() =>
@@ -446,6 +445,7 @@ function ProdutosPage() {
                       : "Pôr à venda"}
                 </Button>
               </div>
+              </Card>
             </li>
           );
         })}

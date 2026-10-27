@@ -14,6 +14,8 @@ import {
 import { EsqueletoFormulario } from "@/components/layout/Esqueleto";
 import { exigirCapacidade } from "@/lib/guarda-capacidade";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { EmptyState } from "@/components/layout/Screen";
 import { Switch } from "@/components/ui/switch";
 
 export const Route = createFileRoute("/barbeiro/fidelidade")({
@@ -86,7 +88,7 @@ function FidelidadePage() {
     <Screen voltarPara="/barbeiro/mais" title="Voltaí" subtitle="Seu cliente corta. Ganha. Volta.">
       {isLoading ? <EsqueletoFormulario campos={4} onTentarDeNovo={() => void refetch()} /> : null}
 
-      <div className="flex items-center justify-between border-b border-line py-4">
+      <Card density="default" className="flex items-center justify-between gap-4">
         <div className="pr-4">
           <p className="text-sm text-paper">Voltaí do Cortaí</p>
           <p className="mt-0.5 text-xs text-mute2">
@@ -103,12 +105,12 @@ function FidelidadePage() {
           aria-label="Programa de fidelidade ativo"
           className="h-7 w-12 shrink-0 data-[state=checked]:bg-[var(--figaro-primary)] data-[state=unchecked]:bg-[var(--figaro-surface-container-highest)]"
         />
-      </div>
+      </Card>
 
-      <div className="py-6">
+      <Card density="default" className="mt-2">
         <div className="flex items-baseline justify-between">
           <p className="text-sm text-paper">Cortes até o grátis</p>
-          <p className="text-2xl font-bold text-gold">{alvo}</p>
+          <p className="text-2xl font-bold text-[var(--figaro-primary,var(--primary))]">{alvo}</p>
         </div>
         <input
           type="range"
@@ -121,16 +123,16 @@ function FidelidadePage() {
             setAlvo(Number(e.target.value));
             setOk(false);
           }}
-          className="mt-4 w-full accent-[var(--gold)]"
+          className="mt-4 w-full accent-[var(--figaro-primary,var(--primary))]"
         />
         <div className="mt-1 flex justify-between text-xs text-mute2">
           <span>4</span>
           <span>20</span>
         </div>
         <p className={`mt-3 text-xs ${a.classe}`}>{a.texto}</p>
-      </div>
+      </Card>
 
-      <div className="surface px-5 py-5">
+      <Card density="default">
         <div className="flex items-baseline justify-between">
           <span className="text-sm text-mute">Desconto real</span>
           <span className="text-xl font-bold text-paper">
@@ -149,7 +151,7 @@ function FidelidadePage() {
           O cliente paga {alvo} e leva {alvo + 1}. Sobre o preço de {brl(preco)}, cada corte sai por{" "}
           {brl(ticketEfetivo)}.
         </p>
-      </div>
+      </Card>
 
       {data && data.clientesComProgresso > 0 ? (
         <p className="mt-4 text-xs text-mute">
@@ -180,22 +182,21 @@ function FidelidadePage() {
 
       <h2 className="mb-1 mt-10 text-sm font-semibold text-paper">Progresso dos clientes</h2>
       {elegiveis.data && elegiveis.data.clientes.length === 0 ? (
-        <p className="border-y border-line py-8 text-center text-sm text-mute">
-          Ninguém acumulou selos ainda.
-        </p>
+        <EmptyState text="Ninguém acumulou selos ainda." />
       ) : null}
-      <ul>
+      <ul className="space-y-2">
         {(elegiveis.data?.clientes ?? []).map((c) => (
-          <li key={c.id} className="border-b border-line py-4">
+          <li key={c.id}>
+            <Card density="default">
             <div className="flex items-baseline justify-between gap-4">
               <Link
                 to="/barbeiro/clientes/$id"
                 params={{ id: c.id }}
-                className="truncate text-sm font-medium text-gold underline underline-offset-2"
+                className="truncate text-sm font-medium text-[var(--figaro-primary,var(--primary))] underline underline-offset-2"
               >
                 {c.nome}
               </Link>
-              <p className={`shrink-0 text-xs ${c.elegivel ? "text-gold" : "text-mute2"}`}>
+              <p className={`shrink-0 text-xs ${c.elegivel ? "text-sage" : "text-mute2"}`}>
                 {c.elegivel
                   ? "Corte grátis liberado"
                   : `${c.progresso} de ${elegiveis.data?.alvo ?? alvo}`}
@@ -203,12 +204,13 @@ function FidelidadePage() {
             </div>
             <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-ink3">
               <div
-                className={`h-full rounded-full ${c.elegivel ? "bg-gold" : "bg-mute2"}`}
+                className={`h-full rounded-full ${c.elegivel ? "bg-sage" : "bg-[var(--figaro-primary,var(--primary))]"}`}
                 style={{
                   width: `${Math.min(100, Math.round((c.progresso / Math.max(1, elegiveis.data?.alvo ?? alvo)) * 100))}%`,
                 }}
               />
             </div>
+            </Card>
           </li>
         ))}
       </ul>
