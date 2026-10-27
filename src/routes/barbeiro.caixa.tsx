@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { BuscaDeComandas } from "@/components/comanda/BuscaDeComandas";
 import { RegistrarGanhoExtra } from "@/components/financeiro/RegistrarGanhoExtra";
 import { brl, dataCurta, hora } from "@/lib/format";
+import { FAIXAS_IDADE_FIADO, classificarIdadeFiado, rotuloIdadeFiado } from "@/lib/financeiro-analise";
 import {
   abrirOuFecharCaixa,
   estornarPagamento,
@@ -118,6 +119,23 @@ function CaixaPage() {
   }
 
   const sessaoAberta = Boolean(caixa.data?.sessao);
+  const resumoIdadeFiado = FAIXAS_IDADE_FIADO.map((faixa) => {
+    const itens = (fiados.data ?? []).filter(
+      (f: any) => classificarIdadeFiado(Number(f.idade_dias ?? 0)) === faixa.rotulo,
+    );
+    return {
+      rotulo: faixa.rotulo,
+      quantidade: itens.length,
+      saldoCentavos: itens.reduce(
+        (total: number, f: any) => total + Number(f.saldo_centavos ?? 0),
+        0,
+      ),
+    };
+  });
+  const saldoTotalFiadoCentavos = (fiados.data ?? []).reduce(
+    (total: number, f: any) => total + Number(f.saldo_centavos ?? 0),
+    0,
+  );
 
   return (
     <Screen
@@ -424,10 +442,43 @@ function CaixaPage() {
               Comissões
             </Link>
           </div>
-          {(fiados.data ?? []).length === 0 ? (
+          {fiados.isLoading ? (
+            <p className="mt-3 text-sm text-mute2">Carregando fiados…</p>
+          ) : null}
+          {fiados.isError ? (
+            <p className="mt-3 text-sm text-brick" role="alert">
+              Não foi possível carregar os fiados agora. Tente novamente.
+            </p>
+          ) : null}
+          {fiados.data && fiados.data.length === 0 ? (
             <div className="mt-3">
               <EmptyState text="Ninguém está devendo." />
             </div>
+          ) : null}
+          {fiados.data && fiados.data.length > 0 ? (
+            <section className="surface-card mt-3 p-4 md:max-w-3xl">
+              <div className="flex items-baseline justify-between gap-3">
+                <p className="text-sm text-mute">Saldo a receber</p>
+                <p className="text-lg font-semibold text-paper">{brl(saldoTotalFiadoCentavos)}</p>
+              </div>
+              <div className="mt-3 grid grid-cols-2 gap-2">
+                {resumoIdadeFiado.map((faixa) => (
+                  <div key={faixa.rotulo} className="surface min-w-0 p-3">
+                    <p className="text-xs text-mute">{faixa.rotulo}</p>
+                    <p className="mt-1 truncate text-sm font-semibold text-paper">
+                      {brl(faixa.saldoCentavos)}
+                    </p>
+                    <p className="mt-1 text-xs text-mute2">
+                      {faixa.quantidade} {faixa.quantidade === 1 ? "fiado" : "fiados"}
+                    </p>
+                  </div>
+                ))}
+              </div>
+              <p className="mt-3 text-xs leading-relaxed text-mute2">
+                Faixas calculadas desde o lançamento. Não indicam atraso contratual, pois ainda não há
+                vencimento individual registrado para cada fiado.
+              </p>
+            </section>
           ) : null}
           <ul className="mt-2">
             {(fiados.data ?? []).map((f: any) => (
@@ -439,6 +490,9 @@ function CaixaPage() {
                   <p className="truncate text-sm text-paper">{f.clientes?.nome ?? "Cliente"}</p>
                   <p className="mt-0.5 text-xs text-mute2">
                     Comanda #{f.comandas?.numero} · desde {dataCurta(f.criado_em)}
+                  </p>
+                  <p className="mt-0.5 text-xs text-mute2">
+                    {rotuloIdadeFiado(Number(f.idade_dias ?? 0))} · {classificarIdadeFiado(Number(f.idade_dias ?? 0))}
                   </p>
                 </div>
                 <div className="flex items-center gap-3">
