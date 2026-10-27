@@ -31,24 +31,30 @@ export function intervaloFinanceiroLocal(
 
   if (periodo === "semana") {
     const inicio = somarDias(hoje, -((diaDaSemanaDoDia(hoje) + 6) % 7));
+    const diasNoPeriodo = diasEntreDatas(inicio, hoje) + 1;
+    const inicioAnterior = somarDias(inicio, -7);
     return {
       inicio,
-      fim: somarDias(inicio, 7),
-      inicioAnterior: somarDias(inicio, -7),
-      fimAnterior: inicio,
+      fim: somarDias(hoje, 1),
+      inicioAnterior,
+      fimAnterior: somarDias(inicioAnterior, diasNoPeriodo),
     };
   }
 
   const inicio = primeiroDiaDoMes(hoje);
-  const fim = primeiroDiaDoMes(hoje, 1);
+  const inicioAnterior = primeiroDiaDoMes(hoje, -1);
+  const diaDoMes = Number(hoje.slice(8, 10)) || 1;
+  const ultimoDiaMesAnterior = new Date(
+    Date.UTC(Number(inicioAnterior.slice(0, 4)), Number(inicioAnterior.slice(5, 7)), 0),
+  ).getUTCDate();
+  const ultimoDiaComparavel = Math.min(diaDoMes, ultimoDiaMesAnterior);
   return {
     inicio,
-    fim,
-    inicioAnterior: primeiroDiaDoMes(hoje, -1),
-    fimAnterior: inicio,
+    fim: somarDias(hoje, 1),
+    inicioAnterior,
+    fimAnterior: somarDias(inicioAnterior, ultimoDiaComparavel),
   };
 }
-
 /** Converte um instante para a data civil do fuso do negócio (AAAA-MM-DD). */
 export function dataISOEmFuso(instanteIso: string, fuso: string): string {
   const partes = new Intl.DateTimeFormat("en-CA", {
