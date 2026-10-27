@@ -322,14 +322,43 @@ export function CabecalhoAgenda({
               transition={MOLA.rapidaEspacial}
               className="inline-flex"
             >
-              <CalendarDays
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                aria-hidden
                 className={`size-9 transition-[transform,color] duration-[200ms] motion-reduce:transition-none ${
                   calendarioAberto
-                    ? "scale-110 rotate-[-8deg] text-gold [&>rect]:fill-current [&>path]:stroke-ink"
+                    ? "scale-110 rotate-[-8deg] text-primary"
                     : "scale-100 rotate-0 text-mute"
                 }`}
-                strokeWidth={calendarioAberto ? 2.2 : 1.8}
-              />
+              >
+                <path
+                  d="M7.5 3.5v3 M16.5 3.5v3"
+                  stroke="currentColor"
+                  strokeWidth="2.2"
+                  strokeLinecap="round"
+                />
+                <rect
+                  x="3.5"
+                  y="6.2"
+                  width="17"
+                  height="15.3"
+                  rx="2.5"
+                  stroke="currentColor"
+                  strokeWidth={calendarioAberto ? 1.8 : 1.7}
+                  fill={calendarioAberto ? "currentColor" : "none"}
+                />
+                <rect
+                  x="7.2"
+                  y="10.2"
+                  width="4.6"
+                  height="4.6"
+                  rx="0.8"
+                  stroke={calendarioAberto ? "var(--ink)" : "currentColor"}
+                  strokeWidth={calendarioAberto ? 1.8 : 1.7}
+                  fill={calendarioAberto ? "var(--ink)" : "none"}
+                />
+              </svg>
             </motion.span>
           )}
         </AnimatePresence>
