@@ -26,7 +26,7 @@ const TIPOS: Record<string, string> = {
 };
 
 export function tipoSchemaDoSegmento(segmento: string | null | undefined) {
-  return (segmento && TIPOS[segmento]) || "HealthAndBeautyBusiness";
+  return (segmento && TIPOS[segmento]) || "LocalBusiness";
 }
 
 const DIAS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
