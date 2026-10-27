@@ -496,7 +496,6 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Em andamento
 
-- GPT | 2026-10-27 UTC | Aumentar com equilíbrio os ícones de calendário da Agenda e sino de avisos no cabeçalho mobile, mantendo alvos de toque, badge, animação e layout; validar claro/escuro e não publicar produção | `DIARIO.md`, `src/components/barbeiro/agenda/CabecalhoAgenda.tsx`, `src/components/notificacoes/SinoDeAvisos.tsx`, testes relevantes; sem migração
 
 - GPT | 2026-10-27 UTC | Corrigir divergência entre Agenda clara e escura: investigar regressão, manter a mesma estrutura/medidas/cartões/gestos/animações nos dois temas e variar apenas tokens de cor; registrar regra permanente de paridade e validar sem tocar produção/main | `DIARIO.md`, `AGENTS.md`, `src/components/barbeiro/agenda/AGENTS.md`, componentes/estilos/testes estritamente necessários da Agenda; sem migração
 
@@ -778,6 +777,9 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - Auditoria de conflito: não alterar logos de negócio, capas, fotos de serviços/produtos, galeria ou fotos de portfólio; nenhuma regra de negócio, dados, banco ou migração foi tocada. Agenda visual protegida, sem mudanças nos seus arquivos.
 - Testes: pendentes de confirmação no GitHub Actions e conferência visual mobile; não declarar pronto até validar o workflow.
 ## Diário
+
+- 2026-10-27: **Ícones maiores no cabeçalho da Agenda mobile** (pedido do dono): calendário passou de 36 para 40 px e sino de 26 para 30 px. Alvos de toque permanecem 56 dp e 48 dp; badge, animação do sino e ações preservados. Criado teste de regressão em `src/components/barbeiro/agenda/icones-cabecalho.test.ts`. Validação do workflow pendente; sem publicação em produção.
+
 
 - GPT | 2026-10-27 UTC | Refinamento da conta de cliente: título em escala 22/28 no celular e 24 px em telas largas; ações “Continuar com Google” e alternância Entrar/Criar agora usam `Button` compartilhado com variantes e alvo de toque consistente. Handlers, autenticação Google, cadastro, mensagens de erro, retorno e redirecionamento foram preservados. Teste estrutural adicionado. CI/deploy da revisão de documentação em andamento; a próxima execução deve validar também esta alteração. | `src/routes/visitante.tsx`, `src/lib/estilo-figaro.test.ts`, `DIARIO.md`, `docs/auditoria-visual-figaro-cortai-2026-10-27.md`
 
