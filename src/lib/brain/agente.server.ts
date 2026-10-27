@@ -239,6 +239,8 @@ async function pensarCortaiComTurno(
   const acoes: ResultadoDoCerebro["acoes"] = [];
   let pendente: Pendente | null = null;
   let pedirHumano = false;
+  // Se a confirmação já consumiu a pendência, um erro posterior não pode ressuscitá-la.
+  let pendenteAnteriorResolvida = false;
 
   // Interruptor geral, pausa por crédito e cotas: verificados aqui, para todos os canais.
   // Bloqueado, nada executa (nem a ação pendente) e a pendente é preservada.
@@ -319,10 +321,12 @@ async function pensarCortaiComTurno(
         return fim(TEXTO_TENTE_CONFIRMAR_DE_NOVO, anterior, "consumo_falhou");
       }
       if (!consumida) {
+        pendenteAnteriorResolvida = true;
         obs.definirEstado("confirmacao_duplicada");
         return fim(TEXTO_CONFIRMACAO_JA_TRATADA, null);
       }
     }
+    pendenteAnteriorResolvida = true;
     try {
       const resultado = await executarAcao(ctx, anterior.acao, anterior.dados, conversaId, obs);
       acoes.push({ nome: anterior.acao, sucesso: true });
@@ -603,8 +607,12 @@ ${pedidoDeAjustePendente
     return {
       texto: pendente
         ? `${(pendente as Pendente).resumo} Posso confirmar?`
-        : "Não consegui concluir agora. Pode reformular?",
-      pendente,
+        : anterior
+          ? pedidoDeAjustePendente
+            ? "Não consegui preparar a alteração. O pedido anterior continua aguardando confirmação; diga o que deseja mudar."
+            : "Não consegui concluir a consulta. O pedido anterior continua aguardando confirmação."
+          : "Não consegui concluir agora. Pode reformular?",
+      pendente: pendente ?? anterior, 
       pedirHumano,
       acoes,
       indisponivel: null,
@@ -628,7 +636,9 @@ ${pedidoDeAjustePendente
     // Se a ação confirmada já rodou, a pessoa precisa saber o resultado real.
     return {
       texto: msg,
-      pendente: null,
+      // Falha de IA/rede durante uma pergunta paralela não deve apagar a ação pendente.
+      // Se ela já foi consumida para execução, não pode ser ressuscitada.
+      pendente: pendente ?? (pendenteAnteriorResolvida ? null : anterior),
       pedirHumano: false,
       acoes,
       indisponivel: msg,
