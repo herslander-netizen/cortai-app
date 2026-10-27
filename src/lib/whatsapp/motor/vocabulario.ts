@@ -22,7 +22,7 @@ export function normalizar(texto: string): string {
     .trim();
 }
 
-/** Sinônimos de linguagem → termo canônico de serviço da barbearia. */
+/** Sinônimos de linguagem → termos canônicos de serviço; o contexto do negócio resolve ambiguidades. */
 export const ALIASES_DE_SERVICO: Record<string, string[]> = {
   corte: [
     "corte",
@@ -313,7 +313,7 @@ export function contem(textoNormalizado: string, termos: string[]): boolean {
 }
 
 /** Termo canônico de serviço citado na mensagem (ex.: "tapa no cabelo" → corte). */
-export function servicoCitado(textoNormalizado: string, segmento = "barbearia"): string | null {
+export function servicoCitado(textoNormalizado: string, segmento = "outro"): string | null {
   for (const [canonico, aliases] of Object.entries(ALIASES_DE_SERVICO)) {
     const termos =
       segmento === "barbearia" || canonico !== "corte"
