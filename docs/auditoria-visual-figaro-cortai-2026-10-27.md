@@ -80,3 +80,12 @@ Esta entrega corrige a base compartilhada e exemplos concretos de duas áreas; *
 - **Visão Casa:** a lista de espera usa os cartões arredondados já existentes, separados por 8 dp, sem bordas/linhas em torno da lista.
 - **Regressões:** testes estruturais protegem a escala tipográfica e as duas remoções de divisores.
 - **Estado:** pendente de CI e smoke test do último commit. A revisão é estática; sem sessão de navegador conectada ainda não há conferência visual interativa em 390/360 px, claro/escuro ou redução de movimento.
+
+
+## Jornada do cliente: agendamento e avaliação — 27/10/2026
+
+- **Agendamento dentro do app:** passos de serviço/profissional/horário/pagamento usam espaçamento consistente em vez de traços horizontais; resumo da confirmação e progresso de fidelidade mantêm a hierarquia por espaçamento.
+- **Avaliação pós-atendimento:** o título excessivamente grande (30 px bold) agora usa 22/28 px semibold no celular e 24 px em telas largas.
+- **Regressões:** testes verificam a ausência de divisores legados em `app.agendar.tsx` e a escala do título em `avaliar.$token.tsx`.
+- **Preservação:** o fluxo público `/agendar/$slug`, que pode ter personalização visual do negócio, não foi alterado nesta tranche.
+- **Estado:** aguardando CI e smoke test do commit final; ainda não há navegação manual por navegador conectado nem conferência visual de todos os estados em 390/360 px, temas claro/escuro e movimento reduzido.

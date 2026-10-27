@@ -105,7 +105,7 @@ function AvaliacaoPage() {
       <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[var(--figaro-primary,var(--primary))]">
         {convite.data.negocio}
       </p>
-      <h1 className="mt-3 text-3xl font-bold leading-tight tracking-tight text-paper">Como foi sua experiência?</h1>
+      <h1 className="mt-3 text-[22px] font-semibold leading-7 tracking-tight text-paper md:text-2xl">Como foi sua experiência?</h1>
       <p className="mt-2 text-sm text-mute">{convite.data.servico} · leva menos de um minuto.</p>
 
       <form

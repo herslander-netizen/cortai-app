@@ -153,6 +153,20 @@ describe("hierarquia e listas de operação", () => {
   });
 });
 
+describe("jornada do cliente no padrão Figaro", () => {
+  it("passos do agendamento usam espaço em vez de divisores horizontais", () => {
+    const agendar = readFileSync("src/routes/app.agendar.tsx", "utf8");
+    expect(agendar).not.toContain("border-t border-line");
+    expect(agendar).toContain("first:pt-0");
+  });
+
+  it("avaliação pós-atendimento segue a escala de título das telas", () => {
+    const avaliar = readFileSync("src/routes/avaliar.$token.tsx", "utf8");
+    expect(avaliar).toContain("text-[22px] font-semibold leading-7");
+    expect(avaliar).not.toContain("text-3xl font-bold leading-tight");
+  });
+});
+
 describe("ordem permanente", () => {
   it("o documento existe e está ligado nos arquivos de regra", () => {
     const ordem = readFileSync("docs/ordem-padrao-figaro.md", "utf8");

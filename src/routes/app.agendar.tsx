@@ -90,7 +90,7 @@ function Passo({
   return (
     <section
       data-guia={guia}
-      className={`border-t border-line py-6 first:border-t-0 first:pt-0 ${className ?? ""}`}
+      className={`py-4 first:pt-0 ${className ?? ""}`}
     >
       <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold text-paper">
         <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[var(--figaro-surface-container-high,var(--ink3))] text-xs text-mute">
@@ -235,7 +235,7 @@ function Fluxo({
             {escolhido ? ` · com ${nomeProfissional(escolhido.profId)}` : ""}
           </p>
           <p className="mt-1 text-sm text-mute">{dataHoraLonga(sucesso.inicio)}</p>
-          <p className="mt-3 flex items-center justify-between border-t border-line pt-3 text-sm">
+          <p className="mt-3 flex items-center justify-between pt-3 text-sm">
             <span className="text-mute">{rotuloForma(sucesso.forma_pagamento)}</span>
             <span className="font-semibold text-paper">
               {sucesso.forma_pagamento === "credito" ? "1 crédito" : brl(sucesso.valor_centavos)}
@@ -307,7 +307,7 @@ function Fluxo({
             </p>
           ) : null}
           {sucesso.fidelidade_alvo ? (
-            <div className="mt-5 border-t border-line pt-4">
+            <div className="mt-5 pt-4">
               <p className="text-sm text-paper">
                 Fidelidade: {sucesso.fidelidade_progresso} de {sucesso.fidelidade_alvo}
               </p>
