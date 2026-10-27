@@ -4,7 +4,7 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { PERMISSOES } from "@/lib/permissoes";
 import { IDENTIDADES, identidadeValida, type Identidade } from "@/lib/aparencia";
-import { SEGMENTOS_CONFIG, segmentoValido, type Segmento } from "@/lib/segmentos";
+import { SEGMENTOS_CONFIG, segmentoParaApresentacao, segmentoValido, type Segmento } from "@/lib/segmentos";
 import { configPadrao, TEMAS } from "@/lib/pagina-config";
 import { decidirContextos } from "@/lib/contextos";
 import { mesmoEmail } from "@/lib/comparacao-exata";
@@ -251,7 +251,7 @@ export const getSessao = createServerFn({ method: "GET" })
         tenantPaginaPublicada,
         tenantFuso: t?.fuso ?? null,
         identidadeApp: identidadeValida(t?.identidade_app),
-        segmento: segmentoValido(t?.segmento),
+        segmento: segmentoParaApresentacao(t?.segmento),
         tenantModo: t?.modo === "claro" || t?.modo === "sistema" ? t.modo : "escuro",
         papelNaEquipe: vinculo.papel,
         permissoes,
