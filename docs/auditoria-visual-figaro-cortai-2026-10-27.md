@@ -27,3 +27,23 @@ O APK define a composição e a hierarquia, não só a paleta. A marca Cortaí, 
 ## Limite honesto do estado atual
 
 Esta entrega corrige a base compartilhada e exemplos concretos de duas áreas; **não declara concluída a auditoria de todas as rotas**. A lista de módulos restantes deve ser verificada e corrigida em lotes, sem mexer em telas/arquivos com reserva ativa. O teste de componente protege a hierarquia da moldura, o comportamento do rodapé e o estado vazio. A fidelidade final ainda precisa ser conferida na prévia em celular, modo claro/escuro e redução de movimento.
+
+
+## Atualização da execução — 27/10/2026
+
+### Correções verificadas por código e CI
+
+- **Concluído:** o modal de QR Code do WhatsApp passou a usar o componente compartilhado `Dialog` em vez de overlay manual, mantendo expiração e regeneração do QR. Isso removeu uma sombra Tailwind que fazia a suíte falhar.
+- **Concluído:** removidas duas classes `btn-primary` antigas da rota de WhatsApp; ambos os botões usam a variante oficial do componente `Button`.
+- **Concluído:** os campos “De” e “Até” em Histórico usam a mesma superfície de formulário preenchida e sem borda.
+- **Concluído nesta tranche:** erro geral de rota usa `Card` como superfície tonal com raio Figaro de 28 dp, sem divisor horizontal legado.
+- **Concluído nesta tranche:** métricas genéricas de carregamento passam a usar token semântico Figaro. Esqueletos exclusivos da Agenda (`EsqueletoAgenda`, `EsqueletoTimeline` e `EsqueletoCockpit`) foram preservados.
+- **Concluído por CI no commit `2a67176e`: build, TypeScript, suíte de testes, deploy isolado e smoke test passaram. Este commit mais novo ainda precisa de validação própria.**
+
+### Varredura estática e pendências
+
+- **Parcial:** 90 arquivos de rota TSX de interface foram varridos fora de Agenda/adjacências e APIs. O tree contém 113 arquivos de rota, incluindo endpoints, layout raiz e páginas específicas; a varredura por padrões é detector de possíveis resíduos, não inspeção visual.
+- **Pendente/reserva ativa:** referências `--agenda-cartao` e/ou `border-y` permanecem em `barbeiro.configurar.tsx`, `barbeiro.hoje.lazy.tsx`, `barbeiro.equipe.tsx` e `barbeiro.marca.index.tsx`; não foram alteradas por sobreposição com reservas existentes e/ou proximidade da área operacional protegida.
+- **Pendente/contrato público:** classes antigas `btn-*` foram detectadas em `f.$slug.tsx` e `vaga.$token.tsx`; por serem páginas públicas/fluxos externos, exigem revisão de tema e contrato antes de converter. Não considero isso concluído só por existir uma classe antiga.
+- **Não verificado:** comparação visual manual em 390 px e 360 px, tema claro/escuro, teclado móvel, reduced motion e todos os estados condicionais. A sessão não dispõe de navegador conectado para screenshots e comparação direta; smoke test automatizado não substitui isso.
+- **Não concluído:** paridade visual integral de todas as rotas e transições. O inventário `docs/referencia-figaro/apk/8-inventario-de-animacoes.md` ainda marca itens parciais ou ausentes; estes precisam ser abordados em lotes que respeitem reservas de módulos.

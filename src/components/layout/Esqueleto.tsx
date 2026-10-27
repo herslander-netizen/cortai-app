@@ -131,7 +131,7 @@ export function EsqueletoMetricas({
       {Array.from({ length: colunas }).map((_, i) => (
         <div
           key={i}
-          className="min-h-24 rounded-xl border-0 bg-[var(--agenda-cartao,var(--ink2))] px-3 py-4"
+          className="min-h-24 rounded-xl border-0 bg-[var(--figaro-surface-container,var(--ink2))] px-3 py-4"
         >
           <Barra w="60%" h={10} />
           <Barra w="45%" h={24} className="mt-3" />

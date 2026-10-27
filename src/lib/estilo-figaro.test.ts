@@ -70,6 +70,13 @@ describe("padrão Figaro nos primitivos", () => {
     expect(fora).toEqual([]);
   });
 
+  it("erro geral de rota usa superfície do sistema, sem divisor web legado", () => {
+    const fonte = readFileSync("src/components/layout/RouteError.tsx", "utf8");
+    expect(fonte).toContain('import { Card } from "@/components/ui/card"');
+    expect(fonte).toContain("rounded-[28px]");
+    expect(fonte).not.toContain("border-y");
+  });
+
   it("diálogos, cartões e selos seguem os raios do Figaro", () => {
     const le = (p: string) => readFileSync(p, "utf8");
     expect(le("src/components/ui/dialog.tsx")).toContain("rounded-[28px]");

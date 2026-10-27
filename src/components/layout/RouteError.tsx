@@ -2,6 +2,7 @@ import { useRouter, type ErrorComponentProps } from "@tanstack/react-router";
 import { ArrowLeft, RotateCcw } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { classificarErro, recuperarDeChunk, type TipoDeErro } from "@/lib/pwa/recuperar-chunk";
 import { registrar } from "@/lib/diagnostico/telemetria";
 import { useEffect } from "react";
@@ -70,7 +71,7 @@ export function RouteError({ error, reset }: ErrorComponentProps) {
 
   return (
     <main className="flex min-h-[100dvh] items-center justify-center bg-background px-5">
-      <div className="w-full max-w-md border-y border-border py-8 text-center">
+      <Card density="none" className="w-full max-w-md rounded-[28px] bg-[var(--figaro-surface-container,var(--ink2))] p-6 text-center">
         <h1 className="text-xl font-semibold text-foreground">{t.titulo}</h1>
         <p className="mt-2 text-sm text-muted-foreground">{t.texto}</p>
         <div className="mt-6 flex flex-wrap justify-center gap-2">
@@ -83,7 +84,7 @@ export function RouteError({ error, reset }: ErrorComponentProps) {
             </Button>
           ) : null}
         </div>
-      </div>
+      </Card>
     </main>
   );
 }

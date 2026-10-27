@@ -10,6 +10,7 @@ import {
   EsqueletoAgenda,
   EsqueletoCascoAdmin,
   EsqueletoFormulario,
+  EsqueletoMetricas,
   EsqueletoPaginaPublica,
 } from "./Esqueleto";
 
@@ -24,6 +25,12 @@ describe("padrão de carregamento", () => {
     expect(html.match(/role="status"/g)).toHaveLength(1);
     expect(html).toContain('aria-busy="true"');
     expect(html).toContain(">Carregando<");
+  });
+
+  it("métricas genéricas usam superfície Figaro, não o token reservado à Agenda", () => {
+    const html = renderToStaticMarkup(<EsqueletoMetricas colunas={2} />);
+    expect(html).toContain("var(--figaro-surface-container,var(--ink2))");
+    expect(html).not.toContain("var(--agenda-cartao");
   });
 
   it("sincroniza o brilho da esquerda para a direita, atrasa a entrada e respeita movimento reduzido", () => {
