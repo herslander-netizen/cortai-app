@@ -180,7 +180,7 @@ export function ConteudoDoTicket({ comandaId }: { comandaId: string }) {
                 {acoes.gerando === "baixar" ? "Gerando…" : "Baixar imagem"}
               </Button>
             </div>
-          </div>    </div>
+          </div>
         </>
       ) : null}
     </>
