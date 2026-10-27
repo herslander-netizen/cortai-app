@@ -112,7 +112,7 @@ function InicioCliente() {
             <Link
               to="/app/historico"
               search={{ b: data.slug }}
-              className="mt-3 flex min-h-[72px] items-center gap-4 rounded-xl border-0 bg-[var(--agenda-cartao,var(--ink2))] p-4"
+              className="mt-3 flex min-h-[72px] items-center gap-4 rounded-[28px] bg-[var(--figaro-surface-container,var(--ink2))] p-4 transition-transform duration-200 active:scale-[0.98]"
             >
               <span className="min-w-0 flex-1">
                 <span className="flex flex-wrap items-center gap-2">
@@ -138,14 +138,14 @@ function InicioCliente() {
           ) : agendamentos.isLoading ? (
             <EsqueletoLista linhas={1} />
           ) : (
-            <div className="mt-3 rounded-xl border-0 bg-[var(--agenda-cartao,var(--ink2))] p-4">
+            <div className="mt-3 rounded-[28px] bg-[var(--figaro-surface-container,var(--ink2))] p-4">
               <p className="text-base font-semibold text-paper">Nenhum horário marcado</p>
               <p className="mt-1 text-sm text-mute">
                 Escolha o melhor dia para o próximo atendimento.
               </p>
             </div>
           )}
-          <Button asChild size="lg" variant="primary" className="mt-3 w-full rounded-full">
+          <Button asChild size="lg" variant="primary" className="mt-3 w-full">
             <Link to="/app/agendar" search={{ b: data.slug }}>
               {proximo ? "Agendar outro horário" : "Agendar horário"}
             </Link>
@@ -181,7 +181,7 @@ function InicioCliente() {
           <Link
             to="/app/espera"
             search={{ b: data.slug }}
-            className="flex min-h-[64px] items-center justify-between gap-4 rounded-xl border-0 bg-[var(--agenda-cartao,var(--ink2))] p-4"
+            className="flex min-h-[64px] items-center justify-between gap-4 rounded-[28px] bg-[var(--figaro-surface-container,var(--ink2))] p-4 transition-transform duration-200 active:scale-[0.98]"
           >
             <span className="min-w-0">
               <span className="block text-sm font-semibold text-paper">
@@ -191,7 +191,7 @@ function InicioCliente() {
                 Entre na lista de espera e avisamos quando vagar.
               </span>
             </span>
-            <span className="shrink-0 text-xs font-semibold text-gold">Entrar</span>
+            <span className="shrink-0 text-sm font-semibold text-[var(--figaro-primary,var(--primary))]">Entrar</span>
           </Link>
           <Link
             to="/barbearias"
@@ -205,7 +205,7 @@ function InicioCliente() {
           <section className="pb-7">
             <div className="flex items-baseline justify-between gap-4">
               <h2 className="text-xs font-semibold uppercase text-mute">Na loja</h2>
-              <Link to="/loja/$slug" params={{ slug: data.slug }} className="text-xs text-gold">
+              <Link to="/loja/$slug" params={{ slug: data.slug }} className="text-sm font-medium text-[var(--figaro-primary,var(--primary))]">
                 Ver tudo
               </Link>
             </div>
@@ -215,7 +215,7 @@ function InicioCliente() {
                   <Link
                     to="/loja/$slug"
                     params={{ slug: data.slug }}
-                    className="block overflow-hidden surface"
+                    className="block overflow-hidden rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))] transition-transform duration-200 active:scale-[0.98]"
                   >
                     {produto.foto_url ? (
                       <img
@@ -227,7 +227,7 @@ function InicioCliente() {
                         className="aspect-square w-full object-cover"
                       />
                     ) : (
-                      <span className="flex aspect-square w-full items-center justify-center bg-ink3 text-mute">
+                      <span className="flex aspect-square w-full items-center justify-center bg-[var(--figaro-surface-container-high,var(--ink3))] text-mute">
                         <ShoppingBag size={20} />
                       </span>
                     )}
