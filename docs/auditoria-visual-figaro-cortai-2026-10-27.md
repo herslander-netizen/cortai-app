@@ -92,3 +92,12 @@ Esta entrega corrige a base compartilhada e exemplos concretos de duas áreas; *
 
 
 - **Ajuste adicional:** a primeira execução de testes detectou que a linha “Sair da conta” ainda mantinha `border-b border-line`. Essa segunda ocorrência foi convertida para cartão neutro; o teste de regressão foi mantido para impedir o retorno do divisor.
+
+
+## Seleção de contexto, fidelidade e notificações — 27/10/2026
+
+- **Seleção de contexto:** cartões de entrada mantêm alvo de toque de 76 dp, mas agora usam o primitivo oficial, superfície Figaro e token sem dependência da Agenda. O estado de entrada também fica exposto via aria-busy; navegação/autenticação não mudou.
+- **Fidelidade:** a pista de fundo de progresso troca o bg-ink3 rígido pelo token de superfície Figaro equivalente.
+- **Administração do WhatsApp:** ativação de notificações fica separada por espaçamento, sem divisor de página.
+- **Regressões:** teste estrutural cobre o componente oficial, tokens, ausência do alias da Agenda e ausência de divisor.
+- **Estado:** validar com CI e publicar somente a prévia isolada. A sessão não tem navegador conectado para conferir visualmente todos os caminhos.

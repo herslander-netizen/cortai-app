@@ -202,7 +202,7 @@ function FidelidadePage() {
                   : `${c.progresso} de ${elegiveis.data?.alvo ?? alvo}`}
               </p>
             </div>
-            <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-ink3">
+            <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-[var(--figaro-surface-container-high,var(--ink3))]">
               <div
                 className={`h-full rounded-full ${c.elegivel ? "bg-sage" : "bg-[var(--figaro-primary,var(--primary))]"}`}
                 style={{

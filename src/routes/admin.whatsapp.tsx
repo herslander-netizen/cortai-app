@@ -192,7 +192,7 @@ function Detalhe({ negocio: n }: { negocio: WhatsappDoNegocio }) {
         ) : null}
       </div>
       <CodigoPorNumeroDoNegocio tenantId={n.tenantId} />
-      <div className="mt-4 flex items-center justify-between gap-3 border-t border-line pt-3">
+      <div className="mt-4 flex items-center justify-between gap-3 pt-3">
         <span className="text-sm text-paper">Notificações pelo WhatsApp</span>
         <Button
           size="sm"

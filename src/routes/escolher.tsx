@@ -38,7 +38,7 @@ export const Route = createFileRoute("/escolher")({
 });
 
 const CARTAO =
-  "grid min-h-[76px] w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4 rounded-xl border-0 bg-[var(--agenda-cartao,var(--ink2))] px-4 py-4 text-left transition-colors hover:bg-ink3 disabled:opacity-60";
+  "grid min-h-[76px] w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center justify-start gap-4 rounded-[12px] border-0 bg-[var(--figaro-surface-container,var(--ink2))] px-4 py-4 text-left transition-colors hover:bg-[var(--figaro-surface-container-high,var(--ink3))] disabled:opacity-60";
 
 function chaveDaOpcao(o: OpcaoDeEntrada) {
   return o.tipo === "negocio" ? o.tenantId : o.tipo;
@@ -141,11 +141,14 @@ function EscolherContexto() {
           const chave = chaveDaOpcao(o);
           const { icone, titulo, detalhe } = conteudo(o);
           return (
-            <button
+            <Button
               key={chave}
               type="button"
+              variant="ghost"
+              size="lg"
               className={CARTAO}
               disabled={enviando !== null}
+              aria-busy={enviando === chave}
               onClick={() => void entrar(o)}
             >
               {icone}
@@ -156,7 +159,7 @@ function EscolherContexto() {
                 </span>
               </span>
               <ChevronRight className="size-5 text-mute2" aria-hidden />
-            </button>
+            </Button>
           );
         })}
       </div>

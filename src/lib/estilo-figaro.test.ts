@@ -167,6 +167,28 @@ describe("jornada do cliente no padrão Figaro", () => {
   });
 });
 
+describe("seleção de perfil e estados de fidelidade", () => {
+  it("seletor de perfil usa Button e tokens Figaro sem alias da Agenda", () => {
+    const escolher = readFileSync("src/routes/escolher.tsx", "utf8");
+    expect(escolher).toContain('variant="ghost"');
+    expect(escolher).toContain("--figaro-surface-container");
+    expect(escolher).not.toContain("--agenda-cartao");
+    expect(escolher).not.toContain("<button");
+    expect(escolher).not.toContain("hover:bg-ink3");
+  });
+
+  it("faixa de fidelidade usa token de superfície Figaro", () => {
+    const fidelidade = readFileSync("src/routes/barbeiro.fidelidade.tsx", "utf8");
+    expect(fidelidade).toContain("--figaro-surface-container-high");
+    expect(fidelidade).not.toContain("bg-ink3");
+  });
+
+  it("ações do WhatsApp não são separadas por divisor decorativo", () => {
+    const whatsapp = readFileSync("src/routes/admin.whatsapp.tsx", "utf8");
+    expect(whatsapp).not.toContain("border-t border-line");
+  });
+});
+
 describe("ordem permanente", () => {
   it("o documento existe e está ligado nos arquivos de regra", () => {
     const ordem = readFileSync("docs/ordem-padrao-figaro.md", "utf8");
