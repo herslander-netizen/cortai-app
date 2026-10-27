@@ -104,9 +104,9 @@ function IndicacoesPage() {
         </label>
 
         <Button
-          variant="ghost"
+          variant="primary"
           type="button"
-          className="btn-primary mt-5 w-full disabled:opacity-60"
+          className="mt-5 w-full disabled:opacity-60"
           disabled={acao.ocupado}
           onClick={() =>
             acao.executar("config", () => salvarConfig({ data: { ativa, codigo, recompensa } }), {
@@ -152,9 +152,9 @@ function IndicacoesPage() {
           placeholder="Nome de quem foi indicado"
         />
         <Button
-          variant="ghost"
+          variant="primary"
           type="button"
-          className="btn-primary shrink-0 px-4 disabled:opacity-60"
+          className="shrink-0 px-4 disabled:opacity-60"
           disabled={acao.ocupado || novo.trim().length < 2}
           onClick={() =>
             acao.executar(
@@ -201,7 +201,7 @@ function IndicacoesPage() {
                 <Button
                   variant="ghost"
                   type="button"
-                  className="btn-tertiary text-xs disabled:opacity-60"
+                  className="text-xs disabled:opacity-60"
                   disabled={acao.ocupado}
                   onClick={() =>
                     acao.executar(
