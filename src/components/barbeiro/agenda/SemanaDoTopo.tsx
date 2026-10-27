@@ -530,7 +530,7 @@ export function SemanaDoTopo({
                     {s === 1 && indiceDoDia >= 0 ? (
                       <span
                         aria-hidden
-                        className="pointer-events-none absolute left-0 top-1 grid w-[calc(100%/7)] place-items-center transition-transform duration-[200ms] motion-reduce:transition-none [.agenda-gesto-ativo_&]:transition-none"
+                        className="pointer-events-none absolute left-0 top-[5px] grid w-[calc(100%/7)] place-items-center transition-transform duration-[200ms] motion-reduce:transition-none [.agenda-gesto-ativo_&]:transition-none"
                         style={{
                           transform: `translate3d(calc((${indiceDoDia} + var(--dia-progresso, 0)) * 100%),0,0)`,
                         }}
