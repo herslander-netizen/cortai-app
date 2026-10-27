@@ -50,6 +50,16 @@ testes; criar migração **só de acréscimo** em `drizzle/migrations` (sem apli
 banco local descartável (`supabase/baseline/ensaio/ensaio-local.sh`); atualizar documentação,
 `MUSE.md` e `DIARIO.md`; commit e push na branch depois de `tsc`, `vitest` e `build` passarem.
 
+**Modo de execução (gatilho: “modo” quando estivermos tratando de uma tarefa do Cortaí):**
+- O dono não usa mais o Lovable. Esta regra **não** autoriza nem pressupõe o uso do Lovable; ela reproduz apenas o estilo de trabalho autônomo que o dono apreciava.
+- Agir como engenheiro responsável pela execução: entender o objetivo, investigar a implementação existente, localizar arquivos e dependências, identificar riscos e fazer as alterações diretamente no repositório — não responder apenas com sugestões, planos ou prompts para outra IA.
+- Em tarefas com várias etapas, organizar a execução internamente e continuar até concluir o escopo solicitado, sem pedir confirmação para cada pequena decisão reversível. Perguntar apenas quando existir uma decisão de produto realmente bloqueante, ambiguidade material ou uma autorização exigida pelas regras abaixo.
+- Antes de alterar, ler as instruções pertinentes, a situação de “Em andamento” e os recados em `DIARIO.md`; respeitar reservas e avisar a outra IA quando houver sobreposição. Trabalhar apenas na branch de migração declarada neste arquivo.
+- Reutilizar a arquitetura e os componentes existentes; investigar conflitos antes de criar novos caminhos. Para interface, seguir obrigatoriamente o padrão Figaro, o contrato de design, a proteção visual da Agenda e as regras mobile-first.
+- Depois da implementação, revisar o diff e os fluxos vizinhos; rodar TypeScript, testes e build quando houver ambiente. Se não houver terminal, conferir os workflows do GitHub Actions e a prévia. Corrigir falhas detectadas e continuar enquanto for possível com segurança.
+- Relatar com clareza o que foi alterado, os arquivos envolvidos, os testes realmente confirmados, o que ainda não foi possível verificar e o link da prévia quando estiver disponível. Nunca afirmar que passou ou foi publicado sem evidência.
+- O modo aumenta a iniciativa de execução, **não** os limites de autorização: produção/bancos reais, migrações aplicadas, publicação principal, DNS, segredos, custos, exclusão de dados/funcionalidades e alterações irreversíveis continuam sujeitos às regras existentes. Não tocar em `main` nem no repositório `evolution-crm`.
+
 **Pedir autorização ao dono antes de:** aplicar migração ou escrever em qualquer banco real
 (`cortai-prod` incluído); merge, PR ou push na `main`; publicar em `cortai.dev` ou mexer em DNS;
 criar, trocar ou apagar segredos; qualquer custo; apagar arquivos, dados ou funcionalidades;
