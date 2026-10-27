@@ -498,8 +498,6 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-27 UTC | Auditoria mobile-first dos botões e telas fora do padrão: começar pelo defeito visível em PersonalizacaoCliente (switch WhatsApp deformado/quebrando linha), padronizar com o primitivo Switch e revisar os achados de botões/controles nas telas não reservadas; definir inventário de páginas e corrigir em lotes validados. Excluir Agenda e não mexer em regras/backend/bancos | `DIARIO.md`, `src/components/barbeiro/PersonalizacaoCliente.tsx`, testes UI/estilo e inventário UX; sem migração |
 
 
-| GPT | 2026-10-27 UTC | Implementar fallback técnico opcional de provedor de IA: Ollama Cloud primário e LocalAI secundário, sem trocar o cérebro/ações do Cortaí; fallback apenas em falhas transitórias, configuração por secrets, testes e validação | `DIARIO.md`, `MUSE.md`, `.github/workflows/preview-migration.yml`, `.github/workflows/lancar-versao.yml`, `src/lib/brain/gateway.server.ts`, `src/lib/brain/gateway-compativel.server.ts`, testes do gateway; sem migração |
-
 
 
 | GPT | 2026-10-26 UTC | Polimento de interação mobile fora da Agenda: seleção/cópia contextual, toque e arrasto nativos, zoom acidental sem bloquear acessibilidade; criar CSS isolado e testes, preservando Agenda e campos copiáveis | `DIARIO.md`, `src/routes/__root.tsx`, `src/styles/mobile-interactions.css`, `src/styles/mobile-interactions.test.ts`; sem migração |
@@ -797,7 +795,7 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - O secundário só é tentado após 429, 5xx, timeout ou falha de rede do primário. Erros 401/402/403 não são mascarados. A observabilidade registra a falha do primário e o resultado do secundário sem conteúdo de conversa.
 - Testes adicionados para configuração completa/incompleta, fallback em 503 e ausência de fallback em 402. Documentação de variáveis e limites atualizada em `MUSE.md`; os workflows da prévia e de lançamento agora encaminham os secrets opcionais do fallback para o Worker, sem definir nenhum segredo.
 - Commits: `5000869`, `bf6b607`, `1200d66`, `a4a800b`, `a558122`, `796cad8`, `06ca939`, `ab3d1e2`, `d80f768`, `ea0309a`.
-- **Validação pendente:** não há execução de TypeScript/Vitest/build confirmada neste ambiente e o status de CI ainda não retornou checks. Manter a tarefa reservada até confirmar o workflow e corrigir eventuais falhas.
+- **Validação confirmada:** workflow `40459706700` concluiu com sucesso build, TypeScript, testes, deploy isolado e smoke test; a execução seguinte `40460231012` também concluiu com sucesso após a atualização documental. A implementação do gateway está concluída na branch.
 - **Não ativado em runtime:** nenhuma chave ou URL de provedor foi adicionada aos secrets; não houve hospedagem criada nem custo iniciado. O dono precisa configurar os secrets da prévia e testar o serviço LocalAI HTTPS antes de habilitar o fallback.
 
 ### 2026-10-26 UTC — GPT — Define o gatilho “Modo dev”
