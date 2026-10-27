@@ -51,11 +51,11 @@ O modelo não é o banco, a regra de agenda ou a autoridade sobre o sucesso. O b
 
 ### 3.2 Catálogo de ações no cérebro
 
-O catálogo atual tem 22 chaves principais, incluindo a sentinela interna `ids` e ações para:
+O catálogo atual tem 23 chaves principais, incluindo a sentinela interna `ids` e ações para:
 
 - Serviços, profissionais, expediente e informações do negócio.
 - Disponibilidade, busca de cliente por telefone/nome, próximos agendamentos e detalhes de agendamento.
-- Indicadores resumidos do dia.
+- Indicadores resumidos do dia e, nesta rodada, uma ferramenta de leitura do caixa diário (entradas, saídas e líquido registrados).
 - Cadastro/atualização de clientes e notas/preferências.
 - Criar, cancelar e remarcar agendamentos.
 - Minha agenda, fila de espera, aviso de atraso e encaminhamento para humano.
@@ -98,6 +98,20 @@ A validação anterior aceitava qualquer timestamp finito desde que `agora - tim
 
 Testes adicionados/corrigidos para confirmação por tipo de ação, frase sem tipo de ação, data futura, data inválida e limite de expiração.
 
+### 4.3 A pergunta financeira aponta para a fonte certa
+
+A frase rápida “Quanto entrou hoje?” antes não estava ligada a uma ferramenta financeira: `consultar_movimento` devolve contagens de agendamentos por situação. Neste lote foi adicionada `consultar_caixa_hoje` como leitura, reutilizando o modelo de dados financeiro existente e sem criar tabela ou migração:
+
+- consulta apenas movimentos de caixa do `tenantId` do contexto do servidor;
+- usa limites de início/fim do dia civil no fuso do negócio;
+- calcula entradas, saídas e saldo líquido dos movimentos, além das entradas por forma de pagamento;
+- exige `visualizar_financeiro` no painel e a regra de papel impede profissionais; clientes e site não recebem a ferramenta;
+- não grava nem altera dados; não afirma lucro, faturamento contábil nem pagamento individual de comanda;
+- o modo básico classifica pedidos concretos de caixa separadamente dos indicadores de agenda e diz explicitamente quando não possui a ferramenta/permissão;
+- as instruções do agente esclarecem a diferença também no atendimento do dono por WhatsApp.
+
+Arquivos adicionais: `src/lib/brain/acoes.server.ts`, `src/lib/brain/papeis.test.ts`, `src/lib/brain/modo-basico-nlu.ts`, `src/lib/brain/modo-basico-nlu.test.ts`, `src/lib/brain/modo-basico.ts` e `src/lib/brain/modo-basico.test.ts`. A consulta reproduz os lançamentos do caixa, não uma apuração de lucro.
+
 **Estado de validação:** os commits foram enviados para a branch de trabalho e a validação GitHub Actions está sendo executada. Não declarar teste/build/prévia aprovados até observar conclusão verde do workflow.
 
 ## 5. Lacunas e riscos prioritários
@@ -113,7 +127,7 @@ Testes adicionados/corrigidos para confirmação por tipo de ação, frase sem t
 
 1. **Dois caminhos de cadastro:** `assistente.functions.ts` envia certos pedidos estruturados de cadastro de serviços/horários para `src/lib/ia/assistente.server.ts`, enquanto pedidos operacionais usam `src/lib/brain/agente.server.ts`. É um caminho legado/estruturado intencional; auditar diferenças de autorização, erro, telemetria, prompt e confirmação e convergir gradualmente, sem quebrar cadastros em lote.
 2. **Memória contextual limitada:** o agente envia até 16 turnos recentes ao modelo; o painel carrega até 60 mensagens para a conversa, mas isso não é memória semântica durável. Separar histórico conversacional de fatos estáveis do negócio e preferências consentidas.
-3. **Sugestões devem corresponder às capacidades reais:** o atalho “Quanto entrou hoje?” precisa ser conferido contra a ação `consultar_movimento`, cuja descrição/código consultado resume agendamentos por situação, não comprova entradas financeiras. Não anunciar uma consulta financeira até existir fonte financeira oficial com período/fuso e definição de “entrou”.
+3. **Sugestões devem corresponder às capacidades reais:** o descompasso foi corrigido neste lote. O atalho “Quanto entrou hoje?” agora usa `consultar_caixa_hoje`, que lê movimentos da tabela oficial `caixa_movimentos` dentro dos limites do dia no fuso do negócio, respeita `visualizar_financeiro` no painel e devolve entradas, saídas e líquido por movimentos registrados. `consultar_movimento` continua significando contagem de agendamentos por situação e nunca deve ser usada como faturamento. O resultado do caixa não é lucro contábil. A suíte automatizada ainda precisa confirmar a alteração.
 4. **Perguntas de esclarecimento:** identificar campos realmente ausentes; não voltar a pedir dados já informados. Quando houver homônimos, oferecer opções explicitamente e não adivinhar.
 5. **Desvio de intenção com pendência:** testar quando uma pessoa começa um agendamento e em seguida pede cancelamento, troca de cliente, horário ou serviço. A pendência deve ser mantida, substituída de forma segura ou recusada com texto claro — nunca executada por inferência.
 
@@ -154,9 +168,9 @@ Manter um cérebro canônico e separar suas responsabilidades:
 
 ## 7. Plano de execução recomendado
 
-**Fase 1 — Segurança (agora):** confirmar a aprovação dos testes da correção; acrescentar testes de intenções concorrentes e estados de pendência; validar idempotência e recusa; fazer revisão do log sem dados pessoais.
+**Fase 1 — Segurança (em validação):** confirmar a aprovação dos testes da correção; acrescentar testes de intenções concorrentes e estados de pendência; validar idempotência e recusa; fazer revisão do log sem dados pessoais.
 
-**Fase 2 — Verdade das capacidades:** alinhar atalhos/prompts às ferramentas reais; especialmente esclarecer a diferença entre contagem de agendamentos e dinheiro recebido. Conferir permissões de cada ferramenta em cada canal.
+**Fase 2 — Verdade das capacidades:** a diferença entre contagem de agendamentos e caixa registrado foi corrigida no código e coberta por testes; confirmar que a suíte fica verde. Depois, mapear as demais sugestões do chat contra as ferramentas reais e revisar permissões por canal/papel.
 
 **Fase 3 — Contexto e linguagem:** testes de referências a turnos anteriores, campos já fornecidos, datas relativas no fuso do negócio, homônimos e correção de transcrição. Melhorar instruções do agente e modo básico sem criar regras paralelas.
 
@@ -190,4 +204,4 @@ Manter um cérebro canônico e separar suas responsabilidades:
 - `src/components/ia/AssistenteCortai.tsx` e `useGravadorDeVoz.ts` — experiência mobile/voz.
 - `promptfoo/` — base de avaliação já existente.
 
-**Conclusão:** não é necessário trocar a CortAI por outro agente. A base atual já tem várias proteções e operações reais; a maior oportunidade está em reforçar o ciclo de intenção → ferramenta → prova → confirmação, alinhar a experiência com as capacidades verdadeiras e medir qualidade com regressões automáticas. A primeira correção de confirmação foi implementada na branch de migração; o relatório não declara validação aprovada até o GitHub Actions terminar verde.
+**Conclusão:** não é necessário trocar a CortAI por outro agente. A base atual já tem várias proteções e operações reais. Neste lote foram corrigidas a confirmação específica da ação pendente e a validade temporal da pendência, e foi ligada a pergunta “Quanto entrou hoje?” a uma leitura autorizada dos movimentos reais do caixa. O restante da evolução deve seguir com contexto, ferramentas, voz e avaliações automáticas. O relatório não declara validação aprovada até o GitHub Actions terminar verde.
