@@ -40,7 +40,7 @@ describe("moldura de tela no padrão Figaro", () => {
     expect(html).toContain('data-figaro-conteudo="page"');
     expect(html).toContain('aria-label="Voltar"');
     expect(html.indexOf('aria-label="Voltar"')).toBeLessThan(html.indexOf(">Serviços</h1>"));
-    expect(html).toContain("text-3xl");
+    expect(html).toContain("text-[22px]");
     expect(html).not.toContain("Ver dicas");
     expect(html).not.toContain('aria-label="Ajuda"');
     expect(html).not.toContain("border-b border-line");

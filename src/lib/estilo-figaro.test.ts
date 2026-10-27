@@ -88,6 +88,28 @@ describe("padrão Figaro nos primitivos", () => {
   });
 });
 
+describe("hierarquia visual Figaro", () => {
+  it("cabeçalho de tela usa escala tipográfica compacta do aplicativo", () => {
+    const header = readFileSync("src/components/layout/CabecalhoDeTela.tsx", "utf8");
+    expect(header).toContain("text-[22px]");
+    expect(header).toContain("leading-7");
+    expect(header).toContain("text-sm leading-5");
+  });
+
+  it("listas de configuração usam superfícies Figaro, sem depender de tokens da Agenda", () => {
+    const arquivos = [
+      "src/components/ui/formulario/LinhasDeConfiguracao.tsx",
+      "src/components/ui/formulario/LinhaDeOpcoes.tsx",
+      "src/components/ui/formulario/GrupoDeCartoes.tsx",
+    ];
+    for (const arquivo of arquivos) {
+      const conteudo = readFileSync(arquivo, "utf8");
+      expect(conteudo).toContain("--figaro-surface-container-high");
+      expect(conteudo).not.toContain("--agenda-cartao");
+    }
+  });
+});
+
 describe("ordem permanente", () => {
   it("o documento existe e está ligado nos arquivos de regra", () => {
     const ordem = readFileSync("docs/ordem-padrao-figaro.md", "utf8");

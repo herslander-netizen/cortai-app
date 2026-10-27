@@ -18,7 +18,7 @@ export function GrupoDeCartoes({
   const itens = Array.isArray(children) ? children.filter(Boolean) : children ? [children] : [];
   if (itens.length === 0 && vazio) {
     return (
-      <div className="flex min-h-24 flex-col items-center justify-center gap-1 rounded-[var(--raio-grupo)] bg-ink3 px-5 py-6 text-center text-sm text-mute">
+      <div className="flex min-h-24 flex-col items-center justify-center gap-1 rounded-[var(--raio-grupo)] bg-[var(--figaro-surface-container-high,var(--ink3))] px-5 py-6 text-center text-sm text-mute">
         {vazio}
       </div>
     );
@@ -26,7 +26,7 @@ export function GrupoDeCartoes({
   return (
     <ul
       className={cn(
-        "flex flex-col gap-0.5 [&>li]:rounded-[var(--raio-grupo-interno)] [&>li]:bg-ink3 [&>li:first-child]:rounded-t-[var(--raio-grupo)] [&>li:last-child]:rounded-b-[var(--raio-grupo)]",
+        "flex flex-col gap-0.5 [&>li]:rounded-[var(--raio-grupo-interno)] [&>li]:bg-[var(--figaro-surface-container-high,var(--ink3))] [&>li:first-child]:rounded-t-[var(--raio-grupo)] [&>li:last-child]:rounded-b-[var(--raio-grupo)]",
         className,
       )}
     >
