@@ -24,7 +24,7 @@ function limpa(t: string) {
 }
 
 export function hashtags(rede: Rede, segmento: string | null, cidade?: string): string[] {
-  const base = BASE[segmento ?? ""] ?? ["beleza", "autocuidado", "estilo"];
+  const base = BASE[segmento ?? ""] ?? ["servicos", "atendimento", "agendamento"];
   const local = cidade ? [limpa(cidade), `${base[0]}${limpa(cidade)}`] : [];
   const extra = rede === "tiktok" ? ["fyp", "transformacao"] : rede === "reels" ? ["reels", "antesedepois"] : [];
   const quantos = rede === "stories" ? 3 : rede === "tiktok" ? 5 : 8;
