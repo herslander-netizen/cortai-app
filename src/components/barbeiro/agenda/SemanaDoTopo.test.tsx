@@ -67,9 +67,10 @@ describe("medidas visuais Figaro no seletor de data", () => {
     const circulo = selecionado?.querySelector<HTMLElement>("span.grid");
     expect(circulo?.className).toContain("size-[38px]");
     expect(circulo?.className).toContain("text-base");
-    expect(alvo.querySelector(".text-\\[11\\.5px\\]")?.textContent).toBeTruthy();
-    const rotulos = alvo.querySelector('[aria-label="Dias da semana"]')?.previousElementSibling;
-    expect(rotulos?.className).toContain("text-[11.5px]");
+    const rotulos = Array.from(alvo.querySelectorAll<HTMLElement>("div")).find((el) =>
+      el.className.includes("text-[11.5px]"),
+    );
+    expect(rotulos?.textContent).toContain("D");
     expect(rotulos?.firstElementChild?.className).toContain("py-2");
   });
 
