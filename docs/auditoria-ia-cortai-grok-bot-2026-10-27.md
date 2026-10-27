@@ -114,6 +114,13 @@ Arquivos adicionais: `src/lib/brain/acoes.server.ts`, `src/lib/brain/papeis.test
 
 **Estado de validação:** os commits foram enviados para a branch de trabalho e a validação GitHub Actions está sendo executada. Não declarar teste/build/prévia aprovados até observar conclusão verde do workflow.
 
+
+### 4.4 Voz como rascunho, não execução imediata
+
+Antes, tanto o reconhecimento do navegador (Web Speech API) quanto a transcrição do áudio no servidor chamavam o agente assim que havia texto. Isso podia executar uma ação a partir de uma transcrição equivocada, sem oportunidade de correção. Agora ambos os caminhos preenchem o campo de mensagem e mostram “Transcrição pronta. Revise antes de enviar.”; a pessoa pode editar o nome, serviço ou horário, descartar o rascunho ou tocar em Enviar. O rascunho conserva a origem voz mesmo depois de editado, para que as regras específicas de comandos falados continuem aplicadas no servidor. O envio pelo botão/Enter usa essa origem; atalhos comuns continuam sendo texto. Foram atualizados os testes de transcrição gravada e reconhecimento nativo para comprovar que o agente não é chamado antes do envio explícito e que a correção é enviada com origem voz.
+
+Arquivos: src/components/ia/AssistenteCortai.tsx e src/components/ia/AssistenteCortai.voz.test.tsx.
+
 ## 5. Lacunas e riscos prioritários
 
 ### P0 — Segurança e verdade operacional
@@ -176,7 +183,7 @@ Manter um cérebro canônico e separar suas responsabilidades:
 
 **Fase 4 — Ferramentas úteis:** ampliar o catálogo por módulos conforme os domínios oficiais do Cortaí, primeiro leitura e depois escrita controlada. Priorizar relatório do dia, pesquisa de clientes, fila e cadastro guiado quando a fonte de dados já estiver disponível.
 
-**Fase 5 — Voz e UI:** reforçar revisão da transcrição, estados/timeout, retorno visual de ferramenta e cartões de resultado com padrão Figaro.
+**Fase 5 — Voz e UI:** revisão editável de transcrição foi implementada e coberta por testes; continuar validando estados/timeout, retorno visual de ferramenta e cartões de resultado com padrão Figaro.
 
 **Fase 6 — Escolha do modelo:** comparar dois ou mais provedores usando Promptfoo, custos reais, latência e qualidade em português. Só então definir padrão e fallback por canal.
 
@@ -204,4 +211,4 @@ Manter um cérebro canônico e separar suas responsabilidades:
 - `src/components/ia/AssistenteCortai.tsx` e `useGravadorDeVoz.ts` — experiência mobile/voz.
 - `promptfoo/` — base de avaliação já existente.
 
-**Conclusão:** não é necessário trocar a CortAI por outro agente. A base atual já tem várias proteções e operações reais. Neste lote foram corrigidas a confirmação específica da ação pendente e a validade temporal da pendência, e foi ligada a pergunta “Quanto entrou hoje?” a uma leitura autorizada dos movimentos reais do caixa. O restante da evolução deve seguir com contexto, ferramentas, voz e avaliações automáticas. O relatório não declara validação aprovada até o GitHub Actions terminar verde.
+**Conclusão:** não é necessário trocar a CortAI por outro agente. A base atual já tem várias proteções e operações reais. Neste lote foram corrigidas a confirmação específica da ação pendente e a validade temporal da pendência, e foi ligada a pergunta “Quanto entrou hoje?” a uma leitura autorizada dos movimentos reais do caixa. A voz agora exige revisão e envio explícito, tanto na transcrição do servidor quanto no reconhecimento do navegador. O restante da evolução deve seguir com contexto, ferramentas e avaliações automáticas. O relatório não declara validação aprovada até o GitHub Actions terminar verde.

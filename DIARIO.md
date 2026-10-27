@@ -494,8 +494,6 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Em andamento
 
-- GPT | 2026-10-27 UTC | Auditoria minuciosa e hardening da CortAI: confirmação vinculada à ação pendente; rejeitar data futura; alinhar pergunta “quanto entrou hoje?” com leitura real e autorizada do caixa, sem confundir caixa com lucro; documentar APK SandMobile/Grok Bot. Sem migração, produção ou alteração de UI da Agenda | `DIARIO.md`, `src/lib/brain/guardas.ts`, `src/lib/brain/guardas.test.ts`, `src/lib/brain/agente.server.ts`, `src/lib/brain/acoes.server.ts`, `src/lib/brain/papeis.test.ts`, `src/lib/brain/modo-basico-nlu.ts`, `src/lib/brain/modo-basico-nlu.test.ts`, `src/lib/brain/modo-basico.ts`, `src/lib/brain/modo-basico.test.ts`, `src/components/ia/AssistenteCortai.tsx`, `docs/auditoria-ia-cortai-grok-bot-2026-10-27.md`; sem migração |
-
 - GPT | 2026-10-27 UTC | Auditoria mobile-first dos botões e telas fora do padrão: começar pelo defeito visível em PersonalizacaoCliente (switch WhatsApp deformado/quebrando linha), padronizar com o primitivo Switch e revisar os achados de botões/controles nas telas não reservadas; definir inventário de páginas e corrigir em lotes validados. Excluir Agenda e não mexer em regras/backend/bancos | `DIARIO.md`, `src/components/barbeiro/PersonalizacaoCliente.tsx`, testes UI/estilo e inventário UX; sem migração |
 
 
@@ -757,6 +755,8 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - Documentação adicionada: docs/auditoria-inbarber-cortai-2026-10-26.md e docs/propostas/widget-android-inbarber-cortai.md. O widget permanece especificado, não implementado: o repositório não tem projeto Android nativo, pacote/assinatura ou fluxo de autenticação para o widget.
 - Sem mudanças na interface da Agenda, migrações, bancos de dados, segredos, main ou site principal. TypeScript, Vitest, build e smoke test aguardam a validação automática do commit.
 ## Diário
+
+- GPT | 2026-10-27 UTC | CortAI: reforçada a segurança das confirmações (operação específica e expiração temporal), adicionada consulta de leitura do caixa diário com permissão financeira e diferença explícita entre caixa e lucro; voz agora produz rascunho editável, com origem voz preservada e envio só após toque em Enviar. Incluído teste de revisão/correção para transcrição gravada e Web Speech API. APK documentado como build com metadados SandMobile/Cursor e pacote Grok Bot, sem presumir disponibilidade de todas as funções. Build/TypeScript/testes/prévia da rodada final aguardando workflow 40456077634; produção, main e banco real não alterados. | DIARIO.md, src/lib/brain/guardas.ts, src/lib/brain/guardas.test.ts, src/lib/brain/agente.server.ts, src/lib/brain/acoes.server.ts, src/lib/brain/papeis.test.ts, src/lib/brain/modo-basico-nlu.ts, src/lib/brain/modo-basico-nlu.test.ts, src/lib/brain/modo-basico.ts, src/lib/brain/modo-basico.test.ts, src/components/ia/AssistenteCortai.tsx, src/components/ia/AssistenteCortai.voz.test.tsx, docs/auditoria-ia-cortai-grok-bot-2026-10-27.md; sem migração |
 
 ### 2026-10-27 UTC — GPT — Adaptação Mobills ao financeiro do Cortaí
 - Inspecionei estaticamente o APK Mobills, cruzei a família de recursos com documentação oficial e conferi o código real do financeiro do Cortaí na branch de migração.
