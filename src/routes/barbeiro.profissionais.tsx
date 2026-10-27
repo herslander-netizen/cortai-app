@@ -10,6 +10,7 @@ import { getProfissionaisPerfil, salvarPerfilProfissional } from "@/lib/crescime
 import { useAcao } from "@/hooks/useAcao";
 import { EsqueletoFormulario } from "@/components/layout/Esqueleto";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 
 export const Route = createFileRoute("/barbeiro/profissionais")({
   head: () => ({
@@ -55,11 +56,12 @@ function ProfissionaisPage() {
       {isLoading ? <EsqueletoFormulario campos={3} onTentarDeNovo={() => void refetch()} /> : null}
       {data && data.length === 0 ? <EmptyState text="Nenhum profissional cadastrado." /> : null}
 
-      <ul className="space-y-6">
+      <ul className="space-y-2">
         {(data ?? []).map((p) => {
           const atual = form[p.id] ?? { descricao: "", fotos: [] };
           return (
-            <li key={p.id} className="border-b border-line bg-ink2 px-1 py-5">
+            <li key={p.id}>
+            <Card density="default">
               <p className="text-sm font-semibold text-paper">{p.nome}</p>
               <label className="mt-4 block">
                 <span className="text-xs text-mute2">Descrição curta</span>
@@ -87,9 +89,10 @@ function ProfissionaisPage() {
                 />
               </div>
               <Button
-                variant="ghost"
+                variant="primary"
+                size="lg"
                 type="button"
-                className="btn-tertiary mt-4 text-xs"
+                className="mt-4 w-full sm:w-auto"
                 disabled={acao.ocupado}
                 onClick={() =>
                   acao.executar(
@@ -115,7 +118,8 @@ function ProfissionaisPage() {
               >
                 {acao.estaEm(p.id) ? "Salvando…" : "Salvar perfil"}
               </Button>
-            </li>
+            </Card>
+          </li>
           );
         })}
       </ul>

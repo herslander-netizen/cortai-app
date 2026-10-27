@@ -232,12 +232,12 @@ function ServicosPage() {
         {!modoEditor && !isLoading && iniciado ? (
           <>
             {servicos.length ? (
-              <ul className="space-y-3">
+              <ul className="space-y-2">
                 {servicos.map((servico, indice) => (
                   <li key={servico.id ?? "servico-" + indice}>
                     <Card variant="touchable" density="none" className="overflow-hidden">
                       <div className="flex items-center gap-3 p-4">
-                        <div className="grid size-11 shrink-0 place-items-center rounded-xl bg-ink3 text-gold">
+                        <div className="grid size-11 shrink-0 place-items-center rounded-[12px] bg-[var(--figaro-primary-container,var(--ink3))] text-[var(--figaro-primary,var(--primary))]">
                           <Clock3 size={19} aria-hidden />
                         </div>
                         <div className="min-w-0 flex-1">

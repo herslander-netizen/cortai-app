@@ -27,6 +27,7 @@ Contrato de design do projeto: `docs/contrato-de-design.md`. Esta ordem diz **co
    `transform` e `opacity`, respeitando `prefers-reduced-motion`.
 5. **Mobile é o alvo principal e vem primeiro**: desenhar, implementar e validar inicialmente em 390 px e conferir 360 px; só depois adaptar para desktop. Nenhuma decisão de layout ou animação é aprovada apenas pela aparência em tela grande. Alvos de toque de 48 dp quando aplicável, sem rolagem horizontal, sobreposição de conteúdo, gestos conflitantes ou zoom acidental fora das superfícies previstas. Conferir claro/escuro e `prefers-reduced-motion` no fluxo móvel.
 6. **Textos neutros de segmento** no código (`termos(segmento)` só na tela) e em português do Brasil.
+7. **Nada de herança visual de site nas telas internas.** Screen usa cabeçalho de aplicativo: ação redonda na barra superior e título/subtítulo em uma hierarquia própria abaixo; não adiciona divisor horizontal nem assinatura institucional por padrão. Listas, estados vazios e ações devem usar os primitivos Figaro, não linhas/rodapés antigos. Esta regra vale para todas as telas internas; a Agenda permanece protegida sem pedido específico e as páginas públicas mantêm os temas personalizados já escolhidos.
 
 ## 3. O que usar em cada caso
 

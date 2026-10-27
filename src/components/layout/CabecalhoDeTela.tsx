@@ -13,8 +13,8 @@ export function CabecalhoDeTela({
       {eyebrow ? (
         <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-gold">{eyebrow}</p>
       ) : null}
-      <h1 className="screen-title">{title}</h1>
-      {subtitle ? <p className="mt-1.5 text-sm leading-relaxed text-mute">{subtitle}</p> : null}
+      <h1 className="text-3xl font-bold leading-tight tracking-tight text-[var(--figaro-on-background,var(--paper))]">{title}</h1>
+      {subtitle ? <p className="mt-2 text-base leading-relaxed text-mute">{subtitle}</p> : null}
     </div>
   );
 }
