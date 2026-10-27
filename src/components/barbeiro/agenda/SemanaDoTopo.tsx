@@ -35,7 +35,7 @@ const MESES_EM_VOLTA = 12;
 /** Meses montados em cada fase depois que o calendário assenta: perto do dia primeiro, o resto logo depois. */
 const FASES_DOS_MESES = [3, 6, 9, MESES_EM_VOLTA] as const;
 /** Altura do calendário do mês aberto (a lista rola por dentro). */
-const ALTURA_DO_MES = 344;
+const ALTURA_DO_MES = 292;
 /**
  * Mola do Figaro (`expandSizeSpringDp`: amortecimento 1,0 e rigidez 400). No Figaro o painel do calendário cresce
  * com essa mola e o espaço da Agenda é uma SEGUNDA mola igual, que persegue a altura já medida do painel
@@ -66,7 +66,7 @@ function DiaDoCalendario({
   escolhido: boolean;
   hoje: boolean;
   comAtendimento: boolean;
-  /** Grade do mês: célula de 48px com o pontinho por dentro. */
+  /** Grade do mês: célula de 40px com círculo de 38px e pontinho por dentro. */
   compacto?: boolean;
   /** Na semana: a data escolhida e seus vizinhos mudam de cor junto com o círculo que desliza. */
   vizinho?: "atual" | "proximo" | "anterior" | undefined;
@@ -84,7 +84,7 @@ function DiaDoCalendario({
       variant="ghost"
       aria-pressed={escolhido}
       aria-label={`${rotuloDoDia(dia)}${hoje ? ", hoje" : ""}${comAtendimento ? ", com atendimentos" : ""}`}
-      className={`relative flex-col rounded-full px-0 hover:bg-transparent active:bg-transparent ${compacto ? "h-12 gap-0 py-0" : "h-auto min-h-12 gap-1 py-1"}`}
+      className={`relative flex-col rounded-full px-0 hover:bg-transparent active:bg-transparent ${compacto ? "h-10 gap-0 py-0" : "h-12 gap-0 py-0"}`}
       onClick={() => onDia(dia)}
     >
       <span
@@ -172,7 +172,7 @@ const ListaDeMeses = memo(function ListaDeMeses({
   return (
     <div
       ref={listaRef}
-      className="relative h-[344px] snap-y snap-mandatory overflow-y-auto overscroll-contain"
+      className="relative h-[292px] snap-y snap-mandatory overflow-y-auto overscroll-contain"
       aria-label="Calendário"
     >
       {meses.map((mes) => (
