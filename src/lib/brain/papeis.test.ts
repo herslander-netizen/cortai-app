@@ -29,17 +29,19 @@ describe("permissões por papel no WhatsApp", () => {
   it("cliente agenda, remarca e cancela, mas não vê agenda da equipe nem indicadores", () => {
     for (const a of ["criar_agendamento", "reagendar_agendamento", "cancelar_agendamento", "consultar_disponibilidade", "encaminhar_humano"])
       expect(acaoPermitida(a, cliente)).toBe(true);
-    for (const a of ["minha_agenda", "consultar_fila", "avisar_atraso", "consultar_movimento", "registrar_nota"])
+    for (const a of ["minha_agenda", "consultar_fila", "avisar_atraso", "consultar_movimento", "consultar_caixa_hoje", "registrar_nota"])
       expect(acaoPermitida(a, cliente)).toBe(false);
   });
   it("profissional vê a própria agenda e avisa atraso, sem indicadores do negócio", () => {
     for (const a of ["minha_agenda", "consultar_fila", "avisar_atraso", "criar_agendamento"])
       expect(acaoPermitida(a, prof)).toBe(true);
     expect(acaoPermitida("consultar_movimento", prof)).toBe(false);
+    expect(acaoPermitida("consultar_caixa_hoje", prof)).toBe(false);
     expect(acaoPermitida("encaminhar_humano", prof)).toBe(false);
   });
-  it("dono vê indicadores e agenda do negócio, não avisa atraso como profissional", () => {
+  it("dono vê indicadores, caixa e agenda do negócio, não avisa atraso como profissional", () => {
     expect(acaoPermitida("consultar_movimento", dono)).toBe(true);
+    expect(acaoPermitida("consultar_caixa_hoje", dono)).toBe(true);
     expect(acaoPermitida("minha_agenda", dono)).toBe(true);
     expect(acaoPermitida("avisar_atraso", dono)).toBe(false);
   });
@@ -105,11 +107,14 @@ describe("painel: a CortAI não pode mais do que a pessoa", () => {
 
   it("barbeiro não vê indicadores do negócio, mas agenda e cancela os próprios", () => {
     expect(acaoPermitida("consultar_movimento", barbeiro)).toBe(false);
+    expect(acaoPermitida("consultar_caixa_hoje", barbeiro)).toBe(false);
     for (const a of ["criar_agendamento", "cancelar_agendamento", "reagendar_agendamento"])
       expect(acaoPermitida(a, barbeiro)).toBe(true);
   });
-  it("gerente e dono veem os indicadores do dia", () => {
+  it("gerente e dono veem indicadores; caixa exige visualizar_financeiro", () => {
     expect(acaoPermitida("consultar_movimento", gerente)).toBe(true);
+    expect(acaoPermitida("consultar_caixa_hoje", gerente)).toBe(true);
+    expect(acaoPermitida("consultar_caixa_hoje", { ...gerente, permissoes: [] })).toBe(false);
   });
   it("sem a permissão, a ação nem é oferecida (cancelar, agendar, editar cliente)", () => {
     const semCancelar = { ...gerente, permissoes: ["agendamento_manual", "editar_clientes"] };
