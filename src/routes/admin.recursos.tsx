@@ -133,7 +133,7 @@ function RecursosPage() {
           </div>
           <div className="space-y-3 sm:hidden">
             {recursos.map((recurso) => (
-              <section key={recurso.chave} className="surface-card p-4">
+              <section key={recurso.chave} className="rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))] p-4">
                 <p className="text-sm font-semibold text-paper">{recurso.rotulo}</p>
                 {recurso.descricao ? (
                   <p className="mt-1 text-xs leading-relaxed text-mute">{recurso.descricao}</p>
@@ -146,7 +146,7 @@ function RecursosPage() {
                     return (
                       <label
                         key={plano}
-                        className="flex flex-col items-center gap-2 rounded-md bg-ink3 p-2 text-center"
+                        className="flex flex-col items-center gap-2 rounded-[12px] bg-[var(--figaro-surface-container-high,var(--ink3))] p-3 text-center"
                       >
                         <span className="text-xs font-semibold text-mute">
                           {ROTULO_DO_PLANO[plano]}

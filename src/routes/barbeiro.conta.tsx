@@ -173,15 +173,16 @@ function ContaPage() {
         </SecaoDeConfiguracao>
 
         <SecaoDeConfiguracao titulo="Aparência e aplicativo">
-          <div className="cartao-config">
+          <div className="rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))] p-2">
             <ThemeToggle
               identidadeDaBarbearia={data?.identidadeApp}
               tenantId={data?.tenantId ?? undefined}
               podeAlterarIdentidade={data?.papelNaEquipe === "dono"}
+              emGrupo
             />
           </div>
-          <div className="cartao-config mt-3">
-            <InstalarCortai />
+          <div className="rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))] p-2">
+            <InstalarCortai emGrupo />
           </div>
         </SecaoDeConfiguracao>
 
@@ -206,7 +207,7 @@ function ContaPage() {
       </div>
 
       {data?.permissoes.includes("alterar_dados_barbearia") ? (
-        <section className="cartao-config mb-3">
+        <section className="mb-3 rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))] p-4">
           <label className="block text-xs font-medium text-mute">
             Tipo de negócio
             <select
@@ -274,7 +275,7 @@ function ContaPage() {
       <div className="cartao-config mb-3">
         <PreferenciasDicas />
       </div>
-      <div className="cartao-config">
+      <div className="rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))] p-2">
         <PreferenciasDePrivacidade />
       </div>
     </Screen>

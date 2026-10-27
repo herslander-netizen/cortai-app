@@ -67,13 +67,13 @@ function AdminWhatsappPage() {
           Acesso negado ou indisponível.
         </p>
       ) : null}
-      <ul className="divide-y divide-line border-y border-line">
+      <ul className="space-y-2">
         {(negocios.data ?? []).map((n) => (
-          <li key={n.tenantId} className="py-3">
+          <li key={n.tenantId} className="rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))] p-2">
             <Button
               type="button"
               variant="ghost"
-              className="min-h-12 w-full justify-between gap-3 rounded-md px-2 text-left"
+              className="min-h-12 w-full justify-between gap-3 rounded-[12px] px-3 text-left"
               onClick={() => setAberto(aberto === n.tenantId ? null : n.tenantId)}
               aria-expanded={aberto === n.tenantId}
             >
@@ -114,7 +114,7 @@ function Detalhe({ negocio: n }: { negocio: WhatsappDoNegocio }) {
   const temPropria = n.status !== "sem_conexao" && !n.compartilhada;
 
   return (
-    <div className="surface mt-3 p-4">
+    <div className="mt-3 rounded-[12px] bg-[var(--figaro-surface-container-high,var(--ink3))] p-4">
       {dialogo}
       {n.ultimoErro ? <p className="text-xs text-mute2">Último erro: {n.ultimoErro}</p> : null}
       {n.verificadoEm ? (

@@ -78,14 +78,14 @@ function PedidosPage() {
       {query.isError ? (
         <AdminNotice error={query.error} />
       ) : (
-        <div>
+        <div className="space-y-2">
           {query.data?.map((item) => (
             <Button
               type="button"
               variant="ghost"
               key={item.id}
               onClick={() => setSelected(item)}
-              className="grid min-h-16 w-full grid-cols-[minmax(0,1fr)_auto] gap-5 rounded-none border-b border-line px-0 py-5 text-left"
+              className="grid min-h-16 w-full grid-cols-[minmax(0,1fr)_auto] gap-5 rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))] px-4 py-3 text-left"
             >
               <span>
                 <span className="text-sm font-semibold text-paper">{item.pedido}</span>
@@ -96,7 +96,7 @@ function PedidosPage() {
                   {item.tenants_que_pediram.length}
                 </span>
                 <span className="text-xs text-mute">pediram</span>
-                <span className="mt-2 block text-xs text-gold">
+                <span className="mt-2 block text-xs text-[var(--figaro-primary,var(--primary))]">
                   {statuses[item.status as Status]}
                 </span>
               </span>
@@ -126,7 +126,7 @@ function PedidosPage() {
         }}
       >
         {selected ? (
-          <DialogContent className="max-h-[90vh] overflow-y-auto bg-ink2">
+          <DialogContent className="max-h-[90vh] overflow-y-auto rounded-[28px] bg-[var(--figaro-surface-container,var(--ink2))]">
             <DialogHeader>
               <DialogTitle>{selected.pedido}</DialogTitle>
               <DialogDescription>{selected.motivo}</DialogDescription>
@@ -161,9 +161,9 @@ function PedidosPage() {
             </label>
             <section className="mt-4">
               <h3 className="text-sm font-semibold text-paper">Quem pediu</h3>
-              <ul className="mt-2">
+              <ul className="mt-2 space-y-2">
                 {selected.solicitantes.map((tenant: Solicitante) => (
-                  <li key={tenant.id} className="flex justify-between border-b border-line py-3">
+                  <li key={tenant.id} className="flex justify-between gap-3 rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))] px-3 py-3">
                     <span className="text-sm text-paper">
                       {tenant.nome ?? "Barbearia removida"}
                     </span>
@@ -209,7 +209,7 @@ function NewSuggestion({
         if (!value) close();
       }}
     >
-      <DialogContent className="max-h-[90vh] overflow-y-auto bg-ink2">
+      <DialogContent className="max-h-[90vh] overflow-y-auto rounded-[28px] bg-[var(--figaro-surface-container,var(--ink2))]">
         <DialogHeader>
           <DialogTitle>Novo pedido</DialogTitle>
           <DialogDescription>
@@ -253,7 +253,7 @@ function NewSuggestion({
             {tenants.data?.map((tenant) => (
               <label
                 key={tenant.id}
-                className="flex items-center gap-3 border-b border-line py-3 text-sm text-paper"
+                className="flex items-center gap-3 rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))] px-3 py-3 text-sm text-paper"
               >
                 <input
                   type="checkbox"
@@ -263,7 +263,7 @@ function NewSuggestion({
                       e.target.checked ? [...old, tenant.id] : old.filter((id) => id !== tenant.id),
                     )
                   }
-                  className="accent-gold"
+                  className="accent-[var(--figaro-primary,var(--primary))]"
                 />
                 {tenant.nome}
                 <span className="ml-auto text-xs text-mute">{tenant.plano}</span>

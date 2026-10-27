@@ -101,7 +101,7 @@ function InformacoesBasicasPage() {
           titulo="Logo"
           rodape="Imagens quadradas ficam melhores. Use a logo do seu negócio."
         >
-          <div className="rounded-[28px] bg-[var(--agenda-cartao,var(--ink2))] p-4">
+          <div className="rounded-[28px] bg-[var(--figaro-surface-container,var(--ink2))] p-4">
             <SeletorDeFoto
               rotulo="Logo"
               prefixo="foto"
@@ -120,7 +120,7 @@ function InformacoesBasicasPage() {
         </SecaoDeConfiguracao>
 
         <SecaoDeConfiguracao titulo="Informações básicas">
-          <div className="space-y-3 rounded-[28px] bg-[var(--agenda-cartao,var(--ink2))] p-4">
+          <div className="space-y-3 rounded-[28px] bg-[var(--figaro-surface-container,var(--ink2))] p-4">
             <CampoDeFormulario
               rotulo={`Nome ${t.de}`}
               value={nome}

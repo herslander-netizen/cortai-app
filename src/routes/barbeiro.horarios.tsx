@@ -59,7 +59,7 @@ function HorariosPage() {
         <EsqueletoFormulario campos={6} onTentarDeNovo={() => void refetch()} />
       ) : null}
       {isError && !data ? (
-        <div role="alert" className="surface p-5">
+        <div role="alert" className="rounded-[28px] bg-[var(--figaro-surface-container,var(--ink2))] p-5">
           <p className="text-sm text-paper">Não conseguimos carregar os horários.</p>
           <Button variant="outline" className="mt-4 w-full" onClick={() => void refetch()}>
             Tentar de novo

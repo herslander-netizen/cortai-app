@@ -93,7 +93,7 @@ function Passo({
       className={`border-t border-line py-6 first:border-t-0 first:pt-0 ${className ?? ""}`}
     >
       <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold text-paper">
-        <span className="flex h-5 w-5 items-center justify-center rounded-full bg-ink3 text-xs text-mute">
+        <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[var(--figaro-surface-container-high,var(--ink3))] text-xs text-mute">
           {n}
         </span>
         {titulo}
@@ -311,7 +311,7 @@ function Fluxo({
               <p className="text-sm text-paper">
                 Fidelidade: {sucesso.fidelidade_progresso} de {sucesso.fidelidade_alvo}
               </p>
-              <div className="mt-2 h-1.5 w-full rounded-full bg-ink3">
+              <div className="mt-2 h-1.5 w-full rounded-full bg-[var(--figaro-surface-container-high,var(--ink3))]">
                 <div
                   className="h-1.5 rounded-full bg-gold"
                   style={{
@@ -542,22 +542,22 @@ function Fluxo({
           </p>
         ) : null}
         {escolhido && servico ? (
-          <dl className="mt-3 divide-y divide-line border-y border-line text-sm">
-            <div className="flex items-start justify-between gap-4 py-2.5">
+          <dl className="mt-3 grid gap-2 text-sm">
+            <div className="flex items-start justify-between gap-4 rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))] px-4 py-3">
               <dt className="text-mute">Serviço</dt>
               <dd className="text-right text-paper">
                 {servico.nome} · {servico.duracao_min} min
               </dd>
             </div>
-            <div className="flex items-start justify-between gap-4 py-2.5">
+            <div className="flex items-start justify-between gap-4 rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))] px-4 py-3">
               <dt className="text-mute">Profissional</dt>
               <dd className="text-right text-paper">{nomeProfissional(escolhido.profId)}</dd>
             </div>
-            <div className="flex items-start justify-between gap-4 py-2.5">
+            <div className="flex items-start justify-between gap-4 rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))] px-4 py-3">
               <dt className="text-mute">Quando</dt>
               <dd className="text-right text-paper">{dataHoraLonga(escolhido.iso)}</dd>
             </div>
-            <div className="flex items-start justify-between gap-4 py-2.5">
+            <div className="flex items-start justify-between gap-4 rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))] px-4 py-3">
               <dt className="text-mute">Pagamento</dt>
               <dd className="text-right text-paper">
                 {rotuloForma(forma)} ·{" "}
@@ -569,7 +569,7 @@ function Fluxo({
           </dl>
         ) : null}
         {conflito ? (
-          <div className="mt-3 rounded-xl border border-brick/40 px-4 py-3" role="alert">
+          <div className="mt-3 rounded-[12px] border border-brick/40 bg-[var(--figaro-surface-container,var(--ink2))] px-4 py-3" role="alert">
             <p className="text-sm text-paper">
               Você já tem um horário às {conflito.hora} nesse dia.
             </p>
@@ -631,14 +631,14 @@ function LinhaPagamento({
       disabled={desabilitado}
       onClick={onClick}
       aria-pressed={selecionado}
-      className={`min-h-16 w-full justify-between gap-4 rounded-none border-b border-line py-4 text-left ${
+      className={`min-h-16 w-full justify-between gap-4 rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))] px-4 py-3 text-left ${
         desabilitado ? "opacity-50" : ""
       }`}
     >
       <span className="flex items-start gap-3">
         <span
           className={`mt-1 h-4 w-4 shrink-0 rounded-full border ${
-            selecionado ? "border-gold bg-gold" : "border-line2"
+            selecionado ? "border-[var(--figaro-primary,var(--primary))] bg-[var(--figaro-primary,var(--primary))]" : "border-line2"
           }`}
         />
         <span>

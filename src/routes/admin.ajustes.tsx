@@ -151,7 +151,7 @@ function DesignSystemPage() {
                       type="color"
                       value={form[key]}
                       onChange={(e) => setForm({ ...form, [key]: e.target.value.toUpperCase() })}
-                      className="mt-2 h-12 w-full rounded-xl border-0 bg-[var(--agenda-cartao,var(--ink2))] p-1"
+                      className="mt-2 h-12 w-full rounded-xl border-0 bg-[var(--figaro-surface-container,var(--ink2))] p-1"
                     />
                     <span className="mt-1 block text-xs text-mute2">{form[key]}</span>
                   </label>
@@ -181,7 +181,7 @@ function DesignSystemPage() {
                   max="24"
                   value={form.raio_px}
                   onChange={(e) => setForm({ ...form, raio_px: Number(e.target.value) })}
-                  className="mt-4 w-full accent-gold"
+                  className="mt-4 w-full accent-[var(--figaro-primary,var(--primary))]"
                 />
               </label>
             </div>
@@ -210,7 +210,7 @@ function DesignSystemPage() {
                   href={`https://wa.me/${n}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="mt-3 inline-block text-xs text-gold"
+                  className="mt-3 inline-block text-sm font-medium text-[var(--figaro-primary,var(--primary))]"
                 >
                   Testar link: wa.me/{n}
                 </a>
@@ -251,8 +251,8 @@ function DesignSystemPage() {
 }
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="border-t border-line py-7 first:border-0 first:pt-0">
-      <h2 className="mb-5 text-sm font-semibold text-paper">{title}</h2>
+    <section className="rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))] p-4">
+      <h2 className="mb-4 text-base font-semibold text-paper">{title}</h2>
       {children}
     </section>
   );
