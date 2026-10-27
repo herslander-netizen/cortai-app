@@ -156,6 +156,68 @@ describe("gateway central — escolha do provedor", () => {
     });
   });
 
+  it("usa LocalAI como fallback quando o primário falha temporariamente", async () => {
+    vi.stubEnv("CORTAI_AI_PROVIDER", "openai_compatible");
+    vi.stubEnv("CORTAI_AI_BASE_URL", "https://ollama.com/v1");
+    vi.stubEnv("CORTAI_AI_MODEL", "gpt-oss:20b");
+    vi.stubEnv("CORTAI_AI_API_KEY", "chave-primaria");
+    vi.stubEnv("CORTAI_AI_FALLBACK_BASE_URL", "https://localai.exemplo.test/v1");
+    vi.stubEnv("CORTAI_AI_FALLBACK_MODEL", "qwen3-4b");
+    vi.stubEnv("CORTAI_AI_FALLBACK_API_KEY", "chave-secundaria");
+    const fetchSimulado = vi
+      .fn()
+      .mockResolvedValueOnce(new Response("temporariamente indisponível", { status: 503 }))
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ choices: [{ message: { content: "Resposta pelo secundário" } }] }), {
+          status: 200,
+        }),
+      );
+    vi.stubGlobal("fetch", fetchSimulado);
+    const g = await import("./gateway.server");
+    const eventos: any[] = [];
+    const itens = await g
+      .criarSessaoDoGateway({ canal: "painel", aoChamar: (e) => eventos.push(e) })
+      .responder({ instrucoes: "i", entrada: [{ role: "user", content: "oi" }], ferramentas });
+    expect(itens).toMatchObject([
+      { type: "message", content: [{ type: "output_text", text: "Resposta pelo secundário" }] },
+    ]);
+    expect(fetchSimulado.mock.calls.map((call) => String(call[0]))).toEqual([
+      "https://ollama.com/v1/chat/completions",
+      "https://localai.exemplo.test/v1/chat/completions",
+    ]);
+    expect(eventos).toMatchObject([
+      { provedor: "ollama.com", modelo: "gpt-oss:20b", ok: false, httpStatus: 503 },
+      { provedor: "localai.exemplo.test", modelo: "qwen3-4b", ok: true, geroutexto: true },
+    ]);
+  });
+
+  it("não usa o fallback para erros de crédito ou credenciais", async () => {
+    vi.stubEnv("CORTAI_AI_PROVIDER", "openai_compatible");
+    vi.stubEnv("CORTAI_AI_BASE_URL", "https://ollama.com/v1");
+    vi.stubEnv("CORTAI_AI_MODEL", "gpt-oss:20b");
+    vi.stubEnv("CORTAI_AI_API_KEY", "chave-primaria");
+    vi.stubEnv("CORTAI_AI_FALLBACK_BASE_URL", "https://localai.exemplo.test/v1");
+    vi.stubEnv("CORTAI_AI_FALLBACK_MODEL", "qwen3-4b");
+    vi.stubEnv("CORTAI_AI_FALLBACK_API_KEY", "chave-secundaria");
+    vi.spyOn(console, "error").mockImplementation(() => undefined);
+    const urls: string[] = [];
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (url: unknown) => {
+        urls.push(String(url));
+        return new Response("sem crédito", { status: 402 });
+      }),
+    );
+    const g = await import("./gateway.server");
+    const erro: any = await g
+      .criarSessaoDoGateway({ canal: "painel" })
+      .responder({ instrucoes: "i", entrada: [], ferramentas })
+      .catch((e) => e);
+    expect(erro.semCredito).toBe(true);
+    expect(erro.provedor).toBe("ollama.com");
+    expect(urls).toEqual(["https://ollama.com/v1/chat/completions"]);
+  });
+
   it("canal fora da lista não chama provedor algum", async () => {
     vi.stubEnv("CORTAI_AI_PROVIDER", "openai_compatible");
     vi.stubEnv("CORTAI_AI_BASE_URL", "https://api.exemplo.test/v1");
