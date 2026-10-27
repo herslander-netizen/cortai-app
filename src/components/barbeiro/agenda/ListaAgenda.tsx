@@ -143,7 +143,8 @@ export function ListaAgenda({
               className={`agenda-item relative agenda-item-${item.status} ${item.confirmadoEm && item.status === "agendado" ? "agenda-item-confirmado" : ""} ${item.encaixe && item.status === "agendado" ? "agenda-item-encaixe" : ""} ${indice < 6 ? "mov-item-cascata" : ""} ${selecionado === item.id ? "agenda-item-selecionado" : ""} ${novos.has(item.id) ? "agenda-novo" : ""}`}
               style={{
                 animationDelay: indice < 6 ? `${indice * 30}ms` : undefined,
-                borderLeft: "none",
+                borderLeftWidth: 0,
+                borderLeftStyle: "none",
                 padding: "10px 11px 10px 16px",
                 borderRadius: "8px",
                 backgroundColor: "var(--agenda-cartao-evento, var(--agenda-cartao, var(--ink2)))",
