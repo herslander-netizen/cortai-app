@@ -14,6 +14,10 @@ const escolher = (texto: string, servicos: { nome: string }[], segmento = "barbe
 };
 
 describe("escolha de serviço no WhatsApp", () => {
+  it("sem segmento, não interpreta a palavra isolada cabelo como serviço de barbearia", () => {
+    expect(servicoCitado(normalizar("cabelo"))).toBeNull();
+    expect(servicoCitado(normalizar("cabelo"), "barbearia")).toBe("corte");
+  });
   it("'quero cortar o cabelo' escolhe Corte direto", () => {
     expect(escolher("quero cortar o cabelo", barbearia)).toEqual({
       tipo: "unico",
