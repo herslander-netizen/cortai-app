@@ -81,6 +81,56 @@ export function diasEntreDatas(dataInicial: string, dataFinal: string): number {
   return Math.max(0, Math.floor((fim - inicio) / 86_400_000));
 }
 
+export const CATEGORIAS_DESPESA = [
+  { valor: "aluguel", rotulo: "Aluguel" },
+  { valor: "energia", rotulo: "Energia" },
+  { valor: "agua", rotulo: "Água" },
+  { valor: "internet", rotulo: "Internet e telefone" },
+  { valor: "materiais", rotulo: "Materiais" },
+  { valor: "produtos", rotulo: "Produtos e estoque" },
+  { valor: "manutencao", rotulo: "Manutenção" },
+  { valor: "comissoes", rotulo: "Comissões" },
+  { valor: "taxas_cartao", rotulo: "Taxas de cartão" },
+  { valor: "marketing", rotulo: "Marketing" },
+  { valor: "impostos", rotulo: "Impostos e taxas" },
+  { valor: "limpeza", rotulo: "Limpeza" },
+  { valor: "outros", rotulo: "Outros" },
+] as const;
+
+export type CategoriaDespesa = (typeof CATEGORIAS_DESPESA)[number]["valor"];
+
+export type MovimentoSaidaFinanceira = {
+  tipo: string;
+  categoria: string | null;
+  valor_centavos: number;
+};
+
+export type ResumoCategoriaSaida = { rotulo: string; totalCentavos: number };
+
+export function rotuloCategoriaSaida(categoria: string | null, tipo: string): string {
+  const valor = categoria?.trim().toLowerCase() ?? "";
+  if (tipo === "despesa" && (!valor || valor === "despesa")) return "Despesas sem categoria";
+  if (tipo === "saida" && (!valor || valor === "saida")) return "Outras saídas";
+  const conhecida = CATEGORIAS_DESPESA.find((item) => item.valor === valor);
+  if (conhecida) return conhecida.rotulo;
+  if (!valor) return "Sem categoria";
+  return valor.charAt(0).toLocaleUpperCase("pt-BR") + valor.slice(1).replaceAll("_", " ");
+}
+
+export function agruparSaidasPorCategoria(
+  movimentos: readonly MovimentoSaidaFinanceira[],
+): ResumoCategoriaSaida[] {
+  const totais = new Map<string, number>();
+  for (const movimento of movimentos) {
+    if (movimento.tipo !== "saida" && movimento.tipo !== "despesa") continue;
+    const rotulo = rotuloCategoriaSaida(movimento.categoria, movimento.tipo);
+    totais.set(rotulo, (totais.get(rotulo) ?? 0) + Math.max(0, movimento.valor_centavos));
+  }
+  return [...totais.entries()]
+    .map(([rotulo, totalCentavos]) => ({ rotulo, totalCentavos }))
+    .sort((a, b) => b.totalCentavos - a.totalCentavos || a.rotulo.localeCompare(b.rotulo, "pt-BR"));
+}
+
 export const FAIXAS_IDADE_FIADO = [
   { rotulo: "0–30 dias", minimo: 0, maximo: 30 },
   { rotulo: "31–60 dias", minimo: 31, maximo: 60 },
