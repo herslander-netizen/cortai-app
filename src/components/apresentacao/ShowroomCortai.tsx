@@ -31,6 +31,7 @@ import { Button } from "@/components/ui/button";
 import type { AgendaItem } from "@/lib/barbeiro.functions";
 import { brl } from "@/lib/format";
 import { SEGMENTOS_CONFIG, type Segmento } from "@/lib/segmentos";
+import type { ServicoSugerido } from "@/lib/ia/assistente";
 import { APRESENTACAO_PADRAO, type ConteudoApresentacao } from "@/lib/apresentacao-conteudo";
 
 export type EtapaShowroom = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7;
@@ -42,8 +43,19 @@ const OPCOES: Array<{ id: Segmento; rotulo: string }> = [
   { id: "esmalteria", rotulo: "Esmalteria" },
   { id: "sobrancelha_cilios", rotulo: "Sobrancelha e cílios" },
   { id: "estetica", rotulo: "Estética" },
-  { id: "outro", rotulo: "Outro" },
+  { id: "outro", rotulo: "Outro tipo de serviço" },
 ];
+
+const SERVICOS_DEMONSTRACAO_GENERICOS: ServicoSugerido[] = [
+  { nome: "Atendimento inicial", categoria: "Serviço", duracaoMin: 30, precoCentavos: 3500 },
+  { nome: "Sessão completa", categoria: "Serviço", duracaoMin: 45, precoCentavos: 5000 },
+  { nome: "Acompanhamento", categoria: "Serviço", duracaoMin: 30, precoCentavos: 2500 },
+];
+
+function servicosDaDemonstracao(segmento: Segmento): ServicoSugerido[] {
+  const configurados = SEGMENTOS_CONFIG[segmento].servicosSugeridos;
+  return configurados.length ? configurados : SERVICOS_DEMONSTRACAO_GENERICOS;
+}
 
 const FUSO = "America/Sao_Paulo";
 /** Data de hoje no fuso da demonstração (AAAA-MM-DD). */
@@ -60,7 +72,7 @@ const h = (hhmm: string) => new Date(`${DIA}T${hhmm}:00-03:00`).toISOString();
 const AGORA = new Date(h("10:18")).getTime();
 
 function itens(segmento: Segmento): AgendaItem[] {
-  const servicos = SEGMENTOS_CONFIG[segmento].servicosSugeridos;
+  const servicos = servicosDaDemonstracao(segmento);
   const base = (
     id: string,
     inicio: string,
@@ -99,15 +111,7 @@ function itens(segmento: Segmento): AgendaItem[] {
       status: "na_cadeira",
       arrivedAt: h("09:56"),
       startedAt: h("10:00"),
-      ficha: "Gosta de confirmar o acabamento antes de finalizar.",
-      preferencias: {
-        atencao: "alergia a pomada com álcool",
-        conversa: "silencio",
-        ar: "ameno",
-        bebida: "cafe",
-        musica: "MPB baixinho",
-        corte_habitual: "degradê baixo na 1, acabamento leve",
-      },
+      ficha: "Prefere confirmar os detalhes do atendimento antes de finalizar.",
     },
     {
       ...base("proximo", h("11:00"), h("11:45"), "Rafa Lima", 1),
@@ -180,7 +184,7 @@ function Foco({ segmento }: { segmento: Segmento }) {
 }
 
 function Cliente({ segmento }: { segmento: Segmento }) {
-  const servico = SEGMENTOS_CONFIG[segmento].servicosSugeridos[0];
+  const servico = servicosDaDemonstracao(segmento)[0];
   return (
     <div
       className="showroom-produto showroom-cliente"
@@ -196,7 +200,7 @@ function Cliente({ segmento }: { segmento: Segmento }) {
       </div>
       <dl>
         <div>
-          <dt>Última visita</dt>
+          <dt>Último atendimento</dt>
           <dd>Há 4 semanas</dd>
         </div>
         <div>
@@ -375,7 +379,7 @@ function Caixa({ segmento }: { segmento: Segmento }) {
 }
 
 function Lembrete({ segmento }: { segmento: Segmento }) {
-  const servico = SEGMENTOS_CONFIG[segmento].servicosSugeridos[1]?.nome ?? "Atendimento";
+  const servico = servicosDaDemonstracao(segmento)[1]?.nome ?? "Atendimento";
   const [resposta, setResposta] = useState<"aguardando" | "confirmar" | "remarcar">("aguardando");
   return (
     <div className="showroom-chat" aria-label="Demonstração do lembrete automático por WhatsApp">
