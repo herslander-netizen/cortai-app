@@ -70,7 +70,7 @@ function EsperaPage() {
       }
     >
       {pronto ? (
-        <div className="surface px-5 py-6">
+        <div className="rounded-[28px] bg-[var(--figaro-surface-container,var(--ink2))] px-5 py-6">
           <p className="text-sm text-paper">Você está na lista.</p>
           <p className="mt-1 text-xs text-mute">{status}</p>
         </div>

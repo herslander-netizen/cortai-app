@@ -109,7 +109,7 @@ function FuncionalidadesPage() {
         <EsqueletoFormulario campos={6} onTentarDeNovo={() => void q.refetch()} />
       ) : null}
       {q.isError ? (
-        <p className="rounded-3xl bg-ink2 p-4 text-sm text-mute">
+        <p className="rounded-[28px] bg-[var(--figaro-surface-container,var(--ink2))] p-4 text-sm text-mute">
           Não foi possível carregar agora. Verifique a internet e tente de novo.
         </p>
       ) : null}
@@ -120,17 +120,17 @@ function FuncionalidadesPage() {
             <span className="font-semibold text-paper">{r.ativas}</span> de {r.total}{" "}
             funcionalidades ativas
           </p>
-          <div className="space-y-6">
+          <div className="space-y-4">
             {GRUPOS_DE_FUNCIONALIDADES.map((grupo) => (
               <section key={grupo.titulo} className="space-y-2">
-                <h2 className="rotulo-secao flex items-center gap-2">
+                <h2 className="flex items-center gap-2 text-base font-semibold text-paper">
                   {(() => {
                     const Icone = ICONE_DO_GRUPO[grupo.titulo] ?? CalendarClock;
                     return <Icone className="size-4" aria-hidden />;
                   })()}
                   {grupo.titulo}
                 </h2>
-                <ul className="divide-y divide-line overflow-hidden rounded-3xl bg-ink2">
+                <ul className="space-y-2">
                   {grupo.itens.map((item) => {
                     const estado = estadoDe(item, leitura);
                     const depende = item.depende

@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Star } from "lucide-react";
 
 import { EmptyState, Screen } from "@/components/layout/Screen";
+import { Card } from "@/components/ui/card";
 import { brl } from "@/lib/format";
 import { getCarteira, type Movimento } from "@/lib/carteira.functions";
 import { EsqueletoFicha } from "@/components/layout/Esqueleto";
@@ -129,7 +130,7 @@ function CarteiraPage() {
 
       {data ? (
         <>
-          <div className="flex min-h-[118px] overflow-hidden rounded-xl border-0 bg-[var(--agenda-cartao,var(--ink2))]">
+          <Card density="default" className="flex min-h-[118px] overflow-hidden rounded-[28px] bg-[var(--figaro-surface-container,var(--ink2))] p-0">
             <div
               className={`w-1.5 shrink-0 ${negativo ? "bg-brick" : "barber-pole"}`}
               aria-hidden="true"
@@ -156,7 +157,7 @@ function CarteiraPage() {
                 </p>
               ) : null}
             </div>
-          </div>
+          </Card>
 
           {data.fidelidade.alvo ? (
             <CartaoFidelidade
@@ -169,17 +170,16 @@ function CarteiraPage() {
           {data.movimentos.length === 0 ? (
             <EmptyState text="Nenhum lançamento por enquanto." />
           ) : (
-            <ul>
+            <ul className="space-y-2">
               {data.movimentos.map((m) => (
-                <li
-                  key={m.id}
-                  className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4 border-b border-line py-4"
-                >
+                <li key={m.id}>
+                  <Card density="default" className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4">
                   <div className="min-w-0">
                     <p className="text-sm text-paper">{rotuloMovimento(m)}</p>
                     <p className="mt-0.5 text-xs text-mute2">{dataCurta(m.criado_em)}</p>
                   </div>
                   <Delta m={m} />
+                  </Card>
                 </li>
               ))}
             </ul>

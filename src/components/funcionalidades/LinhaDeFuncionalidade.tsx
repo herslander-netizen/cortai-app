@@ -7,7 +7,7 @@ import type { EstadoDaFuncionalidade, Funcionalidade } from "@/lib/funcionalidad
 const SELO: Record<EstadoDaFuncionalidade, { texto: string; classe: string }> = {
   ativo: { texto: "Ativo", classe: "bg-sage/15 text-sage" },
   desativado: { texto: "Desativado", classe: "bg-ink3 text-mute" },
-  fora_do_plano: { texto: "Disponível", classe: "bg-gold/15 text-gold" },
+  fora_do_plano: { texto: "Disponível", classe: "bg-[var(--figaro-primary-container)] text-[var(--figaro-primary)]" },
   sempre: { texto: "Na própria tela", classe: "bg-ink3 text-mute" },
 };
 
@@ -31,7 +31,7 @@ export function LinhaDeFuncionalidade({
   const selo = SELO[estado];
   const comInterruptor = estado === "ativo" || estado === "desativado";
   return (
-    <li className="flex min-h-16 items-center gap-3 px-4 py-3">
+    <li className="flex min-h-16 items-center gap-3 rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))] px-4 py-3">
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-2">
           <p className="text-[16px] font-medium text-paper">{item.rotulo}</p>
@@ -47,7 +47,7 @@ export function LinhaDeFuncionalidade({
         {item.configurar && estado !== "fora_do_plano" ? (
           <Link
             to={item.configurar}
-            className="mt-1 inline-flex min-h-8 items-center gap-0.5 text-[13px] font-medium text-gold"
+            className="mt-1 inline-flex min-h-8 items-center gap-0.5 text-[13px] font-medium text-[var(--figaro-primary,var(--primary))]"
           >
             Configurar <ChevronRight className="size-3.5" aria-hidden />
           </Link>

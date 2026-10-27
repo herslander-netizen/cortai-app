@@ -5,6 +5,7 @@ import { useState } from "react";
 
 import { EmptyState, Screen } from "@/components/layout/Screen";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { brl, dataHoraLonga } from "@/lib/format";
 import {
   cancelarAgendamento,
@@ -114,7 +115,7 @@ function HistoricoPage() {
       {lista.data && lista.data.length === 0 ? (
         <div>
           <EmptyState text="Você ainda não tem agendamentos." />
-          <Button asChild className="mt-4 h-14 w-full text-base">
+          <Button asChild variant="primary" size="lg" className="mt-4 w-full text-base">
             <Link to="/app/agendar" search={slug ? { b: slug } : {}}>
               Agendar meu horário
             </Link>
@@ -129,10 +130,11 @@ function HistoricoPage() {
           </p>
           <div className="space-y-3">
             {proximos.map((p, indice) => (
-              <div
+              <Card
+                density="default"
                 key={p.id}
                 {...(indice === 0 ? { "data-guia": "historico-proximo" } : {})}
-                className="mt-3 rounded-xl border-0 bg-[var(--agenda-cartao,var(--ink2))] px-4 py-4"
+                className="mt-3 rounded-[28px] bg-[var(--figaro-surface-container,var(--ink2))]"
               >
                 <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4">
                   <div className="min-w-0">
@@ -148,13 +150,13 @@ function HistoricoPage() {
                   </div>
                   <StatusAgendamento status={p.status} />
                 </div>
-                <p className="mt-3 flex items-center justify-between border-t border-line pt-3 text-xs">
+                <p className="mt-3 flex items-center justify-between gap-3 text-xs">
                   <span className="text-mute">{rotuloForma(p.forma_pagamento)}</span>
                   <span className="font-semibold text-paper">{valorDoItem(p)}</span>
                 </p>
                 <div
                   {...(indice === 0 ? { "data-guia": "historico-acoes" } : {})}
-                  className="mt-3 flex gap-2 border-t border-line pt-3"
+                  className="mt-3 flex flex-wrap gap-2"
                 >
                   <Button asChild variant="ghost" size="sm" className="text-mute hover:text-paper">
                     <Link to="/app/agendar" search={slug ? { b: slug } : {}}>
@@ -171,7 +173,7 @@ function HistoricoPage() {
                     {cancelando === p.id ? "Cancelando…" : "Cancelar"}
                   </Button>
                 </div>
-              </div>
+              </Card>
             ))}
           </div>
         </section>
@@ -180,12 +182,10 @@ function HistoricoPage() {
       {anteriores.length ? (
         <h2 className="mb-1 mt-8 text-xs font-semibold uppercase text-mute">Histórico</h2>
       ) : null}
-      <ul>
+      <ul className="space-y-2">
         {anteriores.map((a) => (
-          <li
-            key={a.id}
-            className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4 border-b border-line py-4"
-          >
+          <li key={a.id}>
+            <Card density="default" className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4">
             <div className="min-w-0">
               <p className="text-sm text-paper">{a.servicos?.nome ?? "Serviço"}</p>
               <p className="mt-0.5 text-xs text-mute">
@@ -198,6 +198,7 @@ function HistoricoPage() {
                 </span>
               </p>
             </div>
+            </Card>
           </li>
         ))}
       </ul>
