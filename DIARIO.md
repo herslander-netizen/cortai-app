@@ -494,7 +494,6 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Em andamento
 
-- GPT | 2026-10-27 UTC | CortAI: resolver referências conversacionais com segurança ("esse cliente", "aquele horário", "ele") e auditar que as capacidades do chat correspondem às ações/permissões reais; ampliar testes de ambiguidade, falha de ferramenta e linguagem informal | `DIARIO.md`, `src/lib/brain/agente.server.ts`, `src/lib/brain/acoes.server.ts`, testes do cérebro; sem migração
 
 
 - GPT | 2026-10-27 UTC | Auditoria mobile-first dos botões e telas fora do padrão: começar pelo defeito visível em PersonalizacaoCliente (switch WhatsApp deformado/quebrando linha), padronizar com o primitivo Switch e revisar os achados de botões/controles nas telas não reservadas; definir inventário de páginas e corrigir em lotes validados. Excluir Agenda e não mexer em regras/backend/bancos | `DIARIO.md`, `src/components/barbeiro/PersonalizacaoCliente.tsx`, testes UI/estilo e inventário UX; sem migração |
@@ -758,6 +757,8 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - Documentação adicionada: docs/auditoria-inbarber-cortai-2026-10-26.md e docs/propostas/widget-android-inbarber-cortai.md. O widget permanece especificado, não implementado: o repositório não tem projeto Android nativo, pacote/assinatura ou fluxo de autenticação para o widget.
 - Sem mudanças na interface da Agenda, migrações, bancos de dados, segredos, main ou site principal. TypeScript, Vitest, build e smoke test aguardam a validação automática do commit.
 ## Diário
+
+- GPT | 2026-10-27 UTC | CortAI: reforçado o contexto de conversação para referências ambíguas, revalidação antes de escrita e respeito às ferramentas/permissões do canal. Pedidos pendentes ficam preservados durante perguntas paralelas; correções geram nova proposta, não execução direta. Corrigida também a precedência de mensagens mistas como "sim, na verdade muda para 16h": a correção agora tem prioridade sobre confirmação/recusa para impedir executar o pedido antigo. Testes de contexto, catálogo de ferramentas e correção mista adicionados. Workflow 40457878556 passou build, TypeScript, testes e deploy isolado com smoke test; workflow mais recente após a correção de precedência ainda precisa terminar. Sem migração; produção, banco real e site principal intocados. | src/lib/brain/agente.server.ts, src/lib/brain/agente-barreira.test.ts, src/lib/brain/papeis.test.ts, src/lib/brain/agente-execucao-direta.test.ts; sem migração |
 
 - GPT | 2026-10-27 UTC | CortAI: protegidos pedidos pendentes quando a pessoa faz uma pergunta paralela ou corrige cliente/serviço/horário. Perguntas fora do pedido preservam a pendência e bloqueiam nova escrita; correções não contam como confirmação, geram nova proposta e não podem executar diretamente. Se a correção não puder ser preparada, o pedido anterior é preservado e a resposta deixa claro que nada mudou. Testes de guarda e integração adicionados. Build, TypeScript, testes e publicação isolada com smoke test passaram no workflow 40457213357. Sem migração; produção, banco real e site principal intocados. | src/lib/brain/guardas.ts, src/lib/brain/guardas.test.ts, src/lib/brain/agente.server.ts, src/lib/brain/agente-barreira.test.ts, src/lib/brain/agente-execucao-direta.test.ts; sem migração |
 
