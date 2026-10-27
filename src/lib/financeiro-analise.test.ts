@@ -1,9 +1,11 @@
 import { describe, expect, it } from "vitest";
 import {
+  agruparSaidasPorCategoria,
   classificarIdadeFiado,
   dataISOEmFuso,
   diasEntreDatas,
   intervaloFinanceiroLocal,
+  rotuloCategoriaSaida,
   rotuloIdadeFiado,
   variacaoPercentual,
 } from "./financeiro-analise";
@@ -73,6 +75,26 @@ describe("idade do fiado", () => {
     expect(rotuloIdadeFiado(0)).toBe("Hoje");
     expect(rotuloIdadeFiado(1)).toBe("Há 1 dia");
     expect(rotuloIdadeFiado(34)).toBe("Há 34 dias");
+  });
+});
+
+describe("categorias de saídas", () => {
+  it("agrupa despesas por categoria, soma valores e ordena da maior para a menor", () => {
+    expect(
+      agruparSaidasPorCategoria([
+        { tipo: "despesa", categoria: "energia", valor_centavos: 1200 },
+        { tipo: "despesa", categoria: "energia", valor_centavos: 300 },
+        { tipo: "saida", categoria: "saida", valor_centavos: 2000 },
+        { tipo: "sangria", categoria: "sangria", valor_centavos: 9000 },
+      ]),
+    ).toEqual([
+      { rotulo: "Outras saídas", totalCentavos: 2000 },
+      { rotulo: "Energia", totalCentavos: 1500 },
+    ]);
+  });
+
+  it("mantém as despesas antigas identificadas como sem categoria", () => {
+    expect(rotuloCategoriaSaida("despesa", "despesa")).toBe("Despesas sem categoria");
   });
 });
 
