@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { ChevronRight, LogOut, Repeat, UserRound, Wallet } from "lucide-react";
 
 import { Screen } from "@/components/layout/Screen";
+import { Card } from "@/components/ui/card";
 import { AlterarSenha } from "@/components/acesso/AlterarSenha";
 import { PreferenciasDicas } from "@/components/guia/PreferenciasDicas";
 import { InstalarCortai } from "@/components/pwa/InstalarCortai";
@@ -52,57 +53,63 @@ function PerfilPage() {
       ) : null}
       {data ? (
         <>
-          <div className="flex items-center gap-4 border-b border-line pb-6">
-            <span className="flex h-14 w-14 items-center justify-center rounded-full bg-ink2 text-gold">
+          <Card density="default" className="flex items-center gap-4 rounded-[28px]">
+            <span className="flex h-14 w-14 items-center justify-center rounded-full bg-[var(--figaro-primary-container,var(--ink2))] text-[var(--figaro-primary,var(--primary))]">
               <UserRound size={22} />
             </span>
             <div className="min-w-0">
               <p className="truncate font-semibold text-paper">{data?.nome ?? "Meu perfil"}</p>
               <p className="mt-1 truncate text-xs text-mute">{data?.email ?? "Conta conectada"}</p>
             </div>
-          </div>
-          <ul className="mt-3">
-            <li className="border-b border-line">
+          </Card>
+          <ul className="mt-3 space-y-2">
+            <li>
+              <Card asChild variant="touchable" density="none">
               <Link
                 to="/app/carteira"
                 search={slug ? { b: slug } : {}}
-                className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4 py-5"
+                className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4 px-4 py-3"
               >
                 <Wallet size={18} className="text-mute" />
                 <span className="text-sm text-paper">Carteira e fidelidade</span>
                 <ChevronRight size={16} className="text-mute2" />
               </Link>
+              </Card>
             </li>
             <li>
-              <AlterarSenha />
+              <AlterarSenha emGrupo />
             </li>
             <li>
-              <ThemeToggle />
+              <ThemeToggle emGrupo />
             </li>
             <li>
-              <InstalarCortai />
+              <InstalarCortai emGrupo />
             </li>
-            <li className="border-b border-line">
+            <li>
+              <Card asChild variant="touchable" density="none">
               <Link
                 to="/escolher"
-                className="grid min-h-12 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4 py-5"
+                className="grid min-h-12 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4 px-4 py-3"
               >
                 <Repeat size={18} className="text-mute" />
                 <span className="text-sm text-paper">Trocar de perfil</span>
                 <ChevronRight size={16} className="text-mute2" />
               </Link>
+              </Card>
             </li>
-            <li className="border-b border-line">
+            <li>
+              <Card density="none" className="overflow-hidden rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))]">
               <Button
                 type="button"
                 variant="ghost"
                 onClick={() => void sair()}
-                className="min-h-12 w-full grid-cols-[auto_minmax(0,1fr)_auto] justify-start gap-4 py-5 text-left"
+                className="min-h-12 w-full grid-cols-[auto_minmax(0,1fr)_auto] justify-start gap-4 px-4 py-3 text-left"
               >
                 <LogOut size={18} className="text-mute" />
                 <span className="text-sm text-paper">Sair da conta</span>
                 <ChevronRight size={16} className="text-mute2" />
               </Button>
+              </Card>
             </li>
           </ul>
           <SegurancaDaConta />

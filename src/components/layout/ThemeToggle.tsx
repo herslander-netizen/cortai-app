@@ -35,10 +35,12 @@ export function ThemeToggle({
   identidadeDaBarbearia,
   tenantId,
   podeAlterarIdentidade = false,
+  emGrupo = false,
 }: {
   identidadeDaBarbearia?: string | undefined;
   tenantId?: string | undefined;
   podeAlterarIdentidade?: boolean | undefined;
+  emGrupo?: boolean | undefined;
 }) {
   const queryClient = useQueryClient();
   const salvarIdentidade = useServerFn(salvarIdentidadeApp);
@@ -90,7 +92,7 @@ export function ThemeToggle({
   }
 
   return (
-    <section className="border-b border-line py-5" aria-labelledby="aparencia-titulo">
+    <section className={emGrupo ? "rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))] p-4" : "border-b border-line py-5"} aria-labelledby="aparencia-titulo">
       <div className="flex min-h-12 items-center gap-3">
         <Palette size={18} strokeWidth={1.75} className="shrink-0 text-mute" />
         <span className="min-w-0">

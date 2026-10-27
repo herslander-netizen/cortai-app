@@ -19,7 +19,7 @@ export function AlterarSenha({ emGrupo = false }: { emGrupo?: boolean }) {
   const [salvando, setSalvando] = useState(false);
 
   return (
-    <div className={emGrupo ? undefined : "border-b border-line"}>
+    <div className={emGrupo ? "overflow-hidden rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))]" : "border-b border-line"}>
       <Button
         type="button"
         variant="ghost"
