@@ -40,11 +40,18 @@ function montar() {
 }
 
 describe("PreferenciasAposAgendamento", () => {
-  it("aparece após a confirmação e mantém Salvar desabilitado sem seleção", () => {
+  it("mostra um convite compacto e só abre as opções quando a pessoa pede", () => {
     montar();
-    expect(host?.textContent).toContain("Agendado!");
+    expect(host?.textContent).toContain("Deixe seu atendimento do seu jeito");
+    expect(host?.textContent).toContain("Seu horário já está confirmado.");
+    expect(host?.textContent).not.toContain("Música favorita");
+    const personalizar = Array.from(host?.querySelectorAll("button") ?? []).find(
+      (b) => b.textContent?.includes("Personalizar atendimento"),
+    );
+    act(() => personalizar?.click());
+    expect(host?.textContent).toContain("Música favorita");
     const salvar = Array.from(host?.querySelectorAll("button") ?? []).find(
-      (b) => b.textContent === "Salvar",
+      (b) => b.textContent?.includes("Salvar preferências"),
     );
     expect(salvar?.disabled).toBe(true);
   });
@@ -63,11 +70,15 @@ describe("PreferenciasAposAgendamento", () => {
 
   it("habilita Salvar depois de uma seleção e permite desmarcar", () => {
     montar();
+    const personalizar = Array.from(host?.querySelectorAll("button") ?? []).find(
+      (b) => b.textContent?.includes("Personalizar atendimento"),
+    );
+    act(() => personalizar?.click());
     const opcao = Array.from(host?.querySelectorAll("button") ?? []).find(
       (b) => b.textContent === "Gosta de papo",
     );
     const salvar = Array.from(host?.querySelectorAll("button") ?? []).find(
-      (b) => b.textContent === "Salvar",
+      (b) => b.textContent?.includes("Salvar preferências"),
     );
     act(() => opcao?.click());
     expect(salvar?.disabled).toBe(false);
