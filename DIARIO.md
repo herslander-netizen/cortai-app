@@ -494,6 +494,8 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Em andamento
 
+- GPT | 2026-10-27 UTC | Diagnóstico e correção do CortAI: validar configuração Ollama Cloud/LocalAI, observabilidade segura e painel mobile em 360/390 px; sem tocar Agenda, banco, secrets ou produção | `DIARIO.md`, `MUSE.md`, `src/lib/brain/gateway.server.ts`, `src/lib/brain/gateway-compativel.server.ts`, testes do gateway, `src/components/ia/FolhaCortai.tsx`, `src/components/ia/AssistenteCortai.tsx`, `src/styles.css`, testes do painel; sem migração |
+
 
 - GPT | 2026-10-27 UTC | Auditoria mobile-first dos botões e telas fora do padrão: começar pelo defeito visível em PersonalizacaoCliente (switch WhatsApp deformado/quebrando linha), padronizar com o primitivo Switch e revisar os achados de botões/controles nas telas não reservadas; definir inventário de páginas e corrigir em lotes validados. Excluir Agenda e não mexer em regras/backend/bancos | `DIARIO.md`, `src/components/barbeiro/PersonalizacaoCliente.tsx`, testes UI/estilo e inventário UX; sem migração |
 
