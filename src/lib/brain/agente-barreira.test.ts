@@ -14,6 +14,7 @@ const estado = vi.hoisted(() => ({
   falhar: false,
   chamadasIa: 0,
   bloqueio: null as string | null,
+  instrucoes: [] as string[],
 }));
 
 vi.mock("./uso.server", () => ({
@@ -28,7 +29,8 @@ vi.mock("./gateway.server", () => ({
   ErroDoGateway: class extends Error {},
   textoDaSaida: (s: any[]) => s[0]?.content ?? "",
   criarSessaoDoGateway: () => ({
-    responder: async () => {
+    responder: async ({ instrucoes }: { instrucoes: string }) => {
+      estado.instrucoes.push(instrucoes);
       estado.chamadasIa += 1;
       return [{ type: "message", content: estado.respostaDaIa }];
     },
@@ -83,6 +85,18 @@ beforeEach(() => {
   estado.falhar = false;
   estado.chamadasIa = 0;
   estado.bloqueio = null;
+  estado.instrucoes = [];
+});
+
+describe("contexto e capacidades da CortAI", () => {
+  it("instrui o modelo a resolver referências sem adivinhar e revalidar antes de escrever", async () => {
+    await pensar("quem é esse cliente?", false);
+    const instrucoes = estado.instrucoes[0] ?? "";
+    expect(instrucoes).toContain("Contexto conversacional");
+    expect(instrucoes).toContain("o histórico sozinho não prova que o horário continua livre");
+    expect(instrucoes).toContain("Capacidades");
+    expect(instrucoes).toContain("Prepare uma nova proposta e exija confirmação");
+  });
 });
 
 describe("números nunca confirmam ação da IA", () => {

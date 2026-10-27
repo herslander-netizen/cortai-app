@@ -1,8 +1,10 @@
 import { describe, expect, it, vi } from "vitest";
 vi.mock("@/lib/ia/acoes.server", () => ({ ACOES_DO_AGENTE: {} }));
 import {
+  ACOES,
   acaoPermitida,
   atendimentoDeOutroProfissional,
+  ferramentasDoContexto,
   type ContextoDoCerebro,
 } from "./acoes.server";
 import { papelDoPainel } from "./papel-do-painel";
@@ -24,6 +26,24 @@ const prof: ContextoDoCerebro = {
 const dono: ContextoDoCerebro = { ...base, canal: "whatsapp", papel: "dono" };
 const painel: ContextoDoCerebro = { ...base, canal: "painel" };
 const site: ContextoDoCerebro = { ...base, canal: "site" };
+
+describe("catálogo de ferramentas oferecidas à CortAI", () => {
+  it.each([cliente, prof, dono, painel, site])("só oferece ações existentes e autorizadas para o contexto", (ctx) => {
+    const ferramentas = ferramentasDoContexto(ctx);
+    expect(ferramentas.every((f) => Boolean(ACOES[f.name]))).toBe(true);
+    expect(ferramentas.every((f) => acaoPermitida(f.name, ctx))).toBe(true);
+    if (ctx.canal === "site") {
+      expect(ferramentas.every((f) => ACOES[f.name]?.risco !== "escrita")).toBe(true);
+    }
+    if (ctx.canal === "whatsapp") {
+      for (const f of ferramentas) {
+        if (ACOES[f.name]?.risco === "escrita") {
+          expect(f.description).toContain("só executa depois que a pessoa confirmar");
+        }
+      }
+    }
+  });
+});
 
 describe("permissões por papel no WhatsApp", () => {
   it("cliente agenda, remarca e cancela, mas não vê agenda da equipe nem indicadores", () => {
