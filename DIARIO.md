@@ -746,6 +746,14 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - Sem mudanças na interface da Agenda, migrações, bancos de dados, segredos, main ou site principal. TypeScript, Vitest, build e smoke test aguardam a validação automática do commit.
 ## Diário
 
+### 2026-10-27 UTC — GPT — Gateway de IA com fallback opcional Ollama Cloud → LocalAI
+- O gateway continua com um único cérebro e as mesmas ferramentas/guardas. Adicionado provedor secundário opcional via `CORTAI_AI_FALLBACK_*`, sem mudar o provedor primário já configurado.
+- O secundário só é tentado após 429, 5xx, timeout ou falha de rede do primário. Erros 401/402/403 não são mascarados. A observabilidade registra a falha do primário e o resultado do secundário sem conteúdo de conversa.
+- Testes adicionados para configuração completa/incompleta, fallback em 503 e ausência de fallback em 402. Documentação de variáveis e limites atualizada em `MUSE.md`.
+- Commits: `5000869`, `bf6b607`, `1200d66`, `a4a800b`, `a558122`, `796cad8`, `06ca939`, `ab3d1e2`.
+- **Validação pendente:** não há execução de TypeScript/Vitest/build confirmada neste ambiente e o status de CI ainda não retornou checks. Manter a tarefa reservada até confirmar o workflow e corrigir eventuais falhas.
+- **Não ativado em runtime:** nenhuma chave ou URL de provedor foi adicionada aos secrets; não houve hospedagem criada nem custo iniciado. O dono precisa configurar os secrets da prévia e testar o serviço LocalAI HTTPS antes de habilitar o fallback.
+
 ### 2026-10-26 UTC — GPT — Define o gatilho “Modo dev”
 - Registrado em `AGENTS.md` o modo de execução autônoma: investigar, implementar diretamente, revisar efeitos colaterais, validar e informar evidências sem parar a cada etapa reversível.
 - Registrado em “Decisões do dono” que a frase exata **“Modo dev”** ativa esse comportamento. Foi explícito que isso reproduz apenas o fluxo de trabalho apreciado, sem voltar a usar Lovable.
