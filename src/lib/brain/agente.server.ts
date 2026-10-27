@@ -308,7 +308,7 @@ async function pensarCortaiComTurno(
     // Número solto nunca confirma ação da IA: mantém a pendente e pede SIM/NÃO.
     return fim(TEXTO_PEDIR_SIM_OU_NAO, anterior);
   }
-  if (anterior && confirmacaoInequivoca(input.mensagem, anterior.acao)) {
+  if (anterior && !pedidoDeAjustePendente && confirmacaoInequivoca(input.mensagem, anterior.acao)) {
     if (input.consumirPendente) {
       let consumida: boolean;
       try {
@@ -345,7 +345,7 @@ async function pensarCortaiComTurno(
         msg,
       );
     }
-  } else if (anterior && recusaInequivoca(input.mensagem)) {
+  } else if (anterior && !pedidoDeAjustePendente && recusaInequivoca(input.mensagem)) {
     obs.definirEstado("acao_recusada");
     return fim(TEXTO_RECUSA_DA_PENDENTE, null);
   }
