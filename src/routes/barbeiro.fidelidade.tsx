@@ -160,9 +160,9 @@ function FidelidadePage() {
       ) : null}
 
       <Button
-        variant="ghost"
+        variant="primary"
         type="button"
-        className="btn-primary mt-6 w-full"
+        className="mt-6 w-full"
         disabled={acao.ocupado}
         onClick={() =>
           acao.executar("fidelidade", () => salvar({ data: { ativo, alvo } }), {
