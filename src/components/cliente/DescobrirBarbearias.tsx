@@ -26,7 +26,7 @@ export function DescobrirBarbearias({
   const resultados = (consulta.data ?? []).slice(0, discreto ? 6 : 100);
 
   return (
-    <section className={discreto ? "mt-12 border-t border-line pt-8" : ""}>
+    <section className={discreto ? "mt-8" : ""}>
       {discreto ? (
         <>
           <h2 className="text-xs font-semibold uppercase tracking-[0.18em] text-mute2">
@@ -36,7 +36,7 @@ export function DescobrirBarbearias({
         </>
       ) : (
         <>
-          <h2 className="text-[26px] font-bold leading-tight text-paper">{titulo}</h2>
+          <h2 className="text-3xl font-bold leading-tight tracking-tight text-paper">{titulo}</h2>
           <p className="mt-2 text-sm text-mute">
             Busque pelo nome ou endereço. Nenhum lugar é escolhido para você.
           </p>
@@ -45,7 +45,7 @@ export function DescobrirBarbearias({
 
       <label className={discreto ? "mt-4 block" : "mt-6 block"}>
         <span className="sr-only">Buscar lugar</span>
-        <span className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3 rounded-xl border-0 bg-[var(--agenda-cartao,var(--ink2))] px-4">
+        <span className="grid min-h-[52px] grid-cols-[auto_minmax(0,1fr)] items-center gap-3 rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))] px-4">
           <Search size={17} className="text-mute" aria-hidden />
           <input
             value={termo}
@@ -84,7 +84,7 @@ export function DescobrirBarbearias({
               <Link
                 to="/b/$slug"
                 params={{ slug: barbearia.slug }}
-                className={`flex items-center justify-between gap-4 px-5 ${discreto ? "min-h-[56px] py-3" : "min-h-[72px] py-4"}`}
+                className={`flex items-center justify-between gap-4 rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))] px-4 transition-transform duration-200 active:scale-[0.99] ${discreto ? "min-h-[56px] py-3" : "min-h-[72px] py-4"}`}
               >
                 <span className="min-w-0">
                   <span

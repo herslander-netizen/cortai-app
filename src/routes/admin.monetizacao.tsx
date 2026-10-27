@@ -88,7 +88,7 @@ function MonetizacaoPage() {
       </nav>
       <Link
         to="/admin/recursos"
-        className="mb-6 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 surface px-4 py-3 text-sm text-paper"
+        className="mb-4 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))] px-4 py-3 text-sm text-paper"
       >
         <span>
           <span className="block font-semibold">Recursos e limites dos planos</span>
@@ -96,7 +96,7 @@ function MonetizacaoPage() {
             Defina o que cada plano libera, sem alterar preços.
           </span>
         </span>
-        <span className="text-xs text-gold">Abrir</span>
+        <span className="text-sm font-medium text-[var(--figaro-primary,var(--primary))]">Abrir</span>
       </Link>
       {aba === "Planos e preços" ? <AbaPlanos /> : null}
       {aba === "Por negócio" ? <AbaBarbearia /> : null}
@@ -151,9 +151,9 @@ function AbaPlanos() {
         </Aviso>
       ) : null}
 
-      <ul className="space-y-3">
+      <ul className="space-y-2">
         {query.data.map((p) => (
-          <li key={p.id} className="surface px-4 py-4">
+          <li key={p.id} className="rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))] px-4 py-4">
             <div className="flex items-start justify-between gap-4">
               <div>
                 <p className="text-sm font-semibold text-paper">

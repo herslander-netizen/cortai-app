@@ -5,6 +5,7 @@ import { useState } from "react";
 import { Aviso } from "@/components/ui/aviso";
 import { Button } from "@/components/ui/button";
 import { MarcaCortai } from "@/components/marca/MarcaCortai";
+import { Signature } from "@/components/layout/Signature";
 import { supabase } from "@/integrations/supabase/client";
 import { entrarComProvedor } from "@/lib/auth/entrar-com-provedor";
 import { destinoDoPapel } from "@/lib/guarda";
@@ -64,9 +65,9 @@ function VisitantePage() {
   }
 
   return (
-    <main className="mx-auto flex min-h-screen w-full max-w-[430px] flex-col px-6 pb-8 pt-12">
+    <main className="mx-auto flex min-h-screen w-full max-w-[430px] flex-col px-4 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-4">
       <MarcaCortai variante="automatica" className="h-auto w-44" prioridade />
-      <h1 className="mt-2 max-w-xs text-[30px] font-bold leading-tight text-paper">
+      <h1 className="mt-3 text-3xl font-bold leading-tight tracking-tight text-paper">
         {modo === "criar" ? "Crie sua conta de cliente." : "Entre para agendar seu horário."}
       </h1>
       <p className="mt-3 text-sm leading-relaxed text-mute">
@@ -74,7 +75,7 @@ function VisitantePage() {
       </p>
 
       <form
-        className="mt-8 space-y-4"
+        className="mt-6 space-y-4"
         onSubmit={async (event) => {
           event.preventDefault();
           setErro(null);
@@ -119,7 +120,7 @@ function VisitantePage() {
         {modo === "criar" ? (
           <label className="block text-xs font-medium text-mute">
             Seu nome
-            <span className="mt-2 grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3 rounded-xl border-0 bg-[var(--agenda-cartao,var(--ink2))] px-4">
+            <span className="mt-2 grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3 rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))] px-4">
               <User size={17} aria-hidden />
               <input
                 value={nome}
@@ -133,7 +134,7 @@ function VisitantePage() {
         ) : null}
         <label className="block text-xs font-medium text-mute">
           E-mail
-          <span className="mt-2 grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3 rounded-xl border-0 bg-[var(--agenda-cartao,var(--ink2))] px-4">
+          <span className="mt-2 grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3 rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))] px-4">
             <Mail size={17} aria-hidden />
             <input
               value={email}
@@ -147,7 +148,7 @@ function VisitantePage() {
         </label>
         <label className="block text-xs font-medium text-mute">
           Senha
-          <span className="mt-2 grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3 rounded-xl border-0 bg-[var(--agenda-cartao,var(--ink2))] px-4">
+          <span className="mt-2 grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3 rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))] px-4">
             <LockKeyhole size={17} aria-hidden />
             <input
               value={senha}
@@ -166,7 +167,7 @@ function VisitantePage() {
           </p>
         ) : null}
         {aviso ? <Aviso tom="info">{aviso}</Aviso> : null}
-        <Button className="h-12 w-full font-bold" disabled={enviando}>
+        <Button variant="primary" size="lg" className="w-full font-bold" disabled={enviando}>
           {enviando ? "Aguarde…" : modo === "criar" ? "Criar minha conta" : "Entrar"}
         </Button>
         {modo === "entrar" ? (
@@ -181,7 +182,7 @@ function VisitantePage() {
 
       <button
         type="button"
-        className="mt-4 h-12 w-full rounded-xl border-0 bg-[var(--agenda-cartao,var(--ink2))] text-sm font-semibold text-paper"
+        className="mt-4 h-12 w-full rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))] text-sm font-semibold text-paper transition-transform duration-200 active:scale-[0.99]"
         disabled={enviando}
         onClick={async () => {
           setErro(null);
@@ -231,9 +232,9 @@ function VisitantePage() {
         Tenho uma barbearia no Cortaí
       </Link>
 
-      <footer className="mt-auto pt-10 text-center">
-        <p className="text-xs uppercase tracking-[0.18em] text-mute2">by Alvo Digital</p>
-      </footer>
+      <div className="mt-auto pt-6">
+        <Signature variant="app" />
+      </div>
     </main>
   );
 }

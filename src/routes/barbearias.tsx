@@ -30,29 +30,29 @@ export const Route = createFileRoute("/barbearias")({
 
 function BarbeariasPage() {
   return (
-    <div className="mx-auto flex min-h-screen w-full max-w-[520px] flex-col px-5 pb-10 pt-8">
+    <div className="mx-auto flex min-h-screen w-full max-w-[520px] flex-col px-4 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-4">
       <header className="flex items-center justify-between gap-4">
         <Link
           to="/apresentacao"
-          className="-ml-2 inline-flex min-h-11 items-center gap-2 px-2 text-sm text-mute transition-colors hover:text-paper"
+          className="inline-flex min-h-11 items-center gap-2 rounded-full bg-[var(--figaro-surface-container,var(--ink2))] px-4 text-sm text-paper transition-transform duration-200 active:scale-[0.98]"
         >
           <ArrowLeft size={16} aria-hidden />
           Cortaí
         </Link>
         <Link
           to="/login"
-          className="-mr-2 inline-flex min-h-11 items-center px-2 text-sm font-semibold text-paper"
+          className="inline-flex min-h-11 items-center rounded-full bg-[var(--figaro-primary-container,var(--ink2))] px-4 text-sm font-semibold text-[var(--figaro-primary,var(--primary))] transition-transform duration-200 active:scale-[0.98]"
         >
           Entrar
         </Link>
       </header>
 
-      <main className="flex-1 pt-10">
+      <main className="flex-1 pt-6">
         <DescobrirBarbearias />
         <FaixaDeParceiros />
       </main>
 
-      <Signature />
+      <Signature variant="app" />
     </div>
   );
 }

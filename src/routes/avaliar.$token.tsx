@@ -81,7 +81,7 @@ function AvaliacaoPage() {
   if (!convite.data) throw notFound();
   if (envio.data) {
     return (
-      <main className="mx-auto flex min-h-screen max-w-[520px] flex-col justify-center px-6 py-12 text-center">
+      <main className="mx-auto flex min-h-screen max-w-[520px] flex-col justify-center px-4 py-6 text-center">
         <h1 className="text-2xl font-bold text-paper">Obrigado por nos contar.</h1>
         <p className="mt-3 text-sm leading-relaxed text-mute">
           {envio.data.positiva
@@ -95,35 +95,35 @@ function AvaliacaoPage() {
             </a>
           </Button>
         ) : null}
-        <Signature />
+        <Signature variant="app" />
       </main>
     );
   }
 
   return (
-    <main className="mx-auto flex min-h-screen w-full max-w-[520px] flex-col px-6 pb-10 pt-12">
-      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-gold">
+    <main className="mx-auto flex min-h-screen w-full max-w-[520px] flex-col px-4 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-5">
+      <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[var(--figaro-primary,var(--primary))]">
         {convite.data.negocio}
       </p>
-      <h1 className="mt-3 text-3xl font-bold text-paper">Como foi sua experiência?</h1>
+      <h1 className="mt-3 text-3xl font-bold leading-tight tracking-tight text-paper">Como foi sua experiência?</h1>
       <p className="mt-2 text-sm text-mute">{convite.data.servico} · leva menos de um minuto.</p>
 
       <form
-        className="mt-8 space-y-7"
+        className="mt-6 space-y-4"
         onSubmit={(evento) => {
           evento.preventDefault();
           if (nota) envio.mutate();
         }}
       >
-        <section className="surface p-5">
+        <section className="rounded-[28px] bg-[var(--figaro-surface-container,var(--ink2))] p-5">
           <h2 className="text-sm font-semibold text-paper">Nota geral</h2>
           <div className="mt-3">
             <Estrelas valor={nota} aoMudar={setNota} rotulo="Nota geral" />
           </div>
         </section>
-        <section className="surface divide-y divide-line px-5">
+        <section className="grid gap-2 rounded-[28px] bg-[var(--figaro-surface-container,var(--ink2))] p-4">
           {DIMENSOES.map(([chave, rotulo]) => (
-            <div key={chave} className="py-4">
+            <div key={chave} className="rounded-[12px] bg-[var(--figaro-surface-container-high,var(--ink3))] px-4 py-3">
               <p className="text-sm text-paper">
                 {rotulo} <span className="text-mute2">(opcional)</span>
               </p>
@@ -154,7 +154,7 @@ function AvaliacaoPage() {
           </p>
         ) : null}
       </form>
-      <Signature />
+      <Signature variant="app" />
     </main>
   );
 }

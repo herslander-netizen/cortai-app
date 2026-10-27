@@ -33,8 +33,8 @@ function AdminPerfilPage() {
 
   return (
     <AdminScreen title="Perfil" subtitle="Sua conta na administração do Cortaí.">
-      <div className="flex items-center gap-4 border-b border-line pb-6">
-        <span className="flex h-14 w-14 items-center justify-center rounded-full bg-ink2 text-gold">
+      <div className="flex items-center gap-4 rounded-[28px] bg-[var(--figaro-surface-container,var(--ink2))] p-4">
+        <span className="flex h-14 w-14 items-center justify-center rounded-full bg-[var(--figaro-primary-container,var(--ink2))] text-[var(--figaro-primary,var(--primary))]">
           <UserRound size={22} />
         </span>
         <div className="min-w-0">
@@ -42,24 +42,24 @@ function AdminPerfilPage() {
           <p className="mt-1 truncate text-xs text-mute">{data?.email ?? "Conta conectada"}</p>
         </div>
       </div>
-      <ul className="mt-3">
-        <li className="border-b border-line">
-          <div className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4 py-5">
+      <ul className="mt-3 space-y-2">
+        <li className="rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))] px-4">
+          <div className="grid min-h-12 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4 py-3">
             <ShieldCheck size={18} className="text-mute" />
             <span className="text-sm text-paper">Nível de acesso</span>
             <span className="text-xs text-mute">Dono da plataforma</span>
           </div>
         </li>
         <li>
-          <ThemeToggle />
+          <ThemeToggle emGrupo />
         </li>
         <li>
-          <InstalarCortai />
+          <InstalarCortai emGrupo />
         </li>
         <li className="border-b border-line">
           <Link
             to="/admin/ajustes"
-            className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4 py-5"
+            className="grid min-h-12 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4 py-3"
           >
             <Palette size={18} className="text-mute" />
             <span className="text-sm text-paper">Configurações da plataforma</span>
@@ -75,7 +75,7 @@ function AdminPerfilPage() {
               setSaindo(true);
               void sair();
             }}
-            className="grid min-h-12 w-full grid-cols-[auto_minmax(0,1fr)_auto] justify-start gap-4 rounded-none px-0 py-5 text-left font-medium"
+            className="grid min-h-12 w-full grid-cols-[auto_minmax(0,1fr)_auto] justify-start gap-4 rounded-[12px] px-4 py-3 text-left font-medium"
           >
             <LogOut size={18} className="text-mute" />
             <span className="text-sm text-paper">{saindo ? "Saindo…" : "Sair da conta"}</span>
