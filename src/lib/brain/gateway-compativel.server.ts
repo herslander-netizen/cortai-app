@@ -13,6 +13,16 @@
 import type { Canal } from "./acoes.server";
 import type { FerramentaDoModelo, ItemDeEntrada } from "./gateway.server";
 
+export type ConfigSecundaria = {
+  /** Host do provedor secundário (para rastreio); não é segredo. */
+  nome: string;
+  baseUrl: string;
+  modelo: string;
+  chave: string;
+  tempoLimiteMs: number;
+  esforcoDeRaciocinio: "low" | "medium" | "high" | null;
+};
+
 export type ConfigCompativel = {
   tipo: "compativel";
   /** Host do provedor (para rastreio); não é segredo. */
@@ -24,6 +34,8 @@ export type ConfigCompativel = {
   esforcoDeRaciocinio: "low" | "medium" | "high" | null;
   /** Canais explicitamente autorizados a usar este provedor. */
   canais: Canal[];
+  /** Alternativa opcional; só acionada em falha transitória do primário. */
+  fallback?: ConfigSecundaria;
 };
 
 export type ConfigDoProvedor = { tipo: "regras" } | ConfigCompativel;
@@ -84,8 +96,56 @@ export function lerConfigDoProvedor(env: Env = process.env): LeituraDaConfig {
   if (!canais.length || canais.length !== pedidos.length)
     return { ok: false, motivo: "CORTAI_AI_CANAIS aceita só painel, whatsapp e site." };
 
-  const limite = Number(env["CORTAI_AI_TIMEOUT_MS"]);
-  const esforco = (env["CORTAI_AI_REASONING_EFFORT"] ?? "").trim().toLowerCase();
+  const lerTempoLimite = (valor: string | undefined) => {
+    const numero = Number(valor);
+    return Number.isFinite(numero) && numero >= 1_000 && numero <= 120_000
+      ? numero
+      : TEMPO_LIMITE_PADRAO_MS;
+  };
+  const lerEsforco = (valor: string | undefined) => {
+    const esforco = (valor ?? "").trim().toLowerCase();
+    return esforco === "low" || esforco === "medium" || esforco === "high" ? esforco : null;
+  };
+
+  // A alternativa é totalmente opcional. Se qualquer variável dela foi definida,
+  // exigimos o conjunto completo para evitar um fallback aparentemente ativo, mas inválido.
+  const fallbackBaseUrl = (env["CORTAI_AI_FALLBACK_BASE_URL"] ?? "")
+    .trim()
+    .replace(/\\/+$/, "");
+  const fallbackModelo = (env["CORTAI_AI_FALLBACK_MODEL"] ?? "").trim();
+  const fallbackChave = (env["CORTAI_AI_FALLBACK_API_KEY"] ?? "").trim();
+  const fallbackConfigurado = Boolean(fallbackBaseUrl || fallbackModelo || fallbackChave);
+  let fallback: ConfigSecundaria | undefined;
+  if (fallbackConfigurado) {
+    if (!fallbackBaseUrl || !fallbackModelo || !fallbackChave) {
+      return {
+        ok: false,
+        motivo:
+          "Fallback incompleto: configure CORTAI_AI_FALLBACK_BASE_URL, CORTAI_AI_FALLBACK_MODEL e CORTAI_AI_FALLBACK_API_KEY.",
+      };
+    }
+    let fallbackUrl: URL;
+    try {
+      fallbackUrl = new URL(fallbackBaseUrl);
+    } catch {
+      return { ok: false, motivo: "CORTAI_AI_FALLBACK_BASE_URL não é uma URL válida." };
+    }
+    if (
+      fallbackUrl.protocol !== "https:" &&
+      !(fallbackUrl.protocol === "http:" && ehLocal(fallbackUrl.hostname))
+    ) {
+      return { ok: false, motivo: "CORTAI_AI_FALLBACK_BASE_URL precisa usar https." };
+    }
+    fallback = {
+      nome: fallbackUrl.hostname,
+      baseUrl: fallbackBaseUrl,
+      modelo: fallbackModelo,
+      chave: fallbackChave,
+      tempoLimiteMs: lerTempoLimite(env["CORTAI_AI_FALLBACK_TIMEOUT_MS"]),
+      esforcoDeRaciocinio: lerEsforco(env["CORTAI_AI_FALLBACK_REASONING_EFFORT"]),
+    };
+  }
+
   return {
     ok: true,
     config: {
@@ -94,13 +154,10 @@ export function lerConfigDoProvedor(env: Env = process.env): LeituraDaConfig {
       baseUrl,
       modelo,
       chave,
-      tempoLimiteMs:
-        Number.isFinite(limite) && limite >= 1_000 && limite <= 120_000
-          ? limite
-          : TEMPO_LIMITE_PADRAO_MS,
-      esforcoDeRaciocinio:
-        esforco === "low" || esforco === "medium" || esforco === "high" ? esforco : null,
+      tempoLimiteMs: lerTempoLimite(env["CORTAI_AI_TIMEOUT_MS"]),
+      esforcoDeRaciocinio: lerEsforco(env["CORTAI_AI_REASONING_EFFORT"]),
       canais,
+      ...(fallback ? { fallback } : {}),
     },
   };
 }
