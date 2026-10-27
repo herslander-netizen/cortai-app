@@ -23,6 +23,7 @@ export function normalizar(texto: string): string {
 
 export type Intencao =
   | "agendar"
+  | "caixa"
   | "movimento"
   | "servicos"
   | "profissionais"
@@ -40,12 +41,15 @@ export function ehPedidoDeAgendar(texto: string): boolean {
 export function intencaoDe(texto: string): Intencao {
   const t = normalizar(texto);
   if (VERBO_DE_AGENDAR.test(t)) return "agendar";
+  // Valor recebido e saldo do caixa precisam consultar lançamentos financeiros reais.
+  // Não misturar esses pedidos com "consultar_movimento", que só conta agendamentos.
   if (
-    /\b(quanto entrou|faturamento|faturei|movimento|indicadores?|caixa de hoje|quanto (?:ja )?(?:ganhei|fiz))\b/.test(
+    /\b(quanto entrou|quanto (?:foi )?recebido|entradas? (?:do|no) caixa|caixa (?:de )?(?:hoje|agora)|saldo liquido do caixa|movimentacao liquida)\b/.test(
       t,
     )
   )
-    return "movimento";
+    return "caixa";
+  if (/\b(movimento|indicadores?)\b/.test(t)) return "movimento";
   if (
     /\b(clientes?)\b.*\b(chamam?|chamado|nome|com nome|de nome)\b|\b(buscar|procurar|achar|localizar|ver)\b.*\bclientes?\b|\bcliente\b\s+\w+/.test(
       t,
