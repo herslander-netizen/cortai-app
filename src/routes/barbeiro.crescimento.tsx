@@ -9,6 +9,7 @@ import { getCrescimento } from "@/lib/crescimento.functions";
 import { EsqueletoPainel } from "@/components/layout/Esqueleto";
 import { exigirCapacidade } from "@/lib/guarda-capacidade";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 
 export const Route = createFileRoute("/barbeiro/crescimento")({
   beforeLoad: ({ context }) => exigirCapacidade(context.queryClient, "crescimento"),
@@ -112,13 +113,14 @@ function CrescimentoPage() {
           </div>
 
           <h2 className="mb-1 mt-8 text-sm font-semibold text-paper">Ações de hoje</h2>
-          <ul data-guia="crescimento-acoes">
-            <li className="border-b border-line">
+          <ul data-guia="crescimento-acoes" className="space-y-2">
+            <li>
+              <Card asChild variant="touchable" density="none">
               <Link
                 to="/barbeiro/clientes"
-                className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4 py-5"
+                className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4 px-4 py-3"
               >
-                <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-ink2 text-gold">
+                <span className="flex h-10 w-10 items-center justify-center rounded-[12px] bg-[var(--figaro-primary-container,var(--ink2))] text-[var(--figaro-primary,var(--primary))]">
                   <UserPlus size={18} />
                 </span>
                 <span className="min-w-0">
@@ -133,14 +135,16 @@ function CrescimentoPage() {
                 </span>
                 <span className="text-xs text-mute2">Abrir</span>
               </Link>
+              </Card>
             </li>
-            <li className="border-b border-line">
+            <li>
+              <Card asChild variant="touchable" density="none">
               <Link
                 to="/barbeiro/agenda"
                 search={{ acao: undefined }}
-                className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4 py-5"
+                className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4 px-4 py-3"
               >
-                <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-ink2 text-gold">
+                <span className="flex h-10 w-10 items-center justify-center rounded-[12px] bg-[var(--figaro-primary-container,var(--ink2))] text-[var(--figaro-primary,var(--primary))]">
                   <CalendarClock size={18} />
                 </span>
                 <span className="min-w-0">
@@ -153,13 +157,15 @@ function CrescimentoPage() {
                 </span>
                 <span className="text-xs text-mute2">Abrir</span>
               </Link>
+              </Card>
             </li>
-            <li className="border-b border-line">
+            <li>
+              <Card asChild variant="touchable" density="none">
               <Link
                 to="/barbeiro/indicacoes"
-                className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4 py-5"
+                className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4 px-4 py-3"
               >
-                <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-ink2 text-gold">
+                <span className="flex h-10 w-10 items-center justify-center rounded-[12px] bg-[var(--figaro-primary-container,var(--ink2))] text-[var(--figaro-primary,var(--primary))]">
                   <Sparkles size={18} />
                 </span>
                 <span className="min-w-0">
@@ -168,41 +174,42 @@ function CrescimentoPage() {
                 </span>
                 <span className="text-xs text-mute2">Abrir</span>
               </Link>
+              </Card>
             </li>
           </ul>
 
           <h2 className="mb-3 mt-8 text-sm font-semibold text-paper">Compartilhar meu negócio</h2>
-          <div data-guia="crescimento-compartilhar" className="surface-card p-5 md:max-w-2xl">
+          <Card data-guia="crescimento-compartilhar" density="default" className="md:max-w-2xl">
             <p className="break-all text-xs text-mute">{link}</p>
             <div className="mt-4 grid grid-cols-3 gap-2">
               <Button
                 variant="ghost"
                 type="button"
-                className="flex flex-col items-center gap-1 rounded-lg border border-line2 py-3 text-xs text-paper"
+                className="min-h-16 flex-col gap-1 px-2 text-xs"
                 onClick={async () => {
                   await navigator.clipboard.writeText(link);
                   setCopiado(true);
                 }}
               >
-                <Copy size={16} className="text-gold" />
+                <Copy size={16} className="text-[var(--figaro-primary,var(--primary))]" />
                 Copiar
               </Button>
               <Button
                 variant="ghost"
                 type="button"
-                className="flex flex-col items-center gap-1 rounded-lg border border-line2 py-3 text-xs text-paper"
+                className="min-h-16 flex-col gap-1 px-2 text-xs"
                 onClick={() => navigator.share?.({ title: data.tenant.nome, url: link })}
               >
-                <Share2 size={16} className="text-gold" />
+                <Share2 size={16} className="text-[var(--figaro-primary,var(--primary))]" />
                 Compartilhar
               </Button>
               <Button
                 variant="ghost"
                 type="button"
-                className="flex flex-col items-center gap-1 rounded-lg border border-line2 py-3 text-xs text-paper"
+                className="min-h-16 flex-col gap-1 px-2 text-xs"
                 onClick={() => setMostrarQr((v) => !v)}
               >
-                <QrCode size={16} className="text-gold" />
+                <QrCode size={16} className="text-[var(--figaro-primary,var(--primary))]" />
                 QR Code
               </Button>
             </div>
@@ -220,11 +227,11 @@ function CrescimentoPage() {
               href={link}
               target="_blank"
               rel="noreferrer"
-              className="mt-4 block text-center text-xs text-gold underline"
+              className="mt-4 block text-center text-sm font-medium text-[var(--figaro-primary,var(--primary))] underline underline-offset-2"
             >
               Ver página pública
             </a>
-          </div>
+          </Card>
         </>
       ) : null}
     </Screen>

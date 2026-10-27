@@ -18,6 +18,7 @@ import { EsqueletoLista } from "@/components/layout/Esqueleto";
 import { exigirCapacidade } from "@/lib/guarda-capacidade";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
+import { Card } from "@/components/ui/card";
 
 export const Route = createFileRoute("/barbeiro/indicacoes")({
   beforeLoad: ({ context }) => exigirCapacidade(context.queryClient, "indicacoes"),
@@ -178,9 +179,10 @@ function IndicacoesPage() {
       {data && data.itens.length === 0 ? (
         <EmptyState text="Nenhuma indicação registrada ainda." />
       ) : null}
-      <ul>
+      <ul className="space-y-2">
         {(data?.itens ?? []).map((i) => (
-          <li key={i.id} className="border-b border-line py-4">
+          <li key={i.id}>
+            <Card density="default">
             <div className="flex items-start justify-between gap-4">
               <div className="min-w-0">
                 <p className="truncate text-sm text-paper">{i.indicado}</p>
@@ -253,6 +255,7 @@ function IndicacoesPage() {
                 }}
               />
             </div>
+            </Card>
           </li>
         ))}
       </ul>

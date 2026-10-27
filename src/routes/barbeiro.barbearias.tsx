@@ -4,7 +4,8 @@ import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { CheckCircle2, Store } from "lucide-react";
 
-import { Screen } from "@/components/layout/Screen";
+import { EmptyState, Screen } from "@/components/layout/Screen";
+import { Card } from "@/components/ui/card";
 import { EsqueletoLista } from "@/components/layout/Esqueleto";
 import { aviso } from "@/lib/avisos";
 import { esquecerSessao } from "@/lib/guarda";
@@ -79,19 +80,18 @@ function MinhasBarbeariasPage() {
       {isLoading || !data ? (
         <EsqueletoLista linhas={2} onTentarDeNovo={() => void refetch()} />
       ) : !data.length ? (
-        <p className="rounded-xl border border-dashed border-line px-4 py-8 text-center text-sm text-mute">
-          Sua conta ainda não está ligada a nenhuma barbearia.
-        </p>
+        <EmptyState text="Sua conta ainda não está ligada a nenhum negócio." />
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-2">
           {data.map((b) => (
-            <article key={b.id} className={`card p-5 ${b.ehAtiva ? "border-gold" : ""}`}>
+            <Card asChild variant="touchable" density="default" className={b.ehAtiva ? "ring-2 ring-[var(--figaro-primary,var(--primary))]" : ""}>
+              <article key={b.id}>
               <div className="flex items-start gap-3">
-                <span className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden surface">
+                <span className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))]">
                   {b.logoUrl ? (
                     <img src={b.logoUrl} alt="" className="h-full w-full object-cover" />
                   ) : (
-                    <Store size={18} className="text-gold" aria-hidden />
+                    <Store size={18} className="text-[var(--figaro-primary,var(--primary))]" aria-hidden />
                   )}
                 </span>
                 <div className="min-w-0 flex-1">
@@ -134,7 +134,8 @@ function MinhasBarbeariasPage() {
                     ? "Ver resumo da configuração"
                     : "Voltar à configuração"}
               </Button>
-            </article>
+              </article>
+            </Card>
           ))}
         </div>
       )}
