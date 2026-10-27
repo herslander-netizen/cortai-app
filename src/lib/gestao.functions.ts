@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
-import { diaDaSemanaDoDia, inicioDoDiaNoFuso, inicioDoMesNoFuso, isoNoFusoDaBarbearia, hojeNoFuso, somarDias } from "@/lib/horarios";
+import { isoNoFusoDaBarbearia, hojeNoFuso } from "@/lib/horarios";
+import { intervaloFinanceiroLocal, variacaoPercentual } from "@/lib/financeiro-analise";
 import { fusoDoTenant } from "@/lib/fuso.server";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
@@ -23,73 +24,120 @@ export const getFinanceiro = createServerFn({ method: "GET" })
     await exigirPermissao(context, tenantId, "visualizar_financeiro");
     const fuso = await fusoDoTenant(tenantId);
     const hoje = hojeNoFuso(fuso);
-    const inicio =
-      data.periodo === "hoje"
-        ? new Date(isoNoFusoDaBarbearia(hoje, "00:00", fuso))
-        : data.periodo === "semana"
-          ? new Date(
-              isoNoFusoDaBarbearia(
-                somarDias(hoje, -((diaDaSemanaDoDia(hoje) + 6) % 7)),
-                "00:00",
-                fuso,
-              ),
-            )
-          : inicioDoMesNoFuso(fuso);
-    // "Hoje" usa [início do dia, início do próximo dia) no fuso do negócio.
-    const fimExclusivo =
-      data.periodo === "hoje"
-        ? new Date(isoNoFusoDaBarbearia(somarDias(hoje, 1), "00:00", fuso)).toISOString()
-        : null;
+    const intervalo = intervaloFinanceiroLocal(hoje, data.periodo);
 
-    const atendimentosQuery = context.supabase
-      .from("agendamentos")
-      .select("id, valor_centavos, inicio, servicos(nome)")
-      .eq("tenant_id", tenantId)
-      .eq("status", "finalizado")
-      .gte("inicio", inicio.toISOString());
-    const vendasQuery = context.supabase
-      .from("vendas")
-      .select("id, categoria, descricao, total_centavos, criado_em")
-      .eq("tenant_id", tenantId)
-      .gte("criado_em", inicio.toISOString())
-      .order("criado_em", { ascending: false });
-    const ganhosExtrasQuery = context.supabase
-      .from("caixa_movimentos")
-      .select("valor_centavos")
-      .eq("tenant_id", tenantId)
-      .eq("tipo", "entrada")
-      .in("categoria", ["ganho_extra_gorjeta", "ganho_extra_servico_extra", "ganho_extra_outro"])
-      .gte("criado_em", inicio.toISOString());
-    if (fimExclusivo) {
-      atendimentosQuery.lt("inicio", fimExclusivo);
-      vendasQuery.lt("criado_em", fimExclusivo);
-      ganhosExtrasQuery.lt("criado_em", fimExclusivo);
-    }
-    const [{ data: atendimentos }, { data: vendas }, { data: ganhosExtrasRes }] = await Promise.all([
-      atendimentosQuery,
-      vendasQuery,
-      ganhosExtrasQuery,
+    const consultasDoPeriodo = (inicioLocal: string, fimLocal: string) => {
+      const inicioIso = isoNoFusoDaBarbearia(inicioLocal, "00:00", fuso);
+      const fimIso = isoNoFusoDaBarbearia(fimLocal, "00:00", fuso);
+      return {
+        atendimentos: context.supabase
+          .from("agendamentos")
+          .select("id, valor_centavos, inicio, servicos(nome)")
+          .eq("tenant_id", tenantId)
+          .eq("status", "finalizado")
+          .gte("inicio", inicioIso)
+          .lt("inicio", fimIso),
+        vendas: context.supabase
+          .from("vendas")
+          .select("id, categoria, descricao, total_centavos, criado_em")
+          .eq("tenant_id", tenantId)
+          .gte("criado_em", inicioIso)
+          .lt("criado_em", fimIso)
+          .order("criado_em", { ascending: false }),
+        ganhosExtras: context.supabase
+          .from("caixa_movimentos")
+          .select("valor_centavos")
+          .eq("tenant_id", tenantId)
+          .eq("tipo", "entrada")
+          .in("categoria", ["ganho_extra_gorjeta", "ganho_extra_servico_extra", "ganho_extra_outro"])
+          .gte("criado_em", inicioIso)
+          .lt("criado_em", fimIso),
+        despesasESaidas: context.supabase
+          .from("caixa_movimentos")
+          .select("tipo, valor_centavos")
+          .eq("tenant_id", tenantId)
+          .in("tipo", ["saida", "despesa"])
+          .gte("criado_em", inicioIso)
+          .lt("criado_em", fimIso),
+      };
+    };
+
+    const atual = consultasDoPeriodo(intervalo.inicio, intervalo.fim);
+    const anterior = consultasDoPeriodo(intervalo.inicioAnterior, intervalo.fimAnterior);
+    const [
+      { data: atendimentos, error: erroAtendimentos },
+      { data: vendas, error: erroVendas },
+      { data: ganhosExtrasRes, error: erroGanhosExtras },
+      { data: despesasESaidasRes, error: erroDespesasESaidas },
+      { data: atendimentosAnt, error: erroAtendimentosAnt },
+      { data: vendasAnt, error: erroVendasAnt },
+      { data: ganhosExtrasAnt, error: erroGanhosExtrasAnt },
+      { data: despesasESaidasAnt, error: erroDespesasESaidasAnt },
+    ] = await Promise.all([
+      atual.atendimentos,
+      atual.vendas,
+      atual.ganhosExtras,
+      atual.despesasESaidas,
+      anterior.atendimentos,
+      anterior.vendas,
+      anterior.ganhosExtras,
+      anterior.despesasESaidas,
     ]);
-    const servicos = (atendimentos ?? []).reduce((total, item) => total + item.valor_centavos, 0);
-    const produtos = (vendas ?? [])
-      .filter((item) => item.categoria === "produtos")
-      .reduce((total, item) => total + item.total_centavos, 0);
-    const outros = (vendas ?? [])
-      .filter((item) => item.categoria === "outros")
-      .reduce((total, item) => total + item.total_centavos, 0);
-    const ganhosExtras = (ganhosExtrasRes ?? []).reduce(
-      (total, item) => total + item.valor_centavos,
-      0,
-    );
+
+    if (
+      erroAtendimentos ||
+      erroVendas ||
+      erroGanhosExtras ||
+      erroDespesasESaidas ||
+      erroAtendimentosAnt ||
+      erroVendasAnt ||
+      erroGanhosExtrasAnt ||
+      erroDespesasESaidasAnt
+    ) {
+      throw new Error("Não foi possível carregar o resumo financeiro.");
+    }
+
+    const calcularReceitas = (atendimentosDoPeriodo: any[], vendasDoPeriodo: any[], ganhosDoPeriodo: any[]) => {
+      const servicos = atendimentosDoPeriodo.reduce((total, item) => total + item.valor_centavos, 0);
+      const produtos = vendasDoPeriodo
+        .filter((item) => item.categoria === "produtos")
+        .reduce((total, item) => total + item.total_centavos, 0);
+      const outros = vendasDoPeriodo
+        .filter((item) => item.categoria === "outros")
+        .reduce((total, item) => total + item.total_centavos, 0);
+      const ganhosExtras = ganhosDoPeriodo.reduce((total, item) => total + item.valor_centavos, 0);
+      return { servicos, produtos, outros, ganhosExtras, total: servicos + produtos + outros + ganhosExtras };
+    };
+
+    const calcularSaidas = (movimentos: any[]) => {
+      const despesas = movimentos
+        .filter((item) => item.tipo === "despesa")
+        .reduce((total, item) => total + item.valor_centavos, 0);
+      const saidas = movimentos
+        .filter((item) => item.tipo === "saida")
+        .reduce((total, item) => total + item.valor_centavos, 0);
+      return { despesas, saidas, total: despesas + saidas };
+    };
+
+    const receitasAtuais = calcularReceitas(atendimentos ?? [], vendas ?? [], ganhosExtrasRes ?? []);
+    const receitasAnteriores = calcularReceitas(atendimentosAnt ?? [], vendasAnt ?? [], ganhosExtrasAnt ?? []);
+    const saidasAtuais = calcularSaidas(despesasESaidasRes ?? []);
+    const saidasAnteriores = calcularSaidas(despesasESaidasAnt ?? []);
+
     return {
       periodo: data.periodo,
-      servicos,
-      produtos,
-      outros,
-      ganhosExtras,
-      total: servicos + produtos + outros + ganhosExtras,
+      ...receitasAtuais,
+      despesas: saidasAtuais.despesas,
+      saidas: saidasAtuais.saidas,
+      despesasESaidas: saidasAtuais.total,
       atendimentos: atendimentos ?? [],
       vendas: vendas ?? [],
+      comparacao: {
+        receitaAnterior: receitasAnteriores.total,
+        despesasESaidasAnterior: saidasAnteriores.total,
+        receitaVariacaoPercentual: variacaoPercentual(receitasAtuais.total, receitasAnteriores.total),
+        despesasVariacaoPercentual: variacaoPercentual(saidasAtuais.total, saidasAnteriores.total),
+      },
     };
   });
 
