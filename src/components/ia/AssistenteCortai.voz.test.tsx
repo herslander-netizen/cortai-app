@@ -571,7 +571,7 @@ describe("voz gratuita pelo navegador (sem servidor de transcrição)", () => {
     delete (window as any).webkitSpeechRecognition;
   });
 
-  it("abre ouvindo, mostra o que entendeu e envia como voz SEM chamar a transcrição do servidor", async () => {
+  it("reconhecimento do navegador vira rascunho revisável e só envia ao tocar em Enviar", async () => {
     mocks.perguntar.mockResolvedValue(RESPOSTA("Entendi assim: Agendar Corte. Posso confirmar?"));
     await montar(true);
     await avancar(200);
@@ -599,6 +599,13 @@ describe("voz gratuita pelo navegador (sem servidor de transcrição)", () => {
     await act(async () => instancias[0].onend());
     await avancar(0);
     expect(mocks.transcrever).not.toHaveBeenCalled();
+    const campo = document.querySelector<HTMLTextAreaElement>("textarea")!;
+    expect(campo.value).toBe("marque Leandro Silva às 15h para corte");
+    expect(document.body.textContent).toMatch(/Transcrição pronta. Revise antes de enviar/);
+    expect(mocks.perguntar).not.toHaveBeenCalled();
+    await act(async () => botao("Enviar")!.click());
+    await avancar(0);
+    expect(mocks.perguntar).toHaveBeenCalledTimes(1);
     expect(mocks.perguntar.mock.calls[0]![0].data).toMatchObject({
       mensagem: "marque Leandro Silva às 15h para corte",
       origem: "voz",
