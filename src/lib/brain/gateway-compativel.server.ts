@@ -6,7 +6,8 @@
  * sem tocar no agente: `agente.server.ts` continua falando o mesmo idioma de sempre.
  *
  * Princípios:
- * - nada de fallback silencioso: configuração incompleta = IA indisponível (honesto);
+ * - sem provedor secundário parcial: configuração incompleta = IA indisponível;
+ * - fallback explícito e opcional só para falhas transitórias do provedor primário;
  * - o raciocínio interno do modelo nunca chega ao usuário (tokens/blocos são removidos);
  * - sem timeout infinito; a chave só vai no cabeçalho Authorization e nunca é logada.
  */
