@@ -389,6 +389,16 @@ describe("tipografia do Figaro na área do negócio", () => {
 });
 
 describe("cartão de atendimento da Agenda (cor do Figaro)", () => {
+  it("não deixa um token duplicado sobrescrever a superfície clara da Agenda", () => {
+    const seletor = ".light,\\n:root.light,\\n:root[data-identidade].light {";
+    const inicio = css.lastIndexOf(seletor);
+    expect(inicio).toBeGreaterThanOrEqual(0);
+    const fim = css.indexOf("\\n}", inicio);
+    const temaClaroAgenda = css.slice(inicio, fim);
+    expect(temaClaroAgenda).toContain("--agenda-cartao: var(--figaro-surface-container-lowest);");
+    expect(temaClaroAgenda).not.toContain("--agenda-cartao: var(--figaro-surface-container-low);");
+  });
+
   it("usa surfaceContainerLowest (#141816 no escuro, #fff no claro) na timeline e na lista", () => {
     expect(css).toMatch(/--figaro-surface-container-lowest: #141816;/);
     expect(css).toMatch(/--figaro-surface-container-lowest: #ffffff;/);
