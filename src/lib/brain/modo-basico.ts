@@ -383,9 +383,31 @@ export function planejarModoBasico(e: EntradaDoModoBasico): Item[] {
     const pedirUma = (nome: string, args: Record<string, unknown> = {}): Item[] | null =>
       saidas.has(nome) ? null : [chamada(nome, args)];
 
+    if (i === "caixa") {
+      if (!oferecida("consultar_caixa_hoje"))
+        return texto("Você não tem acesso ao caixa financeiro deste negócio.");
+      const pedir = pedirUma("consultar_caixa_hoje");
+      if (pedir) return pedir;
+      const r = saidas.get("consultar_caixa_hoje")!.saida["resultado"] as {
+        dia: string;
+        entradasCentavos: number;
+        saidasCentavos: number;
+        liquidoCentavos: number;
+        entradasPorFormaCentavos: {
+          pix: number;
+          dinheiro: number;
+          cartao: number;
+          outras: number;
+        };
+      };
+      const forma = r.entradasPorFormaCentavos;
+      return texto(
+        `Caixa de ${r.dia}: entradas registradas de ${reais(r.entradasCentavos)}, saídas de ${reais(r.saidasCentavos)} e saldo líquido dos movimentos de ${reais(r.liquidoCentavos)}. Entradas por forma: Pix ${reais(forma.pix)}, dinheiro ${reais(forma.dinheiro)}, cartão ${reais(forma.cartao)}${forma.outras ? `, outras formas ${reais(forma.outras)}` : ""}. Esses valores refletem lançamentos do caixa, não lucro contábil.`,
+      );
+    }
     if (i === "movimento") {
       if (!oferecida("consultar_movimento"))
-        return texto("Você não tem acesso aos indicadores do negócio.");
+        return texto("Você não tem acesso aos indicadores de agenda do negócio.");
       const pedir = pedirUma("consultar_movimento");
       if (pedir) return pedir;
       const r = saidas.get("consultar_movimento")!.saida["resultado"] as {
@@ -394,7 +416,7 @@ export function planejarModoBasico(e: EntradaDoModoBasico): Item[] {
       };
       const partes = Object.entries(r.porStatus ?? {}).map(([s, n]) => `${n} ${s}`);
       return texto(
-        `Não tenho o valor recebido no modo básico. Hoje há ${r.total} agendamento(s)${partes.length ? `: ${partes.join(", ")}` : ""}.`,
+        `Hoje há ${r.total} agendamento(s)${partes.length ? `: ${partes.join(", ")}` : ""}.`,
       );
     }
     if (i === "servicos") {
