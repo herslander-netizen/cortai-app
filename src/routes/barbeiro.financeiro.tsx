@@ -111,6 +111,29 @@ function FinanceiroPage() {
               <p className="text-xs text-mute">Total de saídas registradas</p>
               <p className="mt-1 text-xl font-semibold text-paper">{brl(data.despesasESaidas)}</p>
             </div>
+            {data.despesasPorCategoria.length > 0 ? (
+              <div className="surface mt-3 p-3">
+                <p className="text-sm font-medium text-paper">Principais categorias de saída</p>
+                <ul className="mt-2">
+                  {data.despesasPorCategoria.slice(0, 5).map((item) => (
+                    <li
+                      key={item.rotulo}
+                      className="flex items-center justify-between gap-3 border-b border-line py-2 last:border-0"
+                    >
+                      <span className="min-w-0 truncate text-sm text-mute">{item.rotulo}</span>
+                      <span className="shrink-0 text-sm font-semibold text-paper">
+                        {brl(item.totalCentavos)}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+                {data.despesasPorCategoria.length > 5 ? (
+                  <p className="mt-2 text-xs text-mute2">
+                    Exibindo as cinco categorias com maior valor.
+                  </p>
+                ) : null}
+              </div>
+            ) : null}
             <div className="mt-3 grid grid-cols-2 gap-2">
               <div className="surface min-w-0 p-3">
                 <p className="text-xs text-mute">Despesas registradas</p>
