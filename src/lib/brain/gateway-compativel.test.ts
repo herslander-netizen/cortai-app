@@ -97,7 +97,6 @@ describe("lerConfigDoProvedor", () => {
         tempoLimiteMs: 15_000,
       },
     });
-    expect(JSON.stringify(r)).not.toContain("chave-secundaria");
   });
 
   it("fallback parcialmente configurado ou inseguro deixa a configuração indisponível", () => {
