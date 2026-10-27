@@ -494,7 +494,7 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Em andamento
 
-- GPT | 2026-10-27 UTC | Auditoria minuciosa da IA e primeira correção de segurança: vincular confirmações verbais à ação pendente e rejeitar pendências com data futura; documentar APK SandMobile/Grok Bot e plano técnico sem tocar produção | `DIARIO.md`, `src/lib/brain/guardas.ts`, `src/lib/brain/guardas.test.ts`, `docs/auditoria-ia-cortai-grok-bot-2026-10-27.md`; sem migração |
+- GPT | 2026-10-27 UTC | Auditoria minuciosa e hardening da CortAI: confirmação vinculada à ação pendente; rejeitar data futura; alinhar pergunta “quanto entrou hoje?” com leitura real e autorizada do caixa, sem confundir caixa com lucro; documentar APK SandMobile/Grok Bot. Sem migração, produção ou alteração de UI da Agenda | `DIARIO.md`, `src/lib/brain/guardas.ts`, `src/lib/brain/guardas.test.ts`, `src/lib/brain/agente.server.ts`, `src/lib/brain/acoes.server.ts`, `src/lib/brain/papeis.test.ts`, `src/lib/brain/modo-basico-nlu.ts`, `src/lib/brain/modo-basico-nlu.test.ts`, `src/lib/brain/modo-basico.ts`, `src/lib/brain/modo-basico.test.ts`, `src/components/ia/AssistenteCortai.tsx`, `docs/auditoria-ia-cortai-grok-bot-2026-10-27.md`; sem migração |
 
 - GPT | 2026-10-27 UTC | Auditoria mobile-first dos botões e telas fora do padrão: começar pelo defeito visível em PersonalizacaoCliente (switch WhatsApp deformado/quebrando linha), padronizar com o primitivo Switch e revisar os achados de botões/controles nas telas não reservadas; definir inventário de páginas e corrigir em lotes validados. Excluir Agenda e não mexer em regras/backend/bancos | `DIARIO.md`, `src/components/barbeiro/PersonalizacaoCliente.tsx`, testes UI/estilo e inventário UX; sem migração |
 
