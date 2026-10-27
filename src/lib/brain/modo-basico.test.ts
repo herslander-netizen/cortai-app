@@ -34,6 +34,8 @@ function rodar(
       "consultar_disponibilidade",
       "criar_agendamento",
       "consultar_horarios_funcionamento",
+      "consultar_caixa_hoje",
+      "consultar_movimento",
     ]
   ).map((name) => ({ name }));
   const entrada: Item[] = mensagens.map((m) => ({
@@ -68,6 +70,17 @@ function rodar(
         const achados = mundo.clientes.filter((c) => c.nome.toLowerCase().includes(n));
         resultado = { encontrados: achados.length, clientes: achados };
       } else if (name === "consultar_disponibilidade") resultado = { livres: LIVRES };
+      else if (name === "consultar_caixa_hoje")
+        resultado = {
+          dia: "2026-10-12",
+          entradasCentavos: 20_000,
+          saidasCentavos: 5_000,
+          liquidoCentavos: 15_000,
+          quantidadeMovimentos: 3,
+          entradasPorFormaCentavos: { pix: 10_000, dinheiro: 5_000, cartao: 5_000, outras: 0 },
+        };
+      else if (name === "consultar_movimento")
+        resultado = { total: 4, porStatus: { agendado: 2, finalizado: 2 } };
       else if (name === "criar_agendamento")
         entrada.push({
           type: "function_call_output",
@@ -182,6 +195,24 @@ describe("modo básico — consultas e ajuda", () => {
     const r = rodar([{ role: "user", text: "quais serviços vocês têm?" }], UM);
     expect(r.texto).toContain("Corte");
     expect(r.texto).toMatch(/50,00/);
+  });
+
+  it("quanto entrou hoje consulta o caixa e não a contagem de agendamentos", () => {
+    const r = rodar([{ role: "user", text: "Quanto entrou hoje?" }], UM);
+    expect(r.chamadas[0]?.name).toBe("consultar_caixa_hoje");
+    expect(r.texto).toContain("entradas registradas de R$ 200,00");
+    expect(r.texto).toContain("saídas de R$ 50,00");
+    expect(r.texto).toContain("saldo líquido dos movimentos de R$ 150,00");
+    expect(r.texto).toContain("não lucro contábil");
+    expect(r.texto).not.toContain("agendamento(s)");
+  });
+
+  it("sem permissão de caixa não consulta valores financeiros", () => {
+    const r = rodar([{ role: "user", text: "Quanto entrou hoje?" }], UM, {
+      ferramentas: ["listar_servicos"],
+    });
+    expect(r.chamadas).toHaveLength(0);
+    expect(r.texto).toContain("não tem acesso ao caixa");
   });
 
   it("frase solta cai na ajuda, sem chamar nada", () => {
