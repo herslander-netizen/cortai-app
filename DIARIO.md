@@ -494,7 +494,6 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Em andamento
 
-- GPT | 2026-10-27 UTC | Trocar somente o desenho do ícone do calendário no cabeçalho mobile da Agenda pelos estados outline/azul preenchido da referência; preservar a animação lateral/rotação, escala, alternância com busca e demais comportamentos | `DIARIO.md`, `src/components/barbeiro/agenda/CabecalhoAgenda.tsx`, `src/components/barbeiro/agenda/CabecalhoAgenda.icone.test.ts`; sem migração
 
 - GPT | 2026-10-27 UTC | Integrar recursos financeiros inspirados no Mobills sem duplicar módulos do Cortaí: auditar categorias, fiado, pagamentos, taxas, recorrências e orçamento; implementar em etapas compatíveis, com migração aditiva apenas para prévia após revisão e testes. Não tocar Agenda, produção, main ou DNS | `DIARIO.md`, `docs/auditoria-mobills-cortai-2026-10-27.md`, `src/lib/financeiro*`, `src/routes/barbeiro.financeiro.tsx`, `src/routes/barbeiro.caixa.tsx`, componentes financeiros e migrações novas se necessárias; sem aplicar migrações nesta tarefa | 
 
@@ -770,6 +769,8 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - Auditoria de conflito: não alterar logos de negócio, capas, fotos de serviços/produtos, galeria ou fotos de portfólio; nenhuma regra de negócio, dados, banco ou migração foi tocada. Agenda visual protegida, sem mudanças nos seus arquivos.
 - Testes: pendentes de confirmação no GitHub Actions e conferência visual mobile; não declarar pronto até validar o workflow.
 ## Diário
+
+- GPT | 2026-10-27 UTC | Ícone mobile do calendário na Agenda: substituí apenas o desenho Lucide por SVG com contorno no estado fechado e preenchimento azul no estado aberto, mantendo o recorte interno na cor do fundo. Preservadas a animação de entrada/saída calendário ↔ busca (`AnimatePresence` e `MOLA.rapidaEspacial`), a inclinação ativa `-8°`, a escala `1.1`, a transição de 200 ms e o respeito a movimento reduzido. O teste `CabecalhoAgenda.icone.test.ts` protege os dois estados e a animação. Validação final depende do workflow do commit mais recente. Sem mudança de regras, dados, banco, `main` ou produção. | `src/components/barbeiro/agenda/CabecalhoAgenda.tsx`, `src/components/barbeiro/agenda/CabecalhoAgenda.icone.test.ts`; sem migração
 
 - GPT | 2026-10-27 UTC | **Fechamento da identidade pública:** após a unificação funcional, removi os rótulos ativos “CortAI” e “Assistente Virtual” das telas do Cortaí, estados de disponibilidade, atividade, onboarding, permissões, privacidade, apresentação e preferências do WhatsApp. Aliases técnicos (`CORTAI_*`, `ver_cortai`, rotas, tabelas e campos persistidos) foram preservados por compatibilidade. Testes focados: 6 arquivos e 93 testes aprovados; TypeScript aprovado; build aprovado com o aviso preexistente de `webhook.test.ts` sem `Route`. O workflow `40526201682` passou testes, TypeScript, build, deploy isolado e smoke test; a prévia serviu o commit `5e5e16a6`. Nenhuma mudança em Agenda, banco real, secrets, `main`, DNS ou produção.
 
