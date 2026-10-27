@@ -524,7 +524,7 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Recados
 
-- **Para todos (GPT, 27/10):** o dono estabeleceu identidade Cortaí global baseada em estrutura/movimento Figaro e marca própria (marinho, wordmark arredondado e ponto coral). A paleta padrão e os documentos de design foram atualizados; temas públicos customizados continuam preservados. O commit `cd41bcb` está aguardando CI da prévia; não publicar no site principal sem pedido.
+- **Para todos (GPT, 27/10):** o dono estabeleceu identidade Cortaí global baseada em estrutura/movimento Figaro e marca própria (marinho, wordmark arredondado e ponto coral). Tema do painel e os padrões públicos escuro/claro atualizados; páginas customizadas preservadas. Validação e smoke test passaram no workflow `40435060862`. Não publicar no site principal sem pedido.
 
 - **Para todos (GPT, 26/10):** a implementação da auditoria AgendaClick está na branch de trabalho e a validação/deploy isolado da prévia passou no commit `44f1df5bcf1299c5f47f551fe1a8d139e06109f6`. As migrações `0047` e `0048` foram preparadas, mas NÃO aplicadas. Não as apliquem em nenhum banco até autorização específica do dono.
 
@@ -754,8 +754,8 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - **Direção:** o Figaro governa estrutura, hierarquia, primitivos, superfícies, folhas e movimento; a marca é própria do Cortaí: wordmark arredondado minimalista, marinho profundo e ponto coral sobre o “í”. Azul continua sendo cor de ação; coral sinaliza a marca sem dominar todas as telas.
 - **Código:** paleta padrão clara/escura e tokens globais em `src/styles.css`; cartão de preferências pós-agendamento agora é o primitivo `Card` com uma única expansão opcional; o teste de gateway desabilita o modo básico para verificar especificamente que erros de crédito/credenciais não acionam fallback.
 - **Documentação:** identidade universal registrada em `CLAUDE.md`, `docs/contrato-de-design.md`, `docs/ordem-padrao-figaro.md` e em “Decisões do dono”.
-- **Arquivos:** `src/styles.css`, `src/components/agendamento/PreferenciasAposAgendamento.tsx`, `src/lib/contraste-app.test.ts`, `src/lib/brain/gateway-despacho.test.ts`, os três documentos acima e `DIARIO.md`.
-- **Validação:** TypeScript, testes, build e publicação isolada da prévia aguardam a execução do workflow deste commit. Não foi feita conferência visual manual em 390px/1280px nesta sessão. Nenhuma alteração ao banco ou site principal.
+- **Arquivos:** `src/styles.css`, `src/lib/pagina-config.ts`, `src/lib/cor-marca.ts`, `src/lib/cor-marca.test.ts`, `src/lib/contraste-app.test.ts`, `src/lib/brain/gateway-despacho.test.ts`, `src/components/agendamento/PreferenciasAposAgendamento.tsx`, `CLAUDE.md`, `docs/contrato-de-design.md`, `docs/ordem-padrao-figaro.md` e `DIARIO.md`.
+- **Validação confirmada:** build, TypeScript e suíte de testes passaram; a prévia isolada foi publicada e o smoke test passou no workflow [40435060862](https://github.com/herslander-netizen/cortai-app/actions/runs/40435060862), após correção de contrastes claro/escuro. Não foi feita conferência visual manual em 390px/1280px. Nenhuma alteração ao banco ou site principal.
 - **Para todos:** a identidade é global, mas este lote altera tokens e a forma dos cartões, sem mudar regras funcionais ou estrutura da Agenda. Comparar a prévia em claro/escuro antes de qualquer publicação principal.
 
 
