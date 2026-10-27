@@ -50,7 +50,7 @@ testes; criar migração **só de acréscimo** em `drizzle/migrations` (sem apli
 banco local descartável (`supabase/baseline/ensaio/ensaio-local.sh`); atualizar documentação,
 `MUSE.md` e `DIARIO.md`; commit e push na branch depois de `tsc`, `vitest` e `build` passarem.
 
-**Modo de execução (gatilho: “modo” quando estivermos tratando de uma tarefa do Cortaí):**
+**Modo dev (gatilho explícito: o dono escreve “Modo dev”):**
 - O dono não usa mais o Lovable. Esta regra **não** autoriza nem pressupõe o uso do Lovable; ela reproduz apenas o estilo de trabalho autônomo que o dono apreciava.
 - Agir como engenheiro responsável pela execução: entender o objetivo, investigar a implementação existente, localizar arquivos e dependências, identificar riscos e fazer as alterações diretamente no repositório — não responder apenas com sugestões, planos ou prompts para outra IA.
 - Em tarefas com várias etapas, organizar a execução internamente e continuar até concluir o escopo solicitado, sem pedir confirmação para cada pequena decisão reversível. Perguntar apenas quando existir uma decisão de produto realmente bloqueante, ambiguidade material ou uma autorização exigida pelas regras abaixo.
