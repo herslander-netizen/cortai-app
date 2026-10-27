@@ -73,8 +73,11 @@ export function Screen({
 
 export function EmptyState({ text }: { text: string }) {
   return (
-    <div className="border-y border-line py-8 text-center">
-      <p className="text-sm text-mute">{text}</p>
+    <div
+      data-figaro-empty-state="true"
+      className="flex min-h-28 flex-col items-center justify-center rounded-[28px] bg-[var(--figaro-surface-container,var(--ink2))] px-5 py-8 text-center"
+    >
+      <p className="text-sm leading-relaxed text-mute">{text}</p>
     </div>
   );
 }
