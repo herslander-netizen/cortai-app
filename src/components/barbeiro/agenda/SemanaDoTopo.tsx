@@ -88,7 +88,7 @@ function DiaDoCalendario({
       onClick={() => onDia(dia)}
     >
       <span
-        className={`grid place-items-center rounded-full transition-colors duration-[200ms] motion-reduce:transition-none ${compacto ? "size-11 text-xl" : "size-11 text-xl"} ${escolhido ? `${deslizante ? "" : "bg-[var(--agenda-escolhido)] text-[var(--agenda-escolhido-texto)]"} font-semibold` : hoje ? "font-normal text-[var(--agenda-destaque)] ring-[1.5px] ring-inset ring-[var(--agenda-destaque)]" : "font-normal text-paper"} ${deslizante && vizinho === "atual" ? "text-paper" : ""}`}
+        className={`grid place-items-center rounded-full transition-colors duration-[200ms] motion-reduce:transition-none ${compacto ? "size-[38px] text-[15px]" : "size-[38px] text-base"} ${escolhido ? `${deslizante ? "" : "bg-[var(--agenda-escolhido)] text-[var(--agenda-escolhido-texto)]"} font-semibold` : hoje ? "font-normal text-[var(--agenda-destaque)] ring-[1.5px] ring-inset ring-[var(--agenda-destaque)]" : "font-normal text-paper"} ${deslizante && vizinho === "atual" ? "text-paper" : ""}`}
         style={
           deslizante && vizinho
             ? {
@@ -103,7 +103,7 @@ function DiaDoCalendario({
       </span>
       <span
         aria-hidden
-        className={`size-1 rounded-full ${compacto ? "absolute bottom-1" : ""} ${comAtendimento ? "bg-rosa" : "bg-transparent"}`}
+        className={`${compacto ? "size-1" : "size-[5px]"} rounded-full ${compacto ? "absolute bottom-1" : "absolute bottom-0"} ${comAtendimento ? "bg-rosa" : "bg-transparent"}`}
       />
     </Button>
   );
@@ -126,7 +126,7 @@ const MesDoCalendario = memo(function MesDoCalendario({
   const primeiro = `${mes}-01`;
   return (
     <section data-mes={mes} className="min-h-full snap-start pb-2">
-      <h2 className="px-2 pb-1 pt-1 text-[26px] font-semibold text-paper">
+      <h2 className="px-2 pb-1 pt-1 text-[22px] leading-7 font-bold text-paper">
         {tituloDoMes(mes).split(" ")[0]}
       </h2>
       <div className="grid grid-cols-7">
@@ -490,9 +490,9 @@ export function SemanaDoTopo({
   return (
     <div data-sem-gesto-dia data-calendario-aberto={expandido || painelVisivel || undefined}>
       <div className="px-2 pb-3 rounded-b-xl">
-        <div className="grid grid-cols-7 text-center text-sm font-medium text-mute" aria-hidden>
+        <div className="grid grid-cols-7 text-center text-[11.5px] leading-4 font-medium text-mute" aria-hidden>
           {LETRAS_SEMANA.map((letra, i) => (
-            <span key={i} className="pb-4 pt-5">
+            <span key={i} className="py-2">
               {letra}
             </span>
           ))}
@@ -535,7 +535,7 @@ export function SemanaDoTopo({
                           transform: `translate3d(calc((${indiceDoDia} + var(--dia-progresso, 0)) * 100%),0,0)`,
                         }}
                       >
-                        <i className="size-11 rounded-full bg-[var(--agenda-escolhido)]" />
+                        <i className="size-[38px] rounded-full bg-[var(--agenda-escolhido)]" />
                       </span>
                     ) : null}
                     {dias.map((d, i) => (
@@ -567,7 +567,7 @@ export function SemanaDoTopo({
           {painelVisivel ? (
             <motion.div
               key="calendario-expandido"
-              className="absolute -inset-x-2 top-0 z-10 overflow-hidden rounded-b-[24px] px-2 pb-3"
+              className="absolute -inset-x-2 top-0 z-10 overflow-hidden rounded-b-[16px] px-2 pb-3"
               // O recorte deixa a sombra só embaixo: no topo ela desenhava uma linha entre as letras da semana e o mês.
               style={{
                 background: "var(--ink2)",
