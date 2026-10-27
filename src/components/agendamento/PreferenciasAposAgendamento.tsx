@@ -15,6 +15,7 @@ type Props = { agendamentoId: string; token: string; slug: string };
 
 export function PreferenciasAposAgendamento({ agendamentoId, token, slug }: Props) {
   const [visivel, setVisivel] = useState(() => deveMostrarPreferencias(slug));
+  const [expandido, setExpandido] = useState(false);
   const [aberto, setAberto] = useState(false);
   const [anotado, setAnotado] = useState(false);
   const [detalhes, setDetalhes] = useState(false);
@@ -56,6 +57,43 @@ export function PreferenciasAposAgendamento({ agendamentoId, token, slug }: Prop
     ["bebida", "Bebida", ROTULOS_PREFERENCIAS.bebida],
   ] as const;
   const temAlgo = Object.values(preferencias).some((valor) => Boolean(valor?.trim()));
+
+  if (!expandido) {
+    return (
+      <section className="mt-5 rounded-2xl border border-line bg-ink2/40 p-4 sm:p-5" aria-labelledby="preferencias-titulo">
+        <div className="flex items-start gap-3">
+          <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-gold/10 text-gold" aria-hidden>
+            <Check size={19} />
+          </span>
+          <div className="min-w-0 flex-1">
+            <h2 id="preferencias-titulo" className="text-base font-bold text-paper">
+              Deixe seu atendimento com a sua cara
+            </h2>
+            <p className="mt-1 text-sm leading-relaxed text-mute">
+              Preferências opcionais para sua próxima visita. Seu horário já está confirmado.
+            </p>
+            <div className="mt-3 flex flex-col gap-2 sm:flex-row">
+              <Button type="button" variant="outline" className="min-h-11 w-full sm:w-auto" onClick={() => setExpandido(true)}>
+                Personalizar atendimento
+                <ChevronDown size={16} aria-hidden />
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                className="min-h-11 w-full sm:w-auto"
+                onClick={() => {
+                  lembrarPreferencias(slug);
+                  setVisivel(false);
+                }}
+              >
+                Agora não
+              </Button>
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section
