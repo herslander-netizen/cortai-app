@@ -231,7 +231,7 @@ function TenantDialog({
       }}
     >
       <DialogContent className="bottom-0 left-0 right-0 top-auto h-[calc(100dvh-0.5rem)] w-full translate-y-0 gap-0 overflow-hidden rounded-b-none rounded-t-[28px] border-b-0 bg-[var(--figaro-surface-container,var(--ink2))] p-0 sm:left-1/2 sm:right-auto sm:top-1/2 sm:h-[min(820px,calc(100dvh-3rem))] sm:max-w-3xl sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-[28px] sm:border-b">
-        <DialogHeader className="shrink-0 border-b border-line px-5 pb-4 pt-5 pr-14 text-left sm:px-6 sm:pt-6 sm:pr-14">
+        <DialogHeader className="shrink-0 px-5 pb-4 pt-5 pr-14 text-left sm:px-6 sm:pt-6 sm:pr-14">
           <div className="flex min-w-0 items-center gap-2">
             <DialogTitle className="truncate">{tenant.nome}</DialogTitle>
             <span className="shrink-0 text-sm text-mute">| Negócio</span>
@@ -255,28 +255,28 @@ function TenantDialog({
         </DialogHeader>
 
         <Tabs defaultValue="overview" className="flex min-h-0 flex-1 flex-col">
-          <TabsList className="grid h-auto shrink-0 grid-cols-4 rounded-none border-b border-line bg-[var(--figaro-surface-container,var(--ink2))] p-0 px-3 sm:px-5">
+          <TabsList className="grid h-auto shrink-0 grid-cols-4 rounded-full bg-[var(--figaro-surface-container-high,var(--ink3))] p-1 px-2 sm:px-4">
             <TabsTrigger
               value="overview"
-              className="h-12 rounded-none border-b-2 border-transparent px-2 shadow-none data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+              className="h-10 rounded-full border-0 px-1 text-xs shadow-none data-[state=active]:bg-[var(--figaro-primary-container,var(--ink2))] data-[state=active]:text-[var(--figaro-primary,var(--primary))] data-[state=active]:shadow-none"
             >
               Visão geral
             </TabsTrigger>
             <TabsTrigger
               value="contact"
-              className="h-12 rounded-none border-b-2 border-transparent px-2 shadow-none data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+              className="h-10 rounded-full border-0 px-1 text-xs shadow-none data-[state=active]:bg-[var(--figaro-primary-container,var(--ink2))] data-[state=active]:text-[var(--figaro-primary,var(--primary))] data-[state=active]:shadow-none"
             >
               Contato
             </TabsTrigger>
             <TabsTrigger
               value="support"
-              className="h-12 rounded-none border-b-2 border-transparent px-2 shadow-none data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+              className="h-10 rounded-full border-0 px-1 text-xs shadow-none data-[state=active]:bg-[var(--figaro-primary-container,var(--ink2))] data-[state=active]:text-[var(--figaro-primary,var(--primary))] data-[state=active]:shadow-none"
             >
               Suporte
             </TabsTrigger>
             <TabsTrigger
               value="cortai"
-              className="h-12 rounded-none border-b-2 border-transparent px-2 shadow-none data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+              className="h-10 rounded-full border-0 px-1 text-xs shadow-none data-[state=active]:bg-[var(--figaro-primary-container,var(--ink2))] data-[state=active]:text-[var(--figaro-primary,var(--primary))] data-[state=active]:shadow-none"
             >
               Cortaí
             </TabsTrigger>
@@ -285,17 +285,17 @@ function TenantDialog({
           <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-5 sm:px-6">
             <TabsContent value="overview" className="mt-0 space-y-6">
               <section>
-                <div className="grid grid-cols-2 gap-3 border-b border-line pb-5">
-                  <div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))] p-3">
                     <p className="text-xs text-mute">Status</p>
                     <p className="mt-1 text-sm font-semibold text-paper">
                       {tenant.ativo ? "Ativa" : "Desativada"}
                     </p>
                   </div>
-                  <div>
+                  <div className="rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))] p-3">
                     <p className="text-xs text-mute">Agenda</p>
                     <p className="mt-1 flex items-center gap-1.5 text-sm font-semibold text-paper">
-                      <CalendarDays size={15} className="text-gold" />
+                      <CalendarDays size={15} className="text-[var(--figaro-primary,var(--primary))]" />
                       {tenant.agendamentos} agendamentos
                     </p>
                   </div>
@@ -318,7 +318,7 @@ function TenantDialog({
                 )}
               </section>
 
-              <section className="border-t border-line pt-5">
+              <section className="rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))] p-4">
                 <h3 className="text-sm font-semibold text-paper">Ações administrativas</h3>
                 <p className="mt-1 text-xs leading-relaxed text-mute">
                   {tenant.ativo
@@ -349,7 +349,7 @@ function TenantDialog({
                       : "Reativar negócio"}
                 </Button>
                 {erroStatus ? <p className="mt-2 text-xs text-brick">{erroStatus}</p> : null}
-                <div className="mt-5 border-t border-line pt-4">
+                <div className="mt-4 rounded-[12px] bg-[var(--figaro-surface-container-high,var(--ink3))] p-3">
                   <p className="text-xs text-mute2">
                     Prefira desativar. A exclusão apaga tudo desta barbearia para sempre.
                   </p>
@@ -372,7 +372,7 @@ function TenantDialog({
             </TabsContent>
 
             <TabsContent value="contact" className="mt-0 space-y-5">
-              <section className="flex flex-wrap items-center justify-between gap-3 border-b border-line pb-4">
+              <section className="flex flex-wrap items-center justify-between gap-3 rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))] p-4">
                 <div className="min-w-0">
                   <h3 className="text-sm font-semibold text-paper">Contato do negócio</h3>
                   <p className="mt-1 truncate text-xs text-mute">
@@ -502,9 +502,9 @@ function TenantDialog({
                   </div>
                 ) : null}
                 {contacts.data?.length ? (
-                  <ul className="mt-4 divide-y divide-line">
+                  <ul className="mt-4 space-y-2">
                     {contacts.data.map((contact) => (
-                      <li key={contact.id} className="py-3">
+                      <li key={contact.id} className="rounded-[12px] bg-[var(--figaro-surface-container-high,var(--ink3))] px-3 py-3">
                         <div className="flex justify-between gap-3">
                           <span className="text-sm text-paper">
                             {contact.canal === "whatsapp" ? "WhatsApp" : "Telefone"}
