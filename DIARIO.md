@@ -750,6 +750,12 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - Sem mudanças na interface da Agenda, migrações, bancos de dados, segredos, main ou site principal. TypeScript, Vitest, build e smoke test aguardam a validação automática do commit.
 ## Diário
 
+### 2026-10-27 — Ajuste de contraste da identidade global (GPT)
+- A primeira validação do commit `cd41bcb` passou build e TypeScript, mas falhou em cinco expectativas de separação entre cartão e fundo no modo claro (`contraste-app.test.ts`). A causa era a diferença de luminosidade insuficiente entre o fundo claro e a superfície do cartão.
+- Ajustei os tokens claros Figaro para uma base azulada mais próxima da nova identidade do Cortaí, mantendo os cartões brancos e aumentando a separação visual. O tema padrão escuro e as paletas públicas personalizadas continuam preservados.
+- Commit do ajuste: `58da597`. CI correspondente `40436207888` ainda está executando; não declarar validação final nem preview atualizado até terminar.
+- Nenhuma alteração de banco, site principal, DNS ou regras de negócio.
+
 ### 2026-10-27 — Identidade Cortaí baseada no Figaro (GPT)
 - **Direção:** o Figaro governa estrutura, hierarquia, primitivos, superfícies, folhas e movimento; a marca é própria do Cortaí: wordmark arredondado minimalista, marinho profundo e ponto coral sobre o “í”. Azul continua sendo cor de ação; coral sinaliza a marca sem dominar todas as telas.
 - **Código:** paleta padrão clara/escura e tokens globais em `src/styles.css`; cartão de preferências pós-agendamento agora é o primitivo `Card` com uma única expansão opcional; o teste de gateway desabilita o modo básico para verificar especificamente que erros de crédito/credenciais não acionam fallback.
