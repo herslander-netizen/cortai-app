@@ -12,7 +12,7 @@ import type { CapacidadesDoTenant } from "@/lib/capacidades";
 import {
   SEGMENTOS_CONFIG,
   chipsSaoPadraoBarbearia,
-  segmentoValido,
+  segmentoParaApresentacao,
   type Segmento,
 } from "@/lib/segmentos";
 import { normalizarPagina } from "@/lib/pagina-config";
@@ -185,7 +185,7 @@ export const getConfiguracaoInicial = createServerFn({ method: "GET" })
     const tenant = tenantRes.data;
     if (!tenant) throw new Error("Negócio não encontrado.");
 
-    const segmento = segmentoValido(tenant.segmento);
+    const segmento = segmentoParaApresentacao(tenant.segmento);
     const horarios: HorarioSugerido[] = (horariosRes.data ?? []).length
       ? (horariosRes.data ?? []).map(paraHorario)
       : SEGMENTOS_CONFIG[segmento].horariosPadrao.map((horario) => ({ ...horario }));
