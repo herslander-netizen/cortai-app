@@ -23,7 +23,7 @@ Legenda: [x] feito · [~] parcial · [ ] não feito. Uma etapa por vez; parar ao
 - [x] Corrigidos: fiado com limite e só dono, fidelidade só no pagamento, comissão líquida, baixa de fiado registrada, estorno supervisionado, preço alterado exige permissão
 - [ ] Validades/rollover (sem créditos com validade ainda)
 - [ ] Caução (aguardando regras)
-- [ ] Aging 30/60/90 do fiado
+- [x] Faixas de idade do fiado em 0–30/31–60/61–90/91+ dias desde o lançamento (não indica atraso contratual sem vencimento registrado)
 
 ## Etapa 3 — Canais, conversas e avisos sem custo
 - [~] Número compartilhado (link/código, histórico, menu numerado, troca)
