@@ -67,6 +67,13 @@ não configura credenciais, não cria hospedagem nem ativa cobranças por si só
 de prévia/produção é uma operação separada e precisa ser feita com as chaves do dono; nunca reutilizar
 as credenciais da prévia em produção.
 
+Diagnóstico de 27/10/2026: o gateway continua único e compatível com Chat Completions; os aliases
+`ollama`/`ollama_cloud` apenas tornam explícita a intenção de usar Ollama Cloud. O checkout não tem
+acesso aos valores dos secrets nem aos logs do Worker, portanto não confirma chamada real, status HTTP
+ou créditos da conta. O fallback LocalAI não foi ativado: sem instância HTTPS acessível e configuração
+completa, nenhuma tentativa é feita e nenhuma cobrança é iniciada. Logs de erro do provedor registram
+somente host, status e categoria, nunca corpo de resposta ou Authorization.
+
 ## Prévia e versões
 
 - Em 19/10, o fluxo de novo agendamento no padrão Figaro foi validado automaticamente e publicado na prévia com o banco isolado `cortai-preview`; teste manual no celular ainda pendente. Migrações 0039–0042 são exclusivas da prévia.

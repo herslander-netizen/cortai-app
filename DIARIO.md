@@ -494,9 +494,6 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Em andamento
 
-- GPT | 2026-10-27 UTC | Diagnóstico e correção do CortAI: validar configuração Ollama Cloud/LocalAI, observabilidade segura e painel mobile em 360/390 px; sem tocar Agenda, banco, secrets ou produção | `DIARIO.md`, `MUSE.md`, `src/lib/brain/gateway.server.ts`, `src/lib/brain/gateway-compativel.server.ts`, testes do gateway, `src/components/ia/FolhaCortai.tsx`, `src/components/ia/AssistenteCortai.tsx`, `src/styles.css`, testes do painel; sem migração |
-
-
 - GPT | 2026-10-27 UTC | Auditoria mobile-first dos botões e telas fora do padrão: começar pelo defeito visível em PersonalizacaoCliente (switch WhatsApp deformado/quebrando linha), padronizar com o primitivo Switch e revisar os achados de botões/controles nas telas não reservadas; definir inventário de páginas e corrigir em lotes validados. Excluir Agenda e não mexer em regras/backend/bancos | `DIARIO.md`, `src/components/barbeiro/PersonalizacaoCliente.tsx`, testes UI/estilo e inventário UX; sem migração |
 
 
@@ -528,6 +525,8 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 
 ## Recados
+
+- **Para todos (GPT, 27/10):** li os recados atuais. Esta tarefa ficou restrita ao gateway do CortAI e ao painel da CortAI; a Agenda, banco, secrets, DNS, `main` e produção permaneceram fora do escopo.
 
 - **Para todos (GPT, 27/10):** a adaptação Mobills→Cortaí está na branch de migração. Reutiliza o financeiro atual e não requer migração de banco; categorias e comparações foram adicionadas ao painel, e o Caixa mostra faixas de idade do fiado desde a criação. O relatório não afirma lucro, taxa conciliada nem atraso contratual sem dado próprio. A auditoria de paridade e as próximas fases estão em `docs/auditoria-mobills-cortai-2026-10-27.md`. Validar build, TypeScript, Vitest e deploy isolado antes de considerar concluído. Não publicar na main sem pedido do dono.
 
@@ -756,6 +755,14 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - Documentação adicionada: docs/auditoria-inbarber-cortai-2026-10-26.md e docs/propostas/widget-android-inbarber-cortai.md. O widget permanece especificado, não implementado: o repositório não tem projeto Android nativo, pacote/assinatura ou fluxo de autenticação para o widget.
 - Sem mudanças na interface da Agenda, migrações, bancos de dados, segredos, main ou site principal. TypeScript, Vitest, build e smoke test aguardam a validação automática do commit.
 ## Diário
+
+- GPT | 2026-10-27 UTC | Diagnóstico e correção do CortAI + auditoria mobile
+  - Gateway: o código não permite confirmar o valor dos secrets nem uma chamada real a partir do checkout; a prévia só encaminha `PREVIEW_CORTAI_AI_*`. O provedor continua sendo um único gateway compatível, agora aceitando os aliases `ollama`/`ollama_cloud` para Ollama Cloud sem criar outro cérebro. `CORTAI_AI_CANAIS` continua validado e o painel segue o canal padrão.
+  - Observabilidade: erros do provedor agora registram somente evento, host e status HTTP; o corpo da resposta não é mais gravado. Eventos de chamada recebem categoria não sensível (`autenticacao`, `credito`, `permissao`, `limite`, `temporario` ou `rede`). A mensagem 401 deixou de fingir que é configuração ausente.
+  - Mobile: `FolhaCortai` usa 88dvh no celular, mantém o cabeçalho fora da rolagem da conversa, separa conversa/compositor, respeita safe area e mantém alertas e controles acessíveis. O teste estrutural cobre diálogo, conversa, compositor, fechar e enviar.
+  - Testes: gateway/painel focados passaram (54 testes); `tsc --noEmit` passou via Node; build passou. A suíte completa executou 1.973 testes, com 1.947 aprovados, 1 ignorado e 25 falhas preexistentes nos testes de identidade/contrato CSS/Agenda (incluindo leitura de CSS com CRLF), sem falha nos arquivos do CortAI. Lint não foi confirmável neste checkout Windows: Bun deu stack overflow e ESLint/Prettier encontrou CRLF em massa nos arquivos existentes; não foi feita reformatação global.
+  - IA/fallback: nenhuma chave, URL ou cobrança foi criada. Não há evidência de chamada real ao Ollama nem de instância LocalAI acessível; o fallback permanece apenas opcional e desativado sem configuração completa.
+  - Banco/infra: sem migração, escrita em banco, DNS, `main` ou site principal. Publicação da prévia depende do push desta entrega e do workflow; chamada real do modelo continua pendente de secrets/logs de runtime.
 
 - GPT | 2026-10-27 UTC | Auditoria conversacional CortAI: preservada a ação pendente quando o provedor falha durante pergunta paralela e quando o agente esgota o limite de etapas; adicionados testes de regressão. A classificação de correções não trata número isolado como horário explícito; expressões com horário como "16h" seguem reconhecidas. Confirmações inequívocas em linguagem informal ("tá bom", "tudo bem", "pode confirmar", "confirmo sim") agora são reconhecidas, com testes. Revisão das permissões por canal/papel não encontrou bypass comprovado nos caminhos examinados; catálogo filtra ferramentas e a execução revalida autorização. TypeScript/build/testes passaram em workflow intermediário `40459212973`, mas o deploy isolado desse run ainda estava em andamento; as últimas mudanças de confirmação informal precisam de validação no workflow do commit final. Workflow final `40459706700` passou build, TypeScript, 2.087 testes (1 ignorado), deploy isolado e smoke test; prévia confirmada. Sem migração, escrita em banco real, publicação principal ou alteração em DNS. | `src/lib/brain/agente.server.ts`, `src/lib/brain/guardas.ts`, `src/lib/brain/agente-barreira.test.ts`, `src/lib/brain/agente-execucao-direta.test.ts`, `src/lib/brain/guardas.test.ts`; sem migração
 - GPT | 2026-10-27 UTC | CortAI: reforçado o contexto de conversação para referências ambíguas, revalidação antes de escrita e respeito às ferramentas/permissões do canal. Pedidos pendentes ficam preservados durante perguntas paralelas; correções geram nova proposta, não execução direta. Corrigida também a precedência de mensagens mistas como "sim, na verdade muda para 16h": a correção agora tem prioridade sobre confirmação/recusa para impedir executar o pedido antigo. Testes de contexto, catálogo de ferramentas e correção mista adicionados. Workflow 40457878556 passou build, TypeScript, testes e deploy isolado com smoke test; workflow mais recente após a correção de precedência ainda precisa terminar. Sem migração; produção, banco real e site principal intocados. | src/lib/brain/agente.server.ts, src/lib/brain/agente-barreira.test.ts, src/lib/brain/papeis.test.ts, src/lib/brain/agente-execucao-direta.test.ts; sem migração |

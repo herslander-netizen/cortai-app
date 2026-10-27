@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
+import { useMediaQuery } from "@/hooks/use-mobile";
 
 /**
  * Folha inferior (bottom sheet) da CortAI: abre sobre a tela atual, sem trocar
@@ -19,10 +20,15 @@ export function FolhaCortai({
   const [montado, setMontado] = useState(false);
   const [entrou, setEntrou] = useState(false);
   const [altura, setAltura] = useState(60); // vh
+  const celular = useMediaQuery("(max-width: 767px)");
   const [arrasto, setArrasto] = useState(0); // px para baixo
   const painel = useRef<HTMLDivElement | null>(null);
   const inicio = useRef<number | null>(null);
   const focoAnterior = useRef<HTMLElement | null>(null);
+
+  useEffect(() => {
+    if (celular) setAltura((atual) => Math.max(atual, 88));
+  }, [celular]);
 
   useEffect(() => {
     setMontado(true);
@@ -83,7 +89,7 @@ export function FolhaCortai({
         tabIndex={-1}
         className="cortai-sheet relative flex w-full max-w-[560px] flex-col overflow-hidden rounded-t-2xl border border-line2 bg-ink2 outline-none"
         style={{
-          height: `${altura}dvh`,
+          height: `${celular ? Math.max(altura, 88) : altura}dvh`,
           maxHeight: "100dvh",
           transform: entrou ? `translateY(${Math.max(0, arrasto)}px)` : "translateY(100%)",
           transition:

@@ -402,7 +402,7 @@ export function AssistenteCortai({
       rotulo="CortAI"
       cabecalho={
         <>
-          <header className="sticky top-0 z-10 flex items-center gap-2.5 border-b border-line bg-ink2 px-5 pb-2.5 pt-2">
+          <header className="shrink-0 flex items-center gap-2.5 border-b border-line bg-ink2 px-5 pb-2.5 pt-2">
             <span
               className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gold text-ink"
               aria-hidden
@@ -562,7 +562,11 @@ export function AssistenteCortai({
             </span>
           </div>
         ) : null}
-        {erro ? <p className="mt-4 text-sm text-brick">{erro}</p> : null}
+        {erro ? (
+          <p className="mt-4 text-sm text-brick" role="alert" aria-live="polite">
+            {erro}
+          </p>
+        ) : null}
         <div ref={fim} />
       </div>
 
@@ -755,7 +759,7 @@ export function AssistenteCortai({
             }}
             rows={1}
             placeholder="Escreva aqui…"
-            className="max-h-28 min-h-[44px] flex-1 resize-none rounded-xl border-0 bg-[var(--agenda-cartao,var(--ink2))] px-4 py-3 text-sm text-paper outline-none transition-colors placeholder:text-mute2 focus:border-gold/45"
+            className="max-h-28 min-h-[48px] flex-1 resize-none rounded-xl border-0 bg-[var(--agenda-cartao,var(--ink2))] px-4 py-3 text-sm text-paper outline-none transition-colors placeholder:text-mute2 focus:border-gold/45"
           />
           {voz.suportado ? (
             <button

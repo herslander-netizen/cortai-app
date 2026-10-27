@@ -2380,9 +2380,23 @@ body:has(.auth-screen--claro) {
   overflow-x: hidden;
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
+  scroll-padding-block: 16px;
 }
 .cortai-conversa-barra {
   padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+  overscroll-behavior: contain;
+}
+
+.cortai-sheet {
+  overscroll-behavior: contain;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+@media (max-width: 767px) {
+  .cortai-sheet {
+    max-height: 88dvh;
+    border-radius: 28px 28px 0 0;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

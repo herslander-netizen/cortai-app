@@ -65,7 +65,9 @@ export function lerConfigDoProvedor(env: Env = process.env): LeituraDaConfig {
     };
   // Modo básico por regras: sem IA, sem chave, sem custo (só painel).
   if (bruto === "regras") return { ok: true, config: { tipo: "regras" } };
-  if (bruto !== "openai_compatible")
+  // Ollama Cloud expõe a mesma superfície compatível; os aliases deixam a intenção
+  // explícita no secret sem criar um segundo provedor ou caminho de execução.
+  if (bruto !== "openai_compatible" && bruto !== "ollama" && bruto !== "ollama_cloud")
     return { ok: false, motivo: `CORTAI_AI_PROVIDER inválido ("${bruto.slice(0, 40)}").` };
 
   const baseUrl = (env["CORTAI_AI_BASE_URL"] ?? "").trim().replace(/\/+$/, "");
@@ -336,8 +338,16 @@ export async function chamarCompativel(
       }),
     });
     if (!resposta.ok) {
-      const corpo = await resposta.text().catch(() => "");
-      console.error(`[cerebro] provedor ${config.nome} ${resposta.status}: ${corpo.slice(0, 300)}`);
+      // Nunca registre o corpo: mensagens de erro de terceiros podem carregar prompt,
+      // identificadores ou outros dados sensíveis. O gateway já preserva o status para a
+      // política de fallback e para o estado visível do CortAI.
+      console.warn(
+        JSON.stringify({
+          evento: "cortai_ai_provider_error",
+          provedor: config.nome,
+          status: resposta.status,
+        }),
+      );
       throw new ErroDoProvedor(resposta.status, "provedor recusou");
     }
     return respostaParaItens(await resposta.json());

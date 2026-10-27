@@ -85,6 +85,7 @@ export type EventoDeChamada = {
   latenciaMs: number;
   ok: boolean;
   httpStatus?: number;
+  categoriaErro?: "autenticacao" | "credito" | "permissao" | "limite" | "temporario" | "rede";
   uso?: UsoDeTokens;
   /** Nomes das ferramentas pedidas pelo modelo nesta rodada. */
   ferramentas: string[];
@@ -95,8 +96,18 @@ function mensagemSegura(status: number): string {
   if (status === 402) return "Os créditos de IA do CortAI acabaram.";
   if (status === 403) return "A IA do CortAI está bloqueada para este negócio agora.";
   if (status === 429) return "A IA do CortAI está sobrecarregada. Tente de novo em instantes.";
-  if (status === 401) return "A IA do CortAI está sem configuração neste ambiente.";
+  if (status === 401) return "A autenticação da IA do CortAI foi recusada neste ambiente.";
   return "A IA do CortAI não conseguiu responder agora.";
+}
+
+function categoriaDoStatus(status: number): EventoDeChamada["categoriaErro"] {
+  if (status === 401) return "autenticacao";
+  if (status === 402) return "credito";
+  if (status === 403) return "permissao";
+  if (status === 429) return "limite";
+  if (status === 502 || status === 504) return "rede";
+  if (status >= 500) return "temporario";
+  return undefined;
 }
 
 /** Lê o SSE até `response.completed` e devolve os itens de saída. */
@@ -224,11 +235,13 @@ export function criarSessaoDoGateway(opcoes?: {
         return itens;
       } catch (erroPrimario) {
         const statusPrimario = erroPrimario instanceof ErroDoProvedor ? erroPrimario.status : 500;
+        const categoriaPrimaria = categoriaDoStatus(statusPrimario);
         avisar({
           ...base,
           latenciaMs: Date.now() - inicio,
           ok: false,
           httpStatus: statusPrimario,
+          ...(categoriaPrimaria ? { categoriaErro: categoriaPrimaria } : {}),
         });
 
         // Só falhas transitórias acionam o secundário. Erros de credencial, bloqueio
@@ -263,11 +276,13 @@ export function criarSessaoDoGateway(opcoes?: {
           return itens;
         } catch (erroFallback) {
           const statusFallback = erroFallback instanceof ErroDoProvedor ? erroFallback.status : 500;
+          const categoriaFallback = categoriaDoStatus(statusFallback);
           avisar({
             ...baseFallback,
             latenciaMs: Date.now() - inicioFallback,
             ok: false,
             httpStatus: statusFallback,
+            ...(categoriaFallback ? { categoriaErro: categoriaFallback } : {}),
           });
           throw new ErroDoGateway(
             statusFallback,

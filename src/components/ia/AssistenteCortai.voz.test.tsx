@@ -92,6 +92,12 @@ const botao = (rotulo: string) =>
 
 beforeEach(() => {
   vi.useFakeTimers();
+  (window as any).matchMedia = (query: string) => ({
+    matches: query.includes("max-width"),
+    media: query,
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+  });
   // jsdom não implementa a rolagem de elementos que a lista de mensagens usa.
   (Element.prototype as any).scrollTo = vi.fn();
   trilhas.length = 0;
@@ -622,5 +628,18 @@ describe("voz gratuita pelo navegador (sem servidor de transcrição)", () => {
     await avancar(0);
     expect(document.body.textContent).toMatch(/sem créditos/);
     expect(document.body.textContent).not.toMatch(/Não entendi o áudio/);
+  });
+});
+
+describe("estrutura mobile do painel CortAI", () => {
+  it("mantém conversa, sugestões e compositor em regiões separadas e acessíveis", async () => {
+    await montar(false);
+    expect(document.querySelector('[role="dialog"][aria-label="CortAI"]')).not.toBeNull();
+    expect(document.querySelector(".cortai-conversa-lista")).not.toBeNull();
+    expect(document.querySelector(".cortai-conversa-barra")).not.toBeNull();
+    expect(document.querySelector('textarea[placeholder="Escreva aqui…"]')).not.toBeNull();
+    expect(document.querySelector('button[aria-label="Enviar"]')).not.toBeNull();
+    expect(document.querySelector('button[aria-label="Fechar CortAI"]')).not.toBeNull();
+    expect(document.querySelector(".cortai-sheet")?.getAttribute("style")).toContain("88dvh");
   });
 });

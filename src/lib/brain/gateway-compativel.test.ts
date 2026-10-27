@@ -37,6 +37,14 @@ describe("lerConfigDoProvedor", () => {
     });
   });
 
+  it("aceita Ollama Cloud como alias do mesmo gateway compatível", () => {
+    const r = lerConfigDoProvedor({ ...base, CORTAI_AI_PROVIDER: "ollama_cloud" });
+    expect(r.ok && r.config.tipo === "compativel" && r.config).toMatchObject({
+      nome: "api.exemplo.test",
+      modelo: "openai/gpt-oss-20b",
+    });
+  });
+
   it("configuração incompleta ou inválida NÃO cai em outro provedor", () => {
     expect(lerConfigDoProvedor({ ...base, CORTAI_AI_API_KEY: "" }).ok).toBe(false);
     expect(lerConfigDoProvedor({ ...base, CORTAI_AI_MODEL: "" }).ok).toBe(false);
@@ -309,13 +317,15 @@ describe("chamarCompativel", () => {
     expect(corpo.tool_choice).toBeUndefined();
   });
 
-  it("repassa o status do provedor sem vazar a chave no log", async () => {
-    const erro = vi.spyOn(console, "error").mockImplementation(() => undefined);
+  it("repassa o status e não vaza chave nem corpo da resposta no log", async () => {
+    const erro = vi.spyOn(console, "warn").mockImplementation(() => undefined);
     const buscar = vi.fn(async () => new Response("quota", { status: 429 }));
     await expect(chamarCompativel(config, entrada, buscar as any)).rejects.toMatchObject({
       status: 429,
     });
     expect(JSON.stringify(erro.mock.calls)).not.toContain(config.chave);
+    expect(JSON.stringify(erro.mock.calls)).not.toContain("quota");
+    expect(erro.mock.calls[0]?.[0]).toContain('"status":429');
   });
 
   it("estouro de tempo vira 504 e falha de rede vira 502", async () => {
