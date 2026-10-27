@@ -300,6 +300,7 @@ export function PaginaPublicaConteudo({
                             loading="lazy"
                             width={96}
                             height={96}
+                            className="size-24 rounded-full object-cover"
                           />
                         ) : (
                           <span>{p.nome.charAt(0)}</span>
