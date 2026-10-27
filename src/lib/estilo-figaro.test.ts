@@ -134,6 +134,25 @@ describe("superfícies administrativas no padrão Figaro", () => {
   });
 });
 
+describe("hierarquia e listas de operação", () => {
+  it("automação usa a mesma escala do cabeçalho Figaro", () => {
+    const fonte = readFileSync("src/components/automacao/CentralDeAutomacao.tsx", "utf8");
+    expect(fonte).toContain('text-[22px] font-semibold leading-7');
+    expect(fonte).not.toContain('text-3xl font-bold');
+  });
+
+  it("ficha do cliente separa seções com espaço, sem divisor decorativo", () => {
+    const fonte = readFileSync("src/routes/barbeiro.clientes.$id.tsx", "utf8");
+    expect(fonte).not.toContain("mt-10 border-t border-line");
+  });
+
+  it("lista da fila na Visão Casa usa cartões separados, sem linhas horizontais", () => {
+    const fonte = readFileSync("src/routes/barbeiro.casa.lazy.tsx", "utf8");
+    expect(fonte).not.toContain("divide-y divide-line border-b border-line");
+    expect(fonte).toContain('className="space-y-2"');
+  });
+});
+
 describe("ordem permanente", () => {
   it("o documento existe e está ligado nos arquivos de regra", () => {
     const ordem = readFileSync("docs/ordem-padrao-figaro.md", "utf8");

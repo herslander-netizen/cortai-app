@@ -243,7 +243,7 @@ function FichaPage() {
 
           <BloqueioDeAgendamento clienteId={id} />
 
-          <section className="mt-10 border-t border-line pt-6">
+          <section className="mt-8 pt-6">
             <h2 className="text-sm font-semibold text-paper">Situação do cliente</h2>
             <p className="mt-1 text-xs text-mute">
               {data.cliente.arquivado_em

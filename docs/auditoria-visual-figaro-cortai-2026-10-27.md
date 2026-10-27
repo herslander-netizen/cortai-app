@@ -71,3 +71,12 @@ Esta entrega corrige a base compartilhada e exemplos concretos de duas áreas; *
 - **Perfil administrativo:** configurações e saída da conta passam a usar cartões neutros arredondados de 12 dp em vez de linhas separadas por borda inferior.
 - **Regressões:** `estilo-figaro.test.ts` verifica que esses dois fluxos não reintroduzam os divisores/fundos antigos.
 - **Estado:** a validação da rodada com esses arquivos e o smoke test da prévia precisam passar antes de considerar esse lote pronto. Não houve publicação principal nem alteração em banco real.
+
+
+## Automação, ficha do cliente e fila da Visão Casa — 27/10/2026
+
+- **Automação:** cabeçalho local agora usa a mesma escala tipográfica das outras telas internas, evitando o título 30 px com peso pesado.
+- **Ficha do cliente:** a seção “Situação do cliente” fica separada por espaçamento, sem linha horizontal decorativa.
+- **Visão Casa:** a lista de espera usa os cartões arredondados já existentes, separados por 8 dp, sem bordas/linhas em torno da lista.
+- **Regressões:** testes estruturais protegem a escala tipográfica e as duas remoções de divisores.
+- **Estado:** pendente de CI e smoke test do último commit. A revisão é estática; sem sessão de navegador conectada ainda não há conferência visual interativa em 390/360 px, claro/escuro ou redução de movimento.

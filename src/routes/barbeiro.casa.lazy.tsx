@@ -162,7 +162,7 @@ function CasaPage() {
               Chegadas · {d.fila.length}
             </h2>
             {d.fila.length ? (
-              <ul className="divide-y divide-line border-b border-line">
+              <ul className="space-y-2">
                 {d.fila.map((f) => (
                   <li key={f.id} className="flex items-center justify-between gap-3 rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))] px-4 py-3">
                     <span className="min-w-0">

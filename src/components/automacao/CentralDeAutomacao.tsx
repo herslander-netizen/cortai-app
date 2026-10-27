@@ -223,7 +223,7 @@ export function CabecalhoDaAutomacao() {
         <IconeWhatsApp className="size-5" />
       </span>
       <div className="min-w-0">
-        <h1 className="text-3xl font-bold leading-tight tracking-tight text-[var(--figaro-on-background,var(--paper))]">Automação do WhatsApp</h1>
+        <h1 className="text-[22px] font-semibold leading-7 tracking-tight text-[var(--figaro-on-background,var(--paper))] md:text-2xl">Automação do WhatsApp</h1>
         <p className="text-sm text-mute">Atendimento e avisos inteligentes</p>
       </div>
     </div>
