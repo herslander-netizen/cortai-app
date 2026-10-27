@@ -119,6 +119,21 @@ describe("separação visual em fluxos de divulgação", () => {
   });
 });
 
+describe("superfícies administrativas no padrão Figaro", () => {
+  it("barra fixa de publicação não usa divisor ou fundo web legado", () => {
+    const home = readFileSync("src/routes/admin.home.tsx", "utf8");
+    expect(home).not.toContain("border-t border-line bg-ink");
+    expect(home).toContain("--figaro-background");
+    expect(home).toContain('size="lg"');
+  });
+
+  it("perfil administrativo usa cartões arredondados em vez de linhas com borda inferior", () => {
+    const perfil = readFileSync("src/routes/admin.perfil.tsx", "utf8");
+    expect(perfil).not.toContain("border-b border-line");
+    expect(perfil).toContain("rounded-[12px] bg-[var(--figaro-surface-container");
+  });
+});
+
 describe("ordem permanente", () => {
   it("o documento existe e está ligado nos arquivos de regra", () => {
     const ordem = readFileSync("docs/ordem-padrao-figaro.md", "utf8");

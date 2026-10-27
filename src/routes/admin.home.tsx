@@ -356,8 +356,9 @@ function EditorDaHome() {
             </TabsContent>
           </Tabs>
 
-          <div className="sticky bottom-[calc(5rem+env(safe-area-inset-bottom))] z-10 flex flex-wrap gap-2 border-t border-line bg-ink py-3 md:bottom-0">
+          <div className="sticky bottom-[calc(5rem+env(safe-area-inset-bottom))] z-10 flex flex-wrap gap-2 bg-[var(--figaro-background,var(--ink))] py-3 md:bottom-0">
             <Button
+              size="lg"
               onClick={() => {
                 const c = montar();
                 if (c) publicar.mutate(c);

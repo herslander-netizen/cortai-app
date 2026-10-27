@@ -63,3 +63,11 @@ Esta entrega corrige a base compartilhada e exemplos concretos de duas áreas; *
 - **Superfícies:** `LinhasDeConfiguracao`, `LinhaDeOpcoes` e `GrupoDeCartoes` usam tokens `--figaro-surface-container-*` no lugar de fundo rígido ou alias visual da Agenda. A mudança atinge apenas os componentes de configuração reutilizados fora da Agenda.
 - **Regressões:** `Screen.test.tsx` verifica a nova escala do cabeçalho; `estilo-figaro.test.ts` verifica tipografia e independência dos componentes de configuração em relação aos tokens da Agenda.
 - **Estado:** código registrado no commit `f7b030952801847b28791e12f783893f717d5d09`. A execução automática e o smoke test da prévia ainda precisam confirmar esta rodada. A análise de rotas segue em andamento; não declarar paridade integral até inspeção de todos os estados e conferência visual móvel em 390/360 px e claro/escuro.
+
+
+## Barra de publicação e perfil administrativo — 27/10/2026
+
+- **Publicação da apresentação:** removido o divisor e o fundo de página legado da barra fixa. Ela acompanha o token de fundo do app e mantém o “Publicar” como ação principal de 56 dp; salvar rascunho e descartar seguem secundários. A lógica de publicação e as mutations não foram alteradas.
+- **Perfil administrativo:** configurações e saída da conta passam a usar cartões neutros arredondados de 12 dp em vez de linhas separadas por borda inferior.
+- **Regressões:** `estilo-figaro.test.ts` verifica que esses dois fluxos não reintroduzam os divisores/fundos antigos.
+- **Estado:** a validação da rodada com esses arquivos e o smoke test da prévia precisam passar antes de considerar esse lote pronto. Não houve publicação principal nem alteração em banco real.

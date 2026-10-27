@@ -56,7 +56,7 @@ function AdminPerfilPage() {
         <li>
           <InstalarCortai emGrupo />
         </li>
-        <li className="border-b border-line">
+        <li className="rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))] px-4">
           <Link
             to="/admin/ajustes"
             className="grid min-h-12 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4 py-3"
@@ -75,7 +75,7 @@ function AdminPerfilPage() {
               setSaindo(true);
               void sair();
             }}
-            className="grid min-h-12 w-full grid-cols-[auto_minmax(0,1fr)_auto] justify-start gap-4 rounded-[12px] px-4 py-3 text-left font-medium"
+            className="grid min-h-12 w-full grid-cols-[auto_minmax(0,1fr)_auto] justify-start gap-4 rounded-[12px] px-0 py-3 text-left font-medium"
           >
             <LogOut size={18} className="text-mute" />
             <span className="text-sm text-paper">{saindo ? "Saindo…" : "Sair da conta"}</span>
