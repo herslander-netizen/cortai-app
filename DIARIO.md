@@ -493,6 +493,8 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - 2026-10-26: **Cabeçalho do menu mobile mais compacto** (dono aprovou a reformulação após captura: logo menor, nome do negócio com hierarquia discreta, papel secundário, ajustes alinhados e menos espaço vazio; manter nome em até duas linhas quando necessário, sem afetar a Agenda).
 
 ## Em andamento
+- GPT — Padronizar fotos de perfil circulares em toda a aplicação, conforme a Agenda; auditar componentes vizinhos e preservar logos, capas, serviços/produtos e galeria; sem migração — `src/components/marca/PaginaPublica.tsx`, `src/components/chat/ChatShell.tsx`, `src/components/agendamento/chat/EtapasDoChat.tsx`, estilos de chat e componentes de perfil.
+
 
 - GPT | 2026-10-27 UTC | Integrar recursos financeiros inspirados no Mobills sem duplicar módulos do Cortaí: auditar categorias, fiado, pagamentos, taxas, recorrências e orçamento; implementar em etapas compatíveis, com migração aditiva apenas para prévia após revisão e testes. Não tocar Agenda, produção, main ou DNS | `DIARIO.md`, `docs/auditoria-mobills-cortai-2026-10-27.md`, `src/lib/financeiro*`, `src/routes/barbeiro.financeiro.tsx`, `src/routes/barbeiro.caixa.tsx`, componentes financeiros e migrações novas se necessárias; sem aplicar migrações nesta tarefa | 
 
