@@ -27,6 +27,7 @@ e o que fez. O diário até 17/10/2026 está guardado, sem alterações, em
 7. **Sem segredos:** nunca escreva chaves, senhas ou tokens aqui. Cite só o nome da variável.
 
 ## Decisões do dono
+- 2026-10-26: **Ações da comanda simplificadas em todos os fluxos** (dono): remover o botão/ícone de copiar código da comanda; destacar a ação do WhatsApp com rótulo explícito e manter apenas Compartilhar e Baixar imagem como ações secundárias. A cópia da chave Pix continua disponível.
 - 2026-10-26: **Zoom e botões do pé da Agenda iguais ao Figaro** (dono, vídeo do Figaro de 19:09: "preste atenção no zoom e nos ícones dos botões e replicar o mesmo comportamento e cores"). Grade: só a hora cheia como linha fixa; linhas de 5 em 5 min surgem com o zoom (invisíveis até 2,5 px/min, inteiras em 3,0; cheias na edição), tracejado 4/2, 2/3 dp, hint a 50%. **Substitui as decisões de 25/10** ("tracejado de 15 min só depois do zoom" e "marcas de 5 min só na edição"). Botão de visualização: ícone de lista na grade, ícone de agenda na lista, em azul; "Hoje" vira "Agora".
 - 2026-10-26: **Botões de baixo da Agenda na altura do Figaro** (dono, com captura do Figaro: "colocar os botões do cortaí nessa altura, referência de baixo pra cima"): barra "Hoje" e "+" com 64 dp, a 16 dp do pé mais a área da barra do sistema.
 - 2026-10-26: **Ficha: tocou abre uma etapa; puxou mostra tudo; arrastou ou fechou recolhe toda; nada de rolagem** (dono, com vídeo de 16:54). Substitui os detalhes da decisão anterior da ficha: etapa cheia pode ocupar a tela toda e nunca rola; qualquer arrasto para baixo fecha.
@@ -490,7 +491,6 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Em andamento
 
-| GPT | 2026-10-26 UTC | Simplificar ações da comanda em todos os fluxos: remover copiar código, destacar WhatsApp e manter compartilhar/baixar como secundários | `DIARIO.md`, `src/components/comanda/FolhaDoTicket.tsx`, `src/components/comanda/TicketDaConfirmacao.tsx`, `src/components/comanda/TicketComanda.tsx` e testes relacionados; sem migração |
 
 
 | GPT | 2026-10-26 UTC | Polimento de interação mobile fora da Agenda: seleção/cópia contextual, toque e arrasto nativos, zoom acidental sem bloquear acessibilidade; criar CSS isolado e testes, preservando Agenda e campos copiáveis | `DIARIO.md`, `src/routes/__root.tsx`, `src/styles/mobile-interactions.css`, `src/styles/mobile-interactions.test.ts`; sem migração |
@@ -742,6 +742,13 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - Documentação adicionada: docs/auditoria-inbarber-cortai-2026-10-26.md e docs/propostas/widget-android-inbarber-cortai.md. O widget permanece especificado, não implementado: o repositório não tem projeto Android nativo, pacote/assinatura ou fluxo de autenticação para o widget.
 - Sem mudanças na interface da Agenda, migrações, bancos de dados, segredos, main ou site principal. TypeScript, Vitest, build e smoke test aguardam a validação automática do commit.
 ## Diário
+
+### 2026-10-26 UTC — GPT — Simplifica ações da comanda
+- Removidos o botão “Copiar código” e o ícone de cópia do código do ticket em `TicketComanda.tsx`; removida a ação `copiarCodigo` do hook em `FolhaDoTicket.tsx`.
+- Nos fluxos interno e de confirmação pública, WhatsApp fica em botão principal com texto explícito; “Compartilhar” e “Baixar imagem” ficam como secundários. A confirmação pública agora também oferece “Compartilhar”.
+- A cópia da chave Pix foi preservada. Sem mudanças de regra de negócio, banco ou produção.
+- Commits de código: `2f417ffb2ab4541af6e361c02b3818559e94b9e1`, `3e73d20690a8d9c15bc5d7e364fd68c6cbb2d855`, `d1a33be0ec0ab5ffbcdafc6cd9981cbe0838e8f0`. O CI ainda não retornou resultado verificável; conferir TypeScript, testes, build e prévia antes de considerar validado.
+
 
 ### 2026-10-26 UTC — GPT — Compacta o cabeçalho do menu mobile
 - `src/components/layout/ManagementDrawer.tsx`: logo reduzida de 44 para 40 dp; nome do estabelecimento explicitamente definido em 18/24, negrito e limitado a duas linhas; papel definido em 13/18; reduzido o espaçamento vertical do topo.
