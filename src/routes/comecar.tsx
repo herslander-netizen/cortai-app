@@ -1,5 +1,5 @@
 import { createFileRoute, redirect, useNavigate, Link } from "@tanstack/react-router";
-import { ArrowLeft, CalendarDays, ChevronRight, Scissors } from "lucide-react";
+import { ArrowLeft, BriefcaseBusiness, CalendarDays, ChevronRight } from "lucide-react";
 import { useState } from "react";
 
 import { supabase } from "@/integrations/supabase/client";
@@ -29,10 +29,10 @@ export const Route = createFileRoute("/comecar")({
       { title: "Começar — Cortaí" },
       {
         name: "description",
-        content: "Escolha como usar o Cortaí: agendar ou gerenciar seu negócio de Beleza.",
+        content: "Escolha como usar o Cortaí: agendar ou gerenciar seu negócio de serviços.",
       },
       { property: "og:title", content: "Começar — Cortaí" },
-      { property: "og:description", content: "Agendar ou gerenciar seu negócio de Beleza." },
+      { property: "og:description", content: "Agendar ou gerenciar seu negócio de serviços." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex, nofollow" },
@@ -88,7 +88,7 @@ function ComecarPage() {
   const [modo, setModo] = useState<"escolha" | "segmento" | "negocio">(
     sessao?.papel === "barbeiro" || sessao?.papel === "cliente" ? "segmento" : "escolha",
   );
-  const [segmento, setSegmento] = useState<Segmento>("barbearia");
+  const [segmento, setSegmento] = useState<Segmento>("outro");
   const [nome, setNome] = useState("");
   const [documento, setDocumento] = useState("");
   const [telefone, setTelefone] = useState("");
@@ -200,7 +200,7 @@ function ComecarPage() {
             <span>
               <span className="block text-sm font-semibold text-paper">Quero agendar</span>
               <span className="mt-1 block text-xs text-mute">
-                Marcar horários em negócios de Beleza.
+                Marcar horários em diferentes tipos de serviço.
               </span>
             </span>
           </Button>
@@ -209,10 +209,10 @@ function ComecarPage() {
             className="grid h-auto w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center justify-items-stretch gap-4 whitespace-normal rounded-none px-4 py-5 text-left font-normal"
             onClick={() => setModo("segmento")}
           >
-            <Scissors size={20} className="text-gold" aria-hidden />
+            <BriefcaseBusiness size={20} className="text-gold" aria-hidden />
             <span>
               <span className="block text-sm font-semibold text-paper">Tenho um negócio</span>
-              <span className="mt-1 block text-xs text-mute">Escolha seu segmento de Beleza.</span>
+              <span className="mt-1 block text-xs text-mute">Escolha o tipo de serviço do seu negócio.</span>
             </span>
           </Button>
         </div>
@@ -370,7 +370,7 @@ function InicioPublico() {
           <CalendarDays size={22} className="text-gold" aria-hidden />
           <span>
             <span className="block text-base font-semibold text-paper">Quero agendar</span>
-            <span className="mt-1 block text-sm text-mute">Marcar horários em negócios de Beleza.</span>
+            <span className="mt-1 block text-sm text-mute">Marcar horários em diferentes tipos de serviço.</span>
           </span>
           <ChevronRight size={19} className="text-mute2" aria-hidden />
         </Button>
@@ -381,10 +381,10 @@ function InicioPublico() {
             void navigate({ to: "/login", search: { proximo: "/comecar", aba: "criar" } })
           }
         >
-          <Scissors size={22} className="text-gold" aria-hidden />
+          <BriefcaseBusiness size={22} className="text-gold" aria-hidden />
           <span>
             <span className="block text-base font-semibold text-paper">Tenho um negócio</span>
-            <span className="mt-1 block text-sm text-mute">Escolha seu segmento de Beleza.</span>
+            <span className="mt-1 block text-sm text-mute">Escolha o tipo de serviço do seu negócio.</span>
           </span>
           <ChevronRight size={19} className="text-mute2" aria-hidden />
         </Button>
