@@ -42,7 +42,7 @@ O CI (GitHub Actions) roda TypeScript, testes e build a cada envio; use-o como v
 
 ## Produto
 
-- Plataforma de gestão para negócios de beleza. Barbearia é só um segmento. Assinatura: "Simplifica. Conecta. Cresce."
+- Plataforma de gestão e agendamento para negócios de serviços. Beleza é um dos segmentos atendidos; barbearia é apenas um segmento dentro dele. Sem segmento definido, a experiência e a linguagem devem ser neutras. Assinatura: "Simplifica. Conecta. Cresce."
 - **Cortaí** = plataforma e experiência. **CortAI** = camada de IA. **Cortaí Chat** = agendamento conversacional determinístico.
 - O motor oficial de agenda, disponibilidade, mutações e RPCs é a única fonte de verdade.
 - Papéis neutros: NEGÓCIO (tenant), DONO, PROFISSIONAL, CLIENTE. Termos de segmento só aparecem na UI, via `termos(segmento)` (`src/lib/segmentos.ts`). Código, rotas, tabelas, tipos, modelos de WhatsApp e textos fixos ficam neutros.
