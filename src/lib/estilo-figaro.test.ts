@@ -110,6 +110,15 @@ describe("hierarquia visual Figaro", () => {
   });
 });
 
+describe("separação visual em fluxos de divulgação", () => {
+  it("indicações e QR mantêm grupos sem divisor web legado", () => {
+    const indicacoes = readFileSync("src/routes/barbeiro.indicacoes.tsx", "utf8");
+    const qr = readFileSync("src/routes/barbeiro.qr-code.tsx", "utf8");
+    expect(indicacoes).not.toContain("border-t border-line");
+    expect(qr).not.toContain("border-t border-line");
+  });
+});
+
 describe("ordem permanente", () => {
   it("o documento existe e está ligado nos arquivos de regra", () => {
     const ordem = readFileSync("docs/ordem-padrao-figaro.md", "utf8");

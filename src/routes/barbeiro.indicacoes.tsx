@@ -121,7 +121,7 @@ function IndicacoesPage() {
           {acao.estaEm("config") ? "Salvando…" : "Salvar programa"}
         </Button>
 
-        <div className="mt-5 border-t border-line pt-4">
+        <div className="mt-5 pt-4">
           <p className="break-all text-xs text-mute">{link}</p>
           <Button
             variant="ghost"

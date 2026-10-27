@@ -130,7 +130,7 @@ function QrCodeDaPagina() {
               </div>
             </div>
           </div>
-          <div className="mt-5 flex flex-wrap gap-2 border-t border-line pt-4">
+          <div className="mt-5 flex flex-wrap gap-2 pt-4">
             <Button asChild variant="outline">
               <a href={link} target="_blank" rel="noreferrer">
                 Ver página <ArrowUpRight size={16} aria-hidden />
