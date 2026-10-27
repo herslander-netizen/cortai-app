@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 
 import { Button } from "@/components/ui/button";
+import { Chip } from "@/components/ui/chip";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { aviso } from "@/lib/avisos";
@@ -81,31 +82,23 @@ export function PreferenciasDoCliente() {
   const p = data.pref;
   const mostrarHorarios = p.whatsapp_ativo || p.push_ativo;
   const mudar = (parcial: Partial<Pref>) => salvar.mutate({ ...p, ...parcial });
-  const chip = (ativo: boolean) =>
-    `h-auto min-h-12 rounded-full border px-4 text-sm ${ativo ? "border-gold/45 bg-gold-soft text-paper" : "border-line text-mute"}`;
 
   return (
     <section className="mt-8">
       <h2 className="mb-2 text-xs font-semibold uppercase text-mute2">Lembretes do horário</h2>
       <div className="flex flex-wrap gap-2">
-        <Button
-          type="button"
-          variant="ghost"
-          aria-pressed={p.whatsapp_ativo}
-          className={chip(p.whatsapp_ativo)}
+        <Chip
+          selecionado={p.whatsapp_ativo}
           onClick={() => mudar({ whatsapp_ativo: !p.whatsapp_ativo })}
         >
           WhatsApp
-        </Button>
-        <Button
-          type="button"
-          variant="ghost"
-          aria-pressed={p.push_ativo}
-          className={chip(p.push_ativo)}
+        </Chip>
+        <Chip
+          selecionado={p.push_ativo}
           onClick={() => mudar({ push_ativo: !p.push_ativo })}
         >
           No celular
-        </Button>
+        </Chip>
       </div>
       <AnimatePresence initial={false}>
         {mostrarHorarios ? (
