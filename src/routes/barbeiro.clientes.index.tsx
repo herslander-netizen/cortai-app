@@ -76,7 +76,7 @@ function ClientesPage() {
   return (
     <Screen title="Clientes" subtitle="Histórico, frequência e quem está na hora de voltar.">
       {data && data.trazerDeVolta.length > 0 ? (
-        <section data-guia="clientes-retorno" className="surface p-5">
+        <section data-guia="clientes-retorno" className="rounded-[28px] bg-[var(--figaro-surface-container,var(--ink2))] p-5">
           <p className="text-xs font-semibold uppercase text-gold">Voltaí</p>
           <p className="mt-1 text-sm font-semibold text-paper">
             {ehBarbearia ? "Seu cliente corta. Ganha. Volta." : "Cliente vem. Ganha. Volta."}
@@ -91,7 +91,7 @@ function ClientesPage() {
                   <Link
                     to="/barbeiro/clientes/$id"
                     params={{ id: c.id }}
-                    className="block truncate text-sm font-medium text-gold underline underline-offset-2"
+                    className="block truncate text-sm font-medium text-[var(--figaro-primary,var(--primary))] underline underline-offset-2"
                   >
                     {c.nome}
                   </Link>
@@ -106,7 +106,7 @@ function ClientesPage() {
                     target="_blank"
                     rel="noreferrer"
                     aria-label={`Chamar ${c.nome} no WhatsApp`}
-                    className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-line2 text-gold"
+                    className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[12px] bg-[var(--figaro-primary-container,var(--ink2))] text-[var(--figaro-primary,var(--primary))]"
                   >
                     <MessageCircle size={16} />
                   </a>
@@ -118,7 +118,7 @@ function ClientesPage() {
       ) : null}
 
       <div className="mt-5 grid grid-cols-3 gap-2" aria-label="Resumo dos clientes">
-        <div className="surface px-3 py-3">
+        <div className="rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))] px-3 py-3">
           <p className="text-xs text-mute2">Ativos</p>
           <p className="mt-1 text-lg font-bold text-paper">
             {data?.clientes.filter((c) => c.status !== "inativo").length ?? "—"}
@@ -132,7 +132,7 @@ function ClientesPage() {
         </div>
         <div className="surface px-3 py-3">
           <p className="text-xs text-mute2">Voltaí</p>
-          <p className="mt-1 text-lg font-bold text-gold">{data?.trazerDeVolta.length ?? "—"}</p>
+          <p className="mt-1 text-lg font-bold text-[var(--figaro-primary,var(--primary))]">{data?.trazerDeVolta.length ?? "—"}</p>
         </div>
       </div>
 
@@ -177,12 +177,12 @@ function ClientesPage() {
         </div>
       ) : null}
       {data && lista.length === 0 ? <EmptyState text="Nenhum cliente encontrado." /> : null}
-      <ul data-guia="clientes-lista" className="mt-2">
+      <ul data-guia="clientes-lista" className="mt-2 space-y-2">
         {lista.map((c, i) => {
           const rotulo = ROTULOS[c.status];
           return (
-            <ItemCascata key={c.id} indice={i} className="border-b border-line">
-              <Link to="/barbeiro/clientes/$id" params={{ id: c.id }} className="block py-4">
+            <ItemCascata key={c.id} indice={i} className="rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))] px-4 py-3">
+              <Link to="/barbeiro/clientes/$id" params={{ id: c.id }} className="block">
                 <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4">
                   <div className="min-w-0">
                     <p className="truncate text-sm text-paper">{c.nome}</p>
@@ -228,7 +228,7 @@ function ClientesPage() {
                       href={whatsappLink(c.telefone, c.nome, ehBarbearia, c.retornoServico)}
                       target="_blank"
                       rel="noreferrer"
-                      className="inline-flex min-h-10 items-center gap-1.5 font-semibold text-gold"
+                      className="inline-flex min-h-12 items-center gap-1.5 font-semibold text-[var(--figaro-primary,var(--primary))]"
                       aria-label={`Chamar ${c.nome} no WhatsApp`}
                     >
                       <MessageCircle size={15} aria-hidden /> Chamar

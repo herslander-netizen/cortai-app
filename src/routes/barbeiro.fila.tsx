@@ -155,9 +155,9 @@ function FilaPage() {
       {data && total === 0 ? (
         <EmptyState text="Quando a agenda lotar, seus clientes podem entrar na lista de espera pelo link de agendamento." />
       ) : null}
-      <ul className="mt-4">
+      <ul className="mt-4 space-y-2">
         {(data?.itens ?? []).map((f, i) => (
-          <ItemCascata key={f.id} indice={i} className="border-b border-line py-4">
+          <ItemCascata key={f.id} indice={i} className="rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))] p-4">
             <div className="flex items-start gap-3">
               <span
                 className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground"
@@ -306,11 +306,11 @@ function FilaPage() {
       {data && data.historico.length > 0 ? (
         <>
           <h2 className="mb-1 mt-8 text-sm font-semibold text-paper">Histórico de ofertas</h2>
-          <ul>
+          <ul className="space-y-2">
             {data.historico.map((o) => (
               <li
                 key={o.id}
-                className="flex items-center justify-between gap-3 border-b border-line py-3 text-xs"
+                className="flex items-center justify-between gap-3 rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))] px-4 py-3 text-xs"
               >
                 <span className="min-w-0">
                   <span className="block text-sm text-paper">{o.cliente}</span>

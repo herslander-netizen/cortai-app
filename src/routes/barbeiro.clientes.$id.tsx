@@ -6,6 +6,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 
 import { EmptyState, Screen } from "@/components/layout/Screen";
+import { Card } from "@/components/ui/card";
 import { brl } from "@/lib/format";
 import { ExclusaoPermanente } from "@/components/seguranca/ExclusaoPermanente";
 import { Aviso } from "@/components/ui/aviso";
@@ -93,7 +94,7 @@ function FichaPage() {
     >
       <Link
         to="/barbeiro/clientes"
-        className="mb-4 inline-flex min-h-12 items-center text-xs text-mute underline"
+        className="mb-4 inline-flex min-h-12 items-center text-sm font-medium text-[var(--figaro-primary,var(--primary))] underline underline-offset-2"
       >
         Voltar para clientes
       </Link>
@@ -112,10 +113,10 @@ function FichaPage() {
             <PerfilClienteConteudo clienteId={id} segmento={segmento} />
           </section>
 
-          <div className="surface px-5 py-5">
+          <Card density="default" className="rounded-[28px]">
             <p className="text-xs text-mute">Fiado em aberto</p>
             <p className={`mt-1 text-[28px] font-bold leading-none ${cor}`}>{brl(aberto)}</p>
-            <div className="mt-4 h-2 w-full overflow-hidden rounded-full bg-ink3">
+            <div className="mt-4 h-2 w-full overflow-hidden rounded-full bg-[var(--figaro-surface-container-high,var(--ink3))]">
               <div className={`h-full ${corFundo}`} style={{ width: `${quitado ? 100 : pct}%` }} />
             </div>
             <p className="mt-2 text-xs text-mute2">
@@ -125,19 +126,19 @@ function FichaPage() {
                     data.maisAntigo ? dataCurta(data.maisAntigo) : "—"
                   }`}
             </p>
-          </div>
+          </Card>
 
           <h2 className="mb-1 mt-8 text-sm font-semibold text-paper">Débitos em aberto</h2>
           {data.debitos.length === 0 ? (
             <EmptyState text="Nenhum débito lançado." />
           ) : (
-            <ul>
+            <ul className="space-y-2">
               {data.debitos.map((d) => {
                 const velho = diasDesde(d.criado_em) > 30;
                 return (
                   <li
                     key={d.id}
-                    className="flex items-start justify-between gap-4 border-b border-line py-4"
+                    className="flex items-start justify-between gap-4 rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))] px-4 py-3"
                   >
                     <div>
                       <p className="text-sm text-paper">{d.descricao ?? "Lançado no fiado"}</p>
@@ -210,11 +211,11 @@ function FichaPage() {
           {data.baixas.length > 0 ? (
             <>
               <h2 className="mb-1 mt-8 text-sm font-semibold text-paper">Baixas registradas</h2>
-              <ul>
+              <ul className="space-y-2">
                 {data.baixas.map((b) => (
                   <li
                     key={b.id}
-                    className="flex items-start justify-between gap-4 border-b border-line py-4"
+                    className="flex items-start justify-between gap-4 rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))] px-4 py-3"
                   >
                     <div>
                       <p className="text-sm text-paper">{b.descricao ?? "Baixa do fiado"}</p>
@@ -234,7 +235,7 @@ function FichaPage() {
               <h2 className="mb-2 mt-8 text-sm font-semibold text-paper">
                 {tp.barbearia ? "Anotação antiga do corte" : "Anotação antiga"}
               </h2>
-              <p className="surface px-4 py-4 text-sm text-mute">{data.cliente.ficha_tecnica}</p>
+              <p className="rounded-[28px] bg-[var(--figaro-surface-container,var(--ink2))] px-4 py-4 text-sm text-mute">{data.cliente.ficha_tecnica}</p>
             </>
           ) : null}
 

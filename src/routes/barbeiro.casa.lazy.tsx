@@ -33,7 +33,7 @@ function Linha({ l, agora, fuso }: { l: LinhaDaCasa; agora: number; fuso: string
     const prev = l.previstoMin ?? 0;
     const estourou = prev > 0 && passou > prev;
     return (
-      <li className="py-3">
+      <li className="rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))] px-4 py-3">
         <div className="flex items-center justify-between gap-3">
           <span className="min-w-0 truncate text-sm font-semibold text-paper">{l.nome}</span>
           <span className="shrink-0 text-xs text-mute">
@@ -44,7 +44,7 @@ function Linha({ l, agora, fuso }: { l: LinhaDaCasa; agora: number; fuso: string
           <StatusBadge status="na_cadeira" />
           <span className="truncate">{l.cliente}</span>
         </p>
-        <div className="mt-2 h-1 overflow-hidden rounded-full bg-ink3">
+        <div className="mt-2 h-1 overflow-hidden rounded-full bg-[var(--figaro-surface-container-high,var(--ink3))]">
           <div
             className={`h-full ${estourou ? "bg-brick" : "bg-gold"}`}
             style={{ width: `${prev ? Math.min(100, (passou / prev) * 100) : 0}%` }}
@@ -149,7 +149,7 @@ function CasaPage() {
               {tp.barbearia ? "Cadeiras" : "Atendimentos"}
             </h2>
             {d.linhas.length ? (
-              <ul className="divide-y divide-line border-b border-line">
+              <ul className="space-y-2">
                 {d.linhas.map((l) => (
                   <Linha key={l.profissionalId} l={l} agora={agora} fuso={d.fuso} />
                 ))}
@@ -164,7 +164,7 @@ function CasaPage() {
             {d.fila.length ? (
               <ul className="divide-y divide-line border-b border-line">
                 {d.fila.map((f) => (
-                  <li key={f.id} className="flex items-center justify-between gap-3 py-3">
+                  <li key={f.id} className="flex items-center justify-between gap-3 rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))] px-4 py-3">
                     <span className="min-w-0">
                       <span className="block truncate text-sm text-paper">{f.nome}</span>
                       {f.servico ? (
@@ -186,7 +186,7 @@ function CasaPage() {
                 <h2 className="mt-7 text-xs font-semibold uppercase tracking-wide text-mute">
                   Caixa do dia
                 </h2>
-                <div className="flex items-baseline justify-between border-b border-line py-3">
+                <div className="mt-2 flex items-baseline justify-between gap-3 rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))] px-4 py-3">
                   <span className="text-sm text-mute">
                     {d.caixa.atendimentos} atendimento{d.caixa.atendimentos === 1 ? "" : "s"} ·{" "}
                     {d.caixa.aberto ? "caixa aberto" : "caixa fechado"}
