@@ -5,7 +5,6 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState, type ReactNode } from "react";
-import { createPortal } from "react-dom";
 import {
   AlertTriangle,
   CalendarPlus,
@@ -13,7 +12,6 @@ import {
   MessageCircle,
   ShieldCheck,
   Smartphone,
-  X,
 } from "lucide-react";
 
 import { Screen, EmptyState } from "@/components/layout/Screen";
@@ -23,6 +21,7 @@ import { QrCodeReal } from "@/components/ia/QrCodeReal";
 import { diagnosticoDoEnvio, type TomDoEnvio } from "@/lib/whatsapp/erros-meta";
 import { TONS, type ConfiguracaoDoAtendimento } from "@/lib/whatsapp/contrato";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { mensagemDeAcessoNegado, RouteError } from "@/components/layout/RouteError";
 import { getAvaliacoes } from "@/lib/crescimento.functions";
 import { type TipoDeConexao } from "@/lib/whatsapp/finalidade-conexao";
@@ -1124,49 +1123,29 @@ function ModalQr({
   aoGerarNovo: () => void;
   gerando: boolean;
 }) {
-  useEffect(() => {
-    const aoTeclar = (e: KeyboardEvent) => {
-      if (e.key === "Escape") aoFechar();
-    };
-    window.addEventListener("keydown", aoTeclar);
-    document.body.style.overflow = "hidden";
-    return () => {
-      window.removeEventListener("keydown", aoTeclar);
-      document.body.style.overflow = "";
-    };
-  }, [aoFechar]);
-
-  return createPortal(
-    <div
-      role="dialog"
-      aria-modal="true"
-      aria-label="Conectar o WhatsApp por QR Code"
-      className="fixed inset-0 z-[80] flex items-center justify-center p-4"
-      style={{ background: "rgba(11,11,11,.72)", backdropFilter: "blur(8px)" }}
-      onClick={aoFechar}
-    >
-      <div className="w-full max-w-sm rounded-[28px] bg-[var(--figaro-surface-container,var(--ink2))] p-5 text-center shadow-lg" onClick={(e) => e.stopPropagation()}>
-        <div className="flex items-center justify-between">
-          <h3 className="text-sm font-semibold text-paper">Conectar WhatsApp</h3>
-          <Button
-            variant="ghost"
-            type="button"
-            aria-label="Fechar"
-            className="text-mute"
-            onClick={aoFechar}
-          >
-            <X size={18} />
-          </Button>
+  return (
+    <Dialog open onOpenChange={(aberto) => { if (!aberto) aoFechar(); }}>
+      <DialogContent
+        aria-describedby="instrucoes-conectar-whatsapp"
+        className="w-full max-w-sm text-center"
+      >
+        <div className="pr-8 text-left">
+          <DialogTitle className="text-sm font-semibold text-paper">
+            Conectar WhatsApp
+          </DialogTitle>
         </div>
 
-        <div className="mt-4">
+        <div className="mt-1">
           <QrCodeReal valor={valor} alt="QR Code para conectar o WhatsApp do negócio" />
         </div>
 
-        <p className="mt-4 text-xs leading-relaxed text-paper">
+        <DialogDescription
+          id="instrucoes-conectar-whatsapp"
+          className="text-xs leading-relaxed text-paper"
+        >
           Abra o WhatsApp no celular → Dispositivos conectados → Conectar dispositivo → escaneie o
           QR Code.
-        </p>
+        </DialogDescription>
         {restante !== null ? (
           <p
             className={`mt-2 text-xs font-medium ${restante <= 15 ? "text-brick" : "text-mute2"}`}
@@ -1180,15 +1159,14 @@ function ModalQr({
         <Button
           variant="outline"
           type="button"
-          className="mt-5 w-full text-paper disabled:opacity-50"
+          className="mt-2 w-full text-paper disabled:opacity-50"
           disabled={gerando}
           onClick={aoGerarNovo}
         >
           {gerando ? "Gerando…" : "Gerar novo QR Code"}
         </Button>
-      </div>
-    </div>,
-    document.body,
+      </DialogContent>
+    </Dialog>
   );
 }
 
