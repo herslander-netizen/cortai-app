@@ -300,7 +300,7 @@ async function pensarCortaiComTurno(
     // Número solto nunca confirma ação da IA: mantém a pendente e pede SIM/NÃO.
     return fim(TEXTO_PEDIR_SIM_OU_NAO, anterior);
   }
-  if (anterior && confirmacaoInequivoca(input.mensagem)) {
+  if (anterior && confirmacaoInequivoca(input.mensagem, anterior.acao)) {
     if (input.consumirPendente) {
       let consumida: boolean;
       try {
