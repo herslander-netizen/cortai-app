@@ -44,7 +44,7 @@ export function confirmacaoInequivoca(texto: string, acaoPendente?: string): boo
   const especifica = especificas.find((item) => item.padrao.test(t));
   if (especifica) return Boolean(acaoPendente && especifica.acoes.includes(acaoPendente));
 
-  return /^(sim|s|ss|isso|isso mesmo|pode|pode sim|pode ser|confirmo|confirmar|confirma|confirmado|ok|okay|beleza|blz|fechado|fechou|certo|bora|perfeito)( por favor| pfv| obrigad[oa])?$/.test(
+  return /^(sim|s|ss|isso|isso mesmo|pode|pode sim|pode ser|pode confirmar|confirmo|confirmo sim|confirmar|confirma|confirmado|ta bom|tudo bem|ok|okay|beleza|blz|fechado|fechou|certo|bora|perfeito)( por favor| pfv| obrigad[oa])?$/.test(
     t,
   );
 }
