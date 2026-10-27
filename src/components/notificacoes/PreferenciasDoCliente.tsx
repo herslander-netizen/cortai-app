@@ -1,7 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 
-import { Button } from "@/components/ui/button";
 import { Chip } from "@/components/ui/chip";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
@@ -123,16 +122,13 @@ export function PreferenciasDoCliente() {
             <p className="mb-2 mt-4 text-xs text-mute">Quando avisar</p>
             <div className="flex flex-wrap gap-2">
               {FREQ.map((f) => (
-                <Button
+                <Chip
                   key={f.v}
-                  type="button"
-                  variant="ghost"
-                  aria-pressed={p.frequencia === f.v}
-                  className={chip(p.frequencia === f.v)}
+                  selecionado={p.frequencia === f.v}
                   onClick={() => mudar({ frequencia: f.v })}
                 >
                   {f.r}
-                </Button>
+                </Chip>
               ))}
             </div>
             <p className="mb-2 mt-4 text-xs text-mute">Não me avisar entre</p>
