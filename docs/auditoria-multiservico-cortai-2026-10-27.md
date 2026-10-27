@@ -127,6 +127,25 @@ Um resultado só é considerado concluído depois de TypeScript, testes, build, 
 - O segmento genérico atualmente permite serviços personalizados, mas não é um catálogo de verticais completo. Não adicionar clínicas, aulas, assistência técnica ou outras categorias como segmentos oficiais sem verificar as regras e a cobertura funcional de cada uma.
 - Não foi criada nem aplicada migração; nenhum banco foi consultado ou alterado.
 
+### P1 — Rascunho, sessão e divulgação também tinham fallback específico de Beleza/barbearia
+
+**Antes**
+- `src/lib/rascunho.functions.ts` criava rascunhos novos com segmento e horários padrão de barbearia.
+- `src/lib/sessao.functions.ts` expunha barbearia como segmento da sessão quando ainda não havia negócio vinculado; também usava o fallback legado ao ler um segmento ausente no negócio.
+- `src/lib/whatsapp/motor/vocabulario.ts` interpretava palavras ambíguas usando barbearia quando o chamador não informava segmento.
+- `src/lib/divulgacao.ts` gerava hashtags de Beleza para segmentos ausentes/desconhecidos e só tinha hashtags específicas para parte dos segmentos suportados.
+
+**Correção aplicada**
+- Rascunhos novos usam segmento `outro` e horários genéricos; dados de rascunhos já salvos com segmento explícito permanecem intactos.
+- Sessões sem negócio começam com segmento neutro; ao carregar um negócio com segmento ausente/desconhecido, a sessão usa `segmentoParaApresentacao()` para não expor um rótulo de barbearia.
+- O vocabulário conversacional usa `outro` quando o chamador omite o segmento; a escolha explícita de barbearia continua reconhecendo os aliases de corte.
+- Hashtags sem segmento agora são `#servicos`, `#atendimento` e `#agendamento`; os segmentos de salão, cabeleireiro, esmalteria, sobrancelha/cílios e estética receberam grupos específicos.
+- As legendas padrão usam a preposição neutra “em” no lugar de “na”, que pressupunha o gênero de “barbearia”.
+
+**Arquivos:** `src/lib/rascunho.functions.ts`, `src/lib/sessao.functions.ts`, `src/lib/whatsapp/motor/vocabulario.ts`, `src/lib/whatsapp/motor/escolha-servico.test.ts`, `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`.
+
+**Limite:** `segmentoValido()` continua com o fallback legado para consumidores de dados históricos. Novos textos, interfaces e conteúdo de demonstração devem preferir `segmentoParaApresentacao()` quando o segmento puder estar ausente.
+
 ### IA e conversação
 - Núcleo canônico: `src/lib/brain/`; o modelo interpreta pedidos, mas regras, permissões, validação e execução permanecem no sistema.
 - O extrator estruturado `src/lib/ia/assistente.server.ts` foi neutralizado. A próxima passada deve auditar prompts, fixtures e mensagens legadas em `src/lib/whatsapp/`, `src/lib/ia/`, `src/lib/brain/` e `promptfoo/` individualmente.
