@@ -101,3 +101,12 @@ Esta entrega corrige a base compartilhada e exemplos concretos de duas áreas; *
 - **Administração do WhatsApp:** ativação de notificações fica separada por espaçamento, sem divisor de página.
 - **Regressões:** teste estrutural cobre o componente oficial, tokens, ausência do alias da Agenda e ausência de divisor.
 - **Estado:** validar com CI e publicar somente a prévia isolada. A sessão não tem navegador conectado para conferir visualmente todos os caminhos.
+
+
+## Verificação consolidada da tranche — 27/10/2026
+
+- **Commit validado:** `58c6b82f9eb7000c1aae1d5c414b89c4f8ced1e1`.
+- **CI:** build, TypeScript e testes passaram; deploy isolado da prévia e smoke test concluídos com sucesso na execução [40578121194](https://github.com/herslander-netizen/cortai-app/actions/runs/40578121194).
+- **Prévia:** `https://previa.cortaiapp.pages.dev`.
+- **Limite de validação:** a varredura estática e os testes dos componentes tocados foram feitos; não houve navegação visual manual por tela, porque não há sessão de navegador conectada. Conferência renderizada em 360/390 px, claro/escuro, redução de movimento e estados condicionais permanece pendente.
+- **Isolamento:** a Agenda operacional, o banco de produção, DNS e a produção não foram alterados; páginas públicas com tema personalizado foram preservadas.
