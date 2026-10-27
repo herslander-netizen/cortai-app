@@ -105,6 +105,60 @@ function FinanceiroPage() {
               );
             })}
           </div>
+          <section className="surface-card mt-4 p-4 md:max-w-3xl">
+            <h2 className="text-sm font-semibold text-paper">Saídas e comparação</h2>
+            <div className="mt-3 grid grid-cols-2 gap-2">
+              <div className="surface min-w-0 p-3">
+                <p className="text-xs text-mute">Despesas registradas</p>
+                <p className="mt-1 truncate text-base font-semibold text-paper">{brl(data.despesas)}</p>
+              </div>
+              <div className="surface min-w-0 p-3">
+                <p className="text-xs text-mute">Outras saídas</p>
+                <p className="mt-1 truncate text-base font-semibold text-paper">{brl(data.saidas)}</p>
+              </div>
+            </div>
+            <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
+              <div className="surface min-w-0 p-3">
+                <p className="text-xs text-mute">Receita vs. período anterior</p>
+                <p className={`mt-1 text-base font-semibold ${
+                  data.comparacao.receitaVariacaoPercentual === null
+                    ? "text-mute"
+                    : data.comparacao.receitaVariacaoPercentual > 0
+                      ? "text-sage"
+                      : data.comparacao.receitaVariacaoPercentual < 0
+                        ? "text-brick"
+                        : "text-paper"
+                }`}>
+                  {data.comparacao.receitaVariacaoPercentual === null
+                    ? "Sem base anterior"
+                    : `${data.comparacao.receitaVariacaoPercentual > 0 ? "+" : ""}${data.comparacao.receitaVariacaoPercentual}%`}
+                </p>
+                <p className="mt-1 text-xs text-mute2">Antes: {brl(data.comparacao.receitaAnterior)}</p>
+              </div>
+              <div className="surface min-w-0 p-3">
+                <p className="text-xs text-mute">Saídas vs. período anterior</p>
+                <p className={`mt-1 text-base font-semibold ${
+                  data.comparacao.despesasVariacaoPercentual === null
+                    ? "text-mute"
+                    : data.comparacao.despesasVariacaoPercentual > 0
+                      ? "text-brick"
+                      : data.comparacao.despesasVariacaoPercentual < 0
+                        ? "text-sage"
+                        : "text-paper"
+                }`}>
+                  {data.comparacao.despesasVariacaoPercentual === null
+                    ? "Sem base anterior"
+                    : `${data.comparacao.despesasVariacaoPercentual > 0 ? "+" : ""}${data.comparacao.despesasVariacaoPercentual}%`}
+                </p>
+                <p className="mt-1 text-xs text-mute2">
+                  Antes: {brl(data.comparacao.despesasESaidasAnterior)}
+                </p>
+              </div>
+            </div>
+            <p className="mt-3 text-xs leading-relaxed text-mute2">
+              Comparação entre períodos equivalentes no fuso do negócio. Os valores consideram lançamentos registrados e não representam lucro contábil. Sangrias não entram como despesa, pois são movimentações internas do caixa.
+            </p>
+          </section>
           <Link
             to="/barbeiro/historico"
             className="mt-6 flex min-h-12 items-center justify-center rounded-full border border-line px-5 text-sm font-semibold text-paper md:max-w-xl"
