@@ -89,6 +89,7 @@ describe("paridade Figaro dos cartões da Lista", () => {
     const barra = cartao.querySelector<HTMLElement>(".pointer-events-none")!;
 
     expect(lista.className).toContain("space-y-2.5");
+    expect((lista as HTMLElement).style.fontFamily).toBe("Roboto, sans-serif");
     expect(lista.className).not.toContain("divide-y");
     expect(cartao.style.borderLeft).toBe("none");
     expect(cartao.style.borderRadius).toBe("8px");
