@@ -401,3 +401,32 @@ describe("cartão de atendimento da Agenda (cor do Figaro)", () => {
     );
   });
 });
+
+
+describe("identidade oficial Cortaí: marinho + coral", () => {
+  const escuro = raiz;
+  const claroVars = { ...raiz, ...claro };
+
+  it("mantém a identidade Cortaí distinta da marca Figaro", () => {
+    expect(escuro["--identity-deep"]).toBe("#07152d");
+    expect(escuro["--identity-accent"]).toBe("#ff7b86");
+    expect(escuro["--identity-primary"]).toBe("#27569a");
+    expect(claroVars["--identity-accent-light"]).toBe("#b52d42");
+    expect(escuro["--fundo"]).toBe("#07152d");
+    expect(escuro["--cartao"]).toBe("#0f2742");
+    expect(claroVars["--fundo"]).toBe("#f4f7fc");
+    expect(claroVars["--cartao"]).toBe("#ffffff");
+  });
+
+  it("o coral da marca mantém contraste nos dois modos", () => {
+    expect(
+      razao(resolver("var(--identity-accent)", escuro).rgb, resolver("var(--ink)", escuro).rgb),
+    ).toBeGreaterThanOrEqual(3);
+    expect(
+      razao(
+        resolver("var(--identity-accent-light)", claroVars).rgb,
+        resolver("var(--ink2)", claroVars).rgb,
+      ),
+    ).toBeGreaterThanOrEqual(4.5);
+  });
+});

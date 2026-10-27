@@ -7,7 +7,14 @@ exceção por pressa, por "só um detalhe" nem por "já era assim".
 Referência visual e de comportamento: `docs/referencia-figaro/apk/` (começar por `1-design-system.md`).
 Contrato de design do projeto: `docs/contrato-de-design.md`. Esta ordem diz **como** cumprir os dois.
 
-## 1. A regra
+## 1. Identidade do Cortaí (decisão do dono, 27/10/2026)
+
+- Marca: wordmark minimalista de letras arredondadas em marinho profundo e ponto coral sobre o “í”; sem os antigos elementos ciano/pink ou símbolos exclusivos de barbearia.
+- Quando o dono disser “Cortaí” de forma geral, a identidade aplica-se a todo o produto. Cada tela usa a mesma paleta-base, superfícies e movimento; não crie um tema paralelo para uma área.
+- O Figaro dita composição, hierarquia, raios, folhas e movimento; o Cortaí mantém sua própria marca. Azul é ação operacional conforme a referência; coral é acento de marca, não fundo dominante.
+- Personalizações escolhidas para páginas públicas dos negócios continuam valendo.
+
+## 2. A regra
 
 1. **Use os primitivos. Não invente estilo.** Cada necessidade de interface tem um componente único (tabela
    abaixo). Se o componente não existe, **crie-o em `src/components/ui` seguindo o spec do Figaro** e use-o
@@ -21,7 +28,7 @@ Contrato de design do projeto: `docs/contrato-de-design.md`. Esta ordem diz **co
 5. **Mobile primeiro, 390 px de referência**, área de toque de 48 dp, nada de rolagem horizontal da página.
 6. **Textos neutros de segmento** no código (`termos(segmento)` só na tela) e em português do Brasil.
 
-## 2. O que usar em cada caso
+## 3. O que usar em cada caso
 
 | Preciso de… | Use | Figaro |
 |---|---|---|
@@ -45,7 +52,7 @@ Contrato de design do projeto: `docs/contrato-de-design.md`. Esta ordem diz **co
 | Aviso rápido (some sozinho) | `aviso` (`lib/avisos`) | snackbar |
 | Aviso ou erro dentro da tela | `Aviso` (`ui/aviso.tsx`, `tom` `info`, `atencao`, `sucesso`, `acao`) | banner tonal de 20 dp, sem faixa lateral |
 
-## 3. Proibido (o teste de guarda falha)
+## 4. Proibido (o teste de guarda falha)
 
 - Seletor em pílula feito à mão (`rounded-full border` com `aria-pressed`) ou componente `Chip` local.
 - `className` de botão com caixa própria (`rounded-md border border-line`) em vez de `variant`.
@@ -56,7 +63,7 @@ Contrato de design do projeto: `docs/contrato-de-design.md`. Esta ordem diz **co
 - Botão com altura fixa (`h-12`) usado como cartão de conteúdo.
 - Cor em hex, sombra ou raio inventados; animação com mola ou duração fora de `motion.ts`.
 
-## 4. Como cumprir (fluxo obrigatório de qualquer tela)
+## 5. Como cumprir (fluxo obrigatório de qualquer tela)
 
 1. Abra o spec do Figaro da tela equivalente (`apk/2` a `apk/11`). Sem equivalente, componha com os primitivos
    da tabela; nunca com CSS novo.
@@ -69,14 +76,14 @@ Contrato de design do projeto: `docs/contrato-de-design.md`. Esta ordem diz **co
 5. Registre no topo do `DIARIO.md` (o que mudou, arquivos, validação) e avise os outros por recado se mexeu
    num primitivo.
 
-## 5. Quando a regra conflitar com um pedido
+## 6. Quando a regra conflitar com um pedido
 
 Se um pedido do dono contradisser o Figaro, **aponte o conflito antes de agir** (regra do `AGENTS.md`). Sem
 decisão registrada em "Decisões do dono", vale o Figaro. Telas públicas de agendamento do cliente final usam o
 tema escolhido pelo negócio em Personalizar Página, mas montadas com os mesmos primitivos de forma, tamanho,
 raio e movimento.
 
-## 6. Estado da unificação (24/10/2026)
+## 7. Estado da unificação (24/10/2026)
 
 **Feito e conferido em captura (390 px):** Chip único, cartões sem contorno, diálogos de 28 dp, selos em pílula,
 `Aviso` em banner tonal, campos e selects, caixas de seleção quadradas, controle segmentado conectado, botão de

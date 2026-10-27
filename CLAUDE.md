@@ -54,17 +54,16 @@ O CI (GitHub Actions) roda TypeScript, testes e build a cada envio; use-o como v
 
 TanStack Start (React 19), Tailwind 4, shadcn/Radix, Supabase, Drizzle (migrações em `drizzle/migrations`), Vitest, Bun. Hospedagem na Cloudflare (Pages + Worker). A IA usa um provedor compatível explicitamente configurado em `CORTAI_AI_*` ou o modo de regras; sem configuração, fica indisponível (nunca cai em outro provedor). Pagamentos via Asaas: a chave fica só em funções protegidas de `admin.functions.ts`.
 
-## Identidade visual
+## Identidade visual oficial do Cortaí (decisão do dono, 27/10/2026)
 
-- Mobile-first premium, com referência em 390px; desktop em 1280px.
-- Navy #06245A → #0A3F80, branco, cyan #00B4FF, pink #FF2D78.
-- Pílula arredondada com gradiente diagonal.
-- Logo "cortaí" branca, com o ponto do "í" pink e a haste cyan.
-- Contrato de design obrigatório: `docs/contrato-de-design.md`. **Ordem permanente (24/10/2026): toda página nasce no padrão Figaro, só com os primitivos de `src/components/ui`: `docs/ordem-padrao-figaro.md`.** Ícone da CortAI via `IconeDaIA`.
-- Movimento: 120/200/280 ms, só transform/opacity, `MotionConfig` com reducedMotion="user" e as molas oficiais de `motion.ts`.
-  **Exceção (decisão do dono, 22/10):** animação que vem do Figaro usa os tempos e molas do APK, só de
-  `src/lib/movimento-figaro.ts` (com a fonte na spec `docs/referencia-figaro/apk/`).
-- Não fazer redesign geral quando o pedido é só correção ou organização.
+- Quando o dono disser **Cortaí** sem restringir uma tela, aplicar a identidade unificada ao produto inteiro: painel, agenda, financeiro, clientes, configurações, agendamento público e novas telas. Um pedido sobre uma tela também deve respeitar a mesma identidade, não criar um tema isolado.
+- Marca: wordmark minimalista em letras arredondadas, marinho profundo e um ponto coral sobre o “í”. Sem tesoura, calendário, relógio ou símbolos exclusivos de barbearia; o produto atende todo o setor de beleza.
+- Paleta padrão do app: marinho, azul de ação vindo do Figaro, superfícies neutras e coral usado com intenção. O ponto coral identifica a marca; não transformar tudo em rosa/vermelho. Não voltar à antiga combinação ciano + pink nem ao gradiente antigo do logotipo.
+- Figaro define a composição, hierarquia, raios, folhas inferiores e transições. A marca e a paleta do Cortaí substituem a marca do Figaro — não copiar seu logotipo.
+- Os temas escolhidos explicitamente para páginas públicas de clientes continuam respeitados; a identidade global não apaga personalizações do negócio.
+- Mobile-first: conferir 390px e 1280px. Contrato obrigatório: `docs/contrato-de-design.md`; ordem Figaro em `docs/ordem-padrao-figaro.md`; ícone CortAI via `IconeDaIA`.
+- Movimento: 120/200/280 ms do sistema, preferencialmente `transform`/`opacity`, `MotionConfig` com `reducedMotion="user"`. Animações recuperadas do Figaro usam os valores de `src/lib/movimento-figaro.ts` e a evidência em `docs/referencia-figaro/apk/`.
+- Não inventar redesign estrutural quando o pedido for uma correção; aplicar a identidade no que for alterado e manter o layout Figaro verificável.
 
 ## Agenda
 

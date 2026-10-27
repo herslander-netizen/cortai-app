@@ -192,6 +192,7 @@ describe("gateway central — escolha do provedor", () => {
   });
 
   it("não usa o fallback para erros de crédito ou credenciais", async () => {
+    vi.stubEnv("CORTAI_MODO_BASICO", "false");
     vi.stubEnv("CORTAI_AI_PROVIDER", "openai_compatible");
     vi.stubEnv("CORTAI_AI_BASE_URL", "https://ollama.com/v1");
     vi.stubEnv("CORTAI_AI_MODEL", "gpt-oss:20b");

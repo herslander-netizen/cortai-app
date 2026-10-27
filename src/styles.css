@@ -184,33 +184,33 @@
   );
   --mola-padrao-duracao: 190ms;
 
-  /* Paleta extraída da marca oficial: marinho, azul, ciano e rosa. */
-  --identity-accent: #00b7f4;
-  --identity-accent-light: #087cf0;
-  --identity-secondary: #ff1670;
-  --identity-secondary-light: #d90b58;
-  --identity-primary: #087cf0;
-  --identity-secondary-strong: #ff1670;
-  --identity-deep: #021a46;
-  --identity-graphite: #021a46;
-  --identity-muted: #5d6f89;
-  --identity-off-white: #f7faff;
+  /* Identidade Cortaí: marinho profundo, superfícies neutras e coral; azul de ação recuperado do Figaro. */
+  --identity-accent: #ff7b86;
+  --identity-accent-light: #b52d42;
+  --identity-secondary: #ff7b86;
+  --identity-secondary-light: #b52d42;
+  --identity-primary: #27569a;
+  --identity-secondary-strong: #ff7b86;
+  --identity-deep: #07152d;
+  --identity-graphite: #07152d;
+  --identity-muted: #b6c7df;
+  --identity-off-white: #f4f7fc;
   --identity-white: #ffffff;
   --identity-border: #d9e3f0;
-  /* Base neutra única (3.0): todos os temas só mudam o destaque. */
-  --fundo: #1a1f1b;
-  --painel: #3e4440;
-  --cartao: #2a2f2b;
-  --linha: #414742;
-  --texto: #e8eee9;
-  --texto-suave: #aeb5b0;
+  /* A base padrão é marinho/grafite azulado, sem o antigo viés verde. */
+  --fundo: #07152d;
+  --painel: #18324f;
+  --cartao: #0f2742;
+  --linha: #2a405c;
+  --texto: #f2f6fc;
+  --texto-suave: #b6c7df;
   /* Agenda: hierarquia azul ação, verde positivo, rosa atenção/tempo. */
   --agenda-acao: #01408f;
   --agenda-acao-suave: #9bb9ff;
   --agenda-positivo: #43a047;
   --agenda-atencao: #d81b60;
   --agenda-aguardo: #d9a441;
-  --agenda-linha-hora: #414742;
+  --agenda-linha-hora: #405878;
   /* Cartões da Agenda: uma cor viva por estado do cliente. */
   --estado-agendado: #9d8cff;
   --estado-confirmado: #3d8bff;
@@ -222,7 +222,7 @@
   --estado-remarcado: #ff2d78;
   --estado-encaixe: #2dd4bf;
   /* Cartão da timeline: um pouco abaixo do fundo, como no modelo escuro. */
-  --agenda-cartao: color-mix(in oklab, var(--ink) 78%, #000);
+  --agenda-cartao: var(--ink2);
   --agenda-cartao-sombra: none;
   /* Fora do expediente como no Figaro: um tom quase igual ao fundo e listras bem leves
      (surfaceContainerLow + onSurface a 2,5%), sem bloco pesado. */
@@ -236,9 +236,9 @@
   --grafite-muted: var(--texto-suave);
   --grafite-muted-2: var(--texto-suave);
   --grafite-line: var(--linha);
-  --grafite-line-2: #4a524e;
-  --grafite-primary: #087cf0;
-  --grafite-accent: #00b7f4;
+  --grafite-line-2: #405878;
+  --grafite-primary: var(--identity-primary);
+  --grafite-accent: var(--identity-accent);
   --whatsapp: #25d366;
   --qr-dark: var(--identity-graphite);
   --qr-light: var(--identity-white);
@@ -339,9 +339,9 @@
   --border: var(--line);
   --input: var(--line);
   --ring: var(--gold);
-  --drawer-surface: #1a1f1c;
-  --drawer-card: #3f4543;
-  --drawer-band: #212724;
+  --drawer-surface: #081932;
+  --drawer-card: #16304f;
+  --drawer-band: #0d2340;
   --drawer-borda: color-mix(in oklab, var(--line) 60%, transparent);
   --menu-icone: color-mix(in oklab, var(--gold) 70%, white);
   /* Agenda: dia escolhido em ciano com texto escuro, "hoje" e ícones no mesmo ciano.
@@ -354,18 +354,18 @@
 
 .light,
 :root[data-identidade="moderno"].light {
-  --fundo: #e9f3eb;
-  --painel: #f0f6f2;
+  --fundo: #f4f7fc;
+  --painel: #eaf0f8;
   --cartao: #ffffff;
-  --linha: #d6ded9;
-  --texto: #1a211d;
-  --texto-suave: #68706b;
+  --linha: #d9e3f0;
+  --texto: #142a49;
+  --texto-suave: #536986;
   --agenda-acao: #01408f;
   --agenda-acao-suave: #9bb9ff;
   --agenda-positivo: #43a047;
   --agenda-atencao: #d81b60;
   --agenda-aguardo: #c98a1a;
-  --agenda-linha-hora: #d8e0da;
+  --agenda-linha-hora: #a8b9cf;
   --estado-agendado: #6a5af9;
   --estado-confirmado: #1f6fe5;
   --estado-chegou: #c98500;
@@ -377,8 +377,8 @@
   --estado-encaixe: #0f9488;
   --agenda-cartao: var(--ink2);
   --agenda-cartao-sombra: none;
-  --agenda-listra-base: #f4f8f5;
-  --agenda-listra: color-mix(in oklab, #2a2f2c 3%, #f4f8f5);
+  --agenda-listra-base: #f4f7fc;
+  --agenda-listra: color-mix(in oklab, #18324f 3%, #f4f7fc);
   --ink: var(--fundo);
   --ink2: var(--cartao);
   --ink3: var(--painel);
@@ -386,7 +386,7 @@
   --mute: color-mix(in oklab, var(--texto-suave) 80%, var(--texto));
   --mute2: color-mix(in oklab, var(--texto-suave) 80%, var(--texto));
   --line: var(--linha);
-  --line2: #a9b5ad;
+  --line2: #a8b9cf;
 
   --background: var(--ink);
   --foreground: var(--paper);
@@ -410,7 +410,7 @@
   --rosa: var(--identity-secondary-light);
   --rosa-forte: var(--identity-secondary-light);
   --rosa-soft: color-mix(in oklab, var(--rosa) 12%, transparent);
-  --primary: var(--identity-accent-light);
+  --primary: var(--identity-primary);
   --primary-foreground: #ffffff;
   --sage: #4e785f;
   --brick: #a73923;
@@ -420,9 +420,9 @@
   --destructive: var(--brick);
   --destructive-foreground: #ffffff;
   --ring: var(--gold);
-  --drawer-surface: #e9f1eb;
+  --drawer-surface: #f4f7fc;
   --drawer-card: #ffffff;
-  --drawer-band: #f0f5f1;
+  --drawer-band: #eaf0f8;
   --drawer-borda: var(--line);
   --menu-icone: color-mix(in oklab, var(--primary) 80%, black);
   /* Agenda: mesmo padrão do escuro (ciano no dia escolhido, marinho na ação). */
@@ -499,15 +499,15 @@
   --identity-deep: #141413;
 }
 
-/* Sino de avisos: rosa do Cortaí fixo, independente da identidade visual. */
+/* O sino acompanha o coral; o selo usa coral escuro para manter o texto branco legível. */
 :root {
-  --sino-atencao: #ff1670;
-  --sino-badge: #d90b58; /* texto branco >= 4.5:1 */
+  --sino-atencao: var(--gold);
+  --sino-badge: #a92138;
   --sino-badge-texto: #ffffff;
 }
 :root.light {
-  --sino-atencao: #d90b58;
-  --sino-badge: #d90b58;
+  --sino-atencao: var(--gold);
+  --sino-badge: #a92138;
 }
 
 @layer base {
@@ -2009,10 +2009,10 @@ body:has(.auth-screen) {
   --mute2: #6d7f99;
   --line: #d9e3f0;
   --line2: #bfd0e4;
-  --gold: #087cf0;
-  --primary: #087cf0;
+  --gold: #b52d42;
+  --primary: #173a6c;
   --primary-foreground: #ffffff;
-  --ring: #00b7f4;
+  --ring: #b52d42;
 }
 
 /* Preenchimento automático do navegador com as cores do tema da tela de acesso. */
