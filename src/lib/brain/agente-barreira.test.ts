@@ -140,6 +140,12 @@ describe("barreira de saída", () => {
     for (const f of ["Posso confirmar?", "Quer que eu cancele?", "Tenho 10:00 e 11:00 livres."])
       expect(afirmaConclusao(f)).toBe(false);
   });
+  it("pergunta fora do pedido pendente não apaga a pendência", async () => {
+    const r = await pensar("ok, mas quanto custa?");
+    expect(estado.executadas).toEqual([]);
+    expect(r.pendente?.id).toBe("p1");
+  });
+
   it("com pendente, a troca repete o resumo e pede confirmação", () => {
     expect(barrarAfirmacaoSemAcao("Agendei para você!", "Agendar corte às 10:00.")).toBe(
       "Agendar corte às 10:00. Posso confirmar?",

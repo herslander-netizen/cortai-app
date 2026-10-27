@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { confirmacaoInequivoca, pedidoNocivo, pendenteValida, recusaInequivoca } from "./guardas";
+import { confirmacaoInequivoca, mensagemPareceAjustarPendente, pedidoNocivo, pendenteValida, recusaInequivoca } from "./guardas";
 
 describe("guardas do cérebro CortAI", () => {
   it("bloqueia pedidos de prompt, segredos e outros negócios", () => {
@@ -24,6 +24,16 @@ describe("guardas do cérebro CortAI", () => {
     expect(confirmacaoInequivoca("pode remarcar", "criar_agendamento")).toBe(false);
     expect(confirmacaoInequivoca("pode cancelar")).toBe(false);
   });
+  it("identifica correções sem confundi-las com confirmação", () => {
+    for (const texto of ["na verdade muda para as 16h", "troque para sexta", "quis dizer 15:30", "as 17h"]) {
+      expect(mensagemPareceAjustarPendente(texto)).toBe(true);
+      expect(confirmacaoInequivoca(texto)).toBe(false);
+    }
+    for (const texto of ["sim", "pode", "não", "quanto custa?"]) {
+      expect(mensagemPareceAjustarPendente(texto)).toBe(false);
+    }
+  });
+
   it("pendente expira em 15 minutos e rejeita data futura ou inválida", () => {
     const agora = Date.now();
     expect(pendenteValida(new Date(agora - 60_000).toISOString(), agora)).toBe(true);

@@ -147,6 +147,43 @@ beforeEach(() => {
   estado.agendarDevolve = { agendamento_id: "ag-1", jaExistia: false, verificado: true };
 });
 
+describe("pedido pendente", () => {
+  it("não prepara outra escrita quando a mensagem é outro assunto", async () => {
+    const anterior = {
+      id: "p-antiga",
+      acao: "criar_agendamento",
+      dados: dadosDoAgendamento,
+      resumo: "Agendar Corte amanhã às 10:00.",
+      criadaEm: new Date().toISOString(),
+    };
+    estado.roteiro = [
+      [chamada("criar_agendamento", dadosDoAgendamento)],
+      [texto("Posso ajudar com a outra dúvida.")],
+    ];
+    const r = await comandar("Quanto custa?", painel, { pendente: anterior });
+    expect(estado.executadas).toEqual([]);
+    expect(r.pendente?.id).toBe("p-antiga");
+  });
+
+  it("uma correção prepara nova proposta, mas nunca executa diretamente", async () => {
+    const anterior = {
+      id: "p-antiga",
+      acao: "criar_agendamento",
+      dados: dadosDoAgendamento,
+      resumo: "Agendar Corte amanhã às 10:00.",
+      criadaEm: new Date().toISOString(),
+    };
+    estado.roteiro = [
+      [chamada("criar_agendamento", { ...dadosDoAgendamento, inicio: "2026-10-12T16:00:00-03:00" })],
+      [texto("A nova proposta ficou pronta.")],
+    ];
+    const r = await comandar("Na verdade, muda para as 16h", painel, { pendente: anterior });
+    expect(estado.executadas).toEqual([]);
+    expect(r.pendente).not.toBeNull();
+    expect(r.pendente?.id).not.toBe("p-antiga");
+  });
+});
+
 describe("execução direta no painel", () => {
   it("dados claros e autorizados: executa na hora, sem pedir confirmação redundante", async () => {
     estado.roteiro = roteiroCompleto();

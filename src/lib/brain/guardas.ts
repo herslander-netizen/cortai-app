@@ -49,6 +49,21 @@ export function confirmacaoInequivoca(texto: string, acaoPendente?: string): boo
   );
 }
 
+/**
+ * Detecta correções do pedido pendente sem confundi-las com confirmação.
+ * Detectar correção só permite preparar nova proposta; nunca autoriza escrita.
+ */
+export function mensagemPareceAjustarPendente(texto: string): boolean {
+  const t = normalizarTexto(texto).trim();
+  if (!t) return false;
+  if (
+    /\b(muda|mude|mudar|altera|alterar|troca|troque|trocar|corrige|corrigir|ajusta|ajuste|ajustar|substitui|substituir|refaz|refazer)\b/.test(t) ||
+    /\b(na verdade|em vez disso|quis dizer|falei errado|me confundi|melhor seria|prefiro|era para ser)\b/.test(t)
+  ) return true;
+  if (/^(?:as?\s*)?\d{1,2}(?::\d{2}|h\d{0,2})?\s*(?:h|horas)?$/.test(t)) return true;
+  return /\b(?:as|para|pra|em vez de)\s+\d{1,2}(?::\d{2}|h\d{0,2})?\s*(?:h|horas)?\b/.test(t);
+}
+
 export function recusaInequivoca(texto: string): boolean {
   const t = normalizarTexto(texto);
   return /^(nao|n|nao quero|agora nao|cancela isso|deixa|esquece|desisto)$/.test(t);

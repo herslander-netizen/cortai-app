@@ -28,6 +28,7 @@ import {
   barrarVazamento,
   confirmacaoInequivoca,
   ehNumeroSolto,
+  mensagemPareceAjustarPendente,
   pedidoNocivo,
   TEXTO_CONFIRMACAO_JA_TRATADA,
   textoDeConferencia,
@@ -276,6 +277,8 @@ async function pensarCortaiComTurno(
   // O resultado é comunicado por texto FIXO do sistema, nunca escrito pela IA.
   const anterior =
     input.pendente && pendenteValida(input.pendente.criadaEm) ? input.pendente : null;
+  const pedidoDeAjustePendente = Boolean(anterior && mensagemPareceAjustarPendente(input.mensagem));
+  const bloqueiaNovaEscrita = Boolean(anterior && !pedidoDeAjustePendente);
   // Conferência da escrita avaliada neste turno (aparece na tela junto da resposta).
   let conferencia: Conferencia | null = null;
   const fim = async (texto: string, novaPendente: Pendente | null, erro?: string) => {
@@ -368,7 +371,15 @@ async function pensarCortaiComTurno(
     aoChamar: (e) => obs.aoChamarModelo(e),
   });
   const ferramentas = ferramentasDoContexto(ctx);
-  const texto0 = await instrucoes(ctx, input.persona);
+  const textoBase = await instrucoes(ctx, input.persona);
+  const texto0 = anterior
+    ? `${textoBase}
+
+Pedido pendente do turno anterior: ${anterior.resumo}. Ele AINDA NÃO foi executado.
+${pedidoDeAjustePendente
+  ? "A mensagem parece corrigir o pedido. Não interprete como confirmação do pedido antigo. Consulte os dados novamente e prepare uma nova proposta para confirmação; não execute diretamente."
+  : "A mensagem não confirmou nem recusou esse pedido. Pode responder dúvidas e fazer leituras, mas não prepare outra escrita. Preserve o pedido pendente; se a pessoa quiser mudar, peça que explicite a alteração."}`
+    : textoBase;
 
   try {
     for (let passo = 0; passo < MAX_PASSOS; passo += 1) {
@@ -387,7 +398,9 @@ async function pensarCortaiComTurno(
         const texto =
           pendente && ctx.canal === "painel"
             ? textoDeConferencia((pendente as Pendente).resumo, input.origemDoComando)
-            : textoDoModelo;
+            : pedidoDeAjustePendente && !pendente
+              ? "Ainda não alterei o pedido anterior. Ele continua aguardando confirmação. Diga qual cliente, serviço, dia ou horário deseja mudar para eu preparar uma nova conferência."
+              : textoDoModelo;
         // No modo básico a IA NÃO respondeu: não se encerra a pausa por falta de crédito.
         if (!gateway.usouModoBasico?.()) await retomarIa(ctx.tenantId);
         await registrarTurno({
@@ -404,7 +417,7 @@ async function pensarCortaiComTurno(
             texto ||
               (pendente ? `${pendente.resumo} Posso confirmar?` : "Pode repetir de outro jeito?"),
           ),
-          pendente,
+          pendente: pendente ?? anterior,
           pedirHumano,
           acoes,
           indisponivel: null,
@@ -427,8 +440,8 @@ async function pensarCortaiComTurno(
         if (!def || !acaoPermitida(nome, ctx)) {
           saidaDaAcao = { ok: false, erro: "Ação não disponível." };
         } else if (def.risco === "escrita") {
-          if (pendente) {
-            saidaDaAcao = { ok: false, erro: "Já existe uma ação aguardando confirmação." };
+          if (pendente || bloqueiaNovaEscrita) {
+            saidaDaAcao = { ok: false, erro: "Já existe uma ação aguardando confirmação. Não prepare outra escrita sem confirmação ou pedido explícito de ajuste." };
           } else {
             try {
               const resumo = def.resumir
@@ -481,7 +494,7 @@ async function pensarCortaiComTurno(
                     profissionalId: ctx.profissionalId ?? null,
                   },
                   evidencias,
-                  ligada: diretaLigada,
+                  ligada: diretaLigada && !anterior,
                   origem: input.origemDoComando ?? "texto",
                   ligadaPorVoz: diretaPorVoz,
                   ...(conferencia ? { veredito: (conferencia as Conferencia).veredito } : {}),
