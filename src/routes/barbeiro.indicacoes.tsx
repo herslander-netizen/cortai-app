@@ -17,6 +17,7 @@ import {
 import { EsqueletoLista } from "@/components/layout/Esqueleto";
 import { exigirCapacidade } from "@/lib/guarda-capacidade";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 
 export const Route = createFileRoute("/barbeiro/indicacoes")({
   beforeLoad: ({ context }) => exigirCapacidade(context.queryClient, "indicacoes"),
@@ -75,19 +76,12 @@ function IndicacoesPage() {
               A recompensa é registrada aqui e entregue no negócio.
             </p>
           </div>
-          <Button
-            variant="ghost"
-            type="button"
-            role="switch"
-            aria-checked={ativa}
+          <Switch
+            checked={ativa}
+            onCheckedChange={setAtiva}
             aria-label="Programa de indicação ativo"
-            onClick={() => setAtiva((v) => !v)}
-            className={`h-7 w-12 shrink-0 rounded-full border transition-colors ${ativa ? "border-gold bg-gold" : "border-line2 bg-ink2"}`}
-          >
-            <span
-              className={`block h-5 w-5 rounded-full bg-paper transition-transform ${ativa ? "translate-x-6" : "translate-x-1"}`}
-            />
-          </Button>
+            className="h-7 w-12 shrink-0 data-[state=checked]:bg-[var(--figaro-primary)] data-[state=unchecked]:bg-[var(--figaro-surface-container-highest)]"
+          />
         </div>
 
         <label className="mt-5 block">
