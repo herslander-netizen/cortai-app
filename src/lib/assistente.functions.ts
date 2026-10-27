@@ -262,8 +262,8 @@ export const perguntarAoCortai = createServerFn({ method: "POST" })
         if (bloqueadaNoCadastro) {
           resposta = bloqueadaNoCadastro;
         } else if (cadastroEstruturado) {
-          const { pensar } = await import("@/lib/ia/assistente.server");
-          resposta = await pensar({
+          const { extrairCadastroEstruturado } = await import("@/lib/ia/assistente.server");
+          resposta = await extrairCadastroEstruturado({
             mensagem: data.mensagem,
             contexto,
             historico: historicoBruto.map((m) => ({
@@ -390,8 +390,8 @@ export const interpretarServicos = createServerFn({ method: "POST" })
     const tenantId = await tenantIdDoMembro(context);
     const bloqueada = await respostaBloqueada(await estadoNoPainel(tenantId, context.userId));
     if (bloqueada) return bloqueada;
-    const { pensar } = await import("@/lib/ia/assistente.server");
-    return pensar({
+    const { extrairCadastroEstruturado } = await import("@/lib/ia/assistente.server");
+    return extrairCadastroEstruturado({
       mensagem: data.texto,
       contexto: await contextoDaBarbearia(context, tenantId),
       instrucaoExtra:
@@ -409,8 +409,8 @@ export const interpretarHorarios = createServerFn({ method: "POST" })
     const tenantId = await tenantIdDoMembro(context);
     const bloqueada = await respostaBloqueada(await estadoNoPainel(tenantId, context.userId));
     if (bloqueada) return bloqueada;
-    const { pensar } = await import("@/lib/ia/assistente.server");
-    return pensar({
+    const { extrairCadastroEstruturado } = await import("@/lib/ia/assistente.server");
+    return extrairCadastroEstruturado({
       mensagem: data.texto,
       contexto: await contextoDaBarbearia(context, tenantId),
       instrucaoExtra:
