@@ -8,8 +8,8 @@ export const CORES_AGENDAMENTO = {
     areia: "#CDB894",
     couro: "#8A5A36",
   },
-  pagina: "#EAF0F8",
-  texto: "#07152D",
+  pagina: "#F7F9FC",
+  texto: "#07152F",
   claro: "#FFFFFF",
 } as const;
 
