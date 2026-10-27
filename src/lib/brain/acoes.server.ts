@@ -1003,7 +1003,7 @@ export const ACOES: Record<string, Definicao> = {
 };
 
 /** Equipe no WhatsApp: ações do painel + as dela; profissional sem indicadores do negócio. */
-const SO_DONO = new Set(["consultar_movimento"]);
+const SO_DONO = new Set(["consultar_movimento", "consultar_caixa_hoje"]);
 
 export function acaoPermitida(nome: string, ctx: ContextoDoCerebro): boolean {
   const a = ACOES[nome];
