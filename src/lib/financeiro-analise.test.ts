@@ -18,21 +18,31 @@ describe("intervaloFinanceiroLocal", () => {
     });
   });
 
-  it("compara semanas completas de segunda a segunda", () => {
+  it("compara o acumulado da semana até hoje com os mesmos dias da semana anterior", () => {
     expect(intervaloFinanceiroLocal("2026-10-28", "semana")).toEqual({
       inicio: "2026-10-26",
-      fim: "2026-11-02",
+      fim: "2026-10-29",
       inicioAnterior: "2026-10-19",
-      fimAnterior: "2026-10-26",
+      fimAnterior: "2026-10-22",
     });
   });
 
   it("respeita limites de mês e virada de ano", () => {
     expect(intervaloFinanceiroLocal("2026-01-12", "mes")).toEqual({
       inicio: "2026-01-01",
-      fim: "2026-02-01",
+      fim: "2026-01-13",
       inicioAnterior: "2025-12-01",
-      fimAnterior: "2026-01-01",
+      fimAnterior: "2025-12-13",
+    });
+
+  });
+
+  it("limita o acumulado ao último dia do mês anterior quando o dia não existe", () => {
+    expect(intervaloFinanceiroLocal("2026-03-31", "mes")).toEqual({
+      inicio: "2026-03-01",
+      fim: "2026-04-01",
+      inicioAnterior: "2026-02-01",
+      fimAnterior: "2026-03-01",
     });
   });
 });
