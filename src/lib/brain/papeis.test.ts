@@ -74,6 +74,7 @@ describe("permissões por papel no WhatsApp", () => {
       expect(acaoPermitida(a, site)).toBe(false);
     }
     expect(acaoPermitida("criar_agendamento", site)).toBe(false);
+    expect(acaoPermitida("consultar_caixa_hoje", site)).toBe(false);
   });
   it("não existe ação de pagamento em nenhum papel", () => {
     for (const ctx of [cliente, prof, dono, painel, site])
@@ -133,6 +134,7 @@ describe("painel: a CortAI não pode mais do que a pessoa", () => {
       "reagendar_agendamento",
       "criar_cliente",
       "buscar_cliente",
+      "consultar_caixa_hoje",
     ])
       expect(acaoPermitida(a, semNada)).toBe(false);
     for (const a of ["listar_servicos", "consultar_disponibilidade", "consultar_agendamento"])
