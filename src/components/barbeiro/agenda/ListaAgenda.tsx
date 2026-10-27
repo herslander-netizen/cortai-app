@@ -15,6 +15,8 @@ import type { AgendaItem } from "@/lib/barbeiro.functions";
 import { useSegmentoDoPainel } from "@/lib/segmento-contexto";
 import { termos } from "@/lib/segmentos";
 
+import { corDaCategoria } from "./cartao-figaro";
+
 import {
   estaAtrasado,
   fichaRelevante,
@@ -94,7 +96,7 @@ export function ListaAgenda({
 
   return (
     <div>
-      <ul className="divide-y divide-line">
+      <ul className="space-y-2.5">
         {visiveis.map((item, indice) => {
           const nome = nomeDaAgenda(item.cliente, discreto);
           const atrasado = ehHoje && !aguardando.has(item.id) && estaAtrasado(item, agora);
@@ -108,9 +110,21 @@ export function ListaAgenda({
           return (
             <li
               key={item.id}
-              className={`agenda-item agenda-item-${item.status} ${item.confirmadoEm && item.status === "agendado" ? "agenda-item-confirmado" : ""} ${item.encaixe && item.status === "agendado" ? "agenda-item-encaixe" : ""} ${indice < 6 ? "mov-item-cascata" : ""} ${selecionado === item.id ? "agenda-item-selecionado" : ""} ${novos.has(item.id) ? "agenda-novo" : ""}`}
-              style={indice < 6 ? { animationDelay: `${indice * 30}ms` } : undefined}
+              className={`agenda-item relative agenda-item-${item.status} ${item.confirmadoEm && item.status === "agendado" ? "agenda-item-confirmado" : ""} ${item.encaixe && item.status === "agendado" ? "agenda-item-encaixe" : ""} ${indice < 6 ? "mov-item-cascata" : ""} ${selecionado === item.id ? "agenda-item-selecionado" : ""} ${novos.has(item.id) ? "agenda-novo" : ""}`}
+              style={{
+                animationDelay: indice < 6 ? `${indice * 30}ms` : undefined,
+                borderLeft: "none",
+                padding: "10px 11px 10px 16px",
+                borderRadius: "8px",
+                backgroundColor: "var(--agenda-cartao-evento, var(--agenda-cartao, var(--ink2)))",
+                boxShadow: "none",
+              }}
             >
+              <span
+                aria-hidden
+                className="pointer-events-none absolute bottom-[10px] left-[6px] top-[10px] w-1 rounded-full"
+                style={{ backgroundColor: corDaCategoria(item.categoriaIndice) }}
+              />
               <Button
                 type="button"
                 variant="ghost"
@@ -121,7 +135,7 @@ export function ListaAgenda({
               >
                 <span className="grid grid-cols-[54px_minmax(0,1fr)] items-start gap-3">
                   <span className="pt-0.5">
-                    <span className="block text-sm font-extrabold text-paper">
+                    <span className="block text-[14px] leading-[18px] font-semibold text-paper">
                       {hora(item.inicio, fuso)}
                     </span>
                     {item.status === "na_cadeira" ? (
@@ -132,11 +146,12 @@ export function ListaAgenda({
                   </span>
                   <span className="min-w-0">
                     <span
-                      className={`agenda-nome text-sm ${nomeEhGenerico(item.cliente) ? "text-mute" : "text-paper"}`}
+                      className={`agenda-nome text-sm leading-[18px] ${nomeEhGenerico(item.cliente) ? "text-mute" : "text-paper"}`}
+                      style={{ fontWeight: 600, minHeight: "18px" }}
                     >
                       {nome}
                     </span>
-                    <span className="mt-0.5 block truncate text-xs text-mute">
+                    <span className="mt-0.5 block truncate text-[12.5px] leading-4 text-mute">
                       {item.servico}
                       {mostrarProfissional ? ` · ${item.profissional}` : ""}
                     </span>
@@ -199,9 +214,6 @@ export function ListaAgenda({
             : `Ver finalizados e cancelados (${encerrados.length})`}
         </Button>
       ) : null}
-      <p className="mt-2 border-t border-line pt-2 text-center text-xs text-mute" role="note">
-        Toque no cartão para ver opções, remarcar ou cancelar
-      </p>
     </div>
   );
 }
