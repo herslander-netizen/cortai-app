@@ -23,7 +23,9 @@ Legenda: [x] feito · [~] parcial · [ ] não feito. Uma etapa por vez; parar ao
 - [x] Corrigidos: fiado com limite e só dono, fidelidade só no pagamento, comissão líquida, baixa de fiado registrada, estorno supervisionado, preço alterado exige permissão
 - [ ] Validades/rollover (sem créditos com validade ainda)
 - [ ] Caução (aguardando regras)
-- [x] Faixas de idade do fiado em 0–30/31–60/61–90/91+ dias desde o lançamento (não indica atraso contratual sem vencimento registrado)
+- [~] Faixas de idade do fiado em 0–30/31–60/61–90/91+ dias desde o lançamento; implementação na branch, aguardando CI e conferência visual (não indica atraso contratual sem vencimento registrado)
+- [~] Comparação de receita e saídas com períodos equivalentes até a data atual, respeitando o fuso do negócio; aguardando CI e conferência visual
+- [~] Categorização de despesas e resumo das principais categorias no painel; usa o campo existente, sem migração; aguardando CI e conferência visual
 
 ## Etapa 3 — Canais, conversas e avisos sem custo
 - [~] Número compartilhado (link/código, histórico, menu numerado, troca)
