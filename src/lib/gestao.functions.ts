@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { isoNoFusoDaBarbearia, hojeNoFuso } from "@/lib/horarios";
-import { intervaloFinanceiroLocal, variacaoPercentual } from "@/lib/financeiro-analise";
+import { agruparSaidasPorCategoria, intervaloFinanceiroLocal, variacaoPercentual } from "@/lib/financeiro-analise";
 import { fusoDoTenant } from "@/lib/fuso.server";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
@@ -54,7 +54,7 @@ export const getFinanceiro = createServerFn({ method: "GET" })
           .lt("criado_em", fimIso),
         despesasESaidas: context.supabase
           .from("caixa_movimentos")
-          .select("tipo, valor_centavos")
+          .select("tipo, categoria, valor_centavos")
           .eq("tenant_id", tenantId)
           .in("tipo", ["saida", "despesa"])
           .gte("criado_em", inicioIso)
@@ -116,7 +116,12 @@ export const getFinanceiro = createServerFn({ method: "GET" })
       const saidas = movimentos
         .filter((item) => item.tipo === "saida")
         .reduce((total, item) => total + item.valor_centavos, 0);
-      return { despesas, saidas, total: despesas + saidas };
+      return {
+        despesas,
+        saidas,
+        total: despesas + saidas,
+        porCategoria: agruparSaidasPorCategoria(movimentos),
+      };
     };
 
     const receitasAtuais = calcularReceitas(atendimentos ?? [], vendas ?? [], ganhosExtrasRes ?? []);
@@ -130,6 +135,7 @@ export const getFinanceiro = createServerFn({ method: "GET" })
       despesas: saidasAtuais.despesas,
       saidas: saidasAtuais.saidas,
       despesasESaidas: saidasAtuais.total,
+      despesasPorCategoria: saidasAtuais.porCategoria,
       atendimentos: atendimentos ?? [],
       vendas: vendas ?? [],
       comparacao: {
