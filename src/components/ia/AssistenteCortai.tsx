@@ -303,7 +303,7 @@ export function AssistenteCortai({
       setTexto(transcricao);
       setOrigemRascunho("voz");
       setErro(null);
-      requestAnimationFrame(() => campo.current?.focus());
+      campo.current?.focus();
     },
     aoGravar: async ({ blob, mimeType, duracaoS }) => {
       const r = await transcrever({
