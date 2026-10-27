@@ -14,6 +14,7 @@ import {
 import { EsqueletoFormulario } from "@/components/layout/Esqueleto";
 import { exigirCapacidade } from "@/lib/guarda-capacidade";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 
 export const Route = createFileRoute("/barbeiro/fidelidade")({
   beforeLoad: ({ context }) => exigirCapacidade(context.queryClient, "fidelidade"),
@@ -93,26 +94,15 @@ function FidelidadePage() {
             zera o progresso já acumulado, e cada cliente pode ter uma exceção na própria ficha.
           </p>
         </div>
-        <Button
-          variant="ghost"
-          type="button"
-          role="switch"
-          aria-checked={ativo}
-          aria-label="Programa de fidelidade ativo"
-          onClick={() => {
-            setAtivo((v) => !v);
+        <Switch
+          checked={ativo}
+          onCheckedChange={(valor) => {
+            setAtivo(valor);
             setOk(false);
           }}
-          className={`h-7 w-12 shrink-0 rounded-full border transition-colors ${
-            ativo ? "border-gold bg-gold" : "border-line2 bg-ink2"
-          }`}
-        >
-          <span
-            className={`block h-5 w-5 rounded-full transition-transform ${
-              ativo ? "translate-x-6 bg-ink" : "translate-x-1 bg-mute"
-            }`}
-          />
-        </Button>
+          aria-label="Programa de fidelidade ativo"
+          className="h-7 w-12 shrink-0 data-[state=checked]:bg-[var(--figaro-primary)] data-[state=unchecked]:bg-[var(--figaro-surface-container-highest)]"
+        />
       </div>
 
       <div className="py-6">
