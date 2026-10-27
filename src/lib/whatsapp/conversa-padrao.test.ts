@@ -25,6 +25,14 @@ describe("Conversa padrão", () => {
   it("no máximo 1 emoji", () => {
     expect(limitarEmojis("Oi 🎉 tudo 👊 bem")).toBe("Oi 🎉 tudo bem");
   });
+  it("usa textos neutros quando o segmento não foi informado", () => {
+    expect(responder("saudacao_nova", { negocio: "Ateliê Horizonte" })?.texto).toBe(
+      "Oi! Você está falando com Ateliê Horizonte. Como posso ajudar?",
+    );
+    expect(responder("pos_atendimento", { nome: "Ana" })?.texto).not.toContain("corte");
+    expect(textoDaSituacao("fora_do_escopo") ?? "").not.toContain("barbearia");
+  });
+
   it("usa saudação neutra e pós-atendimento por segmento", () => {
     expect(responder("saudacao_nova", { negocio: "Studio Ana" }, undefined, "salao")?.texto).toBe(
       "Oi! Você está falando com Studio Ana. Como posso ajudar?",
