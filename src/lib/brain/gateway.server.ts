@@ -241,9 +241,9 @@ export function criarSessaoDoGateway(opcoes?: {
 
         const inicioFallback = Date.now();
         const configFallback: ConfigCompativel = {
-          ...leitura.config,
+          tipo: "compativel",
           ...fallback,
-          fallback: undefined,
+          canais: leitura.config.canais,
         };
         const identidadeFallback = { provedor: fallback.nome, modelo: fallback.modelo };
         const baseFallback = {
