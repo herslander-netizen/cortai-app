@@ -8,9 +8,10 @@ import {
 } from "@/lib/segmentos";
 
 describe("segmentos", () => {
-  it("mantém barbearia como fallback", () => {
+  it("preserva o fallback legado de dados sem presumir barbearia na interface", () => {
     expect(segmentoValido("inexistente")).toBe("barbearia");
-    expect(termos(null).nome).toBe("barbearia");
+    expect(termos(null).nome).toBe("espaço");
+    expect(termos("inexistente").nome).toBe("espaço");
   });
 
   it("usa apresentação neutra quando o segmento ainda não foi definido", () => {
