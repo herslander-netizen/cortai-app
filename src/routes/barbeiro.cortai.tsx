@@ -111,7 +111,7 @@ function CortaiPage() {
         <p className="border-y border-line py-8 text-center text-sm text-brick">
           {mensagemDeAcessoNegado(painel.error)
             ? "Você não tem acesso a esta área"
-            : "Não conseguimos carregar o CortAI agora. Tente de novo em instantes."}
+            : "Não conseguimos carregar o Cortaí agora. Tente de novo em instantes."}
         </p>
       ) : null}
 
@@ -157,7 +157,7 @@ function CortaiPage() {
             </div>
           </section>
 
-          <nav className="mt-5 flex gap-2" aria-label="Seções do CortAI — Assistente Virtual">
+          <nav className="mt-5 flex gap-2" aria-label="Seções do Cortaí">
             {(
               [
                 ["whatsapp", "Conexão"],
@@ -443,7 +443,7 @@ function BlocoSecretaria({ painel }: { painel: PainelDoCortai }) {
         ) : null}
       </div>
       <p className="text-xs leading-relaxed text-mute">
-        Mensagens livres recebem somente uma orientação para o Cortaí. O CortAI não abre
+        Mensagens livres recebem somente uma orientação para o Cortaí. O Cortaí não abre
         atendimento, FAQ ou transferência humana.
       </p>
     </section>
@@ -779,8 +779,8 @@ function CartaoDeConexao({ painel, tipo }: { painel: PainelDoCortai; tipo: TipoD
   const descricao =
     tipo === "atendimento"
       ? status === "conectado"
-        ? "O CortAI — Assistente Virtual conversa com seus clientes por este número."
-        : "Conecte o WhatsApp público do negócio para o CortAI conversar com os clientes."
+        ? "O Cortaí conversa com seus clientes por este número."
+        : "Conecte o WhatsApp público do negócio para o Cortaí conversar com os clientes."
       : status === "conectado"
         ? "Confirmações, lembretes e avisos automáticos saem por este número."
         : painel.conexao && !daLinha
@@ -953,7 +953,7 @@ function CartaoDeConexao({ painel, tipo }: { painel: PainelDoCortai; tipo: TipoD
       </div>
 
       <p className="mt-6 flex items-start gap-2 border-t border-line pt-4 text-xs text-mute2">
-        <ShieldCheck size={14} className="mt-0.5 shrink-0" />O CortAI usa somente eventos e dados
+        <ShieldCheck size={14} className="mt-0.5 shrink-0" />O Cortaí usa somente eventos e dados
         reais do seu negócio e nunca acessa dados de outro.
       </p>
 

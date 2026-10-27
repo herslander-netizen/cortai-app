@@ -278,7 +278,7 @@ function TenantDialog({
               value="cortai"
               className="h-12 rounded-none border-b-2 border-transparent px-2 shadow-none data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none"
             >
-              CortAI
+              Cortaí
             </TabsTrigger>
           </TabsList>
 

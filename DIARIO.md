@@ -494,8 +494,6 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Em andamento
 
-- GPT | 2026-10-27 UTC | Fechamento da unificação de identidade pública do Cortaí: remover rótulos ativos de CortAI/Assistente Virtual em telas, prompts e selos, preservando aliases técnicos, campos persistidos e contratos externos; sem tocar Agenda, banco real, secrets, main ou DNS | `DIARIO.md`, `MUSE.md`, `src/lib/brain/estado-cortai.ts`, `src/routes/barbeiro.cortai.tsx`, `src/routes/barbeiro.cortai-atividade.tsx`, `src/components/onboarding/*`, `src/components/admin/CortaiDoNegocio.tsx`, `src/components/guia/PreferenciasDicas.tsx`, `src/lib/navegacao-barbeiro.ts`, `src/lib/permissoes.ts`, testes relacionados; sem migração |
-
 - GPT | 2026-10-27 UTC | Integrar recursos financeiros inspirados no Mobills sem duplicar módulos do Cortaí: auditar categorias, fiado, pagamentos, taxas, recorrências e orçamento; implementar em etapas compatíveis, com migração aditiva apenas para prévia após revisão e testes. Não tocar Agenda, produção, main ou DNS | `DIARIO.md`, `docs/auditoria-mobills-cortai-2026-10-27.md`, `src/lib/financeiro*`, `src/routes/barbeiro.financeiro.tsx`, `src/routes/barbeiro.caixa.tsx`, componentes financeiros e migrações novas se necessárias; sem aplicar migrações nesta tarefa | 
 
 
@@ -763,6 +761,8 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - Documentação adicionada: docs/auditoria-inbarber-cortai-2026-10-26.md e docs/propostas/widget-android-inbarber-cortai.md. O widget permanece especificado, não implementado: o repositório não tem projeto Android nativo, pacote/assinatura ou fluxo de autenticação para o widget.
 - Sem mudanças na interface da Agenda, migrações, bancos de dados, segredos, main ou site principal. TypeScript, Vitest, build e smoke test aguardam a validação automática do commit.
 ## Diário
+
+- GPT | 2026-10-27 UTC | **Fechamento da identidade pública:** após a unificação funcional, removi os rótulos ativos “CortAI” e “Assistente Virtual” das telas do Cortaí, estados de disponibilidade, atividade, onboarding, permissões, privacidade, apresentação e preferências do WhatsApp. Aliases técnicos (`CORTAI_*`, `ver_cortai`, rotas, tabelas e campos persistidos) foram preservados por compatibilidade. Testes focados: 6 arquivos e 93 testes aprovados; TypeScript aprovado; build aprovado com o aviso preexistente de `webhook.test.ts` sem `Route`. Nenhuma mudança em Agenda, banco real, secrets, `main`, DNS ou produção.
 
 - GPT | 2026-10-27 UTC | **Unificação total da IA Cortaí — etapa concluída:** a conversa principal do painel agora usa `pensarCortai` em todos os pedidos; `extrairCadastroEstruturado` permanece somente como capacidade especializada e chama o gateway central com `usarModoBasico: false`. O catálogo ganhou `cadastrar_servicos` e `definir_horarios`, delegando às ações de domínio com tenant, validação, auditoria e permissão no servidor. A identidade pública Cortaí foi alinhada no painel e no WhatsApp. Testes focados: 5 arquivos e 96 testes aprovados; TypeScript e build aprovados. A suíte completa mantém falhas preexistentes de Figaro/CSS/Agenda; lint não foi confirmável por CRLF em massa. Não houve chamada real ao Ollama verificável, não há LocalAI acessível configurado, e nenhum secret, banco real, Agenda, `main`, DNS ou produção foi alterado.
 

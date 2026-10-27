@@ -117,7 +117,7 @@ function PaginaDePrivacidade() {
         <p>
           Apenas com fornecedores necessários para o funcionamento do serviço: hospedagem, banco de
           dados e autenticação, envio de mensagens e, quando o negócio ativa, o atendimento
-          inteligente CortAI. Todos tratam os dados sob instrução do Cortaí.
+          inteligente Cortaí. Todos tratam os dados sob instrução do Cortaí.
         </p>
       </Bloco>
 

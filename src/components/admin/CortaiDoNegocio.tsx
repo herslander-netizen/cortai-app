@@ -40,7 +40,7 @@ export function CortaiDoNegocio({ tenantId }: { tenantId: string }) {
 
   if (query.isLoading) return <EsqueletoFormulario />;
   if (query.error || !query.data)
-    return <p className="text-sm text-brick">Não foi possível ler a CortAI deste negócio.</p>;
+    return <p className="text-sm text-brick">Não foi possível ler o Cortaí deste negócio.</p>;
   const c = query.data;
 
   async function salvar(campos: { ativa?: boolean; limiteWhatsapp?: number; retomar?: true }) {
@@ -48,7 +48,7 @@ export function CortaiDoNegocio({ tenantId }: { tenantId: string }) {
     try {
       await definir({ data: { tenantId, ...campos } });
       await queryClient.invalidateQueries({ queryKey: chave });
-      aviso.ok("CortAI atualizada.");
+      aviso.ok("Cortaí atualizada.");
     } catch (e) {
       aviso.erro(e instanceof Error ? e.message : undefined);
     } finally {
@@ -88,7 +88,7 @@ export function CortaiDoNegocio({ tenantId }: { tenantId: string }) {
           <h3 className="text-sm font-semibold text-paper">Pausa por crédito</h3>
           <p className="mt-1 text-xs leading-relaxed text-mute">
             Pausada em {dataHoraLonga(c.pausadaEm)}
-            {c.pausaMotivo ? ` (${c.pausaMotivo})` : ""}. Encerrar a pausa faz a CortAI tentar de
+            {c.pausaMotivo ? ` (${c.pausaMotivo})` : ""}. Encerrar a pausa faz o Cortaí tentar de
             novo já na próxima mensagem.
           </p>
           <Button

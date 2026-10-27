@@ -233,7 +233,7 @@ export function EditorDeServicos({
                 className="field-control mt-1 min-h-12 rounded-lg px-3 text-sm"
               />
               <span className="mt-1 block text-mute2">
-                A CortAI lembra o cliente no WhatsApp quando chegar a hora.
+                O Cortaí lembra o cliente no WhatsApp quando chegar a hora.
               </span>
             </label>
             {profissionais && profissionais.length > 1 ? (

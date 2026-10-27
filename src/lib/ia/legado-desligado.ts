@@ -8,7 +8,7 @@
 export function respostaDoLegadoDesligado(): Response {
   return new Response(
     JSON.stringify({
-      erro: "Integração externa desligada. A CortAI agora funciona dentro do Cortaí.",
+      erro: "Integração externa desligada. O Cortaí agora funciona dentro do próprio Cortaí.",
     }),
     { status: 410, headers: { "content-type": "application/json" } },
   );

@@ -21,7 +21,7 @@ export function PreferenciasDicas() {
           className="mt-0.5 h-4 w-4 shrink-0 accent-gold"
         />
         <span>
-          <span className="block text-sm font-semibold text-paper">Mostrar dicas do CortAI</span>
+          <span className="block text-sm font-semibold text-paper">Mostrar dicas do Cortaí</span>
           <span className="mt-1 block text-xs text-mute">
             Receba orientações enquanto aprende a usar o CortAI.
           </span>

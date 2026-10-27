@@ -631,7 +631,7 @@ export function ShowroomCortai({
               <span>
                 <strong>Integrações em validação.</strong>
                 <small>
-                  WhatsApp, CortAI e confirmações automáticas dependem da disponibilidade e da configuração de cada estabelecimento.
+                  WhatsApp, Cortaí e confirmações automáticas dependem da disponibilidade e da configuração de cada estabelecimento.
                 </small>
               </span>
             </div>

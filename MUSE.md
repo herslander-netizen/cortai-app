@@ -53,6 +53,9 @@ básico desativado para não transformar indisponibilidade em sucesso. O catálo
 `cadastrar_servicos` e `definir_horarios`, que delegam às ações de domínio existentes e mantêm
 tenant, permissões, validação e auditoria no servidor. Não há evidência de chamada real ao Ollama
 nesta etapa; LocalAI continua desativado sem uma instância HTTPS protegida e um modelo funcional.
+Na etapa final de identidade, os rótulos públicos foram padronizados como Cortaí em telas de
+atividade, onboarding, permissões, privacidade, apresentação e WhatsApp. Aliases técnicos como
+`CORTAI_*`, `ver_cortai` e rotas persistentes permanecem sem alteração para preservar contratos.
 
 O cérebro continua único em `src/lib/brain`; o gateway pode usar um provedor primário e um
 secundário compatível com Chat Completions. O secundário só é tentado quando o primário retorna

@@ -33,22 +33,22 @@ export const SELO_DA_CORTAI: Record<
   EstadoDaCortai,
   { rotulo: string; texto: string; tom: "ok" | "aviso" | "parada" }
 > = {
-  ativa: { rotulo: "Ativa", texto: "A CortAI está respondendo normalmente.", tom: "ok" },
+  ativa: { rotulo: "Ativa", texto: "A Cortaí está respondendo normalmente.", tom: "ok" },
   desligada: {
     rotulo: "Desligada",
     texto:
-      "A CortAI está desligada para este negócio. Agenda, comandas e avisos continuam funcionando.",
+      "A Cortaí está desligada para este negócio. Agenda, comandas e avisos continuam funcionando.",
     tom: "parada",
   },
   pausada: {
     rotulo: "Pausada",
     texto:
-      "A CortAI foi pausada porque os créditos de IA acabaram. Ela tenta de novo sozinha em algumas horas.",
+      "A Cortaí foi pausada porque os créditos de IA acabaram. Ela tenta de novo sozinha em algumas horas.",
     tom: "aviso",
   },
   limite_diario: {
     rotulo: "Limite do dia",
-    texto: "O limite de uso de hoje foi atingido. A CortAI volta a responder amanhã.",
+    texto: "O limite de uso de hoje foi atingido. A Cortaí volta a responder amanhã.",
     tom: "aviso",
   },
   limite_pessoa: {
@@ -58,7 +58,7 @@ export const SELO_DA_CORTAI: Record<
   },
   sem_configuracao: {
     rotulo: "Indisponível",
-    texto: "A CortAI ainda não está ligada neste ambiente.",
+    texto: "A Cortaí ainda não está ligada neste ambiente.",
     tom: "parada",
   },
 };
