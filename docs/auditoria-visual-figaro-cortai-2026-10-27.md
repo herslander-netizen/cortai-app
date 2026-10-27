@@ -55,3 +55,11 @@ Esta entrega corrige a base compartilhada e exemplos concretos de duas áreas; *
 - **Hierarquia:** o botão de voltar aparece apenas quando há destino real; páginas sem retorno não mantêm uma linha superior vazia antes do título.
 - **Preservado:** sistema de guias e ajuda contextual no menu da Agenda; o pedido remove a interrogação das páginas, não elimina o recurso de orientação.
 - **Teste adicionado/ajustado:** `Screen.test.tsx` cobre ausência da interrogação e a hierarquia “Voltar → título”. O resultado do GitHub Actions para este commit ainda deve ser confirmado.
+
+
+## Refinamento compartilhado de tipografia e superfícies — 27/10/2026
+
+- **Cabeçalhos de páginas internas:** escala móvel ajustada para 22/28 px, peso semibold e subtítulo 14/20 px; telas largas recebem um título de 24 px. Eyebrow passou a 11/16 px. Isso aproxima a hierarquia da escala observada no Figaro e libera mais espaço vertical para o conteúdo.
+- **Superfícies:** `LinhasDeConfiguracao`, `LinhaDeOpcoes` e `GrupoDeCartoes` usam tokens `--figaro-surface-container-*` no lugar de fundo rígido ou alias visual da Agenda. A mudança atinge apenas os componentes de configuração reutilizados fora da Agenda.
+- **Regressões:** `Screen.test.tsx` verifica a nova escala do cabeçalho; `estilo-figaro.test.ts` verifica tipografia e independência dos componentes de configuração em relação aos tokens da Agenda.
+- **Estado:** código registrado no commit `f7b030952801847b28791e12f783893f717d5d09`. A execução automática e o smoke test da prévia ainda precisam confirmar esta rodada. A análise de rotas segue em andamento; não declarar paridade integral até inspeção de todos os estados e conferência visual móvel em 390/360 px e claro/escuro.
