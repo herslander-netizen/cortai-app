@@ -12,7 +12,11 @@ export const REDES: Record<Rede, { nome: string; limite: string; pico: string }>
 const BASE: Record<string, string[]> = {
   barbearia: ["barbearia", "barber", "cortemasculino", "barba", "degrade"],
   salao: ["salaodebeleza", "cabelo", "hair", "beleza", "cabeloperfeito"],
-  manicure: ["unhas", "manicure", "nailart", "unhasdecoradas", "beleza"],
+  cabeleireiro: ["cabeleireiro", "cabelo", "coloracao", "tratamentocapilar"],
+  esmalteria: ["esmalteria", "unhas", "manicure", "nailart", "unhasdecoradas"],
+  sobrancelha_cilios: ["sobrancelhas", "cilios", "lashdesigner", "designdeolhar"],
+  estetica: ["estetica", "bemestar", "autocuidado", "cuidadosfaciais"],
+  outro: ["servicos", "atendimento", "agendamento"],
 };
 
 function limpa(t: string) {
@@ -54,8 +58,8 @@ export function legenda(o: {
 }
 
 export function textoPadrao(modelo: Modelo, nome: string, servico?: string, preco?: string) {
-  if (modelo === "servico" && servico) return `${servico}${preco ? ` por ${preco}` : ""} aqui na ${nome}.`;
-  if (modelo === "horarios") return `Ainda temos horários hoje na ${nome}. Garanta o seu!`;
-  if (modelo === "promocao") return `Promoção do dia na ${nome}. Só hoje!`;
+  if (modelo === "servico" && servico) return `${servico}${preco ? ` por ${preco}` : ""} aqui em ${nome}.`;
+  if (modelo === "horarios") return `Ainda temos horários hoje em ${nome}. Garanta o seu!`;
+  if (modelo === "promocao") return `Promoção do dia em ${nome}. Só hoje!`;
   return `Mais um atendimento feito com carinho na ${nome}.`;
 }
