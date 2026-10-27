@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { Link } from "@tanstack/react-router";
-import { CheckCircle2, ChevronDown, Clock, Download, Home, ReceiptText, Share2 } from "lucide-react";
+import { CheckCircle2, ChevronDown, Clock, Copy, Download, Home, ReceiptText, Share2 } from "lucide-react";
 import { toast } from "sonner";
 import { useState } from "react";
 
