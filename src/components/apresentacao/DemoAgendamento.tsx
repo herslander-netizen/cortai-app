@@ -2,11 +2,11 @@ import { useState } from "react";
 import { ArrowLeft, ArrowRight, Check, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-const businesses = ["Studio Horizonte", "Ateliê da Vila"];
+const businesses = ["Espaço Horizonte", "Ateliê da Vila"];
 const services = [
-  { name: "Corte", duration: "30 min", price: "R$ 35,00" },
-  { name: "Corte + acabamento", duration: "45 min", price: "R$ 50,00" },
-  { name: "Consultoria de estilo", duration: "30 min", price: "R$ 25,00" },
+  { name: "Atendimento inicial", duration: "30 min", price: "R$ 35,00" },
+  { name: "Sessão completa", duration: "45 min", price: "R$ 50,00" },
+  { name: "Consultoria personalizada", duration: "30 min", price: "R$ 25,00" },
 ];
 const times = ["09:30", "10:15", "11:00", "13:30"];
 const labels = ["Estabelecimento", "Serviço", "Horário", "Resumo"];
@@ -18,7 +18,7 @@ export function DemoAgendamento() {
   const [service, setService] = useState(1);
   const [time, setTime] = useState("10:15");
   const selectedBusiness = businesses[business] ?? "Studio Horizonte";
-  const selectedService = services[service] ?? { name: "Corte + acabamento", duration: "45 min", price: "R$ 50,00" };
+  const selectedService = services[service] ?? { name: "Sessão completa", duration: "45 min", price: "R$ 50,00" };
   const summary: [string, string][] = [["Estabelecimento", selectedBusiness], ["Serviço", selectedService.name], ["Horário ilustrativo", time], ["Valor ilustrativo", selectedService.price]];
   const reset = () => { setStep(0); setBusiness(0); setService(1); setTime("10:15"); };
   return (
