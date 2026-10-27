@@ -390,10 +390,10 @@ describe("tipografia do Figaro na área do negócio", () => {
 
 describe("cartão de atendimento da Agenda (cor do Figaro)", () => {
   it("não deixa um token duplicado sobrescrever a superfície clara da Agenda", () => {
-    const seletor = ".light,\\n:root.light,\\n:root[data-identidade].light {";
+    const seletor = ".light,\n:root.light,\n:root[data-identidade].light {";
     const inicio = css.lastIndexOf(seletor);
     expect(inicio).toBeGreaterThanOrEqual(0);
-    const fim = css.indexOf("\\n}", inicio);
+    const fim = css.indexOf("\n}", inicio);
     const temaClaroAgenda = css.slice(inicio, fim);
     expect(temaClaroAgenda).toContain("--agenda-cartao: var(--figaro-surface-container-lowest);");
     expect(temaClaroAgenda).not.toContain("--agenda-cartao: var(--figaro-surface-container-low);");
