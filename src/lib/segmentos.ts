@@ -325,11 +325,11 @@ export function segmentoParaApresentacao(valor: unknown): Segmento {
 }
 
 export function termos(segmento: unknown): TermosDoSegmento {
-  return SEGMENTOS_CONFIG[segmentoValido(segmento)].termos;
+  return SEGMENTOS_CONFIG[segmentoParaApresentacao(segmento)].termos;
 }
 
 export function definicaoDoSegmento(segmento: unknown): DefinicaoDeSegmento {
-  return SEGMENTOS_CONFIG[segmentoValido(segmento)];
+  return SEGMENTOS_CONFIG[segmentoParaApresentacao(segmento)];
 }
 
 /** `true` quando os atalhos ainda são exatamente os padrão da barbearia. */
