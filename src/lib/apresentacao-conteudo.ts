@@ -57,7 +57,7 @@ export const APRESENTACAO_PADRAO: ConteudoApresentacao = {
   foco: {
     etiqueta: "MODO FOCO",
     titulo: "O que importa agora, sem tirar o foco do atendimento.",
-    texto: "Veja quem está na cadeira, o próximo cliente e a ação que precisa acontecer.",
+    texto: "Veja os atendimentos em andamento, o próximo horário e a ação que precisa acontecer.",
   },
   clientes: {
     etiqueta: "CLIENTES",
@@ -82,7 +82,7 @@ export const APRESENTACAO_PADRAO: ConteudoApresentacao = {
     texto: "",
   },
   segmentos: {
-    etiqueta: "FEITO PARA BELEZA",
+    etiqueta: "FEITO PARA NEGÓCIOS DE SERVIÇOS",
     titulo: "O mesmo Cortaí, adaptado ao seu tipo de negócio.",
     texto:
       "Escolha um segmento para ver os exemplos da página com a linguagem mais próxima da sua rotina.",
@@ -124,9 +124,9 @@ export const APRESENTACAO_PADRAO: ConteudoApresentacao = {
       resposta: "Sim, a qualquer momento, sem multa.",
     },
     {
-      pergunta: "Serve apenas para barbearias?",
+      pergunta: "O Cortaí serve apenas para negócios de beleza?",
       resposta:
-        "Não. O Cortaí atende barbearias, salões, nail designers, estética e outros profissionais de Beleza.",
+        "Não. Beleza é um dos segmentos atendidos. O Cortaí também pode ser usado por outros negócios e profissionais que organizam serviços por agendamento.",
     },
   ],
   final: {
@@ -139,7 +139,7 @@ export const APRESENTACAO_PADRAO: ConteudoApresentacao = {
 export const SEO_APRESENTACAO_PADRAO = {
   titulo: "Cortaí — 45 dias grátis, sem cartão",
   descricao:
-    "Lembrete automático por WhatsApp que reduz faltas, agenda, clientes e caixa para negócios de Beleza. Preço fixo por plano.",
+    "Gestão de agenda, clientes, atendimentos e caixa para negócios de serviços, com lembretes automáticos por WhatsApp conforme o plano.",
 };
 
 /** Campos ausentes ou inválidos caem no texto aprovado. */
