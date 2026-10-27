@@ -4,7 +4,7 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { PERMISSOES } from "@/lib/permissoes";
 import { IDENTIDADES, identidadeValida, type Identidade } from "@/lib/aparencia";
-import { SEGMENTOS_CONFIG, segmentoParaApresentacao, segmentoValido, type Segmento } from "@/lib/segmentos";
+import { SEGMENTOS_CONFIG, segmentoParaApresentacao, type Segmento } from "@/lib/segmentos";
 import { configPadrao, TEMAS } from "@/lib/pagina-config";
 import { decidirContextos } from "@/lib/contextos";
 import { mesmoEmail } from "@/lib/comparacao-exata";
