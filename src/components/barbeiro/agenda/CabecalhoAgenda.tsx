@@ -326,7 +326,7 @@ export function CabecalhoAgenda({
                 viewBox="0 0 24 24"
                 fill="none"
                 aria-hidden
-                className={`size-9 transition-[transform,color] duration-[200ms] motion-reduce:transition-none ${
+                className={`size-10 transition-[transform,color] duration-[200ms] motion-reduce:transition-none ${
                   calendarioAberto
                     ? "scale-110 rotate-[-8deg] text-primary"
                     : "scale-100 rotate-0 text-mute"
