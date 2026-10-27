@@ -27,6 +27,7 @@ e o que fez. O diário até 17/10/2026 está guardado, sem alterações, em
 7. **Sem segredos:** nunca escreva chaves, senhas ou tokens aqui. Cite só o nome da variável.
 
 ## Decisões do dono
+- 2026-10-27: **Mobile é o foco principal de todo o Cortaí** (pedido do dono): decisões de layout, botões, gestos e animações começam pelo celular e são validadas primeiro em 390 px, cobrindo também 360 px; desktop é adaptação posterior. Alvos de toque confortáveis (48 dp quando aplicável), sem overflow/rolagem horizontal, sem zoom acidental fora das superfícies que o suportam, sem bloquear zoom/acessibilidade nativos. Em auditorias gerais, identificar e corrigir telas fora do padrão Figaro e componentes interativos inconsistentes, mantendo a Agenda protegida sem pedido específico.
 - 2026-10-27: **Identidade Cortaí unificada em todo o produto** (pedido do dono): quando “Cortaí” for referido sem limitar a uma tela, aplicar a direção visual global. Wordmark arredondado minimalista, letras em marinho profundo e ponto coral sobre o “í”; superfícies neutras, coral de marca e azul Figaro para ações. Composição, componentes, cartões, folhas e movimento seguem a referência Figaro. Linguagem neutra para negócios de beleza. Temas escolhidos para páginas públicas continuam preservados.
 - 2026-10-26: **Gatilho “Modo dev”**: quando o dono escrever exatamente “Modo dev”, ativar a execução autônoma de engenharia descrita em `AGENTS.md`. Reproduzir apenas o fluxo de trabalho de investigação, implementação e validação que ele apreciava; o Lovable não é usado nem deve ser reintroduzido.
 - 2026-10-26: **Ações da comanda simplificadas em todos os fluxos** (dono): remover o botão/ícone de copiar código da comanda; destacar a ação do WhatsApp com rótulo explícito e manter apenas Compartilhar e Baixar imagem como ações secundárias. A cópia da chave Pix continua disponível.
@@ -492,6 +493,9 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - 2026-10-26: **Cabeçalho do menu mobile mais compacto** (dono aprovou a reformulação após captura: logo menor, nome do negócio com hierarquia discreta, papel secundário, ajustes alinhados e menos espaço vazio; manter nome em até duas linhas quando necessário, sem afetar a Agenda).
 
 ## Em andamento
+
+- GPT | 2026-10-27 UTC | Auditoria mobile-first dos botões e telas fora do padrão: começar pelo defeito visível em PersonalizacaoCliente (switch WhatsApp deformado/quebrando linha), padronizar com o primitivo Switch e revisar os achados de botões/controles nas telas não reservadas; definir inventário de páginas e corrigir em lotes validados. Excluir Agenda e não mexer em regras/backend/bancos | `DIARIO.md`, `src/components/barbeiro/PersonalizacaoCliente.tsx`, testes UI/estilo e inventário UX; sem migração |
+
 
 | GPT | 2026-10-27 UTC | Implementar fallback técnico opcional de provedor de IA: Ollama Cloud primário e LocalAI secundário, sem trocar o cérebro/ações do Cortaí; fallback apenas em falhas transitórias, configuração por secrets, testes e validação | `DIARIO.md`, `MUSE.md`, `.github/workflows/preview-migration.yml`, `.github/workflows/lancar-versao.yml`, `src/lib/brain/gateway.server.ts`, `src/lib/brain/gateway-compativel.server.ts`, testes do gateway; sem migração |
 
