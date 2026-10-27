@@ -280,11 +280,11 @@ export function CabecalhoAgenda({
         aria-label={`${tituloCelular ?? tituloDoMes(dia)}. ${calendarioAberto ? "Recolher mês" : "Abrir mês"}`}
         aria-expanded={calendarioAberto}
       >
-        <span className="truncate text-[clamp(18px,5vw,22px)] leading-none text-paper">
-          <strong className="font-semibold">
+        <span className="truncate text-[22px] leading-7 text-paper">
+          <strong className="font-bold">
             {(tituloCelular ?? tituloDoMes(dia)).split(" ")[0]}
           </strong>{" "}
-          <span className="font-normal">{(tituloCelular ?? tituloDoMes(dia)).split(" ")[1]}</span>
+          <span className="font-medium">{(tituloCelular ?? tituloDoMes(dia)).split(" ")[1]}</span>
         </span>
       </Button>
       <Button
