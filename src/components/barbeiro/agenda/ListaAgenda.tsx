@@ -15,7 +15,11 @@ import type { AgendaItem } from "@/lib/barbeiro.functions";
 import { useSegmentoDoPainel } from "@/lib/segmento-contexto";
 import { termos } from "@/lib/segmentos";
 
-import { corDaCategoria } from "./cartao-figaro";
+import {
+  corDaCategoria,
+  glifoDoEstado,
+  type GlifoDoEstado,
+} from "./cartao-figaro";
 
 import {
   estaAtrasado,
@@ -32,6 +36,30 @@ export type AcaoCard = "chegou" | "iniciar" | "terminar";
 
 export const ENCERRADOS = new Set(["finalizado", "cancelado", "remarcado", "nao_compareceu"]);
 const PRIORIDADE: Record<string, number> = { na_cadeira: 0, chegou: 1, agendado: 2 };
+
+const ICONE_GLIFO: Record<GlifoDoEstado, LucideIcon> = {
+  confirmado: Check,
+  "pendente-online": CalendarClock,
+  "pendente-equipe": UserRoundPlus,
+  chegou: Check,
+  atendimento: Scissors,
+  atrasado: CalendarClock,
+  concluido: Check,
+  cancelado: UserX,
+  falta: UserX,
+};
+
+const COR_GLIFO: Record<GlifoDoEstado, string> = {
+  confirmado: "var(--status-confirmed)",
+  "pendente-online": "var(--status-scheduled)",
+  "pendente-equipe": "var(--status-scheduled)",
+  chegou: "var(--status-arrived)",
+  atendimento: "var(--status-active)",
+  atrasado: "var(--brick)",
+  concluido: "var(--status-completed)",
+  cancelado: "var(--status-cancelled)",
+  falta: "var(--status-missed)",
+};
 
 type AcaoPrincipal = { acao: AcaoCard; rotulo: string; Icone: LucideIcon };
 
@@ -107,6 +135,8 @@ export function ListaAgenda({
             item.status === "na_cadeira"
               ? termos(segmento).statusAtendimento
               : (ROTULO_ESTADO[item.status] ?? item.status);
+          const glifo = glifoDoEstado(item, atrasado);
+          const IconeGlifo = ICONE_GLIFO[glifo];
           return (
             <li
               key={item.id}
@@ -125,6 +155,13 @@ export function ListaAgenda({
                 className="pointer-events-none absolute bottom-[10px] left-[6px] top-[10px] w-1 rounded-full"
                 style={{ backgroundColor: corDaCategoria(item.categoriaIndice) }}
               />
+              <span
+                aria-hidden
+                className="agenda-lista-glifo pointer-events-none absolute right-[10px] top-[10px] grid size-[17px] place-items-center"
+                style={{ color: COR_GLIFO[glifo] }}
+              >
+                <IconeGlifo className="size-[17px]" strokeWidth={1.8} />
+              </span>
               <Button
                 type="button"
                 variant="ghost"
@@ -144,7 +181,7 @@ export function ListaAgenda({
                       </span>
                     ) : null}
                   </span>
-                  <span className="min-w-0">
+                  <span className="min-w-0 pr-6">
                     <span
                       className={`agenda-nome text-sm leading-[18px] ${nomeEhGenerico(item.cliente) ? "text-mute" : "text-paper"}`}
                       style={{ fontWeight: 600, minHeight: "18px" }}
