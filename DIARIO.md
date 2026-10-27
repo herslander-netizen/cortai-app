@@ -492,6 +492,8 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Em andamento
 
+| GPT | 2026-10-27 UTC | Implementar fallback técnico opcional de provedor de IA: Ollama Cloud primário e LocalAI secundário, sem trocar o cérebro/ações do Cortaí; fallback apenas em falhas transitórias, configuração por secrets, testes e validação | `DIARIO.md`, `MUSE.md`, `src/lib/brain/gateway.server.ts`, `src/lib/brain/gateway-compativel.server.ts`, testes do gateway; sem migração |
+
 
 
 | GPT | 2026-10-26 UTC | Polimento de interação mobile fora da Agenda: seleção/cópia contextual, toque e arrasto nativos, zoom acidental sem bloquear acessibilidade; criar CSS isolado e testes, preservando Agenda e campos copiáveis | `DIARIO.md`, `src/routes/__root.tsx`, `src/styles/mobile-interactions.css`, `src/styles/mobile-interactions.test.ts`; sem migração |
