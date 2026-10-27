@@ -86,7 +86,7 @@ describe("PreferenciasDoCliente — animação V3", () => {
   it("preserva o restante das preferências ao alternar um canal", async () => {
     const alvo = await montar(padrao);
     const whatsapp = Array.from(
-      alvo.querySelectorAll<HTMLButtonElement>('button[role="switch"]'),
+      alvo.querySelectorAll<HTMLButtonElement>('button[data-slot="chip"]'),
     ).find((botao) => botao.textContent?.trim() === "WhatsApp");
     expect(whatsapp).not.toBeUndefined();
 
