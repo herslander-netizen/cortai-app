@@ -133,7 +133,7 @@ export function responder(
   chave: ChaveDeTexto,
   vars: Record<string, string | number | null | undefined>,
   p?: PersonalizacaoConversa,
-  segmento: Segmento = "barbearia",
+  segmento: Segmento = "outro",
 ): { texto: string; precisaHumano: boolean } | null {
   const base = textoDaSituacao(chave, p, segmento);
   if (base === null) return null;
