@@ -495,6 +495,9 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 ## Em andamento
 
 
+- GPT | 2026-10-27 UTC | Reconstrução visual Figaro global (mobile-first): auditar as rotas internas e aplicar um contrato visual único com base no APK, começando pela moldura compartilhada de tela e inventário de paridade; preservar marca Cortaí, fluxos e regras atuais. Respeitar todas as reservas existentes: não tocar na Agenda, `src/styles.css`, `src/routes/__root.tsx`, `GlobalDesign`, `ui/card.tsx`, telas/componentes explicitamente reservados, dados, banco, `main` ou produção | `DIARIO.md`, `src/components/layout/Screen.tsx`, `src/components/layout/CabecalhoDeTela.tsx`, `src/components/layout/Screen.test.tsx`, `docs/auditoria-visual-figaro-cortai-2026-10-27.md`; sem migração
+
+
 - GPT | 2026-10-27 UTC | Integrar recursos financeiros inspirados no Mobills sem duplicar módulos do Cortaí: auditar categorias, fiado, pagamentos, taxas, recorrências e orçamento; implementar em etapas compatíveis, com migração aditiva apenas para prévia após revisão e testes. Não tocar Agenda, produção, main ou DNS | `DIARIO.md`, `docs/auditoria-mobills-cortai-2026-10-27.md`, `src/lib/financeiro*`, `src/routes/barbeiro.financeiro.tsx`, `src/routes/barbeiro.caixa.tsx`, componentes financeiros e migrações novas se necessárias; sem aplicar migrações nesta tarefa | 
 
 
