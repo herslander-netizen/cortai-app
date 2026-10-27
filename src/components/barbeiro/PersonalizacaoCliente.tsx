@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Field, Textarea } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Chip } from "@/components/ui/chip";
+import { Switch } from "@/components/ui/switch";
 
 type Participa = "padrao" | "sim" | "nao";
 
@@ -143,28 +144,17 @@ export function PersonalizacaoCliente({
         />
       </Field>
 
-      <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-line pt-5">
-        <div className="pr-4">
+      <div className="mt-6 flex min-h-12 items-center gap-4 border-t border-line pt-5">
+        <div className="min-w-0 flex-1">
           <p className="text-sm text-paper">Pode receber mensagens no WhatsApp</p>
           <p className="mt-0.5 text-xs text-mute2">Avisos de horário, fila e retorno.</p>
         </div>
-        <Button
-          variant="ghost"
-          type="button"
-          role="switch"
-          aria-checked={whats}
+        <Switch
+          checked={whats}
+          onCheckedChange={setWhats}
           aria-label="Pode receber mensagens no WhatsApp"
-          onClick={() => setWhats((v) => !v)}
-          className={`h-12 w-14 shrink-0 rounded-full border p-0 transition-colors ${
-            whats ? "border-gold bg-gold" : "border-line2 bg-ink2"
-          }`}
-        >
-          <span
-            className={`block h-5 w-5 rounded-full transition-transform ${
-              whats ? "translate-x-6 bg-ink" : "translate-x-1 bg-mute"
-            }`}
-          />
-        </Button>
+          className="h-7 w-12 shrink-0 data-[state=checked]:bg-[var(--figaro-primary)] data-[state=unchecked]:bg-[var(--figaro-surface-container-highest)]"
+        />
       </div>
 
       {erro ? (
