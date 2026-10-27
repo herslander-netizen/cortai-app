@@ -1,10 +1,10 @@
 /**
- * "Configurar minha barbearia" sem login.
+ * "Configurar meu negócio" sem login.
  *
- * A pessoa monta um rascunho e publica uma barbearia nova. Nada aqui permite
- * tocar em uma barbearia que já existe: cada rascunho nasce com um código
+ * A pessoa monta um rascunho e publica um negócio novo. Nada aqui permite
+ * tocar em um negócio que já existe: cada rascunho nasce com um código
  * secreto (nunca exposto na URL) guardado em formato criptografado no banco,
- * e a administração da barbearia só é liberada depois que alguém entra com
+ * e a administração do negócio só é liberada depois que alguém entra com
  * uma conta e reivindica o rascunho com esse mesmo código.
  */
 import { createServerFn } from "@tanstack/react-start";
