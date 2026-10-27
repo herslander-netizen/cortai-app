@@ -496,6 +496,8 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Em andamento
 
+- GPT | 2026-10-27 UTC | Aumentar com equilíbrio os ícones de calendário da Agenda e sino de avisos no cabeçalho mobile, mantendo alvos de toque, badge, animação e layout; validar claro/escuro e não publicar produção | `DIARIO.md`, `src/components/barbeiro/agenda/CabecalhoAgenda.tsx`, `src/components/notificacoes/SinoDeAvisos.tsx`, testes relevantes; sem migração
+
 - GPT | 2026-10-27 UTC | Corrigir divergência entre Agenda clara e escura: investigar regressão, manter a mesma estrutura/medidas/cartões/gestos/animações nos dois temas e variar apenas tokens de cor; registrar regra permanente de paridade e validar sem tocar produção/main | `DIARIO.md`, `AGENTS.md`, `src/components/barbeiro/agenda/AGENTS.md`, componentes/estilos/testes estritamente necessários da Agenda; sem migração
 
 
