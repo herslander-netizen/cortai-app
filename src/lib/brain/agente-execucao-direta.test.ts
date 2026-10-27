@@ -165,6 +165,21 @@ describe("pedido pendente", () => {
     expect(r.pendente?.id).toBe("p-antiga");
   });
 
+  it("esgotar os passos respondendo uma pergunta paralela preserva a ação pendente", async () => {
+    const anterior = {
+      id: "p-antiga",
+      acao: "criar_agendamento",
+      dados: dadosDoAgendamento,
+      resumo: "Agendar Corte amanhã às 10:00.",
+      criadaEm: new Date().toISOString(),
+    };
+    estado.roteiro = Array.from({ length: 6 }, () => [chamada("listar_servicos", {})]);
+    const r = await comandar("Quanto custa?", painel, { pendente: anterior });
+    expect(estado.executadas).toEqual([]);
+    expect(r.pendente?.id).toBe("p-antiga");
+    expect(r.texto).toContain("continua aguardando confirmação");
+  });
+
   it("uma correção prepara nova proposta, mas nunca executa diretamente", async () => {
     const anterior = {
       id: "p-antiga",
