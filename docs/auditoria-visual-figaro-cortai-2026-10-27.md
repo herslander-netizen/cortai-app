@@ -47,3 +47,11 @@ Esta entrega corrige a base compartilhada e exemplos concretos de duas áreas; *
 - **Pendente/contrato público:** classes antigas `btn-*` foram detectadas em `f.$slug.tsx` e `vaga.$token.tsx`; por serem páginas públicas/fluxos externos, exigem revisão de tema e contrato antes de converter. Não considero isso concluído só por existir uma classe antiga.
 - **Não verificado:** comparação visual manual em 390 px e 360 px, tema claro/escuro, teclado móvel, reduced motion e todos os estados condicionais. A sessão não dispõe de navegador conectado para screenshots e comparação direta; smoke test automatizado não substitui isso.
 - **Não concluído:** paridade visual integral de todas as rotas e transições. O inventário `docs/referencia-figaro/apk/8-inventario-de-animacoes.md` ainda marca itens parciais ou ausentes; estes precisam ser abordados em lotes que respeitem reservas de módulos.
+
+
+## Hierarquia dos cabeçalhos — 27/10/2026
+
+- **Implementado:** removido o botão de ajuda com interrogação dos cabeçalhos compartilhados de páginas e da barra própria de `/barbeiro/hoje`.
+- **Hierarquia:** o botão de voltar aparece apenas quando há destino real; páginas sem retorno não mantêm uma linha superior vazia antes do título.
+- **Preservado:** sistema de guias e ajuda contextual no menu da Agenda; o pedido remove a interrogação das páginas, não elimina o recurso de orientação.
+- **Teste adicionado/ajustado:** `Screen.test.tsx` cobre ausência da interrogação e a hierarquia “Voltar → título”. O resultado do GitHub Actions para este commit ainda deve ser confirmado.

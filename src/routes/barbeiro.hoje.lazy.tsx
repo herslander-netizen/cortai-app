@@ -14,7 +14,6 @@ import { lazy, Suspense, useState } from "react";
 
 import { Screen } from "@/components/layout/Screen";
 import { EsqueletoLista, EsqueletoMetricas } from "@/components/layout/Esqueleto";
-import { BotaoAjuda } from "@/components/guia/BotaoAjuda";
 import { Button } from "@/components/ui/button";
 import { brl } from "@/lib/format";
 import { getHojeDoDono, type Metricas } from "@/lib/dono.functions";
@@ -58,7 +57,6 @@ function CabecalhoHoje() {
               <Armchair />
             </Link>
           </Button>
-          <BotaoAjuda />
         </div>
       </div>
     </header>

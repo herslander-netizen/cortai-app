@@ -3,7 +3,6 @@ import { Link, type LinkProps } from "@tanstack/react-router";
 import { ArrowLeft } from "lucide-react";
 import { Signature } from "./Signature";
 import { CabecalhoDeTela } from "./CabecalhoDeTela";
-import { BotaoAjuda } from "@/components/guia/BotaoAjuda";
 
 export function Screen({
   title,
@@ -36,23 +35,18 @@ export function Screen({
           data-figaro-header="page"
           className="sticky top-14 z-20 grid gap-4 bg-[var(--figaro-background,var(--ink))] px-4 pb-3 pt-4 md:static md:px-8 md:pb-5 md:pt-6"
         >
-          <div className="flex min-h-11 items-center justify-between gap-2">
-            <div className="flex min-w-11 items-center">
-              {voltarPara ? (
-                // Top bar do Figaro: ação redonda de 44 dp, título hierárquico abaixo.
-                <Link
-                  to={voltarPara}
-                  aria-label={voltarRotulo}
-                  className="flex size-11 shrink-0 items-center justify-center rounded-full bg-[var(--figaro-surface-container-highest,var(--ink3))] text-[var(--figaro-on-surface,var(--paper))] transition-[background-color,transform] duration-150 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring motion-reduce:transition-none"
-                >
-                  <ArrowLeft size={24} aria-hidden />
-                </Link>
-              ) : null}
+          {voltarPara ? (
+            <div className="flex min-h-11 items-center">
+              {/* Top bar do Figaro: ação redonda de 44 dp; o título mantém hierarquia própria abaixo. */}
+              <Link
+                to={voltarPara}
+                aria-label={voltarRotulo}
+                className="flex size-11 shrink-0 items-center justify-center rounded-full bg-[var(--figaro-surface-container-highest,var(--ink3))] text-[var(--figaro-on-surface,var(--paper))] transition-[background-color,transform] duration-150 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring motion-reduce:transition-none"
+              >
+                <ArrowLeft size={24} aria-hidden />
+              </Link>
             </div>
-            <div className="flex items-center gap-2">
-              <BotaoAjuda />
-            </div>
-          </div>
+          ) : null}
           <CabecalhoDeTela title={title} {...(subtitle ? { subtitle } : {})} />
         </header>
       ) : null}

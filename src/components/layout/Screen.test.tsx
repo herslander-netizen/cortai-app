@@ -27,12 +27,8 @@ vi.mock("./Signature", () => ({
   Signature: () => <footer>Assinatura institucional</footer>,
 }));
 
-vi.mock("@/components/guia/BotaoAjuda", () => ({
-  BotaoAjuda: () => <button type="button" aria-label="Ajuda">Ajuda</button>,
-}));
-
 describe("moldura de tela no padrão Figaro", () => {
-  it("usa barra de ação superior, hierarquia de título abaixo e conteúdo mobile-first", () => {
+  it("usa ação de retorno e hierarquia do título abaixo, sem botão de interrogação", () => {
     const html = renderToStaticMarkup(
       <Screen title="Serviços" subtitle="Seus serviços, duração e preços." voltarPara="/barbeiro/mais">
         <p>Catálogo</p>
@@ -45,11 +41,13 @@ describe("moldura de tela no padrão Figaro", () => {
     expect(html).toContain('aria-label="Voltar"');
     expect(html.indexOf('aria-label="Voltar"')).toBeLessThan(html.indexOf(">Serviços</h1>"));
     expect(html).toContain("text-3xl");
+    expect(html).not.toContain("Ver dicas");
+    expect(html).not.toContain('aria-label="Ajuda"');
     expect(html).not.toContain("border-b border-line");
     expect(html).not.toContain("Assinatura institucional");
   });
 
-  it("só mostra a assinatura institucional em telas largas quando pedida explicitamente", () => {
+  it("não cria uma linha de ação vazia quando a tela não tem destino de retorno", () => {
     const html = renderToStaticMarkup(
       <Screen title="Ajuda" assinaturaSoComputador>
         <p>Conteúdo</p>
@@ -58,6 +56,8 @@ describe("moldura de tela no padrão Figaro", () => {
 
     expect(html).toContain('class="hidden md:block"');
     expect(html).toContain("Assinatura institucional");
+    expect(html).not.toContain('aria-label="Voltar"');
+    expect(html).not.toContain("Ver dicas");
   });
 
   it("mostra o estado vazio como superfície Figaro, sem divisor legado", () => {
