@@ -68,6 +68,7 @@ describe("medidas visuais Figaro no seletor de data", () => {
     expect(circulo?.className).toContain("size-[38px]");
     expect(circulo?.className).toContain("text-base");
     expect(selecionado?.className).toContain("h-12");
+    expect(selecionado?.querySelector('[aria-hidden="true"]')?.className).toContain("size-[5px]");
     const rotulos = Array.from(alvo.querySelectorAll<HTMLElement>("div")).find((el) =>
       el.className.includes("text-[11.5px]"),
     );
@@ -87,6 +88,7 @@ describe("medidas visuais Figaro no seletor de data", () => {
     expect(selecionado?.className).toContain("size-[38px]");
     expect(selecionado?.className).toContain("text-[15px]");
     expect(selecionado?.closest("button")?.className).toContain("h-10");
+    expect(alvo.querySelector('[aria-label="Calendário"]')?.className).toContain("h-[292px]");
   });
 });
 
