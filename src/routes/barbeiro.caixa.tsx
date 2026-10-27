@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { BuscaDeComandas } from "@/components/comanda/BuscaDeComandas";
 import { RegistrarGanhoExtra } from "@/components/financeiro/RegistrarGanhoExtra";
 import { brl, dataCurta, hora } from "@/lib/format";
-import { FAIXAS_IDADE_FIADO, classificarIdadeFiado, rotuloIdadeFiado } from "@/lib/financeiro-analise";
+import { CATEGORIAS_DESPESA, FAIXAS_IDADE_FIADO, classificarIdadeFiado, rotuloCategoriaSaida, rotuloIdadeFiado, type CategoriaDespesa } from "@/lib/financeiro-analise";
 import {
   abrirOuFecharCaixa,
   estornarPagamento,
@@ -94,6 +94,7 @@ function CaixaPage() {
   const [valorCaixa, setValorCaixa] = useState("");
   const [saida, setSaida] = useState({
     tipo: "saida" as "saida" | "sangria" | "despesa",
+    categoria: "outros" as CategoriaDespesa,
     descricao: "",
     valor: "",
     formaPagamento: "dinheiro" as "dinheiro" | "pix" | "cartao",
@@ -247,7 +248,7 @@ function CaixaPage() {
 
           <section className="surface-card mt-5 p-4 md:max-w-3xl md:p-5">
             <h2 className="text-sm font-semibold text-paper">Registrar saída</h2>
-            <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
               <label className="flex min-w-0 flex-col gap-1 text-xs text-mute">
                 Tipo
                 <select
@@ -268,6 +269,25 @@ function CaixaPage() {
                   <option value="despesa">Despesa</option>
                 </select>
               </label>
+              {saida.tipo === "despesa" ? (
+                <label className="flex min-w-0 flex-col gap-1 text-xs text-mute">
+                  Categoria
+                  <select
+                    className="field-control"
+                    value={saida.categoria}
+                    onChange={(e) =>
+                      setSaida({ ...saida, categoria: e.target.value as CategoriaDespesa })
+                    }
+                    aria-label="Categoria da despesa"
+                  >
+                    {CATEGORIAS_DESPESA.map((categoria) => (
+                      <option key={categoria.valor} value={categoria.valor}>
+                        {categoria.rotulo}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              ) : null}
               <label className="flex min-w-0 flex-col gap-1 text-xs text-mute">
                 Forma de pagamento
                 <select
@@ -314,12 +334,13 @@ function CaixaPage() {
                   await registrar({
                     data: {
                       tipo: saida.tipo,
+                      categoria: saida.tipo === "despesa" ? saida.categoria : undefined,
                       descricao: saida.descricao.trim(),
                       valorCentavos: Math.round(Number(saida.valor) * 100),
                       formaPagamento: saida.formaPagamento,
                     },
                   });
-                  setSaida({ tipo: "saida", descricao: "", valor: "", formaPagamento: "dinheiro" });
+                  setSaida({ tipo: "saida", categoria: "outros", descricao: "", valor: "", formaPagamento: "dinheiro" });
                 }, "Saída registrada.")
               }
             >
@@ -381,11 +402,13 @@ function CaixaPage() {
                       <div>
                         <dt className="text-mute2">Categoria</dt>
                         <dd className="capitalize text-paper">
-                          {({
-                            ganho_extra_gorjeta: "Gorjeta",
-                            ganho_extra_servico_extra: "Serviço extra",
-                            ganho_extra_outro: "Outro ganho",
-                          } as Record<string, string>)[String(m.categoria)] ?? m.categoria}
+                          {m.tipo === "saida" || m.tipo === "despesa"
+                            ? rotuloCategoriaSaida(String(m.categoria ?? ""), String(m.tipo))
+                            : ({
+                                ganho_extra_gorjeta: "Gorjeta",
+                                ganho_extra_servico_extra: "Serviço extra",
+                                ganho_extra_outro: "Outro ganho",
+                              } as Record<string, string>)[String(m.categoria)] ?? m.categoria}
                         </dd>
                       </div>
                       <div>
