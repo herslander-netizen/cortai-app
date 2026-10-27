@@ -124,7 +124,7 @@ export const APRESENTACAO_PADRAO: ConteudoApresentacao = {
       resposta: "Sim, a qualquer momento, sem multa.",
     },
     {
-      pergunta: "O Cortaí serve apenas para negócios de beleza?",
+      pergunta: "Quais tipos de negócio podem usar o Cortaí?",
       resposta:
         "Não. Beleza é um dos segmentos atendidos. O Cortaí também pode ser usado por outros negócios e profissionais que organizam serviços por agendamento.",
     },
