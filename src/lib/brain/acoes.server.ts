@@ -708,6 +708,84 @@ export const ACOES: Record<string, Definicao> = {
   },
 
   /* ------------------------------ Escrita ------------------------------ */
+  cadastrar_servicos: {
+    descricao:
+      "Cadastra uma lista de serviços do negócio. Só use nomes, durações e preços informados pela equipe; se faltar um dado essencial, pergunte antes.",
+    parametros: obj(
+      {
+        servicos: {
+          type: "array",
+          items: {
+            type: "object",
+            properties: {
+              nome: { type: "string" },
+              duracaoMin: { type: "integer" },
+              precoCentavos: { type: "integer" },
+            },
+            required: ["nome", "duracaoMin", "precoCentavos"],
+            additionalProperties: false,
+          },
+        },
+      },
+      ["servicos"],
+    ),
+    risco: "escrita",
+    canais: ["painel"],
+    permissoes: ["alterar_dados_barbearia"],
+    resumir: async (_ctx, d) => {
+      const servicos = Array.isArray(d.servicos) ? d.servicos : [];
+      if (!servicos.length) throw new Error("Nenhum serviço para cadastrar.");
+      return `Cadastrar ${servicos.map((s: any) => `${String(s.nome).trim()} (${s.duracaoMin} min, ${reais(Number(s.precoCentavos))})`).join(", ")}.`;
+    },
+    executar: (ctx, d) =>
+      dominio.cadastrarServicos(agenteDe(ctx), {
+        servicos: (Array.isArray(d.servicos) ? d.servicos : []).map((s: any) => ({
+          nome: String(s.nome ?? ""),
+          duracaoMin: Number(s.duracaoMin),
+          precoCentavos: Number(s.precoCentavos),
+        })),
+      }),
+  },
+  definir_horarios: {
+    descricao:
+      "Define os horários de funcionamento do negócio. Informe os sete dias quando a equipe fornecer a semana completa; não invente dias ou horários ausentes.",
+    parametros: obj(
+      {
+        horarios: {
+          type: "array",
+          items: {
+            type: "object",
+            properties: {
+              diaSemana: { type: "integer", description: "0 domingo até 6 sábado" },
+              fechado: { type: "boolean" },
+              abre: { type: "string" },
+              fecha: { type: "string" },
+            },
+            required: ["diaSemana", "fechado", "abre", "fecha"],
+            additionalProperties: false,
+          },
+        },
+      },
+      ["horarios"],
+    ),
+    risco: "escrita",
+    canais: ["painel"],
+    permissoes: ["alterar_dados_barbearia"],
+    resumir: async (_ctx, d) => {
+      const horarios = Array.isArray(d.horarios) ? d.horarios : [];
+      if (!horarios.length) throw new Error("Nenhum horário para salvar.");
+      return `Definir ${horarios.length} dia(s) de funcionamento. Confira a semana antes de confirmar.`;
+    },
+    executar: (ctx, d) =>
+      dominio.definirHorarios(agenteDe(ctx), {
+        horarios: (Array.isArray(d.horarios) ? d.horarios : []).map((h: any) => ({
+          diaSemana: Number(h.diaSemana),
+          fechado: Boolean(h.fechado),
+          abre: String(h.abre ?? ""),
+          fecha: String(h.fecha ?? ""),
+        })),
+      }),
+  },
   criar_cliente: {
     descricao: "Cadastra o cliente (no WhatsApp, com o telefone da conversa).",
     parametros: obj({ nome: { type: "string" }, telefone: { type: ["string", "null"] } }, [

@@ -40,7 +40,7 @@ export function FabCortai() {
       <div className="cortai-fab-area">
         {rotulo ? (
           <span aria-hidden className="cortai-fab-rotulo">
-            CortAI
+            Cortaí
           </span>
         ) : null}
         <button
@@ -48,8 +48,8 @@ export function FabCortai() {
           onClick={() => setAberto(true)}
           aria-label={
             pendentes > 0
-              ? `Abrir CortAI · ${pendentes} ${pendentes === 1 ? "passo pendente" : "passos pendentes"}`
-              : "Abrir CortAI"
+              ? `Abrir Cortaí · ${pendentes} ${pendentes === 1 ? "passo pendente" : "passos pendentes"}`
+              : "Abrir Cortaí"
           }
           aria-haspopup="dialog"
           aria-expanded={aberto}
@@ -96,7 +96,7 @@ export function AtalhoCortaiNoCabecalho() {
         variant="ghost"
         size="icon"
         onClick={() => setAberto(true)}
-        aria-label={`Abrir CortAI${situacao}`}
+        aria-label={`Abrir Cortaí${situacao}`}
         aria-haspopup="dialog"
         aria-expanded={aberto}
         className="relative h-12 w-12 shrink-0 rounded-none border-0 text-mute hover:text-gold"

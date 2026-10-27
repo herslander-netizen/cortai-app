@@ -251,28 +251,9 @@ export const perguntarAoCortai = createServerFn({ method: "POST" })
         let pendenteNova: unknown = null;
         let estado: EstadoDaCortai = "ativa";
 
-        // Cadastro em lote de serviços/horários segue no fluxo estruturado já existente.
-        const cadastroEstruturado =
-          /\b(cadastr\w*|adicion\w*|cri\w*)\b.*\bservi[cç]os?\b|\bhor[aá]rios? de funcionamento\b|\b(abr\w*|fech\w*) (de|às|as) \d/i.test(
-            data.mensagem,
-          );
-        const bloqueadaNoCadastro = cadastroEstruturado
-          ? await respostaBloqueada((estado = await estadoNoPainel(tenantId, context.userId)))
-          : null;
-        if (bloqueadaNoCadastro) {
-          resposta = bloqueadaNoCadastro;
-        } else if (cadastroEstruturado) {
-          const { extrairCadastroEstruturado } = await import("@/lib/ia/assistente.server");
-          resposta = await extrairCadastroEstruturado({
-            mensagem: data.mensagem,
-            contexto,
-            historico: historicoBruto.map((m) => ({
-              autor: m["autor"] as "barbeiro" | "assistente",
-              conteudo: m["conteudo"] as string,
-            })),
-          });
-        } else {
-          // Caminho canônico: cérebro CortAI com ações reais do negócio.
+        // Todo pedido conversacional passa pelo cérebro oficial: o catálogo decide
+        // se é conversa, consulta ou escrita pendente, sem roteador por palavras.
+        {
           const { pensarCortai } = await import("@/lib/brain/agente.server");
           const { iaDisponivel } = await import("@/lib/brain/gateway.server");
           const { respostaIndisponivel } = await import("@/lib/ia/assistente");
@@ -295,7 +276,7 @@ export const perguntarAoCortai = createServerFn({ method: "POST" })
                 profissionalId: acesso.profissionalId,
                 permissoes: acesso.permissoes,
               },
-              persona: { nome: "CortAI", negocio: contexto.nome, segmento: contexto.segmento },
+              persona: { nome: "Cortaí", negocio: contexto.nome, segmento: contexto.segmento },
               historico: historicoBruto.map((m) => ({
                 autor: m["autor"] === "barbeiro" ? "usuario" : "assistente",
                 texto: String(m["conteudo"] ?? ""),
@@ -395,7 +376,7 @@ export const interpretarServicos = createServerFn({ method: "POST" })
       mensagem: data.texto,
       contexto: await contextoDaBarbearia(context, tenantId),
       instrucaoExtra:
-        "A pessoa está no cadastro de serviços. Extraia a lista de serviços do texto, com nome, categoria, duração em minutos e preço em centavos. Use intencao = cadastrar_servicos, precisa_confirmar = true e não invente serviços que não foram citados. Se faltar preço ou duração, estime um valor comum ao segmento informado e diga no texto que é uma sugestão editável.",
+        "A pessoa está no cadastro de serviços. Extraia a lista de serviços do texto, com nome, categoria, duração em minutos e preço em centavos. Use intencao = cadastrar_servicos, precisa_confirmar = true e não invente serviços nem preencha dados essenciais ausentes; se faltar preço ou duração, peça o dado.",
     });
   });
 

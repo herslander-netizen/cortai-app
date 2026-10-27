@@ -14,7 +14,15 @@ vi.mock("@/integrations/supabase/client.server", () => ({
   },
 }));
 vi.mock("@/lib/ia/acoes.server", () => ({
-  ACOES_DO_AGENTE: { criar_agendamento: (...a: unknown[]) => estado.domínio(...a) },
+  ACOES_DO_AGENTE: {
+    criar_agendamento: (...a: unknown[]) => estado.domínio(...a),
+    cadastrar_servicos: (...a: unknown[]) => estado.domínio(...a),
+    definir_horarios: (...a: unknown[]) => estado.domínio(...a),
+    cadastrarServicos: (...a: unknown[]) => estado.domínio(...a),
+    definirHorarios: (...a: unknown[]) => estado.domínio(...a),
+  },
+  cadastrarServicos: (...a: unknown[]) => estado.domínio(...a),
+  definirHorarios: (...a: unknown[]) => estado.domínio(...a),
 }));
 vi.mock("@/lib/agenda-regras.server", () => ({
   STATUS_QUE_OCUPAM: ["agendado", "chegou"],
@@ -39,7 +47,7 @@ const ctx: ContextoDoCerebro = {
   canal: "painel",
   ator: "u1",
   papel: "dono",
-  permissoes: ["agendamento_manual", "visualizar_clientes"],
+  permissoes: ["agendamento_manual", "visualizar_clientes", "alterar_dados_barbearia"],
 };
 const alvo = { clienteId: "cli-1", servicoId: "srv-1", profissionalId: "pro-1", inicio: INICIO };
 const linha = (extra: Record<string, unknown> = {}) => ({
@@ -173,6 +181,40 @@ describe("criar_agendamento pelo catálogo (reaproveita o domínio)", () => {
       }),
     ).rejects.toThrow(/Cliente não encontrado/);
     expect(estado.domínio).not.toHaveBeenCalled();
+  });
+});
+
+describe("cadastro de serviços e horários pelo cérebro único", () => {
+  it("oferece as duas escritas somente no painel com a permissão de configuração", () => {
+    const nomes = ferramentasDoContexto(ctx).map((f) => f.name);
+    expect(nomes).toContain("cadastrar_servicos");
+    expect(nomes).toContain("definir_horarios");
+    expect(
+      ferramentasDoContexto({ ...ctx, permissoes: ["agendamento_manual"] }).map((f) => f.name),
+    ).not.toContain("cadastrar_servicos");
+  });
+
+  it("prepara o cadastro sem executar até a confirmação do agente", async () => {
+    estado.domínio.mockResolvedValue({ total: 1 });
+    const r = await ACOES["cadastrar_servicos"]!.executar(ctx, {
+      servicos: [{ nome: "Corte", duracaoMin: 30, precoCentavos: 4500 }],
+    });
+    expect(r).toEqual({ total: 1 });
+    expect(estado.domínio).toHaveBeenCalledWith(
+      expect.objectContaining({ tenantId: "t1" }),
+      { servicos: [{ nome: "Corte", duracaoMin: 30, precoCentavos: 4500 }] },
+    );
+  });
+
+  it("mantém as validações de horário na ação de domínio", async () => {
+    estado.domínio.mockResolvedValue({ total: 7 });
+    await ACOES["definir_horarios"]!.executar(ctx, {
+      horarios: [{ diaSemana: 1, fechado: false, abre: "09:00", fecha: "19:00" }],
+    });
+    expect(estado.domínio).toHaveBeenCalledWith(
+      expect.objectContaining({ tenantId: "t1" }),
+      { horarios: [{ diaSemana: 1, fechado: false, abre: "09:00", fecha: "19:00" }] },
+    );
   });
 });
 

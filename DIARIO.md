@@ -494,9 +494,6 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Em andamento
 
-- GPT | 2026-10-27 UTC | Unificação total da IA CortAI: eliminar o fetch/modelo conversacional paralelo do cadastro de serviços e horários, ligar painel e WhatsApp ao cérebro oficial, revisar catálogo, identidade e testes; sem tocar Agenda, banco real, secrets, main ou DNS | `DIARIO.md`, `MUSE.md`, `src/lib/brain/*`, `src/lib/ia/assistente.server.ts`, `src/lib/ia/assistente.ts`, `src/lib/assistente.functions.ts`, `src/lib/whatsapp/fluxo.server.ts`, `src/components/ia/*`, testes relacionados; sem migração |
-
-
 - GPT | 2026-10-27 UTC | Integrar recursos financeiros inspirados no Mobills sem duplicar módulos do Cortaí: auditar categorias, fiado, pagamentos, taxas, recorrências e orçamento; implementar em etapas compatíveis, com migração aditiva apenas para prévia após revisão e testes. Não tocar Agenda, produção, main ou DNS | `DIARIO.md`, `docs/auditoria-mobills-cortai-2026-10-27.md`, `src/lib/financeiro*`, `src/routes/barbeiro.financeiro.tsx`, `src/routes/barbeiro.caixa.tsx`, componentes financeiros e migrações novas se necessárias; sem aplicar migrações nesta tarefa | 
 
 
@@ -532,6 +529,8 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 
 ## Recados
+
+- **Para todos (GPT, 27/10):** a unificação da IA foi concluída nesta etapa: a conversa principal do painel passa pelo cérebro oficial `src/lib/brain`, o extrator estruturado usa o mesmo gateway sem modo básico e serviços/horários foram adicionados ao catálogo central delegando às ações de domínio. A validação focada passou; a suíte completa ainda contém falhas preexistentes de Figaro/CSS. Não houve secrets, banco real, Agenda, `main`, DNS ou produção.
 
 - **Para todos (GPT, 27/10):** li os recados atuais. Esta tarefa ficou restrita ao gateway do CortAI e ao painel da CortAI; a Agenda, banco, secrets, DNS, `main` e produção permaneceram fora do escopo.
 
@@ -762,6 +761,8 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - Documentação adicionada: docs/auditoria-inbarber-cortai-2026-10-26.md e docs/propostas/widget-android-inbarber-cortai.md. O widget permanece especificado, não implementado: o repositório não tem projeto Android nativo, pacote/assinatura ou fluxo de autenticação para o widget.
 - Sem mudanças na interface da Agenda, migrações, bancos de dados, segredos, main ou site principal. TypeScript, Vitest, build e smoke test aguardam a validação automática do commit.
 ## Diário
+
+- GPT | 2026-10-27 UTC | **Unificação total da IA Cortaí — etapa concluída:** a conversa principal do painel agora usa `pensarCortai` em todos os pedidos; `extrairCadastroEstruturado` permanece somente como capacidade especializada e chama o gateway central com `usarModoBasico: false`. O catálogo ganhou `cadastrar_servicos` e `definir_horarios`, delegando às ações de domínio com tenant, validação, auditoria e permissão no servidor. A identidade pública Cortaí foi alinhada no painel e no WhatsApp. Testes focados: 5 arquivos e 96 testes aprovados; TypeScript e build aprovados. A suíte completa mantém falhas preexistentes de Figaro/CSS/Agenda; lint não foi confirmável por CRLF em massa. Não houve chamada real ao Ollama verificável, não há LocalAI acessível configurado, e nenhum secret, banco real, Agenda, `main`, DNS ou produção foi alterado.
 
 - GPT | 2026-10-27 UTC | Primeira etapa da unificação CortAI: renomeei a função de extração de cadastro estruturado de `pensar` para `extrairCadastroEstruturado`, atualizei os três pontos de chamada no painel e alinhei os testes correspondentes. O prompt desta capacidade agora identifica a inteligência como “Cortaí”, sem alterar o contrato JSON, o gateway compartilhado, a confirmação dos cadastros ou as regras de tenant. Isto remove o nome genérico de “segundo pensador”, mas **não declara concluída a unificação funcional**: extração estruturada continua sendo uma capacidade especializada, enquanto o catálogo central ainda precisa de ações explícitas para cadastrar serviços e horários. Sem migração, banco real, produção, main ou DNS. Os commits desta etapa são `310e1be`, `3ac903a` e `fe2a293`; aguardar GitHub Actions para validar TypeScript, testes, build e prévia.
 - GPT | 2026-10-27 UTC | Diagnóstico e correção do CortAI + auditoria mobile

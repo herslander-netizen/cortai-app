@@ -14,8 +14,13 @@ import {
   type ServicoSugerido,
 } from "./assistente";
 
-import { provedorCompativelDoCanal } from "@/lib/brain/gateway.server";
-
+import {
+  criarSessaoDoGateway,
+  ErroDoGateway,
+  provedorCompativelDoCanal,
+  textoDaSaida,
+  type ItemDeEntrada,
+} from "@/lib/brain/gateway.server";
 
 
 export function assistenteConfigurado(): boolean {
@@ -203,23 +208,6 @@ export function normalizarResposta(bruto: unknown): RespostaDoAssistente {
   };
 }
 
-/** Erros do gateway viram mensagem clara — nunca uma resposta inventada. */
-function erroDoGateway(status: number, corpo: string): Error {
-  if (status === 402) {
-    return new Error(
-      "Os créditos de IA do Cortaí acabaram. Peça para o responsável adicionar créditos.",
-    );
-  }
-  if (status === 429)
-    return new Error("O assistente está sobrecarregado agora. Tente de novo em instantes.");
-  if (status === 401 || status === 403) {
-    return new Error("O assistente está sem acesso neste ambiente. Fale com o suporte do Cortaí.");
-  }
-  return new Error(
-    `O assistente não conseguiu responder agora (${status}). ${corpo.slice(0, 120)}`,
-  );
-}
-
 /**
  * Pergunta ao modelo e devolve a resposta estruturada.
  * Sem chave configurada, devolve o fallback honesto (disponivel: false).
@@ -230,15 +218,11 @@ export async function extrairCadastroEstruturado(input: {
   historico?: Turno[];
   instrucaoExtra?: string;
 }): Promise<RespostaDoAssistente> {
-  // Provedor gratuito/compatível configurado para o painel (CORTAI_AI_*) tem prioridade.
-  const compat = provedorCompativelDoCanal("painel");
-  const chave = compat?.chave;
-  if (!compat || !chave) return respostaIndisponivel();
+  // Esta capacidade continua especializada, mas transporte, fallback e observabilidade
+  // pertencem exclusivamente ao cérebro. O modo básico não pode fingir uma extração.
+  if (!provedorCompativelDoCanal("painel")) return respostaIndisponivel();
 
-  const entrada = [
-    { role: "system", content: REGRAS },
-    { role: "system", content: `Contexto atual do negócio:\n${contextoEmTexto(input.contexto)}` },
-    ...(input.instrucaoExtra ? [{ role: "system", content: input.instrucaoExtra }] : []),
+  const entrada: ItemDeEntrada[] = [
     ...(input.historico ?? []).slice(-10).map((t) => ({
       role: t.autor === "barbeiro" ? "user" : "assistant",
       content: t.conteudo,
@@ -246,40 +230,19 @@ export async function extrairCadastroEstruturado(input: {
     { role: "user", content: input.mensagem },
   ];
 
-  const chamar = (mensagens: unknown[], formato: Record<string, unknown>) =>
-    fetch(`${compat.baseUrl}/chat/completions`, {
-      method: "POST",
-      headers: { "content-type": "application/json", authorization: `Bearer ${chave}` },
-      signal: AbortSignal.timeout(compat.tempoLimiteMs),
-      body: JSON.stringify({
-        model: compat.modelo,
-        messages: mensagens,
-        response_format: formato,
-      }),
+  const instrucoes = `${REGRAS}\n\nContexto atual do negócio:\n${contextoEmTexto(input.contexto)}\n\n${input.instrucaoExtra ?? ""}\nResponda SOMENTE com um objeto JSON válido, sem texto fora dele, seguindo este esquema:\n${JSON.stringify(ESQUEMA)}`;
+  let itens: ItemDeEntrada[];
+  try {
+    itens = await criarSessaoDoGateway({ canal: "painel", usarModoBasico: false }).responder({
+      instrucoes,
+      entrada,
+      ferramentas: [],
     });
-
-  let resposta = await chamar(entrada, {
-    type: "json_schema",
-    json_schema: { name: "resposta_do_cortai", strict: true, schema: ESQUEMA },
-  });
-  // Nem todo provedor aceita json_schema estrito: pede JSON puro com o esquema na instrução.
-  if (resposta.status === 400) {
-    resposta = await chamar(
-      [
-        ...entrada,
-        {
-          role: "system",
-          content: `Responda SOMENTE com um objeto JSON válido, sem texto fora dele, seguindo este esquema: ${JSON.stringify(ESQUEMA)}`,
-        },
-      ],
-      { type: "json_object" },
-    );
+  } catch (erro) {
+    if (erro instanceof ErroDoGateway) throw erro;
+    throw new Error("A IA do Cortaí não conseguiu responder agora.");
   }
-
-  if (!resposta.ok) throw erroDoGateway(resposta.status, await resposta.text().catch(() => ""));
-
-  const corpo = (await resposta.json()) as Record<string, any>;
-  const texto = String(corpo?.["choices"]?.[0]?.message?.content ?? "");
+  const texto = textoDaSaida(itens);
   if (!texto.trim()) {
     return {
       ...respostaIndisponivel(),

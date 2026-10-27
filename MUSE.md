@@ -46,6 +46,14 @@ O APK reencontrado `Figaroo.apk` é a referência original para layout, cartões
 
 ## Provedores de IA (gateway do cérebro)
 
+Em 27/10/2026, os caminhos conversacionais foram unificados: a conversa do painel e o fluxo
+de WhatsApp usam o cérebro oficial em `src/lib/brain`. `extrairCadastroEstruturado` permanece
+somente como capacidade especializada de extração e também usa o gateway central, com o modo
+básico desativado para não transformar indisponibilidade em sucesso. O catálogo central inclui
+`cadastrar_servicos` e `definir_horarios`, que delegam às ações de domínio existentes e mantêm
+tenant, permissões, validação e auditoria no servidor. Não há evidência de chamada real ao Ollama
+nesta etapa; LocalAI continua desativado sem uma instância HTTPS protegida e um modelo funcional.
+
 O cérebro continua único em `src/lib/brain`; o gateway pode usar um provedor primário e um
 secundário compatível com Chat Completions. O secundário só é tentado quando o primário retorna
 429, 5xx, timeout ou falha de rede. Erros de credencial (401), crédito (402) ou bloqueio (403)

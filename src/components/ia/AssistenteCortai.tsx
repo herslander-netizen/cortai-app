@@ -385,7 +385,7 @@ export function AssistenteCortai({
       ]);
       return true;
     } catch (e) {
-      setErro(e instanceof Error ? e.message : "O assistente não respondeu agora.");
+      setErro(e instanceof Error ? e.message : "O Cortaí não respondeu agora.");
       // Escolha que não chegou: tira a fala provisória para o pop-up voltar e a pessoa tocar de novo.
       if (clienteEscolhidoId || descartarSeFalhar)
         setMensagens((atual) => atual.filter((m) => m.id !== idLocal));
@@ -399,7 +399,7 @@ export function AssistenteCortai({
   return (
     <FolhaCortai
       aoFechar={onFechar}
-      rotulo="CortAI"
+      rotulo="Cortaí"
       cabecalho={
         <>
           <header className="shrink-0 flex items-center gap-2.5 border-b border-line bg-ink2 px-5 pb-2.5 pt-2">
@@ -412,7 +412,7 @@ export function AssistenteCortai({
             <span className="min-w-0 flex-1">
               <span className="flex min-w-0 items-center gap-2">
                 <span className="truncate text-sm font-semibold tracking-wide text-paper">
-                  CortAI
+                  Cortaí
                 </span>
                 <SeloDaCortai estado={estado} />
               </span>
@@ -423,7 +423,7 @@ export function AssistenteCortai({
             <button
               type="button"
               onClick={onFechar}
-              aria-label="Fechar CortAI"
+              aria-label="Fechar Cortaí"
               className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-line2 text-mute transition-colors hover:border-gold/40 hover:text-paper"
             >
               <X size={16} />
@@ -475,7 +475,7 @@ export function AssistenteCortai({
               </p>
             ) : data && !data.disponivel ? (
               <p className="mt-4 rounded-xl border border-dashed border-line px-4 py-3 text-xs text-mute2">
-                O assistente ainda não está ligado neste ambiente. As respostas vão indicar isso com
+                O Cortaí ainda não está ligado neste ambiente. As respostas vão indicar isso com
                 clareza.
               </p>
             ) : null}
@@ -605,7 +605,7 @@ export function AssistenteCortai({
         {confirmacaoAtual ? (
           <div
             role="group"
-            aria-label="Confirmar o que a CortAI entendeu"
+            aria-label="Confirmar o que a Cortaí entendeu"
             className="mb-2.5 rounded-2xl border border-gold/40 bg-ink px-3.5 py-3"
           >
             <p className="mb-0.5 text-xs font-semibold text-paper">Confere?</p>

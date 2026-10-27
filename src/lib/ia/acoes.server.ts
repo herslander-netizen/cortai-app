@@ -623,6 +623,77 @@ export async function confirmarAgendamento(
   return { agendamentoId: atual.id, status: "agendado" };
 }
 
+/** Cadastra serviços já conferidos pela equipe através do cérebro CortAI. */
+export async function cadastrarServicos(
+  ctx: ContextoDoAgente,
+  input: {
+    servicos: { nome: string; duracaoMin: number; precoCentavos: number }[];
+  },
+) {
+  const servicos = input.servicos
+    .map((s) => ({
+      nome: s.nome.trim().slice(0, 60),
+      duracaoMin: Math.round(s.duracaoMin),
+      precoCentavos: Math.round(s.precoCentavos),
+    }))
+    .filter((s) => s.nome.length >= 2);
+  if (!servicos.length) throw new Error("Nenhum serviço para cadastrar.");
+  if (servicos.length > 40) throw new Error("O limite é de 40 serviços por vez.");
+  if (servicos.some((s) => s.duracaoMin < 5 || s.duracaoMin > 480))
+    throw new Error("A duração dos serviços deve ficar entre 5 e 480 minutos.");
+  if (servicos.some((s) => s.precoCentavos < 0 || s.precoCentavos > 10_000_000))
+    throw new Error("O preço dos serviços está fora do limite permitido.");
+
+  const db = await admin();
+  const { error } = await db.from("servicos").insert(
+    servicos.map((s, i) => ({
+      tenant_id: ctx.tenantId,
+      nome: s.nome,
+      duracao_min: s.duracaoMin,
+      preco_centavos: s.precoCentavos,
+      ordem: i,
+    })),
+  );
+  if (error) throw new Error(error.message);
+  await registrarAuditoria(ctx, "servicos_cadastrados", String(servicos.length), {});
+  return { total: servicos.length };
+}
+
+/** Salva os sete dias de funcionamento já conferidos pela equipe. */
+export async function definirHorarios(
+  ctx: ContextoDoAgente,
+  input: {
+    horarios: { diaSemana: number; fechado: boolean; abre: string; fecha: string }[];
+  },
+) {
+  const horarios = input.horarios.slice(0, 7).map((h) => ({
+    diaSemana: Math.round(h.diaSemana),
+    fechado: Boolean(h.fechado),
+    abre: h.abre,
+    fecha: h.fecha,
+  }));
+  if (!horarios.length) throw new Error("Nenhum horário para salvar.");
+  if (horarios.some((h) => h.diaSemana < 0 || h.diaSemana > 6))
+    throw new Error("O dia da semana deve ficar entre 0 e 6.");
+  if (horarios.some((h) => !/^\d{2}:\d{2}$/.test(h.abre) || !/^\d{2}:\d{2}$/.test(h.fecha)))
+    throw new Error("Os horários precisam estar no formato HH:MM.");
+
+  const db = await admin();
+  const { error } = await db.from("horarios_de_funcionamento").upsert(
+    horarios.map((h) => ({
+      tenant_id: ctx.tenantId,
+      dia_semana: h.diaSemana,
+      fechado: h.fechado,
+      abre: `${h.abre}:00`,
+      fecha: `${h.fecha}:00`,
+    })),
+    { onConflict: "tenant_id,dia_semana" },
+  );
+  if (error) throw new Error(error.message);
+  await registrarAuditoria(ctx, "horarios_definidos", String(horarios.length), {});
+  return { total: horarios.length };
+}
+
 /** Ações de domínio usadas pelo cérebro CortAI e pela API legada. */
 export const ACOES_DO_AGENTE = {
   consultar_barbearia: consultarBarbearia,
@@ -638,6 +709,8 @@ export const ACOES_DO_AGENTE = {
   historico_do_cliente: historicoDoCliente,
   salvar_preferencia_do_cliente: salvarPreferenciaDoCliente,
   confirmar_agendamento: confirmarAgendamento,
+  cadastrar_servicos: cadastrarServicos,
+  definir_horarios: definirHorarios,
   // O atendente nunca marca fiado nem crédito: confere aqui também, não só no schema da rota.
   criar_agendamento: (ctx: ContextoDoAgente, input: Parameters<typeof criarAgendamento>[1]) =>
     criarAgendamento(ctx, {

@@ -287,7 +287,7 @@ export function montarMensagem(
     );
   } else if (tipo === "fallback_informativo_whatsapp") {
     blocos.push(
-      "Olá! Aqui é o CortAI. Pode me contar o que precisa — agendar, remarcar, cancelar ou tirar dúvidas — por aqui mesmo.",
+      "Olá! Aqui é o Cortaí. Pode me contar o que precisa — agendar, remarcar, cancelar ou tirar dúvidas — por aqui mesmo.",
       linha(d.linkAgendamento, "Se preferir, use o link: "),
     );
   } else if (tipo === "retorno" && d.textoRetorno) {

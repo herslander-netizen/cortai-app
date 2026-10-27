@@ -93,11 +93,11 @@ export type EventoDeChamada = {
 };
 
 function mensagemSegura(status: number): string {
-  if (status === 402) return "Os créditos de IA do CortAI acabaram.";
-  if (status === 403) return "A IA do CortAI está bloqueada para este negócio agora.";
-  if (status === 429) return "A IA do CortAI está sobrecarregada. Tente de novo em instantes.";
-  if (status === 401) return "A autenticação da IA do CortAI foi recusada neste ambiente.";
-  return "A IA do CortAI não conseguiu responder agora.";
+  if (status === 402) return "Os créditos de IA do Cortaí acabaram.";
+  if (status === 403) return "A IA do Cortaí está bloqueada para este negócio agora.";
+  if (status === 429) return "A IA do Cortaí está sobrecarregada. Tente de novo em instantes.";
+  if (status === 401) return "A autenticação da IA do Cortaí foi recusada neste ambiente.";
+  return "A IA do Cortaí não conseguiu responder agora.";
 }
 
 function categoriaDoStatus(status: number): EventoDeChamada["categoriaErro"] {
@@ -170,6 +170,8 @@ export function criarSessaoDoGateway(opcoes?: {
   /** Papel e profissional de quem fala (o modo básico precisa para agendar para a pessoa certa). */
   papel?: string | null;
   profissionalId?: string | null;
+  /** Capacidades especializadas podem exigir o provedor real, sem resposta por regras. */
+  usarModoBasico?: boolean;
   aoChamar?: (e: EventoDeChamada) => void;
 }) {
   const avisar = (e: EventoDeChamada) => {
@@ -191,6 +193,7 @@ export function criarSessaoDoGateway(opcoes?: {
     ferramentas: FerramentaDoModelo[];
   };
   let usandoBasico = false;
+  const usarModoBasico = opcoes?.usarModoBasico ?? true;
 
   /** Modo básico: o "modelo" é um conjunto de regras (sem IA, sem chave, sem custo). */
   const pelasRegras = (input: EntradaDoPasso): ItemDeEntrada[] => {
@@ -304,7 +307,7 @@ export function criarSessaoDoGateway(opcoes?: {
     async responder(input: EntradaDoPasso): Promise<ItemDeEntrada[]> {
       const leitura = resolverProvedor(opcoes?.canal);
       // Escolha explícita (CORTAI_AI_PROVIDER=regras) ou rede de segurança já acionada neste turno.
-      if (usandoBasico || (leitura.ok && leitura.config.tipo === "regras")) {
+      if (usarModoBasico && (usandoBasico || (leitura.ok && leitura.config.tipo === "regras"))) {
         usandoBasico = true;
         return pelasRegras(input);
       }
@@ -312,7 +315,7 @@ export function criarSessaoDoGateway(opcoes?: {
         return await pelaIA(input);
       } catch (erro) {
         // Só no painel e de forma VISÍVEL (a resposta avisa): a equipe nunca fica sem resposta.
-        if (opcoes?.canal === "painel" && modoBasicoLigado()) {
+        if (usarModoBasico && opcoes?.canal === "painel" && modoBasicoLigado()) {
           usandoBasico = true;
           return pelasRegras(input);
         }

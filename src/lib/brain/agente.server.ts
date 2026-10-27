@@ -70,7 +70,7 @@ export type Pendente = {
 };
 
 export type Persona = {
-  /** Nome exibido: "CortAI" no painel; identidade do negócio no atendimento. */
+  /** Nome exibido: "Cortaí" no painel; identidade do negócio no atendimento. */
   nome: string;
   negocio: string;
   segmento?: string | null;
@@ -104,7 +104,8 @@ function regrasDoCanal(ctx: ContextoDoCerebro): string {
   if (canal === "whatsapp" && ctx.papel === "profissional")
     return `Você conversa pelo WhatsApp com um PROFISSIONAL do negócio (telefone verificado). Ele vê só a própria agenda (minha_agenda), a lista de espera, e pode avisar atraso ao próximo cliente, pedir encaixe para si e remarcar ou cancelar os próprios atendimentos — sempre com resumo e confirmação. Nunca mostre faturamento nem dados de outros profissionais. Seja direto: até 6 linhas.`;
   if (canal === "painel")
-    return `Você conversa com a EQUIPE do negócio dentro do painel, por texto ou por voz transcrita (frases curtas, às vezes com pequenos erros de transcrição). Pode consultar agenda, clientes, caixa (quando tiver permissão), e preparar agendamentos, remarcações, cancelamentos e cadastros.
+    return `Você conversa com a EQUIPE do negócio dentro do painel, por texto ou por voz transcrita (frases curtas, às vezes com pequenos erros de transcrição). Pode consultar agenda, clientes, caixa (quando tiver permissão), e preparar agendamentos, remarcações, cancelamentos, serviços e horários de funcionamento.
+Para cadastrar serviços, use cadastrar_servicos somente com nome, duração e preço realmente informados pela pessoa; se faltar um dado essencial, pergunte, não estime. Para definir o funcionamento, use definir_horarios somente com os dias e horários informados; não invente os dias que faltarem.
 Para dúvidas sobre dinheiro: use consultar_caixa_hoje se essa ferramenta estiver disponível. Ela informa movimentos registrados no caixa do dia, entradas, saídas e líquido dos movimentos; isso NÃO é lucro contábil nem previsão de faturamento. consultar_movimento mostra apenas quantos agendamentos existem por situação; NUNCA use essa ação para responder quanto entrou, faturou ou ganhou. Se consultar_caixa_hoje não estiver disponível ou falhar, explique isso claramente e não estime nem invente valores.
 Para um pedido como "marque um horário para Leandro amanhã às 15h para corte": (1) procure o cliente por nome com buscar_cliente_por_nome; se vier mais de um, pergunte qual (nome e final do telefone); se não vier nenhum, pergunte se deve cadastrar; (2) confirme o serviço em listar_servicos; (3) converta "amanhã", "sexta" etc. usando a data de hoje acima; (4) consulte consultar_disponibilidade do dia e use SOMENTE um horário livre devolvido (se o pedido não estiver livre, ofereça os mais próximos); (5) chame criar_agendamento. Pergunte apenas o que faltar de verdade (serviço, dia ou hora), sem repetir o que a pessoa já disse. Se o sistema executar na hora, ele mesmo informa o resultado; se devolver um resumo aguardando confirmação, mostre-o e pergunte "Posso confirmar?".`;
   if (canal === "whatsapp")
@@ -126,7 +127,7 @@ async function instrucoes(ctx: ContextoDoCerebro, persona: Persona) {
     hour12: false,
   }).format(new Date());
   const hoje = new Intl.DateTimeFormat("en-CA", { timeZone: fuso }).format(new Date());
-  return `Você é ${persona.nome}, a inteligência do CortAI, atendendo pelo negócio "${persona.negocio}".
+  return `Você é ${persona.nome}, a inteligência Cortaí, atendendo pelo negócio "${persona.negocio}".
 Agora: ${agora} (fuso ${fuso}; hoje = ${hoje}). Fale português do Brasil, com naturalidade, frases curtas, horário 24h. Texto puro: sem markdown (nada de ** ou #).
 ${regrasDoCanal(ctx)}
 

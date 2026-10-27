@@ -572,7 +572,7 @@ export async function processarMensagemRecebida(input: {
           input.sessaoId,
           telefone,
           r.menu ??
-            "Olá! Aqui é o CortAI. Me diga o nome do lugar onde você quer ser atendido e eu continuo por aqui.",
+            "Olá! Aqui é o Cortaí. Me diga o nome do lugar onde você quer ser atendido e eu continuo por aqui.",
         )
         .catch(() => undefined);
       return { tratada: true, motivo: "sem_contexto_transacional" };
@@ -692,7 +692,7 @@ export async function processarMensagemRecebida(input: {
       .maybeSingle();
     if (atendimento || ehCentral) {
       const orientacao = atendimento?.numero
-        ? `Este número envia apenas avisos. Para conversar, fale com o CortAI — Assistente Virtual no WhatsApp ${atendimento.numero}.`
+        ? `Este número envia apenas avisos. Para conversar, fale com o Cortaí no WhatsApp ${atendimento.numero}.`
         : "Este número envia apenas avisos. Para conversar, use o WhatsApp de atendimento do estabelecimento.";
       // Central: além da orientação, nada vai para a IA (só comandos 1/2/3 acima).
       const desdeAviso = new Date(Date.now() - 24 * 60 * 60_000).toISOString();
@@ -732,7 +732,7 @@ export async function processarMensagemRecebida(input: {
     }).catch(() => undefined);
     return { tratada: true, motivo: "audio_nao_entendido" };
   }
-  // CortAI — Assistente Virtual: mesmo cérebro do painel; falha ou falta de crédito cai na orientação fixa abaixo.
+  // Cortaí: mesmo cérebro do painel; falha ou falta de crédito cai na orientação fixa abaixo.
   if (input.tipo === "text" && input.conteudo.trim()) {
     const respondida = await responderComCerebro({
       tenantId,
@@ -926,7 +926,7 @@ async function responderComCerebro(input: {
     },
     persona: {
       nome: equipe
-        ? `o CortAI${equipe.nome ? `, falando com ${equipe.nome.split(" ")[0]}` : ""}`
+        ? `o Cortaí${equipe.nome ? `, falando com ${equipe.nome.split(" ")[0]}` : ""}`
         : `o atendimento de ${tenant?.nome ?? "o negócio"}`,
       negocio: tenant?.nome ?? "o negócio",
       segmento: tenant?.segmento ?? null,

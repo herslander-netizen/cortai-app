@@ -85,7 +85,7 @@ export function respostaIndisponivel(texto?: string): RespostaDoAssistente {
   return {
     resposta:
       texto ??
-      "O assistente do CortAI ainda não está ligado neste ambiente. Enquanto isso, posso te levar direto para a tela certa: serviços, horários ou fila.",
+      "A inteligência Cortaí ainda não está ligada neste ambiente. Enquanto isso, posso te levar direto para a tela certa: serviços, horários ou fila.",
     intencao: "ajuda",
     precisaConfirmar: false,
     perguntaDeConfirmacao: null,

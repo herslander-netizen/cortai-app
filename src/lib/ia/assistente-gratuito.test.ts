@@ -47,7 +47,7 @@ describe("fluxos estruturados do painel usam o provedor gratuito quando configur
     expect(assistenteConfigurado()).toBe(true);
   });
 
-  it("chama o provedor gratuito (URL, modelo e chave dele), nunca outro provedor", async () => {
+  it("chama o gateway central com URL, modelo e chave do provedor configurado", async () => {
     gratuito();
     const buscar = vi.fn(async (_u: any, _i: any) => resposta(completar(JSON_OK)));
     vi.stubGlobal("fetch", buscar);
@@ -56,28 +56,23 @@ describe("fluxos estruturados do painel usam o provedor gratuito quando configur
       "https://api.groq.exemplo.test/openai/v1/chat/completions",
     );
     const init = buscar.mock.calls[0]![1];
-    expect(init.headers.authorization).toBe("Bearer chave-de-teste");
+    expect(init.headers.Authorization).toBe("Bearer chave-de-teste");
     expect(JSON.parse(init.body)).toMatchObject({
       model: "openai/gpt-oss-20b",
-      response_format: { type: "json_schema" },
     });
+    expect(JSON.stringify(JSON.parse(init.body).messages)).toMatch(/objeto JSON válido/);
     expect(r.servicos?.[0]).toMatchObject({ nome: "Corte", precoCentavos: 4500 });
     expect(buscar).toHaveBeenCalledTimes(1);
   });
 
-  it("provedor que não aceita json_schema estrito (400): repete pedindo JSON puro com o esquema", async () => {
+  it("erro de formato do provedor não abre um segundo caminho fora do gateway", async () => {
     gratuito();
-    const buscar = vi
-      .fn()
-      .mockResolvedValueOnce(resposta("response_format não suportado", 400))
-      .mockResolvedValueOnce(resposta(completar(JSON_OK)));
+    const buscar = vi.fn().mockResolvedValueOnce(resposta("response_format não suportado", 400));
     vi.stubGlobal("fetch", buscar);
-    const r = await extrairCadastroEstruturado({ mensagem: "cadastre corte", contexto });
-    expect(buscar).toHaveBeenCalledTimes(2);
-    const segundo = JSON.parse(buscar.mock.calls[1]![1].body);
-    expect(segundo.response_format).toEqual({ type: "json_object" });
-    expect(JSON.stringify(segundo.messages.at(-1))).toMatch(/Responda SOMENTE com um objeto JSON/);
-    expect(r.servicos).toHaveLength(1);
+    await expect(extrairCadastroEstruturado({ mensagem: "cadastre corte", contexto })).rejects.toThrow(
+      /não conseguiu responder|IA do CortAI/i,
+    );
+    expect(buscar).toHaveBeenCalledTimes(1);
   });
 
   it("sem provedor independente, o assistente fica indisponível e não faz chamadas externas", async () => {
@@ -95,6 +90,6 @@ describe("fluxos estruturados do painel usam o provedor gratuito quando configur
       "fetch",
       vi.fn(async () => resposta("rate limit", 429)),
     );
-    await expect(extrairCadastroEstruturado({ mensagem: "x", contexto })).rejects.toThrow(/sobrecarregado/);
+    await expect(extrairCadastroEstruturado({ mensagem: "x", contexto })).rejects.toThrow(/sobrecarregada/);
   });
 });

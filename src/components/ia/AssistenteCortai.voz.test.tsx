@@ -370,7 +370,7 @@ describe("conferência com um toque (Confirmar / Não)", () => {
     ],
   };
   const cartao = () =>
-    document.querySelector('[role="group"][aria-label="Confirmar o que a CortAI entendeu"]');
+    document.querySelector('[role="group"][aria-label="Confirmar o que a Cortaí entendeu"]');
   const botaoDoCartao = (t: string) =>
     Array.from(cartao()?.querySelectorAll<HTMLButtonElement>("button") ?? []).find(
       (b) => b.textContent === t,
@@ -542,7 +542,7 @@ describe("conferência visível na tela", () => {
     );
     expect(lista()?.textContent).toContain("Não dá para gravar");
     expect(lista()?.querySelectorAll('[aria-label="problema"]')).toHaveLength(1);
-    expect(document.querySelector('[aria-label="Confirmar o que a CortAI entendeu"]')).toBeNull();
+    expect(document.querySelector('[aria-label="Confirmar o que a Cortaí entendeu"]')).toBeNull();
   });
 
   it("resposta sem conferência (conversa comum) não mostra lista", async () => {
@@ -634,12 +634,12 @@ describe("voz gratuita pelo navegador (sem servidor de transcrição)", () => {
 describe("estrutura mobile do painel CortAI", () => {
   it("mantém conversa, sugestões e compositor em regiões separadas e acessíveis", async () => {
     await montar(false);
-    expect(document.querySelector('[role="dialog"][aria-label="CortAI"]')).not.toBeNull();
+    expect(document.querySelector('[role="dialog"][aria-label="Cortaí"]')).not.toBeNull();
     expect(document.querySelector(".cortai-conversa-lista")).not.toBeNull();
     expect(document.querySelector(".cortai-conversa-barra")).not.toBeNull();
     expect(document.querySelector('textarea[placeholder="Escreva aqui…"]')).not.toBeNull();
     expect(document.querySelector('button[aria-label="Enviar"]')).not.toBeNull();
-    expect(document.querySelector('button[aria-label="Fechar CortAI"]')).not.toBeNull();
+    expect(document.querySelector('button[aria-label="Fechar Cortaí"]')).not.toBeNull();
     expect(document.querySelector(".cortai-sheet")?.getAttribute("style")).toContain("88dvh");
   });
 });
