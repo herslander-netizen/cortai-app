@@ -492,6 +492,7 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Em andamento
 
+| GPT | 2026-10-27 UTC | UX do agendamento externo após confirmação: corrigir contraste/superfície das preferências, compactar hierarquia mobile e preservar ações e gravação existentes | `DIARIO.md`, `src/components/agendamento/PreferenciasAposAgendamento.tsx`, `src/components/agendamento/PreferenciasAposAgendamento.test.tsx`; sem migração |
 | GPT | 2026-10-27 UTC | Implementar fallback técnico opcional de provedor de IA: Ollama Cloud primário e LocalAI secundário, sem trocar o cérebro/ações do Cortaí; fallback apenas em falhas transitórias, configuração por secrets, testes e validação | `DIARIO.md`, `MUSE.md`, `.github/workflows/preview-migration.yml`, `.github/workflows/lancar-versao.yml`, `src/lib/brain/gateway.server.ts`, `src/lib/brain/gateway-compativel.server.ts`, testes do gateway; sem migração |
 
 
