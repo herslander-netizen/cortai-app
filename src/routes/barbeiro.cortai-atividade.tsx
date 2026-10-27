@@ -122,7 +122,7 @@ function AtividadePage() {
     >
       {metricas.isLoading || atividade.isLoading ? <EsqueletoPainel /> : null}
       {metricas.isError || atividade.isError ? (
-        <p className="border-y border-line py-8 text-center text-sm text-brick">
+        <p className="rounded-[28px] bg-[var(--figaro-surface-container,var(--ink2))] px-5 py-8 text-center text-sm text-brick">
           Não conseguimos carregar a atividade agora. Tente de novo em instantes.
         </p>
       ) : null}
@@ -143,7 +143,7 @@ function AtividadePage() {
             {metricas.data.assuntos.map((a) => (
               <li
                 key={a.intencao}
-                className="rounded-full border border-line2 px-3 py-1 text-xs text-mute"
+                className="rounded-full bg-[var(--figaro-surface-container,var(--ink2))] px-3 py-1.5 text-xs text-mute"
               >
                 {rotuloDaIntencao(a.intencao)} · {a.total}
               </li>
@@ -155,9 +155,9 @@ function AtividadePage() {
       {atividade.data && atividade.data.ferramentas.length > 0 ? (
         <section className="mt-5" aria-label="Consultas feitas pelo Cortaí">
           <h2 className="text-sm text-paper">O que o Cortaí consultou</h2>
-          <ul className="mt-2 divide-y divide-line surface">
+          <ul className="mt-2 space-y-2">
             {atividade.data.ferramentas.map((f) => (
-              <li key={f.acao} className="flex items-center justify-between gap-3 px-4 py-3">
+              <li key={f.acao} className="flex items-center justify-between gap-3 rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))] px-4 py-3">
                 <span className="text-xs text-paper">{rotuloDaAcao(f.acao)}</span>
                 <span className="shrink-0 text-xs text-mute">
                   {f.total}
@@ -180,9 +180,9 @@ function AtividadePage() {
             Cadastre estes pedidos como serviço ou pergunta frequente para o Cortaí passar a
             responder sozinho.
           </p>
-          <ul className="mt-2 divide-y divide-line surface">
+          <ul className="mt-2 space-y-2">
             {termos.data.map((t) => (
-              <li key={t.texto} className="flex items-center justify-between gap-3 px-4 py-3">
+              <li key={t.texto} className="flex items-center justify-between gap-3 rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))] px-4 py-3">
                 <span className="min-w-0 truncate text-xs text-paper">“{t.texto}”</span>
                 <span className="shrink-0 text-xs text-mute">{t.total}x</span>
               </li>
@@ -205,7 +205,7 @@ function AtividadePage() {
 
         <ul className="mt-3 space-y-2">
           {(atividade.data?.registros ?? []).map((r) => (
-            <li key={r.id} className="surface px-4 py-3">
+            <li key={r.id} className="rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))] px-4 py-3">
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
                   <p className="flex items-center gap-2 text-xs text-paper">

@@ -55,7 +55,7 @@ function MaisPage() {
   return (
     <Screen title="Ajustes e ajuda" subtitle={rotuloDoPapel(sessao?.papelNaEquipe)}>
       <div data-guia="mais-lista">
-        <div className="mt-6">
+        <div className="mt-4">
           <TrocarPainel />
         </div>
         {/* Mesmos grupos das opções do Figaro: o negócio, o agendamento e a conta, cada um num grupo de linhas. */}
@@ -133,7 +133,7 @@ function MaisPage() {
         variant="ghost"
         type="button"
         onClick={() => void sair()}
-        className="mt-10 flex min-h-11 w-full items-center justify-center gap-2 border-t border-line pt-6 text-xs text-mute"
+        className="mt-6 flex min-h-12 w-full items-center justify-center gap-2 rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))] text-sm text-mute"
       >
         <LogOut size={15} /> Sair da conta
       </Button>

@@ -226,9 +226,9 @@ function EditorDaHome() {
               </Field>
             </TabsContent>
 
-            <TabsContent value="secoes" className="divide-y divide-line pt-2">
+            <TabsContent value="secoes" className="space-y-2 pt-2">
               {BLOCOS.map(({ chave, rotulo }) => (
-                <fieldset key={chave} className="grid gap-3 py-5">
+                <fieldset key={chave} className="grid gap-3 rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))] p-4">
                   <legend className="sr-only">{rotulo}</legend>
                   <p className="text-sm font-semibold text-paper">{rotulo}</p>
                   <Field label="Etiqueta">
@@ -262,7 +262,7 @@ function EditorDaHome() {
 
             <TabsContent value="duvidas" className="space-y-5 pt-4">
               {conteudo.perguntas.map((q, i) => (
-                <div key={i} className="grid gap-3 border-b border-line pb-5">
+                <div key={i} className="grid gap-3 rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))] p-4">
                   <Field label={`Pergunta ${i + 1}`}>
                     <Input
                       value={q.pergunta}
@@ -333,9 +333,9 @@ function EditorDaHome() {
 
             <TabsContent value="versoes" className="pt-4">
               {data.versoes.length ? (
-                <ul className="divide-y divide-line">
+                <ul className="space-y-2">
                   {data.versoes.map((v) => (
-                    <li key={v.id} className="flex items-center justify-between gap-3 py-3 text-sm">
+                    <li key={v.id} className="flex items-center justify-between gap-3 rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))] px-4 py-3 text-sm">
                       <span className="flex items-center gap-2 text-mute">
                         <History size={14} /> {v.rotulo} · {DATA(v.criado_em)}
                       </span>

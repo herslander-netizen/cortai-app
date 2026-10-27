@@ -74,9 +74,9 @@ function ContaAsaasPage() {
       subtitle="Configure a chave usada pela integração já existente da plataforma."
     >
       <div className="max-w-2xl space-y-8">
-        <section className="surface-card p-5 sm:p-6">
+        <section className="rounded-[28px] bg-[var(--figaro-surface-container,var(--ink2))] p-5 sm:p-6">
           <div className="flex items-start gap-3">
-            <span className="flex size-11 shrink-0 items-center justify-center rounded-md bg-gold-soft text-gold">
+            <span className="flex size-11 shrink-0 items-center justify-center rounded-[12px] bg-[var(--figaro-primary-container,var(--ink2))] text-[var(--figaro-primary,var(--primary))]">
               <KeyRound size={22} aria-hidden />
             </span>
             <div className="min-w-0">
@@ -95,7 +95,7 @@ function ContaAsaasPage() {
           </div>
         </section>
 
-        <section className="border-t border-line pt-7">
+        <section className="rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))] p-4">
           <h2 className="text-base font-semibold text-paper">
             {estado?.configurada ? "Substituir chave de API" : "Informar chave de API"}
           </h2>
@@ -131,7 +131,7 @@ function ContaAsaasPage() {
               autoComplete="off"
               spellCheck={false}
               placeholder="$aact_prod_… ou $aact_hmlg_…"
-              className="min-h-12 w-full rounded-xl border-0 bg-[var(--agenda-cartao,var(--ink2))] px-4 text-base text-paper outline-none focus:border-gold focus:ring-2 focus:ring-gold-soft"
+              className="min-h-12 w-full rounded-[12px] border-0 bg-[var(--figaro-surface-container-high,var(--ink3))] px-4 text-base text-paper outline-none focus:ring-2 focus:ring-[var(--figaro-primary,var(--primary))]"
             />
             <Button type="submit" size="lg" disabled={acao.ocupado} className="w-full sm:w-auto">
               {acao.estaEm("salvar")
@@ -143,7 +143,7 @@ function ContaAsaasPage() {
           </form>
         </section>
 
-        <section className="border-t border-line pt-7">
+        <section className="rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))] p-4">
           <h2 className="text-base font-semibold text-paper">Conexão</h2>
           <p className="mt-2 text-sm leading-relaxed text-mute">
             O teste consulta apenas os dados da própria conta no Asaas. Nenhuma cobrança é criada.

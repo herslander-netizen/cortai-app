@@ -97,7 +97,7 @@ function BarbeariasPage() {
           </div>
           <div className="mt-7 hidden overflow-x-auto md:block">
             <div className="min-w-[680px]">
-              <div className="grid grid-cols-[1.6fr_.7fr_.7fr_.7fr_.7fr] gap-4 border-b border-line pb-3 text-xs text-mute">
+              <div className="grid grid-cols-[1.6fr_.7fr_.7fr_.7fr_.7fr] gap-4 px-3 pb-2 text-xs text-mute">
                 <span>Negócio</span>
                 <span>Plano</span>
                 <span>Ciclo</span>
@@ -110,7 +110,7 @@ function BarbeariasPage() {
                   variant="ghost"
                   key={tenant.id}
                   onClick={() => setSelected(tenant)}
-                  className="grid min-h-16 w-full grid-cols-[1.6fr_.7fr_.7fr_.7fr_.7fr] items-center gap-4 rounded-none border-b border-line px-0 py-4 text-left"
+                  className="mt-2 grid min-h-16 w-full grid-cols-[1.6fr_.7fr_.7fr_.7fr_.7fr] items-center gap-4 rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))] px-3 py-3 text-left"
                 >
                   <span>
                     <span className="block text-sm font-semibold text-paper">{tenant.nome}</span>
@@ -139,14 +139,14 @@ function BarbeariasPage() {
           {query.isLoading ? (
             <EsqueletoLista linhas={6} onTentarDeNovo={() => void query.refetch()} />
           ) : null}
-          <ul className="mt-6 divide-y divide-line border-y border-line md:hidden">
+          <ul className="mt-6 space-y-2 md:hidden">
             {list.map((tenant) => (
               <li key={tenant.id}>
                 <Button
                   type="button"
                   variant="ghost"
                   onClick={() => setSelected(tenant)}
-                  className="grid min-h-16 w-full grid-cols-[minmax(0,1fr)_auto] items-center gap-4 rounded-none px-0 py-4 text-left"
+                  className="grid min-h-16 w-full grid-cols-[minmax(0,1fr)_auto] items-center gap-4 rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))] px-4 py-3 text-left"
                 >
                   <span className="min-w-0">
                     <span className="block truncate text-sm font-semibold text-paper">
@@ -230,7 +230,7 @@ function TenantDialog({
         if (!open) onClose();
       }}
     >
-      <DialogContent className="bottom-0 left-0 right-0 top-auto h-[calc(100dvh-0.5rem)] w-full translate-y-0 gap-0 overflow-hidden rounded-b-none rounded-t-xl border-b-0 bg-ink2 p-0 sm:left-1/2 sm:right-auto sm:top-1/2 sm:h-[min(820px,calc(100dvh-3rem))] sm:max-w-3xl sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-lg sm:border-b">
+      <DialogContent className="bottom-0 left-0 right-0 top-auto h-[calc(100dvh-0.5rem)] w-full translate-y-0 gap-0 overflow-hidden rounded-b-none rounded-t-[28px] border-b-0 bg-[var(--figaro-surface-container,var(--ink2))] p-0 sm:left-1/2 sm:right-auto sm:top-1/2 sm:h-[min(820px,calc(100dvh-3rem))] sm:max-w-3xl sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-[28px] sm:border-b">
         <DialogHeader className="shrink-0 border-b border-line px-5 pb-4 pt-5 pr-14 text-left sm:px-6 sm:pt-6 sm:pr-14">
           <div className="flex min-w-0 items-center gap-2">
             <DialogTitle className="truncate">{tenant.nome}</DialogTitle>
@@ -255,7 +255,7 @@ function TenantDialog({
         </DialogHeader>
 
         <Tabs defaultValue="overview" className="flex min-h-0 flex-1 flex-col">
-          <TabsList className="grid h-auto shrink-0 grid-cols-4 rounded-none border-b border-line bg-ink2 p-0 px-3 sm:px-5">
+          <TabsList className="grid h-auto shrink-0 grid-cols-4 rounded-none border-b border-line bg-[var(--figaro-surface-container,var(--ink2))] p-0 px-3 sm:px-5">
             <TabsTrigger
               value="overview"
               className="h-12 rounded-none border-b-2 border-transparent px-2 shadow-none data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none"

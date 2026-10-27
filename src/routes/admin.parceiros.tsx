@@ -166,11 +166,11 @@ function ParceirosAdmin() {
         ) : null}
       </form>
 
-      <ul className="mt-6">
+      <ul className="mt-6 space-y-2">
         {parceiros.map((parceiro) => (
           <li
             key={parceiro.id}
-            className="flex items-center justify-between gap-4 border-b border-line py-3"
+            className="flex items-center justify-between gap-4 rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))] px-4 py-3"
           >
             <span className="min-w-0">
               <span className="block truncate text-sm text-paper">{parceiro.nome}</span>
@@ -182,7 +182,7 @@ function ParceirosAdmin() {
               <Button
                 type="button"
                 variant="ghost"
-                className="min-h-12 px-2 text-xs text-gold"
+                className="min-h-12 px-3 text-sm font-medium text-[var(--figaro-primary,var(--primary))]"
                 onClick={() => {
                   setOrdem(String(parceiro.ordem));
                   setForm({
