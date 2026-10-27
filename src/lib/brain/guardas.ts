@@ -22,10 +22,29 @@ export function pedidoNocivo(texto: string): boolean {
   return PEDIDOS_NOCIVOS.some((r) => r.test(t));
 }
 
-/** Confirmação inequívoca para executar a ação pendente. */
-export function confirmacaoInequivoca(texto: string): boolean {
+/**
+ * Confirmação inequívoca para executar a ação pendente.
+ *
+ * Confirmações genéricas ("sim", "ok", "pode") valem para a pergunta explícita
+ * "Posso confirmar?". Já as frases que nomeiam outra operação ("pode cancelar",
+ * "pode remarcar") só confirmam uma pendência da mesma operação. Isso evita que
+ * uma intenção nova seja interpretada como autorização para uma ação diferente.
+ */
+export function confirmacaoInequivoca(texto: string, acaoPendente?: string): boolean {
   const t = normalizarTexto(texto);
-  return /^(sim|s|ss|isso|isso mesmo|pode|pode sim|pode ser|confirmo|confirmar|confirma|confirmado|ok|okay|beleza|blz|fechado|fechou|certo|bora|perfeito|pode marcar|pode cancelar|pode remarcar)( por favor| pfv| obrigad[oa])?$/.test(
+  const sufixo = "( por favor| pfv| obrigado| obrigada)?$";
+  const especificas: { padrao: RegExp; acoes: readonly string[] }[] = [
+    { padrao: new RegExp("^pode marcar" + sufixo), acoes: ["criar_agendamento"] },
+    { padrao: new RegExp("^pode cancelar" + sufixo), acoes: ["cancelar_agendamento"] },
+    {
+      padrao: new RegExp("^pode remarcar" + sufixo),
+      acoes: ["reagendar_agendamento"],
+    },
+  ];
+  const especifica = especificas.find((item) => item.padrao.test(t));
+  if (especifica) return Boolean(acaoPendente && especifica.acoes.includes(acaoPendente));
+
+  return /^(sim|s|ss|isso|isso mesmo|pode|pode sim|pode ser|confirmo|confirmar|confirma|confirmado|ok|okay|beleza|blz|fechado|fechou|certo|bora|perfeito)( por favor| pfv| obrigad[oa])?$/.test(
     t,
   );
 }
@@ -39,7 +58,8 @@ export function recusaInequivoca(texto: string): boolean {
 export function pendenteValida(criadaEm: string | undefined, agora = Date.now()): boolean {
   if (!criadaEm) return false;
   const t = Date.parse(criadaEm);
-  return Number.isFinite(t) && agora - t <= 15 * 60_000;
+  // Uma pendência no futuro não deve continuar válida só porque "agora - t" é negativo.
+  return Number.isFinite(t) && t <= agora && agora - t <= 15 * 60_000;
 }
 
 /** Mensagem que é só um número: nunca confirma nem recusa ação da IA. */
