@@ -81,6 +81,42 @@ function botao(texto: string) {
   return achado!;
 }
 
+describe("paridade Figaro dos cartões da Lista", () => {
+  it("usa superfície neutra, barra de categoria, raio de 8 px e espaçamento de 10 px", () => {
+    montar([item({ categoriaIndice: 2 })]);
+    const lista = host!.querySelector("ul")!;
+    const cartao = host!.querySelector<HTMLElement>(".agenda-item")!;
+    const barra = cartao.querySelector<HTMLElement>(".pointer-events-none")!;
+
+    expect(lista.className).toContain("space-y-2.5");
+    expect(lista.className).not.toContain("divide-y");
+    expect(cartao.style.borderLeft).toBe("none");
+    expect(cartao.style.borderRadius).toBe("8px");
+    expect(cartao.style.backgroundColor).toContain("--agenda-cartao-evento");
+    expect(barra.className).toContain("left-[6px]");
+    expect(barra.className).toContain("top-[10px]");
+    expect(barra.className).toContain("bottom-[10px]");
+    expect(barra.className).toContain("w-1");
+    expect(barra.className).toContain("rounded-full");
+    expect(barra.style.backgroundColor).toBeTruthy();
+    expect(host!.textContent).not.toContain("Toque no cartão para ver opções");
+  });
+
+  it("usa a escala tipográfica Figaro nas três linhas da Lista", () => {
+    montar([item()]);
+    const cartao = host!.querySelector<HTMLElement>(".agenda-item")!;
+    const hora = cartao.querySelector("span.block.text-\\[14px\\]")!;
+    const nome = cartao.querySelector(".agenda-nome")!;
+    const servico = cartao.querySelector("span.text-\\[12\.5px\\]")!;
+
+    expect(hora.className).toContain("leading-[18px]");
+    expect(hora.className).toContain("font-semibold");
+    expect(nome.className).toContain("leading-[18px]");
+    expect((nome as HTMLElement).style.fontWeight).toBe("600");
+    expect(servico.className).toContain("leading-4");
+  });
+});
+
 describe("ListaAgenda", () => {
   it.each([
     ["agendado", "Agendado", "Cliente chegou"],
