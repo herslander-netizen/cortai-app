@@ -500,6 +500,7 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 
 | Quem | Desde (UTC) | Tarefa | Arquivos / migração reservada |
+| GPT | 2026-10-27 UTC | Unificar a identidade visual-base do Cortaí: comparar a paleta atual com a marca nova (marinho + coral) e a referência Figaro; preservar componentes, raios e movimento Figaro, padronizar tokens globais e documentar a regra permanente; verificar tema claro/escuro, contraste e movimento reduzido. Sem alterar regras de negócio nem banco | `DIARIO.md`, `docs/contrato-de-design.md`, `docs/ordem-padrao-figaro.md`, `src/styles.css`, `src/lib/contraste-app.test.ts` e testes de identidade; sem migração |
 |---|---|---|---|
 
 
