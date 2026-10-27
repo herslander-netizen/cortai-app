@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { Link } from "@tanstack/react-router";
-import { CheckCircle2, ChevronDown, Clock, Copy, Download, Home, ReceiptText } from "lucide-react";
+import { CheckCircle2, ChevronDown, Clock, Download, Home, ReceiptText, Share2 } from "lucide-react";
 import { toast } from "sonner";
 import { useState } from "react";
 
@@ -92,12 +92,21 @@ export function TicketDaConfirmacao({
       ) : null}
       {aberto ? (
         <div className="mt-3 min-w-0 rounded-[var(--raio-folha)] bg-[var(--ticket-fundo)] px-3 py-3 sm:px-4 sm:py-4">
-          <TicketComanda ticket={ticket} onCopiarCodigo={acoes.copiarCodigo} />
+          <TicketComanda ticket={ticket} />
           <div className="mx-auto mt-3 grid w-full max-w-[360px] gap-2 sm:mt-4">
-            <Button size="lg" className="h-12 rounded-full" onClick={acoes.enviarWhatsApp} disabled={Boolean(acoes.gerando)}><IconeWhatsApp />{acoes.gerando === "compartilhar" ? "Gerando imagem…" : "Enviar no WhatsApp"}</Button>
+            <Button size="lg" className="h-14 rounded-full" onClick={acoes.enviarWhatsApp} disabled={Boolean(acoes.gerando)}>
+              <IconeWhatsApp />
+              {acoes.gerando === "compartilhar" ? "Preparando imagem…" : "Enviar no WhatsApp"}
+            </Button>
             <div className="grid grid-cols-2 gap-2">
-              <Button variant="secondary" className="h-12 rounded-full" onClick={acoes.baixar} disabled={Boolean(acoes.gerando)}><Download aria-hidden />{acoes.gerando === "baixar" ? "Gerando…" : "Baixar imagem"}</Button>
-              <Button variant="secondary" className="h-12 rounded-full" onClick={acoes.copiarCodigo}><Copy aria-hidden />Copiar código</Button>
+              <Button variant="secondary" className="h-12 rounded-full" onClick={acoes.compartilhar} disabled={Boolean(acoes.gerando)}>
+                <Share2 aria-hidden />
+                {acoes.gerando === "compartilhar" ? "Preparando…" : "Compartilhar"}
+              </Button>
+              <Button variant="secondary" className="h-12 rounded-full" onClick={acoes.baixar} disabled={Boolean(acoes.gerando)}>
+                <Download aria-hidden />
+                {acoes.gerando === "baixar" ? "Gerando…" : "Baixar imagem"}
+              </Button>
             </div>
           </div>
           <Button variant="ghost" className="mt-2 w-full" asChild><Link to="/b/$slug" params={{ slug }}><Home aria-hidden />Voltar para a página inicial</Link></Button>
