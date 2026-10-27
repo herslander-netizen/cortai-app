@@ -647,6 +647,66 @@ export const ACOES: Record<string, Definicao> = {
     },
   },
 
+  consultar_caixa_hoje: {
+    descricao:
+      "Consulta os movimentos financeiros registrados no caixa de HOJE: entradas, saídas, líquido e entradas por forma de pagamento. Não é lucro contábil. Só disponível a quem tem visualizar_financeiro.",
+    parametros: obj({}),
+    risco: "leitura",
+    canais: ["painel"],
+    permissoes: ["visualizar_financeiro"],
+    executar: async (ctx) => {
+      const [{ fusoDoTenant }, horarios] = await Promise.all([
+        import("@/lib/fuso.server"),
+        import("@/lib/horarios"),
+      ]);
+      const fuso = await fusoDoTenant(ctx.tenantId);
+      const dia = horarios.hojeNoFuso(fuso);
+      // Limites civis do dia no fuso do negócio; não presumir que um dia sempre tenha 24 h.
+      const inicio = new Date(horarios.isoNoFusoDaBarbearia(dia, "00:00", fuso));
+      const fim = new Date(
+        horarios.isoNoFusoDaBarbearia(horarios.somarDias(dia, 1), "00:00", fuso),
+      );
+      const db = await admin();
+      const { data, error } = await db
+        .from("caixa_movimentos")
+        .select("tipo, valor_centavos, forma_pagamento")
+        .eq("tenant_id", ctx.tenantId)
+        .gte("criado_em", inicio.toISOString())
+        .lt("criado_em", fim.toISOString())
+        .order("criado_em");
+      if (error) throw new Error("Não consegui consultar o caixa agora.");
+
+      const movimentos = data ?? [];
+      const somar = (itens: readonly { valor_centavos: number }[]) =>
+        itens.reduce((total, item) => total + Number(item.valor_centavos || 0), 0);
+      const entradas = movimentos.filter((m) => m.tipo === "entrada");
+      const saidas = movimentos.filter((m) => m.tipo !== "entrada");
+      const porForma = (forma: string) =>
+        somar(entradas.filter((m) => m.forma_pagamento === forma));
+      return {
+        dia,
+        entradasCentavos: somar(entradas),
+        saidasCentavos: somar(saidas),
+        liquidoCentavos: somar(entradas) - somar(saidas),
+        quantidadeMovimentos: movimentos.length,
+        entradasPorFormaCentavos: {
+          pix: porForma("pix"),
+          dinheiro: porForma("dinheiro"),
+          cartao: porForma("cartao"),
+          outras: somar(
+            entradas.filter(
+              (m) =>
+                m.forma_pagamento !== "pix" &&
+                m.forma_pagamento !== "dinheiro" &&
+                m.forma_pagamento !== "cartao",
+            ),
+          ),
+        },
+        criterio: "Movimentos registrados no caixa do negócio no dia local informado; líquido de entradas menos saídas, não lucro.",
+      };
+    },
+  },
+
   /* ------------------------------ Escrita ------------------------------ */
   criar_cliente: {
     descricao: "Cadastra o cliente (no WhatsApp, com o telefone da conversa).",
