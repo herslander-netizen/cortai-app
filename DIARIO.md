@@ -493,8 +493,6 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - 2026-10-26: **Cabeçalho do menu mobile mais compacto** (dono aprovou a reformulação após captura: logo menor, nome do negócio com hierarquia discreta, papel secundário, ajustes alinhados e menos espaço vazio; manter nome em até duas linhas quando necessário, sem afetar a Agenda).
 
 ## Em andamento
-- GPT — Padronizar fotos de perfil circulares em toda a aplicação, conforme a Agenda; auditar componentes vizinhos e preservar logos, capas, serviços/produtos e galeria; sem migração — `src/components/marca/PaginaPublica.tsx`, `src/components/chat/ChatShell.tsx`, `src/components/agendamento/chat/EtapasDoChat.tsx`, estilos de chat e componentes de perfil.
-
 
 - GPT | 2026-10-27 UTC | Integrar recursos financeiros inspirados no Mobills sem duplicar módulos do Cortaí: auditar categorias, fiado, pagamentos, taxas, recorrências e orçamento; implementar em etapas compatíveis, com migração aditiva apenas para prévia após revisão e testes. Não tocar Agenda, produção, main ou DNS | `DIARIO.md`, `docs/auditoria-mobills-cortai-2026-10-27.md`, `src/lib/financeiro*`, `src/routes/barbeiro.financeiro.tsx`, `src/routes/barbeiro.caixa.tsx`, componentes financeiros e migrações novas se necessárias; sem aplicar migrações nesta tarefa | 
 
@@ -762,6 +760,13 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - Financeiro: incluído filtro “Hoje” com intervalo fechado-aberto calculado no fuso do negócio e resumo da quantidade de atendimentos finalizados; filtros semana/mês preservados.
 - Documentação adicionada: docs/auditoria-inbarber-cortai-2026-10-26.md e docs/propostas/widget-android-inbarber-cortai.md. O widget permanece especificado, não implementado: o repositório não tem projeto Android nativo, pacote/assinatura ou fluxo de autenticação para o widget.
 - Sem mudanças na interface da Agenda, migrações, bancos de dados, segredos, main ou site principal. TypeScript, Vitest, build e smoke test aguardam a validação automática do commit.
+
+
+### 2026-10-27 UTC — GPT — Fotos de perfil circulares
+- Commits de código: `011927d6` e `76a1232e`.
+- O que mudou: fotos dos profissionais na página pública agora usam recorte circular 1:1; avatar do cabeçalho de chat e seu fallback também ficam circulares, independentemente da preferência antiga de formato do avatar. O seletor de profissionais da Agenda já usava círculo e foi preservado.
+- Auditoria de conflito: não alterar logos de negócio, capas, fotos de serviços/produtos, galeria ou fotos de portfólio; nenhuma regra de negócio, dados, banco ou migração foi tocada. Agenda visual protegida, sem mudanças nos seus arquivos.
+- Testes: pendentes de confirmação no GitHub Actions e conferência visual mobile; não declarar pronto até validar o workflow.
 ## Diário
 
 - GPT | 2026-10-27 UTC | **Fechamento da identidade pública:** após a unificação funcional, removi os rótulos ativos “CortAI” e “Assistente Virtual” das telas do Cortaí, estados de disponibilidade, atividade, onboarding, permissões, privacidade, apresentação e preferências do WhatsApp. Aliases técnicos (`CORTAI_*`, `ver_cortai`, rotas, tabelas e campos persistidos) foram preservados por compatibilidade. Testes focados: 6 arquivos e 93 testes aprovados; TypeScript aprovado; build aprovado com o aviso preexistente de `webhook.test.ts` sem `Route`. O workflow `40526201682` passou testes, TypeScript, build, deploy isolado e smoke test; a prévia serviu o commit `5e5e16a6`. Nenhuma mudança em Agenda, banco real, secrets, `main`, DNS ou produção.
