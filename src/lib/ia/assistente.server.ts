@@ -1,5 +1,5 @@
 /**
- * Camada de IA do CortAI — só roda no servidor.
+ * Camada de IA do Cortaí — só roda no servidor.
  *
  * Fala com o provedor compatível configurado e devolve uma resposta ESTRUTURADA.
  * A chave nunca sai do servidor e, se o provedor não estiver configurado, devolve
@@ -32,12 +32,12 @@ export type ContextoDaBarbearia = {
   naFila: number;
 };
 
-const REGRAS = `Você é o assistente do CortAI, uma plataforma de gestão para negócios brasileiros de Beleza.
+const REGRAS = `Você é o Cortaí, a inteligência central de uma plataforma de gestão para negócios brasileiros de Beleza.
 Fale português do Brasil, com frases curtas, diretas e sem jargão técnico.
 
 O que você faz:
 - Ajuda a pessoa responsável a cadastrar serviços, definir horários de funcionamento e entender a fila.
-- Explica onde cada coisa fica no CortAI e oferece o atalho certo.
+- Explica onde cada coisa fica no Cortaí e oferece o atalho certo.
 
 Regras obrigatórias:
 - Respeite o segmento informado e nunca use vocabulário de barbearia em outro segmento.
@@ -48,7 +48,7 @@ Regras obrigatórias:
 - Preço sempre em centavos (35 reais = 3500). Duração em minutos.
 - Dias da semana: 0 = domingo … 6 = sábado. Horas no formato HH:MM.
 - Quando a pessoa só quer saber onde fica algo, use intencao = "navegar" e escolha um destino da lista permitida.
-- Se a pessoa pedir algo fora do CortAI, diga com gentileza que não faz parte do sistema.
+- Se a pessoa pedir algo fora do Cortaí, diga com gentileza que não faz parte do sistema.
 - Nunca prometa envio de WhatsApp: a integração ainda não está conectada.
 
 Destinos permitidos: ${Object.keys(DESTINOS_PERMITIDOS).join(", ")}.`;
@@ -207,13 +207,13 @@ export function normalizarResposta(bruto: unknown): RespostaDoAssistente {
 function erroDoGateway(status: number, corpo: string): Error {
   if (status === 402) {
     return new Error(
-      "Os créditos de IA do CortAI acabaram. Peça para o responsável adicionar créditos.",
+      "Os créditos de IA do Cortaí acabaram. Peça para o responsável adicionar créditos.",
     );
   }
   if (status === 429)
     return new Error("O assistente está sobrecarregado agora. Tente de novo em instantes.");
   if (status === 401 || status === 403) {
-    return new Error("O assistente está sem acesso neste ambiente. Fale com o suporte do CortAI.");
+    return new Error("O assistente está sem acesso neste ambiente. Fale com o suporte do Cortaí.");
   }
   return new Error(
     `O assistente não conseguiu responder agora (${status}). ${corpo.slice(0, 120)}`,
@@ -224,7 +224,7 @@ function erroDoGateway(status: number, corpo: string): Error {
  * Pergunta ao modelo e devolve a resposta estruturada.
  * Sem chave configurada, devolve o fallback honesto (disponivel: false).
  */
-export async function pensar(input: {
+export async function extrairCadastroEstruturado(input: {
   mensagem: string;
   contexto: ContextoDaBarbearia;
   historico?: Turno[];
