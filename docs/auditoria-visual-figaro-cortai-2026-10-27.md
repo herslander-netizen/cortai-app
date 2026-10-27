@@ -110,3 +110,11 @@ Esta entrega corrige a base compartilhada e exemplos concretos de duas áreas; *
 - **Prévia:** `https://previa.cortaiapp.pages.dev`.
 - **Limite de validação:** a varredura estática e os testes dos componentes tocados foram feitos; não houve navegação visual manual por tela, porque não há sessão de navegador conectada. Conferência renderizada em 360/390 px, claro/escuro, redução de movimento e estados condicionais permanece pendente.
 - **Isolamento:** a Agenda operacional, o banco de produção, DNS e a produção não foram alterados; páginas públicas com tema personalizado foram preservadas.
+
+
+## Cadastro de cliente — 27/10/2026
+
+- Título de acesso/cadastro alinhado para 22/28 px semibold em celular, 24 px em telas largas.
+- “Continuar com Google” e alternância entre Entrar/Criar usam agora o componente `Button` compartilhado com alvo de toque adequado. Os handlers de autenticação, retorno e navegação foram mantidos.
+- Regressão estrutural adicionada para evitar o retorno de botões nativos e tipografia excessiva.
+- Ainda precisa de verificação visual renderizada em dispositivo real e os estados de erro/carregamento; nenhuma regra de autenticação foi alterada.

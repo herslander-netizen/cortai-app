@@ -189,6 +189,17 @@ describe("seleção de perfil e estados de fidelidade", () => {
   });
 });
 
+describe("cadastro de cliente no padrão Figaro", () => {
+  it("usa escala de título compacta e botões compartilhados", () => {
+    const visitante = readFileSync("src/routes/visitante.tsx", "utf8");
+    expect(visitante).toContain("text-[22px] font-semibold leading-7");
+    expect(visitante).toContain('variant="secondary"');
+    expect(visitante).toContain('variant="ghost"');
+    expect(visitante).not.toContain("<button");
+    expect(visitante).not.toContain("text-3xl font-bold");
+  });
+});
+
 describe("ordem permanente", () => {
   it("o documento existe e está ligado nos arquivos de regra", () => {
     const ordem = readFileSync("docs/ordem-padrao-figaro.md", "utf8");

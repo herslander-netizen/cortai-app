@@ -67,7 +67,7 @@ function VisitantePage() {
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-[430px] flex-col px-4 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-4">
       <MarcaCortai variante="automatica" className="h-auto w-44" prioridade />
-      <h1 className="mt-3 text-3xl font-bold leading-tight tracking-tight text-paper">
+      <h1 className="mt-3 text-[22px] font-semibold leading-7 tracking-tight text-paper md:text-2xl">
         {modo === "criar" ? "Crie sua conta de cliente." : "Entre para agendar seu horário."}
       </h1>
       <p className="mt-3 text-sm leading-relaxed text-mute">
@@ -180,9 +180,11 @@ function VisitantePage() {
         ) : null}
       </form>
 
-      <button
+      <Button
         type="button"
-        className="mt-4 h-12 w-full rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))] text-sm font-semibold text-paper transition-transform duration-200 active:scale-[0.99]"
+        variant="secondary"
+        size="lg"
+        className="mt-4 w-full"
         disabled={enviando}
         onClick={async () => {
           setErro(null);
@@ -206,11 +208,13 @@ function VisitantePage() {
         }}
       >
         Continuar com Google
-      </button>
+      </Button>
 
-      <button
+      <Button
         type="button"
-        className="mt-8 text-center text-xs text-mute transition-colors hover:text-paper"
+        variant="ghost"
+        size="sm"
+        className="mt-6 min-h-12 w-full text-center text-xs text-mute hover:text-paper"
         onClick={() => {
           setModo(modo === "criar" ? "entrar" : "criar");
           setErro(null);
@@ -226,7 +230,7 @@ function VisitantePage() {
             Ainda não tem conta? <span className="font-semibold text-paper">Criar conta</span>
           </>
         )}
-      </button>
+      </Button>
 
       <Link to="/login" className="mt-6 text-center text-xs text-mute2 hover:text-paper">
         Tenho uma barbearia no Cortaí
