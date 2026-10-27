@@ -7,6 +7,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { exigirPermissao, tenantIdDoMembro } from "@/lib/tenant";
 import { hojeNoFuso, isoNoFusoDaBarbearia, normalizarFuso } from "@/lib/horarios";
 import { calcularDiferencaDoFechamento, calcularSaldoEsperadoNaGaveta } from "@/lib/caixa-regras";
+import { dataISOEmFuso, diasEntreDatas } from "@/lib/financeiro-analise";
 
 async function admin() {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -1007,7 +1008,9 @@ export const getFiados = createServerFn({ method: "GET" })
     const tenantId = await tenantIdDoMembro(context);
     await exigirPermissao(context, tenantId, "visualizar_financeiro");
     const db = await admin();
-    const { data } = await db
+    const fuso = normalizarFuso(await fusoDoTenant(tenantId));
+    const hoje = hojeNoFuso(fuso);
+    const { data, error } = await db
       .from("fiados")
       .select(
         "id, valor_centavos, valor_pago_centavos, saldo_centavos, status, criado_em, clientes(nome), comandas(numero)",
@@ -1015,14 +1018,14 @@ export const getFiados = createServerFn({ method: "GET" })
       .eq("tenant_id", tenantId)
       .in("status", ["pendente", "parcial"])
       .order("criado_em");
-    return data ?? [];
+    if (error) throw new Error("Não foi possível carregar os fiados em aberto.");
+    return (data ?? []).map((fiado: any) => ({
+      ...fiado,
+      // A idade começa na criação do fiado; sem vencimento cadastrado, não afirmar atraso.
+      idade_dias: diasEntreDatas(dataISOEmFuso(fiado.criado_em, fuso), hoje),
+    }));
   });
 
-/**
- * Quita o fiado (tudo ou parte) numa função só do banco (`quitar_fiado_seguro`, migração 0036):
- * pagamento confirmado, caixa, saldo do fiado e baixa na carteira na mesma transação, com o fiado
- * travado. Mandando o saldo que a tela mostrou, repetir o pedido não grava de novo.
- */
 export const quitarFiado = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((input: unknown) =>
