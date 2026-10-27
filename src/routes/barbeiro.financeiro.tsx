@@ -107,6 +107,10 @@ function FinanceiroPage() {
           </div>
           <section className="surface-card mt-4 p-4 md:max-w-3xl">
             <h2 className="text-sm font-semibold text-paper">Saídas e comparação</h2>
+            <div className="surface mt-3 p-3">
+              <p className="text-xs text-mute">Total de saídas registradas</p>
+              <p className="mt-1 text-xl font-semibold text-paper">{brl(data.despesasESaidas)}</p>
+            </div>
             <div className="mt-3 grid grid-cols-2 gap-2">
               <div className="surface min-w-0 p-3">
                 <p className="text-xs text-mute">Despesas registradas</p>
