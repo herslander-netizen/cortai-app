@@ -3,6 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowDownRight, ArrowUpRight } from "lucide-react";
 import { AdminNotice, AdminScreen } from "@/components/layout/AdminScreen";
+import { Card } from "@/components/ui/card";
 import { brl } from "@/lib/format";
 import { getAdminOverview } from "@/lib/admin.functions";
 import { EsqueletoPainel } from "@/components/layout/Esqueleto";
@@ -27,11 +28,11 @@ export const Route = createFileRoute("/admin/")({
 
 function Metric({ label, value, note }: { label: string; value: string; note?: string }) {
   return (
-    <div className="border-t border-line py-5">
+    <Card density="default" className="rounded-[12px]">
       <p className="text-xs text-mute">{label}</p>
       <p className="mt-2 text-3xl font-bold text-paper">{value}</p>
       {note ? <p className="mt-2 text-xs text-mute2">{note}</p> : null}
-    </div>
+    </Card>
   );
 }
 
@@ -76,7 +77,7 @@ function AdminOverview() {
               }
             />
           </section>
-          <section className="mt-10">
+          <section className="mt-8">
             <div className="mb-4 flex items-end justify-between">
               <div>
                 <h2 className="text-lg font-bold text-paper">O que faz virar pagante</h2>
@@ -85,11 +86,11 @@ function AdminOverview() {
                 </p>
               </div>
             </div>
-            <ol>
+            <ol className="space-y-2">
               {query.data.signals.map((signal, index) => (
                 <li
                   key={signal.label}
-                  className="grid grid-cols-[28px_1fr_auto] items-center gap-3 border-b border-line py-4"
+                  className="grid grid-cols-[28px_minmax(0,1fr)_auto] items-center gap-3 rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))] px-4 py-3"
                 >
                   <span className="text-sm text-mute2">{index + 1}</span>
                   <div>

@@ -112,11 +112,11 @@ const grupos = [
 function AdminMaisPage() {
   return (
     <AdminScreen title="Mais" subtitle="Configurações e áreas menos frequentes da plataforma.">
-      <div className="space-y-8">
+      <div className="space-y-4">
         <TrocarPainel />
         {grupos.map((grupo) => (
           <section key={grupo.titulo}>
-            <h2 className="rotulo-secao mb-2">{grupo.titulo}</h2>
+            <h2 className="mb-2 px-1 text-base font-semibold text-paper">{grupo.titulo}</h2>
             <GrupoDeLinhas>
               {grupo.itens.map((item) => (
                 <LinhaDeConfiguracao

@@ -77,7 +77,7 @@ function InicioCliente() {
           <h1 className="sr-only">Início — Cortaí</h1>
           <DescobrirBarbearias />
         </main>
-        <Signature />
+        <Signature variant="app" />
       </div>
     );
   }
@@ -246,7 +246,7 @@ function InicioCliente() {
           </section>
         ) : null}
       </main>
-      <Signature />
+      <Signature variant="app" />
     </div>
   );
 }

@@ -22,8 +22,35 @@ export function useWhatsappAlvo() {
   return data ?? null;
 }
 
-export function Signature() {
+export function Signature({ variant = "default" }: { variant?: "default" | "app" }) {
   const link = useWhatsappAlvo();
+
+  if (variant === "app") {
+    return (
+      <footer className="mt-4 px-4 pb-3 pt-1 text-xs text-mute">
+        <div className="mx-auto flex max-w-[520px] flex-wrap items-center justify-center gap-x-3">
+          {link ? (
+            <a
+              href={link}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Falar com o suporte pelo WhatsApp"
+              className="inline-flex min-h-12 items-center gap-1.5 font-medium transition-colors hover:text-[var(--figaro-primary,var(--primary))]"
+            >
+              <MessageCircle size={14} aria-hidden />
+              Ajuda
+            </a>
+          ) : null}
+          <Link
+            to="/privacidade"
+            className="inline-flex min-h-12 items-center transition-colors hover:text-[var(--figaro-primary,var(--primary))]"
+          >
+            Privacidade
+          </Link>
+        </div>
+      </footer>
+    );
+  }
 
   return (
     <footer className="mt-8 border-t border-line px-5 py-4 text-xs text-mute md:px-8">

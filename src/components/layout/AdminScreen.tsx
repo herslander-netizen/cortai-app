@@ -14,12 +14,14 @@ export function AdminScreen({
   children: ReactNode;
 }) {
   return (
-    <div className="mx-auto w-full max-w-[1180px] px-5 pb-28 pt-8 md:px-8 md:pb-12 md:pt-10">
-      <header className="mb-8 flex min-w-0 flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <CabecalhoDeTela title={title} {...(subtitle ? { subtitle } : {})} eyebrow="Plataforma Cortaí" />
+    <div className="mx-auto w-full max-w-[1180px] px-4 pb-[calc(7rem+env(safe-area-inset-bottom))] pt-4 md:px-8 md:pb-12 md:pt-6">
+      <header className="mb-5 grid min-w-0 gap-4">
         {actions ? (
-          <div className="flex min-w-0 flex-wrap items-center gap-2">{actions}</div>
+          <div className="flex min-h-12 min-w-0 flex-wrap items-center justify-end gap-2">
+            {actions}
+          </div>
         ) : null}
+        <CabecalhoDeTela title={title} {...(subtitle ? { subtitle } : {})} />
       </header>
       <main>{children}</main>
     </div>
