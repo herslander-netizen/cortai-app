@@ -95,7 +95,8 @@ describe("paridade Figaro dos cartões da Lista", () => {
     expect(lista.className).toContain("space-y-2.5");
     expect((lista as HTMLElement).style.fontFamily).toBe("Roboto, sans-serif");
     expect(lista.className).not.toContain("divide-y");
-    expect(cartao.style.borderLeft).toBe("none");
+    expect(cartao.style.borderLeftWidth).toBe("0px");
+    expect(cartao.style.borderLeftStyle).toBe("none");
     expect(cartao.style.borderRadius).toBe("8px");
     expect(cartao.style.backgroundColor).toContain("--agenda-cartao-evento");
     expect(barra.className).toContain("left-[6px]");
@@ -112,7 +113,7 @@ describe("paridade Figaro dos cartões da Lista", () => {
     const cartao = host!.querySelector<HTMLElement>(".agenda-item")!;
     const hora = cartao.querySelector("span.block.text-\\[14px\\]")!;
     const nome = cartao.querySelector(".agenda-nome")!;
-    const servico = cartao.querySelector("span.text-\\[12\.5px\\]")!;
+    const servico = Array.from(cartao.querySelectorAll<HTMLElement>("span")).find((el) => el.className.includes("text-[12.5px]"))!;
 
     expect(hora.className).toContain("leading-[18px]");
     expect(hora.className).toContain("font-semibold");
