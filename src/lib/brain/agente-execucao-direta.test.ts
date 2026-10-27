@@ -177,7 +177,7 @@ describe("pedido pendente", () => {
       [chamada("criar_agendamento", { ...dadosDoAgendamento, inicio: "2026-10-12T16:00:00-03:00" })],
       [texto("A nova proposta ficou pronta.")],
     ];
-    const r = await comandar("Na verdade, muda para as 16h", painel, { pendente: anterior });
+    const r = await comandar("Sim, na verdade, muda para as 16h", painel, { pendente: anterior });
     expect(estado.executadas).toEqual([]);
     expect(r.pendente).not.toBeNull();
     expect(r.pendente?.id).not.toBe("p-antiga");
