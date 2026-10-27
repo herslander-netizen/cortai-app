@@ -8743,7 +8743,7 @@ button.agenda-nome:hover {
   --agenda-escolhido: var(--figaro-primary);
   --agenda-escolhido-texto: var(--figaro-on-primary);
   --agenda-destaque: var(--figaro-primary);
-  --agenda-cartao: var(--figaro-surface-container-low);
+  --agenda-cartao: var(--figaro-surface-container-lowest);
   /* Cartão de atendimento (timeline e lista): surfaceContainerLowest, como no Figaro (`AgendaServiceEventView`). */
   --agenda-cartao-evento: var(--figaro-surface-container-lowest);
   --agenda-listra-base: var(--figaro-surface-container-low);
