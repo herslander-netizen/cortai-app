@@ -31,7 +31,9 @@ describe("schema do negócio", () => {
     expect(tipoSchemaDoSegmento("sobrancelha_cilios")).toBe("BeautySalon");
     expect(tipoSchemaDoSegmento("esmalteria")).toBe("NailSalon");
     expect(tipoSchemaDoSegmento("estetica")).toBe("DaySpa");
-    expect(tipoSchemaDoSegmento("outro")).toBe("HealthAndBeautyBusiness");
+    expect(tipoSchemaDoSegmento("outro")).toBe("LocalBusiness");
+    expect(tipoSchemaDoSegmento(null)).toBe("LocalBusiness");
+    expect(tipoSchemaDoSegmento("segmento_desconhecido")).toBe("LocalBusiness");
   });
   it("faixa de preço", () => {
     expect(faixaDePreco([3500, 15000, 0])).toBe("R$ 35–150");
