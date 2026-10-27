@@ -108,7 +108,7 @@ function CortaiPage() {
     >
       {painel.isLoading ? <EsqueletoPainel /> : null}
       {painel.isError ? (
-        <p className="border-y border-line py-8 text-center text-sm text-brick">
+        <p className="rounded-[28px] bg-[var(--figaro-surface-container,var(--ink2))] px-5 py-8 text-center text-sm text-brick">
           {mensagemDeAcessoNegado(painel.error)
             ? "Você não tem acesso a esta área"
             : "Não conseguimos carregar o Cortaí agora. Tente de novo em instantes."}
@@ -126,21 +126,21 @@ function CortaiPage() {
       {painel.data ? (
         <>
           <section className="grid grid-cols-3 gap-2" aria-label="Situação do atendimento">
-            <div className="surface px-3 py-3">
+            <div className="rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))] px-3 py-3">
               <p className="text-xs text-mute2">WhatsApp</p>
               <p className="mt-1 flex items-center gap-2 text-xs text-paper">
                 <Ponto ligado={painel.data.conexao?.status === "conectado"} />
                 {painel.data.conexao?.status === "conectado" ? "Ligado" : "Desligado"}
               </p>
             </div>
-            <div className="surface px-3 py-3">
+            <div className="rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))] px-3 py-3">
               <p className="text-xs text-mute2">Notificações</p>
               <p className="mt-1 flex items-center gap-2 text-xs text-paper">
                 <Ponto ligado={painel.data.notificacoesAtivas} />
                 {painel.data.notificacoesAtivas ? "Ativas" : "Desativadas"}
               </p>
             </div>
-            <div className="surface px-3 py-3">
+            <div className="rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))] px-3 py-3">
               <p className="text-xs text-mute2">Envio de avisos</p>
               <p className="mt-1 flex items-center gap-2 text-xs text-paper">
                 <Ponto
@@ -171,8 +171,10 @@ function CortaiPage() {
                 key={id}
                 type="button"
                 onClick={() => setAba(id)}
-                className={`rounded-full border px-4 py-1.5 text-xs ${
-                  aba === id ? "border-gold text-gold" : "border-line2 text-mute"
+                className={`rounded-full px-4 py-2 text-xs font-medium transition-colors ${
+                  aba === id
+                    ? "bg-[var(--figaro-primary-container,var(--ink2))] text-[var(--figaro-primary,var(--primary))]"
+                    : "bg-[var(--figaro-surface-container,var(--ink2))] text-mute"
                 }`}
               >
                 {rotulo}
@@ -213,23 +215,23 @@ function BlocoExperiencia() {
   return (
     <section className="space-y-4" aria-label="Experiência do cliente">
       <div className="grid grid-cols-2 gap-3">
-        <div className="surface p-4">
+        <div className="rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))] p-4">
           <p className="text-xs text-mute2">Média</p>
           <p className="mt-1 text-2xl font-semibold text-paper">{dados?.media ?? "—"}</p>
         </div>
-        <div className="surface p-4">
+        <div className="rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))] p-4">
           <p className="text-xs text-mute2">Aguardando avaliação</p>
           <p className="mt-1 text-2xl font-semibold text-paper">{dados?.pendentes.length ?? 0}</p>
         </div>
       </div>
-      <div className="surface p-5">
+      <div className="rounded-[28px] bg-[var(--figaro-surface-container,var(--ink2))] p-5">
         <h2 className="text-sm font-semibold text-paper">Avaliações recentes</h2>
         {!dados?.registradas.length ? (
           <p className="mt-3 text-sm text-mute">Nenhuma avaliação registrada ainda.</p>
         ) : (
-          <ul className="mt-3 divide-y divide-line">
+          <ul className="mt-3 space-y-2">
             {dados.registradas.slice(0, 5).map((avaliacao) => (
-              <li key={avaliacao.id} className="py-3">
+              <li key={avaliacao.id} className="rounded-[12px] bg-[var(--figaro-surface-container-high,var(--ink3))] px-3 py-3">
                 <div className="flex items-center justify-between gap-3">
                   <p className="text-sm text-paper">{avaliacao.cliente}</p>
                   <span className="text-sm font-semibold text-gold">{avaliacao.nota}/5</span>
@@ -280,14 +282,14 @@ function AvisosDaMeta() {
   return (
     <div className="mb-4 space-y-2" role="status">
       {classes.has("conta") ? (
-        <p className="rounded-lg border border-brick/50 p-3 text-sm leading-relaxed text-paper">
+        <p className="rounded-[12px] border border-brick/50 bg-[var(--figaro-surface-container,var(--ink2))] p-3 text-sm leading-relaxed text-paper">
           <AlertTriangle className="mr-1.5 inline size-4 text-brick" aria-hidden />A Meta está
           recusando os envios por um problema de elegibilidade/pagamento da conta oficial. A conexão
           técnica está ativa, mas a conta precisa ser regularizada na Meta.
         </p>
       ) : null}
       {classes.has("sem_modelo") ? (
-        <p className="rounded-lg border border-gold/50 p-3 text-sm leading-relaxed text-paper">
+        <p className="rounded-[12px] border border-gold/50 bg-[var(--figaro-surface-container,var(--ink2))] p-3 text-sm leading-relaxed text-paper">
           <FileWarning className="mr-1.5 inline size-4 text-gold" aria-hidden />
           Algumas mensagens estão fora da janela de 24h e precisam de template aprovado.
         </p>
@@ -307,14 +309,14 @@ function BlocoEnvios({ irParaConexao }: { irParaConexao: () => void }) {
   return (
     <>
       <AvisosDaMeta />
-      <section className="surface overflow-hidden" aria-label="Histórico de envios">
-        <ul className="divide-y divide-line">
+      <section className="rounded-[28px] bg-[var(--figaro-surface-container,var(--ink2))] overflow-hidden" aria-label="Histórico de envios">
+        <ul className="space-y-2 p-2">
           {envios.data.map((envio) => {
             const d = diagnosticoDoEnvio(envio);
             return (
               <li
                 key={envio.id}
-                className="grid gap-2 px-4 py-4 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start"
+                className="grid gap-2 rounded-[12px] bg-[var(--figaro-surface-container-high,var(--ink3))] px-3 py-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start"
               >
                 <div className="min-w-0">
                   <p className="text-sm font-medium text-paper">
@@ -431,7 +433,7 @@ function BlocoSecretaria({ painel }: { painel: PainelDoCortai }) {
           ))}
         </select>
       </Bloco>
-      <div className="surface p-5">
+      <div className="rounded-[28px] bg-[var(--figaro-surface-container,var(--ink2))] p-5">
         <Button className="w-full" disabled={mutation.isPending} onClick={() => mutation.mutate()}>
           {mutation.isPending ? "Salvando…" : "Salvar configurações"}
         </Button>
@@ -495,9 +497,9 @@ function BlocoRemetenteOficial() {
       ? { estado: "conectado", texto: "Ativo" }
       : { estado: "erro", texto: "Indisponível" };
   return (
-    <section className="surface p-5">
+    <section className="rounded-[28px] bg-[var(--figaro-surface-container,var(--ink2))] p-5">
       <div className="flex items-start gap-3">
-        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-ink text-gold">
+        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] bg-[var(--figaro-primary-container,var(--ink2))] text-[var(--figaro-primary,var(--primary))]">
           <MessageCircle size={18} aria-hidden />
         </span>
         <div className="min-w-0">
@@ -517,7 +519,7 @@ function BlocoRemetenteOficial() {
           ) : null}
         </div>
       </div>
-      <p className="mt-5 border-t border-line pt-4 text-xs text-mute2">
+      <p className="mt-5 rounded-[12px] bg-[var(--figaro-surface-container-high,var(--ink3))] px-4 py-3 text-xs text-mute2">
         Usado como reserva apenas quando o negócio não tem número próprio conectado.
       </p>
     </section>
@@ -553,9 +555,9 @@ function CartaoNotificacoes({ painel }: { painel: PainelDoCortai }) {
       ? { estado: "conectado" as const, texto: "Envio disponível" }
       : { estado: "conectando" as const, texto: "WhatsApp desconectado" };
   return (
-    <section className="surface p-5">
+    <section className="rounded-[28px] bg-[var(--figaro-surface-container,var(--ink2))] p-5">
       <div className="flex items-start gap-3">
-        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-ink text-gold">
+        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] bg-[var(--figaro-primary-container,var(--ink2))] text-[var(--figaro-primary,var(--primary))]">
           <MessageCircle size={18} aria-hidden />
         </span>
         <div className="min-w-0 flex-1">
@@ -687,9 +689,9 @@ function CartaoDeConexao({ painel, tipo }: { painel: PainelDoCortai; tipo: TipoD
 
   if (!painel.gatewayConfigurado) {
     return (
-      <section className="surface p-5">
+      <section className="rounded-[28px] bg-[var(--figaro-surface-container,var(--ink2))] p-5">
         <div className="flex items-start gap-3">
-          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-ink text-gold">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] bg-[var(--figaro-primary-container,var(--ink2))] text-[var(--figaro-primary,var(--primary))]">
             <Smartphone size={18} />
           </span>
           <div className="min-w-0">
@@ -800,14 +802,14 @@ function CartaoDeConexao({ painel, tipo }: { painel: PainelDoCortai; tipo: TipoD
             : "Conectar WhatsApp";
 
   return (
-    <section className="surface p-5">
+    <section className="rounded-[28px] bg-[var(--figaro-surface-container,var(--ink2))] p-5">
       {dialogo}
       <div className="flex items-start gap-3">
-        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-ink text-gold">
+        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] bg-[var(--figaro-primary-container,var(--ink2))] text-[var(--figaro-primary,var(--primary))]">
           {tipo === "atendimento" ? <MessageCircle size={18} /> : <Smartphone size={18} />}
         </span>
         <div className="min-w-0">
-          <p className="text-xs font-semibold uppercase tracking-wide text-gold">
+          <p className="text-xs font-semibold uppercase tracking-wide text-[var(--figaro-primary,var(--primary))]">
             {cabecalho.titulo} · {cabecalho.subtitulo}
           </p>
           <div className="mt-1 flex flex-wrap items-center gap-2">
@@ -819,8 +821,8 @@ function CartaoDeConexao({ painel, tipo }: { painel: PainelDoCortai; tipo: TipoD
       </div>
 
       {status === "conectado" ? (
-        <dl className="mt-5 space-y-2 border-t border-line pt-4 text-xs">
-          <div className="flex justify-between gap-4">
+        <dl className="mt-5 grid gap-2 text-xs">
+          <div className="flex justify-between gap-4 rounded-[12px] bg-[var(--figaro-surface-container-high,var(--ink3))] px-3 py-2.5">
             <dt className="text-mute">Número</dt>
             <dd className="text-paper">{conexao?.numero ?? "—"}</dd>
           </div>
@@ -838,7 +840,7 @@ function CartaoDeConexao({ painel, tipo }: { painel: PainelDoCortai; tipo: TipoD
       ) : null}
 
       {conectando && !qrVisivel ? (
-        <div className="mt-5 flex items-center gap-3 border-t border-line pt-4">
+        <div className="mt-5 flex items-center gap-3 rounded-[12px] bg-[var(--figaro-surface-container-high,var(--ink3))] px-4 py-3">
           <IndicadorDeCarregamento tamanho={20} decorativo />
           <p className="text-xs text-mute">
             {status === "conectando" || qrExpirado
@@ -850,9 +852,10 @@ function CartaoDeConexao({ painel, tipo }: { painel: PainelDoCortai; tipo: TipoD
 
       {qrVisivel && conexao?.qrCode && !qrAberto ? (
         <Button
-          variant="ghost"
+          variant="outline"
+          size="lg"
           type="button"
-          className="mt-5 w-full rounded-md border border-gold/50 py-2.5 text-sm text-gold"
+          className="mt-5 w-full"
           onClick={() => setQrAberto(true)}
         >
           Mostrar QR Code
@@ -1004,13 +1007,13 @@ function BlocoDiagnostico() {
   const d = consulta.data;
 
   return (
-    <section className="mt-4 surface p-5">
+    <section className="mt-4 rounded-[28px] bg-[var(--figaro-surface-container,var(--ink2))] p-5">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h2 className="text-sm font-semibold text-paper">Status detalhado da conexão</h2>
         <Button
           variant="ghost"
           type="button"
-          className="text-xs text-gold disabled:opacity-50"
+          className="text-sm font-medium text-[var(--figaro-primary,var(--primary))] disabled:opacity-50"
           disabled={consulta.isFetching}
           onClick={() => void consulta.refetch()}
         >
@@ -1142,7 +1145,7 @@ function ModalQr({
       style={{ background: "rgba(11,11,11,.72)", backdropFilter: "blur(8px)" }}
       onClick={aoFechar}
     >
-      <div className="w-full max-w-sm surface p-5 text-center" onClick={(e) => e.stopPropagation()}>
+      <div className="w-full max-w-sm rounded-[28px] bg-[var(--figaro-surface-container,var(--ink2))] p-5 text-center shadow-lg" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-semibold text-paper">Conectar WhatsApp</h3>
           <Button
@@ -1199,7 +1202,7 @@ function Bloco({
   children: ReactNode;
 }) {
   return (
-    <div className="surface p-5">
+    <div className="rounded-[28px] bg-[var(--figaro-surface-container,var(--ink2))] p-5">
       <h2 className="text-sm font-semibold text-paper">{titulo}</h2>
       {descricao ? <p className="mt-1 text-xs leading-relaxed text-mute">{descricao}</p> : null}
       <div className="mt-4">{children}</div>
