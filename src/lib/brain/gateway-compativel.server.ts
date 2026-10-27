@@ -111,7 +111,7 @@ export function lerConfigDoProvedor(env: Env = process.env): LeituraDaConfig {
   // exigimos o conjunto completo para evitar um fallback aparentemente ativo, mas inválido.
   const fallbackBaseUrl = (env["CORTAI_AI_FALLBACK_BASE_URL"] ?? "")
     .trim()
-    .replace(/\\/+$/, "");
+    .replace(/\/+$/, "");
   const fallbackModelo = (env["CORTAI_AI_FALLBACK_MODEL"] ?? "").trim();
   const fallbackChave = (env["CORTAI_AI_FALLBACK_API_KEY"] ?? "").trim();
   const fallbackConfigurado = Boolean(fallbackBaseUrl || fallbackModelo || fallbackChave);
