@@ -1,4 +1,5 @@
 - **Agenda protegida (dono, 26/10):** mudança visual aqui só com pedido específico do dono para a Agenda (inclui o calendário, os cartões, a ficha e qualquer gaveta aberta da Agenda). Pedidos gerais ("todas as gavetas", primitivos de `ui/`, CSS global) nunca alteram a Agenda: exclua-a de propósito e confira no diff. Na dúvida, pergunte.
+- **Paridade clara/escura (decisão do dono, 27/10/2026):** claro e escuro compartilham exatamente a mesma estrutura, hierarquia, medidas, espaçamentos, cartões, estados, gestos, navegação e animações. Só cores e tokens de superfície/texto/borda/contraste podem variar. Validar Timeline e Lista em 390 px e 360 px nos dois temas; nenhuma correção pode regredir o outro tema.
 - Agenda e Modo Foco compartilham PainelAtendimento, MenuAcoesAgenda e useAgendaDia; sem estado paralelo — evita regras duplicadas.
 - Relógio via `useAgora` (1 min, compartilhado), lido só onde mostra tempo — evita redesenhar a tela.
 - Cache offline só em `src/lib/agenda-cache.ts`: sem telefone/ficha, usado só em erro de rede/5xx, limpo no logout e em 401/403.
