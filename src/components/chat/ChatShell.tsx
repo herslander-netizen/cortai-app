@@ -105,9 +105,9 @@ export function ChatHeader({
       ) : null}
       <span className="chat-header-avatar-caixa">
         {avatarUrl ? (
-          <img src={avatarUrl} alt="" className="chat-header-avatar" />
+          <img src={avatarUrl} alt="" className="chat-header-avatar !rounded-full object-cover" />
         ) : (
-          <span className="chat-avatar-letra chat-header-avatar" aria-hidden>
+          <span className="chat-avatar-letra chat-header-avatar !rounded-full" aria-hidden>
             {nomeExibido.slice(0, 1).toUpperCase()}
           </span>
         )}
