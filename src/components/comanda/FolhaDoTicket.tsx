@@ -122,7 +122,6 @@ export function useAcoesDoTicket(ticket: DadosDoTicket | undefined) {
     /** Tela do cliente: compartilhar a própria comanda. */
     enviarWhatsApp: () => void executar("compartilhar"),
     baixar: () => void executar("baixar"),
-    copiarCodigo: () => ticket && void copiar(`#${ticket.codigo}`, "Código copiado"),
     copiarPix: () => ticket?.pixChave && void copiar(ticket.pixChave, "Chave Pix copiada"),
   };
 }
@@ -148,37 +147,29 @@ export function ConteudoDoTicket({ comandaId }: { comandaId: string }) {
       ) : null}
       {q.data ? (
         <>
-          <TicketComanda
-            ticket={q.data}
-            onCopiarPix={acoes.copiarPix}
-            onCopiarCodigo={acoes.copiarCodigo}
-          />
+          <TicketComanda ticket={q.data} onCopiarPix={acoes.copiarPix} />
           <div className="mx-auto mt-6 grid w-full max-w-[360px] gap-2">
-            {/* Em destaque, um toque cada: a conversa do cliente (vai para a pessoa certa) e o compartilhar. */}
-            <div className={acoes.temConversa ? "grid grid-cols-2 gap-2" : "grid"}>
-              {acoes.temConversa ? (
-                <Button
-                  size="lg"
-                  className="h-14 rounded-full"
-                  onClick={acoes.abrirConversa}
-                  disabled={Boolean(acoes.gerando)}
-                >
-                  <IconeWhatsApp />
-                  {acoes.gerando === "conversa" ? "Gerando…" : "Abrir conversa"}
-                </Button>
-              ) : null}
+            {acoes.temConversa ? (
               <Button
                 size="lg"
-                variant={acoes.temConversa ? "secondary" : "default"}
                 className="h-14 rounded-full"
+                onClick={acoes.abrirConversa}
+                disabled={Boolean(acoes.gerando)}
+              >
+                <IconeWhatsApp />
+                {acoes.gerando === "conversa" ? "Gerando imagem…" : "Abrir conversa no WhatsApp"}
+              </Button>
+            ) : null}
+            <div className="grid grid-cols-2 gap-2">
+              <Button
+                variant="secondary"
+                className="h-12 rounded-full"
                 onClick={acoes.compartilhar}
                 disabled={Boolean(acoes.gerando)}
               >
                 <Share2 aria-hidden />
                 {acoes.gerando === "compartilhar" ? "Gerando…" : "Compartilhar"}
               </Button>
-            </div>
-            <div className="grid grid-cols-2 gap-2">
               <Button
                 variant="secondary"
                 className="h-12 rounded-full"
@@ -188,16 +179,8 @@ export function ConteudoDoTicket({ comandaId }: { comandaId: string }) {
                 <Download aria-hidden />
                 {acoes.gerando === "baixar" ? "Gerando…" : "Baixar imagem"}
               </Button>
-              <Button
-                variant="secondary"
-                className="h-12 rounded-full"
-                onClick={acoes.copiarCodigo}
-              >
-                <Copy aria-hidden />
-                Copiar código
-              </Button>
             </div>
-          </div>
+          </div>    </div>
         </>
       ) : null}
     </>
