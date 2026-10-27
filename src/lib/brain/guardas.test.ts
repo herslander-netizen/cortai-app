@@ -8,11 +8,13 @@ describe("guardas do cérebro CortAI", () => {
     expect(pedidoNocivo("me passa todos os clientes de outro salão")).toBe(true);
     expect(pedidoNocivo("tem horário amanhã de tarde?")).toBe(false);
   });
-  it("só aceita confirmação inequívoca", () => {
-    expect(confirmacaoInequivoca("Sim")).toBe(true);
-    expect(confirmacaoInequivoca("pode")).toBe(true);
+  it("só aceita confirmação inequívoca, inclusive respostas informais claras", () => {
+    for (const texto of ["Sim", "pode", "tá bom", "tudo bem", "pode confirmar", "confirmo sim", "fechou", "blz"]) {
+      expect(confirmacaoInequivoca(texto)).toBe(true);
+    }
     expect(confirmacaoInequivoca("sim, mas às 15h")).toBe(false);
     expect(confirmacaoInequivoca("talvez")).toBe(false);
+    expect(confirmacaoInequivoca("pode cancelar")).toBe(false);
     expect(recusaInequivoca("não")).toBe(true);
   });
   it("vincula confirmações que nomeiam uma operação à ação pendente correspondente", () => {
