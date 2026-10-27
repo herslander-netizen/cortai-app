@@ -62,7 +62,7 @@ describe("PreferenciasAposAgendamento", () => {
       (b) => b.textContent === "Agora não",
     );
     act(() => agoraNao?.click());
-    expect(host?.textContent).not.toContain("Agendado!");
+    expect(host?.textContent).not.toContain("Deixe seu atendimento do seu jeito");
     const salvo = Number(localStorage.getItem(chaveLembretePreferencias("demo")));
     expect(deveMostrarPreferencias("demo", salvo + 89 * 24 * 60 * 60 * 1000)).toBe(false);
     expect(deveMostrarPreferencias("demo", salvo + 91 * 24 * 60 * 60 * 1000)).toBe(true);
@@ -91,6 +91,6 @@ describe("PreferenciasAposAgendamento", () => {
       throw new Error("indisponível");
     });
     expect(() => montar()).not.toThrow();
-    expect(host?.textContent).toContain("Agendado!");
+    expect(host?.textContent).toContain("Deixe seu atendimento do seu jeito");
   });
 });
