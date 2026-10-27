@@ -71,7 +71,9 @@ Não é necessário um tema financeiro separado. A área usa a identidade global
 ## Referências
 
 - APK Mobills fornecido na conversa — leitura estática de nomes de entidades/strings.
-- Documentação oficial do Mobills e páginas públicas do produto para recursos de relatórios, planejamento, categorias e assistente.
+- [Todas as funcionalidades — Central de Ajuda Mobills](https://mobills.zendesk.com/hc/pt-br/categories/360004156193-Todas-as-funcionalidades) — transações fixas/repetidas, anexos, contas, cartões, relatórios, planejamento e objetivos.
+- [Tudo sobre o Mobills PRO](https://mobills.zendesk.com/hc/pt-br/articles/39727734628251-Tudo-sobre-o-Mobills-PRO) — lançamentos por texto/áudio, categorização, consultas e lembretes via assistente.
+- [Como analisar despesas/receitas por gráficos e relatórios](https://mobills.zendesk.com/hc/pt-br/articles/360049912794-Como-analisar-minhas-despesas-receitas-por-Gr%C3%A1ficos-e-Relat%C3%B3rios) — gráficos por categoria e tendências por semana, mês e ano.
 - Código do Cortaí nesta branch: `src/routes/barbeiro.financeiro.tsx`, `src/routes/barbeiro.caixa.tsx`, `src/lib/gestao.functions.ts`, `src/lib/financeiro.functions.ts`, `src/lib/financeiro-analise.ts`.
 
 ## Validação
