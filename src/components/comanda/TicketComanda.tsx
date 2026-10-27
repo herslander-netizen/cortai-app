@@ -105,11 +105,9 @@ const COR_ESTADO = {
 export function TicketComanda({
   ticket,
   onCopiarPix,
-  onCopiarCodigo,
 }: {
   ticket: DadosDoTicket;
   onCopiarPix?: () => void;
-  onCopiarCodigo?: () => void;
 }) {
   const { negocio } = ticket;
   const telefone = telefoneDoTicket(ticket.cliente.telefone);
@@ -255,18 +253,7 @@ export function TicketComanda({
               #{ticket.codigo}
             </p>
           </div>
-          {onCopiarCodigo ? (
-            <Button
-              variant="icon"
-              size="icon"
-              type="button"
-              onClick={onCopiarCodigo}
-              aria-label="Copiar código da comanda"
-              className="size-12 shrink-0 rounded-full text-[var(--ticket-navy)]"
-            >
-              <Copy className="size-4 text-[var(--ticket-navy)]" aria-hidden />
-            </Button>
-          ) : null}
+
         </div>
 
         <div className="mt-4 flex flex-col items-center" aria-hidden>
