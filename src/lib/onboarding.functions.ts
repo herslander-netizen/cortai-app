@@ -520,7 +520,7 @@ export const getImplantacao = createServerFn({ method: "GET" })
     const tenant = tenantRes.data;
     if (!tenant) throw new Error("Negócio não encontrado.");
 
-    const segmento = segmentoValido((tenant as Record<string, unknown>)["segmento"]);
+    const segmento = segmentoParaApresentacao((tenant as Record<string, unknown>)["segmento"]);
     const horarios: HorarioSugerido[] = (horariosRes.data ?? []).length
       ? (horariosRes.data ?? []).map(paraHorario)
       : SEGMENTOS_CONFIG[segmento].horariosPadrao.map((horario) => ({ ...horario }));
@@ -760,7 +760,7 @@ export const trocarAtalhosDaFicha = createServerFn({ method: "POST" })
       .eq("id", tenantId)
       .maybeSingle();
     if (!t || !chipsSaoPadraoBarbearia(t.chips_ficha)) return { ok: false };
-    const chips = SEGMENTOS_CONFIG[segmentoValido(t.segmento)].chipsFicha;
+    const chips = SEGMENTOS_CONFIG[segmentoParaApresentacao(t.segmento)].chipsFicha;
     const { error } = await context.supabase
       .from("tenants")
       .update({ chips_ficha: chips })
