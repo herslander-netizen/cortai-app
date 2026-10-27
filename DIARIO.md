@@ -492,7 +492,6 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Em andamento
 
-| GPT | 2026-10-27 UTC | UX do agendamento externo após confirmação: corrigir contraste/superfície das preferências, compactar hierarquia mobile e preservar ações e gravação existentes | `DIARIO.md`, `src/components/agendamento/PreferenciasAposAgendamento.tsx`, `src/components/agendamento/PreferenciasAposAgendamento.test.tsx`; sem migração |
 | GPT | 2026-10-27 UTC | Implementar fallback técnico opcional de provedor de IA: Ollama Cloud primário e LocalAI secundário, sem trocar o cérebro/ações do Cortaí; fallback apenas em falhas transitórias, configuração por secrets, testes e validação | `DIARIO.md`, `MUSE.md`, `.github/workflows/preview-migration.yml`, `.github/workflows/lancar-versao.yml`, `src/lib/brain/gateway.server.ts`, `src/lib/brain/gateway-compativel.server.ts`, testes do gateway; sem migração |
 
 
@@ -746,6 +745,12 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - Documentação adicionada: docs/auditoria-inbarber-cortai-2026-10-26.md e docs/propostas/widget-android-inbarber-cortai.md. O widget permanece especificado, não implementado: o repositório não tem projeto Android nativo, pacote/assinatura ou fluxo de autenticação para o widget.
 - Sem mudanças na interface da Agenda, migrações, bancos de dados, segredos, main ou site principal. TypeScript, Vitest, build e smoke test aguardam a validação automática do commit.
 ## Diário
+
+### 2026-10-27 UTC — GPT — Simplifica a experiência pós-agendamento externo
+- Vídeos do celular mostram o bloco de preferências ocupando a tela imediatamente após a confirmação, com fundo escuro e baixo contraste em relação à página clara; a ficha ainda expõe muitas opções e campos de uma só vez.
+- `PreferenciasAposAgendamento.tsx`: a ficha agora começa como um convite compacto, opcional e recolhido; a pessoa abre as preferências só se quiser. A superfície usa tokens semânticos do tema público (`bg-card`, `text-card-foreground`, `border-border`) em vez da classe genérica `surface`, que herdava uma superfície escura de outro contexto.
+- Mantidas as mesmas opções, gravação, privacidade, lembrança de 90 dias e opção “Agora não”. Detalhes continuam recolhidos; seleção recebe estado visual claro. Testes atualizados para o fluxo progressivo.
+- Commits: `a720b336` (UI) e `9580e6d0` (testes). Validação automática pendente; conferir build, TypeScript, testes e prévia em 390 px. Sem migrações, banco real ou publicação principal.
 
 ### 2026-10-27 UTC — GPT — Gateway de IA com fallback opcional Ollama Cloud → LocalAI
 - O gateway continua com um único cérebro e as mesmas ferramentas/guardas. Adicionado provedor secundário opcional via `CORTAI_AI_FALLBACK_*`, sem mudar o provedor primário já configurado.
