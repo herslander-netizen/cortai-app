@@ -101,7 +101,7 @@ const termosMasculinos = (nome: string): TermosDoSegmento => ({
   fotoAtendimento: "Foto do resultado",
 });
 
-/** Atalhos padrão da ficha na barbearia (default da coluna tenants.chips_ficha). */
+/** Atalhos históricos da ficha de barbearia (default legado da coluna tenants.chips_ficha). */
 export const CHIPS_FICHA_BARBEARIA = [
   "Degradê",
   "Máquina 1",
@@ -295,8 +295,8 @@ export const SEGMENTOS_CONFIG: Record<Segmento, DefinicaoDeSegmento> = {
   },
   outro: {
     id: "outro",
-    rotulo: "Outro",
-    descricao: "Outro negócio com atendimento por horário",
+    rotulo: "Outro tipo de serviço",
+    descricao: "Serviços personalizados, consultorias, aulas, assistência e outros atendimentos por horário",
     icone: BriefcaseBusiness,
     termos: termosMasculinos("espaço"),
     servicosSugeridos: [],
