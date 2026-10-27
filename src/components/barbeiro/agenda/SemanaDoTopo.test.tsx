@@ -58,6 +58,35 @@ async function montar(props: Partial<Parameters<typeof SemanaDoTopo>[0]> = {}) {
   return alvo;
 }
 
+describe("medidas visuais Figaro no seletor de data", () => {
+  it("usa círculo de 38 px e texto de 16 px na faixa da semana", async () => {
+    const alvo = await montar();
+    const selecionado = alvo.querySelector<HTMLButtonElement>(
+      '[aria-label="Dias da semana"] button[aria-pressed="true"]',
+    );
+    const circulo = selecionado?.querySelector<HTMLElement>("span.grid");
+    expect(circulo?.className).toContain("size-[38px]");
+    expect(circulo?.className).toContain("text-base");
+    expect(alvo.querySelector(".text-\\[11\\.5px\\]")?.textContent).toBeTruthy();
+    const rotulos = alvo.querySelector('[aria-label="Dias da semana"]')?.previousElementSibling;
+    expect(rotulos?.className).toContain("text-[11.5px]");
+    expect(rotulos?.firstElementChild?.className).toContain("py-2");
+  });
+
+  it("usa título mensal 22/28 e círculo de 38 px com texto de 15 px", async () => {
+    const alvo = await montar({ expandido: true });
+    const titulo = alvo.querySelector<HTMLElement>('[data-mes="2026-10"] h2');
+    expect(titulo?.className).toContain("text-[22px]");
+    expect(titulo?.className).toContain("leading-7");
+    expect(titulo?.className).toContain("font-bold");
+    const selecionado = alvo.querySelector<HTMLElement>(
+      '[aria-label="Calendário"] [aria-pressed="true"] span.grid',
+    );
+    expect(selecionado?.className).toContain("size-[38px]");
+    expect(selecionado?.className).toContain("text-[15px]");
+  });
+});
+
 describe("faixa da semana no topo", () => {
   it("mostra domingo a sábado da semana do dia, com o dia escolhido marcado", async () => {
     const alvo = await montar();
