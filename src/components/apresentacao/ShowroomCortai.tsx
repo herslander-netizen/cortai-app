@@ -241,7 +241,7 @@ function Balao({ cliente, children }: { cliente?: boolean; children: ReactNode }
 }
 
 function Secretaria({ segmento }: { segmento: Segmento }) {
-  const servicos = SEGMENTOS_CONFIG[segmento].servicosSugeridos;
+  const servicos = servicosDaDemonstracao(segmento);
   const [verOutros, setVerOutros] = useState(false);
   const [escolhido, setEscolhido] = useState<string | null>(null);
   const opcoes = verOutros ? servicos.slice(0, 4) : servicos.slice(0, 1);
@@ -295,7 +295,7 @@ function Secretaria({ segmento }: { segmento: Segmento }) {
 }
 
 function Caixa({ segmento }: { segmento: Segmento }) {
-  const servicos = SEGMENTOS_CONFIG[segmento].servicosSugeridos;
+  const servicos = servicosDaDemonstracao(segmento);
   const servico = servicos[0];
   const adicional = servicos[1];
   const [adicionalAtivo, setAdicionalAtivo] = useState(false);
