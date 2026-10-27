@@ -99,6 +99,26 @@ Um resultado só é considerado concluído depois de TypeScript, testes, build, 
 
 **Arquivos:** `src/lib/schema-negocio.ts`, `src/lib/funil-schema.test.ts`.
 
+### P1 — Apresentação principal e demonstrações usavam exemplos de barbearia como padrão
+
+**Antes**
+- `src/routes/apresentacao.tsx` selecionava `barbearia` quando a URL não informava segmento, apesar de usar `segmentoParaApresentacao()` para valores fornecidos.
+- `src/lib/apresentacao-conteudo.ts`, fonte do conteúdo padrão de `/apresentacao`, dizia “FEITO PARA BELEZA”, mencionava “quem está na cadeira” e usava uma pergunta que colocava barbearia como referência.
+- `src/components/apresentacao/DemoAgendamento.tsx` abria com “Corte” e “Corte + acabamento”.
+- `src/components/apresentacao/ShowroomCortai.tsx` guardava detalhes de perfil como “degradê baixo na 1” e uma preferência relacionada ao acabamento; o segmento genérico não tinha serviços sugeridos e precisava de fallback próprio para a demonstração.
+
+**Correção aplicada**
+- A rota de apresentação usa `outro` quando não há segmento na URL.
+- O conteúdo padrão da apresentação e o SEO falam de negócios de serviços; a seção de segmentos continua explicando que cada exemplo muda conforme a área.
+- A demonstração de agendamento usa serviços fictícios genéricos.
+- O showroom possui uma lista de serviços fictícios genéricos exclusivamente para a demonstração quando o segmento escolhido não fornece sugestões; isso não preenche automaticamente os serviços reais do negócio.
+- O perfil demonstrativo perdeu a anotação exclusiva de corte e usa uma preferência neutra de atendimento.
+- A seleção explícita de “Barbearia” continua disponível como um exemplo de segmento.
+
+**Arquivos:** `src/routes/apresentacao.tsx`, `src/lib/apresentacao-conteudo.ts`, `src/components/apresentacao/DemoAgendamento.tsx`, `src/components/apresentacao/ShowroomCortai.tsx`.
+
+**Limite:** conteúdo editorial personalizado já salvo por um administrador ou por um negócio não é sobrescrito automaticamente; precisa de revisão separada para preservar a escolha explícita do responsável.
+
 ## Mapa de arquitetura e áreas que exigem varredura adicional
 
 ### Segmentação e dados
