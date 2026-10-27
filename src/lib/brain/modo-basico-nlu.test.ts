@@ -143,8 +143,12 @@ describe("intenção", () => {
   it.each([
     ["agendar Leandro amanhã", "agendar"],
     ["marque um horário", "agendar"],
-    ["quanto entrou hoje?", "movimento"],
+    ["quanto entrou hoje?", "caixa"],
+    ["caixa de hoje", "caixa"],
+    ["entradas do caixa", "caixa"],
     ["resumo do movimento", "movimento"],
+    ["faturamento de hoje", "ajuda"],
+    ["quanto ganhei hoje", "ajuda"],
     ["quais clientes chamam Leandro", "buscar_cliente"],
     ["buscar cliente Ana", "buscar_cliente"],
     ["quais serviços vocês têm", "servicos"],
