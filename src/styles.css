@@ -354,10 +354,10 @@
 
 .light,
 :root[data-identidade="moderno"].light {
-  --fundo: #f4f7fc;
-  --painel: #eaf0f8;
+  --fundo: #eaf0f8;
+  --painel: #f1f5fb;
   --cartao: #ffffff;
-  --linha: #d9e3f0;
+  --linha: #c7d5e8;
   --texto: #142a49;
   --texto-suave: #536986;
   --agenda-acao: #01408f;
@@ -377,8 +377,8 @@
   --estado-encaixe: #0f9488;
   --agenda-cartao: var(--ink2);
   --agenda-cartao-sombra: none;
-  --agenda-listra-base: #f4f7fc;
-  --agenda-listra: color-mix(in oklab, #18324f 3%, #f4f7fc);
+  --agenda-listra-base: #eaf0f8;
+  --agenda-listra: color-mix(in oklab, #18324f 3%, #eaf0f8);
   --ink: var(--fundo);
   --ink2: var(--cartao);
   --ink3: var(--painel);
@@ -420,9 +420,9 @@
   --destructive: var(--brick);
   --destructive-foreground: #ffffff;
   --ring: var(--gold);
-  --drawer-surface: #f4f7fc;
+  --drawer-surface: #eaf0f8;
   --drawer-card: #ffffff;
-  --drawer-band: #eaf0f8;
+  --drawer-band: #f1f5fb;
   --drawer-borda: var(--line);
   --menu-icone: color-mix(in oklab, var(--primary) 80%, black);
   /* Agenda: mesmo padrão do escuro (ciano no dia escolhido, marinho na ação). */

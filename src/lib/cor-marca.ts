@@ -2,14 +2,14 @@ import type { CSSProperties } from "react";
 
 export const CORES_AGENDAMENTO = {
   destaques: {
-    azul: "#2F5BEA",
+    azul: "#27569A",
     ciano: "#00A8E8",
-    rosa: "#E85A8A",
+    rosa: "#B52D42",
     areia: "#CDB894",
     couro: "#8A5A36",
   },
-  pagina: "#F7F9FC",
-  texto: "#07152F",
+  pagina: "#EAF0F8",
+  texto: "#07152D",
   claro: "#FFFFFF",
 } as const;
 
@@ -26,6 +26,10 @@ const CORES_PADRAO_CORTAI = new Set([
   "#1653A1",
   "#426AA2",
   "#88ADE0",
+  "#FF7B86",
+  "#B52D42",
+  "#27569A",
+  "#173A6C",
 ]);
 
 function rgb(hex: string) {

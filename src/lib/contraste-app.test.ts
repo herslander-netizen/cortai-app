@@ -414,7 +414,7 @@ describe("identidade oficial Cortaí: marinho + coral", () => {
     expect(claroVars["--identity-accent-light"]).toBe("#b52d42");
     expect(escuro["--fundo"]).toBe("#07152d");
     expect(escuro["--cartao"]).toBe("#0f2742");
-    expect(claroVars["--fundo"]).toBe("#f4f7fc");
+    expect(claroVars["--fundo"]).toBe("#eaf0f8");
     expect(claroVars["--cartao"]).toBe("#ffffff");
   });
 
