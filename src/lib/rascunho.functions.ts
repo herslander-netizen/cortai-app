@@ -50,7 +50,7 @@ const horarioSchema = z.object({
 });
 
 const dadosSchema = z.object({
-  segmento: z.enum(SEGMENTOS).default("barbearia"),
+  segmento: z.enum(SEGMENTOS).default("outro"),
   nome: z.string().trim().max(80).default(""),
   whatsapp: z.string().trim().max(30).default(""),
   endereco: z.string().trim().max(160).default(""),
@@ -78,11 +78,11 @@ const tokenSchema = z
 
 export const RASCUNHO_VAZIO: DadosDoRascunho = {
   nome: "",
-  segmento: "barbearia",
+  segmento: "outro",
   whatsapp: "",
   endereco: "",
   logoUrl: "",
-  horarios: SEGMENTOS_CONFIG.barbearia.horariosPadrao.map((horario) => ({ ...horario })),
+  horarios: SEGMENTOS_CONFIG.outro.horariosPadrao.map((horario) => ({ ...horario })),
   servicos: [],
   profissional: "",
 };
