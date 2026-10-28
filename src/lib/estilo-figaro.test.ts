@@ -236,6 +236,17 @@ describe("linguagem multi-serviços em telas compartilhadas", () => {
   });
 });
 
+describe("painel WhatsApp no padrão Figaro", () => {
+  it("usa avisos tonais, estado acessível nas abas e separação por espaçamento", () => {
+    const fonte = readFileSync("src/routes/barbeiro.cortai.tsx", "utf8");
+    expect(fonte).toContain('import { Aviso } from "@/components/ui/aviso"');
+    expect(fonte).toContain("aria-pressed={aba === id}");
+    expect(fonte).not.toContain("rounded-[12px] border border-brick/50");
+    expect(fonte).not.toContain("border border-gold/50 bg-[var(--figaro-surface-container,var(--ink2))]");
+    expect(fonte).not.toContain('className="mt-5 border-t border-line pt-4"');
+  });
+});
+
 describe("fluxos públicos de fila no padrão Figaro", () => {
   it("usa controles e campos compartilhados sem classes de botão antigas", () => {
     const fila = readFileSync("src/routes/f.$slug.tsx", "utf8");
