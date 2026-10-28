@@ -40,9 +40,14 @@ describe("Conversa padrão", () => {
     expect(responder("pos_atendimento", { nome: "Ana" }, undefined, "salao")?.texto).toContain(
       "Foi um prazer te atender, Ana",
     );
-    expect(responder("pos_atendimento", { nome: "João" }, undefined, "barbearia")?.texto).toContain(
-      "Valeu pela visita, João",
-    );
+    const posAtendimentoBarbearia = responder(
+      "pos_atendimento",
+      { nome: "João" },
+      undefined,
+      "barbearia",
+    )?.texto;
+    expect(posAtendimentoBarbearia).toContain("Obrigado por escolher nosso serviço, João");
+    expect(posAtendimentoBarbearia).not.toContain("Gostou do resultado");
   });
 });
 
