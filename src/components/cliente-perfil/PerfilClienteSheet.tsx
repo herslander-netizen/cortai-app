@@ -55,7 +55,7 @@ function Carregando() {
 export function PerfilClienteSheet({
   clienteId,
   onFechar,
-  segmento = "barbearia",
+  segmento = "outro",
 }: {
   clienteId: string;
   onFechar: () => void;
@@ -121,7 +121,7 @@ import { Conteudo } from "@/components/cliente-perfil/ConteudoDoPerfil";
  */
 export function PerfilClienteConteudo({
   clienteId,
-  segmento = "barbearia",
+  segmento = "outro",
 }: {
   clienteId: string;
   segmento?: Segmento;
