@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { Link, type LinkProps, useRouterState } from "@tanstack/react-router";
 import { ArrowLeft } from "lucide-react";
+import { useMediaQuery } from "@/hooks/use-mobile";
 import { Signature } from "./Signature";
 import { CabecalhoDeTela } from "./CabecalhoDeTela";
 
@@ -25,12 +26,13 @@ export function Screen({
   children?: ReactNode;
 }) {
   const caminho = useRouterState({ select: (state) => state.location.pathname });
+  const celular = useMediaQuery("(max-width: 767px)");
   const telaDaAgenda =
     caminho === "/barbeiro" ||
     caminho === "/barbeiro/" ||
     caminho === "/barbeiro/agenda" ||
     caminho.startsWith("/barbeiro/agenda/");
-  const semCabecalhoGlobal = caminho.startsWith("/barbeiro/") && !telaDaAgenda;
+  const semCabecalhoGlobal = celular && caminho.startsWith("/barbeiro/") && !telaDaAgenda;
   // Toda subpágina interna ganha um retorno coerente mesmo quando a tela ainda não declara um destino.
   const destinoVoltar = voltarPara ?? (semCabecalhoGlobal ? "/barbeiro" : undefined);
 
