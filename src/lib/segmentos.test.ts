@@ -8,10 +8,18 @@ import {
 } from "@/lib/segmentos";
 
 describe("segmentos", () => {
-  it("preserva o fallback legado de dados sem presumir barbearia na interface", () => {
-    expect(segmentoValido("inexistente")).toBe("barbearia");
+  it("usa segmento neutro quando o valor está ausente ou é inválido", () => {
+    expect(segmentoValido(null)).toBe("outro");
+    expect(segmentoValido(undefined)).toBe("outro");
+    expect(segmentoValido("inexistente")).toBe("outro");
     expect(termos(null).nome).toBe("espaço");
     expect(termos("inexistente").nome).toBe("espaço");
+  });
+
+  it("preserva segmentos explicitamente escolhidos", () => {
+    expect(segmentoValido("barbearia")).toBe("barbearia");
+    expect(segmentoValido("salao")).toBe("salao");
+    expect(segmentoValido("outro")).toBe("outro");
   });
 
   it("usa apresentação neutra quando o segmento ainda não foi definido", () => {
