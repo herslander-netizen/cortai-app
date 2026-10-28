@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { getPaginaPublica } from "@/lib/publico.functions";
 import { urlPublica } from "@/lib/origem-publica";
+import { textoDeCompartilhamento } from "@/lib/previa";
 
 export function TelaPublicaBarbearia({ chave }: { chave: string }) {
   const consulta = useQuery({
@@ -82,7 +83,11 @@ export function TelaPublicaBarbearia({ chave }: { chave: string }) {
             {typeof navigator.share === "function" ? (
               <DropdownMenuItem
                 onSelect={() =>
-                  void navigator.share({ title: data.tenant.nome, url: linkCom("compartilhar") })
+                  void navigator.share({
+                    title: data.tenant.nome,
+                    text: textoDeCompartilhamento(data.tenant.nome),
+                    url: linkCom("compartilhar"),
+                  })
                 }
               >
                 <Share2 /> Compartilhar pelo celular
@@ -91,7 +96,7 @@ export function TelaPublicaBarbearia({ chave }: { chave: string }) {
             <DropdownMenuItem
               onSelect={() =>
                 window.open(
-                  `https://wa.me/?text=${encodeURIComponent(`${data.tenant.nome} — ${linkCom("whatsapp")}`)}`,
+                  `https://wa.me/?text=${encodeURIComponent(`${textoDeCompartilhamento(data.tenant.nome)}\n\n${linkCom("whatsapp")}`)}`,
                   "_blank",
                   "noopener,noreferrer",
                 )
