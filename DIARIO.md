@@ -498,6 +498,8 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Em andamento
 
+- GPT | 2026-10-28 UTC | Neutralizar defaults locais de segmento em componentes não reservados: perfil do cliente e editor de serviços devem usar `outro` se o segmento não vier informado; preservar props explícitas e evitar mudanças em onboarding/Agenda reservados | `DIARIO.md`, `src/components/cliente-perfil/PerfilClienteSheet.tsx`, `src/components/onboarding/EditorDeServicos.tsx`; sem migração
+
 
 
 
