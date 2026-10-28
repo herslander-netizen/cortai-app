@@ -9,6 +9,7 @@ import {
   isoNoFusoDaBarbearia,
   somarDias,
   type HorarioDeFuncionamento,
+  type IntervalosPorData,
 } from "@/lib/horarios";
 
 /** Status que ocupam a agenda — fonte única (o servidor reexporta). */
@@ -74,8 +75,12 @@ export function diaEMinutoNoFuso(instante: number, fuso: string): { dia: string;
 }
 
 /** Faixa aberta de um dia em minutos desde 00:00 desse dia (fim pode passar de 1440). */
-function faixaDoDia(dia: string, horarios: HorarioDeFuncionamento[]) {
-  const info = horarioDoDia(dia, horarios);
+function faixaDoDia(
+  dia: string,
+  horarios: HorarioDeFuncionamento[],
+  intervalosPorData?: IntervalosPorData,
+) {
+  const info = horarioDoDia(dia, horarios, intervalosPorData);
   if (info.fechado) return null;
   const abre = min(info.abre);
   const fecha = fimEmMinutos(info.abre, info.fecha);
@@ -94,10 +99,11 @@ export function motivoForaDoHorario(
   duracaoMin: number,
   horarios: HorarioDeFuncionamento[],
   fuso: string,
+  intervalosPorData?: IntervalosPorData,
 ): string | null {
   const { dia, minuto } = diaEMinutoNoFuso(inicio, fuso);
   // Madrugada: pode pertencer ao expediente de ontem que fecha depois da meia-noite.
-  const ontem = faixaDoDia(somarDias(dia, -1), horarios);
+  const ontem = faixaDoDia(somarDias(dia, -1), horarios, intervalosPorData);
   if (ontem && ontem.fecha > 1440) {
     const m = minuto + 1440;
     if (
@@ -108,7 +114,7 @@ export function motivoForaDoHorario(
       return null;
     }
   }
-  const hoje = faixaDoDia(dia, horarios);
+  const hoje = faixaDoDia(dia, horarios, intervalosPorData);
   if (!hoje) return "O negócio não abre neste dia.";
   const fim = minuto + duracaoMin;
   if (minuto < hoje.abre || fim > hoje.fecha) {
@@ -172,8 +178,9 @@ export function horariosDisponiveis(p: {
   regras: RegrasDaAgenda;
   agora?: number;
   passoMin?: number;
+  intervalosPorData?: IntervalosPorData;
 }): { fechado: boolean; opcoes: Opcao[] } {
-  const info = horarioDoDia(p.dia, p.horarios);
+  const info = horarioDoDia(p.dia, p.horarios, p.intervalosPorData);
   if (info.fechado) return { fechado: true, opcoes: [] };
   const agora = p.agora ?? Date.now();
   const passo = p.passoMin ?? 30;
@@ -190,7 +197,15 @@ export function horariosDisponiveis(p: {
     const iso = isoNoFusoDaBarbearia(t >= 1440 ? somarDias(p.dia, 1) : p.dia, label, p.fuso);
     const inicio = new Date(iso).getTime();
     const fim = inicio + p.servico.duracao_min * 60_000;
-    if (motivoForaDoHorario(inicio, p.servico.duracao_min, p.horarios, p.fuso)) continue;
+    if (
+      motivoForaDoHorario(
+        inicio,
+        p.servico.duracao_min,
+        p.horarios,
+        p.fuso,
+        p.intervalosPorData,
+      )
+    ) continue;
     if (motivoAntecedencia(inicio, p.regras.antecedenciaMin, agora)) continue;
     const livres = candidatos.filter((id) =>
       profissionalLivre(id, inicio, fim, p.ocupados, p.regras.intervaloEntreMin),
@@ -230,8 +245,9 @@ export function estadosDoDia<O extends Ocupado>(p: {
   regras: RegrasDaAgenda;
   agora?: number;
   passoMin?: number;
+  intervalosPorData?: IntervalosPorData;
 }): { fechado: boolean; horarios: HorarioComEstado<O>[] } {
-  const info = horarioDoDia(p.dia, p.horarios);
+  const info = horarioDoDia(p.dia, p.horarios, p.intervalosPorData);
   if (info.fechado) return { fechado: true, horarios: [] };
   const agora = p.agora ?? Date.now();
   const passo = p.passoMin ?? 30;
@@ -257,7 +273,13 @@ export function estadosDoDia<O extends Ocupado>(p: {
       continue;
     }
     if (
-      motivoForaDoHorario(inicio, p.servico.duracao_min, p.horarios, p.fuso) ||
+      motivoForaDoHorario(
+        inicio,
+        p.servico.duracao_min,
+        p.horarios,
+        p.fuso,
+        p.intervalosPorData,
+      ) ||
       motivoAntecedencia(inicio, p.regras.antecedenciaMin, agora) ||
       !candidatos.length
     ) {

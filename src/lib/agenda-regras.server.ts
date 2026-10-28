@@ -4,12 +4,18 @@
  */
 import {
   conflitoDoCliente,
+  diaEMinutoNoFuso,
   motivoAntecedencia,
   motivoForaDoHorario,
   profissionalLivre,
   type Ocupado,
 } from "@/lib/disponibilidade";
-import { normalizarFuso, type HorarioDeFuncionamento } from "@/lib/horarios";
+import {
+  normalizarFuso,
+  somarDias,
+  type HorarioDeFuncionamento,
+  type IntervalosPorData,
+} from "@/lib/horarios";
 import { PASSO_MAXIMO_MINUTOS, PASSO_MINIMO_MINUTOS } from "@/lib/onboarding-regras";
 
 import { STATUS_QUE_OCUPAM } from "@/lib/disponibilidade";
@@ -62,6 +68,42 @@ export async function regrasDaBarbearia(db: any, tenantId: string) {
   };
 }
 
+/**
+ * Lê os ajustes excepcionais de intervalo por data. A tabela é aditiva e pode
+ * ainda não existir em uma prévia antiga; nesse caso, mantém o horário semanal.
+ */
+export async function intervalosPersonalizadosPorData(
+  db: any,
+  tenantId: string,
+  de: string,
+  ate: string = de,
+): Promise<IntervalosPorData> {
+  const { data, error } = await db
+    .from("intervalos_agenda_dia")
+    .select("dia, intervalo_inicio, intervalo_fim")
+    .eq("tenant_id", tenantId)
+    .gte("dia", de)
+    .lte("dia", ate);
+  if (error) {
+    const mensagem = String(error.message ?? "");
+    if (
+      error.code === "42P01" ||
+      error.code === "PGRST205" ||
+      (/intervalos_agenda_dia/i.test(mensagem) && /schema cache|not exist|not found/i.test(mensagem))
+    ) return {};
+    throw new Error(mensagem || "Não foi possível carregar os intervalos do dia.");
+  }
+  return Object.fromEntries(
+    (data ?? []).map((linha: { dia: string; intervalo_inicio: string; intervalo_fim: string }) => [
+      String(linha.dia).slice(0, 10),
+      {
+        intervaloInicio: String(linha.intervalo_inicio).slice(0, 5),
+        intervaloFim: String(linha.intervalo_fim).slice(0, 5),
+      },
+    ]),
+  );
+}
+
 export type ConflitoDoCliente = { agendamentoId: string; hora: string };
 
 /**
@@ -90,7 +132,20 @@ export async function validarAgendamento(
       `Este local agenda com até ${regras.janelaDias} dias de antecedência. Escolha uma data mais próxima.`,
     );
   }
-  const fora = motivoForaDoHorario(ini, p.servico.duracao_min, regras.horarios, regras.fuso);
+  const diaAlvo = diaEMinutoNoFuso(ini, regras.fuso).dia;
+  const intervalosPorData = await intervalosPersonalizadosPorData(
+    db,
+    p.tenantId,
+    somarDias(diaAlvo, -1),
+    diaAlvo,
+  );
+  const fora = motivoForaDoHorario(
+    ini,
+    p.servico.duracao_min,
+    regras.horarios,
+    regras.fuso,
+    intervalosPorData,
+  );
   if (fora) throw new Error(fora);
   const ids = p.servico.profissional_ids ?? [];
   if (ids.length && !ids.includes(p.profissionalId))

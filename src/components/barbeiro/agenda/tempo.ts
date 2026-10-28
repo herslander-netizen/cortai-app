@@ -1,6 +1,7 @@
 import type { KeyboardEvent } from "react";
 
 import type { AgendaDia, AgendaItem } from "@/lib/barbeiro.functions";
+import { horarioDoDia, type IntervalosPorData } from "@/lib/horarios";
 
 export const TOLERANCIA_MIN = 15;
 export const TERMINAIS = new Set(["finalizado", "cancelado", "remarcado", "nao_compareceu"]);
@@ -148,10 +149,13 @@ export function faixasForaDoExpediente(
 }
 
 /** Turnos do dia (o intervalo de almoço divide o expediente em dois). */
-export function turnosDoDia(horarios: Horario[], dia: string): Array<[number, number]> {
-  const dow = new Date(`${dia}T12:00:00Z`).getUTCDay();
-  const h = horarios.find((x) => x.diaSemana === dow && !x.fechado);
-  if (!h) return [];
+export function turnosDoDia(
+  horarios: Horario[],
+  dia: string,
+  intervalosPorData?: IntervalosPorData,
+): Array<[number, number]> {
+  const h = horarioDoDia(dia, horarios, intervalosPorData);
+  if (!h || h.fechado) return [];
   const abre = minutosDoHorario(h.abre);
   const fecha = minutosDoHorario(h.fecha);
   if (h.intervaloInicio && h.intervaloFim) {
@@ -166,8 +170,12 @@ export function turnosDoDia(horarios: Horario[], dia: string): Array<[number, nu
   return [[abre, fecha]];
 }
 
-export function intervaloDoDia(horarios: Horario[], dia: string): [number, number] | null {
-  const t = turnosDoDia(horarios, dia);
+export function intervaloDoDia(
+  horarios: Horario[],
+  dia: string,
+  intervalosPorData?: IntervalosPorData,
+): [number, number] | null {
+  const t = turnosDoDia(horarios, dia, intervalosPorData);
   return t.length === 2 ? [t[0]![1], t[1]![0]] : null;
 }
 
@@ -184,8 +192,9 @@ export function contarLivres(p: {
   passoMin: number;
   agora: number;
   ehHoje: boolean;
+  intervalosPorData?: IntervalosPorData;
 }) {
-  const turnos = turnosDoDia(p.horarios, p.dia);
+  const turnos = turnosDoDia(p.horarios, p.dia, p.intervalosPorData);
   if (!turnos.length) return 0;
   const passo = Math.max(5, p.passoMin);
   const minAgora = p.ehHoje ? Math.ceil(minutosNoFuso(p.agora, p.fuso) / passo) * passo : 0;
@@ -219,9 +228,14 @@ export function disponibilidadeHoje(p: {
   fuso: string;
   profissionalIds: string[];
   agora: number;
+  intervalosPorData?: IntervalosPorData;
 }) {
   const minuto = minutosNoFuso(p.agora, p.fuso);
-  if (!turnosDoDia(p.horarios, p.dia).some(([inicio, fim]) => minuto >= inicio && minuto < fim))
+  if (
+    !turnosDoDia(p.horarios, p.dia, p.intervalosPorData).some(
+      ([inicio, fim]) => minuto >= inicio && minuto < fim,
+    )
+  )
     return null;
   const ocupado = (id: string) =>
     p.itens.some(

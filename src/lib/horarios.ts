@@ -38,6 +38,9 @@ export type HorarioDeFuncionamento = {
   intervaloFim?: string | null;
 };
 
+/** Ajustes excepcionais de intervalo para uma data, sem alterar a regra semanal. */
+export type IntervalosPorData = Record<string, { intervaloInicio: string; intervaloFim: string }>;
+
 export type SlotDaAgenda = { iso: string; label: string; minutos: number; hora: number };
 
 const ABERTURA_PADRAO = "09:00";
@@ -117,6 +120,7 @@ export function semNenhumDiaAberto(horarios: HorarioDeFuncionamento[] | undefine
 export function horarioDoDia(
   dia: string,
   horarios: HorarioDeFuncionamento[] | undefined | null,
+  intervalosPorData?: IntervalosPorData,
 ): {
   fechado: boolean;
   abre: string;
@@ -135,13 +139,16 @@ export function horarioDoDia(
       intervaloInicio: null,
       intervaloFim: null,
     };
-  const temIntervalo = Boolean(achado.intervaloInicio && achado.intervaloFim);
+  const intervaloPersonalizado = intervalosPorData?.[dia];
+  const inicioIntervalo = intervaloPersonalizado?.intervaloInicio ?? achado.intervaloInicio;
+  const fimIntervalo = intervaloPersonalizado?.intervaloFim ?? achado.intervaloFim;
+  const temIntervalo = Boolean(inicioIntervalo && fimIntervalo);
   return {
     fechado: Boolean(achado.fechado),
     abre: normalizar(achado.abre, ABERTURA_PADRAO),
     fecha: normalizar(achado.fecha, FECHAMENTO_PADRAO),
-    intervaloInicio: temIntervalo ? normalizar(achado.intervaloInicio, "") : null,
-    intervaloFim: temIntervalo ? normalizar(achado.intervaloFim, "") : null,
+    intervaloInicio: temIntervalo ? normalizar(inicioIntervalo, "") : null,
+    intervaloFim: temIntervalo ? normalizar(fimIntervalo, "") : null,
   };
 }
 
@@ -152,6 +159,7 @@ export function slotsDoDia(
   passoMin = 30,
   fuso: string = FUSO_BARBEARIA,
   duracaoMin = passoMin,
+  intervalosPorData?: IntervalosPorData,
 ): {
   fechado: boolean;
   abre: string;
@@ -160,7 +168,7 @@ export function slotsDoDia(
   intervaloFim: string | null;
   slots: SlotDaAgenda[];
 } {
-  const info = horarioDoDia(dia, horarios);
+  const info = horarioDoDia(dia, horarios, intervalosPorData);
   if (info.fechado) return { ...info, slots: [] };
   const inicio = minutos(info.abre);
   const fim = fimEmMinutos(info.abre, info.fecha);
