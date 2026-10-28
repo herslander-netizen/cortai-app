@@ -489,7 +489,7 @@ export function SemanaDoTopo({
   }, [expandido, mesDoDiaEscolhido, raioDosMeses]);
   return (
     <div data-sem-gesto-dia data-calendario-aberto={expandido || painelVisivel || undefined} style={{ fontFamily: "Roboto, sans-serif" }}>
-      <div className="px-2 pb-3 rounded-b-xl">
+      <div className="px-2 pb-9 rounded-b-xl">
         <div className="grid grid-cols-7 text-center text-[11.5px] leading-4 font-medium text-mute" aria-hidden>
           {LETRAS_SEMANA.map((letra, i) => (
             <span key={i} className="py-2">
