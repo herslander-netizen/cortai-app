@@ -34,7 +34,7 @@ function montar(segmento?: Segmento) {
           agendamentoId="00000000-0000-4000-8000-000000000001"
           token={"a".repeat(64)}
           slug="demo"
-          segmento={segmento}
+          {...(segmento ? { segmento } : {})}
         />
       </QueryClientProvider>,
     ),
