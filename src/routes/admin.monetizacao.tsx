@@ -553,7 +553,7 @@ function AbaBarbearia() {
             ))}
             {visao.data.condicoes.length === 0 ? (
               <li className="text-xs text-mute">
-                Nenhuma condição especial. A barbearia paga o preço padrão.
+                Nenhuma condição especial. O negócio paga o preço padrão.
               </li>
             ) : null}
           </ul>
@@ -849,8 +849,8 @@ function AbaCupons() {
                 {c.publico === "todos"
                   ? "todos os negócios"
                   : c.publico === "novos"
-                    ? "barbearias novas"
-                    : "barbearias já clientes"}
+                    ? "negócios novos"
+                    : "negócios já clientes"}
               </p>
               <p className="mt-1 text-xs text-mute2">
                 {dataCurta(c.inicio)} até {c.fim ? dataCurta(c.fim) : "sem prazo"} · {c.usos}
