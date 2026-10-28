@@ -236,6 +236,27 @@ describe("linguagem multi-serviços em telas compartilhadas", () => {
   });
 });
 
+describe("fluxos públicos de fila no padrão Figaro", () => {
+  it("usa controles e campos compartilhados sem classes de botão antigas", () => {
+    const fila = readFileSync("src/routes/f.$slug.tsx", "utf8");
+    const vaga = readFileSync("src/routes/vaga.$token.tsx", "utf8");
+
+    expect(fila).toContain('import { Button } from "@/components/ui/button"');
+    expect(fila).toContain("field-control");
+    expect(fila).toContain('size="bloco"');
+    expect(fila).toContain('import { Aviso } from "@/components/ui/aviso"');
+    expect(fila).not.toContain("<button");
+    expect(fila).not.toContain("btn-primary");
+    expect(fila).not.toContain("btn-secondary");
+
+    expect(vaga).toContain('variant="primary"');
+    expect(vaga).toContain('import { Aviso } from "@/components/ui/aviso"');
+    expect(vaga).toContain("text-[22px] font-semibold leading-7");
+    expect(vaga).not.toContain("<button");
+    expect(vaga).not.toContain("btn-primary");
+  });
+});
+
 describe("componentes compartilhados sem divisores web antigos", () => {
   it("painel de lembretes não envolve a lista com bordas horizontais externas", () => {
     const fonte = readFileSync("src/components/notificacoes/PainelDeLembretes.tsx", "utf8");
