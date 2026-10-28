@@ -808,6 +808,9 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+- GPT | 2026-10-28 | Cabeçalho compacto — adicionados testes comportamentais em `src/components/layout/Screen.test.tsx` para o hook `useCabecalhoCompacto`: não exibir enquanto o título continua visível, exibir após ultrapassar o topo da área rolável, ocultar quando o título ainda está abaixo da área visível ou ao voltar ao topo, não instalar observador quando desabilitado e desconectar o `IntersectionObserver` ao desmontar. Commits de teste: `776caccf9bd88a4c16113ef6d3fcab7b3ee620ab` e `1a46e6f71b4dde2176bf1ce00cfe38a79f429e78`. TypeScript, Vitest, build, deploy da prévia e conferência visual ainda não foram confirmados nesta sessão; não há terminal nem navegador conectado. Nenhuma alteração na Agenda, banco, `main` ou produção.
+
+
 - GPT | 2026-10-28 UTC | CI do commit `d2c1e2fb` confirmou build, TypeScript, 252 arquivos de teste, deploy isolado e smoke test. Acrescenta testes específicos de `AdminScreen` para a barra compacta permanecer montada/inert quando oculta, transferir ações sem duplicação quando visível e não aparecer no desktop. Esta nova cobertura precisa passar pelo CI próprio antes de considerar o lote concluído. | `src/components/layout/AdminScreen.test.tsx`, `DIARIO.md`
 
 - GPT | 2026-10-28 UTC | Alinha a animação de entrada/saída do cabeçalho compacto aos tokens oficiais do Figaro (`--mola-padrao-duracao` e `--mola-padrao`) em vez de usar easing/duração ad hoc. Mantém apenas `opacity`/`transform`, com redução de movimento respeitada. Teste estrutural agora protege os tokens. CI pendente nesta tranche. | `src/components/layout/Screen.tsx`, `src/components/layout/AdminScreen.tsx`, `src/components/layout/Screen.test.tsx`
