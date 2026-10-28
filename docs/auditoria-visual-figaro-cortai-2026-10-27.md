@@ -152,3 +152,11 @@ Esta entrega corrige a base compartilhada e exemplos concretos de duas áreas; *
 - **Tema público:** essas duas rotas não usam o wrapper de branding customizado das páginas públicas de agendamento; a alteração foi restrita a controles e superfícies do padrão Cortaí/Figaro. As páginas de agendamento com tema escolhido pelo negócio não foram alteradas.
 - **Animação:** foi conferido o caminho existente `TransicaoDePagina` → `transicoes-de-tela.ts`, com `intra` (20% + fade, 300 ms), `cruzada` (100% da altura + fade, 350 ms), `gaveta` (largura inteira com mola Figaro) e variante de movimento reduzido. Não foi criada uma segunda camada que competisse com a transição global.
 - **Validação:** testes de regressão protegem os controles Figaro e a linguagem multi-serviços. Build, TypeScript, suíte de testes, deploy isolado e smoke test do commit final ainda precisam terminar antes de declarar a tranche validada. Conferência visual manual em 390/360 px permanece pendente.
+
+
+## Painel WhatsApp / CortAI — 28/10/2026
+
+- **Avisos de estado:** estados de falha do painel, experiência do cliente e histórico de envios, problema de elegibilidade/pagamento da Meta, necessidade de template aprovado, indisponibilidade do remetente oficial e falha ao salvar agora usam o componente compartilhado `Aviso` nos tons correspondentes. Removidos os contornos e fundos artesanais nos dois alertas da Meta; os títulos passam a explicar o motivo e a ação esperada.
+- **Ações e navegação:** as abas Conexão, Notificações, Experiência e Histórico continuam usando os mesmos handlers e estado, agora expondo a seleção por `aria-pressed`. O divisor horizontal dentro do cartão de notificações foi removido, preservando separação por espaçamento.
+- **Preservação funcional:** nenhum endpoint, regra de WhatsApp, permissão, sessão QR, lógica de reconexão, envio ou configuração mudou.
+- **Regressão:** `estilo-figaro.test.ts` verifica o uso de `Aviso`, o estado selecionado das abas e que os padrões de alerta/divisor substituídos não retornem. Validação CI e smoke da prévia do commit atual ainda necessários; conferência visual manual 390/360 px pendente.
