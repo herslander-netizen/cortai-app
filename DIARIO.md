@@ -498,6 +498,8 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Em andamento
 
+- GPT | 2026-10-28 UTC | Completar a personalização de compartilhamento público: metadados sociais com nome/descrição, mensagem de compartilhamento com chamada para agendar e fallback capa → logo → capa padrão, sem alterar regras de agendamento nem banco | `DIARIO.md`, `src/lib/previa.ts`, `src/lib/previa.test.ts`, `src/components/marca/TelaPublicaBarbearia.tsx`, `src/routes/api/public/capa.$slug.ts`; sem migração
+
 
 
 
