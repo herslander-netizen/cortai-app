@@ -25,7 +25,11 @@ export function Screen({
   children?: ReactNode;
 }) {
   const caminho = useRouterState({ select: (state) => state.location.pathname });
-  const telaDaAgenda = /^\/barbeiro(\/agenda)?\/?$/.test(caminho);
+  const telaDaAgenda =
+    caminho === "/barbeiro" ||
+    caminho === "/barbeiro/" ||
+    caminho === "/barbeiro/agenda" ||
+    caminho.startsWith("/barbeiro/agenda/");
   const semCabecalhoGlobal = caminho.startsWith("/barbeiro/") && !telaDaAgenda;
   // Toda subpágina interna ganha um retorno coerente mesmo quando a tela ainda não declara um destino.
   const destinoVoltar = voltarPara ?? (semCabecalhoGlobal ? "/barbeiro" : undefined);
