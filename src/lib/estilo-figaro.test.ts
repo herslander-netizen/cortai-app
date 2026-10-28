@@ -200,6 +200,18 @@ describe("cadastro de cliente no padrão Figaro", () => {
   });
 });
 
+describe("chat da CortAI no padrão Figaro", () => {
+  it("usa os primitivos de ação e aviso sem herdar estilos exclusivos da Agenda", () => {
+    const fonte = readFileSync("src/components/ia/AssistenteCortai.tsx", "utf8");
+    expect(fonte).toContain('import { Button } from "@/components/ui/button"');
+    expect(fonte).toContain('import { Aviso } from "@/components/ui/aviso"');
+    expect(fonte).toContain('className="field-control');
+    expect(fonte).not.toContain("--agenda-cartao");
+    expect(fonte).not.toContain("btn-primary");
+    expect(fonte).not.toContain("<button");
+  });
+});
+
 describe("componentes compartilhados sem divisores web antigos", () => {
   it("painel de lembretes não envolve a lista com bordas horizontais externas", () => {
     const fonte = readFileSync("src/components/notificacoes/PainelDeLembretes.tsx", "utf8");
