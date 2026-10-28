@@ -189,9 +189,10 @@ export function ManagementHeader() {
     });
   }
 
-  // As páginas de Personalizar Página usam a moldura Figaro própria (voltar redondo + título);
-  // não devem empilhar a barra global com logo, CortAI e notificações.
-  if (caminho.startsWith("/barbeiro/marca") || caminho === "/barbeiro/sua-pagina") return null;
+  // O Figaro mantém a barra global na Agenda. Nas demais páginas, a moldura de tela própria
+  // fornece o retorno e a hierarquia do título, sem repetir logo, CortAI e notificações.
+  const telaDaAgenda = /^\/barbeiro(\/agenda)?\/?$/.test(caminho);
+  if (!telaDaAgenda) return null;
 
   return (
     <header
