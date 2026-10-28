@@ -498,8 +498,6 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Em andamento
 
-- GPT | 2026-10-28 UTC | Ajustar a moldura das telas Personalizar Página para seguir o Figaro: remover a barra global com logo/atalhos somente nas rotas do editor, preservando a seta redonda do Screen, o menu ⋮ da página e as transições; validar rotas e movimento reduzido. Sem tocar Agenda, CSS global, root, banco ou produção | `DIARIO.md`, `src/components/layout/ManagementDrawer.tsx`, teste focado se necessário; sem migração
-
 
 
 
@@ -806,6 +804,8 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+
+- GPT | 2026-10-28 UTC | Personalizar Página: a barra global com logo/atalhos agora não é renderizada nas rotas `/barbeiro/marca*` e `/barbeiro/sua-pagina`, evitando cabeçalho duplicado e deixando visível a moldura Figaro própria do `Screen` (voltar redondo + título/subtítulo). O menu ⋮ e os fluxos internos da página permanecem intactos. CI do commit de código `e9c0b37` em andamento; validação visual em 390 px ainda pendente. Sem Agenda, CSS global, root, banco, `main` ou produção. | `src/components/layout/ManagementDrawer.tsx`, `DIARIO.md`
 
 - GPT | 2026-10-28 UTC | Revisado o relatório multi-serviços por inteiro: removidas todas as afirmações que diziam que `segmentoValido` ainda presumiria barbearia; documentado que o fallback de runtime agora é `outro`, sem reescrever dados/contratos, e que a tranche continua pendente de CI e prévia. | `docs/auditoria-multiservico-cortai-2026-10-27.md`, `DIARIO.md`
 
