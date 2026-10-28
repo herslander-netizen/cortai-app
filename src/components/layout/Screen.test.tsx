@@ -281,11 +281,15 @@ describe("comportamento real do título compacto durante a rolagem", () => {
     const geometria = vi.spyOn(teste.titulo, "getBoundingClientRect");
 
     teste.rolagem.scrollTop = 80;
+    geometria.mockReturnValue(retanguloComFundo(20));
+    act(() => teste.rolagem.dispatchEvent(new Event("scroll")));
+    expect(teste.estado.dataset.compacto).toBe("oculto");
+
     geometria.mockReturnValue(retanguloComFundo(-2));
     act(() => teste.rolagem.dispatchEvent(new Event("scroll")));
     expect(teste.estado.dataset.compacto).toBe("visivel");
 
-    // Um título fora da área inferior ainda não justifica o cabeçalho compacto.
+    // Um título fora da área inferior também não deve mostrar a barra compacta.
     geometria.mockReturnValue(retanguloComFundo(150));
     act(() => teste.rolagem.dispatchEvent(new Event("scroll")));
     expect(teste.estado.dataset.compacto).toBe("oculto");
