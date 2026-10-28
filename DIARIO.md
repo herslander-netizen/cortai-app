@@ -498,6 +498,9 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Em andamento
 
+- GPT | 2026-10-28 UTC | Refinar faixas neutras de bloqueio/intervalo na Agenda e garantir que bloqueios ampliem o enquadramento da timeline; reutilizar AjustarIntervaloSheet existente. Não alterar regras, persistência ou publicação principal | `src/components/barbeiro/AgendaTimeline.tsx`, `src/components/barbeiro/AgendaOperacional.tsx`, `src/components/barbeiro/agenda/PreviaDiaVizinho.tsx`, `src/styles.css`; sem migração
+
+
 - GPT | 2026-10-28 UTC | Personalizar compartilhamento público — implementação e teste escritos; pendente confirmar a validação do CI, pois esta conexão não retornou checks de workflow | `DIARIO.md`, `src/lib/previa.ts`, `src/lib/previa.test.ts`, `src/components/marca/TelaPublicaBarbearia.tsx`, `src/routes/api/public/capa.$slug.ts`; sem migração
 
 
