@@ -288,6 +288,27 @@ describe("fluxos públicos de fila no padrão Figaro", () => {
   });
 });
 
+describe("administração com avisos e campos Figaro", () => {
+  it("usa aviso tonal para falhas locais e field-control para chave de API", () => {
+    const whatsapp = readFileSync("src/routes/admin.whatsapp.tsx", "utf8");
+    const parceiros = readFileSync("src/routes/admin.parceiros.tsx", "utf8");
+    const asaas = readFileSync("src/routes/admin.asaas.tsx", "utf8");
+
+    expect(whatsapp).toContain('import { Aviso } from "@/components/ui/aviso"');
+    expect(whatsapp).toContain('<Aviso tom="acao">');
+    expect(whatsapp).not.toContain('className="text-sm text-brick" role="alert"');
+
+    expect(parceiros).toContain('import { Aviso } from "@/components/ui/aviso"');
+    expect(parceiros).toContain('<Aviso tom="acao">{erro}</Aviso>');
+    expect(parceiros).not.toContain('className="text-xs text-brick" role="alert"');
+
+    expect(asaas).toContain('htmlFor="chave-asaas"');
+    expect(asaas).toContain('className="field-label" htmlFor="chave-asaas"');
+    expect(asaas).toContain('className="field-control min-h-12 rounded-[12px] text-base"');
+    expect(asaas).not.toContain("focus:ring-2 focus:ring-[var(--figaro-primary");
+  });
+});
+
 describe("componentes compartilhados sem divisores web antigos", () => {
   it("painel de lembretes não envolve a lista com bordas horizontais externas", () => {
     const fonte = readFileSync("src/components/notificacoes/PainelDeLembretes.tsx", "utf8");
