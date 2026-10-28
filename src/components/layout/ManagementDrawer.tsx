@@ -189,7 +189,7 @@ export function ManagementHeader() {
     });
   }
 
-  return (
+  // As páginas de Personalizar Página usam a moldura Figaro própria (voltar redondo + título);\n  // não devem empilhar a barra global com logo, CortAI e notificações.\n  if (caminho.startsWith("/barbeiro/marca") || caminho === "/barbeiro/sua-pagina") return null;\n\n  return (
     <header
       className="management-header"
       style={celular && caminho === "/barbeiro" ? ESTILO_DA_BARRA_NA_AGENDA : undefined}
