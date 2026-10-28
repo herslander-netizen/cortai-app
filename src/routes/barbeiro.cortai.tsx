@@ -6,9 +6,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState, type ReactNode } from "react";
 import {
-  AlertTriangle,
   CalendarPlus,
-  FileWarning,
   MessageCircle,
   ShieldCheck,
   Smartphone,
@@ -20,6 +18,7 @@ import { CodigoPorTelefone } from "@/components/ia/CodigoPorTelefone";
 import { QrCodeReal } from "@/components/ia/QrCodeReal";
 import { diagnosticoDoEnvio, type TomDoEnvio } from "@/lib/whatsapp/erros-meta";
 import { TONS, type ConfiguracaoDoAtendimento } from "@/lib/whatsapp/contrato";
+import { Aviso } from "@/components/ui/aviso";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { mensagemDeAcessoNegado, RouteError } from "@/components/layout/RouteError";
@@ -107,11 +106,11 @@ function CortaiPage() {
     >
       {painel.isLoading ? <EsqueletoPainel /> : null}
       {painel.isError ? (
-        <p className="rounded-[28px] bg-[var(--figaro-surface-container,var(--ink2))] px-5 py-8 text-center text-sm text-brick">
+        <Aviso tom="acao" className="mb-5">
           {mensagemDeAcessoNegado(painel.error)
             ? "Você não tem acesso a esta área"
             : "Não conseguimos carregar o Cortaí agora. Tente de novo em instantes."}
-        </p>
+        </Aviso>
       ) : null}
 
       {!painel.isError ? (
@@ -170,6 +169,7 @@ function CortaiPage() {
                 key={id}
                 type="button"
                 onClick={() => setAba(id)}
+                aria-pressed={aba === id}
                 className={`shrink-0 whitespace-nowrap rounded-full px-4 py-2 text-xs font-medium transition-colors ${
                   aba === id
                     ? "bg-[var(--figaro-primary-container,var(--ink2))] text-[var(--figaro-primary,var(--primary))]"
@@ -206,9 +206,9 @@ function BlocoExperiencia() {
   if (avaliacoes.isLoading) return <EsqueletoLista />;
   if (avaliacoes.isError)
     return (
-      <p className="py-8 text-center text-sm text-brick">
+      <Aviso tom="acao" className="mt-3">
         Não foi possível carregar a experiência dos clientes.
-      </p>
+      </Aviso>
     );
   const dados = avaliacoes.data;
   return (
@@ -279,19 +279,17 @@ function AvisosDaMeta() {
   const classes = new Set(recentes.map((e) => diagnosticoDoEnvio(e).tom));
   if (!classes.has("conta") && !classes.has("sem_modelo")) return null;
   return (
-    <div className="mb-4 space-y-2" role="status">
+    <div className="mb-4 space-y-2">
       {classes.has("conta") ? (
-        <p className="rounded-[12px] border border-brick/50 bg-[var(--figaro-surface-container,var(--ink2))] p-3 text-sm leading-relaxed text-paper">
-          <AlertTriangle className="mr-1.5 inline size-4 text-brick" aria-hidden />A Meta está
-          recusando os envios por um problema de elegibilidade/pagamento da conta oficial. A conexão
+        <Aviso tom="acao" titulo="Regularize a conta oficial">
+          A Meta está recusando os envios por um problema de elegibilidade ou pagamento. A conexão
           técnica está ativa, mas a conta precisa ser regularizada na Meta.
-        </p>
+        </Aviso>
       ) : null}
       {classes.has("sem_modelo") ? (
-        <p className="rounded-[12px] border border-gold/50 bg-[var(--figaro-surface-container,var(--ink2))] p-3 text-sm leading-relaxed text-paper">
-          <FileWarning className="mr-1.5 inline size-4 text-gold" aria-hidden />
-          Algumas mensagens estão fora da janela de 24h e precisam de template aprovado.
-        </p>
+        <Aviso tom="atencao" titulo="Template aprovado necessário">
+          Algumas mensagens estão fora da janela de 24 horas e precisam de um template aprovado.
+        </Aviso>
       ) : null}
     </div>
   );
@@ -302,7 +300,7 @@ function BlocoEnvios({ irParaConexao }: { irParaConexao: () => void }) {
   if (envios.isLoading) return <EsqueletoLista />;
   if (envios.isError)
     return (
-      <p className="py-8 text-center text-sm text-brick">Não foi possível carregar os envios.</p>
+      <Aviso tom="acao" className="mt-3">Não foi possível carregar os envios.</Aviso>
     );
   if (!envios.data?.length) return <EmptyState text="Nenhuma notificação enviada ainda." />;
   return (
@@ -404,7 +402,7 @@ function BlocoSecretaria({ painel }: { painel: PainelDoCortai }) {
           )}
         </ul>
         {config.recuperacaoAtiva ? (
-          <label className="mt-4 block text-xs text-mute">
+          <label className="field-label mt-4">
             Intervalo mínimo de retorno
             <input
               type="number"
@@ -437,10 +435,10 @@ function BlocoSecretaria({ painel }: { painel: PainelDoCortai }) {
           {mutation.isPending ? "Salvando…" : "Salvar configurações"}
         </Button>
         {mutation.isSuccess ? (
-          <p className="mt-2 text-center text-xs text-sage">Configurações salvas.</p>
+          <Aviso tom="sucesso" className="mt-2">Configurações salvas.</Aviso>
         ) : null}
         {mutation.isError ? (
-          <p className="mt-2 text-center text-xs text-brick">Não foi possível salvar.</p>
+          <Aviso tom="acao" className="mt-2">Não foi possível salvar.</Aviso>
         ) : null}
       </div>
       <p className="text-xs leading-relaxed text-mute">
@@ -511,10 +509,10 @@ function BlocoRemetenteOficial() {
             negócio na mensagem.
           </p>
           {!estado.isLoading && estado.data?.status !== "conectado" ? (
-            <p className="mt-2 text-sm text-brick" role="status">
+            <Aviso tom="atencao" className="mt-2">
               Não conseguimos confirmar o número oficial agora. Os avisos com falha aparecem no
               sininho com a opção de enviar pelo seu WhatsApp.
-            </p>
+            </Aviso>
           ) : null}
         </div>
       </div>
@@ -569,19 +567,19 @@ function CartaoNotificacoes({ painel }: { painel: PainelDoCortai }) {
             a equipe que ativou avisos.
           </p>
           {ativas && !painel.envioDeNotificacoesDisponivel ? (
-            <p className="mt-2 text-sm text-mute" role="status">
+            <Aviso tom="info" className="mt-2">
               Conecte o WhatsApp acima. Enquanto isso, os avisos ficam no sininho.
-            </p>
+            </Aviso>
           ) : null}
           {alterar.isError ? (
-            <p className="mt-2 text-sm text-brick" role="alert">
+            <Aviso tom="acao" className="mt-2">
               Não foi possível salvar agora. Tente de novo.
-            </p>
+            </Aviso>
           ) : null}
         </div>
       </div>
       {painel.podeGerenciarWhatsapp ? (
-        <div className="mt-5 border-t border-line pt-4">
+        <div className="mt-5 pt-4">
           <Button
             type="button"
             variant={ativas ? "secondary" : "default"}
