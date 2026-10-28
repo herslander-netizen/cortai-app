@@ -49,8 +49,26 @@ describe("moldura de tela no padrão Figaro", () => {
       </Screen>,
     );
 
-    expect(html).toContain("min-h-[calc(100dvh-3.5rem)]");
-    expect(html).toContain("top-14");
+    expect(html).toContain("min-h-dvh");
+    expect(html).toContain("top-0");
+    expect(html).not.toContain("top-14");
+  });
+
+  it("alinha a ação contextual à direita do botão voltar na barra Figaro", () => {
+    const html = renderToStaticMarkup(
+      <Screen
+        title="Serviços"
+        voltarPara="/barbeiro/mais"
+        headerAction={<a href="/barbeiro/categorias">Categorias</a>}
+      >
+        <p>Catálogo</p>
+      </Screen>,
+    );
+
+    expect(html).toContain('href="/barbeiro/categorias"');
+    expect(html).toContain(">Categorias</a>");
+    expect(html).toContain("justify-between");
+    expect(html.indexOf('aria-label="Voltar"')).toBeLessThan(html.indexOf(">Categorias</a>"));
   });
 
   it("usa ação de retorno e hierarquia do título abaixo, sem botão de interrogação", () => {
