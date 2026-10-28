@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 
+import { Aviso } from "@/components/ui/aviso";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { AdminNotice, AdminScreen } from "@/components/layout/AdminScreen";
@@ -159,11 +160,7 @@ function ParceirosAdmin() {
             </Button>
           ) : null}
         </div>
-        {erro ? (
-          <p className="text-xs text-brick" role="alert">
-            {erro}
-          </p>
-        ) : null}
+        {erro ? <Aviso tom="acao">{erro}</Aviso> : null}
       </form>
 
       <ul className="mt-6 space-y-2">
