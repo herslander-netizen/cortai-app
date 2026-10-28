@@ -498,6 +498,8 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Em andamento
 
+- GPT | 2026-10-28 UTC | Alinhar a instrução de produto/identidade em `CLAUDE.md` com a decisão multi-serviços: remover a afirmação de que o produto atende somente beleza, mantendo a identidade Figaro/Cortaí e sem tocar em `AGENTS.md` que está reservado. Atualizar o relatório e o diário. | `DIARIO.md`, `CLAUDE.md`, `docs/auditoria-multiservico-cortai-2026-10-27.md`; sem migração
+
 
 - GPT | 2026-10-27 UTC | Corrigir divergência entre Agenda clara e escura: investigar regressão, manter a mesma estrutura/medidas/cartões/gestos/animações nos dois temas e variar apenas tokens de cor; registrar regra permanente de paridade e validar sem tocar produção/main | `DIARIO.md`, `AGENTS.md`, `src/components/barbeiro/agenda/AGENTS.md`, componentes/estilos/testes estritamente necessários da Agenda; sem migração
 
