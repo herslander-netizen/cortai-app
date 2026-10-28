@@ -498,6 +498,8 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Em andamento
 
+- GPT | 2026-10-27 UTC | Continuação da neutralização de fallbacks no contrato de página pública: garantir segmento neutro para negócio sem segmento e adicionar cobertura de regressão sem renomear rotas/tipos da página; não tocar no editor visual reservado nem em dados. | `DIARIO.md`, `src/lib/publico.functions.ts`, `src/lib/segmentos.test.ts`, `docs/auditoria-multiservico-cortai-2026-10-27.md`; sem migração
+
 
 - GPT | 2026-10-27 UTC | Corrigir divergência entre Agenda clara e escura: investigar regressão, manter a mesma estrutura/medidas/cartões/gestos/animações nos dois temas e variar apenas tokens de cor; registrar regra permanente de paridade e validar sem tocar produção/main | `DIARIO.md`, `AGENTS.md`, `src/components/barbeiro/agenda/AGENTS.md`, componentes/estilos/testes estritamente necessários da Agenda; sem migração
 
