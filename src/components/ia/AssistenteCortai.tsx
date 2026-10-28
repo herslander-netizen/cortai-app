@@ -28,6 +28,7 @@ import { SEGMENTOS_CONFIG, segmentoParaApresentacao, type Segmento } from "@/lib
 import { SELO_DA_CORTAI } from "@/lib/brain/estado-cortai";
 import { Chip } from "@/components/ui/chip";
 import { Button } from "@/components/ui/button";
+import { Aviso } from "@/components/ui/aviso";
 
 function atalhosDo(segmento: Segmento | undefined) {
   const s = segmentoParaApresentacao(segmento);
@@ -406,7 +407,7 @@ export function AssistenteCortai({
         <>
           <header className="shrink-0 flex items-center gap-2.5 bg-[var(--figaro-surface-container,var(--ink2))] px-5 pb-2.5 pt-2">
             <span
-              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gold text-ink"
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[var(--figaro-primary-container,var(--ink2))] text-[var(--figaro-on-primary-container,var(--paper))]"
               aria-hidden
             >
               <IconeDaIA segmento={segmento} size={18} />
@@ -471,19 +472,18 @@ export function AssistenteCortai({
                   onClick={() => void enviar(a)}
                 >
                   <span className="min-w-0">{a}</span>
-                  <ArrowRight size={13} className="shrink-0 text-gold/70" aria-hidden />
+                  <ArrowRight size={13} className="shrink-0 text-[var(--figaro-primary,var(--primary))]" aria-hidden />
                 </Button>
               ))}
             </div>
             {estado && estado !== "ativa" ? (
-              <p className="mt-4 rounded-xl border border-dashed border-line px-4 py-3 text-xs text-mute2">
+              <Aviso tom="info" className="mt-4">
                 {SELO_DA_CORTAI[estado].texto}
-              </p>
+              </Aviso>
             ) : data && !data.disponivel ? (
-              <p className="mt-4 rounded-xl border border-dashed border-line px-4 py-3 text-xs text-mute2">
-                O Cortaí ainda não está ligado neste ambiente. As respostas vão indicar isso com
-                clareza.
-              </p>
+              <Aviso tom="info" className="mt-4">
+                O Cortaí ainda não está ligado neste ambiente. As respostas vão indicar isso com clareza.
+              </Aviso>
             ) : null}
           </div>
         ) : null}
@@ -498,7 +498,7 @@ export function AssistenteCortai({
               ) : (
                 <>
                   <span
-                    className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-gold/30 bg-gold-soft text-gold"
+                    className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full border-0 bg-[var(--figaro-primary-container,var(--ink2))] text-[var(--figaro-primary,var(--primary))]"
                     aria-hidden
                   >
                     <IconeDaIA segmento={segmento} size={15} />
@@ -556,7 +556,7 @@ export function AssistenteCortai({
         {enviando ? (
           <div className="mt-3.5 flex items-center gap-2.5">
             <span
-              className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-gold/30 bg-gold-soft text-gold"
+              className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border-0 bg-[var(--figaro-primary-container,var(--ink2))] text-[var(--figaro-primary,var(--primary))]"
               aria-hidden
             >
               <IconeDaIA segmento={segmento} size={15} />
@@ -567,9 +567,7 @@ export function AssistenteCortai({
           </div>
         ) : null}
         {erro ? (
-          <p className="mt-4 text-sm text-brick" role="alert" aria-live="polite">
-            {erro}
-          </p>
+          <Aviso tom="acao" className="mt-4">{erro}</Aviso>
         ) : null}
         <div ref={fim} />
       </div>
