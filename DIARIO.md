@@ -498,6 +498,9 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Em andamento
 
+- GPT | 2026-10-28 UTC | Tornar as preferências públicas pós-agendamento conscientes do segmento: manter a pergunta de corte só para barbearia, usar rótulo específico/neutro nos demais segmentos e neutralizar a pergunta sobre pele; passar o segmento explícito da agenda pública e cobrir default/segmentos em testes. Preservar a chave persistida `corte_habitual`, tema público, confirmação e APIs; sem tocar Agenda interna ou banco | `DIARIO.md`, `src/components/agendamento/PreferenciasAposAgendamento.tsx`, `src/components/agendamento/PreferenciasAposAgendamento.test.tsx`, `src/routes/agendar.$slug.tsx`; sem migração
+
+
 
 - GPT | 2026-10-27 UTC | Corrigir divergência entre Agenda clara e escura: investigar regressão, manter a mesma estrutura/medidas/cartões/gestos/animações nos dois temas e variar apenas tokens de cor; registrar regra permanente de paridade e validar sem tocar produção/main | `DIARIO.md`, `AGENTS.md`, `src/components/barbeiro/agenda/AGENTS.md`, componentes/estilos/testes estritamente necessários da Agenda; sem migração
 
