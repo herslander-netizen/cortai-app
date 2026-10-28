@@ -253,6 +253,18 @@ describe("painel WhatsApp no padrão Figaro", () => {
   });
 });
 
+describe("descoberta de negócios no padrão Figaro", () => {
+  it("usa título compacto, campo compartilhado e aviso tonal sem assumir barbearia", () => {
+    const fonte = readFileSync("src/components/cliente/DescobrirBarbearias.tsx", "utf8");
+    expect(fonte).toContain('text-[22px] font-semibold leading-7');
+    expect(fonte).toContain("field-control");
+    expect(fonte).toContain('import { Aviso } from "@/components/ui/aviso"');
+    expect(fonte).toContain("Ainda não há lugares disponíveis.");
+    expect(fonte).not.toContain("text-3xl font-bold");
+    expect(fonte).not.toContain("<button");
+  });
+});
+
 describe("fluxos públicos de fila no padrão Figaro", () => {
   it("usa controles e campos compartilhados sem classes de botão antigas", () => {
     const fila = readFileSync("src/routes/f.$slug.tsx", "utf8");
