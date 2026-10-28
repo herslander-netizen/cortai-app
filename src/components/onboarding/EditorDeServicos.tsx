@@ -23,6 +23,7 @@ export function EditorDeServicos({
   segmento = "outro",
   tenantId,
   fotosAssinadas = {},
+  categoriasAdicionais = [],
 }: {
   servicos: ServicoEditavel[];
   onChange: (s: ServicoEditavel[]) => void;
@@ -36,6 +37,8 @@ export function EditorDeServicos({
   segmento?: Segmento;
   tenantId?: string;
   fotosAssinadas?: Record<string, string>;
+  /** Categorias personalizadas do negócio, unidas às sugestões padrão do segmento. */
+  categoriasAdicionais?: string[];
 }) {
   const [rascunho, setRascunho] = useState<Record<string, string>>({});
 
@@ -45,6 +48,7 @@ export function EditorDeServicos({
   const arquivos = useRef<Record<number, HTMLInputElement | null>>({});
   const segmentoNormalizado = segmentoParaApresentacao(segmento);
   const definicao = SEGMENTOS_CONFIG[segmentoNormalizado];
+  const categoriasDisponiveis = [...new Set([...definicao.categorias, ...categoriasAdicionais])];
 
   function atualizar(indice: number, campos: Partial<ServicoEditavel>) {
     onChange(servicos.map((s, i) => (i === indice ? { ...s, ...campos } : s)));
@@ -293,7 +297,7 @@ export function EditorDeServicos({
       )}
 
       <datalist id="categorias-de-servico">
-        {definicao.categorias.map((c) => (
+        {categoriasDisponiveis.map((c) => (
           <option key={c} value={c} />
         ))}
       </datalist>
