@@ -90,6 +90,25 @@ describe("moldura de tela no padrão Figaro", () => {
     expect(html).not.toContain("Assinatura institucional");
   });
 
+  it("mantém a identidade contextual junto ao título expandido", () => {
+    const html = renderToStaticMarkup(
+      <Screen
+        title="Automação do WhatsApp"
+        subtitle="Atendimento e avisos inteligentes"
+        titleLeading={<svg data-title-leading="whatsapp" aria-hidden="true" />}
+        voltarPara="/barbeiro/mais"
+      >
+        <p>Configuração</p>
+      </Screen>,
+    );
+
+    expect(html).toContain('data-title-leading="whatsapp"');
+    expect(html.indexOf('data-title-leading="whatsapp"')).toBeLessThan(
+      html.indexOf(">Automação do WhatsApp</h1>"),
+    );
+    expect(html).toContain("Atendimento e avisos inteligentes");
+  });
+
   it("não cria uma linha de ação vazia fora da área interna do negócio", () => {
     routerState.pathname = "/app/perfil";
     const html = renderToStaticMarkup(

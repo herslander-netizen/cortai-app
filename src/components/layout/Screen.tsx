@@ -9,6 +9,7 @@ import { useCabecalhoCompacto } from "./useCabecalhoCompacto";
 export function Screen({
   title,
   subtitle,
+  titleLeading,
   voltarPara,
   voltarRotulo = "Voltar",
   wide = false,
@@ -19,6 +20,8 @@ export function Screen({
 }: {
   title: string;
   subtitle?: string;
+  /** Ícone contextual alinhado ao título, também preservado na versão compacta. */
+  titleLeading?: ReactNode;
   voltarPara?: LinkProps["to"];
   voltarRotulo?: string;
   wide?: boolean;
@@ -76,7 +79,11 @@ export function Screen({
                 {headerAction ? <div className="ml-auto flex min-h-11 items-center">{cabecalhoCompactoVisivel ? null : headerAction}</div> : null}
               </div>
             ) : null}
-            <CabecalhoDeTela title={title} {...(subtitle ? { subtitle } : {})} />
+            <CabecalhoDeTela
+              title={title}
+              {...(subtitle ? { subtitle } : {})}
+              {...(titleLeading ? { titleLeading } : {})}
+            />
           </header>
 
           {subpaginaFigaroMobile && cabecalhoCompactoVisivel ? (
@@ -92,6 +99,11 @@ export function Screen({
                 >
                   <ArrowLeft size={22} aria-hidden />
                 </Link>
+              ) : null}
+              {titleLeading ? (
+                <span className="flex size-9 shrink-0 items-center justify-center rounded-[10px] bg-[var(--figaro-primary-container,var(--ink2))] text-[var(--whatsapp)]">
+                  {titleLeading}
+                </span>
               ) : null}
               <h1 className="min-w-0 flex-1 truncate text-base font-semibold text-[var(--figaro-on-background,var(--paper))]">{title}</h1>
               {headerAction ? <div className="flex shrink-0 items-center">{headerAction}</div> : null}
