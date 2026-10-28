@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
@@ -18,6 +18,7 @@ import {
 } from "@/lib/onboarding.functions";
 import { brl } from "@/lib/format";
 import { ESPERA_MS } from "@/lib/movimento-figaro";
+import { listarCategoriasServicos } from "@/lib/categorias-servicos.functions";
 
 export const Route = createFileRoute("/barbeiro/servicos")({
   ssr: false,
@@ -57,6 +58,11 @@ function ServicosPage() {
     queryKey: ["configuracao-inicial"],
     queryFn: () => getConfiguracaoInicial(),
   });
+  const categoriasQuery = useQuery({
+    queryKey: ["categorias-servicos"],
+    queryFn: () => listarCategoriasServicos(),
+  });
+  const categoriasAdicionais = categoriasQuery.data?.categorias.map((categoria) => categoria.nome) ?? [];
   const [servicos, setServicos] = useState<ServicoEditavel[]>([]);
   const [iniciado, setIniciado] = useState(false);
   const [estado, setEstado] = useState<"pronto" | "salvando" | "salvo">("pronto");
@@ -224,6 +230,14 @@ function ServicosPage() {
         voltarPara="/barbeiro/mais"
         title="Serviços"
         subtitle="Seus serviços, duração e preços."
+        headerAction={
+          <Link
+            to="/barbeiro/categorias"
+            className="flex min-h-11 items-center rounded-full px-3 text-sm font-semibold text-[var(--figaro-primary,var(--primary))] transition-opacity active:opacity-70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring motion-reduce:transition-none"
+          >
+            Categorias
+          </Link>
+        }
       >
         {isLoading || (!iniciado && Boolean(data)) ? (
           <EsqueletoFormulario campos={4} onTentarDeNovo={() => void refetch()} />
@@ -318,6 +332,7 @@ function ServicosPage() {
             onChange={alterarRascunho}
             segmento={data?.tenant.segmento ?? "outro"}
             apenasUm
+            categoriasAdicionais={categoriasAdicionais}
             semSugestoes
             semIA={modoEditor === "existente" && rascunho.length === 0}
           />
