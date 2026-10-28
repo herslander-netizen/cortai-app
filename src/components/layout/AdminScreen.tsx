@@ -46,19 +46,21 @@ export function AdminScreen({
         ) : null}
         <CabecalhoDeTela title={title} {...(subtitle ? { subtitle } : {})} />
       </header>
-      {celular && cabecalhoCompactoVisivel ? (
+      {celular ? (
         <div
           data-figaro-header="compact"
+          aria-hidden={!cabecalhoCompactoVisivel || undefined}
+          inert={!cabecalhoCompactoVisivel || undefined}
           role="region"
           aria-label="Cabeçalho da página"
-          className="fixed inset-x-0 top-0 z-40 flex min-h-[calc(3.5rem+env(safe-area-inset-top,0px))] items-center gap-3 bg-[var(--figaro-background,var(--ink))] px-4 pb-2 pt-[calc(0.5rem+env(safe-area-inset-top,0px))] animate-in fade-in slide-in-from-top-1 duration-200 motion-reduce:animate-none"
+          className={`fixed inset-x-0 top-0 z-40 flex min-h-[calc(3.5rem+env(safe-area-inset-top,0px))] items-center gap-3 bg-[var(--figaro-background,var(--ink))] px-4 pb-2 pt-[calc(0.5rem+env(safe-area-inset-top,0px))] transition-[opacity,transform] duration-200 motion-reduce:transition-none ${cabecalhoCompactoVisivel ? "translate-y-0 opacity-100" : "-translate-y-2 opacity-0 pointer-events-none"}`}
         >
           <h1 className="min-w-0 flex-1 truncate text-base font-semibold text-[var(--figaro-on-background,var(--paper))]">
             {title}
           </h1>
           {actions ? (
             <div className="ml-auto flex max-w-[55%] shrink-0 items-center gap-2 overflow-x-auto overscroll-contain">
-              {actions}
+              {cabecalhoCompactoVisivel ? actions : null}
             </div>
           ) : null}
         </div>

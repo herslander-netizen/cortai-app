@@ -86,10 +86,12 @@ export function Screen({
             />
           </header>
 
-          {subpaginaFigaroMobile && cabecalhoCompactoVisivel ? (
+          {subpaginaFigaroMobile ? (
             <div
               data-figaro-header="compact"
-              className="fixed inset-x-0 top-0 z-40 flex min-h-[calc(3.5rem+env(safe-area-inset-top,0px))] items-center gap-3 bg-[var(--figaro-background,var(--ink))] px-4 pb-2 pt-[calc(0.5rem+env(safe-area-inset-top,0px))] animate-in fade-in slide-in-from-top-1 duration-200 motion-reduce:animate-none"
+              aria-hidden={!cabecalhoCompactoVisivel || undefined}
+              inert={!cabecalhoCompactoVisivel || undefined}
+              className={`fixed inset-x-0 top-0 z-40 flex min-h-[calc(3.5rem+env(safe-area-inset-top,0px))] items-center gap-3 bg-[var(--figaro-background,var(--ink))] px-4 pb-2 pt-[calc(0.5rem+env(safe-area-inset-top,0px))] transition-[opacity,transform] duration-200 motion-reduce:transition-none ${cabecalhoCompactoVisivel ? "translate-y-0 opacity-100" : "-translate-y-2 opacity-0 pointer-events-none"}`}
             >
               {destinoVoltar ? (
                 <Link
@@ -106,7 +108,7 @@ export function Screen({
                 </span>
               ) : null}
               <h1 className="min-w-0 flex-1 truncate text-base font-semibold text-[var(--figaro-on-background,var(--paper))]">{title}</h1>
-              {headerAction ? <div className="flex shrink-0 items-center">{headerAction}</div> : null}
+              {headerAction ? <div className="flex shrink-0 items-center">{cabecalhoCompactoVisivel ? headerAction : null}</div> : null}
             </div>
           ) : null}
         </>

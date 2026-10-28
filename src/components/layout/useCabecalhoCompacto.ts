@@ -12,10 +12,15 @@ type ConfiguracaoCabecalhoCompacto = {
  */
 export function useCabecalhoCompacto({ enabled, chave }: ConfiguracaoCabecalhoCompacto) {
   const ref = useRef<HTMLElement | null>(null);
-  const [visivel, setVisivel] = useState(false);
+  const [estado, setEstado] = useState<{ chave: string; visivel: boolean }>(() => ({
+    chave,
+    visivel: false,
+  }));
+  // Ao trocar de rota/título, o estado da página anterior não pode piscar no primeiro render.
+  const visivel = estado.chave === chave && estado.visivel;
 
   useEffect(() => {
-    setVisivel(false);
+    setEstado({ chave, visivel: false });
     const cabecalho = ref.current;
     if (!enabled || !cabecalho) return;
 
@@ -44,7 +49,14 @@ export function useCabecalhoCompacto({ enabled, chave }: ConfiguracaoCabecalhoCo
       return tituloRect.bottom <= topoVisivel + 1 && posicaoRolagem() > 48;
     };
 
-    const atualizar = () => setVisivel(tituloPassouDoTopo());
+    const atualizar = () => {
+      const proximo = tituloPassouDoTopo();
+      setEstado((atual) =>
+        atual.chave === chave && atual.visivel === proximo
+          ? atual
+          : { chave, visivel: proximo },
+      );
+    };
 
     const observer =
       typeof IntersectionObserver === "undefined"

@@ -54,6 +54,19 @@ describe("moldura de tela no padrão Figaro", () => {
     expect(html).not.toContain("top-14");
   });
 
+  it("mantém a barra compacta montada para animar a entrada e a saída", () => {
+    const html = renderToStaticMarkup(
+      <Screen title="Serviços" voltarPara="/barbeiro/mais">
+        <p>Catálogo</p>
+      </Screen>,
+    );
+
+    expect(html).toContain('data-figaro-header="compact"');
+    expect(html).toContain('aria-hidden="true"');
+    expect(html).toContain("transition-[opacity,transform]");
+    expect(html).toContain("pointer-events-none");
+  });
+
   it("alinha a ação contextual à direita do botão voltar na barra Figaro", () => {
     const html = renderToStaticMarkup(
       <Screen
