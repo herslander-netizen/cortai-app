@@ -498,8 +498,6 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Em andamento
 
-- GPT | 2026-10-28 UTC | Reforçar regressão do segmento explícito nas mensagens e registrar hotspots de fallback que dependem de áreas reservadas; corrigir apenas fixture de teste e documentação/recados, sem editar editor de página, editor de horários, Agenda ou regra operacional | `DIARIO.md`, `src/lib/whatsapp/notificacoes.test.ts`, `docs/auditoria-multiservico-cortai-2026-10-27.md`; sem migração
-
 
 - GPT | 2026-10-27 UTC | Corrigir divergência entre Agenda clara e escura: investigar regressão, manter a mesma estrutura/medidas/cartões/gestos/animações nos dois temas e variar apenas tokens de cor; registrar regra permanente de paridade e validar sem tocar produção/main | `DIARIO.md`, `AGENTS.md`, `src/components/barbeiro/agenda/AGENTS.md`, componentes/estilos/testes estritamente necessários da Agenda; sem migração
 
@@ -543,6 +541,8 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Recados
 
+- **Para o GPT responsável por Personalizar Página / editor visual (28/10):** durante a neutralização multi-serviços, encontrei em `src/lib/marca.functions.ts` o retorno `segmento: segmentoValido(tenant.segmento)`. Não alterei o arquivo porque o editor `barbeiro.marca*` está reservado e esse retorno alimenta a área em edição. Quando liberar a reserva, recomendo normalizar apenas o valor de apresentação para `outro` quando estiver ausente/desconhecido, mantendo a experiência explícita de barbearia, rotas e dados.  
+- **Para o GPT responsável pelo lote Figaro / onboarding (28/10):** `src/components/onboarding/EditorDeHorarios.tsx` ainda define `segmento = "barbearia"` como padrão; o fluxo principal de configuração já passa `outro` quando ainda não há segmento. Não alterei o componente por causa da reserva ativa; revisar o default e os testes quando liberar o arquivo.  
 - **Para todos (GPT, 27/10):** decisão nova do dono: Cortaí é uma plataforma de gestão/agendamento para negócios de serviços, não uma plataforma exclusiva de barbearia ou apenas de Beleza. Fiz correções multi-serviços em onboarding, fallback de vocabulário, apresentação, demonstrações, IA, WhatsApp e schema/SEO; relatório em `docs/auditoria-multiservico-cortai-2026-10-27.md`. **Recado ao GPT que mantém a paridade da Agenda:** `AGENTS.md` contém a frase antiga `Cortaí = Beleza; barbearia é segmento` e está na sua reserva atual; por favor atualize-a para o posicionamento multi-serviços quando liberar o arquivo. Não alterei `AGENTS.md` para respeitar essa reserva. [lido pelo GPT desta auditoria, 27/10]
 
 
@@ -784,6 +784,8 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - Auditoria de conflito: não alterar logos de negócio, capas, fotos de serviços/produtos, galeria ou fotos de portfólio; nenhuma regra de negócio, dados, banco ou migração foi tocada. Agenda visual protegida, sem mudanças nos seus arquivos.
 - Testes: pendentes de confirmação no GitHub Actions e conferência visual mobile; não declarar pronto até validar o workflow.
 ## Diário
+
+- GPT | 2026-10-28 UTC | Reforçada a regressão de WhatsApp: a fixture agora usa o segmento válido `salao`, garantindo que os testes que evitam texto de barbearia sejam exercitados com um segmento conhecido, e não com um alias inválido. Documentei os fallbacks restantes que dependem de arquivos reservados ou do caminho operacional central; não alterei esses arquivos para evitar conflito. CI da fixture/documentação fica associado ao commit final; sem banco, Agenda, `main` ou produção. | `src/lib/whatsapp/notificacoes.test.ts`, relatório multi-serviços e diário
 
 - GPT | 2026-10-27 UTC | Neutralização do fallback do editor de serviços: segmento omitido agora usa `outro`, e os componentes reutilizáveis de sugestões rápidas/IA normalizam o segmento para não listar serviços de barbearia por acidente. A escolha explícita `barbearia` mantém as sugestões antigas. Foram adicionados testes para o default neutro, placeholder genérico e faixa móvel da experiência explicitamente selecionada. Sem mudanças na rota reservada de onboarding, em dados, banco, Agenda ou produção. CI do commit final ainda precisa confirmar TypeScript, suíte completa, build e prévia. | `src/components/onboarding/EditorDeServicos.tsx`, `src/components/onboarding/EditorDeServicos.test.tsx`, `src/components/onboarding/AssistenteDeServicos.tsx`, `src/components/onboarding/SugestoesDeServicos.tsx`, relatório e diário
 

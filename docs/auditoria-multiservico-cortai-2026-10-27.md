@@ -229,3 +229,14 @@ A solicitação do dono foi incorporada ao escopo da atualização global Figaro
 - Quando `barbearia` é selecionado explicitamente, as sugestões de barbearia permanecem inalteradas. O fluxo oficial de onboarding já passa o segmento escolhido; nenhuma rota ou payload foi renomeado.
 - Foram adicionados testes para garantir que o fallback genérico não apresente sugestões de barbearia e use o exemplo neutro da IA, além de manter a faixa rolável quando barbearia é selecionada explicitamente.
 - Arquivos: `src/components/onboarding/EditorDeServicos.tsx`, `EditorDeServicos.test.tsx`, `AssistenteDeServicos.tsx` e `SugestoesDeServicos.tsx`.
+
+## Hotspots restantes — aguardando liberação ou auditoria própria (28/10/2026)
+
+Estes pontos foram identificados, mas não foram alterados nesta tranche por estarem ligados a fluxos reservados ou operacionais:
+
+- `src/components/onboarding/EditorDeHorarios.tsx`: ainda usa `barbearia` como segmento padrão do componente. A rota principal de configuração já passa o segmento normalizado com fallback `outro`; a mudança aqui fica para depois da reserva ativa desse arquivo, com teste do caso em que o prop é omitido.
+- `src/lib/marca.functions.ts`: a resposta de dados do editor de Personalizar Página ainda deriva o segmento por `segmentoValido(tenant.segmento)`. Como a área `barbeiro.marca*` e os componentes do editor têm reserva ativa, o ajuste deve ser coordenado com essa tarefa para não conflitar com alterações de navegação/edição.
+- `src/lib/barbeiro.functions.ts`: a normalização de segmento está no caminho central de funções operacionais. Não se altera globalmente sem testes direcionados de agenda, termos por segmento e negócio com campo ausente/desconhecido; a Agenda continua protegida.
+- `AGENTS.md` e instruções correlatas: ainda há formulação antiga de posicionamento. O arquivo está reservado por outra tarefa; o recado existente pede a correção quando ele for liberado.
+
+A fixture da suíte de notificações foi corrigida para usar o ID válido `salao`, de modo que os testes sobre mensagens de outro segmento exercitem um segmento real, em vez de um alias inválido que cairia no fallback neutro.

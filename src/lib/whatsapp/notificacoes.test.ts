@@ -17,7 +17,7 @@ const dados: DadosDaMensagem = {
   linkPagamento: "https://pagamentos.example/p/1",
   linkAvaliacao: "https://cortai.app/avaliar/token-seguro",
   fuso: "America/Sao_Paulo",
-  segmento: "salao_beleza",
+  segmento: "salao",
   textoRetorno: null,
 };
 const matriz: TipoDeNotificacao[] = [
