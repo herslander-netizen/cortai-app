@@ -498,7 +498,6 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Em andamento
 
-- GPT | 2026-10-28 UTC | Neutralizar fallback central de segmento sem alterar dados explícitos: fazer segmentoValido usar `outro` para ausente/inválido, revisar testes e confirmar consumidores sensíveis; preservar `barbearia` quando explícita. Sem migração, sem banco/Agenda/produção | `DIARIO.md`, `src/lib/segmentos.ts`, `src/lib/segmentos.test.ts`; sem migração
 
 
 
@@ -797,6 +796,9 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+
+- GPT | 2026-10-28 UTC | Fallback central de segmento agora é neutro (`outro`) para valor ausente/inválido; segmentos explicitamente escolhidos continuam preservados. Atualizados testes para ausente, inválido e segmentos explícitos. Aguardando CI para confirmar TypeScript/testes/build e publicação da prévia; nenhum banco, Agenda, main ou produção alterados. | `src/lib/segmentos.ts`, `src/lib/segmentos.test.ts`, `DIARIO.md`
+
 
 - GPT | 2026-10-28 UTC | Preferências do agendamento público agora respeitam o segmento escolhido: a rota passa o segmento real aos dois modos (formulário e conversa), o padrão ausente/desconhecido é neutro, a barbearia mantém sua pergunta de corte, e salão/esmalteria/sobrancelhas/estética recebem rótulos contextuais. Segmento `outro` recebe apenas campo livre e informação importante, sem assumir ar, bebida, música ou corte. Mantida a chave histórica `corte_habitual` sem migração e preservados token, confirmação e API. Testes de UI e regressões por segmento adicionados; validar a execução CI desta tranche antes de declarar pronta. Sem banco, Agenda interna, DNS, `main` ou produção. | `src/components/agendamento/PreferenciasAposAgendamento.tsx`, `src/components/agendamento/PreferenciasAposAgendamento.test.tsx`, `src/components/agendamento/chat/PreferenciasEmConversa.tsx`, `src/components/agendamento/chat/PreferenciasEmConversa.test.tsx`, `src/routes/agendar.$slug.tsx`, `DIARIO.md`, relatório multi-serviços
 
