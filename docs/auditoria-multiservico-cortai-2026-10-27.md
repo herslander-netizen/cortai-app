@@ -251,3 +251,12 @@ A fixture da suíte de notificações foi corrigida para usar o ID válido `sala
 - A resposta à pergunta “Quais tipos de negócio podem usar o Cortaí?” agora começa pela definição do produto como plataforma de gestão e agendamento para negócios de serviços. Beleza e barbearia são apresentadas como exemplos de áreas, não como centro e exceção.
 - Teste de regressão verifica a frase inicial, a menção de segmentos como exemplos e impede que a resposta volte a começar por “Não.”
 - O showroom visual e conteúdo personalizado de estabelecimentos não foram alterados.
+
+### Copy de interface ainda reservado por outra tarefa (28/10/2026)
+
+A varredura encontrou estes textos na área da reconstrução visual global, mas não os alterou porque os arquivos estão reservados por outra tarefa:
+
+- `src/routes/visitante.tsx`: “Tenho uma barbearia no Cortaí”. Substituição sugerida: “Tenho um negócio no Cortaí”, mantendo destino, permissões e fluxo de login.
+- `src/routes/admin.monetizacao.tsx`: “barbearias novas/já clientes” nos rótulos de status. Substituir por “negócios novos/já clientes”, preservando filtros, IDs e regras.
+
+O encaminhamento também foi registrado em `DIARIO.md` para que o responsável pela reconstrução visual faça a alteração junto do restante do lote, sem disputa de escrita nesses arquivos.
