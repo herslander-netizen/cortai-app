@@ -243,6 +243,8 @@ describe("fluxos públicos de fila no padrão Figaro", () => {
 
     expect(fila).toContain('import { Button } from "@/components/ui/button"');
     expect(fila).toContain("field-control");
+    expect(fila.match(/className="field-control/g)).toHaveLength(2);
+    expect(fila).not.toContain("rounded-lg border border-line2");
     expect(fila).toContain('size="bloco"');
     expect(fila).toContain('import { Aviso } from "@/components/ui/aviso"');
     expect(fila).not.toContain("<button");
