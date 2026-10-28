@@ -156,7 +156,7 @@ function CortaiPage() {
             </div>
           </section>
 
-          <nav className="mt-5 flex gap-2" aria-label="Seções do Cortaí">
+          <nav className="mt-5 flex gap-2 overflow-x-auto pb-1" aria-label="Seções do Cortaí">
             {(
               [
                 ["whatsapp", "Conexão"],
@@ -170,7 +170,7 @@ function CortaiPage() {
                 key={id}
                 type="button"
                 onClick={() => setAba(id)}
-                className={`rounded-full px-4 py-2 text-xs font-medium transition-colors ${
+                className={`shrink-0 whitespace-nowrap rounded-full px-4 py-2 text-xs font-medium transition-colors ${
                   aba === id
                     ? "bg-[var(--figaro-primary-container,var(--ink2))] text-[var(--figaro-primary,var(--primary))]"
                     : "bg-[var(--figaro-surface-container,var(--ink2))] text-mute"
