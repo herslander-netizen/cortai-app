@@ -498,6 +498,8 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Em andamento
 
+- GPT | 2026-10-28 UTC | Reforçar regressão de apresentação multi-serviços: testar que definicaoDoSegmento também retorna `outro` para valores ausentes/inválidos; apenas teste e diário, sem alterar consumidores reservados | `DIARIO.md`, `src/lib/segmentos.test.ts`; sem migração
+
 - GPT | 2026-10-28 UTC | Alinhar a auditoria multi-serviços e os testes à nova regra central: ausência/segmento inválido deve normalizar para `outro`, sem alterar segmentos explícitos nem contratos legados | `DIARIO.md`, `docs/auditoria-multiservico-cortai-2026-10-27.md`, `src/lib/segmentos.test.ts`; sem migração
 
 
