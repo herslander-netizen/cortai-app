@@ -302,6 +302,13 @@
       "when": 1792446753204,
       "tag": "0044_identidade_cloud",
       "breakpoints": true
+    },
+    {
+      "idx": 43,
+      "version": "7",
+      "when": 1793208960000,
+      "tag": "0049_categorias_servicos",
+      "breakpoints": true
     }
   ]
 }
