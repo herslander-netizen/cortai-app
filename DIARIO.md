@@ -498,6 +498,8 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Em andamento
 
+- GPT | 2026-10-28 UTC | Corrigir resposta da FAQ pública sobre tipos de negócio para apresentar o Cortaí como plataforma multi-serviços desde a primeira frase; adicionar teste que evita resposta iniciada por “Não” e confirma que segmentos são exemplos. Não tocar showroom visual reservado nem conteúdo personalizado de negócios | `DIARIO.md`, `src/lib/apresentacao-conteudo.ts`, `src/lib/apresentacao-conteudo.test.ts`, `docs/auditoria-multiservico-cortai-2026-10-27.md`; sem migração
+
 
 - GPT | 2026-10-27 UTC | Corrigir divergência entre Agenda clara e escura: investigar regressão, manter a mesma estrutura/medidas/cartões/gestos/animações nos dois temas e variar apenas tokens de cor; registrar regra permanente de paridade e validar sem tocar produção/main | `DIARIO.md`, `AGENTS.md`, `src/components/barbeiro/agenda/AGENTS.md`, componentes/estilos/testes estritamente necessários da Agenda; sem migração
 
