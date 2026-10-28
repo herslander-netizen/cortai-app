@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { Link, type LinkProps } from "@tanstack/react-router";
+import { Link, type LinkProps, useRouterState } from "@tanstack/react-router";
 import { ArrowLeft } from "lucide-react";
 import { Signature } from "./Signature";
 import { CabecalhoDeTela } from "./CabecalhoDeTela";
@@ -24,16 +24,19 @@ export function Screen({
   assinaturaSoComputador?: boolean;
   children?: ReactNode;
 }) {
+  const caminho = useRouterState({ select: (state) => state.location.pathname });
+  const semCabecalhoGlobal = caminho.startsWith("/barbeiro/marca") || caminho === "/barbeiro/sua-pagina";
+
   return (
     <div
       data-padrao-figaro="tela"
       data-largura={wide ? "larga" : undefined}
-      className={`screen-shell mx-auto flex min-h-[calc(100dvh-3.5rem)] w-full flex-col pb-[calc(2rem+env(safe-area-inset-bottom))] ${wide ? "max-w-[1180px]" : "max-w-[760px]"}`}
+      className={`screen-shell mx-auto flex ${semCabecalhoGlobal ? "min-h-dvh" : "min-h-[calc(100dvh-3.5rem)]"} w-full flex-col pb-[calc(2rem+env(safe-area-inset-bottom))] ${wide ? "max-w-[1180px]" : "max-w-[760px]"}`}
     >
       {!hideHeader ? (
         <header
           data-figaro-header="page"
-          className="sticky top-14 z-20 grid gap-4 bg-[var(--figaro-background,var(--ink))] px-4 pb-3 pt-4 md:static md:px-8 md:pb-5 md:pt-6"
+          className={`sticky ${semCabecalhoGlobal ? "top-0" : "top-14"} z-20 grid gap-4 bg-[var(--figaro-background,var(--ink))] px-4 pb-3 pt-4 md:static md:px-8 md:pb-5 md:pt-6`}
         >
           {voltarPara ? (
             <div className="flex min-h-11 items-center">
