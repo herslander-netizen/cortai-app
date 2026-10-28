@@ -7,7 +7,7 @@ import { useCabecalhoCompacto } from "./useCabecalhoCompacto";
 
 type ObservadorFalso = {
   callback: IntersectionObserverCallback;
-  options?: IntersectionObserverInit;
+  options?: IntersectionObserverInit | undefined;
   alvo: Element | null;
   desligado: boolean;
   disparar: (visivel: boolean) => void;

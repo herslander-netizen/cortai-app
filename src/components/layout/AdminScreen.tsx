@@ -36,8 +36,12 @@ export function AdminScreen({
         className="mb-5 grid min-w-0 gap-4"
       >
         {actions ? (
-          <div className="flex min-h-12 min-w-0 flex-wrap items-center justify-end gap-2">
-            {actions}
+          <div
+            aria-hidden={cabecalhoCompactoVisivel || undefined}
+            inert={cabecalhoCompactoVisivel || undefined}
+            className="flex min-h-12 min-w-0 flex-wrap items-center justify-end gap-2"
+          >
+            {cabecalhoCompactoVisivel ? null : actions}
           </div>
         ) : null}
         <CabecalhoDeTela title={title} {...(subtitle ? { subtitle } : {})} />

@@ -73,7 +73,7 @@ export function Screen({
                 ) : (
                   <span aria-hidden className="size-11 shrink-0" />
                 )}
-                {headerAction ? <div className="ml-auto flex min-h-11 items-center">{headerAction}</div> : null}
+                {headerAction ? <div className="ml-auto flex min-h-11 items-center">{cabecalhoCompactoVisivel ? null : headerAction}</div> : null}
               </div>
             ) : null}
             <CabecalhoDeTela title={title} {...(subtitle ? { subtitle } : {})} />
@@ -82,7 +82,7 @@ export function Screen({
           {subpaginaFigaroMobile && cabecalhoCompactoVisivel ? (
             <div
               data-figaro-header="compact"
-              className="fixed inset-x-0 top-0 z-40 flex min-h-14 items-center gap-3 bg-[var(--figaro-background,var(--ink))] px-4 py-2 animate-in fade-in slide-in-from-top-1 duration-200 motion-reduce:animate-none"
+              className="fixed inset-x-0 top-0 z-40 flex min-h-[calc(3.5rem+env(safe-area-inset-top,0px))] items-center gap-3 bg-[var(--figaro-background,var(--ink))] px-4 pb-2 pt-[calc(0.5rem+env(safe-area-inset-top,0px))] animate-in fade-in slide-in-from-top-1 duration-200 motion-reduce:animate-none"
             >
               {destinoVoltar ? (
                 <Link
