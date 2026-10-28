@@ -260,3 +260,15 @@ A varredura encontrou estes textos na área da reconstrução visual global, mas
 - `src/routes/admin.monetizacao.tsx`: “barbearias novas/já clientes” nos rótulos de status. Substituir por “negócios novos/já clientes”, preservando filtros, IDs e regras.
 
 O encaminhamento também foi registrado em `DIARIO.md` para que o responsável pela reconstrução visual faça a alteração junto do restante do lote, sem disputa de escrita nesses arquivos.
+
+
+## Preferências pós-agendamento por segmento — 28/10/2026
+
+A preferência pós-agendamento passou a receber o segmento explícito da agenda pública tanto no formulário quanto no modo conversa.
+
+- Barbearia mantém o campo “Como costuma cortar”.
+- Salão/cabeleireiro, esmalteria, sobrancelha/cílios e estética recebem rótulos apropriados ao serviço.
+- Segmento ausente, inválido ou “outro” usa campos livres neutros e não apresenta automaticamente opções de ar, bebida, música ou corte.
+- A chave histórica `corte_habitual` continua sendo usada internamente por compatibilidade; nenhum schema, API ou banco foi alterado.
+
+Testes adicionados para default neutro, barbearia explícita, salão e esmalteria, além de regressões do modo conversa. CI e prévia ainda precisam confirmar a tranche completa.

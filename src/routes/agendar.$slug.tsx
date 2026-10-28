@@ -564,12 +564,14 @@ function AgendamentoPublico() {
                       agendamentoId={confirmado.agendamentoId}
                       token={confirmado.preferenciasToken}
                       slug={slug}
+                      segmento={data.tenant.segmento}
                     />
                   ) : (
                     <PreferenciasAposAgendamento
                       agendamentoId={confirmado.agendamentoId}
                       token={confirmado.preferenciasToken}
                       slug={slug}
+                      segmento={data.tenant.segmento}
                     />
                   )
                 ) : null}
