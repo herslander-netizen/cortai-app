@@ -27,6 +27,7 @@ import { transcreverComandoDeVozDoPainel } from "@/lib/voz.functions";
 import { SEGMENTOS_CONFIG, segmentoParaApresentacao, type Segmento } from "@/lib/segmentos";
 import { SELO_DA_CORTAI } from "@/lib/brain/estado-cortai";
 import { Chip } from "@/components/ui/chip";
+import { Button } from "@/components/ui/button";
 
 function atalhosDo(segmento: Segmento | undefined) {
   const s = segmentoParaApresentacao(segmento);
@@ -69,13 +70,13 @@ function ProgressoDaConfiguracao() {
   const pct = Math.round((progresso.feitos / progresso.total) * 100);
 
   return (
-    <div className="flex items-center gap-2.5 border-b border-line px-5 pb-2.5">
+    <div className="flex items-center gap-2.5 px-5 pb-2.5">
       <span className="shrink-0 text-xs text-mute2">
         Configuração · {progresso.feitos}/{progresso.total}
       </span>
-      <span className="h-[3px] min-w-0 flex-1 overflow-hidden rounded-full bg-ink3">
+      <span className="h-[3px] min-w-0 flex-1 overflow-hidden rounded-full bg-[var(--figaro-surface-container-high,var(--ink3))]">
         <span
-          className="block h-full rounded-full bg-gold transition-[width] duration-[280ms]"
+          className="block h-full rounded-full bg-[var(--figaro-primary,var(--primary))] transition-[width] duration-[280ms]"
           style={{ width: `${Math.max(4, pct)}%` }}
         />
       </span>
@@ -151,7 +152,7 @@ function PreviaDaAcao({
   if (!acao.precisaConfirmar || (!temServicos && !temHorarios)) return null;
 
   return (
-    <div className="mt-3 rounded-xl border-0 bg-[var(--agenda-cartao,var(--ink2))] px-4 py-4">
+    <div className="mt-3 rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))] px-4 py-4">
       {temServicos ? (
         <ul className="space-y-2">
           {acao.servicos!.map((s, i) => (
@@ -187,9 +188,10 @@ function PreviaDaAcao({
           <p className="mt-3 text-xs text-mute">
             {acao.perguntaDeConfirmacao ?? "Posso salvar essas informações?"}
           </p>
-          <button
+          <Button
             type="button"
-            className="btn-primary mt-3 w-full py-2.5 text-sm"
+            variant="primary"
+            className="mt-3 w-full"
             disabled={estado === "enviando"}
             onClick={async () => {
               setEstado("enviando");
@@ -211,7 +213,7 @@ function PreviaDaAcao({
             }}
           >
             {estado === "enviando" ? "Salvando…" : "Confirmar"}
-          </button>
+          </Button>
           {erro ? <p className="mt-2 text-xs text-brick">{erro}</p> : null}
         </>
       )}
@@ -402,7 +404,7 @@ export function AssistenteCortai({
       rotulo="Cortaí"
       cabecalho={
         <>
-          <header className="shrink-0 flex items-center gap-2.5 border-b border-line bg-ink2 px-5 pb-2.5 pt-2">
+          <header className="shrink-0 flex items-center gap-2.5 bg-[var(--figaro-surface-container,var(--ink2))] px-5 pb-2.5 pt-2">
             <span
               className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gold text-ink"
               aria-hidden
@@ -420,14 +422,16 @@ export function AssistenteCortai({
                 Agenda, clientes e atendimento
               </span>
             </span>
-            <button
+            <Button
               type="button"
               onClick={onFechar}
               aria-label="Fechar Cortaí"
-              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-line2 text-mute transition-colors hover:border-gold/40 hover:text-paper"
+              variant="outline"
+              size="icon"
+              className="h-12 w-12 shrink-0 rounded-full border-line2 text-mute"
             >
               <X size={16} />
-            </button>
+            </Button>
           </header>
           <ProgressoDaConfiguracao />
         </>
@@ -448,25 +452,27 @@ export function AssistenteCortai({
             <p className="text-sm leading-relaxed text-mute">
               Escreva como você falaria com um colega. Por exemplo:
             </p>
-            <button
+            <Button
               type="button"
               onClick={() => setAgendando(true)}
-              className="mt-3 flex w-full items-center justify-between gap-3 rounded-xl bg-gold px-4 py-3 text-left text-xs font-semibold text-ink"
+              variant="primary"
+              className="mt-3 flex h-auto w-full items-center justify-between gap-3 whitespace-normal rounded-[12px] px-4 py-3 text-left text-xs"
             >
               <span>Marcar um horário agora</span>
               <ArrowRight size={13} aria-hidden />
-            </button>
+            </Button>
             <div className="mt-3 space-y-2">
               {atalhosDo(segmento).map((a) => (
-                <button
+                <Button
                   key={a}
                   type="button"
-                  className="flex w-full items-center justify-between gap-3 rounded-xl border-0 bg-[var(--agenda-cartao,var(--ink2))] px-4 py-3 text-left text-xs text-paper transition-colors hover:border-gold/40"
+                  variant="ghost"
+                  className="flex h-auto w-full items-center justify-between gap-3 whitespace-normal rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))] px-4 py-3 text-left text-xs text-paper"
                   onClick={() => void enviar(a)}
                 >
                   <span className="min-w-0">{a}</span>
                   <ArrowRight size={13} className="shrink-0 text-gold/70" aria-hidden />
-                </button>
+                </Button>
               ))}
             </div>
             {estado && estado !== "ativa" ? (
@@ -486,7 +492,7 @@ export function AssistenteCortai({
           {mensagens.map((m) => (
             <li key={m.id} className={m.autor === "barbeiro" ? "flex justify-end" : "flex gap-2.5"}>
               {m.autor === "barbeiro" ? (
-                <p className="max-w-[85%] min-w-0 break-words rounded-2xl rounded-br-md border border-gold/25 bg-gold/10 px-4 py-2.5 text-sm leading-relaxed text-paper">
+                <p className="max-w-[85%] min-w-0 break-words rounded-2xl rounded-br-md border-0 bg-[var(--figaro-primary-container,var(--ink2))] text-[var(--figaro-on-primary-container,var(--paper))] px-4 py-2.5 text-sm leading-relaxed text-paper">
                   {m.conteudo}
                 </p>
               ) : (
@@ -498,7 +504,7 @@ export function AssistenteCortai({
                     <IconeDaIA segmento={segmento} size={15} />
                   </span>
                   <div className="min-w-0 max-w-[88%]">
-                    <div className="rounded-2xl rounded-bl-md border border-line bg-ink px-4 py-3">
+                    <div className="rounded-2xl rounded-bl-md border-0 bg-[var(--figaro-surface-container-low,var(--ink))] px-4 py-3">
                       <p className="whitespace-pre-wrap break-words text-sm leading-relaxed text-paper">
                         {m.conteudo}
                       </p>
@@ -572,29 +578,33 @@ export function AssistenteCortai({
 
       {novaMensagem ? (
         <div className="relative">
-          <button
+          <Button
             type="button"
             onClick={() => irAoFim()}
-            className="absolute -top-12 left-1/2 -translate-x-1/2 rounded-full border border-gold/30 bg-ink px-3 py-1.5 text-xs text-paper shadow-[var(--elevacao-3)]"
+            variant="outline"
+            size="sm"
+            className="absolute -top-12 left-1/2 -translate-x-1/2 rounded-full bg-[var(--figaro-surface-container-high,var(--ink2))] text-xs text-paper shadow-[var(--elevacao-3)]"
           >
             Nova mensagem ↓
-          </button>
+          </Button>
         </div>
       ) : null}
 
-      <div className="cortai-conversa-barra shrink-0 border-t border-line bg-ink2 px-4 pt-2.5">
+      <div className="cortai-conversa-barra shrink-0 bg-[var(--figaro-surface-container,var(--ink2))] px-4 pt-2.5">
         {mensagens.length > 0 || agendando ? (
           <div className="-mx-4 mb-2.5 flex gap-2 overflow-x-auto px-4 pb-0.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-            <button
+            <Button
               type="button"
               onClick={() => {
                 setAgendando(true);
                 irAoFim();
               }}
-              className="shrink-0 rounded-full bg-gold px-3.5 py-1.5 text-xs font-semibold text-ink"
+              variant="primary"
+              size="sm"
+              className="shrink-0 rounded-full text-xs font-semibold"
             >
               Marcar horário
-            </button>
+            </Button>
             {SUGESTOES.map((s) => (
               <Chip key={s} disabled={enviando} onClick={() => void enviar(s)}>
                 {s}
@@ -606,7 +616,7 @@ export function AssistenteCortai({
           <div
             role="group"
             aria-label="Confirmar o que a Cortaí entendeu"
-            className="mb-2.5 rounded-2xl border border-gold/40 bg-ink px-3.5 py-3"
+            className="mb-2.5 rounded-[28px] bg-[var(--figaro-surface-container-high,var(--ink2))] px-3.5 py-3"
           >
             <p className="mb-0.5 text-xs font-semibold text-paper">Confere?</p>
             <p className="break-words text-sm leading-snug text-mute">{confirmacaoAtual.resumo}</p>
@@ -618,28 +628,30 @@ export function AssistenteCortai({
               <div className="mb-3" />
             )}
             <div className="flex gap-2">
-              <button
+              <Button
                 type="button"
                 onClick={async () => {
                   const enviou = await enviar("sim", "texto", undefined, true);
                   if (enviou) setOpcoesDispensadas((a) => new Set(a).add(`c-${ultimaId}`));
                 }}
-                className="btn-primary min-h-11 flex-1 py-2.5 text-sm"
+                variant="primary"
+                className="min-w-0 flex-1 whitespace-normal px-3"
               >
                 {conferenciaDoCartao?.veredito === "atencao"
                   ? "Confirmar mesmo assim"
                   : "Confirmar"}
-              </button>
-              <button
+              </Button>
+              <Button
                 type="button"
                 onClick={async () => {
                   const enviou = await enviar("não", "texto", undefined, true);
                   if (enviou) setOpcoesDispensadas((a) => new Set(a).add(`c-${ultimaId}`));
                 }}
-                className="min-h-11 rounded-xl border border-line2 px-4 py-2.5 text-sm text-mute"
+                variant="outline"
+                className="min-w-12 px-4 text-sm text-mute"
               >
                 Não
-              </button>
+              </Button>
             </div>
           </div>
         ) : null}
@@ -652,19 +664,21 @@ export function AssistenteCortai({
             <div className="mb-2 flex items-center gap-2">
               <span className="text-xs font-semibold text-paper">Qual cliente?</span>
               <span className="text-xs text-mute2">Toque no certo</span>
-              <button
+              <Button
                 type="button"
                 onClick={() => setOpcoesDispensadas((a) => new Set(a).add(ultimaId))}
                 aria-label="Fechar as opções"
-                className="ml-auto flex h-7 w-7 items-center justify-center rounded-full border border-line2 text-mute"
+                variant="ghost"
+                  size="icon"
+                  className="ml-auto rounded-full border border-line2 text-mute"
               >
                 <X size={14} aria-hidden />
-              </button>
+              </Button>
             </div>
             <ul className="max-h-40 space-y-1.5 overflow-y-auto">
               {opcoesAtuais.map((o) => (
                 <li key={o.id}>
-                  <button
+                  <Button
                     type="button"
                     disabled={enviando}
                     onClick={async () => {
@@ -675,13 +689,14 @@ export function AssistenteCortai({
                       );
                       if (enviou) setOpcoesDispensadas((a) => new Set(a).add(ultimaId));
                     }}
-                    className="flex min-h-11 w-full items-center justify-between gap-3 rounded-xl border-0 bg-[var(--agenda-cartao,var(--ink2))] px-3.5 py-2 text-left text-sm text-paper transition-colors hover:border-gold/50 disabled:opacity-50"
+                    variant="ghost"
+                    className="flex h-auto min-h-12 w-full items-center justify-between gap-3 whitespace-normal rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))] px-3.5 py-3 text-left text-sm text-paper disabled:opacity-50"
                   >
                     <span className="min-w-0 truncate">{o.rotulo}</span>
                     {o.detalhe ? (
                       <span className="shrink-0 text-xs text-mute">{o.detalhe}</span>
                     ) : null}
-                  </button>
+                  </Button>
                 </li>
               ))}
             </ul>
@@ -698,35 +713,37 @@ export function AssistenteCortai({
                 ) : (
                   <span className="text-mute2">toque no quadrado para enviar</span>
                 )}
-                <button
+                <Button
                   type="button"
                   onClick={voz.cancelar}
-                  className="ml-auto rounded-full border border-line2 px-2.5 py-1 text-mute"
+                  variant="outline"
+                  size="sm"
+                  className="ml-auto rounded-full text-mute"
                 >
                   Cancelar
-                </button>
+                </Button>
               </>
             ) : voz.estado === "processando" ? (
               <span className="text-mute">Entendendo o que você falou…</span>
             ) : (
               <>
                 <span className="text-brick">{voz.erro}</span>
-                <button
+                <Button
                   type="button"
                   onClick={voz.limparErro}
                   className="ml-auto rounded-full border border-line2 px-2.5 py-1 text-mute"
                 >
                   Ok
-                </button>
+                </Button>
               </>
             )}
           </div>
         ) : null}
         {origemRascunho === "voz" && texto.trim() ? (
-          <div className="mb-2 flex min-h-8 items-center gap-2 rounded-lg border border-line bg-ink px-3 py-1.5 text-xs">
+          <div className="mb-2 flex min-h-10 items-center gap-2 rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))] px-3 py-1.5 text-xs">
             <Mic size={13} className="shrink-0 text-gold" aria-hidden />
             <span className="min-w-0 flex-1 text-mute">Transcrição pronta. Revise antes de enviar.</span>
-            <button
+            <Button
               type="button"
               onClick={() => {
                 setTexto("");
@@ -734,10 +751,12 @@ export function AssistenteCortai({
                 setErro(null);
                 campo.current?.focus();
               }}
-              className="shrink-0 rounded-full px-2 py-1 font-medium text-paper"
+              variant="ghost"
+              size="sm"
+              className="shrink-0 rounded-full font-medium text-paper"
             >
               Descartar
-            </button>
+            </Button>
           </div>
         ) : null}
         <form
@@ -759,10 +778,10 @@ export function AssistenteCortai({
             }}
             rows={1}
             placeholder="Escreva aqui…"
-            className="max-h-28 min-h-[48px] flex-1 resize-none rounded-xl border-0 bg-[var(--agenda-cartao,var(--ink2))] px-4 py-3 text-sm text-paper outline-none transition-colors placeholder:text-mute2 focus:border-gold/45"
+            className="field-control max-h-28 min-h-[48px] w-auto flex-1 resize-none rounded-[12px] py-3 text-sm"
           />
           {voz.suportado ? (
-            <button
+            <Button
               type="button"
               onClick={() => (voz.estado === "gravando" ? voz.parar() : void voz.iniciar())}
               disabled={enviando || voz.estado === "processando"}
@@ -774,7 +793,9 @@ export function AssistenteCortai({
                     : "Falar um comando"
               }
               aria-pressed={voz.estado === "gravando"}
-              className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full border transition-colors disabled:opacity-40 ${
+              variant="outline"
+              size="icon"
+              className={`h-12 w-12 shrink-0 rounded-full transition-colors disabled:opacity-40 ${
                 voz.estado === "gravando"
                   ? "border-brick bg-brick/15 text-brick"
                   : "border-line2 bg-ink text-mute hover:border-gold/40 hover:text-paper"
@@ -787,16 +808,18 @@ export function AssistenteCortai({
               ) : (
                 <Mic size={17} aria-hidden />
               )}
-            </button>
+            </Button>
           ) : null}
-          <button
+          <Button
             type="submit"
             aria-label="Enviar"
             disabled={enviando || !texto.trim()}
-            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-gold text-ink transition-opacity disabled:opacity-40"
+            variant="primary"
+            size="icon"
+            className="h-12 w-12 shrink-0 rounded-full disabled:opacity-40"
           >
             <Send size={17} aria-hidden />
-          </button>
+          </Button>
         </form>
       </div>
     </FolhaCortai>
