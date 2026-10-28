@@ -1,12 +1,14 @@
 // @vitest-environment jsdom
 
-import type { ReactNode } from "react";
+import { act, type ReactNode } from "react";
+import { createRoot, type Root } from "react-dom/client";
 import { renderToStaticMarkup } from "react-dom/server";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const routerState = vi.hoisted(() => ({ pathname: "/barbeiro/servicos", mobile: true }));
 
 import { EmptyState, Screen } from "./Screen";
+import { useCabecalhoCompacto } from "./useCabecalhoCompacto";
 
 vi.mock("@/hooks/use-mobile", () => ({
   useMediaQuery: () => routerState.mobile,
@@ -198,5 +200,122 @@ describe("moldura de tela no padrão Figaro", () => {
     expect(html).toContain('data-figaro-empty-state="true"');
     expect(html).toContain("rounded-[28px]");
     expect(html).not.toContain("border-y");
+  });
+});
+
+
+(globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
+
+class ObservadorCabecalhoFalso {
+  disconnect = vi.fn();
+  observe = vi.fn();
+
+  constructor(_callback: IntersectionObserverCallback, _options?: IntersectionObserverInit) {
+    observadoresCabecalho.push(this);
+  }
+}
+
+const observadoresCabecalho: ObservadorCabecalhoFalso[] = [];
+const raizesCabecalho: Root[] = [];
+
+function CabecalhoCompactoEmTeste({ ativo = true, titulo = "Clientes" }: { ativo?: boolean; titulo?: string }) {
+  const { ref, visivel } = useCabecalhoCompacto({ enabled: ativo, chave: titulo });
+
+  return (
+    <div data-compacto={visivel ? "visivel" : "oculto"}>
+      <div data-raiz-rolagem="true" style={{ overflowY: "auto", height: "100px" }}>
+        <header ref={ref}>
+          <h1>{titulo}</h1>
+        </header>
+        <div style={{ height: "800px" }} />
+      </div>
+    </div>
+  );
+}
+
+function montarCabecalhoCompacto(ativo = true) {
+  const host = document.createElement("div");
+  document.body.appendChild(host);
+  const raiz = createRoot(host);
+  raizesCabecalho.push(raiz);
+  act(() => raiz.render(<CabecalhoCompactoEmTeste ativo={ativo} />));
+
+  return {
+    raiz,
+    estado: host.firstElementChild as HTMLElement,
+    titulo: host.querySelector("h1") as HTMLElement,
+    rolagem: host.querySelector("[data-raiz-rolagem]") as HTMLElement,
+  };
+}
+
+function retanguloComFundo(bottom: number): DOMRect {
+  return {
+    x: 0,
+    y: bottom - 20,
+    top: bottom - 20,
+    right: 120,
+    bottom,
+    left: 0,
+    width: 120,
+    height: 20,
+    toJSON: () => ({}),
+  };
+}
+
+describe("comportamento real do título compacto durante a rolagem", () => {
+  beforeEach(() => {
+    observadoresCabecalho.length = 0;
+    vi.stubGlobal("IntersectionObserver", ObservadorCabecalhoFalso);
+  });
+
+  afterEach(() => {
+    act(() => {
+      for (const raiz of raizesCabecalho.splice(0)) raiz.unmount();
+    });
+    document.body.innerHTML = "";
+    vi.unstubAllGlobals();
+  });
+
+  it("mostra o título compacto depois que o título expandido sai por cima e o oculta quando volta a ficar visível", () => {
+    const teste = montarCabecalhoCompacto();
+    const geometria = vi.spyOn(teste.titulo, "getBoundingClientRect");
+
+    teste.rolagem.scrollTop = 80;
+    geometria.mockReturnValue(retanguloComFundo(-2));
+    act(() => teste.rolagem.dispatchEvent(new Event("scroll")));
+    expect(teste.estado.dataset.compacto).toBe("visivel");
+
+    // Um título fora da área inferior ainda não justifica o cabeçalho compacto.
+    geometria.mockReturnValue(retanguloComFundo(150));
+    act(() => teste.rolagem.dispatchEvent(new Event("scroll")));
+    expect(teste.estado.dataset.compacto).toBe("oculto");
+
+    // Voltar ao topo também esconde o título compacto.
+    teste.rolagem.scrollTop = 0;
+    geometria.mockReturnValue(retanguloComFundo(-2));
+    act(() => teste.rolagem.dispatchEvent(new Event("scroll")));
+    expect(teste.estado.dataset.compacto).toBe("oculto");
+  });
+
+  it("desconecta o observador ao desmontar a tela", () => {
+    const teste = montarCabecalhoCompacto();
+    const observador = observadoresCabecalho[0];
+
+    expect(observador).toBeDefined();
+    act(() => teste.raiz.unmount());
+    raizesCabecalho.splice(raizesCabecalho.indexOf(teste.raiz), 1);
+
+    expect(observador?.observe).toHaveBeenCalledWith(teste.titulo);
+    expect(observador?.disconnect).toHaveBeenCalledOnce();
+  });
+
+  it("não instala observador nem cabeçalho reativo quando a compactação está desabilitada", () => {
+    const teste = montarCabecalhoCompacto(false);
+
+    expect(observadoresCabecalho).toHaveLength(0);
+    teste.rolagem.scrollTop = 80;
+    vi.spyOn(teste.titulo, "getBoundingClientRect").mockReturnValue(retanguloComFundo(-2));
+    act(() => teste.rolagem.dispatchEvent(new Event("scroll")));
+    expect(teste.estado.dataset.compacto).toBe("oculto");
   });
 });
