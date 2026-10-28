@@ -320,7 +320,7 @@ export function segmentoValido(valor: unknown): Segmento {
   return SEGMENTOS.includes(valor as Segmento) ? (valor as Segmento) : "outro";
 }
 
-/** Fallback visual neutro; dados legados continuam usando `segmentoValido`. */
+/** Alias semântico de normalização para consumidores que lidam com apresentação do segmento. */
 export function segmentoParaApresentacao(valor: unknown): Segmento {
   return SEGMENTOS.includes(valor as Segmento) ? (valor as Segmento) : "outro";
 }
