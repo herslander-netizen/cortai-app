@@ -12,6 +12,7 @@
  */
 
 import { exigirFormaDoAtendente } from "./entradas-da-api";
+import { somarDias } from "@/lib/horarios";
 
 async function admin() {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -122,8 +123,18 @@ export async function consultarDisponibilidade(
   if (!/^\d{4}-\d{2}-\d{2}$/.test(input.dia))
     throw new Error("Dia inválido. Use o formato AAAA-MM-DD.");
   const { horariosDisponiveis } = await import("@/lib/disponibilidade");
-  const { regrasDaBarbearia, STATUS_QUE_OCUPAM } = await import("@/lib/agenda-regras.server");
+  const {
+    intervalosPersonalizadosPorData,
+    regrasDaBarbearia,
+    STATUS_QUE_OCUPAM,
+  } = await import("@/lib/agenda-regras.server");
   const regras = await regrasDaBarbearia(db, ctx.tenantId);
+  const intervalosPorData = await intervalosPersonalizadosPorData(
+    db,
+    ctx.tenantId,
+    somarDias(input.dia, -1),
+    input.dia,
+  );
   const inicioJanela = new Date(`${input.dia}T00:00:00Z`);
   inicioJanela.setUTCDate(inicioJanela.getUTCDate() - 1);
   const fimJanela = new Date(`${input.dia}T00:00:00Z`);
@@ -186,6 +197,7 @@ export async function consultarDisponibilidade(
       intervaloEntreMin: regras.intervaloEntreMin,
     },
     passoMin: regras.passoMin,
+    intervalosPorData,
   });
   return {
     dia: input.dia,

@@ -10,7 +10,7 @@ import {
   type RegrasDaAgenda,
   type ServicoDoMotor,
 } from "@/lib/disponibilidade";
-import type { HorarioDeFuncionamento } from "@/lib/horarios";
+import type { HorarioDeFuncionamento, IntervalosPorData } from "@/lib/horarios";
 
 export type SugestaoDeHorario = { iso: string; label: string };
 
@@ -24,6 +24,7 @@ export function sugestoesDeHorario(p: {
   ocupados: Ocupado[];
   regras: RegrasDaAgenda;
   passoMin: number;
+  intervalosPorData?: IntervalosPorData;
   agora?: number;
   limite?: number;
 }): SugestaoDeHorario[] {
@@ -39,6 +40,7 @@ export function sugestoesDeHorario(p: {
     regras: p.regras,
     agora: p.agora ?? Date.now(),
     passoMin: p.passoMin,
+    intervalosPorData: p.intervalosPorData,
   });
   return opcoes.slice(0, p.limite ?? 4).map(({ iso, label }) => ({ iso, label }));
 }

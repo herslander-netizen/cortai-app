@@ -11,7 +11,13 @@ import { z } from "zod";
 
 import { getRequest } from "@tanstack/react-start/server";
 
-import { normalizarFuso as normalizarFusoExtra, type HorarioDeFuncionamento } from "@/lib/horarios";
+import {
+  hojeNoFuso,
+  normalizarFuso as normalizarFusoExtra,
+  somarDias,
+  type HorarioDeFuncionamento,
+  type IntervalosPorData,
+} from "@/lib/horarios";
 import { normalizarTelefone, variantesDoTelefone } from "@/lib/telefone";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
@@ -99,6 +105,7 @@ export type AgendaPublica = {
   };
   profissionais: { id: string; nome: string; avatar_url: string | null }[];
   horarios: HorarioDeFuncionamento[];
+  intervalosPorData: IntervalosPorData;
   ocupados: { profissional_id: string | null; inicio: string; fim: string }[];
   pagina: PaginaConfig;
   agendaOnline: "aberta" | "limite_atingido";
@@ -164,14 +171,27 @@ export async function hashDoTokenDePreferencias(token: string) {
 export const getAgendaPublica = createServerFn({ method: "GET" })
   .validator((input: unknown) => z.object({ slug: slugSchema }).parse(input))
   .handler(async ({ data }): Promise<AgendaPublica> => {
-    const { STATUS_QUE_OCUPAM, mapearHorarios, janelaValida, passoValido } =
-      await import("@/lib/agenda-regras.server");
+    const {
+      STATUS_QUE_OCUPAM,
+      intervalosPersonalizadosPorData,
+      mapearHorarios,
+      janelaValida,
+      passoValido,
+    } = await import("@/lib/agenda-regras.server");
     const db = await admin();
     const tenant = await barbeariaPorSlug(db, data.slug);
     const janelaDias = janelaValida(tenant.janela_agendamento_dias);
 
     const desde = new Date(Date.now() - 24 * 60 * 60 * 1000);
     const ate = new Date(desde.getTime() + (janelaDias + 2) * 24 * 60 * 60 * 1000);
+    const fusoDoNegocio = normalizarFusoExtra(tenant.fuso);
+    const primeiroDia = hojeNoFuso(fusoDoNegocio);
+    const intervalosPorData = await intervalosPersonalizadosPorData(
+      db,
+      tenant.id,
+      somarDias(primeiroDia, -1),
+      somarDias(primeiroDia, janelaDias + 1),
+    );
 
     const [servicosRes, profRes, horariosRes, ocupadosRes, filaRes, paginaRes] = await Promise.all([
       db
@@ -256,13 +276,14 @@ export const getAgendaPublica = createServerFn({ method: "GET" })
       },
       profissionais,
       horarios: mapearHorarios(horariosRes.data ?? []),
+      intervalosPorData,
       ocupados: [
         ...(ocupadosRes.data ?? []),
         ...(await (
           await import("@/lib/ocupacoes-extras.server")
         ).ocupacoesExtras(db, {
           tenantId: tenant.id,
-          fuso: normalizarFusoExtra(tenant.fuso),
+          fuso: fusoDoNegocio,
           desde,
           ate,
         })),

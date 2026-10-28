@@ -5,8 +5,8 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { exigirPermissao, tenantIdDoMembro } from "@/lib/tenant";
 import { diaDaSemanaDoDia, hojeNoFuso, normalizarFuso } from "@/lib/horarios";
 
-const horarioSchema = z.string().regex(/^\\d{2}:\\d{2}$/);
-const dataSchema = z.string().regex(/^\\d{4}-\\d{2}-\\d{2}$/);
+const horarioSchema = z.string().regex(/^\d{2}:\d{2}$/);
+const dataSchema = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
 const minutos = (valor: string) => {
   const [h = 0, m = 0] = valor.split(":").map(Number);
   return h * 60 + m;

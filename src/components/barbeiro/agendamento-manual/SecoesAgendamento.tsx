@@ -72,6 +72,14 @@ function useEstadosDaEquipe(s: EstadoAgendamentoManual) {
   const agenda = useQuery({ ...opcoesAgendaDia(s.data), enabled: Boolean(s.base && s.data) });
   const servico = s.base?.servicos.find((sv) => sv.id === s.servicoId);
   if (!s.base || !servico || !s.profissionalId || !agenda.data) return null;
+  const intervalosPorData = agenda.data.intervaloPersonalizado
+    ? {
+        [s.data]: {
+          intervaloInicio: agenda.data.intervaloPersonalizado.inicio,
+          intervaloFim: agenda.data.intervaloPersonalizado.fim,
+        },
+      }
+    : undefined;
   const ocupados: OcupadoDaEquipe[] = agenda.data.itens
     .filter((i) => (STATUS_QUE_OCUPAM as readonly string[]).includes(i.status))
     .map((i) => ({
@@ -105,6 +113,7 @@ function useEstadosDaEquipe(s: EstadoAgendamentoManual) {
     // A equipe agenda sem antecedência mínima; a validação final segue no servidor.
     regras: { antecedenciaMin: 0, intervaloEntreMin: 0 },
     passoMin: s.base.passoMin ?? 30,
+    intervalosPorData,
   });
 }
 
@@ -115,9 +124,14 @@ export function SecaoHorario({ s }: { s: EstadoAgendamentoManual }) {
   const duracaoMin = s.base?.servicos.find((sv) => sv.id === s.servicoId)?.duracao_min;
   const slots =
     s.base && duracaoMin
-      ? slotsDoDia(s.data, s.base.horarios, s.base.passoMin ?? 30, s.base.fuso, duracaoMin).slots.map(
-          (slot) => slot.label,
-        )
+      ? slotsDoDia(
+          s.data,
+          s.base.horarios,
+          s.base.passoMin ?? 30,
+          s.base.fuso,
+          duracaoMin,
+          intervalosPorData,
+        ).slots.map((slot) => slot.label)
       : [];
   const porLabel = new Map((estados?.horarios ?? []).map((h) => [h.label, h]));
   const livre = s.proximo.data?.label;

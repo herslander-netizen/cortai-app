@@ -8,7 +8,11 @@ import {
   type Ocupado,
   type Opcao,
 } from "@/lib/disponibilidade";
-import { horarioDoDia, type HorarioDeFuncionamento } from "@/lib/horarios";
+import {
+  horarioDoDia,
+  type HorarioDeFuncionamento,
+  type IntervalosPorData,
+} from "@/lib/horarios";
 
 type Servico = {
   id: string;
@@ -19,6 +23,7 @@ type Servico = {
   foto_url?: string | null;
 };
 type Profissional = { id: string; nome: string; avatar_url?: string | null };
+const SEM_INTERVALOS: IntervalosPorData = {};
 
 export function useSelecaoAgendamento({
   servicos,
@@ -29,6 +34,7 @@ export function useSelecaoAgendamento({
   regras,
   quantidadeDias = 30,
   passoMin = 30,
+  intervalosPorData,
 }: {
   servicos: Servico[];
   profissionais: Profissional[];
@@ -38,7 +44,9 @@ export function useSelecaoAgendamento({
   regras: { antecedenciaMin: number; intervaloEntreMin: number };
   quantidadeDias?: number;
   passoMin?: number;
+  intervalosPorData?: IntervalosPorData;
 }) {
+  const intervalosAtivos = intervalosPorData ?? SEM_INTERVALOS;
   const [servicoId, setServicoId] = useState<string | null>(null);
   const [profissionalId, setProfissionalId] = useState("qualquer");
   const [dia, setDia] = useState<string | null>(null);
@@ -86,8 +94,9 @@ export function useSelecaoAgendamento({
               regras,
               agora,
               passoMin,
+              intervalosPorData: intervalosAtivos,
             })
-          : { fechado: horarioDoDia(data, horarios).fechado, opcoes: [] },
+          : { fechado: horarioDoDia(data, horarios, intervalosAtivos).fechado, opcoes: [] },
       );
     }
     return mapa;
@@ -102,6 +111,7 @@ export function useSelecaoAgendamento({
     regras,
     agora,
     passoMin,
+    intervalosAtivos,
   ]);
 
   // Escolhe um dia sozinho só na primeira vez em que um serviço é selecionado;
@@ -141,6 +151,7 @@ export function useSelecaoAgendamento({
             regras,
             agora,
             passoMin,
+            intervalosPorData: intervalosAtivos,
           }).horarios.filter((h) => h.estado === "ocupado")
         : [],
     [
@@ -154,6 +165,7 @@ export function useSelecaoAgendamento({
       regras,
       agora,
       passoMin,
+      intervalosAtivos,
     ],
   );
   const escolhido = agenda?.opcoes.find((opcao) => opcao.iso === inicio) ?? null;

@@ -146,6 +146,7 @@ function AgendamentoPublico() {
     servicos: data?.servicos ?? [],
     profissionais: data?.profissionais ?? [],
     horarios: data?.horarios ?? [],
+    intervalosPorData: data?.intervalosPorData,
     ocupados: data?.ocupados ?? [],
     fuso,
     regras: data?.regras ?? { antecedenciaMin: 0, intervaloEntreMin: 0 },

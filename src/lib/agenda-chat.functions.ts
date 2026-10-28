@@ -11,7 +11,11 @@ import {
   proximosDiasNoFuso,
   type Ocupado,
 } from "@/lib/disponibilidade";
-import { regrasDaBarbearia, STATUS_QUE_OCUPAM } from "@/lib/agenda-regras.server";
+import {
+  intervalosPersonalizadosPorData,
+  regrasDaBarbearia,
+  STATUS_QUE_OCUPAM,
+} from "@/lib/agenda-regras.server";
 
 async function admin() {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -94,6 +98,12 @@ export const getGradeDoDia = createServerFn({ method: "GET" })
     const hoje = hojeNoFuso(regras.fuso);
     const dias = proximosDiasNoFuso(Math.min(7, regras.janelaDias + 1), regras.fuso);
     const dia = data.dia && dias.includes(data.dia) ? data.dia : hoje;
+    const intervalosPorData = await intervalosPersonalizadosPorData(
+      db,
+      tenantId,
+      somarDias(dia, -1),
+      dia,
+    );
 
     const servicos = (servicosRes.data ?? []) as GradeDoDia["servicos"];
     const todos = profRes.data ?? [];
@@ -111,7 +121,14 @@ export const getGradeDoDia = createServerFn({ method: "GET" })
       profissionais,
     };
 
-    const grade = slotsDoDia(dia, regras.horarios, regras.passoMin, regras.fuso, duracaoMin);
+    const grade = slotsDoDia(
+      dia,
+      regras.horarios,
+      regras.passoMin,
+      regras.fuso,
+      duracaoMin,
+      intervalosPorData,
+    );
     if (!servico || grade.fechado) {
       return { ...base, fechado: grade.fechado, abre: grade.abre, fecha: grade.fecha, slots: [] };
     }
@@ -156,6 +173,7 @@ export const getGradeDoDia = createServerFn({ method: "GET" })
       },
       agora,
       passoMin: regras.passoMin,
+      intervalosPorData,
     });
     const livres = new Map(opcoes.map((o) => [o.iso, o.profId]));
     const limite = agora + regras.janelaDias * 86_400_000;
