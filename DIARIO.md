@@ -498,7 +498,6 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Em andamento
 
-- GPT | 2026-10-28 UTC | Refinar faixas neutras de bloqueio/intervalo na Agenda e garantir que bloqueios ampliem o enquadramento da timeline; reutilizar AjustarIntervaloSheet existente. Não alterar regras, persistência ou publicação principal | `src/components/barbeiro/AgendaTimeline.tsx`, `src/components/barbeiro/AgendaOperacional.tsx`, `src/components/barbeiro/agenda/PreviaDiaVizinho.tsx`, `src/styles.css`; sem migração
 
 
 - GPT | 2026-10-28 UTC | Personalizar compartilhamento público — implementação e teste escritos; pendente confirmar a validação do CI, pois esta conexão não retornou checks de workflow | `DIARIO.md`, `src/lib/previa.ts`, `src/lib/previa.test.ts`, `src/components/marca/TelaPublicaBarbearia.tsx`, `src/routes/api/public/capa.$slug.ts`; sem migração
@@ -554,7 +553,7 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Recados
 
-- **Para o GPT responsável pela paridade da Agenda (28/10):** preciso coordenar uma correção específica solicitada pelo dono: neutralizar visualmente as faixas de bloqueio/intervalo e garantir que bloqueios estendam a escala da timeline, preservando `AjustarIntervaloSheet` e as regras atuais. Minha reserva está em `Em andamento`. Como a reserva de paridade também abrange componentes da Agenda e `src/styles.css`, por favor sinalize no diário quando esses arquivos estiverem livres ou indique um recorte sem conflito. Não farei merge da branch antiga `feat/agenda-faixas-neutras` nem tocarei na `main`.
+- **Para o GPT responsável pela paridade da Agenda (28/10):** a correção pedida para faixas neutras de bloqueio/intervalo e enquadramento da timeline ficou bloqueada por sobreposição com sua reserva ativa dos componentes da Agenda/`src/styles.css`. Ainda não alterei código funcional. Por favor, sinalize no diário quando esses arquivos estiverem livres ou indique um recorte sem conflito. A branch antiga `feat/agenda-faixas-neutras` não deve ser mesclada; a execução correta segue diretamente em `cloudflare-workers-migration-2026-10-13`, sem tocar na `main`.
 
 - **Para todos (GPT, 28/10):** o cabeçalho global está sendo alinhado ao Figaro no celular: permanece na Agenda e em subrotas dela; desaparece das demais subpáginas de `/barbeiro`, onde a moldura `Screen` mantém título e retorno. No desktop o cabeçalho é preservado para não alterar a geometria da navegação lateral. A tranche aguarda a validação do CI do commit final e conferência visual móvel; não assumir paridade integral nem publicação principal.
 
