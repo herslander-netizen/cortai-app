@@ -186,3 +186,17 @@ A auditoria não termina quando a busca por “barbearia” retorna zero. Termin
 4. a IA e as mensagens não inventam vocabulário, capacidade ou dados do negócio;
 5. rotas, dados históricos, permissões e links continuam compatíveis;
 6. o produto e a Home comunicam uma plataforma de serviços, sem parecer um software exclusivo de barbearia.
+
+
+## Continuação segura — fallbacks neutros de segmento (27/10/2026)
+
+**Corrigido nesta tranche**
+- A descoberta pública agora converte segmento ausente/desconhecido para `outro`, em vez de rotular o negócio como barbearia por causa do fallback legado. O nome técnico da função e os tipos/rotas consumidores foram preservados.
+- As notificações transacionais de retorno passam pelo normalizador de apresentação. Segmento ausente/desconhecido usa a mensagem neutra e a personalização configurada deixa de ser ignorada apenas porque o campo de segmento está vazio.
+- Os textos especiais de Beleza são aplicados somente aos segmentos de Beleza explicitamente selecionados. O segmento `outro` usa a mensagem neutra; a barbearia explícita mantém seu vocabulário específico nas notificações determinísticas.
+- Testes de regressão cobrem segmento ausente, segmento desconhecido e segmento genérico.
+
+**Limites de compatibilidade**
+- `segmentoValido()` e consumidores históricos continuam preservados nesta tranche: a alteração global desse helper pode mudar fluxos operacionais e dados legados em vários módulos.
+- Não houve renomeação em massa de `/barbeiro/*`, `/barbearias`, tipos, funções, tabelas ou colunas; não houve migração nem escrita em banco.
+- A apresentação, onboarding, Agenda protegida e arquivos já reservados por outras tarefas não foram alterados. A auditoria global de termos e assets continua aberta para revisão por área após liberação das reservas.

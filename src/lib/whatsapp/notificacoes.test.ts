@@ -52,6 +52,24 @@ describe("matriz transacional da Secretária Cortaí", () => {
     expect(textos).not.toContain("barbeiro");
     expect(montarMensagem("retorno", dados)).toContain("próximo atendimento");
   });
+  it("usa linguagem neutra quando o segmento está ausente ou não é reconhecido", () => {
+    const semSegmento = { ...dados, segmento: null };
+    const confirmacao = montarMensagem("confirmacao_agendamento", semSegmento);
+    expect(confirmacao).toContain("Seu horário em Studio Aurora está confirmado.");
+    expect(confirmacao).not.toContain("na Studio Aurora");
+
+    const retornoSemSegmento = montarMensagem("retorno", semSegmento);
+    expect(retornoSemSegmento).toContain("próximo atendimento em Studio Aurora");
+    expect(retornoSemSegmento).not.toContain("próximo corte");
+
+    const retornoDesconhecido = montarMensagem("retorno", {
+      ...dados,
+      segmento: "segmento_legado_desconhecido",
+    });
+    expect(retornoDesconhecido).toContain("próximo atendimento");
+    expect(retornoDesconhecido).not.toContain("próximo corte");
+  });
+
   it("inclui créditos de atendimento reais nas confirmações e lembretes", () => {
     const comCreditos = { ...dados, creditosDisponiveis: 3 };
     expect(montarMensagem("confirmacao_agendamento", comCreditos)).toContain(

@@ -33,6 +33,15 @@ describe("Conversa padrão", () => {
     expect(textoDaSituacao("fora_do_escopo") ?? "").not.toContain("barbearia");
   });
 
+  it("mantém texto neutro para o segmento genérico", () => {
+    expect(
+      responder("pos_atendimento", { nome: "Ana" }, undefined, "outro")?.texto,
+    ).toBe("Obrigado por escolher nosso serviço, Ana! Como foi sua experiência?");
+    expect(responder("elogio", { nome: "Ana" }, undefined, "outro")?.texto).toBe(
+      "Valeu demais, Ana! Vou passar pra equipe.",
+    );
+  });
+
   it("usa saudação neutra e pós-atendimento por segmento", () => {
     expect(responder("saudacao_nova", { negocio: "Studio Ana" }, undefined, "salao")?.texto).toBe(
       "Oi! Você está falando com Studio Ana. Como posso ajudar?",

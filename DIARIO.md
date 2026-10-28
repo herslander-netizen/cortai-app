@@ -498,8 +498,6 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Em andamento
 
-- GPT | 2026-10-27 UTC | Neutralizar fallbacks visíveis que ainda tratam negócio sem segmento como barbearia: ajustar apenas a representação de segmentos em descoberta pública e textos transacionais do WhatsApp; manter segmento explícito de barbearia, IDs, rotas, dados, permissões e contratos legados. Auditar e testar antes de ampliar. Sem alterações em banco, Agenda, arquivos de apresentação reservados, AGENTS.md, main ou produção | `DIARIO.md`, `src/lib/descoberta.functions.ts`, `src/lib/whatsapp/notificacoes.server.ts`, `src/lib/whatsapp/notificacoes.test.ts`, `src/lib/whatsapp/conversa-padrao.ts`, `src/lib/whatsapp/conversa-padrao.test.ts`, `src/lib/segmentos.test.ts`, `docs/auditoria-multiservico-cortai-2026-10-27.md`; sem migração
-
 
 - GPT | 2026-10-27 UTC | Corrigir divergência entre Agenda clara e escura: investigar regressão, manter a mesma estrutura/medidas/cartões/gestos/animações nos dois temas e variar apenas tokens de cor; registrar regra permanente de paridade e validar sem tocar produção/main | `DIARIO.md`, `AGENTS.md`, `src/components/barbeiro/agenda/AGENTS.md`, componentes/estilos/testes estritamente necessários da Agenda; sem migração
 
@@ -784,6 +782,8 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - Auditoria de conflito: não alterar logos de negócio, capas, fotos de serviços/produtos, galeria ou fotos de portfólio; nenhuma regra de negócio, dados, banco ou migração foi tocada. Agenda visual protegida, sem mudanças nos seus arquivos.
 - Testes: pendentes de confirmação no GitHub Actions e conferência visual mobile; não declarar pronto até validar o workflow.
 ## Diário
+
+- GPT | 2026-10-27 UTC | Continuação da neutralização multi-serviços sem quebrar contratos legados: descoberta pública passa a apresentar segmento ausente/desconhecido como `outro`; notificações de retorno normalizam o segmento antes de escolher o texto e respeitam a personalização mesmo quando o campo está ausente; mensagens especiais de Beleza agora são limitadas aos segmentos de Beleza explícitos, enquanto `outro` usa cópia neutra. Testes de regressão foram adicionados para retornos genéricos e notificações sem segmento. Atualizado `docs/auditoria-multiservico-cortai-2026-10-27.md`. Não alterei `segmentoValido()` globalmente, rotas/IDs, Agenda, apresentações reservadas, banco, `main`, DNS ou produção. Validação automática pendente na nova execução do GitHub Actions. Arquivos: `src/lib/descoberta.functions.ts`, `src/lib/whatsapp/notificacoes.server.ts`, `src/lib/whatsapp/notificacoes.test.ts`, `src/lib/whatsapp/conversa-padrao.ts`, `src/lib/whatsapp/conversa-padrao.test.ts`, relatório e diário.
 
 - GPT | 2026-10-27 UTC | Continuação mobile-first da reconstrução Figaro: na tela de WhatsApp/CortAI, a faixa de seções agora pode deslizar horizontalmente no celular e cada opção mantém sua largura e rótulo em uma linha, evitando que quatro abas comprimam ou estourem a largura disponível. A navegação e os estados das abas permanecem iguais. Commit: `6ebc3665bf79798b1627b9265aaf9e34588cf1c4`. A validação automática está pendente; conferir a nova execução e o smoke test da prévia antes de considerar concluído. | `src/routes/barbeiro.cortai.tsx`, `DIARIO.md`
 

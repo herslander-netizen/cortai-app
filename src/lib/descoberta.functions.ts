@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { segmentoValido, type Segmento } from "@/lib/segmentos";
+import { segmentoParaApresentacao, type Segmento } from "@/lib/segmentos";
 
 export type BarbeariaResumo = {
   id: string;
@@ -11,7 +11,7 @@ export type BarbeariaResumo = {
   segmento: Segmento;
 };
 
-/** Busca pública de barbearias ativas. Nunca retorna barbearias inativas. */
+/** Busca pública de negócios ativos. O nome legado da função é mantido para compatibilidade. */
 export const buscarBarbearias = createServerFn({ method: "GET" })
   .validator((input: unknown) =>
     z.object({ termo: z.string().trim().max(80).optional() }).parse(input ?? {}),
@@ -35,6 +35,6 @@ export const buscarBarbearias = createServerFn({ method: "GET" })
     if (error) throw new Error("Não foi possível buscar lugares agora.");
     return (linhas ?? []).map((linha) => ({
       ...linha,
-      segmento: segmentoValido(linha.segmento),
+      segmento: segmentoParaApresentacao(linha.segmento),
     })) as BarbeariaResumo[];
   });

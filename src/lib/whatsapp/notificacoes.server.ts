@@ -15,7 +15,7 @@
  */
 import { linhasNumeradas } from "./opcoes-numeradas";
 import { fusoDoTenant } from "@/lib/fuso.server";
-import { segmentoValido } from "@/lib/segmentos";
+import { segmentoParaApresentacao } from "@/lib/segmentos";
 
 import { conversaDoTelefone, configuracaoDoTenant, enviarPelaBarbearia } from "./fluxo.server";
 import { urlPublica } from "@/lib/origem-publica";
@@ -720,12 +720,12 @@ async function executar(agendamentoId: string, tipo: TipoDeNotificacao): Promise
     .maybeSingle();
 
   let textoRetorno: string | null = null;
-  if (tipo === "retorno" && tenant?.segmento && tenant.segmento !== "barbearia") {
+  if (tipo === "retorno" && tenant && segmentoParaApresentacao(tenant.segmento) !== "barbearia") {
     const { textoDaSituacao, preencher } = await import("./conversa-padrao");
     const base = textoDaSituacao(
       "retorno",
       { textos: config.textosConversa, desligadas: config.situacoesDesligadas },
-      segmentoValido(tenant.segmento),
+      segmentoParaApresentacao(tenant.segmento),
     );
     const dias = Math.max(1, Math.round((Date.now() - new Date(ag.inicio).getTime()) / 86_400_000));
     textoRetorno = base

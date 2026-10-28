@@ -78,6 +78,16 @@ const PADRAO_BELEZA: Partial<Record<ChaveDeTexto, string>> = {
     "Oi, {{nome}}! Já faz {{dias}} dias do seu último atendimento ({{ultimo_servico}}). Quer que eu veja um horário com {{profissional}}?",
 };
 
+// These copy variants are only for explicitly selected Beauty segments.
+// "outro" and missing/invalid values must use the neutral default, not Beauty copy.
+const SEGMENTOS_COM_PADRAO_BELEZA: readonly Segmento[] = [
+  "salao",
+  "cabeleireiro",
+  "esmalteria",
+  "sobrancelha_cilios",
+  "estetica",
+];
+
 /** Texto da situação: personalizado > padrão. null se o negócio desligou. */
 export function textoDaSituacao(
   chave: ChaveDeTexto,
@@ -87,7 +97,10 @@ export function textoDaSituacao(
   if (p?.desligadas?.includes(chave)) return null;
   const custom = p?.textos?.[chave]?.trim();
   if (custom) return custom;
-  const porSegmento = segmentoParaApresentacao(segmento) === "barbearia" ? null : PADRAO_BELEZA[chave];
+  const segmentoNormalizado = segmentoParaApresentacao(segmento);
+  const porSegmento = SEGMENTOS_COM_PADRAO_BELEZA.includes(segmentoNormalizado)
+    ? PADRAO_BELEZA[chave]
+    : null;
   return (
     porSegmento ??
     (SITUACOES as Record<string, string>)[chave] ??
