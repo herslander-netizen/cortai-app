@@ -498,6 +498,9 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Em andamento
 
+- GPT | 2026-10-28 UTC | Ajustar a moldura das telas Personalizar Página para seguir o Figaro: remover a barra global com logo/atalhos somente nas rotas do editor, preservando a seta redonda do Screen, o menu ⋮ da página e as transições; validar rotas e movimento reduzido. Sem tocar Agenda, CSS global, root, banco ou produção | `DIARIO.md`, `src/components/layout/ManagementDrawer.tsx`, teste focado se necessário; sem migração
+
+
 
 
 
