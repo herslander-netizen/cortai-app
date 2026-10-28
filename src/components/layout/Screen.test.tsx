@@ -64,6 +64,8 @@ describe("moldura de tela no padrão Figaro", () => {
     expect(html).toContain('data-figaro-header="compact"');
     expect(html).toContain('aria-hidden="true"');
     expect(html).toContain("transition-[opacity,transform]");
+    expect(html).toContain("duration-[var(--mola-padrao-duracao)]");
+    expect(html).toContain("ease-[var(--mola-padrao)]");
     expect(html).toContain("pointer-events-none");
   });
 
