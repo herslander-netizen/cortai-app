@@ -202,3 +202,24 @@ A auditoria não termina quando a busca por “barbearia” retorna zero. Termin
 - `segmentoValido()` e consumidores históricos continuam preservados nesta tranche: a alteração global desse helper pode mudar fluxos operacionais e dados legados em vários módulos.
 - Não houve renomeação em massa de `/barbeiro/*`, `/barbearias`, tipos, funções, tabelas ou colunas; não houve migração nem escrita em banco.
 - A apresentação, onboarding, Agenda protegida e arquivos já reservados por outras tarefas não foram alterados. A auditoria global de termos e assets continua aberta para revisão por área após liberação das reservas.
+
+## Diretriz permanente para eliminar o legado de barbearia como foco global — 28/10/2026
+
+A solicitação do dono foi incorporada ao escopo da atualização global Figaro/multi-serviços. A remoção será semântica e por etapas, não uma exclusão indiscriminada de palavras ou arquivos.
+
+**Regra de implementação**
+- Padrão universal: “negócio”, “serviço”, “profissional/equipe”, “cliente” e “atendimento”. O termo “barbearia” só aparece quando o usuário escolhe esse segmento explicitamente, quando descreve um recurso realmente específico ou quando identifica claramente um exemplo/fixture.
+- Fallback ausente, inválido ou desconhecido: usar a experiência neutra; nunca inferir barbearia por conveniência.
+- Manter a experiência específica de barbearia quando ela for escolhida. Não remover seus serviços, templates ou recursos legítimos.
+- Tratar `/barbeiro/*`, `/barbearias`, nomes como `criarBarbearia`, aliases de variáveis, chaves persistidas e tipos antigos como contratos técnicos. Não renomear nem excluir em lote; qualquer migração de rotas/identificadores exige compatibilidade de links, sessões, consumidores e testes.
+- Em UI e marketing, corrigir o texto, ícone, exemplo ou fallback responsável pelo viés sem alterar a regra de negócio adjacente. Não mudar schema, dados, permissões, APIs, integrações ou banco para resolver um problema apenas de apresentação.
+- Antes de editar, conferir `DIARIO.md` e as reservas ativas; não sobrepor a Agenda protegida nem arquivos reservados. Cada lote deve ser pequeno, testável e reversível.
+
+**Próxima sequência segura**
+1. Concluir a neutralização dos fallbacks de cadastro de serviços nos componentes atualmente reservados.
+2. Concluir a normalização da página pública e verificar a execução CI associada.
+3. Auditar os restantes prompts, templates/notificações, demonstrações, ícones, textos de interface e SEO por ocorrência e contexto; corrigir apenas arquivos livres.
+4. Executar TypeScript, suíte de testes e build; depois validar a publicação isolada e conferir visualmente em 390/360 px.
+5. Manter a versão principal, banco real, DNS e rotas persistentes intocados sem autorização específica.
+
+**Não confundir** “eliminar o legado como foco” com apagar toda ocorrência de “barbearia”: o objetivo é que ela deixe de ser o padrão universal, sem quebrar negócios existentes, links, histórico ou a experiência do segmento explícito.
