@@ -49,9 +49,8 @@ describe("moldura de tela no padrão Figaro", () => {
       </Screen>,
     );
 
-    expect(html).toContain("min-h-dvh");
-    expect(html).toContain("top-0");
-    expect(html).not.toContain("top-14");
+    expect(html).toContain("min-h-[calc(100dvh-3.5rem)]");
+    expect(html).toContain("top-14");
   });
 
   it("usa ação de retorno e hierarquia do título abaixo, sem botão de interrogação", () => {
