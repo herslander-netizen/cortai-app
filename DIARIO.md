@@ -498,6 +498,8 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Em andamento
 
+- GPT | 2026-10-28 UTC | Neutralizar a legenda genérica de divulgação para não pressupor gênero do segmento e adicionar teste; preservar textos específicos de modelos/segmentos e links rastreados | `DIARIO.md`, `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, `docs/auditoria-multiservico-cortai-2026-10-27.md`; sem migração
+
 
 
 - GPT | 2026-10-27 UTC | Corrigir divergência entre Agenda clara e escura: investigar regressão, manter a mesma estrutura/medidas/cartões/gestos/animações nos dois temas e variar apenas tokens de cor; registrar regra permanente de paridade e validar sem tocar produção/main | `DIARIO.md`, `AGENTS.md`, `src/components/barbeiro/agenda/AGENTS.md`, componentes/estilos/testes estritamente necessários da Agenda; sem migração
