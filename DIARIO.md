@@ -498,8 +498,6 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Em andamento
 
-- GPT | 2026-10-27 UTC | Continuação da neutralização de fallbacks no contrato de página pública: garantir segmento neutro para negócio sem segmento e adicionar cobertura de regressão sem renomear rotas/tipos da página; não tocar no editor visual reservado nem em dados. | `DIARIO.md`, `src/lib/publico.functions.ts`, `src/lib/segmentos.test.ts`, `docs/auditoria-multiservico-cortai-2026-10-27.md`; sem migração
-
 
 - GPT | 2026-10-27 UTC | Corrigir divergência entre Agenda clara e escura: investigar regressão, manter a mesma estrutura/medidas/cartões/gestos/animações nos dois temas e variar apenas tokens de cor; registrar regra permanente de paridade e validar sem tocar produção/main | `DIARIO.md`, `AGENTS.md`, `src/components/barbeiro/agenda/AGENTS.md`, componentes/estilos/testes estritamente necessários da Agenda; sem migração
 
@@ -784,6 +782,8 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - Auditoria de conflito: não alterar logos de negócio, capas, fotos de serviços/produtos, galeria ou fotos de portfólio; nenhuma regra de negócio, dados, banco ou migração foi tocada. Agenda visual protegida, sem mudanças nos seus arquivos.
 - Testes: pendentes de confirmação no GitHub Actions e conferência visual mobile; não declarar pronto até validar o workflow.
 ## Diário
+
+- GPT | 2026-10-27 UTC | Segunda tranche da neutralização multi-serviços: o contrato de página pública `getPaginaPublica` agora retorna `outro` para segmento ausente/desconhecido e preserva `barbearia` quando ela está explicitamente configurada. O helper de apresentação recebeu asserções para os segmentos explícitos barbearia/outro. Sem renomear rotas, função pública, tipos ou propriedades; sem edição do editor visual, banco ou Agenda. A validação de TypeScript/testes/build/deploy fica a cargo do workflow do commit final. | `src/lib/publico.functions.ts`, `src/lib/segmentos.test.ts`, relatório e diário
 
 - GPT | 2026-10-27 UTC | Continuação da neutralização multi-serviços sem quebrar contratos legados: descoberta pública passa a apresentar segmento ausente/desconhecido como `outro`; notificações de retorno normalizam o segmento antes de escolher o texto e respeitam a personalização mesmo quando o campo está ausente; mensagens especiais de Beleza agora são limitadas aos segmentos de Beleza explícitos, enquanto `outro` usa cópia neutra. Testes de regressão foram adicionados para retornos genéricos e notificações sem segmento. Atualizado `docs/auditoria-multiservico-cortai-2026-10-27.md`. Não alterei `segmentoValido()` globalmente, rotas/IDs, Agenda, apresentações reservadas, banco, `main`, DNS ou produção. Validação automática pendente na nova execução do GitHub Actions. Arquivos: `src/lib/descoberta.functions.ts`, `src/lib/whatsapp/notificacoes.server.ts`, `src/lib/whatsapp/notificacoes.test.ts`, `src/lib/whatsapp/conversa-padrao.ts`, `src/lib/whatsapp/conversa-padrao.test.ts`, relatório e diário.
 

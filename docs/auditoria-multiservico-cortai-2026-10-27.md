@@ -196,6 +196,8 @@ A auditoria não termina quando a busca por “barbearia” retorna zero. Termin
 - Os textos especiais de Beleza são aplicados somente aos segmentos de Beleza explicitamente selecionados. O segmento `outro` usa a mensagem neutra; a barbearia explícita mantém seu vocabulário específico nas notificações determinísticas.
 - Testes de regressão cobrem segmento ausente, segmento desconhecido e segmento genérico.
 
+- A resposta de `getPaginaPublica` também normaliza segmento ausente/desconhecido para `outro`, sem mudar o contrato `PaginaPublica` nem os slugs/rotas. O segmento explícito de barbearia continua retornando `barbearia`.
+
 **Limites de compatibilidade**
 - `segmentoValido()` e consumidores históricos continuam preservados nesta tranche: a alteração global desse helper pode mudar fluxos operacionais e dados legados em vários módulos.
 - Não houve renomeação em massa de `/barbeiro/*`, `/barbearias`, tipos, funções, tabelas ou colunas; não houve migração nem escrita em banco.

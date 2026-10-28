@@ -3,7 +3,7 @@ import { z } from "zod";
 import { montarPacotes, type PacoteDoNegocio } from "@/lib/pacotes";
 import { normalizarPagina, type PaginaConfig } from "@/lib/pagina-config";
 import { paginaPublicaDisponivel } from "@/lib/pagina-publica-status";
-import { segmentoValido, type Segmento } from "@/lib/segmentos";
+import { segmentoParaApresentacao, type Segmento } from "@/lib/segmentos";
 
 export type PaginaPublica = {
   tenant: {
@@ -203,7 +203,7 @@ export const getPaginaPublica = createServerFn({ method: "GET" })
         logo_signed_url: logo,
         capa_signed_url: capa,
         fotos_signed_urls: galeria.filter((url): url is string => Boolean(url)),
-        segmento: segmentoValido(tenant.segmento),
+        segmento: segmentoParaApresentacao(tenant.segmento),
         fuso: tenant.fuso,
       },
       servicos: (servicos ?? []).map((sv) => ({ ...sv, popularidade: contagem.get(sv.id) ?? 0 })),

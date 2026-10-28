@@ -18,6 +18,8 @@ describe("segmentos", () => {
     expect(segmentoParaApresentacao(null)).toBe("outro");
     expect(segmentoParaApresentacao("inexistente")).toBe("outro");
     expect(segmentoParaApresentacao("salao")).toBe("salao");
+    expect(segmentoParaApresentacao("barbearia")).toBe("barbearia");
+    expect(segmentoParaApresentacao("outro")).toBe("outro");
   });
 
   it("possui termos completos em todos os segmentos", () => {
