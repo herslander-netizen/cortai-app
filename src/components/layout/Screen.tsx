@@ -49,6 +49,7 @@ export function Screen({
     const cabecalhoInicial = cabecalhoInicialRef.current;
     const observer = new IntersectionObserver(
       ([entry]) => {
+        if (!entry) return;
         setCabecalhoCompactoVisivel(!entry.isIntersecting && window.scrollY > 48);
       },
       { threshold: 0 },
