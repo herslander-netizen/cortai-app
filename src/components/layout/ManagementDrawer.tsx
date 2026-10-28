@@ -189,13 +189,15 @@ export function ManagementHeader() {
     });
   }
 
-  // O Figaro mantém a barra global na Agenda. Nas demais páginas, a moldura de tela própria
-  // fornece o retorno e a hierarquia do título, sem repetir logo, CortAI e notificações.
+  // Figaro: a barra global fica na Agenda; nas demais subpáginas, Screen usa a barra de página
+  // com retorno e ação contextual, sem repetir logo, CortAI e notificações.
   const telaDaAgenda =
     caminho === "/barbeiro" ||
     caminho === "/barbeiro/" ||
     caminho === "/barbeiro/agenda" ||
     caminho.startsWith("/barbeiro/agenda/");
+
+  if (celular && !telaDaAgenda) return null;
 
   return (
     <header
