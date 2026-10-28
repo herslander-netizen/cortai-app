@@ -516,14 +516,12 @@ export function AssistenteCortai({
                       ) : null}
                     </div>
                     {m.acao?.destino ? (
-                      <Link
-                        to={m.acao.destino as "/barbeiro"}
-                        onClick={onFechar}
-                        className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-gold px-4 py-2 text-xs font-semibold text-ink transition-opacity hover:opacity-90"
-                      >
-                        {m.acao.rotuloDoDestino ?? "Abrir"}
-                        <ArrowRight size={13} aria-hidden />
-                      </Link>
+                      <Button asChild variant="primary" className="mt-2 inline-flex gap-1.5">
+                        <Link to={m.acao.destino as "/barbeiro"} onClick={onFechar}>
+                          {m.acao.rotuloDoDestino ?? "Abrir"}
+                          <ArrowRight size={13} aria-hidden />
+                        </Link>
+                      </Button>
                     ) : null}
                   </div>
                 </>
@@ -541,7 +539,7 @@ export function AssistenteCortai({
               <IconeDaIA segmento={segmento} size={15} />
             </span>
             <div className="min-w-0 flex-1">
-              <div className="rounded-2xl rounded-bl-md border border-line bg-ink px-4 py-3">
+              <div className="rounded-2xl rounded-bl-md border-0 bg-[var(--figaro-surface-container-low,var(--ink))] px-4 py-3">
                 <p className="text-sm leading-relaxed text-paper">
                   Escolha o serviço, o dia e um horário livre. Eu marco e aviso o cliente no
                   WhatsApp.
@@ -563,7 +561,7 @@ export function AssistenteCortai({
             >
               <IconeDaIA segmento={segmento} size={15} />
             </span>
-            <span className="rounded-2xl rounded-bl-md border border-line bg-ink px-3.5 py-2.5">
+            <span className="rounded-2xl rounded-bl-md border-0 bg-[var(--figaro-surface-container-low,var(--ink))] px-3.5 py-2.5">
               <Digitando />
             </span>
           </div>
@@ -659,7 +657,7 @@ export function AssistenteCortai({
           <div
             role="group"
             aria-label="Escolha o cliente"
-            className="mb-2.5 rounded-2xl border border-gold/40 bg-ink px-3.5 py-3"
+            className="mb-2.5 rounded-[28px] bg-[var(--figaro-surface-container-high,var(--ink2))] px-3.5 py-3"
           >
             <div className="mb-2 flex items-center gap-2">
               <span className="text-xs font-semibold text-paper">Qual cliente?</span>
@@ -731,7 +729,9 @@ export function AssistenteCortai({
                 <Button
                   type="button"
                   onClick={voz.limparErro}
-                  className="ml-auto rounded-full border border-line2 px-2.5 py-1 text-mute"
+                  variant="ghost"
+                  size="sm"
+                  className="ml-auto rounded-full text-mute"
                 >
                   Ok
                 </Button>
@@ -798,7 +798,7 @@ export function AssistenteCortai({
               className={`h-12 w-12 shrink-0 rounded-full transition-colors disabled:opacity-40 ${
                 voz.estado === "gravando"
                   ? "border-brick bg-brick/15 text-brick"
-                  : "border-line2 bg-ink text-mute hover:border-gold/40 hover:text-paper"
+                  : "border-line2 bg-[var(--figaro-surface-container-low,var(--ink))] text-mute hover:border-gold/40 hover:text-paper"
               }`}
             >
               {voz.estado === "processando" ? (
