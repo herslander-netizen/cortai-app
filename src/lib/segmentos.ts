@@ -315,8 +315,9 @@ export const SEGMENTOS_CONFIG: Record<Segmento, DefinicaoDeSegmento> = {
 
 export const LISTA_DE_SEGMENTOS = SEGMENTOS.map((id) => SEGMENTOS_CONFIG[id]);
 
+/** Normaliza segmentos para uso geral; ausência ou valor inválido nunca presume um segmento específico. */
 export function segmentoValido(valor: unknown): Segmento {
-  return SEGMENTOS.includes(valor as Segmento) ? (valor as Segmento) : "barbearia";
+  return SEGMENTOS.includes(valor as Segmento) ? (valor as Segmento) : "outro";
 }
 
 /** Fallback visual neutro; dados legados continuam usando `segmentoValido`. */
