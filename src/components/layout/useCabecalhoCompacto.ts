@@ -6,9 +6,9 @@ type ConfiguracaoCabecalhoCompacto = {
 };
 
 /**
- * Exibe o título no cabeçalho compacto quando o H1 original sai da área visível.
- * Acompanha o ancestral rolável real quando a tela usa rolagem interna; caso
- * contrário, acompanha a janela. Não decide pelo sentido do gesto.
+ * Mostra o título compacto somente depois que o título original passa acima
+ * do topo da área rolável. Considera o ancestral rolável real ou a janela,
+ * sem depender da direção do gesto nem de uma saída por baixo da viewport.
  */
 export function useCabecalhoCompacto({ enabled, chave }: ConfiguracaoCabecalhoCompacto) {
   const ref = useRef<HTMLElement | null>(null);
@@ -33,41 +33,38 @@ export function useCabecalhoCompacto({ enabled, chave }: ConfiguracaoCabecalhoCo
     }
 
     const posicaoRolagem = () => (raizRolagem ? raizRolagem.scrollTop : window.scrollY);
-    const atualizarPorGeometria = () => {
+
+    const tituloPassouDoTopo = () => {
       const tituloRect = titulo.getBoundingClientRect();
       const raizRect = raizRolagem?.getBoundingClientRect();
-      const topoVisivel = raizRolagem && raizRect ? raizRect.top + raizRolagem.clientTop : 0;
-      const fimVisivel = raizRolagem ? topoVisivel + raizRolagem.clientHeight : window.innerHeight;
-      const tituloDentroDaArea = tituloRect.bottom > topoVisivel && tituloRect.top < fimVisivel;
-      setVisivel(!tituloDentroDaArea && posicaoRolagem() > 48);
+      const topoVisivel =
+        raizRolagem && raizRect ? raizRect.top + raizRolagem.clientTop : 0;
+
+      // Não exibe o cabeçalho compacto se o título estiver abaixo da área visível.
+      return tituloRect.bottom <= topoVisivel + 1 && posicaoRolagem() > 48;
     };
+
+    const atualizar = () => setVisivel(tituloPassouDoTopo());
 
     const observer =
       typeof IntersectionObserver === "undefined"
         ? null
-        : new IntersectionObserver(
-            (entradas) => {
-              const entrada = entradas[0];
-              if (!entrada) return;
-              setVisivel(!entrada.isIntersecting && posicaoRolagem() > 48);
-            },
-            { root: raizRolagem, threshold: 0 },
-          );
+        : new IntersectionObserver(() => {
+            atualizar();
+          }, { root: raizRolagem, threshold: 0 });
 
     if (observer) observer.observe(titulo);
 
     const aoRolar = () => {
-      if (posicaoRolagem() <= 48) {
-        setVisivel(false);
-      } else if (!observer) {
-        atualizarPorGeometria();
-      }
+      // A geometria é a autoridade: cobre scroll interno, janela e callbacks
+      // assíncronos do IntersectionObserver sem depender do sentido do gesto.
+      atualizar();
     };
 
     if (raizRolagem) raizRolagem.addEventListener("scroll", aoRolar, { passive: true });
     else window.addEventListener("scroll", aoRolar, { passive: true });
 
-    if (!observer) atualizarPorGeometria();
+    atualizar();
 
     return () => {
       observer?.disconnect();
