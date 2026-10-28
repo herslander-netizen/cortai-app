@@ -2,11 +2,15 @@
 
 import type { ReactNode } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
+
+const routerState = vi.hoisted(() => ({ pathname: "/barbeiro/servicos" }));
 
 import { EmptyState, Screen } from "./Screen";
 
 vi.mock("@tanstack/react-router", () => ({
+  useRouterState: ({ select }: { select: (state: { location: { pathname: string } }) => unknown }) =>
+    select({ location: { pathname: routerState.pathname } }),
   Link: (props: {
     to?: unknown;
     "aria-label"?: string;
@@ -28,6 +32,23 @@ vi.mock("./Signature", () => ({
 }));
 
 describe("moldura de tela no padrão Figaro", () => {
+  afterEach(() => {
+    routerState.pathname = "/barbeiro/servicos";
+  });
+
+  it("usa altura completa e fixa o cabeçalho no topo quando a barra global é omitida", () => {
+    routerState.pathname = "/barbeiro/marca";
+    const html = renderToStaticMarkup(
+      <Screen title="Personalizar Página" subtitle="Escolha o layout e tema." voltarPara="/barbeiro">
+        <p>Conteúdo</p>
+      </Screen>,
+    );
+
+    expect(html).toContain("min-h-dvh");
+    expect(html).toContain("top-0");
+    expect(html).not.toContain("top-14");
+  });
+
   it("usa ação de retorno e hierarquia do título abaixo, sem botão de interrogação", () => {
     const html = renderToStaticMarkup(
       <Screen title="Serviços" subtitle="Seus serviços, duração e preços." voltarPara="/barbeiro/mais">
