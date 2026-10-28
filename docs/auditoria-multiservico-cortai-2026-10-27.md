@@ -37,8 +37,9 @@ Um resultado só é considerado concluído depois de TypeScript, testes, build, 
 
 **Correção aplicada**
 - `termos()` e `definicaoDoSegmento()` agora usam `segmentoParaApresentacao()`.
-- `segmentoValido()` continua preservado como contrato legado para não alterar silenciosamente a interpretação de dados históricos.
-- Teste cobre a diferença: compatibilidade de dados legados permanece; a apresentação sem segmento é neutra.
+- `segmentoValido()` agora usa `outro` para valores ausentes/inválidos; segmentos explicitamente definidos continuam intactos.
+- A alteração afeta o fallback em runtime: não reescreve registros, IDs, rotas, tabelas, funções nem chaves legadas. Os consumidores sensíveis devem continuar recebendo o segmento real do negócio.
+- Testes cobrem ausência, valor inválido, termos, definição do segmento e preservação de segmentos explícitos.
 
 **Arquivos:** `src/lib/segmentos.ts`, `src/lib/segmentos.test.ts`.
 
@@ -123,7 +124,7 @@ Um resultado só é considerado concluído depois de TypeScript, testes, build, 
 
 ### Segmentação e dados
 - Fonte de segmento: `src/lib/segmentos.ts`; os IDs persistidos atuais devem ser preservados.
-- `segmentoValido()` ainda mantém fallback legado para barbearia. Isso é deliberado nesta etapa para não alterar silenciosamente dados antigos; novas superfícies devem usar `segmentoParaApresentacao()` ou exigir um segmento válido.
+- `segmentoValido()` normaliza ausência/valor inválido para `outro`; o valor explícito armazenado no negócio continua sendo respeitado. Não há migração nem alteração dos dados existentes.
 - O segmento genérico atualmente permite serviços personalizados, mas não é um catálogo de verticais completo. Não adicionar clínicas, aulas, assistência técnica ou outras categorias como segmentos oficiais sem verificar as regras e a cobertura funcional de cada uma.
 - Não foi criada nem aplicada migração; nenhum banco foi consultado ou alterado.
 
@@ -145,7 +146,7 @@ Um resultado só é considerado concluído depois de TypeScript, testes, build, 
 
 **Arquivos:** `src/lib/rascunho.functions.ts`, `src/lib/sessao.functions.ts`, `src/lib/onboarding.functions.ts`, `src/lib/whatsapp/motor/vocabulario.ts`, `src/lib/whatsapp/motor/escolha-servico.test.ts`, `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`.
 
-**Limite:** `segmentoValido()` continua com o fallback legado para consumidores de dados históricos. Novos textos, interfaces e conteúdo de demonstração devem preferir `segmentoParaApresentacao()` quando o segmento puder estar ausente.
+**Limite:** consumidores que dependem do segmento precisam receber o valor real do negócio; quando ele estiver ausente/inválido, o fallback agora é `outro`. A auditoria deve validar os fluxos operacionais em CI antes de declarar a tranche concluída.
 
 ### IA e conversação
 - Núcleo canônico: `src/lib/brain/`; o modelo interpreta pedidos, mas regras, permissões, validação e execução permanecem no sistema.
@@ -199,7 +200,7 @@ A auditoria não termina quando a busca por “barbearia” retorna zero. Termin
 - A resposta de `getPaginaPublica` também normaliza segmento ausente/desconhecido para `outro`, sem mudar o contrato `PaginaPublica` nem os slugs/rotas. O segmento explícito de barbearia continua retornando `barbearia`.
 
 **Limites de compatibilidade**
-- `segmentoValido()` e consumidores históricos continuam preservados nesta tranche: a alteração global desse helper pode mudar fluxos operacionais e dados legados em vários módulos.
+- O fallback global foi alterado intencionalmente para `outro`; isso não renomeia nem reescreve rotas, tipos, funções, tabelas ou colunas. Como o comportamento em runtime muda para segmento ausente/inválido, é necessário confirmar TypeScript, testes, build e prévia antes de encerrar a auditoria.
 - Não houve renomeação em massa de `/barbeiro/*`, `/barbearias`, tipos, funções, tabelas ou colunas; não houve migração nem escrita em banco.
 - A apresentação, onboarding, Agenda protegida e arquivos já reservados por outras tarefas não foram alterados. A auditoria global de termos e assets continua aberta para revisão por área após liberação das reservas.
 
