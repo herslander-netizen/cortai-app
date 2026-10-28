@@ -245,8 +245,14 @@ export function AgendaTimeline({
       (item) => item.diaSemana === diaDaSemana(dia) && !item.fechado,
     );
     const base = itensEscala ?? itens;
-    const inicios = base.map((item) => minutosNoFuso(item.inicio, fuso));
-    const finais = base.map((item) => minutosNoFuso(item.fim, fuso));
+    const inicios = [
+      ...base.map((item) => minutosNoFuso(item.inicio, fuso)),
+      ...bloqueios.map((bloqueio) => minutosNoFuso(bloqueio.inicio, fuso)),
+    ];
+    const finais = [
+      ...base.map((item) => minutosNoFuso(item.fim, fuso)),
+      ...bloqueios.map((bloqueio) => minutosNoFuso(bloqueio.fim, fuso)),
+    ];
     const minutoAtual = minutosNoFuso(agora, fuso);
     const referenciasInicio = [
       funcionamento ? minutosDoHorario(funcionamento.abre) : 8 * 60,
@@ -264,7 +270,7 @@ export function AgendaTimeline({
     const inicio = Math.max(0, Math.floor(Math.min(...referenciasInicio) / 30) * 30);
     const fim = Math.min(24 * 60, Math.ceil(Math.max(...referenciasFim) / 30) * 30);
     return { inicio, fim: Math.max(inicio + 60, fim), minutoAtual };
-  }, [agora, dia, ehHoje, fuso, horarios, itens, itensEscala, diaCompleto]);
+  }, [agora, dia, ehHoje, fuso, horarios, itens, itensEscala, bloqueios, diaCompleto]);
 
   const marcas = useMemo(() => {
     const resultado: number[] = [];
