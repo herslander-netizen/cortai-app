@@ -13,6 +13,9 @@ import { SeloDaCortai } from "./SeloDaCortai";
 import { CHAVE_DO_ESTADO_DA_CORTAI, useEstadoDaCortai } from "./useEstadoDaCortai";
 import { useProgressoCortai } from "./useProgressoCortai";
 
+import { Aviso } from "@/components/ui/aviso";
+import { Button } from "@/components/ui/button";
+import { Chip } from "@/components/ui/chip";
 import { IndicadorDeCarregamento } from "@/components/ui/IndicadorDeCarregamento";
 import type { Conferencia } from "@/lib/brain/conferencia";
 import { brl } from "@/lib/format";
@@ -26,9 +29,7 @@ import {
 import { transcreverComandoDeVozDoPainel } from "@/lib/voz.functions";
 import { SEGMENTOS_CONFIG, segmentoParaApresentacao, type Segmento } from "@/lib/segmentos";
 import { SELO_DA_CORTAI } from "@/lib/brain/estado-cortai";
-import { Chip } from "@/components/ui/chip";
-import { Button } from "@/components/ui/button";
-import { Aviso } from "@/components/ui/aviso";
+
 
 function atalhosDo(segmento: Segmento | undefined) {
   const s = segmentoParaApresentacao(segmento);
@@ -457,6 +458,7 @@ export function AssistenteCortai({
               type="button"
               onClick={() => setAgendando(true)}
               variant="primary"
+              size="bloco"
               className="mt-3 flex h-auto w-full items-center justify-between gap-3 whitespace-normal rounded-[12px] px-4 py-3 text-left text-xs"
             >
               <span>Marcar um horário agora</span>
@@ -468,6 +470,7 @@ export function AssistenteCortai({
                   key={a}
                   type="button"
                   variant="ghost"
+                  size="bloco"
                   className="flex h-auto w-full items-center justify-between gap-3 whitespace-normal rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))] px-4 py-3 text-left text-xs text-paper"
                   onClick={() => void enviar(a)}
                 >
@@ -666,7 +669,7 @@ export function AssistenteCortai({
                 aria-label="Fechar as opções"
                 variant="ghost"
                   size="icon"
-                  className="ml-auto rounded-full border border-line2 text-mute"
+                  className="ml-auto rounded-full text-mute"
               >
                 <X size={14} aria-hidden />
               </Button>
@@ -686,6 +689,7 @@ export function AssistenteCortai({
                       if (enviou) setOpcoesDispensadas((a) => new Set(a).add(ultimaId));
                     }}
                     variant="ghost"
+                    size="bloco"
                     className="flex h-auto min-h-12 w-full items-center justify-between gap-3 whitespace-normal rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))] px-3.5 py-3 text-left text-sm text-paper disabled:opacity-50"
                   >
                     <span className="min-w-0 truncate">{o.rotulo}</span>
