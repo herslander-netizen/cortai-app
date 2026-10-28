@@ -498,7 +498,7 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Em andamento
 
-- GPT | 2026-10-28 UTC | Completar a personalização de compartilhamento público: metadados sociais com nome/descrição, mensagem de compartilhamento com chamada para agendar e fallback capa → logo → capa padrão, sem alterar regras de agendamento nem banco | `DIARIO.md`, `src/lib/previa.ts`, `src/lib/previa.test.ts`, `src/components/marca/TelaPublicaBarbearia.tsx`, `src/routes/api/public/capa.$slug.ts`; sem migração
+- GPT | 2026-10-28 UTC | Personalizar compartilhamento público — implementação e teste escritos; pendente confirmar a validação do CI, pois esta conexão não retornou checks de workflow | `DIARIO.md`, `src/lib/previa.ts`, `src/lib/previa.test.ts`, `src/components/marca/TelaPublicaBarbearia.tsx`, `src/routes/api/public/capa.$slug.ts`; sem migração
 
 
 
@@ -809,6 +809,8 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+
+- GPT | 2026-10-28 UTC | Personalização de compartilhamento público: metatags Open Graph/Twitter agora usam título, descrição e alt com o nome do estabelecimento; mensagem do compartilhamento nativo e do WhatsApp convida a agendar com o nome do negócio; a capa dinâmica tenta capa configurada → logo/ícone → capa padrão, mesmo quando a capa não consegue gerar URL assinada. Adicionado `src/lib/previa.test.ts` para metadados, links canônicos, fallback textual e mensagem. CI não confirmado nesta sessão: o status do commit veio sem checks, a consulta de workflow runs não listou execução e o clone local não pôde acessar github.com por falha de DNS. Manter reservado até confirmar build/TypeScript/testes no Actions; não houve alteração de banco nem publicação principal. | `src/lib/previa.ts`, `src/lib/previa.test.ts`, `src/components/marca/TelaPublicaBarbearia.tsx`, `src/routes/api/public/capa.$slug.ts`; sem migração
 
 - GPT | 2026-10-28 | Cabeçalho compacto — adicionados testes comportamentais em `src/components/layout/Screen.test.tsx` para o hook `useCabecalhoCompacto`: não exibir enquanto o título continua visível, exibir após ultrapassar o topo da área rolável, ocultar quando o título ainda está abaixo da área visível ou ao voltar ao topo, não instalar observador quando desabilitado e desconectar o `IntersectionObserver` ao desmontar. Commits de teste: `776caccf9bd88a4c16113ef6d3fcab7b3ee620ab` e `1a46e6f71b4dde2176bf1ce00cfe38a79f429e78`. TypeScript, Vitest, build, deploy da prévia e conferência visual ainda não foram confirmados nesta sessão; não há terminal nem navegador conectado. Nenhuma alteração na Agenda, banco, `main` ou produção.
 
