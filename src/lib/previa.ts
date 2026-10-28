@@ -17,24 +17,37 @@ export function headDaBarbearia(
     `${acao} na ${nome}: escolha serviço, profissional e horário em poucos toques.`;
   const url = urlPublica(caminho);
   const imagem = previa?.imagem?.startsWith("https://") ? previa.imagem : null;
+  const altImagem = `Imagem de ${nome}`;
   return {
     meta: [
       { title: titulo },
       { name: "description", content: descricao },
+      { property: "og:site_name", content: "Cortaí" },
+      { property: "og:locale", content: "pt_BR" },
       { property: "og:title", content: titulo },
       { property: "og:description", content: descricao },
       { property: "og:type", content: "website" },
       { property: "og:url", content: url },
       { name: "twitter:card", content: imagem ? "summary_large_image" : "summary" },
+      { name: "twitter:title", content: titulo },
+      { name: "twitter:description", content: descricao },
       ...(imagem
         ? [
             { property: "og:image", content: imagem },
+            { property: "og:image:alt", content: altImagem },
             { name: "twitter:image", content: imagem },
+            { name: "twitter:image:alt", content: altImagem },
           ]
         : []),
     ],
     links: [{ rel: "canonical", href: url }],
   };
+}
+
+/** Mensagem curta e neutra para divulgar o link público do negócio. */
+export function textoDeCompartilhamento(nome: string) {
+  const estabelecimento = nome.trim() || "este estabelecimento";
+  return `Agende seu horário com ${estabelecimento} pelo Cortaí. Confira os serviços e horários disponíveis.`;
 }
 
 /** Telefone com máscara (00) 00000-0000 ou (00) 0000-0000. */
