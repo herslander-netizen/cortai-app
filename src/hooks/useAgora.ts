@@ -34,15 +34,9 @@ function assinar(ouvinte: () => void) {
   };
 }
 
-const naoAssinar = () => () => {};
-
-/**
- * As prévias de outros dias não precisam acompanhar o relógio em tempo real.
- * Evita re-renderizações das timelines vizinhas enquanto a pessoa navega.
- */
-export function useAgora(ativo = true) {
+export function useAgora() {
   return useSyncExternalStore(
-    ativo ? assinar : naoAssinar,
+    assinar,
     () => agora,
     () => agora,
   );
