@@ -36,8 +36,8 @@ describe("moldura de tela no padrão Figaro", () => {
     routerState.pathname = "/barbeiro/servicos";
   });
 
-  it("usa altura completa e fixa o cabeçalho no topo quando a barra global é omitida", () => {
-    routerState.pathname = "/barbeiro/marca";
+  it("usa altura completa e fixa o cabeçalho no topo em subpáginas internas", () => {
+    routerState.pathname = "/barbeiro/produtos";
     const html = renderToStaticMarkup(
       <Screen title="Personalizar Página" subtitle="Escolha o layout e tema." voltarPara="/barbeiro">
         <p>Conteúdo</p>
@@ -68,7 +68,8 @@ describe("moldura de tela no padrão Figaro", () => {
     expect(html).not.toContain("Assinatura institucional");
   });
 
-  it("não cria uma linha de ação vazia quando a tela não tem destino de retorno", () => {
+  it("não cria uma linha de ação vazia fora da área interna do negócio", () => {
+    routerState.pathname = "/app/perfil";
     const html = renderToStaticMarkup(
       <Screen title="Ajuda" assinaturaSoComputador>
         <p>Conteúdo</p>
@@ -79,6 +80,26 @@ describe("moldura de tela no padrão Figaro", () => {
     expect(html).toContain("Assinatura institucional");
     expect(html).not.toContain('aria-label="Voltar"');
     expect(html).not.toContain("Ver dicas");
+  });
+
+  it("adiciona retorno para a Agenda em subpáginas que não declaram outro destino", () => {
+    routerState.pathname = "/barbeiro/mais";
+    const html = renderToStaticMarkup(
+      <Screen title="Ajustes e ajuda"><p>Configurações</p></Screen>,
+    );
+
+    expect(html).toContain('href="/barbeiro"');
+    expect(html).toContain('aria-label="Voltar"');
+  });
+
+  it("preserva a moldura com o deslocamento global na Agenda protegida", () => {
+    routerState.pathname = "/barbeiro";
+    const html = renderToStaticMarkup(
+      <Screen title="Agenda"><p>Atendimentos</p></Screen>,
+    );
+
+    expect(html).toContain("min-h-[calc(100dvh-3.5rem)]");
+    expect(html).toContain("top-14");
   });
 
   it("mostra o estado vazio como superfície Figaro, sem divisor legado", () => {
