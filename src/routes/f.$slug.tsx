@@ -6,6 +6,8 @@ import { useEffect, useState } from "react";
 import { Clock3, Users } from "lucide-react";
 
 import { brl } from "@/lib/format";
+import { Button } from "@/components/ui/button";
+import { Aviso } from "@/components/ui/aviso";
 import { Signature } from "@/components/layout/Signature";
 import { TelaDeCarregamento } from "@/components/layout/Carregando";
 import { LogoBarbearia } from "@/components/marca/LogoBarbearia";
@@ -85,16 +87,17 @@ function FilaPublicaPage() {
               <p className="text-sm text-mute">
                 {status!.status === "atendido" ? "Atendimento concluído." : "Você saiu da fila."}
               </p>
-              <button
+              <Button
                 type="button"
-                className="btn-secondary mt-5 w-full py-2.5 text-sm"
+                variant="outline"
+                className="mt-5 w-full"
                 onClick={() => {
                   localStorage.removeItem(CHAVE + slug);
                   setToken(null);
                 }}
               >
                 Entrar na fila de novo
-              </button>
+              </Button>
             </>
           ) : (
             <>
@@ -125,12 +128,9 @@ function FilaPublicaPage() {
       ) : !data.filaAtiva ? (
         <section className="mt-8 surface px-5 py-6 text-center">
           <p className="text-sm text-paper">Este negócio atende com horário marcado.</p>
-          <a
-            href={`/b/${data.slug}`}
-            className="btn-primary mt-5 flex min-h-12 w-full items-center justify-center py-3 text-sm"
-          >
-            Agendar horário
-          </a>
+          <Button asChild variant="primary" className="mt-5 w-full">
+            <a href={`/b/${data.slug}`}>Agendar horário</a>
+          </Button>
         </section>
       ) : (
         <form
@@ -157,35 +157,40 @@ function FilaPublicaPage() {
               <p className="text-xs font-medium text-mute">Escolha o serviço</p>
               <div className="mt-2 space-y-2">
                 {data.servicos.map((s) => (
-                  <button
+                  <Button
                     key={s.id}
                     type="button"
+                    variant="ghost"
+                    size="bloco"
+                    aria-pressed={servicoId === s.id}
                     onClick={() => setServicoId(servicoId === s.id ? null : s.id)}
-                    className={`flex w-full items-center justify-between gap-3 rounded-xl border px-4 py-3 text-left ${
-                      servicoId === s.id ? "border-gold bg-ink2" : "border-line2"
+                    className={`flex-row items-center justify-between gap-3 rounded-[12px] px-4 py-3 text-left ${
+                      servicoId === s.id
+                        ? "bg-[var(--figaro-primary-container,var(--ink2))] text-[var(--figaro-on-primary-container,var(--paper))]"
+                        : "bg-[var(--figaro-surface-container,var(--ink2))] text-paper"
                     }`}
                   >
                     <span className="min-w-0 truncate text-sm text-paper">{s.nome}</span>
                     <span className="shrink-0 text-xs text-mute">
                       {s.duracaoMin} min · {brl(s.precoCentavos)}
                     </span>
-                  </button>
+                  </Button>
                 ))}
               </div>
             </>
           ) : null}
 
-          <label className="mt-5 block text-xs font-medium text-mute">
+          <label className="field-label mt-5">
             Seu nome
             <input
               value={nome}
               onChange={(e) => setNome(e.target.value)}
               required
               minLength={2}
-              className="mt-2 h-12 w-full rounded-lg border border-line2 bg-ink2 px-4 text-sm text-paper outline-none"
+              className="field-control mt-2 h-12 rounded-[12px]"
             />
           </label>
-          <label className="mt-4 block text-xs font-medium text-mute">
+          <label className="field-label mt-4">
             WhatsApp
             <input
               value={telefone}
@@ -199,16 +204,14 @@ function FilaPublicaPage() {
             />
           </label>
 
-          <button className="btn-primary mt-6 w-full py-3.5" disabled={enviando}>
+          <Button type="submit" variant="primary" className="mt-6 w-full" disabled={enviando}>
             {enviando ? "Entrando…" : "Entrar na fila"}
-          </button>
+          </Button>
           <p className="mt-3 text-center text-xs text-mute2">
             Sem cadastro e sem senha. Usamos seu WhatsApp só para te chamar.
           </p>
           {erro ? (
-            <p className="mt-4 text-sm text-brick" role="alert">
-              {erro}
-            </p>
+            <Aviso tom="acao" className="mt-4">{erro}</Aviso>
           ) : null}
         </form>
       )}
