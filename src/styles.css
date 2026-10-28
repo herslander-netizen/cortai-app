@@ -5099,16 +5099,11 @@ button.agenda-nome:hover {
   left: 0;
   z-index: 1;
   pointer-events: none;
-  /* Superfície opaca: a grade nunca transparece por trás das listras. */
+  /* A base translúcida faz parte do visual próprio dos horários fora do expediente. */
   background: repeating-linear-gradient(
     135deg,
-    var(--agenda-cartao-evento, var(--agenda-cartao)) 0 6px,
-    color-mix(
-        in oklab,
-        var(--figaro-tertiary, #d9c3a8) 30%,
-        var(--agenda-cartao-evento, var(--agenda-cartao))
-      )
-      6px 7px
+    transparent 0 6px,
+    color-mix(in oklab, var(--mute) 14%, transparent) 6px 7px
   );
 }
 .agenda-timeline-intervalo span {
@@ -10785,10 +10780,10 @@ button.agenda-timeline-pausa:focus-visible {
 }
 
 
-/* Agenda: bloqueios e intervalos neutros, como a área fora do expediente.
-   O cartão usa a superfície da agenda; as listras usam apenas contorno cinza-bege,
-   sem o vermelho/rosa do token tertiary. */
-.agenda-operacional .agenda-timeline-intervalo {
+/* Agenda: listras neutras exclusivas dos bloqueios manuais e da pausa.
+   Os horários fora do expediente preservam integralmente o estilo anterior. */
+.agenda-operacional .agenda-timeline-bloqueio,
+.agenda-operacional .agenda-timeline-pausa {
   background: repeating-linear-gradient(
     135deg,
     var(--agenda-cartao-evento, var(--agenda-cartao, var(--figaro-surface-container-lowest))) 0 6px,
