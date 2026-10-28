@@ -10707,13 +10707,17 @@ input[type="range"] {
 }
 
 
-/* Todas as linhas de horário formam uma única camada de base.
-   Cartões, bloqueios, intervalos e estados ficam sempre acima da grade. */
+/* Mantém a hierarquia da grade: subdivisões atrás das marcas, horas por cima.
+   Cartões, bloqueios e intervalos preservam suas próprias camadas acima da grade. */
 .agenda-timeline-ajuste-5,
-.agenda-operacional .agenda-timeline-ajuste-5,
-.agenda-timeline-marca,
-.agenda-timeline-marca.agenda-timeline-hora {
+.agenda-operacional .agenda-timeline-ajuste-5 {
   z-index: 0;
+}
+.agenda-timeline-marca {
+  z-index: 1;
+}
+.agenda-timeline-marca.agenda-timeline-hora {
+  z-index: 2;
 }
 
 
