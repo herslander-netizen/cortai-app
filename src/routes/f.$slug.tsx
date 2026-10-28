@@ -115,9 +115,9 @@ function FilaPublicaPage() {
                 <p className="mt-3 text-xs text-mute2">{status!.servico}</p>
               ) : null}
               {status!.avisado ? (
-                <p className="mt-4 rounded-lg border border-gold/40 px-4 py-3 text-sm text-gold">
+                <Aviso tom="atencao" className="mt-4">
                   É quase a sua vez — fique por perto.
-                </p>
+                </Aviso>
               ) : null}
               <p className="mt-4 text-xs text-mute2">
                 A posição atualiza sozinha. Você pode deixar esta tela aberta.
