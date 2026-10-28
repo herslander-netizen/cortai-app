@@ -944,7 +944,7 @@ function AgendaTimelineBase({
             </div>
           ))}
 
-          {opacidadeDasLinhasDe5(PX_POR_MINUTO, Boolean(redim || arrasto || edicaoDoCartao?.id)) >
+          {opacidadeDasLinhasDe5(PX_POR_MINUTO) >
           0 ? (
             <>
               {Array.from(
@@ -958,10 +958,7 @@ function AgendaTimelineBase({
                     className="agenda-timeline-ajuste-5"
                     style={{
                       top: `${(minuto - escala.inicio) * PX_POR_MINUTO + deslocamentoAte(minuto)}px`,
-                      opacity: opacidadeDasLinhasDe5(
-                        PX_POR_MINUTO,
-                        Boolean(redim || arrasto || edicaoDoCartao?.id),
-                      ),
+                      opacity: opacidadeDasLinhasDe5(PX_POR_MINUTO),
                     }}
                     aria-hidden="true"
                   />
