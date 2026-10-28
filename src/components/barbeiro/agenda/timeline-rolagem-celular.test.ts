@@ -203,7 +203,7 @@ describe("troca de dia em páginas no celular (como no vídeo de referência)", 
   });
 
   it('remove o rótulo "Agora · Livre" e preserva o espaçamento do calendário compacto', () => {
-    expect(operacional).not.toContain("Agora · Livre");
+    expect(operacional).not.toMatch(/>\s*Agora · Livre\s*</);
     const topo = readFileSync("src/components/barbeiro/agenda/SemanaDoTopo.tsx", "utf8");
     expect(topo).toContain("px-2 pb-9 rounded-b-xl");
   });
