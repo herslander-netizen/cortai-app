@@ -34,7 +34,7 @@ export const TRAVA_EIXO = 10;
 export const FRACAO_PARA_COMPLETAR = 0.5;
 // `HorizontalPager` do Figaro: o fling troca de página a partir de 400 dp/s (padrão do Compose).
 export const PETELECO_VELOCIDADE = 0.4; // px/ms
-export const PETELECO_DISTANCIA = 10; // px
+export const PETELECO_DISTANCIA = 24; // px: evita trocar o dia com pequenos desvios horizontais acidentais
 export const PETELECO_JANELA_MS = 250;
 
 export type Eixo = "x" | "y" | null;
