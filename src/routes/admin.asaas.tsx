@@ -120,7 +120,7 @@ function ContaAsaasPage() {
               });
             }}
           >
-            <label className="block text-sm font-medium text-paper" htmlFor="chave-asaas">
+            <label className="field-label" htmlFor="chave-asaas">
               Chave de API do Asaas
             </label>
             <input
@@ -131,7 +131,7 @@ function ContaAsaasPage() {
               autoComplete="off"
               spellCheck={false}
               placeholder="$aact_prod_… ou $aact_hmlg_…"
-              className="min-h-12 w-full rounded-[12px] border-0 bg-[var(--figaro-surface-container-high,var(--ink3))] px-4 text-base text-paper outline-none focus:ring-2 focus:ring-[var(--figaro-primary,var(--primary))]"
+              className="field-control min-h-12 rounded-[12px] text-base"
             />
             <Button type="submit" size="lg" disabled={acao.ocupado} className="w-full sm:w-auto">
               {acao.estaEm("salvar")
