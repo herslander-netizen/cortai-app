@@ -5117,14 +5117,15 @@ button.agenda-nome:hover {
 .agenda-timeline-bloqueio {
   z-index: 2;
   overflow: hidden;
-  border-left: 3px solid color-mix(in oklab, var(--mute) 55%, transparent);
+  border-left: 3px solid var(--figaro-tertiary, var(--rosa));
+  color: var(--figaro-on-tertiary-container, var(--paper));
   background:
     repeating-linear-gradient(
       135deg,
       transparent 0 6px,
-      color-mix(in oklab, var(--mute) 26%, transparent) 6px 7px
+      color-mix(in oklab, var(--figaro-tertiary) 25%, transparent) 6px 7px
     ),
-    color-mix(in oklab, var(--mute) 8%, transparent);
+    color-mix(in oklab, var(--figaro-tertiary-container) 84%, var(--figaro-surface));
   animation: agenda-bloqueio-entra var(--mov-base) var(--ease-saida) both;
 }
 .agenda-timeline-bloqueio span {
@@ -5135,7 +5136,21 @@ button.agenda-nome:hover {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  color: var(--paper);
+  color: var(--figaro-on-tertiary-container, var(--paper));
+}
+button.agenda-timeline-bloqueio-interativo {
+  display: block;
+  width: 100%;
+  padding: 0;
+  pointer-events: auto;
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+}
+.agenda-timeline-bloqueio-interativo:focus-visible {
+  z-index: 4;
+  outline: 2px solid var(--figaro-primary, var(--rosa));
+  outline-offset: -2px;
 }
 .agenda-timeline-bloqueio svg {
   width: 12px;
@@ -10742,16 +10757,16 @@ input[type="range"] {
   overflow: hidden;
   padding: 0;
   border: 0;
-  border-left: 3px solid color-mix(in oklab, var(--mute) 55%, transparent);
+  border-left: 3px solid var(--figaro-tertiary, var(--rosa));
   border-radius: 0;
-  color: var(--paper);
+  color: var(--figaro-on-tertiary-container, var(--paper));
   background:
     repeating-linear-gradient(
       135deg,
       transparent 0 6px,
-      color-mix(in oklab, var(--mute) 26%, transparent) 6px 7px
+      color-mix(in oklab, var(--figaro-tertiary) 25%, transparent) 6px 7px
     ),
-    color-mix(in oklab, var(--mute) 8%, transparent);
+    color-mix(in oklab, var(--figaro-tertiary-container) 84%, var(--figaro-surface));
   text-align: left;
   cursor: pointer;
   font: inherit;
@@ -10763,7 +10778,7 @@ input[type="range"] {
   align-items: center;
   gap: 4px;
   max-width: calc(100% - 16px);
-  color: var(--paper);
+  color: var(--figaro-on-tertiary-container, var(--paper));
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

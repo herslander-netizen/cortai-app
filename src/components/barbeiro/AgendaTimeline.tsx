@@ -114,7 +114,14 @@ type AgendaTimelineProps = {
   /** Intervalo alterado apenas para a data selecionada. */
   intervaloPersonalizado?: { inicio: string; fim: string } | null;
   /** Abre os ajustes rápidos do intervalo da data selecionada. */
-  onAbrirIntervalo?: () => void;
+  onAbrirIntervalo?: (() => void) | undefined;
+  /** Tocar no bloqueio abre os detalhes e permite liberar o horário com confirmação. */
+  onAbrirBloqueio?: (bloqueio: {
+    id: string;
+    inicio: string;
+    fim: string;
+    motivo: string | null;
+  }) => void;
 };
 
 const MARGEM_AGORA_MIN = 90;
@@ -182,6 +189,7 @@ function AgendaTimelineBase({
   bloqueiosDoDia = [],
   intervaloPersonalizado,
   onAbrirIntervalo,
+  onAbrirBloqueio,
 }: AgendaTimelineProps) {
   const relogio = useAgora();
   const agora = agoraProp ?? relogio;
@@ -899,16 +907,36 @@ function AgendaTimelineBase({
             const de = Math.max(minutosNoFuso(b.inicio, fuso), escala.inicio);
             const ate = Math.min(minutosNoFuso(b.fim, fuso) || 24 * 60, escala.fim);
             if (ate <= de) return null;
-            return (
+            const estilo = {
+              top: `${(de - escala.inicio) * PX_POR_MINUTO + deslocamentoAte(de)}px`,
+              height: `${(ate - de) * PX_POR_MINUTO + deslocamentoAte(ate) - deslocamentoAte(de)}px`,
+            };
+            const rotulo = `Horário bloqueado, ${horaMinuto(de)} às ${horaMinuto(ate)}${b.motivo ? `, ${b.motivo}` : ""}`;
+            return onAbrirBloqueio && !previa ? (
+              <button
+                key={b.id}
+                type="button"
+                className="agenda-timeline-intervalo agenda-timeline-bloqueio agenda-timeline-bloqueio-interativo"
+                style={estilo}
+                aria-label={`${rotulo}. Toque para ver detalhes.`}
+                onPointerDown={(e) => e.stopPropagation()}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onAbrirBloqueio(b);
+                }}
+              >
+                <span>
+                  <Lock aria-hidden />
+                  {b.motivo || "Bloqueado"}
+                </span>
+              </button>
+            ) : (
               <div
                 key={b.id}
                 className="agenda-timeline-intervalo agenda-timeline-bloqueio"
-                style={{
-                  top: `${(de - escala.inicio) * PX_POR_MINUTO + deslocamentoAte(de)}px`,
-                  height: `${(ate - de) * PX_POR_MINUTO + deslocamentoAte(ate) - deslocamentoAte(de)}px`,
-                }}
+                style={estilo}
                 role="img"
-                aria-label={`Horário bloqueado, ${horaMinuto(de)} às ${horaMinuto(ate)}${b.motivo ? `, ${b.motivo}` : ""}`}
+                aria-label={rotulo}
               >
                 <span>
                   <Lock aria-hidden />
@@ -927,6 +955,7 @@ function AgendaTimelineBase({
                   height: `${(intervalo[1] - intervalo[0]) * PX_POR_MINUTO}px`,
                 }}
                 aria-label={`Ajustar intervalo, ${horaMinuto(intervalo[0])} às ${horaMinuto(intervalo[1])}`}
+                onPointerDown={(e) => e.stopPropagation()}
                 onClick={(e) => {
                   e.stopPropagation();
                   onAbrirIntervalo();

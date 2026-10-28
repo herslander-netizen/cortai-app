@@ -44,7 +44,7 @@ export function useSelecaoAgendamento({
   regras: { antecedenciaMin: number; intervaloEntreMin: number };
   quantidadeDias?: number;
   passoMin?: number;
-  intervalosPorData?: IntervalosPorData;
+  intervalosPorData?: IntervalosPorData | undefined;
 }) {
   const intervalosAtivos = intervalosPorData ?? SEM_INTERVALOS;
   const [servicoId, setServicoId] = useState<string | null>(null);

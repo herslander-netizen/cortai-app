@@ -40,7 +40,7 @@ export function sugestoesDeHorario(p: {
     regras: p.regras,
     agora: p.agora ?? Date.now(),
     passoMin: p.passoMin,
-    intervalosPorData: p.intervalosPorData,
+    ...(p.intervalosPorData ? { intervalosPorData: p.intervalosPorData } : {}),
   });
   return opcoes.slice(0, p.limite ?? 4).map(({ iso, label }) => ({ iso, label }));
 }

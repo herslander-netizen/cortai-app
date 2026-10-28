@@ -1415,6 +1415,7 @@ export const criarAgendamentoManual = createServerFn({ method: "POST" })
           intervaloEntreMin: regras.intervaloEntreMin,
         },
         passoMin: regras.passoMin,
+        intervalosPorData,
       });
     };
     const conflitoDoPainel = async (): Promise<ResultadoManual> => ({

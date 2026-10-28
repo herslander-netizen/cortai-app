@@ -9,7 +9,7 @@ import { CampoDeEscolha } from "@/components/ui/formulario/CampoDeEscolha";
 import { SecaoDeFormulario } from "@/components/ui/formulario/SecaoDeFormulario";
 import { brl } from "@/lib/format";
 import { estadosDoDia, STATUS_QUE_OCUPAM, type HorarioComEstado } from "@/lib/disponibilidade";
-import { hojeNoFuso, slotsDoDia } from "@/lib/horarios";
+import { hojeNoFuso, slotsDoDia, type IntervalosPorData } from "@/lib/horarios";
 import { cn } from "@/lib/utils";
 
 import type { EstadoAgendamentoManual, Forma } from "./useAgendamentoManual";
@@ -67,19 +67,22 @@ type OcupadoDaEquipe = {
   id: string;
 };
 
+/** Ajuste de pausa aplicado só à data que está aberta na Agenda. */
+function intervalosDaData(
+  intervalo: { inicio: string; fim: string } | null | undefined,
+  dia: string,
+): IntervalosPorData {
+  return intervalo
+    ? { [dia]: { intervaloInicio: intervalo.inicio, intervaloFim: intervalo.fim } }
+    : {};
+}
+
 /** Estados reais dos horários do dia para a equipe (mesmo motor da página pública). */
 function useEstadosDaEquipe(s: EstadoAgendamentoManual) {
   const agenda = useQuery({ ...opcoesAgendaDia(s.data), enabled: Boolean(s.base && s.data) });
   const servico = s.base?.servicos.find((sv) => sv.id === s.servicoId);
   if (!s.base || !servico || !s.profissionalId || !agenda.data) return null;
-  const intervalosPorData = agenda.data.intervaloPersonalizado
-    ? {
-        [s.data]: {
-          intervaloInicio: agenda.data.intervaloPersonalizado.inicio,
-          intervaloFim: agenda.data.intervaloPersonalizado.fim,
-        },
-      }
-    : undefined;
+  const intervalosPorData = intervalosDaData(agenda.data.intervaloPersonalizado, s.data);
   const ocupados: OcupadoDaEquipe[] = agenda.data.itens
     .filter((i) => (STATUS_QUE_OCUPAM as readonly string[]).includes(i.status))
     .map((i) => ({
@@ -118,6 +121,8 @@ function useEstadosDaEquipe(s: EstadoAgendamentoManual) {
 }
 
 export function SecaoHorario({ s }: { s: EstadoAgendamentoManual }) {
+  const agendaDoDia = useQuery({ ...opcoesAgendaDia(s.data), enabled: Boolean(s.base && s.data) });
+  const intervalosPorData = intervalosDaData(agendaDoDia.data?.intervaloPersonalizado, s.data);
   const estados = useEstadosDaEquipe(s);
   const [detalhe, setDetalhe] = useState<HorarioComEstado<OcupadoDaEquipe> | null>(null);
   const [confirmarEncaixe, setConfirmarEncaixe] = useState(false);

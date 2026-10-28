@@ -24,6 +24,7 @@ import { AgendaFocoMobile } from "@/components/barbeiro/AgendaFocoMobile";
 import { efeitoDaAcaoCard } from "@/components/barbeiro/agenda/acao-card";
 import { BloquearHorarioSheet } from "@/components/barbeiro/agenda/BloquearHorarioSheet";
 import { AjustarIntervaloSheet } from "@/components/barbeiro/agenda/AjustarIntervaloSheet";
+import { DetalheBloqueioSheet } from "@/components/barbeiro/agenda/DetalheBloqueioSheet";
 import { CabecalhoAgenda } from "@/components/barbeiro/agenda/CabecalhoAgenda";
 import { mesDoDia, tituloDoMes } from "@/components/barbeiro/agenda/calendario";
 import { filaDeChegadaVisivel } from "@/components/barbeiro/agenda/fila-visivel";
@@ -309,6 +310,12 @@ export function AgendaOperacional() {
   useEffect(() => setVozSuportada(comandoDeVozSuportado()), []);
   const [bloquearAberto, setBloquearAberto] = useState(false);
   const [intervaloAberto, setIntervaloAberto] = useState(false);
+  const [bloqueioSelecionado, setBloqueioSelecionado] = useState<{
+    id: string;
+    inicio: string;
+    fim: string;
+    motivo: string | null;
+  } | null>(null);
   const [focoTrancado, setFocoTrancado] = useState(false);
   const [manualAberto, setManualAberto] = useState(
     acaoInicial === "agendamento" || acaoInicial === "cliente",
@@ -362,6 +369,7 @@ export function AgendaOperacional() {
     painelAberto ||
     bloquearAberto ||
     intervaloAberto ||
+    Boolean(bloqueioSelecionado) ||
     focoTrancado ||
     manualAberto ||
     rapidoAberto ||
@@ -1094,6 +1102,17 @@ export function AgendaOperacional() {
         horarios={agenda.data?.horarios ?? []}
         intervaloPersonalizado={agenda.data?.intervaloPersonalizado ?? null}
       />
+      {bloqueioSelecionado ? (
+        <DetalheBloqueioSheet
+          aberto
+          bloqueio={bloqueioSelecionado}
+          dia={dia}
+          fuso={fuso}
+          onAberto={(aberto) => {
+            if (!aberto) setBloqueioSelecionado(null);
+          }}
+        />
+      ) : null}
       <FolhaFila
         aberta={filaAberta}
         onAberta={setFilaAberta}
@@ -1571,6 +1590,7 @@ export function AgendaOperacional() {
                       onAbrirIntervalo={
                         dia >= hojeNoFuso(fuso) ? () => setIntervaloAberto(true) : undefined
                       }
+                      onAbrirBloqueio={(bloqueio) => setBloqueioSelecionado(bloqueio)}
                       selecionado={selecionado}
                       onSelecionar={abrirEstavel}
                       onMover={moverEstavel}
