@@ -62,7 +62,9 @@ describe("prévia e compartilhamento públicos", () => {
     );
     const metas = metadadosDa(head);
 
-    expect(valorMeta(metas, "property", "og:description")).toContain("Negócio Demo");
+    expect(valorMeta(metas, "property", "og:description")).toBe(
+      "Agende seu horário com Negócio Demo: escolha serviços, profissionais e horários em poucos toques.",
+    );
     expect(valorMeta(metas, "property", "og:image")).toBeUndefined();
     expect(valorMeta(metas, "name", "twitter:card")).toBe("summary");
   });
