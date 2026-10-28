@@ -54,6 +54,8 @@ type AgendaTimelineProps = {
   fuso: string | undefined;
   agora?: number;
   itens: AgendaItem[];
+  /** Bloqueios ativos no dia; só informação visual, sem alterar disponibilidade. */
+  bloqueios?: { profissional_id: string | null; inicio: string; fim: string }[];
   horarios: HorarioFuncionamento[];
   selecionado: string | null;
   onSelecionar: (id: string) => void;
@@ -122,6 +124,7 @@ export function AgendaTimeline({
   fuso,
   agora: agoraProp,
   itens,
+  bloqueios = [],
   horarios,
   selecionado,
   onSelecionar,
@@ -751,6 +754,27 @@ export function AgendaTimeline({
               <span>Intervalo</span>
             </div>
           ) : null}
+          {bloqueios.map((bloqueio, indice) => {
+            const inicioReal = minutosNoFuso(bloqueio.inicio, fuso);
+            const fimReal = minutosNoFuso(bloqueio.fim, fuso);
+            const inicio = Math.max(escala.inicio, inicioReal);
+            const fim = Math.min(escala.fim, fimReal);
+            if (fim <= inicio) return null;
+            const topo = (inicio - escala.inicio) * PX_POR_MINUTO + deslocamentoAte(inicio);
+            const altura =
+              (fim - inicio) * PX_POR_MINUTO + deslocamentoAte(fim) - deslocamentoAte(inicio);
+            return (
+              <div
+                key={`${bloqueio.profissional_id ?? "equipe"}-${bloqueio.inicio}-${bloqueio.fim}-${indice}`}
+                className="agenda-timeline-bloqueio"
+                style={{ top: `${topo}px`, height: `${altura}px` }}
+                role="note"
+                aria-label={`Horário bloqueado de ${horaMinuto(inicio)} a ${horaMinuto(fim)}`}
+              >
+                <span>Bloqueado · {horaMinuto(inicio)}–{horaMinuto(fim)}</span>
+              </div>
+            );
+          })}
           {toqueVazio !== null ? (
             <div
               className="agenda-timeline-toque"
