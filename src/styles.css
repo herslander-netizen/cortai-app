@@ -10708,3 +10708,27 @@ input[type="range"] {
 .agenda-timeline-marca.agenda-timeline-hora {
   z-index: 2;
 }
+
+
+/* Métricas da Agenda alinhadas à spec do Figaro: gutter de 50px, rótulo mono 13px Medium. */
+@media (max-width: 767px) {
+  .agenda-timeline {
+    width: calc(100% - 50px);
+    margin-left: 50px;
+  }
+  .agenda-operacional .agenda-timeline-marca span {
+    width: 40px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1;
+    color: var(--figaro-hint, var(--mute2));
+  }
+  .agenda-operacional .agenda-timeline-hora {
+    border-top-color: color-mix(in oklab, var(--figaro-hint, var(--mute2)) 50%, transparent);
+  }
+  .agenda-operacional .agenda-linha-agora span {
+    left: -40px;
+    width: 40px;
+  }
+}
