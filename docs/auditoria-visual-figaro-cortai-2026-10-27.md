@@ -136,3 +136,10 @@ Esta entrega corrige a base compartilhada e exemplos concretos de duas áreas; *
 - **Desktop preservado nesta tranche:** o cabeçalho global continua presente em telas largas para não deslocar a navegação lateral existente. A prioridade desta correção é o uso mobile, conforme decisão do dono.
 - **Proteção da Agenda:** o novo critério reconhece também `/barbeiro/agenda/…`; a moldura e o cabeçalho global dessas rotas não entram na regra das subpáginas comuns.
 - **Testes:** `Screen.test.tsx` cobre subpágina mobile, fallback de retorno, altura/offset no desktop e preservação da Agenda. O teste automático e o smoke test do commit final ainda precisam ser confirmados; a inspeção visual em 390/360 px permanece separada.
+
+
+## Continuação — CortAI e linguagem neutra (28/10/2026)
+
+- **Conversa da CortAI:** migradas as ações interativas para `Button`; os botões de confirmação, envio, gravação/controle de voz, escolha de cliente e fechamento mantêm seus handlers e estados. A caixa de mensagem usa `field-control`, avisos de indisponibilidade/erro usam `Aviso`, mensagens e superfícies usam tokens Figaro. Removidas as referências de estilo `--agenda-cartao`, `btn-primary` e os elementos `<button>` crus desse componente. Teste de regressão em `estilo-figaro.test.ts` protege o contrato. A lógica do cérebro, transcrição, tenant e confirmação não foi alterada.
+- **Posicionamento multi-serviços:** o CTA de visitante passou a “Tenho um negócio no Cortaí”; a monetização usa “negócios novos/já clientes” e “O negócio paga o preço padrão”. Só os textos foram alterados; filtros, tipos de público, rotas e permissões permaneceram.
+- **Validação:** o CI dos commits anteriores do cabeçalho passou em build, TypeScript, testes e publicação isolada; o commit mais recente que inclui o chat/linguagem ainda aguarda CI e smoke test. A validação visual móvel em 390/360 px segue pendente. Não houve alteração de banco nem publicação principal.
