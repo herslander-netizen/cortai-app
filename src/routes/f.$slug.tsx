@@ -170,7 +170,7 @@ function FilaPublicaPage() {
                         : "bg-[var(--figaro-surface-container,var(--ink2))] text-paper"
                     }`}
                   >
-                    <span className="min-w-0 truncate text-sm text-paper">{s.nome}</span>
+                    <span className="min-w-0 truncate text-sm">{s.nome}</span>
                     <span className="shrink-0 text-xs text-mute">
                       {s.duracaoMin} min · {brl(s.precoCentavos)}
                     </span>
@@ -200,7 +200,7 @@ function FilaPublicaPage() {
               autoComplete="tel"
               enterKeyHint="done"
               placeholder="(11) 90000-0000"
-              className="mt-2 h-12 w-full rounded-lg border border-line2 bg-ink2 px-4 text-sm text-paper outline-none"
+              className="field-control mt-2 h-12 rounded-[12px]"
             />
           </label>
 
