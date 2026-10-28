@@ -212,6 +212,21 @@ describe("chat da CortAI no padrão Figaro", () => {
   });
 });
 
+describe("linguagem multi-serviços em telas compartilhadas", () => {
+  it("usa linguagem neutra para entrar na plataforma e segmentar ofertas", () => {
+    const visitante = readFileSync("src/routes/visitante.tsx", "utf8");
+    const monetizacao = readFileSync("src/routes/admin.monetizacao.tsx", "utf8");
+
+    expect(visitante).toContain("Tenho um negócio no Cortaí");
+    expect(visitante).not.toContain("Tenho uma barbearia no Cortaí");
+    expect(monetizacao).toContain('"negócios novos"');
+    expect(monetizacao).toContain('"negócios já clientes"');
+    expect(monetizacao).toContain("O negócio paga o preço padrão.");
+    expect(monetizacao).not.toContain("barbearias novas");
+    expect(monetizacao).not.toContain("barbearias já clientes");
+  });
+});
+
 describe("componentes compartilhados sem divisores web antigos", () => {
   it("painel de lembretes não envolve a lista com bordas horizontais externas", () => {
     const fonte = readFileSync("src/components/notificacoes/PainelDeLembretes.tsx", "utf8");
