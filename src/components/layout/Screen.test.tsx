@@ -107,6 +107,16 @@ describe("moldura de tela no padrão Figaro", () => {
     expect(html).toContain("top-14");
   });
 
+  it("mantém a Agenda e suas subrotas fora da regra de cabeçalho mobile", () => {
+    routerState.pathname = "/barbeiro/agenda/ajustes";
+    const html = renderToStaticMarkup(
+      <Screen title="Agenda"><p>Conteúdo operacional</p></Screen>,
+    );
+
+    expect(html).toContain("min-h-[calc(100dvh-3.5rem)]");
+    expect(html).toContain("top-14");
+  });
+
   it("mantém o espaçamento do cabeçalho global no desktop", () => {
     routerState.pathname = "/barbeiro/produtos";
     routerState.mobile = false;
