@@ -196,7 +196,6 @@ export function ManagementHeader() {
     caminho === "/barbeiro/" ||
     caminho === "/barbeiro/agenda" ||
     caminho.startsWith("/barbeiro/agenda/");
-  if (celular && !telaDaAgenda) return null;
 
   return (
     <header
