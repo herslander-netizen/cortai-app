@@ -202,8 +202,10 @@ describe("troca de dia em páginas no celular (como no vídeo de referência)", 
     );
   });
 
-  it('o espaço do "Agora · Livre" fica reservado em todo dia (a grade não pula)', () => {
-    expect(operacional).toContain('${ehHoje && ativos.length === 0 ? "" : "invisible"}');
+  it('remove o rótulo "Agora · Livre" e preserva o espaçamento do calendário compacto', () => {
+    expect(operacional).not.toContain("Agora · Livre");
+    const topo = readFileSync("src/components/barbeiro/agenda/SemanaDoTopo.tsx", "utf8");
+    expect(topo).toContain("px-2 pb-9 rounded-b-xl");
   });
 });
 
