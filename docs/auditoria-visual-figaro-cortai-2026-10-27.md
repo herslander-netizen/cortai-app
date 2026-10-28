@@ -160,3 +160,9 @@ Esta entrega corrige a base compartilhada e exemplos concretos de duas áreas; *
 - **Ações e navegação:** as abas Conexão, Notificações, Experiência e Histórico continuam usando os mesmos handlers e estado, agora expondo a seleção por `aria-pressed`. O divisor horizontal dentro do cartão de notificações foi removido, preservando separação por espaçamento.
 - **Preservação funcional:** nenhum endpoint, regra de WhatsApp, permissão, sessão QR, lógica de reconexão, envio ou configuração mudou.
 - **Regressão:** `estilo-figaro.test.ts` verifica o uso de `Aviso`, o estado selecionado das abas e que os padrões de alerta/divisor substituídos não retornem. Validação CI e smoke da prévia do commit atual ainda necessários; conferência visual manual 390/360 px pendente.
+
+
+## Linguagem multi-serviços no resumo administrativo — 28/10/2026
+
+- O overview do admin consulta todos os registros da tabela `tenants`; o rótulo de métrica “Barbearias” foi corrigido para “Negócios”, e a amostra agora usa singular/plural correto. A propriedade técnica `totalBarbearias` e o cálculo de métricas foram preservados para não quebrar o contrato existente.
+- O teste multi-serviços em `estilo-figaro.test.ts` também cobre os rótulos do overview. Validação do CI para o commit consolidado ainda pendente; não declarar o lote validado até build, TypeScript, testes e smoke test passarem.
