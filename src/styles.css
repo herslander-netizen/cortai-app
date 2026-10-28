@@ -5099,7 +5099,6 @@ button.agenda-nome:hover {
   left: 0;
   z-index: 1;
   pointer-events: none;
-  /* A base translúcida faz parte do visual próprio dos horários fora do expediente. */
   background: repeating-linear-gradient(
     135deg,
     transparent 0 6px,
@@ -5120,7 +5119,13 @@ button.agenda-nome:hover {
   overflow: hidden;
   border-left: 3px solid var(--figaro-tertiary, var(--rosa));
   color: var(--figaro-on-tertiary-container, var(--paper));
-  /* Usa o mesmo cartão listrado do intervalo; só muda a barra e o conteúdo. */
+  background:
+    repeating-linear-gradient(
+      135deg,
+      transparent 0 6px,
+      color-mix(in oklab, var(--figaro-tertiary) 25%, transparent) 6px 7px
+    ),
+    color-mix(in oklab, var(--figaro-tertiary-container) 84%, var(--figaro-surface));
   animation: agenda-bloqueio-entra var(--mov-base) var(--ease-saida) both;
 }
 .agenda-timeline-bloqueio span {
@@ -10707,8 +10712,7 @@ input[type="range"] {
 }
 
 
-/* Mantém a hierarquia da grade: subdivisões atrás das marcas, horas por cima.
-   Cartões, bloqueios e intervalos preservam suas próprias camadas acima da grade. */
+/* Hierarquia da grade como no Figaro: subdivisões de 5 min ficam atrás das marcas horárias. */
 .agenda-timeline-ajuste-5,
 .agenda-operacional .agenda-timeline-ajuste-5 {
   z-index: 0;
@@ -10756,7 +10760,13 @@ input[type="range"] {
   border-left: 3px solid var(--figaro-tertiary, var(--rosa));
   border-radius: 0;
   color: var(--figaro-on-tertiary-container, var(--paper));
-  /* O fundo é compartilhado com o bloqueio para manter uma única linguagem visual. */
+  background:
+    repeating-linear-gradient(
+      135deg,
+      transparent 0 6px,
+      color-mix(in oklab, var(--figaro-tertiary) 25%, transparent) 6px 7px
+    ),
+    color-mix(in oklab, var(--figaro-tertiary-container) 84%, var(--figaro-surface));
   text-align: left;
   cursor: pointer;
   font: inherit;
@@ -10781,29 +10791,4 @@ input[type="range"] {
 button.agenda-timeline-pausa:focus-visible {
   outline: 2px solid var(--figaro-primary, var(--rosa));
   outline-offset: -2px;
-}
-
-
-/* Agenda: listras neutras exclusivas dos bloqueios manuais e da pausa.
-   Os horários fora do expediente preservam integralmente o estilo anterior. */
-.agenda-operacional .agenda-timeline-bloqueio,
-.agenda-operacional .agenda-timeline-pausa {
-  background: repeating-linear-gradient(
-    135deg,
-    var(--agenda-cartao-evento, var(--agenda-cartao, var(--figaro-surface-container-lowest))) 0 6px,
-    color-mix(
-        in oklab,
-        var(--figaro-outline-variant, var(--line2)) 28%,
-        var(--agenda-cartao-evento, var(--agenda-cartao, var(--figaro-surface-container-lowest)))
-      )
-      6px 7px
-  );
-}
-.agenda-operacional .agenda-timeline-bloqueio {
-  border-left-color: var(--figaro-outline-variant, var(--line2));
-  color: var(--figaro-on-surface, var(--paper));
-}
-.agenda-operacional .agenda-timeline-bloqueio span,
-.agenda-operacional .agenda-timeline-pausa span {
-  color: var(--figaro-on-surface, var(--paper));
 }
