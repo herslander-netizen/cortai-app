@@ -127,3 +127,12 @@ Esta entrega corrige a base compartilhada e exemplos concretos de duas áreas; *
 - **Concluído no código:** foram adicionadas verificações estáticas para impedir o retorno desses dois padrões.
 - **Não verificado até CI:** build, TypeScript e suíte completa após este commit.
 - **Pendente:** `AssistenteCortai` ainda contém referências visuais a `--agenda-cartao` e `btn-primary`; a migração exige conferir o contrato de botão e as cores de conversa em todos os estados (mensagens vazias, confirmações, escolha de cliente, gravação de voz, erro e envio). Não alterado neste lote para evitar troca parcial de tema em um fluxo interativo longo.
+
+
+## Cabeçalho global nas subpáginas — 28/10/2026
+
+- **Implementado no layout mobile:** a barra global com logo, atalho CortAI e sino permanece na Agenda e nas subrotas da Agenda; em outras subpáginas de `/barbeiro`, a barra deixa de ocupar o topo e a moldura `Screen` passa a exibir o botão redondo de voltar e a hierarquia título/subtítulo diretamente no alto da tela.
+- **Retorno seguro:** quando uma subpágina de `/barbeiro` usa `Screen` sem destino explícito, o botão volta à Agenda (`/barbeiro`). Destinos de retorno explicitamente definidos continuam sendo respeitados.
+- **Desktop preservado nesta tranche:** o cabeçalho global continua presente em telas largas para não deslocar a navegação lateral existente. A prioridade desta correção é o uso mobile, conforme decisão do dono.
+- **Proteção da Agenda:** o novo critério reconhece também `/barbeiro/agenda/…`; a moldura e o cabeçalho global dessas rotas não entram na regra das subpáginas comuns.
+- **Testes:** `Screen.test.tsx` cobre subpágina mobile, fallback de retorno, altura/offset no desktop e preservação da Agenda. O teste automático e o smoke test do commit final ainda precisam ser confirmados; a inspeção visual em 390/360 px permanece separada.
