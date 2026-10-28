@@ -1567,7 +1567,7 @@ export function AgendaOperacional() {
                       bloqueiosDoDia={bloqueiosDoDia(p.id)}
                       alinhado
                       horarios={agenda.data?.horarios ?? []}
-                      intervaloPersonalizado={agenda.data?.intervaloPersonalizado}
+                      intervaloPersonalizado={agenda.data?.intervaloPersonalizado ?? null}
                       onAbrirIntervalo={
                         dia >= hojeNoFuso(fuso) ? () => setIntervaloAberto(true) : undefined
                       }
@@ -1608,7 +1608,7 @@ export function AgendaOperacional() {
                   itensEscala={todosItens}
                   bloqueiosDoDia={bloqueiosDoDiaGeral}
                   horarios={agenda.data?.horarios ?? []}
-                  intervaloPersonalizado={agenda.data?.intervaloPersonalizado}
+                  intervaloPersonalizado={agenda.data?.intervaloPersonalizado ?? null}
                   onAbrirIntervalo={
                     dia >= hojeNoFuso(fuso) ? () => setIntervaloAberto(true) : undefined
                   }
