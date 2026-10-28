@@ -498,6 +498,8 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Em andamento
 
+- GPT | 2026-10-27 UTC | Remover fallback de barbearia nos componentes reutilizáveis de cadastro de serviços: segmento omitido/desconhecido deve apresentar sugestões neutras, mantendo sugestões de barbearia quando selecionadas explicitamente; adicionar regressões. Não alterar a rota reservada de onboarding, regras, API, banco, Agenda ou publicação principal | `DIARIO.md`, `src/components/onboarding/EditorDeServicos.tsx`, `src/components/onboarding/EditorDeServicos.test.tsx`, `src/components/onboarding/AssistenteDeServicos.tsx`, `src/components/onboarding/SugestoesDeServicos.tsx`, `docs/auditoria-multiservico-cortai-2026-10-27.md`; sem migração
+
 
 - GPT | 2026-10-27 UTC | Corrigir divergência entre Agenda clara e escura: investigar regressão, manter a mesma estrutura/medidas/cartões/gestos/animações nos dois temas e variar apenas tokens de cor; registrar regra permanente de paridade e validar sem tocar produção/main | `DIARIO.md`, `AGENTS.md`, `src/components/barbeiro/agenda/AGENTS.md`, componentes/estilos/testes estritamente necessários da Agenda; sem migração
 
