@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   LISTA_DE_SEGMENTOS,
+  definicaoDoSegmento,
   segmentoParaApresentacao,
   segmentoValido,
   termos,
@@ -14,6 +15,8 @@ describe("segmentos", () => {
     expect(segmentoValido("inexistente")).toBe("outro");
     expect(termos(null).nome).toBe("espaço");
     expect(termos("inexistente").nome).toBe("espaço");
+    expect(definicaoDoSegmento(null).id).toBe("outro");
+    expect(definicaoDoSegmento("inexistente").id).toBe("outro");
   });
 
   it("preserva segmentos explicitamente escolhidos", () => {
