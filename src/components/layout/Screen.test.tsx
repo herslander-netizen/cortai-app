@@ -283,22 +283,22 @@ describe("comportamento real do título compacto durante a rolagem", () => {
     teste.rolagem.scrollTop = 80;
     geometria.mockReturnValue(retanguloComFundo(20));
     act(() => teste.rolagem.dispatchEvent(new Event("scroll")));
-    expect(teste.estado.dataset.compacto).toBe("oculto");
+    expect(teste.estado.dataset["compacto"]).toBe("oculto");
 
     geometria.mockReturnValue(retanguloComFundo(-2));
     act(() => teste.rolagem.dispatchEvent(new Event("scroll")));
-    expect(teste.estado.dataset.compacto).toBe("visivel");
+    expect(teste.estado.dataset["compacto"]).toBe("visivel");
 
     // Um título fora da área inferior também não deve mostrar a barra compacta.
     geometria.mockReturnValue(retanguloComFundo(150));
     act(() => teste.rolagem.dispatchEvent(new Event("scroll")));
-    expect(teste.estado.dataset.compacto).toBe("oculto");
+    expect(teste.estado.dataset["compacto"]).toBe("oculto");
 
     // Voltar ao topo também esconde o título compacto.
     teste.rolagem.scrollTop = 0;
     geometria.mockReturnValue(retanguloComFundo(-2));
     act(() => teste.rolagem.dispatchEvent(new Event("scroll")));
-    expect(teste.estado.dataset.compacto).toBe("oculto");
+    expect(teste.estado.dataset["compacto"]).toBe("oculto");
   });
 
   it("desconecta o observador ao desmontar a tela", () => {
@@ -320,6 +320,6 @@ describe("comportamento real do título compacto durante a rolagem", () => {
     teste.rolagem.scrollTop = 80;
     vi.spyOn(teste.titulo, "getBoundingClientRect").mockReturnValue(retanguloComFundo(-2));
     act(() => teste.rolagem.dispatchEvent(new Event("scroll")));
-    expect(teste.estado.dataset.compacto).toBe("oculto");
+    expect(teste.estado.dataset["compacto"]).toBe("oculto");
   });
 });
