@@ -805,7 +805,7 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
-- GPT | 2026-10-28 UTC | Personalizar Página: a barra global com logo/atalhos agora não é renderizada nas rotas `/barbeiro/marca*` e `/barbeiro/sua-pagina`, evitando cabeçalho duplicado e deixando visível a moldura Figaro própria do `Screen` (voltar redondo + título/subtítulo). O menu ⋮ e os fluxos internos da página permanecem intactos. CI do commit de código `e9c0b37` em andamento; validação visual em 390 px ainda pendente. Sem Agenda, CSS global, root, banco, `main` ou produção. | `src/components/layout/ManagementDrawer.tsx`, `DIARIO.md`
+- GPT | 2026-10-28 UTC | Personalizar Página: a barra global com logo/atalhos não é renderizada nas rotas `/barbeiro/marca*` e `/barbeiro/sua-pagina`, evitando cabeçalho duplicado e deixando a moldura Figaro do `Screen` (voltar redondo + título/subtítulo). A moldura passa a ocupar a altura total e fixa o título no topo ao rolar quando a barra global é omitida. Menu ⋮, transições da página e fluxos internos preservados. Teste de regressão cobre o modo sem cabeçalho global. CI do commit mais recente pendente; validação visual real em 390 px ainda pendente. Sem Agenda, CSS global, root, banco, `main` ou produção. | `src/components/layout/ManagementDrawer.tsx`, `src/components/layout/Screen.tsx`, `src/components/layout/Screen.test.tsx`, `DIARIO.md`
 
 - GPT | 2026-10-28 UTC | Revisado o relatório multi-serviços por inteiro: removidas todas as afirmações que diziam que `segmentoValido` ainda presumiria barbearia; documentado que o fallback de runtime agora é `outro`, sem reescrever dados/contratos, e que a tranche continua pendente de CI e prévia. | `docs/auditoria-multiservico-cortai-2026-10-27.md`, `DIARIO.md`
 
