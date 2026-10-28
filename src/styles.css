@@ -10783,3 +10783,28 @@ button.agenda-timeline-pausa:focus-visible {
   outline: 2px solid var(--figaro-primary, var(--rosa));
   outline-offset: -2px;
 }
+
+
+/* Agenda: bloqueios e intervalos neutros, como a área fora do expediente.
+   O cartão usa a superfície da agenda; as listras usam apenas contorno cinza-bege,
+   sem o vermelho/rosa do token tertiary. */
+.agenda-operacional .agenda-timeline-intervalo {
+  background: repeating-linear-gradient(
+    135deg,
+    var(--agenda-cartao-evento, var(--agenda-cartao, var(--figaro-surface-container-lowest))) 0 6px,
+    color-mix(
+        in oklab,
+        var(--figaro-outline-variant, var(--line2)) 28%,
+        var(--agenda-cartao-evento, var(--agenda-cartao, var(--figaro-surface-container-lowest)))
+      )
+      6px 7px
+  );
+}
+.agenda-operacional .agenda-timeline-bloqueio {
+  border-left-color: var(--figaro-outline-variant, var(--line2));
+  color: var(--figaro-on-surface, var(--paper));
+}
+.agenda-operacional .agenda-timeline-bloqueio span,
+.agenda-operacional .agenda-timeline-pausa span {
+  color: var(--figaro-on-surface, var(--paper));
+}
