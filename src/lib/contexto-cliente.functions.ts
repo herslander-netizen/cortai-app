@@ -27,7 +27,7 @@ async function assinada(db: any, caminho: string | null) {
 }
 
 /**
- * Barbearia do contexto atual do cliente: o slug da navegação ou uma ficha já existente.
+ * Negócio do contexto atual do cliente: o slug da navegação ou uma ficha já existente.
  * Retorna null quando não há contexto — a tela então mostra a descoberta.
  */
 export const getContextoCliente = createServerFn({ method: "GET" })

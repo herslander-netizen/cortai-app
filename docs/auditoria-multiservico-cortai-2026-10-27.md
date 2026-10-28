@@ -272,3 +272,8 @@ A preferência pós-agendamento passou a receber o segmento explícito da agenda
 - A chave histórica `corte_habitual` continua sendo usada internamente por compatibilidade; nenhum schema, API ou banco foi alterado.
 
 Testes adicionados para default neutro, barbearia explícita, salão e esmalteria, além de regressões do modo conversa. CI e prévia ainda precisam confirmar a tranche completa.
+
+### Linguagem interna neutra em contexto do cliente e monetização (28/10/2026)
+
+- Comentários de domínio em `src/lib/contexto-cliente.functions.ts` e `src/lib/monetizacao.functions.ts` agora dizem “negócio” em vez de chamar todo tenant de “barbearia”.
+- Foi uma mudança só de documentação do código: não alterei nomes de funções, contratos de payload, permissões, regras de cobrança, consultas, tabelas ou dados.

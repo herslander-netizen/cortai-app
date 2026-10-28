@@ -80,7 +80,7 @@ export type MinhaAssinatura = {
 };
 
 /**
- * O que a barbearia vê do próprio plano: preço padrão, preço com a condição e
+ * O que o negócio vê do próprio plano: preço padrão, preço com a condição e
  * até quando ela vale. Motivo interno e negociação nunca saem daqui.
  */
 export const getMinhaAssinatura = createServerFn({ method: "GET" })
@@ -159,7 +159,7 @@ export type BannerDaHome = {
   ctaDestino: string | null;
 };
 
-/** Banners e campanhas que o dono da plataforma publicou para esta barbearia. */
+/** Banners e campanhas que o dono da plataforma publicou para este negócio. */
 export const getBannersDaHome = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<BannerDaHome[]> => {
@@ -209,7 +209,7 @@ export const getBannersDaHome = createServerFn({ method: "GET" })
   });
 
 /**
- * Aplica um cupom na barbearia do usuário. O desconto vem sempre do cupom
+ * Aplica um cupom ao negócio do usuário. O desconto vem sempre do cupom
  * gravado no banco — nada do que a tela envia vira preço.
  */
 export const aplicarCupom = createServerFn({ method: "POST" })
@@ -438,7 +438,7 @@ const condicaoSchema = z.object({
   ativo: z.boolean(),
 });
 
-/** Condição especial de uma barbearia — não muda o preço padrão global. */
+/** Condição especial de um negócio — não muda o preço padrão global. */
 export const salvarCondicao = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((input: unknown) => condicaoSchema.parse(input))
@@ -479,7 +479,7 @@ export const encerrarCondicao = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
-/** Troca o plano padrão da barbearia e, quando pedido, abre o teste grátis. */
+/** Troca o plano padrão do negócio e, quando pedido, abre o teste grátis. */
 export const definirPlanoDoTenant = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((input: unknown) =>

@@ -498,8 +498,6 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Em andamento
 
-- GPT | 2026-10-28 UTC | Neutralizar apenas comentários internos em funções de contexto do cliente e monetização que tratam tenant genericamente como barbearia; manter nomes de APIs, permissões, tabelas, parâmetros e comportamento inalterados | `DIARIO.md`, `src/lib/contexto-cliente.functions.ts`, `src/lib/monetizacao.functions.ts`, `docs/auditoria-multiservico-cortai-2026-10-27.md`; sem migração
-
 
 
 - GPT | 2026-10-27 UTC | Corrigir divergência entre Agenda clara e escura: investigar regressão, manter a mesma estrutura/medidas/cartões/gestos/animações nos dois temas e variar apenas tokens de cor; registrar regra permanente de paridade e validar sem tocar produção/main | `DIARIO.md`, `AGENTS.md`, `src/components/barbeiro/agenda/AGENTS.md`, componentes/estilos/testes estritamente necessários da Agenda; sem migração
@@ -791,6 +789,8 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Corrigida a resposta da FAQ pública “Quais tipos de negócio podem usar o Cortaí?”: agora define o produto como plataforma de gestão/agendamento para negócios de serviços e apresenta Beleza/barbearia como exemplos, sem tratar um segmento como padrão. Teste de regressão verifica a frase inicial e proíbe voltar a responder “Não.”. Não alterei o showroom visual reservado nem conteúdo personalizado de negócios. CI completo e deploy isolado precisam confirmar o commit. | `src/lib/apresentacao-conteudo.ts`, `src/lib/apresentacao-conteudo.test.ts`, relatório e diário
 
 - GPT | 2026-10-28 UTC | Fechamento da passada de coordenação multi-serviços: registrei para a tarefa visual reservada dois textos de interface a neutralizar — CTA “Tenho uma barbearia no Cortaí” na tela de visitante e rótulos “barbearias novas/já clientes” na monetização. Não alterei os arquivos reservados; a equipe responsável deve trocar os rótulos sem mexer em destino, permissões, filtros ou IDs. A FAQ, os fallbacks de descoberta/página pública, notificações e cadastro de serviços já foram implementados em lotes anteriores com CI verde. | relatório multi-serviços e diário
+
+- GPT | 2026-10-28 UTC | Neutralizados comentários de domínio em contexto do cliente e monetização, substituindo referências genéricas a barbearia por negócio. Foi alteração documental de código sem efeito executável: nomes de APIs, permissões, tabelas, regras de cobrança e consultas ficaram idênticos. CI do commit final ainda deve confirmar a branch inteira. | `src/lib/contexto-cliente.functions.ts`, `src/lib/monetizacao.functions.ts`, relatório e diário
 
 ## Diário
 
