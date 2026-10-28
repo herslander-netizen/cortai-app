@@ -498,6 +498,8 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Em andamento
 
+- GPT | 2026-10-28 UTC | Neutralizar apenas comentários internos em funções de contexto do cliente e monetização que tratam tenant genericamente como barbearia; manter nomes de APIs, permissões, tabelas, parâmetros e comportamento inalterados | `DIARIO.md`, `src/lib/contexto-cliente.functions.ts`, `src/lib/monetizacao.functions.ts`, `docs/auditoria-multiservico-cortai-2026-10-27.md`; sem migração
+
 - GPT | 2026-10-28 UTC | Tornar as preferências públicas pós-agendamento conscientes do segmento: formulário e conversa devem oferecer opções de conforto apenas para segmentos de atendimento pessoal; `outro` recebe campo livre neutro. Manter a pergunta de corte só para barbearia, usar rótulos contextuais nos demais segmentos e neutralizar a pergunta sobre pele. Passar segmento explícito da agenda pública e cobrir os caminhos em testes. Preservar a chave persistida `corte_habitual`, tema público, confirmação e APIs; sem tocar Agenda interna ou banco | `DIARIO.md`, `src/components/agendamento/PreferenciasAposAgendamento.tsx`, `src/components/agendamento/PreferenciasAposAgendamento.test.tsx`, `src/components/agendamento/chat/PreferenciasEmConversa.tsx`, `src/components/agendamento/chat/PreferenciasEmConversa.test.tsx`, `src/routes/agendar.$slug.tsx`; sem migração
 
 
