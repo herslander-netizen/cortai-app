@@ -178,7 +178,7 @@ export function SuporteBarbearia({ tenantId }: { tenantId: string }) {
           </Select>
         </Field>
 
-        <div className="flex items-center justify-between gap-4 border-y border-line py-3">
+        <div className="flex items-center justify-between gap-4 border-b border-line py-3">
           <span className="text-sm text-paper">
             Loja online{" "}
             <span className={`ml-2 text-xs ${loja ? "text-sage" : "text-mute"}`}>

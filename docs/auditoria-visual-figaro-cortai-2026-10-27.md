@@ -118,3 +118,12 @@ Esta entrega corrige a base compartilhada e exemplos concretos de duas áreas; *
 - “Continuar com Google” e alternância entre Entrar/Criar usam agora o componente `Button` compartilhado com alvo de toque adequado. Os handlers de autenticação, retorno e navegação foram mantidos.
 - Regressão estrutural adicionada para evitar o retorno de botões nativos e tipografia excessiva.
 - Ainda precisa de verificação visual renderizada em dispositivo real e os estados de erro/carregamento; nenhuma regra de autenticação foi alterada.
+
+
+## Continuação — componentes compartilhados
+
+- **Concluído no código:** `PainelDeLembretes` deixou de usar bordas externas superior/inferior duplicadas em torno da lista; mantém apenas divisores entre linhas.
+- **Concluído no código:** a linha contextual do painel de suporte usa apenas o divisor inferior, sem criar duas bordas que pareciam um bloco web.
+- **Concluído no código:** foram adicionadas verificações estáticas para impedir o retorno desses dois padrões.
+- **Não verificado até CI:** build, TypeScript e suíte completa após este commit.
+- **Pendente:** `AssistenteCortai` ainda contém referências visuais a `--agenda-cartao` e `btn-primary`; a migração exige conferir o contrato de botão e as cores de conversa em todos os estados (mensagens vazias, confirmações, escolha de cliente, gravação de voz, erro e envio). Não alterado neste lote para evitar troca parcial de tema em um fluxo interativo longo.

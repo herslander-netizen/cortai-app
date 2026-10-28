@@ -86,7 +86,7 @@ export function PainelDeLembretes() {
       {isLoading ? (
         <EsqueletoLista linhas={3} />
       ) : (
-        <ul className="divide-y divide-line border-y border-line">
+        <ul className="divide-y divide-line/70">
           {lista.map((e) => {
             const s = situacao(e);
             const quando = new Date(e.enviado_em ?? e.criado_em).toLocaleString("pt-BR", {

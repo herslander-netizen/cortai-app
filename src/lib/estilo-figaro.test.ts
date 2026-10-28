@@ -200,6 +200,19 @@ describe("cadastro de cliente no padrão Figaro", () => {
   });
 });
 
+describe("componentes compartilhados sem divisores web antigos", () => {
+  it("painel de lembretes não envolve a lista com bordas horizontais externas", () => {
+    const fonte = readFileSync("src/components/notificacoes/PainelDeLembretes.tsx", "utf8");
+    expect(fonte).toContain('className="divide-y divide-line/70"');
+    expect(fonte).not.toContain("divide-y divide-line border-y border-line");
+  });
+  it("suporte mantém o separador interno sem duplicar bordas superior e inferior", () => {
+    const fonte = readFileSync("src/components/admin/SuporteBarbearia.tsx", "utf8");
+    expect(fonte).toContain("border-b border-line py-3");
+    expect(fonte).not.toContain("border-y border-line py-3");
+  });
+});
+
 describe("ordem permanente", () => {
   it("o documento existe e está ligado nos arquivos de regra", () => {
     const ordem = readFileSync("docs/ordem-padrao-figaro.md", "utf8");
