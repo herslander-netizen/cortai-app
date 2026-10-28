@@ -191,7 +191,8 @@ function AgendaTimelineBase({
   onAbrirIntervalo,
   onAbrirBloqueio,
 }: AgendaTimelineProps) {
-  const relogio = useAgora();
+  // As páginas vizinhas são prévias: não precisam assinar o relógio nem re-renderizar a cada minuto.
+  const relogio = useAgora(!previa);
   const agora = agoraProp ?? relogio;
   // Como no Figaro: no dia completo (celular) os cartões ficam sempre no horário real, com colunas
   // na sobreposição. Empilhar somava espaço depois dos cartões curtos e as horas de um dia ficavam
