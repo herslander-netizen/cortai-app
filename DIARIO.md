@@ -808,6 +808,8 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+- GPT | 2026-10-28 UTC | CI do commit `d2c1e2fb` confirmou build, TypeScript, 252 arquivos de teste, deploy isolado e smoke test. Acrescenta testes específicos de `AdminScreen` para a barra compacta permanecer montada/inert quando oculta, transferir ações sem duplicação quando visível e não aparecer no desktop. Esta nova cobertura precisa passar pelo CI próprio antes de considerar o lote concluído. | `src/components/layout/AdminScreen.test.tsx`, `DIARIO.md`
+
 - GPT | 2026-10-28 UTC | Alinha a animação de entrada/saída do cabeçalho compacto aos tokens oficiais do Figaro (`--mola-padrao-duracao` e `--mola-padrao`) em vez de usar easing/duração ad hoc. Mantém apenas `opacity`/`transform`, com redução de movimento respeitada. Teste estrutural agora protege os tokens. CI pendente nesta tranche. | `src/components/layout/Screen.tsx`, `src/components/layout/AdminScreen.tsx`, `src/components/layout/Screen.test.tsx`
 
 - GPT | 2026-10-28 UTC | Estende o padrão de cabeçalho colapsável às subpáginas do app do cliente que usam `Screen` e remove o deslocamento de 56 px nas rotas sem cabeçalho global. A home do cliente e a moldura global da gestão/Agenda continuam com layouts próprios; adiciona teste para `/app/agendar`. CI pendente para esta tranche. | `src/components/layout/Screen.tsx`, `src/components/layout/Screen.test.tsx`
