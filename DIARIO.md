@@ -498,7 +498,6 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Em andamento
 
-- GPT | 2026-10-28 UTC | Eliminar afirmações desatualizadas no relatório multi-serviços sobre o fallback de segmento, preservando os limites de compatibilidade realmente vigentes | `DIARIO.md`, `docs/auditoria-multiservico-cortai-2026-10-27.md`; sem migração
 
 
 
@@ -804,6 +803,9 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+
+- GPT | 2026-10-28 UTC | Revisado o relatório multi-serviços por inteiro: removidas todas as afirmações que diziam que `segmentoValido` ainda presumiria barbearia; documentado que o fallback de runtime agora é `outro`, sem reescrever dados/contratos, e que a tranche continua pendente de CI e prévia. | `docs/auditoria-multiservico-cortai-2026-10-27.md`, `DIARIO.md`
+
 
 - GPT | 2026-10-28 UTC | Ajustado comentário desatualizado em `segmentoParaApresentacao` após unificação do fallback neutro; mantidas ambas as funções para compatibilidade. Teste de regressão também cobre `definicaoDoSegmento` para ausente/inválido. CI e prévia ainda sem confirmação verificável nesta sessão. | `src/lib/segmentos.ts`, `src/lib/segmentos.test.ts`, `DIARIO.md`
 
