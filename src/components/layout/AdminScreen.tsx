@@ -1,5 +1,8 @@
 import type { ReactNode } from "react";
+import { useRouterState } from "@tanstack/react-router";
+import { useMediaQuery } from "@/hooks/use-mobile";
 import { CabecalhoDeTela } from "@/components/layout/CabecalhoDeTela";
+import { useCabecalhoCompacto } from "@/components/layout/useCabecalhoCompacto";
 import { Aviso } from "@/components/ui/aviso";
 
 export function AdminScreen({
@@ -13,9 +16,25 @@ export function AdminScreen({
   actions?: ReactNode;
   children: ReactNode;
 }) {
+  const caminho = useRouterState({ select: (state) => state.location.pathname });
+  const celular = useMediaQuery("(max-width: 767px)");
+  const {
+    ref: cabecalhoInicialRef,
+    visivel: cabecalhoCompactoVisivel,
+  } = useCabecalhoCompacto({
+    enabled: celular,
+    chave: `${caminho}:${title}`,
+  });
+
   return (
     <div className="mx-auto w-full max-w-[1180px] px-4 pb-[calc(7rem+env(safe-area-inset-bottom))] pt-4 md:px-8 md:pb-12 md:pt-6">
-      <header className="mb-5 grid min-w-0 gap-4">
+      <header
+        ref={cabecalhoInicialRef}
+        aria-hidden={cabecalhoCompactoVisivel || undefined}
+        inert={cabecalhoCompactoVisivel || undefined}
+        data-figaro-header="page"
+        className="mb-5 grid min-w-0 gap-4"
+      >
         {actions ? (
           <div className="flex min-h-12 min-w-0 flex-wrap items-center justify-end gap-2">
             {actions}
@@ -23,6 +42,23 @@ export function AdminScreen({
         ) : null}
         <CabecalhoDeTela title={title} {...(subtitle ? { subtitle } : {})} />
       </header>
+      {celular && cabecalhoCompactoVisivel ? (
+        <div
+          data-figaro-header="compact"
+          role="region"
+          aria-label="Cabeçalho da página"
+          className="fixed inset-x-0 top-0 z-40 flex min-h-[calc(3.5rem+env(safe-area-inset-top,0px))] items-center gap-3 bg-[var(--figaro-background,var(--ink))] px-4 pb-2 pt-[calc(0.5rem+env(safe-area-inset-top,0px))] animate-in fade-in slide-in-from-top-1 duration-200 motion-reduce:animate-none"
+        >
+          <h1 className="min-w-0 flex-1 truncate text-base font-semibold text-[var(--figaro-on-background,var(--paper))]">
+            {title}
+          </h1>
+          {actions ? (
+            <div className="ml-auto flex max-w-[55%] shrink-0 items-center gap-2 overflow-x-auto overscroll-contain">
+              {actions}
+            </div>
+          ) : null}
+        </div>
+      ) : null}
       <main>{children}</main>
     </div>
   );

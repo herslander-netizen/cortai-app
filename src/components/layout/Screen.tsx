@@ -1,9 +1,10 @@
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import type { ReactNode } from "react";
 import { Link, type LinkProps, useRouterState } from "@tanstack/react-router";
 import { ArrowLeft } from "lucide-react";
 import { useMediaQuery } from "@/hooks/use-mobile";
 import { Signature } from "./Signature";
 import { CabecalhoDeTela } from "./CabecalhoDeTela";
+import { useCabecalhoCompacto } from "./useCabecalhoCompacto";
 
 export function Screen({
   title,
@@ -37,34 +38,12 @@ export function Screen({
     caminho.startsWith("/barbeiro/agenda/");
   const subpaginaFigaroMobile = celular && caminho.startsWith("/barbeiro/") && !telaDaAgenda;
   const destinoVoltar = voltarPara ?? (subpaginaFigaroMobile ? "/barbeiro" : undefined);
-  const cabecalhoInicialRef = useRef<HTMLElement | null>(null);
-  const [cabecalhoCompactoVisivel, setCabecalhoCompactoVisivel] = useState(false);
+  const { ref: cabecalhoInicialRef, visivel: cabecalhoCompactoVisivel } = useCabecalhoCompacto({
+    enabled: subpaginaFigaroMobile && !hideHeader,
+    chave: `${caminho}:${title}`,
+  });
 
-  // O título destacado rola com o conteúdo. Quando sai da área visível, entra a barra compacta.
-  // O cabeçalho compacto é fixo e não participa do fluxo, evitando saltos na rolagem.
-  useEffect(() => {
-    setCabecalhoCompactoVisivel(false);
-    if (!subpaginaFigaroMobile || hideHeader || !cabecalhoInicialRef.current) return;
 
-    const cabecalhoInicial = cabecalhoInicialRef.current;
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (!entry) return;
-        setCabecalhoCompactoVisivel(!entry.isIntersecting && window.scrollY > 48);
-      },
-      { threshold: 0 },
-    );
-    observer.observe(cabecalhoInicial);
-
-    const verificarRolagem = () => {
-      if (window.scrollY <= 48) setCabecalhoCompactoVisivel(false);
-    };
-    window.addEventListener("scroll", verificarRolagem, { passive: true });
-    return () => {
-      observer.disconnect();
-      window.removeEventListener("scroll", verificarRolagem);
-    };
-  }, [subpaginaFigaroMobile, hideHeader, title]);
 
   return (
     <div
@@ -76,6 +55,8 @@ export function Screen({
         <>
           <header
             ref={cabecalhoInicialRef}
+            aria-hidden={cabecalhoCompactoVisivel || undefined}
+            inert={cabecalhoCompactoVisivel || undefined}
             data-figaro-header="page"
             className={`relative ${subpaginaFigaroMobile ? "top-0" : "top-14"} z-10 grid gap-4 bg-[var(--figaro-background,var(--ink))] px-4 pb-3 pt-4 md:static md:px-8 md:pb-5 md:pt-6`}
           >
@@ -112,7 +93,7 @@ export function Screen({
                   <ArrowLeft size={22} aria-hidden />
                 </Link>
               ) : null}
-              <p className="min-w-0 flex-1 truncate text-base font-semibold text-[var(--figaro-on-background,var(--paper))]">{title}</p>
+              <h1 className="min-w-0 flex-1 truncate text-base font-semibold text-[var(--figaro-on-background,var(--paper))]">{title}</h1>
               {headerAction ? <div className="flex shrink-0 items-center">{headerAction}</div> : null}
             </div>
           ) : null}
