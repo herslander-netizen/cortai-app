@@ -166,3 +166,10 @@ Esta entrega corrige a base compartilhada e exemplos concretos de duas áreas; *
 
 - O overview do admin consulta todos os registros da tabela `tenants`; o rótulo de métrica “Barbearias” foi corrigido para “Negócios”, e a amostra agora usa singular/plural correto. A propriedade técnica `totalBarbearias` e o cálculo de métricas foram preservados para não quebrar o contrato existente.
 - O teste multi-serviços em `estilo-figaro.test.ts` também cobre os rótulos do overview. Validação do CI para o commit consolidado ainda pendente; não declarar o lote validado até build, TypeScript, testes e smoke test passarem.
+
+
+## Descoberta de negócios — 28/10/2026
+
+- A descoberta pública mantém textos visíveis neutros (lugares/negócios) e mostra o rótulo do segmento real por resultado; não houve renomeação da função/query key histórica para evitar churn de cache/contrato.
+- O título grande foi substituído pela escala compacta de página no mobile e o campo usa `field-control`, preservando a lupa e a busca por nome/endereço. A falha de consulta agora usa `Aviso` tonal, em vez de parágrafo de alerta avulso.
+- Teste de regressão no `estilo-figaro.test.ts` verifica título, campo, aviso e ausência de título antigo ou botão cru. CI e smoke test precisam confirmar o commit consolidado; captura manual em 390/360 px segue pendente.
