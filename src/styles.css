@@ -5099,10 +5099,16 @@ button.agenda-nome:hover {
   left: 0;
   z-index: 1;
   pointer-events: none;
+  /* Superfície opaca: a grade nunca transparece por trás das listras. */
   background: repeating-linear-gradient(
     135deg,
-    transparent 0 6px,
-    color-mix(in oklab, var(--mute) 14%, transparent) 6px 7px
+    var(--agenda-cartao-evento, var(--agenda-cartao)) 0 6px,
+    color-mix(
+        in oklab,
+        var(--figaro-tertiary, #d9c3a8) 30%,
+        var(--agenda-cartao-evento, var(--agenda-cartao))
+      )
+      6px 7px
   );
 }
 .agenda-timeline-intervalo span {
@@ -5119,13 +5125,7 @@ button.agenda-nome:hover {
   overflow: hidden;
   border-left: 3px solid var(--figaro-tertiary, var(--rosa));
   color: var(--figaro-on-tertiary-container, var(--paper));
-  background:
-    repeating-linear-gradient(
-      135deg,
-      transparent 0 6px,
-      color-mix(in oklab, var(--figaro-tertiary) 25%, transparent) 6px 7px
-    ),
-    color-mix(in oklab, var(--figaro-tertiary-container) 84%, var(--figaro-surface));
+  /* Usa o mesmo cartão listrado do intervalo; só muda a barra e o conteúdo. */
   animation: agenda-bloqueio-entra var(--mov-base) var(--ease-saida) both;
 }
 .agenda-timeline-bloqueio span {
@@ -10712,16 +10712,13 @@ input[type="range"] {
 }
 
 
-/* Hierarquia da grade como no Figaro: subdivisões de 5 min ficam atrás das marcas horárias. */
+/* Todas as linhas de horário formam uma única camada de base.
+   Cartões, bloqueios, intervalos e estados ficam sempre acima da grade. */
 .agenda-timeline-ajuste-5,
-.agenda-operacional .agenda-timeline-ajuste-5 {
-  z-index: 0;
-}
-.agenda-timeline-marca {
-  z-index: 1;
-}
+.agenda-operacional .agenda-timeline-ajuste-5,
+.agenda-timeline-marca,
 .agenda-timeline-marca.agenda-timeline-hora {
-  z-index: 2;
+  z-index: 0;
 }
 
 
@@ -10760,13 +10757,7 @@ input[type="range"] {
   border-left: 3px solid var(--figaro-tertiary, var(--rosa));
   border-radius: 0;
   color: var(--figaro-on-tertiary-container, var(--paper));
-  background:
-    repeating-linear-gradient(
-      135deg,
-      transparent 0 6px,
-      color-mix(in oklab, var(--figaro-tertiary) 25%, transparent) 6px 7px
-    ),
-    color-mix(in oklab, var(--figaro-tertiary-container) 84%, var(--figaro-surface));
+  /* O fundo é compartilhado com o bloqueio para manter uma única linguagem visual. */
   text-align: left;
   cursor: pointer;
   font: inherit;
