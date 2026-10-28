@@ -100,7 +100,7 @@ export function Screen({
           {subpaginaFigaroMobile && cabecalhoCompactoVisivel ? (
             <div
               data-figaro-header="compact"
-              className="fixed inset-x-0 top-0 z-40 flex min-h-14 items-center gap-3 bg-[var(--figaro-background,var(--ink))] px-4 py-2 shadow-sm animate-in fade-in slide-in-from-top-1 duration-200 motion-reduce:animate-none"
+              className="fixed inset-x-0 top-0 z-40 flex min-h-14 items-center gap-3 bg-[var(--figaro-background,var(--ink))] px-4 py-2 animate-in fade-in slide-in-from-top-1 duration-200 motion-reduce:animate-none"
             >
               {destinoVoltar ? (
                 <Link
