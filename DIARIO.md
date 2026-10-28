@@ -500,7 +500,6 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 - GPT | 2026-10-28 UTC | Corrigir comentário de normalização de segmentos que ficou desatualizado após neutralizar `segmentoValido`; manter a API de compatibilidade e não remover funções legadas | `DIARIO.md`, `src/lib/segmentos.ts`; sem migração
 
-- GPT | 2026-10-28 UTC | Neutralizar defaults locais de segmento em componentes não reservados: perfil do cliente e editor de serviços devem usar `outro` se o segmento não vier informado; preservar props explícitas e evitar mudanças em onboarding/Agenda reservados | `DIARIO.md`, `src/components/cliente-perfil/PerfilClienteSheet.tsx`, `src/components/onboarding/EditorDeServicos.tsx`; sem migração
 
 
 
@@ -802,6 +801,9 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+
+- GPT | 2026-10-28 UTC | Removido o fallback local para barbearia em `PerfilClienteSheet` e `PerfilClienteConteudo`: ambos agora usam `outro` quando o chamador não fornece segmento. `EditorDeServicos` já estava neutro na branch e não precisou de alteração. Segmento explicitamente passado continua prevalecendo. CI ainda não confirmado. Sem banco, Agenda, `main` ou produção. | `src/components/cliente-perfil/PerfilClienteSheet.tsx`, `DIARIO.md`
+
 
 - GPT | 2026-10-28 UTC | Corrigida a descrição da auditoria multi-serviços para refletir o comportamento atual: `segmentoValido` usa `outro` como fallback e mantém intactos os segmentos explícitos e os contratos técnicos legados; ampliado o teste da definição neutra. CI ainda não confirmado. | `docs/auditoria-multiservico-cortai-2026-10-27.md`, `src/lib/segmentos.test.ts`, `DIARIO.md`
 
