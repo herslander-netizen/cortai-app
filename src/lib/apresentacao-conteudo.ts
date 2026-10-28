@@ -126,7 +126,7 @@ export const APRESENTACAO_PADRAO: ConteudoApresentacao = {
     {
       pergunta: "Quais tipos de negócio podem usar o Cortaí?",
       resposta:
-        "Não. Beleza é um dos segmentos atendidos. O Cortaí também pode ser usado por outros negócios e profissionais que organizam serviços por agendamento.",
+        "O Cortaí é uma plataforma de gestão e agendamento para negócios de serviços. Beleza, barbearia e outras áreas podem configurar seus próprios serviços, equipe e horários; a experiência acompanha o segmento escolhido, sem limitar a plataforma a uma única área.",
     },
   ],
   final: {

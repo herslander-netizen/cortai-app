@@ -9,7 +9,13 @@ describe("posicionamento multi-serviços do Cortaí", () => {
     expect(APRESENTACAO_PADRAO.hero.texto.toLowerCase()).not.toContain("barbeiro");
     expect(APRESENTACAO_PADRAO.foco.texto.toLowerCase()).not.toContain("cadeira");
     expect(APRESENTACAO_PADRAO.segmentos.etiqueta.toLowerCase()).toContain("negócios de serviços");
-    expect(APRESENTACAO_PADRAO.perguntas.some((p) => p.pergunta === "Quais tipos de negócio podem usar o Cortaí?")).toBe(true);
+    const perguntaDeSegmentos = APRESENTACAO_PADRAO.perguntas.find(
+      (p) => p.pergunta === "Quais tipos de negócio podem usar o Cortaí?",
+    );
+    expect(perguntaDeSegmentos).toBeDefined();
+    expect(perguntaDeSegmentos?.resposta).toMatch(/^O Cortaí é uma plataforma de gestão e agendamento para negócios de serviços\./);
+    expect(perguntaDeSegmentos?.resposta).toContain("Beleza, barbearia e outras áreas");
+    expect(perguntaDeSegmentos?.resposta).not.toMatch(/^Não\./);
     expect(SEO_APRESENTACAO_PADRAO.descricao.toLowerCase()).not.toContain("barbearia");
   });
 

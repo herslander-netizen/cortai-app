@@ -498,8 +498,6 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Em andamento
 
-- GPT | 2026-10-28 UTC | Corrigir resposta da FAQ pública sobre tipos de negócio para apresentar o Cortaí como plataforma multi-serviços desde a primeira frase; adicionar teste que evita resposta iniciada por “Não” e confirma que segmentos são exemplos. Não tocar showroom visual reservado nem conteúdo personalizado de negócios | `DIARIO.md`, `src/lib/apresentacao-conteudo.ts`, `src/lib/apresentacao-conteudo.test.ts`, `docs/auditoria-multiservico-cortai-2026-10-27.md`; sem migração
-
 
 - GPT | 2026-10-27 UTC | Corrigir divergência entre Agenda clara e escura: investigar regressão, manter a mesma estrutura/medidas/cartões/gestos/animações nos dois temas e variar apenas tokens de cor; registrar regra permanente de paridade e validar sem tocar produção/main | `DIARIO.md`, `AGENTS.md`, `src/components/barbeiro/agenda/AGENTS.md`, componentes/estilos/testes estritamente necessários da Agenda; sem migração
 
@@ -785,6 +783,8 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - O que mudou: fotos dos profissionais na página pública agora usam recorte circular 1:1; avatar do cabeçalho de chat e seu fallback também ficam circulares, independentemente da preferência antiga de formato do avatar. O seletor de profissionais da Agenda já usava círculo e foi preservado.
 - Auditoria de conflito: não alterar logos de negócio, capas, fotos de serviços/produtos, galeria ou fotos de portfólio; nenhuma regra de negócio, dados, banco ou migração foi tocada. Agenda visual protegida, sem mudanças nos seus arquivos.
 - Testes: pendentes de confirmação no GitHub Actions e conferência visual mobile; não declarar pronto até validar o workflow.
+- GPT | 2026-10-28 UTC | Corrigida a resposta da FAQ pública “Quais tipos de negócio podem usar o Cortaí?”: agora define o produto como plataforma de gestão/agendamento para negócios de serviços e apresenta Beleza/barbearia como exemplos, sem tratar um segmento como padrão. Teste de regressão verifica a frase inicial e proíbe voltar a responder “Não.”. Não alterei o showroom visual reservado nem conteúdo personalizado de negócios. CI completo e deploy isolado precisam confirmar o commit. | `src/lib/apresentacao-conteudo.ts`, `src/lib/apresentacao-conteudo.test.ts`, relatório e diário
+
 ## Diário
 
 - GPT | 2026-10-28 UTC | Lote semântico auxiliar: fallback de slug vazio agora usa `negocio`; comentários em rascunhos, contexto da IA e loja descrevem o recurso como negócio, sem renomear funções, tabelas, permissões ou RPCs históricos. Slugs de cadastros válidos não mudam, pois a publicação exige nome antes de gerar o slug. Documentado na auditoria multi-serviços. Validação completa pendente para o commit deste lote; sem dados/banco, Agenda ou publicação principal. | `src/lib/rascunho.functions.ts`, `src/lib/assistente.functions.ts`, `src/lib/loja.functions.ts`, relatório e diário

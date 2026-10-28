@@ -245,3 +245,9 @@ A fixture da suíte de notificações foi corrigida para usar o ID válido `sala
 
 - O fallback de slug vazio no fluxo de rascunho passa a usar `negocio`, não `barbearia`. A publicação exige um nome antes de gerar o slug; portanto essa alteração é apenas um último recurso neutro e não muda slugs de cadastros válidos.
 - Comentários de implementação nos módulos de contexto da IA e loja foram generalizados para “negócio”. Nomes técnicos como `criarRascunhoDeBarbearia`, `rascunhos_de_barbearia`, permissões e RPCs foram mantidos deliberadamente por serem contratos de compatibilidade.
+
+### FAQ pública — posicionamento multi-serviços (28/10/2026)
+
+- A resposta à pergunta “Quais tipos de negócio podem usar o Cortaí?” agora começa pela definição do produto como plataforma de gestão e agendamento para negócios de serviços. Beleza e barbearia são apresentadas como exemplos de áreas, não como centro e exceção.
+- Teste de regressão verifica a frase inicial, a menção de segmentos como exemplos e impede que a resposta volte a começar por “Não.”
+- O showroom visual e conteúdo personalizado de estabelecimentos não foram alterados.
