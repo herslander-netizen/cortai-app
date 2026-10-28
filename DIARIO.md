@@ -498,6 +498,8 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Em andamento
 
+- GPT | 2026-10-28 UTC | Neutralizar resíduos semânticos de barbearia em comentários e fallback auxiliar de slug; preservar nomes de funções/tabelas que são contratos históricos. Mudança pequena e reversível, sem alterar persistência ou fluxo de negócio | `DIARIO.md`, `src/lib/rascunho.functions.ts`, `src/lib/assistente.functions.ts`, `src/lib/loja.functions.ts`, `docs/auditoria-multiservico-cortai-2026-10-27.md`; sem migração
+
 
 - GPT | 2026-10-27 UTC | Corrigir divergência entre Agenda clara e escura: investigar regressão, manter a mesma estrutura/medidas/cartões/gestos/animações nos dois temas e variar apenas tokens de cor; registrar regra permanente de paridade e validar sem tocar produção/main | `DIARIO.md`, `AGENTS.md`, `src/components/barbeiro/agenda/AGENTS.md`, componentes/estilos/testes estritamente necessários da Agenda; sem migração
 
