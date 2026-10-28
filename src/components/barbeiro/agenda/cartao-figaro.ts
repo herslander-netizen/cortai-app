@@ -105,11 +105,9 @@ export const ROTULO_DO_GLIFO: Record<GlifoDoEstado, string> = {
 };
 
 /**
- * Linhas de 5 em 5 minutos, como no Figaro (`AgendaArmedGrid`, spec 2-agenda §2.2; dono, 26/10, vídeo de 19:09:
- * "replicar o mesmo comportamento"): na edição, cheias; em repouso surgem com o zoom, invisíveis até 2,5 px/min e
- * inteiras a partir de 3,0. Substitui as decisões de 25/10 (15 min com zoom; 5 min só na edição).
+ * Linhas de 5 em 5 minutos surgem apenas conforme o zoom aumenta (2,5 → 3,0 px/min).
+ * Arrastar ou segurar um cartão não deve revelar a grade inteira de uma vez.
  */
-export function opacidadeDasLinhasDe5(pxPorMinuto: number, editando: boolean) {
-  if (editando) return 1;
+export function opacidadeDasLinhasDe5(pxPorMinuto: number) {
   return Math.min(1, Math.max(0, (pxPorMinuto - 2.5) / 0.5));
 }
