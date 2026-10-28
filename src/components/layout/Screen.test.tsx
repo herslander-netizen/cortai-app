@@ -4,9 +4,13 @@ import type { ReactNode } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-const routerState = vi.hoisted(() => ({ pathname: "/barbeiro/servicos" }));
+const routerState = vi.hoisted(() => ({ pathname: "/barbeiro/servicos", mobile: true }));
 
 import { EmptyState, Screen } from "./Screen";
+
+vi.mock("@/hooks/use-mobile", () => ({
+  useMediaQuery: () => routerState.mobile,
+}));
 
 vi.mock("@tanstack/react-router", () => ({
   useRouterState: ({ select }: { select: (state: { location: { pathname: string } }) => unknown }) =>
@@ -34,6 +38,7 @@ vi.mock("./Signature", () => ({
 describe("moldura de tela no padrão Figaro", () => {
   afterEach(() => {
     routerState.pathname = "/barbeiro/servicos";
+    routerState.mobile = true;
   });
 
   it("usa altura completa e fixa o cabeçalho no topo em subpáginas internas", () => {
@@ -96,6 +101,17 @@ describe("moldura de tela no padrão Figaro", () => {
     routerState.pathname = "/barbeiro";
     const html = renderToStaticMarkup(
       <Screen title="Agenda"><p>Atendimentos</p></Screen>,
+    );
+
+    expect(html).toContain("min-h-[calc(100dvh-3.5rem)]");
+    expect(html).toContain("top-14");
+  });
+
+  it("mantém o espaçamento do cabeçalho global no desktop", () => {
+    routerState.pathname = "/barbeiro/produtos";
+    routerState.mobile = false;
+    const html = renderToStaticMarkup(
+      <Screen title="Produtos" voltarPara="/barbeiro"><p>Estoque</p></Screen>,
     );
 
     expect(html).toContain("min-h-[calc(100dvh-3.5rem)]");
