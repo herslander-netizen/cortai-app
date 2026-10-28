@@ -45,6 +45,8 @@ export function PreviaDiaVizinho({
         ) : (
           <EsqueletoAgenda linhas={4} onTentarDeNovo={() => void consulta.refetch()} />
         )
+      ) : itens.length === 0 ? (
+        <p className="mt-4 text-sm text-mute">Agenda livre</p>
       ) : timeline ? (
         <div className="mt-3">
           <AgendaTimeline
@@ -52,9 +54,6 @@ export function PreviaDiaVizinho({
             dia={dia}
             fuso={data.fuso}
             itens={itens}
-            bloqueios={(data.bloqueios ?? []).filter(
-              (b) => !b.profissional_id || (profissionalId !== null && b.profissional_id === profissionalId),
-            )}
             horarios={data.horarios ?? []}
             selecionado={null}
             onSelecionar={nada}
@@ -62,8 +61,6 @@ export function PreviaDiaVizinho({
             diaCompleto={diaCompleto}
           />
         </div>
-      ) : itens.length === 0 ? (
-        <p className="mt-4 text-sm text-mute">Agenda livre</p>
       ) : (
         <ul className="mt-3 space-y-2">
           {itens.map((i) => (
