@@ -54,6 +54,9 @@ export function PreviaDiaVizinho({
             dia={dia}
             fuso={data.fuso}
             itens={itens}
+            bloqueios={(data.bloqueios ?? []).filter(
+              (b) => !b.profissional_id || (profissionalId !== null && b.profissional_id === profissionalId),
+            )}
             horarios={data.horarios ?? []}
             selecionado={null}
             onSelecionar={nada}
