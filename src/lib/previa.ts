@@ -14,7 +14,7 @@ export function headDaBarbearia(
   const titulo = `${nome} | Cortaí`;
   const descricao =
     previa?.descricao?.slice(0, 160) ||
-    `${acao} na ${nome}: escolha serviço, profissional e horário em poucos toques.`;
+    `${acao} com ${nome}: escolha serviços, profissionais e horários em poucos toques.`;
   const url = urlPublica(caminho);
   const imagem = previa?.imagem?.startsWith("https://") ? previa.imagem : null;
   const altImagem = `Imagem de ${nome}`;
