@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import { Aviso } from "@/components/ui/aviso";
 import { GrupoDeLinhas } from "@/components/ui/formulario/LinhasDeConfiguracao";
 import { useQuery } from "@tanstack/react-query";
 import { ChevronRight, MapPin, Search } from "lucide-react";
@@ -36,7 +37,7 @@ export function DescobrirBarbearias({
         </>
       ) : (
         <>
-          <h2 className="text-3xl font-bold leading-tight tracking-tight text-paper">{titulo}</h2>
+          <h2 className="text-[22px] font-semibold leading-7 text-paper md:text-2xl">{titulo}</h2>
           <p className="mt-2 text-sm text-mute">
             Busque pelo nome ou endereço. Nenhum lugar é escolhido para você.
           </p>
@@ -45,14 +46,18 @@ export function DescobrirBarbearias({
 
       <label className={discreto ? "mt-4 block" : "mt-6 block"}>
         <span className="sr-only">Buscar lugar</span>
-        <span className="grid min-h-[52px] grid-cols-[auto_minmax(0,1fr)] items-center gap-3 rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))] px-4">
-          <Search size={17} className="text-mute" aria-hidden />
+        <span className="relative block">
+          <Search
+            size={17}
+            className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-mute"
+            aria-hidden
+          />
           <input
             value={termo}
             onChange={(event) => setTermo(event.target.value)}
             placeholder="Nome ou endereço"
             inputMode="search"
-            className="h-13 min-h-[52px] min-w-0 bg-transparent text-base text-paper outline-none placeholder:text-mute2"
+            className="field-control min-h-[52px] rounded-[12px] pl-11 text-base"
           />
         </span>
       </label>
@@ -68,9 +73,9 @@ export function DescobrirBarbearias({
           />
         ) : null}
         {consulta.isError ? (
-          <p className="text-sm text-brick" role="alert">
+          <Aviso tom="acao">
             Não foi possível carregar os lugares. Tente de novo em instantes.
-          </p>
+          </Aviso>
         ) : null}
         {consulta.data && consulta.data.length === 0 && (!discreto || busca.length >= 2) ? (
           <p className="text-sm text-mute">
