@@ -19,5 +19,8 @@ describe("divulgação multi-serviços", () => {
     expect(textoPadrao("servico", "Espaço Horizonte", "Atendimento inicial")).toBe(
       "Atendimento inicial aqui em Espaço Horizonte.",
     );
+    expect(textoPadrao("foto", "Espaço Horizonte")).toBe(
+      "Mais um atendimento feito com carinho em Espaço Horizonte.",
+    );
   });
 });

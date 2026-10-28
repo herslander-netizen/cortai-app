@@ -61,5 +61,5 @@ export function textoPadrao(modelo: Modelo, nome: string, servico?: string, prec
   if (modelo === "servico" && servico) return `${servico}${preco ? ` por ${preco}` : ""} aqui em ${nome}.`;
   if (modelo === "horarios") return `Ainda temos horários hoje em ${nome}. Garanta o seu!`;
   if (modelo === "promocao") return `Promoção do dia em ${nome}. Só hoje!`;
-  return `Mais um atendimento feito com carinho na ${nome}.`;
+  return `Mais um atendimento feito com carinho em ${nome}.`;
 }

@@ -498,8 +498,6 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Em andamento
 
-- GPT | 2026-10-28 UTC | Neutralizar a legenda genérica de divulgação para não pressupor gênero do segmento e adicionar teste; preservar textos específicos de modelos/segmentos e links rastreados | `DIARIO.md`, `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, `docs/auditoria-multiservico-cortai-2026-10-27.md`; sem migração
-
 
 
 - GPT | 2026-10-27 UTC | Corrigir divergência entre Agenda clara e escura: investigar regressão, manter a mesma estrutura/medidas/cartões/gestos/animações nos dois temas e variar apenas tokens de cor; registrar regra permanente de paridade e validar sem tocar produção/main | `DIARIO.md`, `AGENTS.md`, `src/components/barbeiro/agenda/AGENTS.md`, componentes/estilos/testes estritamente necessários da Agenda; sem migração
@@ -793,6 +791,8 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Fechamento da passada de coordenação multi-serviços: registrei para a tarefa visual reservada dois textos de interface a neutralizar — CTA “Tenho uma barbearia no Cortaí” na tela de visitante e rótulos “barbearias novas/já clientes” na monetização. Não alterei os arquivos reservados; a equipe responsável deve trocar os rótulos sem mexer em destino, permissões, filtros ou IDs. A FAQ, os fallbacks de descoberta/página pública, notificações e cadastro de serviços já foram implementados em lotes anteriores com CI verde. | relatório multi-serviços e diário
 
 - GPT | 2026-10-28 UTC | Neutralizados comentários de domínio em contexto do cliente e monetização, substituindo referências genéricas a barbearia por negócio. Foi alteração documental de código sem efeito executável: nomes de APIs, permissões, tabelas, regras de cobrança e consultas ficaram idênticos. CI do commit final ainda deve confirmar a branch inteira. | `src/lib/contexto-cliente.functions.ts`, `src/lib/monetizacao.functions.ts`, relatório e diário
+
+- GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
 

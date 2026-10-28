@@ -277,3 +277,8 @@ Testes adicionados para default neutro, barbearia explícita, salão e esmalteri
 
 - Comentários de domínio em `src/lib/contexto-cliente.functions.ts` e `src/lib/monetizacao.functions.ts` agora dizem “negócio” em vez de chamar todo tenant de “barbearia”.
 - Foi uma mudança só de documentação do código: não alterei nomes de funções, contratos de payload, permissões, regras de cobrança, consultas, tabelas ou dados.
+
+### Divulgação — legenda genérica neutra (28/10/2026)
+
+- Corrigida a legenda padrão do modelo genérico de divulgação: “... com carinho **em** [nome]” em vez de “... **na** [nome]”. Isso evita pressupor que o nome representa uma barbearia ou outro nome gramaticalmente feminino.
+- Teste de regressão cobre a legenda genérica; hashtags, links rastreados e mensagens específicas de segmentos não mudaram.
