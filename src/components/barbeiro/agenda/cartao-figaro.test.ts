@@ -53,11 +53,11 @@ describe("cartão da timeline como no Figaro", () => {
     expect(glifoDoEstado({ ...base, status: "finalizado" }, false)).toBe("concluido");
   });
 
-  it("linhas de 5 min como no Figaro: surgem com o zoom (2,5 → 3,0 px/min) e cheias na edição", () => {
-    expect(opacidadeDasLinhasDe5(2, false)).toBe(0);
-    expect(opacidadeDasLinhasDe5(2.5, false)).toBe(0);
-    expect(opacidadeDasLinhasDe5(2.75, false)).toBeCloseTo(0.5);
-    expect(opacidadeDasLinhasDe5(3.5, false)).toBe(1);
-    expect(opacidadeDasLinhasDe5(1, true)).toBe(1);
+  it("linhas de 5 min aparecem progressivamente pelo zoom, nunca apenas por segurar o cartão", () => {
+    expect(opacidadeDasLinhasDe5(2)).toBe(0);
+    expect(opacidadeDasLinhasDe5(2.5)).toBe(0);
+    expect(opacidadeDasLinhasDe5(2.75)).toBeCloseTo(0.5);
+    expect(opacidadeDasLinhasDe5(3)).toBe(1);
+    expect(opacidadeDasLinhasDe5(3.5)).toBe(1);
   });
 });
