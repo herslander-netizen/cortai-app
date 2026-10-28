@@ -1447,17 +1447,8 @@ export function AgendaOperacional() {
 
         {faixa}
 
-        {/* O espaço do "Agora · Livre" fica reservado em todo dia: sem ele a grade pulava ao
-            trocar entre hoje e outro dia. */}
-        {visualizacao === "timeline" ? (
-          <p
-            className={`mb-2 text-xs font-semibold text-mute ${ehHoje && ativos.length === 0 ? "" : "invisible"}`}
-            role={ehHoje && ativos.length === 0 ? "status" : undefined}
-            aria-hidden={ehHoje && ativos.length === 0 ? undefined : true}
-          >
-            Agora · Livre
-          </p>
-        ) : null}
+        {/* A altura que antes pertencia ao rótulo "Agora · Livre" passa a integrar o respiro
+            inferior do calendário compacto; assim a grade não salta ao trocar o dia. */}
 
         {sugestaoFila && chegada.length > 0 ? (
           <div className="agenda-sugestao-fila mb-4" role="status">
