@@ -223,3 +223,9 @@ A solicitação do dono foi incorporada ao escopo da atualização global Figaro
 5. Manter a versão principal, banco real, DNS e rotas persistentes intocados sem autorização específica.
 
 **Não confundir** “eliminar o legado como foco” com apagar toda ocorrência de “barbearia”: o objetivo é que ela deixe de ser o padrão universal, sem quebrar negócios existentes, links, histórico ou a experiência do segmento explícito.
+### Cadastro de serviços — fallback neutro (27/10/2026)
+
+- O editor reutilizável de serviços agora usa o segmento `outro` quando o chamador não informa um segmento, em vez de abrir com sugestões de corte/barba. Os componentes de sugestões rápidas e de descrição assistida da IA também usam o normalizador de apresentação.
+- Quando `barbearia` é selecionado explicitamente, as sugestões de barbearia permanecem inalteradas. O fluxo oficial de onboarding já passa o segmento escolhido; nenhuma rota ou payload foi renomeado.
+- Foram adicionados testes para garantir que o fallback genérico não apresente sugestões de barbearia e use o exemplo neutro da IA, além de manter a faixa rolável quando barbearia é selecionada explicitamente.
+- Arquivos: `src/components/onboarding/EditorDeServicos.tsx`, `EditorDeServicos.test.tsx`, `AssistenteDeServicos.tsx` e `SugestoesDeServicos.tsx`.

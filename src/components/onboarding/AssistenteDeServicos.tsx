@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { brl } from "@/lib/format";
 import type { ServicoSugerido } from "@/lib/ia/assistente";
 import { interpretarServicos } from "@/lib/assistente.functions";
-import { SEGMENTOS_CONFIG, segmentoValido, type Segmento } from "@/lib/segmentos";
+import { SEGMENTOS_CONFIG, segmentoParaApresentacao, type Segmento } from "@/lib/segmentos";
 import type { ServicoEditavel } from "./servicos.types";
 
 export function AssistenteDeServicos({
@@ -26,7 +26,7 @@ export function AssistenteDeServicos({
   const [aviso, setAviso] = useState<string | null>(null);
   const [erro, setErro] = useState<string | null>(null);
   const descricaoId = useId();
-  const definicao = SEGMENTOS_CONFIG[segmentoValido(segmento)];
+  const definicao = SEGMENTOS_CONFIG[segmentoParaApresentacao(segmento)];
 
   return (
     <section className="mt-6 rounded-xl border border-gold/40 bg-ink2 px-4 py-4">

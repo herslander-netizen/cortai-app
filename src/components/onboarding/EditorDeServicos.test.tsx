@@ -4,6 +4,7 @@ import { createRoot, type Root } from "react-dom/client";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { EditorDeServicos } from "./EditorDeServicos";
+import type { Segmento } from "@/lib/segmentos";
 import type { ServicoEditavel } from "./servicos.types";
 
 vi.mock("@tanstack/react-start", () => ({ useServerFn: () => vi.fn() }));
@@ -43,7 +44,7 @@ afterEach(() => {
   root = null;
 });
 
-function montar(onChange = vi.fn(), semIA = true) {
+function montar(onChange = vi.fn(), semIA = true, segmento?: Segmento) {
   host = document.createElement("div");
   document.body.appendChild(host);
   root = createRoot(host);
@@ -53,7 +54,13 @@ function montar(onChange = vi.fn(), semIA = true) {
 
   act(() =>
     root!.render(
-      <EditorDeServicos servicos={servicos} onChange={onChange} semIA={semIA} profissionais={[]} />,
+      <EditorDeServicos
+        servicos={servicos}
+        onChange={onChange}
+        semIA={semIA}
+        profissionais={[]}
+        {...(segmento ? { segmento } : {})}
+      />,
     ),
   );
   return onChange;
@@ -93,8 +100,20 @@ describe("EditorDeServicos", () => {
     expect(host!.querySelector("textarea")?.id).toBe(rotulo?.htmlFor);
   });
 
-  it("mantém as sugestões em uma faixa móvel rolável com botões de toque adequados", () => {
+  it("não presume serviços de barbearia quando o segmento é omitido", () => {
     montar(vi.fn(), true);
+    expect(host!.querySelector('[aria-label="Sugestões rápidas de serviços"]')).toBeNull();
+  });
+
+  it("usa o exemplo genérico da IA quando o segmento é omitido", () => {
+    montar(vi.fn(), false);
+    expect(host!.querySelector("textarea")?.getAttribute("placeholder")).toBe(
+      "Cadastre o serviço por 50 reais em 45 minutos",
+    );
+  });
+
+  it("mantém as sugestões em uma faixa móvel rolável com botões de toque adequados", () => {
+    montar(vi.fn(), true, "barbearia");
     const sugestoes = host!.querySelector<HTMLElement>(
       '[aria-label="Sugestões rápidas de serviços"]',
     )!;

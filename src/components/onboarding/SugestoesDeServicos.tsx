@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import {
   LISTA_DE_SEGMENTOS,
   SEGMENTOS_CONFIG,
-  segmentoValido,
+  segmentoParaApresentacao,
   type Segmento,
 } from "@/lib/segmentos";
 import type { ServicoEditavel } from "./servicos.types";
@@ -20,7 +20,7 @@ export function SugestoesDeServicos({
   segmento: Segmento;
 }) {
   const [mostrarTodas, setMostrarTodas] = useState(false);
-  const definicao = SEGMENTOS_CONFIG[segmentoValido(segmento)];
+  const definicao = SEGMENTOS_CONFIG[segmentoParaApresentacao(segmento)];
   const naoAdicionados = definicao.servicosSugeridos.filter(
     (s) => !servicos.some((a) => a.nome.toLowerCase() === s.nome.toLowerCase()),
   );

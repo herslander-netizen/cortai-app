@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import { Trash2 } from "lucide-react";
 
-import { SEGMENTOS_CONFIG, segmentoValido, type Segmento } from "@/lib/segmentos";
+import { SEGMENTOS_CONFIG, segmentoParaApresentacao, type Segmento } from "@/lib/segmentos";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useConfirmar } from "@/components/ui/useConfirmar";
@@ -20,7 +20,7 @@ export function EditorDeServicos({
   semIA = false,
   semSugestoes = false,
   apenasUm = false,
-  segmento = "barbearia",
+  segmento = "outro",
   tenantId,
   fotosAssinadas = {},
 }: {
@@ -43,7 +43,8 @@ export function EditorDeServicos({
   const [enviandoFoto, setEnviandoFoto] = useState<number | null>(null);
   const [confirmarRemocao, dialogoRemocao] = useConfirmar();
   const arquivos = useRef<Record<number, HTMLInputElement | null>>({});
-  const definicao = SEGMENTOS_CONFIG[segmentoValido(segmento)];
+  const segmentoNormalizado = segmentoParaApresentacao(segmento);
+  const definicao = SEGMENTOS_CONFIG[segmentoNormalizado];
 
   function atualizar(indice: number, campos: Partial<ServicoEditavel>) {
     onChange(servicos.map((s, i) => (i === indice ? { ...s, ...campos } : s)));
@@ -52,7 +53,7 @@ export function EditorDeServicos({
   return (
     <div>
       {semSugestoes ? null : (
-        <SugestoesDeServicos servicos={servicos} onChange={onChange} segmento={segmento} />
+        <SugestoesDeServicos servicos={servicos} onChange={onChange} segmento={segmentoNormalizado} />
       )}
 
       <ul className="mt-5 space-y-3">
@@ -303,7 +304,7 @@ export function EditorDeServicos({
         </p>
       ) : null}
       {semIA ? null : (
-        <AssistenteDeServicos servicos={servicos} onChange={onChange} segmento={segmento} />
+        <AssistenteDeServicos servicos={servicos} onChange={onChange} segmento={segmentoNormalizado} />
       )}
       {dialogoRemocao}
     </div>
