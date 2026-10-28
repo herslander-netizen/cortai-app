@@ -240,3 +240,8 @@ Estes pontos foram identificados, mas não foram alterados nesta tranche por est
 - `CLAUDE.md` foi alinhado ao posicionamento multi-serviços. `AGENTS.md` ainda tem uma formulação antiga de posicionamento e permanece reservado por outra tarefa; o recado existente pede a correção quando ele for liberado.
 
 A fixture da suíte de notificações foi corrigida para usar o ID válido `salao`, de modo que os testes sobre mensagens de outro segmento exercitem um segmento real, em vez de um alias inválido que cairia no fallback neutro.
+
+### Resíduos de vocabulário no código auxiliar (28/10/2026)
+
+- O fallback de slug vazio no fluxo de rascunho passa a usar `negocio`, não `barbearia`. A publicação exige um nome antes de gerar o slug; portanto essa alteração é apenas um último recurso neutro e não muda slugs de cadastros válidos.
+- Comentários de implementação nos módulos de contexto da IA e loja foram generalizados para “negócio”. Nomes técnicos como `criarRascunhoDeBarbearia`, `rascunhos_de_barbearia`, permissões e RPCs foram mantidos deliberadamente por serem contratos de compatibilidade.

@@ -498,8 +498,6 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Em andamento
 
-- GPT | 2026-10-28 UTC | Neutralizar resíduos semânticos de barbearia em comentários e fallback auxiliar de slug; preservar nomes de funções/tabelas que são contratos históricos. Mudança pequena e reversível, sem alterar persistência ou fluxo de negócio | `DIARIO.md`, `src/lib/rascunho.functions.ts`, `src/lib/assistente.functions.ts`, `src/lib/loja.functions.ts`, `docs/auditoria-multiservico-cortai-2026-10-27.md`; sem migração
-
 
 - GPT | 2026-10-27 UTC | Corrigir divergência entre Agenda clara e escura: investigar regressão, manter a mesma estrutura/medidas/cartões/gestos/animações nos dois temas e variar apenas tokens de cor; registrar regra permanente de paridade e validar sem tocar produção/main | `DIARIO.md`, `AGENTS.md`, `src/components/barbeiro/agenda/AGENTS.md`, componentes/estilos/testes estritamente necessários da Agenda; sem migração
 
@@ -786,6 +784,8 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - Auditoria de conflito: não alterar logos de negócio, capas, fotos de serviços/produtos, galeria ou fotos de portfólio; nenhuma regra de negócio, dados, banco ou migração foi tocada. Agenda visual protegida, sem mudanças nos seus arquivos.
 - Testes: pendentes de confirmação no GitHub Actions e conferência visual mobile; não declarar pronto até validar o workflow.
 ## Diário
+
+- GPT | 2026-10-28 UTC | Lote semântico auxiliar: fallback de slug vazio agora usa `negocio`; comentários em rascunhos, contexto da IA e loja descrevem o recurso como negócio, sem renomear funções, tabelas, permissões ou RPCs históricos. Slugs de cadastros válidos não mudam, pois a publicação exige nome antes de gerar o slug. Documentado na auditoria multi-serviços. Validação completa pendente para o commit deste lote; sem dados/banco, Agenda ou publicação principal. | `src/lib/rascunho.functions.ts`, `src/lib/assistente.functions.ts`, `src/lib/loja.functions.ts`, relatório e diário
 
 - GPT | 2026-10-28 UTC | Alinhada a linguagem de posicionamento no `CLAUDE.md`: o Cortaí agora é descrito como plataforma de gestão/agendamento para negócios de serviços, sem tratar beleza como limite de mercado ou usar símbolos exclusivos de um segmento. O `AGENTS.md` não foi alterado porque continua reservado; o recado de coordenação permanece ativo. Não houve alteração de código, banco, rotas persistentes, Agenda ou produção. | `CLAUDE.md`, relatório multi-serviços e diário
 

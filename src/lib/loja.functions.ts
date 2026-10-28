@@ -29,8 +29,8 @@ export type LojaPublica = {
 };
 
 /**
- * Produtos visíveis ao público de UMA barbearia.
- * Só entram quando: barbearia ativa + loja ligada + recurso liberado no plano
+ * Produtos visíveis ao público de UM negócio.
+ * Só entram quando: negócio ativo + loja ligada + recurso liberado no plano
  * + produto ativo + marcado como disponível para venda + preço válido.
  */
 export const getLojaPublica = createServerFn({ method: "GET" })

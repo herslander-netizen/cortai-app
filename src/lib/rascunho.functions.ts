@@ -153,7 +153,7 @@ function slugBase(nome: string) {
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "");
-  return limpo || "barbearia";
+  return limpo || "negocio";
 }
 
 async function slugLivre(db: any, nome: string) {
@@ -278,7 +278,7 @@ export const salvarRascunhoDeBarbearia = createServerFn({ method: "POST" })
   });
 
 /**
- * Publica uma barbearia NOVA a partir do rascunho. Nunca altera uma barbearia
+ * Publica um negócio NOVO a partir do rascunho. Nunca altera um negócio
  * existente e não concede acesso administrativo a ninguém: o painel só abre
  * depois que alguém entra com uma conta e reivindica o rascunho.
  */
@@ -391,7 +391,7 @@ export const publicarRascunhoDeBarbearia = createServerFn({ method: "POST" })
 
 /**
  * Passo que dá acesso ao painel: exige conta autenticada + o código do
- * rascunho. Uma barbearia que já tem dono nunca pode ser reivindicada.
+ * rascunho. Um negócio que já tem dono nunca pode ser reivindicado.
  */
 export const reivindicarBarbeariaDoRascunho = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])

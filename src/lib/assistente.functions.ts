@@ -37,7 +37,7 @@ export const getEstadoDaCortai = createServerFn({ method: "GET" })
     return { estado: await estadoNoPainel(tenantId, context.userId) };
   });
 
-/** Monta o contexto real da barbearia — a IA só enxerga o que existe de verdade. */
+/** Monta o contexto real do negócio — a IA só enxerga o que existe de verdade. */
 async function contextoDaBarbearia(context: { supabase: any }, tenantId: string) {
   const db = context.supabase;
   const [tenantRes, servicosRes, horariosRes, filaRes] = await Promise.all([
