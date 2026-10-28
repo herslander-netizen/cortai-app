@@ -498,7 +498,6 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Em andamento
 
-- GPT | 2026-10-28 UTC | Reforçar regressão de apresentação multi-serviços: testar que definicaoDoSegmento também retorna `outro` para valores ausentes/inválidos; apenas teste e diário, sem alterar consumidores reservados | `DIARIO.md`, `src/lib/segmentos.test.ts`; sem migração
 
 - GPT | 2026-10-28 UTC | Alinhar a auditoria multi-serviços e os testes à nova regra central: ausência/segmento inválido deve normalizar para `outro`, sem alterar segmentos explícitos nem contratos legados | `DIARIO.md`, `docs/auditoria-multiservico-cortai-2026-10-27.md`, `src/lib/segmentos.test.ts`; sem migração
 
@@ -800,6 +799,9 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+
+- GPT | 2026-10-28 UTC | Auditoria adicional confirmou que `/apresentacao` já passa `outro` quando o segmento não vem na URL; reforçado o teste para garantir que `definicaoDoSegmento` também devolve a definição neutra para ausente/inválido. Arquivos reservados de onboarding/editor visual não foram tocados. CI ainda não confirmado. | `src/routes/apresentacao.tsx` (somente inspeção), `src/lib/segmentos.test.ts`, `DIARIO.md`
+
 
 - GPT | 2026-10-28 UTC | Fallback central de segmento agora é neutro (`outro`) para valor ausente/inválido; segmentos explicitamente escolhidos continuam preservados. Atualizados testes para ausente, inválido e segmentos explícitos. Aguardando CI para confirmar TypeScript/testes/build e publicação da prévia; nenhum banco, Agenda, main ou produção alterados. | `src/lib/segmentos.ts`, `src/lib/segmentos.test.ts`, `DIARIO.md`
 
