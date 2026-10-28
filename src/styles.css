@@ -10695,3 +10695,16 @@ input[type="range"] {
 .agenda-botao-agora-principal button.agenda-botao-agora-visualizacao:is(:hover, :focus, :focus-visible, :active) {
   color: var(--figaro-primary, var(--primary));
 }
+
+
+/* Hierarquia da grade como no Figaro: subdivisões de 5 min ficam atrás das marcas horárias. */
+.agenda-timeline-ajuste-5,
+.agenda-operacional .agenda-timeline-ajuste-5 {
+  z-index: 0;
+}
+.agenda-timeline-marca {
+  z-index: 1;
+}
+.agenda-timeline-marca.agenda-timeline-hora {
+  z-index: 2;
+}
