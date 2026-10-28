@@ -60,7 +60,7 @@ function AdminOverview() {
               }
             />
             <Metric
-              label="Barbearias"
+              label="Negócios"
               value={String(query.data.totalBarbearias)}
               note={query.data.totalBarbearias ? "base total" : "sem dados ainda"}
             />
@@ -95,7 +95,7 @@ function AdminOverview() {
                   <span className="text-sm text-mute2">{index + 1}</span>
                   <div>
                     <p className="text-sm font-semibold text-paper">{signal.label}</p>
-                    <p className="mt-1 text-xs text-mute">{signal.sample} barbearias usaram</p>
+                    <p className="mt-1 text-xs text-mute">{signal.sample} {signal.sample === 1 ? "negócio usou" : "negócios usaram"}</p>
                   </div>
                   <span className="flex items-center gap-1 text-sm font-semibold text-paper">
                     {signal.correlation === null ? (
