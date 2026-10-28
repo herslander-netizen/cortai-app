@@ -42,7 +42,7 @@ O CI (GitHub Actions) roda TypeScript, testes e build a cada envio; use-o como v
 
 ## Produto
 
-- Plataforma de gestão e agendamento para negócios de serviços. Beleza é um dos segmentos atendidos; barbearia é apenas um segmento dentro dele. Sem segmento definido, a experiência e a linguagem devem ser neutras. Assinatura: "Simplifica. Conecta. Cresce."
+- Plataforma de gestão e agendamento para negócios de serviços. Beleza e barbearia são exemplos de segmentos atendidos, não limites da plataforma. Sem segmento definido ou quando ele é inválido, a experiência e a linguagem devem ser neutras. Assinatura: "Simplifica. Conecta. Cresce."
 - **Cortaí** = plataforma e experiência. **CortAI** = camada de IA. **Cortaí Chat** = agendamento conversacional determinístico.
 - O motor oficial de agenda, disponibilidade, mutações e RPCs é a única fonte de verdade.
 - Papéis neutros: NEGÓCIO (tenant), DONO, PROFISSIONAL, CLIENTE. Termos de segmento só aparecem na UI, via `termos(segmento)` (`src/lib/segmentos.ts`). Código, rotas, tabelas, tipos, modelos de WhatsApp e textos fixos ficam neutros.
@@ -57,7 +57,7 @@ TanStack Start (React 19), Tailwind 4, shadcn/Radix, Supabase, Drizzle (migraç�
 ## Identidade visual oficial do Cortaí (decisão do dono, 27/10/2026)
 
 - Quando o dono disser **Cortaí** sem restringir uma tela, aplicar a identidade unificada ao produto inteiro: painel, agenda, financeiro, clientes, configurações, agendamento público e novas telas. Um pedido sobre uma tela também deve respeitar a mesma identidade, não criar um tema isolado.
-- Marca: wordmark minimalista em letras arredondadas, marinho profundo e um ponto coral sobre o “í”. Sem tesoura, calendário, relógio ou símbolos exclusivos de barbearia; o produto atende todo o setor de beleza.
+- Marca: wordmark minimalista em letras arredondadas, marinho profundo e um ponto coral sobre o “í”. Sem tesoura, calendário, relógio ou símbolos exclusivos de um segmento; a identidade serve a negócios de serviços de diferentes áreas.
 - Paleta padrão do app: marinho, azul de ação vindo do Figaro, superfícies neutras e coral usado com intenção. O ponto coral identifica a marca; não transformar tudo em rosa/vermelho. Não voltar à antiga combinação ciano + pink nem ao gradiente antigo do logotipo.
 - Figaro define a composição, hierarquia, raios, folhas inferiores e transições. A marca e a paleta do Cortaí substituem a marca do Figaro — não copiar seu logotipo.
 - Os temas escolhidos explicitamente para páginas públicas de clientes continuam respeitados; a identidade global não apaga personalizações do negócio.
