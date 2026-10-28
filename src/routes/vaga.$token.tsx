@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 
+import { Aviso } from "@/components/ui/aviso";
 import { Button } from "@/components/ui/button";
 import { Signature } from "@/components/layout/Signature";
 import { TelaDeCarregamento } from "@/components/layout/Carregando";
@@ -63,7 +64,7 @@ function VagaPage() {
           {o.negocio}
         </p>
       ) : null}
-      <h1 className="mt-3 text-3xl font-bold text-paper">
+      <h1 className="mt-3 text-[22px] font-semibold leading-7 text-paper md:text-2xl">
         {o?.status === "aceita" ? "Horário confirmado" : "Abriu uma vaga para você"}
       </h1>
       {o ? (
@@ -84,26 +85,23 @@ function VagaPage() {
       ) : null}
 
       {aviso ? (
-        <p role="status" className="mt-6 text-sm leading-relaxed text-mute">
-          {aviso}
-        </p>
+        <Aviso tom="atencao" className="mt-6">{aviso}</Aviso>
       ) : null}
       {o?.status === "aceita" ? (
-        <p role="status" className="mt-6 text-sm leading-relaxed text-mute">
-          Pronto! Seu horário está na agenda.
-        </p>
+        <Aviso tom="sucesso" className="mt-6">Pronto! Seu horário está na agenda.</Aviso>
       ) : null}
 
       {o?.status === "enviada" && !aviso ? (
         <div className="mt-8 flex flex-col gap-3">
-          <button
+          <Button
             type="button"
-            className="btn-primary w-full py-3"
+            variant="primary"
+            className="w-full"
             disabled={envio.isPending}
             onClick={() => envio.mutate(true)}
           >
             {envio.isPending ? "Confirmando…" : "Quero este horário"}
-          </button>
+          </Button>
           <Button
             type="button"
             variant="outline"
@@ -116,7 +114,7 @@ function VagaPage() {
         </div>
       ) : null}
       {envio.isError ? (
-        <p className="mt-3 text-sm text-brick">Não foi possível responder agora. Tente de novo.</p>
+        <Aviso tom="acao" className="mt-3">Não foi possível responder agora. Tente de novo.</Aviso>
       ) : null}
       <Signature />
     </main>
