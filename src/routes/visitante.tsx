@@ -233,7 +233,7 @@ function VisitantePage() {
       </Button>
 
       <Link to="/login" className="mt-6 text-center text-xs text-mute2 hover:text-paper">
-        Tenho uma barbearia no Cortaí
+        Tenho um negócio no Cortaí
       </Link>
 
       <div className="mt-auto pt-6">
