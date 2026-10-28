@@ -200,6 +200,15 @@ describe("cadastro de cliente no padrão Figaro", () => {
   });
 });
 
+describe("cabeçalho mobile no padrão Figaro", () => {
+  it("mantém a barra global na Agenda e nas subrotas operacionais", () => {
+    const fonte = readFileSync("src/components/layout/ManagementDrawer.tsx", "utf8");
+    expect(fonte).toContain('caminho === "/barbeiro"');
+    expect(fonte).toContain('caminho.startsWith("/barbeiro/agenda/")');
+    expect(fonte).toContain("if (celular && !telaDaAgenda) return null;");
+  });
+});
+
 describe("chat da CortAI no padrão Figaro", () => {
   it("usa os primitivos de ação e aviso sem herdar estilos exclusivos da Agenda", () => {
     const fonte = readFileSync("src/components/ia/AssistenteCortai.tsx", "utf8");
