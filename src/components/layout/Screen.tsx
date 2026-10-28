@@ -25,7 +25,10 @@ export function Screen({
   children?: ReactNode;
 }) {
   const caminho = useRouterState({ select: (state) => state.location.pathname });
-  const semCabecalhoGlobal = caminho.startsWith("/barbeiro/marca") || caminho === "/barbeiro/sua-pagina";
+  const telaDaAgenda = /^\/barbeiro(\/agenda)?\/?$/.test(caminho);
+  const semCabecalhoGlobal = caminho.startsWith("/barbeiro/") && !telaDaAgenda;
+  // Toda subpágina interna ganha um retorno coerente mesmo quando a tela ainda não declara um destino.
+  const destinoVoltar = voltarPara ?? (semCabecalhoGlobal ? "/barbeiro" : undefined);
 
   return (
     <div
@@ -38,11 +41,11 @@ export function Screen({
           data-figaro-header="page"
           className={`sticky ${semCabecalhoGlobal ? "top-0" : "top-14"} z-20 grid gap-4 bg-[var(--figaro-background,var(--ink))] px-4 pb-3 pt-4 md:static md:px-8 md:pb-5 md:pt-6`}
         >
-          {voltarPara ? (
+          {destinoVoltar ? (
             <div className="flex min-h-11 items-center">
               {/* Top bar do Figaro: ação redonda de 44 dp; o título mantém hierarquia própria abaixo. */}
               <Link
-                to={voltarPara}
+                to={destinoVoltar}
                 aria-label={voltarRotulo}
                 className="flex size-11 shrink-0 items-center justify-center rounded-full bg-[var(--figaro-surface-container-highest,var(--ink3))] text-[var(--figaro-on-surface,var(--paper))] transition-[background-color,transform] duration-150 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring motion-reduce:transition-none"
               >
