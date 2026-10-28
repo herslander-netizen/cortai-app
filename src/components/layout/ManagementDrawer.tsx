@@ -191,7 +191,11 @@ export function ManagementHeader() {
 
   // O Figaro mantém a barra global na Agenda. Nas demais páginas, a moldura de tela própria
   // fornece o retorno e a hierarquia do título, sem repetir logo, CortAI e notificações.
-  const telaDaAgenda = /^\/barbeiro(\/agenda)?\/?$/.test(caminho);
+  const telaDaAgenda =
+    caminho === "/barbeiro" ||
+    caminho === "/barbeiro/" ||
+    caminho === "/barbeiro/agenda" ||
+    caminho.startsWith("/barbeiro/agenda/");
   if (!telaDaAgenda) return null;
 
   return (
