@@ -8,6 +8,7 @@ import { AdminScreen } from "@/components/layout/AdminScreen";
 import { Carregando } from "@/components/layout/Carregando";
 import { CodigoPorNumeroDoNegocio } from "@/components/admin/CodigoPorNumeroDoNegocio";
 import { QrCodeReal } from "@/components/ia/QrCodeReal";
+import { Aviso } from "@/components/ui/aviso";
 import { Button } from "@/components/ui/button";
 import {
   definirNotificacoesDoNegocio,
@@ -63,9 +64,9 @@ function AdminWhatsappPage() {
     >
       {negocios.isLoading ? <Carregando /> : null}
       {negocios.isError ? (
-        <p className="text-sm text-brick" role="alert">
+        <Aviso tom="acao">
           Acesso negado ou indisponível.
-        </p>
+        </Aviso>
       ) : null}
       <ul className="space-y-2">
         {(negocios.data ?? []).map((n) => (
