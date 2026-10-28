@@ -67,6 +67,20 @@ describe("moldura de tela no padrão Figaro", () => {
     expect(html).toContain("pointer-events-none");
   });
 
+  it("não reserva espaço para cabeçalho global ausente no app do cliente e compacta o título", () => {
+    routerState.pathname = "/app/agendar";
+    const html = renderToStaticMarkup(
+      <Screen title="Agendar" subtitle="Escolha serviço e horário.">
+        <p>Opções</p>
+      </Screen>,
+    );
+
+    expect(html).toContain("min-h-dvh");
+    expect(html).toContain("top-0");
+    expect(html).not.toContain("top-14");
+    expect(html).toContain('data-figaro-header="compact"');
+  });
+
   it("alinha a ação contextual à direita do botão voltar na barra Figaro", () => {
     const html = renderToStaticMarkup(
       <Screen

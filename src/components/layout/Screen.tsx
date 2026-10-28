@@ -39,10 +39,16 @@ export function Screen({
     caminho === "/barbeiro/" ||
     caminho === "/barbeiro/agenda" ||
     caminho.startsWith("/barbeiro/agenda/");
-  const subpaginaFigaroMobile = celular && caminho.startsWith("/barbeiro/") && !telaDaAgenda;
-  const destinoVoltar = voltarPara ?? (subpaginaFigaroMobile ? "/barbeiro" : undefined);
+  const subpaginaGestaoMobile = celular && caminho.startsWith("/barbeiro/") && !telaDaAgenda;
+  const subpaginaClienteMobile = celular && caminho.startsWith("/app/");
+  const compactaTituloNoCelular =
+    !hideHeader && (subpaginaGestaoMobile || subpaginaClienteMobile);
+  // A barra global da gestão fica no desktop e na Agenda; o app do cliente não tem cabeçalho global.
+  const offsetCabecalhoGlobal =
+    caminho.startsWith("/barbeiro") && !subpaginaGestaoMobile;
+  const destinoVoltar = voltarPara ?? (subpaginaGestaoMobile ? "/barbeiro" : undefined);
   const { ref: cabecalhoInicialRef, visivel: cabecalhoCompactoVisivel } = useCabecalhoCompacto({
-    enabled: subpaginaFigaroMobile && !hideHeader,
+    enabled: compactaTituloNoCelular,
     chave: `${caminho}:${title}`,
   });
 
@@ -52,7 +58,7 @@ export function Screen({
     <div
       data-padrao-figaro="tela"
       data-largura={wide ? "larga" : undefined}
-      className={`screen-shell mx-auto flex ${subpaginaFigaroMobile ? "min-h-dvh" : "min-h-[calc(100dvh-3.5rem)]"} w-full flex-col pb-[calc(2rem+env(safe-area-inset-bottom))] ${wide ? "max-w-[1180px]" : "max-w-[760px]"}`}
+      className={`screen-shell mx-auto flex ${offsetCabecalhoGlobal ? "min-h-[calc(100dvh-3.5rem)]" : "min-h-dvh"} w-full flex-col pb-[calc(2rem+env(safe-area-inset-bottom))] ${wide ? "max-w-[1180px]" : "max-w-[760px]"}`}
     >
       {!hideHeader ? (
         <>
@@ -61,7 +67,7 @@ export function Screen({
             aria-hidden={cabecalhoCompactoVisivel || undefined}
             inert={cabecalhoCompactoVisivel || undefined}
             data-figaro-header="page"
-            className={`relative ${subpaginaFigaroMobile ? "top-0" : "top-14"} z-10 grid gap-4 bg-[var(--figaro-background,var(--ink))] px-4 pb-3 pt-4 md:static md:px-8 md:pb-5 md:pt-6`}
+            className={`relative ${offsetCabecalhoGlobal ? "top-14" : "top-0"} z-10 grid gap-4 bg-[var(--figaro-background,var(--ink))] px-4 pb-3 pt-4 md:static md:px-8 md:pb-5 md:pt-6`}
           >
             {destinoVoltar || headerAction ? (
               <div className="flex min-h-11 items-center justify-between gap-3">
@@ -86,7 +92,7 @@ export function Screen({
             />
           </header>
 
-          {subpaginaFigaroMobile ? (
+          {compactaTituloNoCelular ? (
             <div
               data-figaro-header="compact"
               aria-hidden={!cabecalhoCompactoVisivel || undefined}

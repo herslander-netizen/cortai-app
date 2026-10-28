@@ -808,6 +808,8 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+- GPT | 2026-10-28 UTC | Estende o padrão de cabeçalho colapsável às subpáginas do app do cliente que usam `Screen` e remove o deslocamento de 56 px nas rotas sem cabeçalho global. A home do cliente e a moldura global da gestão/Agenda continuam com layouts próprios; adiciona teste para `/app/agendar`. CI pendente para esta tranche. | `src/components/layout/Screen.tsx`, `src/components/layout/Screen.test.tsx`
+
 - GPT | 2026-10-28 UTC | Refina a transição do cabeçalho compacto nos dois sentidos: a barra permanece montada e usa `opacity`/`transform` com reduced-motion, fica inerte e fora da acessibilidade quando oculta, e só recebe ações na fase visível para evitar controles duplicados. O hook também associa o estado à chave rota/título para não mostrar por um frame o título da página anterior. Teste estrutural adicionado; CI pendente. | `src/components/layout/Screen.tsx`, `src/components/layout/AdminScreen.tsx`, `src/components/layout/Screen.test.tsx`, `src/components/layout/useCabecalhoCompacto.ts`
 
 - GPT | 2026-10-28 UTC | Endurece o gatilho do cabeçalho compacto: agora exige que a borda inferior do título esteja acima do topo real da janela/raiz rolável; título fora da viewport por baixo não dispara a transição. O listener atualiza pela geometria real e o teste cobre título abaixo, título acima, retorno ao topo e limpeza do observer. CI pendente para esta correção. | `src/components/layout/useCabecalhoCompacto.ts`, `src/components/layout/useCabecalhoCompacto.test.tsx`
