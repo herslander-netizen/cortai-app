@@ -1392,6 +1392,14 @@ export const criarAgendamentoManual = createServerFn({ method: "POST" })
     // passo do negócio, mais bloqueios e escalas do profissional.
     const sugerir = async () => {
       const regras = await regrasDaBarbearia(db, tenant.id);
+      const { intervalosPersonalizadosPorData } = await import("@/lib/agenda-regras.server");
+      const diaDaSugestao = hojeNoFuso(regras.fuso, inicio);
+      const intervalosPorData = await intervalosPersonalizadosPorData(
+        db,
+        tenant.id,
+        somarDiasIso(diaDaSugestao, -1),
+        diaDaSugestao,
+      );
       const { ocupacoesExtras } = await import("@/lib/ocupacoes-extras.server");
       const extras = await ocupacoesExtras(db, {
         tenantId: tenant.id,
