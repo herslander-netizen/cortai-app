@@ -19,13 +19,27 @@ export const Route = createFileRoute("/api/public/capa/$slug")({
               .eq("id", r.tenant_id)
               .eq("ativo", true)
               .maybeSingle();
-            const caminho = (t?.capa_url || t?.logo_url) as string | null | undefined;
-            if (caminho?.startsWith("https://")) destino = caminho;
-            else if (caminho) {
-              const { data } = await supabaseAdmin.storage
-                .from("tenant-logos")
-                .createSignedUrl(caminho, 60 * 60 * 24);
-              destino = data?.signedUrl ?? reserva;
+
+            // Prioridade visual: capa configurada, depois logo/ícone e por último a capa do Cortaí.
+            // Se a capa não puder ser resolvida, ainda tentamos usar o logo cadastrado.
+            for (const caminho of [t?.capa_url, t?.logo_url]) {
+              if (typeof caminho !== "string" || !caminho.trim()) continue;
+              if (caminho.startsWith("https://")) {
+                destino = caminho;
+                break;
+              }
+
+              try {
+                const { data, error } = await supabaseAdmin.storage
+                  .from("tenant-logos")
+                  .createSignedUrl(caminho, 60 * 60 * 24);
+                if (!error && data?.signedUrl) {
+                  destino = data.signedUrl;
+                  break;
+                }
+              } catch {
+                // Continua para tentar o logo e, se necessário, a capa padrão.
+              }
             }
           }
         } catch {
