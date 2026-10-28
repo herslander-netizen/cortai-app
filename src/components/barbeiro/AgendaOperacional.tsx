@@ -1349,6 +1349,9 @@ export function AgendaOperacional() {
                     fuso={fuso}
                     itens={itens.filter((item) => item.profissionalId === p.id)}
                     itensEscala={itens}
+                    bloqueios={(agenda.data?.bloqueios ?? []).filter(
+                      (b) => !b.profissional_id || b.profissional_id === p.id,
+                    )}
                     alinhado
                     horarios={agenda.data?.horarios ?? []}
                     selecionado={selecionado}
@@ -1381,6 +1384,9 @@ export function AgendaOperacional() {
                 fuso={fuso}
                 itens={itens}
                 itensEscala={todosItens}
+                bloqueios={(agenda.data?.bloqueios ?? []).filter(
+                  (b) => !b.profissional_id || (profFiltro !== null && b.profissional_id === profFiltro),
+                )}
                 horarios={agenda.data?.horarios ?? []}
                 selecionado={selecionado}
                 onSelecionar={abrir}
