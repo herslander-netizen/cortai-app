@@ -2882,6 +2882,44 @@ export type Database = {
           },
         ]
       }
+      intervalos_agenda_dia: {
+        Row: {
+          atualizado_em: string
+          criado_em: string
+          criado_por: string | null
+          dia: string
+          intervalo_fim: string
+          intervalo_inicio: string
+          tenant_id: string
+        }
+        Insert: {
+          atualizado_em?: string
+          criado_em?: string
+          criado_por?: string | null
+          dia: string
+          intervalo_fim: string
+          intervalo_inicio: string
+          tenant_id: string
+        }
+        Update: {
+          atualizado_em?: string
+          criado_em?: string
+          criado_por?: string | null
+          dia?: string
+          intervalo_fim?: string
+          intervalo_inicio?: string
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "intervalos_agenda_dia_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       indicacoes: {
         Row: {
           convertido_em: string | null

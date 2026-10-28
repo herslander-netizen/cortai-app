@@ -10732,3 +10732,48 @@ input[type="range"] {
     width: 40px;
   }
 }
+
+
+/* Faixa de intervalo no padrão visual do bloqueio; interativa apenas na agenda ativa. */
+.agenda-timeline-intervalo.agenda-timeline-pausa {
+  z-index: 1;
+  pointer-events: auto;
+  display: block;
+  overflow: hidden;
+  padding: 0;
+  border: 0;
+  border-left: 3px solid color-mix(in oklab, var(--mute) 55%, transparent);
+  border-radius: 0;
+  color: var(--paper);
+  background:
+    repeating-linear-gradient(
+      135deg,
+      transparent 0 6px,
+      color-mix(in oklab, var(--mute) 26%, transparent) 6px 7px
+    ),
+    color-mix(in oklab, var(--mute) 8%, transparent);
+  text-align: left;
+  cursor: pointer;
+  font: inherit;
+}
+.agenda-timeline-pausa span {
+  right: auto;
+  left: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  max-width: calc(100% - 16px);
+  color: var(--paper);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.agenda-timeline-pausa svg {
+  width: 12px;
+  height: 12px;
+  flex: none;
+}
+button.agenda-timeline-pausa:focus-visible {
+  outline: 2px solid var(--figaro-primary, var(--rosa));
+  outline-offset: -2px;
+}

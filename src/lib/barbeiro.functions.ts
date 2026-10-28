@@ -139,6 +139,8 @@ export type AgendaDia = {
     fim: string;
     motivo: string | null;
   }[];
+  /** Ajuste de intervalo específico desta data; ausente significa seguir o horário semanal. */
+  intervaloPersonalizado?: { inicio: string; fim: string } | null;
   fila: FilaJanela[];
   horarios: {
     diaSemana: number;
@@ -277,6 +279,9 @@ export const getAgendaDia = createServerFn({ method: "GET" })
       intervaloFim: h.intervalo_fim ? String(h.intervalo_fim).slice(0, 5) : null,
     }));
     const passoMin = passoValido(tenantRes.data?.passo_horarios_min);
+    const { intervalosPersonalizadosPorData } = await import("@/lib/agenda-regras.server");
+    const intervalosPorData = await intervalosPersonalizadosPorData(db, tenant.id, diaAlvo);
+    const ajusteIntervalo = intervalosPorData[diaAlvo];
     const profissionais = (profsRes.data ?? []).map((p) => ({
       id: p.id,
       nome: p.nome,
@@ -318,6 +323,9 @@ export const getAgendaDia = createServerFn({ method: "GET" })
       itens,
       bloqueios,
       bloqueiosDoDia,
+      intervaloPersonalizado: ajusteIntervalo
+        ? { inicio: ajusteIntervalo.intervaloInicio, fim: ajusteIntervalo.intervaloFim }
+        : null,
       fila,
       horarios,
       fuso,

@@ -111,6 +111,10 @@ type AgendaTimelineProps = {
   emCamada?: boolean;
   /** Bloqueios do dia (já filtrados para esta coluna): faixa visual, sem ponteiros. */
   bloqueiosDoDia?: { id: string; inicio: string; fim: string; motivo: string | null }[];
+  /** Intervalo alterado apenas para a data selecionada. */
+  intervaloPersonalizado?: { inicio: string; fim: string } | null;
+  /** Abre os ajustes rápidos do intervalo da data selecionada. */
+  onAbrirIntervalo?: () => void;
 };
 
 const MARGEM_AGORA_MIN = 90;
@@ -176,6 +180,8 @@ function AgendaTimelineBase({
   vizinhos,
   emCamada = false,
   bloqueiosDoDia = [],
+  intervaloPersonalizado,
+  onAbrirIntervalo,
 }: AgendaTimelineProps) {
   const relogio = useAgora();
   const agora = agoraProp ?? relogio;
@@ -710,7 +716,15 @@ function AgendaTimelineBase({
       onHorarioVazio(horaMinuto(arredondado));
     }, 160);
   }
-  const intervalo = intervaloDoDia(horarios, dia);
+  const intervalosPorData = intervaloPersonalizado
+    ? {
+        [dia]: {
+          intervaloInicio: intervaloPersonalizado.inicio,
+          intervaloFim: intervaloPersonalizado.fim,
+        },
+      }
+    : undefined;
+  const intervalo = intervaloDoDia(horarios, dia, intervalosPorData);
   const faixasFora = faixasForaDoExpediente(horarios, dia, escala);
 
   // Prévia: posição em que o dia vai assentar (hoje no agora; senão topo do expediente).
@@ -904,16 +918,37 @@ function AgendaTimelineBase({
             );
           })}
           {intervalo ? (
-            <div
-              className="agenda-timeline-intervalo"
-              style={{
-                top: `${(intervalo[0] - escala.inicio) * PX_POR_MINUTO + deslocamentoAte(intervalo[0])}px`,
-                height: `${(intervalo[1] - intervalo[0]) * PX_POR_MINUTO}px`,
-              }}
-              aria-hidden
-            >
-              <span>Intervalo</span>
-            </div>
+            onAbrirIntervalo && interativo ? (
+              <button
+                type="button"
+                className="agenda-timeline-intervalo agenda-timeline-pausa"
+                style={{
+                  top: `${(intervalo[0] - escala.inicio) * PX_POR_MINUTO + deslocamentoAte(intervalo[0])}px`,
+                  height: `${(intervalo[1] - intervalo[0]) * PX_POR_MINUTO}px`,
+                }}
+                aria-label={`Ajustar intervalo, ${horaMinuto(intervalo[0])} às ${horaMinuto(intervalo[1])}`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onAbrirIntervalo();
+                }}
+              >
+                <span>
+                  <Clock3 aria-hidden />
+                  Intervalo · {horaMinuto(intervalo[0])}–{horaMinuto(intervalo[1])}
+                </span>
+              </button>
+            ) : (
+              <div
+                className="agenda-timeline-intervalo agenda-timeline-pausa"
+                style={{
+                  top: `${(intervalo[0] - escala.inicio) * PX_POR_MINUTO + deslocamentoAte(intervalo[0])}px`,
+                  height: `${(intervalo[1] - intervalo[0]) * PX_POR_MINUTO}px`,
+                }}
+                aria-hidden
+              >
+                <span>Intervalo · {horaMinuto(intervalo[0])}–{horaMinuto(intervalo[1])}</span>
+              </div>
+            )
           ) : null}
           {toqueVazio !== null ? (
             <div
