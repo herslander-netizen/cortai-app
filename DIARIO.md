@@ -498,6 +498,8 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Em andamento
 
+- GPT | 2026-10-28 UTC | Eliminar afirmações desatualizadas no relatório multi-serviços sobre o fallback de segmento, preservando os limites de compatibilidade realmente vigentes | `DIARIO.md`, `docs/auditoria-multiservico-cortai-2026-10-27.md`; sem migração
+
 
 
 
