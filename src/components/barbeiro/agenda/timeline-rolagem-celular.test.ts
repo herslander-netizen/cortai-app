@@ -55,4 +55,11 @@ describe("rolagem da Timeline no celular", () => {
       ".agenda-timeline-passado:not(.agenda-timeline-na_cadeira)",
     );
   });
+
+  it("renderiza bloqueios como faixas visuais sem interceptar a interação", () => {
+    expect(timeline).toContain("bloqueios = SEM_BLOQUEIOS");
+    expect(timeline).toContain('className="agenda-timeline-bloqueio"');
+    expect(css).toContain(".agenda-timeline-bloqueio");
+    expect(css).toContain("pointer-events: none;");
+  });
 });
