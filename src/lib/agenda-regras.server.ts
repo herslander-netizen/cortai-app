@@ -41,7 +41,6 @@ export async function incluirExcecoesDeIntervalo(
   db: any,
   tenantId: string,
   horarios: HorarioDeFuncionamento[],
-  fuso: string,
   desde: string,
   ate: string,
 ): Promise<HorarioDeFuncionamento[]> {
@@ -106,8 +105,7 @@ export async function regrasDaBarbearia(db: any, tenantId: string) {
     db,
     tenantId,
     horariosBase,
-    fuso,
-    hoje,
+    somarDias(hoje, -1),
     somarDias(hoje, janelaDias + 1),
   );
   return {
