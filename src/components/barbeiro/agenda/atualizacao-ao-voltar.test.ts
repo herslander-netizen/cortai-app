@@ -94,6 +94,7 @@ describe("atualização da Agenda ao retomar o app", () => {
     expect(invalidateQueries).toHaveBeenCalledTimes(2);
 
     limpar1();
+    limpar1(); // cleanup repetido não pode soltar o listener do segundo componente.
     vi.advanceTimersByTime(INTERVALO_MINIMO_RETORNO_AGENDA_MS);
     retomarPeloFoco();
     expect(invalidateQueries).toHaveBeenCalledTimes(4);

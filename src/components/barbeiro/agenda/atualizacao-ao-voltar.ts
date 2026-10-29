@@ -22,7 +22,7 @@ export function registrarAtualizacaoAoRetomarAgenda(queryClient: QueryClient) {
   const existente = registros.get(queryClient);
   if (existente) {
     existente.usos += 1;
-    return () => liberar(queryClient, existente);
+    return criarLiberacao(queryClient, existente);
   }
 
   const registro: Registro = {
@@ -69,7 +69,16 @@ export function registrarAtualizacaoAoRetomarAgenda(queryClient: QueryClient) {
   document.addEventListener("visibilitychange", registro.aoMudarVisibilidade);
   window.addEventListener("blur", registro.aoPerderFoco);
   window.addEventListener("focus", registro.aoGanharFoco);
-  return () => liberar(queryClient, registro);
+  return criarLiberacao(queryClient, registro);
+}
+
+function criarLiberacao(queryClient: QueryClient, registro: Registro) {
+  let liberado = false;
+  return () => {
+    if (liberado) return;
+    liberado = true;
+    liberar(queryClient, registro);
+  };
 }
 
 function liberar(queryClient: QueryClient, registro: Registro) {
