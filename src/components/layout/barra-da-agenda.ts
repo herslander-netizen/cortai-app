@@ -5,7 +5,7 @@ import type { CSSProperties } from "react";
  * superfície só, de ponta a ponta, com a base arredondada e sombra leve, como no modelo.
  */
 export const ESTILO_DA_BARRA_NA_AGENDA: CSSProperties = {
-  background: "var(--ink2)",
+  background: "var(--agenda-topo, var(--ink2))",
   borderBottomColor: "transparent",
   backdropFilter: "none",
   borderRadius: "0 0 24px 24px",

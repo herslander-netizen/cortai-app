@@ -11074,3 +11074,39 @@ button.agenda-timeline-pausa:focus-visible {
   --agenda-linha-hora: #d6e0d9;
   --agenda-atencao: #d3145d;
 }
+
+/* Cores da tela da Agenda iguais às do Figaro (capturas do dono, 29/10, amostradas pixel a pixel): fundo
+   `background` (#1B1F1C escuro / #EAF2EC claro; antes #121513), texto `onSurface` (#DEE8E1 / #2A2F2C; antes
+   #F0F7F2) e topo na cor do fundo em repouso, `surfaceContainer` (#303632) com conteúdo rolado por baixo ou com o
+   mês aberto. Só na tela da Agenda; os tokens `--figaro-*` seguem a identidade do tema. Fica no fim do arquivo para
+   vencer os blocos de identidade de mesma especificidade. */
+:root[data-tela-agenda]:is([data-identidade], :not([data-identidade])) {
+  --ink: var(--figaro-background, var(--fundo));
+  --background: var(--figaro-background, var(--fundo));
+  --paper: var(--figaro-on-surface, var(--texto));
+  --foreground: var(--figaro-on-surface, var(--texto));
+  --agenda-topo: var(--figaro-background, var(--ink2));
+}
+:root[data-tela-agenda][data-topo-elevado]:is([data-identidade], :not([data-identidade])),
+:root[data-tela-agenda]:has([data-calendario-aberto]):is([data-identidade], :not([data-identidade])) {
+  --agenda-topo: var(--figaro-surface-container, var(--ink2));
+}
+
+/* Traços e pontos da Agenda no tom das capturas do Figaro (29/10: linha da hora, tracejado de 5 min e os cinco
+   pontinhos com a mesma cor discreta, ~#353432 no escuro): hint a 20 %. */
+:root[data-tela-agenda] {
+  --agenda-traco: color-mix(in oklab, var(--figaro-hint, var(--mute2)) 20%, transparent);
+}
+:root[data-tela-agenda] .agenda-operacional .agenda-timeline-hora {
+  border-top-color: var(--agenda-traco);
+}
+:root[data-tela-agenda] .agenda-operacional .agenda-timeline-ajuste-5 {
+  background-image: repeating-linear-gradient(
+    to right,
+    var(--agenda-traco) 0 4px,
+    transparent 4px 6px
+  );
+}
+.agenda-ponto-limite {
+  background: var(--agenda-traco, color-mix(in oklab, var(--mute2) 45%, transparent));
+}

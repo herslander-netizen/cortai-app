@@ -818,6 +818,11 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-29 UTC — Claude — Agenda: cores de fundo, texto, topo, traços e pontos iguais às capturas do Figaro
+- Dono: "ainda há diferença de cores" + "a cor dos traços, fontes, pontos". Amostrado pixel a pixel (Figaro × Cortaí, escuro): fundo #1A1F1B × #131514; texto #E1E7E3 × #F2F7F3; letras da semana #969593 × #BCC2BE; topo #1B1F1C em repouso e #303632 com conteúdo rolado/mês aberto × #2A2F2B fixo; linha da hora/tracejado/pontinhos ~#353432 × pontinhos #606261.
+- Feito só na tela da Agenda (`:root[data-tela-agenda]`, no fim de `styles.css`): `--ink/--background` = `--figaro-background`, `--paper/--foreground` = `--figaro-on-surface`, topo via `--agenda-topo` (fundo; `--figaro-surface-container` com `data-topo-elevado` ou mês aberto); `data-topo-elevado` posto por `useMarcaDaTelaDaAgenda` (`barbeiro.tsx`) quando a página rola. Painel do mês em `--figaro-surface-container`, letras em `--figaro-hint`, traços e pontinhos em `--agenda-traco` (hint 20 %). Claro: fundo/topo #EAF2EC, texto #2A2F2C (tokens do Figaro). Conferido no navegador (valores calculados nos dois temas; fora da Agenda nada muda).
+- Teste em `calendario-ponto-e-dia.test.ts`; `tsc` ok, `vitest` 259/2195, `build` ok. Pendente: conferir no celular. Se o dono quiser, a mesma troca de fundo/texto pode valer para o app inteiro.
+
 ### 2026-10-29 UTC — Claude — Paletas do Figaro (relato do dono) guardadas e conferidas
 - `docs/referencia-figaro/apk/13-paletas-relato-do-dono-2026-10-29.md`: o levantamento de cores colado pelo dono, como chegou, com a conferência no topo. Escalas, acentos, `onSurfaceHint`, as 11 cores de categoria e os pares das pílulas de status **já estão no Cortaí** (`--figaro-*`, `cartao-figaro.ts`).
 - Seis afirmações do relato **divergem do código do APK** e não foram aplicadas: linha "agora" azul (é magenta, confirmado na foto do dono), cartão da Agenda #3E4440 (o código usa surfaceContainerLowest), rótulos das horas em onSurfaceVariant (é onSurfaceHint), linhas de 5 min α 33 %, alfas de fora do expediente/bloqueio trocados e alfas da zona de preparo trocados. Nenhuma mudança de código.

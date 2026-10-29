@@ -204,7 +204,7 @@ describe("troca de dia em páginas no celular (como no vídeo de referência)", 
   });
 
   it("os cinco pontos são discretos (3 px, vão de 8 px, alfa 0,45) e ficam a 12 px da grade", () => {
-    expect(semana).toContain('className="size-[3px] rounded-full bg-mute2 opacity-[0.45]"');
+    expect(semana).toContain('className="agenda-ponto-limite size-[3px] rounded-full"');
     expect(semana).toContain("gap-2");
     expect(css).not.toMatch(/agenda-pontos-correr[\s\S]{0,400}opacity: 0\.6/);
     expect(operacional).toContain('className="mb-[-2.5px] mt-[6.5px]"');

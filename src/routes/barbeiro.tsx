@@ -43,8 +43,17 @@ function useMarcaDaTelaDaAgenda() {
     const raiz = document.documentElement;
     if (naAgenda) raiz.dataset["telaAgenda"] = "";
     else delete raiz.dataset["telaAgenda"];
+    // Como no Figaro, o topo da Agenda tem a cor do fundo e só fica "elevado" quando há conteúdo rolado por baixo.
+    const elevar = () => {
+      if (naAgenda && window.scrollY > 4) raiz.dataset["topoElevado"] = "";
+      else delete raiz.dataset["topoElevado"];
+    };
+    elevar();
+    window.addEventListener("scroll", elevar, { passive: true });
     return () => {
+      window.removeEventListener("scroll", elevar);
       delete raiz.dataset["telaAgenda"];
+      delete raiz.dataset["topoElevado"];
     };
   }, [naAgenda]);
 }

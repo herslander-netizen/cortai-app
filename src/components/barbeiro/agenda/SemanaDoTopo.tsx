@@ -495,7 +495,7 @@ export function SemanaDoTopo({
   return (
     <div data-sem-gesto-dia data-calendario-aberto={expandido || painelVisivel || undefined} style={{ fontFamily: "var(--figaro-font-body)" }}>
       <div className="px-2 pb-[13px] rounded-b-xl">
-        <div className="grid grid-cols-7 text-center text-[11.5px] leading-4 font-medium text-mute" aria-hidden>
+        <div className="grid grid-cols-7 text-center text-[11.5px] leading-4 font-medium text-[var(--figaro-hint,var(--mute))]" aria-hidden>
           {LETRAS_SEMANA.map((letra, i) => (
             <span key={i} className="pb-2 pt-3">
               {letra}
@@ -579,7 +579,7 @@ export function SemanaDoTopo({
               className="absolute -inset-x-2 top-0 z-10 overflow-hidden rounded-b-[16px] px-2 pb-3"
               // O recorte deixa a sombra só embaixo: no topo ela desenhava uma linha entre as letras da semana e o mês.
               style={{
-                background: "var(--ink2)",
+                background: "var(--figaro-surface-container, var(--ink2))",
                 boxShadow: "var(--elevacao-3)",
                 clipPath: "inset(0 -16px -24px -16px)",
                 height: alturaDoPainelAteABorda,
@@ -655,7 +655,7 @@ export function MarcaDoLimiteDoDia({
           data-ultimo={i === 0 ? "1" : undefined}
           style={{ animationDelay: `${(4 - i) * 140}ms` }}
           onAnimationIteration={aoVoltar}
-          className="size-[3px] rounded-full bg-mute2 opacity-[0.45]"
+          className="agenda-ponto-limite size-[3px] rounded-full"
         />
       ))}
     </div>
