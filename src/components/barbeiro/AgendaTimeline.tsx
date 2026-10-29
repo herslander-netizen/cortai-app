@@ -793,16 +793,17 @@ export function AgendaTimeline({
           {faixasBloqueio.map((faixa) => (
             <div
               key={`bloqueio-${faixa.id}`}
-              className="pointer-events-none absolute inset-x-0 z-0 flex items-center border-y border-brick/40 bg-brick-soft px-2"
+              className="pointer-events-none absolute inset-x-0 z-0 flex items-center border-y border-dashed border-line2 bg-ink3 px-2"
               style={{
                 top: `${(faixa.inicio - escala.inicio) * PX_POR_MINUTO + deslocamentoAte(faixa.inicio)}px`,
                 height: `${(faixa.fim - faixa.inicio) * PX_POR_MINUTO + deslocamentoAte(faixa.fim) - deslocamentoAte(faixa.inicio)}px`,
               }}
-              aria-hidden
+              role="note"
+              aria-label={`Bloqueio de agenda: ${faixa.rotulo}, ${horaMinuto(faixa.inicio)} às ${horaMinuto(faixa.fim)}${faixa.motivo ? `. Motivo: ${faixa.motivo}` : ""}`}
               title={faixa.motivo ? `Bloqueio: ${faixa.motivo}` : "Bloqueio de agenda"}
             >
               {faixa.fim - faixa.inicio >= 18 ? (
-                <span className="max-w-full truncate rounded-md bg-ink/90 px-2 py-0.5 text-[11px] font-semibold text-brick">
+                <span className="max-w-full truncate rounded-md bg-ink/90 px-2 py-0.5 text-[11px] font-semibold text-mute">
                   {faixa.rotulo}
                 </span>
               ) : null}
