@@ -17,6 +17,7 @@ copiado.
 | `7-modulos.md` | Onboarding, entrada, clientes, equipe, serviços, combos, localidades, pacotes, cobrança, vendas, campanhas, avaliações, notificações, conta, negócio e assinatura (22/10) |
 | `9-auditoria-apk-atualizado-2026-10-23.md` | Identificação do APK de 23/10 (hash, versão, módulos) e revisão estática básica (GPT) |
 | `10-diferencas-apk-23-10-2026.md` | O que o APK de 23/10 muda em relação a esta especificação: o que continua igual e o que apareceu (Claude) |
+| `12-material-do-dono-2026-10-29.md` | Levantamento colado pelo dono em 29/10 (abertura, entrada/login, movimento, tokens, módulos, Agenda por dentro): relato não conferido no código, com a conferência rápida no topo |
 
 Cada afirmação vem marcada como **[código]** (visto no código, com o arquivo) ou **[inferência]**;
 o que não foi achado está como **sem evidência**. O APK traz os textos só em inglês (o pacote de

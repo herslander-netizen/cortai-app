@@ -816,6 +816,12 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-29 UTC — Claude — Ficha: "Trocar cliente" de volta + material do Figaro guardado
+- Pedido do dono (Agenda, específico): o "Trocar cliente" sumia da ficha quando o horário de um atendimento ainda "Agendado" já tinha passado. A ficha usava a regra do Figaro (só no futuro), mais dura que a do servidor. `podeTrocarCliente` (`agenda/ficha-regras.ts`) agora segue `trocarClienteDoAgendamento`: aparece com status agendado ou cliente chegou, mesmo com a hora passada; o servidor continua recusando com pagamento confirmado ou comanda. Nada visual mudou além de o botão voltar a aparecer nesses casos.
+- `docs/referencia-figaro/apk/12-material-do-dono-2026-10-29.md`: o levantamento do APK que o dono colou no chat (abertura, login, movimento, tokens, 17 módulos, Agenda por dentro), guardado como chegou, com uma conferência rápida no topo (o que bate com as specs 1–11, o que é novo e o que não usar sem decisão, como a paleta do Figaro). README da pasta atualizado.
+- `src/routeTree.gen.ts` regenerado pelo build (a rota `/barbeiro/categorias` não estava nele e o `tsc` falhava sem build).
+- Testes: `tsc` sem erros, `vitest` 257 arquivos / 2186 testes, `build` ok.
+
 ### 2026-10-29 UTC — GPT — Agenda mobile: corrigir o gesto e alinhar o zoom ao Figaroo
 - Causa identificada na prévia: `onEditar` era chamado pelo timer enquanto o dedo ainda estava pressionado. Isso abria o modo armado no meio do gesto e competia com a rolagem/arrasto nativos. A edição agora só abre no `pointerup`; o primeiro gesto não captura o ponteiro nem bloqueia a rolagem, e o segundo gesto move o cartão armado.
 - Referência Figaroo conferida: os cinco níveis de cartão e as alturas de limiar já estavam implementados em `cartao-figaro.ts`; a escala já é 2 px/min por padrão, 1–4 px/min com pinça e 4 px/min em edição. Corrigi apenas a divergência da duração do zoom armado: 520 ms → 300 ms, conforme `ArmZoomDurationMillis` documentado.

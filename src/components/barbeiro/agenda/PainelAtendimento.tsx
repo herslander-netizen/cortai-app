@@ -358,7 +358,7 @@ export function PainelAtendimento(props: Props) {
                   </div>
                 </section>
 
-                {podeTrocarCliente(item, agora) ? (
+                {podeTrocarCliente(item) ? (
                   <Button
                     type="button"
                     variant="ghost"

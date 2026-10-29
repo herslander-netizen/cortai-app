@@ -61,6 +61,7 @@ import { Route as BarbeiroAvaliacoesRouteImport } from './routes/barbeiro.avalia
 import { Route as BarbeiroBarbeariasRouteImport } from './routes/barbeiro.barbearias'
 import { Route as BarbeiroCaixaRouteImport } from './routes/barbeiro.caixa'
 import { Route as BarbeiroCasaRouteImport } from './routes/barbeiro.casa'
+import { Route as BarbeiroCategoriasRouteImport } from './routes/barbeiro.categorias'
 import { Route as BarbeiroClientesRouteImport } from './routes/barbeiro.clientes'
 import { Route as BarbeiroComissoesRouteImport } from './routes/barbeiro.comissoes'
 import { Route as BarbeiroConfigurarRouteImport } from './routes/barbeiro.configurar'
@@ -87,7 +88,6 @@ import { Route as BarbeiroProdutosRouteImport } from './routes/barbeiro.produtos
 import { Route as BarbeiroProfissionaisRouteImport } from './routes/barbeiro.profissionais'
 import { Route as BarbeiroQrCodeRouteImport } from './routes/barbeiro.qr-code'
 import { Route as BarbeiroRedesRouteImport } from './routes/barbeiro.redes'
-import { Route as BarbeiroCategoriasRouteImport } from './routes/barbeiro.categorias'
 import { Route as BarbeiroServicosRouteImport } from './routes/barbeiro.servicos'
 import { Route as BarbeiroSuaPaginaRouteImport } from './routes/barbeiro.sua-pagina'
 import { Route as BarbeiroTemasRouteImport } from './routes/barbeiro.temas'
@@ -382,6 +382,11 @@ const BarbeiroCasaRoute = BarbeiroCasaRouteImport.update({
   path: '/casa',
   getParentRoute: () => BarbeiroRoute,
 } as any).lazy(() => import('./routes/barbeiro.casa.lazy').then((d) => d.Route))
+const BarbeiroCategoriasRoute = BarbeiroCategoriasRouteImport.update({
+  id: '/categorias',
+  path: '/categorias',
+  getParentRoute: () => BarbeiroRoute,
+} as any)
 const BarbeiroClientesRoute = BarbeiroClientesRouteImport.update({
   id: '/clientes',
   path: '/clientes',
@@ -510,11 +515,6 @@ const BarbeiroQrCodeRoute = BarbeiroQrCodeRouteImport.update({
 const BarbeiroRedesRoute = BarbeiroRedesRouteImport.update({
   id: '/redes',
   path: '/redes',
-  getParentRoute: () => BarbeiroRoute,
-} as any)
-const BarbeiroCategoriasRoute = BarbeiroCategoriasRouteImport.update({
-  id: '/categorias',
-  path: '/categorias',
   getParentRoute: () => BarbeiroRoute,
 } as any)
 const BarbeiroServicosRoute = BarbeiroServicosRouteImport.update({
@@ -729,6 +729,7 @@ export interface FileRoutesByFullPath {
   '/barbeiro/barbearias': typeof BarbeiroBarbeariasRoute
   '/barbeiro/caixa': typeof BarbeiroCaixaRoute
   '/barbeiro/casa': typeof BarbeiroCasaRoute
+  '/barbeiro/categorias': typeof BarbeiroCategoriasRoute
   '/barbeiro/clientes': typeof BarbeiroClientesRouteWithChildren
   '/barbeiro/comissoes': typeof BarbeiroComissoesRoute
   '/barbeiro/configurar': typeof BarbeiroConfigurarRoute
@@ -756,7 +757,6 @@ export interface FileRoutesByFullPath {
   '/barbeiro/qr-code': typeof BarbeiroQrCodeRoute
   '/barbeiro/redes': typeof BarbeiroRedesRoute
   '/barbeiro/servicos': typeof BarbeiroServicosRoute
-  '/barbeiro/categorias': typeof BarbeiroCategoriasRoute
   '/barbeiro/sua-pagina': typeof BarbeiroSuaPaginaRoute
   '/barbeiro/temas': typeof BarbeiroTemasRoute
   '/entrar/retorno': typeof EntrarRetornoRoute
@@ -838,6 +838,7 @@ export interface FileRoutesByTo {
   '/barbeiro/barbearias': typeof BarbeiroBarbeariasRoute
   '/barbeiro/caixa': typeof BarbeiroCaixaRoute
   '/barbeiro/casa': typeof BarbeiroCasaRoute
+  '/barbeiro/categorias': typeof BarbeiroCategoriasRoute
   '/barbeiro/comissoes': typeof BarbeiroComissoesRoute
   '/barbeiro/configurar': typeof BarbeiroConfigurarRoute
   '/barbeiro/conta': typeof BarbeiroContaRoute
@@ -864,7 +865,6 @@ export interface FileRoutesByTo {
   '/barbeiro/qr-code': typeof BarbeiroQrCodeRoute
   '/barbeiro/redes': typeof BarbeiroRedesRoute
   '/barbeiro/servicos': typeof BarbeiroServicosRoute
-  '/barbeiro/categorias': typeof BarbeiroCategoriasRoute
   '/barbeiro/sua-pagina': typeof BarbeiroSuaPaginaRoute
   '/barbeiro/temas': typeof BarbeiroTemasRoute
   '/entrar/retorno': typeof EntrarRetornoRoute
@@ -950,6 +950,7 @@ export interface FileRoutesById {
   '/barbeiro/barbearias': typeof BarbeiroBarbeariasRoute
   '/barbeiro/caixa': typeof BarbeiroCaixaRoute
   '/barbeiro/casa': typeof BarbeiroCasaRoute
+  '/barbeiro/categorias': typeof BarbeiroCategoriasRoute
   '/barbeiro/clientes': typeof BarbeiroClientesRouteWithChildren
   '/barbeiro/comissoes': typeof BarbeiroComissoesRoute
   '/barbeiro/configurar': typeof BarbeiroConfigurarRoute
@@ -977,7 +978,6 @@ export interface FileRoutesById {
   '/barbeiro/qr-code': typeof BarbeiroQrCodeRoute
   '/barbeiro/redes': typeof BarbeiroRedesRoute
   '/barbeiro/servicos': typeof BarbeiroServicosRoute
-  '/barbeiro/categorias': typeof BarbeiroCategoriasRoute
   '/barbeiro/sua-pagina': typeof BarbeiroSuaPaginaRoute
   '/barbeiro/temas': typeof BarbeiroTemasRoute
   '/entrar/retorno': typeof EntrarRetornoRoute
@@ -1064,6 +1064,7 @@ export interface FileRouteTypes {
     | '/barbeiro/barbearias'
     | '/barbeiro/caixa'
     | '/barbeiro/casa'
+    | '/barbeiro/categorias'
     | '/barbeiro/clientes'
     | '/barbeiro/comissoes'
     | '/barbeiro/configurar'
@@ -1091,7 +1092,6 @@ export interface FileRouteTypes {
     | '/barbeiro/qr-code'
     | '/barbeiro/redes'
     | '/barbeiro/servicos'
-    | '/barbeiro/categorias'
     | '/barbeiro/sua-pagina'
     | '/barbeiro/temas'
     | '/entrar/retorno'
@@ -1173,6 +1173,7 @@ export interface FileRouteTypes {
     | '/barbeiro/barbearias'
     | '/barbeiro/caixa'
     | '/barbeiro/casa'
+    | '/barbeiro/categorias'
     | '/barbeiro/comissoes'
     | '/barbeiro/configurar'
     | '/barbeiro/conta'
@@ -1199,7 +1200,6 @@ export interface FileRouteTypes {
     | '/barbeiro/qr-code'
     | '/barbeiro/redes'
     | '/barbeiro/servicos'
-    | '/barbeiro/categorias'
     | '/barbeiro/sua-pagina'
     | '/barbeiro/temas'
     | '/entrar/retorno'
@@ -1284,6 +1284,7 @@ export interface FileRouteTypes {
     | '/barbeiro/barbearias'
     | '/barbeiro/caixa'
     | '/barbeiro/casa'
+    | '/barbeiro/categorias'
     | '/barbeiro/clientes'
     | '/barbeiro/comissoes'
     | '/barbeiro/configurar'
@@ -1311,7 +1312,6 @@ export interface FileRouteTypes {
     | '/barbeiro/qr-code'
     | '/barbeiro/redes'
     | '/barbeiro/servicos'
-    | '/barbeiro/categorias'
     | '/barbeiro/sua-pagina'
     | '/barbeiro/temas'
     | '/entrar/retorno'
@@ -1758,6 +1758,13 @@ declare module '@tanstack/react-router' {
       path: '/casa'
       fullPath: '/barbeiro/casa'
       preLoaderRoute: typeof BarbeiroCasaRouteImport
+      parentRoute: typeof BarbeiroRoute
+    }
+    '/barbeiro/categorias': {
+      id: '/barbeiro/categorias'
+      path: '/categorias'
+      fullPath: '/barbeiro/categorias'
+      preLoaderRoute: typeof BarbeiroCategoriasRouteImport
       parentRoute: typeof BarbeiroRoute
     }
     '/barbeiro/clientes': {

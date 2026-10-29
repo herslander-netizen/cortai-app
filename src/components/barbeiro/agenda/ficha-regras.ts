@@ -48,9 +48,13 @@ export function rodapeDaFicha(
   return { principal: null, menu: [] };
 }
 
-/** "Trocar cliente" só antes de começar (Figaro: confirmado e no futuro). */
-export function podeTrocarCliente(item: Pick<AgendaItem, "inicio" | "status">, agora: number) {
-  return PENDENTES.has(item.status) && !jaComecou(item, agora);
+/**
+ * "Trocar cliente" enquanto o atendimento não começou de fato (agendado ou cliente chegou), mesmo com o horário já
+ * passado — a mesma regra de `trocarClienteDoAgendamento`, que ainda recusa se houver pagamento ou comanda (dono,
+ * 29/10: o botão sumia da ficha de horários passados ainda pendentes).
+ */
+export function podeTrocarCliente(item: Pick<AgendaItem, "status">) {
+  return PENDENTES.has(item.status);
 }
 
 export type IndicadorDeEstado = {

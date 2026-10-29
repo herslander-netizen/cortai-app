@@ -36,10 +36,13 @@ describe("rodapé da ficha (Figaro: docked actions)", () => {
 });
 
 describe("Trocar cliente e estado", () => {
-  it("troca só antes de começar", () => {
-    expect(podeTrocarCliente({ ...futuro, status: "agendado" }, agora)).toBe(true);
-    expect(podeTrocarCliente({ ...comecou, status: "agendado" }, agora)).toBe(false);
-    expect(podeTrocarCliente({ ...futuro, status: "cancelado" }, agora)).toBe(false);
+  it("troca enquanto o atendimento não começou, mesmo com o horário já passado", () => {
+    expect(podeTrocarCliente({ ...futuro, status: "agendado" })).toBe(true);
+    expect(podeTrocarCliente({ ...comecou, status: "agendado" })).toBe(true);
+    expect(podeTrocarCliente({ ...comecou, status: "chegou" })).toBe(true);
+    expect(podeTrocarCliente({ ...comecou, status: "na_cadeira" })).toBe(false);
+    expect(podeTrocarCliente({ ...comecou, status: "finalizado" })).toBe(false);
+    expect(podeTrocarCliente({ ...futuro, status: "cancelado" })).toBe(false);
   });
 
   it("estado: em andamento pelo horário, confirmado em verde, cancelado em vermelho", () => {
