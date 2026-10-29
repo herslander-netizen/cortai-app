@@ -13,6 +13,10 @@
   --radius-md: 12px;
   --radius-lg: 14px;
   --radius-xl: 14px;
+  /* Fontes recuperadas do Figaroo; ficam opt-in até aprovação visual. */
+  --font-figaroo-display: "Poppins", "Manrope", ui-sans-serif, system-ui, sans-serif;
+  --font-figaroo-body: "Plus Jakarta Sans", "Manrope", ui-sans-serif, system-ui, sans-serif;
+  --font-figaroo-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
   /* Figaroo Shapes & Dimensions: tokens novos sem alterar utilitários existentes. */
   --radius-card: var(--shape-card);
   --radius-dialog: var(--shape-dialog);
@@ -54,14 +58,10 @@
 
   /* Figaroo ColorKt / ExtendedColors: escala tonal e cores semânticas. */
   --color-brand-primary-10: var(--brand-primary-10);
-  --color-brand-primary-20: var(--brand-primary-20);
   --color-brand-primary-30: var(--brand-primary-30);
-  --color-brand-primary-40: var(--brand-primary-40);
   --color-brand-primary-50: var(--brand-primary-50);
-  --color-brand-primary-80: var(--brand-primary-80);
   --color-brand-primary-90: var(--brand-primary-90);
   --color-brand-tertiary-10: var(--brand-tertiary-10);
-  --color-brand-tertiary-40: var(--brand-tertiary-40);
   --color-brand-tertiary-50: var(--brand-tertiary-50);
   --color-brand-tertiary-90: var(--brand-tertiary-90);
   --color-action-blue: var(--action-blue);
@@ -111,15 +111,11 @@
 
   /* Figaroo ColorKt: escala oficial, fixa nos modos claro e escuro. */
   --brand-primary-10: #001a40;
-  --brand-primary-20: #002d6b;
-  --brand-primary-30: #01408f;
-  --brand-primary-40: #0854b5;
-  --brand-primary-50: #087cf0;
-  --brand-primary-80: #9bb9ff;
-  --brand-primary-90: #d2e4ff;
-  --brand-tertiary-10: #3e0017;
-  --brand-tertiary-40: #b9004b;
-  --brand-tertiary-50: #ff1670;
+  --brand-primary-30: #00408f;
+  --brand-primary-50: #2467bb;
+  --brand-primary-90: #d5e2ff;
+  --brand-tertiary-10: #3a0e1a;
+  --brand-tertiary-50: #ff4d8d;
   --brand-tertiary-90: #ffdade;
 
   /* Figaroo ExtendedColors: o modo escuro é a base de :root. */
@@ -127,7 +123,7 @@
   --warning: #e08e22;
   --error: #f2b8b5;
   --confetti-gold: #ffd700;
-  --action-blue: var(--brand-primary-50);
+  --action-blue: #4da3ff;
   --action-blue-foreground: #ffffff;
 
   /* Formas e dimensões originais; touch target respeita o mínimo de 48px
@@ -141,11 +137,11 @@
   --screen-gutter: 20px;
 
   /* Identidade moderna: navy, azul e magenta do mapa Figaroo. */
-  --identity-accent: var(--brand-primary-50);
-  --identity-accent-light: var(--brand-primary-50);
+  --identity-accent: var(--action-blue);
+  --identity-accent-light: #00509d;
   --identity-secondary: var(--brand-tertiary-50);
-  --identity-secondary-light: var(--brand-tertiary-40);
-  --identity-primary: var(--brand-primary-50);
+  --identity-secondary-light: #d3145d;
+  --identity-primary: var(--action-blue);
   --identity-secondary-strong: var(--brand-tertiary-50);
   --identity-deep: var(--brand-primary-10);
   --identity-graphite: var(--brand-primary-10);
@@ -161,8 +157,8 @@
   --texto: #e8eee9;
   --texto-suave: #aeb5b0;
   /* Agenda: hierarquia azul ação, verde positivo, rosa atenção/tempo. */
-  --agenda-acao: #01408f;
-  --agenda-acao-suave: #9bb9ff;
+  --agenda-acao: var(--action-blue);
+  --agenda-acao-suave: var(--brand-primary-90);
   --agenda-positivo: #43a047;
   --agenda-atencao: #d81b60;
   --agenda-aguardo: #d9a441;
@@ -187,8 +183,8 @@
   --grafite-muted-2: var(--texto-suave);
   --grafite-line: var(--linha);
   --grafite-line-2: #4a524e;
-  --grafite-primary: #087cf0;
-  --grafite-accent: var(--brand-primary-50);
+  --grafite-primary: var(--action-blue);
+  --grafite-accent: var(--action-blue);
   --whatsapp: #25d366;
   --qr-dark: var(--identity-graphite);
   --qr-light: var(--identity-white);
@@ -214,7 +210,7 @@
   --landing-light-ink: #191c1a;
   --landing-light-muted: #707973;
   --landing-light-line: #d6e0d9;
-  --landing-light-gold: var(--brand-primary-50);
+  --landing-light-gold: #00509d;
   --nav-shadow: 0 -10px 30px color-mix(in oklab, var(--identity-graphite) 24%, transparent);
 
   --surface-raised: var(--ink2);
@@ -282,14 +278,22 @@
 
 .light,
 :root[data-identidade="moderno"].light {
+  --action-blue: #00509d;
+  --brand-tertiary-50: #d3145d;
+  --identity-accent: var(--action-blue);
+  --identity-accent-light: var(--action-blue);
+  --identity-primary: var(--action-blue);
+  --identity-secondary: var(--brand-tertiary-50);
+  --identity-secondary-light: var(--brand-tertiary-50);
+  --identity-secondary-strong: var(--brand-tertiary-50);
   --fundo: #f0f7f2;
-  --painel: #f0f6f2;
+  --painel: #d6e0d9;
   --cartao: #ffffff;
   --linha: #d6e0d9;
   --texto: #191c1a;
   --texto-suave: #707973;
-  --agenda-acao: #0160c8;
-  --agenda-acao-suave: #9bb9ff;
+  --agenda-acao: var(--action-blue);
+  --agenda-acao-suave: var(--brand-primary-90);
   --agenda-positivo: #43a047;
   --agenda-atencao: #d81b60;
   --agenda-aguardo: #c98a1a;
@@ -415,13 +419,13 @@
 
 /* Sino de avisos: rosa do Cortaí fixo, independente da identidade visual. */
 :root {
-  --sino-atencao: #ff1670;
-  --sino-badge: var(--brand-tertiary-40); /* texto branco >= 4.5:1 */
+  --sino-atencao: var(--brand-tertiary-50);
+  --sino-badge: var(--brand-tertiary-50); /* texto branco >= 4.5:1 */
   --sino-badge-texto: #ffffff;
 }
 :root.light {
-  --sino-atencao: var(--brand-tertiary-40);
-  --sino-badge: var(--brand-tertiary-40);
+  --sino-atencao: var(--brand-tertiary-50);
+  --sino-badge: var(--brand-tertiary-50);
 }
 
 @layer base {
