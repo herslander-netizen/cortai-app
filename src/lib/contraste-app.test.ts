@@ -76,7 +76,7 @@ function resolver(valor: string, vars: Record<string, string>): Cor {
   throw new Error(`valor não suportado: ${v}`);
 }
 
-const IDENTIDADES = ["moderno", "indigo", "rose", "copper", "classico"] as const;
+const IDENTIDADES = ["moderno"] as const;
 const raiz = bloco(':root,\n:root[data-identidade="moderno"]');
 const claro = bloco('.light,\n:root[data-identidade="moderno"].light');
 
@@ -222,7 +222,7 @@ describe("tokens recuperados do Figaroo", () => {
     });
   });
 
-  it("preserva as cores e os temas legados do Cortaí", () => {
+  it("preserva as cores oficiais do Cortaí sem temas alternativos de aplicativo", () => {
     expect(escuro).toMatchObject({
       "--identity-accent": "#00b7f4",
       "--identity-primary": "#087cf0",
