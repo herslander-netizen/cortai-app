@@ -50,6 +50,12 @@ type HorarioFuncionamento = {
   intervaloFim?: string | null;
 };
 
+type OcupacaoExtraAgenda = {
+  profissional_id: string | null;
+  inicio: string;
+  fim: string;
+};
+
 type AgendaTimelineProps = {
   dia: string;
   fuso: string | undefined;
@@ -74,6 +80,8 @@ type AgendaTimelineProps = {
   destaques?: Set<string>;
   itensEscala?: AgendaItem[];
   bloqueios?: Bloqueio[];
+  /** Ocupações extras do motor oficial: bloqueios e períodos fora da escala profissional. */
+  ocupacoesExtras?: OcupacaoExtraAgenda[];
   profissionalId?: string | null;
   profissionais?: { id: string; nome: string }[];
   alinhado?: boolean;
@@ -84,6 +92,9 @@ type AgendaTimelineProps = {
   /** Celular 3.0: sempre de 00:00 a 23:00, rola até o agora (hoje) ou à abertura. */
   diaCompleto?: boolean;
 };
+
+const SEM_BLOQUEIOS: Bloqueio[] = [];
+const SEM_OCUPACOES_EXTRAS: OcupacaoExtraAgenda[] = [];
 
 const PX_POR_MINUTO = 2.25;
 const MARGEM_AGORA_MIN = 90;
@@ -139,7 +150,8 @@ export function AgendaTimeline({
   onEditarIntervalo,
   destaques,
   itensEscala,
-  bloqueios = [],
+  bloqueios = SEM_BLOQUEIOS,
+  ocupacoesExtras = SEM_OCUPACOES_EXTRAS,
   profissionalId,
   profissionais = [],
   alinhado,
@@ -254,10 +266,12 @@ export function AgendaTimeline({
     const inicios = [
       ...base.map((item) => minutosNoFuso(item.inicio, fuso)),
       ...bloqueios.map((bloqueio) => minutosNoFuso(bloqueio.inicio, fuso)),
+      ...ocupacoesExtras.map((ocupacao) => minutosNoFuso(ocupacao.inicio, fuso)),
     ];
     const finais = [
       ...base.map((item) => minutosNoFuso(item.fim, fuso)),
       ...bloqueios.map((bloqueio) => minutosNoFuso(bloqueio.fim, fuso)),
+      ...ocupacoesExtras.map((ocupacao) => minutosNoFuso(ocupacao.fim, fuso)),
     ];
     const minutoAtual = minutosNoFuso(agora, fuso);
     const referenciasInicio = [
@@ -276,7 +290,7 @@ export function AgendaTimeline({
     const inicio = Math.max(0, Math.floor(Math.min(...referenciasInicio) / 30) * 30);
     const fim = Math.min(24 * 60, Math.ceil(Math.max(...referenciasFim) / 30) * 30);
     return { inicio, fim: Math.max(inicio + 60, fim), minutoAtual };
-  }, [agora, dia, ehHoje, fuso, horarios, itens, itensEscala, bloqueios, diaCompleto]);
+  }, [agora, dia, ehHoje, fuso, horarios, itens, itensEscala, bloqueios, ocupacoesExtras, diaCompleto]);
 
   const marcas = useMemo(() => {
     const resultado: number[] = [];
@@ -628,38 +642,72 @@ export function AgendaTimeline({
   }
   const intervalo = intervaloDoDia(horarios, dia);
   const faixasFora = faixasForaDoExpediente(horarios, dia, escala);
-  const faixasBloqueio = useMemo(
-    () =>
-      bloqueios.flatMap((bloqueio) => {
-        if (
-          profissionalId &&
-          bloqueio.profissionalId &&
-          bloqueio.profissionalId !== profissionalId
-        ) {
-          return [];
-        }
-        const inicioReal = minutosNoFuso(bloqueio.inicio, fuso);
-        const fimReal = minutosNoFuso(bloqueio.fim, fuso);
-        const inicio = Math.max(inicioReal, escala.inicio);
-        const fim = Math.min(fimReal, escala.fim);
-        if (fim <= inicio) return [];
-        const nome = bloqueio.profissionalId
-          ? (profissionais.find((p) => p.id === bloqueio.profissionalId)?.nome ?? "Profissional")
-          : null;
-        return [{
-          id: bloqueio.id,
-          inicio,
-          fim,
-          motivo: bloqueio.motivo,
-          rotulo: bloqueio.profissionalId
-            ? profissionalId
-              ? "Bloqueado"
-              : `Bloqueado · ${nome}`
-            : "Equipe bloqueada",
-        }];
-      }),
-    [bloqueios, fuso, profissionalId, profissionais, escala.inicio, escala.fim],
-  );
+  const faixasBloqueio = useMemo(() => {
+    const manuais = bloqueios.flatMap((bloqueio) => {
+      if (
+        profissionalId &&
+        bloqueio.profissionalId &&
+        bloqueio.profissionalId !== profissionalId
+      ) {
+        return [];
+      }
+      const inicioReal = minutosNoFuso(bloqueio.inicio, fuso);
+      const fimReal = minutosNoFuso(bloqueio.fim, fuso);
+      const inicio = Math.max(inicioReal, escala.inicio);
+      const fim = Math.min(fimReal, escala.fim);
+      if (fim <= inicio) return [];
+      const nome = bloqueio.profissionalId
+        ? (profissionais.find((p) => p.id === bloqueio.profissionalId)?.nome ?? "Profissional")
+        : null;
+      return [{
+        id: bloqueio.id,
+        inicio,
+        fim,
+        motivo: bloqueio.motivo,
+        rotulo: bloqueio.profissionalId
+          ? profissionalId
+            ? "Bloqueado"
+            : `Bloqueado · ${nome}`
+          : "Equipe bloqueada",
+      }];
+    });
+    const extras = ocupacoesExtras.flatMap((ocupacao, indice) => {
+      if (
+        profissionalId &&
+        ocupacao.profissional_id &&
+        ocupacao.profissional_id !== profissionalId
+      ) {
+        return [];
+      }
+      const cobertoPorBloqueioManual = bloqueios.some(
+        (bloqueio) =>
+          bloqueio.inicio === ocupacao.inicio &&
+          bloqueio.fim === ocupacao.fim &&
+          (!bloqueio.profissionalId || bloqueio.profissionalId === ocupacao.profissional_id),
+      );
+      if (cobertoPorBloqueioManual) return [];
+      const inicioReal = minutosNoFuso(ocupacao.inicio, fuso);
+      const fimReal = minutosNoFuso(ocupacao.fim, fuso);
+      const inicio = Math.max(inicioReal, escala.inicio);
+      const fim = Math.min(fimReal, escala.fim);
+      if (fim <= inicio) return [];
+      const nome = ocupacao.profissional_id
+        ? (profissionais.find((p) => p.id === ocupacao.profissional_id)?.nome ?? "Profissional")
+        : null;
+      return [{
+        id: `ocupacao-extra-${ocupacao.profissional_id ?? "equipe"}-${ocupacao.inicio}-${ocupacao.fim}-${indice}`,
+        inicio,
+        fim,
+        motivo: null,
+        rotulo: ocupacao.profissional_id
+          ? profissionalId
+            ? "Fora da escala"
+            : `Fora da escala · ${nome}`
+          : "Equipe indisponível",
+      }];
+    });
+    return [...manuais, ...extras];
+  }, [bloqueios, ocupacoesExtras, fuso, profissionalId, profissionais, escala.inicio, escala.fim]);
 
   // Prévia: posição em que o dia vai assentar (hoje no agora; senão topo do expediente).
   const funcionamentoDoDia = horarios.find((h) => h.diaSemana === diaDaSemana(dia) && !h.fechado);
