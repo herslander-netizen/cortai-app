@@ -67,7 +67,6 @@ export function AtendimentoRapido({ onFechar, onIniciado }: Props) {
     }
   }
 
-
   return (
     <div
       className="agenda-folha"
@@ -112,6 +111,7 @@ export function AtendimentoRapido({ onFechar, onIniciado }: Props) {
               </label>
               <div className="mt-2 flex flex-wrap gap-2">
                 <Chip
+                  className="rounded-lg"
                   selecionado={!cliente}
                   onClick={() => setCliente(null)}
                 >
@@ -120,6 +120,7 @@ export function AtendimentoRapido({ onFechar, onIniciado }: Props) {
                 </Chip>
                 {opcoes.map((c) => (
                   <Chip
+                    className="rounded-lg"
                     selecionado={cliente?.id === c.id}
                     key={c.id}
                     onClick={() => setCliente({ id: c.id, nome: c.nome })}
@@ -138,6 +139,7 @@ export function AtendimentoRapido({ onFechar, onIniciado }: Props) {
               <div className="flex flex-wrap gap-2">
                 {dados.data?.servicos.map((s) => (
                   <Chip
+                    className="rounded-lg"
                     selecionado={servicoId === s.id}
                     key={s.id}
                     onClick={() => setServicoId(s.id)}
@@ -153,6 +155,7 @@ export function AtendimentoRapido({ onFechar, onIniciado }: Props) {
               <div className="flex flex-wrap gap-2">
                 {dados.data?.profissionais.map((p) => (
                   <Chip
+                    className="rounded-lg"
                     selecionado={profissionalId === p.id}
                     key={p.id}
                     onClick={() => setProfissionalId(p.id)}
@@ -164,9 +167,7 @@ export function AtendimentoRapido({ onFechar, onIniciado }: Props) {
               </div>
             </section>
 
-            {erro ? (
-              <Aviso tom="acao">{erro}</Aviso>
-            ) : null}
+            {erro ? <Aviso tom="acao">{erro}</Aviso> : null}
 
             <div className="sticky bottom-0 -mx-5 border-t border-line bg-ink2 px-5 pt-3">
               <Button

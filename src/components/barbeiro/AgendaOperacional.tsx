@@ -212,6 +212,7 @@ function FolhaFila(props: {
                 >
                   {props.profissionais.map((p) => (
                     <Chip
+                      className="rounded-lg"
                       key={p.id}
                       selecionado={props.profEscolhido === p.id}
                       onClick={() => props.onProf(p.id)}

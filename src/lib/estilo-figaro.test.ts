@@ -26,7 +26,8 @@ describe("padrão Figaro nos primitivos", () => {
     expect(antigos).toEqual([]);
     const chip = readFileSync("src/components/ui/chip.tsx", "utf8");
     expect(chip).toContain("h-9");
-    expect(chip).toContain("rounded-lg");
+    // FilterChip do Figaro: 8 dp (o `rounded-lg` do tema vale 14 px e deixava o chip quase em pílula).
+    expect(chip).toContain("rounded-[8px]");
   });
 
   it("interruptores de tela usam o primitivo Switch, nunca botão artesanal com role= switch", () => {

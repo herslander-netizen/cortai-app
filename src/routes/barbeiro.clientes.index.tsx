@@ -3,15 +3,24 @@ import { useQuery } from "@tanstack/react-query";
 import { CalendarClock, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Chip } from "@/components/ui/chip";
-import { useState } from "react";
+import { Fragment, useState } from "react";
 
 import { EmptyState, Screen } from "@/components/layout/Screen";
 import { brl, dataCurta } from "@/lib/format";
 import { getClientesCRM, type ClienteCRM } from "@/lib/crescimento.functions";
 import { EsqueletoLista, EsqueletoMetricas } from "@/components/layout/Esqueleto";
 import { useDebounce } from "@/hooks/useMovimento";
-import { ItemCascata } from "@/components/layout/ItemCascata";
-import { contarClientesCRM, filtrarClientesCRM, SEGMENTOS_CLIENTES, type SegmentoClientesCRM } from "@/lib/segmentacao-clientes";
+import {
+  GrupoDeLinhas,
+  LinhaDeConfiguracao,
+} from "@/components/ui/formulario/LinhasDeConfiguracao";
+import { agruparPorLetra } from "@/components/barbeiro/agenda/ficha-regras";
+import {
+  contarClientesCRM,
+  filtrarClientesCRM,
+  SEGMENTOS_CLIENTES,
+  type SegmentoClientesCRM,
+} from "@/lib/segmentacao-clientes";
 
 export const Route = createFileRoute("/barbeiro/clientes/")({
   head: () => ({
@@ -34,12 +43,39 @@ export const Route = createFileRoute("/barbeiro/clientes/")({
   component: ClientesPage,
 });
 
+/** Selos de estado como a `FigarooStatusPill` (spec 1 §2.4): pares de container e texto do tema. */
 const ROTULOS: Record<ClienteCRM["status"], { texto: string; classe: string }> = {
-  novo: { texto: "Novo", classe: "text-gold" },
-  recorrente: { texto: "Recorrente", classe: "text-sage" },
-  em_retorno: { texto: "Em retorno", classe: "text-gold" },
-  inativo: { texto: "Inativo", classe: "text-brick" },
+  novo: {
+    texto: "Novo",
+    classe: "bg-[var(--figaro-primary-container)] text-[var(--figaro-on-primary-container)]",
+  },
+  recorrente: {
+    texto: "Recorrente",
+    classe: "bg-[var(--figaro-success-container)] text-[var(--figaro-on-success-container)]",
+  },
+  em_retorno: {
+    texto: "Em retorno",
+    classe: "bg-[var(--figaro-warning-container)] text-[var(--figaro-on-warning-container)]",
+  },
+  inativo: {
+    texto: "Inativo",
+    classe: "bg-[var(--figaro-surface-container-highest)] text-[var(--figaro-on-surface-variant)]",
+  },
 };
+
+/** Avatar do Figaro (`FigarooAvatar` Large): 40 dp, quadrado de 12 dp, iniciais em titleMedium. */
+function AvatarDoCliente({ nome }: { nome: string }) {
+  const partes = nome.trim().split(/\s+/);
+  const iniciais = `${partes[0]?.[0] ?? ""}${partes.length > 1 ? (partes.at(-1)?.[0] ?? "") : ""}`;
+  return (
+    <span
+      aria-hidden
+      className="grid size-10 shrink-0 place-items-center rounded-[12px] bg-[var(--figaro-surface-container-highest,var(--ink3))] text-base font-semibold uppercase text-paper"
+    >
+      {iniciais}
+    </span>
+  );
+}
 
 function whatsappLink(telefone: string, nome: string, barbearia = true, servico?: string | null) {
   const numero = telefone.replace(/\D/g, "");
@@ -76,7 +112,10 @@ function ClientesPage() {
   return (
     <Screen title="Clientes" subtitle="Histórico, frequência e quem está na hora de voltar.">
       {data && data.trazerDeVolta.length > 0 ? (
-        <section data-guia="clientes-retorno" className="rounded-[28px] bg-[var(--figaro-surface-container,var(--ink2))] p-5">
+        <section
+          data-guia="clientes-retorno"
+          className="rounded-[28px] bg-[var(--figaro-surface-container,var(--ink2))] p-5"
+        >
           <p className="text-xs font-semibold uppercase text-gold">Voltaí</p>
           <p className="mt-1 text-sm font-semibold text-paper">
             {ehBarbearia ? "Seu cliente corta. Ganha. Volta." : "Cliente vem. Ganha. Volta."}
@@ -91,7 +130,7 @@ function ClientesPage() {
                   <Link
                     to="/barbeiro/clientes/$id"
                     params={{ id: c.id }}
-                    className="block truncate text-sm font-medium text-[var(--figaro-primary,var(--primary))] underline underline-offset-2"
+                    className="block truncate text-[15px] font-semibold leading-5 text-paper"
                   >
                     {c.nome}
                   </Link>
@@ -124,15 +163,17 @@ function ClientesPage() {
             {data?.clientes.filter((c) => c.status !== "inativo").length ?? "—"}
           </p>
         </div>
-        <div className="surface px-3 py-3">
+        <div className="rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))] px-3 py-3">
           <p className="text-xs text-mute2">Inativos</p>
           <p className="mt-1 text-lg font-bold text-paper">
             {data?.clientes.filter((c) => c.status === "inativo").length ?? "—"}
           </p>
         </div>
-        <div className="surface px-3 py-3">
+        <div className="rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))] px-3 py-3">
           <p className="text-xs text-mute2">Voltaí</p>
-          <p className="mt-1 text-lg font-bold text-[var(--figaro-primary,var(--primary))]">{data?.trazerDeVolta.length ?? "—"}</p>
+          <p className="mt-1 text-lg font-bold text-[var(--figaro-primary,var(--primary))]">
+            {data?.trazerDeVolta.length ?? "—"}
+          </p>
         </div>
       </div>
 
@@ -144,26 +185,27 @@ function ClientesPage() {
       />
       <section className="mt-4" aria-label="Segmentação de clientes">
         <p className="text-xs font-semibold text-mute2">Segmento de clientes</p>
-        <div role="group" aria-label="Filtrar clientes por segmento" className="mt-2 flex flex-wrap gap-2">
+        <div
+          role="group"
+          aria-label="Filtrar clientes por segmento"
+          className="mt-2 flex flex-wrap gap-2"
+        >
           {SEGMENTOS_CLIENTES.map((opcao) => (
-            <Chip key={opcao.valor} selecionado={segmentoSelecionado === opcao.valor} onClick={() => setSegmentoSelecionado(opcao.valor)}>
+            <Chip
+              key={opcao.valor}
+              selecionado={segmentoSelecionado === opcao.valor}
+              onClick={() => setSegmentoSelecionado(opcao.valor)}
+            >
               {opcao.texto} ({contagens[opcao.valor]})
             </Chip>
           ))}
+          {/* Filtro extra no mesmo grupo de chips (FilterChip com ícone, como no Figaro). */}
+          <Chip selecionado={soHoraDeVoltar} onClick={() => setSoHoraDeVoltar((v) => !v)}>
+            <CalendarClock aria-hidden /> Hora de voltar
+            {totalHoraDeVoltar ? ` (${totalHoraDeVoltar})` : ""}
+          </Chip>
         </div>
       </section>
-      <div className="mt-3 flex flex-wrap gap-2">
-        <Button
-          type="button"
-          variant={soHoraDeVoltar ? "primary" : "outline"}
-          size="sm"
-          aria-pressed={soHoraDeVoltar}
-          onClick={() => setSoHoraDeVoltar((v) => !v)}
-        >
-          <CalendarClock aria-hidden /> Hora de voltar
-          {totalHoraDeVoltar ? ` (${totalHoraDeVoltar})` : ""}
-        </Button>
-      </div>
 
       {isLoading ? (
         <EsqueletoLista linhas={6} onTentarDeNovo={() => void consulta.refetch()} />
@@ -177,69 +219,96 @@ function ClientesPage() {
         </div>
       ) : null}
       {data && lista.length === 0 ? <EmptyState text="Nenhum cliente encontrado." /> : null}
-      <ul data-guia="clientes-lista" className="mt-2 space-y-2">
-        {lista.map((c, i) => {
-          const rotulo = ROTULOS[c.status];
-          return (
-            <ItemCascata key={c.id} indice={i} className="rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))] px-4 py-3">
-              <Link to="/barbeiro/clientes/$id" params={{ id: c.id }} className="block">
-                <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4">
-                  <div className="min-w-0">
-                    <p className="truncate text-sm text-paper">{c.nome}</p>
-                    <p className="mt-0.5 text-xs text-mute">
-                      {c.visitas > 0
-                        ? `${c.visitas} ${c.visitas === 1 ? "visita" : "visitas"} · última em ${c.ultimaVisita ? dataCurta(c.ultimaVisita) : "—"}`
-                        : "Ainda sem atendimentos"}
-                    </p>
-                    <p className="mt-0.5 text-xs text-mute2">
-                      {c.intervaloMedioDias
-                        ? `A cada ${c.intervaloMedioDias} dias`
-                        : "Sem frequência definida"}
-                      {c.gastoMedioCentavos > 0 ? ` · ${brl(c.gastoMedioCentavos)} em média` : ""}
-                    </p>
-                    {c.servicoPreferido || c.profissionalPreferido ? (
-                      <p className="mt-0.5 truncate text-xs text-mute2">
-                        {[c.servicoPreferido, c.profissionalPreferido].filter(Boolean).join(" · ")}
-                      </p>
+      {/* Lista como no Figaro (`ClientGroup` + `FigarooListRow`): grupos por letra, avatar de 40 dp, nome em
+          15/20 SemiBold, apoio em bodyMedium e o estado num selo. */}
+      <div data-guia="clientes-lista" className="mt-4 space-y-4">
+        {agruparPorLetra(lista).map(({ letra, itens }) => (
+          <section key={letra} aria-label={`Clientes com ${letra}`}>
+            <h2 className="px-4 pb-2 text-sm font-semibold text-mute2">{letra}</h2>
+            <GrupoDeLinhas>
+              {itens.map((c) => {
+                const rotulo = ROTULOS[c.status];
+                const visitas =
+                  c.visitas > 0
+                    ? `${c.visitas} ${c.visitas === 1 ? "visita" : "visitas"} · última em ${c.ultimaVisita ? dataCurta(c.ultimaVisita) : "—"}`
+                    : "Ainda sem atendimentos";
+                const frequencia = c.intervaloMedioDias
+                  ? `a cada ${c.intervaloMedioDias} dias`
+                  : null;
+                const retorno =
+                  c.horaDeVoltar && c.retornoEm
+                    ? `Retorno sugerido: ${dataCurta(c.retornoEm)}${c.retornoServico ? ` (${c.retornoServico})` : ""}`
+                    : null;
+                return (
+                  <Fragment key={c.id}>
+                    <LinhaDeConfiguracao
+                      para="/barbeiro/clientes/$id"
+                      parametros={{ id: c.id }}
+                      lider={<AvatarDoCliente nome={c.nome} />}
+                      titulo={
+                        <span className="flex min-w-0 items-center gap-2">
+                          <span className="min-w-0 truncate">{c.nome}</span>
+                          <span
+                            className={`inline-flex min-h-5 shrink-0 items-center rounded-full px-2 text-[11px] font-semibold leading-4 ${rotulo.classe}`}
+                          >
+                            {rotulo.texto}
+                          </span>
+                        </span>
+                      }
+                      suporte={
+                        <>
+                          <span className="block truncate">
+                            {[visitas, frequencia].filter(Boolean).join(" · ")}
+                          </span>
+                          {c.gastoMedioCentavos > 0 || c.servicoPreferido ? (
+                            <span className="block truncate text-mute2">
+                              {[
+                                c.gastoMedioCentavos > 0
+                                  ? `${brl(c.gastoMedioCentavos)} em média`
+                                  : null,
+                                c.servicoPreferido,
+                              ]
+                                .filter(Boolean)
+                                .join(" · ")}
+                            </span>
+                          ) : null}
+                        </>
+                      }
+                      fim={
+                        c.saldoCentavos < 0 ? (
+                          <span className="font-semibold text-brick">
+                            {brl(Math.abs(c.saldoCentavos))}
+                          </span>
+                        ) : c.creditos > 0 ? (
+                          <span className="text-xs">
+                            {c.creditos} {c.creditos === 1 ? "crédito" : "créditos"}
+                          </span>
+                        ) : undefined
+                      }
+                    />
+                    {retorno ? (
+                      <li className="flex min-h-12 items-center justify-between gap-3 px-4 py-2 text-xs text-mute">
+                        <span className="min-w-0 truncate">{retorno}</span>
+                        {c.telefone ? (
+                          <a
+                            href={whatsappLink(c.telefone, c.nome, ehBarbearia, c.retornoServico)}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="inline-flex min-h-12 shrink-0 items-center gap-1.5 font-semibold text-[var(--figaro-primary,var(--primary))]"
+                            aria-label={`Chamar ${c.nome} no WhatsApp`}
+                          >
+                            <MessageCircle size={15} aria-hidden /> Chamar
+                          </a>
+                        ) : null}
+                      </li>
                     ) : null}
-                  </div>
-                  <div className="shrink-0 text-right">
-                    <span className={`text-xs font-semibold ${rotulo.classe}`}>{rotulo.texto}</span>
-                    {c.saldoCentavos < 0 ? (
-                      <p className="mt-1 text-sm font-semibold text-brick">
-                        {brl(Math.abs(c.saldoCentavos))}
-                      </p>
-                    ) : c.creditos > 0 ? (
-                      <p className="mt-1 text-xs text-mute2">
-                        {c.creditos} {c.creditos === 1 ? "crédito" : "créditos"}
-                      </p>
-                    ) : null}
-                  </div>
-                </div>
-              </Link>
-              {c.horaDeVoltar && c.retornoEm ? (
-                <div className="-mt-2 flex items-center justify-between gap-3 pb-3 text-xs text-mute">
-                  <span>
-                    Retorno sugerido: {dataCurta(c.retornoEm)}
-                    {c.retornoServico ? ` (${c.retornoServico})` : ""}
-                  </span>
-                  {c.telefone ? (
-                    <a
-                      href={whatsappLink(c.telefone, c.nome, ehBarbearia, c.retornoServico)}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="inline-flex min-h-12 items-center gap-1.5 font-semibold text-[var(--figaro-primary,var(--primary))]"
-                      aria-label={`Chamar ${c.nome} no WhatsApp`}
-                    >
-                      <MessageCircle size={15} aria-hidden /> Chamar
-                    </a>
-                  ) : null}
-                </div>
-              ) : null}
-            </ItemCascata>
-          );
-        })}
-      </ul>
+                  </Fragment>
+                );
+              })}
+            </GrupoDeLinhas>
+          </section>
+        ))}
+      </div>
     </Screen>
   );
 }

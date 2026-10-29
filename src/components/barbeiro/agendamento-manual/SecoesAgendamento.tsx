@@ -181,7 +181,7 @@ export function SecaoHorario({ s }: { s: EstadoAgendamentoManual }) {
                   setConfirmarEncaixe(false);
                   setDetalhe(info);
                 }}
-                className="h-auto min-h-9 flex-col gap-0 py-1"
+                className="h-auto min-h-9 flex-col gap-0 rounded-lg py-1"
               >
                 <span className="font-semibold">{h}</span>
                 <span className="text-xs text-brick">Ocupado</span>
@@ -201,6 +201,7 @@ export function SecaoHorario({ s }: { s: EstadoAgendamentoManual }) {
           }
           return (
             <Chip
+              className="rounded-lg"
               key={h}
               selecionado={s.horaMin === h}
               onClick={() => {
@@ -287,7 +288,12 @@ export function SecaoPagamento({ s }: { s: EstadoAgendamentoManual }) {
     <SecaoDeFormulario rotulo="Pagamento">
       <div className="flex flex-wrap gap-2" role="group" aria-label="Forma de pagamento">
         {FORMAS.map(([v, rotulo]) => (
-          <Chip key={v} selecionado={s.forma === v} onClick={() => s.setForma(v)}>
+          <Chip
+            className="rounded-lg"
+            key={v}
+            selecionado={s.forma === v}
+            onClick={() => s.setForma(v)}
+          >
             {rotulo}
           </Chip>
         ))}
@@ -317,6 +323,7 @@ export function AvisosAgendamento({ s }: { s: EstadoAgendamentoManual }) {
             <div className="mt-2 flex flex-wrap gap-2">
               {s.conflito.sugestoes.map((sg) => (
                 <Chip
+                  className="rounded-lg"
                   key={sg.iso}
                   selecionado={false}
                   onClick={() => {

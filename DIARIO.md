@@ -554,6 +554,7 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 
 ## Recados
+- **Para o GPT** (Claude, 29/10): a pedido do dono assumi a reconstrução visual Figaro por módulo (sua reserva "Reconstrução visual Figaro global" de 27/10). Não toco nos arquivos que você reservou nominalmente (financeiro/caixa, PersonalizacaoCliente, AgendaTimeline, página pública). Se estiver com alguma tela interna aberta, avise aqui que eu pulo.
 - **Para o GPT** (Claude, 29/10): se o dono te passar o "Prompt Mestre" (Figaroo), leia antes `docs/referencia-figaro/apk/14-prompt-mestre-relato-do-dono-2026-10-29.md`: os tokens de cor dele (#0A101D, #121A2A, #192233, "Premium Glass", gradiente navy/ciano) não são do Figaro e contradizem as capturas medidas hoje; as cores certas da Agenda estão no fim de `src/styles.css` (`:root[data-tela-agenda]`).
 - **Para o GPT** (Claude, 29/10): troquei o Roboto da Agenda (topo, semana/mês e Lista) por Plus Jakarta Sans (`var(--figaro-font-body)`): o APK do Figaro embute `plus_jakarta_sans.ttf` e a captura do título bate com Jakarta, não com Roboto (comparação renderizada). Atualizei os três testes que fixavam Roboto. Horas da coluna agora em JetBrains Mono.
 - **Para o GPT** (Claude, 29/10): ao mudar a coluna das horas da Agenda no celular (`.agenda-timeline` margin-left), mude junto `--calha-das-horas` de `.agenda-timeline-paginas`; com 50 × 37 a beirada do dia anterior aparecia na tela. Já corrigi e há teste para manter as duas iguais.
@@ -818,6 +819,13 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+
+### 2026-10-29 UTC — Claude — Reconstrução Figaro por módulo (pedido do dono, "Prompt Mestre"): Clientes
+- Dono: o "Prompt Mestre" era para o Claude executar. Assumo a reconstrução visual por módulo (recado ao GPT abaixo), sem tocar nos arquivos que ele reservou nominalmente (financeiro/caixa, PersonalizacaoCliente, AgendaTimeline, página pública).
+- **Vitrine local para ver telas sem banco:** Vite dev com Supabase falso + Playwright respondendo as funções do servidor com dados de exemplo (scripts no scratchpad do Claude; nada vai ao banco).
+- **Clientes (`barbeiro.clientes.index.tsx`):** lista como no Figaro (`ClientGroup` + `FigarooListRow`): grupos por letra, `GrupoDeLinhas`, avatar de iniciais 40 dp (quadrado 12 dp), nome 15/20 SemiBold com o selo de estado em pares de container (`FigarooStatusPill`), apoio em duas linhas, saldo/créditos no fim, seta; "Retorno sugerido + Chamar" continua como linha logo abaixo do cliente. "Hora de voltar" virou FilterChip no grupo de segmentos; métricas uniformes; nomes do Voltaí sem sublinhado.
+- **Primitivos:** `Chip` com raio de 8 dp (o `rounded-lg` do tema vale 14 px; chips da Agenda mantêm o raio antigo por `className`, Agenda protegida); `LinhaDeConfiguracao` ganhou `lider` (avatar) e `parametros` (rota com `$id`).
+- `tsc` ok, `vitest` 259/2195, `build` ok; conferido em captura a 390 px.
 
 ### 2026-10-29 UTC — Claude — "Prompt Mestre" do dono guardado com conferência
 - `docs/referencia-figaro/apk/14-prompt-mestre-relato-do-dono-2026-10-29.md`: o texto (prompt para IAs + mapa de páginas atual × Figaro), como chegou, com a conferência no topo. Vários tokens dele contradizem o APK e as capturas (fundo #0A101D, cards #121A2A, "Premium Glass", gradiente navy/ciano, Poppins em todo título, JetBrains em preços, pílulas a 15 %, bottom nav 80 px); outros itens são decisão de produto (PIN, gorjeta, SMS, LTV, metas, mapa). Nenhuma mudança de código.

@@ -33,12 +33,15 @@ const CORPO_DA_LINHA = "flex min-h-14 w-full items-center gap-3 px-4 py-3 text-l
 
 function ConteudoDaLinha({
   icone: Icone,
+  lider,
   titulo,
   suporte,
   fim,
   navegavel,
 }: {
   icone?: LucideIcon | undefined;
+  /** Slot líder próprio (ex.: avatar), no lugar do ícone em círculo. */
+  lider?: ReactNode;
   titulo: ReactNode;
   suporte?: ReactNode;
   fim?: ReactNode;
@@ -46,7 +49,8 @@ function ConteudoDaLinha({
 }) {
   return (
     <>
-      {Icone ? (
+      {lider ?? null}
+      {!lider && Icone ? (
         <span
           aria-hidden
           className="grid size-12 shrink-0 place-items-center rounded-full bg-[color-mix(in_oklab,var(--primary)_16%,transparent)] text-primary"
@@ -69,19 +73,24 @@ function ConteudoDaLinha({
 /** Linha que leva a outra tela (`para`), abre um link (`href`) ou executa uma ação (`aoTocar`). */
 export function LinhaDeConfiguracao({
   icone,
+  lider,
   titulo,
   suporte,
   fim,
   para,
+  parametros,
   href,
   aoTocar,
   desabilitada,
 }: {
   icone?: LucideIcon;
+  lider?: ReactNode;
   titulo: ReactNode;
   suporte?: ReactNode;
   fim?: ReactNode;
   para?: LinkProps["to"];
+  /** Parâmetros da rota de `para` (ex.: `{ id }`). */
+  parametros?: Record<string, string>;
   href?: string;
   aoTocar?: () => void;
   desabilitada?: boolean;
@@ -89,6 +98,7 @@ export function LinhaDeConfiguracao({
   const conteudo = (
     <ConteudoDaLinha
       icone={icone}
+      lider={lider}
       titulo={titulo}
       suporte={suporte}
       fim={fim}
@@ -98,7 +108,11 @@ export function LinhaDeConfiguracao({
   return (
     <li>
       {para ? (
-        <Link to={para} className={cn(CORPO_DA_LINHA, "active:bg-paper/5")}>
+        <Link
+          to={para}
+          {...(parametros ? { params: parametros as never } : {})}
+          className={cn(CORPO_DA_LINHA, "active:bg-paper/5")}
+        >
           {conteudo}
         </Link>
       ) : href ? (
