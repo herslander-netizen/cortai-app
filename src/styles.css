@@ -10770,7 +10770,7 @@ input[type="range"] {
 }
 
 
-/* Faixa de intervalo no padrão visual do bloqueio; interativa apenas na agenda ativa. */
+/* Intervalo: mesma linguagem neutra das horas fora do expediente, sem competir com bloqueios. */
 .agenda-timeline-intervalo.agenda-timeline-pausa {
   z-index: 1;
   pointer-events: auto;
@@ -10778,19 +10778,20 @@ input[type="range"] {
   overflow: hidden;
   padding: 0;
   border: 0;
-  border-left: 3px solid var(--figaro-tertiary, var(--rosa));
-  border-radius: 0;
-  color: var(--figaro-on-tertiary-container, var(--paper));
-  background:
-    repeating-linear-gradient(
-      135deg,
-      transparent 0 6px,
-      color-mix(in oklab, var(--figaro-tertiary) 25%, transparent) 6px 7px
-    ),
-    color-mix(in oklab, var(--figaro-tertiary-container) 84%, var(--figaro-surface));
+  color: var(--mute);
   text-align: left;
   cursor: pointer;
   font: inherit;
+}
+@media (max-width: 767px) {
+  .agenda-timeline-pausa {
+    border-radius: 10px;
+    background: repeating-linear-gradient(
+      135deg,
+      var(--agenda-listra-base) 0 6px,
+      var(--agenda-listra) 6px 7px
+    );
+  }
 }
 .agenda-timeline-pausa span {
   right: auto;
@@ -10799,7 +10800,7 @@ input[type="range"] {
   align-items: center;
   gap: 4px;
   max-width: calc(100% - 16px);
-  color: var(--figaro-on-tertiary-container, var(--paper));
+  color: var(--mute);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
