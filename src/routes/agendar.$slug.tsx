@@ -521,7 +521,11 @@ function AgendamentoPublico() {
         ) : null}
       </div>
       <h1 className="mt-1 text-2xl font-bold text-paper">{data.tenant.nome}</h1>
-      <StatusFuncionamento horarios={data.horarios} fuso={fuso} />
+      <StatusFuncionamento
+        horarios={data.horarios}
+        fuso={fuso}
+        excecoesIntervalo={data.excecoesIntervalo}
+      />
       {substituiId ? (
         <p
           className="mt-3 rounded-xl border border-line px-4 py-3 text-sm text-paper"
