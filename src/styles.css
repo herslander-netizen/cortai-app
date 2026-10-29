@@ -3222,12 +3222,13 @@ html.agenda-gesto-ativo body {
    entra ao lado com as próprias horas. Distância de uma página = largura da grade + vão. */
 .agenda-timeline-paginas {
   --trilho-vao: 24px;
-  /* Coluna das horas (margem da grade): 48px, 37px no celular — a mesma de .agenda-timeline. */
+  /* Coluna das horas (margem da grade): 48px, 50px no celular (gutter do Figaro) — a mesma de .agenda-timeline.
+     Se as duas divergirem, a beirada do dia vizinho aparece na borda da tela (dono, 29/10). */
   --calha-das-horas: 48px;
 }
 @media (max-width: 767px) {
   .agenda-timeline-paginas {
-    --calha-das-horas: 37px;
+    --calha-das-horas: 50px;
   }
 }
 @media (max-width: 600px) {

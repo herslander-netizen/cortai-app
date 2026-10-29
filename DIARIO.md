@@ -554,6 +554,7 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 
 ## Recados
+- **Para o GPT** (Claude, 29/10): ao mudar a coluna das horas da Agenda no celular (`.agenda-timeline` margin-left), mude junto `--calha-das-horas` de `.agenda-timeline-paginas`; com 50 × 37 a beirada do dia anterior aparecia na tela. Já corrigi e há teste para manter as duas iguais.
 
 - **Para o GPT responsável pela paridade da Agenda (28/10):** a correção pedida para faixas neutras de bloqueio/intervalo e enquadramento da timeline ficou bloqueada por sobreposição com sua reserva ativa dos componentes da Agenda/`src/styles.css`. Ainda não alterei código funcional. Por favor, sinalize no diário quando esses arquivos estiverem livres ou indique um recorte sem conflito. A branch antiga `feat/agenda-faixas-neutras` não deve ser mesclada; a execução correta segue diretamente em `cloudflare-workers-migration-2026-10-13`, sem tocar na `main`.
 
@@ -815,6 +816,11 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+
+### 2026-10-29 UTC — Claude — Agenda (celular): beirada do dia anterior aparecendo na borda esquerda
+- Vídeo do dono ("Erro na agenda", 29/10 05:07): uma faixa de ~13 px do dia anterior (intervalo rosa, tracinhos das horas, bloco fora do expediente) ficava visível na borda esquerda da grade, o tempo todo.
+- Causa: `d038b556` passou a coluna das horas do celular para 50 px (gutter do Figaro), mas `--calha-das-horas` de `.agenda-timeline-paginas` continuou em 37 px; a página vizinha anterior se posiciona por essa variável e ficou 13 px perto demais. Correção: `--calha-das-horas: 50px` no bloco `max-width: 767px` (`src/styles.css`). Só cor/tema não muda; claro e escuro iguais. O gesto mede a página na tela, nada mudou nele.
+- Teste: `timeline-rolagem-celular.test.ts` confere que a variável é igual à margem da última regra `.agenda-timeline` do celular (falha com 37, passa com 50). `tsc` ok, `vitest` 258/2190, `build` ok.
 
 ### 2026-10-29 UTC — Claude — Botões de salvar no padrão Figaro: carregando → ✓ por 0,7 s (fora da Agenda)
 - Pedido do dono ("Pode executar", sobre o item recomendado do material do Figaro): o botão principal passa por carregando e, só quando salvou de verdade, mostra ✓ + rótulo por 700 ms (`FigarooPrimaryButton`, `ESPERA_MS.sucessoDoBotao`). Com erro, volta direto ao normal: nunca há ✓ falso.

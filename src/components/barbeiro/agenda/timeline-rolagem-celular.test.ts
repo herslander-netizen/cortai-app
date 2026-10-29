@@ -141,12 +141,29 @@ describe("troca de dia em páginas no celular (como no vídeo de referência)", 
   it("o dia vizinho entra ao lado com as próprias horas e pontinhos", () => {
     // O vizinho é memorizado (vizinhosMemo) e passado à linha do tempo.
     expect(operacional).toMatch(/vizinhos=\{vizinhosMemo\}/);
-    expect(operacional).toMatch(/vizinhosMemo = useMemo\([\s\S]*?celular \? \([\s\S]*?<CamadasVizinhas/);
+    expect(operacional).toMatch(
+      /vizinhosMemo = useMemo\([\s\S]*?celular \? \([\s\S]*?<CamadasVizinhas/,
+    );
     expect(previa).toContain("<MarcaDoLimiteDoDia");
     expect(css).not.toMatch(/\.agenda-dia-vizinha \.agenda-timeline-marca/);
     expect(css).toContain("left: calc(-100% - 2 * var(--calha-das-horas) - var(--trilho-vao));");
     expect(css).toContain("width: calc(100% + var(--calha-das-horas));");
     expect(css).toMatch(/\.agenda-dia-vizinha \.agenda-timeline-scroll \{\s*padding-block: 0;/);
+  });
+
+  it("no celular o vizinho se afasta exatamente a coluna de horas da grade (sem beirada na borda)", () => {
+    // Vale a última regra de .agenda-timeline no celular (margem = coluna das horas).
+    const margens = [
+      ...css.matchAll(
+        /\.agenda-timeline \{\s*width: calc\(100% - (\d+)px\);\s*margin-left: (\d+)px;/g,
+      ),
+    ];
+    const coluna = margens.at(-1)?.[2];
+    const calha = css.match(
+      /@media \(max-width: 767px\) \{\s*\.agenda-timeline-paginas \{\s*--calha-das-horas: (\d+)px;/,
+    )?.[1];
+    expect(coluna).toBeDefined();
+    expect(calha).toBe(coluna);
   });
 
   it("os pontinhos do topo deslizam com a página", () => {
