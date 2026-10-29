@@ -14,6 +14,7 @@ import { AgendaSemana } from "@/components/barbeiro/AgendaSemana";
 import { AgendaFocoMobile } from "@/components/barbeiro/AgendaFocoMobile";
 import { efeitoDaAcaoCard } from "@/components/barbeiro/agenda/acao-card";
 import { BloquearHorarioSheet } from "@/components/barbeiro/agenda/BloquearHorarioSheet";
+import { IntervaloRapidoSheet } from "@/components/barbeiro/agenda/IntervaloRapidoSheet";
 import { CabecalhoAgenda } from "@/components/barbeiro/agenda/CabecalhoAgenda";
 import { mesDoDia, tituloDoMes } from "@/components/barbeiro/agenda/calendario";
 import { filaDeChegadaVisivel } from "@/components/barbeiro/agenda/fila-visivel";
@@ -282,6 +283,7 @@ export function AgendaOperacional() {
   const [vozSuportada, setVozSuportada] = useState(false);
   useEffect(() => setVozSuportada(comandoDeVozSuportado()), []);
   const [bloquearAberto, setBloquearAberto] = useState(false);
+  const [intervaloRapido, setIntervaloRapido] = useState<{ inicio: string; fim: string } | null>(null);
   const [focoTrancado, setFocoTrancado] = useState(false);
   const [manualAberto, setManualAberto] = useState(
     acaoInicial === "agendamento" || acaoInicial === "cliente",
@@ -334,6 +336,7 @@ export function AgendaOperacional() {
   const temSobreposicao = Boolean(
     painelAberto ||
     bloquearAberto ||
+    intervaloRapido !== null ||
     focoTrancado ||
     manualAberto ||
     rapidoAberto ||
@@ -375,6 +378,19 @@ export function AgendaOperacional() {
   }
 
   const { agenda, online, aoVivo } = useAgendaDia(dia);
+  const intervaloSemanalPadrao = useMemo(() => {
+    const diaSemana = new Date(`${dia}T12:00:00Z`).getUTCDay();
+    const horario = agenda.data?.horarios.find(
+      (item) => !item.data && item.diaSemana === diaSemana,
+    );
+    return {
+      inicio: horario?.intervaloInicio?.slice(0, 5) ?? null,
+      fim: horario?.intervaloFim?.slice(0, 5) ?? null,
+    };
+  }, [agenda.data?.horarios, dia]);
+  const abrirEditorIntervalo = (intervalo: { inicio: string; fim: string }) => {
+    setIntervaloRapido(intervalo);
+  };
   const bloqueiosQ = useQuery({
     queryKey: ["bloqueios", dia],
     queryFn: () => listarBloqueios({ data: { dia } }),
@@ -945,6 +961,17 @@ export function AgendaOperacional() {
         profissionais={agenda.data?.profissionais ?? []}
         fuso={fuso}
       />
+      <IntervaloRapidoSheet
+        aberta={intervaloRapido !== null}
+        onAbertaChange={(aberta) => {
+          if (!aberta) setIntervaloRapido(null);
+        }}
+        dia={dia}
+        inicio={intervaloRapido?.inicio ?? intervaloSemanalPadrao.inicio ?? "12:00"}
+        fim={intervaloRapido?.fim ?? intervaloSemanalPadrao.fim ?? "13:00"}
+        inicioPadrao={intervaloSemanalPadrao.inicio}
+        fimPadrao={intervaloSemanalPadrao.fim}
+      />
       <FolhaFila
         aberta={filaAberta}
         onAberta={setFilaAberta}
@@ -1405,6 +1432,7 @@ export function AgendaOperacional() {
                       setProfVazio(p.id);
                       setManualAberto(true);
                     }}
+                    onEditarIntervalo={previa ? undefined : abrirEditorIntervalo}
                     destaques={novos}
                     mostrarProfissional={false}
                     discreto={modoDiscreto}
@@ -1439,6 +1467,7 @@ export function AgendaOperacional() {
                   setProfVazio(null);
                   setManualAberto(true);
                 }}
+                onEditarIntervalo={previa ? undefined : abrirEditorIntervalo}
                 destaques={novos}
                 mostrarProfissional={!profFiltro && profissionais.length > 1}
                 discreto={modoDiscreto}
