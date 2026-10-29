@@ -72,10 +72,6 @@ export function IntervaloDoDiaSheet({
       await atualizarAgenda();
       if (valores.inicio === null && valores.fim === null) {
         aviso.ok("Este dia ficará sem intervalo. O padrão semanal foi preservado.");
-      } else if (resultado.atendimentosNoIntervalo > 0) {
-        aviso.info(
-          `Intervalo salvo. ${resultado.atendimentosNoIntervalo} atendimento(s) existente(s) neste período continuam marcados.`,
-        );
       } else {
         aviso.ok("Intervalo atualizado somente para este dia.");
       }
@@ -186,7 +182,7 @@ export function IntervaloDoDiaSheet({
         ) : null}
 
         <p className="mt-3 text-xs leading-5 text-mute">
-          Atendimentos já marcados não são cancelados automaticamente. O Cortaí preserva as reservas existentes e aplica o intervalo aos novos agendamentos.
+          Para evitar conflito com a agenda, o Cortaí não salva um intervalo que atravesse um atendimento já marcado. Remarque ou cancele esse atendimento antes de tentar novamente.
         </p>
       </SheetContent>
     </Sheet>
