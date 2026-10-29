@@ -783,7 +783,7 @@ export function AgendaTimeline({
           ))}
           {intervalo ? (
             <div
-              className="agenda-timeline-intervalo"
+              className="agenda-timeline-intervalo focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold focus-visible:outline-offset-2"
               style={{
                 top: `${(intervalo[0] - escala.inicio) * PX_POR_MINUTO + deslocamentoAte(intervalo[0])}px`,
                 height: `${(intervalo[1] - intervalo[0]) * PX_POR_MINUTO}px`,
