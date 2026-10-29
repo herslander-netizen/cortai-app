@@ -818,6 +818,11 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-29 UTC — Claude — Agenda: gaveta do mês sem "salto" no fim da descida + intervalo com o cartão do bloqueio
+- Vídeo do dono (10:33): ao abrir o mês, a timeline descia colada no painel, mas no fim o topo crescia mais ~24 px de uma vez e cobria o começo da timeline (o "Corte clássico" sumia). Causa: o painel animado tinha a altura do mês + 12 px, e o topo real tem o `pb-9` (36 px) embaixo; quando a animação terminava e a altura real entrava, sobravam 24 px. Agora o painel vai até a borda do topo (`alturaDoPainelAteABorda` = mola + 36), então abrir e fechar começam e terminam exatamente na borda real. `SemanaDoTopo.tsx`, teste em `timeline-rolagem-celular.test.ts`.
+- Pedido do dono: intervalo com a barrinha e a cor dos horários bloqueados. `.agenda-timeline-pausa` passou a usar o cartão do bloqueio (fundo dos cartões, listras α 0,06, contorno sutil, barra de 3,5 px α 0,3); o texto "Intervalo · 12:30–13:30" fica depois da barra. Conferido em captura a 360 px, claro e escuro.
+- `tsc` ok, `vitest` completo ok, `build` ok. Pendente: conferir a gaveta no celular.
+
 ### 2026-10-29 UTC — Claude — Agenda: ao abrir o mês, a timeline desce colada no calendário (sem ficar parada e saltar)
 - Dono: "tem um erro no calendário quando desce". Quadro a quadro (vídeo do Cortaí × vídeo do Figaro, 20 qps): no Figaro a timeline acompanha a borda do painel do mês enquanto ele desce; no Cortaí o mês descia por cima da timeline parada e ela só depois saltava para baixo.
 - Causa: a segunda mola em série (`espacoDaAgenda = useSpring(alturaDoPainel)`, 24/10, deduzida do APK) atrasava a timeline. Agora a Agenda usa a mesma mola do painel (`espacoDaAgenda = alturaDoPainel`), ainda por transform (sem refazer o layout a cada quadro); fechar segue a mesma lógica. `SemanaDoTopo.tsx`; teste atualizado em `timeline-rolagem-celular.test.ts`. A decisão de 24/10 fica substituída pelo vídeo de referência.

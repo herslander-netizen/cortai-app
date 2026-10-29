@@ -375,7 +375,9 @@ export function SemanaDoTopo({
   const alvoDoPainel = useMotionValue(60);
   const alturaDoPainel = useSpring(alvoDoPainel, MOLA_DO_FIGARO);
   const espacoDaAgenda = alturaDoPainel;
-  const alturaDoPainelMais12 = useTransform(alturaDoPainel, (v) => v + 12);
+  // O painel vai até a borda de baixo do topo (o `pb-9` de 36 px): com só 12 px, ao fim da descida o topo crescia
+  // mais 24 px de uma vez e cobria o começo da timeline (vídeo do dono, 29/10).
+  const alturaDoPainelAteABorda = useTransform(alturaDoPainel, (v) => v + 36);
   const [painelVisivel, setPainelVisivel] = useState(false);
   // Só o painel (camada sobre a Agenda) muda de tamanho a cada quadro. A Agenda é movida por transform
   // (GPU, sem refazer o layout da grade inteira); a altura real do topo só muda no começo do fechar e no
@@ -578,7 +580,7 @@ export function SemanaDoTopo({
                 background: "var(--ink2)",
                 boxShadow: "var(--elevacao-3)",
                 clipPath: "inset(0 -16px -24px -16px)",
-                height: alturaDoPainelMais12,
+                height: alturaDoPainelAteABorda,
               }}
             >
               <motion.div
