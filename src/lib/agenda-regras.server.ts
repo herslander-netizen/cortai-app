@@ -9,7 +9,13 @@ import {
   profissionalLivre,
   type Ocupado,
 } from "@/lib/disponibilidade";
-import { normalizarFuso, type HorarioDeFuncionamento } from "@/lib/horarios";
+import {
+  diaDaSemanaDoDia,
+  hojeNoFuso,
+  normalizarFuso,
+  somarDias,
+  type HorarioDeFuncionamento,
+} from "@/lib/horarios";
 
 import { STATUS_QUE_OCUPAM } from "@/lib/disponibilidade";
 export { STATUS_QUE_OCUPAM };
@@ -17,6 +23,7 @@ export const STATUS_ATIVOS_DO_CLIENTE = ["agendado", "chegou", "na_cadeira"] as 
 
 export function mapearHorarios(linhas: Record<string, any>[]): HorarioDeFuncionamento[] {
   return linhas.map((h) => ({
+    ...(h["data"] ? { data: String(h["data"]).slice(0, 10) } : {}),
     diaSemana: h["dia_semana"] as number,
     fechado: Boolean(h["fechado"]),
     abre: String(h["abre"]).slice(0, 5),
@@ -24,6 +31,47 @@ export function mapearHorarios(linhas: Record<string, any>[]): HorarioDeFunciona
     intervaloInicio: h["intervalo_inicio"] ? String(h["intervalo_inicio"]).slice(0, 5) : null,
     intervaloFim: h["intervalo_fim"] ? String(h["intervalo_fim"]).slice(0, 5) : null,
   }));
+}
+
+/**
+ * Acrescenta exceções por data sem sobrescrever a escala semanal. A linha especial
+ * copia abertura/fechamento do dia da semana e substitui apenas o intervalo.
+ */
+export async function incluirExcecoesDeIntervalo(
+  db: any,
+  tenantId: string,
+  horarios: HorarioDeFuncionamento[],
+  fuso: string,
+  desde: string,
+  ate: string,
+): Promise<HorarioDeFuncionamento[]> {
+  const { data, error } = await db
+    .from("excecoes_intervalo_agenda")
+    .select("dia, intervalo_inicio, intervalo_fim")
+    .eq("tenant_id", tenantId)
+    .gte("dia", desde)
+    .lte("dia", ate)
+    .order("dia");
+  if (error) throw new Error("Não foi possível carregar os intervalos excepcionais da agenda.");
+
+  const semana = horarios.filter((h) => !h.data);
+  const excepcionais = (data ?? []).map((ex: Record<string, unknown>) => {
+    const dia = String(ex["dia"]).slice(0, 10);
+    const diaSemana = diaDaSemanaDoDia(dia);
+    const base = semana.find((h) => h.diaSemana === diaSemana);
+    return {
+      data: dia,
+      diaSemana,
+      fechado: base?.fechado ?? true,
+      abre: base?.abre ?? "09:00",
+      fecha: base?.fecha ?? "19:00",
+      intervaloInicio: ex["intervalo_inicio"]
+        ? String(ex["intervalo_inicio"]).slice(0, 5)
+        : null,
+      intervaloFim: ex["intervalo_fim"] ? String(ex["intervalo_fim"]).slice(0, 5) : null,
+    } satisfies HorarioDeFuncionamento;
+  });
+  return [...semana, ...excepcionais];
 }
 
 export const PASSOS_PERMITIDOS = [15, 20, 30, 40, 50] as const;
@@ -50,13 +98,25 @@ export async function regrasDaBarbearia(db: any, tenantId: string) {
       .select("dia_semana, fechado, abre, fecha, intervalo_inicio, intervalo_fim")
       .eq("tenant_id", tenantId),
   ]);
+  const fuso = normalizarFuso(t?.fuso);
+  const janelaDias = janelaValida(t?.janela_agendamento_dias);
+  const hoje = hojeNoFuso(fuso);
+  const horariosBase = mapearHorarios(h ?? []);
+  const horarios = await incluirExcecoesDeIntervalo(
+    db,
+    tenantId,
+    horariosBase,
+    fuso,
+    hoje,
+    somarDias(hoje, janelaDias + 1),
+  );
   return {
-    fuso: normalizarFuso(t?.fuso),
+    fuso,
     antecedenciaMin: Number(t?.antecedencia_min_minutos ?? 0),
     intervaloEntreMin: Number(t?.intervalo_entre_min ?? 0),
-    janelaDias: janelaValida(t?.janela_agendamento_dias),
+    janelaDias,
     passoMin: passoValido(t?.passo_horarios_min),
-    horarios: mapearHorarios(h ?? []),
+    horarios,
   };
 }
 
