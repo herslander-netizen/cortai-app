@@ -120,3 +120,51 @@ Outras confirmações da estrutura:
 ### Implicação para implementação
 
 Antes de mudar a Agenda, mapear responsabilidades e testes de `AgendaOperacional` e `AgendaTimeline`. Caso seja necessário tocar nesses arquivos extensos, limitar o diff e extrair apenas uma responsabilidade que já esteja claramente delimitada. No editor público, começar por `SecaoTema`, `PreviaDaExperiencia` e pelos componentes chamados em `barbeiro.marca.tsx`. No catálogo, reutilizar `EditorDeServicos` e catalogar as diferenças antes de alterar seu fluxo.
+
+
+## Atualização — mapa funcional ampliado (29/10/2026)
+
+### Como interpretar o material recebido
+
+O segundo mapa do Figaroo informa **112 telas e 24 módulos**, mas declara expressamente que os nomes vieram do aplicativo e que os encadeamentos entre telas foram inferidos; o corpo das funções não foi lido. Portanto, esse mapa é uma hipótese de navegação útil para orientar uma auditoria, não uma especificação verificada do comportamento interno do Figaroo. Não tratamos os nomes das classes como contrato técnico nem copiamos sua arquitetura Android/Compose para o Cortaí.
+
+### Fluxos do Figaroo convertidos em diretrizes para o Cortaí
+
+| Área do fluxo enviado | Diretriz de produto para o Cortaí | Situação no Cortaí / cautela |
+|---|---|---|
+| Entrada, login, cadastro e onboarding | Manter entrada direta e recuperar o contexto após concluir cada etapa; não duplicar contas para papéis diferentes. | Autenticação, conta única e onboarding já fazem parte da arquitetura. Revisar a sequência real, não recriar o fluxo. |
+| Agenda e novo agendamento | Tratar Agenda como centro operacional; mostrar data, profissional, serviço, estado e ações contextuais; permitir corrigir escolhas sem reiniciar o fluxo. | Timeline, Lista, Modo Foco, agendamento manual/público, motor oficial de disponibilidade e bloqueios existem. O trabalho de exibir bloqueios na Timeline segue em PR isolado. |
+| Reserva e bloqueio | Diferenciar atendimento, reserva e indisponibilidade; tornar duração e motivo legíveis sem permitir toques na faixa interferirem nos gestos da Timeline. | Bloqueios por período e escalas já têm funções no servidor. A visualização deve permanecer passiva; gravação/liberação continua nos fluxos autenticados existentes. |
+| Intervalo pontual | Ao tocar no intervalo, permitir ajustar seu início/fim apenas para a data selecionada, com confirmação e opção de restaurar o padrão semanal. | **Não editar diretamente `horarios_de_funcionamento` para resolver uma data isolada.** Essa tabela representa regra semanal e alimenta o site público, o motor TypeScript, a validação do servidor e a função SQL. A exceção por data precisa ser integrada a todas as fontes de disponibilidade antes de liberar a UI. |
+| Caixa, comanda e vendas | Preservar a sequência atendimento → comanda → cobrança → pagamento confirmado → recibo/histórico. | O domínio de comanda/financeiro já existe. Nenhuma melhoria visual pode criar falsa confirmação, retirar Pix/fiado ou contornar idempotência e permissões. |
+| Clientes e marketing | Reutilizar a ficha 360°, histórico, preferências e notas com acesso restrito por negócio; separar comunicação operacional de campanhas promocionais. | Ficha de cliente e preferências estruturadas existem. Antes de reproduzir todas as telas de campanha do Figaroo, auditar a cobertura real, consentimento e canais disponíveis. |
+| Pacotes e fidelidade | Deixar claros créditos/sessões restantes, validade e consequência de consumir uma sessão; impedir saldo duplicado. | Carteira e fidelidade têm domínio próprio e regras de gravação por movimentos. A cobertura de cada fluxo de pacote deve ser conferida antes de criar novas telas. |
+| Serviços, categorias e combos | Diferenciar visualmente item individual, categoria e pacote de serviços; exibir preço, duração e profissionais habilitados sem repetir campos em várias telas. | O catálogo e seu editor já existem. Combos e regras avançadas devem passar por inventário funcional antes de serem marcados como completos ou reconstruídos. |
+| Equipe, disponibilidade e locais | Separar jornada semanal de exceção pontual e deixar explícito a quem a regra se aplica. Não presumir que um negócio equivale a várias filiais. | Escala de profissional e bloqueio pontual existem. Modelo real de multiunidade precisa ser confirmado antes de implementar locais/filiais como nova entidade. |
+| Página pública e publicação | Diferenciar salvar rascunho, prévia e publicar; usar o mesmo catálogo e identidade do negócio, sem anunciar publicação antes do sucesso real. | Editor de marca, prévias e página pública já existem. Melhorias devem reutilizar os editores atuais. |
+| Avaliações, indicadores e histórico | Mostrar origem e período dos números, estados vazios e caminhos até os registros detalhados. | Há módulo de avaliações e dados financeiros/operacionais; a cobertura completa dos indicadores sugeridos precisa ser auditada sem inventar métricas. |
+| Notificações e configurações | Cada aviso deve abrir o destino correto e respeitar o papel; opções de conta, negócio e assinatura não devem se misturar. | Sino/central de avisos e configurações de preferências existem. O roadmap registra itens de validação real de push e links de remarcação. |
+| Galeria e funções de desenvolvedor | Reusar o seletor de mídia e validar tipo/tamanho; superfícies de desenvolvimento nunca devem aparecer para usuários comuns. | Usar utilitários de mídia existentes quando aplicáveis. Ferramentas internas não são requisito de produto para o cliente final. |
+
+### Sequência de trabalho recomendada
+
+1. **Estabilizar a Agenda:** terminar a camada visual das faixas de bloqueio em PR separado, validar erros de carregamento, filtro por profissional, fuso do negócio, toque/rolagem e responsividade.
+2. **Implementar intervalo excepcional por data com segurança:** primeiro modelar a exceção, permissões/RLS e testes; depois integrar o mesmo resultado no motor TypeScript, na consulta pública, na validação do servidor, no SQL que confirma o agendamento e em qualquer consumidor de disponibilidade; só então expor o ajuste rápido no painel.
+3. **Auditar os fluxos transacionais:** novo agendamento → atendimento → comanda → pagamento → histórico. Testar sucesso, falha, repetição, concorrência e desfazer sem transações financeiras reais.
+4. **Auditar módulos de negócio por evidência:** serviços/combos, pacotes, clientes/campanhas, equipe/escala, página pública, avaliações/indicadores, notificações e assinatura. Classificar cada fluxo como confirmado, parcial, ausente ou não validado em execução.
+5. **Aplicar polimento visual de forma transversal:** usar tokens e componentes existentes, movimento reduzido, alvos de toque de pelo menos 48 px, texto mínimo de 12 px e foco visível; testar 390 px e 1280 px.
+6. **Congelar a versão e executar piloto real** antes de ampliar funcionalidades ou escalar.
+
+### Regras de implementação
+
+- Não importar literalmente os 112 nomes de tela nem criar 24 módulos paralelos.
+- Não considerar uma rota ou um arquivo como prova de que o fluxo está completo.
+- Não alterar a regra semanal para simular uma exceção de data.
+- Não criar nova fonte de verdade para horários, status, pagamentos ou permissões.
+- Nenhuma migração destrutiva; novas tabelas/colunas devem ser aditivas, justificadas e cobertas por RLS/testes.
+- Cada entrega deve permanecer em branch/PR, passar por TypeScript, testes e build e receber revisão visual real antes de ser integrada.
+- Não publicar o site nem mesclar mudanças automaticamente como consequência deste mapa.
+
+### Decisão de produto
+
+O Figaroo serve como referência de organização e descoberta, não como lista obrigatória de funcionalidades. A prioridade é **fechar lacunas reais no Cortaí existente**, começando por clareza e confiabilidade da Agenda e do fluxo de cobrança. Recursos como multiunidade ou campanhas avançadas só entram depois de confirmada a necessidade, a viabilidade do modelo atual e o valor para os segmentos atendidos.
