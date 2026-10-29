@@ -818,6 +818,10 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-29 UTC — Claude — Paletas do Figaro (relato do dono) guardadas e conferidas
+- `docs/referencia-figaro/apk/13-paletas-relato-do-dono-2026-10-29.md`: o levantamento de cores colado pelo dono, como chegou, com a conferência no topo. Escalas, acentos, `onSurfaceHint`, as 11 cores de categoria e os pares das pílulas de status **já estão no Cortaí** (`--figaro-*`, `cartao-figaro.ts`).
+- Seis afirmações do relato **divergem do código do APK** e não foram aplicadas: linha "agora" azul (é magenta, confirmado na foto do dono), cartão da Agenda #3E4440 (o código usa surfaceContainerLowest), rótulos das horas em onSurfaceVariant (é onSurfaceHint), linhas de 5 min α 33 %, alfas de fora do expediente/bloqueio trocados e alfas da zona de preparo trocados. Nenhuma mudança de código.
+
 ### 2026-10-29 UTC — Claude — Agenda: pontinho do dia como no Figaro e calendário continua aberto ao escolher um dia
 - Captura do Figaro (semana, tema escuro): o ponto de "tem atendimento" é a cor terciária do tema (amostrado #fea6be no escuro = `--figaro-tertiary` #ffa6bf; no claro #b51054 = #b61055) e fica 26 px abaixo do centro do dia (Cortaí: rosa da marca, 21,5 px). Agora `bg-[var(--figaro-tertiary,var(--rosa))]`, `-bottom-[4.5px]` na semana e `bottom-[6px]` no mês (12 px, como na captura do mês). `SemanaDoTopo.tsx`.
 - Pedido do dono: escolher uma data no mês aberto levava até ela e fechava o calendário; no Figaro ele continua aberto. `mudarDia` (`AgendaOperacional.tsx`) não fecha mais o calendário; trocar de profissional continua fechando.
