@@ -115,6 +115,7 @@ export type AgendaDia = {
   bloqueios?: { profissional_id: string | null; inicio: string; fim: string }[];
   fila: FilaJanela[];
   horarios: {
+    data?: string;
     diaSemana: number;
     fechado: boolean;
     abre: string;
