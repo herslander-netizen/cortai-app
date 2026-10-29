@@ -6300,7 +6300,7 @@ button.agenda-timeline-bloqueio-interativo {
 .agenda-timeline-bloco {
   --cor-estado: var(--estado-agendado);
   border: 0;
-  border-radius: 12px;
+  border-radius: 8px;
   background: var(--agenda-cartao-evento, var(--agenda-cartao));
   padding: 8px 12px 8px 20px;
   box-shadow: var(--agenda-cartao-sombra);
@@ -7007,9 +7007,9 @@ button.agenda-timeline-bloqueio-interativo {
 .agenda-timeline-bloco .agenda-timeline-titulo {
   min-width: 0;
   overflow: hidden;
-  font-size: 13.5px;
+  font-size: 15px;
   font-weight: 700;
-  line-height: 17px;
+  line-height: 20px;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -7018,14 +7018,17 @@ button.agenda-timeline-bloqueio-interativo {
   min-width: 0;
   overflow: hidden;
   color: var(--mute);
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 500;
-  line-height: 15px;
+  line-height: 18px;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 .agenda-timeline-bloco .agenda-timeline-horario {
-  font-size: 11.5px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  line-height: 18px;
 }
 .agenda-timeline-bloco.agenda-timeline-cancelado .agenda-timeline-titulo {
   color: var(--mute);
@@ -7120,6 +7123,23 @@ button.agenda-timeline-bloqueio-interativo {
 .agenda-timeline-bloco.agenda-faixa-minimo {
   gap: 2px;
   padding: 2px 8px 2px 18px;
+}
+.agenda-timeline-bloco.agenda-faixa-minimo .agenda-timeline-bloco-topo {
+  justify-content: center;
+}
+.agenda-timeline-bloco.agenda-faixa-minimo .agenda-timeline-titulo {
+  text-align: center;
+}
+.agenda-timeline-bloco.agenda-faixa-minimo .agenda-glifo {
+  display: none;
+}
+.agenda-timeline-bloco.agenda-faixa-pequeno {
+  gap: 2px;
+  padding: 7px 10px 7px 19px;
+}
+.agenda-timeline-bloco.agenda-faixa-medio {
+  gap: 3px;
+  padding: 7px 10px 7px 19px;
 }
 .agenda-timeline-bloco.agenda-faixa-grande {
   gap: 4px;

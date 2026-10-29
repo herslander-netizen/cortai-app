@@ -37,6 +37,16 @@ describe("cartão da timeline como no Figaro", () => {
     expect(mostraCliente("grande")).toBe(true);
   });
 
+  it("as faixas respeitam os limites mínimos em escalas diferentes", () => {
+    expect(faixaDoCartao(14, 1)).toBe("minimo");
+    expect(faixaDoCartao(15, 1)).toBe("pequeno");
+    expect(faixaDoCartao(48, 1)).toBe("pequeno");
+    expect(faixaDoCartao(48, 2)).toBe("pequeno");
+    expect(faixaDoCartao(60, 2)).toBe("medio");
+    expect(faixaDoCartao(96, 2)).toBe("grande");
+    expect(faixaDoCartao(120, 2)).toBe("maior");
+  });
+
   it("ícone de estado: confirmado, pendente pelo link ou pela equipe, atrasado e encerrados", () => {
     const base = { confirmadoEm: null, origem: null };
     expect(glifoDoEstado({ ...base, status: "agendado", confirmadoEm: "x" }, false)).toBe(

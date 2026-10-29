@@ -88,7 +88,7 @@ export function AlcaDeDuracao({
           {etiqueta}
         </span>
       ) : null}
-      <span aria-hidden className="mb-1 h-1.5 w-11 rounded-full bg-gold" />
+      <span aria-hidden className="mb-1 h-1 w-8 rounded-full bg-primary" />
     </div>
   );
 }

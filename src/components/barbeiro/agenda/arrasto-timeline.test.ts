@@ -148,7 +148,11 @@ describe("alça de duração na Timeline", () => {
     bloco.setPointerCapture = () => {};
     act(() => {
       bloco.dispatchEvent(evento("pointerdown", 200, { pointerType: "touch" }));
-      vi.advanceTimersByTime(300);
+      vi.advanceTimersByTime(449);
+    });
+    expect(onEditar).not.toHaveBeenCalled();
+    act(() => {
+      vi.advanceTimersByTime(1);
       bloco.dispatchEvent(evento("pointerup", 200, { pointerType: "touch" }));
       bloco.click();
     });
@@ -189,7 +193,7 @@ describe("alça de duração na Timeline", () => {
     primeiro.setPointerCapture = capturarPrimeiro;
     act(() => {
       primeiro.dispatchEvent(evento("pointerdown", 200, { pointerType: "touch" }));
-      vi.advanceTimersByTime(300);
+      vi.advanceTimersByTime(450);
     });
     // O toque longo confirma a pressão, mas não abre a edição com o dedo ainda pressionado.
     expect(onEditar).not.toHaveBeenCalled();
