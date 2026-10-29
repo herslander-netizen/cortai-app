@@ -11010,11 +11010,13 @@ button.agenda-timeline-pausa:focus-visible {
   --identity-white: #ffffff;
   --identity-border: #3e4440;
 
-  --fundo: #121513;
+  /* Fundo e texto do Figaro (`background` #1B1F1C, `onSurface` #DEE8E1; capturas do dono, 29/10): a tela inteira numa
+     cor só, topo e conteúdo iguais. */
+  --fundo: #1b1f1c;
   --painel: #1b1f1c;
   --cartao: #2a2f2c;
   --linha: #3e4440;
-  --texto: #f0f7f2;
+  --texto: #dee8e1;
   --texto-suave: #b9c2bc;
 
   --agenda-acao: #4da3ff;
@@ -11062,11 +11064,11 @@ button.agenda-timeline-pausa:focus-visible {
   --identity-white: #ffffff;
   --identity-border: #d6e0d9;
 
-  --fundo: #f8faf8;
+  --fundo: #eaf2ec;
   --painel: #f0f7f2;
   --cartao: #ffffff;
   --linha: #d6e0d9;
-  --texto: #1b1f1c;
+  --texto: #2a2f2c;
   --texto-suave: #52645a;
 
   --agenda-acao: #00509d;

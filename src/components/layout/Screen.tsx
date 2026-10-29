@@ -67,7 +67,7 @@ export function Screen({
             aria-hidden={cabecalhoCompactoVisivel || undefined}
             inert={cabecalhoCompactoVisivel || undefined}
             data-figaro-header="page"
-            className={`relative ${offsetCabecalhoGlobal ? "top-14" : "top-0"} z-10 grid gap-4 bg-[var(--figaro-background,var(--ink))] px-4 pb-3 pt-4 md:static md:px-8 md:pb-5 md:pt-6`}
+            className={`relative ${offsetCabecalhoGlobal ? "top-14" : "top-0"} z-10 grid gap-3.5 bg-[var(--figaro-background,var(--ink))] px-4 pb-5 pt-4 md:static md:px-8 md:pb-5 md:pt-6`}
           >
             {destinoVoltar || headerAction ? (
               <div className="flex min-h-11 items-center justify-between gap-3">
@@ -75,7 +75,7 @@ export function Screen({
                   <Link
                     to={destinoVoltar}
                     aria-label={voltarRotulo}
-                    className="flex size-11 shrink-0 items-center justify-center rounded-full bg-[var(--figaro-surface-container-highest,var(--ink3))] text-[var(--figaro-on-surface,var(--paper))] transition-[background-color,transform] duration-150 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring motion-reduce:transition-none"
+                    className="-ml-2 flex size-11 shrink-0 items-center justify-center rounded-full bg-[var(--figaro-surface-container-highest,var(--ink3))] text-[var(--figaro-on-surface,var(--paper))] transition-[background-color,transform] duration-150 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring motion-reduce:transition-none"
                   >
                     <ArrowLeft size={24} aria-hidden />
                   </Link>
@@ -97,15 +97,15 @@ export function Screen({
               data-figaro-header="compact"
               aria-hidden={!cabecalhoCompactoVisivel || undefined}
               inert={!cabecalhoCompactoVisivel || undefined}
-              className={`fixed inset-x-0 top-0 z-40 flex min-h-[calc(3.5rem+env(safe-area-inset-top,0px))] items-center gap-3 bg-[var(--figaro-background,var(--ink))] px-4 pb-2 pt-[calc(0.5rem+env(safe-area-inset-top,0px))] transition-[opacity,transform] duration-[var(--mola-padrao-duracao)] ease-[var(--mola-padrao)] motion-reduce:transition-none ${cabecalhoCompactoVisivel ? "translate-y-0 opacity-100" : "-translate-y-2 opacity-0 pointer-events-none"}`}
+              className={`fixed inset-x-0 top-0 z-40 flex min-h-[calc(4.25rem+env(safe-area-inset-top,0px))] items-center gap-3 bg-[var(--figaro-background,var(--ink))] px-4 pb-2 pt-[calc(1rem+env(safe-area-inset-top,0px))] transition-[opacity,transform] duration-[var(--mola-padrao-duracao)] ease-[var(--mola-padrao)] motion-reduce:transition-none ${cabecalhoCompactoVisivel ? "translate-y-0 opacity-100" : "-translate-y-2 opacity-0 pointer-events-none"}`}
             >
               {destinoVoltar ? (
                 <Link
                   to={destinoVoltar}
                   aria-label={voltarRotulo}
-                  className="flex size-10 shrink-0 items-center justify-center rounded-full bg-[var(--figaro-surface-container-highest,var(--ink3))] text-[var(--figaro-on-surface,var(--paper))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  className="-ml-2 flex size-11 shrink-0 items-center justify-center rounded-full bg-[var(--figaro-surface-container-highest,var(--ink3))] text-[var(--figaro-on-surface,var(--paper))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 >
-                  <ArrowLeft size={22} aria-hidden />
+                  <ArrowLeft size={24} aria-hidden />
                 </Link>
               ) : null}
               {titleLeading ? (
@@ -113,7 +113,8 @@ export function Screen({
                   {titleLeading}
                 </span>
               ) : null}
-              <h1 className="min-w-0 flex-1 truncate text-base font-semibold text-[var(--figaro-on-background,var(--paper))]">{title}</h1>
+              {/* Figaro (vídeo do dono, 29/10): o botão de voltar não se move e o título pequeno é titleLarge 22/28. */}
+              <h1 className="min-w-0 flex-1 truncate text-[22px] font-normal leading-7 text-[var(--figaro-on-background,var(--paper))]">{title}</h1>
               {headerAction ? <div className="flex shrink-0 items-center">{cabecalhoCompactoVisivel ? headerAction : null}</div> : null}
             </div>
           ) : null}

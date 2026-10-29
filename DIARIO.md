@@ -820,6 +820,12 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-29 UTC — Claude — Telas internas: fundo numa cor só e cabeçalho grande/compacto como o Figaro
+- Vídeo do dono (tela Equipe do Figaro, "comportamento e cor uniforme do fundo"): topo e conteúdo na mesma cor (#1A1F1B), título grande que some ao rolar e título pequeno ao lado do voltar, que não muda de lugar.
+- **Fundo/texto da identidade padrão** (`styles.css`, bloco EXPERIMENTO FIGAROO): escuro `--fundo` #121513 → **#1B1F1C** e `--texto` #F0F7F2 → **#DEE8E1**; claro #F8FAF8 → **#EAF2EC** e #1B1F1C → **#2A2F2C** (tokens `background`/`onSurface` do APK). Antes o cabeçalho (#1B1F1C) e a página (#121513) tinham cores diferentes.
+- **`CabecalhoDeTela`**: título como a barra Large do Figaro (displaySmall, Poppins 36/42 Bold), subtítulo bodyLarge 16/24 com 16 px de respiro. **`Screen`**: voltar a 8 px da borda, 14 px até o título, 20 px até o conteúdo; barra compacta com o voltar de 44 no mesmo lugar e título 22/28 normal. Teste `estilo-figaro.test.ts` atualizado (exigia a escala compacta 22/28, escolha do GPT de 27/10, não do dono).
+- Agenda não muda (usa `Screen` sem cabeçalho). Conferido na vitrine (390 px, parado e rolado). `tsc` ok, `vitest` 259/2195, `build` ok.
+
 ### 2026-10-29 UTC — Claude — Reconstrução Figaro por módulo (pedido do dono, "Prompt Mestre"): Clientes
 - Dono: o "Prompt Mestre" era para o Claude executar. Assumo a reconstrução visual por módulo (recado ao GPT abaixo), sem tocar nos arquivos que ele reservou nominalmente (financeiro/caixa, PersonalizacaoCliente, AgendaTimeline, página pública).
 - **Vitrine local para ver telas sem banco:** Vite dev com Supabase falso + Playwright respondendo as funções do servidor com dados de exemplo (scripts no scratchpad do Claude; nada vai ao banco).

@@ -90,11 +90,13 @@ describe("padrão Figaro nos primitivos", () => {
 });
 
 describe("hierarquia visual Figaro", () => {
-  it("cabeçalho de tela usa escala tipográfica compacta do aplicativo", () => {
+  it("cabeçalho de tela como a barra Large do Figaro (vídeo do dono, 29/10): título 36/42 e subtítulo 16/24", () => {
     const header = readFileSync("src/components/layout/CabecalhoDeTela.tsx", "utf8");
-    expect(header).toContain("text-[22px]");
-    expect(header).toContain("leading-7");
-    expect(header).toContain("text-sm leading-5");
+    expect(header).toContain("text-[36px] font-bold leading-[42px]");
+    expect(header).toContain("text-base leading-6");
+    // Ao rolar, o título pequeno (titleLarge 22/28) aparece ao lado do botão de voltar, que não muda de lugar.
+    const tela = readFileSync("src/components/layout/Screen.tsx", "utf8");
+    expect(tela).toContain("text-[22px] font-normal leading-7");
   });
 
   it("listas de configuração usam superfícies Figaro, sem depender de tokens da Agenda", () => {
