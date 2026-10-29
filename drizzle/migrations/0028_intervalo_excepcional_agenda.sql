@@ -17,25 +17,13 @@ CREATE TABLE public.excecoes_intervalo_agenda (
 );
 
 ALTER TABLE public.excecoes_intervalo_agenda ENABLE ROW LEVEL SECURITY;
-GRANT SELECT, INSERT, UPDATE, DELETE ON public.excecoes_intervalo_agenda TO authenticated;
+REVOKE ALL ON public.excecoes_intervalo_agenda FROM anon, authenticated;
+GRANT SELECT ON public.excecoes_intervalo_agenda TO authenticated;
 GRANT ALL ON public.excecoes_intervalo_agenda TO service_role;
 
 CREATE POLICY "equipe le excecoes de intervalo"
   ON public.excecoes_intervalo_agenda FOR SELECT TO authenticated
   USING (public.is_tenant_member(tenant_id));
-
-CREATE POLICY "equipe cria excecoes de intervalo com permissao"
-  ON public.excecoes_intervalo_agenda FOR INSERT TO authenticated
-  WITH CHECK (public.tem_alguma_permissao(tenant_id, ARRAY['alterar_dados_barbearia']));
-
-CREATE POLICY "equipe altera excecoes de intervalo com permissao"
-  ON public.excecoes_intervalo_agenda FOR UPDATE TO authenticated
-  USING (public.tem_alguma_permissao(tenant_id, ARRAY['alterar_dados_barbearia']))
-  WITH CHECK (public.tem_alguma_permissao(tenant_id, ARRAY['alterar_dados_barbearia']));
-
-CREATE POLICY "equipe remove excecoes de intervalo com permissao"
-  ON public.excecoes_intervalo_agenda FOR DELETE TO authenticated
-  USING (public.tem_alguma_permissao(tenant_id, ARRAY['alterar_dados_barbearia']));
 
 -- Atualiza a validação final do banco sem mudar a assinatura ou as regras de pagamento.
 CREATE OR REPLACE FUNCTION public.criar_agendamento(_tenant_id uuid, _cliente_id uuid, _profissional_id uuid, _servico_id uuid, _inicio timestamp with time zone, _forma_pagamento text, _encaixe boolean DEFAULT false, _validar_regras boolean DEFAULT false)
@@ -201,3 +189,139 @@ BEGIN
   );
 END;
 $function$;
+
+
+-- Toda alteração do intervalo passa por uma transação no banco.
+-- Isso impede que chamadas diretas à API contornem a validação de expediente,
+-- conflitos e a serialização usada pelo motor oficial de agendamentos.
+CREATE OR REPLACE FUNCTION public.salvar_intervalo_agenda_dia(
+  _tenant_id uuid,
+  _dia date,
+  _acao text,
+  _intervalo_inicio time without time zone DEFAULT NULL,
+  _intervalo_fim time without time zone DEFAULT NULL
+)
+RETURNS jsonb
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path TO 'public'
+AS $intervalo$
+DECLARE
+  v_tenant public.tenants%ROWTYPE;
+  v_h public.horarios_de_funcionamento%ROWTYPE;
+  v_fuso text;
+  v_hoje date;
+  v_inicio time;
+  v_fim time;
+  v_abre timestamp without time zone;
+  v_fecha timestamp without time zone;
+  v_pausa_inicio timestamp without time zone;
+  v_pausa_fim timestamp without time zone;
+  v_inicio_iso timestamp with time zone;
+  v_fim_iso timestamp with time zone;
+  v_prof record;
+BEGIN
+  IF auth.uid() IS NULL
+     OR NOT coalesce(public.permissao_efetiva(auth.uid(), _tenant_id, 'alterar_dados_barbearia'), false) THEN
+    RAISE EXCEPTION 'Sem permissão para alterar o intervalo deste dia.';
+  END IF;
+  IF _acao NOT IN ('salvar', 'restaurar') THEN
+    RAISE EXCEPTION 'Ação de intervalo inválida.';
+  END IF;
+  IF _acao = 'salvar'
+     AND ((_intervalo_inicio IS NULL) <> (_intervalo_fim IS NULL)) THEN
+    RAISE EXCEPTION 'Informe início e fim do intervalo, ou deixe os dois vazios.';
+  END IF;
+
+  SELECT * INTO v_tenant FROM public.tenants WHERE id = _tenant_id;
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Negócio não encontrado.';
+  END IF;
+  v_fuso := coalesce(nullif(v_tenant.fuso, ''), 'America/Sao_Paulo');
+  v_hoje := (now() AT TIME ZONE v_fuso)::date;
+  IF _dia < v_hoje THEN
+    RAISE EXCEPTION 'Não é possível alterar o intervalo de uma data passada.';
+  END IF;
+
+  SELECT * INTO v_h
+    FROM public.horarios_de_funcionamento
+   WHERE tenant_id = _tenant_id
+     AND dia_semana = extract(dow FROM _dia)::int;
+  IF NOT FOUND OR v_h.fechado THEN
+    RAISE EXCEPTION 'Este dia está fechado no horário de funcionamento.';
+  END IF;
+
+  IF _acao = 'restaurar' THEN
+    v_inicio := v_h.intervalo_inicio;
+    v_fim := v_h.intervalo_fim;
+  ELSE
+    v_inicio := _intervalo_inicio;
+    v_fim := _intervalo_fim;
+  END IF;
+
+  -- Mesmo lock do criar_agendamento, em ordem estável para evitar corrida/deadlock.
+  FOR v_prof IN
+    SELECT id FROM public.profissionais WHERE tenant_id = _tenant_id ORDER BY id
+  LOOP
+    PERFORM pg_advisory_xact_lock(hashtextextended('agenda:' || v_prof.id::text, 0));
+  END LOOP;
+
+  IF v_inicio IS NOT NULL AND v_fim IS NOT NULL THEN
+    IF v_h.fecha <= v_h.abre THEN
+      RAISE EXCEPTION 'O intervalo excepcional exige expediente que não atravesse a meia-noite.';
+    END IF;
+    IF v_inicio <= v_h.abre THEN
+      RAISE EXCEPTION 'O intervalo precisa começar depois da abertura.';
+    END IF;
+    IF v_fim <= v_inicio THEN
+      RAISE EXCEPTION 'O fim do intervalo precisa ser posterior ao início.';
+    END IF;
+    IF v_fim >= v_h.fecha THEN
+      RAISE EXCEPTION 'O intervalo precisa terminar antes do fechamento.';
+    END IF;
+
+    v_abre := _dia + v_h.abre;
+    v_fecha := _dia + v_h.fecha;
+    v_pausa_inicio := _dia + v_inicio;
+    v_pausa_fim := _dia + v_fim;
+    v_inicio_iso := v_pausa_inicio AT TIME ZONE v_fuso;
+    v_fim_iso := v_pausa_fim AT TIME ZONE v_fuso;
+
+    IF EXISTS (
+      SELECT 1
+        FROM public.agendamentos a
+       WHERE a.tenant_id = _tenant_id
+         AND a.status IN ('agendado','pendente','confirmado','chegou','na_cadeira')
+         AND a.inicio < v_fim_iso
+         AND a.fim > v_inicio_iso
+    ) THEN
+      RAISE EXCEPTION 'Já existe atendimento neste período. Remarque ou cancele antes de ajustar o intervalo.';
+    END IF;
+  END IF;
+
+  IF _acao = 'restaurar' THEN
+    DELETE FROM public.excecoes_intervalo_agenda
+     WHERE tenant_id = _tenant_id AND dia = _dia;
+  ELSE
+    INSERT INTO public.excecoes_intervalo_agenda
+      (tenant_id, dia, intervalo_inicio, intervalo_fim, criado_por, atualizado_por)
+    VALUES (_tenant_id, _dia, v_inicio, v_fim, auth.uid(), auth.uid())
+    ON CONFLICT (tenant_id, dia) DO UPDATE SET
+      intervalo_inicio = EXCLUDED.intervalo_inicio,
+      intervalo_fim = EXCLUDED.intervalo_fim,
+      atualizado_por = auth.uid(),
+      atualizado_em = now();
+  END IF;
+
+  RETURN jsonb_build_object(
+    'ok', true,
+    'dia', _dia,
+    'acao', _acao,
+    'intervalo_inicio', v_inicio,
+    'intervalo_fim', v_fim
+  );
+END;
+$intervalo$;
+
+REVOKE ALL ON FUNCTION public.salvar_intervalo_agenda_dia(uuid, date, text, time without time zone, time without time zone) FROM PUBLIC, anon;
+GRANT EXECUTE ON FUNCTION public.salvar_intervalo_agenda_dia(uuid, date, text, time without time zone, time without time zone) TO authenticated;
