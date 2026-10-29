@@ -41,7 +41,7 @@ export type PaginaPublica = {
     preco_centavos: number;
     foto_url: string | null;
   }[];
-  horarios: { dia_semana: number; fechado: boolean; abre: string; fecha: string }[];
+  horarios: { dia_semana: number; fechado: boolean; abre: string; fecha: string; intervalo_inicio: string | null; intervalo_fim: string | null }[];
   excecoesIntervalo: ExcecaoIntervaloAgenda[];
   avaliacoes: { media: number | null; quantidade: number };
   pagina: PaginaConfig;
@@ -111,7 +111,7 @@ export const getPaginaPublica = createServerFn({ method: "GET" })
         .limit(8),
       supabaseAdmin
         .from("horarios_de_funcionamento")
-        .select("dia_semana, fechado, abre, fecha")
+        .select("dia_semana, fechado, abre, fecha, intervalo_inicio, intervalo_fim")
         .eq("tenant_id", tenant.id)
         .order("dia_semana"),
       supabaseAdmin
