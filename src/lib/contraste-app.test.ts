@@ -146,42 +146,41 @@ describe.each(IDENTIDADES)("identidade %s", (identidade) => {
 
 describe("tokens visuais do Figaroo", () => {
   const theme = bloco("@theme inline");
-  const escuro = bloco(':root,\\n:root[data-identidade="moderno"]');
-  const claro = bloco('.light,\\n:root[data-identidade="moderno"].light');
+  const escuro = bloco(':root,\n:root[data-identidade="moderno"]');
+  const claro = bloco('.light,\n:root[data-identidade="moderno"].light');
 
-  it("registra a escala tonal no tema do Tailwind", () => {
+  it("registra os tokens recuperados no tema do Tailwind", () => {
     expect(theme).toMatchObject({
+      "--font-figaroo-display": '"Poppins", "Manrope", ui-sans-serif, system-ui, sans-serif',
+      "--font-figaroo-body": '"Plus Jakarta Sans", "Manrope", ui-sans-serif, system-ui, sans-serif',
+      "--font-figaroo-mono": '"JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace',
       "--color-brand-primary-10": "var(--brand-primary-10)",
-      "--color-brand-primary-20": "var(--brand-primary-20)",
       "--color-brand-primary-30": "var(--brand-primary-30)",
-      "--color-brand-primary-40": "var(--brand-primary-40)",
       "--color-brand-primary-50": "var(--brand-primary-50)",
-      "--color-brand-primary-80": "var(--brand-primary-80)",
       "--color-brand-primary-90": "var(--brand-primary-90)",
       "--color-brand-tertiary-10": "var(--brand-tertiary-10)",
-      "--color-brand-tertiary-40": "var(--brand-tertiary-40)",
       "--color-brand-tertiary-50": "var(--brand-tertiary-50)",
       "--color-brand-tertiary-90": "var(--brand-tertiary-90)",
       "--color-action-blue": "var(--action-blue)",
+      "--color-action-blue-foreground": "var(--action-blue-foreground)",
       "--color-confetti-gold": "var(--confetti-gold)",
       "--color-success": "var(--success)",
       "--color-warning": "var(--warning)",
       "--color-error": "var(--error)",
     });
+    // A tipografia atual segue Manrope até validação visual e decisão de marca.
+    expect(theme["--font-sans"]).toBe('"Manrope", ui-sans-serif, system-ui, sans-serif');
+    expect(theme["--font-display"]).toBe('"Manrope", ui-sans-serif, system-ui, sans-serif');
   });
 
-  it("preserva as cores neutras oficiais nos dois modos", () => {
+  it("preserva exatamente a paleta oficial clara e escura", () => {
     expect(escuro).toMatchObject({
       "--brand-primary-10": "#001a40",
-      "--brand-primary-20": "#002d6b",
-      "--brand-primary-30": "#01408f",
-      "--brand-primary-40": "#0854b5",
-      "--brand-primary-50": "#087cf0",
-      "--brand-primary-80": "#9bb9ff",
-      "--brand-primary-90": "#d2e4ff",
-      "--brand-tertiary-10": "#3e0017",
-      "--brand-tertiary-40": "#b9004b",
-      "--brand-tertiary-50": "#ff1670",
+      "--brand-primary-30": "#00408f",
+      "--brand-primary-50": "#2467bb",
+      "--brand-primary-90": "#d5e2ff",
+      "--brand-tertiary-10": "#3a0e1a",
+      "--brand-tertiary-50": "#ff4d8d",
       "--brand-tertiary-90": "#ffdade",
       "--fundo": "#1b1f1c",
       "--cartao": "#2a2f2c",
@@ -192,12 +191,16 @@ describe("tokens visuais do Figaroo", () => {
       "--success": "#43a047",
       "--warning": "#e08e22",
       "--error": "#f2b8b5",
-      "--action-blue": "var(--brand-primary-50)",
+      "--action-blue": "#4da3ff",
+      "--action-blue-foreground": "#ffffff",
       "--confetti-gold": "#ffd700",
     });
     expect(claro).toMatchObject({
+      "--brand-tertiary-50": "#d3145d",
+      "--action-blue": "#00509d",
       "--fundo": "#f0f7f2",
       "--cartao": "#ffffff",
+      "--painel": "#d6e0d9",
       "--linha": "#d6e0d9",
       "--texto": "#191c1a",
       "--texto-suave": "#707973",
@@ -207,7 +210,7 @@ describe("tokens visuais do Figaroo", () => {
     });
   });
 
-  it("disponibiliza raios, alturas e espaçamento sem alterar os tokens legados", () => {
+  it("disponibiliza formas e dimensões sem alterar tokens legados", () => {
     expect(theme).toMatchObject({
       "--radius-card": "var(--shape-card)",
       "--radius-dialog": "var(--shape-dialog)",
