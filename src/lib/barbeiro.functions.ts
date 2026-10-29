@@ -1399,13 +1399,20 @@ export const getProximoHorarioLivre = createServerFn({ method: "GET" })
       .lt("inicio", fimDia.toISOString())
       .not("status", "in", "(cancelado,nao_compareceu,remarcado)");
     if (data.profissionalId) q = q.eq("profissional_id", data.profissionalId);
-    const [{ data: doDia }, { data: horariosRes }] = await Promise.all([
+    const [{ data: doDia }, { data: horariosRes }, { data: excecaoRes, error: erroExcecao }] = await Promise.all([
       q,
       db
         .from("horarios_de_funcionamento")
         .select("dia_semana, fechado, abre, fecha, intervalo_inicio, intervalo_fim")
         .eq("tenant_id", tenant.id),
+      db
+        .from("excecoes_intervalo_agenda")
+        .select("dia, intervalo_inicio, intervalo_fim")
+        .eq("tenant_id", tenant.id)
+        .eq("dia", dia)
+        .maybeSingle(),
     ]);
+    if (erroExcecao) throw new Error("Não foi possível verificar o intervalo de hoje.");
 
     const ocupados = (doDia ?? []).map(
       (a) => [new Date(a.inicio).getTime(), new Date(a.fim).getTime()] as const,
@@ -1419,15 +1426,27 @@ export const getProximoHorarioLivre = createServerFn({ method: "GET" })
       intervaloInicio: h.intervalo_inicio ? String(h.intervalo_inicio).slice(0, 5) : null,
       intervaloFim: h.intervalo_fim ? String(h.intervalo_fim).slice(0, 5) : null,
     }));
+    const excecao: ExcecaoIntervaloAgenda | null = excecaoRes
+      ? {
+          dia: excecaoRes.dia,
+          intervaloInicio: excecaoRes.intervalo_inicio
+            ? String(excecaoRes.intervalo_inicio).slice(0, 5)
+            : null,
+          intervaloFim: excecaoRes.intervalo_fim
+            ? String(excecaoRes.intervalo_fim).slice(0, 5)
+            : null,
+        }
+      : null;
+    const horariosDoDia = aplicarExcecaoDeIntervalo(horarios, dia, excecao);
     const { data: passoRow } = await db
       .from("tenants")
       .select("passo_horarios_min")
       .eq("id", tenant.id)
       .maybeSingle();
-    const grade = slotsDoDia(dia, horarios, passoValido(passoRow?.passo_horarios_min), fuso);
+    const grade = slotsDoDia(dia, horariosDoDia, passoValido(passoRow?.passo_horarios_min), fuso);
     for (const slot of grade.slots) {
       const inicio = new Date(slot.iso).getTime();
-      if (inicio < agora || motivoForaDoHorario(inicio, duracao, horarios, fuso)) continue;
+      if (inicio < agora || motivoForaDoHorario(inicio, duracao, horariosDoDia, fuso)) continue;
       const fim = inicio + duracao * 60_000;
       if (!ocupados.some(([oi, of]) => inicio < of && fim > oi))
         return { iso: slot.iso, label: slot.label };
