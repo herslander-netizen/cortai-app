@@ -16,9 +16,6 @@ CREATE TABLE public.excecoes_intervalo_agenda (
   )
 );
 
-CREATE INDEX excecoes_intervalo_agenda_tenant_dia_idx
-  ON public.excecoes_intervalo_agenda (tenant_id, dia);
-
 ALTER TABLE public.excecoes_intervalo_agenda ENABLE ROW LEVEL SECURITY;
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.excecoes_intervalo_agenda TO authenticated;
 GRANT ALL ON public.excecoes_intervalo_agenda TO service_role;
