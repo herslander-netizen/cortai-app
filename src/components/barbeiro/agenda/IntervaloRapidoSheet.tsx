@@ -21,7 +21,6 @@ type Props = {
   fim: string;
   inicioPadrao: string | null;
   fimPadrao: string | null;
-  fuso: string;
 };
 
 function minutos(hora: string) {
@@ -50,7 +49,6 @@ export function IntervaloRapidoSheet({
   fim,
   inicioPadrao,
   fimPadrao,
-  fuso,
 }: Props) {
   const salvar = useServerFn(salvarIntervaloDoDia);
   const queryClient = useQueryClient();
