@@ -12,9 +12,10 @@ const sino = readFileSync(
 );
 
 describe("ícones do cabeçalho da Agenda no mobile", () => {
-  it("usa calendário maior sem aumentar o alvo de toque de 56 dp", () => {
-    expect(cabecalho).toContain('className={`size-10 transition-[transform,color]');
-    expect(cabecalho).toContain('className="h-14 w-14 min-w-14 shrink-0');
+  it("calendário e sino com 20 dp desenhados, como na captura do Figaro, em alvos de 48 dp", () => {
+    expect(cabecalho).toContain('className={`!size-7 transition-colors');
+    expect(cabecalho).toContain('className="h-12 w-12 min-w-12 shrink-0');
+    expect(sino).toContain("sino-de-avisos relative h-12 w-12");
     expect(cabecalho).toContain('aria-label={\n          modoBusca');
   });
 

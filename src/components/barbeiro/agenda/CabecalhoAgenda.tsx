@@ -290,7 +290,7 @@ export function CabecalhoAgenda({
       <Button
         variant="ghost"
         size="icon"
-        className="h-14 w-14 min-w-14 shrink-0 rounded-xl text-mute transition-transform duration-[200ms] hover:bg-transparent hover:text-mute motion-reduce:transition-none"
+        className="h-12 w-12 min-w-12 shrink-0 rounded-xl text-mute transition-transform duration-[200ms] hover:bg-transparent hover:text-mute motion-reduce:transition-none"
         aria-label={
           modoBusca
             ? "Buscar atendimento"
@@ -326,10 +326,9 @@ export function CabecalhoAgenda({
                 viewBox="0 0 24 24"
                 fill="none"
                 aria-hidden
-                className={`size-10 transition-[transform,color] duration-[200ms] motion-reduce:transition-none ${
-                  calendarioAberto
-                    ? "scale-110 rotate-[-8deg] text-primary"
-                    : "scale-100 rotate-0 text-mute"
+                // Figaro: ícone de 20 dp desenhado (caixa de 28), cheio e em azul quando o mês está aberto, sem girar.
+                className={`!size-7 transition-colors duration-[200ms] motion-reduce:transition-none ${
+                  calendarioAberto ? "text-primary" : "text-mute"
                 }`}
               >
                 <path

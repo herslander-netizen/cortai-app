@@ -193,8 +193,8 @@ describe("troca de dia em páginas no celular (como no vídeo de referência)", 
     expect(semana).toContain("const MesDoCalendario = memo(");
     expect(semana).toContain("const FASES_DOS_MESES = [3, 6, 9, MESES_EM_VOLTA]");
     expect(semana).toContain("height: alturaDoPainelAteABorda");
-    expect(semana).toContain("useTransform(alturaDoPainel, (v) => v + 36)");
-    expect(semana).toContain('<div className="px-2 pb-9 rounded-b-xl">');
+    expect(semana).toContain("useTransform(alturaDoPainel, (v) => v + 13)");
+    expect(semana).toContain('<div className="px-2 pb-[13px] rounded-b-xl">');
     expect(semana).toContain("data-calendario-aberto={expandido || painelVisivel || undefined}");
     // Uma sombra só durante todo o movimento (a do painel); a do cabeçalho idêntica volta quando o painel sai.
     expect(css).toMatch(
@@ -226,7 +226,7 @@ describe("troca de dia em páginas no celular (como no vídeo de referência)", 
   it('remove o rótulo "Agora · Livre" e preserva o espaçamento do calendário compacto', () => {
     expect(operacional).not.toMatch(/>\s*Agora · Livre\s*</);
     const topo = readFileSync("src/components/barbeiro/agenda/SemanaDoTopo.tsx", "utf8");
-    expect(topo).toContain("px-2 pb-9 rounded-b-xl");
+    expect(topo).toContain("px-2 pb-[13px] rounded-b-xl");
   });
 });
 

@@ -35,7 +35,7 @@ const MESES_EM_VOLTA = 12;
 /** Meses montados em cada fase depois que o calendário assenta: perto do dia primeiro, o resto logo depois. */
 const FASES_DOS_MESES = [3, 6, 9, MESES_EM_VOLTA] as const;
 /** Altura do calendário do mês aberto (a lista rola por dentro). */
-const ALTURA_DO_MES = 292;
+const ALTURA_DO_MES = 286;
 /**
  * Mola do Figaro (`expandSizeSpringDp`: amortecimento 1,0 e rigidez 400). No Figaro o painel do calendário cresce
  * com essa mola e o espaço da Agenda é uma SEGUNDA mola igual, que persegue a altura já medida do painel
@@ -126,7 +126,7 @@ const MesDoCalendario = memo(function MesDoCalendario({
   const primeiro = `${mes}-01`;
   return (
     <section data-mes={mes} className="min-h-full snap-start pb-2">
-      <h2 className="px-2 pb-1 pt-1 text-[22px] leading-7 font-bold text-paper">
+      <h2 className="pb-[5px] pl-[6px] pr-2 pt-[13px] text-[22px] leading-7 font-bold text-paper">
         {tituloDoMes(mes).split(" ")[0]}
       </h2>
       <div className="grid grid-cols-7">
@@ -172,7 +172,7 @@ const ListaDeMeses = memo(function ListaDeMeses({
   return (
     <div
       ref={listaRef}
-      className="relative h-[292px] snap-y snap-mandatory overflow-y-auto overscroll-contain"
+      className="relative h-[286px] snap-y snap-mandatory overflow-y-auto overscroll-contain"
       aria-label="Calendário"
     >
       {meses.map((mes) => (
@@ -375,9 +375,9 @@ export function SemanaDoTopo({
   const alvoDoPainel = useMotionValue(60);
   const alturaDoPainel = useSpring(alvoDoPainel, MOLA_DO_FIGARO);
   const espacoDaAgenda = alturaDoPainel;
-  // O painel vai até a borda de baixo do topo (o `pb-9` de 36 px): com só 12 px, ao fim da descida o topo crescia
+  // O painel vai até a borda de baixo do topo (o `pb-[13px]`): sem isso, ao fim da descida o topo crescia
   // mais 24 px de uma vez e cobria o começo da timeline (vídeo do dono, 29/10).
-  const alturaDoPainelAteABorda = useTransform(alturaDoPainel, (v) => v + 36);
+  const alturaDoPainelAteABorda = useTransform(alturaDoPainel, (v) => v + 13);
   const [painelVisivel, setPainelVisivel] = useState(false);
   // Só o painel (camada sobre a Agenda) muda de tamanho a cada quadro. A Agenda é movida por transform
   // (GPU, sem refazer o layout da grade inteira); a altura real do topo só muda no começo do fechar e no
@@ -492,10 +492,10 @@ export function SemanaDoTopo({
   }, [expandido, mesDoDiaEscolhido, raioDosMeses]);
   return (
     <div data-sem-gesto-dia data-calendario-aberto={expandido || painelVisivel || undefined} style={{ fontFamily: "var(--figaro-font-body)" }}>
-      <div className="px-2 pb-9 rounded-b-xl">
+      <div className="px-2 pb-[13px] rounded-b-xl">
         <div className="grid grid-cols-7 text-center text-[11.5px] leading-4 font-medium text-mute" aria-hidden>
           {LETRAS_SEMANA.map((letra, i) => (
-            <span key={i} className="py-2">
+            <span key={i} className="pb-2 pt-3">
               {letra}
             </span>
           ))}
@@ -508,7 +508,7 @@ export function SemanaDoTopo({
             ref={camadaSemana}
             // Fechando, a semana fica por cima do painel que recolhe (como no Figaro): por baixo dele, o fundo vazio
             // do mês cobria a fileira e os dias sumiam até o fim da animação (vídeo do dono, 29/10).
-            className="relative"
+            className="relative pt-[11px]"
             style={{ zIndex: expandido ? 0 : 20 }}
             initial={false}
             animate={{ opacity: expandido ? 0 : 1 }}

@@ -3222,13 +3222,13 @@ html.agenda-gesto-ativo body {
    entra ao lado com as próprias horas. Distância de uma página = largura da grade + vão. */
 .agenda-timeline-paginas {
   --trilho-vao: 24px;
-  /* Coluna das horas (margem da grade): 48px, 50px no celular (gutter do Figaro) — a mesma de .agenda-timeline.
+  /* Coluna das horas (margem da grade): 48px, 34px no celular (+16 do recuo da página = gutter de 50 do Figaro) — a mesma de .agenda-timeline.
      Se as duas divergirem, a beirada do dia vizinho aparece na borda da tela (dono, 29/10). */
   --calha-das-horas: 48px;
 }
 @media (max-width: 767px) {
   .agenda-timeline-paginas {
-    --calha-das-horas: 50px;
+    --calha-das-horas: 34px;
   }
 }
 @media (max-width: 600px) {
@@ -10855,11 +10855,12 @@ input[type="range"] {
 }
 
 
-/* Métricas da Agenda alinhadas à spec do Figaro: gutter de 50px, rótulo mono 13px Medium. */
+/* Métricas da Agenda alinhadas à spec do Figaro: gutter de 50px, rótulo mono 13px Medium. A grade começa a 50 px
+   da borda da tela (captura do dono, 29/10): a página já tem 16 px de recuo, então a margem é 34. */
 @media (max-width: 767px) {
   .agenda-timeline {
-    width: calc(100% - 50px);
-    margin-left: 50px;
+    width: calc(100% - 34px);
+    margin-left: 34px;
   }
   .agenda-operacional .agenda-timeline-marca span {
     width: 40px;
@@ -10879,14 +10880,18 @@ input[type="range"] {
 }
 
 
+/* Sino no topo da Agenda (celular) no tamanho do Figaro: 20 dp desenhados (o Button forçava 16 px). */
+html[data-tela-agenda] .management-header .sino-de-avisos svg.lucide-bell {
+  width: 26px;
+  height: 26px;
+}
+
 /* Tipografia e "agora" da Agenda pelas referências do Figaro (foto e vídeo do dono, 29/10; apk/2 §2.2 e §2.4):
-   texto em Plus Jakarta Sans (a fonte do app do Figaro), horas em JetBrains Mono 13 Medium, linha "agora" de
+   texto em Plus Jakarta Sans (a fonte do app do Figaro), horas na mono do sistema (no Android o zero é liso, como na
+   captura; a JetBrains Mono tem zero com ponto), linha "agora" de
    1,5 px e pílula "HH:mm" 10 px Bold em brandMagenta #D3145D nos dois temas, encostada 6 px antes da grade. */
 .agenda-operacional {
   font-family: var(--figaro-font-body);
-}
-.agenda-operacional .agenda-timeline-marca span {
-  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 }
 .agenda-operacional .agenda-linha-agora {
   border-top: 1.5px solid var(--figaro-brand-magenta, #d3145d);

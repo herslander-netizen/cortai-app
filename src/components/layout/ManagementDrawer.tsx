@@ -205,7 +205,8 @@ export function ManagementHeader() {
       style={celular && caminho === "/barbeiro" ? ESTILO_DA_BARRA_NA_AGENDA : undefined}
     >
       <div
-        className={`mx-auto flex h-14 w-full max-w-[1180px] items-center justify-between ${celular && caminho === "/barbeiro" ? "gap-0.5 px-3 md:px-8" : "gap-3 px-4 md:px-8"}`}
+        // Agenda no celular: barra de 64 dp do Figaro (`topAppBarHeight`), logo de 40 a 8 px da borda e sino colado à direita.
+        className={`mx-auto flex w-full max-w-[1180px] items-center justify-between ${celular && caminho === "/barbeiro" ? "h-16 gap-0.5 px-1 md:px-8" : "h-14 gap-3 px-4 md:px-8"}`}
       >
         <Sheet open={aberto} onOpenChange={setAberto}>
           <SheetTrigger asChild>
@@ -220,7 +221,7 @@ export function ManagementHeader() {
                 onError={() => logoUsavel && setLogoFalhou(logoUsavel)}
                 alt=""
                 aria-hidden
-                className={`h-11 w-11 object-cover ${celular && caminho === "/barbeiro" ? "rounded-full" : "rounded-[8px]"}`}
+                className={`object-cover ${celular && caminho === "/barbeiro" ? "h-10 w-10 rounded-full" : "h-11 w-11 rounded-[8px]"}`}
               />
             </Button>
           </SheetTrigger>

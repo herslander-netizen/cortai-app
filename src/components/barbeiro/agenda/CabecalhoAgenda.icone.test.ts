@@ -17,12 +17,13 @@ describe("ícone animado do calendário no cabeçalho mobile", () => {
   it("usa contorno no repouso e preenchimento azul quando o calendário está aberto", () => {
     expect(fonte).toContain('fill={calendarioAberto ? "currentColor" : "none"}');
     expect(fonte).toContain('fill={calendarioAberto ? "var(--ink)" : "none"}');
-    expect(fonte).toContain('calendarioAberto\n                    ? "scale-110 rotate-[-8deg] text-primary"');
-    expect(fonte).toContain(': "scale-100 rotate-0 text-mute"');
+    // Captura do Figaro (dono, 29/10): aberto fica cheio e azul, sem crescer nem girar.
+    expect(fonte).toContain('calendarioAberto ? "text-primary" : "text-mute"');
+    expect(fonte).not.toContain("rotate-[-8deg]");
   });
 
   it("preserva a transição do ícone e a troca animada para busca", () => {
-    expect(fonte).toContain("transition-[transform,color] duration-[200ms] motion-reduce:transition-none");
+    expect(fonte).toContain("transition-colors duration-[200ms] motion-reduce:transition-none");
     expect(fonte).toContain('initial={{ opacity: 0, scale: 0.6, rotate: 45 }}');
     expect(fonte).toContain('exit={{ opacity: 0, scale: 0.6, rotate: -45 }}');
     expect(fonte).toContain('key="lupa"');

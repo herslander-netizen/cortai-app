@@ -88,7 +88,7 @@ describe("medidas visuais Figaro no seletor de data", () => {
       el.className.includes("text-[11.5px]"),
     );
     expect(rotulos?.textContent).toContain("D");
-    expect(rotulos?.firstElementChild?.className).toContain("py-2");
+    expect(rotulos?.firstElementChild?.className).toContain("pb-2 pt-3");
   });
 
   it("usa título mensal 22/28 e círculo de 38 px com texto de 15 px", async () => {
@@ -103,7 +103,8 @@ describe("medidas visuais Figaro no seletor de data", () => {
     expect(selecionado?.className).toContain("size-[38px]");
     expect(selecionado?.className).toContain("text-[15px]");
     expect(selecionado?.closest("button")?.className).toContain("h-10");
-    expect(alvo.querySelector('[aria-label="Calendário"]')?.className).toContain("h-[292px]");
+    expect(alvo.querySelector('[aria-label="Calendário"]')?.className).toContain("h-[286px]");
+    expect(titulo?.className).toContain("pt-[13px]");
   });
 });
 

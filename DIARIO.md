@@ -818,6 +818,14 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-29 UTC — Claude — Agenda (celular): topo, mês e coluna de horas com as medidas da captura do Figaro
+- Dono: captura do Figaro (mês aberto) × Cortaí, "deixe idêntico, fontes, tamanhos, ícones". Medido nas duas capturas (1080 px, 3×):
+  - Barra: 56 → **64 dp** (`h-16`, `topAppBarHeight`), logo 44 → **40** a 8 px da borda (`px-1`), sino e calendário com **20 dp desenhados** (o Button forçava 16 px; calendário `!size-7`, sino 26 px via `.sino-de-avisos` só na tela da Agenda) e o calendário aberto **sem crescer nem girar** (cheio e azul).
+  - Letras da semana 4 px mais abaixo (`pt-3`), faixa da semana +11 px (`pt-[11px]`), base do topo `pb-[13px]` (antes 36); título do mês com `pt-[13px]`/`pb-[5px]`, recuo de 6 px; lista do mês 286 px (cabe mês de 6 semanas). Painel animado = mola + 13 (borda real).
+  - Grade a **50 px da borda da tela** (antes 66: margem 50 + recuo 16 da página) → margem 34 e `--calha-das-horas` 34 (teste segura as duas iguais).
+  - Horas da coluna voltam à mono do sistema: no Android o zero é liso como no Figaro (a JetBrains Mono que eu tinha posto tem zero com ponto).
+- Arquivos: `ManagementDrawer.tsx`, `CabecalhoAgenda.tsx`, `SinoDeAvisos.tsx` (só a classe), `SemanaDoTopo.tsx`, `styles.css`; testes atualizados (`CabecalhoAgenda.icone`, `icones-cabecalho`, `SemanaDoTopo`, `timeline-rolagem-celular`). `tsc` ok, `vitest` 258/2191, `build` ok. Pendente: conferir no celular.
+
 ### 2026-10-29 UTC — Claude — Agenda: gaveta do mês sem "salto" no fim da descida + intervalo com o cartão do bloqueio
 - Vídeo do dono (10:33): ao abrir o mês, a timeline descia colada no painel, mas no fim o topo crescia mais ~24 px de uma vez e cobria o começo da timeline (o "Corte clássico" sumia). Causa: o painel animado tinha a altura do mês + 12 px, e o topo real tem o `pb-9` (36 px) embaixo; quando a animação terminava e a altura real entrava, sobravam 24 px. Agora o painel vai até a borda do topo (`alturaDoPainelAteABorda` = mola + 36), então abrir e fechar começam e terminam exatamente na borda real. `SemanaDoTopo.tsx`, teste em `timeline-rolagem-celular.test.ts`.
 - Pedido do dono: intervalo com a barrinha e a cor dos horários bloqueados. `.agenda-timeline-pausa` passou a usar o cartão do bloqueio (fundo dos cartões, listras α 0,06, contorno sutil, barra de 3,5 px α 0,3); o texto "Intervalo · 12:30–13:30" fica depois da barra. Conferido em captura a 360 px, claro e escuro.
