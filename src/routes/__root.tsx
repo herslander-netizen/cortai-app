@@ -102,7 +102,7 @@ function RootShell({ children }: { children: ReactNode }) {
         <HeadContent />
         <script
           dangerouslySetInnerHTML={{
-            __html: `try{var d=document.documentElement,m=localStorage.getItem("cortai-modo-v2")||"escuro",l=m==="claro"||(m==="sistema"&&matchMedia("(prefers-color-scheme: light)").matches);var i=localStorage.getItem("cortai-identidade-v1");d.dataset.identidade=location.pathname.indexOf("/barbeiro")===0&&/^(moderno|rose|indigo|copper|classico)$/.test(i)?i:"moderno";if(/^\\/barbeiro(?:\\/agenda)?\\/?$/.test(location.pathname))d.dataset.telaAgenda="";else delete d.dataset.telaAgenda;d.classList.toggle("light",l);d.classList.toggle("dark",!l);var t=document.createElement("meta");t.name="theme-color";t.content=l?"#E9F1EB":"#1A1F1C";document.head.appendChild(t)}catch{}`,
+            __html: `try{var d=document.documentElement,m=localStorage.getItem("cortai-modo-v2")||"escuro",l=m==="claro"||(m==="sistema"&&matchMedia("(prefers-color-scheme: light)").matches);d.dataset.identidade="moderno";if(/^\\/barbeiro(?:\\/agenda)?\\/?$/.test(location.pathname))d.dataset.telaAgenda="";else delete d.dataset.telaAgenda;d.classList.toggle("light",l);d.classList.toggle("dark",!l);var t=document.createElement("meta");t.name="theme-color";t.content=l?"#E9F1EB":"#1A1F1C";document.head.appendChild(t)}catch{}`,
           }}
         />
       </head>

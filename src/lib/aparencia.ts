@@ -1,6 +1,7 @@
 export const MODOS = ["claro", "escuro", "sistema"] as const;
-/** Temas escolhíveis no menu de aparência: `moderno` é o Padrão (cores atuais do Flow). */
-export const IDENTIDADES = ["moderno", "rose", "indigo", "copper", "classico"] as const;
+/** Só o tema Padrão (`moderno`), em claro e escuro (dono, 29/10: "deixe apenas o padrão escuro e claro").
+ * Rosé, Índigo, Cobre e Clássico saíram do app; valores antigos salvos no banco ou no aparelho caem no Padrão. */
+export const IDENTIDADES = ["moderno"] as const;
 
 export type Modo = (typeof MODOS)[number];
 export type Identidade = (typeof IDENTIDADES)[number];
@@ -50,8 +51,6 @@ export function aplicarIdentidade(identidade: Identidade) {
   sincronizarCorDoNavegador();
 }
 
-export function identidadeValida(valor: unknown): Identidade {
-  // "cloud" foi o nome provisório do laranja; hoje o laranja é o Cobre.
-  if (valor === "cloud") return "copper";
-  return IDENTIDADES.includes(valor as Identidade) ? (valor as Identidade) : "moderno";
+export function identidadeValida(_valor?: unknown): Identidade {
+  return "moderno";
 }

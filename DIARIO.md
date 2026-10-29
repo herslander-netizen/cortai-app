@@ -27,6 +27,7 @@ e o que fez. O diário até 17/10/2026 está guardado, sem alterações, em
 7. **Sem segredos:** nunca escreva chaves, senhas ou tokens aqui. Cite só o nome da variável.
 
 ## Decisões do dono
+- 2026-10-29: **Só o tema Padrão, em escuro e claro** ("tire os outros temas, deixe apenas o padrão escuro e claro"). Rosé, Índigo, Cobre e Clássico saíram do app (Ajustes não oferece mais identidade; valores antigos salvos caem no Padrão). Os temas das páginas públicas dos negócios e os estilos do chat não fazem parte disso.
 - 2026-10-29: **Flow: só muda o logo** ("reverta as cores e fontes pra o que estava, só muda a logo"). Paleta, fontes e layout ficam os de antes; a paleta e a Inter do manual Flow não são aplicadas. Os nomes nos textos (Flow, Flow IA, Flow Chat) continuam trocados. Substitui o trecho de paleta da decisão abaixo.
 - 2026-10-29: **A marca Flow não muda nada de layout** ("não é pra mudar nada do aplicativo referente a layout"): só cores, logo e textos. Fontes, medidas, espaçamentos e caixas ficam como estavam; a Inter do manual não é aplicada e o logo novo ocupa a caixa do anterior.
 - 2026-10-29: **O produto passa a se chamar Flow** (Manual da Marca Flow v1.0, pedido do dono "migração integral do Cortaí para Flow"). Lettering "flow" com F fluido e ponto rosa, assinatura "Seu negócio no ritmo certo.", tema escuro principal, paleta grafite #0F0F14 / superfície #1A1B24 / violeta #6B5F8F / azul-claro #A8C7FA / roxo #BB86FC / rosa #F48FB1 / rosa escuro #9C425A, "CortAI" vira **Flow IA** e "Cortaí Chat" vira **Flow Chat**; Flow Pay só se for lançado. **Substitui a identidade Cortaí de 27/10** (a paleta de 27/10 fica superada; composição, raios, medidas, fontes e movimento do Figaro continuam). Nomes técnicos (repositório, projetos Cloudflare/Supabase, `CORTAI_*`, chaves locais, colunas, domínios) ficam por compatibilidade; sem domínio Flow inventado. Inventário em `docs/marca-flow.md`.
@@ -823,6 +824,9 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+
+### 2026-10-29 UTC — Claude — Só o tema Padrão (escuro e claro)
+- `aparencia.ts`: `IDENTIDADES = ["moderno"]` e `identidadeValida` sempre devolve o Padrão (banco e aparelhos com Rosé/Índigo/Cobre/Clássico abrem no Padrão, sem escrita no banco). `ThemeToggle`: saiu o seletor de identidade; fica Claro/Escuro/Sistema. Script inicial do `__root` abre sempre no Padrão. Segmento Beleza não troca mais o tema (`segmentos.ts`). CSS dos temas antigos ficou no arquivo, sem uso, para dar para voltar. Teste `aparencia.test.ts` reescrito para a nova regra. `tsc`, `vitest` (2201) e `build` ok; Ajustes conferido na vitrine.
 
 ### 2026-10-29 UTC — Claude — Flow: só o logo
 - Dono: "reverta as cores e fontes pra o que estava, só muda a logo". `styles.css` voltou ao estado anterior à migração (só a regra `.brand-logo-auto > svg` ficou); cores de manifests, `theme-color`, página offline, página de erro e fallbacks do ticket voltaram; menu sem o anel violeta. Ficam o logo novo (mesma caixa do antigo) e os textos com o nome Flow. Docs (`CLAUDE.md`, `docs/marca-flow.md`, ordem Figaro, contrato) atualizados.

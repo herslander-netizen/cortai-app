@@ -12,19 +12,21 @@ beforeEach(() => {
 
 describe("aplicarIdentidade", () => {
   it("aplica o tema no documento e lembra dele neste aparelho", () => {
-    aplicarIdentidade("copper");
-    expect(document.documentElement.dataset["identidade"]).toBe("copper");
-    expect(window.localStorage.getItem(IDENTIDADE_KEY)).toBe("copper");
+    aplicarIdentidade("moderno");
+    expect(document.documentElement.dataset["identidade"]).toBe("moderno");
+    expect(window.localStorage.getItem(IDENTIDADE_KEY)).toBe("moderno");
   });
 
-  it("o antigo nome cloud vira o Cobre", () => {
-    expect(identidadeValida("cloud")).toBe("copper");
-    expect(identidadeValida("inexistente")).toBe("moderno");
+  it("só existe o tema Padrão; temas antigos salvos caem nele", () => {
+    expect([...IDENTIDADES]).toEqual(["moderno"]);
+    for (const antigo of ["rose", "indigo", "copper", "classico", "cloud", "inexistente", null]) {
+      expect(identidadeValida(antigo)).toBe("moderno");
+    }
   });
 
-  it("o script inicial aceita exatamente os temas existentes", () => {
+  it("o script inicial abre sempre no Padrão", () => {
     const raiz = readFileSync(resolve(__dirname, "../routes/__root.tsx"), "utf8");
-    const lista = raiz.match(/\^\(([a-z|]+)\)\$/)?.[1]?.split("|");
-    expect(lista).toEqual([...IDENTIDADES]);
+    expect(raiz).toContain('d.dataset.identidade="moderno";');
+    expect(raiz).not.toMatch(/rose\|indigo|copper|classico/);
   });
 });

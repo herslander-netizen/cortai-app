@@ -143,7 +143,7 @@ const BARBEARIA: DefinicaoDeSegmento = {
 };
 
 const beleza = {
-  identidade: "rose" as const,
+  identidade: "moderno" as const,
   modoPadrao: "claro" as const,
   temaPagina: "rose-creme" as const,
   experienciaPadrao: "vitrine" as const,
