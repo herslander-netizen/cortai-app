@@ -49,6 +49,7 @@ import {
   ROTULO_DO_GLIFO,
 } from "@/components/barbeiro/agenda/cartao-figaro";
 import { prefereMenosMovimento } from "@/lib/motion";
+import { deslocamentoDeRolagem, velocidadeDeRolagemNaBorda } from "@/components/barbeiro/agenda/rolagem-automatica";
 
 const CELULAR = "(max-width: 600px)";
 const celularAgora = () => typeof window !== "undefined" && window.matchMedia(CELULAR).matches;
@@ -216,6 +217,8 @@ function AgendaTimelineBase({
     id: string;
     y0: number;
     x0: number;
+    pointerY: number;
+    alvo: HTMLElement;
     ativo: boolean;
     timer?: number;
     arrastou: boolean;
@@ -224,6 +227,10 @@ function AgendaTimelineBase({
     dy: number;
     deslocamentoMin: number;
   } | null>(null);
+  const quadroRolagemAutomatica = useRef<number | null>(null);
+  const instanteRolagemAutomatica = useRef<number | null>(null);
+  const pxPorMinutoRef = useRef(PX_POR_MINUTO);
+  pxPorMinutoRef.current = PX_POR_MINUTO;
   const bloqueio = useRef<ReturnType<typeof criarBloqueioDeRolagem> | null>(null);
   useEffect(
     () =>
@@ -247,6 +254,14 @@ function AgendaTimelineBase({
     bloqueio.current?.soltar();
   }
   useEffect(() => soltarRolagemDoToque, []);
+  useEffect(
+    () => () => {
+      if (quadroRolagemAutomatica.current !== null) {
+        window.cancelAnimationFrame(quadroRolagemAutomatica.current);
+      }
+    },
+    [],
+  );
   const ignorarClique = useRef(false);
   const horarioVazioRef = useRef<number | null>(null);
   const ponteirosDeToque = useRef(new Set<number>());
@@ -601,10 +616,14 @@ function AgendaTimelineBase({
     if (!podeMover(item)) return;
     const toque = e.pointerType !== "mouse";
     const cartaoArmado = toque && edicaoDoCartao?.id === item.id;
+    const alvo = e.currentTarget as HTMLElement;
+    const pid = e.pointerId;
     const g = {
       id: item.id,
       y0: e.clientY,
       x0: e.clientX,
+      pointerY: e.clientY,
+      alvo,
       ativo: e.pointerType === "mouse" || cartaoArmado,
       ...(cartaoArmado ? { longo: true } : {}),
       arrastou: false,
@@ -612,8 +631,6 @@ function AgendaTimelineBase({
       dy: 0,
       deslocamentoMin: 0,
     } as NonNullable<typeof gesto.current>;
-    const alvo = e.currentTarget as HTMLElement;
-    const pid = e.pointerId;
     gesto.current = g;
 
     if (cartaoArmado) {
@@ -639,31 +656,75 @@ function AgendaTimelineBase({
       }, 450);
     }
   }
+  function pararRolagemAutomatica() {
+    if (quadroRolagemAutomatica.current !== null) {
+      window.cancelAnimationFrame(quadroRolagemAutomatica.current);
+    }
+    quadroRolagemAutomatica.current = null;
+    instanteRolagemAutomatica.current = null;
+  }
+
+  function atualizarDeslocamentoArrastado(g: NonNullable<typeof gesto.current>, dy: number) {
+    const delta = dy - g.dy;
+    if (delta !== 0) g.deslocamentoMin += delta / pxPorMinutoRef.current;
+    g.dy = dy;
+    g.alvo.style.transform = `translateY(${dy}px) scale(1.02)`;
+    const passoAtual = Math.round(dy / pxPorMinutoRef.current / passo);
+    if (ultimoPassoDoArrasto.current === passoAtual) return;
+    ultimoPassoDoArrasto.current = passoAtual;
+    setArrasto({ id: g.id, dy });
+  }
+
+  function quadroDeRolagemAutomatica(agora: number) {
+    quadroRolagemAutomatica.current = null;
+    const g = gesto.current;
+    if (!g?.ativo || !g.arrastou || !g.alvo.isConnected) {
+      instanteRolagemAutomatica.current = null;
+      return;
+    }
+
+    const anterior = instanteRolagemAutomatica.current ?? agora;
+    const deltaMs = Math.min(33, Math.max(0, agora - anterior));
+    instanteRolagemAutomatica.current = agora;
+
+    const celular = celularAgora();
+    const area = rolagemRef.current;
+    const limites = celular ? areaLivre() : area?.getBoundingClientRect();
+    if (limites) {
+      const velocidade = velocidadeDeRolagemNaBorda(g.pointerY, limites.top, limites.bottom);
+      const deslocamento = deslocamentoDeRolagem(velocidade, deltaMs);
+      if (deslocamento !== 0) {
+        if (celular) window.scrollBy(0, deslocamento);
+        else if (area) area.scrollTop += deslocamento;
+      }
+    }
+
+    const rolagemAtual = celular ? window.scrollY : (area?.scrollTop ?? 0);
+    const dy = g.pointerY - g.y0 + rolagemAtual - g.rolagem0;
+    if (Math.abs(dy - g.dy) > 0.01) atualizarDeslocamentoArrastado(g, dy);
+    quadroRolagemAutomatica.current = window.requestAnimationFrame(quadroDeRolagemAutomatica);
+  }
+
+  function iniciarRolagemAutomatica() {
+    if (quadroRolagemAutomatica.current !== null) return;
+    instanteRolagemAutomatica.current = null;
+    quadroRolagemAutomatica.current = window.requestAnimationFrame(quadroDeRolagemAutomatica);
+  }
+
   function moverGesto(e: React.PointerEvent) {
     const g = gesto.current;
     if (!g) return;
+    g.pointerY = e.clientY;
     if (g.longo && g.ativo) onAtualizarYDoToque?.(g.id, e.clientY);
+
     const celular = celularAgora();
     const area = rolagemRef.current;
-    const borda = 48;
-    if (g.ativo && g.arrastou && celular) {
-      // No celular quem rola é a página: bordas da área livre e window.scrollBy.
-      const r = areaLivre();
-      if (e.clientY < r.top + borda)
-        window.scrollBy(0, -Math.ceil((r.top + borda - e.clientY) / 4));
-      else if (e.clientY > r.bottom - borda)
-        window.scrollBy(0, Math.ceil((e.clientY - (r.bottom - borda)) / 4));
-    } else if (g.ativo && g.arrastou && area) {
-      const r = area.getBoundingClientRect();
-      if (e.clientY < r.top + borda) area.scrollTop -= Math.ceil((r.top + borda - e.clientY) / 4);
-      else if (e.clientY > r.bottom - borda)
-        area.scrollTop += Math.ceil((e.clientY - (r.bottom - borda)) / 4);
-    }
     const rolagemAtual = celular ? window.scrollY : (area?.scrollTop ?? 0);
     const dy = e.clientY - g.y0 + (g.longo && !g.arrastou ? 0 : rolagemAtual - g.rolagem0);
+
     if (!g.ativo) {
       // Antes de confirmar o toque longo, deslocamento cancela o gesto.
-      // Depois de confirmado, o usuário pode continuar rolando; a edição arma ao soltar.
+      // Depois de confirmado, el usuario puede continuar rolando; a edição arma ao soltar.
       if (
         !g.longo &&
         (Math.abs(e.clientY - g.y0) > 10 || Math.abs(e.clientX - g.x0) > 10)
@@ -677,7 +738,7 @@ function AgendaTimelineBase({
     if (!g.arrastou) {
       // Ao começar a mover, desconta o scroll que a animação de zoom aplicou até aqui.
       if (g.longo) g.rolagem0 = rolagemAtual;
-      g.deslocamentoMin = dy / PX_POR_MINUTO;
+      g.deslocamentoMin = dy / pxPorMinutoRef.current;
       // O cartão armado já capturou o ponteiro no início do segundo gesto.
       // Mouse e gestos que começaram sem captura capturam no primeiro movimento.
       if (!g.longo) {
@@ -688,21 +749,24 @@ function AgendaTimelineBase({
         }
       }
     } else {
-      // Durante a aproximação, cada trecho usa a escala daquele instante, como no Figaro.
-      g.deslocamentoMin += (dy - g.dy) / PX_POR_MINUTO;
+      g.deslocamentoMin += (dy - g.dy) / pxPorMinutoRef.current;
     }
     g.arrastou = true;
     e.preventDefault();
     g.dy = dy;
-    // Movimento fino direto no cartão (compositor), sem passar pelo React.
-    (e.currentTarget as HTMLElement).style.transform = `translateY(${dy}px) scale(1.02)`;
-    const passoAtual = Math.round(dy / PX_POR_MINUTO / passo);
-    if (ultimoPassoDoArrasto.current === passoAtual) return;
-    ultimoPassoDoArrasto.current = passoAtual;
-    setArrasto({ id: g.id, dy });
+    g.alvo.style.transform = `translateY(${dy}px) scale(1.02)`;
+    const passoAtual = Math.round(dy / pxPorMinutoRef.current / passo);
+    if (ultimoPassoDoArrasto.current !== passoAtual) {
+      ultimoPassoDoArrasto.current = passoAtual;
+      setArrasto({ id: g.id, dy });
+    }
+    // Continua rolando, mesmo quando o dedo fica parado no limite da área visível.
+    iniciarRolagemAutomatica();
   }
+
   function fimGesto(item: AgendaItem, ySolto?: number) {
     const g = gesto.current;
+    pararRolagemAutomatica();
     if (g?.longo && g.ativo && ySolto !== undefined) onAtualizarYDoToque?.(g.id, ySolto);
     gesto.current = null;
     soltarRolagemDoToque();
@@ -1215,6 +1279,7 @@ function AgendaTimelineBase({
                         onPointerMove: moverGesto,
                         onPointerUp: (e: React.PointerEvent) => fimGesto(item, e.clientY),
                         onPointerCancel: () => {
+                          pararRolagemAutomatica();
                           const cancelado = gesto.current;
                           if (cancelado) window.clearTimeout(cancelado.timer);
                           gesto.current = null;
