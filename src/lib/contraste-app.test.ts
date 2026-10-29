@@ -179,6 +179,8 @@ describe("tokens recuperados do Figaroo", () => {
       "--font-figaroo-title": '"Poppins", "Manrope", ui-sans-serif, system-ui, sans-serif',
       "--font-figaroo-body": '"Plus Jakarta Sans", "Manrope", ui-sans-serif, system-ui, sans-serif',
       "--font-figaroo-mono": '"JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace',
+      "--font-size-figaroo-min": "var(--figaroo-font-size-min)",
+      "--font-size-figaroo-max": "var(--figaroo-font-size-max)",
     });
   });
 
@@ -252,6 +254,8 @@ describe("tokens recuperados do Figaroo", () => {
       "--figaroo-time-pill-height": "32px",
       "--figaroo-agenda-row-min-height": "56px",
       "--figaroo-press-scale": "0.98",
+      "--figaroo-font-size-min": "11px",
+      "--figaroo-font-size-max": "57px",
       "--figaroo-spacing-2": "2px",
       "--figaroo-spacing-64": "64px",
     });
