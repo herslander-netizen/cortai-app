@@ -816,12 +816,12 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
-### 2026-10-29 UTC — GPT — Agenda mobile: separar armar edição de arrasto
-- Commit de implementação: será registrado pelo GitHub Actions após este envio.
-- O que mudou: o primeiro toque longo apenas arma a edição e não captura ponteiro nem bloqueia a rolagem; o segundo gesto no cartão armado passa a capturar o ponteiro, bloquear a rolagem enquanto arrasta e mover o cartão. O CSS `touch-action: none` fica restrito ao cartão armado.
-- Testes: acrescentado teste de regressão cobrindo primeiro gesto sem arrasto e segundo gesto com arrasto; TypeScript, suíte, build, publicação e smoke test aguardam esta execução do GitHub Actions.
-- Banco/infra: sem migração, sem escrita em banco; não alterados `main`, produção ou publicação principal.
-- Pendente / atenção: conferir na prévia em celular real o scroll nativo, toque longo para armar, segundo gesto de arrasto, alça de duração, cancelar ponteiro e tema claro/escuro. Não afirmar validação física nesta sessão.
+### 2026-10-29 UTC — GPT — Agenda mobile: corrigir o gesto e alinhar o zoom ao Figaroo
+- Causa identificada na prévia: `onEditar` era chamado pelo timer enquanto o dedo ainda estava pressionado. Isso abria o modo armado no meio do gesto e competia com a rolagem/arrasto nativos. A edição agora só abre no `pointerup`; o primeiro gesto não captura o ponteiro nem bloqueia a rolagem, e o segundo gesto move o cartão armado.
+- Referência Figaroo conferida: os cinco níveis de cartão e as alturas de limiar já estavam implementados em `cartao-figaro.ts`; a escala já é 2 px/min por padrão, 1–4 px/min com pinça e 4 px/min em edição. Corrigi apenas a divergência da duração do zoom armado: 520 ms → 300 ms, conforme `ArmZoomDurationMillis` documentado.
+- Testes: commit anterior `9b485714e4ace5aff06db9f16475ad15ebc5021d` passou TypeScript, build, 254 arquivos de teste e smoke test da prévia (workflow [40838433364](https://github.com/herslander-netizen/cortai-app/actions/runs/40838433364)); a validação do ajuste de 300 ms aguarda o workflow deste commit.
+- Segurança/escopo: nenhum usuário foi criado e nenhum dado foi gravado. Nenhuma mudança no site principal ou em `cortai-prod`. O navegador conectado não está disponível nesta sessão, portanto a validação física em celular (rolagem, segundo gesto, alça e temas claro/escuro) permanece pendente. Antes de levar o recurso de intervalo por data à produção, lembrar que `cortai-prod` ainda não tem `excecoes_intervalo_agenda` nem `salvar_intervalo_agenda_dia`; não publicar esse recurso na produção sem revisar e autorizar a migração.
+
 
 
 - GPT | 2026-10-28 UTC | Personalização de compartilhamento público: metatags Open Graph/Twitter agora usam título, descrição e alt com o nome do estabelecimento; mensagem do compartilhamento nativo e do WhatsApp convida a agendar com o nome do negócio; a capa dinâmica tenta capa configurada → logo/ícone → capa padrão, mesmo quando a capa não consegue gerar URL assinada. Adicionado `src/lib/previa.test.ts` para metadados, links canônicos, fallback textual e mensagem. CI não confirmado nesta sessão: o status do commit veio sem checks, a consulta de workflow runs não listou execução e o clone local não pôde acessar github.com por falha de DNS. Manter reservado até confirmar build/TypeScript/testes no Actions; não houve alteração de banco nem publicação principal. | `src/lib/previa.ts`, `src/lib/previa.test.ts`, `src/components/marca/TelaPublicaBarbearia.tsx`, `src/routes/api/public/capa.$slug.ts`; sem migração

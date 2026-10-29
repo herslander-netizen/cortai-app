@@ -21,6 +21,11 @@ describe("zoom da timeline com dois dedos", () => {
     expect(fastOutSlowInProgresso(0.5)).toBeLessThan(0.9);
   });
 
+  it("aproxima para o zoom armado no tempo definido pelo Figaroo (300 ms)", () => {
+    const zoom = readFileSync("src/components/barbeiro/agenda/zoom-agenda.ts", "utf8");
+    expect(zoom).toContain("const DURACAO_ZOOM_ARMADO_MS = 300;");
+  });
+
   it("valor inválido volta ao padrão", () => {
     expect(limitarPx(Number.NaN)).toBe(PX_PADRAO);
     expect(limitarPx(3.14159)).toBe(3.14);

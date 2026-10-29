@@ -35,7 +35,7 @@ export function fastOutSlowInProgresso(progresso: number) {
   return bezier((baixo + alto) / 2, 0, 1);
 }
 
-const DURACAO_ZOOM_ARMADO_MS = 520;
+const DURACAO_ZOOM_ARMADO_MS = 300;
 type CorrecaoDeZoom = (destino: Window | HTMLElement, delta: number) => void;
 const ouvintesDeCorrecaoDeZoom = new Set<CorrecaoDeZoom>();
 
