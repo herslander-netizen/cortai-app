@@ -1,4 +1,4 @@
-import { CalendarPlus, Clock3, Mic, Scissors, type LucideIcon } from "lucide-react";
+import { CalendarPlus, Clock3, Coffee, Mic, Scissors, type LucideIcon } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useRef, type KeyboardEvent } from "react";
 import { createPortal } from "react-dom";
@@ -35,6 +35,7 @@ export function MenuAcoesAgenda({
   onEncaixe,
   onChamarFila: _onChamarFila,
   onBloquear,
+  onEditarIntervalo,
   onNovoCliente: _onNovoCliente,
   onAgendarPorVoz,
   visivel = true,
@@ -51,6 +52,7 @@ export function MenuAcoesAgenda({
   onEncaixe: () => void;
   onChamarFila: () => void;
   onBloquear: () => void;
+  onEditarIntervalo?: () => void;
   onNovoCliente: () => void;
   /** Quando existe (navegador com microfone), aparece "Agendar por voz" no leque. */
   onAgendarPorVoz?: () => void;
@@ -115,6 +117,15 @@ export function MenuAcoesAgenda({
 
   // Três ações operacionais principais, com "Agendar horário" colado ao "+".
   const acoes: Acao[] = [
+    ...(onEditarIntervalo
+      ? [{
+          id: "intervalo",
+          rotulo: "Ajustar intervalo",
+          descricao: "Mudar a pausa só neste dia",
+          Icone: Coffee,
+          onSelect: onEditarIntervalo,
+        }]
+      : []),
     {
       id: "bloquear",
       rotulo: "Bloquear horário",
