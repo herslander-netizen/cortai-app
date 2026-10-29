@@ -71,7 +71,7 @@ function BarbeariasPage() {
     [query.data, filter, search],
   );
   return (
-    <AdminScreen title="Barbearias" subtitle="Saúde, uso e retenção de cada operação.">
+    <AdminScreen title="Negócios" subtitle="Saúde, uso e retenção de cada operação.">
       {query.isError ? (
         <AdminNotice error={query.error} />
       ) : (

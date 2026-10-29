@@ -28,7 +28,7 @@ export const Route = createFileRoute("/admin/")({
 
 function Metric({ label, value, note }: { label: string; value: string; note?: string }) {
   return (
-    <Card density="default" className="rounded-[12px]">
+    <Card density="default" className="rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))]">
       <p className="text-xs text-mute">{label}</p>
       <p className="mt-2 text-3xl font-bold text-paper">{value}</p>
       {note ? <p className="mt-2 text-xs text-mute2">{note}</p> : null}
@@ -43,7 +43,7 @@ function AdminOverview() {
     retry: false,
   });
   return (
-    <AdminScreen title="Visão" subtitle="O que sustenta o crescimento da plataforma.">
+    <AdminScreen title="Visão geral" subtitle="O que sustenta o crescimento da plataforma.">
       <div className="mb-6">
         <InterruptorApresentacao />
       </div>
@@ -51,7 +51,7 @@ function AdminOverview() {
       {query.isError ? <AdminNotice error={query.error} /> : null}
       {query.data ? (
         <>
-          <section className="grid grid-cols-2 gap-x-5 lg:grid-cols-4">
+          <section className="grid grid-cols-2 gap-3 lg:grid-cols-4">
             <Metric
               label="Receita mensal"
               value={brl(query.data.receitaCentavos)}
@@ -86,11 +86,11 @@ function AdminOverview() {
                 </p>
               </div>
             </div>
-            <ol className="space-y-2">
+            <ol className="flex flex-col gap-0.5 [&>li]:rounded-[4px] [&>li:first-child]:rounded-t-[28px] [&>li:last-child]:rounded-b-[28px]">
               {query.data.signals.map((signal, index) => (
                 <li
                   key={signal.label}
-                  className="grid grid-cols-[28px_minmax(0,1fr)_auto] items-center gap-3 rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))] px-4 py-3"
+                  className="grid min-h-14 grid-cols-[28px_minmax(0,1fr)_auto] items-center gap-3 bg-[var(--figaro-surface-container,var(--ink2))] px-4 py-3"
                 >
                   <span className="text-sm text-mute2">{index + 1}</span>
                   <div>

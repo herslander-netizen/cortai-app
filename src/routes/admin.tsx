@@ -9,7 +9,7 @@ import { TabBar, type TabItem } from "@/components/layout/TabBar";
 
 const tabs: TabItem[] = [
   { to: "/admin", label: "Visão geral", icon: LineChart },
-  { to: "/admin/barbearias", label: "Barbearias", icon: Building2 },
+  { to: "/admin/barbearias", label: "Negócios", icon: Building2 },
   { to: "/admin/monetizacao", label: "Monetização", icon: CreditCard },
   { to: "/admin/mais", label: "Mais", icon: Menu },
 ] as const;

@@ -820,6 +820,9 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-29 UTC — Claude — ADM "Visão geral" ajustada ao padrão Figaro
+- Captura do dono (ADM, "ajuste"): grade de números sem espaço vertical (`gap-x-5` → `gap-3`), cartão "Página de apresentação" com borda diferente dos demais (agora `surfaceContainer` 28 dp sem contorno), ranking "O que faz virar pagante" como grupo de linhas (28 dp nas pontas), título "Visão" → "Visão geral" (igual à aba). Linguagem neutra: aba e título "Barbearias" → **"Negócios"** (rota `/admin/barbearias` mantida). Barra compacta do `AdminScreen` igual à do `Screen` (título 22/28 normal, mesma altura). Conferido na vitrine (390 px). `tsc`, `vitest` e `build` ok.
+
 ### 2026-10-29 UTC — Claude — Agenda (Lista) como a do Figaro
 - Captura da Lista do Figaro enviada pelo dono ("trazer para o Cortaí"; pedido específico da Agenda). `ListaPeriodo.tsx`: cabeçalho "28 out." (20/24) com o dia da semana ao lado, selo "Hoje" azul (`actionBlue`/`onActionBlue`) e data de hoje em azul; resumo à direita na mesma linha ("N atendimentos · R$ 50", sem ",00"); **dias vazios** de hoje até o último dia com atendimento aparecem com "Livre" e o cartão "Nada marcado" (`diasDaLista`; com busca, só os dias com resultado). Cartão em `cardTile`, raio 8, barra de 4 dp na cor da categoria; **serviço em destaque**, cliente embaixo e "categoria • profissional • valor • Atrasado" com bolinhas de 3 dp; glifo de estado 17 dp.
 - CSS no fim de `styles.css` (bloco "Lista da Agenda como no Figaro"); teste do selo Hoje atualizado e testes novos dos dias vazios (`ListaPeriodo.test.ts`). Conferido na vitrine (390 px). `tsc` ok, `vitest` ok, `build` ok.

@@ -48,7 +48,7 @@ export function InterruptorApresentacao() {
   const ativa = data?.ativa ?? true;
 
   return (
-    <div className="rounded-2xl border border-line bg-ink2 p-4">
+    <div className="rounded-[28px] bg-[var(--figaro-surface-container,var(--ink2))] px-5 py-4">
       <label className="flex min-h-12 cursor-pointer items-center justify-between gap-4">
         <span className="min-w-0">
           <span className="block text-sm font-semibold text-paper">Página de apresentação</span>
