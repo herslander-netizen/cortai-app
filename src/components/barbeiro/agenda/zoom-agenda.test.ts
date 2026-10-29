@@ -12,6 +12,19 @@ describe("zoom da timeline com dois dedos", () => {
     expect(pxDaPinca(PX_PADRAO, 0, 100)).toBe(PX_PADRAO);
   });
 
+  it("aplica a última escala da pinça antes de finalizar e cancela RAF pendente ao desmontar", () => {
+    const zoom = readFileSync("src/components/barbeiro/agenda/zoom-agenda.ts", "utf8");
+    expect(zoom).toContain("pxProposto: number");
+    expect(zoom).toContain("p.pxProposto = pxDaPinca(p.px, p.distancia, distanciaEntre(e.touches));");
+    expect(zoom).toContain("flushSync(() => definirPxPorMinuto(p.pxProposto, false));");
+    expect(zoom).toMatch(
+      /if \(final\.quadro !== null\) \{[\s\S]*?cancelAnimationFrame\(final\.quadro\);[\s\S]*?aplicarPinca\(final\);/,
+    );
+    expect(zoom).toMatch(
+      /return \(\) => \{[\s\S]*?cancelAnimationFrame\(pinca\.quadro\);[\s\S]*?removeEventListener\("touchstart", comecar\);/,
+    );
+  });
+
   it("usa a curva FastOutSlowIn para o zoom de entrada e saída", () => {
     expect(fastOutSlowInProgresso(0)).toBe(0);
     expect(fastOutSlowInProgresso(1)).toBe(1);
