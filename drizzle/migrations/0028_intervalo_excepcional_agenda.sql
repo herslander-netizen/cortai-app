@@ -225,7 +225,7 @@ BEGIN
      OR NOT coalesce(public.permissao_efetiva(auth.uid(), _tenant_id, 'alterar_dados_barbearia'), false) THEN
     RAISE EXCEPTION 'Sem permissão para alterar o intervalo deste dia.';
   END IF;
-  IF _acao NOT IN ('salvar', 'restaurar') THEN
+  IF _acao IS NULL OR _acao NOT IN ('salvar', 'restaurar') THEN
     RAISE EXCEPTION 'Ação de intervalo inválida.';
   END IF;
   IF _acao = 'salvar'
@@ -313,6 +313,17 @@ BEGIN
       atualizado_por = auth.uid(),
       atualizado_em = now();
   END IF;
+
+  PERFORM public.registrar_auditoria_barbearia(
+    _tenant_id,
+    CASE WHEN _acao = 'restaurar' THEN 'agenda.intervalo_restaurado' ELSE 'agenda.intervalo_ajustado' END,
+    _dia::text,
+    jsonb_build_object(
+      'intervalo_inicio', v_inicio,
+      'intervalo_fim', v_fim,
+      'acao', _acao
+    )
+  );
 
   RETURN jsonb_build_object(
     'ok', true,
