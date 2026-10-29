@@ -333,3 +333,16 @@ describe("ordem permanente", () => {
     expect(readFileSync("CLAUDE.md", "utf8")).toContain("docs/ordem-padrao-figaro.md");
   });
 });
+
+describe("Equipe e Profissionais no padrão Figaro (dono, 29/10)", () => {
+  it("lista primeiro em grupo de linhas com avatar de iniciais; convite embaixo; função em botões conectados", () => {
+    const equipe = readFileSync("src/routes/barbeiro.equipe.tsx", "utf8");
+    expect(equipe.indexOf("Quem tem acesso")).toBeLessThan(equipe.indexOf("Dar acesso a alguém"));
+    expect(equipe).toContain("<AvatarDeIniciais");
+    expect(equipe).toContain("<OpcoesConectadas");
+    expect(equipe).not.toContain("--agenda-cartao");
+    const prof = readFileSync("src/routes/barbeiro.profissionais.tsx", "utf8");
+    expect(prof).toContain("<AvatarDeIniciais");
+    expect(prof).toContain("aria-expanded={estaAberto}");
+  });
+});

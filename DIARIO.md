@@ -820,6 +820,13 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-29 UTC — Claude — Reconstrução Figaro por módulo: Equipe (Acessos e Profissionais)
+- Pedido do dono: "seguir com a Equipe no padrão Figaro" (referência: vídeo da tela Equipe do Figaro). Comparado na vitrine local.
+- **Acessos (`barbeiro.equipe.tsx`):** "Quem tem acesso" vem primeiro, como grupo de linhas do Figaro (28 dp nas pontas, 4 dp por dentro): avatar de iniciais 40 dp, nome 15/20, e-mail, selos de função (container primário), "Acesso desativado" (erro) e "Convite pendente" (aviso); proprietário com escudo; tocar na linha abre o ajuste (seta), no lugar do botão "Ajustar". Função em `OpcoesConectadas`; "Ajuste fino" como botão de texto; fieldsets sem token da Agenda (`--agenda-cartao` → `surfaceContainer`). "Dar acesso a alguém" virou botão tonal embaixo da lista que abre o formulário (campo de e-mail preenchido do Figaro); "Convidar" com carregando → ✓. Nenhuma regra mudou (convite, salvar, remover, recuperar iguais).
+- **Profissionais (`barbeiro.profissionais.tsx`):** lista em grupo de linhas (avatar, nome, "descrição · N fotos", selo Inativo); tocar abre descrição e portfólio logo abaixo, com o mesmo "Salvar perfil".
+- **Primitivo novo** `ui/avatar-iniciais.tsx` (`AvatarDeIniciais`, usado em Clientes, Acessos e Profissionais).
+- Teste em `estilo-figaro.test.ts`. `tsc` ok, `vitest` 259/2197, `build` ok.
+
 ### 2026-10-29 UTC — Claude — Barra do sistema acompanha a cor do topo quadro a quadro
 - Vídeo do dono (13:09): medido a 30 qps, o topo da Agenda troca de cor com transição (~250 ms) ao abrir/fechar o mês e ao rolar, mas a barra do sistema (relógio/bateria, `meta theme-color`) só conferia a cada 300 ms: ficava até 10 quadros na cor antiga e depois pulava.
 - `useCorDoTopoNaBarraDoSistema` (`src/lib/pwa/cor-do-topo.ts`): `MutationObserver` (classe, estilo, `data-state`, `data-calendario-aberto`, `data-topo-elevado`), `transitionstart` e rolagem acordam um acompanhamento por `requestAnimationFrame` de 700 ms; conferência lenta de 1 s cobre o resto. Teste em `cor-do-topo.test.ts`. `tsc`, `vitest` 259/2196 e `build` ok. Pendente: conferir no celular.

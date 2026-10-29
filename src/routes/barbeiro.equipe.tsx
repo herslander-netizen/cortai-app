@@ -2,7 +2,7 @@ import { exigirCapacidade } from "@/lib/guarda-capacidade";
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { KeyRound, Mail, ShieldCheck, Trash2, UserPlus } from "lucide-react";
+import { ChevronDown, KeyRound, Mail, ShieldCheck, Trash2, UserPlus } from "lucide-react";
 import { useState } from "react";
 
 import { EmptyState, Screen } from "@/components/layout/Screen";
@@ -18,6 +18,9 @@ import {
   type MembroDaEquipe,
 } from "@/lib/equipe.functions";
 import { Button } from "@/components/ui/button";
+import { OpcoesConectadas } from "@/components/ui/opcoes-conectadas";
+import { AvatarDeIniciais } from "@/components/ui/avatar-iniciais";
+import { useSucessoDoBotao } from "@/hooks/useSucessoDoBotao";
 import { EquipeWhatsapp } from "@/components/barbeiro/EquipeWhatsapp";
 import { EsqueletoLista } from "@/components/layout/Esqueleto";
 import { MOLA, TEMPO } from "@/lib/movimento-figaro";
@@ -59,6 +62,9 @@ function EquipePage() {
   const [papelConvite, setPapelConvite] = useState<PapelDeEquipe>("barbeiro");
   const [mensagem, setMensagem] = useState<{ tom: "sucesso" | "acao"; texto: string } | null>(null);
   const [editando, setEditando] = useState<string | null>(null);
+  // Como no Figaro, a lista vem primeiro e "Adicionar" fica embaixo, abrindo o formulário.
+  const [convidando, setConvidando] = useState(false);
+  const convidou = useSucessoDoBotao();
 
   const recarregar = () => queryClient.invalidateQueries({ queryKey: ["equipe"] });
   const falhar = (e: unknown) =>
@@ -78,6 +84,7 @@ function EquipePage() {
       }),
     onSuccess: async (resultado) => {
       setEmail("");
+      convidou.confirmar();
       setMensagem({
         tom: "sucesso",
         texto: resultado.enviouEmail
@@ -142,59 +149,8 @@ function EquipePage() {
         <div className="space-y-8">
           {mensagem ? <Aviso tom={mensagem.tom}>{mensagem.texto}</Aviso> : null}
 
-          <section className="surface p-4">
-            <h2 className="flex items-center gap-2 text-sm font-semibold text-paper">
-              <UserPlus size={16} className="text-gold" /> Dar acesso a alguém
-            </h2>
-            <p className="mt-1 text-xs leading-relaxed text-mute">
-              Digite o e-mail da pessoa. Se ela ainda não tiver conta, enviamos o convite por e-mail
-              para ela criar a senha e confirmar o acesso. Você nunca vê nem cria a senha de
-              ninguém.
-            </p>
-            <form
-              className="mt-4 space-y-3"
-              onSubmit={(event) => {
-                event.preventDefault();
-                setMensagem(null);
-                convite.mutate();
-              }}
-            >
-              <label className="block text-xs font-medium text-mute">
-                E-mail da conta
-                <span className="mt-2 grid min-h-12 grid-cols-[auto_minmax(0,1fr)] items-center gap-3 rounded-xl border-0 bg-[var(--agenda-cartao,var(--ink2))] px-3">
-                  <Mail size={16} aria-hidden className="text-mute" />
-                  <input
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    type="email"
-                    required
-                    className="min-h-12 min-w-0 bg-transparent text-sm text-paper outline-none"
-                  />
-                </span>
-              </label>
-              <label className="block text-xs font-medium text-mute">
-                Papel
-                <select
-                  value={papelConvite}
-                  onChange={(e) => setPapelConvite(e.target.value as PapelDeEquipe)}
-                  className="field-control mt-2 w-full"
-                >
-                  <option value="gerente">{PAPEIS.gerente}</option>
-                  <option value="barbeiro">{PAPEIS.barbeiro}</option>
-                  <option value="recepcao">{PAPEIS.recepcao}</option>
-                </select>
-                <span className="mt-1 block text-xs text-mute2">
-                  {DESCRICAO_DO_PAPEL[papelConvite]}
-                </span>
-              </label>
-              <Button variant="primary" className="min-h-12 w-full" disabled={convite.isPending}>
-                {convite.isPending ? "Enviando…" : "Convidar para a equipe"}
-              </Button>
-            </form>
-          </section>
-
           <section>
-            <h2 className="mb-2 text-xs font-semibold uppercase text-mute2">Quem tem acesso</h2>
+            <h2 className="mb-2 px-4 text-sm font-semibold text-mute2">Quem tem acesso</h2>
             <AnimatePresence mode="wait" initial={false}>
               {equipe.isLoading ? (
                 <motion.div
@@ -244,14 +200,17 @@ function EquipePage() {
                     height: reduzirMovimento ? { duration: 0 } : MOLA.tamanho,
                     opacity: { duration: reduzirMovimento ? 0 : TEMPO.conteudoEntra },
                   }}
-                  className="space-y-3 overflow-hidden"
+                  // Grupo de linhas do Figaro: 28 dp nas pontas, 4 dp por dentro e 2 dp entre as linhas.
+                  className="flex flex-col gap-0.5 overflow-hidden [&>li]:rounded-[4px] [&>li]:bg-[var(--figaro-surface-container-high,var(--ink2))] [&>li:first-child]:rounded-t-[28px] [&>li:last-child]:rounded-b-[28px]"
                 >
                   {(equipe.data ?? []).map((membro) => (
-                    <li key={membro.userId} className="surface p-4">
+                    <li key={membro.userId} className="px-4 py-3">
                       <CartaoMembro
                         membro={membro}
                         aberto={editando === membro.userId}
-                        onAbrir={() => setEditando(editando === membro.userId ? null : membro.userId)}
+                        onAbrir={() =>
+                          setEditando(editando === membro.userId ? null : membro.userId)
+                        }
                         onSalvar={(dados) => {
                           setMensagem(null);
                           salvar.mutate({ userId: membro.userId, ...dados });
@@ -272,6 +231,76 @@ function EquipePage() {
               )}
             </AnimatePresence>
           </section>
+          <section>
+            <Button
+              type="button"
+              variant="secondary"
+              aria-expanded={convidando}
+              onClick={() => setConvidando((v) => !v)}
+              className="h-12 rounded-full border-0 bg-[var(--figaro-primary-container,var(--ink3))] px-5 text-[var(--figaro-on-primary-container,var(--paper))]"
+            >
+              <UserPlus aria-hidden /> Dar acesso a alguém
+              <ChevronDown
+                aria-hidden
+                className={`transition-transform duration-200 ${convidando ? "rotate-180" : ""}`}
+              />
+            </Button>
+            {convidando ? (
+              <div className="mt-3 rounded-[28px] bg-[var(--figaro-surface-container,var(--ink2))] p-5">
+                <p className="mt-1 text-xs leading-relaxed text-mute">
+                  Digite o e-mail da pessoa. Se ela ainda não tiver conta, enviamos o convite por
+                  e-mail para ela criar a senha e confirmar o acesso. Você nunca vê nem cria a senha
+                  de ninguém.
+                </p>
+                <form
+                  className="mt-4 space-y-3"
+                  onSubmit={(event) => {
+                    event.preventDefault();
+                    setMensagem(null);
+                    convite.mutate();
+                  }}
+                >
+                  <label className="block text-xs font-medium text-mute">
+                    E-mail da conta
+                    <span className="mt-2 grid min-h-12 grid-cols-[auto_minmax(0,1fr)] items-center gap-3 rounded-t-[8px] border-0 bg-[var(--figaro-surface-container-highest,var(--ink3))] px-3">
+                      <Mail size={16} aria-hidden className="text-mute" />
+                      <input
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        type="email"
+                        required
+                        className="min-h-12 min-w-0 bg-transparent text-sm text-paper outline-none"
+                      />
+                    </span>
+                  </label>
+                  <label className="block text-xs font-medium text-mute">
+                    Papel
+                    <select
+                      value={papelConvite}
+                      onChange={(e) => setPapelConvite(e.target.value as PapelDeEquipe)}
+                      className="field-control mt-2 w-full"
+                    >
+                      <option value="gerente">{PAPEIS.gerente}</option>
+                      <option value="barbeiro">{PAPEIS.barbeiro}</option>
+                      <option value="recepcao">{PAPEIS.recepcao}</option>
+                    </select>
+                    <span className="mt-1 block text-xs text-mute2">
+                      {DESCRICAO_DO_PAPEL[papelConvite]}
+                    </span>
+                  </label>
+                  <Button
+                    variant="primary"
+                    className="min-h-12 w-full"
+                    disabled={convite.isPending}
+                    loading={convite.isPending}
+                    success={convidou.sucesso}
+                  >
+                    Convidar para a equipe
+                  </Button>
+                </form>
+              </div>
+            ) : null}
+          </section>
 
           <EquipeWhatsapp />
 
@@ -286,6 +315,9 @@ function EquipePage() {
     </Screen>
   );
 }
+
+const SELO =
+  "inline-flex min-h-5 items-center rounded-full px-2 text-[11px] font-semibold leading-4";
 
 function CartaoMembro({
   membro,
@@ -317,78 +349,91 @@ function CartaoMembro({
 
   return (
     <div>
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <p className="truncate text-sm font-semibold text-paper">
+      {/* Linha do Figaro (`FigarooListRow`): avatar de 40 dp, nome 15/20, e-mail de apoio e os selos de função e
+          situação; tocar abre o ajuste (o proprietário só mostra o escudo). */}
+      <Button
+        variant="ghost"
+        type="button"
+        size="bloco"
+        aria-expanded={dono ? undefined : aberto}
+        {...(dono ? { tabIndex: -1, "aria-disabled": true } : { onClick: onAbrir })}
+        className="grid min-h-14 w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 rounded-none bg-transparent p-0 text-left hover:bg-transparent active:bg-transparent active:scale-100 aria-disabled:cursor-default"
+      >
+        <AvatarDeIniciais nome={membro.nome ?? membro.email ?? "?"} />
+        <span className="min-w-0">
+          <span className="block truncate text-[15px] font-semibold leading-5 text-paper">
             {membro.nome ?? membro.email ?? "Conta"}
-          </p>
-          <p className="mt-0.5 truncate text-xs text-mute">{membro.email ?? "sem e-mail"}</p>
-          <p className="mt-1.5 flex items-center gap-2 text-xs">
-            <span className="rounded-full bg-gold-soft px-2 py-0.5 font-semibold text-gold">
+          </span>
+          <span className="mt-0.5 block truncate text-sm leading-5 text-mute">
+            {membro.email ?? "sem e-mail"}
+          </span>
+          <span className="mt-1.5 flex flex-wrap items-center gap-1.5">
+            <span
+              className={`${SELO} bg-[var(--figaro-primary-container)] text-[var(--figaro-on-primary-container)]`}
+            >
               {PAPEIS[membro.papel as PapelDeEquipe] ?? membro.papel}
             </span>
-            <span className={membro.ativo ? "text-sage" : "text-brick"}>
-              {membro.ativo ? "acesso ativo" : "acesso desativado"}
-            </span>
-            {membro.aceitoEm ? null : <span className="text-mute2">convite pendente</span>}
-          </p>
-        </div>
+            {membro.ativo ? null : (
+              <span
+                className={`${SELO} bg-[var(--figaro-error-container)] text-[var(--figaro-on-error-container)]`}
+              >
+                Acesso desativado
+              </span>
+            )}
+            {membro.aceitoEm ? null : (
+              <span
+                className={`${SELO} bg-[var(--figaro-warning-container)] text-[var(--figaro-on-warning-container)]`}
+              >
+                Convite pendente
+              </span>
+            )}
+          </span>
+        </span>
         {dono ? (
-          <ShieldCheck size={18} className="mt-1 shrink-0 text-gold" aria-label="Proprietário" />
+          <ShieldCheck
+            aria-label="Proprietário"
+            className="!size-6 text-[var(--figaro-primary,var(--primary))]"
+          />
         ) : (
-          <Button
-            variant="ghost"
-            type="button"
-            onClick={onAbrir}
-            className="shrink-0 rounded-lg border border-line2 px-3 py-1.5 text-xs font-semibold text-paper"
-          >
-            {aberto ? "Fechar" : "Ajustar"}
-          </Button>
+          <ChevronDown
+            aria-hidden
+            className={`!size-5 text-mute2 transition-transform duration-200 ${aberto ? "rotate-180" : ""}`}
+          />
         )}
-      </div>
+      </Button>
 
       {aberto && !dono ? (
-        <div className="mt-4 space-y-4 border-t border-line pt-4">
+        <div className="mt-3 space-y-4 pt-1">
           <div>
             <p className="text-xs font-medium text-mute">Função</p>
-            <div className="mt-2 grid grid-cols-3 gap-2" role="radiogroup" aria-label="Função">
-              {(["barbeiro", "recepcao", "gerente"] as PapelDeEquipe[]).map((opcao) => (
-                <Button
-                  variant="ghost"
-                  key={opcao}
-                  type="button"
-                  role="radio"
-                  aria-checked={papel === opcao}
-                  onClick={() => trocarPapel(opcao)}
-                  className={`min-h-12 rounded-lg border px-2 text-xs font-semibold ${
-                    papel === opcao
-                      ? "border-paper bg-paper text-ink"
-                      : "border-line2 bg-ink text-paper"
-                  }`}
-                >
-                  {PAPEIS[opcao].split("/")[0]}
-                </Button>
-              ))}
-            </div>
+            <OpcoesConectadas
+              rotulo="Função"
+              valor={papel}
+              opcoes={(["barbeiro", "recepcao", "gerente"] as PapelDeEquipe[]).map((opcao) => ({
+                valor: opcao,
+                texto: PAPEIS[opcao].split("/")[0] ?? opcao,
+              }))}
+              onChange={trocarPapel}
+              // Três funções em 360 px: menos respiro lateral para "Profissional" caber inteiro.
+              className="mt-2 [&>button]:px-2"
+            />
             <p className="mt-2 text-xs text-mute2">
               {DESCRICAO_DO_PAPEL[papel]} Um toque aplica o pacote da função.
             </p>
           </div>
 
-          <Button
-            variant="ghost"
-            type="button"
-            onClick={() => setAjusteFino((v) => !v)}
-            className="text-xs font-semibold text-paper underline underline-offset-4"
-          >
+          <Button variant="text" type="button" onClick={() => setAjusteFino((v) => !v)}>
             {ajusteFino ? "Esconder ajuste fino" : "Ajuste fino (opcional)"}
           </Button>
 
           {ajusteFino ? (
             <div className="space-y-3">
               {MODULOS.map((modulo) => (
-                <fieldset key={modulo.id} className="rounded-xl border-0 bg-[var(--agenda-cartao,var(--ink2))] p-3">
-                  <legend className="px-1 text-xs font-semibold uppercase tracking-wide text-gold">
+                <fieldset
+                  key={modulo.id}
+                  className="rounded-[12px] border-0 bg-[var(--figaro-surface-container,var(--ink2))] p-3"
+                >
+                  <legend className="px-1 text-xs font-semibold uppercase tracking-wide text-mute2">
                     {modulo.titulo}
                   </legend>
                   <p className="text-xs leading-relaxed text-mute2">{modulo.descricao}</p>

@@ -15,6 +15,7 @@ import {
   LinhaDeConfiguracao,
 } from "@/components/ui/formulario/LinhasDeConfiguracao";
 import { agruparPorLetra } from "@/components/barbeiro/agenda/ficha-regras";
+import { AvatarDeIniciais } from "@/components/ui/avatar-iniciais";
 import {
   contarClientesCRM,
   filtrarClientesCRM,
@@ -62,20 +63,6 @@ const ROTULOS: Record<ClienteCRM["status"], { texto: string; classe: string }> =
     classe: "bg-[var(--figaro-surface-container-highest)] text-[var(--figaro-on-surface-variant)]",
   },
 };
-
-/** Avatar do Figaro (`FigarooAvatar` Large): 40 dp, quadrado de 12 dp, iniciais em titleMedium. */
-function AvatarDoCliente({ nome }: { nome: string }) {
-  const partes = nome.trim().split(/\s+/);
-  const iniciais = `${partes[0]?.[0] ?? ""}${partes.length > 1 ? (partes.at(-1)?.[0] ?? "") : ""}`;
-  return (
-    <span
-      aria-hidden
-      className="grid size-10 shrink-0 place-items-center rounded-[12px] bg-[var(--figaro-surface-container-highest,var(--ink3))] text-base font-semibold uppercase text-paper"
-    >
-      {iniciais}
-    </span>
-  );
-}
 
 function whatsappLink(telefone: string, nome: string, barbearia = true, servico?: string | null) {
   const numero = telefone.replace(/\D/g, "");
@@ -244,7 +231,7 @@ function ClientesPage() {
                     <LinhaDeConfiguracao
                       para="/barbeiro/clientes/$id"
                       parametros={{ id: c.id }}
-                      lider={<AvatarDoCliente nome={c.nome} />}
+                      lider={<AvatarDeIniciais nome={c.nome} />}
                       titulo={
                         <span className="flex min-w-0 items-center gap-2">
                           <span className="min-w-0 truncate">{c.nome}</span>
