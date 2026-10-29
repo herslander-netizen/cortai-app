@@ -5366,6 +5366,16 @@ export type Database = {
           tenant_id: string
         }[]
       }
+      salvar_intervalo_agenda_dia: {
+        Args: {
+          _acao: string
+          _dia: string
+          _intervalo_fim?: string | null
+          _intervalo_inicio?: string | null
+          _tenant_id: string
+        }
+        Returns: Json
+      }
       salvar_comanda: {
         Args: { _comanda_id: string; _desconto_centavos?: number; _itens: Json }
         Returns: Json
