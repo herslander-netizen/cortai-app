@@ -803,7 +803,7 @@ export function AgendaTimeline({
               title={faixa.motivo ? `Bloqueio: ${faixa.motivo}` : "Bloqueio de agenda"}
             >
               {faixa.fim - faixa.inicio >= 18 ? (
-                <span className="max-w-full truncate rounded-md bg-ink/90 px-2 py-0.5 text-[11px] font-semibold text-mute">
+                <span className="max-w-full truncate rounded-md bg-ink/90 px-2 py-0.5 text-xs font-semibold text-mute">
                   {faixa.rotulo}
                 </span>
               ) : null}
