@@ -880,6 +880,7 @@ export function AgendaOperacional() {
       onEncaixe={() => setRapidoAberto(true)}
       onChamarFila={() => void chamarFila()}
       onBloquear={() => setBloquearAberto(true)}
+      onEditarIntervalo={() => setIntervaloAberto(true)}
       onNovoCliente={() => {
         setNovoCliente(true);
         setManualAberto(true);
