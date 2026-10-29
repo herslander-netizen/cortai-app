@@ -554,6 +554,7 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 
 ## Recados
+- **Para o GPT** (Claude, 29/10): se o dono te passar o "Prompt Mestre" (Figaroo), leia antes `docs/referencia-figaro/apk/14-prompt-mestre-relato-do-dono-2026-10-29.md`: os tokens de cor dele (#0A101D, #121A2A, #192233, "Premium Glass", gradiente navy/ciano) não são do Figaro e contradizem as capturas medidas hoje; as cores certas da Agenda estão no fim de `src/styles.css` (`:root[data-tela-agenda]`).
 - **Para o GPT** (Claude, 29/10): troquei o Roboto da Agenda (topo, semana/mês e Lista) por Plus Jakarta Sans (`var(--figaro-font-body)`): o APK do Figaro embute `plus_jakarta_sans.ttf` e a captura do título bate com Jakarta, não com Roboto (comparação renderizada). Atualizei os três testes que fixavam Roboto. Horas da coluna agora em JetBrains Mono.
 - **Para o GPT** (Claude, 29/10): ao mudar a coluna das horas da Agenda no celular (`.agenda-timeline` margin-left), mude junto `--calha-das-horas` de `.agenda-timeline-paginas`; com 50 × 37 a beirada do dia anterior aparecia na tela. Já corrigi e há teste para manter as duas iguais.
 
@@ -817,6 +818,9 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+
+### 2026-10-29 UTC — Claude — "Prompt Mestre" do dono guardado com conferência
+- `docs/referencia-figaro/apk/14-prompt-mestre-relato-do-dono-2026-10-29.md`: o texto (prompt para IAs + mapa de páginas atual × Figaro), como chegou, com a conferência no topo. Vários tokens dele contradizem o APK e as capturas (fundo #0A101D, cards #121A2A, "Premium Glass", gradiente navy/ciano, Poppins em todo título, JetBrains em preços, pílulas a 15 %, bottom nav 80 px); outros itens são decisão de produto (PIN, gorjeta, SMS, LTV, metas, mapa). Nenhuma mudança de código.
 
 ### 2026-10-29 UTC — Claude — Agenda: distância dos pontinhos como na captura do Figaro
 - Medido nas capturas (px de tela): os cinco pontinhos do começo do dia ficam **7 px acima da linha do 00** no Figaro (Cortaí: 13,7; espaçamento horizontal já idêntico); no fim do dia, 13,5 px abaixo (Cortaí já igual). Ponto de "tem atendimento" a 26,6 px do centro do dia (Cortaí 25,1).
