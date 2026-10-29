@@ -5167,30 +5167,90 @@ button.agenda-nome:hover {
   font-size: 12px;
   font-weight: 700;
 }
-/* Horário bloqueado (apk/3 §7): faixa mais marcada que o intervalo, com cadeado e motivo. */
+/* Horário bloqueado como no Figaro (capturas do dono, 29/10, claro e escuro): cartão neutro do tamanho da faixa, no
+   fundo dos cartões de atendimento, com listras finas cinza, barrinha cinza à esquerda (a mesma dos cartões), título
+   "Bloqueio · profissional", horário embaixo e o calendário com X no canto. Só as cores mudam entre os temas. */
 .agenda-timeline-bloqueio {
   z-index: 2;
   overflow: hidden;
-  border-left: 3px solid var(--figaro-tertiary, var(--rosa));
-  color: var(--figaro-on-tertiary-container, var(--paper));
+  border-radius: 8px;
+  color: var(--paper);
   background:
     repeating-linear-gradient(
       135deg,
-      transparent 0 6px,
-      color-mix(in oklab, var(--figaro-tertiary) 25%, transparent) 6px 7px
+      transparent 0 8px,
+      color-mix(in oklab, var(--figaro-hint, var(--mute2)) 22%, transparent) 8px 9px
     ),
-    color-mix(in oklab, var(--figaro-tertiary-container) 84%, var(--figaro-surface));
+    var(--agenda-cartao-evento, var(--agenda-cartao));
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--figaro-hint, var(--mute2)) 12%, transparent);
   animation: agenda-bloqueio-entra var(--mov-base) var(--ease-saida) both;
 }
-.agenda-timeline-bloqueio span {
-  display: inline-flex;
-  max-width: calc(100% - 16px);
-  align-items: center;
-  gap: 4px;
+.light .agenda-timeline-bloqueio,
+:root.light .agenda-timeline-bloqueio {
+  background:
+    repeating-linear-gradient(
+      135deg,
+      transparent 0 8px,
+      color-mix(in oklab, var(--figaro-hint, var(--mute2)) 22%, transparent) 8px 9px
+    ),
+    var(--agenda-cartao-evento, #fff);
+}
+.agenda-timeline-bloqueio::before {
+  content: "";
+  position: absolute;
+  top: 6px;
+  bottom: 6px;
+  left: 6px;
+  width: 3px;
+  border-radius: 2px;
+  background: color-mix(in oklab, var(--figaro-hint, var(--mute2)) 45%, transparent);
+  pointer-events: none;
+}
+.agenda-timeline-bloqueio .agenda-bloqueio-corpo {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 4px 34px 4px 18px;
+  text-align: left;
+}
+.agenda-timeline-bloqueio .agenda-bloqueio-titulo {
+  position: static;
+  display: block;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  color: var(--figaro-on-tertiary-container, var(--paper));
+  color: var(--paper);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 18px;
+}
+.agenda-timeline-bloqueio .agenda-bloqueio-nome {
+  position: static;
+  color: var(--paper);
+  font-weight: 700;
+}
+.agenda-timeline-bloqueio .agenda-bloqueio-quem {
+  position: static;
+  color: var(--mute);
+}
+.agenda-timeline-bloqueio .agenda-bloqueio-horario {
+  position: static;
+  display: block;
+  color: var(--mute);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 16px;
+  letter-spacing: 0.08em;
+  font-variant-numeric: tabular-nums;
+}
+.agenda-timeline-bloqueio .agenda-bloqueio-icone {
+  position: absolute;
+  top: 6px;
+  right: 10px;
+  width: 17px;
+  height: 17px;
+  color: var(--mute);
 }
 button.agenda-timeline-bloqueio-interativo {
   display: block;
@@ -5205,11 +5265,6 @@ button.agenda-timeline-bloqueio-interativo {
   z-index: 4;
   outline: 2px solid var(--figaro-primary, var(--rosa));
   outline-offset: -2px;
-}
-.agenda-timeline-bloqueio svg {
-  width: 12px;
-  height: 12px;
-  flex: none;
 }
 @keyframes agenda-bloqueio-entra {
   from {

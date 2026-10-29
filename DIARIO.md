@@ -817,6 +817,11 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-29 UTC — Claude — Agenda: cartão de bloqueio igual ao do Figaro (claro e escuro)
+- Capturas do Figaro enviadas pelo dono (bloqueio 15:00–18:00, temas claro e escuro). O bloqueio deixou a faixa rosa com cadeado e virou o cartão do Figaro: fundo dos cartões de atendimento (branco no claro, grafite no escuro), listras finas cinza, barrinha cinza de 3 px à esquerda, título "Bloqueio · profissional" (16 px; o motivo, se houver, entra no lugar de "Bloqueio"), horário "15:00 · 18:00" embaixo (13 px, some em bloqueios curtos) e calendário com X no canto. Mesma estrutura nos dois temas.
+- `AgendaTimeline.tsx` (marcação, `profissional` opcional), `AgendaOperacional.tsx` (nome do profissional no bloqueio), `src/styles.css` (bloco `.agenda-timeline-bloqueio`). Conferido em captura do navegador a 360 px, claro e escuro.
+- `tsc` ok, `vitest` 258/2190, `build` ok.
+
 ### 2026-10-29 UTC — Claude — Agenda (celular): beirada do dia anterior aparecendo na borda esquerda
 - Vídeo do dono ("Erro na agenda", 29/10 05:07): uma faixa de ~13 px do dia anterior (intervalo rosa, tracinhos das horas, bloco fora do expediente) ficava visível na borda esquerda da grade, o tempo todo.
 - Causa: `d038b556` passou a coluna das horas do celular para 50 px (gutter do Figaro), mas `--calha-das-horas` de `.agenda-timeline-paginas` continuou em 37 px; a página vizinha anterior se posiciona por essa variável e ficou 13 px perto demais. Correção: `--calha-das-horas: 50px` no bloco `max-width: 767px` (`src/styles.css`). Só cor/tema não muda; claro e escuro iguais. O gesto mede a página na tela, nada mudou nele.

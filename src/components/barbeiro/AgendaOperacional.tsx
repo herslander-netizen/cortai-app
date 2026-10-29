@@ -624,7 +624,13 @@ export function AgendaOperacional() {
   const bloqueiosDoDia = (profissional: string | null) =>
     (agenda.data?.bloqueiosDoDia ?? [])
       .filter((b) => !b.profissional_id || !profissional || b.profissional_id === profissional)
-      .map((b) => ({ id: b.id, inicio: b.inicio, fim: b.fim, motivo: b.motivo }));
+      .map((b) => ({
+        id: b.id,
+        inicio: b.inicio,
+        fim: b.fim,
+        motivo: b.motivo,
+        profissional: nomeDoProf(b.profissional_id),
+      }));
 
   useEffect(() => {
     const lista = agenda.data?.itens;
@@ -982,7 +988,7 @@ export function AgendaOperacional() {
   const bloqueiosDoDiaGeral = useMemo(
     () => bloqueiosDoDia(profFiltro),
     // eslint-disable-next-line react-hooks/exhaustive-deps -- depende só dos dados e do filtro
-    [agenda.data?.bloqueiosDoDia, profFiltro],
+    [agenda.data?.bloqueiosDoDia, profFiltro, profissionais],
   );
   const vizinhosMemo = useMemo(
     () =>

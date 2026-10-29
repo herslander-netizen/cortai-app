@@ -1,5 +1,5 @@
 import { OrigemDoAgendamento } from "@/components/barbeiro/agenda/OrigemDoAgendamento";
-import { Clock3, Lock } from "lucide-react";
+import { CalendarX, Clock3 } from "lucide-react";
 import { IconeDoEstado } from "@/components/barbeiro/agenda/IconeDoEstado";
 import {
   Fragment,
@@ -49,7 +49,10 @@ import {
   ROTULO_DO_GLIFO,
 } from "@/components/barbeiro/agenda/cartao-figaro";
 import { prefereMenosMovimento } from "@/lib/motion";
-import { deslocamentoDeRolagem, velocidadeDeRolagemNaBorda } from "@/components/barbeiro/agenda/rolagem-automatica";
+import {
+  deslocamentoDeRolagem,
+  velocidadeDeRolagemNaBorda,
+} from "@/components/barbeiro/agenda/rolagem-automatica";
 
 const CELULAR = "(max-width: 600px)";
 const celularAgora = () => typeof window !== "undefined" && window.matchMedia(CELULAR).matches;
@@ -111,7 +114,14 @@ type AgendaTimelineProps = {
   /** Página de um dia vizinho dentro da troca de dia: sem rolagem própria nem alinhamento. */
   emCamada?: boolean;
   /** Bloqueios do dia (já filtrados para esta coluna): faixa visual, sem ponteiros. */
-  bloqueiosDoDia?: { id: string; inicio: string; fim: string; motivo: string | null }[];
+  bloqueiosDoDia?: {
+    id: string;
+    inicio: string;
+    fim: string;
+    motivo: string | null;
+    /** Nome de quem está bloqueado (Figaro: "Bloqueio · Lucas"); sem ele, o bloqueio vale para todos. */
+    profissional?: string | null;
+  }[];
   /** Intervalo alterado apenas para a data selecionada. */
   intervaloPersonalizado?: { inicio: string; fim: string } | null;
   /** Abre os ajustes rápidos do intervalo da data selecionada. */
@@ -725,10 +735,7 @@ function AgendaTimelineBase({
     if (!g.ativo) {
       // Antes de confirmar o toque longo, deslocamento cancela o gesto.
       // Depois de confirmado, el usuario puede continuar rolando; a edição arma ao soltar.
-      if (
-        !g.longo &&
-        (Math.abs(e.clientY - g.y0) > 10 || Math.abs(e.clientX - g.x0) > 10)
-      ) {
+      if (!g.longo && (Math.abs(e.clientY - g.y0) > 10 || Math.abs(e.clientX - g.x0) > 10)) {
         window.clearTimeout(g.timer);
         gesto.current = null;
       }
@@ -996,7 +1003,26 @@ function AgendaTimelineBase({
               top: `${(de - escala.inicio) * PX_POR_MINUTO + deslocamentoAte(de)}px`,
               height: `${(ate - de) * PX_POR_MINUTO + deslocamentoAte(ate) - deslocamentoAte(de)}px`,
             };
-            const rotulo = `Horário bloqueado, ${horaMinuto(de)} às ${horaMinuto(ate)}${b.motivo ? `, ${b.motivo}` : ""}`;
+            const rotulo = `Horário bloqueado, ${horaMinuto(de)} às ${horaMinuto(ate)}${b.motivo ? `, ${b.motivo}` : ""}${b.profissional ? `, ${b.profissional}` : ""}`;
+            // Cartão do Figaro (apk/3 §7): título "Bloqueio · profissional", horário embaixo e o
+            // calendário com X no canto; o horário some quando o bloqueio é curto demais.
+            const altura = (ate - de) * PX_POR_MINUTO;
+            const conteudo = (
+              <span className="agenda-bloqueio-corpo" aria-hidden>
+                <span className="agenda-bloqueio-titulo">
+                  <span className="agenda-bloqueio-nome">{b.motivo?.trim() || "Bloqueio"}</span>
+                  {b.profissional ? (
+                    <span className="agenda-bloqueio-quem"> · {b.profissional}</span>
+                  ) : null}
+                </span>
+                {altura >= 34 ? (
+                  <span className="agenda-bloqueio-horario">
+                    {horaMinuto(de)} · {horaMinuto(ate)}
+                  </span>
+                ) : null}
+                <CalendarX className="agenda-bloqueio-icone" aria-hidden />
+              </span>
+            );
             return onAbrirBloqueio && !previa ? (
               <button
                 key={b.id}
@@ -1010,10 +1036,7 @@ function AgendaTimelineBase({
                   onAbrirBloqueio(b);
                 }}
               >
-                <span>
-                  <Lock aria-hidden />
-                  {b.motivo || "Bloqueado"}
-                </span>
+                {conteudo}
               </button>
             ) : (
               <div
@@ -1023,10 +1046,7 @@ function AgendaTimelineBase({
                 role="img"
                 aria-label={rotulo}
               >
-                <span>
-                  <Lock aria-hidden />
-                  {b.motivo || "Bloqueado"}
-                </span>
+                {conteudo}
               </div>
             );
           })}
@@ -1060,7 +1080,9 @@ function AgendaTimelineBase({
                 }}
                 aria-hidden
               >
-                <span>Intervalo · {horaMinuto(intervalo[0])}–{horaMinuto(intervalo[1])}</span>
+                <span>
+                  Intervalo · {horaMinuto(intervalo[0])}–{horaMinuto(intervalo[1])}
+                </span>
               </div>
             )
           ) : null}
@@ -1093,8 +1115,7 @@ function AgendaTimelineBase({
             </div>
           ))}
 
-          {opacidadeDasLinhasDe5(PX_POR_MINUTO) >
-          0 ? (
+          {opacidadeDasLinhasDe5(PX_POR_MINUTO) > 0 ? (
             <>
               {Array.from(
                 { length: Math.floor((escala.fim - escala.inicio) / PASSO_DO_AJUSTE_MIN) + 1 },
