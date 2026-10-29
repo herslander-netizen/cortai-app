@@ -8,7 +8,9 @@ import {
   type Ocupado,
   type Opcao,
 } from "@/lib/disponibilidade";
-import { horarioDoDia, type HorarioDeFuncionamento } from "@/lib/horarios";
+import { aplicarExcecaoDeIntervalo, horarioDoDia, type ExcecaoIntervaloAgenda, type HorarioDeFuncionamento } from "@/lib/horarios";
+
+const EXCECOES_VAZIAS: ExcecaoIntervaloAgenda[] = [];
 
 type Servico = {
   id: string;
@@ -24,6 +26,7 @@ export function useSelecaoAgendamento({
   servicos,
   profissionais,
   horarios,
+  excecoesIntervalo = EXCECOES_VAZIAS,
   ocupados,
   fuso,
   regras,
@@ -33,6 +36,7 @@ export function useSelecaoAgendamento({
   servicos: Servico[];
   profissionais: Profissional[];
   horarios: HorarioDeFuncionamento[];
+  excecoesIntervalo?: ExcecaoIntervaloAgenda[];
   ocupados: Ocupado[];
   fuso: string;
   regras: { antecedenciaMin: number; intervaloEntreMin: number };
@@ -72,6 +76,8 @@ export function useSelecaoAgendamento({
   const porDia = useMemo(() => {
     const mapa = new Map<string, { fechado: boolean; opcoes: Opcao[] }>();
     for (const data of dias) {
+      const excecao = excecoesIntervalo.find((item) => item.dia === data);
+      const horariosDoDia = aplicarExcecaoDeIntervalo(horarios, data, excecao);
       mapa.set(
         data,
         servico
@@ -80,14 +86,14 @@ export function useSelecaoAgendamento({
               servico,
               profissionais,
               escolhido: profissionalId,
-              horarios,
+              horarios: horariosDoDia,
               fuso,
               ocupados,
               regras,
               agora,
               passoMin,
             })
-          : { fechado: horarioDoDia(data, horarios).fechado, opcoes: [] },
+          : { fechado: horarioDoDia(data, horariosDoDia).fechado, opcoes: [] },
       );
     }
     return mapa;
@@ -97,6 +103,7 @@ export function useSelecaoAgendamento({
     profissionais,
     profissionalId,
     horarios,
+    excecoesIntervalo,
     fuso,
     ocupados,
     regras,
@@ -126,6 +133,17 @@ export function useSelecaoAgendamento({
   }, [inicio, dia, porDia]);
 
   const agenda = dia ? porDia.get(dia) : undefined;
+  const horariosDaDataSelecionada = useMemo(
+    () =>
+      dia
+        ? aplicarExcecaoDeIntervalo(
+            horarios,
+            dia,
+            excecoesIntervalo.find((item) => item.dia === dia),
+          )
+        : horarios,
+    [dia, horarios, excecoesIntervalo],
+  );
   // Mesmo motor: horários do dia com estado, para mostrar "Ocupado" sem permitir escolher.
   const ocupadosDoDia = useMemo(
     () =>
@@ -135,7 +153,7 @@ export function useSelecaoAgendamento({
             servico,
             profissionais,
             escolhido: profissionalId,
-            horarios,
+            horarios: horariosDaDataSelecionada,
             fuso,
             ocupados,
             regras,
@@ -148,7 +166,7 @@ export function useSelecaoAgendamento({
       servico,
       profissionais,
       profissionalId,
-      horarios,
+      horariosDaDataSelecionada,
       fuso,
       ocupados,
       regras,
