@@ -2906,6 +2906,11 @@ body:has(.auth-screen--claro) {
   touch-action: pan-y;
   cursor: grab;
 }
+/* Só o cartão já armado desativa a rolagem nativa para o segundo gesto de arrasto. */
+.agenda-timeline-bloco[data-sem-gesto-dia] {
+  touch-action: none;
+  cursor: grabbing;
+}
 .agenda-timeline-bloco::after {
   content: "";
   position: absolute;

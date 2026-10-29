@@ -498,35 +498,46 @@ export function AgendaTimeline({
 
   function inicioGesto(e: React.PointerEvent, item: AgendaItem) {
     if (!podeMover(item)) return;
+    // Referência Figaroo adaptada à web: primeiro toque longo arma a edição;
+    // um segundo gesto move o cartão. Assim a rolagem nativa não compete com o
+    // reconhecimento do toque longo no mesmo gesto.
+    const edicaoArmada = e.pointerType !== "mouse" && edicaoDoCartao?.id === item.id;
     const g = {
       id: item.id,
       y0: e.clientY,
       x0: e.clientX,
-      ativo: e.pointerType === "mouse",
+      ativo: e.pointerType === "mouse" || edicaoArmada,
       arrastou: false,
       rolagem0: celularAgora() ? window.scrollY : (rolagemRef.current?.scrollTop ?? 0),
       dy: 0,
     } as NonNullable<typeof gesto.current>;
     const alvo = e.currentTarget as HTMLElement;
     const pid = e.pointerId;
+    gesto.current = g;
+
+    if (edicaoArmada) {
+      // O cartão já está armado e recebe touch-action:none desde o início deste gesto.
+      try {
+        alvo.setPointerCapture(pid);
+      } catch {
+        gesto.current = null;
+        return;
+      }
+      travarRolagemDoToque();
+      setArrasto({ id: item.id, dy: 0 });
+      navigator.vibrate?.(10);
+      return;
+    }
+
     if (e.pointerType !== "mouse") {
       g.timer = window.setTimeout(() => {
         if (gesto.current !== g) return;
-        try {
-          alvo.setPointerCapture(pid);
-        } catch {
-          // Sem captura o fim do toque pode não chegar: cancela o arrasto.
-          gesto.current = null;
-          return;
-        }
-        g.ativo = true;
+        // Não capturar o ponteiro nem bloquear a página: ao soltar, o cartão
+        // entra no modo de edição. O arrasto começa num segundo gesto explícito.
         g.longo = true;
-        travarRolagemDoToque();
-        setArrasto({ id: item.id, dy: 0 });
         navigator.vibrate?.(10);
       }, 280);
     }
-    gesto.current = g;
   }
   function moverGesto(e: React.PointerEvent) {
     const g = gesto.current;
@@ -550,7 +561,12 @@ export function AgendaTimeline({
     const rolagemAtual = celular ? window.scrollY : (area?.scrollTop ?? 0);
     const dy = e.clientY - g.y0 + (rolagemAtual - g.rolagem0);
     if (!g.ativo) {
-      if (Math.abs(e.clientY - g.y0) > 10 || Math.abs(e.clientX - g.x0) > 10) {
+      // Depois de confirmado o toque longo, pequenos deslocamentos não convertem
+      // o gesto de armar em arrasto nem bloqueiam a rolagem da página.
+      if (
+        !g.longo &&
+        (Math.abs(e.clientY - g.y0) > 10 || Math.abs(e.clientX - g.x0) > 10)
+      ) {
         window.clearTimeout(g.timer);
         gesto.current = null;
       }
