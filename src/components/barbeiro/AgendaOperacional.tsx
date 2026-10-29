@@ -74,6 +74,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { aviso, comDesfazer } from "@/lib/avisos";
 import { getCapacidades } from "@/lib/capacidades.functions";
+import { listarBloqueiosDoDia } from "@/lib/bloqueios.functions";
 import {
   mudarEstadoAtendimento,
   moverAgendamentoPainel,
@@ -259,6 +260,7 @@ export function AgendaOperacional() {
       : undefined;
   const mudarEstado = useServerFn(mudarEstadoAtendimento);
   const moverAgendamento = useServerFn(moverAgendamentoPainel);
+  const listarBloqueios = useServerFn(listarBloqueiosDoDia);
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   // Abrir a Agenda sempre começa em "hoje" (fuso do negócio); o lugar salvo
@@ -373,6 +375,12 @@ export function AgendaOperacional() {
   }
 
   const { agenda, online, aoVivo } = useAgendaDia(dia);
+  const bloqueiosQ = useQuery({
+    queryKey: ["bloqueios", dia],
+    queryFn: () => listarBloqueios({ data: { dia } }),
+    enabled: visualizacao === "timeline" && Boolean(agenda.data),
+    staleTime: 15_000,
+  });
   const gestoDia = useGestoDia(dia, mudarDia);
   useLugarDaAgenda({ dia, visualizacao, fuso, foco: modoFoco, pronto: !!agenda.data, restaurado });
 
@@ -555,6 +563,14 @@ export function AgendaOperacional() {
   const itens = useMemo(
     () => todosItens.filter((item) => !profFiltro || item.profissionalId === profFiltro),
     [todosItens, profFiltro],
+  );
+  const bloqueiosVisiveis = useMemo(
+    () =>
+      (bloqueiosQ.data ?? []).filter(
+        (bloqueio) =>
+          !profFiltro || !bloqueio.profissionalId || bloqueio.profissionalId === profFiltro,
+      ),
+    [bloqueiosQ.data, profFiltro],
   );
 
   useEffect(() => {
@@ -1155,7 +1171,12 @@ export function AgendaOperacional() {
     !carregandoInicial &&
     !erroInicial &&
     !colunas &&
-    (visualizacao === "timeline" ? todosItens.length === 0 : itens.length === 0);
+    (visualizacao === "timeline"
+      ? todosItens.length === 0 &&
+        bloqueiosVisiveis.length === 0 &&
+        !bloqueiosQ.isPending &&
+        !bloqueiosQ.isError
+      : itens.length === 0);
 
   return (
     <Screen title="Agenda" hideHeader wide assinaturaSoComputador>
@@ -1348,6 +1369,9 @@ export function AgendaOperacional() {
                     dia={dia}
                     fuso={fuso}
                     itens={itens.filter((item) => item.profissionalId === p.id)}
+                    bloqueios={bloqueiosQ.data ?? []}
+                    profissionalId={p.id}
+                    profissionais={[p]}
                     itensEscala={itens}
                     alinhado
                     horarios={agenda.data?.horarios ?? []}
@@ -1380,6 +1404,9 @@ export function AgendaOperacional() {
                 dia={dia}
                 fuso={fuso}
                 itens={itens}
+                bloqueios={bloqueiosQ.data ?? []}
+                profissionalId={profFiltro}
+                profissionais={profissionais}
                 itensEscala={todosItens}
                 horarios={agenda.data?.horarios ?? []}
                 selecionado={selecionado}
