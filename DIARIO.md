@@ -820,6 +820,9 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-29 UTC — Claude — Sino: efeito de aviso importante refinado
+- Dono: "refine o efeito quando chegar uma notificação importante" (captura: disco rosa fixo atrás do sino e selo grande). Tirados o disco fixo e os arquinhos de vibração; ficam o sino cheio em coral (`--sino-atencao`), um anel fino de 1,5 px que se espalha uma vez (0,9 → 1,6, 800 ms, curva do sistema), balanço mais curto do sino (−12°/9°/−5°/2°, 600 ms) e o selo surgindo com um pequeno salto (mola sem quique). Respeita "menos movimento". `SinoDeAvisos.tsx`. `tsc`, `vitest` e lint ok.
+
 ### 2026-10-29 UTC — Claude — Selo do sino refinado
 - Dono: "refine" (captura do selo "5" grande, cinza claro com contorno escuro grosso sobre o sino). Agora é o selo de contagem do Figaro (spec 1 §6.3): pílula de 16 px, 11 px SemiBold com algarismos tabulares, contorno de 1,5 px na cor do topo, encostado no canto de cima do sino (`left: 50% + 3px; top: 7px`); visto = `surfaceContainerHighest`/`onSurface` (antes cinza claro com texto escuro), novo mantém a cor de alerta. `SinoDeAvisos.tsx`. Conferido na vitrine (novo e visto). `vitest` e `build` ok.
 

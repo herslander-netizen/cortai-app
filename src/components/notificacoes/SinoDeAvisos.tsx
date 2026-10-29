@@ -316,27 +316,6 @@ export function SinoDeAvisos() {
   const forte = naoVistos > 0;
   const animar = toque > 0 && !menosMovimento;
   const cor = "var(--sino-atencao)";
-  const arco = (lado: 1 | -1, k: number) => (
-    <motion.svg
-      key={`${lado}-${k}`}
-      aria-hidden
-      width="8"
-      height="12"
-      viewBox="0 0 8 12"
-      fill="none"
-      className="pointer-events-none absolute top-1/2 -mt-1.5"
-      style={{
-        [lado < 0 ? "right" : "left"]: `calc(50% + ${11 + k * 4}px)`,
-        transform: lado < 0 ? undefined : "scaleX(-1)",
-      }}
-      initial={{ opacity: 0, x: 0 }}
-      animate={{ opacity: [0, 1, 0], x: lado * -3.5 }}
-      transition={{ delay: 0.15, duration: 0.65, ease: "easeOut" }}
-    >
-      <path d="M6 1.5C3 3.5 3 8.5 6 10.5" stroke={cor} strokeWidth="1.5" strokeLinecap="round" />
-    </motion.svg>
-  );
-
   return (
     <>
       <Button
@@ -350,45 +329,25 @@ export function SinoDeAvisos() {
         }`}
         style={forte ? { color: cor } : undefined}
       >
-        {forte ? (
-          <motion.span
-            key={`halo-${toque}`}
-            aria-hidden
-            className="pointer-events-none absolute left-1/2 top-1/2 -ml-[18px] -mt-[18px] h-9 w-9 rounded-full"
-            style={{
-              background: `color-mix(in srgb, ${cor} 20%, transparent)`,
-              boxShadow: `inset 0 0 0 1px color-mix(in srgb, ${cor} 38%, transparent)`,
-            }}
-            initial={animar ? { scale: 0.85, opacity: 0 } : false}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ duration: 0.15 }}
-          />
-        ) : null}
+        {/* Aviso importante chegando (dono, 29/10: "refine"): sem disco fixo nem arquinhos; um anel fino que se
+            espalha uma vez, o sino balança de leve e o selo surge com um pequeno salto. */}
         {animar ? (
           <motion.span
             key={`anel-${toque}`}
             aria-hidden
-            className="pointer-events-none absolute left-1/2 top-1/2 -ml-[18px] -mt-[18px] h-9 w-9 rounded-full border-2"
+            className="pointer-events-none absolute left-1/2 top-1/2 -ml-[18px] -mt-[18px] h-9 w-9 rounded-full border-[1.5px]"
             style={{ borderColor: cor }}
-            initial={{ scale: 1, opacity: 0.45 }}
-            animate={{ scale: 1.7, opacity: 0 }}
-            transition={{ duration: 0.9, ease: "easeOut" }}
+            initial={{ scale: 0.9, opacity: 0.4 }}
+            animate={{ scale: 1.6, opacity: 0 }}
+            transition={{ duration: 0.8, ease: [0.2, 0, 0, 1] }}
           />
-        ) : null}
-        {animar ? (
-          <span key={`arcos-${toque}`} aria-hidden className="pointer-events-none absolute inset-0">
-            {arco(-1, 0)}
-            {arco(-1, 1)}
-            {arco(1, 0)}
-            {arco(1, 1)}
-          </span>
         ) : null}
         <motion.span
           key={`sino-${toque}`}
           className="relative inline-flex"
           initial={false}
-          animate={animar ? { rotate: [0, -18, 14, -9, 5, 0] } : { rotate: 0 }}
-          transition={animar ? { duration: 0.7, ease: "easeInOut" } : transicaoRapida}
+          animate={animar ? { rotate: [0, -12, 9, -5, 2, 0] } : { rotate: 0 }}
+          transition={animar ? { duration: 0.6, ease: "easeInOut" } : transicaoRapida}
           style={{ transformOrigin: "top center" }}
         >
           <Bell
@@ -399,8 +358,12 @@ export function SinoDeAvisos() {
           />
         </motion.span>
         {naoLidas ? (
-          <span
+          <motion.span
+            key={`selo-${toque}`}
             aria-hidden
+            initial={animar ? { scale: 0.6, opacity: 0 } : false}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ type: "spring", stiffness: 500, damping: 26, delay: animar ? 0.12 : 0 }}
             // Selo de contagem do Figaro (spec 1 §6.3): pílula pequena de 11 sp, encostada no canto de cima do sino,
             // com um contorno fino na cor do fundo (dono, 29/10: "refine").
             className={`pointer-events-none absolute left-[calc(50%+3px)] top-[7px] flex h-4 min-w-4 items-center justify-center rounded-full px-[3px] text-[11px] font-semibold leading-none tabular-nums ring-[1.5px] ring-[var(--agenda-topo,var(--background))] ${
@@ -408,14 +371,12 @@ export function SinoDeAvisos() {
                 ? ""
                 : "bg-[var(--figaro-surface-container-highest,var(--ink3))] text-[var(--figaro-on-surface,var(--paper))]"
             }`}
-            style={
-              forte
-                ? { background: "var(--sino-badge)", color: "var(--sino-badge-texto)" }
-                : undefined
-            }
+            {...(forte
+              ? { style: { background: "var(--sino-badge)", color: "var(--sino-badge-texto)" } }
+              : {})}
           >
             {naoLidas > 9 ? "9+" : naoLidas}
-          </span>
+          </motion.span>
         ) : null}
       </Button>
 
