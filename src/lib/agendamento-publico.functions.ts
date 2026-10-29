@@ -11,7 +11,12 @@ import { z } from "zod";
 
 import { getRequest } from "@tanstack/react-start/server";
 
-import { normalizarFuso as normalizarFusoExtra, type HorarioDeFuncionamento } from "@/lib/horarios";
+import {
+  hojeNoFuso,
+  normalizarFuso as normalizarFusoExtra,
+  somarDias,
+  type HorarioDeFuncionamento,
+} from "@/lib/horarios";
 import { normalizarTelefone, variantesDoTelefone } from "@/lib/telefone";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
@@ -160,7 +165,7 @@ export async function hashDoTokenDePreferencias(token: string) {
 export const getAgendaPublica = createServerFn({ method: "GET" })
   .validator((input: unknown) => z.object({ slug: slugSchema }).parse(input))
   .handler(async ({ data }): Promise<AgendaPublica> => {
-    const { STATUS_QUE_OCUPAM, mapearHorarios, janelaValida, passoValido } =
+    const { STATUS_QUE_OCUPAM, mapearHorarios, janelaValida, passoValido, incluirExcecoesDeIntervalo } =
       await import("@/lib/agenda-regras.server");
     const db = await admin();
     const tenant = await barbeariaPorSlug(db, data.slug);
@@ -201,6 +206,16 @@ export const getAgendaPublica = createServerFn({ method: "GET" })
         .eq("tenant_id", tenant.id)
         .maybeSingle(),
     ]);
+
+    const fuso = normalizarFusoExtra(tenant.fuso);
+    const hojeLocal = hojeNoFuso(fuso);
+    const horarios = await incluirExcecoesDeIntervalo(
+      db,
+      tenant.id,
+      mapearHorarios(horariosRes.data ?? []),
+      somarDias(hojeLocal, -1),
+      somarDias(hojeLocal, janelaDias + 1),
+    );
 
     const assinar = async (path: string | null | undefined) => {
       if (!path) return null;
@@ -251,7 +266,7 @@ export const getAgendaPublica = createServerFn({ method: "GET" })
         passoMin: passoValido(tenant.passo_horarios_min),
       },
       profissionais,
-      horarios: mapearHorarios(horariosRes.data ?? []),
+      horarios,
       ocupados: [
         ...(ocupadosRes.data ?? []),
         ...(await (
