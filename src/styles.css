@@ -460,45 +460,9 @@
   color-scheme: light;
 }
 
-:root[data-identidade="indigo"] {
-  --identity-accent: #999dbd;
-  --identity-accent-light: #5e638c;
-  --identity-secondary: #999dbd;
-  --identity-secondary-light: #5e638c;
-  --identity-primary: #666b9b;
-  --identity-secondary-strong: #666b9b;
-  --identity-deep: #292d4a;
-}
 
-:root[data-identidade="rose"] {
-  --identity-accent: #f05f96;
-  --identity-accent-light: #c41f61;
-  --identity-primary: #d71c65;
-  --identity-secondary: #88ade0;
-  --identity-secondary-light: #1653a1;
-  --identity-secondary-strong: #1653a1;
-  --identity-deep: #2a1720;
-}
 
-:root[data-identidade="copper"] {
-  --identity-accent: #c69a7e;
-  --identity-accent-light: #855a42;
-  --identity-secondary: #c69a7e;
-  --identity-secondary-light: #855a42;
-  --identity-primary: #855a42;
-  --identity-secondary-strong: #855a42;
-  --identity-deep: #43281d;
-}
 
-:root[data-identidade="classico"] {
-  --identity-accent: #b8a178;
-  --identity-accent-light: #75613e;
-  --identity-secondary: #b8a178;
-  --identity-secondary-light: #75613e;
-  --identity-primary: #75613e;
-  --identity-secondary-strong: #75613e;
-  --identity-deep: #332b1f;
-}
 
 /* Sino de avisos: rosa do Cortaí fixo, independente da identidade visual. */
 :root {
@@ -1021,48 +985,6 @@
 }
 .admin-shell [class*="backdrop-blur"] {
   backdrop-filter: none;
-}
-
-.identity-choice[aria-pressed="true"] {
-  border-color: var(--gold);
-  background: var(--gold-soft);
-}
-.identity-swatch {
-  position: relative;
-  width: 16px;
-  height: 16px;
-  flex-shrink: 0;
-  overflow: hidden;
-  border: 1px solid var(--line2);
-  border-radius: 50%;
-  background: var(--choice-accent);
-}
-[data-identity-choice="moderno"] .identity-swatch {
-  background: #00b7f4;
-}
-[data-identity-choice="moderno"] .identity-swatch::after {
-  position: absolute;
-  inset: 0 0 0 50%;
-  background: #ff1670;
-  content: "";
-}
-[data-identity-choice="rose"] .identity-swatch {
-  background: #c41f61;
-}
-[data-identity-choice="rose"] .identity-swatch::after {
-  position: absolute;
-  inset: 0 0 0 50%;
-  background: #1653a1;
-  content: "";
-}
-[data-identity-choice="indigo"] {
-  --choice-accent: #5e638c;
-}
-[data-identity-choice="copper"] {
-  --choice-accent: #855a42;
-}
-[data-identity-choice="classico"] {
-  --choice-accent: #75613e;
 }
 
 /* A marca troca sozinha: clara em fundo escuro, escura em fundo claro.
