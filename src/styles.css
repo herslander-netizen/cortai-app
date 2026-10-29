@@ -90,8 +90,8 @@
   --radius-lg: 14px;
   --radius-xl: 14px;
 
-  --font-sans: "Manrope", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Manrope", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Poppins", "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
 
   /* Brand tokens */
   --color-ink: var(--ink);
@@ -10818,7 +10818,7 @@ button.agenda-timeline-pausa:focus-visible {
    Não altera regras de negócio; tokens originais permanecem no histórico Git.
    ========================================================================== */
 :root[data-identidade="moderno"],
-:root:not([data-identidade]) {
+:root:not([data-identidade]):not(.light) {
   /* Tipografia do mapeamento Figaroo (com fallbacks locais, sem dependência externa). */
   --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Poppins", "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
@@ -10875,7 +10875,8 @@ button.agenda-timeline-pausa:focus-visible {
 
 /* Paleta equivalente no tema claro, preservando contraste e semântica. */
 .light,
-:root[data-identidade="moderno"].light {
+:root[data-identidade="moderno"].light,
+:root:not([data-identidade]).light {
   --identity-primary: #00509d;
   --identity-accent: #d3145d;
   --identity-accent-light: #d3145d;
