@@ -1318,6 +1318,24 @@ export function AgendaOperacional() {
           </div>
         ) : null}
 
+        {visualizacao === "timeline" && bloqueiosQ.isError ? (
+          <div
+            className="mb-2 flex items-center justify-between gap-2 rounded-lg border border-line bg-ink2 px-3 py-2 text-xs text-mute"
+            role="status"
+            aria-live="polite"
+          >
+            <span>Não foi possível carregar os bloqueios deste dia.</span>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="min-h-12 shrink-0"
+              onClick={() => void bloqueiosQ.refetch()}
+            >
+              Tentar novamente
+            </Button>
+          </div>
+        ) : null}
         <div id="agenda-painel-visualizacao" aria-label={`Visualização ${visualizacao}`}>
           {carregandoInicial ? (
             <AgendaCarregando formato={visualizacao === "lista" ? "lista" : "timeline"} />
