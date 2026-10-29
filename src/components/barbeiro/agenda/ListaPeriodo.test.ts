@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
 import type { AgendaItem } from "@/lib/barbeiro.functions";
@@ -80,9 +81,32 @@ describe("modo lista no celular", () => {
     expect(lista).toContain("Toque no cartão para ver opções, remarcar ou cancelar");
   });
 
-  it("o marcador Hoje mantém contraste independente do tema", () => {
-    expect(lista.replace(/\s+/g, " ")).toContain(
-      'data-hoje className="rounded-full bg-paper px-2 py-0.5 text-xs font-semibold text-ink"',
+  it("o marcador Hoje é o selo azul do Figaro (par actionBlue/onActionBlue, contraste nos dois temas)", () => {
+    expect(lista).toContain("<span data-hoje>Hoje</span>");
+    const css = readFileSync("src/styles.css", "utf8");
+    expect(css).toMatch(
+      /\.agenda-lista-dia-titulo \[data-hoje\] \{[^}]*background: var\(--figaro-action-blue[^}]*color: var\(--figaro-on-action-blue/,
     );
+  });
+
+  it("dias vazios entre hoje e o último dia aparecem como Livre / Nada marcado (Figaro)", () => {
+    expect(lista).toContain('"Livre"');
+    expect(lista).toContain("Nada marcado");
+    expect(lista).toContain("diasDaLista(");
+  });
+});
+
+describe("dias da lista (Figaro: todos os dias de hoje até o último com atendimento)", () => {
+  it("preenche os dias vazios do meio e não inventa dias depois do último", async () => {
+    const { diasDaLista } = await import("./ListaPeriodo");
+    const a = item("a", "2026-10-30T13:00:00.000Z");
+    const dias = diasDaLista([{ dia: "2026-10-31", itens: [a] }], "2026-10-29", false);
+    expect(dias.map((d) => [d.dia, d.itens.length])).toEqual([
+      ["2026-10-29", 0],
+      ["2026-10-30", 0],
+      ["2026-10-31", 1],
+    ]);
+    // Com busca, só os dias que têm resultado.
+    expect(diasDaLista([{ dia: "2026-10-31", itens: [a] }], "2026-10-29", true)).toHaveLength(1);
   });
 });

@@ -820,6 +820,10 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-29 UTC — Claude — Agenda (Lista) como a do Figaro
+- Captura da Lista do Figaro enviada pelo dono ("trazer para o Cortaí"; pedido específico da Agenda). `ListaPeriodo.tsx`: cabeçalho "28 out." (20/24) com o dia da semana ao lado, selo "Hoje" azul (`actionBlue`/`onActionBlue`) e data de hoje em azul; resumo à direita na mesma linha ("N atendimentos · R$ 50", sem ",00"); **dias vazios** de hoje até o último dia com atendimento aparecem com "Livre" e o cartão "Nada marcado" (`diasDaLista`; com busca, só os dias com resultado). Cartão em `cardTile`, raio 8, barra de 4 dp na cor da categoria; **serviço em destaque**, cliente embaixo e "categoria • profissional • valor • Atrasado" com bolinhas de 3 dp; glifo de estado 17 dp.
+- CSS no fim de `styles.css` (bloco "Lista da Agenda como no Figaro"); teste do selo Hoje atualizado e testes novos dos dias vazios (`ListaPeriodo.test.ts`). Conferido na vitrine (390 px). `tsc` ok, `vitest` ok, `build` ok.
+
 ### 2026-10-29 UTC — Claude — Agenda: "Agora" e "+" não sobem com o teclado
 - Captura do dono (busca na Lista com teclado aberto): com `interactive-widget=resizes-content` a tela encolhe e o pé fixo subia com o teclado. Novo `useTecladoAberto` (`src/hooks`, usado por `BotaoAgoraPrincipal`) marca `html[data-teclado-aberto]` quando há campo em foco e a altura útil cai mais de 150 px da maior já vista; o CSS esconde `.agenda-botao-agora-principal` e `.agenda-acao-fixa` enquanto isso. O viewport do app não mudou (formulários seguem iguais). Teste `useTecladoAberto.test.ts`.
 

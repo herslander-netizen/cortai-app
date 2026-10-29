@@ -11139,3 +11139,106 @@ html[data-teclado-aberto] .agenda-acao-fixa {
   visibility: hidden;
   pointer-events: none;
 }
+
+/* Lista da Agenda como no Figaro (captura do dono, 29/10; apk/2 §3 `AgendaListDayHeader` e `AgendaListRow`):
+   "28 out." 20/24 com o dia da semana ao lado e o resumo à direita na mesma linha; hoje em azul de ação com o
+   selo "Hoje"; dias vazios com "Livre" e "Nada marcado"; cartão em `cardTile` com raio 8, barra de 4 dp na cor
+   da categoria, serviço em destaque, cliente e detalhes separados por bolinhas de 3 dp. */
+.agenda-lista-dia-titulo.agenda-lista-dia-titulo {
+  flex-wrap: nowrap;
+  align-items: baseline;
+  padding: 14px 0 10px;
+  background: var(--background);
+}
+.agenda-lista-dia-titulo.agenda-lista-dia-titulo h3 {
+  min-width: 0;
+  flex-wrap: nowrap;
+  align-items: baseline;
+  gap: 10px;
+}
+.agenda-lista-dia-titulo.agenda-lista-dia-titulo strong {
+  font-size: 20px;
+  line-height: 24px;
+  letter-spacing: -0.3px;
+}
+.agenda-lista-dia-titulo[data-hoje-dia] strong {
+  color: var(--figaro-action-blue, var(--primary));
+}
+.agenda-lista-dia-titulo.agenda-lista-dia-titulo h3 span:not([data-hoje]) {
+  font-size: 13.5px;
+  line-height: 17px;
+}
+.agenda-lista-dia-titulo [data-hoje] {
+  align-self: center;
+  border-radius: 999px;
+  background: var(--figaro-action-blue, var(--primary));
+  padding: 1px 8px;
+  color: var(--figaro-on-action-blue, var(--primary-foreground));
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 16px;
+}
+.agenda-lista-dia-titulo.agenda-lista-dia-titulo .agenda-lista-dia-resumo {
+  flex: 0 1 auto;
+  margin-left: auto;
+  font-size: 12.5px;
+  white-space: nowrap;
+}
+.agenda-lista-linha + .agenda-lista-linha {
+  margin-top: 10px;
+}
+.agenda-lista-cartao.agenda-lista-cartao {
+  border-radius: 8px;
+  background: var(--figaro-card-tile, var(--agenda-cartao));
+  padding: 11px 10px 11px 20px;
+}
+.agenda-lista-cartao.agenda-lista-cartao::before {
+  top: 10px;
+  bottom: 10px;
+  left: 6px;
+  width: 4px;
+}
+.agenda-lista-cartao-topo.agenda-lista-cartao-topo strong {
+  font-size: 16px;
+  line-height: 20px;
+}
+.agenda-lista-cartao-topo svg {
+  width: 17px;
+  height: 17px;
+}
+.agenda-lista-cartao .agenda-lista-servico {
+  font-size: 14px;
+  line-height: 18px;
+}
+.agenda-lista-cartao .agenda-lista-detalhe {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 2px;
+  font-size: 13px;
+  line-height: 16px;
+}
+.agenda-lista-ponto {
+  width: 3px;
+  height: 3px;
+  flex: none;
+  border-radius: 999px;
+  background: currentColor;
+  opacity: 0.6;
+}
+.agenda-lista-vazio {
+  display: flex;
+  min-height: 48px;
+  align-items: center;
+  gap: 12px;
+  border-radius: 8px;
+  background: var(--figaro-card-tile, var(--agenda-cartao));
+  padding: 0 16px;
+  color: var(--mute);
+  font-size: 14px;
+}
+.agenda-lista-vazio svg {
+  width: 18px;
+  height: 18px;
+  flex: none;
+}

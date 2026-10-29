@@ -1,6 +1,7 @@
 import { useBuscaDaLista } from "./busca-da-lista";
 import { infiniteQueryOptions, useInfiniteQuery } from "@tanstack/react-query";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { CalendarX } from "lucide-react";
+import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { useAgora } from "@/hooks/useAgora";
@@ -34,7 +35,13 @@ export function tituloDoDia(dia: string) {
   const semana = new Intl.DateTimeFormat("pt-BR", { weekday: "long", timeZone: "UTC" }).format(
     data,
   );
-  return { curto: `${numero} de ${mes}`, semana: semana.charAt(0).toUpperCase() + semana.slice(1) };
+  // Figaro (`AgendaListDayHeader`): "d MMM" — "28 out.".
+  const mesCurto = mes.slice(0, 3);
+  return {
+    curto: `${numero} de ${mes}`,
+    abreviado: `${numero} ${mesCurto}.`,
+    semana: semana.charAt(0).toUpperCase() + semana.slice(1),
+  };
 }
 
 /** Busca por cliente, telefone (só os números), serviço ou profissional. */
@@ -47,6 +54,33 @@ export function correspondeABusca(item: AgendaItem, busca: string) {
   return [item.cliente, item.servico, item.profissional].some((campo) =>
     semAcento(campo).includes(termo),
   );
+}
+
+/** Valor curto como no Figaro ("R$ 50", e só mostra centavos quando há). */
+function valorCurto(centavos: number) {
+  return centavos % 100 === 0 ? brl(centavos).replace(/,00$/, "") : brl(centavos);
+}
+
+/**
+ * Como no Figaro (`populatedAgendaDays`): de hoje até o último dia com atendimento, passando por todos os dias do
+ * meio, inclusive os vazios ("Livre" + "Nada marcado"). Com busca, só os dias que têm resultado.
+ */
+export function diasDaLista(
+  grupos: { dia: string; itens: AgendaItem[] }[],
+  hoje: string,
+  comBusca: boolean,
+) {
+  if (comBusca || grupos.length === 0) return grupos;
+  const porDia = new Map(grupos.map((g) => [g.dia, g.itens]));
+  const ultimo = grupos[grupos.length - 1]!.dia;
+  const dias: { dia: string; itens: AgendaItem[] }[] = [];
+  for (let n = 0; n <= Math.min(diasEntre(hoje, ultimo), DIAS_NO_MAXIMO); n += 1) {
+    const dia = new Date(Date.parse(`${hoje}T12:00:00Z`) + n * 86_400_000)
+      .toISOString()
+      .slice(0, 10);
+    dias.push({ dia, itens: porDia.get(dia) ?? [] });
+  }
+  return [...grupos.filter((g) => g.dia < hoje), ...dias];
 }
 
 /** Agrupa por dia (no fuso do negócio), já em ordem de horário. */
@@ -115,7 +149,11 @@ export function ListaPeriodo({
   const visiveis = todos.filter(
     (item) => (comCancelados || !FORA_DA_LISTA.has(item.status)) && correspondeABusca(item, busca),
   );
-  const grupos = agruparPorDia(visiveis, periodo.data?.pages[0]?.fuso ?? fuso);
+  const grupos = diasDaLista(
+    agruparPorDia(visiveis, periodo.data?.pages[0]?.fuso ?? fuso),
+    hoje,
+    Boolean(busca.trim()),
+  );
 
   // Carrega o próximo bloco de dias quando o fim da lista aparece **por rolagem**. O observador lê o estado por
   // referência (recriá-lo a cada carregamento puxava bloco após bloco). Se a lista cabe na tela não há o que
@@ -174,28 +212,27 @@ export function ListaPeriodo({
               className="agenda-lista-dia"
               aria-label={`${titulo.curto} ${titulo.semana}`}
             >
-              <header className="agenda-lista-dia-titulo">
+              <header className="agenda-lista-dia-titulo" data-hoje-dia={ehHoje || undefined}>
                 <h3>
-                  <strong>{titulo.curto}</strong>
-                  {ehHoje ? (
-                    <>
-                      <span
-                        data-hoje
-                        className="rounded-full bg-paper px-2 py-0.5 text-xs font-semibold text-ink"
-                      >
-                        Hoje
-                      </span>
-                      <span>{titulo.semana}</span>
-                    </>
-                  ) : (
-                    <span>{titulo.semana}</span>
-                  )}
+                  <strong>{titulo.abreviado}</strong>
+                  <span>{titulo.semana}</span>
+                  {ehHoje ? <span data-hoje>Hoje</span> : null}
                 </h3>
                 <span className="agenda-lista-dia-resumo">
-                  {contam.length} {contam.length === 1 ? "atendimento" : "atendimentos"}
-                  {` · ${brl(total)}`}
+                  {contam.length
+                    ? `${contam.length} ${contam.length === 1 ? "atendimento" : "atendimentos"} · ${valorCurto(total)}`
+                    : "Livre"}
                 </span>
               </header>
+              {itens.length === 0 ? (
+                <div className="agenda-lista-linha">
+                  <span aria-hidden />
+                  <p className="agenda-lista-vazio">
+                    <CalendarX aria-hidden />
+                    Nada marcado
+                  </p>
+                </div>
+              ) : null}
               <ul>
                 {itens.map((item, i) => {
                   const nome = nomeDaAgenda(item.cliente, discreto);
@@ -227,21 +264,29 @@ export function ListaPeriodo({
                           }}
                           onClick={() => onAbrir(item)}
                         >
+                          {/* Figaro (`AgendaListRow`): serviço em destaque, cliente embaixo e a linha de
+                              detalhes (categoria, profissional, valor) separada por bolinhas. */}
                           <span className="agenda-lista-cartao-topo">
                             <strong className={item.status === "cancelado" ? "line-through" : ""}>
-                              {nome}
+                              {item.servico}
                             </strong>
                             <IconeDoEstado glifo={glifoDoEstado(item, atrasado)} />
                           </span>
-                          <span className="agenda-lista-servico">{item.servico}</span>
+                          <span className="agenda-lista-servico">{nome}</span>
                           <span className="agenda-lista-detalhe">
                             {[
+                              item.categoria?.trim() || null,
                               mostrarProfissional ? item.profissional : null,
                               item.valor_centavos ? brl(item.valor_centavos) : null,
                               atrasado ? "Atrasado" : null,
                             ]
-                              .filter(Boolean)
-                              .join(" · ")}
+                              .filter((parte): parte is string => Boolean(parte))
+                              .map((parte, k) => (
+                                <Fragment key={k}>
+                                  {k > 0 ? <i aria-hidden className="agenda-lista-ponto" /> : null}
+                                  {parte}
+                                </Fragment>
+                              ))}
                           </span>
                           {ehHoje && item.status === "na_cadeira" ? (
                             <ProgressoDoAtendimento item={item} agora={agora} />
