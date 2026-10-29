@@ -42,6 +42,7 @@ function areaLivre() {
 }
 
 type HorarioFuncionamento = {
+  data?: string;
   diaSemana: number;
   fechado: boolean;
   abre: string;
@@ -70,6 +71,7 @@ type AgendaTimelineProps = {
   /** Cartão em edição: mostra o intervalo novo ou o motivo de não poder salvar. */
   edicaoDoCartao?: { id: string } | undefined;
   onHorarioVazio?: (horaMin: string) => void;
+  onEditarIntervalo?: (intervalo: { inicio: string; fim: string }) => void;
   destaques?: Set<string>;
   itensEscala?: AgendaItem[];
   bloqueios?: Bloqueio[];
@@ -135,6 +137,7 @@ export function AgendaTimeline({
   passoMin,
   edicaoDoCartao,
   onHorarioVazio,
+  onEditarIntervalo,
   destaques,
   itensEscala,
   bloqueios = [],
@@ -784,10 +787,36 @@ export function AgendaTimeline({
               style={{
                 top: `${(intervalo[0] - escala.inicio) * PX_POR_MINUTO + deslocamentoAte(intervalo[0])}px`,
                 height: `${(intervalo[1] - intervalo[0]) * PX_POR_MINUTO}px`,
+                pointerEvents: onEditarIntervalo && !previa ? "auto" : "none",
+                cursor: onEditarIntervalo && !previa ? "pointer" : "default",
               }}
-              aria-hidden
+              role={onEditarIntervalo && !previa ? "button" : undefined}
+              tabIndex={onEditarIntervalo && !previa ? 0 : undefined}
+              aria-hidden={onEditarIntervalo && !previa ? undefined : true}
+              aria-label={
+                onEditarIntervalo && !previa
+                  ? `Ajustar intervalo, ${horaMinuto(((intervalo[0] % 1440) + 1440) % 1440)} às ${horaMinuto(((intervalo[1] % 1440) + 1440) % 1440)}`
+                  : undefined
+              }
+              title={onEditarIntervalo && !previa ? "Toque para ajustar o intervalo deste dia" : undefined}
+              onClick={onEditarIntervalo && !previa ? (event) => {
+                event.stopPropagation();
+                onEditarIntervalo({
+                  inicio: horaMinuto(((intervalo[0] % 1440) + 1440) % 1440),
+                  fim: horaMinuto(((intervalo[1] % 1440) + 1440) % 1440),
+                });
+              } : undefined}
+              onKeyDown={onEditarIntervalo && !previa ? (event) => {
+                if (event.key !== "Enter" && event.key !== " ") return;
+                event.preventDefault();
+                event.stopPropagation();
+                onEditarIntervalo({
+                  inicio: horaMinuto(((intervalo[0] % 1440) + 1440) % 1440),
+                  fim: horaMinuto(((intervalo[1] % 1440) + 1440) % 1440),
+                });
+              } : undefined}
             >
-              <span>Intervalo</span>
+              <span>{onEditarIntervalo && !previa ? "Intervalo · tocar para ajustar" : "Intervalo"}</span>
             </div>
           ) : null}
           {faixasBloqueio.map((faixa) => (
