@@ -103,7 +103,9 @@ function DiaDoCalendario({
       </span>
       <span
         aria-hidden
-        className={`${compacto ? "size-1" : "size-[5px]"} rounded-full ${compacto ? "absolute bottom-1" : "absolute bottom-0"} ${comAtendimento ? "bg-rosa" : "bg-transparent"}`}
+        // Captura do Figaro (29/10): ponto na cor terciária do tema, 26 px abaixo do centro do dia na semana e
+        // 12 px no mês.
+        className={`${compacto ? "size-1" : "size-[5px]"} rounded-full ${compacto ? "absolute bottom-[6px]" : "absolute -bottom-[4.5px]"} ${comAtendimento ? "bg-[var(--figaro-tertiary,var(--rosa))]" : "bg-transparent"}`}
       />
     </Button>
   );

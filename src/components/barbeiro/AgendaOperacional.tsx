@@ -408,7 +408,7 @@ export function AgendaOperacional() {
     setNovoCliente(false);
     setHoraVazia(undefined);
     setProfVazio(null);
-    setCalAberto(false);
+    // Como no Figaro, escolher um dia no mês leva até ele e o calendário continua aberto (dono, 29/10).
     setDia(proximo);
   }
 

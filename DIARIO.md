@@ -818,6 +818,11 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-29 UTC — Claude — Agenda: pontinho do dia como no Figaro e calendário continua aberto ao escolher um dia
+- Captura do Figaro (semana, tema escuro): o ponto de "tem atendimento" é a cor terciária do tema (amostrado #fea6be no escuro = `--figaro-tertiary` #ffa6bf; no claro #b51054 = #b61055) e fica 26 px abaixo do centro do dia (Cortaí: rosa da marca, 21,5 px). Agora `bg-[var(--figaro-tertiary,var(--rosa))]`, `-bottom-[4.5px]` na semana e `bottom-[6px]` no mês (12 px, como na captura do mês). `SemanaDoTopo.tsx`.
+- Pedido do dono: escolher uma data no mês aberto levava até ela e fechava o calendário; no Figaro ele continua aberto. `mudarDia` (`AgendaOperacional.tsx`) não fecha mais o calendário; trocar de profissional continua fechando.
+- Teste novo `agenda/calendario-ponto-e-dia.test.ts`. `tsc` ok, `vitest` 259/2193, `build` ok.
+
 ### 2026-10-29 UTC — Claude — Agenda (celular): topo, mês e coluna de horas com as medidas da captura do Figaro
 - Dono: captura do Figaro (mês aberto) × Cortaí, "deixe idêntico, fontes, tamanhos, ícones". Medido nas duas capturas (1080 px, 3×):
   - Barra: 56 → **64 dp** (`h-16`, `topAppBarHeight`), logo 44 → **40** a 8 px da borda (`px-1`), sino e calendário com **20 dp desenhados** (o Button forçava 16 px; calendário `!size-7`, sino 26 px via `.sino-de-avisos` só na tela da Agenda) e o calendário aberto **sem crescer nem girar** (cheio e azul).
