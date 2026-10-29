@@ -820,6 +820,9 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-29 UTC — Claude — Selo do sino refinado
+- Dono: "refine" (captura do selo "5" grande, cinza claro com contorno escuro grosso sobre o sino). Agora é o selo de contagem do Figaro (spec 1 §6.3): pílula de 16 px, 11 px SemiBold com algarismos tabulares, contorno de 1,5 px na cor do topo, encostado no canto de cima do sino (`left: 50% + 3px; top: 7px`); visto = `surfaceContainerHighest`/`onSurface` (antes cinza claro com texto escuro), novo mantém a cor de alerta. `SinoDeAvisos.tsx`. Conferido na vitrine (novo e visto). `vitest` e `build` ok.
+
 ### 2026-10-29 UTC — Claude — Telas internas: fundo numa cor só e cabeçalho grande/compacto como o Figaro
 - Vídeo do dono (tela Equipe do Figaro, "comportamento e cor uniforme do fundo"): topo e conteúdo na mesma cor (#1A1F1B), título grande que some ao rolar e título pequeno ao lado do voltar, que não muda de lugar.
 - **Fundo/texto da identidade padrão** (`styles.css`, bloco EXPERIMENTO FIGAROO): escuro `--fundo` #121513 → **#1B1F1C** e `--texto` #F0F7F2 → **#DEE8E1**; claro #F8FAF8 → **#EAF2EC** e #1B1F1C → **#2A2F2C** (tokens `background`/`onSurface` do APK). Antes o cabeçalho (#1B1F1C) e a página (#121513) tinham cores diferentes.

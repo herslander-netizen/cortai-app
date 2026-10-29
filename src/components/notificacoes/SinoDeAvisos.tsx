@@ -401,8 +401,12 @@ export function SinoDeAvisos() {
         {naoLidas ? (
           <span
             aria-hidden
-            className={`pointer-events-none absolute right-0.5 top-0.5 flex min-w-5 items-center justify-center rounded-full px-1 font-bold leading-none ring-2 ring-background ${
-              forte ? "h-5 text-[12px]" : "h-4 min-w-4 bg-mute text-[10px] text-background"
+            // Selo de contagem do Figaro (spec 1 §6.3): pílula pequena de 11 sp, encostada no canto de cima do sino,
+            // com um contorno fino na cor do fundo (dono, 29/10: "refine").
+            className={`pointer-events-none absolute left-[calc(50%+3px)] top-[7px] flex h-4 min-w-4 items-center justify-center rounded-full px-[3px] text-[11px] font-semibold leading-none tabular-nums ring-[1.5px] ring-[var(--agenda-topo,var(--background))] ${
+              forte
+                ? ""
+                : "bg-[var(--figaro-surface-container-highest,var(--ink3))] text-[var(--figaro-on-surface,var(--paper))]"
             }`}
             style={
               forte
