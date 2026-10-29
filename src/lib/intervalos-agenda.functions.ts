@@ -17,11 +17,6 @@ function validarData(dia: string) {
   }
 }
 
-function minutos(hora: string) {
-  const [h = 0, m = 0] = hora.split(":").map(Number);
-  return h * 60 + m;
-}
-
 function hhmm(valor: string | null | undefined) {
   return valor ? String(valor).slice(0, 5) : null;
 }
