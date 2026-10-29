@@ -83,19 +83,26 @@ export function IntervaloRapidoSheet({
   async function persistir(acao: "salvar" | "restaurar") {
     setSalvando(true);
     setErro(null);
+    const acaoEfetiva =
+      acao === "salvar" &&
+      temHorarioSemanal &&
+      horaInicio === inicioPadrao &&
+      horaFim === fimPadrao
+        ? "restaurar"
+        : acao;
     try {
       await salvar({
         data: {
           dia,
-          acao,
-          intervaloInicio: acao === "restaurar" ? null : horaInicio,
-          intervaloFim: acao === "restaurar" ? null : horaFim,
+          acao: acaoEfetiva,
+          intervaloInicio: acaoEfetiva === "restaurar" ? null : horaInicio,
+          intervaloFim: acaoEfetiva === "restaurar" ? null : horaFim,
         },
       });
       await queryClient.invalidateQueries({ queryKey: ["agenda-dia", dia] });
       await queryClient.invalidateQueries({ queryKey: ["agenda-agora-proximo"] });
       onAbertaChange(false);
-      aviso.ok(acao === "restaurar" ? "Intervalo semanal restaurado neste dia." : "Intervalo deste dia atualizado.");
+      aviso.ok(acaoEfetiva === "restaurar" ? "Intervalo semanal restaurado neste dia." : "Intervalo deste dia atualizado.");
     } catch (e) {
       setErro(e instanceof Error ? e.message : "Não foi possível salvar. Tente novamente.");
     } finally {
@@ -170,7 +177,7 @@ export function IntervaloRapidoSheet({
         </div>
 
         {erro ? (
-          <p className="mt-4 rounded-lg border border-status-error/40 bg-ink2 p-3 text-sm text-status-error" role="alert">
+          <p className="mt-4 rounded-lg border border-brick/40 bg-ink2 p-3 text-sm text-brick" role="alert">
             {erro}
           </p>
         ) : null}
