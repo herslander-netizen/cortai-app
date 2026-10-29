@@ -161,7 +161,7 @@ export function validarIntervaloNoDia(
 ): string | null {
   if (inicio === null && fim === null) return null;
   if (!inicio || !fim) return "Informe o início e o fim do intervalo.";
-  if (!/^([01]\\d|2[0-3]):[0-5]\\d$/.test(inicio) || !/^([01]\\d|2[0-3]):[0-5]\\d$/.test(fim)) {
+  if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(inicio) || !/^([01]\d|2[0-3]):[0-5]\d$/.test(fim)) {
     return "Informe horários válidos para o intervalo.";
   }
   const info = horarioDoDia(dia, horarios);
