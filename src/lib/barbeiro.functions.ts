@@ -4,12 +4,17 @@ import { inicioDoDiaNoFuso, inicioDoMesNoFuso } from "@/lib/horarios";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { tenantIdDoMembro, exigirPermissao, type ContextoAutenticado } from "@/lib/tenant";
 import { exigirRecurso } from "@/lib/planos";
-import { hojeNoFuso, isoNoFusoDaBarbearia, slotsDoDia } from "@/lib/horarios";
+import { hojeNoFuso, isoNoFusoDaBarbearia, slotsDoDia, somarDias } from "@/lib/horarios";
 import { motivoForaDoHorario } from "@/lib/disponibilidade";
 import { fusoDoTenant } from "@/lib/fuso.server";
 import { DURACAO_MAX_MINUTOS, DURACAO_MIN_MINUTOS, TEXTO_DO_MOTIVO } from "@/lib/remarcacao-regras";
 import { segmentoValido, type Segmento } from "@/lib/segmentos";
-import { mapearHorarios, passoValido, validarAgendamento } from "@/lib/agenda-regras.server";
+import {
+  incluirExcecoesDeIntervalo,
+  mapearHorarios,
+  passoValido,
+  validarAgendamento,
+} from "@/lib/agenda-regras.server";
 import type { PreferenciasCliente } from "@/lib/preferencias-cliente";
 
 async function admin() {
@@ -211,14 +216,14 @@ export const getAgendaDia = createServerFn({ method: "GET" })
     });
 
     const iso = diaAlvo;
-    const horarios = (horariosRes.data ?? []).map((h) => ({
-      diaSemana: h.dia_semana as number,
-      fechado: Boolean(h.fechado),
-      abre: String(h.abre).slice(0, 5),
-      fecha: String(h.fecha).slice(0, 5),
-      intervaloInicio: h.intervalo_inicio ? String(h.intervalo_inicio).slice(0, 5) : null,
-      intervaloFim: h.intervalo_fim ? String(h.intervalo_fim).slice(0, 5) : null,
-    }));
+    const horariosBase = mapearHorarios(horariosRes.data ?? []);
+    const horarios = await incluirExcecoesDeIntervalo(
+      db,
+      tenant.id,
+      horariosBase,
+      somarDias(diaAlvo, -1),
+      diaAlvo,
+    );
     const passo = Number(tenantRes.data?.passo_horarios_min);
     const passoMin = [15, 20, 30, 40, 50].includes(passo) ? passo : 30;
     const profissionais = (profsRes.data ?? []).map((p) => ({
