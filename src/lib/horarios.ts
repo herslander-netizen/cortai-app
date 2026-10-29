@@ -30,6 +30,8 @@ export function normalizarFuso(valor: string | null | undefined): string {
 }
 
 export type HorarioDeFuncionamento = {
+  /** Data local específica, quando esta linha representa uma exceção de um único dia. */
+  data?: string;
   diaSemana: number;
   fechado: boolean;
   abre: string; // HH:MM
@@ -125,7 +127,9 @@ export function horarioDoDia(
   intervaloFim: string | null;
 } {
   const semana = diaDaSemanaDoDia(dia);
-  const achado = (horarios ?? []).find((h) => h.diaSemana === semana);
+  const lista = horarios ?? [];
+  // A exceção por data prevalece sobre a configuração semanal, inclusive quando remove o intervalo.
+  const achado = lista.find((h) => h.data === dia) ?? lista.find((h) => !h.data && h.diaSemana === semana);
   // Dia sem horário cadastrado = FECHADO. Nunca abrimos a agenda por suposição.
   if (!achado)
     return {
@@ -143,6 +147,35 @@ export function horarioDoDia(
     intervaloInicio: temIntervalo ? normalizar(achado.intervaloInicio, "") : null,
     intervaloFim: temIntervalo ? normalizar(achado.intervaloFim, "") : null,
   };
+}
+
+/**
+ * Valida um intervalo excepcional sem modificar a escala semanal.
+ * Ambos nulos significam retirar a pausa somente desta data.
+ */
+export function validarIntervaloNoDia(
+  dia: string,
+  horarios: HorarioDeFuncionamento[] | undefined | null,
+  inicio: string | null,
+  fim: string | null,
+): string | null {
+  if (inicio === null && fim === null) return null;
+  if (!inicio || !fim) return "Informe o início e o fim do intervalo.";
+  if (!/^([01]\\d|2[0-3]):[0-5]\\d$/.test(inicio) || !/^([01]\\d|2[0-3]):[0-5]\\d$/.test(fim)) {
+    return "Informe horários válidos para o intervalo.";
+  }
+  const info = horarioDoDia(dia, horarios);
+  if (info.fechado) return "Não é possível configurar intervalo em um dia fechado.";
+  const abre = minutos(info.abre);
+  const fecha = fimEmMinutos(info.abre, info.fecha);
+  const minutoInicio = minutos(inicio);
+  const minutoFim = minutos(fim);
+  const inicioRelativo = minutoInicio < abre ? minutoInicio + 1440 : minutoInicio;
+  const fimRelativo = minutoFim < abre ? minutoFim + 1440 : minutoFim;
+  if (inicioRelativo <= abre) return "O intervalo precisa começar depois da abertura.";
+  if (fimRelativo <= inicioRelativo) return "O fim precisa ser posterior ao início do intervalo.";
+  if (fimRelativo >= fecha) return "O intervalo precisa terminar antes do fechamento.";
+  return null;
 }
 
 /** Slots reais do dia, a partir do horário cadastrado da barbearia. */
