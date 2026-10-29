@@ -34,7 +34,7 @@ export function respostaRapida(
     return { texto: `${lista}\n${TEXTOS_CONVERSA.querAgendar}`, chips: [agendar] };
   }
   if (intencao === "funcionamento") {
-    const status = statusDeFuncionamento(data.horarios, data.tenant.fuso);
+    const status = statusDeFuncionamento(data.horarios, data.tenant.fuso, undefined, data.excecoesIntervalo);
     if (!status) return { texto: TEXTOS_CONVERSA.equipe, chips: comEquipe([agendar]) };
     return { texto: `${status.texto}. ${TEXTOS_CONVERSA.querAgendar}`, chips: [agendar] };
   }

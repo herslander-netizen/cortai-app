@@ -2243,6 +2243,50 @@ export type Database = {
           },
         ]
       }
+      excecoes_intervalo_agenda: {
+        Row: {
+          atualizado_em: string
+          atualizado_por: string | null
+          criado_em: string
+          criado_por: string | null
+          dia: string
+          id: string
+          intervalo_fim: string | null
+          intervalo_inicio: string | null
+          tenant_id: string
+        }
+        Insert: {
+          atualizado_em?: string
+          atualizado_por?: string | null
+          criado_em?: string
+          criado_por?: string | null
+          dia: string
+          id?: string
+          intervalo_fim?: string | null
+          intervalo_inicio?: string | null
+          tenant_id: string
+        }
+        Update: {
+          atualizado_em?: string
+          atualizado_por?: string | null
+          criado_em?: string
+          criado_por?: string | null
+          dia?: string
+          id?: string
+          intervalo_fim?: string | null
+          intervalo_inicio?: string | null
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "excecoes_intervalo_agenda_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       eventos_asaas: {
         Row: {
           corpo: Json
@@ -5321,6 +5365,16 @@ export type Database = {
           slug_atual: string
           tenant_id: string
         }[]
+      }
+      salvar_intervalo_agenda_dia: {
+        Args: {
+          _acao: string
+          _dia: string
+          _intervalo_fim?: string | null
+          _intervalo_inicio?: string | null
+          _tenant_id: string
+        }
+        Returns: Json
       }
       salvar_comanda: {
         Args: { _comanda_id: string; _desconto_centavos?: number; _itens: Json }

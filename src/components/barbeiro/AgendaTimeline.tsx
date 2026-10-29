@@ -15,6 +15,7 @@ import { StatusBadge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useAgora } from "@/hooks/useAgora";
 import type { AgendaItem } from "@/lib/barbeiro.functions";
+import type { Bloqueio } from "@/lib/bloqueios.functions";
 import {
   alturaDoTopoDaAgenda,
   estaAtrasado,
@@ -69,8 +70,12 @@ type AgendaTimelineProps = {
   /** Cartão em edição: mostra o intervalo novo ou o motivo de não poder salvar. */
   edicaoDoCartao?: { id: string } | undefined;
   onHorarioVazio?: (horaMin: string) => void;
+  onEditarIntervalo?: () => void;
   destaques?: Set<string>;
   itensEscala?: AgendaItem[];
+  bloqueios?: Bloqueio[];
+  profissionalId?: string | null;
+  profissionais?: { id: string; nome: string }[];
   alinhado?: boolean;
   mostrarProfissional?: boolean;
   discreto?: boolean;
@@ -131,8 +136,12 @@ export function AgendaTimeline({
   passoMin,
   edicaoDoCartao,
   onHorarioVazio,
+  onEditarIntervalo,
   destaques,
   itensEscala,
+  bloqueios = [],
+  profissionalId,
+  profissionais = [],
   alinhado,
   mostrarProfissional = false,
   discreto = false,
@@ -242,8 +251,14 @@ export function AgendaTimeline({
       (item) => item.diaSemana === diaDaSemana(dia) && !item.fechado,
     );
     const base = itensEscala ?? itens;
-    const inicios = base.map((item) => minutosNoFuso(item.inicio, fuso));
-    const finais = base.map((item) => minutosNoFuso(item.fim, fuso));
+    const inicios = [
+      ...base.map((item) => minutosNoFuso(item.inicio, fuso)),
+      ...bloqueios.map((bloqueio) => minutosNoFuso(bloqueio.inicio, fuso)),
+    ];
+    const finais = [
+      ...base.map((item) => minutosNoFuso(item.fim, fuso)),
+      ...bloqueios.map((bloqueio) => minutosNoFuso(bloqueio.fim, fuso)),
+    ];
     const minutoAtual = minutosNoFuso(agora, fuso);
     const referenciasInicio = [
       funcionamento ? minutosDoHorario(funcionamento.abre) : 8 * 60,
@@ -261,7 +276,7 @@ export function AgendaTimeline({
     const inicio = Math.max(0, Math.floor(Math.min(...referenciasInicio) / 30) * 30);
     const fim = Math.min(24 * 60, Math.ceil(Math.max(...referenciasFim) / 30) * 30);
     return { inicio, fim: Math.max(inicio + 60, fim), minutoAtual };
-  }, [agora, dia, ehHoje, fuso, horarios, itens, itensEscala, diaCompleto]);
+  }, [agora, dia, ehHoje, fuso, horarios, itens, itensEscala, bloqueios, diaCompleto]);
 
   const marcas = useMemo(() => {
     const resultado: number[] = [];
@@ -597,6 +612,38 @@ export function AgendaTimeline({
   }
   const intervalo = intervaloDoDia(horarios, dia);
   const faixasFora = faixasForaDoExpediente(horarios, dia, escala);
+  const faixasBloqueio = useMemo(
+    () =>
+      bloqueios.flatMap((bloqueio) => {
+        if (
+          profissionalId &&
+          bloqueio.profissionalId &&
+          bloqueio.profissionalId !== profissionalId
+        ) {
+          return [];
+        }
+        const inicioReal = minutosNoFuso(bloqueio.inicio, fuso);
+        const fimReal = minutosNoFuso(bloqueio.fim, fuso);
+        const inicio = Math.max(inicioReal, escala.inicio);
+        const fim = Math.min(fimReal, escala.fim);
+        if (fim <= inicio) return [];
+        const nome = bloqueio.profissionalId
+          ? (profissionais.find((p) => p.id === bloqueio.profissionalId)?.nome ?? "Profissional")
+          : null;
+        return [{
+          id: bloqueio.id,
+          inicio,
+          fim,
+          motivo: bloqueio.motivo,
+          rotulo: bloqueio.profissionalId
+            ? profissionalId
+              ? "Bloqueado"
+              : `Bloqueado · ${nome}`
+            : "Equipe bloqueada",
+        }];
+      }),
+    [bloqueios, fuso, profissionalId, profissionais, escala.inicio, escala.fim],
+  );
 
   // Prévia: posição em que o dia vai assentar (hoje no agora; senão topo do expediente).
   const funcionamentoDoDia = horarios.find((h) => h.diaSemana === diaDaSemana(dia) && !h.fechado);
@@ -740,17 +787,53 @@ export function AgendaTimeline({
             </div>
           ))}
           {intervalo ? (
-            <div
-              className="agenda-timeline-intervalo"
-              style={{
-                top: `${(intervalo[0] - escala.inicio) * PX_POR_MINUTO + deslocamentoAte(intervalo[0])}px`,
-                height: `${(intervalo[1] - intervalo[0]) * PX_POR_MINUTO}px`,
-              }}
-              aria-hidden
-            >
-              <span>Intervalo</span>
-            </div>
+            onEditarIntervalo && interativo ? (
+              <Button
+                type="button"
+                variant="ghost"
+                className="agenda-timeline-intervalo agenda-timeline-intervalo-editavel h-auto min-h-0 rounded-none border-0 px-0 py-0"
+                style={{
+                  top: `${(intervalo[0] - escala.inicio) * PX_POR_MINUTO + deslocamentoAte(intervalo[0])}px`,
+                  height: `${(intervalo[1] - intervalo[0]) * PX_POR_MINUTO}px`,
+                }}
+                aria-label={`Editar intervalo de ${horaMinuto(intervalo[0])} a ${horaMinuto(intervalo[1])}`}
+                title="Toque para ajustar o intervalo deste dia"
+                onClick={onEditarIntervalo}
+              >
+                <span>Intervalo · {horaMinuto(intervalo[0])}–{horaMinuto(intervalo[1])}</span>
+              </Button>
+            ) : (
+              <div
+                className="agenda-timeline-intervalo"
+                style={{
+                  top: `${(intervalo[0] - escala.inicio) * PX_POR_MINUTO + deslocamentoAte(intervalo[0])}px`,
+                  height: `${(intervalo[1] - intervalo[0]) * PX_POR_MINUTO}px`,
+                }}
+                aria-hidden
+              >
+                <span>Intervalo · {horaMinuto(intervalo[0])}–{horaMinuto(intervalo[1])}</span>
+              </div>
+            )
           ) : null}
+          {faixasBloqueio.map((faixa) => (
+            <div
+              key={`bloqueio-${faixa.id}`}
+              className="pointer-events-none absolute inset-x-0 z-0 flex items-center border-y border-dashed border-line2 bg-ink3 px-2"
+              style={{
+                top: `${(faixa.inicio - escala.inicio) * PX_POR_MINUTO + deslocamentoAte(faixa.inicio)}px`,
+                height: `${(faixa.fim - faixa.inicio) * PX_POR_MINUTO + deslocamentoAte(faixa.fim) - deslocamentoAte(faixa.inicio)}px`,
+              }}
+              role="note"
+              aria-label={`Bloqueio de agenda: ${faixa.rotulo}, ${horaMinuto(faixa.inicio)} às ${horaMinuto(faixa.fim)}${faixa.motivo ? `. Motivo: ${faixa.motivo}` : ""}`}
+              title={faixa.motivo ? `Bloqueio: ${faixa.motivo}` : "Bloqueio de agenda"}
+            >
+              {faixa.fim - faixa.inicio >= 18 ? (
+                <span className="max-w-full truncate rounded-md bg-ink/90 px-2 py-0.5 text-xs font-semibold text-mute">
+                  {faixa.rotulo}
+                </span>
+              ) : null}
+            </div>
+          ))}
           {toqueVazio !== null ? (
             <div
               className="agenda-timeline-toque"

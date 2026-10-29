@@ -21,6 +21,42 @@ describe("statusDeFuncionamento", () => {
   it("trata intervalo como fechado temporariamente", () => {
     expect(emSaoPaulo("2026-10-05T15:30:00Z")?.texto).toBe("Fechado agora · abre hoje às 13:00");
   });
+  it("considera a mudança de intervalo só na data excepcional", () => {
+    const excecoes = [
+      {
+        dia: "2026-10-05",
+        intervaloInicio: "13:00",
+        intervaloFim: "14:00",
+      },
+    ];
+    const status = statusDeFuncionamento(
+      semana,
+      "America/Sao_Paulo",
+      new Date("2026-10-05T15:30:00Z"),
+      excecoes,
+    );
+    expect(status?.aberto).toBe(true);
+    expect(status?.texto).toBe("Aberto agora · fecha às 13:00");
+  });
+
+  it("permite remover o intervalo padrão temporariamente apenas no dia excepcional", () => {
+    const excecoes = [
+      {
+        dia: "2026-10-05",
+        intervaloInicio: null,
+        intervaloFim: null,
+      },
+    ];
+    const status = statusDeFuncionamento(
+      semana,
+      "America/Sao_Paulo",
+      new Date("2026-10-05T15:30:00Z"),
+      excecoes,
+    );
+    expect(status?.aberto).toBe(true);
+    expect(status?.texto).toBe("Aberto agora · fecha às 19:00");
+  });
+
   it("mantém aberto após meia-noite quando o expediente começou no dia anterior", () => {
     const horarios = [{ diaSemana: 5, fechado: false, abre: "20:00", fecha: "02:00" }];
     expect(

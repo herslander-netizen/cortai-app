@@ -5515,6 +5515,14 @@ button.agenda-nome:hover {
     color-mix(in oklab, var(--mute) 14%, transparent) 6px 7px
   );
 }
+.agenda-timeline-intervalo-editavel {
+  pointer-events: auto;
+  cursor: pointer;
+}
+.agenda-timeline-intervalo-editavel:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: -3px;
+}
 .agenda-timeline-intervalo span {
   position: absolute;
   top: 4px;

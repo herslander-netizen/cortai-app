@@ -2,7 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { clienteDoUsuario, fichasDoUsuario } from "@/lib/cliente";
-import type { HorarioDeFuncionamento } from "@/lib/horarios";
+import { hojeNoFuso, somarDias, type ExcecaoIntervaloAgenda, type HorarioDeFuncionamento } from "@/lib/horarios";
 
 export type Ocupado = { profissional_id: string | null; inicio: string; fim: string };
 
@@ -36,6 +36,7 @@ export type DadosAgendar = {
   }[];
   ocupados: Ocupado[];
   horarios: HorarioDeFuncionamento[];
+  excecoesIntervalo: ExcecaoIntervaloAgenda[];
 };
 
 export const getDadosAgendar = createServerFn({ method: "GET" })
@@ -93,13 +94,25 @@ export const getDadosAgendar = createServerFn({ method: "GET" })
 
     const desde = new Date(Date.now() - 24 * 60 * 60 * 1000);
     const ate = new Date(desde.getTime() + (regrasAgenda.janelaDias + 1) * 24 * 60 * 60 * 1000);
-    const { data: ocupados } = await db
-      .from("agendamentos")
-      .select("profissional_id, inicio, fim")
-      .eq("tenant_id", tenant.id)
-      .gte("inicio", desde.toISOString())
-      .lte("inicio", ate.toISOString())
-      .in("status", [...STATUS_QUE_OCUPAM]);
+    const hojeLocal = hojeNoFuso(regrasAgenda.fuso);
+    const inicioExcecoes = somarDias(hojeLocal, -1);
+    const fimExcecoes = somarDias(hojeLocal, regrasAgenda.janelaDias + 2);
+    const [ocupadosRes, excecoesRes] = await Promise.all([
+      db
+        .from("agendamentos")
+        .select("profissional_id, inicio, fim")
+        .eq("tenant_id", tenant.id)
+        .gte("inicio", desde.toISOString())
+        .lte("inicio", ate.toISOString())
+        .in("status", [...STATUS_QUE_OCUPAM]),
+      db
+        .from("excecoes_intervalo_agenda")
+        .select("dia, intervalo_inicio, intervalo_fim")
+        .eq("tenant_id", tenant.id)
+        .gte("dia", inicioExcecoes)
+        .lte("dia", fimExcecoes),
+    ]);
+    if (excecoesRes.error) throw new Error("Não foi possível carregar a disponibilidade deste negócio.");
 
     return {
       tenant,
@@ -113,7 +126,7 @@ export const getDadosAgendar = createServerFn({ method: "GET" })
       },
       regras,
       ocupados: [
-        ...(ocupados ?? []),
+        ...(ocupadosRes.data ?? []),
         ...(await (
           await import("@/lib/ocupacoes-extras.server")
         ).ocupacoesExtras(db, {
@@ -124,6 +137,11 @@ export const getDadosAgendar = createServerFn({ method: "GET" })
         })),
       ],
       horarios: regrasAgenda.horarios,
+      excecoesIntervalo: (excecoesRes.data ?? []).map((linha) => ({
+        dia: linha.dia,
+        intervaloInicio: linha.intervalo_inicio ? String(linha.intervalo_inicio).slice(0, 5) : null,
+        intervaloFim: linha.intervalo_fim ? String(linha.intervalo_fim).slice(0, 5) : null,
+      })),
       fuso: regrasAgenda.fuso,
       regrasAgenda: {
         antecedenciaMin: regrasAgenda.antecedenciaMin,

@@ -9,7 +9,7 @@ import {
   profissionalLivre,
   type Ocupado,
 } from "@/lib/disponibilidade";
-import { normalizarFuso, type HorarioDeFuncionamento } from "@/lib/horarios";
+import { aplicarExcecaoDeIntervalo, hojeNoFuso, normalizarFuso, somarDias, type HorarioDeFuncionamento } from "@/lib/horarios";
 
 import { STATUS_QUE_OCUPAM } from "@/lib/disponibilidade";
 export { STATUS_QUE_OCUPAM };
@@ -88,7 +88,32 @@ export async function validarAgendamento(
       `Este local agenda com até ${regras.janelaDias} dias de antecedência. Escolha uma data mais próxima.`,
     );
   }
-  const fora = motivoForaDoHorario(ini, p.servico.duracao_min, regras.horarios, regras.fuso);
+  const diaLocal = hojeNoFuso(regras.fuso, p.inicio);
+  const diasDoExpediente = [somarDias(diaLocal, -1), diaLocal];
+  const { data: excecoes, error: erroExcecoes } = await db
+    .from("excecoes_intervalo_agenda")
+    .select("dia, intervalo_inicio, intervalo_fim")
+    .eq("tenant_id", p.tenantId)
+    .in("dia", diasDoExpediente);
+  if (erroExcecoes) throw new Error("Não foi possível validar o intervalo da agenda.");
+  const horariosValidacao = (excecoes ?? []).reduce(
+    (atuais: HorarioDeFuncionamento[], excecao: {
+      dia: string;
+      intervalo_inicio: string | null;
+      intervalo_fim: string | null;
+    }) =>
+      aplicarExcecaoDeIntervalo(atuais, excecao.dia, {
+        dia: excecao.dia,
+        intervaloInicio: excecao.intervalo_inicio
+          ? String(excecao.intervalo_inicio).slice(0, 5)
+          : null,
+        intervaloFim: excecao.intervalo_fim
+          ? String(excecao.intervalo_fim).slice(0, 5)
+          : null,
+      }),
+    regras.horarios,
+  );
+  const fora = motivoForaDoHorario(ini, p.servico.duracao_min, horariosValidacao, regras.fuso);
   if (fora) throw new Error(fora);
   const ids = p.servico.profissional_ids ?? [];
   if (ids.length && !ids.includes(p.profissionalId))

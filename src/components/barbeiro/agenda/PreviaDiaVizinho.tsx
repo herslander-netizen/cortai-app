@@ -35,6 +35,15 @@ export function PreviaDiaVizinho({
     .filter((i) => !ENCERRADOS.has(i.status))
     .filter((i) => !profissionalId || i.profissionalId === profissionalId)
     .sort((a, b) => a.inicio.localeCompare(b.inicio));
+  const bloqueios = (data?.bloqueios ?? [])
+    .filter((b) => !profissionalId || !b.profissional_id || b.profissional_id === profissionalId)
+    .map((b, i) => ({
+      id: `previa-${b.profissional_id ?? "equipe"}-${b.inicio}-${b.fim}-${i}`,
+      profissionalId: b.profissional_id,
+      inicio: b.inicio,
+      fim: b.fim,
+      motivo: null,
+    }));
   const timeline = visualizacao === "timeline";
   return (
     <div ref={ref} className="agenda-previa-vizinho" aria-hidden="true" data-formato={visualizacao}>
@@ -45,8 +54,6 @@ export function PreviaDiaVizinho({
         ) : (
           <EsqueletoAgenda linhas={4} onTentarDeNovo={() => void consulta.refetch()} />
         )
-      ) : itens.length === 0 ? (
-        <p className="mt-4 text-sm text-mute">Agenda livre</p>
       ) : timeline ? (
         <div className="mt-3">
           <AgendaTimeline
@@ -54,6 +61,9 @@ export function PreviaDiaVizinho({
             dia={dia}
             fuso={data.fuso}
             itens={itens}
+            bloqueios={bloqueios}
+            profissionalId={profissionalId}
+            profissionais={data.profissionais ?? []}
             horarios={data.horarios ?? []}
             selecionado={null}
             onSelecionar={nada}
@@ -61,6 +71,8 @@ export function PreviaDiaVizinho({
             diaCompleto={diaCompleto}
           />
         </div>
+      ) : itens.length === 0 ? (
+        <p className="mt-4 text-sm text-mute">Agenda livre</p>
       ) : (
         <ul className="mt-3 space-y-2">
           {itens.map((i) => (

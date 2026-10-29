@@ -11,7 +11,7 @@ import { z } from "zod";
 
 import { getRequest } from "@tanstack/react-start/server";
 
-import { normalizarFuso as normalizarFusoExtra, type HorarioDeFuncionamento } from "@/lib/horarios";
+import { hojeNoFuso, normalizarFuso as normalizarFusoExtra, somarDias, type ExcecaoIntervaloAgenda, type HorarioDeFuncionamento } from "@/lib/horarios";
 import { normalizarTelefone, variantesDoTelefone } from "@/lib/telefone";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
@@ -95,6 +95,7 @@ export type AgendaPublica = {
   };
   profissionais: { id: string; nome: string; avatar_url: string | null }[];
   horarios: HorarioDeFuncionamento[];
+  excecoesIntervalo: ExcecaoIntervaloAgenda[];
   ocupados: { profissional_id: string | null; inicio: string; fim: string }[];
   pagina: PaginaConfig;
   agendaOnline: "aberta" | "limite_atingido";
@@ -165,11 +166,15 @@ export const getAgendaPublica = createServerFn({ method: "GET" })
     const db = await admin();
     const tenant = await barbeariaPorSlug(db, data.slug);
     const janelaDias = janelaValida(tenant.janela_agendamento_dias);
+    const fuso = normalizarFusoExtra(tenant.fuso);
+    const hojeLocal = hojeNoFuso(fuso);
+    const inicioExcecoes = somarDias(hojeLocal, -1);
+    const fimExcecoes = somarDias(hojeLocal, janelaDias + 2);
 
     const desde = new Date(Date.now() - 24 * 60 * 60 * 1000);
     const ate = new Date(desde.getTime() + (janelaDias + 2) * 24 * 60 * 60 * 1000);
 
-    const [servicosRes, profRes, horariosRes, ocupadosRes, filaRes, paginaRes] = await Promise.all([
+    const [servicosRes, profRes, horariosRes, excecoesRes, ocupadosRes, filaRes, paginaRes] = await Promise.all([
       db
         .from("servicos")
         .select("id, nome, duracao_min, preco_centavos, profissional_ids, foto_url")
@@ -188,6 +193,12 @@ export const getAgendaPublica = createServerFn({ method: "GET" })
         .eq("tenant_id", tenant.id)
         .order("dia_semana"),
       db
+        .from("excecoes_intervalo_agenda")
+        .select("dia, intervalo_inicio, intervalo_fim")
+        .eq("tenant_id", tenant.id)
+        .gte("dia", inicioExcecoes)
+        .lte("dia", fimExcecoes),
+      db
         .from("agendamentos")
         .select("profissional_id, inicio, fim")
         .eq("tenant_id", tenant.id)
@@ -201,6 +212,8 @@ export const getAgendaPublica = createServerFn({ method: "GET" })
         .eq("tenant_id", tenant.id)
         .maybeSingle(),
     ]);
+
+    if (excecoesRes.error) throw new Error("Não foi possível carregar a disponibilidade deste negócio.");
 
     const assinar = async (path: string | null | undefined) => {
       if (!path) return null;
@@ -252,13 +265,18 @@ export const getAgendaPublica = createServerFn({ method: "GET" })
       },
       profissionais,
       horarios: mapearHorarios(horariosRes.data ?? []),
+      excecoesIntervalo: (excecoesRes.data ?? []).map((linha) => ({
+        dia: linha.dia,
+        intervaloInicio: linha.intervalo_inicio ? String(linha.intervalo_inicio).slice(0, 5) : null,
+        intervaloFim: linha.intervalo_fim ? String(linha.intervalo_fim).slice(0, 5) : null,
+      })),
       ocupados: [
         ...(ocupadosRes.data ?? []),
         ...(await (
           await import("@/lib/ocupacoes-extras.server")
         ).ocupacoesExtras(db, {
           tenantId: tenant.id,
-          fuso: normalizarFusoExtra(tenant.fuso),
+          fuso,
           desde,
           ate,
         })),

@@ -4,7 +4,7 @@ import { inicioDoDiaNoFuso, inicioDoMesNoFuso } from "@/lib/horarios";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { tenantIdDoMembro, exigirPermissao, type ContextoAutenticado } from "@/lib/tenant";
 import { exigirRecurso } from "@/lib/planos";
-import { hojeNoFuso, isoNoFusoDaBarbearia, slotsDoDia } from "@/lib/horarios";
+import { aplicarExcecaoDeIntervalo, diaDaSemanaDoDia, hojeNoFuso, isoNoFusoDaBarbearia, slotsDoDia, type ExcecaoIntervaloAgenda } from "@/lib/horarios";
 import { motivoForaDoHorario } from "@/lib/disponibilidade";
 import { fusoDoTenant } from "@/lib/fuso.server";
 import { DURACAO_MAX_MINUTOS, DURACAO_MIN_MINUTOS, TEXTO_DO_MOTIVO } from "@/lib/remarcacao-regras";
@@ -122,6 +122,14 @@ export type AgendaDia = {
     intervaloInicio?: string | null;
     intervaloFim?: string | null;
   }[];
+  intervaloDia?: {
+    dia: string;
+    excecao: boolean;
+    inicio: string | null;
+    fim: string | null;
+    padraoInicio: string | null;
+    padraoFim: string | null;
+  };
   fuso: string;
   /** Passo de horários configurado pelo negócio (minutos). */
   passoMin?: number;
@@ -139,7 +147,7 @@ export const getAgendaDia = createServerFn({ method: "GET" })
     const de = new Date(isoNoFusoDaBarbearia(diaAlvo, "00:00", fuso));
     const ate = new Date(de.getTime() + 24 * 60 * 60 * 1000);
 
-    const [agRes, filaRes, horariosRes, profsRes, tenantRes] = await Promise.all([
+    const [agRes, filaRes, horariosRes, profsRes, tenantRes, intervaloRes] = await Promise.all([
       db
         .from("agendamentos")
         .select(
@@ -166,7 +174,14 @@ export const getAgendaDia = createServerFn({ method: "GET" })
         .eq("ativo", true)
         .order("nome"),
       db.from("tenants").select("passo_horarios_min").eq("id", tenant.id).maybeSingle(),
+      db
+        .from("excecoes_intervalo_agenda")
+        .select("dia, intervalo_inicio, intervalo_fim")
+        .eq("tenant_id", tenant.id)
+        .eq("dia", diaAlvo)
+        .maybeSingle(),
     ]);
+    if (intervaloRes.error) throw new Error("Não foi possível carregar o intervalo deste dia.");
 
     const itens = (agRes.data ?? []).map((a) => ({
       id: a.id,
@@ -218,6 +233,30 @@ export const getAgendaDia = createServerFn({ method: "GET" })
       intervaloInicio: h.intervalo_inicio ? String(h.intervalo_inicio).slice(0, 5) : null,
       intervaloFim: h.intervalo_fim ? String(h.intervalo_fim).slice(0, 5) : null,
     }));
+    const horarioDaSemana = horarios.find((h) => h.diaSemana === diaDaSemanaDoDia(diaAlvo));
+    const padraoInicio = horarioDaSemana?.intervaloInicio ?? null;
+    const padraoFim = horarioDaSemana?.intervaloFim ?? null;
+    const linhaExcecao = intervaloRes.data;
+    const excecaoIntervalo: ExcecaoIntervaloAgenda | null = linhaExcecao
+      ? {
+          dia: linhaExcecao.dia,
+          intervaloInicio: linhaExcecao.intervalo_inicio
+            ? String(linhaExcecao.intervalo_inicio).slice(0, 5)
+            : null,
+          intervaloFim: linhaExcecao.intervalo_fim
+            ? String(linhaExcecao.intervalo_fim).slice(0, 5)
+            : null,
+        }
+      : null;
+    const intervaloDia = {
+      dia: diaAlvo,
+      excecao: Boolean(linhaExcecao),
+      inicio: excecaoIntervalo ? excecaoIntervalo.intervaloInicio : padraoInicio,
+      fim: excecaoIntervalo ? excecaoIntervalo.intervaloFim : padraoFim,
+      padraoInicio,
+      padraoFim,
+    };
+    const horariosEfetivos = aplicarExcecaoDeIntervalo(horarios, diaAlvo, excecaoIntervalo);
     const passo = Number(tenantRes.data?.passo_horarios_min);
     const passoMin = [15, 20, 30, 40, 50].includes(passo) ? passo : 30;
     const profissionais = (profsRes.data ?? []).map((p) => ({
@@ -235,7 +274,7 @@ export const getAgendaDia = createServerFn({ method: "GET" })
         profissionalIds: profissionais.map((p) => p.id),
       }).catch(() => [])
     ).map((b) => ({ profissional_id: b.profissional_id, inicio: b.inicio, fim: b.fim }));
-    return { tenant, dia: iso, itens, bloqueios, fila, horarios, fuso, passoMin, profissionais };
+    return { tenant, dia: iso, itens, bloqueios, fila, horarios: horariosEfetivos, intervaloDia, fuso, passoMin, profissionais };
   });
 
 export const ESTADOS_ATENDIMENTO = [
@@ -1360,13 +1399,20 @@ export const getProximoHorarioLivre = createServerFn({ method: "GET" })
       .lt("inicio", fimDia.toISOString())
       .not("status", "in", "(cancelado,nao_compareceu,remarcado)");
     if (data.profissionalId) q = q.eq("profissional_id", data.profissionalId);
-    const [{ data: doDia }, { data: horariosRes }] = await Promise.all([
+    const [{ data: doDia }, { data: horariosRes }, { data: excecaoRes, error: erroExcecao }] = await Promise.all([
       q,
       db
         .from("horarios_de_funcionamento")
         .select("dia_semana, fechado, abre, fecha, intervalo_inicio, intervalo_fim")
         .eq("tenant_id", tenant.id),
+      db
+        .from("excecoes_intervalo_agenda")
+        .select("dia, intervalo_inicio, intervalo_fim")
+        .eq("tenant_id", tenant.id)
+        .eq("dia", dia)
+        .maybeSingle(),
     ]);
+    if (erroExcecao) throw new Error("Não foi possível verificar o intervalo de hoje.");
 
     const ocupados = (doDia ?? []).map(
       (a) => [new Date(a.inicio).getTime(), new Date(a.fim).getTime()] as const,
@@ -1380,15 +1426,27 @@ export const getProximoHorarioLivre = createServerFn({ method: "GET" })
       intervaloInicio: h.intervalo_inicio ? String(h.intervalo_inicio).slice(0, 5) : null,
       intervaloFim: h.intervalo_fim ? String(h.intervalo_fim).slice(0, 5) : null,
     }));
+    const excecao: ExcecaoIntervaloAgenda | null = excecaoRes
+      ? {
+          dia: excecaoRes.dia,
+          intervaloInicio: excecaoRes.intervalo_inicio
+            ? String(excecaoRes.intervalo_inicio).slice(0, 5)
+            : null,
+          intervaloFim: excecaoRes.intervalo_fim
+            ? String(excecaoRes.intervalo_fim).slice(0, 5)
+            : null,
+        }
+      : null;
+    const horariosDoDia = aplicarExcecaoDeIntervalo(horarios, dia, excecao);
     const { data: passoRow } = await db
       .from("tenants")
       .select("passo_horarios_min")
       .eq("id", tenant.id)
       .maybeSingle();
-    const grade = slotsDoDia(dia, horarios, passoValido(passoRow?.passo_horarios_min), fuso);
+    const grade = slotsDoDia(dia, horariosDoDia, passoValido(passoRow?.passo_horarios_min), fuso);
     for (const slot of grade.slots) {
       const inicio = new Date(slot.iso).getTime();
-      if (inicio < agora || motivoForaDoHorario(inicio, duracao, horarios, fuso)) continue;
+      if (inicio < agora || motivoForaDoHorario(inicio, duracao, horariosDoDia, fuso)) continue;
       const fim = inicio + duracao * 60_000;
       if (!ocupados.some(([oi, of]) => inicio < of && fim > oi))
         return { iso: slot.iso, label: slot.label };
