@@ -10811,3 +10811,93 @@ button.agenda-timeline-pausa:focus-visible {
   outline: 2px solid var(--figaro-primary, var(--rosa));
   outline-offset: -2px;
 }
+
+
+/* ==========================================================================
+   EXPERIMENTO FIGAROO — camada visual isolada para validação.
+   Não altera regras de negócio; tokens originais permanecem no histórico Git.
+   ========================================================================== */
+:root[data-identidade="moderno"],
+:root:not([data-identidade]) {
+  /* Tipografia do mapeamento Figaroo (com fallbacks locais, sem dependência externa). */
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Poppins", "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* Paleta tonal de marca e superfícies — tema escuro. */
+  --identity-primary: #4da3ff;
+  --identity-accent: #ff4d8d;
+  --identity-accent-light: #d3145d;
+  --identity-secondary: #ff4d8d;
+  --identity-secondary-light: #d3145d;
+  --identity-secondary-strong: #ff4d8d;
+  --identity-deep: #121513;
+  --identity-graphite: #121513;
+  --identity-muted: #b9c2bc;
+  --identity-off-white: #f8faf8;
+  --identity-white: #ffffff;
+  --identity-border: #3e4440;
+
+  --fundo: #121513;
+  --painel: #1b1f1c;
+  --cartao: #2a2f2c;
+  --linha: #3e4440;
+  --texto: #f0f7f2;
+  --texto-suave: #b9c2bc;
+
+  --agenda-acao: #4da3ff;
+  --agenda-acao-suave: #82beff;
+  --agenda-linha-hora: #3e4440;
+  --agenda-atencao: #ff4d8d;
+
+  --radius: 12px;
+  --figaroo-radius-card: 12px;
+  --figaroo-radius-sheet: 28px;
+  --figaroo-radius-input: 8px;
+  --figaroo-radius-pill: 999px;
+
+  --figaroo-space-0: 0;
+  --figaroo-space-xs: 4px;
+  --figaroo-space-sm: 8px;
+  --figaroo-space-md: 16px;
+  --figaroo-space-lg: 24px;
+  --figaroo-space-xl: 32px;
+  --figaroo-space-2xl: 48px;
+  --figaroo-space-3xl: 64px;
+
+  --mov-rapido: 120ms;
+  --mov-base: 180ms;
+  --mov-lento: 240ms;
+  --figaroo-press-scale: 0.98;
+  --figaroo-motion-duration: 180ms;
+  --figaroo-motion-easing: cubic-bezier(0.2, 0, 0, 1);
+}
+
+/* Paleta equivalente no tema claro, preservando contraste e semântica. */
+.light,
+:root[data-identidade="moderno"].light {
+  --identity-primary: #00509d;
+  --identity-accent: #d3145d;
+  --identity-accent-light: #d3145d;
+  --identity-secondary: #d3145d;
+  --identity-secondary-light: #d3145d;
+  --identity-secondary-strong: #d3145d;
+  --identity-deep: #f0f7f2;
+  --identity-graphite: #f0f7f2;
+  --identity-muted: #52645a;
+  --identity-off-white: #f8faf8;
+  --identity-white: #ffffff;
+  --identity-border: #d6e0d9;
+
+  --fundo: #f8faf8;
+  --painel: #f0f7f2;
+  --cartao: #ffffff;
+  --linha: #d6e0d9;
+  --texto: #1b1f1c;
+  --texto-suave: #52645a;
+
+  --agenda-acao: #00509d;
+  --agenda-acao-suave: #d5e2ff;
+  --agenda-linha-hora: #d6e0d9;
+  --agenda-atencao: #d3145d;
+}
