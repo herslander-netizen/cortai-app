@@ -5509,19 +5509,59 @@ button.agenda-nome:hover {
   left: 0;
   z-index: 1;
   pointer-events: none;
-  background: repeating-linear-gradient(
+  border-block: 1px solid color-mix(in oklab, var(--mute) 18%, transparent);
+  background-color: color-mix(in oklab, var(--mute) 10%, var(--ink));
+  background-image: repeating-linear-gradient(
     135deg,
-    transparent 0 6px,
-    color-mix(in oklab, var(--mute) 14%, transparent) 6px 7px
+    transparent 0 7px,
+    color-mix(in oklab, var(--mute) 22%, transparent) 7px 8px
   );
 }
 .agenda-timeline-intervalo span {
   position: absolute;
   top: 4px;
   right: 8px;
-  color: var(--mute);
-  font-size: 12px;
+  border: 1px solid color-mix(in oklab, var(--mute) 22%, transparent);
+  border-radius: 6px;
+  background: color-mix(in oklab, var(--ink2) 90%, var(--mute));
+  padding: 2px 6px;
+  color: var(--mute2);
+  font-size: 11px;
   font-weight: 700;
+}
+.agenda-timeline-bloqueio {
+  position: absolute;
+  right: 4px;
+  left: 7px;
+  z-index: 1;
+  overflow: hidden;
+  pointer-events: none;
+  border: 1px solid color-mix(in oklab, var(--mute) 26%, transparent);
+  border-left: 3px solid color-mix(in oklab, var(--mute) 58%, var(--line));
+  border-radius: 8px;
+  background-color: color-mix(in oklab, var(--mute) 18%, var(--ink));
+  background-image: repeating-linear-gradient(
+    135deg,
+    transparent 0 7px,
+    color-mix(in oklab, var(--mute) 18%, transparent) 7px 8px
+  );
+}
+.agenda-timeline-bloqueio span {
+  position: absolute;
+  top: 3px;
+  left: 8px;
+  max-width: calc(100% - 16px);
+  overflow: hidden;
+  border: 1px solid color-mix(in oklab, var(--mute) 24%, transparent);
+  border-radius: 5px;
+  background: color-mix(in oklab, var(--ink2) 88%, var(--mute));
+  padding: 1px 5px;
+  color: var(--mute2);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1.4;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .agenda-timeline-toque {
   position: absolute;
