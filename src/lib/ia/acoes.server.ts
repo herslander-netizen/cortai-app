@@ -122,8 +122,31 @@ export async function consultarDisponibilidade(
   if (!/^\d{4}-\d{2}-\d{2}$/.test(input.dia))
     throw new Error("Dia inválido. Use o formato AAAA-MM-DD.");
   const { horariosDisponiveis } = await import("@/lib/disponibilidade");
+  const { aplicarExcecaoDeIntervalo } = await import("@/lib/horarios");
   const { regrasDaBarbearia, STATUS_QUE_OCUPAM } = await import("@/lib/agenda-regras.server");
   const regras = await regrasDaBarbearia(db, ctx.tenantId);
+  const { data: excecao, error: erroExcecao } = await db
+    .from("excecoes_intervalo_agenda")
+    .select("dia, intervalo_inicio, intervalo_fim")
+    .eq("tenant_id", ctx.tenantId)
+    .eq("dia", input.dia)
+    .maybeSingle();
+  if (erroExcecao) throw new Error("Não foi possível consultar a disponibilidade deste dia.");
+  const horariosDoDia = aplicarExcecaoDeIntervalo(
+    regras.horarios,
+    input.dia,
+    excecao
+      ? {
+          dia: excecao.dia,
+          intervaloInicio: excecao.intervalo_inicio
+            ? String(excecao.intervalo_inicio).slice(0, 5)
+            : null,
+          intervaloFim: excecao.intervalo_fim
+            ? String(excecao.intervalo_fim).slice(0, 5)
+            : null,
+        }
+      : null,
+  );
   const inicioJanela = new Date(`${input.dia}T00:00:00Z`);
   inicioJanela.setUTCDate(inicioJanela.getUTCDate() - 1);
   const fimJanela = new Date(`${input.dia}T00:00:00Z`);
@@ -141,7 +164,7 @@ export async function consultarDisponibilidade(
   const [{ data: ocupados, error }, { data: expediente }, profissionais, servico] =
     await Promise.all([
       consulta.order("inicio"),
-      Promise.resolve({ data: regras.horarios }),
+      Promise.resolve({ data: horariosDoDia }),
       listarProfissionais(ctx),
       input.servicoId
         ? db
