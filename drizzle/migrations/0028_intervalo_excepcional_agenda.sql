@@ -267,7 +267,7 @@ BEGIN
     PERFORM pg_advisory_xact_lock(hashtextextended('agenda:' || v_prof.id::text, 0));
   END LOOP;
 
-  IF v_inicio IS NOT NULL AND v_fim IS NOT NULL THEN
+  IF _acao = 'salvar' AND v_inicio IS NOT NULL AND v_fim IS NOT NULL THEN
     IF v_h.fecha <= v_h.abre THEN
       RAISE EXCEPTION 'O intervalo excepcional exige expediente que não atravesse a meia-noite.';
     END IF;
