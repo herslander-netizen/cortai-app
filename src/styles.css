@@ -10735,16 +10735,14 @@ input[type="range"] {
 }
 
 
-/* Hierarquia da grade como no Figaro: subdivisões de 5 min ficam atrás das marcas horárias. */
+/* A grade horária fica sempre no fundo; indisponibilidades e cartões precisam cobri-la. */
 .agenda-timeline-ajuste-5,
 .agenda-operacional .agenda-timeline-ajuste-5 {
   z-index: 0;
 }
-.agenda-timeline-marca {
-  z-index: 1;
-}
+.agenda-timeline-marca,
 .agenda-timeline-marca.agenda-timeline-hora {
-  z-index: 2;
+  z-index: 0;
 }
 
 
