@@ -13,18 +13,39 @@
   --radius-md: 12px;
   --radius-lg: 14px;
   --radius-xl: 14px;
-  /* Fontes recuperadas do Figaroo; ficam opt-in até aprovação visual. */
-  --font-figaroo-display: "Poppins", "Manrope", ui-sans-serif, system-ui, sans-serif;
+
+  /* Figaroo Shapes & Dimensions — tokens novos, sem alterar os raios legados. */
+  --radius-figaroo-4: var(--figaroo-radius-4);
+  --radius-figaroo-8: var(--figaroo-radius-8);
+  --radius-figaroo-12: var(--figaroo-radius-12);
+  --radius-figaroo-16: var(--figaroo-radius-16);
+  --radius-figaroo-28: var(--figaroo-radius-28);
+  --radius-figaroo-card: var(--figaroo-radius-card);
+  --radius-figaroo-dialog: var(--figaroo-radius-dialog);
+  --radius-figaroo-pill: var(--figaroo-radius-pill);
+  --radius-figaroo-chip: var(--figaroo-radius-chip);
+  --spacing-figaroo-2: var(--figaroo-spacing-2);
+  --spacing-figaroo-4: var(--figaroo-spacing-4);
+  --spacing-figaroo-8: var(--figaroo-spacing-8);
+  --spacing-figaroo-12: var(--figaroo-spacing-12);
+  --spacing-figaroo-16: var(--figaroo-spacing-16);
+  --spacing-figaroo-20: var(--figaroo-spacing-20);
+  --spacing-figaroo-24: var(--figaroo-spacing-24);
+  --spacing-figaroo-32: var(--figaroo-spacing-32);
+  --spacing-figaroo-48: var(--figaroo-spacing-48);
+  --spacing-figaroo-64: var(--figaroo-spacing-64);
+  --spacing-figaroo-cta: var(--figaroo-cta-height);
+  --spacing-figaroo-touch-target: var(--figaroo-touch-target);
+  --spacing-figaroo-screen-gutter: var(--figaroo-screen-gutter);
+  --spacing-figaroo-topbar: var(--figaroo-topbar-height);
+  --spacing-figaroo-bottom-bar: var(--figaroo-bottom-bar-height);
+  --spacing-figaroo-time-pill: var(--figaroo-time-pill-height);
+  --spacing-figaroo-agenda-row: var(--figaroo-agenda-row-min-height);
+
+  /* Fontes identificadas no app Figaroo — não ativadas globalmente. */
+  --font-figaroo-title: "Poppins", "Manrope", ui-sans-serif, system-ui, sans-serif;
   --font-figaroo-body: "Plus Jakarta Sans", "Manrope", ui-sans-serif, system-ui, sans-serif;
   --font-figaroo-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
-  /* Figaroo Shapes & Dimensions: tokens novos sem alterar utilitários existentes. */
-  --radius-card: var(--shape-card);
-  --radius-dialog: var(--shape-dialog);
-  --radius-pill: var(--shape-pill);
-  --radius-chip: var(--shape-chip);
-  --spacing-cta: var(--height-cta);
-  --spacing-touch-target: var(--min-touch-target);
-  --spacing-screen-gutter: var(--screen-gutter);
 
   --font-sans: "Manrope", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Manrope", ui-sans-serif, system-ui, sans-serif;
@@ -56,20 +77,38 @@
   --color-qr-dark: var(--qr-dark);
   --color-qr-light: var(--qr-light);
 
-  /* Figaroo ColorKt / ExtendedColors: escala tonal e cores semânticas. */
-  --color-brand-primary-10: var(--brand-primary-10);
-  --color-brand-primary-30: var(--brand-primary-30);
-  --color-brand-primary-50: var(--brand-primary-50);
-  --color-brand-primary-90: var(--brand-primary-90);
-  --color-brand-tertiary-10: var(--brand-tertiary-10);
-  --color-brand-tertiary-50: var(--brand-tertiary-50);
-  --color-brand-tertiary-90: var(--brand-tertiary-90);
-  --color-action-blue: var(--action-blue);
-  --color-action-blue-foreground: var(--action-blue-foreground);
-  --color-confetti-gold: var(--confetti-gold);
-  --color-success: var(--success);
-  --color-warning: var(--warning);
-  --color-error: var(--error);
+  /* Figaroo ColorKt / ExtendedColors — paleta isolada dos tokens legados. */
+  --color-figaroo-primary-10: var(--figaroo-primary-10);
+  --color-figaroo-primary-30: var(--figaroo-primary-30);
+  --color-figaroo-primary-50: var(--figaroo-primary-50);
+  --color-figaroo-primary-90: var(--figaroo-primary-90);
+  --color-figaroo-tertiary-muted-10: var(--figaroo-tertiary-muted-10);
+  --color-figaroo-brand-pink: var(--figaroo-brand-pink);
+  --color-figaroo-tertiary-muted-90: var(--figaroo-tertiary-muted-90);
+  --color-figaroo-action-blue: var(--figaroo-action-blue);
+  --color-figaroo-action-blue-foreground: var(--figaroo-action-blue-foreground);
+  --color-figaroo-success: var(--figaroo-success);
+  --color-figaroo-warning: var(--figaroo-warning);
+  --color-figaroo-error: var(--figaroo-error);
+  --color-figaroo-confetti-gold: var(--figaroo-confetti-gold);
+  --color-figaroo-background: var(--figaroo-background);
+  --color-figaroo-card: var(--figaroo-card);
+  --color-figaroo-panel: var(--figaroo-panel);
+  --color-figaroo-border: var(--figaroo-border);
+  --color-figaroo-text: var(--figaroo-text);
+  --color-figaroo-text-muted: var(--figaroo-text-muted);
+  --color-figaroo-status-success: var(--figaroo-status-success);
+  --color-figaroo-status-success-bg: var(--figaroo-status-success-bg);
+  --color-figaroo-status-attention: var(--figaroo-status-attention);
+  --color-figaroo-status-attention-bg: var(--figaroo-status-attention-bg);
+  --color-figaroo-status-error: var(--figaroo-status-error);
+  --color-figaroo-status-error-bg: var(--figaroo-status-error-bg);
+  --color-figaroo-status-info: var(--figaroo-status-info);
+  --color-figaroo-status-info-bg: var(--figaroo-status-info-bg);
+  --color-figaroo-status-brand: var(--figaroo-status-brand);
+  --color-figaroo-status-brand-bg: var(--figaroo-status-brand-bg);
+  --color-figaroo-status-neutral: var(--figaroo-status-neutral);
+  --color-figaroo-status-neutral-bg: var(--figaroo-status-neutral-bg);
 
   /* Shadcn semantic mapping */
   --color-background: var(--background);
@@ -109,56 +148,93 @@
   --ease-saida: cubic-bezier(0.2, 0, 0, 1);
   --ease-entrada: cubic-bezier(0.4, 0, 1, 1);
 
-  /* Figaroo ColorKt: escala oficial, fixa nos modos claro e escuro. */
-  --brand-primary-10: #001a40;
-  --brand-primary-30: #00408f;
-  --brand-primary-50: #2467bb;
-  --brand-primary-90: #d5e2ff;
-  --brand-tertiary-10: #3a0e1a;
-  --brand-tertiary-50: #ff4d8d;
-  --brand-tertiary-90: #ffdade;
+  /* Figaroo — valores exatos recuperados; não ligados aos aliases atuais. */
+  --figaroo-primary-10: #001a40;
+  --figaroo-primary-30: #00408f;
+  --figaroo-primary-50: #2467bb;
+  --figaroo-primary-90: #d5e2ff;
+  --figaroo-tertiary-muted-10: #3a0e1a;
+  --figaroo-brand-pink: #ff4d8d;
+  --figaroo-tertiary-muted-90: #ffdade;
+  --figaroo-action-blue: #4da3ff;
+  --figaroo-action-blue-foreground: #001a40;
+  --figaroo-success: #43a047;
+  --figaroo-warning: #e08e22;
+  --figaroo-error: #f2b8b5;
+  --figaroo-confetti-gold: #ffd700;
 
-  /* Figaroo ExtendedColors: o modo escuro é a base de :root. */
-  --success: #43a047;
-  --warning: #e08e22;
-  --error: #f2b8b5;
-  --confetti-gold: #ffd700;
-  --action-blue: #4da3ff;
-  --action-blue-foreground: #001a40;
+  --figaroo-background: #1b1f1c;
+  --figaroo-card: #2a2f2c;
+  --figaroo-panel: #3e4440;
+  --figaroo-border: #414742;
+  --figaroo-text: #e8eee9;
+  --figaroo-text-muted: #aeb5b0;
 
-  /* Formas e dimensões originais; touch target respeita o mínimo de 48px
-     definido no contrato de design do Cortaí (mais estrito que 44px). */
-  --shape-card: 12px;
-  --shape-dialog: 28px;
-  --shape-pill: 9999px;
-  --shape-chip: 8px;
-  --height-cta: 54px;
-  --min-touch-target: 48px;
-  --screen-gutter: 20px;
+  --figaroo-status-success: var(--figaroo-success);
+  --figaroo-status-success-bg: color-mix(in oklab, var(--figaroo-status-success) 14%, transparent);
+  --figaroo-status-attention: var(--figaroo-warning);
+  --figaroo-status-attention-bg: color-mix(in oklab, var(--figaroo-status-attention) 14%, transparent);
+  --figaroo-status-error: var(--figaroo-error);
+  --figaroo-status-error-bg: color-mix(in oklab, var(--figaroo-status-error) 14%, transparent);
+  --figaroo-status-info: var(--figaroo-primary-90);
+  --figaroo-status-info-bg: color-mix(in oklab, var(--figaroo-action-blue) 16%, transparent);
+  --figaroo-status-brand: var(--figaroo-brand-pink);
+  --figaroo-status-brand-bg: color-mix(in oklab, var(--figaroo-brand-pink) 16%, transparent);
+  --figaroo-status-neutral: var(--figaroo-text-muted);
+  --figaroo-status-neutral-bg: color-mix(in oklab, var(--figaroo-text-muted) 14%, transparent);
 
-  /* Identidade moderna: navy, azul e magenta do mapa Figaroo. */
-  --identity-accent: var(--action-blue);
-  --identity-accent-light: #00509d;
-  --identity-secondary: var(--brand-tertiary-50);
-  --identity-secondary-light: #d3145d;
-  --identity-primary: var(--action-blue);
-  --identity-secondary-strong: var(--brand-tertiary-50);
-  --identity-deep: var(--brand-primary-10);
-  --identity-graphite: var(--brand-primary-10);
-  --identity-muted: #707973;
-  --identity-off-white: #f0f7f2;
+  /* Dimensions — targets preserve the Cortaí contract's 48px minimum. */
+  --figaroo-radius-4: 4px;
+  --figaroo-radius-8: 8px;
+  --figaroo-radius-12: 12px;
+  --figaroo-radius-16: 16px;
+  --figaroo-radius-28: 28px;
+  --figaroo-radius-card: 12px;
+  --figaroo-radius-dialog: 28px;
+  --figaroo-radius-pill: 9999px;
+  --figaroo-radius-chip: 8px;
+  --figaroo-cta-height: 56px;
+  --figaroo-touch-target: 48px;
+  --figaroo-screen-gutter: 20px;
+  --figaroo-topbar-height: 64px;
+  --figaroo-bottom-bar-height: 80px;
+  --figaroo-time-pill-height: 32px;
+  --figaroo-agenda-row-min-height: 56px;
+  --figaroo-press-scale: 0.98;
+  --figaroo-spacing-2: 2px;
+  --figaroo-spacing-4: 4px;
+  --figaroo-spacing-8: 8px;
+  --figaroo-spacing-12: 12px;
+  --figaroo-spacing-16: 16px;
+  --figaroo-spacing-20: 20px;
+  --figaroo-spacing-24: 24px;
+  --figaroo-spacing-32: 32px;
+  --figaroo-spacing-48: 48px;
+  --figaroo-spacing-64: 64px;
+
+  /* Paleta extraída da marca oficial: marinho, azul, ciano e rosa. */
+  --identity-accent: #00b7f4;
+  --identity-accent-light: #087cf0;
+  --identity-secondary: #ff1670;
+  --identity-secondary-light: #d90b58;
+  --identity-primary: #087cf0;
+  --identity-secondary-strong: #ff1670;
+  --identity-deep: #021a46;
+  --identity-graphite: #021a46;
+  --identity-muted: #5d6f89;
+  --identity-off-white: #f7faff;
   --identity-white: #ffffff;
-  --identity-border: #d6e0d9;
+  --identity-border: #d9e3f0;
   /* Base neutra única (3.0): todos os temas só mudam o destaque. */
-  --fundo: #1b1f1c;
+  --fundo: #1a1f1b;
   --painel: #3e4440;
-  --cartao: #2a2f2c;
+  --cartao: #2a2f2b;
   --linha: #414742;
   --texto: #e8eee9;
   --texto-suave: #aeb5b0;
   /* Agenda: hierarquia azul ação, verde positivo, rosa atenção/tempo. */
-  --agenda-acao: var(--action-blue);
-  --agenda-acao-suave: var(--brand-primary-90);
+  --agenda-acao: #01408f;
+  --agenda-acao-suave: #9bb9ff;
   --agenda-positivo: #43a047;
   --agenda-atencao: #d81b60;
   --agenda-aguardo: #d9a441;
@@ -173,8 +249,8 @@
   --estado-faltou: #ff4d5e;
   --estado-remarcado: #ff2d78;
   --estado-encaixe: #2dd4bf;
-  --agenda-listra-base: #2a2f2c;
-  --agenda-listra: color-mix(in oklab, #e8eee9 6%, #2a2f2c);
+  --agenda-listra-base: #2a2f2b;
+  --agenda-listra: color-mix(in oklab, #e8eee9 6%, #2a2f2b);
   --grafite-ink: var(--fundo);
   --grafite-surface: var(--cartao);
   --grafite-raised: var(--painel);
@@ -183,8 +259,8 @@
   --grafite-muted-2: var(--texto-suave);
   --grafite-line: var(--linha);
   --grafite-line-2: #4a524e;
-  --grafite-primary: var(--action-blue);
-  --grafite-accent: var(--action-blue);
+  --grafite-primary: #087cf0;
+  --grafite-accent: #00b7f4;
   --whatsapp: #25d366;
   --qr-dark: var(--identity-graphite);
   --qr-light: var(--identity-white);
@@ -206,11 +282,11 @@
   --brick-soft: color-mix(in oklab, var(--brick) 16%, transparent);
   --line: var(--grafite-line);
   --line2: var(--grafite-line-2);
-  --landing-light-surface: #f0f7f2;
-  --landing-light-ink: #191c1a;
-  --landing-light-muted: #707973;
-  --landing-light-line: #d6e0d9;
-  --landing-light-gold: #00509d;
+  --landing-light-surface: #f7faff;
+  --landing-light-ink: #021a46;
+  --landing-light-muted: #5d6f89;
+  --landing-light-line: #d9e3f0;
+  --landing-light-gold: #087cf0;
   --nav-shadow: 0 -10px 30px color-mix(in oklab, var(--identity-graphite) 24%, transparent);
 
   --surface-raised: var(--ink2);
@@ -256,7 +332,7 @@
   --popover: var(--painel);
   --popover-foreground: var(--paper);
   --primary: var(--identity-primary);
-  --primary-foreground: var(--action-blue-foreground);
+  --primary-foreground: #ffffff;
   --secondary: var(--ink3);
   --secondary-foreground: var(--paper);
   --muted: var(--ink3);
@@ -268,37 +344,43 @@
   --border: var(--line);
   --input: var(--line);
   --ring: var(--gold);
-  --drawer-surface: var(--fundo);
-  --drawer-card: var(--painel);
-  --drawer-band: var(--cartao);
+  --drawer-surface: #1a1f1c;
+  --drawer-card: #3f4543;
+  --drawer-band: #212724;
   --drawer-borda: color-mix(in oklab, var(--line) 60%, transparent);
-  --menu-icone: color-mix(in oklab, var(--gold) 55%, white);
+  --menu-icone: color-mix(in oklab, var(--gold) 70%, white);
   --menu-icone-fundo: color-mix(in oklab, var(--menu-icone) 16%, transparent);
 }
 
 .light,
 :root[data-identidade="moderno"].light {
-  --action-blue: #00509d;
-  --action-blue-foreground: #ffffff;
-  --brand-tertiary-50: #d3145d;
-  --identity-accent: var(--action-blue);
-  --identity-accent-light: var(--action-blue);
-  --identity-primary: var(--action-blue);
-  --identity-secondary: var(--brand-tertiary-50);
-  --identity-secondary-light: var(--brand-tertiary-50);
-  --identity-secondary-strong: var(--brand-tertiary-50);
-  --fundo: #f0f7f2;
-  --painel: #d6e0d9;
+
+  /* Overrides da paleta Figaroo para modo claro, mantendo os tokens Cortaí intactos. */
+  --figaroo-brand-pink: #d3145d;
+  --figaroo-action-blue: #00509d;
+  --figaroo-action-blue-foreground: #ffffff;
+  --figaroo-success: #2e7d32;
+  --figaroo-warning: #b6730f;
+  --figaroo-error: #b3261e;
+  --figaroo-background: #f0f7f2;
+  --figaroo-card: #ffffff;
+  --figaroo-panel: #d6e0d9;
+  --figaroo-border: #d6e0d9;
+  --figaroo-text: #191c1a;
+  --figaroo-text-muted: #707973;
+  --figaroo-status-info: var(--figaroo-action-blue);
+  --fundo: #e9f3eb;
+  --painel: #f0f6f2;
   --cartao: #ffffff;
-  --linha: #d6e0d9;
-  --texto: #191c1a;
-  --texto-suave: #707973;
-  --agenda-acao: var(--action-blue);
-  --agenda-acao-suave: var(--brand-primary-90);
+  --linha: #d6ded9;
+  --texto: #1a211d;
+  --texto-suave: #68706b;
+  --agenda-acao: #0160c8;
+  --agenda-acao-suave: #9bb9ff;
   --agenda-positivo: #43a047;
   --agenda-atencao: #d81b60;
   --agenda-aguardo: #c98a1a;
-  --agenda-linha-hora: #d6e0d9;
+  --agenda-linha-hora: #d8e0da;
   --estado-agendado: #6a5af9;
   --estado-confirmado: #1f6fe5;
   --estado-chegou: #c98500;
@@ -308,7 +390,7 @@
   --estado-faltou: #e0343a;
   --estado-remarcado: #e0145e;
   --estado-encaixe: #0f9488;
-  --agenda-listra-base: #f0f7f2;
+  --agenda-listra-base: #f0f6f2;
   --agenda-listra: #e2eae4;
   --ink: var(--fundo);
   --ink2: var(--cartao);
@@ -348,9 +430,9 @@
   --destructive: var(--brick);
   --destructive-foreground: #ffffff;
   --ring: var(--gold);
-  --drawer-surface: #f0f7f2;
+  --drawer-surface: #e9f1eb;
   --drawer-card: #ffffff;
-  --drawer-band: #f0f7f2;
+  --drawer-band: #f0f5f1;
   --drawer-borda: var(--line);
   --menu-icone: color-mix(in oklab, var(--primary) 80%, black);
   --menu-icone-fundo: color-mix(in oklab, var(--menu-icone) 10%, white);
@@ -364,10 +446,6 @@
   --status-cancelled: #725f5b;
   --status-rescheduled: #665f7d;
   --status-walk-in: #715846;
-
-  --success: #2e7d32;
-  --warning: #b6730f;
-  --error: #b3261e;
 
   --surface-raised: var(--ink2);
   --surface-emphasis: var(--ink3);
@@ -420,12 +498,12 @@
 
 /* Sino de avisos: rosa do Cortaí fixo, independente da identidade visual. */
 :root {
-  --sino-atencao: var(--brand-tertiary-50);
-  --sino-badge: #d90b58; /* tom escuro para texto branco >= 4.5:1 */
+  --sino-atencao: #ff1670;
+  --sino-badge: #d90b58; /* texto branco >= 4.5:1 */
   --sino-badge-texto: #ffffff;
 }
 :root.light {
-  --sino-atencao: var(--brand-tertiary-50);
+  --sino-atencao: #d90b58;
   --sino-badge: #d90b58;
 }
 
