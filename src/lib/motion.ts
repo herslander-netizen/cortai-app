@@ -12,6 +12,39 @@ export const transicaoBase = { duration: DURACAO.base, ease: SUAVE } as const;
 export const transicaoRapida = { duration: DURACAO.rapida, ease: SUAVE } as const;
 export const molaFolha = { type: "spring", stiffness: 420, damping: 38 } as const;
 
+
+/**
+ * Tokens de precisão Figaroo. São aditivos: não substituem os tokens legados acima,
+ * pois telas existentes já dependem de seus tempos e parâmetros.
+ */
+export const ALVO_ESCALA_TOQUE = 0.98;
+
+/** Amortecimento crítico (ζ = 1): stiffness 400, massa 1, damping = 2 × √400 = 40. */
+export const molaPrecisao = { type: "spring", stiffness: 400, damping: 40, mass: 1 } as const;
+
+/** Parâmetros de componentes Figaroo em unidades CSS equivalentes a dp. */
+export const MOVIMENTO_FIGAROO = {
+  duracaoRapida: 0.12,
+  duracaoBase: 0.2,
+  duracaoMorfismoFab: 0.22,
+  sucessoFabMs: 700,
+  escalaRotuloMinima: 0.7,
+  diametroFab: 56,
+  elevacaoFab: 6,
+  tamanhoLoading: 32,
+  espacamentoIconeRotulo: 12,
+  alphaContainerDesabilitado: 0.55,
+  alphaConteudoDesabilitado: 0.85,
+  larguraDrawer: 348,
+  limiarDrawerAbertura: 0.3,
+  alphaScrimDrawer: 0.95,
+  alturaAgendaColapsada: 64,
+  alturaAgendaExpandida: 152,
+  deslocamentoRevelacaoAgenda: 6,
+  atrasoCascata: 0.03,
+  duracaoMovimentoReduzido: 0.15,
+} as const;
+
 /**
  * Molas com amortecimento suficiente para assentar sem quique.
  * Não alterar cores, tipografia, raios, sombras ou identidade visual por meio destes tokens.
