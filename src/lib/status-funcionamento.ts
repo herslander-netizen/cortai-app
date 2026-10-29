@@ -3,6 +3,8 @@ import {
   hojeNoFuso,
   normalizarFuso,
   somarDias,
+  aplicarExcecaoDeIntervalo,
+  type ExcecaoIntervaloAgenda,
   type HorarioDeFuncionamento,
 } from "@/lib/horarios";
 
@@ -42,13 +44,24 @@ export function statusDeFuncionamento(
   horarios: HorarioDeFuncionamento[] | null | undefined,
   fusoInformado: string | null | undefined,
   instante = new Date(),
+  excecoesIntervalo: ExcecaoIntervaloAgenda[] = [],
 ): StatusFuncionamento | null {
   if (!horarios?.length || !horarios.some((h) => !h.fechado)) return null;
   const fuso = normalizarFuso(fusoInformado);
   const hoje = hojeNoFuso(fuso, instante);
+  const horariosHoje = aplicarExcecaoDeIntervalo(
+    horarios,
+    hoje,
+    excecoesIntervalo.find((item) => item.dia === hoje),
+  );
+  const horariosOntem = aplicarExcecaoDeIntervalo(
+    horariosHoje,
+    somarDias(hoje, -1),
+    excecoesIntervalo.find((item) => item.dia === somarDias(hoje, -1)),
+  );
   const agora = horaNoFuso(instante, fuso);
   const ontem = somarDias(hoje, -1);
-  const anterior = horarioDoDia(ontem, horarios);
+  const anterior = horarioDoDia(ontem, horariosOntem);
   const fechamentoAnterior = minutos(anterior.fecha);
 
   if (
@@ -63,7 +76,7 @@ export function statusDeFuncionamento(
     };
   }
 
-  const atual = horarioDoDia(hoje, horarios);
+  const atual = horarioDoDia(hoje, horariosHoje);
   if (!atual.fechado) {
     const abre = minutos(atual.abre);
     const fechaBase = minutos(atual.fecha);
