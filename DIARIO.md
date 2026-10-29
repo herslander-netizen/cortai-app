@@ -818,6 +818,11 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-29 UTC — Claude — Agenda: ao abrir o mês, a timeline desce colada no calendário (sem ficar parada e saltar)
+- Dono: "tem um erro no calendário quando desce". Quadro a quadro (vídeo do Cortaí × vídeo do Figaro, 20 qps): no Figaro a timeline acompanha a borda do painel do mês enquanto ele desce; no Cortaí o mês descia por cima da timeline parada e ela só depois saltava para baixo.
+- Causa: a segunda mola em série (`espacoDaAgenda = useSpring(alturaDoPainel)`, 24/10, deduzida do APK) atrasava a timeline. Agora a Agenda usa a mesma mola do painel (`espacoDaAgenda = alturaDoPainel`), ainda por transform (sem refazer o layout a cada quadro); fechar segue a mesma lógica. `SemanaDoTopo.tsx`; teste atualizado em `timeline-rolagem-celular.test.ts`. A decisão de 24/10 fica substituída pelo vídeo de referência.
+- `tsc` ok, `vitest` completo ok, `build` ok. Pendente: conferir no celular (a animação não foi medida aqui).
+
 ### 2026-10-29 UTC — Claude — Agenda: fontes e medidas das referências do Figaro + semana sumindo ao fechar o mês
 - Pedido do dono (foto da linha "agora" do Figaro e vídeo do Figaro como referência; vídeo do Cortaí com o erro): "coloque as fontes, tamanhos, tudo que for possível das referências".
 - **Erro:** ao fechar o mês, a fileira da semana ficava vazia (só D S T Q Q S S) até o fim da animação: o painel do mês, com fundo sólido e conteúdo já esmaecido, recolhia por cima dela. Agora a camada da semana fica acima do painel quando o mês está fechando (`SemanaDoTopo.tsx`, z-index 20 fechado / 0 aberto), como no Figaro, em que a semana aparece sobre o mês que recolhe. Teste novo em `SemanaDoTopo.test.tsx`.

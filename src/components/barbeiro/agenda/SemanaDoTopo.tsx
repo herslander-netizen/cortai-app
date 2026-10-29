@@ -370,10 +370,11 @@ export function SemanaDoTopo({
   // Altura da semana: o mês nasce dela e volta para ela ao fechar.
   const camadaSemana = useRef<HTMLDivElement>(null);
   const alturaDaSemana = useRef(60);
-  // Painel (mola 1) → espaço da Agenda (mola 2, persegue o painel): a timeline desce depois do calendário.
+  // Uma mola só (1,0 / 400): a Agenda desce e sobe colada na borda do painel, como no vídeo do Figaro (dono,
+  // 29/10). Com uma segunda mola em série ela ficava parada sob o mês que descia e depois saltava.
   const alvoDoPainel = useMotionValue(60);
   const alturaDoPainel = useSpring(alvoDoPainel, MOLA_DO_FIGARO);
-  const espacoDaAgenda = useSpring(alturaDoPainel, MOLA_DO_FIGARO);
+  const espacoDaAgenda = alturaDoPainel;
   const alturaDoPainelMais12 = useTransform(alturaDoPainel, (v) => v + 12);
   const [painelVisivel, setPainelVisivel] = useState(false);
   // Só o painel (camada sobre a Agenda) muda de tamanho a cada quadro. A Agenda é movida por transform
@@ -401,14 +402,14 @@ export function SemanaDoTopo({
     const altura = camadaSemana.current?.offsetHeight;
     if (!altura) return;
     alturaDaSemana.current = altura;
-    for (const v of [alvoDoPainel, alturaDoPainel, espacoDaAgenda]) v.jump(altura);
-  }, [alvoDoPainel, alturaDoPainel, espacoDaAgenda]);
+    for (const v of [alvoDoPainel, alturaDoPainel]) v.jump(altura);
+  }, [alvoDoPainel, alturaDoPainel]);
   useLayoutEffect(() => {
     if (!expandido && !painelVisivel) return;
     const alvo = expandido ? ALTURA_DO_MES : alturaDaSemana.current;
     if (expandido) setPainelVisivel(true);
     if (prefereMenosMovimento()) {
-      for (const v of [alvoDoPainel, alturaDoPainel, espacoDaAgenda]) v.jump(alvo);
+      for (const v of [alvoDoPainel, alturaDoPainel]) v.jump(alvo);
       layoutAbertoRef.current = expandido;
       setLayoutAberto(expandido);
       aplicarDeslocamento(alvo);
@@ -419,7 +420,7 @@ export function SemanaDoTopo({
       return;
     }
     if (!expandido && layoutAbertoRef.current) {
-      // Fechando: o topo encolhe já, e a Agenda continua onde estava (transform) até a mola 2 trazê-la.
+      // Fechando: o topo encolhe já, e a Agenda continua onde estava (transform) até a mola trazê-la.
       layoutAbertoRef.current = false;
       setLayoutAberto(false);
       aplicarDeslocamento(espacoDaAgenda.get());
@@ -427,7 +428,7 @@ export function SemanaDoTopo({
     alvoDoPainel.set(alvo);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- reage só à troca de aberto/fechado
   }, [expandido]);
-  // Cada mudança da mola 2 só move a Agenda por transform.
+  // Cada passo da mola só move a Agenda por transform.
   useEffect(
     () => espacoDaAgenda.on("change", aplicarDeslocamento),
     [espacoDaAgenda, aplicarDeslocamento],
