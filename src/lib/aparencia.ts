@@ -37,8 +37,9 @@ export function aplicarModo(modo: Modo, persistir = false) {
   window.dispatchEvent(new CustomEvent(APPEARANCE_EVENT, { detail: { modo } }));
 }
 
-export function aplicarIdentidade(identidade: Identidade) {
-  document.documentElement.dataset["identidade"] = identidade;
+/** Mantém a identidade fixa da marca Cortaí; valores antigos são ignorados. */
+export function aplicarIdentidade(_identidade: Identidade) {
+  document.documentElement.dataset["identidade"] = "moderno";
   sincronizarCorDoNavegador();
 }
 
