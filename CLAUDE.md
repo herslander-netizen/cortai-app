@@ -63,7 +63,7 @@ TanStack Start (React 19), Tailwind 4, shadcn/Radix, Supabase, Drizzle (migraç�
 - Referência: Manual da Marca Flow v1.0 (out/2026); implementação e pendências em `docs/marca-flow.md`.
 - Marca: lettering "flow" em minúsculas com o F fluido e o ponto rosa; símbolo = F + ponto. Usar só `MarcaFlow`, `SimboloFlow` e `IconeFlow` (`src/components/marca/MarcaFlow.tsx`) ou os arquivos de `public/marca/flow/`. Não trocar o lettering por texto comum, não esticar, não mudar as cores, não pôr efeitos.
 - Paleta (tokens `--flow-*` no fim de `src/styles.css`): grafite `#0F0F14` (fundo), superfície `#1A1B24` (cards e menus), violeta `#6B5F8F` (apoio), azul-claro `#A8C7FA` (ação/seleção), roxo `#BB86FC` (acentos interativos), rosa `#F48FB1` (destaque/ponto), rosa escuro `#9C425A` (indicadores e contraste). Gradiente de marca só no símbolo e em pequenos detalhes. Nada de hex solto nos componentes.
-- Tema escuro é o principal; claro pela classe `.light`. Tipografia de interface: Inter.
+- Tema escuro é o principal; claro pela classe `.light`. Fontes e layout ficam como estavam (dono, 29/10: a marca Flow não muda nada de layout); a Inter do manual não foi aplicada.
 - Quando o dono disser **Flow** sem restringir uma tela, aplicar a identidade ao produto inteiro. Um pedido sobre uma tela também respeita a mesma identidade.
 - Figaro continua definindo composição, hierarquia, raios, folhas inferiores, medidas e transições; a marca e a paleta do Flow substituem a do Figaro e a antiga do Cortaí.
 - Linguagem neutra (manual §07): "negócio", "profissional", "cliente", "atendimento". Barbearia continua sendo um segmento possível, nunca a suposição padrão. Sem tesoura, pente ou símbolos de um segmento na marca.

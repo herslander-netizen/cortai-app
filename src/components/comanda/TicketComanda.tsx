@@ -141,7 +141,7 @@ export function TicketComanda({
             </p>
           ) : null}
           {!negocio.logoUrl && !negocio.nome ? (
-            <img src={LOGOTIPO_MARCA} alt="Flow" className="h-9 w-auto" />
+            <img src={LOGOTIPO_MARCA} alt="Flow" className="h-10 w-auto" />
           ) : null}
           <p className="mt-3 text-[13px] font-semibold tracking-[0.5em] text-[var(--ticket-mute)]">
             COMANDA

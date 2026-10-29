@@ -35,10 +35,13 @@ function Logotipo({
   clara,
   className,
   rotulo,
+  proporcao,
 }: {
   clara: boolean;
   className?: string;
   rotulo?: string;
+  /** Caixa igual à da marca anterior, para nenhum layout mudar; o desenho fica centralizado dentro dela. */
+  proporcao?: string;
 }) {
   const id = `flow-g-${useId().replace(/:/g, "")}`;
   const tinta = clara ? `url(#${id})` : TINTA_ESCURA;
@@ -46,6 +49,7 @@ function Logotipo({
     <svg
       viewBox="64 80 822 238"
       className={className}
+      style={proporcao ? { aspectRatio: proporcao } : undefined}
       role={rotulo ? "img" : undefined}
       aria-label={rotulo}
       aria-hidden={rotulo ? undefined : true}
@@ -92,7 +96,14 @@ export function MarcaFlow({
     );
   }
   const clara = variante === "clara" || variante === "branca";
-  return <Logotipo clara={clara} className={className} rotulo="Flow" />;
+  return (
+    <Logotipo
+      clara={clara}
+      className={className}
+      rotulo="Flow"
+      proporcao={clara ? "1920 / 714" : "1920 / 640"}
+    />
+  );
 }
 
 /** Símbolo isolado (F + ponto), para tamanhos pequenos como o topo e o menu (manual: 24 px ou mais). */

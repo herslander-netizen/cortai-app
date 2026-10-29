@@ -47,7 +47,7 @@ tokens da Agenda, na identidade padrão (`moderno` ou sem identidade), nos temas
 (`.light`). Assim a Agenda, as gavetas, os botões e as telas herdam a paleta sem hex nos componentes. Identidades
 alternativas do painel e temas escolhidos para páginas públicas de clientes continuam respeitados.
 
-Tipografia de interface: **Inter** (`--font-sans`, `--font-display`, `--figaro-font-*`).
+**Layout intocado** (dono, 29/10: "não é pra mudar nada do aplicativo referente a layout"): fontes, medidas, espaçamentos e caixas continuam os de antes. A Inter do manual **não** foi aplicada, e o logo novo ocupa a mesma caixa do logo anterior (centralizado dentro dela).
 
 Ajustes pontuais:
 - tela de entrada (`.entrada`): tokens locais passaram a apontar para a paleta Flow;
