@@ -36,7 +36,7 @@ export function useSelecaoAgendamento({
   servicos: Servico[];
   profissionais: Profissional[];
   horarios: HorarioDeFuncionamento[];
-  excecoesIntervalo?: ExcecaoIntervaloAgenda[];
+  excecoesIntervalo?: ExcecaoIntervaloAgenda[] | undefined;
   ocupados: Ocupado[];
   fuso: string;
   regras: { antecedenciaMin: number; intervaloEntreMin: number };
