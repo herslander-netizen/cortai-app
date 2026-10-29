@@ -8,7 +8,7 @@ const ICONES: Record<IconeOrigem, typeof Link2> = {
   instagram: Instagram,
 };
 
-/** Linha compacta "· WhatsApp · CortAI". Nunca quebra o card: rótulo curto em telas estreitas. */
+/** Linha compacta "· WhatsApp · Flow IA". Nunca quebra o card: rótulo curto em telas estreitas. */
 export function OrigemDoAgendamento({
   origem,
   assistido,
@@ -31,10 +31,10 @@ export function OrigemDoAgendamento({
         </span>
       </span>
       {d.cortai ? (
-        <span className="inline-flex shrink-0 items-center gap-0.5" aria-label="CortAI participou">
+        <span className="inline-flex shrink-0 items-center gap-0.5" aria-label="Flow IA participou">
           <span aria-hidden>·</span>
           <Zap className="h-3 w-3" aria-hidden />
-          <span aria-hidden>CortAI</span>
+          <span aria-hidden>Flow IA</span>
         </span>
       ) : null}
       {telefoneNaoConfirmado ? (

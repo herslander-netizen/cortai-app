@@ -2,7 +2,7 @@
  * Qual conexão recebe um aviso da conta oficial (Meta).
  * A Meta informa o número de destino em `value.metadata.phone_number_id`.
  *
- * Número compartilhado: vários negócios usam o mesmo número oficial do Cortaí.
+ * Número compartilhado: vários negócios usam o mesmo número oficial do Flow.
  * Nesse caso a rota devolve uma das conexões e o negócio é decidido depois,
  * pela regra de número compartilhado (`negocioDoNumeroCompartilhado`).
  * Mensagem nunca é descartada por roteamento quando há conexão oficial.

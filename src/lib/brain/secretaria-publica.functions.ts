@@ -1,5 +1,5 @@
 /**
- * CortAI no site de agendamento — mesmo cérebro, só leitura.
+ * Flow IA no site de agendamento — mesmo cérebro, só leitura.
  * Público por natureza: limite por visitante e por negócio, guarda de abuso
  * e nenhum dado de cliente. O agendamento continua pela tela oficial.
  */

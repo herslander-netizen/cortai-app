@@ -35,7 +35,7 @@ export const Route = createFileRoute("/barbeiro/marca/layout-tema")({
   errorComponent: RouteError,
   head: () => ({
     meta: [
-      { title: "Layout & Tema — Cortaí" },
+      { title: "Layout & Tema — Flow" },
       { name: "description", content: "Escolha o layout e o tema da página pública." },
       { name: "robots", content: "noindex, nofollow" },
     ],

@@ -15,12 +15,12 @@ export const Route = createFileRoute("/barbeiro/crescimento")({
   beforeLoad: ({ context }) => exigirCapacidade(context.queryClient, "crescimento"),
   head: () => ({
     meta: [
-      { title: "Crescimento — Cortaí Gestão" },
+      { title: "Crescimento — Flow" },
       {
         name: "description",
         content: "Novos clientes, recorrência, indicações e ocupação do seu negócio.",
       },
-      { property: "og:title", content: "Crescimento — Cortaí Gestão" },
+      { property: "og:title", content: "Crescimento — Flow" },
       { property: "og:description", content: "O que faz seu negócio crescer, em números reais." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

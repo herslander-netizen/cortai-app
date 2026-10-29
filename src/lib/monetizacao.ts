@@ -1,5 +1,5 @@
 /**
- * Regras comerciais do Cortaí compartilhadas entre servidor e telas.
+ * Regras comerciais do Flow compartilhadas entre servidor e telas.
  * Nenhum preço vem do navegador: o valor cobrado é sempre recalculado aqui,
  * no servidor, a partir do plano e da condição gravada pelo dono da plataforma.
  */

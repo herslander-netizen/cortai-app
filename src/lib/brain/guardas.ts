@@ -1,5 +1,5 @@
 /**
- * Guardas puras do cérebro CortAI (sem rede, testáveis).
+ * Guardas puras do cérebro Flow IA (sem rede, testáveis).
  */
 import { normalizarTexto } from "@/lib/conversa/entender";
 

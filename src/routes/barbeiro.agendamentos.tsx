@@ -16,12 +16,12 @@ export const Route = createFileRoute("/barbeiro/agendamentos")({
   ssr: false,
   head: () => ({
     meta: [
-      { title: "Agendamentos confirmados — Painel do negócio | Cortaí" },
+      { title: "Agendamentos confirmados — Painel do negócio | Flow" },
       {
         name: "description",
         content: "Todos os agendamentos confirmados com nome, WhatsApp e horário.",
       },
-      { property: "og:title", content: "Agendamentos confirmados — Cortaí" },
+      { property: "og:title", content: "Agendamentos confirmados — Flow" },
       {
         property: "og:description",
         content: "Nome, WhatsApp e horário de cada cliente confirmado.",

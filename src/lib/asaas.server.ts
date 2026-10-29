@@ -107,7 +107,7 @@ export async function asaas() {
       headers: {
         access_token: chaveValida,
         "Content-Type": "application/json",
-        "User-Agent": "Cortai/1.0",
+        "User-Agent": "Flow/1.0",
       },
       body: body === undefined ? null : JSON.stringify(body),
     });

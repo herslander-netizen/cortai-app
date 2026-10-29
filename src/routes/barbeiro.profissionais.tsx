@@ -16,12 +16,12 @@ import { ChevronDown } from "lucide-react";
 export const Route = createFileRoute("/barbeiro/profissionais")({
   head: () => ({
     meta: [
-      { title: "Profissionais — Cortaí Gestão" },
+      { title: "Profissionais — Flow" },
       {
         name: "description",
         content: "Descrição e portfólio de cada profissional na página pública.",
       },
-      { property: "og:title", content: "Profissionais — Cortaí Gestão" },
+      { property: "og:title", content: "Profissionais — Flow" },
       { property: "og:description", content: "Mostre o trabalho de cada profissional da equipe." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

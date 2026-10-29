@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { ChevronRight, MapPin, ShoppingBag, Sparkles } from "lucide-react";
-import coverNeutra from "@/assets/cortai-cover-official.png.asset.json";
+import coverNeutra from "@/assets/flow-capa-neutra.png.asset.json";
 import coverBarbearia from "@/assets/cortai-barbershop-cover.jpg.asset.json";
 import { Signature } from "@/components/layout/Signature";
 import { Button } from "@/components/ui/button";
@@ -19,12 +19,12 @@ export const Route = createFileRoute("/app/")({
     typeof search["b"] === "string" && search["b"] ? { b: search["b"] } : {},
   head: () => ({
     meta: [
-      { title: "Início — Cortaí" },
+      { title: "Início — Flow" },
       {
         name: "description",
-        content: "Escolha um negócio e agende seu próximo serviço no Cortaí.",
+        content: "Escolha um negócio e agende seu próximo serviço no Flow.",
       },
-      { property: "og:title", content: "Início — Cortaí" },
+      { property: "og:title", content: "Início — Flow" },
       { property: "og:description", content: "Seu próximo horário em um toque." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -74,7 +74,7 @@ function InicioCliente() {
     return (
       <div className="mx-auto flex min-h-screen w-full max-w-[520px] flex-col px-5 pb-[calc(6.5rem+env(safe-area-inset-bottom))] pt-10">
         <main className="flex-1">
-          <h1 className="sr-only">Início — Cortaí</h1>
+          <h1 className="sr-only">Início — Flow</h1>
           <DescobrirBarbearias />
         </main>
         <Signature variant="app" />

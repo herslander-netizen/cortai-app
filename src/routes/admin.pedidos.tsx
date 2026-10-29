@@ -25,12 +25,12 @@ import {
 export const Route = createFileRoute("/admin/pedidos")({
   head: () => ({
     meta: [
-      { title: "Pedidos dos negócios — Cortaí" },
+      { title: "Pedidos dos negócios — Flow" },
       {
         name: "description",
-        content: "Sugestões agrupadas e priorizadas dos negócios do Cortaí.",
+        content: "Sugestões agrupadas e priorizadas dos negócios do Flow.",
       },
-      { property: "og:title", content: "Pedidos dos negócios — Cortaí" },
+      { property: "og:title", content: "Pedidos dos negócios — Flow" },
       { property: "og:description", content: "Demanda real dos negócios por novas soluções." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

@@ -1,5 +1,5 @@
 /**
- * Catálogo de ações do cérebro CortAI.
+ * Catálogo de ações do cérebro Flow IA.
  *
  * O modelo só ESCOLHE ações; quem executa é este módulo, sobre as ações de
  * domínio oficiais (`src/lib/ia/acoes.server.ts`), que já filtram por negócio
@@ -1106,7 +1106,7 @@ export function acaoPermitida(nome: string, ctx: ContextoDoCerebro): boolean {
 }
 
 /**
- * Painel: a CortAI age com a chave de serviço (ignora o RLS), então o papel e as permissões
+ * Painel: a Flow IA age com a chave de serviço (ignora o RLS), então o papel e as permissões
  * da pessoa precisam ser conferidos AQUI — as mesmas que as telas exigem. Profissional não vê
  * indicadores; sem a permissão (ou sem permissões resolvidas) a ação nem é oferecida ao modelo
  * e é recusada também na hora de executar uma ação pendente confirmada.

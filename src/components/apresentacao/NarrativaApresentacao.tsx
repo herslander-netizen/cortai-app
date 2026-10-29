@@ -21,7 +21,7 @@ export function NarrativaApresentacao() {
             Mais clareza para escolher. Mais organização para atender.
           </h2>
           <p className="mt-5 max-w-lg text-base leading-7 text-mute sm:text-lg">
-            O Cortaí conecta a apresentação do negócio à rotina de agendamentos, respeitando os serviços e as configurações de cada estabelecimento.
+            O Flow conecta a apresentação do negócio à rotina de agendamentos, respeitando os serviços e as configurações de cada estabelecimento.
           </p>
         </div>
         <div className="grid gap-4 sm:grid-cols-2">

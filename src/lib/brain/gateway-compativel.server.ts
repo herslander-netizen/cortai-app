@@ -340,7 +340,7 @@ export async function chamarCompativel(
     if (!resposta.ok) {
       // Nunca registre o corpo: mensagens de erro de terceiros podem carregar prompt,
       // identificadores ou outros dados sensíveis. O gateway já preserva o status para a
-      // política de fallback e para o estado visível do CortAI.
+      // política de fallback e para o estado visível da Flow IA.
       console.warn(
         JSON.stringify({
           evento: "cortai_ai_provider_error",

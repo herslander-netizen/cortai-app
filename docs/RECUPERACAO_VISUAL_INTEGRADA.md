@@ -1,7 +1,7 @@
-# Recuperação visual integrada — Cortaí
+# Recuperação visual integrada — Flow
 
 ## Objetivo
-Usar a versão anterior do Cortaí como referência de estrutura e comportamento para cartões, telas, menus, gavetas e agenda, integrando os recursos atuais sem misturar padrões visuais.
+Usar a versão anterior do Flow como referência de estrutura e comportamento para cartões, telas, menus, gavetas e agenda, integrando os recursos atuais sem misturar padrões visuais.
 
 ## Regras obrigatórias
 - Preservar a identidade visual oficial atual: logotipo, tokens de cor, tipografia e linguagem da marca.

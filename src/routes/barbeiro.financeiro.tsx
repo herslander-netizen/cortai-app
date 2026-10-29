@@ -13,12 +13,12 @@ import { Aviso } from "@/components/ui/aviso";
 export const Route = createFileRoute("/barbeiro/financeiro")({
   head: () => ({
     meta: [
-      { title: "Financeiro — Cortaí Gestão" },
+      { title: "Financeiro — Flow" },
       {
         name: "description",
         content: "Receitas de serviços, produtos e outros lançamentos do negócio.",
       },
-      { property: "og:title", content: "Financeiro — Cortaí Gestão" },
+      { property: "og:title", content: "Financeiro — Flow" },
       { property: "og:description", content: "Visão clara das receitas do negócio." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

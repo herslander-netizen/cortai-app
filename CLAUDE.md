@@ -1,4 +1,4 @@
-# Cortaí — Contexto do projeto
+# Flow (antigo Cortaí) — Contexto do projeto
 
 **Regras comuns às IAs (Claude, GPT e Muse):** topo do `AGENTS.md`, importado aqui. Valem acima do
 resto deste arquivo quando houver conflito. Estado vivo e recados em `DIARIO.md`; resumo da
@@ -6,7 +6,11 @@ infraestrutura em `MUSE.md`.
 
 @AGENTS.md
 
-## Onde o Cortaí vive (desde 17/10/2026)
+## Onde o Flow vive (desde 17/10/2026)
+
+O produto se chama **Flow** desde 29/10/2026 (antes Cortaí). Repositório, projetos da Cloudflare, Supabase,
+variáveis `CORTAI_*`, chaves locais e colunas do banco mantêm o nome técnico antigo por compatibilidade
+(inventário em `docs/marca-flow.md`).
 
 - **Código:** GitHub `herslander-netizen/cortai-app`, branch de trabalho
   `cloudflare-workers-migration-2026-10-13`. É dela que saem a prévia e o site principal.
@@ -16,7 +20,7 @@ infraestrutura em `MUSE.md`.
 - **Banco, login e arquivos:** Supabase `cortai-prod` (`ibsberidejlbczxrweqg`), o único banco do
   projeto. Prévia e site principal usam o mesmo banco.
 - **Domínio `cortai.dev`:** reservado para o futuro; ainda não aponta para o site principal.
-- **O Cortaí não usa mais o Lovable** (nem editor, nem banco, nem IA, nem conector de WhatsApp,
+- **O Flow não usa mais o Lovable** (nem editor, nem banco, nem IA, nem conector de WhatsApp,
   nem login). Não existe sincronização com nenhum editor. A branch `main` do Git ficou como arquivo
   do período antigo e não alimenta nenhum site.
 
@@ -42,8 +46,8 @@ O CI (GitHub Actions) roda TypeScript, testes e build a cada envio; use-o como v
 
 ## Produto
 
-- Plataforma de gestão e agendamento para negócios de serviços. Beleza e barbearia são exemplos de segmentos atendidos, não limites da plataforma. Sem segmento definido ou quando ele é inválido, a experiência e a linguagem devem ser neutras. Assinatura: "Simplifica. Conecta. Cresce."
-- **Cortaí** = plataforma e experiência. **CortAI** = camada de IA. **Cortaí Chat** = agendamento conversacional determinístico.
+- Plataforma de gestão e agendamento para negócios de serviços. Beleza e barbearia são exemplos de segmentos atendidos, não limites da plataforma. Sem segmento definido ou quando ele é inválido, a experiência e a linguagem devem ser neutras. Assinatura: "Seu negócio no ritmo certo."
+- **Flow** = plataforma e experiência. **Flow IA** = assistente e automações (camada de IA). **Flow Chat** = agendamento conversacional determinístico. **Flow Agenda** = agenda. **Flow Pay** só se o produto financeiro for lançado (não anunciar antes).
 - O motor oficial de agenda, disponibilidade, mutações e RPCs é a única fonte de verdade.
 - Papéis neutros: NEGÓCIO (tenant), DONO, PROFISSIONAL, CLIENTE. Termos de segmento só aparecem na UI, via `termos(segmento)` (`src/lib/segmentos.ts`). Código, rotas, tabelas, tipos, modelos de WhatsApp e textos fixos ficam neutros.
 - Área do negócio: as rotas são `/barbeiro/...`; `/painel` não existe (veja `docs/mapa-do-codigo.md`).
@@ -54,14 +58,17 @@ O CI (GitHub Actions) roda TypeScript, testes e build a cada envio; use-o como v
 
 TanStack Start (React 19), Tailwind 4, shadcn/Radix, Supabase, Drizzle (migrações em `drizzle/migrations`), Vitest, Bun. Hospedagem na Cloudflare (Pages + Worker). A IA usa um provedor compatível explicitamente configurado em `CORTAI_AI_*` ou o modo de regras; sem configuração, fica indisponível (nunca cai em outro provedor). Pagamentos via Asaas: a chave fica só em funções protegidas de `admin.functions.ts`.
 
-## Identidade visual oficial do Cortaí (decisão do dono, 27/10/2026)
+## Identidade visual oficial do Flow (decisão do dono, 29/10/2026 — substitui a identidade Cortaí de 27/10)
 
-- Quando o dono disser **Cortaí** sem restringir uma tela, aplicar a identidade unificada ao produto inteiro: painel, agenda, financeiro, clientes, configurações, agendamento público e novas telas. Um pedido sobre uma tela também deve respeitar a mesma identidade, não criar um tema isolado.
-- Marca: wordmark minimalista em letras arredondadas, marinho profundo e um ponto coral sobre o “í”. Sem tesoura, calendário, relógio ou símbolos exclusivos de um segmento; a identidade serve a negócios de serviços de diferentes áreas.
-- Paleta padrão do app: marinho, azul de ação vindo do Figaro, superfícies neutras e coral usado com intenção. O ponto coral identifica a marca; não transformar tudo em rosa/vermelho. Não voltar à antiga combinação ciano + pink nem ao gradiente antigo do logotipo.
-- Figaro define a composição, hierarquia, raios, folhas inferiores e transições. A marca e a paleta do Cortaí substituem a marca do Figaro — não copiar seu logotipo.
-- Os temas escolhidos explicitamente para páginas públicas de clientes continuam respeitados; a identidade global não apaga personalizações do negócio.
-- Mobile-first: conferir 390px e 1280px. Contrato obrigatório: `docs/contrato-de-design.md`; ordem Figaro em `docs/ordem-padrao-figaro.md`; ícone CortAI via `IconeDaIA`.
+- Referência: Manual da Marca Flow v1.0 (out/2026); implementação e pendências em `docs/marca-flow.md`.
+- Marca: lettering "flow" em minúsculas com o F fluido e o ponto rosa; símbolo = F + ponto. Usar só `MarcaFlow`, `SimboloFlow` e `IconeFlow` (`src/components/marca/MarcaFlow.tsx`) ou os arquivos de `public/marca/flow/`. Não trocar o lettering por texto comum, não esticar, não mudar as cores, não pôr efeitos.
+- Paleta (tokens `--flow-*` no fim de `src/styles.css`): grafite `#0F0F14` (fundo), superfície `#1A1B24` (cards e menus), violeta `#6B5F8F` (apoio), azul-claro `#A8C7FA` (ação/seleção), roxo `#BB86FC` (acentos interativos), rosa `#F48FB1` (destaque/ponto), rosa escuro `#9C425A` (indicadores e contraste). Gradiente de marca só no símbolo e em pequenos detalhes. Nada de hex solto nos componentes.
+- Tema escuro é o principal; claro pela classe `.light`. Tipografia de interface: Inter.
+- Quando o dono disser **Flow** sem restringir uma tela, aplicar a identidade ao produto inteiro. Um pedido sobre uma tela também respeita a mesma identidade.
+- Figaro continua definindo composição, hierarquia, raios, folhas inferiores, medidas e transições; a marca e a paleta do Flow substituem a do Figaro e a antiga do Cortaí.
+- Linguagem neutra (manual §07): "negócio", "profissional", "cliente", "atendimento". Barbearia continua sendo um segmento possível, nunca a suposição padrão. Sem tesoura, pente ou símbolos de um segmento na marca.
+- Os temas escolhidos explicitamente para páginas públicas de clientes e as identidades alternativas do painel continuam respeitados.
+- Mobile-first: conferir 390px e 1280px. Contrato obrigatório: `docs/contrato-de-design.md`; ordem Figaro em `docs/ordem-padrao-figaro.md`; ícone da Flow IA via `IconeDaIA`.
 - Movimento: 120/200/280 ms do sistema, preferencialmente `transform`/`opacity`, `MotionConfig` com `reducedMotion="user"`. Animações recuperadas do Figaro usam os valores de `src/lib/movimento-figaro.ts` e a evidência em `docs/referencia-figaro/apk/`.
 - Não inventar redesign estrutural quando o pedido for uma correção; aplicar a identidade no que for alterado e manter o layout Figaro verificável.
 
@@ -83,7 +90,7 @@ TanStack Start (React 19), Tailwind 4, shadcn/Radix, Supabase, Drizzle (migraç�
 - **Nunca inventar confirmação de pagamento.** Não apagar regra de negócio para resolver problema visual.
 - Plano, assinatura e teste só mudam no servidor (`recursos_de_plano`, `planos-comerciais.ts`).
 
-## CortAI (IA)
+## Flow IA (antiga Flow IA)
 
 - Opcional, controlada no ADM por tenant: ativa/desativada, modo econômico, atendimento humano, consumo e limite.
 - Desligar a IA não desliga agenda, comandas nem notificações essenciais.
@@ -94,7 +101,7 @@ TanStack Start (React 19), Tailwind 4, shadcn/Radix, Supabase, Drizzle (migraç�
 ## WhatsApp
 
 - É secretária de notificações e acompanhamento, não SAC, FAQ nem venda consultiva.
-- As mensagens nascem de eventos reais. Botões permitidos: confirmar, remarcar, cancelar, cheguei, aceitar vaga, opt-out. Mensagem livre é encaminhada para o Cortaí Chat.
+- As mensagens nascem de eventos reais. Botões permitidos: confirmar, remarcar, cancelar, cheguei, aceitar vaga, opt-out. Mensagem livre é encaminhada para o Flow Chat.
 - O remetente é escolhido sempre por `conexaoDeEnvio` (número próprio → número oficial compartilhado). Falhas passam por `erros-meta.ts` + `falhas-envio.server.ts`.
 - Falha do WhatsApp nunca bloqueia a operação.
 - A equipe usa sininho, popup e push, não WhatsApp.
@@ -139,7 +146,7 @@ confirmação de telefone no agendamento público e, em 19/10, escrita da equipe
 sete tabelas que ainda aceitavam qualquer membro (0038).
 
 Ainda abertos:
-- Equipe no WhatsApp: a CortAI confere só o papel, não as permissões de cada pessoa.
+- Equipe no WhatsApp: a Flow IA confere só o papel, não as permissões de cada pessoa.
 - Proteção contra senha vazada desligada no Auth do Supabase (ajuste do dono no painel).
 - As duas tarefas agendadas do banco (`cron.job`) ainda chamam o Worker antigo
   `cortai-reconstruction-test-2026…workers.dev`, que não recebe mais versões: precisam apontar para o

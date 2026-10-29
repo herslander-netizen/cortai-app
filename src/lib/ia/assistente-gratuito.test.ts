@@ -70,7 +70,7 @@ describe("fluxos estruturados do painel usam o provedor gratuito quando configur
     const buscar = vi.fn().mockResolvedValueOnce(resposta("response_format não suportado", 400));
     vi.stubGlobal("fetch", buscar);
     await expect(extrairCadastroEstruturado({ mensagem: "cadastre corte", contexto })).rejects.toThrow(
-      /não conseguiu responder|IA do CortAI/i,
+      /não conseguiu responder|IA do Flow/i,
     );
     expect(buscar).toHaveBeenCalledTimes(1);
   });

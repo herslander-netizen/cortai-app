@@ -51,7 +51,7 @@ const ROTULO: Record<string, string> = {
   CORTAI_QUERO: "Quero a vaga",
   CORTAI_NAO_POSSO: "Não posso",
   CORTAI_AGORA_NAO: "Agora não",
-  CORTAI_ABRIR: "Abrir Cortaí",
+  CORTAI_ABRIR: "Abrir Flow",
 };
 
 /** Texto fixo quando o número não é opção de nenhum aviso aberto. */

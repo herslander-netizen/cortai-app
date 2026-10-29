@@ -147,7 +147,7 @@ describe("PrimeirosPassos — detalhes no padrão Figaro", () => {
     );
 
     expect(alvo.textContent).toContain(
-      "Conecte o WhatsApp para habilitar os canais de mensagens e notificações configurados no Cortaí.",
+      "Conecte o WhatsApp para habilitar os canais de mensagens e notificações configurados no Flow.",
     );
     expect(alvo.querySelector('[role="region"][aria-label="Detalhes de Conecte o WhatsApp"]')).not.toBeNull();
   });

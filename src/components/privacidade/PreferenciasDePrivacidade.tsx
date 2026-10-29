@@ -29,7 +29,7 @@ export function PreferenciasDePrivacidade() {
         <ShieldCheck size={14} /> Privacidade e cookies
       </h2>
       <p className="mt-2 text-xs leading-relaxed text-mute">
-        Escolha o que o Cortaí pode usar além do necessário para funcionar. Você pode mudar quando
+        Escolha o que o Flow pode usar além do necessário para funcionar. Você pode mudar quando
         quiser. Leia a{" "}
         <Link to="/privacidade" className="text-gold underline">
           Política de Privacidade

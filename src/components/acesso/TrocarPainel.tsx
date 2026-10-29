@@ -59,7 +59,7 @@ export function TrocarPainel() {
           {
             id: "admin",
             nome: "Painel do ADM",
-            detalhe: "Administração da plataforma Cortaí",
+            detalhe: "Administração da plataforma Flow",
             admin: true,
           },
         ]

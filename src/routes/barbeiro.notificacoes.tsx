@@ -16,7 +16,7 @@ import { statusDoWhatsappAutomatico } from "@/lib/whatsapp-limite.functions";
 export const Route = createFileRoute("/barbeiro/notificacoes")({
   head: () => ({
     meta: [
-      { title: "Notificações — Cortaí Gestão" },
+      { title: "Notificações — Flow" },
       {
         name: "description",
         content: "Onde você recebe cada aviso e o uso das mensagens do WhatsApp.",

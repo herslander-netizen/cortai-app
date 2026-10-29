@@ -6,7 +6,7 @@ export const Route = createFileRoute("/api/public/capa/$slug")({
   server: {
     handlers: {
       GET: async ({ params }) => {
-        const reserva = urlPublica("/capa-social-cortai.jpg");
+        const reserva = urlPublica("/capa-social-flow.jpg");
         let destino = reserva;
         try {
           const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -20,7 +20,7 @@ export const Route = createFileRoute("/api/public/capa/$slug")({
               .eq("ativo", true)
               .maybeSingle();
 
-            // Prioridade visual: capa configurada, depois logo/ícone e por último a capa do Cortaí.
+            // Prioridade visual: capa configurada, depois logo/ícone e por último a capa do Flow.
             // Se a capa não puder ser resolvida, ainda tentamos usar o logo cadastrado.
             for (const caminho of [t?.capa_url, t?.logo_url]) {
               if (typeof caminho !== "string" || !caminho.trim()) continue;

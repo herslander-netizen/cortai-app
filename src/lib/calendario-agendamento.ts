@@ -8,7 +8,7 @@ function calendario(confirmacao: ConfirmacaoPublica) {
     fim: confirmacao.fim,
     titulo: `${confirmacao.servico} — ${confirmacao.barbearia}`,
     local: confirmacao.endereco ?? confirmacao.barbearia,
-    descricao: `Com ${confirmacao.profissional}. Agendado pelo Cortaí.`,
+    descricao: `Com ${confirmacao.profissional}. Agendado pelo Flow.`,
   });
 }
 
@@ -25,7 +25,7 @@ export function linkGoogleAgenda(confirmacao: ConfirmacaoPublica) {
     text: `${confirmacao.servico} — ${confirmacao.barbearia}`,
     dates: `${carimboGoogle(confirmacao.inicio)}/${carimboGoogle(confirmacao.fim)}`,
     location: confirmacao.endereco ?? confirmacao.barbearia,
-    details: `Atendimento com ${confirmacao.profissional}. Agendado pelo Cortaí.`,
+    details: `Atendimento com ${confirmacao.profissional}. Agendado pelo Flow.`,
   });
   return `https://calendar.google.com/calendar/render?${params}`;
 }

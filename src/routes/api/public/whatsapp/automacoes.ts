@@ -2,7 +2,7 @@
  * Varredura periódica das automações de WhatsApp (lembretes 24h/2h e
  * retentativas controladas). Sem IA: só eventos, regras, banco e templates.
  *
- * Protegido pela autenticação de tarefas agendadas do Cortaí: sem o segredo,
+ * Protegido pela autenticação de tarefas agendadas do Flow: sem o segredo,
  * ninguém dispara mensagens por aqui.
  */
 import { createFileRoute } from "@tanstack/react-router";

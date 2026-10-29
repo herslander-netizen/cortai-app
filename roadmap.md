@@ -1,8 +1,8 @@
 - [x] Auditar e completar a barbearia demo existente sem recriar tenant
 - [x] Validar acesso, isolamento, fluxo público, painel e responsividade
 - [x] Rodar testes, typecheck e build; não publicar
-- [x] Base visual do chat (fundo, cabeçalho, balões, três pontinhos) no Cortaí Chat
-- [ ] Concluir escolha de fundo e visual do CortAI; bloqueado por escopo separado desta estabilização
+- [x] Base visual do chat (fundo, cabeçalho, balões, três pontinhos) no Flow Chat
+- [ ] Concluir escolha de fundo e visual da Flow IA; bloqueado por escopo separado desta estabilização
 - [x] Aplicar capa, logo e cores publicadas ao agendamento e melhorar a prévia de personalização
 - [x] Substituir logos oficiais e alinhar a paleta global aos novos arquivos enviados
 - [x] Corrigir P0/P1 seguros encontrados na auditoria final de pré-lançamento
@@ -114,12 +114,12 @@
 - [x] Cobrir validação e operações com testes
 - [x] Validar tipos, lint, testes e build; não publicar
 
-## Cortaí 3.0 (versão 3.0.0)
+## Flow 3.0 (versão 3.0.0)
 - [x] Etapa 1 — fundo neutro único, theme-color e manifests
 - [x] Etapa 2 — Agenda no celular (cabeçalho Mês Ano, faixa da semana, pontinhos, mês expansível, timeline 00–23, sem rodapé, dica única)
 - [x] Etapa 3 — botões flutuantes 64 dp e menu "+" em speed dial
 - [x] Etapa 4 — avisos em tela cheia no celular
-- [x] Etapa 5 — versão 3.0.0, novidades.ts, aviso "Cortaí 3.0 disponível", descrição neutra
+- [x] Etapa 5 — versão 3.0.0, novidades.ts, aviso "Flow 3.0 disponível", descrição neutra
 
 ## Etapa 6 — acabamento e cadastro
 - [x] Parte 1: tokens de tipografia/raios, campo novo global, componentes de formulário, Novo agendamento e Novo cliente
@@ -129,7 +129,7 @@
 
 - [x] Painel de Funcionalidades (/barbeiro/funcionalidades)
 
-- [ ] Secretária Cortaí completa no WhatsApp (documento de 741 linhas): analisar e planejar; atenção à regra de não usar IA paga no WhatsApp
+- [ ] Secretária Flow completa no WhatsApp (documento de 741 linhas): analisar e planejar; atenção à regra de não usar IA paga no WhatsApp
 - [x] Conta única com cliente + negócio, seletor e troca de perfil
 
 ## Redes sociais — Fase 3
@@ -156,7 +156,7 @@
 
 ## Pendentes (03/10/2026)
 - [x] Pix pelo WhatsApp: decidido manter conferência pela equipe (fluxo "Já paguei" atual preservado).
-- [x] Consolidação CortAI: cérebro único em src/lib/brain para painel, site e WhatsApp.
+- [x] Consolidação Flow IA: cérebro único em src/lib/brain para painel, site e WhatsApp.
 - [ ] Validar a Secretária no WhatsApp com número real conectado (depende do número Meta ativo).
 - [ ] Push para todo aviso do sininho da equipe (sem depender do WhatsApp)
 - [ ] Remarcação sempre gera aviso novo ao cliente (trava de repetição por versão)

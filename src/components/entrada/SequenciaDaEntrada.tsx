@@ -82,7 +82,7 @@ export function SequenciaDaEntrada() {
   const passo = PASSOS_DA_ENTRADA[indice]!;
 
   return (
-    <section className="entrada-sequencia" aria-label="Como o Cortaí ajuda o seu negócio">
+    <section className="entrada-sequencia" aria-label="Como o Flow ajuda o seu negócio">
       <div className="entrada-cartao" aria-live="polite">
         <div key={passo.id} className="entrada-cartao-demo">
           {passo.demo}

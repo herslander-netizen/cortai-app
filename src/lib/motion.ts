@@ -1,4 +1,4 @@
-/** Tokens de movimento do Cortaí — consistentes, perceptíveis e sem excesso. */
+/** Tokens de movimento do Flow — consistentes, perceptíveis e sem excesso. */
 
 /**
  * Durações globais. A interface deve acompanhar o usuário, mas permitir perceber

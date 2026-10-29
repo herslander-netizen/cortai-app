@@ -1,5 +1,5 @@
 /**
- * Estado da conversa no motor determinístico do Cortaí.
+ * Estado da conversa no motor determinístico do Flow.
  *
  * O estado vive na coluna `contexto` (jsonb) de `conversas_whatsapp` — nenhuma
  * tabela nova, nenhuma migração. O estado de fluxo expira em 2 horas.

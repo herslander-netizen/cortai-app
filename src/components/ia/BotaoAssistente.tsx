@@ -27,7 +27,7 @@ export function BotaoAssistente({
         >
           <Sparkles size={18} className="shrink-0 text-gold" aria-hidden />
           <span className="min-w-0">
-            <span className="block text-sm font-semibold text-paper">Perguntar ao Cortaí</span>
+            <span className="block text-sm font-semibold text-paper">Perguntar à Flow IA</span>
             <span className="mt-0.5 block text-xs text-mute">
               Cadastre serviços, ajuste horários ou tire dúvidas escrevendo normal.
             </span>
@@ -50,7 +50,7 @@ export function BotaoAssistente({
             </span>
             <span className="min-w-0 flex-1">
               <span className="block text-[15px] font-semibold leading-5 text-paper">
-                Perguntar ao Cortaí
+                Perguntar à Flow IA
               </span>
               <span className="mt-0.5 block text-sm font-normal leading-5 text-mute">
                 Cadastre serviços, ajuste horários ou tire dúvidas.
@@ -66,7 +66,7 @@ export function BotaoAssistente({
           className="h-auto min-h-12 w-full justify-start whitespace-normal rounded-none border-b border-line px-0 py-4 text-left"
         >
           <Sparkles size={17} className="shrink-0 text-gold" aria-hidden />
-          <span className="text-sm text-paper">Perguntar ao Cortaí</span>
+          <span className="text-sm text-paper">Perguntar à Flow IA</span>
         </Button>
       )}
 

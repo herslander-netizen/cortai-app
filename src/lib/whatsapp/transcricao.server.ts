@@ -1,5 +1,5 @@
 /**
- * Transcrição de áudio do WhatsApp para o CortAI (só servidor).
+ * Transcrição de áudio do WhatsApp para a Flow IA (só servidor).
  *
  * áudio (Base64 do payload ou buscado na Evolution) → texto em pt-BR → mesmo
  * fluxo das mensagens de texto. O áudio nunca é gravado nem logado: vive só

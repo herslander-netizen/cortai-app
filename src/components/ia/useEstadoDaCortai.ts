@@ -4,7 +4,7 @@ import { getEstadoDaCortai } from "@/lib/assistente.functions";
 
 export const CHAVE_DO_ESTADO_DA_CORTAI = ["cortai-estado"] as const;
 
-/** Estado real da CortAI no negócio (desligada no ADM, pausada, limite...). */
+/** Estado real da Flow IA no negócio (desligada no ADM, pausada, limite...). */
 export function useEstadoDaCortai() {
   const { data } = useQuery({
     queryKey: CHAVE_DO_ESTADO_DA_CORTAI,

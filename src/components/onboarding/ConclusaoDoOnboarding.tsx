@@ -2,7 +2,7 @@ import { Check, Copy, Share2 } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
 
-import { MarcaCortai } from "@/components/marca/MarcaCortai";
+import { MarcaFlow } from "@/components/marca/MarcaFlow";
 import { Button } from "@/components/ui/button";
 import { AnelOndulado } from "@/components/ui/AnelOndulado";
 import { useMenosMovimento } from "@/hooks/useMovimento";
@@ -174,12 +174,12 @@ export function ConclusaoDoOnboarding({
       </AnimatePresence>
       <motion.div
         className="mt-8 flex justify-center"
-        aria-label="Cortaí"
+        aria-label="Flow"
         initial={{ opacity: 0 }}
         animate={{ opacity: logo && !carregando ? 1 : 0 }}
         transition={{ duration: menosMovimento ? 0.15 : 0.4, ease: CURVA.rapidaParaLenta }}
       >
-        <MarcaCortai variante="automatica" className="h-6 w-auto" />
+        <MarcaFlow variante="automatica" className="h-6 w-auto" />
       </motion.div>
     </div>
   );

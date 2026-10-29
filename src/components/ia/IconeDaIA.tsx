@@ -3,7 +3,7 @@ import { Sparkles } from "lucide-react";
 import type { Segmento } from "@/lib/segmentos";
 
 /**
- * Ícone da CortAI: o ícone de IA padrão (faíscas), igual em todos os segmentos e tamanhos.
+ * Ícone da Flow IA: o ícone de IA padrão (faíscas), igual em todos os segmentos e tamanhos.
  * `segmento` continua aceito para não mexer nos chamadores, mas não muda mais o desenho.
  */
 export function IconeDaIA({

@@ -1,11 +1,11 @@
 /**
- * Sonda um provedor Chat Completions com o MESMO adaptador que a CortAI usa em produção
+ * Sonda um provedor Chat Completions com o MESMO adaptador que a Flow IA usa em produção
  * e diz, item a item, o que ele suporta. Não imprime chaves nem texto de conversa.
  *
  *   CORTAI_AI_BASE_URL=... CORTAI_AI_MODEL=... CORTAI_AI_API_KEY=... \
  *   CORTAI_AI_PROVIDER=openai_compatible npm run sondar:provedor
  *
- * Faz 3 chamadas pequenas (custam centavos). Código de saída 0 só se tudo que a CortAI exige passar.
+ * Faz 3 chamadas pequenas (custam centavos). Código de saída 0 só se tudo que a Flow IA exige passar.
  */
 const RAIZ = new URL("..", import.meta.url).pathname.replace(/\/$/, "");
 const { lerConfigDoProvedor, chamarCompativel } = await import(
@@ -146,7 +146,7 @@ try {
 const falhas = resultados.filter((r) => !r.ok).length;
 console.log(
   falhas
-    ? `\n${falhas} verificação(ões) falharam: NÃO usar este provedor/modelo na CortAI até resolver.`
-    : "\nTudo que a CortAI exige passou neste provedor/modelo.",
+    ? `\n${falhas} verificação(ões) falharam: NÃO usar este provedor/modelo na Flow IA até resolver.`
+    : "\nTudo que a Flow IA exige passou neste provedor/modelo.",
 );
 process.exit(falhas ? 1 : 0);

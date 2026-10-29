@@ -146,7 +146,7 @@ export async function handleMcpRequest(request: Request): Promise<Response> {
   try {
     tenantId = await tenantIdDoMembro({ supabase: db, userId });
   } catch {
-    return new Response(JSON.stringify({ error: "forbidden", error_description: "Sua conta não tem um negócio ativo no Cortaí." }), {
+    return new Response(JSON.stringify({ error: "forbidden", error_description: "Sua conta não tem um negócio ativo no Flow." }), {
       status: 403,
       headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store" },
     });

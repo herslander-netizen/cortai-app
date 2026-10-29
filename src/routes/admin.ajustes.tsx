@@ -13,13 +13,13 @@ import { EsqueletoFormulario } from "@/components/layout/Esqueleto";
 export const Route = createFileRoute("/admin/ajustes")({
   head: () => ({
     meta: [
-      { title: "Design system global — Cortaí" },
+      { title: "Design system global — Flow" },
       {
         name: "description",
-        content: "Paleta, tipografia, preços e princípios globais do Cortaí.",
+        content: "Paleta, tipografia, preços e princípios globais do Flow.",
       },
-      { property: "og:title", content: "Design system global — Cortaí" },
-      { property: "og:description", content: "Configuração visual da plataforma Cortaí." },
+      { property: "og:title", content: "Design system global — Flow" },
+      { property: "og:description", content: "Configuração visual da plataforma Flow." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex, nofollow" },

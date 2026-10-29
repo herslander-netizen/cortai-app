@@ -131,9 +131,9 @@ export async function tentarVerificarPorMensagem(
     .order("atualizado_em", { ascending: false })
     .limit(1)
     .maybeSingle();
-  if (!linha) return "Não encontrei um código pendente para este número. Gere um novo no painel do Cortaí.";
+  if (!linha) return "Não encontrei um código pendente para este número. Gere um novo no painel do Flow.";
   if (linha.tentativas >= MAX_TENTATIVAS || !linha.codigo_expira_em || new Date(linha.codigo_expira_em) < new Date())
-    return "Este código expirou. Gere um novo no painel do Cortaí.";
+    return "Este código expirou. Gere um novo no painel do Flow.";
   if ((await hash(m[1]!)) !== linha.codigo_hash) {
     await db
       .from("telefones_da_equipe")

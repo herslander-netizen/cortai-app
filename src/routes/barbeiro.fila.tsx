@@ -30,12 +30,12 @@ export const Route = createFileRoute("/barbeiro/fila")({
   beforeLoad: ({ context }) => exigirCapacidade(context.queryClient, "fila_espera"),
   head: () => ({
     meta: [
-      { title: "Lista de espera — Painel | Cortaí" },
+      { title: "Lista de espera — Painel | Flow" },
       {
         name: "description",
         content: "Quem espera vaga, ofertas enviadas e horários recuperados pela lista.",
       },
-      { property: "og:title", content: "Lista de espera — Cortaí" },
+      { property: "og:title", content: "Lista de espera — Flow" },
       {
         property: "og:description",
         content: "Vaga liberada vira atendimento com a lista de espera.",

@@ -1,5 +1,5 @@
 /**
- * Padrão de telefone do Cortaí: só dígitos, com DDI 55 para números
+ * Padrão de telefone do Flow: só dígitos, com DDI 55 para números
  * brasileiros. Celular com e sem o 9 depois do DDD é o mesmo número.
  */
 export function normalizarTelefone(bruto: string | null | undefined): string {

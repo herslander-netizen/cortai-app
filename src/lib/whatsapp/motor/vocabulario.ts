@@ -1,5 +1,5 @@
 /**
- * Vocabulário do motor conversacional do Cortaí — camada de LINGUAGEM.
+ * Vocabulário do motor conversacional do Flow — camada de LINGUAGEM.
  *
  * Aqui só existe interpretação de texto: normalização, sinônimos, aliases,
  * palavras-chave e leitura de datas/horas em português do Brasil.

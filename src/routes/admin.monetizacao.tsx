@@ -33,12 +33,12 @@ import { dataCurta, type Plano } from "@/lib/monetizacao";
 export const Route = createFileRoute("/admin/monetizacao")({
   head: () => ({
     meta: [
-      { title: "Monetização — Cortaí" },
+      { title: "Monetização — Flow" },
       {
         name: "description",
-        content: "Planos, preços, condições por negócio, cupons e campanhas do Cortaí.",
+        content: "Planos, preços, condições por negócio, cupons e campanhas do Flow.",
       },
-      { property: "og:title", content: "Monetização — Cortaí" },
+      { property: "og:title", content: "Monetização — Flow" },
       {
         property: "og:description",
         content: "Administre preços, condições especiais, cupons e banners.",

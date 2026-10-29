@@ -23,9 +23,9 @@ export const Route = createFileRoute("/app/historico")({
     typeof search["b"] === "string" && search["b"] ? { b: search["b"] } : {},
   head: () => ({
     meta: [
-      { title: "Meus horários — Cortaí" },
+      { title: "Meus horários — Flow" },
       { name: "description", content: "Veja seus agendamentos e cancele quando precisar." },
-      { property: "og:title", content: "Meus horários — Cortaí" },
+      { property: "og:title", content: "Meus horários — Flow" },
       { property: "og:description", content: "Seus agendamentos e a regra de cancelamento." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -87,7 +87,7 @@ function HistoricoPage() {
   };
 
   return (
-    <Screen title="Meus horários" subtitle="Seus agendamentos no Cortaí">
+    <Screen title="Meus horários" subtitle="Seus agendamentos no Flow">
       {aviso ? (
         <Aviso tom="info" className="mb-4">
           {aviso}

@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { APP_VERSION, CHANGELOG, buscarVersaoPublicada } from "@/lib/versao";
 
 /**
- * "Sobre o Cortaí": versão instalada, situação da publicação e histórico.
+ * "Sobre o Flow": versão instalada, situação da publicação e histórico.
  * Somente leitura — ninguém altera a versão pela interface.
  */
 export function SobreOCortai() {
@@ -17,9 +17,9 @@ export function SobreOCortai() {
 
   return (
     <section className="mt-10">
-      <h2 className="mb-2 text-xs font-semibold uppercase text-mute2">Sobre o Cortaí</h2>
+      <h2 className="mb-2 text-xs font-semibold uppercase text-mute2">Sobre o Flow</h2>
       <div className="surface p-4">
-        <p className="text-sm font-semibold text-paper">Cortaí · v{APP_VERSION}</p>
+        <p className="text-sm font-semibold text-paper">Flow · v{APP_VERSION}</p>
         <p className="mt-1 text-xs text-mute">
           {emDia
             ? "Você está na versão mais recente."

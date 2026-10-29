@@ -1,8 +1,8 @@
-# CortAI executora por voz (painel)
+# Flow IA executora por voz (painel)
 
 Estado em 2026-10-11, branch `ccr-1c1f9637-ur1ccn`. Nada foi publicado.
 
-A equipe autenticada fala ou escreve “CortAI, marque um horário para Leandro amanhã às 15h para corte” no chat do painel. A voz é gravada no navegador, transcrita **no servidor** e entra no **mesmo cérebro** do texto.
+A equipe autenticada fala ou escreve “Flow IA, marque um horário para Leandro amanhã às 15h para corte” no chat do painel. A voz é gravada no navegador, transcrita **no servidor** e entra no **mesmo cérebro** do texto.
 
 ## 1. Auditoria: o que já existia (e foi reaproveitado)
 
@@ -20,29 +20,29 @@ Lacunas encontradas e tratadas: (1) busca de cliente por nome; (2) o `criar_agen
 
 ## 1.1 Como abrir (atalhos na Agenda)
 
-Três jeitos, todos levam à **mesma** conversa da CortAI (uma superfície ativa por vez):
+Três jeitos, todos levam à **mesma** conversa da Flow IA (uma superfície ativa por vez):
 
-1. **Segurar o "+"** da Agenda (~0,5 s): vibra, a folha da CortAI abre **já ouvindo** e o teclado não pula na frente. Toque curto continua abrindo o menu de sempre. Mexer o dedo (rolagem), soltar antes do tempo ou o navegador cancelar o toque desfazem o gesto; o clique que o navegador dispara ao soltar é engolido (senão abriria o menu junto). Com o menu aberto o "+" é o "X" e segurar não faz nada de especial. Código: `barbeiro/agenda/useToqueLongo.ts`.
+1. **Segurar o "+"** da Agenda (~0,5 s): vibra, a folha da Flow IA abre **já ouvindo** e o teclado não pula na frente. Toque curto continua abrindo o menu de sempre. Mexer o dedo (rolagem), soltar antes do tempo ou o navegador cancelar o toque desfazem o gesto; o clique que o navegador dispara ao soltar é engolido (senão abriria o menu junto). Com o menu aberto o "+" é o "X" e segurar não faz nada de especial. Código: `barbeiro/agenda/useToqueLongo.ts`.
 2. **"Agendar por voz" no menu do "+"**: item no leque, colado ao "Agendar horário". É também o caminho para teclado e leitor de tela (segurar é só um atalho; o "+" ganha a descrição "Segure para agendar por voz"). Fica desabilitado sem internet (o comando depende do servidor).
-3. **Botão de microfone dentro do chat** (e o botão flutuante da CortAI como antes).
+3. **Botão de microfone dentro do chat** (e o botão flutuante da Flow IA como antes).
 
 Os itens 1 e 2 só existem se o navegador grava áudio; senão a Agenda fica exatamente como era.
 Decisão de desenho: segurar **abre e começa a ouvir** (toque no quadrado para enviar), em vez de "segurar enquanto fala e soltar para enviar". A alternativa (push-to-talk) é simples de trocar, mas exige manter o dedo parado durante a fala inteira; avise se preferir.
 
 ## 1.2 Dois clientes com o mesmo nome (pop-up de opções)
 
-Se a busca por nome devolve **mais de um** cliente, a CortAI não chuta e **nada é agendado**. A conversa mostra um cartão fixo acima do campo de escrita, “Qual cliente? Toque no certo”, com um botão por cliente (nome + final do telefone). Ao tocar:
+Se a busca por nome devolve **mais de um** cliente, a Flow IA não chuta e **nada é agendado**. A conversa mostra um cartão fixo acima do campo de escrita, “Qual cliente? Toque no certo”, com um botão por cliente (nome + final do telefone). Ao tocar:
 
 - a tela envia o **ID** do cliente (não só o nome); o servidor confere que ele é **deste negócio**, não está arquivado e que a pessoa pode ver clientes (`visualizar_clientes`); se não, recusa;
-- a política de execução direta passa a tratar esse cliente como **resolvido**; a CortAI continua o pedido original (serviço, dia e hora que já estavam na conversa), consulta a disponibilidade e agenda;
+- a política de execução direta passa a tratar esse cliente como **resolvido**; a Flow IA continua o pedido original (serviço, dia e hora que já estavam na conversa), consulta a disponibilidade e agenda;
 - ao modelo vai **só o ID validado, nunca o nome** (nome de cliente é dado de terceiros e poderia carregar instrução maliciosa);
-- se o envio falhar (rede), o cartão volta e a pessoa toca de novo, sem redigitar; “×” fecha o cartão sem enviar; o cartão só aparece enquanto a última mensagem é a pergunta da CortAI.
+- se o envio falhar (rede), o cartão volta e a pessoa toca de novo, sem redigitar; “×” fecha o cartão sem enviar; o cartão só aparece enquanto a última mensagem é a pergunta da Flow IA.
 
 **Regra de nome e sobrenome**: já vale sem obrigar ninguém a dizer o sobrenome. Se a pessoa fala “Leandro Silva” e só existe um, executa; se falar só “Leandro” e houver dois, aparece o cartão; se houver só um “Leandro” cadastrado, executa direto (a busca única é a prova exigida). Exigir sobrenome SEMPRE, mesmo com um só candidato, é uma mudança de uma linha em `execucao-direta.ts`, mas acrescenta atrito em toda marcação por voz — não ativei; é decisão sua.
 
 ## 1.3 Conferência visível (o que foi verificado e se pode gravar)
 
-Antes de qualquer escrita preparada no painel, a CortAI monta uma **lista de verificações que a pessoa vê**, com um veredito calculado por **regra** (não por opinião do modelo):
+Antes de qualquer escrita preparada no painel, a Flow IA monta uma **lista de verificações que a pessoa vê**, com um veredito calculado por **regra** (não por opinião do modelo):
 
 | Verificação | De onde vem |
 |---|---|
@@ -51,7 +51,7 @@ Antes de qualquer escrita preparada no painel, a CortAI monta uma **lista de ver
 | Permissão | `acaoPermitida` (as permissões das telas) |
 | Cliente identificado / Serviço no catálogo / Horário da agenda oficial | Provas do turno: veio de uma consulta oficial? (a busca por nome teve resultado único?) |
 
-Veredito: **pronto** (tudo conferido) → pode gravar; **atenção** (algo a olhar, ex.: cliente não confirmado por busca, horário já registrado) → mostra a lista e o botão vira “Confirmar mesmo assim”; **bloqueado** (cliente/serviço inexistente, horário ocupado ou fora do expediente, permissão) → **não se cria confirmação**, nada é gravado, a lista mostra o problema em vermelho e a CortAI explica e oferece alternativas.
+Veredito: **pronto** (tudo conferido) → pode gravar; **atenção** (algo a olhar, ex.: cliente não confirmado por busca, horário já registrado) → mostra a lista e o botão vira “Confirmar mesmo assim”; **bloqueado** (cliente/serviço inexistente, horário ocupado ou fora do expediente, permissão) → **não se cria confirmação**, nada é gravado, a lista mostra o problema em vermelho e a Flow IA explica e oferece alternativas.
 
 Onde aparece: no cartão “Confere?” (com os botões), e dentro da resposta quando já foi gravado (“Tudo conferido”) ou foi bloqueado. A conferência **só lê** (teste garante que não grava nada) e usa a regra oficial, então não pode divergir do que o sistema faria ao gravar. Execução direta passa a exigir veredito **pronto**. Se a conferência falhar por erro técnico, vira “atenção” (cai na confirmação), nunca derruba o pedido. Interruptor: `CORTAI_CONFERENCIA=false` volta ao fluxo anterior. Só no painel; WhatsApp não muda.
 
@@ -74,7 +74,7 @@ Até aqui valia “**toda** escrita vira pendente e só executa após o SIM” (
 
 - Só `criar_agendamento` é “dispensável” (`POLITICA_DE_CONFIRMACAO`). Cancelar, remarcar, cadastrar e anotar **seguem exigindo SIM**.
 - Só no **painel**, com **dono ou profissional** autenticado. WhatsApp, site e cliente nunca executam direto.
-- **Por voz, NÃO executa direto (padrão).** A transcrição pode errar um nome ou uma hora, então a CortAI mostra **“Entendi assim: Agendar Corte com Rafa em segunda, 12/10, 15:00 para Leandro Silva. Posso confirmar?”** e um cartão com **Confirmar** / **Não** (um toque, sem digitar “sim”). O texto da conferência é montado pelo **sistema** com os nomes validados no banco — o modelo não consegue parafrasear errado a data, a hora ou o cliente. Texto digitado continua direto. Para a voz também executar direto: `CORTAI_EXECUCAO_DIRETA_VOZ=true`.
+- **Por voz, NÃO executa direto (padrão).** A transcrição pode errar um nome ou uma hora, então a Flow IA mostra **“Entendi assim: Agendar Corte com Rafa em segunda, 12/10, 15:00 para Leandro Silva. Posso confirmar?”** e um cartão com **Confirmar** / **Não** (um toque, sem digitar “sim”). O texto da conferência é montado pelo **sistema** com os nomes validados no banco — o modelo não consegue parafrasear errado a data, a hora ou o cliente. Texto digitado continua direto. Para a voz também executar direto: `CORTAI_EXECUCAO_DIRETA_VOZ=true`.
 - Só se **cada referência foi provada por uma consulta oficial neste mesmo turno**: o cliente apareceu como resultado **único** da busca por nome; o serviço está em `listar_servicos`; o horário (instante exato, profissional e serviço) veio de `consultar_disponibilidade`. O modelo **não consegue** chutar id nem horário.
 - Cliente homônimo (busca com 2+ resultados) **nunca** resolve: cai na confirmação.
 - Faltou qualquer prova → o fluxo antigo (resumo + “Posso confirmar?”). Nada executa sem o SIM.

@@ -1,4 +1,4 @@
-/** Gateway interno de IA do Cortaí. Só usa provedor compatível configurado no servidor. */
+/** Gateway interno de IA do Flow. Só usa provedor compatível configurado no servidor. */
 
 import type { Canal } from "./acoes.server";
 import { modoBasicoLigado, planejarModoBasico } from "./modo-basico";
@@ -93,11 +93,11 @@ export type EventoDeChamada = {
 };
 
 function mensagemSegura(status: number): string {
-  if (status === 402) return "Os créditos de IA do Cortaí acabaram.";
-  if (status === 403) return "A IA do Cortaí está bloqueada para este negócio agora.";
-  if (status === 429) return "A IA do Cortaí está sobrecarregada. Tente de novo em instantes.";
-  if (status === 401) return "A autenticação da IA do Cortaí foi recusada neste ambiente.";
-  return "A IA do Cortaí não conseguiu responder agora.";
+  if (status === 402) return "Os créditos de IA do Flow acabaram.";
+  if (status === 403) return "A IA do Flow está bloqueada para este negócio agora.";
+  if (status === 429) return "A IA do Flow está sobrecarregada. Tente de novo em instantes.";
+  if (status === 401) return "A autenticação da IA do Flow foi recusada neste ambiente.";
+  return "A IA do Flow não conseguiu responder agora.";
 }
 
 function categoriaDoStatus(status: number): EventoDeChamada["categoriaErro"] {

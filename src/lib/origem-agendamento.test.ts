@@ -10,7 +10,7 @@ describe("descreverOrigem", () => {
     expect(r("app")).toMatchObject({ rotulo: "Manual", icone: "manual" });
     expect(r("instagram")).toMatchObject({ rotulo: "Instagram", icone: "instagram" });
   });
-  it("CortAI nunca é origem; só selo quando assistido", () => {
+  it("Flow IA nunca é origem; só selo quando assistido", () => {
     expect(descreverOrigem("whatsapp", true).cortai).toBe(true);
     expect(descreverOrigem("manual", false).cortai).toBe(false);
     for (const o of ORIGENS_AGENDAMENTO)

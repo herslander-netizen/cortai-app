@@ -4,7 +4,7 @@ import { Check, ChevronRight, Circle, MapPin, Scissors, UsersRound, type LucideI
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { MarcaCortai } from "@/components/marca/MarcaCortai";
+import { MarcaFlow } from "@/components/marca/MarcaFlow";
 import { ETAPAS_DO_ONBOARDING } from "@/lib/onboarding.functions";
 import { MOLA } from "@/lib/movimento-figaro";
 
@@ -37,7 +37,7 @@ const PASSOS_INICIAIS: PassoInicial[] = [
 ];
 
 export type BoasVindasDoOnboardingProps = {
-  /** Índice da etapa persistida no onboarding real do Cortaí. */
+  /** Índice da etapa persistida no onboarding real do Flow. */
   indicePersistido: number;
   continuarLabel: string;
   onAbrirPasso: (etapa: PassoInicial["etapa"]) => void;
@@ -45,7 +45,7 @@ export type BoasVindasDoOnboardingProps = {
   onDepois: () => void;
 };
 
-/** Entrada do onboarding no padrão Figaro, mantendo as etapas reais do Cortaí. */
+/** Entrada do onboarding no padrão Figaro, mantendo as etapas reais do Flow. */
 export function BoasVindasDoOnboarding({
   indicePersistido,
   continuarLabel,
@@ -68,7 +68,7 @@ export function BoasVindasDoOnboarding({
         className="rounded-[28px] px-5 py-6 text-center"
       >
         <h1 className="mb-3 text-sm font-semibold text-paper">Bem-vindo ao</h1>
-        <MarcaCortai variante="automatica" className="mx-auto h-9 w-auto" />
+        <MarcaFlow variante="automatica" className="mx-auto h-9 w-auto" />
         <p className="mt-4 text-sm leading-relaxed text-mute">
           Seu negócio agora tem uma nova casa.
         </p>

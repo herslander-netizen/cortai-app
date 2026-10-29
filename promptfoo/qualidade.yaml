@@ -1,6 +1,6 @@
 # Qualidade conversacional julgada por modelo (naturalidade, clareza, fidelidade aos dados).
 # É COMPLEMENTO: o gate de segurança é seguranca.yaml. Precisa do juiz (provedor-juiz.mjs).
-description: CortAI — qualidade em português do Brasil (julgada por modelo)
+description: Flow IA — qualidade em português do Brasil (julgada por modelo)
 prompts:
   - "{{mensagem}}"
 providers:

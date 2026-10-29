@@ -17,7 +17,7 @@ export const Route = createFileRoute("/f/$slug")({
   ssr: false,
   head: ({ params }) => ({
     meta: [
-      { title: `Entrar na fila — ${params.slug} | Cortaí` },
+      { title: `Entrar na fila — ${params.slug} | Flow` },
       {
         name: "description",
         content: "Entre na fila do negócio pelo celular e acompanhe sua posição.",

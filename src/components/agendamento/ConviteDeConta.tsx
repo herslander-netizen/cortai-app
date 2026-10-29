@@ -7,7 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { CHAVE_VINCULO } from "@/lib/vinculo";
 
 /**
- * Convite opcional, depois do agendamento confirmado, para criar a conta Cortaí.
+ * Convite opcional, depois do agendamento confirmado, para criar a conta Flow.
  * Nunca bloqueia nem esconde as ações da confirmação; só aparece sem sessão.
  * A prova (agendamento + telefone) fica guardada para vincular a ficha à conta nova.
  */
@@ -53,7 +53,7 @@ export function ConviteDeConta({
         Quer facilitar seus próximos agendamentos?
       </p>
       <p className="mt-1 text-xs leading-relaxed text-mute">
-        Crie sua conta Cortaí e tenha agendamentos, comandas, histórico e fidelidade sempre à mão. É
+        Crie sua conta Flow e tenha agendamentos, comandas, histórico e fidelidade sempre à mão. É
         opcional — seu horário já está garantido.
       </p>
       <div className="mt-3 grid grid-cols-[1fr_auto] gap-2">

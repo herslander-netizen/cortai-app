@@ -22,13 +22,13 @@ export const Route = createFileRoute("/barbeiro/fidelidade")({
   beforeLoad: ({ context }) => exigirCapacidade(context.queryClient, "fidelidade"),
   head: () => ({
     meta: [
-      { title: "Voltaí — Cortaí" },
+      { title: "Voltaí — Flow" },
       {
         name: "description",
         content:
           "Defina quantos cortes valem um grátis e veja o desconto real antes de vender no prejuízo.",
       },
-      { property: "og:title", content: "Voltaí — Cortaí" },
+      { property: "og:title", content: "Voltaí — Flow" },
       {
         property: "og:description",
         content: "Desconto real e ticket efetivo do seu cartão de fidelidade.",
@@ -90,7 +90,7 @@ function FidelidadePage() {
 
       <Card density="default" className="flex items-center justify-between gap-4">
         <div className="pr-4">
-          <p className="text-sm text-paper">Voltaí do Cortaí</p>
+          <p className="text-sm text-paper">Voltaí do Flow</p>
           <p className="mt-0.5 text-xs text-mute2">
             Desligado, o cliente não vê cartão, selos nem promessa de corte grátis. Desligar não
             zera o progresso já acumulado, e cada cliente pode ter uma exceção na própria ficha.

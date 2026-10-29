@@ -22,7 +22,7 @@ const NOMES_SECOES = Object.fromEntries(
 export const Route = createFileRoute("/barbeiro/marca/secao/$secao")({
   beforeLoad: ({ context }) => exigirCapacidade(context.queryClient, "branding_avancado"),
   head: () => ({
-    meta: [{ title: "Editar seção — Cortaí" }, { name: "robots", content: "noindex, nofollow" }],
+    meta: [{ title: "Editar seção — Flow" }, { name: "robots", content: "noindex, nofollow" }],
   }),
   component: EditorSecaoPage,
 });

@@ -1,5 +1,5 @@
 /**
- * Remetente de qualquer envio iniciado pelo Cortaí: a conexão principal do próprio negócio,
+ * Remetente de qualquer envio iniciado pelo Flow: a conexão principal do próprio negócio,
  * conectada e não compartilhada. Sem ela, não há envio (retorna null) — nunca existe troca
  * silenciosa para outro número, nem para o oficial compartilhado, e nenhuma linha é criada
  * automaticamente. Quem chama registra "Nenhum WhatsApp disponível".

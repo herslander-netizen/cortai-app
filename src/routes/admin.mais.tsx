@@ -19,12 +19,12 @@ import { GrupoDeLinhas, LinhaDeConfiguracao } from "@/components/ui/formulario/L
 export const Route = createFileRoute("/admin/mais")({
   head: () => ({
     meta: [
-      { title: "Mais — Administração Cortaí" },
+      { title: "Mais — Administração Flow" },
       {
         name: "description",
-        content: "Configurações e áreas administrativas da plataforma Cortaí.",
+        content: "Configurações e áreas administrativas da plataforma Flow.",
       },
-      { property: "og:title", content: "Mais — Administração Cortaí" },
+      { property: "og:title", content: "Mais — Administração Flow" },
       {
         property: "og:description",
         content: "Configurações e áreas administrativas da plataforma.",
@@ -61,7 +61,7 @@ const grupos = [
       {
         to: "/admin/marketing",
         label: "Marketing",
-        detail: "Abrir e compartilhar a apresentação do Cortaí",
+        detail: "Abrir e compartilhar a apresentação do Flow",
         icon: Megaphone,
       },
       {

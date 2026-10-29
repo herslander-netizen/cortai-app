@@ -36,7 +36,7 @@ const matriz: TipoDeNotificacao[] = [
   "fallback_informativo_whatsapp",
 ];
 
-describe("matriz transacional da Secretária Cortaí", () => {
+describe("matriz transacional da Secretária Flow", () => {
   it.each(matriz)("gera conteúdo válido para %s", (tipo) => {
     const texto = montarMensagem(tipo, dados);
     expect(texto.length).toBeGreaterThan(15);

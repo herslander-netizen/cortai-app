@@ -33,13 +33,13 @@ import {
 export const Route = createFileRoute("/admin/home")({
   head: () => ({
     meta: [
-      { title: "Home pública — Administração Cortaí" },
+      { title: "Home pública — Administração Flow" },
       {
         name: "description",
-        content: "Edite os textos, perguntas e SEO da Home pública oficial do Cortaí.",
+        content: "Edite os textos, perguntas e SEO da Home pública oficial do Flow.",
       },
-      { property: "og:title", content: "Home pública — Administração Cortaí" },
-      { property: "og:description", content: "Editor da Home pública oficial do Cortaí." },
+      { property: "og:title", content: "Home pública — Administração Flow" },
+      { property: "og:description", content: "Editor da Home pública oficial do Flow." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex, nofollow" },
@@ -156,7 +156,7 @@ function EditorDaHome() {
   return (
     <AdminScreen
       title="Home pública"
-      subtitle="Conteúdo da Home oficial do Cortaí, em /apresentacao."
+      subtitle="Conteúdo da Home oficial do Flow, em /apresentacao."
       actions={
         <Button size="sm" variant="outline" asChild>
           <a href="/apresentacao" target="_blank" rel="noreferrer">

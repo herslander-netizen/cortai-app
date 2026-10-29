@@ -1,5 +1,5 @@
 /**
- * Entrada de avisos do serviço de WhatsApp (gateway) para o Cortaí.
+ * Entrada de avisos do serviço de WhatsApp (gateway) para o Flow.
  *
  * Segurança:
  * - sem `WHATSAPP_WEBHOOK_SECRET` configurado, o endpoint responde 503: não

@@ -61,7 +61,7 @@ const ctx = {
   telefoneCliente: "551199",
   papel: "cliente",
 } as any;
-const persona = { nome: "CortAI", negocio: "Aurora" };
+const persona = { nome: "Flow IA", negocio: "Aurora" };
 const pendente = {
   id: "p1",
   acao: "cancelar_agendamento",
@@ -91,7 +91,7 @@ beforeEach(() => {
   estado.instrucoes = [];
 });
 
-describe("contexto e capacidades da CortAI", () => {
+describe("contexto e capacidades da Flow IA", () => {
   it("instrui o modelo a resolver referências sem adivinhar e revalidar antes de escrever", async () => {
     await pensar("quem é esse cliente?", false);
     const instrucoes = estado.instrucoes[0] ?? "";

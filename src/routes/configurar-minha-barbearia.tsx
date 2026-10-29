@@ -3,7 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
 import { ArrowLeft, Check, Copy, ExternalLink } from "lucide-react";
 
-import { MarcaCortai } from "@/components/marca/MarcaCortai";
+import { MarcaFlow } from "@/components/marca/MarcaFlow";
 import { EditorDeHorarios } from "@/components/onboarding/EditorDeHorarios";
 import { EditorDeServicos, type ServicoEditavel } from "@/components/onboarding/EditorDeServicos";
 import { aviso } from "@/lib/avisos";
@@ -27,13 +27,13 @@ export const Route = createFileRoute("/configurar-minha-barbearia")({
   ssr: false,
   head: () => ({
     meta: [
-      { title: "Configurar meu negócio — Cortaí" },
+      { title: "Configurar meu negócio — Flow" },
       {
         name: "description",
         content:
           "Monte a página do seu negócio em poucos minutos: nome, horários e serviços. Sem login para começar.",
       },
-      { property: "og:title", content: "Configurar meu negócio — Cortaí" },
+      { property: "og:title", content: "Configurar meu negócio — Flow" },
       {
         property: "og:description",
         content: "Nome, horários e serviços: seu negócio publicado em minutos.",
@@ -171,7 +171,7 @@ function ConfigurarMinhaBarbearia() {
       <header className="border-b border-paper/10">
         <div className="mx-auto flex h-16 max-w-[720px] items-center justify-between px-5">
           <Link to="/" className="flex items-center gap-2 text-sm text-mute">
-            <ArrowLeft size={16} /> <MarcaCortai variante="automatica" className="h-6 w-auto" />
+            <ArrowLeft size={16} /> <MarcaFlow variante="automatica" className="h-6 w-auto" />
           </Link>
           <Link to="/login" className="text-sm text-mute hover:text-paper">
             Entrar

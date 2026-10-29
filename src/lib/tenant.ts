@@ -36,7 +36,7 @@ export async function vinculoDoMembro(
     .eq("id", tenantId)
     .maybeSingle();
   if (tenant && tenant.ativo === false) {
-    throw new Error("Este negócio está desativado. Fale com o suporte do Cortaí para reativar.");
+    throw new Error("Este negócio está desativado. Fale com o suporte do Flow para reativar.");
   }
   return { tenantId, papel: vinculo.papel };
 }

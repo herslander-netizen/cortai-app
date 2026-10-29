@@ -1,5 +1,5 @@
 /**
- * Entrada oficial dos avisos do WhatsApp Business (Meta) para o Cortaí.
+ * Entrada oficial dos avisos do WhatsApp Business (Meta) para o Flow.
  *
  * A Meta envia para cá cada mudança do número conectado (mensagens de clientes,
  * confirmações de entrega, erros), direto, assinado com X-Hub-Signature-256.

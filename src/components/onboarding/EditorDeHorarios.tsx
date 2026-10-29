@@ -15,7 +15,7 @@ export function EditorDeHorarios({
   horarios,
   onChange,
   semIA = false,
-  segmento = "barbearia",
+  segmento = "outro",
 }: {
   horarios: HorarioSugerido[];
   onChange: (h: HorarioSugerido[]) => void;
@@ -200,7 +200,7 @@ export function EditorDeHorarios({
       {semIA ? null : (
         <div className="mt-5 rounded-xl border border-gold/40 bg-ink2 px-4 py-4">
           <p className="flex items-center gap-2 text-sm font-semibold text-paper">
-            <Sparkles size={16} className="text-gold" aria-hidden /> Quer que o Cortaí configure
+            <Sparkles size={16} className="text-gold" aria-hidden /> Quer que o Flow configure
             isso para você?
           </p>
           <Textarea

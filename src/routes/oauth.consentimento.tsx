@@ -3,7 +3,7 @@ import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
-import { MarcaCortai } from "@/components/marca/MarcaCortai";
+import { MarcaFlow } from "@/components/marca/MarcaFlow";
 
 type Resp = { data: any; error: { message: string } | null };
 type OAuthApi = {
@@ -20,10 +20,10 @@ export const Route = createFileRoute("/oauth/consentimento")({
   }),
   head: () => ({
     meta: [
-      { title: "Autorizar assistente — Cortaí" },
-      { name: "description", content: "Autorize um assistente a consultar seu negócio no Cortaí." },
-      { property: "og:title", content: "Autorizar assistente — Cortaí" },
-      { property: "og:description", content: "Conexão de assistentes ao Cortaí." },
+      { title: "Autorizar assistente — Flow" },
+      { name: "description", content: "Autorize um assistente a consultar seu negócio no Flow." },
+      { property: "og:title", content: "Autorizar assistente — Flow" },
+      { property: "og:description", content: "Conexão de assistentes ao Flow." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex" },
@@ -87,7 +87,7 @@ function Consentimento() {
 
   return (
     <main className="mx-auto flex min-h-[100dvh] w-full max-w-[400px] flex-col justify-center px-6">
-      <MarcaCortai variante="escura" className="mx-auto h-auto w-32" />
+      <MarcaFlow variante="automatica" className="mx-auto h-auto w-32" />
       <h1 className="mt-6 text-center text-lg font-semibold text-paper">
         {nome} quer acessar sua conta
       </h1>

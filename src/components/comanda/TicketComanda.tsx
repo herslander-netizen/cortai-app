@@ -1,7 +1,8 @@
 import { Calendar, Check, Clock, Copy, Package, Sparkles, User, X, Hourglass } from "lucide-react";
 import type { ReactNode } from "react";
 
-import simbolo from "@/assets/cortai-simbolo-oficial.png.asset.json";
+import simbolo from "@/assets/flow-simbolo-escuro-256.png.asset.json";
+import logotipo from "@/assets/flow-logotipo-escura-560.png.asset.json";
 import { Button } from "@/components/ui/button";
 import { brl } from "@/lib/format";
 import {
@@ -14,7 +15,9 @@ import {
   type ItemDoTicket,
 } from "@/lib/comanda-ticket";
 
-export const SIMBOLO_CORTAI = simbolo.url;
+/** Marca Flow na versão escura (o papel do ticket é claro). */
+export const SIMBOLO_MARCA = simbolo.url;
+export const LOGOTIPO_MARCA = logotipo.url;
 
 function Tracejado() {
   return <div className="my-4 border-t-2 border-dashed border-[var(--ticket-linha)]" aria-hidden />;
@@ -138,10 +141,7 @@ export function TicketComanda({
             </p>
           ) : null}
           {!negocio.logoUrl && !negocio.nome ? (
-            <div className="flex items-center gap-2">
-              <img src={SIMBOLO_CORTAI} alt="" className="size-10" />
-              <span className="text-[22px] font-bold text-[var(--ticket-navy)]">Cortaí</span>
-            </div>
+            <img src={LOGOTIPO_MARCA} alt="Flow" className="h-9 w-auto" />
           ) : null}
           <p className="mt-3 text-[13px] font-semibold tracking-[0.5em] text-[var(--ticket-mute)]">
             COMANDA
@@ -274,9 +274,9 @@ export function TicketComanda({
         <Tracejado />
         <p className="text-center text-[15px] font-semibold">Obrigado pela preferência!</p>
         <p className="mt-1 text-center text-[11px] text-[var(--ticket-mute)]">
-          By Alvo Digital • Cortaí
+          By Alvo Digital • Flow
         </p>
-        <img src={SIMBOLO_CORTAI} alt="" className="absolute bottom-6 right-6 size-6 opacity-90" />
+        <img src={SIMBOLO_MARCA} alt="" className="absolute bottom-6 right-6 size-6 opacity-90" />
       </article>
     </div>
   );

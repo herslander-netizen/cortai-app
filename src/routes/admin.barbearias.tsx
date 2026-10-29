@@ -33,9 +33,9 @@ import { EsqueletoLista } from "@/components/layout/Esqueleto";
 export const Route = createFileRoute("/admin/barbearias")({
   head: () => ({
     meta: [
-      { title: "Barbearias da plataforma — Cortaí" },
-      { name: "description", content: "Acompanhe planos, uso e risco dos negócios do Cortaí." },
-      { property: "og:title", content: "Barbearias da plataforma — Cortaí" },
+      { title: "Barbearias da plataforma — Flow" },
+      { name: "description", content: "Acompanhe planos, uso e risco dos negócios do Flow." },
+      { property: "og:title", content: "Barbearias da plataforma — Flow" },
       { property: "og:description", content: "Planos, uso e retenção dos negócios." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -221,7 +221,7 @@ function TenantDialog({
   if (!tenant) return null;
   const number = (tenant.whatsapp ?? tenant.telefone ?? "").replace(/\D/g, "");
   const message = encodeURIComponent(
-    "Olá! Tudo bem? Estou entrando em contato para saber como podemos ajudar seu negócio a aproveitar melhor o Cortaí.",
+    "Olá! Tudo bem? Estou entrando em contato para saber como podemos ajudar seu negócio a aproveitar melhor o Flow.",
   );
   return (
     <Dialog
@@ -278,7 +278,7 @@ function TenantDialog({
               value="cortai"
               className="h-10 rounded-full border-0 px-1 text-xs shadow-none data-[state=active]:bg-[var(--figaro-primary-container,var(--ink2))] data-[state=active]:text-[var(--figaro-primary,var(--primary))] data-[state=active]:shadow-none"
             >
-              Cortaí
+              Flow
             </TabsTrigger>
           </TabsList>
 

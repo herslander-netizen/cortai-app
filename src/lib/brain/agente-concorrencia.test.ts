@@ -59,7 +59,7 @@ const ctx = {
   telefoneCliente: "551199",
   papel: "cliente",
 } as any;
-const persona = { nome: "CortAI", negocio: "Aurora" };
+const persona = { nome: "Flow IA", negocio: "Aurora" };
 const pendente = {
   id: "pendente-1",
   acao: "criar_agendamento",

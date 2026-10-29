@@ -1,5 +1,5 @@
 /**
- * Mundo simulado da CortAI para avaliação — NUNCA toca o banco, o WhatsApp nem clientes reais.
+ * Mundo simulado da Flow IA para avaliação — NUNCA toca o banco, o WhatsApp nem clientes reais.
  *
  * O cérebro roda de verdade (guardas, catálogo, permissões, ciclo de confirmação). Só as
  * funções `executar`/`resumir` do catálogo são trocadas por versões que leem dados fixos e

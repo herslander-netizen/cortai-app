@@ -2,7 +2,7 @@
  * Movimento do Figaro (APK), convertido para a web. Decisão do dono de 22/10/2026: nas animações que
  * vêm do Figaro valem estes valores; os tokens de `motion.ts` e `--mov-*` seguem para o resto.
  * Fontes: `docs/referencia-figaro/apk/1-design-system.md` §5, `5-navegacao-e-transicoes.md` e
- * `6-animacoes.md`. Conversão e tabela: "Plano: trazer o Figaro para o Cortaí", P.3, no `DIARIO.md`.
+ * `6-animacoes.md`. Conversão e tabela: "Plano: trazer o Figaro para o Flow", P.3, no `DIARIO.md`.
  */
 
 /** Curvas do Android, como `cubic-bezier`. */

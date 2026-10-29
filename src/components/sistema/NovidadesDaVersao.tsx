@@ -26,7 +26,7 @@ function instalacaoNova() {
   }
 }
 
-/** Folha "Novidades do Cortaí 3.0": uma vez por versão, nunca no Modo Foco nem sobre outra janela. */
+/** Folha "Novidades do Flow 3.0": uma vez por versão, nunca no Modo Foco nem sobre outra janela. */
 export function NovidadesDaVersao() {
   const foco = useModoFoco();
   const caminho = useRouterState({ select: (s) => s.location.pathname });

@@ -4,7 +4,7 @@ import { useState } from "react";
 
 import { Aviso } from "@/components/ui/aviso";
 import { Button } from "@/components/ui/button";
-import { MarcaCortai } from "@/components/marca/MarcaCortai";
+import { MarcaFlow } from "@/components/marca/MarcaFlow";
 import { Signature } from "@/components/layout/Signature";
 import { supabase } from "@/integrations/supabase/client";
 import { entrarComProvedor } from "@/lib/auth/entrar-com-provedor";
@@ -20,12 +20,12 @@ export const Route = createFileRoute("/visitante")({
       : {},
   head: () => ({
     meta: [
-      { title: "Entrar como cliente — Cortaí" },
+      { title: "Entrar como cliente — Flow" },
       {
         name: "description",
-        content: "Crie sua conta de cliente para agendar serviços nos negócios do Cortaí.",
+        content: "Crie sua conta de cliente para agendar serviços nos negócios do Flow.",
       },
-      { property: "og:title", content: "Entrar como cliente — Cortaí" },
+      { property: "og:title", content: "Entrar como cliente — Flow" },
       { property: "og:description", content: "Conta de cliente para agendar seus serviços." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -66,7 +66,7 @@ function VisitantePage() {
 
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-[430px] flex-col px-4 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-4">
-      <MarcaCortai variante="automatica" className="h-auto w-44" prioridade />
+      <MarcaFlow variante="automatica" className="h-auto w-44" prioridade />
       <h1 className="mt-3 text-[22px] font-semibold leading-7 tracking-tight text-paper md:text-2xl">
         {modo === "criar" ? "Crie sua conta de cliente." : "Entre para agendar seu horário."}
       </h1>
@@ -233,7 +233,7 @@ function VisitantePage() {
       </Button>
 
       <Link to="/login" className="mt-6 text-center text-xs text-mute2 hover:text-paper">
-        Tenho um negócio no Cortaí
+        Tenho um negócio no Flow
       </Link>
 
       <div className="mt-auto pt-6">

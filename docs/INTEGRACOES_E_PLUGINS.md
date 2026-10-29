@@ -1,6 +1,6 @@
 # Integrações e plugins — arquitetura portátil
 
-Objetivo: manter o Cortaí independente de qualquer fornecedor e permitir conectar/desconectar serviços sem reescrever regras de negócio. Esta especificação não significa que todos os conectores estejam implementados ou conectados.
+Objetivo: manter o Flow independente de qualquer fornecedor e permitir conectar/desconectar serviços sem reescrever regras de negócio. Esta especificação não significa que todos os conectores estejam implementados ou conectados.
 
 ## Conectores previstos
 

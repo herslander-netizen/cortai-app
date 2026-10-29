@@ -4,7 +4,7 @@ const DESTINOS_DE_RETORNO: readonly Destino[] = ["/admin", "/barbeiro", "/app", 
 
 /**
  * Mantém o destino do onboarding no link de confirmação sem aceitar URLs
- * externas. O Supabase só recebe caminhos internos do próprio Cortaí.
+ * externas. O Supabase só recebe caminhos internos do próprio Flow.
  */
 export function urlDeRetornoDeAutenticacao(origin: string, proximo?: string): string {
   const retorno = new URL("/entrar/retorno", origin);

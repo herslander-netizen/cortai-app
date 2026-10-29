@@ -12,8 +12,8 @@ import type { RespostaDoAssistente } from "@/lib/ia/assistente";
 import type { EstadoDaCortai } from "@/lib/brain/estado-cortai";
 
 /**
- * Interruptor geral, pausa e cotas da CortAI no painel. O cérebro confere de novo por
- * dentro; aqui serve ao assistente de cadastro (mesma CortAI, outro caminho) e aos selos.
+ * Interruptor geral, pausa e cotas da Flow IA no painel. O cérebro confere de novo por
+ * dentro; aqui serve ao assistente de cadastro (mesma Flow IA, outro caminho) e aos selos.
  */
 async function estadoNoPainel(tenantId: string, userId: string): Promise<EstadoDaCortai> {
   const { iaDisponivel } = await import("@/lib/brain/gateway.server");
@@ -29,7 +29,7 @@ async function respostaBloqueada(estado: EstadoDaCortai): Promise<RespostaDoAssi
   return respostaIndisponivel(textoDoBloqueio(estado));
 }
 
-/** Estado da CortAI para o selo do cabeçalho e do chat. */
+/** Estado da Flow IA para o selo do cabeçalho e do chat. */
 export const getEstadoDaCortai = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<{ estado: EstadoDaCortai }> => {
@@ -263,7 +263,7 @@ export const perguntarAoCortai = createServerFn({ method: "POST" })
             resposta = respostaIndisponivel();
             estado = "sem_configuracao";
           } else {
-            // A CortAI age com a chave de serviço: papel e permissões da pessoa entram no
+            // A Flow IA age com a chave de serviço: papel e permissões da pessoa entram no
             // contexto, para ela nunca poder mais do que a própria pessoa pode nas telas.
             const { acessoDoPainel } = await import("@/lib/brain/acesso-painel.server");
             const acesso = await acessoDoPainel(context, tenantId, papelNaEquipe);
@@ -276,7 +276,7 @@ export const perguntarAoCortai = createServerFn({ method: "POST" })
                 profissionalId: acesso.profissionalId,
                 permissoes: acesso.permissoes,
               },
-              persona: { nome: "Cortaí", negocio: contexto.nome, segmento: contexto.segmento },
+              persona: { nome: "Flow", negocio: contexto.nome, segmento: contexto.segmento },
               historico: historicoBruto.map((m) => ({
                 autor: m["autor"] === "barbeiro" ? "usuario" : "assistente",
                 texto: String(m["conteudo"] ?? ""),

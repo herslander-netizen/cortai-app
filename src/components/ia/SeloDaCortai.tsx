@@ -6,7 +6,7 @@ const COR_DO_TOM = {
   parada: "border-brick/40 text-brick",
 } as const;
 
-/** Selo curto do estado da CortAI: Ativa, Desligada, Pausada, Limite... */
+/** Selo curto do estado da Flow IA: Ativa, Desligada, Pausada, Limite... */
 export function SeloDaCortai({
   estado,
   mostrarAtiva = false,
@@ -26,7 +26,7 @@ export function SeloDaCortai({
   );
 }
 
-/** Ponto do estado sobre o ícone do cabeçalho; some quando a CortAI está ativa. */
+/** Ponto do estado sobre o ícone do cabeçalho; some quando a Flow IA está ativa. */
 export function PontoDaCortai({ estado }: { estado: EstadoDaCortai | null }) {
   if (!estado || estado === "ativa") return null;
   const tom = SELO_DA_CORTAI[estado].tom;

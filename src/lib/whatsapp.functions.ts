@@ -1,5 +1,5 @@
 /**
- * Funções do painel do CortAI (WhatsApp).
+ * Funções do painel da Flow IA (WhatsApp).
  *
  * Toda função resolve a barbearia pelo vínculo real do usuário e exige a
  * permissão correspondente no servidor — esconder botão na tela não basta.
@@ -70,7 +70,7 @@ export type PainelDoCortai = {
   provedor: string;
   /** Variáveis que ainda precisam ser cadastradas para o QR funcionar. */
   credenciaisFaltantes: string[];
-  /** A IA do CortAI está disponível? */
+  /** A IA do Flow está disponível? */
   iaDisponivel: boolean;
   conexao: ConexaoDeWhatsapp | null;
   /** Segunda conexão (avisos transacionais); null enquanto não existir. */
@@ -83,7 +83,7 @@ export type PainelDoCortai = {
   podeGerenciarWhatsapp: boolean;
   /** Interruptor "Notificações pelo WhatsApp" (fonte única: tenants). */
   notificacoesAtivas: boolean;
-  /** Notificações saem pelo número central do Cortaí (sem dados técnicos dele). */
+  /** Notificações saem pelo número central do Flow (sem dados técnicos dele). */
   notificacoesPelaCentral: boolean;
   /** Existe hoje um número pronto para enviar as notificações deste negócio? */
   envioDeNotificacoesDisponivel: boolean;
@@ -398,7 +398,7 @@ export const conectarWhatsapp = createServerFn({ method: "POST" })
         return {
           status: "desconectado",
           aviso:
-            "O serviço de WhatsApp ainda não está configurado nesta instalação. Fale com o suporte do Cortaí para liberar.",
+            "O serviço de WhatsApp ainda não está configurado nesta instalação. Fale com o suporte do Flow para liberar.",
         };
       }
       const sessao = await sessaoDoTenant(tenantId, tipo);
@@ -845,7 +845,7 @@ export type AtividadeDoCortai = {
 };
 
 /**
- * Tela de acompanhamento (somente leitura): o que o CortAI entendeu, quais
+ * Tela de acompanhamento (somente leitura): o que a Flow IA entendeu, quais
  * ferramentas usou e o que falhou. Não altera nada do atendimento.
  */
 export const getAtividadeDoCortai = createServerFn({ method: "GET" })
@@ -911,12 +911,12 @@ export const getAtividadeDoCortai = createServerFn({ method: "GET" })
     };
   });
 
-/* ------------------------- Aprendizado do CortAI -------------------------- */
+/* ------------------------- Aprendizado da Flow IA -------------------------- */
 
 export type TermoNaoEntendido = { texto: string; total: number; ultimaVez: string };
 
 /**
- * Frases que o CortAI não entendeu, agrupadas. Serve para a barbearia ver o
+ * Frases que a Flow IA não entendeu, agrupadas. Serve para a barbearia ver o
  * que os clientes pedem com palavras diferentes das cadastradas.
  */
 export const getTermosNaoEntendidos = createServerFn({ method: "GET" })

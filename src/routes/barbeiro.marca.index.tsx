@@ -51,9 +51,9 @@ export const Route = createFileRoute("/barbeiro/marca/")({
   errorComponent: RouteError,
   head: () => ({
     meta: [
-      { title: "Personalizar Página — Cortaí" },
+      { title: "Personalizar Página — Flow" },
       { name: "description", content: "Personalize e publique a página pública do seu negócio." },
-      { property: "og:title", content: "Personalizar página — Cortaí" },
+      { property: "og:title", content: "Personalizar página — Flow" },
       {
         property: "og:description",
         content: "Escolha o layout, tema e seções que aparecem na página pública do seu negócio.",

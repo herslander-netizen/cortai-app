@@ -20,7 +20,7 @@ export type EstiloDoChat = {
 export const ESTILOS_DO_CHAT: readonly EstiloDoChat[] = [
   {
     id: "cortai",
-    nome: "Cortaí",
+    nome: "Flow",
     descricao: "Balões de vidro sobre a foto do negócio, o visual de sempre.",
     valores: {
       estilo: "vidro",

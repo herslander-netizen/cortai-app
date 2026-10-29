@@ -21,7 +21,7 @@ lê-lo no começo de cada tarefa. O estado vivo fica em `DIARIO.md` e o resumo d
 
 **Onde trabalhar:** sempre pelo GitHub (`herslander-netizen/cortai-app`, ramo
 `cloudflare-workers-migration-2026-10-13`), com o GPT/Codex, o Claude Code ou o Muse ligados ao
-repositório. O Cortaí não usa mais o Lovable: não existe editor sincronizado, e a `main` do Git é só
+repositório. O Flow não usa mais o Lovable: não existe editor sincronizado, e a `main` do Git é só
 arquivo do período antigo (não alimenta nenhum site). Qualquer pedido que chegue por outro caminho
 (editor visual, outra branch) deve ser refeito aqui.
 
@@ -84,9 +84,9 @@ decisão nova contradiz uma regra daqui, apontar o conflito ao dono antes de agi
 
 - Sobreposição travada no banco (`agendamentos_sem_sobreposicao`); só membros criam encaixes.
 - Webhooks públicos: `webhook-guard.server.ts` com contadores persistidos (instâncias sem memória comum).
-- Cortaí é uma plataforma multi-serviços de gestão e agendamento para negócios de serviços; barbearia e Beleza são segmentos. Linguagem em `src/lib/segmentos.ts`; sem segmento explícito, usar vocabulário neutro.
+- Flow é uma plataforma multi-serviços de gestão e agendamento para negócios de serviços; barbearia e Beleza são segmentos. Linguagem em `src/lib/segmentos.ts`; sem segmento explícito, usar vocabulário neutro.
 - **Toda tela nova ou refeita nasce no estilo Figaro** (decisão do dono, 24/10/2026): cartões em grupo com cantos de 28 dp nas pontas, hero arredondado, folhas de baixo, botão grande de pílula embaixo, mesmas molas e tokens `--figaro-*`; referência em `docs/referencia-figaro/apk/`. Não entregar tela em estilo próprio. **Ordem permanente, com a tabela do que usar em cada caso e o que é proibido: `docs/ordem-padrao-figaro.md` (leia antes de qualquer tela).** O teste `src/lib/estilo-figaro.test.ts` segura os primitivos.
-- Contrato de design (obrigatório em toda tela): `docs/contrato-de-design.md`. Ícone CortAI via `IconeDaIA`.
+- Contrato de design (obrigatório em toda tela): `docs/contrato-de-design.md`. Ícone Flow IA via `IconeDaIA`.
 - Desfazer: atômico no banco, 5 s, mesmo negócio e autor.
 - Contexto do cliente: slug persistido e revalidado; nunca escolher ficha silenciosamente.
 - Chats públicos: mesmo motor, `PaginaConfig`, `ChatShell`, `ChatHeader`.
@@ -116,7 +116,7 @@ decisão nova contradiz uma regra daqui, apontar o conflito ao dono antes de agi
 
 - Versão atual e novidades em src/lib/novidades.ts; subir versao.json junto.
 - Atualização obrigatória: subir `minima` em `versao.json` só após publicar; bloqueia só áreas internas, nunca com falha de leitura.
-- Conta Cortaí = um usuário por e-mail; contextos (cliente/negócio) decididos só por `src/lib/contextos.ts` e `perfis.contexto_ativo`; troca via `escolherContexto` e tela `/escolher` — nunca criar segunda conta para outro papel.
+- Conta Flow = um usuário por e-mail; contextos (cliente/negócio) decididos só por `src/lib/contextos.ts` e `perfis.contexto_ativo`; troca via `escolherContexto` e tela `/escolher` — nunca criar segunda conta para outro papel.
 - Integração externa ALVO IA desligada em 10/10/2026: `/api/public/alvo-ia`, `/api/public/ai/*` e `/api/public/cortai/acoes` respondem 410 (`ia/legado-desligado.ts`); tabelas mantidas, sem DROP. O cérebro em `src/lib/brain` (regras no AGENTS.md de lá) é o único caminho de IA.
 
 - Regras do formato de aviso e do entendimento no WhatsApp: `src/lib/whatsapp/AGENTS.md`.

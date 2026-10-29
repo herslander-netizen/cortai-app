@@ -17,9 +17,9 @@ import { Chip } from "@/components/ui/chip";
 export const Route = createFileRoute("/barbeiro/divulgar")({
   head: () => ({
     meta: [
-      { title: "Divulgar nas redes — Cortaí Gestão" },
+      { title: "Divulgar nas redes — Flow" },
       { name: "description", content: "Crie posts para Instagram e TikTok com link de agendamento." },
-      { property: "og:title", content: "Divulgar nas redes — Cortaí Gestão" },
+      { property: "og:title", content: "Divulgar nas redes — Flow" },
       { property: "og:description", content: "Artes 9:16 prontas com legenda e hashtags." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

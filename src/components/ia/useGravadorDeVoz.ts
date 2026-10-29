@@ -57,7 +57,7 @@ export function escolherTipoDeAudio(
 export function mensagemDeErroDoMicrofone(erro: unknown): string {
   const nome = (erro as { name?: string } | null)?.name;
   if (nome === "NotAllowedError" || nome === "SecurityError")
-    return "Permita o uso do microfone no navegador para falar com a Cortaí.";
+    return "Permita o uso do microfone no navegador para falar com a Flow IA.";
   if (nome === "NotFoundError" || nome === "OverconstrainedError")
     return "Não encontrei um microfone neste aparelho.";
   if (nome === "NotReadableError") return "O microfone está em uso por outro aplicativo.";

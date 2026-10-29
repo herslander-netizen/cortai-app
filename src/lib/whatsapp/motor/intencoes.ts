@@ -1,5 +1,5 @@
 /**
- * Classificador determinístico de intenções do Cortaí — sem IA, custo zero.
+ * Classificador determinístico de intenções do Flow — sem IA, custo zero.
  *
  * Recebe o texto do cliente e devolve a intenção mais provável, as entidades
  * reconhecidas e um grau de confiança. Nada de banco, nada de rede.

@@ -1,4 +1,4 @@
-# Contexto compartilhado — Cortaí, Figaro, GPT e Claude
+# Contexto compartilhado — Flow, Figaro, GPT e Claude
 
 **Objetivo:** centralizar o contexto duradouro que o dono já explicou para que Claude Code, ChatGPT/GPT e Muse consigam continuar o trabalho sem o dono precisar repetir informações. Este documento complementa — não substitui — `AGENTS.md`, `DIARIO.md`, `MUSE.md` e o contrato de design. Se houver conflito, prevalecem as regras do projeto e as decisões mais recentes registradas no `DIARIO.md`.
 
@@ -18,7 +18,7 @@
 
 ## 2. Divisão de responsabilidades
 
-- **Claude Code:** implementa o código do Cortaí, incluindo os arquivos reservados para a Agenda. O dono determinou que a Agenda segue o Figaro e que Claude continua responsável pela implementação da Agenda.
+- **Claude Code:** implementa o código do Flow, incluindo os arquivos reservados para a Agenda. O dono determinou que a Agenda segue o Figaro e que Claude continua responsável pela implementação da Agenda.
 - **GPT/ChatGPT:** atua como analista visual e de referência para ajudar Claude a recuperar o comportamento original do Figaro; também pode executar tarefas em arquivos fora das reservas de Claude, respeitando o diário.
 - **Muse:** tem as mesmas autorizações e regras gerais, conforme decisão do dono; coordenar mudanças pelo diário.
 - Não editar arquivos de implementação da Agenda que estejam reservados ao Claude. Para perguntas do Claude sobre o Figaro, responder com especificação prática e verificável: hierarquia, espaçamento relativo, estados antes/durante/depois, movimentos, o que muda e o que permanece, gestos, casos de borda e critérios de aceite.
@@ -26,9 +26,9 @@
 
 ## 3. Identidade e objetivo do produto
 
-- O produto atual chama-se **Cortaí**. “Figaro/Figaroo” é a referência de uma versão antiga que deve ser recuperada; não é o nome atual do produto.
-- Preservar a identidade visual atual do Cortaí. Recuperar da referência Figaro a estrutura, a experiência, os cartões, fluxos, gestos, transições e animações que forem comprováveis. Não fazer redesign amplo nem misturar padrões de outros aplicativos.
-- O Cortaí deve servir a diferentes segmentos de beleza e serviços; não tornar a interface genericamente dependente de barbearias. A linguagem por segmento fica em `src/lib/segmentos.ts`.
+- O produto atual chama-se **Flow**. “Figaro/Figaroo” é a referência de uma versão antiga que deve ser recuperada; não é o nome atual do produto.
+- Preservar a identidade visual atual do Flow. Recuperar da referência Figaro a estrutura, a experiência, os cartões, fluxos, gestos, transições e animações que forem comprováveis. Não fazer redesign amplo nem misturar padrões de outros aplicativos.
+- O Flow deve servir a diferentes segmentos de beleza e serviços; não tornar a interface genericamente dependente de barbearias. A linguagem por segmento fica em `src/lib/segmentos.ts`.
 - Manter arquitetura, dados, regras de negócio, permissões e backend atuais ao recuperar a experiência visual.
 - O contrato de design obrigatório está em `docs/contrato-de-design.md`. Para ícone da IA, usar o mecanismo de projeto `IconeDaIA`; não criar outro padrão isolado.
 - O dono prefere trabalhar pelo GitHub e pelo Android quando necessário; não depender do Lovable. O Lovable deixou de ser usado pelo projeto.

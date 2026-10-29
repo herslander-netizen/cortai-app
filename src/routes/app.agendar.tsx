@@ -26,12 +26,12 @@ export const Route = createFileRoute("/app/agendar")({
     typeof search["b"] === "string" && search["b"] ? { b: search["b"] } : {},
   head: () => ({
     meta: [
-      { title: "Agendar horário — Cortaí" },
+      { title: "Agendar horário — Flow" },
       {
         name: "description",
         content: "Escolha serviço, profissional, dia, horário e forma de pagamento em uma tela só.",
       },
-      { property: "og:title", content: "Agendar horário — Cortaí" },
+      { property: "og:title", content: "Agendar horário — Flow" },
       {
         property: "og:description",
         content: "Serviço, profissional, horário e pagamento em poucos toques.",

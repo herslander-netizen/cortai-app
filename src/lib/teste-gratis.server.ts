@@ -217,7 +217,7 @@ function textoDaRegua(dia: number, restam: number, n?: { lembretes: number; onli
     };
   if (dia === 7)
     return {
-      titulo: "Uma semana de Cortaí",
+      titulo: "Uma semana de Flow",
       corpo: "Já ativou os lembretes automáticos? Eles reduzem as faltas sem você mandar mensagem.",
     };
   if (dia === 30 && n) {

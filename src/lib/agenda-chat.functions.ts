@@ -54,7 +54,7 @@ export type GradeDoDia = {
 };
 
 /**
- * Grade do dia para o chat do CortAI. Não tem regra própria: usa o motor
+ * Grade do dia para o chat da Flow IA. Não tem regra própria: usa o motor
  * oficial (`disponibilidade.ts`) com as regras reais da barbearia (fuso, passo,
  * antecedência, janela, intervalo, pausa, madrugada e serviço × profissional).
  * A proteção final continua no RPC/banco ao criar o agendamento.

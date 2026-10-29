@@ -6,7 +6,7 @@ import { Aviso } from "@/components/ui/aviso";
 import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { MarcaCortai } from "@/components/marca/MarcaCortai";
+import { MarcaFlow } from "@/components/marca/MarcaFlow";
 import { supabase } from "@/integrations/supabase/client";
 import { sincronizarCorDoNavegador } from "@/lib/aparencia";
 
@@ -16,10 +16,10 @@ export const Route = createFileRoute("/redefinir-senha")({
     search["convite"] ? { convite: "1" } : {},
   head: () => ({
     meta: [
-      { title: "Criar nova senha — Cortaí" },
-      { name: "description", content: "Defina uma nova senha e volte a usar o Cortaí." },
-      { property: "og:title", content: "Criar nova senha — Cortaí" },
-      { property: "og:description", content: "Defina sua nova senha do Cortaí." },
+      { title: "Criar nova senha — Flow" },
+      { name: "description", content: "Defina uma nova senha e volte a usar o Flow." },
+      { property: "og:title", content: "Criar nova senha — Flow" },
+      { property: "og:description", content: "Defina sua nova senha do Flow." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex, nofollow" },
@@ -75,7 +75,7 @@ function RedefinirSenhaPage() {
   return (
     <main className="auth-screen auth-screen--claro auth-login-shell mx-auto flex min-h-[100dvh] w-full max-w-[400px] flex-col justify-center px-6 py-[calc(2rem+env(safe-area-inset-bottom))]">
       <div className="mb-8 flex flex-col items-center text-center">
-        <MarcaCortai variante="escura" className="h-auto w-32" prioridade />
+        <MarcaFlow variante="escura" className="h-auto w-32" prioridade />
         <h1 className="mt-6 text-xl font-bold text-paper">Definir nova senha</h1>
       </div>
 
@@ -84,13 +84,13 @@ function RedefinirSenhaPage() {
           <Aviso tom="sucesso" titulo="Nova senha salva">
             {convite
               ? "Agora é só conferir o que você pode fazer no negócio e confirmar o acesso."
-              : "Você já pode entrar no Cortaí com a senha nova."}
+              : "Você já pode entrar no Flow com a senha nova."}
           </Aviso>
           <Button
             className="h-12 w-full rounded-full"
             onClick={() => void (convite ? navigate({ to: "/convite" }) : voltarParaLogin())}
           >
-            {convite ? "Ver meu acesso" : "Entrar no Cortaí"}
+            {convite ? "Ver meu acesso" : "Entrar no Flow"}
           </Button>
         </div>
       ) : linkInvalido && !pronto ? (

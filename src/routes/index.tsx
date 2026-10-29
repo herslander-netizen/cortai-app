@@ -5,7 +5,7 @@ import { destinoDoPapel, sessaoCompartilhada } from "@/lib/guarda";
 
 /**
  * "/": com sessão, vai para a área do papel; sem sessão, abre a tela de entrada (sequência animada
- * do Cortaí em `/login`). A apresentação completa continua em `/apresentacao` (decisão do dono, 22/10).
+ * do Flow em `/login`). A apresentação completa continua em `/apresentacao` (decisão do dono, 22/10).
  */
 export const Route = createFileRoute("/")({
   ssr: false,

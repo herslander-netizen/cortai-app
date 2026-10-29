@@ -1,4 +1,4 @@
-# Infraestrutura do Cortaí — leia antes de mexer
+# Infraestrutura do Flow — leia antes de mexer
 
 Resumo para qualquer IA ou pessoa que trabalhe no projeto (Claude, GPT, Muse). Atualizado em 2026-10-21.
 O que cada IA está fazendo e fez fica em `DIARIO.md`. As regras do projeto vêm primeiro: topo do
@@ -6,7 +6,7 @@ O que cada IA está fazendo e fez fica em `DIARIO.md`. As regras do projeto vêm
 
 ## Onde tudo roda
 
-O Cortaí não depende de nenhum editor nem de plataforma de terceiros para código, banco ou IA.
+O Flow não depende de nenhum editor nem de plataforma de terceiros para código, banco ou IA.
 A estrutura foi pensada para só gerar custo quando houver clientes.
 
 | Peça | Onde |
@@ -26,7 +26,7 @@ Documentos daquela fase ficam em `docs/historico/`.
 
 ## Recuperação do Figaro (ativa em 18/10/2026)
 
-O APK reencontrado `Figaroo.apk` é a referência original para layout, cartões, fluxos, agenda e movimento. A decisão do dono e o mapa de escopo estão em `DIARIO.md` e `docs/referencia-ux-figaroo-cortai.md`; o contrato obrigatório está em `docs/contrato-de-design.md`. Preservar a experiência antiga verificável, substituir a marca pela marca atual do Cortaí e integrar funções novas sem redesign. A Agenda foi passada ao Codex/GPT em 18/10; seguir `docs/CONTINUAR-CODEX.md` e as reservas ainda listadas no diário. Autorização explícita do dono em 19/10: migrações 0039–0041 somente no projeto isolado `cortai-preview`; a migração 0042, autorizada no trabalho de 21/10, também é exclusiva da prévia. Nenhuma alteração em `cortai-prod`, `main`, DNS ou site principal.
+O APK reencontrado `Figaroo.apk` é a referência original para layout, cartões, fluxos, agenda e movimento. A decisão do dono e o mapa de escopo estão em `DIARIO.md` e `docs/referencia-ux-figaroo-cortai.md`; o contrato obrigatório está em `docs/contrato-de-design.md`. Preservar a experiência antiga verificável, substituir a marca pela marca atual do Flow e integrar funções novas sem redesign. A Agenda foi passada ao Codex/GPT em 18/10; seguir `docs/CONTINUAR-CODEX.md` e as reservas ainda listadas no diário. Autorização explícita do dono em 19/10: migrações 0039–0041 somente no projeto isolado `cortai-preview`; a migração 0042, autorizada no trabalho de 21/10, também é exclusiva da prévia. Nenhuma alteração em `cortai-prod`, `main`, DNS ou site principal.
 
 ## Limites (não negociáveis)
 
@@ -53,7 +53,7 @@ básico desativado para não transformar indisponibilidade em sucesso. O catálo
 `cadastrar_servicos` e `definir_horarios`, que delegam às ações de domínio existentes e mantêm
 tenant, permissões, validação e auditoria no servidor. Não há evidência de chamada real ao Ollama
 nesta etapa; LocalAI continua desativado sem uma instância HTTPS protegida e um modelo funcional.
-Na etapa final de identidade, os rótulos públicos foram padronizados como Cortaí em telas de
+Na etapa final de identidade, os rótulos públicos foram padronizados como Flow em telas de
 atividade, onboarding, permissões, privacidade, apresentação e WhatsApp. Aliases técnicos como
 `CORTAI_*`, `ver_cortai` e rotas persistentes permanecem sem alteração para preservar contratos.
 
@@ -61,7 +61,7 @@ O cérebro continua único em `src/lib/brain`; o gateway pode usar um provedor p
 secundário compatível com Chat Completions. O secundário só é tentado quando o primário retorna
 429, 5xx, timeout ou falha de rede. Erros de credencial (401), crédito (402) ou bloqueio (403)
 não são mascarados por fallback. A confirmação, permissões, validação e execução das ações continuam
-no Cortaí; os provedores só interpretam e propõem ferramentas.
+no Flow; os provedores só interpretam e propõem ferramentas.
 
 Variáveis de ambiente opcionais para o secundário (não colocar valores no repositório):
 - `CORTAI_AI_FALLBACK_BASE_URL` — URL-base HTTPS terminada em `/v1` (por exemplo, serviço LocalAI protegido).
@@ -149,6 +149,6 @@ bun run build
 - C12: troca de foto da recepção já tinha fade + escala em 300 ms; testes de prévia, remoção e abertura do seletor adicionados. Conferência visual pendente.
 - V3: teste adicionado para o painel animado de frequência/silêncio, abrangendo canais ativos, ambos desativados e alternância preservando demais preferências. Conferência visual pendente.
 - C16: cabeçalho do modo editar horário muda a superfície ao rolar; teste dedicado criado. Conferência visual pendente.
-- C9 permanece parcial: o checklist atual do Cortaí não contém descrições expansíveis equivalentes ao `StepRow` do APK. Não inventar textos nem mudar a navegação sem evidência.
-- P3 permanece parcial: a lista da equipe tem transição de vazio/lista; não foi localizada uma tela equivalente de editor de localidades no Cortaí. Não criar rota apenas para reproduzir a animação.
+- C9 permanece parcial: o checklist atual do Flow não contém descrições expansíveis equivalentes ao `StepRow` do APK. Não inventar textos nem mudar a navegação sem evidência.
+- P3 permanece parcial: a lista da equipe tem transição de vazio/lista; não foi localizada uma tela equivalente de editor de localidades no Flow. Não criar rota apenas para reproduzir a animação.
 - O teste visual em 390 px/1280 px requer sessão de navegador conectada; sem isso, não afirmar paridade visual completa. A prévia isolada é `https://previa.cortaiapp.pages.dev`. Não publicar no site principal nem alterar banco real para esta tarefa.

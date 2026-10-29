@@ -47,28 +47,33 @@ function quebrar(ctx: CanvasRenderingContext2D, texto: string, largura: number) 
 export async function desenharTicket(
   d: DadosDoTicket,
   simboloUrl: string,
+  logotipoUrl?: string,
 ): Promise<HTMLCanvasElement> {
   const C: Cores = {
-    fundo: cor("--ticket-fundo", "#06172b"),
+    fundo: cor("--ticket-fundo", "#0f0f14"),
     papel: cor("--ticket-papel", "#fffdf9"),
-    texto: cor("--ticket-texto", "#0a1830"),
-    mute: cor("--ticket-mute", "#5b6b80"),
-    suave: cor("--ticket-suave", "#f1f4f7"),
-    linha: cor("--ticket-linha", "#c9d2dd"),
-    total: cor("--ticket-total", "#e6f6ff"),
-    navy: cor("--ticket-navy", "#06245a"),
-    rosa: cor("--ticket-rosa", "#ff2d78"),
+    texto: cor("--ticket-texto", "#16151f"),
+    mute: cor("--ticket-mute", "#5b5870"),
+    suave: cor("--ticket-suave", "#f3f2f8"),
+    linha: cor("--ticket-linha", "#d9d6e6"),
+    total: cor("--ticket-total", "#eef3fe"),
+    navy: cor("--ticket-navy", "#16151f"),
+    rosa: cor("--ticket-rosa", "#9c425a"),
     pix: cor("--ticket-pix", "#32bcad"),
     pago: cor("--ticket-pago", "#15803d"),
     pendente: cor("--ticket-pendente", "#c2610c"),
     cancelado: cor("--ticket-cancelado", "#dc2626"),
   };
-  const [logo, simbolo] = await Promise.all([carregar(d.negocio.logoUrl), carregar(simboloUrl)]);
+  const [logo, simbolo, logotipo] = await Promise.all([
+    carregar(d.negocio.logoUrl),
+    carregar(simboloUrl),
+    logotipoUrl ? carregar(logotipoUrl) : Promise.resolve(null),
+  ]);
   const fonte = getComputedStyle(document.body).fontFamily || "system-ui, sans-serif";
 
   // Duas passadas: a primeira só mede a altura.
   const medir = document.createElement("canvas").getContext("2d")!;
-  const altura = desenhar(medir, d, C, logo, simbolo, fonte, true);
+  const altura = desenhar(medir, d, C, logo, simbolo, fonte, true, logotipo);
   const canvas = document.createElement("canvas");
   canvas.width = (W + MARGEM * 2) * E;
   canvas.height = (altura + MARGEM * 2) * E;
@@ -106,7 +111,7 @@ export async function desenharTicket(
   ctx.fillStyle = C.fundo;
   ctx.fillRect(-MARGEM, -MARGEM, W + MARGEM * 2, altura + MARGEM * 2);
   ctx.restore();
-  desenhar(ctx, d, C, logo, simbolo, fonte, false);
+  desenhar(ctx, d, C, logo, simbolo, fonte, false, logotipo);
   return canvas;
 }
 
@@ -134,6 +139,7 @@ function desenhar(
   simbolo: HTMLImageElement | null,
   fonte: string,
   soMedir: boolean,
+  marca: HTMLImageElement | null = null,
 ): number {
   const f = (peso: number, px: number) => `${peso} ${px}px ${fonte}`;
   const larg = W - PAD * 2;
@@ -204,8 +210,8 @@ function desenhar(
     }
   }
   if (!logo && !d.negocio.nome) {
-    if (simbolo && !soMedir) ctx.drawImage(simbolo, W / 2 - 60, y, 40, 40);
-    texto("Cortaí", W / 2 + 22, y + 8, f(700, 22), C.navy, "center");
+    // Marca Flow: o lettering é desenho (manual §03), nunca texto comum.
+    if (marca && !soMedir) ctx.drawImage(marca, W / 2 - 69, y, 138, 40);
     y += 44;
   }
   y += 10;
@@ -368,7 +374,7 @@ function desenhar(
   tracejado();
   texto("Obrigado pela preferência!", W / 2, y, f(600, 15), C.texto, "center");
   y += 22;
-  texto("By Alvo Digital • Cortaí", W / 2, y, f(400, 11), C.mute, "center");
+  texto("By Alvo Digital • Flow", W / 2, y, f(400, 11), C.mute, "center");
   y += 18;
   if (simbolo && !soMedir) ctx.drawImage(simbolo, W - PAD - 24, y - 20, 24, 24);
   return y + 30;

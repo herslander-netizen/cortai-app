@@ -1,7 +1,7 @@
 import type { Conferencia } from "@/lib/brain/conferencia";
 import type { OpcaoDeEscolha } from "@/lib/brain/escolha-de-cliente";
 /**
- * Contrato do assistente do CortAI — seguro para o navegador (só tipos e rótulos).
+ * Contrato do assistente da Flow IA — seguro para o navegador (só tipos e rótulos).
  *
  * A resposta do modelo é sempre estruturada: texto para a pessoa ler, intenção,
  * ação sugerida com parâmetros e se precisa de confirmação antes de gravar.
@@ -85,7 +85,7 @@ export function respostaIndisponivel(texto?: string): RespostaDoAssistente {
   return {
     resposta:
       texto ??
-      "A inteligência Cortaí ainda não está ligada neste ambiente. Enquanto isso, posso te levar direto para a tela certa: serviços, horários ou fila.",
+      "A Flow IA ainda não está ligada neste ambiente. Enquanto isso, posso te levar direto para a tela certa: serviços, horários ou fila.",
     intencao: "ajuda",
     precisaConfirmar: false,
     perguntaDeConfirmacao: null,

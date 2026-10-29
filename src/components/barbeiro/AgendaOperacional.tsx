@@ -305,7 +305,7 @@ export function AgendaOperacional() {
   const [painelAberto, setPainelAberto] = useState(false);
   const [estadosLocais, setEstadosLocais] = useState<Record<string, string>>({});
   const [menuAberto, setMenuAberto] = useState(false);
-  // Agendar por voz: abre a CortAI já ouvindo. Só existe se o navegador grava áudio.
+  // Agendar por voz: abre a Flow IA já ouvindo. Só existe se o navegador grava áudio.
   const [vozAberta, setVozAberta] = useState(false);
   const [vozSuportada, setVozSuportada] = useState(false);
   useEffect(() => setVozSuportada(comandoDeVozSuportado()), []);
@@ -463,7 +463,7 @@ export function AgendaOperacional() {
     else setModoFoco(false);
   }
 
-  const segmentoAgenda = agenda.data?.tenant.segmento ?? "barbearia";
+  const segmentoAgenda = agenda.data?.tenant.segmento ?? "outro";
   const rotuloAtendimento = segmentoAgenda === "barbearia" ? "Na cadeira" : "Em atendimento";
   const passoMin = agenda.data?.passoMin ?? 30;
 

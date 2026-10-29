@@ -19,7 +19,7 @@ describe("rodapé da ficha (Figaro: docked actions)", () => {
     });
   });
 
-  it("já começou: a etapa do Cortaí é o principal; Reagendar e Não compareceu na seta", () => {
+  it("já começou: a etapa do Flow é o principal; Reagendar e Não compareceu na seta", () => {
     expect(rodapeDaFicha({ ...comecou, status: "agendado" }, agora).principal).toBe("chegou");
     expect(rodapeDaFicha({ ...comecou, status: "chegou" }, agora)).toEqual({
       principal: "comecar",

@@ -4,7 +4,7 @@ import { aplicarEstiloDoChat, ESTILOS_DO_CHAT, estiloAtualDoChat } from "./estil
 import { aplicarLayout, configPadrao } from "./pagina-config";
 
 describe("estilos do chat", () => {
-  it("o padrão é o estilo Cortaí (o visual de sempre)", () => {
+  it("o padrão é o estilo Flow (o visual de sempre)", () => {
     expect(estiloAtualDoChat(configPadrao().chat)).toBe("cortai");
   });
 

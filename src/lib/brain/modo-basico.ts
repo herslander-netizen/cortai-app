@@ -1,5 +1,5 @@
 /**
- * MODO BÁSICO da CortAI — o painel funciona sem IA, sem chave e sem custo.
+ * MODO BÁSICO da Flow IA — o painel funciona sem IA, sem chave e sem custo.
  *
  * Faz o papel do "modelo": lê a frase da equipe, escolhe AÇÕES DO CATÁLOGO e responde com os
  * dados que elas devolveram. Tudo o que o cérebro garante continua valendo, porque o ciclo

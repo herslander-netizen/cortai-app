@@ -1,4 +1,4 @@
-// Fonte única das origens de agendamento. "CortAI" nunca é origem: é assistência.
+// Fonte única das origens de agendamento. "Flow IA" nunca é origem: é assistência.
 export const ORIGENS_AGENDAMENTO = [
   "app",
   "manual",
@@ -30,7 +30,7 @@ export function descreverOrigem(
   };
 }
 
-/** Origem gravada quando o CortAI cria: cliente no WhatsApp → whatsapp; equipe → manual. */
+/** Origem gravada quando a Flow IA cria: cliente no WhatsApp → whatsapp; equipe → manual. */
 export function origemDoCortai(canal: string, papel?: string | null): "whatsapp" | "manual" {
   const equipe = !!papel && papel !== "cliente";
   return canal === "whatsapp" && !equipe ? "whatsapp" : "manual";

@@ -1,18 +1,18 @@
 /**
- * Fonte do service worker mínimo do Cortaí (servido em /sw.js sem cache longo).
+ * Fonte do service worker mínimo do Flow (servido em /sw.js sem cache longo).
  * Rede para tudo; só /assets/* com hash fica em cache, e navegação sem rede
  * mostra a página offline. Nunca guarda HTML, server functions, /api ou banco.
  */
 import { VERSAO_INSTALADA } from "@/lib/versao";
 
-export const ICONE_OFFLINE = "/icone-cortai-oficial-192-v2.png";
+export const ICONE_OFFLINE = "/icone-flow-192.png";
 
 export function paginaOffline() {
-  return `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#1A1F1C"><title>Sem conexão · Cortaí</title><style>body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:#1A1F1C;color:#E3EAE6;font-family:Manrope,system-ui,sans-serif;padding:24px;box-sizing:border-box;text-align:center}img{width:72px;height:72px;border-radius:18px}h1{font-size:20px;margin:20px 0 8px}p{font-size:15px;line-height:1.5;color:#A9B3AE;margin:0 0 24px}button{min-height:48px;padding:0 28px;border:0;border-radius:12px;background:#00B7F4;color:#1A1F1C;font-size:16px;font-weight:700}</style></head><body><main><img src="${ICONE_OFFLINE}" alt="Cortaí"><h1>Sem conexão</h1><p>Confira a internet do aparelho e tente de novo.</p><button type="button" onclick="location.reload()">Tentar de novo</button></main></body></html>`;
+  return `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#0F0F14"><title>Sem conexão · Flow</title><style>body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:#0F0F14;color:#ECEBF4;font-family:Inter,system-ui,sans-serif;padding:24px;box-sizing:border-box;text-align:center}img{width:72px;height:72px;border-radius:18px}h1{font-size:20px;margin:20px 0 8px}p{font-size:15px;line-height:1.5;color:#B7B4C8;margin:0 0 24px}button{min-height:48px;padding:0 28px;border:0;border-radius:999px;background:#A8C7FA;color:#0F1B33;font-size:16px;font-weight:700}</style></head><body><main><img src="${ICONE_OFFLINE}" alt="Flow"><h1>Sem conexão</h1><p>Confira a internet do aparelho e tente de novo.</p><button type="button" onclick="location.reload()">Tentar de novo</button></main></body></html>`;
 }
 
 export function fonteDoServiceWorker() {
-  return `/* Cortaí ${VERSAO_INSTALADA} — gerado; não editar à mão. */
+  return `/* Flow ${VERSAO_INSTALADA} — gerado; não editar à mão. */
 const CACHE_ASSETS = "cortai-assets-${VERSAO_INSTALADA}";
 const CACHE_OFFLINE = "cortai-offline-v1";
 const MANTER = [CACHE_ASSETS, CACHE_OFFLINE];
@@ -78,7 +78,7 @@ self.addEventListener("push", (e) => {
     } catch { visivel = null; }
     const corpo = typeof d.corpo === "string" && d.corpo ? d.corpo : "Novo aviso na agenda";
     if (visivel) { try { visivel.postMessage({ tipo: "cortai-push", aviso: { tipo: d.tipo, corpo } }); } catch { /* segue */ } }
-    await self.registration.showNotification("Cortaí", { body: corpo, tag: d.tag || d.tipo || "cortai", renotify: !visivel, silent: !!visivel, icon: ICONE, badge: ICONE, data: { link: d.link || "/barbeiro/agenda" } });
+    await self.registration.showNotification("Flow", { body: corpo, tag: d.tag || d.tipo || "cortai", renotify: !visivel, silent: !!visivel, icon: ICONE, badge: ICONE, data: { link: d.link || "/barbeiro/agenda" } });
   })());
 });
 

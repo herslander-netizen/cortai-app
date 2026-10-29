@@ -281,7 +281,7 @@ export const GRUPOS_DE_FUNCIONALIDADES: GrupoDeFuncionalidades[] = [
       f({
         chave: "descoberta",
         rotulo: "Aparecer na descoberta",
-        detalhe: "Seu negócio aparece na busca do Cortaí",
+        detalhe: "Seu negócio aparece na busca do Flow",
         fonte: { tipo: "tenant", coluna: "listada" },
         plano: null,
       }),

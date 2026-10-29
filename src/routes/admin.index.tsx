@@ -11,13 +11,13 @@ import { EsqueletoPainel } from "@/components/layout/Esqueleto";
 export const Route = createFileRoute("/admin/")({
   head: () => ({
     meta: [
-      { title: "Visão da plataforma — Cortaí" },
+      { title: "Visão da plataforma — Flow" },
       {
         name: "description",
-        content: "Receita, conversão, cancelamento e sinais de sucesso dos negócios no Cortaí.",
+        content: "Receita, conversão, cancelamento e sinais de sucesso dos negócios no Flow.",
       },
-      { property: "og:title", content: "Visão da plataforma — Cortaí" },
-      { property: "og:description", content: "Indicadores reais da plataforma Cortaí." },
+      { property: "og:title", content: "Visão da plataforma — Flow" },
+      { property: "og:description", content: "Indicadores reais da plataforma Flow." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex, nofollow" },

@@ -25,12 +25,12 @@ export const Route = createFileRoute("/app/espera")({
   }),
   head: () => ({
     meta: [
-      { title: "Lista de espera — Cortaí" },
+      { title: "Lista de espera — Flow" },
       {
         name: "description",
         content: "Entre na lista de espera e seja avisado quando abrir um horário.",
       },
-      { property: "og:title", content: "Lista de espera — Cortaí" },
+      { property: "og:title", content: "Lista de espera — Flow" },
       { property: "og:description", content: "Horário cheio? Avisamos assim que vagar." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

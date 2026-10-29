@@ -78,7 +78,7 @@ export function AvisoDeVersao() {
           }}
           className="order-1 h-12 min-w-0 basis-full justify-start rounded-lg px-3 text-left text-xs sm:flex-1"
         >
-          Cortaí 3.0 disponível
+          Flow 3.0 disponível
         </Button>
         <Button
           variant="primary"

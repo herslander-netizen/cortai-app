@@ -1,5 +1,5 @@
 /**
- * Entrada dos avisos da Evolution API para o Cortaí.
+ * Entrada dos avisos da Evolution API para o Flow.
  *
  * Segurança:
  * - toda instância exige `EVOLUTION_WEBHOOK_SECRET` (ou `WHATSAPP_WEBHOOK_SECRET`),
@@ -124,7 +124,7 @@ export const Route = createFileRoute("/api/public/whatsapp/evolution")({
           const chave = (dados["key"] as Record<string, unknown>) ?? {};
           if (chave["fromMe"] === true) return Response.json({ ok: true, ignorada: true });
           const remoteJid = String(chave["remoteJid"] ?? "");
-          // Grupos e transmissões não são atendidos pelo CortAI.
+          // Grupos e transmissões não são atendidos pela Flow IA.
           if (!remoteJid || !remoteJid.endsWith("@s.whatsapp.net")) {
             return Response.json({ ok: true, ignorada: true });
           }

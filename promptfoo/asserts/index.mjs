@@ -1,5 +1,5 @@
 /**
- * Verificações DETERMINÍSTICAS da CortAI (sem modelo-juiz) para permissões, isolamento,
+ * Verificações DETERMINÍSTICAS da Flow IA (sem modelo-juiz) para permissões, isolamento,
  * execução de operações e honestidade. Cada função recebe (output, contexto) e devolve
  * { pass, score, reason }. Parâmetros chegam em `contexto.config`.
  */

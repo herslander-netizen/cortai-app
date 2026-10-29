@@ -1,5 +1,5 @@
 /**
- * Entendimento de frases curtas em português para o MODO BÁSICO da CortAI (sem IA, sem custo).
+ * Entendimento de frases curtas em português para o MODO BÁSICO da Flow IA (sem IA, sem custo).
  * Puro e sem rede: só regras. Entende o que a equipe fala no painel — "agendar Leandro Silva
  * amanhã às 15h corte" — e devolve campos soltos (pessoa, dia, hora, serviço). Quem decide o
  * que fazer com eles é o planejador (`modo-basico.ts`), sempre pelas ações oficiais do catálogo.

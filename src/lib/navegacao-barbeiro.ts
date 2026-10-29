@@ -186,7 +186,7 @@ export const SECOES: ReadonlyArray<{ titulo: string; abas: ReadonlyArray<Aba> }>
   {
     titulo: "WhatsApp",
     abas: [
-      { to: "/barbeiro/cortai", label: "Cortaí", permissao: "ver_cortai" },
+      { to: "/barbeiro/cortai", label: "Flow", permissao: "ver_cortai" },
       { to: "/barbeiro/cortai-atividade", label: "Atividade", permissao: "ver_cortai" },
     ],
   },

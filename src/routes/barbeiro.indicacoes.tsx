@@ -24,12 +24,12 @@ export const Route = createFileRoute("/barbeiro/indicacoes")({
   beforeLoad: ({ context }) => exigirCapacidade(context.queryClient, "indicacoes"),
   head: () => ({
     meta: [
-      { title: "Indicações — Cortaí Gestão" },
+      { title: "Indicações — Flow" },
       {
         name: "description",
         content: "Cliente que traz cliente: código, recompensa e acompanhamento.",
       },
-      { property: "og:title", content: "Indicações — Cortaí Gestão" },
+      { property: "og:title", content: "Indicações — Flow" },
       { property: "og:description", content: "Acompanhe quem indicou e quem já virou cliente." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

@@ -21,12 +21,12 @@ export const Route = createFileRoute("/barbeiro/comissoes")({
   ssr: false,
   head: () => ({
     meta: [
-      { title: "Comissões — Painel do negócio | Cortaí" },
+      { title: "Comissões — Painel do negócio | Flow" },
       {
         name: "description",
         content: "Comissão gerada, paga e pendente por profissional, item a item.",
       },
-      { property: "og:title", content: "Comissões — Cortaí" },
+      { property: "og:title", content: "Comissões — Flow" },
       {
         property: "og:description",
         content: "Quanto cada profissional gerou e quanto ainda tem a receber.",

@@ -791,7 +791,7 @@ export const adicionarProfissional = createServerFn({ method: "POST" })
     const limite = capacidades.limites.profissionais;
     if (limite != null && capacidades.uso.profissionais >= limite) {
       throw new Error(
-        `Seu plano ${capacidades.plano.nome} permite ${limite} profissional(is). Fale com o Cortaí para liberar mais.`,
+        `Seu plano ${capacidades.plano.nome} permite ${limite} profissional(is). Fale com o Flow para liberar mais.`,
       );
     }
     const { error } = await context.supabase

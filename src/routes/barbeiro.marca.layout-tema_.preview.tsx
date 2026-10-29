@@ -29,7 +29,7 @@ export const Route = createFileRoute("/barbeiro/marca/layout-tema_/preview")({
   errorComponent: RouteError,
   head: () => ({
     meta: [
-      { title: "Ver Exemplo — Layout & Tema — Cortaí" },
+      { title: "Ver Exemplo — Layout & Tema — Flow" },
       { name: "robots", content: "noindex, nofollow" },
     ],
   }),

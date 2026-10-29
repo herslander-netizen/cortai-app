@@ -22,9 +22,9 @@ export const Route = createFileRoute("/app/perfil")({
     typeof search["b"] === "string" && search["b"] ? { b: search["b"] } : {},
   head: () => ({
     meta: [
-      { title: "Perfil — Cortaí" },
-      { name: "description", content: "Seus dados, carteira e preferências no Cortaí." },
-      { property: "og:title", content: "Perfil — Cortaí" },
+      { title: "Perfil — Flow" },
+      { name: "description", content: "Seus dados, carteira e preferências no Flow." },
+      { property: "og:title", content: "Perfil — Flow" },
       { property: "og:description", content: "Seus dados e preferências." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -41,7 +41,7 @@ function PerfilPage() {
   const { data } = sessao;
 
   return (
-    <Screen title="Perfil" subtitle="Sua conta no Cortaí.">
+    <Screen title="Perfil" subtitle="Sua conta no Flow.">
       {sessao.isLoading ? <EsqueletoFicha onTentarDeNovo={() => void sessao.refetch()} /> : null}
       {sessao.isError ? (
         <div className="surface p-5" role="alert">

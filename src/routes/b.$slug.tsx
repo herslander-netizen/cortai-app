@@ -18,7 +18,7 @@ export const Route = createFileRoute("/b/$slug")({
     if (!loaderData || !loaderData.paginaOnline) {
       return {
         meta: [
-          { title: "Página indisponível — Cortaí" },
+          { title: "Página indisponível — Flow" },
           { name: "robots", content: "noindex, nofollow" },
         ],
       };

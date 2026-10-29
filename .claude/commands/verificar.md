@@ -3,7 +3,7 @@ description: Roda typecheck, testes, lint e build e mostra só o que é novo em 
 argument-hint: "[arquivos opcionais para o lint, ex.: src/lib/x.ts]"
 ---
 
-Verifique o estado do código do Cortaí e relate **apenas o que é novo** em relação à base conhecida abaixo. Não altere nenhum arquivo.
+Verifique o estado do código do Flow e relate **apenas o que é novo** em relação à base conhecida abaixo. Não altere nenhum arquivo.
 
 ## Passos
 

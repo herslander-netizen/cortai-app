@@ -1,6 +1,6 @@
 /** Fonte única das novidades da versão atual. Ao mudar a versão, suba também public/versao.json. */
 export const VERSAO_DAS_NOVIDADES = "3.0.0";
-export const TITULO_DAS_NOVIDADES = "Novidades do Cortaí 3.0";
+export const TITULO_DAS_NOVIDADES = "Novidades do Flow 3.0";
 export const CHAVE_NOVIDADES_VISTA = "cortai:novidades-vista";
 
 export const NOVIDADES: readonly string[] = [
@@ -11,7 +11,7 @@ export const NOVIDADES: readonly string[] = [
   "Visual mais limpo e leve, com novo fundo no modo claro e escuro.",
   "Agenda sem rodapé, com dica de uso que aparece só uma vez.",
   "Menu lateral com o desempenho da sua página (visitas, agendamentos e conversão) e convite para ativar notificações.",
-  "Para barbearias, salões e outros negócios de beleza: o Cortaí se adapta ao seu tipo de negócio.",
+  "Para barbearias, salões e outros negócios de beleza: o Flow se adapta ao seu tipo de negócio.",
   "Telas de cadastro e perfil do cliente redesenhadas, com textos revisados.",
 ];
 

@@ -23,7 +23,7 @@ import { RepetirAtendimento } from "@/components/historico/RepetirAtendimento";
 export const Route = createFileRoute("/barbeiro/historico")({
   head: () => ({
     meta: [
-      { title: "Histórico — Cortaí Gestão" },
+      { title: "Histórico — Flow" },
       { name: "robots", content: "noindex, nofollow" },
     ],
   }),

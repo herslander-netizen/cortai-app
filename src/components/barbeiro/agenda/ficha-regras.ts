@@ -3,7 +3,7 @@ import type { AgendaItem } from "@/lib/barbeiro.functions";
 /**
  * Regras da ficha do atendimento, como no Figaro (`AppointmentDashboardDockedActions`, APK
  * lido em 18/10): um botão principal à direita e a seta com as outras ações, conforme o estado.
- * O Cortaí tem etapas que o Figaro não tinha (cliente chegou → começar → finalizar); elas entram
+ * O Flow tem etapas que o Figaro não tinha (cliente chegou → começar → finalizar); elas entram
  * no lugar do "Cobrar" do Figaro quando o horário já começou, e na seta antes disso.
  */
 export type AcaoDaFicha =
@@ -13,7 +13,7 @@ export type RodapeDaFicha = { principal: AcaoDaFicha | null; menu: AcaoDaFicha[]
 
 const PENDENTES = new Set(["agendado", "chegou"]);
 
-/** Próxima etapa do atendimento no Cortaí. */
+/** Próxima etapa do atendimento no Flow. */
 function etapa(status: string): AcaoDaFicha | null {
   if (status === "agendado") return "chegou";
   if (status === "chegou") return "comecar";
@@ -32,7 +32,7 @@ export function rodapeDaFicha(
   const pendente = PENDENTES.has(item.status);
   if (item.status === "na_cadeira") return { principal: "finalizar", menu: ["comanda"] };
   if (pendente && jaComecou(item, agora)) {
-    // Figaro: "Cobrar" + [Reagendar, Não compareceu]. No Cortaí a etapa do momento é o principal.
+    // Figaro: "Cobrar" + [Reagendar, Não compareceu]. No Flow a etapa do momento é o principal.
     return { principal: etapa(item.status), menu: ["reagendar", "falta", "cobrar", "comanda"] };
   }
   if (pendente) {

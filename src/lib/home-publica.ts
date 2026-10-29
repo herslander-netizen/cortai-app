@@ -3,7 +3,7 @@ import { z } from "zod";
 import { esquemaApresentacao } from "@/lib/apresentacao-conteudo";
 
 /**
- * Modelo de conteúdo da Home pública do Cortaí.
+ * Modelo de conteúdo da Home pública do Flow.
  *
  * O conteúdo atual da Home vive aqui como valor padrão. O editor do admin
  * grava um objeto com a mesma forma; se nada estiver publicado, a Home usa
@@ -18,7 +18,7 @@ export const TIPOS_DE_SECAO = [
   { valor: "identidade", rotulo: "Identidade do negócio" },
   { valor: "experiencia", rotulo: "Experiência do cliente" },
   { valor: "crescimento", rotulo: "Crescimento e oportunidades" },
-  { valor: "recursos", rotulo: "Módulos do Cortaí" },
+  { valor: "recursos", rotulo: "Módulos do Flow" },
   { valor: "voltai", rotulo: "Voltaí / fidelidade" },
   { valor: "telas", rotulo: "Agenda, Clientes, Financeiro" },
   { valor: "rotina", rotulo: "Rotina do negócio" },
@@ -156,7 +156,7 @@ export const PRESETS: Record<
 };
 
 export const ROTULO_PRESET: Record<AparenciaHome["preset"], string> = {
-  premium: "Cortaí Premium",
+  premium: "Flow Premium",
   cinematico: "Cinemático",
   clean: "Clean",
   editorial: "Editorial",
@@ -178,7 +178,7 @@ export const HOME_PADRAO: ConfigHome = {
     texto: "Tudo o que seu negócio de serviços precisa para operar melhor, em um só lugar.",
     ctaTexto: "Começar agora",
     ctaDestino: "/comecar",
-    cta2Texto: "Conhecer o Cortaí",
+    cta2Texto: "Conhecer o Flow",
     cta2Destino: "#conhecer",
     imagem: "",
     imagemPosicao: "rosto",
@@ -191,7 +191,7 @@ export const HOME_PADRAO: ConfigHome = {
       tipo: "pilares",
       nome: "Quatro pilares",
       ativo: true,
-      etiqueta: "O Cortaí não é só uma agenda",
+      etiqueta: "O Flow não é só uma agenda",
       titulo: "É o lugar onde seu negócio acontece.",
       texto:
         "Quatro frentes que sustentam o dia a dia do seu negócio — todas dentro da mesma plataforma.",
@@ -228,7 +228,7 @@ export const HOME_PADRAO: ConfigHome = {
       etiqueta: "Um lugar. Toda a operação.",
       titulo: "Tudo o que acontece no seu atendimento, organizado no celular.",
       texto:
-        "Da primeira tarefa do dia ao fechamento do caixa, o Cortaí acompanha a rotina sem tirar o foco do atendimento.",
+        "Da primeira tarefa do dia ao fechamento do caixa, o Flow acompanha a rotina sem tirar o foco do atendimento.",
       ctaTexto: "Começar agora",
       ctaDestino: "/comecar",
       itens: [
@@ -342,7 +342,7 @@ export const HOME_PADRAO: ConfigHome = {
       etiqueta: "Voltaí",
       titulo: "Seu cliente vem. Ganha. Volta.",
       texto:
-        "Uma fidelidade simples de entender e fácil de acompanhar. Você define a regra, o Cortaí mostra o progresso e o cliente tem mais um motivo para voltar.",
+        "Uma fidelidade simples de entender e fácil de acompanhar. Você define a regra, o Flow mostra o progresso e o cliente tem mais um motivo para voltar.",
       imagem: "",
       itens: [
         { titulo: "Vem", texto: "" },
@@ -377,7 +377,7 @@ export const HOME_PADRAO: ConfigHome = {
       etiqueta: "Crescer",
       titulo: "Não basta administrar. É preciso enxergar a próxima oportunidade.",
       texto:
-        "O Início do Cortaí mostra como o dia está indo e o próximo movimento, com base no que já acontece no seu negócio.",
+        "O Início do Flow mostra como o dia está indo e o próximo movimento, com base no que já acontece no seu negócio.",
       itens: [
         { titulo: "Horário vazio hoje", texto: "Ofereça para quem está na fila." },
         { titulo: "Cliente na hora de voltar", texto: "Frequência indica o retorno." },
@@ -394,9 +394,9 @@ export const HOME_PADRAO: ConfigHome = {
       ativo: true,
       tema: "escuro",
       titulo: "Pronto para colocar seu negócio no controle?",
-      texto: "Simplifica. Conecta. Cresce.",
+      texto: "Seu negócio no ritmo certo.",
       imagem: "",
-      ctaTexto: "Conhecer o Cortaí",
+      ctaTexto: "Conhecer o Flow",
       ctaDestino: "/comecar",
       cta2Texto: "Encontrar um negócio",
       cta2Destino: "/barbearias",
@@ -415,7 +415,7 @@ export const HOME_PADRAO: ConfigHome = {
     tipografia: "Manrope",
   },
   seo: {
-    titulo: "Cortaí — Gestão para negócios de serviços",
+    titulo: "Flow — Gestão para negócios de serviços",
     descricao:
       "Agenda, clientes, equipe, vendas, caixa e presença digital para negócios que atendem por serviço.",
     imagem: "",

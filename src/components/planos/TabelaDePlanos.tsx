@@ -34,7 +34,7 @@ export function TabelaDePlanos({
           Anual (−20%)
         </Button>
       </div>
-      <ol className="planos-tabela" aria-label="Planos do Cortaí">
+      <ol className="planos-tabela" aria-label="Planos do Flow">
         {PLANOS_COMERCIAIS.map((plano) => {
           const mensal = precos?.[plano.chave] ?? plano.precoCentavos;
           const ehAtual = atual === plano.chave;

@@ -212,7 +212,7 @@ describe("cabeçalho mobile no padrão Figaro", () => {
   });
 });
 
-describe("chat da CortAI no padrão Figaro", () => {
+describe("chat da Flow IA no padrão Figaro", () => {
   it("usa os primitivos de ação e aviso sem herdar estilos exclusivos da Agenda", () => {
     const fonte = readFileSync("src/components/ia/AssistenteCortai.tsx", "utf8");
     expect(fonte).toContain('import { Button } from "@/components/ui/button"');
@@ -230,8 +230,8 @@ describe("linguagem multi-serviços em telas compartilhadas", () => {
     const monetizacao = readFileSync("src/routes/admin.monetizacao.tsx", "utf8");
     const overview = readFileSync("src/routes/admin.index.tsx", "utf8");
 
-    expect(visitante).toContain("Tenho um negócio no Cortaí");
-    expect(visitante).not.toContain("Tenho uma barbearia no Cortaí");
+    expect(visitante).toContain("Tenho um negócio no Flow");
+    expect(visitante).not.toContain("Tenho uma barbearia no Flow");
     expect(monetizacao).toContain('"negócios novos"');
     expect(monetizacao).toContain('"negócios já clientes"');
     expect(monetizacao).toContain("O negócio paga o preço padrão.");

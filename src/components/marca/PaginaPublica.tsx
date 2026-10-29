@@ -18,7 +18,7 @@ import { useMediaQuery } from "@/hooks/use-mobile";
 import { useConsentimento } from "@/lib/consentimento";
 import { buscaParaAgendar, origemDaVisita, type OrigemFunil } from "@/lib/funil";
 
-import coverNeutra from "@/assets/cortai-cover-official.png.asset.json";
+import coverNeutra from "@/assets/flow-capa-neutra.png.asset.json";
 import coverBarbearia from "@/assets/cortai-barbershop-cover.jpg.asset.json";
 import { LogoBarbearia } from "@/components/marca/LogoBarbearia";
 import { Raizes } from "@/components/marca/modelos/Raizes";

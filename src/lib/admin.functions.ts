@@ -521,12 +521,12 @@ export type CortaiDoNegocio = {
   pausadaEm: string | null;
   pausaMotivo: string | null;
   limiteWhatsapp: number;
-  /** Turnos da CortAI nas últimas 24 h, por canal (o mesmo contador das cotas). */
+  /** Turnos da Flow IA nas últimas 24 h, por canal (o mesmo contador das cotas). */
   uso: { painel: number; whatsapp: number; equipe: number; site: number };
   limites: { painel: number; whatsapp: number; site: number };
 };
 
-/** Estado, consumo e limites da CortAI de um negócio, lidos do mesmo lugar que o cérebro usa. */
+/** Estado, consumo e limites da Flow IA de um negócio, lidos do mesmo lugar que o cérebro usa. */
 export const getCortaiDoNegocio = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .validator((input: unknown) => z.object({ tenantId: z.string().uuid() }).parse(input))
@@ -566,7 +566,7 @@ export const getCortaiDoNegocio = createServerFn({ method: "GET" })
   });
 
 /**
- * Liga/desliga a CortAI do negócio, ajusta o limite diário do WhatsApp ou encerra a pausa.
+ * Liga/desliga a Flow IA do negócio, ajusta o limite diário do WhatsApp ou encerra a pausa.
  * Desligar a IA nunca desliga agenda, comandas nem avisos. Tudo fica na auditoria do negócio.
  */
 export const definirCortaiDoNegocio = createServerFn({ method: "POST" })
@@ -602,8 +602,8 @@ export const definirCortaiDoNegocio = createServerFn({ method: "POST" })
       console.error("[admin] definirCortaiDoNegocio falhou:", error.message);
       throw new Error(
         /cortai_ativa/.test(error.message)
-          ? "O interruptor da CortAI ainda não existe no banco (migração 0031 pendente)."
-          : "Não foi possível salvar a CortAI deste negócio agora.",
+          ? "O interruptor da Flow IA ainda não existe no banco (migração 0031 pendente)."
+          : "Não foi possível salvar a Flow IA deste negócio agora.",
       );
     }
     await db.from("auditoria_da_barbearia").insert({

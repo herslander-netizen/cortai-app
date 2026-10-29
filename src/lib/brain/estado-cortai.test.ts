@@ -5,7 +5,7 @@ import { PAUSA_MS, SELO_DA_CORTAI, bloqueioDaConfig, textoDoBloqueio } from "./e
 describe("bloqueioDaConfig", () => {
   const agora = Date.parse("2026-10-10T12:00:00Z");
 
-  it("sem linha salva, a CortAI está ativa", () => {
+  it("sem linha salva, a Flow IA está ativa", () => {
     expect(bloqueioDaConfig(null, agora)).toBeNull();
     expect(bloqueioDaConfig({}, agora)).toBeNull();
   });

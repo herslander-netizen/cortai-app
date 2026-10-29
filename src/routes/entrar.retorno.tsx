@@ -23,10 +23,10 @@ export const Route = createFileRoute("/entrar/retorno")({
       : {},
   head: () => ({
     meta: [
-      { title: "Entrando — Cortaí" },
-      { name: "description", content: "Finalizando seu acesso ao Cortaí." },
-      { property: "og:title", content: "Entrando — Cortaí" },
-      { property: "og:description", content: "Finalizando seu acesso ao Cortaí." },
+      { title: "Entrando — Flow" },
+      { name: "description", content: "Finalizando seu acesso ao Flow." },
+      { property: "og:title", content: "Entrando — Flow" },
+      { property: "og:description", content: "Finalizando seu acesso ao Flow." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex" },

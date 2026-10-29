@@ -34,7 +34,7 @@ export type FamiliaDeTema = {
 export const FAMILIAS_DE_TEMA: FamiliaDeTema[] = [
   {
     id: "cortai",
-    nome: "Cortaí",
+    nome: "Flow",
     descricao: "A identidade da marca, em versão escura ou clara.",
     variantes: [
       { tema: "cortai", rotulo: "Escuro" },
@@ -120,19 +120,19 @@ export const FAMILIAS_DE_TEMA: FamiliaDeTema[] = [
     id: "feminino-rose",
     nome: "Rosé",
     descricao: "Rosa suave com detalhes em ouro rosado.",
-    variantes: [{ tema: "feminino-rose", rotulo: "Cortaí" }],
+    variantes: [{ tema: "feminino-rose", rotulo: "Flow" }],
   },
   {
     id: "feminino-lavanda",
     nome: "Lavanda",
     descricao: "Lilás delicado e sofisticado.",
-    variantes: [{ tema: "feminino-lavanda", rotulo: "Cortaí" }],
+    variantes: [{ tema: "feminino-lavanda", rotulo: "Flow" }],
   },
   {
     id: "feminino-pessego",
     nome: "Pêssego",
     descricao: "Tons de pêssego e coral.",
-    variantes: [{ tema: "feminino-pessego", rotulo: "Cortaí" }],
+    variantes: [{ tema: "feminino-pessego", rotulo: "Flow" }],
   },
   {
     id: "contraste",

@@ -40,7 +40,7 @@ export const DESCRICAO_DAS_CATEGORIAS: {
   {
     chave: "necessarios",
     titulo: "Necessários",
-    detalhe: "Mantêm o login, a segurança e as telas do Cortaí funcionando. Sempre ativos.",
+    detalhe: "Mantêm o login, a segurança e as telas do Flow funcionando. Sempre ativos.",
     fixa: true,
   },
   {
@@ -51,12 +51,12 @@ export const DESCRICAO_DAS_CATEGORIAS: {
   {
     chave: "analises",
     titulo: "Análises e estatísticas",
-    detalhe: "Ajudam a entender como o Cortaí é usado, de forma agregada.",
+    detalhe: "Ajudam a entender como o Flow é usado, de forma agregada.",
   },
   {
     chave: "marketing",
     titulo: "Marketing",
-    detalhe: "Permitem medir campanhas e comunicações sobre o Cortaí.",
+    detalhe: "Permitem medir campanhas e comunicações sobre o Flow.",
   },
 ];
 

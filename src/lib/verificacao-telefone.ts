@@ -4,7 +4,7 @@
  * Quem agenda com um WhatsApp que já tem ficha no negócio prova que o número é dele
  * mandando "CODIGO 123456" para o WhatsApp do negócio (o mesmo jeito que a equipe já
  * confirma o próprio número). A mensagem chegando daquele número é a prova; nada é
- * enviado pelo Cortaí, então não há modelo da Meta nem custo.
+ * enviado pelo Flow, então não há modelo da Meta nem custo.
  */
 
 /** Validade do código enviado. */

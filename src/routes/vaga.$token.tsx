@@ -12,9 +12,9 @@ export const Route = createFileRoute("/vaga/$token")({
   ssr: false,
   head: () => ({
     meta: [
-      { title: "Abriu uma vaga para você — Cortaí" },
+      { title: "Abriu uma vaga para você — Flow" },
       { name: "description", content: "Confirme a vaga oferecida pela lista de espera." },
-      { property: "og:title", content: "Abriu uma vaga para você — Cortaí" },
+      { property: "og:title", content: "Abriu uma vaga para você — Flow" },
       { property: "og:description", content: "Confirme a vaga da sua lista de espera." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

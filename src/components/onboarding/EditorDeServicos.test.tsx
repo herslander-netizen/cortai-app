@@ -93,7 +93,7 @@ describe("EditorDeServicos", () => {
     expect(onChange).toHaveBeenCalledWith([]);
   });
 
-  it("dá um rótulo visível à descrição para configurar serviços com CortAI", () => {
+  it("dá um rótulo visível à descrição para configurar serviços com Flow IA", () => {
     montar(vi.fn(), false);
     const rotulo = host!.querySelector<HTMLLabelElement>("label[for]");
     expect(rotulo?.textContent).toContain("Descreva os serviços");

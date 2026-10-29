@@ -4,7 +4,7 @@ import { toast } from "sonner";
 import { ESPERA_MS } from "@/lib/movimento-figaro";
 
 /**
- * Padrão único de feedback para ações assíncronas do Cortaí:
+ * Padrão único de feedback para ações assíncronas do Flow:
  * bloqueia duplo clique, marca qual ação está em andamento,
  * avisa sucesso e erro de forma consistente.
  *

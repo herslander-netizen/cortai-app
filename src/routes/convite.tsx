@@ -4,7 +4,7 @@ import { ShieldCheck } from "lucide-react";
 
 import { Aviso } from "@/components/ui/aviso";
 import { Button } from "@/components/ui/button";
-import { MarcaCortai } from "@/components/marca/MarcaCortai";
+import { MarcaFlow } from "@/components/marca/MarcaFlow";
 import { confirmarMeuAcesso, meuConvite } from "@/lib/equipe.functions";
 import { ACOES, MODULOS, PAPEIS, type PapelDeEquipe } from "@/lib/permissoes";
 import { EsqueletoFormulario } from "@/components/layout/Esqueleto";
@@ -13,12 +13,12 @@ export const Route = createFileRoute("/convite")({
   ssr: false,
   head: () => ({
     meta: [
-      { title: "Confirmar acesso ao negócio — Cortaí" },
+      { title: "Confirmar acesso ao negócio — Flow" },
       {
         name: "description",
         content: "Veja o que você pode fazer no negócio e confirme o seu acesso.",
       },
-      { property: "og:title", content: "Confirmar acesso ao negócio — Cortaí" },
+      { property: "og:title", content: "Confirmar acesso ao negócio — Flow" },
       { property: "og:description", content: "Confirme o acesso que o negócio liberou para você." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -41,7 +41,7 @@ function ConvitePage() {
 
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-[430px] flex-col px-6 pb-10 pt-12">
-      <MarcaCortai variante="automatica" className="h-auto w-44" prioridade />
+      <MarcaFlow variante="automatica" className="h-auto w-44" prioridade />
 
       {convite.isLoading ? (
         <div className="mt-8">

@@ -38,7 +38,7 @@ const ICONE_DA_PLATAFORMA: Record<PlataformaSocial, typeof Instagram> = {
 };
 
 const ERROS_DE_RETORNO: Record<string, string> = {
-  configuracao: "Esta integração ainda não está configurada. Fale com o suporte do Cortaí.",
+  configuracao: "Esta integração ainda não está configurada. Fale com o suporte do Flow.",
   cancelado: "A conexão foi cancelada antes de concluir.",
   estado: "Não foi possível validar a conexão. Tente de novo.",
   troca: "A plataforma não confirmou a conexão. Tente de novo.",
@@ -52,9 +52,9 @@ export const Route = createFileRoute("/barbeiro/redes")({
   }),
   head: () => ({
     meta: [
-      { title: "Redes sociais — Cortaí Gestão" },
+      { title: "Redes sociais — Flow" },
       { name: "description", content: "Conecte o Instagram e o TikTok do seu negócio." },
-      { property: "og:title", content: "Redes sociais — Cortaí Gestão" },
+      { property: "og:title", content: "Redes sociais — Flow" },
       { property: "og:description", content: "Conecte o Instagram e o TikTok do seu negócio." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

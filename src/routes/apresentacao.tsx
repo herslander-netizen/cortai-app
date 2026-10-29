@@ -28,9 +28,9 @@ export const Route = createFileRoute("/apresentacao")({
         { property: "og:description", content: seo.descricao },
         { property: "og:type", content: "website" },
         { property: "og:url", content: "https://cortaiapp.pages.dev/apresentacao" },
-        { property: "og:image", content: "https://cortaiapp.pages.dev/capa-social-cortai.jpg" },
+        { property: "og:image", content: "https://cortaiapp.pages.dev/capa-social-flow.jpg" },
         { name: "twitter:card", content: "summary_large_image" },
-        { name: "twitter:image", content: "https://cortaiapp.pages.dev/capa-social-cortai.jpg" },
+        { name: "twitter:image", content: "https://cortaiapp.pages.dev/capa-social-flow.jpg" },
       ],
       links: [{ rel: "canonical", href: "https://cortaiapp.pages.dev/apresentacao" }],
     };

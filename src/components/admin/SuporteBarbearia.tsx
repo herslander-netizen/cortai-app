@@ -324,7 +324,7 @@ export function SuporteBarbearia({ tenantId }: { tenantId: string }) {
               <li key={registro.id} className="border-b border-line py-3">
                 <p className="text-xs text-paper">{registro.acao.replaceAll("_", " ")}</p>
                 <p className="mt-1 text-xs text-mute">
-                  {registro.ator_email ?? "equipe Cortaí"} ·{" "}
+                  {registro.ator_email ?? "equipe Flow"} ·{" "}
                   {new Date(registro.criado_em).toLocaleString("pt-BR")}
                 </p>
                 <p className="mt-1 text-xs text-mute2">Motivo: {registro.alvo}</p>

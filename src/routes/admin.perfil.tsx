@@ -15,10 +15,10 @@ import { Button } from "@/components/ui/button";
 export const Route = createFileRoute("/admin/perfil")({
   head: () => ({
     meta: [
-      { title: "Perfil do administrador — Cortaí" },
-      { name: "description", content: "Sua conta de dono da plataforma Cortaí e saída segura." },
-      { property: "og:title", content: "Perfil do administrador — Cortaí" },
-      { property: "og:description", content: "Conta de administração da plataforma Cortaí." },
+      { title: "Perfil do administrador — Flow" },
+      { name: "description", content: "Sua conta de dono da plataforma Flow e saída segura." },
+      { property: "og:title", content: "Perfil do administrador — Flow" },
+      { property: "og:description", content: "Conta de administração da plataforma Flow." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex, nofollow" },
@@ -32,7 +32,7 @@ function AdminPerfilPage() {
   const [saindo, setSaindo] = useState(false);
 
   return (
-    <AdminScreen title="Perfil" subtitle="Sua conta na administração do Cortaí.">
+    <AdminScreen title="Perfil" subtitle="Sua conta na administração do Flow.">
       <div className="flex items-center gap-4 rounded-[28px] bg-[var(--figaro-surface-container,var(--ink2))] p-4">
         <span className="flex h-14 w-14 items-center justify-center rounded-full bg-[var(--figaro-primary-container,var(--ink2))] text-[var(--figaro-primary,var(--primary))]">
           <UserRound size={22} />

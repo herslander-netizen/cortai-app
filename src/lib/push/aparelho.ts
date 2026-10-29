@@ -16,7 +16,7 @@ export const CHAVE_PUSH_ATIVO = "cortai:push-ativo";
 export type ResultadoDoPush =
   "ativo" | "instalar_primeiro" | "bloqueado" | "recusado" | "so_no_app" | "falhou";
 
-/** iPhone só recebe push com o Cortaí instalado na Tela de Início. */
+/** iPhone só recebe push com o Flow instalado na Tela de Início. */
 export function precisaInstalarParaPush() {
   return detectarPlataforma() === "ios" && !estaInstalado();
 }

@@ -29,9 +29,9 @@ export const Route = createFileRoute("/barbeiro/servicos")({
   ssr: false,
   head: () => ({
     meta: [
-      { title: "Serviços — Painel do negócio | Cortaí" },
+      { title: "Serviços — Painel do negócio | Flow" },
       { name: "description", content: "Defina serviços, duração e preços do seu negócio." },
-      { property: "og:title", content: "Serviços — Cortaí" },
+      { property: "og:title", content: "Serviços — Flow" },
       { property: "og:description", content: "Cortes, duração e preços." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

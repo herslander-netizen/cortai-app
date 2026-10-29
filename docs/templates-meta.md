@@ -1,8 +1,8 @@
-# Modelos do WhatsApp (conta oficial do Cortaí)
+# Modelos do WhatsApp (conta oficial do Flow)
 
 Conta (WABA) 1051467980961489 · idioma `pt_BR` · categoria **UTILIDADE** em todos.
 O catálogo vivo fica na tabela `modelos_whatsapp`; o status é atualizado pelo webhook.
-Cada botão leva no payload `ACAO:{id do envio}` (preenchido pelo Cortaí no envio).
+Cada botão leva no payload `ACAO:{id do envio}` (preenchido pelo Flow no envio).
 
 ## Aprovados (não reenviar)
 
@@ -15,7 +15,7 @@ Cada botão leva no payload `ACAO:{id do envio}` (preenchido pelo Cortaí no env
 
 Todos já submetidos; o status muda sozinho no catálogo quando a Meta responder.
 
-Em todos: Categoria **Utilidade** · Idioma **Português (BR)** · Rodapé **Enviado pelo Cortaí** · Botões do tipo **Resposta rápida**.
+Em todos: Categoria **Utilidade** · Idioma **Português (BR)** · Rodapé **Enviado pelo Flow** · Botões do tipo **Resposta rápida**.
 
 ### cortai_confirmacao
 Texto: `Olá, {{1}}! Seu horário em {{2}} está confirmado para {{3}}, às {{4}}. Serviço: {{5}}, com {{6}}. Se precisar, use os botões abaixo para remarcar ou cancelar.`
@@ -52,5 +52,5 @@ Texto: `Olá, {{1}}. Ficou um valor de {{2}} pendente do seu atendimento em {{3}
 Exemplos: Ana · R$ 45,00 · Studio Aurora
 Botão: Mandar Pix
 
-**Importante:** use exatamente estes nomes. Quando a Meta aprovar, o Cortaí passa a usar o modelo sozinho (o webhook marca como aprovado no catálogo).
+**Importante:** use exatamente estes nomes. Quando a Meta aprovar, o Flow passa a usar o modelo sozinho (o webhook marca como aprovado no catálogo).
 Marketing (retorno, pós-atendimento, aniversário) não entra aqui: só com aceite do cliente e interruptor do negócio.

@@ -3,7 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { CalendarDays, ChevronRight, Plus, ShieldCheck } from "lucide-react";
 import { useState, type ReactNode } from "react";
 
-import { MarcaCortai } from "@/components/marca/MarcaCortai";
+import { MarcaFlow } from "@/components/marca/MarcaFlow";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { definirBarbeariaAtiva, getMinhasBarbearias } from "@/lib/barbearias.functions";
@@ -16,9 +16,9 @@ export const Route = createFileRoute("/escolher")({
   ssr: false,
   head: () => ({
     meta: [
-      { title: "Onde você quer entrar? — Cortaí" },
+      { title: "Onde você quer entrar? — Flow" },
       { name: "description", content: "Escolha entre sua área de cliente e o seu negócio." },
-      { property: "og:title", content: "Onde você quer entrar? — Cortaí" },
+      { property: "og:title", content: "Onde você quer entrar? — Flow" },
       { property: "og:description", content: "Uma conta, cliente e negócio." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -111,7 +111,7 @@ function EscolherContexto() {
       return {
         icone: <ShieldCheck className="size-6 text-gold" aria-hidden />,
         titulo: "Painel do ADM",
-        detalhe: "Administração da plataforma Cortaí",
+        detalhe: "Administração da plataforma Flow",
       };
     if (o.tipo === "criar_negocio")
       return {
@@ -130,7 +130,7 @@ function EscolherContexto() {
 
   return (
     <main className="mx-auto flex min-h-[100dvh] w-full max-w-[440px] flex-col px-6 pb-[max(2rem,env(safe-area-inset-bottom))] pt-12">
-      <MarcaCortai variante="automatica" className="mx-auto h-auto w-24" prioridade />
+      <MarcaFlow variante="automatica" className="mx-auto h-auto w-24" prioridade />
       <h1 className="mt-8 text-[26px] font-bold leading-tight text-paper">
         {primeiroNome ? `Olá, ${primeiroNome}` : "Olá"}
       </h1>

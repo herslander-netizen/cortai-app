@@ -67,7 +67,7 @@ export type AcaoDoMonitor =
 
 /**
  * Decide o que fazer com o estado REAL informado pelo serviço.
- * `statusBanco` é o que o Cortaí acredita; `statusReal`, o que a Evolution diz.
+ * `statusBanco` é o que o Flow acredita; `statusReal`, o que a Evolution diz.
  */
 export function decidirAcaoDoMonitor(input: {
   statusBanco: string;

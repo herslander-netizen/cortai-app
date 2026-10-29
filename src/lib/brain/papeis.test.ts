@@ -27,7 +27,7 @@ const dono: ContextoDoCerebro = { ...base, canal: "whatsapp", papel: "dono" };
 const painel: ContextoDoCerebro = { ...base, canal: "painel" };
 const site: ContextoDoCerebro = { ...base, canal: "site" };
 
-describe("catálogo de ferramentas oferecidas à CortAI", () => {
+describe("catálogo de ferramentas oferecidas à Flow IA", () => {
   it.each([cliente, prof, dono, painel, site])("só oferece ações existentes e autorizadas para o contexto", (ctx) => {
     const ferramentas = ferramentasDoContexto(ctx);
     expect(ferramentas.every((f) => Boolean(ACOES[f.name]))).toBe(true);
@@ -111,7 +111,7 @@ const PERMISSOES_DO_BARBEIRO = [
   "editar_clientes",
 ];
 
-describe("painel: a CortAI não pode mais do que a pessoa", () => {
+describe("painel: a Flow IA não pode mais do que a pessoa", () => {
   const barbeiro: ContextoDoCerebro = {
     ...base,
     canal: "painel",

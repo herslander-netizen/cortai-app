@@ -32,7 +32,7 @@ function renderizar() {
   return renderToStaticMarkup(
     <AdminScreen
       title="Visão da plataforma"
-      subtitle="Indicadores do Cortaí."
+      subtitle="Indicadores do Flow."
       actions={<button type="button" data-action="exportar">Exportar</button>}
     >
       <p>Conteúdo administrativo</p>

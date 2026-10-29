@@ -14,12 +14,12 @@ export const Route = createFileRoute("/app/carteira")({
     typeof search["b"] === "string" && search["b"] ? { b: search["b"] } : {},
   head: () => ({
     meta: [
-      { title: "Minha carteira — Cortaí" },
+      { title: "Minha carteira — Flow" },
       {
         name: "description",
         content: "Saldo, créditos, cartão de fidelidade e extrato do seu negócio de beleza favorito.",
       },
-      { property: "og:title", content: "Minha carteira — Cortaí" },
+      { property: "og:title", content: "Minha carteira — Flow" },
       {
         property: "og:description",
         content: "Seu saldo, seu cartão de fidelidade e cada lançamento.",

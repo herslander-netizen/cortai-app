@@ -1,7 +1,7 @@
 /**
  * Camada única de conversa com o serviço de WhatsApp (gateway).
  *
- * O Cortaí é um site: ele não mantém a sessão do WhatsApp aberta. Quem mantém
+ * O Flow é um site: ele não mantém a sessão do WhatsApp aberta. Quem mantém
  * é um serviço separado (por padrão a Evolution API), configurado por
  * variáveis de ambiente. Enquanto elas não existirem, TODO método recusa a
  * chamada com `GatewayNaoConfiguradoError` — nunca existe QR falso nem conexão
@@ -103,7 +103,7 @@ export function credenciaisFaltantes(): string[] {
   return faltam;
 }
 
-/** Segredo com que o gateway assina/identifica os avisos mandados ao Cortaí. */
+/** Segredo com que o gateway assina/identifica os avisos mandados ao Flow. */
 export function segredoDoWebhookDeWhatsapp(): string | null {
   return process.env["EVOLUTION_WEBHOOK_SECRET"] ?? process.env["WHATSAPP_WEBHOOK_SECRET"] ?? null;
 }
@@ -163,7 +163,7 @@ export type EstadoDaSessao = {
   erro?: string | null;
 };
 
-/** Traduz o status cru do gateway para o vocabulário do Cortaí. */
+/** Traduz o status cru do gateway para o vocabulário do Flow. */
 export function normalizarStatus(bruto: unknown): StatusDaConexao {
   const valor = String(bruto ?? "").toLowerCase();
   if (["connected", "conectado", "open", "ready"].includes(valor)) return "conectado";

@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
-/** Situação do WhatsApp da pessoa logada (equipe) junto ao CortAI. */
+/** Situação do WhatsApp da pessoa logada (equipe) junto à Flow IA. */
 export const meuWhatsappNoCortai = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {

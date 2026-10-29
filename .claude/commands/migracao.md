@@ -3,7 +3,7 @@ description: Cria uma migração de banco com segurança, ensaia no banco real (
 argument-hint: "[o que a migração deve fazer]"
 ---
 
-Crie uma migração de banco para o Cortaí: **$ARGUMENTS**
+Crie uma migração de banco para o Flow: **$ARGUMENTS**
 
 Leia antes o topo do `AGENTS.md`, o `CLAUDE.md` (seções "Arquitetura e segurança" e "Auditoria e segurança") e o `MUSE.md`. Vale tudo isto: preservar o que funciona, correção cirúrgica, **sem apagar dados**. O banco é o Supabase `cortai-prod` (`ibsberidejlbczxrweqg`).
 

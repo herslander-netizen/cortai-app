@@ -1,5 +1,5 @@
 /**
- * Catálogo único de eventos do CortAI (regras puras, sem banco).
+ * Catálogo único de eventos da Flow IA (regras puras, sem banco).
  *
  * Um evento descreve O QUE aconteceu; o catálogo diz para QUEM vai, com que
  * PRIORIDADE e por quais CANAIS ele pode sair. O canal nunca define o evento.

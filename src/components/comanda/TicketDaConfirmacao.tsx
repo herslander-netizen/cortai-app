@@ -13,7 +13,7 @@ import {
 import { invalidarComandas, ROTULO_DA_ETAPA_CLIENTE, ROTULO_DO_ESTADO } from "@/lib/comanda-ticket";
 import { brl } from "@/lib/format";
 import { useAcoesDoTicket, IconeWhatsApp } from "./FolhaDoTicket";
-import { SIMBOLO_CORTAI, TicketComanda } from "./TicketComanda";
+import { LOGOTIPO_MARCA, SIMBOLO_MARCA, TicketComanda } from "./TicketComanda";
 
 /**
  * Bloco da comanda na confirmação pública do agendamento.

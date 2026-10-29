@@ -1,4 +1,4 @@
-# Mapa do código do Cortaí
+# Mapa do código do Flow
 
 Guia para quem chega ao código (pessoa ou IA). Gerado em 09/10/2026 a partir do commit `7ed1c6a`. As regras obrigatórias ficam nos `AGENTS.md`; este arquivo diz **onde cada coisa mora**.
 
@@ -58,7 +58,7 @@ Variáveis: `.env` só traz as chaves públicas do Supabase. Os segredos do serv
   - **Dinheiro:** `barbeiro.financeiro`, `barbeiro.caixa`, `barbeiro.comissoes`, `barbeiro.plano`.
   - **Cadastro:** `barbeiro.servicos`, `barbeiro.profissionais`, `barbeiro.equipe`, `barbeiro.horarios`, `barbeiro.produtos`.
   - **Marca e divulgação:** `barbeiro.marca`, `barbeiro.temas`, `barbeiro.divulgar`, `barbeiro.redes`.
-  - **CortAI e WhatsApp:** `barbeiro.cortai` (conexão do WhatsApp e configuração) e `barbeiro.cortai-atividade`.
+  - **Flow IA e WhatsApp:** `barbeiro.cortai` (conexão do WhatsApp e configuração) e `barbeiro.cortai-atividade`.
   - **Ajustes:** `barbeiro.configurar`, `barbeiro.conta`, `barbeiro.funcionalidades`, `barbeiro.mais`, `barbeiro.barbearias`.
 - **Dono da plataforma, `/admin`:** `admin.index`, `admin.barbearias`, `admin.monetizacao` (planos, cupons, condições, banners), `admin.asaas`, `admin.whatsapp`, `admin.recursos`, `admin.home`, `admin.marketing`, `admin.parceiros`, `admin.pedidos`, `admin.ajustes`, `admin.perfil`.
 - **API pública (`api/public`):** veja a seção Integrações.
@@ -99,7 +99,7 @@ A guarda de rota é feita por `exigirPapel()` em `src/lib/guarda.ts`, no `before
 - `fila-chegada.server.ts`, `fila-publica.functions.ts`, `atendimento.functions.ts`: quem chega sem horário marcado.
 - `fila-compatibilidade.ts` e `whatsapp/fila-ofertas.server.ts`: vaga liberada vira oferta, com aceite atômico (`ofertas_da_fila`).
 
-### CortAI (IA)
+### Flow IA (IA)
 - **Atual:** `brain/agente.server.ts` (`pensarCortai`), `brain/acoes.server.ts` (catálogo e `acaoPermitida`), `brain/guardas.ts`, `brain/uso.server.ts` (cotas e pausa), `brain/secretaria-publica.functions.ts` (site).
 - **Ações de domínio:** `ia/acoes.server.ts`, que grava com a chave de serviço e filtra por `tenant_id`.
 - **Painel:** `assistente.functions.ts`. Usa `ia/assistente.server.ts` (legado) só para cadastrar serviços e horários em lote.
@@ -111,7 +111,7 @@ A guarda de rota é feita por `exigirPapel()` em `src/lib/guarda.ts`, no `before
   1. verificação de telefone da equipe;
   2. número compartilhado ou Central;
   3. resposta a lembrete (`lembretes.server.ts`);
-  4. cérebro CortAI;
+  4. cérebro Flow IA;
   5. texto fixo de reserva.
 - **Saída:** `notificacoes.server.ts` (motor único de avisos ao cliente), `conexao-envio.server.ts` (escolhe o remetente), `modelos.ts` (formato dentro e fora da janela de 24h), `gateway.server.ts` (Meta ou Evolution), `erros-meta.ts` e `falhas-envio.server.ts`.
 - **Varredura a cada 15 min** (`api/public/whatsapp/automacoes`, via pg_cron): lembretes, teste grátis, postagens nas redes e saúde das conexões (`monitor-conexoes.server.ts`).

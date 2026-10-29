@@ -1,5 +1,5 @@
 /**
- * Política de execução direta do cérebro CortAI (pura, sem rede — testável).
+ * Política de execução direta do cérebro Flow IA (pura, sem rede — testável).
  *
  * Regra de ouro: por padrão TODA escrita vira "pendente" e só executa após o "sim" da pessoa.
  * A exceção é restrita e verificável:
@@ -31,7 +31,7 @@ export function execucaoDiretaLigada(env: Record<string, string | undefined> = p
 
 /**
  * Comando por VOZ passa por conferência (a transcrição pode errar um nome ou uma hora):
- * a CortAI mostra o que entendeu e a pessoa confirma com um toque. Quem quiser execução
+ * a Flow IA mostra o que entendeu e a pessoa confirma com um toque. Quem quiser execução
  * direta também por voz liga `CORTAI_EXECUCAO_DIRETA_VOZ=true`.
  */
 export function execucaoDiretaPorVozLigada(env: Record<string, string | undefined> = process.env) {

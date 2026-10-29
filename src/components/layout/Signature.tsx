@@ -3,7 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { MessageCircle } from "lucide-react";
 
 import { getContatoDaPlataforma } from "@/lib/institucional.functions";
-import { MarcaCortai } from "@/components/marca/MarcaCortai";
+import { MarcaFlow } from "@/components/marca/MarcaFlow";
 
 /** Retorna o link do WhatsApp da Alvo Digital configurado pelo admin, ou null. */
 export function useWhatsappAlvo() {
@@ -56,7 +56,7 @@ export function Signature({ variant = "default" }: { variant?: "default" | "app"
     <footer className="mt-8 border-t border-line px-5 py-4 text-xs text-mute md:px-8">
       <div className="mx-auto flex max-w-[1180px] flex-col items-center">
         <div className="flex min-h-12 w-full flex-wrap items-center justify-center gap-x-3">
-          <MarcaCortai variante="automatica" className="h-auto w-14 opacity-70" />
+          <MarcaFlow variante="automatica" className="h-auto w-14 opacity-70" />
           <span className="h-4 w-px bg-line" aria-hidden />
           {link ? (
             <a
@@ -75,7 +75,7 @@ export function Signature({ variant = "default" }: { variant?: "default" | "app"
           <span className="text-mute2" aria-hidden>
             •
           </span>
-          <p className="leading-relaxed">Simplifica. Conecta. Cresce.</p>
+          <p className="leading-relaxed">Seu negócio no ritmo certo.</p>
         </div>
         <div className="flex min-h-12 flex-wrap items-center justify-center gap-x-3">
           <Link

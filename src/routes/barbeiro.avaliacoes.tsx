@@ -20,13 +20,13 @@ import { Card } from "@/components/ui/card";
 export const Route = createFileRoute("/barbeiro/avaliacoes")({
   head: () => ({
     meta: [
-      { title: "Avaliações — Cortaí Gestão" },
+      { title: "Avaliações — Flow" },
       {
         name: "description",
         content:
           "Registre a nota de cada atendimento e convide os satisfeitos a avaliar publicamente.",
       },
-      { property: "og:title", content: "Avaliações — Cortaí Gestão" },
+      { property: "og:title", content: "Avaliações — Flow" },
       {
         property: "og:description",
         content: "Feedback interno e convite público na medida certa.",

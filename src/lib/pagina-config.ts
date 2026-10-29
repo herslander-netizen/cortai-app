@@ -184,7 +184,7 @@ export type SecoesConfig = z.infer<typeof secoesConfigSchema>;
 
 /**
  * Seções que o layout exige (`isRequired` do Figaro): ocultá-las bloqueia a publicação. Os layouts do
- * Figaro exigem os serviços; os do Cortaí seguem livres. O fluxo de agendamento é sempre obrigatório e
+ * Figaro exigem os serviços; os do Flow seguem livres. O fluxo de agendamento é sempre obrigatório e
  * não tem editor (`booking-flow`), por isso não entra aqui.
  */
 export const SECOES_OBRIGATORIAS: Record<LayoutId, readonly (typeof componenteIds)[number][]> = {
@@ -261,7 +261,7 @@ export const TEMAS: Record<
   { nome: string; descricao: string; cores: PaginaConfig["cores"] }
 > = {
   cortai: {
-    nome: "Cortaí",
+    nome: "Flow",
     descricao: "Marinho profundo com coral e azul de ação",
     cores: {
       principal: "#FF7B86",
@@ -273,7 +273,7 @@ export const TEMAS: Record<
     },
   },
   "cortai-creme": {
-    nome: "Cortaí Creme",
+    nome: "Flow Creme",
     descricao: "Marfim azulado com marinho e coral",
     cores: {
       principal: "#173A6C",
@@ -532,7 +532,7 @@ export const FONTES: Record<FonteId, string> = {
 
 /**
  * Catálogo base recuperado do Figaro (`GET pages/layouts`, spec 4 §4.3): dois layouts e os três temas
- * originais. A tela Layout & Tema amplia essa base com estilos já definidos no Cortaí. Os IDs antigos
+ * originais. A tela Layout & Tema amplia essa base com estilos já definidos no Flow. Os IDs antigos
  * continuam válidos nas páginas salvas; o catálogo visual não muda o formato persistido.
  */
 export const LAYOUTS_DO_FIGARO = [
@@ -546,14 +546,14 @@ export const TEMAS_DO_FIGARO = [
   "figaro-retro",
 ] as const satisfies readonly TemaId[];
 
-/** Temas de estilo e paleta femininos, do Cortaí, que usam os mesmos modelos. */
+/** Temas de estilo e paleta femininos, do Flow, que usam os mesmos modelos. */
 export const TEMAS_FEMININOS = [
   "feminino-rose",
   "feminino-lavanda",
   "feminino-pessego",
 ] as const satisfies readonly TemaId[];
 
-/** Temas adicionais já definidos no Cortaí, selecionados para ampliar a biblioteca inicial. */
+/** Temas adicionais já definidos no Flow, selecionados para ampliar a biblioteca inicial. */
 export const TEMAS_ADICIONAIS_DO_CATALOGO = [
   "cortai",
   "cortai-creme",
@@ -563,7 +563,7 @@ export const TEMAS_ADICIONAIS_DO_CATALOGO = [
   "editorial",
 ] as const satisfies readonly TemaId[];
 
-/** Tudo o que a tela Layout & Tema oferece: temas Figaro, paletas suaves e estilos adicionais do Cortaí. */
+/** Tudo o que a tela Layout & Tema oferece: temas Figaro, paletas suaves e estilos adicionais do Flow. */
 export const TEMAS_DO_CATALOGO = [
   ...TEMAS_DO_FIGARO,
   ...TEMAS_FEMININOS,
@@ -573,7 +573,7 @@ export const TEMAS_DO_CATALOGO = [
 /** Capas geradas com capturas reais disponíveis em public/temas. */
 export const TEMAS_COM_CAPA = [...TEMAS_DO_FIGARO, ...TEMAS_FEMININOS] as const;
 
-/** Layouts da tela Layout & Tema: os dois do Figaro e o Chat, atendimento em conversa do Cortaí. */
+/** Layouts da tela Layout & Tema: os dois do Figaro e o Chat, atendimento em conversa do Flow. */
 export const LAYOUTS_DO_CATALOGO = [
   ...LAYOUTS_DO_FIGARO,
   "cortai-chat",
@@ -831,7 +831,7 @@ export function paginaStyle(config: PaginaConfig): CSSProperties {
 export function agendamentoStyle(config: PaginaConfig): CSSProperties {
   const corPrincipal = CORES_AGENDAMENTO.destaques[config.chat.corDestaque] ?? config.cores.botao;
   const tokens = tokensDoAgendamento(config.cores.secundaria);
-  // Superfície do chat (Personalizar Chat): padrão do Cortaí, cores do tema, clara ou escura.
+  // Superfície do chat (Personalizar Chat): padrão do Flow, cores do tema, clara ou escura.
   const superficies = {
     padrao: null,
     tema: { pagina: config.cores.fundo, texto: config.cores.texto },

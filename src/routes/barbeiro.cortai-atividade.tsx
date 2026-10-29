@@ -21,13 +21,13 @@ export const Route = createFileRoute("/barbeiro/cortai-atividade")({
   ssr: false,
   head: () => ({
     meta: [
-      { title: "Atividade do Cortaí — Cortaí Gestão" },
+      { title: "Atividade da Flow IA — Flow" },
       {
         name: "description",
         content:
-          "Acompanhe o que o Cortaí entendeu, o que consultou no seu negócio e o que não deu certo.",
+          "Acompanhe o que a Flow IA entendeu, o que consultou no seu negócio e o que não deu certo.",
       },
-      { property: "og:title", content: "Atividade do Cortaí — Cortaí Gestão" },
+      { property: "og:title", content: "Atividade da Flow IA — Flow" },
       {
         property: "og:description",
         content: "Conversas, assuntos, consultas e falhas do atendimento inteligente.",
@@ -117,7 +117,7 @@ function AtividadePage() {
   return (
     <Screen
       voltarPara="/barbeiro/cortai"
-      title="Atividade do Cortaí"
+      title="Atividade da Flow IA"
       subtitle="O que ele entendeu, o que consultou no seu negócio e o que não deu certo — nos últimos 30 dias."
     >
       {metricas.isLoading || atividade.isLoading ? <EsqueletoPainel /> : null}
@@ -153,8 +153,8 @@ function AtividadePage() {
       ) : null}
 
       {atividade.data && atividade.data.ferramentas.length > 0 ? (
-        <section className="mt-5" aria-label="Consultas feitas pelo Cortaí">
-          <h2 className="text-sm text-paper">O que o Cortaí consultou</h2>
+        <section className="mt-5" aria-label="Consultas feitas pela Flow IA">
+          <h2 className="text-sm text-paper">O que a Flow IA consultou</h2>
           <ul className="mt-2 space-y-2">
             {atividade.data.ferramentas.map((f) => (
               <li key={f.acao} className="flex items-center justify-between gap-3 rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))] px-4 py-3">
@@ -172,12 +172,12 @@ function AtividadePage() {
       ) : null}
 
       {termos.data && termos.data.length > 0 ? (
-        <section className="mt-5" aria-label="Palavras que o Cortaí não entendeu">
+        <section className="mt-5" aria-label="Palavras que a Flow IA não entendeu">
           <h2 className="text-sm text-paper">
-            Palavras que os clientes usam e o Cortaí não entendeu
+            Palavras que os clientes usam e a Flow IA não entendeu
           </h2>
           <p className="mt-1 text-xs text-mute2">
-            Cadastre estes pedidos como serviço ou pergunta frequente para o Cortaí passar a
+            Cadastre estes pedidos como serviço ou pergunta frequente para a Flow IA passar a
             responder sozinho.
           </p>
           <ul className="mt-2 space-y-2">
@@ -200,7 +200,7 @@ function AtividadePage() {
         </div>
 
         {atividade.data && atividade.data.registros.length === 0 ? (
-        <EmptyState text="Quando o Cortaí atender, o registro aparece nesta lista." />
+        <EmptyState text="Quando a Flow IA atender, o registro aparece nesta lista." />
         ) : null}
 
         <ul className="mt-3 space-y-2">

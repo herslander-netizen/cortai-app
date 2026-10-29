@@ -11,7 +11,7 @@ const MAXIMO_DA_FRASE = 120;
 
 /**
  * Hero Banner, como no Figaro (`HeroEditorScreen`): grupo "Imagem de fundo" (escolhida na galeria de fotos, sem
- * link) e grupo "Textos" com a frase principal (obrigatória, mínimo de 8 caracteres). Os campos que o Cortaí tem a
+ * link) e grupo "Textos" com a frase principal (obrigatória, mínimo de 8 caracteres). Os campos que o Flow tem a
  * mais (sobre, botão e botão fixo) ficam no mesmo grupo.
  */
 export function EditorDeHero({ e, reportarErro }: PropsDoEditor) {

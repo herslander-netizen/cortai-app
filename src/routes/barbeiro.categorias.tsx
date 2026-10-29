@@ -24,9 +24,9 @@ export const Route = createFileRoute("/barbeiro/categorias")({
   ssr: false,
   head: () => ({
     meta: [
-      { title: "Categorias — Serviços | Cortaí" },
+      { title: "Categorias — Serviços | Flow" },
       { name: "description", content: "Organize e personalize as categorias dos serviços do seu negócio." },
-      { property: "og:title", content: "Categorias — Cortaí" },
+      { property: "og:title", content: "Categorias — Flow" },
       { property: "og:description", content: "Organize os serviços por categoria." },
       { property: "og:type", content: "website" },
       { name: "robots", content: "noindex, nofollow" },

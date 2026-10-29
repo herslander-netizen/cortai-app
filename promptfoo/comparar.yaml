@@ -1,7 +1,7 @@
 # Fase C — a mesma suíte com o provedor independente configurado e com GPT-OSS-20B.
 # Precisa de CORTAI_AI_* e PROMPTFOO_OSS_BASE_URL / PROMPTFOO_OSS_MODEL / PROMPTFOO_OSS_API_KEY.
 # Sem alguma variável obrigatória, o provedor devolve erro explícito (nada é "aprovado" sem avaliar).
-description: CortAI — provedor configurado x GPT-OSS-20B
+description: Flow IA — provedor configurado x GPT-OSS-20B
 prompts:
   - "{{mensagem}}"
 providers:

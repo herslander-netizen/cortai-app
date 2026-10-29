@@ -3,7 +3,7 @@ description: Confere o que mudou no código contra as regras do projeto (contrat
 argument-hint: "[intervalo de commits, ex.: abc123..def456; padrão: os commits novos da branch de trabalho]"
 ---
 
-Revise as mudanças recentes contra as regras do Cortaí. Intervalo: `$ARGUMENTS` (vazio = o que chegou à branch `cloudflare-workers-migration-2026-10-13` desde a última revisão; se não souber qual foi, use `git log --oneline -15 origin/cloudflare-workers-migration-2026-10-13` e pergunte). Somente leitura: não edite nada.
+Revise as mudanças recentes contra as regras do Flow. Intervalo: `$ARGUMENTS` (vazio = o que chegou à branch `cloudflare-workers-migration-2026-10-13` desde a última revisão; se não souber qual foi, use `git log --oneline -15 origin/cloudflare-workers-migration-2026-10-13` e pergunte). Somente leitura: não edite nada.
 
 Leia primeiro `docs/contrato-de-design.md`, `CLAUDE.md` e os `AGENTS.md` das pastas tocadas (`src/lib`, `src/lib/brain`, `src/lib/whatsapp`, `src/components/barbeiro/agenda`, `src/components/comanda`). Depois rode `git fetch origin` e `git diff <intervalo> --stat` para listar os arquivos.
 

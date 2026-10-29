@@ -3,7 +3,7 @@ import { ArrowRight, ArrowUpRight, Menu, Star, X } from "lucide-react";
 import { type ReactNode, useState } from "react";
 
 import coverBarbearia from "@/assets/cortai-barbershop-cover.jpg.asset.json";
-import coverNeutra from "@/assets/cortai-cover-official.png.asset.json";
+import coverNeutra from "@/assets/flow-capa-neutra.png.asset.json";
 import type { PropsDoModelo } from "@/components/marca/modelos/SiteCompleto";
 import { LogoBarbearia } from "@/components/marca/LogoBarbearia";
 import { brl } from "@/lib/format";

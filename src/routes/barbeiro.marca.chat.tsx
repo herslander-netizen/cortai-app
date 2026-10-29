@@ -24,10 +24,7 @@ import { CHAT_ESTILOS, type PaginaConfig } from "@/lib/pagina-config";
 export const Route = createFileRoute("/barbeiro/marca/chat")({
   beforeLoad: ({ context }) => exigirCapacidade(context.queryClient, "branding_avancado"),
   head: () => ({
-    meta: [
-      { title: "Personalizar Chat — Cortaí" },
-      { name: "robots", content: "noindex, nofollow" },
-    ],
+    meta: [{ title: "Personalizar Chat — Flow" }, { name: "robots", content: "noindex, nofollow" }],
   }),
   component: PersonalizarChatPage,
 });
@@ -178,7 +175,7 @@ function EditorDoChat({
             valor={chat.fundo}
             opcoes={[
               { valor: "capa", texto: "Foto do negócio" },
-              { valor: "padrao", texto: "Cortaí" },
+              { valor: "padrao", texto: "Flow" },
               { valor: "liso", texto: "Liso" },
             ]}
             onChange={(v) => alterar({ fundo: v })}
@@ -188,7 +185,7 @@ function EditorDoChat({
             rotulo="Cores da conversa"
             valor={chat.superficie}
             opcoes={[
-              { valor: "padrao", texto: "Cortaí" },
+              { valor: "padrao", texto: "Flow" },
               { valor: "tema", texto: "Tema" },
               { valor: "clara", texto: "Clara" },
               { valor: "escura", texto: "Escura" },

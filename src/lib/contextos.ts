@@ -1,5 +1,5 @@
 /**
- * Conta Cortaí = identidade (um e-mail, uma conta). Contextos = o que a conta faz.
+ * Conta Flow = identidade (um e-mail, uma conta). Contextos = o que a conta faz.
  * Regras puras: o servidor decide os contextos e a tela só escolhe o destino.
  */
 export type Contextos = { cliente: boolean; negocio: boolean };

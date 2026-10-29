@@ -1,4 +1,4 @@
-# Plano completo do Cortaí — andamento
+# Plano completo do Flow — andamento
 
 Legenda: [x] feito · [~] parcial · [ ] não feito. Uma etapa por vez; parar ao fim de cada uma.
 

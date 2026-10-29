@@ -1,4 +1,4 @@
-name: Validate Cortaí
+name: Validate Flow
 
 on:
   workflow_dispatch:

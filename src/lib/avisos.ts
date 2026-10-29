@@ -1,6 +1,6 @@
 import { toast } from "sonner";
 
-/** Tom do Cortaí para as mensagens rápidas. */
+/** Tom do Flow para as mensagens rápidas. */
 export const aviso = {
   ok: (texto = "Pronto.") => toast.success(texto),
   erro: (texto = "Não deu certo. Tenta de novo?") => toast.error(texto),

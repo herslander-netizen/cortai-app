@@ -32,9 +32,9 @@ import { TrocarPainel } from "@/components/acesso/TrocarPainel";
 export const Route = createFileRoute("/barbeiro/mais")({
   head: () => ({
     meta: [
-      { title: "Mais — Cortaí Gestão" },
+      { title: "Mais — Flow" },
       { name: "description", content: "Produtos, serviços, marca e recursos do seu negócio." },
-      { property: "og:title", content: "Mais — Cortaí Gestão" },
+      { property: "og:title", content: "Mais — Flow" },
       { property: "og:description", content: "Configurações e recursos do negócio." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

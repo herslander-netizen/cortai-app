@@ -1,5 +1,5 @@
 /**
- * Controle de uso e créditos da IA do CortAI.
+ * Controle de uso e créditos da IA do Flow.
  *
  * - Cada turno do cérebro fica em `acoes_de_ia_log` (acao `cerebro.<canal>`),
  *   o que serve de auditoria e de contador — sem tabela nova.

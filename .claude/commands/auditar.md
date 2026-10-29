@@ -3,7 +3,7 @@ description: Refaz a auditoria de segurança com a lista fixa de verificações 
 argument-hint: "[área opcional: banco, servidor, rotas, ia, whatsapp, pagamentos]"
 ---
 
-Faça uma auditoria de segurança **somente leitura** do Cortaí. Foco: `$ARGUMENTS` (vazio = tudo). Não corrija nada; relate.
+Faça uma auditoria de segurança **somente leitura** do Flow. Foco: `$ARGUMENTS` (vazio = tudo). Não corrija nada; relate.
 
 Comece lendo "Auditoria e segurança" no `CLAUDE.md` e a auditoria mais recente em `docs/` (as antigas ficam em `docs/historico/`). Para **cada achado antigo**, confira no código e no banco se continua aberto ou foi corrigido, e registre o estado.
 

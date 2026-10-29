@@ -1,5 +1,5 @@
 /**
- * Provedor Promptfoo: roda o cérebro REAL da CortAI (`pensarCortai`) com o mundo simulado.
+ * Provedor Promptfoo: roda o cérebro REAL da Flow IA (`pensarCortai`) com o mundo simulado.
  *
  * Perfis (config.perfil):
  *  - "oss"      → provedor compatível com GPT-OSS-20B (PROMPTFOO_OSS_BASE_URL/MODEL/API_KEY).
@@ -175,7 +175,7 @@ export default class ProvedorCortai {
         pensarCortai({
           ctx,
           persona: {
-            nome: canal === "painel" ? "CortAI" : "o atendimento de Barbearia Aurora",
+            nome: canal === "painel" ? "Flow IA" : "o atendimento de Barbearia Aurora",
             negocio: "Barbearia Aurora",
             segmento: "barbearia",
           },

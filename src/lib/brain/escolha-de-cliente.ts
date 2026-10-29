@@ -1,7 +1,7 @@
 /**
  * Escolha de cliente na tela (pop-up de homônimos).
  *
- * Quando a busca por nome devolve mais de um cliente, a CortAI não chuta: a tela mostra as
+ * Quando a busca por nome devolve mais de um cliente, a Flow IA não chuta: a tela mostra as
  * opções e a pessoa toca em uma. O toque manda o ID do cliente; o servidor confere que ele é
  * deste negócio e a política de execução direta passa a tratar esse cliente como resolvido.
  *

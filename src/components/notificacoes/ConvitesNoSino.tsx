@@ -36,11 +36,11 @@ export function ConvitesNoSino() {
             aria-hidden
           />
           <div className="min-w-0 flex-1">
-            <p className="text-sm font-semibold text-paper">📲 Instale o Cortaí</p>
+            <p className="text-sm font-semibold text-paper">📲 Instale o Flow</p>
             <p className="text-xs text-mute2">Tenha acesso mais rápido ao seu sistema.</p>
             {verComoNoIphone ? (
               <p className="mt-2 text-xs leading-relaxed text-mute">
-                No iPhone ou iPad, abra o Cortaí no Safari, toque em{" "}
+                No iPhone ou iPad, abra o Flow no Safari, toque em{" "}
                 <span className="text-paper">Compartilhar</span> e depois em{" "}
                 <span className="text-paper">Adicionar à Tela de Início</span>.
               </p>

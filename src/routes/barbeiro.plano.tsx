@@ -33,12 +33,12 @@ export const Route = createFileRoute("/barbeiro/plano")({
   ssr: false,
   head: () => ({
     meta: [
-      { title: "Minha assinatura — Cortaí Gestão" },
+      { title: "Minha assinatura — Flow" },
       {
         name: "description",
         content: "Escolha o plano e veja exatamente o que está liberado para o seu negócio.",
       },
-      { property: "og:title", content: "Plano do negócio — Cortaí" },
+      { property: "og:title", content: "Plano do negócio — Flow" },
       {
         property: "og:description",
         content: "O plano decide o que aparece no painel do seu negócio.",
@@ -305,7 +305,7 @@ function PlanoPage() {
                 <h2 id="dados-cobranca" className="font-bold text-paper">
                   Dados de cobrança
                 </h2>
-                <p className="mt-1 text-sm text-mute">Usados somente na assinatura do Cortaí.</p>
+                <p className="mt-1 text-sm text-mute">Usados somente na assinatura do Flow.</p>
               </div>
               <Button variant="outline" onClick={() => setEditandoCadastro((valor) => !valor)}>
                 {cobranca.data.cadastro ? "Atualizar" : "Cadastrar"}

@@ -26,7 +26,7 @@ const chaveDaCategoria = (categoria: string | null | undefined) =>
   (categoria ?? "").normalize("NFD").replace(/[̀-ͯ]/g, "").trim().toLowerCase();
 
 /**
- * No Cortaí a categoria é um texto livre (sem cor escolhida). As categorias do negócio, em ordem
+ * No Flow a categoria é um texto livre (sem cor escolhida). As categorias do negócio, em ordem
  * alfabética, recebem as cores da paleta na ordem — até 10 categorias, cada uma com uma cor
  * diferente. O servidor manda a posição (`categoriaIndice`); sem ela, cinza.
  */
@@ -63,7 +63,7 @@ export const mostraHorario = (faixa: FaixaDoCartao) =>
 export const mostraCliente = (faixa: FaixaDoCartao) => faixa === "grande" || faixa === "maior";
 export const mostraDetalhes = (faixa: FaixaDoCartao) => faixa === "maior";
 
-/** Ícone de estado no canto do cartão (`AgendaStatusGlyph`), com as etapas do Cortaí. */
+/** Ícone de estado no canto do cartão (`AgendaStatusGlyph`), com as etapas do Flow. */
 export type GlifoDoEstado =
   | "confirmado"
   | "pendente-online"

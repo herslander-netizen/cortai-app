@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 
 import { VERSAO_DA_POLITICA, DESCRICAO_DAS_CATEGORIAS } from "@/lib/consentimento";
-import { MarcaCortai } from "@/components/marca/MarcaCortai";
+import { MarcaFlow } from "@/components/marca/MarcaFlow";
 
 export const CONTATO_DE_PRIVACIDADE = {
   responsavel: "Alvo Digital — Herslander Jorge dos Santos",
@@ -12,16 +12,16 @@ export const CONTATO_DE_PRIVACIDADE = {
 export const Route = createFileRoute("/privacidade")({
   head: () => ({
     meta: [
-      { title: "Política de Privacidade — Cortaí" },
+      { title: "Política de Privacidade — Flow" },
       {
         name: "description",
         content:
-          "Como o Cortaí coleta, usa, guarda e protege dados pessoais de negócios e clientes, conforme a LGPD.",
+          "Como o Flow coleta, usa, guarda e protege dados pessoais de negócios e clientes, conforme a LGPD.",
       },
-      { property: "og:title", content: "Política de Privacidade — Cortaí" },
+      { property: "og:title", content: "Política de Privacidade — Flow" },
       {
         property: "og:description",
-        content: "Tratamento de dados, cookies, direitos do titular e contato do Cortaí.",
+        content: "Tratamento de dados, cookies, direitos do titular e contato do Flow.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -44,19 +44,19 @@ function Bloco({ titulo, children }: { titulo: string; children: React.ReactNode
 function PaginaDePrivacidade() {
   return (
     <main className="mx-auto w-full max-w-[720px] px-5 pb-16 pt-10">
-      <MarcaCortai variante="branca" className="h-auto w-24 opacity-80" />
+      <MarcaFlow variante="branca" className="h-auto w-24 opacity-80" />
       <h1 className="mt-6 text-2xl font-bold text-paper">Política de Privacidade</h1>
       <p className="mt-2 text-xs text-mute2">
         Versão {VERSAO_DA_POLITICA} · última atualização em 14 de setembro de 2026
       </p>
       <p className="mt-4 text-sm leading-relaxed text-mute">
-        Esta política explica como o Cortaí trata dados pessoais de responsáveis por negócios,
-        equipes e clientes, de acordo com a Lei Geral de Proteção de Dados (Lei nº 13.709/2018).
+        Esta política explica como o Flow trata dados pessoais de responsáveis por negócios, equipes
+        e clientes, de acordo com a Lei Geral de Proteção de Dados (Lei nº 13.709/2018).
       </p>
 
       <Bloco titulo="Quem é responsável">
         <p>
-          O Cortaí é operado por {CONTATO_DE_PRIVACIDADE.responsavel}. Para qualquer assunto sobre
+          O Flow é operado por {CONTATO_DE_PRIVACIDADE.responsavel}. Para qualquer assunto sobre
           privacidade, fale pelo e-mail{" "}
           <a className="text-gold underline" href={`mailto:${CONTATO_DE_PRIVACIDADE.email}`}>
             {CONTATO_DE_PRIVACIDADE.email}
@@ -64,7 +64,7 @@ function PaginaDePrivacidade() {
           .
         </p>
         <p>
-          Cada negócio é responsável pelos dados dos próprios clientes; o Cortaí atua como operador
+          Cada negócio é responsável pelos dados dos próprios clientes; o Flow atua como operador
           dessas informações, sempre isoladas por negócio.
         </p>
       </Bloco>
@@ -91,9 +91,9 @@ function PaginaDePrivacidade() {
 
       <Bloco titulo="Por que tratamos esses dados">
         <p>
-          Para executar o contrato de uso do Cortaí (agenda, clientes, financeiro, fidelidade e
-          loja), cumprir obrigações legais, garantir segurança e prevenir fraudes, e — apenas com o
-          seu consentimento — entender o uso do sistema e comunicar novidades.
+          Para executar o contrato de uso do Flow (agenda, clientes, financeiro, fidelidade e loja),
+          cumprir obrigações legais, garantir segurança e prevenir fraudes, e — apenas com o seu
+          consentimento — entender o uso do sistema e comunicar novidades.
         </p>
       </Bloco>
 
@@ -117,7 +117,7 @@ function PaginaDePrivacidade() {
         <p>
           Apenas com fornecedores necessários para o funcionamento do serviço: hospedagem, banco de
           dados e autenticação, envio de mensagens e, quando o negócio ativa, o atendimento
-          inteligente Cortaí. Todos tratam os dados sob instrução do Cortaí.
+          inteligente Flow. Todos tratam os dados sob instrução do Flow.
         </p>
       </Bloco>
 

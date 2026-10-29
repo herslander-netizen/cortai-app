@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 
 import { Screen } from "@/components/layout/Screen";
-import { MarcaCortai } from "@/components/marca/MarcaCortai";
+import { MarcaFlow } from "@/components/marca/MarcaFlow";
 import { EditorDeHorarios } from "@/components/onboarding/EditorDeHorarios";
 import { EditorDeServicos, type ServicoEditavel } from "@/components/onboarding/EditorDeServicos";
 import { supabase } from "@/integrations/supabase/client";
@@ -52,12 +52,12 @@ export const Route = createFileRoute("/barbeiro/configurar")({
   ssr: false,
   head: () => ({
     meta: [
-      { title: "Configurar seu negócio — Cortaí" },
+      { title: "Configurar seu negócio — Flow" },
       {
         name: "description",
         content: "Em poucos minutos, o link de agendamento do seu negócio fica pronto.",
       },
-      { property: "og:title", content: "Configurar seu negócio — Cortaí" },
+      { property: "og:title", content: "Configurar seu negócio — Flow" },
       {
         property: "og:description",
         content: "Negócio, equipe, serviços, horários, regras e link — em poucos minutos.",
@@ -341,7 +341,7 @@ function ConfigurarPage() {
     const texto = `Agende seu horário na ${data?.tenant.nome ?? "nossa página"}: ${link}`;
     try {
       if (typeof navigator !== "undefined" && typeof navigator.share === "function") {
-        await navigator.share({ title: data?.tenant.nome ?? "Cortaí", text: texto, url: link });
+        await navigator.share({ title: data?.tenant.nome ?? "Flow", text: texto, url: link });
       } else {
         window.open(`https://wa.me/?text=${encodeURIComponent(texto)}`, "_blank", "noopener");
       }
@@ -402,7 +402,7 @@ function ConfigurarPage() {
     <Screen
       title={
         mostrarBoasVindas
-          ? "Bem-vindo ao Cortaí"
+          ? "Bem-vindo ao Flow"
           : etapa === "pronto"
             ? "Tudo pronto"
             : `${vocabulario.possessivo.charAt(0).toUpperCase()}${vocabulario.possessivo.slice(1)} em 5 minutos`
@@ -433,8 +433,8 @@ function ConfigurarPage() {
           ) : null}
 
           {!mostrarBoasVindas && etapa !== "pronto" ? (
-            <div className="mb-5 flex justify-center" aria-label="Cortaí">
-              <MarcaCortai variante="automatica" className="h-7 w-auto" />
+            <div className="mb-5 flex justify-center" aria-label="Flow">
+              <MarcaFlow variante="automatica" className="h-7 w-auto" />
             </div>
           ) : null}
           {!mostrarBoasVindas && etapa !== "pronto" ? (

@@ -74,7 +74,7 @@ async function avisarDono(linha: Linha, tipo: "queda" | "qr") {
     titulo: tipo === "qr" ? `${rotulo} pede novo QR Code` : `${rotulo} desconectado`,
     corpo:
       tipo === "qr"
-        ? `Abra Cortaí e escaneie o QR Code do ${rotulo}.`
+        ? `Abra Flow e escaneie o QR Code do ${rotulo}.`
         : `A conexão do ${rotulo} caiu. Já tentamos reconectar; se continuar, toque em Reconectar.`,
     link: "/barbeiro/cortai",
     referencia: linha.id,

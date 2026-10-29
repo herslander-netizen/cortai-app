@@ -16,7 +16,7 @@ import { SELO_DA_CORTAI } from "@/lib/brain/estado-cortai";
 import { dataHoraLonga } from "@/lib/format";
 
 /**
- * CortAI de um negócio, no ADM: interruptor geral, pausa por crédito, consumo de 24 h
+ * Flow IA de um negócio, no ADM: interruptor geral, pausa por crédito, consumo de 24 h
  * e limite do WhatsApp. Desligar a IA nunca desliga agenda, comandas nem avisos.
  */
 export function CortaiDoNegocio({ tenantId }: { tenantId: string }) {
@@ -40,7 +40,7 @@ export function CortaiDoNegocio({ tenantId }: { tenantId: string }) {
 
   if (query.isLoading) return <EsqueletoFormulario />;
   if (query.error || !query.data)
-    return <p className="text-sm text-brick">Não foi possível ler o Cortaí deste negócio.</p>;
+    return <p className="text-sm text-brick">Não foi possível ler a Flow IA deste negócio.</p>;
   const c = query.data;
 
   async function salvar(campos: { ativa?: boolean; limiteWhatsapp?: number; retomar?: true }) {
@@ -48,7 +48,7 @@ export function CortaiDoNegocio({ tenantId }: { tenantId: string }) {
     try {
       await definir({ data: { tenantId, ...campos } });
       await queryClient.invalidateQueries({ queryKey: chave });
-      aviso.ok("Cortaí atualizada.");
+      aviso.ok("Flow IA atualizada.");
     } catch (e) {
       aviso.erro(e instanceof Error ? e.message : undefined);
     } finally {
@@ -70,7 +70,7 @@ export function CortaiDoNegocio({ tenantId }: { tenantId: string }) {
       <section className="flex items-start justify-between gap-4 border-b border-line pb-5">
         <div className="min-w-0">
           <div className="flex items-center gap-2">
-            <h3 className="text-sm font-semibold text-paper">CortAI</h3>
+            <h3 className="text-sm font-semibold text-paper">Flow IA</h3>
             <SeloDaCortai estado={c.estado} mostrarAtiva />
           </div>
           <p className="mt-1 text-xs leading-relaxed text-mute">{SELO_DA_CORTAI[c.estado].texto}</p>
@@ -79,7 +79,7 @@ export function CortaiDoNegocio({ tenantId }: { tenantId: string }) {
           checked={c.ativa}
           disabled={salvando}
           onCheckedChange={(ativa) => void salvar({ ativa })}
-          aria-label="CortAI ligada neste negócio"
+          aria-label="Flow IA ligada neste negócio"
         />
       </section>
 
@@ -88,7 +88,7 @@ export function CortaiDoNegocio({ tenantId }: { tenantId: string }) {
           <h3 className="text-sm font-semibold text-paper">Pausa por crédito</h3>
           <p className="mt-1 text-xs leading-relaxed text-mute">
             Pausada em {dataHoraLonga(c.pausadaEm)}
-            {c.pausaMotivo ? ` (${c.pausaMotivo})` : ""}. Encerrar a pausa faz o Cortaí tentar de
+            {c.pausaMotivo ? ` (${c.pausaMotivo})` : ""}. Encerrar a pausa faz a Flow IA tentar de
             novo já na próxima mensagem.
           </p>
           <Button

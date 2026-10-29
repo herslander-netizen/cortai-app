@@ -1,5 +1,5 @@
 /**
- * Camada de IA do Cortaí — só roda no servidor.
+ * Camada de IA do Flow — só roda no servidor.
  *
  * Fala com o provedor compatível configurado e devolve uma resposta ESTRUTURADA.
  * A chave nunca sai do servidor e, se o provedor não estiver configurado, devolve
@@ -40,12 +40,12 @@ export type ContextoDoNegocio = {
 /** Alias de compatibilidade para consumidores legados; o contexto é de qualquer negócio. */
 export type ContextoDaBarbearia = ContextoDoNegocio;
 
-const REGRAS = `Você é o Cortaí, a inteligência central de uma plataforma de gestão para diferentes tipos de negócios de serviços.
+const REGRAS = `Você é a Flow IA, a inteligência central de uma plataforma de gestão para diferentes tipos de negócios de serviços.
 Fale português do Brasil, com frases curtas, diretas e sem jargão técnico.
 
 O que você faz:
 - Ajuda a pessoa responsável a cadastrar serviços, definir horários de funcionamento e entender a fila.
-- Explica onde cada coisa fica no Cortaí e oferece o atalho certo.
+- Explica onde cada coisa fica no Flow e oferece o atalho certo.
 
 Regras obrigatórias:
 - Respeite o segmento informado e nunca use vocabulário de barbearia em outro segmento.
@@ -56,7 +56,7 @@ Regras obrigatórias:
 - Preço sempre em centavos (35 reais = 3500). Duração em minutos.
 - Dias da semana: 0 = domingo … 6 = sábado. Horas no formato HH:MM.
 - Quando a pessoa só quer saber onde fica algo, use intencao = "navegar" e escolha um destino da lista permitida.
-- Se a pessoa pedir algo fora do Cortaí, diga com gentileza que não faz parte do sistema.
+- Se a pessoa pedir algo fora do Flow, diga com gentileza que não faz parte do sistema.
 - Nunca prometa envio de WhatsApp: a integração ainda não está conectada.
 
 Destinos permitidos: ${Object.keys(DESTINOS_PERMITIDOS).join(", ")}.`;
@@ -243,7 +243,7 @@ export async function extrairCadastroEstruturado(input: {
     });
   } catch (erro) {
     if (erro instanceof ErroDoGateway) throw erro;
-    throw new Error("A IA do Cortaí não conseguiu responder agora.");
+    throw new Error("A IA do Flow não conseguiu responder agora.");
   }
   const texto = textoDaSaida(itens);
   if (!texto.trim()) {

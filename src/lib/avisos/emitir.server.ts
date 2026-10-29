@@ -1,5 +1,5 @@
 /**
- * Emissor único de avisos do CortAI.
+ * Emissor único de avisos da Flow IA.
  *
  * Grava uma linha por destinatário em `notificacoes` (sininho), com evento,
  * prioridade, chave de dedupe e a decisão de canais. Entregadores existentes

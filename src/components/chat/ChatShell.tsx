@@ -8,7 +8,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import fundo from "@/assets/chat-fundo-cortai.png.asset.json";
+import fundo from "@/assets/flow-chat-fundo.png.asset.json";
 import type { PaginaConfig } from "@/lib/pagina-config";
 
 type ChatConfig = PaginaConfig["chat"];
@@ -26,7 +26,7 @@ export function atributosDoChat(chat?: Partial<ChatConfig> | undefined) {
 }
 
 /**
- * Sistema visual compartilhado dos chats do Cortaí.
+ * Sistema visual compartilhado dos chats do Flow.
  * Camadas: fundo → efeitos → cabeçalho → conversa → bandeja inferior.
  * Só apresentação: nenhum estado de agenda ou regra de negócio mora aqui.
  */
@@ -37,7 +37,7 @@ export function ChatBackground({
   capaUrl?: string | null | undefined;
   modo?: ChatConfig["fundo"];
 }) {
-  // capa = foto do negócio (ou o fundo do Cortaí); padrao = sempre o fundo do Cortaí; liso = só a cor.
+  // capa = foto do negócio (ou o fundo do Flow); padrao = sempre o fundo do Flow; liso = só a cor.
   const imagem = modo === "liso" ? null : modo === "padrao" ? fundo.url : capaUrl || fundo.url;
   return (
     <div aria-hidden className="chat-fundo">
@@ -86,7 +86,7 @@ export function ChatHeader({
   const nomeExibido = nome
     .trim()
     .replace(/^recep(?:ç|c)[aã]o\s+/i, "")
-    .replace(/^recep(?:ç|c)[aã]o$/i, detalhe?.trim().split(/\s+/)[0] ?? "Cortaí");
+    .replace(/^recep(?:ç|c)[aã]o$/i, detalhe?.trim().split(/\s+/)[0] ?? "Flow");
   const rotuloVoltar = voltar?.rotulo ?? "Voltar";
   const mostrarStatus = deveMostrarStatusDoChat(status);
 
@@ -188,7 +188,7 @@ export function ChatShell({
       <div className="relative z-10 mx-auto flex h-full w-full max-w-[760px] flex-col overflow-hidden">
         {header}
         {children}
-        <footer className="chat-assinatura">By Alvo Digital • Cortaí</footer>
+        <footer className="chat-assinatura">By Alvo Digital • Flow</footer>
       </div>
     </main>
   );

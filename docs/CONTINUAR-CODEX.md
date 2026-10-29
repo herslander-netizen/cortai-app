@@ -8,7 +8,7 @@ dono, 18/10). Os arquivos da Agenda deixam de estar reservados ao Claude. Leia a
 ## 1. Regra de ouro do dono
 
 - **Layout, estilo e identidade = os do Figaro**, inclusive nas funções novas. O que o Figaro tem e o
-  Cortaí não tem, crie no padrão Figaro. Não tire função do Cortaí (chegou/começar/finalizar,
+  Flow não tem, crie no padrão Figaro. Não tire função do Flow (chegou/começar/finalizar,
   telefone/WhatsApp na ficha, "Toda a equipe" etc.).
 - **Arredondamento fica como está** (cartões 12 px; o Figaro usa 8). O dono ajusta depois.
 - Cartões: barra = **cor da categoria do serviço**, estado = **ícone no canto**, título = **serviço**,
@@ -37,7 +37,7 @@ imagens `ficha-reagendar-*.jpg`, `inicio-personalizar-*.jpg`.
 - **Ficha** (`src/components/barbeiro/agenda/PainelAtendimento.tsx`, regras puras em
   `ficha-regras.ts`): título = serviço, linha de estado colorida, "Hoje"/data + horas mono, chip do
   profissional com foto (`FotoDoProfissional.tsx`), "Trocar cliente" só antes de começar,
-  Observações, nota "Em andamento", rodapé por estado (Reagendar + seta / etapa do Cortaí + seta /
+  Observações, nota "Em andamento", rodapé por estado (Reagendar + seta / etapa do Flow + seta /
   Ver comanda / nada). Cancelar com diálogo; "Não compareceu" sem diálogo (tem Desfazer 5 s).
 - **Reagendar** (`TelaReagendar.tsx`): mês abrindo em hoje, Por disponibilidade/Manual, horários do
   motor (`getHorariosParaRemarcar`), escolha de profissional com foto e expediente
@@ -61,11 +61,11 @@ imagens `ficha-reagendar-*.jpg`, `inicio-personalizar-*.jpg`.
 
 1. **Conferir na prévia** a ficha, Reagendar, Trocar cliente, novo agendamento (com e sem cliente, comanda ao vincular), cartões, barra de baixo e zoom da edição, no celular, temas claro e escuro.
 2. **Bloqueio** (`apk/3` §7): um dia, início/fim, motivo opcional, padrão 12:00–13:00. Hoje é
-   `BloquearHorarioSheet` (o Cortaí tem mais opções — não remover; só trazer o visual).
+   `BloquearHorarioSheet` (o Flow tem mais opções — não remover; só trazer o visual).
 3. **Lista**: cabeçalho por dia "d MMM" + "Hoje" + "N atendimentos · R$ X" já existe; conferir com
    `apk/2` §7 (linha com hora à esquerda, card 64 px, barra 4 px).
 5. **Menu +** (`MenuAcoesAgenda.tsx`): itens no Figaro = Vender pacote, Reservar horário, Bloquear
-   horário, Agendar. O Cortaí não tem pacote/reserva — **não inventar**; manter os itens do Cortaí
+   horário, Agendar. O Flow não tem pacote/reserva — **não inventar**; manter os itens do Flow
    com o visual do Figaro (container primaryContainer, ícone + → X).
 5. **Fontes**: o Figaro usa Plus Jakarta Sans (texto), Poppins (títulos grandes) e JetBrains Mono
    (horas). Trocar fonte é identidade: **perguntar ao dono antes** se vale para o app todo.

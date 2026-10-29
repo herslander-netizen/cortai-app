@@ -4,7 +4,7 @@ import { ativarPushDaEquipe, type ResultadoDoPush } from "./aparelho";
 const MENSAGEM: Record<Exclude<ResultadoDoPush, "ativo" | "instalar_primeiro">, string> = {
   bloqueado: "Os avisos estão bloqueados nas configurações do navegador.",
   recusado: "Tudo bem. Você pode ativar depois em Ajustes.",
-  so_no_app: "Avisos ativados enquanto o Cortaí estiver aberto.",
+  so_no_app: "Avisos ativados enquanto o Flow estiver aberto.",
   falhou: "Não deu para ativar agora. Tente de novo em Ajustes.",
 };
 
@@ -17,4 +17,4 @@ export async function ativarAvisosDaEquipe(tenantId: string) {
 }
 
 export const TEXTO_INSTALAR_PRIMEIRO =
-  "No iPhone, instale o Cortaí primeiro: toque em Compartilhar e depois em Adicionar à Tela de Início. Depois abra pelo ícone e ative os avisos.";
+  "No iPhone, instale o Flow primeiro: toque em Compartilhar e depois em Adicionar à Tela de Início. Depois abra pelo ícone e ative os avisos.";

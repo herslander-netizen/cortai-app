@@ -50,7 +50,7 @@ export async function exigirAdminDaPlataforma(context: {
     _user_id: context.userId,
     _role: "admin",
   });
-  if (!ok) throw new Error("Acesso exclusivo da equipe Cortaí.");
+  if (!ok) throw new Error("Acesso exclusivo da equipe Flow.");
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   return supabaseAdmin;
 }

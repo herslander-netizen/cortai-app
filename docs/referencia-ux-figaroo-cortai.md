@@ -1,14 +1,14 @@
-# Referência de UX: Figaroo → Cortaí
+# Referência de UX: Figaroo → Flow
 
 **Status:** referência oficial de recuperação, atualizada em 18/10/2026 após o dono reencontrar e enviar `Figaroo.apk`.  
-**Escopo:** recuperar a experiência Figaro dentro do Cortaí: layout, cards, fluxos, agenda, transições e animações verificáveis; substituir a marca antiga pela marca Cortaí e integrar as funções novas.  
+**Escopo:** recuperar a experiência Figaro dentro do Flow: layout, cards, fluxos, agenda, transições e animações verificáveis; substituir a marca antiga pela marca Flow e integrar as funções novas.  
 **Segurança da mudança:** esta documentação foi criada em uma branch separada. Nenhum código de produção ou banco foi alterado.
 
 ## Resumo executivo
 
-O Figaroo é a base visual e comportamental de referência, não apenas inspiração. O APK confirma uma aplicação Android nativa em Compose com módulos completos de agenda, clientes, serviços, combos, equipe, locais, fidelidade/pacotes, checkout/comandas, vendas, histórico, indicadores, marketing, avaliações, notificações, configurações e editor da página pública. O Cortaí mantém sua arquitetura web, backend, permissões e regras atuais; a recuperação é feita adaptando componentes e fluxos existentes, área por área, sem substituir o produto por uma réplica isolada.
+O Figaroo é a base visual e comportamental de referência, não apenas inspiração. O APK confirma uma aplicação Android nativa em Compose com módulos completos de agenda, clientes, serviços, combos, equipe, locais, fidelidade/pacotes, checkout/comandas, vendas, histórico, indicadores, marketing, avaliações, notificações, configurações e editor da página pública. O Flow mantém sua arquitetura web, backend, permissões e regras atuais; a recuperação é feita adaptando componentes e fluxos existentes, área por área, sem substituir o produto por uma réplica isolada.
 
-A experiência observável usa superfícies claras e neutras, títulos pesados, cartões e folhas arredondadas, ações principais evidentes, formulários em etapas e áreas de ação persistentes quando necessário. A marca/logomarca deve ser a atual do Cortaí. Não introduzir uma nova direção visual nem misturar camadas visuais posteriores sem evidência de que pertencem ao Figaro.
+A experiência observável usa superfícies claras e neutras, títulos pesados, cartões e folhas arredondadas, ações principais evidentes, formulários em etapas e áreas de ação persistentes quando necessário. A marca/logomarca deve ser a atual do Flow. Não introduzir uma nova direção visual nem misturar camadas visuais posteriores sem evidência de que pertencem ao Figaro.
 
 ## O que foi observado na gravação
 
@@ -37,11 +37,11 @@ O APK contém cinco vídeos internos da própria apresentação (`landing_peek_b
 - **Indicadores/marketing:** métricas em cartões compactos e agrupados por assunto; formulários de campanha em folha dedicada, com rótulos curtos e uma ação principal no rodapé.
 - **Notificações:** notificações do negócio e avisos ao cliente aparecem em grupos separados; a demonstração não autoriza misturar públicos nem mostrar dados de um cliente a outro.
 
-Essas evidências orientam paridade de composição e navegação, mas não autorizam inventar colunas, categorias ou dados que o Cortaí não fornece. Quando faltar a mesma estrutura de dados (por exemplo, categoria de serviço), preservar o motor atual e registrar a diferença em vez de simular informação.
+Essas evidências orientam paridade de composição e navegação, mas não autorizam inventar colunas, categorias ou dados que o Flow não fornece. Quando faltar a mesma estrutura de dados (por exemplo, categoria de serviço), preservar o motor atual e registrar a diferença em vez de simular informação.
 
-## Comparação com a base atual do Cortaí
+## Comparação com a base atual do Flow
 
-A documentação existente do Cortaí já descreve:
+A documentação existente do Flow já descreve:
 - Agenda operacional com Timeline, Lista e Modo Foco.
 - Navegação de data, pílula “Agora”, ações contextuais e menu de ações.
 - Motor único de disponibilidade e validação de agendamento.
@@ -64,7 +64,7 @@ A existência de um módulo não prova, por si só, que todo fluxo está perfeit
 ### P0 — Antes de qualquer redesign
 
 1. Fazer inventário da Agenda, do fluxo de novo agendamento e do editor de temas, com componentes/rotas e seus testes.
-2. Capturar o estado atual do Cortaí em viewport de 390 px e 1280 px para comparação objetiva.
+2. Capturar o estado atual do Flow em viewport de 390 px e 1280 px para comparação objetiva.
 3. Identificar, em cada diferença observada, se é um problema de hierarquia visual, navegação, acessibilidade ou regra funcional.
 4. Manter regras de negócio intactas: disponibilidade, fuso horário do negócio, sobreposição, permissões, estados dos agendamentos, pagamentos e isolamento por negócio.
 
@@ -86,8 +86,8 @@ A existência de um módulo não prova, por si só, que todo fluxo está perfeit
 ## Direção visual
 
 - Usar o APK e as capturas/vídeos disponíveis como referência de paridade visual e comportamental, não como sugestão genérica.
-- Preservar a geometria, espaçamentos, hierarquia, cards, fluxos, gestos e transições originais que possam ser verificados. Trocar a logomarca/nome antigos pela marca atual do Cortaí e encaixar as funções novas sem alterar a estrutura antiga desnecessariamente.
-- Continuar usando tokens de cor, componentes de segurança, acessibilidade e regras de negócio do Cortaí; a marca nova não autoriza hexes avulsos nem mudanças de backend.
+- Preservar a geometria, espaçamentos, hierarquia, cards, fluxos, gestos e transições originais que possam ser verificados. Trocar a logomarca/nome antigos pela marca atual do Flow e encaixar as funções novas sem alterar a estrutura antiga desnecessariamente.
+- Continuar usando tokens de cor, componentes de segurança, acessibilidade e regras de negócio do Flow; a marca nova não autoriza hexes avulsos nem mudanças de backend.
 - Priorizar mobile-first e validar também em desktop. Respeitar a preferência por movimento reduzido sem remover a animação normal.
 
 ## Critérios de aceite antes de aprovar alterações
@@ -110,7 +110,7 @@ Auditar detalhadamente os arquivos reais relacionados a:
 Após esse inventário, propor alterações pontuais, arquivo por arquivo, antes de implementá-las. Não enviar alterações à `main` nem publicar o site sem autorização explícita.
 
 
-## Inventário técnico inicial do Cortaí
+## Inventário técnico inicial do Flow
 
 Consulta à branch `main` em 12/10/2026. Contagem física de linhas dos arquivos consultados (serve como sinal de complexidade, não como avaliação automática da qualidade):
 
@@ -128,7 +128,7 @@ Outras confirmações da estrutura:
 - `src/routes/barbeiro.temas.tsx` redireciona para `/barbeiro/marca`: temas e personalização já foram consolidados em um lugar.
 - `src/routes/barbeiro.agenda.tsx` é uma rota fina que carrega `AgendaLazy`, separando a rota do componente operacional.
 - O contrato de design orienta dividir rotas/componentes com mais de 300 linhas. Portanto, uma evolução da Agenda deve preferir extrações pequenas e coesas, sem misturar mudança visual com mudança de regra de negócio.
-- O Cortaí já tem componentes de Timeline, Lista e Modo Foco, assim como uma prévia de experiência pública. A oportunidade principal parece ser comparar detalhes de experiência e refinar componentes existentes, não criar novas superfícies concorrentes.
+- O Flow já tem componentes de Timeline, Lista e Modo Foco, assim como uma prévia de experiência pública. A oportunidade principal parece ser comparar detalhes de experiência e refinar componentes existentes, não criar novas superfícies concorrentes.
 
 ### Implicação para implementação
 
@@ -150,20 +150,20 @@ A inspeção estática do APK identifica estes domínios de telas e fluxos. A li
 ### Ordem de recuperação
 
 1. **Agenda e cartões** — prioridade máxima, porque são o núcleo de operação e há referência adicional em vídeos/capturas do dono. Preservar a versão aprovada pelo dono e corrigir apenas regressões/bugs.
-2. **Novo agendamento, reagendamento e reservas** — recuperar a sequência e o comportamento das etapas, mantendo a fonte de disponibilidade e as validações atuais do Cortaí.
+2. **Novo agendamento, reagendamento e reservas** — recuperar a sequência e o comportamento das etapas, mantendo a fonte de disponibilidade e as validações atuais do Flow.
 3. **Cards, folhas, menus e navegação geral** — estabelecer um padrão fiel à referência antes de aplicar ajustes de acabamento às telas dependentes.
 4. **Serviços, combos, equipe, locais e clientes** — recuperar layout e fluxo de cada domínio usando os componentes atuais.
 5. **Página pública, checkout, vendas, fidelidade, marketing, avaliações, indicadores e configurações** — mapear paridade e integrar as funções novas em etapas.
 
 ### Evidência e limites
 
-- O APK é um artefato compilado de Android/Compose, não o código-fonte React do Cortaí. Ele permite inventariar telas, fontes e recursos, mas não deve ser copiado como se fosse um projeto web.
+- O APK é um artefato compilado de Android/Compose, não o código-fonte React do Flow. Ele permite inventariar telas, fontes e recursos, mas não deve ser copiado como se fosse um projeto web.
 - Recursos de animação genéricos do Android não provam por si só a animação de cada tela. Usar os vídeos/capturas fornecidos para validar o movimento; sem evidência, registrar a lacuna.
 - O APK contém fontes Plus Jakarta Sans, Poppins (pesos Medium/Semibold/Bold) e JetBrains Mono. Antes de alterar tipografia global, verificar se os arquivos podem ser incorporados de forma íntegra e licenciada e se a troca não interfere em legibilidade/identidade da marca atual.
 - Não marcar a recuperação como concluída até a validação visual/funcional das áreas principais em 390 px e 1280 px e a execução de TypeScript, testes e build.
 
 ## Mapa de recuperação: Configurações, onboarding e página pública
 
-A matriz detalhada de paridade, com as rotas atuais do Cortaí, as telas identificadas no APK, as lacunas confirmadas e o que ainda precisa de validação visual, está em `docs/referencia-figaro/matriz-recuperacao-cortai.md`. Ela complementa esta referência e a especificação `docs/referencia-figaro/apk/4-pagina-publica.md`.
+A matriz detalhada de paridade, com as rotas atuais do Flow, as telas identificadas no APK, as lacunas confirmadas e o que ainda precisa de validação visual, está em `docs/referencia-figaro/matriz-recuperacao-cortai.md`. Ela complementa esta referência e a especificação `docs/referencia-figaro/apk/4-pagina-publica.md`.
 
-Prioridade de recuperação: (1) hub “Sua Página” + Layout & Tema + prévia de rascunho/publicação; (2) onboarding e primeiros passos; (3) configurações de conta/negócio e preferências de agendamento/notificações; (4) funcionalidades e navegação; (5) módulos administrativos e demais fluxos. O objetivo é paridade de experiência, não copiar a arquitetura Android nem recriar funções que o Cortaí já tem.
+Prioridade de recuperação: (1) hub “Sua Página” + Layout & Tema + prévia de rascunho/publicação; (2) onboarding e primeiros passos; (3) configurações de conta/negócio e preferências de agendamento/notificações; (4) funcionalidades e navegação; (5) módulos administrativos e demais fluxos. O objetivo é paridade de experiência, não copiar a arquitetura Android nem recriar funções que o Flow já tem.

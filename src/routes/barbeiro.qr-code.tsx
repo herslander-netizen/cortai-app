@@ -17,7 +17,7 @@ export const Route = createFileRoute("/barbeiro/qr-code")({
   beforeLoad: ({ context }) => exigirCapacidade(context.queryClient, "branding_avancado"),
   head: () => ({
     meta: [
-      { title: "QR Code e link público — Cortaí" },
+      { title: "QR Code e link público — Flow" },
       { name: "description", content: "Gere, baixe e imprima o QR Code da página pública do seu negócio." },
       { name: "robots", content: "noindex, nofollow" },
     ],

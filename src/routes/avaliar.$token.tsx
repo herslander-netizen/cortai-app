@@ -16,8 +16,8 @@ export const Route = createFileRoute("/avaliar/$token")({
   ssr: false,
   head: () => ({
     meta: [
-      { title: "Como foi sua experiência? — Cortaí" },
-      { name: "description", content: "Avalie sua experiência com segurança pelo Cortaí." },
+      { title: "Como foi sua experiência? — Flow" },
+      { name: "description", content: "Avalie sua experiência com segurança pelo Flow." },
       { name: "robots", content: "noindex, nofollow" },
     ],
   }),

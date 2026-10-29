@@ -26,7 +26,7 @@ São as ações do próprio app (RPC) ou auxiliares usados nas regras de acesso;
 
 ## Logs para depuração
 - Execuções da verificação: `cron.job_run_details` e respostas em `net._http_response`.
-- Envios e respostas: tabela `envios_de_whatsapp` e tela CortAI → Atividade → Lembretes.
+- Envios e respostas: tabela `envios_de_whatsapp` e tela Flow IA → Atividade → Lembretes.
 - Rejeições de webhook: `webhook_rejeicoes`.
 
 ## Guia rápido de teste (barbearia)
@@ -34,6 +34,6 @@ São as ações do próprio app (RPC) ou auxiliares usados nas regras de acesso;
 2. Escolha a barbearia (1 ou 2) e marque um horário para daqui a ~2h10.
 3. Confira o horário na Agenda do app (aparece ao vivo).
 4. Em até 15 min depois de faltarem 2h, chega o aviso "você é o próximo" com Confirmar / Remarcar / Cancelar.
-5. Toque em Confirmar → veja "Confirmou" em CortAI → Atividade.
+5. Toque em Confirmar → veja "Confirmou" em Flow IA → Atividade.
 6. Repita com Cancelar → o horário some da agenda e a equipe é avisada.
 7. Tudo sem custo: só funciona para quem escreveu nas últimas 24h.

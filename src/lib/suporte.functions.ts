@@ -1,6 +1,6 @@
 /**
  * Suporte da plataforma: edição assistida de UMA barbearia pelo dono/suporte
- * do Cortaí. Não é "entrar na conta": nenhuma sessão do cliente é criada, nada
+ * do Flow. Não é "entrar na conta": nenhuma sessão do cliente é criada, nada
  * de senha é exposto, e toda alteração fica registrada em auditoria_de_suporte.
  */
 import { createServerFn } from "@tanstack/react-start";
@@ -36,7 +36,7 @@ async function comoSuporte(context: { supabase: any; userId: string }) {
     context.supabase.rpc("has_role", { _user_id: context.userId, _role: "admin" }),
     context.supabase.rpc("has_role", { _user_id: context.userId, _role: "suporte" }),
   ]);
-  if (!admin && !suporte) throw new Error("Acesso exclusivo da equipe do Cortaí.");
+  if (!admin && !suporte) throw new Error("Acesso exclusivo da equipe do Flow.");
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const email = (context as { claims?: { email?: string } }).claims?.email ?? null;
   return { db: supabaseAdmin, email };

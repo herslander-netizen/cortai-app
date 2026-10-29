@@ -42,7 +42,7 @@ export function linhasDaCentral(c: CentralDeAutomacao): LinhaDeEstado[] {
   const [m, tm] = MONITORAMENTO[c.monitoramento];
   return [
     { chave: "whatsapp", rotulo: "WhatsApp", estado: w, tom: tw },
-    { chave: "ia", rotulo: "IA do Cortaí", estado: i, tom: ti },
+    { chave: "ia", rotulo: "IA do Flow", estado: i, tom: ti },
     { chave: "evolution", rotulo: "Serviço do WhatsApp (Evolution)", estado: e, tom: te },
     {
       chave: "avisos",

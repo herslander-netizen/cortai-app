@@ -163,7 +163,7 @@ export function BloquearHorarioSheet({
               aria-label={`Dia do bloqueio: ${dataEditorial(diaEscolhido)}`}
             />
           </label>
-          {/* Relógio do Cortaí (padrão Figaro) no lugar do nativo do Android, que saía cortado (dono, 26/10). */}
+          {/* Relógio do Flow (padrão Figaro) no lugar do nativo do Android, que saía cortado (dono, 26/10). */}
           <div className="grid grid-cols-2 gap-3">
             {(
               [

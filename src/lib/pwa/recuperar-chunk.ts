@@ -62,7 +62,7 @@ export function podeRecuperar(
 
 /** Cobre a tela enquanto o app recarrega, para não parecer travado ou em branco. */
 function mostrarAtualizando(
-  titulo = "Atualizando o Cortaí…",
+  titulo = "Atualizando o Flow…",
   texto = "Uma versão nova acabou de sair. Só um instante.",
 ) {
   if (typeof document === "undefined" || document.getElementById("cortai-atualizando")) return;

@@ -31,8 +31,8 @@ export function AssistenteDeServicos({
   return (
     <section className="mt-6 rounded-xl border border-gold/40 bg-ink2 px-4 py-4">
       <p className="flex items-center gap-2 text-sm font-semibold text-paper">
-        <Sparkles size={16} className="text-gold" aria-hidden /> Quer que o Cortaí configure isso
-        para você?
+        <Sparkles size={16} className="text-gold" aria-hidden /> Quer que o Flow configure isso para
+        você?
       </p>
       <label htmlFor={descricaoId} className="field-label mt-4">
         Descreva os serviços

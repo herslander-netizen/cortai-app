@@ -1,6 +1,6 @@
-# Cortaí
+# Flow
 
-Plataforma de gestão para negócios de beleza, com agenda, serviços, profissionais, clientes, pagamentos, notificações e assistente CortAI.
+Plataforma de gestão para negócios de beleza, com agenda, serviços, profissionais, clientes, pagamentos, notificações e assistente Flow IA.
 
 - Código: branch `cloudflare-workers-migration-2026-10-13` (a `main` é só arquivo do período antigo).
 - Prévia: https://previa.cortaiapp.pages.dev (a cada envio). Site principal: https://cortaiapp.pages.dev (pelo "Lançar versão").

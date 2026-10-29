@@ -33,8 +33,8 @@ vi.mock("framer-motion", async () => {
   };
 });
 
-vi.mock("@/components/marca/MarcaCortai", () => ({
-  MarcaCortai: () => createElement("span", { "aria-label": "Marca Cortaí" }, "Cortaí"),
+vi.mock("@/components/marca/MarcaFlow", () => ({
+  MarcaFlow: () => createElement("span", { "aria-label": "Marca Flow" }, "Flow"),
 }));
 
 (globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT: boolean }).IS_REACT_ACT_ENVIRONMENT = true;

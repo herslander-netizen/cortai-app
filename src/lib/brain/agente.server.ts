@@ -1,5 +1,5 @@
 /**
- * Agente do cérebro CortAI — um único núcleo para painel, site e WhatsApp.
+ * Agente do cérebro Flow IA — um único núcleo para painel, site e WhatsApp.
  *
  * Ciclo: guarda → (ação pendente confirmada?) → modelo escolhe ações →
  * backend executa leituras / prepara escritas → resposta em linguagem natural.
@@ -70,7 +70,7 @@ export type Pendente = {
 };
 
 export type Persona = {
-  /** Nome exibido: "Cortaí" no painel; identidade do negócio no atendimento. */
+  /** Nome exibido: "Flow IA" no painel; identidade do negócio no atendimento. */
   nome: string;
   negocio: string;
   segmento?: string | null;
@@ -127,7 +127,7 @@ async function instrucoes(ctx: ContextoDoCerebro, persona: Persona) {
     hour12: false,
   }).format(new Date());
   const hoje = new Intl.DateTimeFormat("en-CA", { timeZone: fuso }).format(new Date());
-  return `Você é ${persona.nome}, a inteligência Cortaí, atendendo pelo negócio "${persona.negocio}".
+  return `Você é ${persona.nome}, a Flow IA, atendendo pelo negócio "${persona.negocio}".
 Agora: ${agora} (fuso ${fuso}; hoje = ${hoje}). Fale português do Brasil, com naturalidade, frases curtas, horário 24h. Texto puro: sem markdown (nada de ** ou #).
 ${regrasDoCanal(ctx)}
 

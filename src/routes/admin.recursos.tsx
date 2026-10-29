@@ -13,13 +13,13 @@ import { PLANOS, ROTULO_DO_PLANO } from "@/lib/planos";
 export const Route = createFileRoute("/admin/recursos")({
   head: () => ({
     meta: [
-      { title: "Recursos e planos — Cortaí" },
+      { title: "Recursos e planos — Flow" },
       {
         name: "description",
-        content: "Defina quais recursos do Cortaí cada plano libera para os negócios.",
+        content: "Defina quais recursos do Flow cada plano libera para os negócios.",
       },
-      { property: "og:title", content: "Recursos e planos — Cortaí" },
-      { property: "og:description", content: "Matriz de recursos por plano da plataforma Cortaí." },
+      { property: "og:title", content: "Recursos e planos — Flow" },
+      { property: "og:description", content: "Matriz de recursos por plano da plataforma Flow." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex, nofollow" },

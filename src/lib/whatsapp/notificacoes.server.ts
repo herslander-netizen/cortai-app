@@ -1,9 +1,9 @@
 /**
- * Avisos do CortAI ao cliente pelo WhatsApp — entrega determinística.
+ * Avisos da Flow IA ao cliente pelo WhatsApp — entrega determinística.
  *
- * Evento do Cortaí → regra → texto/modelo aprovado → envio pela conexão oficial
+ * Evento do Flow → regra → texto/modelo aprovado → envio pela conexão oficial
  * (`conexoes_whatsapp`, `conversas_whatsapp`, `mensagens_whatsapp`). O aviso pode
- * abrir ou continuar uma conversa: respostas livres seguem para o cérebro CortAI
+ * abrir ou continuar uma conversa: respostas livres seguem para o cérebro Flow IA
  * em `fluxo.server.ts`; botões são tratados no servidor.
  *
  * Garantias:
@@ -118,7 +118,7 @@ export const OPCOES_DO_LEMBRETE: Partial<
   ],
   vaga_lista_espera: [
     { rotulo: "Aproveitar vaga", acao: "CORTAI_AGENDAR" },
-    { rotulo: "Abrir Cortaí", acao: "CORTAI_ABRIR" },
+    { rotulo: "Abrir Flow", acao: "CORTAI_ABRIR" },
   ],
   retorno: [
     { rotulo: "Agendar", acao: "CORTAI_AGENDAR" },
@@ -249,19 +249,19 @@ export function montarMensagem(
       `Data: ${dataBr(d.inicio, d.fuso)}`,
       `Horário: ${horaBr(d.inicio, d.fuso)}`,
       "",
-      "Confira os dados atualizados no Cortaí.",
+      "Confira os dados atualizados no Flow.",
     );
   } else if (tipo === "mudanca_operacional") {
     blocos.push(
       `Olá, ${nome}. Houve uma mudança importante no seu horário ${em}.`,
       `${dataBr(d.inicio, d.fuso)} às ${horaBr(d.inicio, d.fuso)}.`,
-      linha(d.linkAgendamento, "Confira no Cortaí: "),
+      linha(d.linkAgendamento, "Confira no Flow: "),
     );
   } else if (tipo === "vaga_lista_espera") {
     blocos.push(
       `Boa notícia, ${nome}. Abriu uma vaga ${em}.`,
       `${dataBr(d.inicio, d.fuso)} às ${horaBr(d.inicio, d.fuso)}.`,
-      linha(d.linkAgendamento, "Aproveite pelo Cortaí: "),
+      linha(d.linkAgendamento, "Aproveite pelo Flow: "),
     );
   } else if (tipo === "pagamento_confirmado") {
     blocos.push(
@@ -278,7 +278,7 @@ export function montarMensagem(
   } else if (tipo === "convite_avaliacao") {
     blocos.push(
       `Olá, ${nome}. Como foi sua experiência?`,
-      d.linkAvaliacao ? `Avalie com segurança pelo Cortaí: ${d.linkAvaliacao}` : null,
+      d.linkAvaliacao ? `Avalie com segurança pelo Flow: ${d.linkAvaliacao}` : null,
     );
   } else if (tipo === "recuperacao_experiencia") {
     blocos.push(
@@ -287,7 +287,7 @@ export function montarMensagem(
     );
   } else if (tipo === "fallback_informativo_whatsapp") {
     blocos.push(
-      "Olá! Aqui é o Cortaí. Pode me contar o que precisa — agendar, remarcar, cancelar ou tirar dúvidas — por aqui mesmo.",
+      "Olá! Aqui é o Flow. Pode me contar o que precisa — agendar, remarcar, cancelar ou tirar dúvidas — por aqui mesmo.",
       linha(d.linkAgendamento, "Se preferir, use o link: "),
     );
   } else if (tipo === "retorno" && d.textoRetorno) {
@@ -709,7 +709,7 @@ async function executar(agendamentoId: string, tipo: TipoDeNotificacao): Promise
     return { enviado: false, motivo };
   };
 
-  // Remetente: conexão própria do negócio ou, na falta, o número oficial do Cortaí.
+  // Remetente: conexão própria do negócio ou, na falta, o número oficial do Flow.
   const { conexaoDeEnvio, SEM_WHATSAPP_DISPONIVEL } = await import("./conexao-envio.server");
   const conexao = await conexaoDeEnvio(ag.tenant_id, "notificacoes");
 

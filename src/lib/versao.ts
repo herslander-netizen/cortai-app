@@ -16,7 +16,7 @@ export const VERSAO_INSTALADA = "3.6.0";
 export const APP_VERSION = VERSAO_INSTALADA;
 
 /** Nome curto exibido na interface. */
-export const VERSAO_EXIBICAO = `Cortaí · v${APP_VERSION}`;
+export const VERSAO_EXIBICAO = `Flow · v${APP_VERSION}`;
 
 /** Para onde mandamos quem precisa atualizar. */
 export const URL_DE_ATUALIZACAO = urlPublica("");
@@ -37,14 +37,14 @@ export type ItemDoChangelog = {
   correcoes: string[];
 };
 
-/** Histórico oficial de versões do Cortaí (do mais novo para o mais antigo). */
+/** Histórico oficial de versões do Flow (do mais novo para o mais antigo). */
 export const CHANGELOG: ItemDoChangelog[] = [
   {
     versao: "3.0.0",
     data: "2026-10-03",
     tipo: "major",
-    titulo: "Cortaí 3.0",
-    descricao: "Agenda nova, visual mais leve e um Cortaí para todo negócio de beleza.",
+    titulo: "Flow 3.0",
+    descricao: "Agenda nova, visual mais leve e um Flow para todo negócio de beleza.",
     funcionalidades: [...NOVIDADES],
     visual: ["Novo fundo neutro no modo claro e escuro."],
     tecnico: ["Novidades centralizadas em src/lib/novidades.ts."],
@@ -54,13 +54,13 @@ export const CHANGELOG: ItemDoChangelog[] = [
     versao: "2.0.0",
     data: "2026-09-23",
     tipo: "major",
-    titulo: "Cortaí 2.0",
+    titulo: "Flow 2.0",
     descricao:
       "Novo conceito, nova identidade e nova página inicial: o lugar onde sua barbearia acontece.",
     funcionalidades: [
       "Nova página inicial editorial com os quatro pilares: operar, aparecer, fazer voltar e crescer.",
       "Apresentação da identidade própria de cada barbearia e da experiência do cliente.",
-      "Sistema oficial de versão, changelog e tela Sobre o Cortaí.",
+      "Sistema oficial de versão, changelog e tela Sobre o Flow.",
       "Novidades da versão apresentadas uma única vez ao entrar.",
     ],
     visual: [

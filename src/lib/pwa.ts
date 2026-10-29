@@ -44,7 +44,7 @@ export function estaInstalado() {
 }
 
 /**
- * Estado de instalação do Cortaí como aplicativo.
+ * Estado de instalação do Flow como aplicativo.
  * Funciona em Android/Chromium (instalação nativa), desktop compatível e iPhone/iPad (orientação manual).
  */
 export function useInstalacao() {
@@ -119,7 +119,7 @@ export function instrucaoDeInstalacao(plataforma: Plataforma) {
     ? "No Safari, toque em Compartilhar e depois em Adicionar à Tela de Início."
     : plataforma === "android"
       ? "No menu do navegador, toque em Instalar aplicativo ou Adicionar à tela inicial."
-      : "No navegador, use o ícone de instalar na barra de endereço ou o menu Instalar Cortaí.";
+      : "No navegador, use o ícone de instalar na barra de endereço ou o menu Instalar Flow.";
 }
 
 /* Um convite por vez: enquanto o de instalar está na tela, o de avisos espera. */

@@ -52,7 +52,7 @@ type Preferencia = { tipo: string; no_app: boolean; no_whatsapp: boolean; no_pus
 const PADRAO: Omit<Preferencia, "tipo"> = { no_app: true, no_whatsapp: false, no_push: true };
 
 const DETALHE_DO_CANAL: Record<Canal, string> = {
-  no_app: "Sininho e aviso dentro do Cortaí.",
+  no_app: "Sininho e aviso dentro do Flow.",
   no_push: "Notificação no celular, mesmo com o app fechado.",
   no_whatsapp: "Mensagem no seu WhatsApp.",
 };
@@ -252,7 +252,7 @@ function AvisosNoCelular({ tenantId }: { tenantId: string }) {
   );
 }
 
-/** Confirma o WhatsApp da pessoa da equipe: libera conversar com o Cortaí e receber avisos por lá. */
+/** Confirma o WhatsApp da pessoa da equipe: libera conversar com o Flow e receber avisos por lá. */
 function MeuWhatsappNoCortai() {
   const consultar = useServerFn(meuWhatsappNoCortai);
   const gerar = useServerFn(gerarCodigoDoMeuWhatsapp);
@@ -268,14 +268,14 @@ function MeuWhatsappNoCortai() {
     return (
       <p className="flex min-h-14 items-center gap-2 rounded-[28px] bg-[var(--agenda-cartao,var(--ink2))] px-4 py-3 text-sm text-paper">
         <Check className="h-4 w-4 shrink-0 text-primary" aria-hidden /> WhatsApp confirmado:
-        converse com o Cortaí e receba avisos por lá
+        converse com o Flow e receba avisos por lá
       </p>
     );
   }
   return (
     <div className="rounded-[28px] bg-[var(--agenda-cartao,var(--ink2))] p-4">
       <p className="text-[15px] font-semibold leading-5 text-paper">
-        Conversar com o Cortaí pelo WhatsApp
+        Conversar com o Flow pelo WhatsApp
       </p>
       <p className="mt-1 text-xs leading-relaxed text-mute">
         Confirme seu número para perguntar sua agenda, avisar atrasos e receber avisos por lá.
@@ -287,7 +287,7 @@ function MeuWhatsappNoCortai() {
             {codigo.numero ? (
               <strong className="text-paper">+{codigo.numero}</strong>
             ) : (
-              "o número do Cortaí"
+              "o número do Flow"
             )}
             :
           </p>

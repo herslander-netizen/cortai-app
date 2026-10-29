@@ -83,7 +83,7 @@ export const APRESENTACAO_PADRAO: ConteudoApresentacao = {
   },
   segmentos: {
     etiqueta: "FEITO PARA NEGÓCIOS DE SERVIÇOS",
-    titulo: "O mesmo Cortaí, adaptado ao seu tipo de negócio.",
+    titulo: "O mesmo Flow, adaptado ao seu tipo de negócio.",
     texto:
       "Escolha um segmento para ver os exemplos da página com a linguagem mais próxima da sua rotina.",
   },
@@ -95,7 +95,7 @@ export const APRESENTACAO_PADRAO: ConteudoApresentacao = {
   duvidas: { etiqueta: "DÚVIDAS", titulo: "Antes de começar.", texto: "" },
   perguntas: [
     {
-      pergunta: "O Cortaí funciona no celular?",
+      pergunta: "O Flow funciona no celular?",
       resposta:
         "Sim. A experiência é pensada para acompanhar a rotina do negócio no celular e também funciona no computador.",
     },
@@ -124,9 +124,9 @@ export const APRESENTACAO_PADRAO: ConteudoApresentacao = {
       resposta: "Sim, a qualquer momento, sem multa.",
     },
     {
-      pergunta: "Quais tipos de negócio podem usar o Cortaí?",
+      pergunta: "Quais tipos de negócio podem usar o Flow?",
       resposta:
-        "O Cortaí é uma plataforma de gestão e agendamento para negócios de serviços. Beleza, barbearia e outras áreas podem configurar seus próprios serviços, equipe e horários; a experiência acompanha o segmento escolhido, sem limitar a plataforma a uma única área.",
+        "O Flow é uma plataforma de gestão e agendamento para negócios de serviços. Beleza, barbearia e outras áreas podem configurar seus próprios serviços, equipe e horários; a experiência acompanha o segmento escolhido, sem limitar a plataforma a uma única área.",
     },
   ],
   final: {
@@ -137,7 +137,7 @@ export const APRESENTACAO_PADRAO: ConteudoApresentacao = {
 };
 
 export const SEO_APRESENTACAO_PADRAO = {
-  titulo: "Cortaí — 45 dias grátis, sem cartão",
+  titulo: "Flow — 45 dias grátis, sem cartão",
   descricao:
     "Gestão de agenda, clientes, atendimentos e caixa para negócios de serviços, com lembretes automáticos por WhatsApp conforme o plano.",
 };

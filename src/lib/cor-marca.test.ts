@@ -5,13 +5,13 @@ import { TEMAS, configPadrao } from "@/lib/pagina-config";
 
 describe("cor personalizada do cliente", () => {
   it.each([null, "", "#C9A96A", "#D4AF6A", "#C9A227", "#1653A1", "#426AA2", "#88ADE0"])(
-    "mantém a identidade Cortaí para %s",
+    "mantém a identidade Flow para %s",
     (cor) => {
       expect(estiloDaMarca(cor)).toEqual({ personalizada: false });
     },
   );
 
-  it("usa marinho e coral no Cortaí padrão, em escuro e claro", () => {
+  it("usa marinho e coral no Flow padrão, em escuro e claro", () => {
     expect(configPadrao().tema).toBe("cortai");
     expect(TEMAS.cortai.cores).toMatchObject({
       principal: "#FF7B86",

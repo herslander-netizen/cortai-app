@@ -51,9 +51,9 @@ import { definirFuncionalidade, getFuncionalidades } from "@/lib/funcionalidades
 export const Route = createFileRoute("/barbeiro/funcionalidades")({
   head: () => ({
     meta: [
-      { title: "Funcionalidades — Cortaí Gestão" },
+      { title: "Funcionalidades — Flow" },
       { name: "description", content: "Ligue e desligue as funções opcionais do seu negócio." },
-      { property: "og:title", content: "Funcionalidades — Cortaí Gestão" },
+      { property: "og:title", content: "Funcionalidades — Flow" },
       { property: "og:description", content: "Use só o que faz sentido para o seu negócio." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

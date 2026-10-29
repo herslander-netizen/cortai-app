@@ -14,7 +14,7 @@ import {
 } from "@/lib/guarda";
 import type { Sessao } from "@/lib/sessao.functions";
 import { Aviso } from "@/components/ui/aviso";
-import { MarcaCortai } from "@/components/marca/MarcaCortai";
+import { MarcaFlow } from "@/components/marca/MarcaFlow";
 import { sincronizarCorDoNavegador } from "@/lib/aparencia";
 import { mensagemDeErroDeAuth } from "@/lib/auth-flow";
 import { SequenciaDaEntrada } from "@/components/entrada/SequenciaDaEntrada";
@@ -32,18 +32,18 @@ export const Route = createFileRoute("/login")({
   }),
   head: () => ({
     meta: [
-      { title: "Entrar — Cortaí" },
+      { title: "Entrar — Flow" },
       {
         name: "description",
-        content: "Acesse seus horários ou a gestão do seu negócio no Cortaí.",
+        content: "Acesse seus horários ou a gestão do seu negócio no Flow.",
       },
-      { property: "og:title", content: "Entrar — Cortaí" },
-      { property: "og:description", content: "Seu acesso ao Cortaí." },
+      { property: "og:title", content: "Entrar — Flow" },
+      { property: "og:description", content: "Seu acesso ao Flow." },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "https://cortai.dev/login" },
-      { property: "og:image", content: "https://cortai.dev/capa-social-cortai.jpg" },
+      { property: "og:image", content: "https://cortai.dev/capa-social-flow.jpg" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:image", content: "https://cortai.dev/capa-social-cortai.jpg" },
+      { name: "twitter:image", content: "https://cortai.dev/capa-social-flow.jpg" },
     ],
     links: [{ rel: "canonical", href: "https://cortai.dev/login" }],
   }),
@@ -130,7 +130,7 @@ function LoginPage() {
 
   useEffect(() => {
     const meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
-    if (meta) meta.content = "#0b1020";
+    if (meta) meta.content = "#0f0f14";
     return sincronizarCorDoNavegador;
   }, []);
 
@@ -210,7 +210,7 @@ function LoginPage() {
       <div className="entrada-vinheta" aria-hidden />
       <div className="entrada-conteudo">
         <div className="entrada-marca">
-          <MarcaCortai variante="clara" className="h-auto w-40" prioridade />
+          <MarcaFlow variante="clara" className="h-auto w-40" prioridade />
         </div>
 
         {!mostrarForm ? (
@@ -386,7 +386,7 @@ function LoginPage() {
               className="entrada-entrar mt-2 w-full"
               onClick={() => setMostrarForm(false)}
             >
-              Ver como o Cortaí funciona
+              Ver como o Flow funciona
             </button>
           </div>
         )}

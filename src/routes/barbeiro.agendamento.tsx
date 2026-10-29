@@ -24,7 +24,7 @@ import { passoValido } from "@/lib/onboarding-regras";
 export const Route = createFileRoute("/barbeiro/agendamento")({
   head: () => ({
     meta: [
-      { title: "Opções de agendamento — Cortaí Gestão" },
+      { title: "Opções de agendamento — Flow" },
       {
         name: "description",
         content: "Como os clientes agendam: horários, antecedência e cancelamento.",
@@ -80,7 +80,7 @@ const INTERVALOS = [
 /**
  * Opções de agendamento, como no Figaro (`AppointmentSettingsScreen`): seção "Agendamento" com linhas que abrem
  * uma folha de opções (intervalo dos horários, antecedência máxima) e interruptores que valem na hora. As regras
- * que o Cortaí tem a mais (antecedência mínima, cancelamento, intervalo entre atendimentos e encaixe) ficam em
+ * que o Flow tem a mais (antecedência mínima, cancelamento, intervalo entre atendimentos e encaixe) ficam em
  * "Regras do atendimento"; antes só dava para mudá-las na configuração inicial.
  */
 function OpcoesDeAgendamentoPage() {

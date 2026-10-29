@@ -1,6 +1,6 @@
 name: Lançar versão (site principal)
 
-# Lança uma versão numerada do Cortaí no site principal (Cloudflare Pages "cortaiapp" →
+# Lança uma versão numerada do Flow no site principal (Cloudflare Pages "cortaiapp" →
 # https://cortaiapp.pages.dev). Cada lançamento:
 #   1. testa (TypeScript e testes);
 #   2. calcula a próxima versão a partir da última tag vX.Y (3.0 → 3.1, ou 3.x → 4.0 se "grande");
@@ -210,12 +210,12 @@ jobs:
           if [ "$ANTERIOR" = "nenhuma" ]; then desde=""; else desde="$ANTERIOR"; fi
           commits="$(git log --no-merges --pretty='- %s' ${desde:+$desde..}HEAD~1 | grep -v -E '^- (Diário|Versão [0-9])' | head -40 || true)"
           {
-            echo "${NOTAS:-Versão $NOVA do Cortaí.}"
+            echo "${NOTAS:-Versão $NOVA do Flow.}"
             echo
             echo "### Mudanças desde ${ANTERIOR}"
             echo "${commits:-- (sem mudanças de código)}"
             echo
             echo "<!-- cloudflare-deployment: $dep -->"
           } > /tmp/notas.md
-          gh release create "v$NOVA" --title "Cortaí $NOVA" --notes-file /tmp/notas.md --target "$RAMO"
+          gh release create "v$NOVA" --title "Flow $NOVA" --notes-file /tmp/notas.md --target "$RAMO"
           echo "Versão $NOVA no ar em https://cortaiapp.pages.dev (publicação $dep)"

@@ -16,7 +16,7 @@ const AssistenteCortai = lazy(() =>
 const CHAVE_DO_ROTULO = "cortai:rotulo-fab";
 
 /**
- * Bolha flutuante global da CortAI no painel de gestão.
+ * Bolha flutuante global da Flow IA no painel de gestão.
  * Não navega: abre a folha inferior sobre a tela atual.
  */
 export function FabCortai() {
@@ -40,7 +40,7 @@ export function FabCortai() {
       <div className="cortai-fab-area">
         {rotulo ? (
           <span aria-hidden className="cortai-fab-rotulo">
-            Cortaí
+            Flow
           </span>
         ) : null}
         <button
@@ -48,8 +48,8 @@ export function FabCortai() {
           onClick={() => setAberto(true)}
           aria-label={
             pendentes > 0
-              ? `Abrir Cortaí · ${pendentes} ${pendentes === 1 ? "passo pendente" : "passos pendentes"}`
-              : "Abrir Cortaí"
+              ? `Abrir Flow IA · ${pendentes} ${pendentes === 1 ? "passo pendente" : "passos pendentes"}`
+              : "Abrir Flow IA"
           }
           aria-haspopup="dialog"
           aria-expanded={aberto}
@@ -75,9 +75,9 @@ export function FabCortai() {
 }
 
 /**
- * Ícone da CortAI no cabeçalho do painel, ao lado do sininho.
+ * Ícone da Flow IA no cabeçalho do painel, ao lado do sininho.
  * Abre a mesma conversa (`AssistenteCortai`) sobre a tela atual e mostra um ponto
- * quando a CortAI está desligada, pausada ou no limite.
+ * quando a Flow IA está desligada, pausada ou no limite.
  */
 export function AtalhoCortaiNoCabecalho() {
   const [aberto, setAberto] = useState(false);
@@ -96,7 +96,7 @@ export function AtalhoCortaiNoCabecalho() {
         variant="ghost"
         size="icon"
         onClick={() => setAberto(true)}
-        aria-label={`Abrir Cortaí${situacao}`}
+        aria-label={`Abrir Flow IA${situacao}`}
         aria-haspopup="dialog"
         aria-expanded={aberto}
         className="relative h-12 w-12 shrink-0 rounded-none border-0 text-mute hover:text-gold"

@@ -231,7 +231,7 @@ export function ConfirmacaoAgendamento({
             rel="noopener"
             className="mx-auto mt-6 flex min-h-12 w-fit items-center px-3 text-xs font-semibold text-mute sm:mt-10"
           >
-            Agendado com Cortaí
+            Agendado com Flow
           </a>
         ) : null}
       </section>

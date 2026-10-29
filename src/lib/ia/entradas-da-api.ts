@@ -1,5 +1,5 @@
 /**
- * Contrato de entrada da API do atendente (ALVO IA / CortAI).
+ * Contrato de entrada da API do atendente (ALVO IA / Flow IA).
  * Separado da rota para ser testado sem servidor.
  */
 import { z } from "zod";

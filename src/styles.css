@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap");
 @import "tailwindcss" source(none);
 @source "../src";
 @import "tw-animate-css";
@@ -82,7 +82,7 @@
 }
 
 /*
- * Cortaí design system — base semântica compartilhada.
+ * Flow design system — base semântica compartilhada.
  */
 
 @theme inline {
@@ -234,7 +234,7 @@
   );
   --mola-padrao-duracao: 190ms;
 
-  /* Identidade Cortaí: marinho profundo, superfícies neutras e coral; azul de ação recuperado do Figaro. */
+  /* Identidade Flow: marinho profundo, superfícies neutras e coral; azul de ação recuperado do Figaro. */
   --identity-accent: #ff7b86;
   --identity-accent-light: #b52d42;
   --identity-secondary: #ff7b86;
@@ -658,7 +658,7 @@
   animation-delay: 240ms;
 }
 
-/* ===== Sistema visual dos chats Cortaí ===== */
+/* ===== Sistema visual dos chats Flow ===== */
 .chat-sistema {
   --chat-surface: var(--chat-page, var(--background));
   --chat-content: var(--chat-page-text, var(--foreground));
@@ -1188,9 +1188,10 @@
   position: relative;
   display: inline-block;
   flex-shrink: 0;
-  aspect-ratio: 3 / 1;
+  aspect-ratio: 822 / 238;
 }
-.brand-logo-auto > img {
+.brand-logo-auto > img,
+.brand-logo-auto > svg {
   position: absolute;
   inset: 0;
 }
@@ -2287,7 +2288,7 @@ body:has(.auth-screen--claro) {
   }
 }
 
-/* ---- Bolha flutuante da CortAI (painel de gestão) ---- */
+/* ---- Bolha flutuante da Flow IA (painel de gestão) ---- */
 .cortai-fab-area {
   position: fixed;
   right: 16px;
@@ -2382,7 +2383,7 @@ body:has(.auth-screen--claro) {
   }
 }
 
-/* Indicador "CortAI está pensando": três pontos discretos. */
+/* Indicador "Flow IA está pensando": três pontos discretos. */
 .cortai-digitando {
   display: inline-flex;
   align-items: center;
@@ -3894,7 +3895,7 @@ html:not([data-tela-agenda]) .mov-sheet:not([class*="agenda-"]) {
   display: none;
 }
 
-/* Cortaí Chat — cards de serviço e ingresso */
+/* Flow Chat — cards de serviço e ingresso */
 .chat-card-servico {
   overflow: hidden;
   border-radius: 20px;
@@ -5810,7 +5811,7 @@ button.agenda-timeline-bloqueio-interativo {
     border-radius: 20px;
   }
   .agenda-acao-fixa .agenda-fab-toggle {
-    /* Mais presença de azul, sem perder o marinho da identidade Cortaí. */
+    /* Mais presença de azul, sem perder o marinho da identidade Flow. */
     background: color-mix(in oklab, var(--primary) 76%, black);
     box-shadow: var(--elevacao-6);
   }
@@ -5920,16 +5921,17 @@ button.agenda-timeline-bloqueio-interativo {
 
 /* Comanda em ticket — papel térmico único para todos os negócios e formas de pagamento. */
 :root {
-  --ticket-fundo: #06172b;
+  /* Paleta Flow no papel claro: tinta grafite, apoio violeta e rosa escuro (manual §04). */
+  --ticket-fundo: var(--flow-grafite, #0f0f14);
   --ticket-papel: #fffdf9;
-  --ticket-texto: #0a1830;
-  --ticket-mute: #5b6b80;
-  --ticket-suave: #f1f4f7;
-  --ticket-linha: #c9d2dd;
-  --ticket-total: #e6f6ff;
-  --ticket-navy: #06245a;
-  --ticket-ciano: #00b4ff;
-  --ticket-rosa: #ff2d78;
+  --ticket-texto: #16151f;
+  --ticket-mute: #5b5870;
+  --ticket-suave: #f3f2f8;
+  --ticket-linha: #d9d6e6;
+  --ticket-total: #eef3fe;
+  --ticket-navy: #16151f;
+  --ticket-ciano: var(--flow-violeta, #6b5f8f);
+  --ticket-rosa: var(--flow-rosa-escuro, #9c425a);
   --ticket-pix: #32bcad;
   --ticket-pago: #15803d;
   --ticket-pendente: #c2610c;
@@ -8178,7 +8180,7 @@ button.agenda-timeline-bloqueio-interativo {
   padding-top: 32px;
 }
 
-/* Temas femininos do Cortaí (Rosé, Lavanda e Pêssego): mesmos modelos, paletas e fontes delicadas. */
+/* Temas femininos do Flow (Rosé, Lavanda e Pêssego): mesmos modelos, paletas e fontes delicadas. */
 .fg[data-tema="feminino-rose"] {
   --fg-pagina: #fceff1;
   --fg-texto: #4a2130;
@@ -8715,8 +8717,8 @@ button.agenda-timeline-bloqueio-interativo {
 /* =============================================================================================
    Paleta do Figaro, exata (APK: theme/ColorKt, ThemeKt LightColorScheme/DarkColorScheme e
    Light/DarkExtendedColors; docs/referencia-figaro/apk/1-design-system.md §1). Os tokens `--figaro-*`
-   guardam os papéis do Material 3 do Figaro; depois eles alimentam a base neutra do Cortaí e as cores
-   da Agenda. A marca (ciano e rosa do Cortaí, logo, botões de destaque) continua a do Cortaí.
+   guardam os papéis do Material 3 do Figaro; depois eles alimentam a base neutra do Flow e as cores
+   da Agenda. A marca (ciano e rosa do Flow, logo, botões de destaque) continua a do Flow.
    Escuro = padrão do app; claro = classe `.light`. O tema segue o modo escolhido (claro, escuro, sistema).
    ============================================================================================= */
 :root,
@@ -8823,7 +8825,7 @@ button.agenda-timeline-bloqueio-interativo {
   --figaro-teal: #0d9b8a;
 }
 
-/* Base neutra do Cortaí = papéis do Figaro. */
+/* Base neutra do Flow = papéis do Figaro. */
 :root,
 :root[data-identidade] {
   --fundo: var(--figaro-background);
@@ -8916,13 +8918,13 @@ button.agenda-timeline-bloqueio-interativo {
   color: var(--agenda-acao-texto);
 }
 
-/* ===== Tela de entrada (estilo Figaro, com demos próprias do Cortaí) ===== */
+/* ===== Tela de entrada (estilo Figaro, com demos próprias do Flow) ===== */
 .entrada {
-  --entrada-fundo: #0b1020;
-  --entrada-ciano: #00b4ff;
-  --entrada-rosa: #ff2d78;
-  --entrada-texto: #f4f7fc;
-  --entrada-suave: #a9b6cc;
+  --entrada-fundo: var(--flow-grafite, #0f0f14);
+  --entrada-ciano: var(--flow-azul, #a8c7fa);
+  --entrada-rosa: var(--flow-rosa, #f48fb1);
+  --entrada-texto: #ecebf4;
+  --entrada-suave: #b7b4c8;
   --entrada-tempo: 5200ms;
   position: relative;
   min-height: 100dvh;
@@ -9090,8 +9092,8 @@ button.agenda-timeline-bloqueio-interativo {
   border: 0;
   font-size: 16px;
   font-weight: 700;
-  color: #fff;
-  background: linear-gradient(135deg, #0a63d6, var(--entrada-ciano));
+  color: #0f1b33;
+  background: var(--entrada-ciano);
   box-shadow: 0 10px 28px -10px var(--entrada-ciano);
 }
 .entrada-entrar {
@@ -9157,7 +9159,7 @@ button.agenda-timeline-bloqueio-interativo {
 .ed-site-capa {
   height: 96px;
   border-radius: 16px;
-  background: linear-gradient(135deg, #0a3f80, var(--ec) 60%, var(--er));
+  background: linear-gradient(135deg, var(--flow-violeta, #6b5f8f), var(--ec) 60%, var(--er));
   animation: ed-entra 520ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
 .ed-site-logo {
@@ -9165,7 +9167,7 @@ button.agenda-timeline-bloqueio-interativo {
   height: 44px;
   margin: -22px 0 0 14px;
   border-radius: 50%;
-  border: 3px solid #14192b;
+  border: 3px solid var(--entrada-fundo);
   background: #fff;
   animation: ed-entra 520ms 160ms cubic-bezier(0.3, 1.75, 0.4, 1) both;
 }
@@ -9195,7 +9197,7 @@ button.agenda-timeline-bloqueio-interativo {
   place-items: center;
   font-size: 13px;
   font-weight: 700;
-  background: linear-gradient(135deg, #0a63d6, var(--ec));
+  background: linear-gradient(135deg, var(--flow-violeta, #6b5f8f), var(--ec));
   animation: ed-entra 400ms 820ms cubic-bezier(0.3, 1.75, 0.4, 1) both,
     ed-pulso 2s 1.6s ease-in-out infinite;
 }
@@ -9232,7 +9234,7 @@ button.agenda-timeline-bloqueio-interativo {
 }
 .ed-agendar-dias span[data-ativo] {
   background: var(--ec);
-  color: #06245a;
+  color: #0f1b33;
   animation: ed-entra 400ms 200ms cubic-bezier(0.3, 1.75, 0.4, 1) both;
 }
 .ed-agendar-horas {
@@ -9264,8 +9266,8 @@ button.agenda-timeline-bloqueio-interativo {
 }
 @keyframes ed-escolhe {
   to {
-    background: #ff2d78;
-    color: #fff;
+    background: var(--entrada-rosa);
+    color: #3d0a1e;
     transform: scale(1.06);
   }
 }
@@ -9307,7 +9309,7 @@ button.agenda-timeline-bloqueio-interativo {
 .ed-balao--2 {
   align-self: flex-end;
   background: var(--ec);
-  color: #06245a;
+  color: #0f1b33;
   font-weight: 700;
   border-bottom-right-radius: 4px;
   animation-delay: 1.3s;
@@ -9380,7 +9382,7 @@ button.agenda-timeline-bloqueio-interativo {
   flex: 1;
   height: var(--h);
   border-radius: 8px 8px 4px 4px;
-  background: linear-gradient(to top, #0a63d6, var(--ec));
+  background: linear-gradient(to top, var(--flow-violeta, #6b5f8f), var(--ec));
   transform-origin: bottom;
   animation: ed-coluna 600ms calc(var(--i) * 90ms + 200ms) cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
@@ -10915,7 +10917,8 @@ html[data-tela-agenda] .management-header .sino-de-avisos svg.lucide-bell {
   padding: 2px 5px;
   border-radius: 999px;
   background: var(--figaro-brand-magenta, #d3145d);
-  color: #fff;
+  /* Texto de contraste do acento (no Flow o rosa é claro no escuro e escuro no claro). */
+  color: var(--figaro-on-tertiary, #fff);
   font-family: var(--figaro-font-body);
   font-size: 10px;
   font-weight: 700;
@@ -11241,4 +11244,160 @@ html[data-teclado-aberto] .agenda-acao-fixa {
   width: 18px;
   height: 18px;
   flex: none;
+}
+
+/* =============================================================================================
+   FLOW — identidade oficial (Manual da Marca Flow v1.0, out/2026; decisão do dono de 29/10).
+   Paleta do manual em tokens `--flow-*`; os papéis já usados pelo app (`--figaro-*`, `--identity-*`, base
+   neutra) passam a apontar para ela na identidade padrão. Componentes, medidas e movimento do Figaro continuam;
+   muda a marca. Identidades alternativas escolhidas por cada negócio e temas das páginas públicas continuam.
+   Tema escuro = principal; claro = classe `.light`. Ver docs/marca-flow.md.
+   ============================================================================================= */
+:root {
+  --flow-grafite: #0f0f14;
+  --flow-superficie: #1a1b24;
+  --flow-violeta: #6b5f8f;
+  --flow-azul: #a8c7fa;
+  --flow-roxo: #bb86fc;
+  --flow-rosa: #f48fb1;
+  --flow-rosa-escuro: #9c425a;
+  /* Gradiente de marca: só no símbolo e em pequenos detalhes (manual §04). */
+  --flow-gradiente: linear-gradient(90deg, var(--flow-violeta), var(--flow-roxo) 55%, var(--flow-rosa));
+}
+:root[data-identidade="moderno"],
+:root:not([data-identidade]) {
+  --figaro-primary: var(--flow-azul);
+  --figaro-on-primary: #0f1b33;
+  --figaro-primary-container: #2d4373;
+  --figaro-on-primary-container: #d6e3ff;
+  --figaro-secondary: var(--flow-roxo);
+  --figaro-on-secondary: #23123a;
+  --figaro-secondary-container: #3b3456;
+  --figaro-on-secondary-container: #ece4ff;
+  --figaro-tertiary: var(--flow-rosa);
+  --figaro-on-tertiary: #3d0a1e;
+  --figaro-tertiary-container: var(--flow-rosa-escuro);
+  --figaro-on-tertiary-container: #ffd9e4;
+  --figaro-background: var(--flow-grafite);
+  --figaro-on-background: #ecebf4;
+  --figaro-surface: var(--flow-grafite);
+  --figaro-on-surface: #ecebf4;
+  --figaro-surface-variant: #2e2f3c;
+  --figaro-on-surface-variant: #b7b4c8;
+  --figaro-inverse-surface: #ecebf4;
+  --figaro-inverse-on-surface: #1a1b24;
+  --figaro-outline: #5c5a70;
+  --figaro-outline-variant: #2e2f3c;
+  --figaro-surface-bright: #35364a;
+  --figaro-surface-container-lowest: #0b0b10;
+  --figaro-surface-container-low: var(--flow-superficie);
+  --figaro-surface-container: #20212c;
+  --figaro-surface-container-high: #272834;
+  --figaro-surface-container-highest: #30313f;
+  --figaro-surface-dim: var(--flow-grafite);
+  --figaro-action-blue: var(--flow-azul);
+  --figaro-on-action-blue: #0f1b33;
+  --figaro-brand-magenta: var(--flow-rosa);
+  --figaro-hint: #8b88a0;
+  --figaro-card-tile: var(--flow-superficie);
+  --identity-primary: var(--flow-azul);
+  --identity-accent: var(--flow-rosa);
+  --identity-accent-light: var(--flow-rosa);
+  --identity-secondary: var(--flow-rosa);
+  --identity-secondary-light: var(--flow-rosa);
+  --identity-secondary-strong: var(--flow-rosa);
+  --identity-deep: var(--flow-grafite);
+  --identity-graphite: var(--flow-grafite);
+  --identity-muted: #b7b4c8;
+  --identity-border: #2e2f3c;
+  --primary-foreground: #0f1b33;
+  --fundo: var(--flow-grafite);
+  --painel: var(--flow-grafite);
+  --cartao: var(--flow-superficie);
+  --linha: #2e2f3c;
+  --texto: #ecebf4;
+  --texto-suave: #b7b4c8;
+  --agenda-acao: var(--flow-azul);
+  --agenda-acao-suave: #2d4373;
+  --agenda-linha-hora: #2e2f3c;
+  --agenda-atencao: var(--flow-rosa);
+  /* Cartões de atendimento em `surface` do manual ("cards e menus"), um degrau acima do fundo. */
+  --agenda-cartao-evento: var(--flow-superficie);
+  --sino-badge: var(--flow-rosa-escuro);
+  /* Tipografia de interface do manual (§05): Inter; o lettering da marca é SVG e não usa fonte. */
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --figaro-font-body: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --figaro-font-display: "Inter", ui-sans-serif, system-ui, sans-serif;
+}
+:root[data-identidade="moderno"].light,
+:root:not([data-identidade]).light {
+  --figaro-primary: #3a5fae;
+  --figaro-on-primary: #ffffff;
+  --figaro-primary-container: #dce6fd;
+  --figaro-on-primary-container: #102a5c;
+  --figaro-secondary: var(--flow-violeta);
+  --figaro-on-secondary: #ffffff;
+  --figaro-secondary-container: #e7e1f7;
+  --figaro-on-secondary-container: #2a2340;
+  --figaro-tertiary: var(--flow-rosa-escuro);
+  --figaro-on-tertiary: #ffffff;
+  --figaro-tertiary-container: #ffd9e4;
+  --figaro-on-tertiary-container: #3d0a1e;
+  --figaro-background: #f5f4fa;
+  --figaro-on-background: #16151f;
+  --figaro-surface: #f5f4fa;
+  --figaro-on-surface: #16151f;
+  --figaro-surface-variant: #e8e6f2;
+  --figaro-on-surface-variant: #5b5870;
+  --figaro-inverse-surface: #1a1b24;
+  --figaro-inverse-on-surface: #f5f4fa;
+  --figaro-outline: #8e8aa3;
+  --figaro-outline-variant: #d9d6e6;
+  --figaro-surface-bright: #ffffff;
+  --figaro-surface-container-lowest: #ffffff;
+  --figaro-surface-container-low: #fbfaff;
+  --figaro-surface-container: #efedf7;
+  --figaro-surface-container-high: #e8e6f2;
+  --figaro-surface-container-highest: #e0ddec;
+  --figaro-surface-dim: #e8e6f2;
+  --figaro-action-blue: #3a5fae;
+  --figaro-on-action-blue: #ffffff;
+  --figaro-brand-magenta: var(--flow-rosa-escuro);
+  --figaro-hint: #77748c;
+  --figaro-card-tile: #ffffff;
+  --identity-primary: #3a5fae;
+  --identity-accent: var(--flow-rosa-escuro);
+  --identity-accent-light: var(--flow-rosa-escuro);
+  --identity-secondary: var(--flow-rosa-escuro);
+  --identity-secondary-light: var(--flow-rosa-escuro);
+  --identity-secondary-strong: var(--flow-rosa-escuro);
+  --identity-deep: #f5f4fa;
+  --identity-graphite: #f5f4fa;
+  --identity-muted: #5b5870;
+  --identity-border: #d9d6e6;
+  --primary-foreground: #ffffff;
+  --fundo: #f5f4fa;
+  --painel: #f5f4fa;
+  --cartao: #ffffff;
+  --linha: #d9d6e6;
+  --texto: #16151f;
+  --texto-suave: #5b5870;
+  --agenda-acao: #3a5fae;
+  --agenda-acao-suave: #dce6fd;
+  --agenda-linha-hora: #d9d6e6;
+  --agenda-atencao: var(--flow-rosa-escuro);
+  --agenda-cartao-evento: #ffffff;
+  --sino-badge: var(--flow-rosa-escuro);
+}
+
+/* Flow: a demonstração interativa foi escrita para página clara (`text-ink` = texto escuro). No showroom, que é
+   sempre escuro, os papéis são remapeados dentro da seção para manter o contraste com a paleta Flow. */
+.showroom-page #demo-interativa {
+  --ink: #ecebf4;
+  --ink2: var(--flow-azul);
+  --paper: var(--flow-superficie);
+  --background: #20212c;
+  --mute: #b7b4c8;
+  --line: #2e2f3c;
 }

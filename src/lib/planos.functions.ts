@@ -1,7 +1,7 @@
 /**
  * Planos vistos pela barbearia. Nada aqui inventa preço, limite ou regra
  * comercial: tudo vem de `planos_da_plataforma` e da matriz `recursos_de_plano`,
- * já usadas pelo restante do Cortaí. Trocar de plano nunca apaga dados.
+ * já usadas pelo restante do Flow. Trocar de plano nunca apaga dados.
  */
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";

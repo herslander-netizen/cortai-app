@@ -4,7 +4,7 @@
  * Fica ANTES do motor determinístico e não altera a lógica dele: quando a
  * mensagem é a resposta a um lembrete (botão da API oficial, número da lista
  * ou palavra exata), a ação é feita aqui. Remarcação e novo agendamento
- * continuam na própria conversa com o CortAI (o link oficial fica como opção).
+ * continuam na própria conversa com a Flow IA (o link oficial fica como opção).
  */
 import { fusoDoTenant } from "@/lib/fuso.server";
 import { urlPublica } from "@/lib/origem-publica";
@@ -551,7 +551,7 @@ export async function tratarRespostaDeLembrete(input: {
     case "CORTAI_ABRIR": {
       await registrar("abrir_cortai", true);
       const link = await linkDoCortai(input.tenantId);
-      return { texto: `Abra o Cortaí para continuar: ${link}` };
+      return { texto: `Abra o Flow para continuar: ${link}` };
     }
     case "CORTAI_AGORA_NAO":
       await registrar("retorno_agora_nao", true);

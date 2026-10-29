@@ -93,7 +93,7 @@ describe("pessoas", () => {
   it.each([
     ["agendar Leandro Silva amanhã às 15h corte", { cliente: "leandro silva", com: null }],
     [
-      "CortAI, marque um horário para Leandro amanhã às 15h para corte.",
+      "Flow IA, marque um horário para Leandro amanhã às 15h para corte.",
       { cliente: "leandro", com: null },
     ],
     ["agendar com Ricardo às 13 horas", { cliente: null, com: "ricardo" }],

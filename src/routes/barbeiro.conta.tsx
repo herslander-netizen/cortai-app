@@ -35,13 +35,13 @@ import { aviso } from "@/lib/avisos";
 export const Route = createFileRoute("/barbeiro/conta")({
   head: () => ({
     meta: [
-      { title: "Opções da conta — Cortaí Gestão" },
+      { title: "Opções da conta — Flow" },
       {
         name: "description",
-        content: "Perfil, formas de entrar, assinatura e saída segura do Cortaí.",
+        content: "Perfil, formas de entrar, assinatura e saída segura do Flow.",
       },
-      { property: "og:title", content: "Opções da conta — Cortaí Gestão" },
-      { property: "og:description", content: "Sua conta e seu negócio no Cortaí." },
+      { property: "og:title", content: "Opções da conta — Flow" },
+      { property: "og:description", content: "Sua conta e seu negócio no Flow." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex, nofollow" },
@@ -191,7 +191,7 @@ function ContaPage() {
             <LinhaDeConfiguracao
               icone={Info}
               titulo="Versão do aplicativo"
-              fim={`Cortaí ${APP_VERSION}`}
+              fim={`Flow ${APP_VERSION}`}
             />
             <LinhaDeConfiguracao
               icone={LogOut}

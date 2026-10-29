@@ -17,7 +17,7 @@ import { termos } from "@/lib/segmentos";
 export const Route = createFileRoute("/barbeiro/negocio")({
   head: () => ({
     meta: [
-      { title: "Informações básicas — Cortaí Gestão" },
+      { title: "Informações básicas — Flow" },
       { name: "description", content: "Nome, logo e contato do negócio." },
       { name: "robots", content: "noindex, nofollow" },
     ],
@@ -28,7 +28,7 @@ export const Route = createFileRoute("/barbeiro/negocio")({
 /**
  * Informações básicas, como no Figaro (`BusinessInfoScreen`): descrição curta, seção da logo (foto quadrada
  * escolhida na galeria), seção do nome e a ação "Salvar alterações" flutuante. O WhatsApp fica aqui porque,
- * no Cortaí, é o contato do negócio com o cliente.
+ * no Flow, é o contato do negócio com o cliente.
  */
 function InformacoesBasicasPage() {
   const qc = useQueryClient();

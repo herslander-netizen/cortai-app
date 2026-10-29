@@ -40,7 +40,7 @@ export const Route = createFileRoute("/barbeiro/pacotes")({
   ssr: false,
   head: () => ({
     meta: [
-      { title: "Pacotes e combos — Painel do negócio | Cortaí" },
+      { title: "Pacotes e combos — Painel do negócio | Flow" },
       {
         name: "description",
         content: "Pacotes de várias visitas e combos de serviços com desconto.",

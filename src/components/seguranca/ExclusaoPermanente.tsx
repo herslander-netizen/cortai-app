@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 
 /**
- * Padrão único de exclusão permanente do Cortaí: mostra o que será apagado e
+ * Padrão único de exclusão permanente do Flow: mostra o que será apagado e
  * só libera o botão depois da confirmação explícita. Permissões valem no servidor.
  */
 export function ExclusaoPermanente({

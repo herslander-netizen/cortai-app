@@ -1,5 +1,5 @@
 /**
- * Mapa único: código de erro da Meta → o que o Cortaí faz.
+ * Mapa único: código de erro da Meta → o que o Flow faz.
  * Puro e testado; quem aplica é `falhas-envio.server.ts`.
  */
 export type AcaoDoErro = {
@@ -171,7 +171,7 @@ export function diagnosticoDoEnvio(envio: {
       tom: "aguardando",
       rotulo: "Nova tentativa",
       titulo: "Não enviado ainda",
-      detalhe: "Falha temporária; o Cortaí tenta de novo automaticamente.",
+      detalhe: "Falha temporária; o Flow tenta de novo automaticamente.",
       acao: null,
       tecnico,
     };

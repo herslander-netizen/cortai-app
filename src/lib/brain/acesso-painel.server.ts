@@ -1,5 +1,5 @@
 /**
- * Quem está falando com a CortAI pelo PAINEL: papel, profissional ligado e permissões
+ * Quem está falando com a Flow IA pelo PAINEL: papel, profissional ligado e permissões
  * efetivas, resolvidos no servidor pelo vínculo real (nunca por dado vindo da tela).
  * As permissões vêm de `has_tenant_permission` — a mesma fonte que as telas usam, já
  * com o teto do papel e a regra de recebimento do barbeiro.

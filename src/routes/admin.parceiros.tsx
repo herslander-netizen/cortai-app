@@ -20,12 +20,12 @@ import {
 export const Route = createFileRoute("/admin/parceiros")({
   head: () => ({
     meta: [
-      { title: "Parceiros — Cortaí" },
+      { title: "Parceiros — Flow" },
       {
         name: "description",
-        content: "Cadastre os parceiros exibidos na faixa da página inicial do Cortaí.",
+        content: "Cadastre os parceiros exibidos na faixa da página inicial do Flow.",
       },
-      { property: "og:title", content: "Parceiros — Cortaí" },
+      { property: "og:title", content: "Parceiros — Flow" },
       { property: "og:description", content: "Gestão da faixa de parceiros da página inicial." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

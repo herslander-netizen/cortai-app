@@ -413,11 +413,11 @@ describe("cartão de atendimento da Agenda (cor do Figaro)", () => {
 });
 
 
-describe("identidade oficial Cortaí: marinho + coral", () => {
+describe("identidade oficial Flow: marinho + coral", () => {
   const escuro = raiz;
   const claroVars = { ...raiz, ...claro };
 
-  it("mantém a identidade Cortaí distinta da marca Figaro", () => {
+  it("mantém a identidade Flow distinta da marca Figaro", () => {
     expect(escuro["--identity-deep"]).toBe("#07152d");
     expect(escuro["--identity-accent"]).toBe("#ff7b86");
     expect(escuro["--identity-primary"]).toBe("#27569a");

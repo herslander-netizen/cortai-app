@@ -16,12 +16,12 @@ export const Route = createFileRoute("/barbeiro/barbearias")({
   ssr: false,
   head: () => ({
     meta: [
-      { title: "Meus negócios — Cortaí Gestão" },
+      { title: "Meus negócios — Flow" },
       {
         name: "description",
         content: "Alterne entre os negócios vinculados à sua conta e abra cada painel de gestão.",
       },
-      { property: "og:title", content: "Meus negócios — Cortaí" },
+      { property: "og:title", content: "Meus negócios — Flow" },
       {
         property: "og:description",
         content: "Troque de negócio sem sair da sua conta.",

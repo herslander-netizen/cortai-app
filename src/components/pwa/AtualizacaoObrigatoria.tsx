@@ -106,8 +106,8 @@ export function AtualizacaoObrigatoria() {
         </h2>
         <p id="texto-atualizacao" className="mt-2 text-sm leading-relaxed text-mute">
           {bloqueio
-            ? "Feche o Cortaí e abra de novo para atualizar."
-            : "Há uma nova versão do Cortaí com melhorias importantes. Atualize para continuar usando o aplicativo."}
+            ? "Feche o Flow e abra de novo para atualizar."
+            : "Há uma nova versão do Flow com melhorias importantes. Atualize para continuar usando o aplicativo."}
         </p>
         {estado === "erro" && (
           <p role="alert" className="mt-3 text-sm text-brick">

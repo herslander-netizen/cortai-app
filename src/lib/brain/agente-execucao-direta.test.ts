@@ -90,7 +90,7 @@ const painel = {
   papel: "dono",
   permissoes: [],
 } as any;
-const persona = { nome: "CortAI", negocio: "Aurora" };
+const persona = { nome: "Flow IA", negocio: "Aurora" };
 
 const chamada = (name: string, args: object, id = name) => ({
   type: "function_call",
@@ -123,7 +123,7 @@ function roteiroCompleto(agendar: object = dadosDoAgendamento) {
 }
 
 async function comandar(
-  mensagem = "CortAI, marque um horário para Leandro amanhã às 15h para corte.",
+  mensagem = "Flow IA, marque um horário para Leandro amanhã às 15h para corte.",
   ctx: any = painel,
   extra: any = {},
 ) {

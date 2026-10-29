@@ -120,7 +120,7 @@ afterEach(() => {
   vi.useRealTimers();
 });
 
-describe("CortAI aberta por 'Agendar por voz'", () => {
+describe("Flow IA aberta por 'Agendar por voz'", () => {
   it("abre já ouvindo, sem puxar o teclado", async () => {
     await montar(true);
     expect((navigator as any).mediaDevices.getUserMedia).not.toHaveBeenCalled(); // pequena espera antes
@@ -370,7 +370,7 @@ describe("conferência com um toque (Confirmar / Não)", () => {
     ],
   };
   const cartao = () =>
-    document.querySelector('[role="group"][aria-label="Confirmar o que a Cortaí entendeu"]');
+    document.querySelector('[role="group"][aria-label="Confirmar o que a Flow IA entendeu"]');
   const botaoDoCartao = (t: string) =>
     Array.from(cartao()?.querySelectorAll<HTMLButtonElement>("button") ?? []).find(
       (b) => b.textContent === t,
@@ -542,7 +542,7 @@ describe("conferência visível na tela", () => {
     );
     expect(lista()?.textContent).toContain("Não dá para gravar");
     expect(lista()?.querySelectorAll('[aria-label="problema"]')).toHaveLength(1);
-    expect(document.querySelector('[aria-label="Confirmar o que a Cortaí entendeu"]')).toBeNull();
+    expect(document.querySelector('[aria-label="Confirmar o que a Flow IA entendeu"]')).toBeNull();
   });
 
   it("resposta sem conferência (conversa comum) não mostra lista", async () => {
@@ -631,15 +631,15 @@ describe("voz gratuita pelo navegador (sem servidor de transcrição)", () => {
   });
 });
 
-describe("estrutura mobile do painel CortAI", () => {
+describe("estrutura mobile do painel Flow IA", () => {
   it("mantém conversa, sugestões e compositor em regiões separadas e acessíveis", async () => {
     await montar(false);
-    expect(document.querySelector('[role="dialog"][aria-label="Cortaí"]')).not.toBeNull();
+    expect(document.querySelector('[role="dialog"][aria-label="Flow IA"]')).not.toBeNull();
     expect(document.querySelector(".cortai-conversa-lista")).not.toBeNull();
     expect(document.querySelector(".cortai-conversa-barra")).not.toBeNull();
     expect(document.querySelector('textarea[placeholder="Escreva aqui…"]')).not.toBeNull();
     expect(document.querySelector('button[aria-label="Enviar"]')).not.toBeNull();
-    expect(document.querySelector('button[aria-label="Fechar Cortaí"]')).not.toBeNull();
+    expect(document.querySelector('button[aria-label="Fechar Flow IA"]')).not.toBeNull();
     expect(document.querySelector(".cortai-sheet")?.getAttribute("style")).toContain("88dvh");
   });
 });

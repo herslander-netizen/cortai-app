@@ -142,6 +142,6 @@ export function destinatariosDoAviso(aviso: AvisoDoSininho, equipe: MembroDaEqui
 export function textoDoAviso(titulo: string | null, corpo: string | null) {
   const t = (titulo ?? "").trim();
   const c = (corpo ?? "").trim();
-  const junto = t && c ? `${t} · ${c}` : t || c || "Novo aviso no Cortaí";
+  const junto = t && c ? `${t} · ${c}` : t || c || "Novo aviso no Flow";
   return junto.length > 140 ? `${junto.slice(0, 137)}…` : junto;
 }

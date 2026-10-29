@@ -1,4 +1,4 @@
-# Avaliação da CortAI (Promptfoo)
+# Avaliação da Flow IA (Promptfoo)
 
 Roda o **cérebro real** (`pensarCortai`: guardas, catálogo de ações, permissões, ciclo de
 confirmação) sobre um **mundo simulado**: as ações do catálogo são trocadas por versões que

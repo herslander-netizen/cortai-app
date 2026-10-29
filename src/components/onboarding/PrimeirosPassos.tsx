@@ -77,7 +77,7 @@ const DETALHES_DO_CHECKLIST: Record<(typeof ITENS_DO_CHECKLIST)[number]["chave"]
   cadastrar_profissionais:
     "Adicione as pessoas que atendem e organize a equipe para disponibilizar os horários corretos.",
   whatsapp:
-    "Conecte o WhatsApp para habilitar os canais de mensagens e notificações configurados no Cortaí.",
+    "Conecte o WhatsApp para habilitar os canais de mensagens e notificações configurados no Flow.",
   compartilhar_link:
     "Envie sua página de agendamento para que os clientes consultem os serviços e escolham um horário.",
 };

@@ -20,7 +20,7 @@ import {
 } from "@/lib/comanda-ticket";
 import { brl } from "@/lib/format";
 import { canvasParaJpg, desenharTicket } from "./desenhar-ticket";
-import { SIMBOLO_CORTAI, TicketComanda } from "./TicketComanda";
+import { LOGOTIPO_MARCA, SIMBOLO_MARCA, TicketComanda } from "./TicketComanda";
 
 /** Copia a comanda como imagem (o navegador só copia PNG) para colar na conversa; falhar não atrapalha o envio. */
 function copiarImagem(desenho: Promise<HTMLCanvasElement>) {
@@ -73,7 +73,7 @@ export function useAcoesDoTicket(ticket: DadosDoTicket | undefined) {
   async function executar(tipo: "conversa" | "compartilhar" | "baixar") {
     if (!ticket || gerando) return;
     // Começa antes de qualquer espera: copiar para a área de transferência precisa do toque ainda "fresco".
-    const desenho = desenharTicket(ticket, SIMBOLO_CORTAI);
+    const desenho = desenharTicket(ticket, SIMBOLO_MARCA, LOGOTIPO_MARCA);
     const conversa = tipo === "conversa" && numero ? numero : null;
     if (conversa) copiarImagem(desenho);
     setGerando(tipo);

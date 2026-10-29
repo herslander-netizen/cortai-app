@@ -14,7 +14,7 @@ type Profissional = { id: string; nome: string; avatarUrl?: string | null };
 /**
  * Trocar a agenda na tela, como no Figaro (`AgendaTeamMemberFilterTrigger` + `...FilterSheet`):
  * a foto do profissional na barra de baixo abre a folha "Agenda", com o expediente de hoje de
- * cada pessoa e "Ver minha agenda". O Cortaí mantém "Toda a equipe" (o Figaro não tinha).
+ * cada pessoa e "Ver minha agenda". O Flow mantém "Toda a equipe" (o Figaro não tinha).
  */
 export function FiltroDaAgenda({
   profissionais,

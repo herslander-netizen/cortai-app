@@ -1,11 +1,11 @@
-import { IconeCortai } from "@/components/marca/MarcaCortai";
+import { IconeFlow } from "@/components/marca/MarcaFlow";
 import { EsqueletoFormulario, EsqueletoGenerico } from "@/components/layout/Esqueleto";
 
-/** Identidade de carregamento do Cortaí com o ícone oficial. */
+/** Identidade de carregamento do Flow com o ícone oficial. */
 export function Clipper({ size = 44 }: { size?: number }) {
   return (
     <span className="block shrink-0" style={{ width: `${size}px`, height: `${size}px` }}>
-      <IconeCortai className="cortai-clipper h-full w-full rounded-lg" />
+      <IconeFlow className="cortai-clipper h-full w-full rounded-lg" />
     </span>
   );
 }

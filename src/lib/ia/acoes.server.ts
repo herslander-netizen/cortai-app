@@ -1,7 +1,7 @@
 /**
  * Camada de AÇÕES DE DOMÍNIO para a IA.
  *
- * O cérebro CortAI (`src/lib/brain`) nunca fala com o banco: usa estas funções. Cada ação:
+ * O cérebro Flow IA (`src/lib/brain`) nunca fala com o banco: usa estas funções. Cada ação:
  * - recebe um `tenantId` já verificado pelo servidor (nunca vindo do corpo da
  *   requisição do agente);
  * - filtra tudo por `tenant_id`, de forma que um agente jamais opere em outra
@@ -24,11 +24,11 @@ export type ContextoDoAgente = {
   tenantId: string;
   /** Identificador do agente na plataforma de IA, usado em auditoria. */
   externalAgentId: string | null;
-  /** Definido só quando a ação vem do CortAI: origem a gravar em novos agendamentos. */
+  /** Definido só quando a ação vem da Flow IA: origem a gravar em novos agendamentos. */
   origemCortai?: "whatsapp" | "manual";
 };
 
-/** Marca a participação do CortAI; `origem` só é escrita em agendamentos criados. */
+/** Marca a participação da Flow IA; `origem` só é escrita em agendamentos criados. */
 async function marcarAssistencia(
   ctx: ContextoDoAgente,
   agendamentoId: string | undefined,
@@ -635,7 +635,7 @@ export async function confirmarAgendamento(
   return { agendamentoId: atual.id, status: "agendado" };
 }
 
-/** Cadastra serviços já conferidos pela equipe através do cérebro CortAI. */
+/** Cadastra serviços já conferidos pela equipe através do cérebro Flow IA. */
 export async function cadastrarServicos(
   ctx: ContextoDoAgente,
   input: {
@@ -706,7 +706,7 @@ export async function definirHorarios(
   return { total: horarios.length };
 }
 
-/** Ações de domínio usadas pelo cérebro CortAI e pela API legada. */
+/** Ações de domínio usadas pelo cérebro Flow IA e pela API legada. */
 export const ACOES_DO_AGENTE = {
   consultar_barbearia: consultarBarbearia,
   consultar_disponibilidade: consultarDisponibilidade,

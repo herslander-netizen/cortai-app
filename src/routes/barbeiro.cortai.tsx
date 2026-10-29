@@ -56,12 +56,12 @@ export const Route = createFileRoute("/barbeiro/cortai")({
   }),
   head: () => ({
     meta: [
-      { title: "WhatsApp · Cortaí Gestão" },
+      { title: "WhatsApp · Flow" },
       {
         name: "description",
         content: "Conecte o WhatsApp do negócio e acompanhe notificações transacionais.",
       },
-      { property: "og:title", content: "WhatsApp · Cortaí Gestão" },
+      { property: "og:title", content: "WhatsApp · Flow" },
       {
         property: "og:description",
         content: "Avisos e acompanhamento dos atendimentos pelo WhatsApp.",
@@ -105,7 +105,7 @@ function CortaiPage() {
         <Aviso tom="acao" className="mb-5">
           {mensagemDeAcessoNegado(painel.error)
             ? "Você não tem acesso a esta área"
-            : "Não conseguimos carregar o Cortaí agora. Tente de novo em instantes."}
+            : "Não conseguimos carregar a Flow IA agora. Tente de novo em instantes."}
         </Aviso>
       ) : null}
 
@@ -151,7 +151,7 @@ function CortaiPage() {
             </div>
           </section>
 
-          <nav className="mt-5 flex gap-2 overflow-x-auto pb-1" aria-label="Seções do Cortaí">
+          <nav className="mt-5 flex gap-2 overflow-x-auto pb-1" aria-label="Seções da Flow IA">
             {(
               [
                 ["whatsapp", "Conexão"],
@@ -460,7 +460,7 @@ function BlocoSecretaria({ painel }: { painel: PainelDoCortai }) {
         ) : null}
       </div>
       <p className="text-xs leading-relaxed text-mute">
-        Mensagens livres recebem somente uma orientação para o Cortaí. O Cortaí não abre
+        Mensagens livres recebem somente uma orientação para a Flow IA. A Flow IA não abre
         atendimento, FAQ ou transferência humana.
       </p>
     </section>
@@ -498,7 +498,7 @@ function Selo({ estado, texto }: { estado: keyof typeof CORES_DO_ESTADO; texto: 
   );
 }
 
-/** Remetente real dos avisos: o número oficial do Cortaí. */
+/** Remetente real dos avisos: o número oficial do Flow. */
 function BlocoRemetenteOficial() {
   const consultar = useServerFn(getRemetenteOficial);
   const estado = useQuery({
@@ -519,11 +519,11 @@ function BlocoRemetenteOficial() {
         </span>
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
-            <h2 className="text-sm font-semibold text-paper">WhatsApp oficial do Cortaí</h2>
+            <h2 className="text-sm font-semibold text-paper">WhatsApp oficial do Flow</h2>
             <Selo estado={selo.estado as "conectando" | "conectado" | "erro"} texto={selo.texto} />
           </div>
           <p className="mt-2 text-sm leading-relaxed text-mute">
-            Seus avisos saem pelo WhatsApp oficial do Cortaí (+55 79 9818-1983), com o nome do seu
+            Seus avisos saem pelo WhatsApp oficial do Flow (+55 79 9818-1983), com o nome do seu
             negócio na mensagem.
           </p>
           {!estado.isLoading && estado.data?.status !== "conectado" ? (
@@ -717,9 +717,9 @@ function CartaoDeConexao({ painel, tipo }: { painel: PainelDoCortai; tipo: TipoD
               <Selo estado="desconectado" texto="Indisponível" />
             </div>
             <p className="mt-2 text-xs leading-relaxed text-mute">
-              A conexão por QR Code depende de um serviço de WhatsApp publicado pela equipe do
-              Cortaí. Enquanto ele não estiver no ar, nenhum QR Code é gerado — preferimos avisar a
-              mostrar algo que não funciona.
+              A conexão por QR Code depende de um serviço de WhatsApp publicado pela equipe do Flow.
+              Enquanto ele não estiver no ar, nenhum QR Code é gerado — preferimos avisar a mostrar
+              algo que não funciona.
             </p>
             <p className="mt-3 text-xs text-mute2">
               Para a equipe técnica: falta configurar{" "}
@@ -790,8 +790,8 @@ function CartaoDeConexao({ painel, tipo }: { painel: PainelDoCortai; tipo: TipoD
   const descricao =
     tipo === "atendimento"
       ? status === "conectado"
-        ? "O Cortaí conversa com seus clientes por este número."
-        : "Conecte o WhatsApp público do negócio para o Cortaí conversar com os clientes."
+        ? "A Flow IA conversa com seus clientes por este número."
+        : "Conecte o WhatsApp público do negócio para a Flow IA conversar com os clientes."
       : status === "conectado"
         ? "Confirmações, lembretes e avisos automáticos saem por este número."
         : painel.conexao && !daLinha
@@ -965,7 +965,7 @@ function CartaoDeConexao({ painel, tipo }: { painel: PainelDoCortai; tipo: TipoD
       </div>
 
       <p className="mt-6 flex items-start gap-2 border-t border-line pt-4 text-xs text-mute2">
-        <ShieldCheck size={14} className="mt-0.5 shrink-0" />O Cortaí usa somente eventos e dados
+        <ShieldCheck size={14} className="mt-0.5 shrink-0" />A Flow IA usa somente eventos e dados
         reais do seu negócio e nunca acessa dados de outro.
       </p>
 

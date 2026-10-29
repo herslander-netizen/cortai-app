@@ -1,5 +1,5 @@
 /**
- * Catálogo central das capacidades do Cortaí.
+ * Catálogo central das capacidades do Flow.
  *
  * Uma capacidade descreve uma função do produto e onde ela mora. O que decide
  * se ela aparece é sempre a combinação:
@@ -110,7 +110,7 @@ export const CAPACIDADES: readonly Capacidade[] = [
   },
   {
     chave: "cortai_whatsapp",
-    rotulo: "WhatsApp do Cortaí",
+    rotulo: "WhatsApp do Flow",
     detalhe: "Confirmações e avisos automáticos",
     grupo: "operacao",
     recurso: "secretaria_whatsapp",

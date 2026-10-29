@@ -1,6 +1,6 @@
 /**
  * Conexão por número de telefone (alternativa ao QR Code): o WhatsApp mostra
- * "Conectar com número de telefone" e o Cortaí devolve um código de 8 caracteres
+ * "Conectar com número de telefone" e o Flow devolve um código de 8 caracteres
  * para digitar no celular. Regras puras, sem rede.
  */
 

@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
 /**
- * A paleta do Figaro entra no Cortaí como tokens `--figaro-*` (spec 1 §1.2–1.3). Este teste confere os hex
+ * A paleta do Figaro entra no Flow como tokens `--figaro-*` (spec 1 §1.2–1.3). Este teste confere os hex
  * contra o APK e que a base neutra e a Agenda usam esses tokens, claro e escuro.
  */
 const css = readFileSync("src/styles.css", "utf8");

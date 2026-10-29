@@ -65,7 +65,7 @@ export function EscolhaDePlano({
             Selecione um Plano
           </h2>
           <p className="mx-auto mt-4 max-w-xs text-base leading-6 text-mute">
-            Escolha quantos profissionais atendem no seu negócio e continue com o Cortaí.
+            Escolha quantos profissionais atendem no seu negócio e continue com o Flow.
           </p>
         </div>
 

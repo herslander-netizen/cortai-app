@@ -1,9 +1,9 @@
-# Suíte determinística da CortAI (gate de segurança e regressão) sobre o que estiver
+# Suíte determinística da Flow IA (gate de segurança e regressão) sobre o que estiver
 # configurado no ambiente (CORTAI_AI_*).
 #   npm run avaliar                → este arquivo, com o modelo do ambiente
 #   npm run avaliar:modelo-falso   → valida o encanamento da suíte, sem chave (NÃO mede qualidade)
 #   npm run avaliar:comparar       → provedor configurado x GPT-OSS-20B (comparar.yaml)
-description: CortAI — segurança, isolamento e operações (determinística)
+description: Flow IA — segurança, isolamento e operações (determinística)
 prompts:
   - "{{mensagem}}"
 providers:

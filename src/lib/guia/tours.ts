@@ -78,7 +78,7 @@ export const GUIAS: Guia[] = [
         alvo: "dash-oportunidades",
         titulo: "Oportunidades de hoje",
         texto:
-          "Aqui o Cortaí diz o que fazer agora, não só o que aconteceu. Toque em um item para agir.",
+          "Aqui o Flow diz o que fazer agora, não só o que aconteceu. Toque em um item para agir.",
       },
       {
         alvo: "dash-primeiros-passos",
@@ -88,7 +88,7 @@ export const GUIAS: Guia[] = [
       },
       {
         alvo: "dash-assistente",
-        titulo: "Perguntar ao Cortaí",
+        titulo: "Perguntar ao Flow",
         texto:
           "Escreva como você fala: cadastre serviços, ajuste horários ou pergunte onde fica cada coisa.",
       },

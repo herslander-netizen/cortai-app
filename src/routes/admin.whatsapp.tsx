@@ -21,12 +21,12 @@ export const Route = createFileRoute("/admin/whatsapp")({
   ssr: false,
   head: () => ({
     meta: [
-      { title: "WhatsApp dos estabelecimentos — Administração Cortaí" },
+      { title: "WhatsApp dos estabelecimentos — Administração Flow" },
       {
         name: "description",
         content: "Status, número, QR Code e notificações do WhatsApp de cada estabelecimento.",
       },
-      { property: "og:title", content: "WhatsApp dos estabelecimentos — Administração Cortaí" },
+      { property: "og:title", content: "WhatsApp dos estabelecimentos — Administração Flow" },
       { property: "og:description", content: "Controle do WhatsApp por estabelecimento." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -82,7 +82,7 @@ function AdminWhatsappPage() {
                 <span className="block truncate text-sm font-semibold text-paper">{n.nome}</span>
                 <span className="block text-xs text-mute2">
                   {ROTULO[n.status] ?? n.status}
-                  {n.compartilhada ? " · número compartilhado do Cortaí" : ""}
+                  {n.compartilhada ? " · número compartilhado do Flow" : ""}
                   {n.numero ? ` · ${n.numero}` : ""}
                 </span>
               </span>

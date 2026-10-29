@@ -2,7 +2,7 @@ CONVERSA PADRÃO DE EXCELÊNCIA — CORTAÍ
 
 Este documento registra exemplos históricos da conversa para barbearia. Em outros segmentos, a implementação deve usar o vocabulário de `src/lib/segmentos.ts`; sem segmento, deve falar em “negócio”, “equipe”, “serviço” e “atendimento”.
 
-É a conversa pré-configurada que cada negócio recebe pronta ao entrar no Cortaí e pode editar depois.
+É a conversa pré-configurada que cada negócio recebe pronta ao entrar no Flow e pode editar depois.
 
 Antes de implementar, me mostre onde cada parte vai entrar no que já existe (instruções e exemplos do bot, regras, templates, FAQ, configurações) e espere minha aprovação. Reaproveite o que existe e não crie estruturas paralelas.
 

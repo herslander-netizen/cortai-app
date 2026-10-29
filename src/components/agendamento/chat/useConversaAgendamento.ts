@@ -268,7 +268,7 @@ export function useConversaAgendamento({
       setAbertura(null);
       return setFalhas(0);
     }
-    // Dúvida fora do roteiro: a CortAI do site responde com os dados reais
+    // Dúvida fora do roteiro: a Flow IA do site responde com os dados reais
     // (só leitura). Sem IA disponível, segue a resposta fixa de sempre.
     const historico = extras
       .slice(-8)

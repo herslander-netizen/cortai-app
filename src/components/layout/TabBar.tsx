@@ -10,7 +10,7 @@ export type TabItem = {
 };
 
 /**
- * Navegação principal do Cortaí: cinco posições fixas, alturas iguais e a
+ * Navegação principal do Flow: cinco posições fixas, alturas iguais e a
  * ação central da marca. Nada de rolagem horizontal na barra principal.
  */
 export function TabBar({

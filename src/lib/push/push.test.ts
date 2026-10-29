@@ -97,9 +97,9 @@ describe("handler de push do service worker", () => {
 describe("página offline", () => {
   it("tem a marca e o botão Tentar de novo", () => {
     const html = paginaOffline();
-    expect(html).toContain("Cortaí");
+    expect(html).toContain("Flow");
     expect(html).toContain("Tentar de novo");
-    expect(html).toContain("/icone-cortai-oficial-192-v2.png");
+    expect(html).toContain("/icone-flow-192.png");
   });
 });
 

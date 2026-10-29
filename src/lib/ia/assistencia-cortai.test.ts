@@ -53,8 +53,8 @@ beforeEach(() => {
   };
 });
 
-describe("assistência do CortAI", () => {
-  it("cancelar pelo CortAI marca assistido sem alterar origem", async () => {
+describe("assistência da Flow IA", () => {
+  it("cancelar pela Flow IA marca assistido sem alterar origem", async () => {
     await cancelarAgendamento(
       { tenantId: "t1", externalAgentId: "a", origemCortai: "whatsapp" },
       { agendamentoId: "antigo" },
@@ -65,7 +65,7 @@ describe("assistência do CortAI", () => {
     expect(u[0]!.filtros).toContainEqual(["tenant_id", "t1"]);
   });
 
-  it("remarcar pelo CortAI: novo herda origem original; antigo só ganha assistido", async () => {
+  it("remarcar pela Flow IA: novo herda origem original; antigo só ganha assistido", async () => {
     await remarcarAgendamento(
       { tenantId: "t1", externalAgentId: "a", origemCortai: "whatsapp" },
       { agendamentoId: "antigo", novoInicio: "2026-10-10T13:00:00Z" },
@@ -80,7 +80,7 @@ describe("assistência do CortAI", () => {
     });
   });
 
-  it("sem contexto do CortAI (legado) não marca nada", async () => {
+  it("sem contexto da Flow IA (legado) não marca nada", async () => {
     await cancelarAgendamento(
       { tenantId: "t1", externalAgentId: "a" },
       { agendamentoId: "antigo" },

@@ -13,7 +13,7 @@ export function mensagemDeAcessoNegado(error: unknown) {
 
 const TEXTOS: Record<TipoDeErro, { titulo: string; texto: string; acao: string | null }> = {
   chunk: {
-    titulo: "O Cortaí foi atualizado",
+    titulo: "O Flow foi atualizado",
     texto: "Vamos carregar a versão mais nova. Seus dados continuam salvos.",
     acao: "Carregar versão nova",
   },

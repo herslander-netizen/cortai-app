@@ -1,6 +1,6 @@
 import { termos as termosDoSegmento } from "@/lib/segmentos";
 /**
- * Contrato do CortAI — Assistente Virtual no WhatsApp.
+ * Contrato da Flow IA — Assistente Virtual no WhatsApp.
  *
  * Este arquivo é seguro para o navegador: só tipos e rótulos, nunca segredos,
  * nunca chamadas ao gateway. Toda implementação vive em `*.server.ts`.
@@ -173,7 +173,7 @@ export function ehGatewayNaoConfigurado(erro: unknown): boolean {
 }
 
 /**
- * Intenções que o CortAI reconhece. A lista é aberta: acrescentar uma intenção
+ * Intenções que a Flow IA reconhece. A lista é aberta: acrescentar uma intenção
  * nova é só adicionar aqui — nada mais precisa ser reescrito.
  */
 export const INTENCOES = {

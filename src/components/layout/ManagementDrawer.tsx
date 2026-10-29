@@ -50,8 +50,7 @@ import {
   MODE_KEY,
 } from "@/lib/aparencia";
 import { useMediaQuery } from "@/hooks/use-mobile";
-import menuClaro from "@/assets/cortai-menu-light.webp.asset.json";
-import menuEscuro from "@/assets/cortai-menu-dark.webp.asset.json";
+import { SimboloFlow } from "@/components/marca/MarcaFlow";
 import { Barra, BlocoEsqueleto } from "@/components/layout/Esqueleto";
 import { useLayoutEquipe } from "@/components/layout/ContextoLayoutEquipe";
 
@@ -190,7 +189,7 @@ export function ManagementHeader() {
   }
 
   // Figaro: a barra global fica na Agenda; nas demais subpáginas, Screen usa a barra de página
-  // com retorno e ação contextual, sem repetir logo, CortAI e notificações.
+  // com retorno e ação contextual, sem repetir logo, Flow IA e notificações.
   const telaDaAgenda =
     caminho === "/barbeiro" ||
     caminho === "/barbeiro/" ||
@@ -215,14 +214,24 @@ export function ManagementHeader() {
               className="menu-cortai-trigger h-12 w-12 shrink-0 rounded-[8px] p-0 hover:bg-transparent"
               aria-label="Abrir navegação"
             >
-              <img
-                key={logoUsavel ?? "cortai"}
-                src={logoUsavel ?? (modoClaro ? menuEscuro.url : menuClaro.url)}
-                onError={() => logoUsavel && setLogoFalhou(logoUsavel)}
-                alt=""
-                aria-hidden
-                className={`object-cover ${celular && caminho === "/barbeiro" ? "h-10 w-10 rounded-full" : "h-11 w-11 rounded-[8px]"}`}
-              />
+              {logoUsavel ? (
+                <img
+                  key={logoUsavel}
+                  src={logoUsavel}
+                  onError={() => setLogoFalhou(logoUsavel)}
+                  alt=""
+                  aria-hidden
+                  className={`object-cover ${celular && caminho === "/barbeiro" ? "h-10 w-10 rounded-full" : "h-11 w-11 rounded-[8px]"}`}
+                />
+              ) : (
+                // Sem logo do negócio: o símbolo Flow no quadrado do ícone do app.
+                <span
+                  aria-hidden
+                  className={`grid place-items-center bg-[var(--figaro-surface-container,var(--ink2))] ring-1 ring-[color-mix(in_oklab,var(--flow-violeta,#6b5f8f)_55%,transparent)] ${celular && caminho === "/barbeiro" ? "h-10 w-10 rounded-full" : "h-11 w-11 rounded-[12px]"}`}
+                >
+                  <SimboloFlow className="!size-6" clara={!modoClaro} />
+                </span>
+              )}
             </Button>
           </SheetTrigger>
           <SheetContent
@@ -309,7 +318,7 @@ export function ManagementHeader() {
         <div id="topo-centro" className="flex min-w-0 flex-1 justify-center md:hidden" />
         <div className="flex items-center gap-1">
           {mostrarAcoesRapidas ? <AcoesRapidas /> : null}
-          {/* A Agenda mantém o topo livre; a CortAI continua acessível nas demais telas. */}
+          {/* A Agenda mantém o topo livre; a Flow IA continua acessível nas demais telas. */}
           {caminho === "/barbeiro" || caminho === "/barbeiro/agenda" ? null : (
             <AtalhoCortaiNoCabecalho />
           )}

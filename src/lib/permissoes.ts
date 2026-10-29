@@ -22,7 +22,7 @@ export const PERMISSOES = {
   gerenciar_permissoes: "Gerenciar equipe e permissões",
   acoes_destrutivas: "Ações críticas e exclusões",
   gerenciar_voltai: "Configurar o Voltaí (fidelidade)",
-  ver_cortai: "Ver o Cortaí e as conversas",
+  ver_cortai: "Ver o Flow e as conversas",
   gerenciar_conversas: "Organizar conversas do WhatsApp",
   assumir_conversa: "Assumir e responder conversas",
   configurar_automacoes: "Configurar o atendimento automático",
@@ -35,7 +35,7 @@ export const PERMISSOES = {
   comissao_pagar: "Pagar comissões",
   comissao_visualizar_todas: "Ver comissões de toda a equipe",
   caixa_do_dia: "Ver o caixa de hoje",
-  gerenciar_plano: "Plano e cobrança do Cortaí",
+  gerenciar_plano: "Plano e cobrança do Flow",
   liberar_fiado: "Liberar fiado para clientes",
   excluir_barbearia: "Excluir o negócio",
 } as const;
@@ -147,10 +147,10 @@ export const MODULOS: { id: string; titulo: string; descricao: string; itens: It
   },
   {
     id: "cortai",
-    titulo: "Cortaí no WhatsApp",
+    titulo: "Flow no WhatsApp",
     descricao: "Atendimento pelo WhatsApp e conversas com os clientes.",
     itens: [
-      { acao: "visualizar", chave: "ver_cortai", rotulo: "Ver o Cortaí e as conversas" },
+      { acao: "visualizar", chave: "ver_cortai", rotulo: "Ver o Flow e as conversas" },
       { acao: "editar", chave: "gerenciar_conversas", rotulo: "Organizar e encerrar conversas" },
       { acao: "criar", chave: "assumir_conversa", rotulo: "Assumir e responder conversas" },
       {

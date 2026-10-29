@@ -3,7 +3,7 @@ import { createPortal } from "react-dom";
 import { useMediaQuery } from "@/hooks/use-mobile";
 
 /**
- * Folha inferior (bottom sheet) da CortAI: abre sobre a tela atual, sem trocar
+ * Folha inferior (bottom sheet) da Flow IA: abre sobre a tela atual, sem trocar
  * de rota. Fecha por backdrop, ESC, botão X (no cabeçalho) e arraste para baixo.
  */
 export function FolhaCortai({

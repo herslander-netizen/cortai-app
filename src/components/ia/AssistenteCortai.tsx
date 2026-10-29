@@ -88,7 +88,7 @@ function ProgressoDaConfiguracao() {
 }
 
 /**
- * O que a CortAI conferiu antes de gravar, item por item, e o veredito. É regra calculada no
+ * O que a Flow IA conferiu antes de gravar, item por item, e o veredito. É regra calculada no
  * servidor (entidades do negócio + regras oficiais da agenda), não opinião do modelo.
  */
 function ListaDeConferencia({ conferencia }: { conferencia: Conferencia }) {
@@ -302,7 +302,7 @@ export function AssistenteCortai({
   const conferenciaDoCartao = confirmacaoAtual ? (ultimaMensagem?.acao?.conferencia ?? null) : null;
 
   const voz = useGravadorDeVoz({
-    // A fala vira rascunho editável; só o toque explícito em Enviar chama a CortAI.
+    // A fala vira rascunho editável; só o toque explícito em Enviar chama a Flow IA.
     aoReconhecer: async (transcricao) => {
       setTexto(transcricao);
       setOrigemRascunho("voz");
@@ -389,7 +389,7 @@ export function AssistenteCortai({
       ]);
       return true;
     } catch (e) {
-      setErro(e instanceof Error ? e.message : "O Cortaí não respondeu agora.");
+      setErro(e instanceof Error ? e.message : "A Flow IA não respondeu agora.");
       // Escolha que não chegou: tira a fala provisória para o pop-up voltar e a pessoa tocar de novo.
       if (clienteEscolhidoId || descartarSeFalhar)
         setMensagens((atual) => atual.filter((m) => m.id !== idLocal));
@@ -403,7 +403,7 @@ export function AssistenteCortai({
   return (
     <FolhaCortai
       aoFechar={onFechar}
-      rotulo="Cortaí"
+      rotulo="Flow IA"
       cabecalho={
         <>
           <header className="shrink-0 flex items-center gap-2.5 bg-[var(--figaro-surface-container,var(--ink2))] px-5 pb-2.5 pt-2">
@@ -416,7 +416,7 @@ export function AssistenteCortai({
             <span className="min-w-0 flex-1">
               <span className="flex min-w-0 items-center gap-2">
                 <span className="truncate text-sm font-semibold tracking-wide text-paper">
-                  Cortaí
+                  Flow
                 </span>
                 <SeloDaCortai estado={estado} />
               </span>
@@ -427,7 +427,7 @@ export function AssistenteCortai({
             <Button
               type="button"
               onClick={onFechar}
-              aria-label="Fechar Cortaí"
+              aria-label="Fechar Flow IA"
               variant="outline"
               size="icon"
               className="h-12 w-12 shrink-0 rounded-full border-line2 text-mute"
@@ -485,7 +485,7 @@ export function AssistenteCortai({
               </Aviso>
             ) : data && !data.disponivel ? (
               <Aviso tom="info" className="mt-4">
-                O Cortaí ainda não está ligado neste ambiente. As respostas vão indicar isso com clareza.
+                A Flow IA ainda não está ligada neste ambiente. As respostas vão indicar isso com clareza.
               </Aviso>
             ) : null}
           </div>
@@ -614,7 +614,7 @@ export function AssistenteCortai({
         {confirmacaoAtual ? (
           <div
             role="group"
-            aria-label="Confirmar o que a Cortaí entendeu"
+            aria-label="Confirmar o que a Flow IA entendeu"
             className="mb-2.5 rounded-[28px] bg-[var(--figaro-surface-container-high,var(--ink2))] px-3.5 py-3"
           >
             <p className="mb-0.5 text-xs font-semibold text-paper">Confere?</p>

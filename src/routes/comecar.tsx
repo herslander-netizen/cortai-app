@@ -16,7 +16,7 @@ function temVinculoPendente() {
     return false;
   }
 }
-import { MarcaCortai } from "@/components/marca/MarcaCortai";
+import { MarcaFlow } from "@/components/marca/MarcaFlow";
 import { Button } from "@/components/ui/button";
 import { CampoDeFormulario } from "@/components/ui/formulario/CampoDeFormulario";
 import { aplicarIdentidade, aplicarModo } from "@/lib/aparencia";
@@ -26,12 +26,12 @@ export const Route = createFileRoute("/comecar")({
   ssr: false,
   head: () => ({
     meta: [
-      { title: "Começar — Cortaí" },
+      { title: "Começar — Flow" },
       {
         name: "description",
-        content: "Escolha como usar o Cortaí: agendar ou gerenciar seu negócio de serviços.",
+        content: "Escolha como usar o Flow: agendar ou gerenciar seu negócio de serviços.",
       },
-      { property: "og:title", content: "Começar — Cortaí" },
+      { property: "og:title", content: "Começar — Flow" },
       { property: "og:description", content: "Agendar ou gerenciar seu negócio de serviços." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -102,14 +102,14 @@ function ComecarPage() {
   if (sessao.acessoSuspenso) {
     return (
       <main className="mx-auto flex min-h-screen w-full max-w-[430px] flex-col px-6 pb-10 pt-14">
-        <MarcaCortai variante="automatica" className="h-auto w-40" prioridade />
+        <MarcaFlow variante="automatica" className="h-auto w-40" prioridade />
         <h1 className="mt-2 text-[30px] font-bold leading-tight text-paper">
           Seu acesso foi desativado.
         </h1>
         <p className="mt-4 text-base leading-relaxed text-mute">
           Quem gerencia a equipe do negócio desativou seu acesso ao painel. Se você acha que isso é
           um engano, fale com a pessoa responsável para reativar. Você pode continuar usando o
-          Cortaí para agendar como cliente.
+          Flow para agendar como cliente.
         </p>
         <Button
           size="lg"
@@ -144,12 +144,12 @@ function ComecarPage() {
 
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-[480px] flex-col px-6 pb-12 pt-10">
-      <MarcaCortai variante="automatica" className="mx-auto h-auto w-24" prioridade />
+      <MarcaFlow variante="automatica" className="mx-auto h-auto w-24" prioridade />
       <h1 className="mt-7 text-center text-[26px] font-bold leading-tight tracking-tight text-paper">
         {concluido
           ? "Negócio criado."
           : modo === "escolha"
-            ? "Como você vai usar o Cortaí?"
+            ? "Como você vai usar o Flow?"
             : modo === "segmento"
               ? "Qual é o seu negócio?"
               : `Qual o nome ${termos(segmento).de}?`}
@@ -353,9 +353,9 @@ function InicioPublico() {
 
   return (
     <main className="mx-auto flex min-h-[100dvh] w-full max-w-[480px] flex-col px-6 pb-12 pt-10">
-      <MarcaCortai variante="automatica" className="mx-auto h-auto w-28" prioridade />
+      <MarcaFlow variante="automatica" className="mx-auto h-auto w-28" prioridade />
       <h1 className="mt-12 text-center text-[30px] font-bold leading-tight tracking-tight text-paper">
-        Como você vai usar o Cortaí?
+        Como você vai usar o Flow?
       </h1>
       <p className="mx-auto mt-3 max-w-[34ch] text-center text-sm leading-relaxed text-mute">
         Escolha por onde começar. Você pode voltar e trocar de caminho depois.

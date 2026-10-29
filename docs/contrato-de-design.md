@@ -2,15 +2,15 @@
 
 ## Regra de recuperação do Figaro (decisão do dono, 2026-10-18)
 
-O APK `Figaroo.apk` enviado pelo dono é a referência autoritativa da experiência original. **A prioridade é preservar o Figaro no Cortaí, não reinterpretá-lo como inspiração genérica.** Em toda tela/fluxo já existente no Figaro, preservar a composição, hierarquia, espaçamento, forma e comportamento dos cards, navegação, estados, passos, gestos, transições e animações que forem verificáveis na referência.
+O APK `Figaroo.apk` enviado pelo dono é a referência autoritativa da experiência original. **A prioridade é preservar o Figaro no Flow, não reinterpretá-lo como inspiração genérica.** Em toda tela/fluxo já existente no Figaro, preservar a composição, hierarquia, espaçamento, forma e comportamento dos cards, navegação, estados, passos, gestos, transições e animações que forem verificáveis na referência.
 
-- Mudança permitida na base recuperada: substituir nome/logomarca antigos pela marca Cortaí atual e adaptar a interface às funções novas solicitadas pelo dono.
+- Mudança permitida na base recuperada: substituir nome/logomarca antigos pela marca Flow atual e adaptar a interface às funções novas solicitadas pelo dono.
 - Não fazer redesign paralelo, não “modernizar” por gosto próprio, não misturar os estilos que foram criados depois e não retirar comportamento original apenas para simplificar o código.
-- As telas atuais do Cortaí e os fluxos novos continuam ligados ao backend, permissões, regras de negócio e fontes de dados existentes. Recuperar o visual **não** significa restaurar código nativo do APK, trocar a arquitetura web ou substituir regras atuais por simulações.
+- As telas atuais do Flow e os fluxos novos continuam ligados ao backend, permissões, regras de negócio e fontes de dados existentes. Recuperar o visual **não** significa restaurar código nativo do APK, trocar a arquitetura web ou substituir regras atuais por simulações.
 - A implementação é incremental: mapear a tela/fluxo correspondente, adaptar componentes atuais, preservar comportamento e testes, validar em 390 px e 1280 px. Não afirmar paridade completa sem conferência visual e funcional.
 - Quando o APK não provar uma interação (por exemplo, por falta de vídeo/captura desse estado), marcar como pendente de evidência em vez de inventar a mecânica.
 
-- Cores: só tokens (ink, ink2, ink3, paper, mute, mute2, line, line2, gold, rosa, sage, brick, status-*). `gold` é nome legado do token de acento; na identidade atual do Cortaí representa coral, nunca dourado nem ciano. O marinho e o azul de ação seguem a paleta Figaro; o coral é o sinal de marca usado com parcimônia. Proibido hex solto e cores nativas do Tailwind (cyan-400, white, red-500...). Exceções: `lib/cor-marca.ts` (personalização do cliente), logos e o verde do WhatsApp.
+- Cores: só tokens (ink, ink2, ink3, paper, mute, mute2, line, line2, gold, rosa, sage, brick, status-*). `gold` é nome legado do token de acento; na identidade Flow representa o rosa da marca (`--flow-rosa`), nunca dourado nem ciano. A ação usa o azul-claro do Flow nos papéis `--figaro-*`; o rosa é o sinal de marca usado com parcimônia. Paleta completa em `docs/marca-flow.md`. Proibido hex solto e cores nativas do Tailwind (cyan-400, white, red-500...). Exceções: `lib/cor-marca.ts` (personalização do cliente), logos e o verde do WhatsApp.
 - Botões: sempre Button de ui/button. variant="primary" na ação principal (no máximo uma por tela), "outline" na secundária, "ghost" na terciária, "destructive" ao apagar. Proibido <button> cru fora de ui/ e proibido className="btn-primary|btn-secondary|btn-tertiary" dentro de Button. Chip, aba e item clicável usam Button variant="ghost" com aria-pressed ou aria-selected.
 - Botão de ícone sempre com aria-label.
 - Campos: field-label + field-control (+ field-hint / field-error). Proibido copiar strings de classe de input.

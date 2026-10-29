@@ -23,7 +23,7 @@ import { dadosDoCockpit } from "@/components/barbeiro/agenda/cockpit-foco";
 import { FichaFocoVisual } from "@/components/barbeiro/agenda/FichaFoco";
 import { ChatHeader } from "@/components/chat/ChatShell";
 import { useWhatsappAlvo } from "@/components/layout/Signature";
-import { MarcaCortai } from "@/components/marca/MarcaCortai";
+import { MarcaFlow } from "@/components/marca/MarcaFlow";
 import { MenuDaApresentacao } from "@/components/apresentacao/MenuDaApresentacao";
 import { TabelaDePlanos } from "@/components/planos/TabelaDePlanos";
 import { StatusBadge } from "@/components/ui/badge";
@@ -125,7 +125,7 @@ function itens(segmento: Segmento): AgendaItem[] {
 function Agenda({ segmento }: { segmento: Segmento }) {
   const agenda = useMemo(() => itens(segmento), [segmento]);
   return (
-    <div className="showroom-produto showroom-agenda" aria-label="Demonstração da Agenda Cortaí">
+    <div className="showroom-produto showroom-agenda" aria-label="Demonstração da Agenda Flow">
       <div className="showroom-produto-topo">
         <span>
           <small>Agenda</small>
@@ -246,8 +246,8 @@ function Secretaria({ segmento }: { segmento: Segmento }) {
   const [escolhido, setEscolhido] = useState<string | null>(null);
   const opcoes = verOutros ? servicos.slice(0, 4) : servicos.slice(0, 1);
   return (
-    <div className="showroom-chat" aria-label="Demonstração do WhatsApp Cortaí">
-      <ChatHeader nome="Cortaí" detalhe="Seu negócio" status="Online" />
+    <div className="showroom-chat" aria-label="Demonstração do WhatsApp Flow">
+      <ChatHeader nome="Flow" detalhe="Seu negócio" status="Online" />
       <Conversation>
         <ConversationContent className="gap-4 p-4">
           <Balao>Oi! Eu organizo seu agendamento por aqui. O que você procura?</Balao>
@@ -289,7 +289,7 @@ function Secretaria({ segmento }: { segmento: Segmento }) {
           </p>
         </ConversationContent>
       </Conversation>
-      <div className="chat-assinatura">By Alvo Digital • Cortaí</div>
+      <div className="chat-assinatura">By Alvo Digital • Flow</div>
     </div>
   );
 }
@@ -512,8 +512,8 @@ export function ShowroomCortai({
     <main className="showroom-page dark">
       <header className="showroom-header">
         <div className="showroom-header-inner">
-          <a href="#inicio" aria-label="Cortaí — início">
-            <MarcaCortai variante="escura" className="h-auto w-24" prioridade />
+          <a href="#inicio" aria-label="Flow — início">
+            <MarcaFlow variante="clara" className="h-auto w-24" prioridade />
           </a>
           <nav aria-label="Navegação da apresentação">
             <a href="#como-funciona">Como funciona</a>
@@ -560,11 +560,11 @@ export function ShowroomCortai({
             <a href="#como-funciona" className="text-sm font-semibold text-ink underline underline-offset-4">Ver como funciona</a>
           </div>
           <p className="mt-3 max-w-prose text-sm text-mute">Você entrará com sua conta para iniciar o cadastro do seu negócio.</p>
-          <p className="showroom-assinatura">Simplifica. Conecta. Cresce.</p>
+          <p className="showroom-assinatura">Seu negócio no ritmo certo.</p>
         </div>
         <div
           className="showroom-hero-produto"
-          aria-label="Visão da Agenda e dos Clientes do Cortaí"
+          aria-label="Visão da Agenda e dos Clientes do Flow"
         >
           <Agenda segmento={segmento} />
         </div>
@@ -635,7 +635,7 @@ export function ShowroomCortai({
               <span>
                 <strong>Integrações em validação.</strong>
                 <small>
-                  WhatsApp, Cortaí e confirmações automáticas dependem da disponibilidade e da configuração de cada estabelecimento.
+                  WhatsApp, Flow e confirmações automáticas dependem da disponibilidade e da configuração de cada estabelecimento.
                 </small>
               </span>
             </div>
@@ -688,7 +688,7 @@ export function ShowroomCortai({
       </section>
 
       <section className="showroom-cta-final">
-        <MarcaCortai variante="escura" className="h-auto w-32" />
+        <MarcaFlow variante="clara" className="h-auto w-32" />
         <h2>{c.final.titulo}</h2>
         {c.final.texto ? <p>{c.final.texto}</p> : null}
         <div>
@@ -709,7 +709,7 @@ export function ShowroomCortai({
       </section>
 
       <footer className="showroom-footer">
-        <MarcaCortai variante="escura" className="h-auto w-24" />
+        <MarcaFlow variante="clara" className="h-auto w-24" />
         <span>Agendamentos de um jeito mais simples.</span>
         <nav aria-label="Links do rodapé">
           <a href="#recursos">Recursos</a>

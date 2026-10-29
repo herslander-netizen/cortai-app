@@ -10,15 +10,15 @@ import { Button } from "@/components/ui/button";
 export const Route = createFileRoute("/admin/marketing")({
   head: () => ({
     meta: [
-      { title: "Marketing — Administração Cortaí" },
+      { title: "Marketing — Administração Flow" },
       {
         name: "description",
-        content: "Abra e compartilhe a apresentação interativa do Cortaí.",
+        content: "Abra e compartilhe a apresentação interativa do Flow.",
       },
-      { property: "og:title", content: "Marketing — Administração Cortaí" },
+      { property: "og:title", content: "Marketing — Administração Flow" },
       {
         property: "og:description",
-        content: "Acesso administrativo aos materiais de apresentação do Cortaí.",
+        content: "Acesso administrativo aos materiais de apresentação do Flow.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -41,7 +41,7 @@ function MarketingPage() {
   async function compartilhar() {
     if (navigator.share) {
       await navigator.share({
-        title: "Conheça o Cortaí",
+        title: "Conheça o Flow",
         text: "Mais organização para o seu negócio. Mais tempo para atender bem.",
         url: endereco,
       });
@@ -50,10 +50,10 @@ function MarketingPage() {
     await copiar();
   }
   return (
-    <AdminScreen title="Marketing" subtitle="Compartilhe a apresentação comercial do Cortaí.">
+    <AdminScreen title="Marketing" subtitle="Compartilhe a apresentação comercial do Flow.">
       <section className="max-w-2xl rounded-[28px] bg-[var(--figaro-surface-container,var(--ink2))] p-5 md:p-7">
         <p className="text-xs font-semibold uppercase text-gold">Apresentação pública</p>
-        <h2 className="mt-2 text-xl font-bold text-paper">Conheça o Cortaí</h2>
+        <h2 className="mt-2 text-xl font-bold text-paper">Conheça o Flow</h2>
         <p className="mt-2 text-sm leading-relaxed text-mute">
           Uma página pronta para apresentar Agenda, Clientes, Modo Foco, WhatsApp, Caixa e planos.
         </p>
@@ -89,7 +89,7 @@ function MarketingPage() {
         </div>
         {mostrarQr ? (
           <div className="mt-6 rounded-[12px] bg-qr-light p-4">
-            <QrCodeReal valor={endereco} alt="QR Code da apresentação pública do Cortaí" />
+            <QrCodeReal valor={endereco} alt="QR Code da apresentação pública do Flow" />
           </div>
         ) : null}
       </section>

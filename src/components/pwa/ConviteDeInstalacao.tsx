@@ -7,7 +7,7 @@ import { useModoFoco } from "@/lib/modo-foco";
 import { instrucaoDeInstalacao, marcarConviteDeInstalacao, useInstalacao } from "@/lib/pwa";
 
 /**
- * Convite discreto para instalar o Cortaí, mostrado dentro do app depois do login.
+ * Convite discreto para instalar o Flow, mostrado dentro do app depois do login.
  * Nunca bloqueia a tela, respeita o "Agora não" e some quando o app já está instalado.
  */
 export function ConviteDeInstalacao({ posicao = "base" }: { posicao?: "base" | "topo" }) {
@@ -58,12 +58,12 @@ export function ConviteDeInstalacao({ posicao = "base" }: { posicao?: "base" | "
     <div className={`pointer-events-none fixed inset-x-0 ${lugar} z-40 flex justify-center px-4`}>
       <div
         role="dialog"
-        aria-label="Instalar o Cortaí"
+        aria-label="Instalar o Flow"
         className="pointer-events-auto w-full max-w-[420px] rounded-2xl border border-line bg-ink3 p-4 shadow-[var(--elevacao-8)]"
       >
         <div className="flex items-start gap-3">
           <img
-            src="/icone-cortai-oficial-192-v2.png"
+            src="/icone-flow-192.png"
             alt=""
             width={40}
             height={40}
@@ -71,7 +71,7 @@ export function ConviteDeInstalacao({ posicao = "base" }: { posicao?: "base" | "
             className="h-10 w-10 shrink-0 rounded-xl border border-line"
           />
           <div className="min-w-0 flex-1">
-            <p className="text-sm font-bold text-paper">📲 Instale o Cortaí</p>
+            <p className="text-sm font-bold text-paper">📲 Instale o Flow</p>
             <p className="mt-1 text-xs leading-relaxed text-mute">
               Tenha acesso mais rápido ao seu sistema.
             </p>

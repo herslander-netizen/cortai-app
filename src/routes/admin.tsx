@@ -2,7 +2,7 @@ import { createFileRoute, Outlet } from "@tanstack/react-router";
 import { exigirPapel } from "@/lib/guarda";
 import { Building2, CreditCard, LineChart, Menu, MessageCircle } from "lucide-react";
 import { Link } from "@tanstack/react-router";
-import { MarcaCortai } from "@/components/marca/MarcaCortai";
+import { MarcaFlow } from "@/components/marca/MarcaFlow";
 import { ConviteDeInstalacao } from "@/components/pwa/ConviteDeInstalacao";
 import { EsqueletoCascoAdmin } from "@/components/layout/Esqueleto";
 import { TabBar, type TabItem } from "@/components/layout/TabBar";
@@ -40,7 +40,7 @@ function AdminLayout() {
   return (
     <div className="admin-shell min-h-screen bg-ink md:grid md:grid-cols-[220px_1fr]">
       <aside className="hidden border-r border-line px-5 py-8 md:block">
-        <MarcaCortai variante="automatica" className="h-16 w-36" prioridade />
+        <MarcaFlow variante="automatica" className="h-16 w-36" prioridade />
         <p className="mt-2 text-xs text-mute">Dono da plataforma</p>
         <nav className="mt-10 space-y-7" aria-label="Painel da plataforma">
           {desktopGroups.map((group) => (

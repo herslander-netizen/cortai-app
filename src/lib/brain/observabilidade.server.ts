@@ -1,5 +1,5 @@
 /**
- * Observabilidade da CortAI — rastreio de cada turno no Langfuse. Só servidor.
+ * Observabilidade da Flow IA — rastreio de cada turno no Langfuse. Só servidor.
  *
  * Papel: OBSERVAR. Nada aqui autoriza, bloqueia ou executa ação; se o Langfuse
  * estiver fora do ar, desligado ou mal configurado, o atendimento segue igual.

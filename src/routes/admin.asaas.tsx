@@ -29,12 +29,12 @@ import { Aviso } from "@/components/ui/aviso";
 export const Route = createFileRoute("/admin/asaas")({
   head: () => ({
     meta: [
-      { title: "Conta Asaas — Administração Cortaí" },
+      { title: "Conta Asaas — Administração Flow" },
       {
         name: "description",
-        content: "Configuração segura da conta Asaas usada pela plataforma Cortaí.",
+        content: "Configuração segura da conta Asaas usada pela plataforma Flow.",
       },
-      { property: "og:title", content: "Conta Asaas — Administração Cortaí" },
+      { property: "og:title", content: "Conta Asaas — Administração Flow" },
       { property: "og:description", content: "Configuração da conta Asaas da plataforma." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -180,8 +180,8 @@ function ContaAsaasPage() {
                   <AlertDialogHeader>
                     <AlertDialogTitle>Remover a chave do Asaas?</AlertDialogTitle>
                     <AlertDialogDescription>
-                      A configuração salva no Cortaí será apagada. A chave não será alterada no
-                      Asaas e nenhuma variável de ambiente será modificada.
+                      A configuração salva no Flow será apagada. A chave não será alterada no Asaas
+                      e nenhuma variável de ambiente será modificada.
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>

@@ -39,12 +39,12 @@ export const Route = createFileRoute("/barbeiro/equipe")({
   beforeLoad: ({ context }) => exigirCapacidade(context.queryClient, "equipe_avancada"),
   head: () => ({
     meta: [
-      { title: "Equipe e permissões — Cortaí Gestão" },
+      { title: "Equipe e permissões — Flow" },
       {
         name: "description",
         content: "Cada pessoa com o próprio login e só o acesso que precisa.",
       },
-      { property: "og:title", content: "Equipe e permissões — Cortaí Gestão" },
+      { property: "og:title", content: "Equipe e permissões — Flow" },
       { property: "og:description", content: "Gerencie quem tem acesso ao seu negócio." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

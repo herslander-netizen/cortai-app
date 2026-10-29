@@ -5,7 +5,7 @@ import { Aviso } from "@/components/ui/aviso";
 import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { MarcaCortai } from "@/components/marca/MarcaCortai";
+import { MarcaFlow } from "@/components/marca/MarcaFlow";
 import { supabase } from "@/integrations/supabase/client";
 import { sincronizarCorDoNavegador } from "@/lib/aparencia";
 
@@ -13,10 +13,10 @@ export const Route = createFileRoute("/recuperar-senha")({
   ssr: false,
   head: () => ({
     meta: [
-      { title: "Recuperar senha — Cortaí" },
-      { name: "description", content: "Receba as instruções para voltar a entrar no Cortaí." },
-      { property: "og:title", content: "Recuperar senha — Cortaí" },
-      { property: "og:description", content: "Recupere o acesso à sua conta Cortaí." },
+      { title: "Recuperar senha — Flow" },
+      { name: "description", content: "Receba as instruções para voltar a entrar no Flow." },
+      { property: "og:title", content: "Recuperar senha — Flow" },
+      { property: "og:description", content: "Recupere o acesso à sua conta Flow." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex, nofollow" },
@@ -80,7 +80,7 @@ function RecuperarSenhaPage() {
   return (
     <main className="auth-screen auth-screen--claro auth-login-shell mx-auto flex min-h-[100dvh] w-full max-w-[400px] flex-col justify-center px-6 py-[calc(2rem+env(safe-area-inset-bottom))]">
       <div className="mb-8 flex flex-col items-center text-center">
-        <MarcaCortai variante="escura" className="h-auto w-32" prioridade />
+        <MarcaFlow variante="escura" className="h-auto w-32" prioridade />
         <h1 className="mt-6 text-xl font-bold text-paper">Recuperar senha</h1>
         <p className="mt-2 text-sm leading-relaxed text-mute">
           Digite seu e-mail e enviaremos as instruções para criar uma nova senha.

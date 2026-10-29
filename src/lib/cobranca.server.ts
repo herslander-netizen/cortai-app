@@ -249,7 +249,7 @@ export async function criarAssinatura(input: {
     value: calc.base / 100,
     nextDueDate: vencimento,
     cycle: input.ciclo === "anual" ? "YEARLY" : "MONTHLY",
-    description: `Cortaí ${calc.plano.nome} — ${tenant.nome}`,
+    description: `Flow ${calc.plano.nome} — ${tenant.nome}`,
     externalReference: input.tenantId,
   });
 
@@ -352,7 +352,7 @@ export async function sincronizarPagamento(
         .maybeSingle()
     ).data;
   }
-  if (!assinatura) return; // cobrança que não é de plano do Cortaí
+  if (!assinatura) return; // cobrança que não é de plano do Flow
 
   const statusAsaas = String(pagamento.status ?? "");
   const pago = estaPago(statusAsaas, String(pagamento.billingType ?? ""));

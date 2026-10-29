@@ -11,7 +11,7 @@ export function headDaBarbearia(
   acao = "Agendamento online",
 ) {
   const nome = previa?.nome ?? slug;
-  const titulo = `${nome} | Cortaí`;
+  const titulo = `${nome} | Flow`;
   const descricao =
     previa?.descricao?.slice(0, 160) ||
     `${acao} com ${nome}: escolha serviços, profissionais e horários em poucos toques.`;
@@ -22,7 +22,7 @@ export function headDaBarbearia(
     meta: [
       { title: titulo },
       { name: "description", content: descricao },
-      { property: "og:site_name", content: "Cortaí" },
+      { property: "og:site_name", content: "Flow" },
       { property: "og:locale", content: "pt_BR" },
       { property: "og:title", content: titulo },
       { property: "og:description", content: descricao },
@@ -47,7 +47,7 @@ export function headDaBarbearia(
 /** Mensagem curta e neutra para divulgar o link público do negócio. */
 export function textoDeCompartilhamento(nome: string) {
   const estabelecimento = nome.trim() || "este estabelecimento";
-  return `Agende seu horário com ${estabelecimento} pelo Cortaí. Confira os serviços e horários disponíveis.`;
+  return `Agende seu horário com ${estabelecimento} pelo Flow. Confira os serviços e horários disponíveis.`;
 }
 
 /** Telefone com máscara (00) 00000-0000 ou (00) 0000-0000. */
@@ -85,7 +85,7 @@ export function gerarIcs(p: {
   return [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
-    "PRODID:-//Cortai//Agendamento//PT-BR",
+    "PRODID:-//Flow//Agendamento//PT-BR",
     "CALSCALE:GREGORIAN",
     "METHOD:PUBLISH",
     "BEGIN:VEVENT",

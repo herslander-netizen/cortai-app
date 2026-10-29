@@ -26,12 +26,12 @@ import {
 export const Route = createFileRoute("/barbeiro/clientes/")({
   head: () => ({
     meta: [
-      { title: "Clientes — Cortaí Gestão" },
+      { title: "Clientes — Flow" },
       {
         name: "description",
         content: "Frequência, gasto médio, preferências e quem precisa voltar.",
       },
-      { property: "og:title", content: "Clientes — Cortaí Gestão" },
+      { property: "og:title", content: "Clientes — Flow" },
       {
         property: "og:description",
         content: "Seu CRM, com dados reais de cada cliente.",
@@ -83,7 +83,7 @@ function ClientesPage() {
   const [busca, setBusca] = useState("");
   const [soHoraDeVoltar, setSoHoraDeVoltar] = useState(false);
   const [segmentoSelecionado, setSegmentoSelecionado] = useState<SegmentoClientesCRM>("todos");
-  const segmentoClientes = data?.tenant.segmento ?? "barbearia";
+  const segmentoClientes = data?.tenant.segmento ?? "outro";
   const ehBarbearia = segmentoClientes === "barbearia";
   const buscaAdiada = useDebounce(busca, 250);
 

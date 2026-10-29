@@ -23,12 +23,12 @@ export const Route = createFileRoute("/barbeiro/produtos")({
   beforeLoad: ({ context }) => exigirCapacidade(context.queryClient, "produtos_estoque"),
   head: () => ({
     meta: [
-      { title: "Produtos e loja — Cortaí Gestão" },
+      { title: "Produtos e loja — Flow" },
       {
         name: "description",
         content: "Estoque interno, produtos à venda e loja online do negócio.",
       },
-      { property: "og:title", content: "Produtos e loja — Cortaí Gestão" },
+      { property: "og:title", content: "Produtos e loja — Flow" },
       { property: "og:description", content: "Controle de produtos, estoque e loja." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -142,7 +142,7 @@ function ProdutosPage() {
           </div>
           {!loja.liberada ? (
             <p className="mt-3 rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))] px-3 py-3 text-sm text-mute">
-              A loja online não está incluída no seu plano atual. Fale com o Cortaí para liberar.
+              A loja online não está incluída no seu plano atual. Fale com o Flow para liberar.
             </p>
           ) : null}
           <dl className="mt-4 grid grid-cols-3 gap-3 pt-2 text-center">

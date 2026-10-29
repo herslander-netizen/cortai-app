@@ -18,8 +18,8 @@ describe("manifests", () => {
     const cl = ler(MANIFEST_CLIENTE);
     expect(eq.id).not.toBe(cl.id);
     for (const m of [eq, cl]) {
-      expect(m.theme_color).toBe("#1A1F1C");
-      expect(m.background_color).toBe("#1A1F1C");
+      expect(m.theme_color).toBe("#0F0F14");
+      expect(m.background_color).toBe("#0F0F14");
       expect(m.orientation).toBeUndefined();
       expect(m.icons).toHaveLength(3);
     }

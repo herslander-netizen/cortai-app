@@ -25,12 +25,12 @@ export const Route = createFileRoute("/barbeiro/caixa")({
   ssr: false,
   head: () => ({
     meta: [
-      { title: "Caixa do dia — Painel do negócio | Cortaí" },
+      { title: "Caixa do dia — Painel do negócio | Flow" },
       {
         name: "description",
         content: "Entradas, saídas, fiado em aberto e origem de cada movimentação.",
       },
-      { property: "og:title", content: "Caixa do dia — Cortaí" },
+      { property: "og:title", content: "Caixa do dia — Flow" },
       {
         property: "og:description",
         content: "Todo valor com cliente, profissional e comanda de origem.",

@@ -156,9 +156,7 @@ export const contratarPlano = createServerFn({ method: "POST" })
     await exigirPermissao(context, tenantId, "gerenciar_plano");
     const { configDeCobranca, criarAssinatura } = await import("@/lib/cobranca.server");
     if (!(await configDeCobranca()).ligada) {
-      throw new Error(
-        "A cobrança online ainda não está configurada. Fale com o suporte do Cortaí.",
-      );
+      throw new Error("A cobrança online ainda não está configurada. Fale com o suporte do Flow.");
     }
     return criarAssinatura({
       tenantId,

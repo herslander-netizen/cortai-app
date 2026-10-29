@@ -1,7 +1,7 @@
 /**
- * Estado da CortAI de um negócio — regra pura, usada pelo cérebro, pelo painel e pelo ADM.
+ * Estado da Flow IA de um negócio — regra pura, usada pelo cérebro, pelo painel e pelo ADM.
  *
- * - `desligada`: o ADM desligou a CortAI do negócio (`config_atendimento_ia.cortai_ativa`).
+ * - `desligada`: o ADM desligou a Flow IA do negócio (`config_atendimento_ia.cortai_ativa`).
  * - `pausada`: o gateway recusou por crédito (402/403) há menos de 6 h.
  * - `limite_diario` / `limite_pessoa`: a cota do canal acabou.
  * - `sem_configuracao`: o ambiente não tem a chave do gateway.
@@ -19,7 +19,7 @@ export type ConfigDaCortai = {
   ia_pausada_em?: string | null;
 } | null;
 
-/** Bloqueio que vem só da configuração (sem contar uso). Sem linha salva, a CortAI está ativa. */
+/** Bloqueio que vem só da configuração (sem contar uso). Sem linha salva, a Flow IA está ativa. */
 export function bloqueioDaConfig(
   cfg: ConfigDaCortai,
   agora = Date.now(),
@@ -33,22 +33,22 @@ export const SELO_DA_CORTAI: Record<
   EstadoDaCortai,
   { rotulo: string; texto: string; tom: "ok" | "aviso" | "parada" }
 > = {
-  ativa: { rotulo: "Ativa", texto: "A Cortaí está respondendo normalmente.", tom: "ok" },
+  ativa: { rotulo: "Ativa", texto: "A Flow IA está respondendo normalmente.", tom: "ok" },
   desligada: {
     rotulo: "Desligada",
     texto:
-      "A Cortaí está desligada para este negócio. Agenda, comandas e avisos continuam funcionando.",
+      "A Flow IA está desligada para este negócio. Agenda, comandas e avisos continuam funcionando.",
     tom: "parada",
   },
   pausada: {
     rotulo: "Pausada",
     texto:
-      "A Cortaí foi pausada porque os créditos de IA acabaram. Ela tenta de novo sozinha em algumas horas.",
+      "A Flow IA foi pausada porque os créditos de IA acabaram. Ela tenta de novo sozinha em algumas horas.",
     tom: "aviso",
   },
   limite_diario: {
     rotulo: "Limite do dia",
-    texto: "O limite de uso de hoje foi atingido. A Cortaí volta a responder amanhã.",
+    texto: "O limite de uso de hoje foi atingido. A Flow IA volta a responder amanhã.",
     tom: "aviso",
   },
   limite_pessoa: {
@@ -58,7 +58,7 @@ export const SELO_DA_CORTAI: Record<
   },
   sem_configuracao: {
     rotulo: "Indisponível",
-    texto: "A Cortaí ainda não está ligada neste ambiente.",
+    texto: "A Flow IA ainda não está ligada neste ambiente.",
     tom: "parada",
   },
 };
