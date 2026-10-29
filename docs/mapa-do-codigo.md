@@ -9,7 +9,7 @@ Guia para quem chega ao código (pessoa ou IA). Gerado em 09/10/2026 a partir do
 - Banco: cerca de 87 tabelas e 69 funções públicas (ver `src/integrations/supabase/types.ts`).
 - Migrações:
   - `supabase/migrations/`: cerca de 150 arquivos, até 01/10/2026.
-  - `drizzle/migrations/`: 0000 a 0026, a partir de 01/10/2026, aplicadas com `LOVABLE_DB_MIGRATION_URL`.
+  - `drizzle/migrations/`: 0000 a 0028, a partir de 01/10/2026, aplicadas com `LOVABLE_DB_MIGRATION_URL`.
 
 ## Stack
 
@@ -80,6 +80,7 @@ A guarda de rota é feita por `exigirPapel()` em `src/lib/guarda.ts`, no `before
 - `agenda-regras.server.ts`: `regrasDaBarbearia`, `validarAgendamento`, `STATUS_QUE_OCUPAM`.
 - `ocupacoes-extras.server.ts`: bloqueios e escalas entram como ocupações.
 - `horarios.ts`, `fuso.server.ts`, `format.ts`: hora de parede no fuso do negócio.
+- `intervalos-agenda.functions.ts` + `excecoes_intervalo_agenda`: exceção de intervalo válida só em uma data; o padrão semanal permanece em `horarios_de_funcionamento`.
 - `agendamento.functions.ts`, `agendamentos.functions.ts`, `agendamento-publico.functions.ts`, `agenda-chat.functions.ts`, `bloqueios.functions.ts`, `substituicao.server.ts`.
 - Banco: RPCs `criar_agendamento` e `cancelar_agendamento`. Gatilhos de máquina de estados: `agendado → chegou → na_cadeira → finalizado`, além de `cancelado`, `remarcado` e `nao_compareceu`. A trava de sobreposição é `agendamentos_sem_sobreposicao`.
 - Telas: `components/barbeiro/AgendaOperacional.tsx`, `AgendaTimeline.tsx`, `AgendaFocoMobile.tsx`, e `components/barbeiro/agenda/*` (lógica pura testada: `gesto-dia`, `cockpit-foco`, `pilula-agora`, `toque-longo-vazio` e outras). Regras em `components/barbeiro/agenda/AGENTS.md`.
