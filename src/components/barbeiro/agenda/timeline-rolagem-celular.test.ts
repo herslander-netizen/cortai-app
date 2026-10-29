@@ -203,13 +203,13 @@ describe("troca de dia em páginas no celular (como no vídeo de referência)", 
     expect(css).toMatch(/html:has\(\[data-calendario-aberto\]\) \{\s*overflow-anchor: none/);
   });
 
-  it("os cinco pontos são discretos (3 px, vão de 8 px, alfa 0,45) e ficam a 12 px da grade", () => {
+  it("os cinco pontos são discretos (3 px, vão de 8 px, alfa 0,45) e ficam a 7 px da linha do 00 (captura do Figaro)", () => {
     expect(semana).toContain('className="agenda-ponto-limite size-[3px] rounded-full"');
     expect(semana).toContain("gap-2");
     expect(css).not.toMatch(/agenda-pontos-correr[\s\S]{0,400}opacity: 0\.6/);
-    expect(operacional).toContain('className="mb-[-2.5px] mt-[6.5px]"');
+    expect(operacional).toContain('className="mb-[-9px] mt-[6.5px]"');
     expect(operacional).toContain('className="mt-[-2.5px] mb-0.5"');
-    expect(css).toMatch(/\.agenda-dia-vizinha-pontos \{[^}]*top: -19\.5px/);
+    expect(css).toMatch(/\.agenda-dia-vizinha-pontos \{[^}]*top: -13px/);
     // Os pontos do fim também vêm na página vizinha (antes só os do topo: os de baixo apareciam do nada).
     expect(readFileSync("src/components/barbeiro/agenda/PreviaDiaVizinho.tsx", "utf8")).toContain(
       "agenda-dia-vizinha-pontos-fim",

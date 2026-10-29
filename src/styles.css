@@ -3268,7 +3268,7 @@ html.agenda-gesto-ativo body {
 .agenda-dia-vizinha-pontos {
   position: absolute;
   inset-inline: 0;
-  top: -19.5px;
+  top: -13px;
 }
 /* Fim da página vizinha: 12 px abaixo da última hora, igual aos pontos do dia atual. */
 .agenda-dia-vizinha-pontos-fim {

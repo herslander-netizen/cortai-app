@@ -1621,8 +1621,9 @@ export function AgendaOperacional() {
             ) : visualizacao !== "lista" ? (
               <>
                 {celular ? (
+                  // Captura do Figaro (29/10): os pontinhos ficam 7 px acima da linha do 00.
                   <MarcaDoLimiteDoDia
-                    className="mb-[-2.5px] mt-[6.5px]"
+                    className="mb-[-9px] mt-[6.5px]"
                     carregando={agenda.isFetching}
                     naPagina
                   />

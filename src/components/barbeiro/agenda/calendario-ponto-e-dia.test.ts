@@ -7,7 +7,7 @@ const operacional = readFileSync("src/components/barbeiro/AgendaOperacional.tsx"
 describe("calendário da Agenda como na captura do Figaro (dono, 29/10)", () => {
   it("pontinho na cor terciária do tema, 26 px abaixo do centro na semana e 12 px no mês", () => {
     expect(semana).toContain("bg-[var(--figaro-tertiary,var(--rosa))]");
-    expect(semana).toContain('"absolute -bottom-[4.5px]"');
+    expect(semana).toContain('"absolute -bottom-[6px]"');
     expect(semana).toContain('"absolute bottom-[6px]"');
     expect(semana).not.toContain('"bg-rosa"');
   });

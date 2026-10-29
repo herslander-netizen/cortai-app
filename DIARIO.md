@@ -818,6 +818,10 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-29 UTC — Claude — Agenda: distância dos pontinhos como na captura do Figaro
+- Medido nas capturas (px de tela): os cinco pontinhos do começo do dia ficam **7 px acima da linha do 00** no Figaro (Cortaí: 13,7; espaçamento horizontal já idêntico); no fim do dia, 13,5 px abaixo (Cortaí já igual). Ponto de "tem atendimento" a 26,6 px do centro do dia (Cortaí 25,1).
+- `AgendaOperacional.tsx`: marca do topo `mb-[-9px]` (antes −2,5); `.agenda-dia-vizinha-pontos` `top: -13px` (antes −19,5) para a página vizinha bater; `SemanaDoTopo.tsx` ponto do dia `-bottom-[6px]`. Testes atualizados. `tsc` ok, `vitest` 259/2195, `build` ok.
+
 ### 2026-10-29 UTC — Claude — Agenda: cores de fundo, texto, topo, traços e pontos iguais às capturas do Figaro
 - Dono: "ainda há diferença de cores" + "a cor dos traços, fontes, pontos". Amostrado pixel a pixel (Figaro × Cortaí, escuro): fundo #1A1F1B × #131514; texto #E1E7E3 × #F2F7F3; letras da semana #969593 × #BCC2BE; topo #1B1F1C em repouso e #303632 com conteúdo rolado/mês aberto × #2A2F2B fixo; linha da hora/tracejado/pontinhos ~#353432 × pontinhos #606261.
 - Feito só na tela da Agenda (`:root[data-tela-agenda]`, no fim de `styles.css`): `--ink/--background` = `--figaro-background`, `--paper/--foreground` = `--figaro-on-surface`, topo via `--agenda-topo` (fundo; `--figaro-surface-container` com `data-topo-elevado` ou mês aberto); `data-topo-elevado` posto por `useMarcaDaTelaDaAgenda` (`barbeiro.tsx`) quando a página rola. Painel do mês em `--figaro-surface-container`, letras em `--figaro-hint`, traços e pontinhos em `--agenda-traco` (hint 20 %). Claro: fundo/topo #EAF2EC, texto #2A2F2C (tokens do Figaro). Conferido no navegador (valores calculados nos dois temas; fora da Agenda nada muda).
