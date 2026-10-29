@@ -8,6 +8,7 @@ import {
   FUSOS_DA_BARBEARIA,
   horarioDoDia,
   normalizarFuso,
+  validarIntervaloNoDia,
   type HorarioDeFuncionamento,
 } from "./horarios";
 
@@ -19,6 +20,50 @@ describe("sem horário cadastrado", () => {
     expect(horarioDoDia("2026-10-01", []).fechado).toBe(true);
     expect(horarioDoDia("2026-10-01", null).fechado).toBe(true);
   });
+  it("prioriza exceção por data sem alterar o horário semanal", () => {
+    const horarios: HorarioDeFuncionamento[] = [
+      {
+        diaSemana: 5,
+        fechado: false,
+        abre: "09:00",
+        fecha: "18:00",
+        intervaloInicio: "12:00",
+        intervaloFim: "13:00",
+      },
+      {
+        data: "2026-10-02",
+        diaSemana: 5,
+        fechado: false,
+        abre: "09:00",
+        fecha: "18:00",
+        intervaloInicio: "13:00",
+        intervaloFim: "14:00",
+      },
+    ];
+    expect(horarioDoDia("2026-10-02", horarios).intervaloInicio).toBe("13:00");
+    expect(horarioDoDia("2026-10-09", horarios).intervaloInicio).toBe("12:00");
+  });
+
+  it("permite retirar o intervalo apenas da data ajustada", () => {
+    expect(
+      horarioDoDia("2026-10-02", [
+        { diaSemana: 5, fechado: false, abre: "09:00", fecha: "18:00", intervaloInicio: "12:00", intervaloFim: "13:00" },
+        { data: "2026-10-02", diaSemana: 5, fechado: false, abre: "09:00", fecha: "18:00", intervaloInicio: null, intervaloFim: null },
+      ]).intervaloInicio,
+    ).toBeNull();
+  });
+
+  it("valida intervalo dentro do expediente e aceita remoção", () => {
+    const horarios: HorarioDeFuncionamento[] = [
+      { diaSemana: 5, fechado: false, abre: "09:00", fecha: "18:00" },
+    ];
+    expect(validarIntervaloNoDia("2026-10-02", horarios, "12:00", "13:00")).toBeNull();
+    expect(validarIntervaloNoDia("2026-10-02", horarios, null, null)).toBeNull();
+    expect(validarIntervaloNoDia("2026-10-02", horarios, "08:00", "09:00")).toMatch(/depois da abertura/);
+    expect(validarIntervaloNoDia("2026-10-02", horarios, "12:00", "19:00")).toMatch(/antes do fechamento/);
+    expect(validarIntervaloNoDia("2026-10-02", horarios, "12:00", null)).toMatch(/início e o fim/);
+  });
+
   it("não oferece horários", () => {
     const r = horariosDisponiveis({
       dia: "2026-10-01",
