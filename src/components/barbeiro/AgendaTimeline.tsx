@@ -773,11 +773,11 @@ export function AgendaTimeline({
               (fim - inicio) * PX_POR_MINUTO + deslocamentoAte(fim) - deslocamentoAte(inicio);
             return (
               <div
-                key={\`\${bloqueio.profissional_id ?? "equipe"}-\${bloqueio.inicio}-\${bloqueio.fim}-\${indice}\`}
+                key={`${bloqueio.profissional_id ?? "equipe"}-${bloqueio.inicio}-${bloqueio.fim}-${indice}`}
                 className="agenda-timeline-bloqueio"
-                style={{ top: \`\${topo}px\`, height: \`\${altura}px\` }}
+                style={{ top: `${topo}px`, height: `${altura}px` }}
                 role="note"
-                aria-label={\`Horário bloqueado de \${horaMinuto(inicio)} a \${horaMinuto(fim)}\`}
+                aria-label={`Horário bloqueado de ${horaMinuto(inicio)} a ${horaMinuto(fim)}`}
               >
                 <span>Bloqueado · {horaMinuto(inicio)}–{horaMinuto(fim)}</span>
               </div>
