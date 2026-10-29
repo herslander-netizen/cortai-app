@@ -241,8 +241,14 @@ function DesignSystemPage() {
               {status}
             </p>
           ) : null}
-          <Button type="submit" size="lg" disabled={acao.ocupado}>
-            {acao.estaEm("design") ? "Salvando…" : "Salvar alterações"}
+          <Button
+            loading={acao.estaEm("design")}
+            success={acao.concluiu("design")}
+            type="submit"
+            size="lg"
+            disabled={acao.ocupado}
+          >
+            Salvar alterações
           </Button>
         </form>
       )}

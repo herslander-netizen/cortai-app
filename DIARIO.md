@@ -816,6 +816,13 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-29 UTC — Claude — Botões de salvar no padrão Figaro: carregando → ✓ por 0,7 s (fora da Agenda)
+- Pedido do dono ("Pode executar", sobre o item recomendado do material do Figaro): o botão principal passa por carregando e, só quando salvou de verdade, mostra ✓ + rótulo por 700 ms (`FigarooPrimaryButton`, `ESPERA_MS.sucessoDoBotao`). Com erro, volta direto ao normal: nunca há ✓ falso.
+- `useAcao` ganhou `concluiu(chave)`; novo `src/hooks/useSucessoDoBotao.ts` para telas com "salvando" próprio. O texto "Salvando…" saiu desses botões (o `Button` já mostra o carregando).
+- Telas: monetização, ajustes, parceiros, pedidos e contato do ADM; equipe (perfil), indicações, avaliações, fidelidade, produtos, comissões/Pix, horários, CortAI (secretária), escala da equipe e personalização do cliente. Agenda não foi tocada (conferido no diff).
+- `docs/ordem-padrao-figaro.md`: linha nova na tabela "Botão de salvar/confirmar".
+- Testes: `src/hooks/useAcao.test.tsx` (✓ só no sucesso, 700 ms); `tsc` ok, `vitest` 258 arquivos / 2189 testes, `build` ok. O lint acusa 5 `any` antigos em monetização, comissões e produtos (já existiam).
+
 ### 2026-10-29 UTC — Claude — Ficha: "Trocar cliente" de volta + material do Figaro guardado
 - Pedido do dono (Agenda, específico): o "Trocar cliente" sumia da ficha quando o horário de um atendimento ainda "Agendado" já tinha passado. A ficha usava a regra do Figaro (só no futuro), mais dura que a do servidor. `podeTrocarCliente` (`agenda/ficha-regras.ts`) agora segue `trocarClienteDoAgendamento`: aparece com status agendado ou cliente chegou, mesmo com a hora passada; o servidor continua recusando com pagamento confirmado ou comanda. Nada visual mudou além de o botão voltar a aparecer nesses casos.
 - `docs/referencia-figaro/apk/12-material-do-dono-2026-10-29.md`: o levantamento do APK que o dono colou no chat (abertura, login, movimento, tokens, 17 módulos, Agenda por dentro), guardado como chegou, com uma conferência rápida no topo (o que bate com as specs 1–11, o que é novo e o que não usar sem decisão, como a paleta do Figaro). README da pasta atualizado.

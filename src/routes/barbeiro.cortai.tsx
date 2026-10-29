@@ -1,3 +1,4 @@
+import { useSucessoDoBotao } from "@/hooks/useSucessoDoBotao";
 import { IndicadorDeCarregamento } from "@/components/ui/IndicadorDeCarregamento";
 import { exigirCapacidade } from "@/lib/guarda-capacidade";
 import { useConfirmar } from "@/components/ui/useConfirmar";
@@ -5,12 +6,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState, type ReactNode } from "react";
-import {
-  CalendarPlus,
-  MessageCircle,
-  ShieldCheck,
-  Smartphone,
-} from "lucide-react";
+import { CalendarPlus, MessageCircle, ShieldCheck, Smartphone } from "lucide-react";
 
 import { Screen, EmptyState } from "@/components/layout/Screen";
 import { EsqueletoLista, EsqueletoPainel } from "@/components/layout/Esqueleto";
@@ -230,7 +226,10 @@ function BlocoExperiencia() {
         ) : (
           <ul className="mt-3 space-y-2">
             {dados.registradas.slice(0, 5).map((avaliacao) => (
-              <li key={avaliacao.id} className="rounded-[12px] bg-[var(--figaro-surface-container-high,var(--ink3))] px-3 py-3">
+              <li
+                key={avaliacao.id}
+                className="rounded-[12px] bg-[var(--figaro-surface-container-high,var(--ink3))] px-3 py-3"
+              >
                 <div className="flex items-center justify-between gap-3">
                   <p className="text-sm text-paper">{avaliacao.cliente}</p>
                   <span className="text-sm font-semibold text-gold">{avaliacao.nota}/5</span>
@@ -300,13 +299,18 @@ function BlocoEnvios({ irParaConexao }: { irParaConexao: () => void }) {
   if (envios.isLoading) return <EsqueletoLista />;
   if (envios.isError)
     return (
-      <Aviso tom="acao" className="mt-3">Não foi possível carregar os envios.</Aviso>
+      <Aviso tom="acao" className="mt-3">
+        Não foi possível carregar os envios.
+      </Aviso>
     );
   if (!envios.data?.length) return <EmptyState text="Nenhuma notificação enviada ainda." />;
   return (
     <>
       <AvisosDaMeta />
-      <section className="rounded-[28px] bg-[var(--figaro-surface-container,var(--ink2))] overflow-hidden" aria-label="Histórico de envios">
+      <section
+        className="rounded-[28px] bg-[var(--figaro-surface-container,var(--ink2))] overflow-hidden"
+        aria-label="Histórico de envios"
+      >
         <ul className="space-y-2 p-2">
           {envios.data.map((envio) => {
             const d = diagnosticoDoEnvio(envio);
@@ -368,9 +372,13 @@ function BlocoSecretaria({ painel }: { painel: PainelDoCortai }) {
   const salvar = useServerFn(salvarConfiguracaoDoCortai);
   const [config, setConfig] = useState(painel.configuracao);
   const [retorno, setRetorno] = useState(String(painel.configuracao.recuperacaoDias));
+  const salvou = useSucessoDoBotao();
   const mutation = useMutation({
     mutationFn: () => salvar({ data: { ...config, recuperacaoDias: Number(retorno) || 30 } }),
-    onSuccess: () => void cliente.invalidateQueries({ queryKey: ["cortai-painel"] }),
+    onSuccess: () => {
+      salvou.confirmar();
+      void cliente.invalidateQueries({ queryKey: ["cortai-painel"] });
+    },
   });
   const chave = (rotulo: string, detalhe: string, valor: boolean, mudar: (v: boolean) => void) => (
     <Chave rotulo={rotulo} detalhe={detalhe} valor={valor} aoMudar={mudar} />
@@ -431,14 +439,24 @@ function BlocoSecretaria({ painel }: { painel: PainelDoCortai }) {
         </select>
       </Bloco>
       <div className="rounded-[28px] bg-[var(--figaro-surface-container,var(--ink2))] p-5">
-        <Button className="w-full" disabled={mutation.isPending} onClick={() => mutation.mutate()}>
-          {mutation.isPending ? "Salvando…" : "Salvar configurações"}
+        <Button
+          className="w-full"
+          disabled={mutation.isPending}
+          loading={mutation.isPending}
+          success={salvou.sucesso}
+          onClick={() => mutation.mutate()}
+        >
+          Salvar configurações
         </Button>
         {mutation.isSuccess ? (
-          <Aviso tom="sucesso" className="mt-2">Configurações salvas.</Aviso>
+          <Aviso tom="sucesso" className="mt-2">
+            Configurações salvas.
+          </Aviso>
         ) : null}
         {mutation.isError ? (
-          <Aviso tom="acao" className="mt-2">Não foi possível salvar.</Aviso>
+          <Aviso tom="acao" className="mt-2">
+            Não foi possível salvar.
+          </Aviso>
         ) : null}
       </div>
       <p className="text-xs leading-relaxed text-mute">
@@ -714,13 +732,7 @@ function CartaoDeConexao({ painel, tipo }: { painel: PainelDoCortai; tipo: TipoD
             </p>
           </div>
         </div>
-        <Button
-          variant="primary"
-          type="button"
-          className="mt-5 w-full"
-          disabled
-          aria-disabled
-        >
+        <Button variant="primary" type="button" className="mt-5 w-full" disabled aria-disabled>
           Conectar WhatsApp
         </Button>
         <p className="mt-2 text-center text-xs text-mute2">
@@ -1122,15 +1134,18 @@ function ModalQr({
   gerando: boolean;
 }) {
   return (
-    <Dialog open onOpenChange={(aberto) => { if (!aberto) aoFechar(); }}>
+    <Dialog
+      open
+      onOpenChange={(aberto) => {
+        if (!aberto) aoFechar();
+      }}
+    >
       <DialogContent
         aria-describedby="instrucoes-conectar-whatsapp"
         className="w-full max-w-sm text-center"
       >
         <div className="pr-8 text-left">
-          <DialogTitle className="text-sm font-semibold text-paper">
-            Conectar WhatsApp
-          </DialogTitle>
+          <DialogTitle className="text-sm font-semibold text-paper">Conectar WhatsApp</DialogTitle>
         </div>
 
         <div className="mt-1">

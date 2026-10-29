@@ -321,8 +321,15 @@ function ProdutosPage() {
               onChange={(v) => setForm({ ...form, disponivel_venda: v })}
             />
           </div>
-          <Button variant="primary" size="lg" className="w-full" disabled={acao.ocupado}>
-            {acao.estaEm("novo-produto") ? "Salvando…" : "Salvar produto"}
+          <Button
+            loading={acao.estaEm("novo-produto")}
+            success={acao.concluiu("novo-produto")}
+            variant="primary"
+            size="lg"
+            className="w-full"
+            disabled={acao.ocupado}
+          >
+            Salvar produto
           </Button>
         </form>
       ) : null}
@@ -344,107 +351,114 @@ function ProdutosPage() {
           const baixo = produto.controla_estoque && produto.quantidade <= produto.estoque_minimo;
           return (
             <li key={produto.id}>
-              <Card density="default" className="grid grid-cols-[48px_minmax(0,1fr)] items-center gap-3 sm:grid-cols-[48px_minmax(0,1fr)_auto]">
-              {produto.foto_assinada ? (
-                <img
-                  src={produto.foto_assinada}
-                  alt={produto.nome}
-                  loading="lazy"
-                  className="h-12 w-12 rounded-[12px] object-cover"
-                />
-              ) : (
-                <span className="flex h-12 w-12 items-center justify-center rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))] text-mute">
-                  <ShoppingBag size={18} />
-                </span>
-              )}
-              <div className="min-w-0">
-                <p className="truncate text-sm font-semibold text-paper">{produto.nome}</p>
-                <p className="mt-0.5 text-xs text-mute">
-                  {produto.categoria} · {brl(produto.preco_centavos)}
-                </p>
-                <p className="mt-1.5 flex flex-wrap items-center gap-1.5">
-                  {produto.controla_estoque ? (
-                    <span className="rounded-full bg-[var(--figaro-surface-container,var(--ink2))] px-2 py-1 text-xs text-mute">
-                      Estoque
-                    </span>
-                  ) : null}
-                  {produto.disponivel_venda && produto.preco_centavos > 0 ? (
-                    <span className="rounded-full bg-[var(--figaro-primary-container,var(--ink2))] px-2 py-1 text-xs font-medium text-[var(--figaro-primary,var(--primary))]">
-                      À venda
-                    </span>
-                  ) : null}
-                  <span className={`text-xs ${baixo ? "text-brick" : "text-mute2"}`}>
-                    {baixo ? <AlertTriangle size={11} className="mr-1 inline" /> : null}
-                    {produto.quantidade} em estoque
+              <Card
+                density="default"
+                className="grid grid-cols-[48px_minmax(0,1fr)] items-center gap-3 sm:grid-cols-[48px_minmax(0,1fr)_auto]"
+              >
+                {produto.foto_assinada ? (
+                  <img
+                    src={produto.foto_assinada}
+                    alt={produto.nome}
+                    loading="lazy"
+                    className="h-12 w-12 rounded-[12px] object-cover"
+                  />
+                ) : (
+                  <span className="flex h-12 w-12 items-center justify-center rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))] text-mute">
+                    <ShoppingBag size={18} />
                   </span>
-                </p>
-              </div>
-              <div className="col-span-2 grid grid-cols-2 gap-2 sm:col-span-1 sm:grid-cols-1">
-                <Button
-                  data-guia="produtos-venda"
-                  size="sm"
-                  variant="outline"
-                  disabled={produto.quantidade < 1 || acao.ocupado}
-                  onClick={() =>
-                    acao.executar(
-                      `vender-${produto.id}`,
-                      () =>
-                        vender({
-                          data: { produtoId: produto.id, quantidade: 1, formaPagamento: "balcao" },
-                        }),
-                      {
-                        sucesso: `${produto.nome}: venda registrada.`,
-                        aoConcluir: async () => {
-                          await query.refetch();
-                        },
-                      },
-                    )
-                  }
-                >
-                  {acao.estaEm(`vender-${produto.id}`) ? "Registrando…" : "Vender"}
-                </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="text-xs"
-                  disabled={acao.ocupado}
-                  onClick={() =>
-                    acao.executar(
-                      `loja-${produto.id}`,
-                      () =>
-                        salvar({
-                          data: {
-                            id: produto.id,
-                            nome: produto.nome,
-                            foto_url: produto.foto_url,
-                            categoria: produto.categoria,
-                            custo_centavos: produto.custo_centavos,
-                            preco_centavos: produto.preco_centavos,
-                            quantidade: produto.quantidade,
-                            estoque_minimo: produto.estoque_minimo,
-                            ativo: produto.ativo,
-                            controla_estoque: produto.controla_estoque,
-                            disponivel_venda: !produto.disponivel_venda,
+                )}
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-semibold text-paper">{produto.nome}</p>
+                  <p className="mt-0.5 text-xs text-mute">
+                    {produto.categoria} · {brl(produto.preco_centavos)}
+                  </p>
+                  <p className="mt-1.5 flex flex-wrap items-center gap-1.5">
+                    {produto.controla_estoque ? (
+                      <span className="rounded-full bg-[var(--figaro-surface-container,var(--ink2))] px-2 py-1 text-xs text-mute">
+                        Estoque
+                      </span>
+                    ) : null}
+                    {produto.disponivel_venda && produto.preco_centavos > 0 ? (
+                      <span className="rounded-full bg-[var(--figaro-primary-container,var(--ink2))] px-2 py-1 text-xs font-medium text-[var(--figaro-primary,var(--primary))]">
+                        À venda
+                      </span>
+                    ) : null}
+                    <span className={`text-xs ${baixo ? "text-brick" : "text-mute2"}`}>
+                      {baixo ? <AlertTriangle size={11} className="mr-1 inline" /> : null}
+                      {produto.quantidade} em estoque
+                    </span>
+                  </p>
+                </div>
+                <div className="col-span-2 grid grid-cols-2 gap-2 sm:col-span-1 sm:grid-cols-1">
+                  <Button
+                    data-guia="produtos-venda"
+                    size="sm"
+                    variant="outline"
+                    disabled={produto.quantidade < 1 || acao.ocupado}
+                    onClick={() =>
+                      acao.executar(
+                        `vender-${produto.id}`,
+                        () =>
+                          vender({
+                            data: {
+                              produtoId: produto.id,
+                              quantidade: 1,
+                              formaPagamento: "balcao",
+                            },
+                          }),
+                        {
+                          sucesso: `${produto.nome}: venda registrada.`,
+                          aoConcluir: async () => {
+                            await query.refetch();
                           },
-                        }),
-                      {
-                        sucesso: produto.disponivel_venda
-                          ? `${produto.nome} saiu da loja.`
-                          : `${produto.nome} entrou na loja.`,
-                        aoConcluir: async () => {
-                          await query.refetch();
                         },
-                      },
-                    )
-                  }
-                >
-                  {acao.estaEm(`loja-${produto.id}`)
-                    ? "Atualizando…"
-                    : produto.disponivel_venda
-                      ? "Tirar da loja"
-                      : "Pôr à venda"}
-                </Button>
-              </div>
+                      )
+                    }
+                  >
+                    {acao.estaEm(`vender-${produto.id}`) ? "Registrando…" : "Vender"}
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="text-xs"
+                    disabled={acao.ocupado}
+                    onClick={() =>
+                      acao.executar(
+                        `loja-${produto.id}`,
+                        () =>
+                          salvar({
+                            data: {
+                              id: produto.id,
+                              nome: produto.nome,
+                              foto_url: produto.foto_url,
+                              categoria: produto.categoria,
+                              custo_centavos: produto.custo_centavos,
+                              preco_centavos: produto.preco_centavos,
+                              quantidade: produto.quantidade,
+                              estoque_minimo: produto.estoque_minimo,
+                              ativo: produto.ativo,
+                              controla_estoque: produto.controla_estoque,
+                              disponivel_venda: !produto.disponivel_venda,
+                            },
+                          }),
+                        {
+                          sucesso: produto.disponivel_venda
+                            ? `${produto.nome} saiu da loja.`
+                            : `${produto.nome} entrou na loja.`,
+                          aoConcluir: async () => {
+                            await query.refetch();
+                          },
+                        },
+                      )
+                    }
+                  >
+                    {acao.estaEm(`loja-${produto.id}`)
+                      ? "Atualizando…"
+                      : produto.disponivel_venda
+                        ? "Tirar da loja"
+                        : "Pôr à venda"}
+                  </Button>
+                </div>
               </Card>
             </li>
           );

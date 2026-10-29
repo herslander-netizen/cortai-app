@@ -295,7 +295,10 @@ function TenantDialog({
                   <div className="rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))] p-3">
                     <p className="text-xs text-mute">Agenda</p>
                     <p className="mt-1 flex items-center gap-1.5 text-sm font-semibold text-paper">
-                      <CalendarDays size={15} className="text-[var(--figaro-primary,var(--primary))]" />
+                      <CalendarDays
+                        size={15}
+                        className="text-[var(--figaro-primary,var(--primary))]"
+                      />
                       {tenant.agendamentos} agendamentos
                     </p>
                   </div>
@@ -471,6 +474,8 @@ function TenantDialog({
                       />
                     </label>
                     <Button
+                      loading={acao.estaEm("contato")}
+                      success={acao.concluiu("contato")}
                       className="mt-3"
                       disabled={acao.ocupado}
                       onClick={() =>
@@ -497,14 +502,17 @@ function TenantDialog({
                         )
                       }
                     >
-                      {acao.estaEm("contato") ? "Salvando…" : "Salvar contato"}
+                      Salvar contato
                     </Button>
                   </div>
                 ) : null}
                 {contacts.data?.length ? (
                   <ul className="mt-4 space-y-2">
                     {contacts.data.map((contact) => (
-                      <li key={contact.id} className="rounded-[12px] bg-[var(--figaro-surface-container-high,var(--ink3))] px-3 py-3">
+                      <li
+                        key={contact.id}
+                        className="rounded-[12px] bg-[var(--figaro-surface-container-high,var(--ink3))] px-3 py-3"
+                      >
                         <div className="flex justify-between gap-3">
                           <span className="text-sm text-paper">
                             {contact.canal === "whatsapp" ? "WhatsApp" : "Telefone"}

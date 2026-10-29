@@ -81,7 +81,12 @@ function MonetizacaoPage() {
         aria-label="Seções de monetização"
       >
         {ABAS.map((a) => (
-          <Chip key={a} selecionado={aba === a} onClick={() => setAba(a)} className="whitespace-nowrap">
+          <Chip
+            key={a}
+            selecionado={aba === a}
+            onClick={() => setAba(a)}
+            className="whitespace-nowrap"
+          >
             {a}
           </Chip>
         ))}
@@ -96,7 +101,9 @@ function MonetizacaoPage() {
             Defina o que cada plano libera, sem alterar preços.
           </span>
         </span>
-        <span className="text-sm font-medium text-[var(--figaro-primary,var(--primary))]">Abrir</span>
+        <span className="text-sm font-medium text-[var(--figaro-primary,var(--primary))]">
+          Abrir
+        </span>
       </Link>
       {aba === "Planos e preços" ? <AbaPlanos /> : null}
       {aba === "Por negócio" ? <AbaBarbearia /> : null}
@@ -153,7 +160,10 @@ function AbaPlanos() {
 
       <ul className="space-y-2">
         {query.data.map((p) => (
-          <li key={p.id} className="rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))] px-4 py-4">
+          <li
+            key={p.id}
+            className="rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))] px-4 py-4"
+          >
             <div className="flex items-start justify-between gap-4">
               <div>
                 <p className="text-sm font-semibold text-paper">
@@ -368,8 +378,15 @@ function FormularioPlano({
         <span className="text-xs text-mute">Plano disponível para contratação</span>
       </div>
       <div className="flex gap-2 pt-1">
-        <Button type="submit" variant="primary" className="px-5 text-sm" disabled={acao.ocupado}>
-          {acao.estaEm("plano") ? "Salvando…" : "Salvar"}
+        <Button
+          loading={acao.estaEm("plano")}
+          success={acao.concluiu("plano")}
+          type="submit"
+          variant="primary"
+          className="px-5 text-sm"
+          disabled={acao.ocupado}
+        >
+          Salvar
         </Button>
         <Button type="button" variant="outline" className="px-5 text-sm" onClick={onCancelar}>
           Cancelar

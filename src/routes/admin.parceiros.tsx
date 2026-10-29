@@ -144,8 +144,13 @@ function ParceirosAdmin() {
           />
         </div>
         <div className="flex gap-2">
-          <Button className="flex-1" disabled={acao.ocupado}>
-            {acao.estaEm("salvar") ? "Salvando…" : form.id ? "Salvar" : "Adicionar"}
+          <Button
+            loading={acao.estaEm("salvar")}
+            success={acao.concluiu("salvar")}
+            className="flex-1"
+            disabled={acao.ocupado}
+          >
+            {form.id ? "Salvar" : "Adicionar"}
           </Button>
           {form.id ? (
             <Button

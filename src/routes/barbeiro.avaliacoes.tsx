@@ -106,6 +106,8 @@ function AvaliacoesPage() {
         />
       </label>
       <Button
+        loading={acao.estaEm("link")}
+        success={acao.concluiu("link")}
         variant="outline"
         type="button"
         className="mt-2 min-h-12 text-xs"
@@ -119,7 +121,7 @@ function AvaliacoesPage() {
           })
         }
       >
-        {acao.estaEm("link") ? "Salvando…" : "Salvar link"}
+        Salvar link
       </Button>
 
       <h2 className="mb-1 mt-8 text-sm font-semibold text-paper">Atendimentos sem avaliação</h2>
@@ -132,59 +134,61 @@ function AvaliacoesPage() {
           return (
             <li key={p.id}>
               <Card density="default">
-              <p className="text-sm text-paper">{p.cliente}</p>
-              <p className="mt-0.5 text-xs text-mute">
-                {p.servico} · {dataCurta(p.inicio)}
-              </p>
-              <div className="mt-3">
-                <Estrelas nota={nota} onChange={(n) => setNotas((s) => ({ ...s, [p.id]: n }))} />
-              </div>
-              {nota > 0 ? (
-                <>
-                  <textarea
-                    value={comentarios[p.id] ?? ""}
-                    onChange={(e) => setComentarios((s) => ({ ...s, [p.id]: e.target.value }))}
-                    rows={2}
-                    placeholder="Comentário (opcional)"
-                    aria-label={`Comentário da avaliação de ${p.cliente}`}
-                    className="field-control mt-3 w-full resize-none"
-                  />
-                  <Button
-                    variant="outline"
-                    type="button"
-                    className="mt-2 min-h-12 text-xs"
-                    disabled={acao.ocupado}
-                    onClick={() =>
-                      acao.executar(
-                        `avaliar-${p.id}`,
-                        () =>
-                          registrar({
-                            data: {
-                              agendamentoId: p.id,
-                              nota,
-                              comentario: comentarios[p.id] ?? "",
+                <p className="text-sm text-paper">{p.cliente}</p>
+                <p className="mt-0.5 text-xs text-mute">
+                  {p.servico} · {dataCurta(p.inicio)}
+                </p>
+                <div className="mt-3">
+                  <Estrelas nota={nota} onChange={(n) => setNotas((s) => ({ ...s, [p.id]: n }))} />
+                </div>
+                {nota > 0 ? (
+                  <>
+                    <textarea
+                      value={comentarios[p.id] ?? ""}
+                      onChange={(e) => setComentarios((s) => ({ ...s, [p.id]: e.target.value }))}
+                      rows={2}
+                      placeholder="Comentário (opcional)"
+                      aria-label={`Comentário da avaliação de ${p.cliente}`}
+                      className="field-control mt-3 w-full resize-none"
+                    />
+                    <Button
+                      loading={acao.estaEm(`avaliar-${p.id}`)}
+                      success={acao.concluiu(`avaliar-${p.id}`)}
+                      variant="outline"
+                      type="button"
+                      className="mt-2 min-h-12 text-xs"
+                      disabled={acao.ocupado}
+                      onClick={() =>
+                        acao.executar(
+                          `avaliar-${p.id}`,
+                          () =>
+                            registrar({
+                              data: {
+                                agendamentoId: p.id,
+                                nota,
+                                comentario: comentarios[p.id] ?? "",
+                              },
+                            }),
+                          {
+                            sucesso: "Avaliação registrada.",
+                            aoConcluir: async (r) => {
+                              setConvite(
+                                r.convidarPublico && r.link
+                                  ? `${p.cliente} gostou. Convide para avaliar publicamente: ${r.link}`
+                                  : r.convidarPublico
+                                    ? `${p.cliente} gostou. Cadastre o link público acima para convidar.`
+                                    : "Feedback registrado internamente.",
+                              );
+                              await refetch();
                             },
-                          }),
-                        {
-                          sucesso: "Avaliação registrada.",
-                          aoConcluir: async (r) => {
-                            setConvite(
-                              r.convidarPublico && r.link
-                                ? `${p.cliente} gostou. Convide para avaliar publicamente: ${r.link}`
-                                : r.convidarPublico
-                                  ? `${p.cliente} gostou. Cadastre o link público acima para convidar.`
-                                  : "Feedback registrado internamente.",
-                            );
-                            await refetch();
                           },
-                        },
-                      )
-                    }
-                  >
-                    {acao.estaEm(`avaliar-${p.id}`) ? "Salvando…" : "Registrar avaliação"}
-                  </Button>
-                </>
-              ) : null}
+                        )
+                      }
+                    >
+                      Registrar avaliação
+                    </Button>
+                  </>
+                ) : null}
               </Card>
             </li>
           );
@@ -205,12 +209,12 @@ function AvaliacoesPage() {
         {(data?.registradas ?? []).map((a) => (
           <li key={a.id}>
             <Card density="default">
-            <div className="flex items-center justify-between gap-4">
-              <p className="truncate text-sm text-paper">{a.cliente}</p>
-              <Estrelas nota={a.nota} />
-            </div>
-            {a.comentario ? <p className="mt-1 text-xs text-mute">{a.comentario}</p> : null}
-            <p className="mt-0.5 text-xs text-mute2">{dataCurta(a.criadoEm)}</p>
+              <div className="flex items-center justify-between gap-4">
+                <p className="truncate text-sm text-paper">{a.cliente}</p>
+                <Estrelas nota={a.nota} />
+              </div>
+              {a.comentario ? <p className="mt-1 text-xs text-mute">{a.comentario}</p> : null}
+              <p className="mt-0.5 text-xs text-mute2">{dataCurta(a.criadoEm)}</p>
             </Card>
           </li>
         ))}

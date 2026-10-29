@@ -1,6 +1,7 @@
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
 
+import { useSucessoDoBotao } from "@/hooks/useSucessoDoBotao";
 import { Aviso } from "@/components/ui/aviso";
 import { salvarPersonalizacaoCliente, type FichaCliente } from "@/lib/barbeiro.functions";
 import { Button } from "@/components/ui/button";
@@ -48,6 +49,7 @@ export function PersonalizacaoCliente({
   const [observacoes, setObservacoes] = useState("");
   const [whats, setWhats] = useState(true);
   const [salvando, setSalvando] = useState(false);
+  const salvou = useSucessoDoBotao();
   const [aviso, setAviso] = useState<string | null>(null);
   const [erro, setErro] = useState<string | null>(null);
 
@@ -173,6 +175,8 @@ export function PersonalizacaoCliente({
         type="button"
         className="mt-5 w-full"
         disabled={salvando}
+        loading={salvando}
+        success={salvou.sucesso}
         onClick={async () => {
           setSalvando(true);
           setErro(null);
@@ -189,6 +193,7 @@ export function PersonalizacaoCliente({
               },
             });
             setAviso("Personalização salva para este cliente.");
+            salvou.confirmar();
             onSalvo();
           } catch (e) {
             setErro(e instanceof Error ? e.message : "Não foi possível salvar agora.");
@@ -197,7 +202,7 @@ export function PersonalizacaoCliente({
           }
         }}
       >
-        {salvando ? "Salvando…" : "Salvar personalizações"}
+        Salvar personalizações
       </Button>
     </section>
   );

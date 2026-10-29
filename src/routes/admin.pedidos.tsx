@@ -163,7 +163,10 @@ function PedidosPage() {
               <h3 className="text-sm font-semibold text-paper">Quem pediu</h3>
               <ul className="mt-2 space-y-2">
                 {selected.solicitantes.map((tenant: Solicitante) => (
-                  <li key={tenant.id} className="flex justify-between gap-3 rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))] px-3 py-3">
+                  <li
+                    key={tenant.id}
+                    className="flex justify-between gap-3 rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))] px-3 py-3"
+                  >
                     <span className="text-sm text-paper">
                       {tenant.nome ?? "Barbearia removida"}
                     </span>
@@ -272,6 +275,8 @@ function NewSuggestion({
           </div>
         </fieldset>
         <Button
+          loading={acao.estaEm("pedido")}
+          success={acao.concluiu("pedido")}
           disabled={acao.ocupado || !pedido.trim() || !motivo.trim()}
           onClick={() =>
             acao.executar(
@@ -290,7 +295,7 @@ function NewSuggestion({
             )
           }
         >
-          {acao.estaEm("pedido") ? "Salvando…" : "Salvar pedido"}
+          Salvar pedido
         </Button>
       </DialogContent>
     </Dialog>

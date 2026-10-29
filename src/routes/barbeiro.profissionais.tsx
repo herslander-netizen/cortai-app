@@ -61,65 +61,67 @@ function ProfissionaisPage() {
           const atual = form[p.id] ?? { descricao: "", fotos: [] };
           return (
             <li key={p.id}>
-            <Card density="default">
-              <p className="text-sm font-semibold text-paper">{p.nome}</p>
-              <label className="mt-4 block">
-                <span className="text-xs text-mute2">Descrição curta</span>
-                <textarea
-                  rows={2}
-                  maxLength={200}
-                  value={atual.descricao}
-                  onChange={(e) =>
-                    setForm((s) => ({ ...s, [p.id]: { ...atual, descricao: e.target.value } }))
-                  }
-                  className="field-control mt-1 w-full resize-none"
-                  placeholder="Especialista nos serviços que oferece."
-                />
-              </label>
-              <div className="mt-4">
-                <span className="mb-2 block text-xs text-mute2">
-                  Portfólio: até {MAX_FOTOS_DO_PORTFOLIO} fotos do seu trabalho
-                </span>
-                <ListaDeFotos
-                  fotos={atual.fotos}
-                  max={MAX_FOTOS_DO_PORTFOLIO}
-                  prefixo="profissional"
-                  titulo={`Portfólio de ${p.nome}`}
-                  onChange={(fotos) => setForm((s) => ({ ...s, [p.id]: { ...atual, fotos } }))}
-                />
-              </div>
-              <Button
-                variant="primary"
-                size="lg"
-                type="button"
-                className="mt-4 w-full sm:w-auto"
-                disabled={acao.ocupado}
-                onClick={() =>
-                  acao.executar(
-                    p.id,
-                    () =>
-                      salvar({
-                        data: {
-                          id: p.id,
-                          descricao: atual.descricao,
-                          portfolio: atual.fotos
-                            .map((f) => f.valor)
-                            .slice(0, MAX_FOTOS_DO_PORTFOLIO),
+              <Card density="default">
+                <p className="text-sm font-semibold text-paper">{p.nome}</p>
+                <label className="mt-4 block">
+                  <span className="text-xs text-mute2">Descrição curta</span>
+                  <textarea
+                    rows={2}
+                    maxLength={200}
+                    value={atual.descricao}
+                    onChange={(e) =>
+                      setForm((s) => ({ ...s, [p.id]: { ...atual, descricao: e.target.value } }))
+                    }
+                    className="field-control mt-1 w-full resize-none"
+                    placeholder="Especialista nos serviços que oferece."
+                  />
+                </label>
+                <div className="mt-4">
+                  <span className="mb-2 block text-xs text-mute2">
+                    Portfólio: até {MAX_FOTOS_DO_PORTFOLIO} fotos do seu trabalho
+                  </span>
+                  <ListaDeFotos
+                    fotos={atual.fotos}
+                    max={MAX_FOTOS_DO_PORTFOLIO}
+                    prefixo="profissional"
+                    titulo={`Portfólio de ${p.nome}`}
+                    onChange={(fotos) => setForm((s) => ({ ...s, [p.id]: { ...atual, fotos } }))}
+                  />
+                </div>
+                <Button
+                  loading={acao.estaEm(p.id)}
+                  success={acao.concluiu(p.id)}
+                  variant="primary"
+                  size="lg"
+                  type="button"
+                  className="mt-4 w-full sm:w-auto"
+                  disabled={acao.ocupado}
+                  onClick={() =>
+                    acao.executar(
+                      p.id,
+                      () =>
+                        salvar({
+                          data: {
+                            id: p.id,
+                            descricao: atual.descricao,
+                            portfolio: atual.fotos
+                              .map((f) => f.valor)
+                              .slice(0, MAX_FOTOS_DO_PORTFOLIO),
+                          },
+                        }),
+                      {
+                        sucesso: `Perfil de ${p.nome} salvo.`,
+                        aoConcluir: async () => {
+                          await refetch();
                         },
-                      }),
-                    {
-                      sucesso: `Perfil de ${p.nome} salvo.`,
-                      aoConcluir: async () => {
-                        await refetch();
                       },
-                    },
-                  )
-                }
-              >
-                {acao.estaEm(p.id) ? "Salvando…" : "Salvar perfil"}
-              </Button>
-            </Card>
-          </li>
+                    )
+                  }
+                >
+                  Salvar perfil
+                </Button>
+              </Card>
+            </li>
           );
         })}
       </ul>

@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
 
+import { useSucessoDoBotao } from "@/hooks/useSucessoDoBotao";
 import { Screen } from "@/components/layout/Screen";
 import { EsqueletoFormulario } from "@/components/layout/Esqueleto";
 import { EditorDeHorarios } from "@/components/onboarding/EditorDeHorarios";
@@ -40,6 +41,7 @@ function HorariosPage() {
   const [fuso, setFuso] = useState<string>(FUSO_BARBEARIA);
   const [iniciado, setIniciado] = useState(false);
   const [estado, setEstado] = useState<"pronto" | "salvando" | "salvo">("pronto");
+  const salvou = useSucessoDoBotao();
   const [erro, setErro] = useState<string | null>(null);
 
   useEffect(() => {
@@ -59,7 +61,10 @@ function HorariosPage() {
         <EsqueletoFormulario campos={6} onTentarDeNovo={() => void refetch()} />
       ) : null}
       {isError && !data ? (
-        <div role="alert" className="rounded-[28px] bg-[var(--figaro-surface-container,var(--ink2))] p-5">
+        <div
+          role="alert"
+          className="rounded-[28px] bg-[var(--figaro-surface-container,var(--ink2))] p-5"
+        >
           <p className="text-sm text-paper">Não conseguimos carregar os horários.</p>
           <Button variant="outline" className="mt-4 w-full" onClick={() => void refetch()}>
             Tentar de novo
@@ -105,6 +110,8 @@ function HorariosPage() {
             type="button"
             className="mt-8 w-full"
             disabled={estado === "salvando"}
+            loading={estado === "salvando"}
+            success={salvou.sucesso}
             onClick={async () => {
               setEstado("salvando");
               setErro(null);
@@ -112,17 +119,14 @@ function HorariosPage() {
                 await salvar({ data: { horarios, fuso } });
                 await refetch();
                 setEstado("salvo");
+                salvou.confirmar();
               } catch (e) {
                 setEstado("pronto");
                 setErro(e instanceof Error ? e.message : "Não consegui salvar agora.");
               }
             }}
           >
-            {estado === "salvando"
-              ? "Salvando…"
-              : estado === "salvo"
-                ? "Horários salvos"
-                : "Salvar horários"}
+            {estado === "salvo" ? "Horários salvos" : "Salvar horários"}
           </Button>
           {erro ? (
             <p className="mt-3 text-sm text-brick" role="alert">

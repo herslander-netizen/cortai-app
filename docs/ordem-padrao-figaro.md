@@ -38,6 +38,7 @@ Contrato de design do projeto: `docs/contrato-de-design.md`. Esta ordem diz **co
 | Lista de linhas / configurações | `GrupoDeLinhas` + `LinhaDeConfiguracao` / `LinhaDeOpcoes` / `LinhaComInterruptor` | list group: 28 dp nas pontas, 4 dp entre linhas |
 | Cartão | `surface`, `surface-card` ou `Card` | `card` 12 dp, `cardHero` 28 dp, sem contorno |
 | Botão | `Button` (`variant` `default`, `outline`, `text`, `destructive`; `size` `sm`, `lg`, `bloco`) | pílula, 40/48/56 dp |
+| Botão de salvar/confirmar | `Button` com `loading` e `success` (✓ + rótulo por 700 ms) via `acao.concluiu(chave)` (`useAcao`) ou `useSucessoDoBotao`; nunca trocar o rótulo por "Salvando…" | `FigarooPrimaryButton` (Idle → Loading → Success) |
 | Cartão clicável feito com botão | `Button` com `size="bloco"` | altura do conteúdo, nunca `h-12` |
 | Escolha entre 2–4 opções | `OpcoesConectadas` (`ui/opcoes-conectadas.tsx`) | `ConnectedButtonGroup` |
 | Escolha em lista de muitas opções | `Chip` (`ui/chip.tsx`) ou `LinhaDeOpcoes` (folha) | `FilterChip` 36 dp, raio 8 dp |

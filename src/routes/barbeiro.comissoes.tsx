@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useSucessoDoBotao } from "@/hooks/useSucessoDoBotao";
 import { hojeNoFuso, somarDias } from "@/lib/horarios";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -71,6 +72,7 @@ function ComissoesPage() {
     comissaoProduto: string;
   }>(null);
   const [ocupado, setOcupado] = useState(false);
+  const salvou = useSucessoDoBotao();
   const [aviso, setAviso] = useState<string | null>(null);
   const [erro, setErro] = useState<string | null>(null);
 
@@ -245,6 +247,8 @@ function ComissoesPage() {
           <Button
             className="mt-4 w-full"
             disabled={ocupado}
+            loading={ocupado}
+            success={salvou.sucesso}
             onClick={async () => {
               setOcupado(true);
               setErro(null);
@@ -261,6 +265,7 @@ function ComissoesPage() {
                   },
                 });
                 setAviso("Configurações salvas.");
+                salvou.confirmar();
                 await config.refetch();
               } catch (e) {
                 setErro(e instanceof Error ? e.message : "Não consegui salvar agora.");
@@ -269,7 +274,7 @@ function ComissoesPage() {
               }
             }}
           >
-            {ocupado ? "Salvando…" : "Salvar configurações"}
+            Salvar configurações
           </Button>
         </section>
       ) : null}

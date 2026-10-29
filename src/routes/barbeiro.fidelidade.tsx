@@ -162,6 +162,8 @@ function FidelidadePage() {
       ) : null}
 
       <Button
+        loading={acao.estaEm("fidelidade")}
+        success={acao.concluiu("fidelidade")}
         variant="primary"
         type="button"
         className="mt-6 w-full"
@@ -176,7 +178,7 @@ function FidelidadePage() {
           })
         }
       >
-        {acao.estaEm("fidelidade") ? "Salvando…" : "Salvar"}
+        Salvar
       </Button>
       {ok ? <p className="mt-3 text-center text-sm text-sage">Configuração salva.</p> : null}
 
@@ -188,28 +190,28 @@ function FidelidadePage() {
         {(elegiveis.data?.clientes ?? []).map((c) => (
           <li key={c.id}>
             <Card density="default">
-            <div className="flex items-baseline justify-between gap-4">
-              <Link
-                to="/barbeiro/clientes/$id"
-                params={{ id: c.id }}
-                className="truncate text-sm font-medium text-[var(--figaro-primary,var(--primary))] underline underline-offset-2"
-              >
-                {c.nome}
-              </Link>
-              <p className={`shrink-0 text-xs ${c.elegivel ? "text-sage" : "text-mute2"}`}>
-                {c.elegivel
-                  ? "Corte grátis liberado"
-                  : `${c.progresso} de ${elegiveis.data?.alvo ?? alvo}`}
-              </p>
-            </div>
-            <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-[var(--figaro-surface-container-high,var(--ink3))]">
-              <div
-                className={`h-full rounded-full ${c.elegivel ? "bg-sage" : "bg-[var(--figaro-primary,var(--primary))]"}`}
-                style={{
-                  width: `${Math.min(100, Math.round((c.progresso / Math.max(1, elegiveis.data?.alvo ?? alvo)) * 100))}%`,
-                }}
-              />
-            </div>
+              <div className="flex items-baseline justify-between gap-4">
+                <Link
+                  to="/barbeiro/clientes/$id"
+                  params={{ id: c.id }}
+                  className="truncate text-sm font-medium text-[var(--figaro-primary,var(--primary))] underline underline-offset-2"
+                >
+                  {c.nome}
+                </Link>
+                <p className={`shrink-0 text-xs ${c.elegivel ? "text-sage" : "text-mute2"}`}>
+                  {c.elegivel
+                    ? "Corte grátis liberado"
+                    : `${c.progresso} de ${elegiveis.data?.alvo ?? alvo}`}
+                </p>
+              </div>
+              <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-[var(--figaro-surface-container-high,var(--ink3))]">
+                <div
+                  className={`h-full rounded-full ${c.elegivel ? "bg-sage" : "bg-[var(--figaro-primary,var(--primary))]"}`}
+                  style={{
+                    width: `${Math.min(100, Math.round((c.progresso / Math.max(1, elegiveis.data?.alvo ?? alvo)) * 100))}%`,
+                  }}
+                />
+              </div>
             </Card>
           </li>
         ))}

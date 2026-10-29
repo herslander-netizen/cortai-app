@@ -105,6 +105,8 @@ function IndicacoesPage() {
         </label>
 
         <Button
+          loading={acao.estaEm("config")}
+          success={acao.concluiu("config")}
           variant="primary"
           type="button"
           className="mt-5 w-full disabled:opacity-60"
@@ -118,7 +120,7 @@ function IndicacoesPage() {
             })
           }
         >
-          {acao.estaEm("config") ? "Salvando…" : "Salvar programa"}
+          Salvar programa
         </Button>
 
         <div className="mt-5 pt-4">
@@ -153,6 +155,8 @@ function IndicacoesPage() {
           placeholder="Nome de quem foi indicado"
         />
         <Button
+          loading={acao.estaEm("registrar")}
+          success={acao.concluiu("registrar")}
           variant="primary"
           type="button"
           className="shrink-0 px-4 disabled:opacity-60"
@@ -171,7 +175,7 @@ function IndicacoesPage() {
             )
           }
         >
-          {acao.estaEm("registrar") ? "Salvando…" : "Adicionar"}
+          Adicionar
         </Button>
       </div>
 
@@ -183,78 +187,84 @@ function IndicacoesPage() {
         {(data?.itens ?? []).map((i) => (
           <li key={i.id}>
             <Card density="default">
-            <div className="flex items-start justify-between gap-4">
-              <div className="min-w-0">
-                <p className="truncate text-sm text-paper">{i.indicado}</p>
-                <p className="mt-0.5 text-xs text-mute">
-                  {i.indicador ? `Indicado por ${i.indicador}` : "Indicação registrada no negócio"}
-                </p>
-                <p
-                  className={`mt-0.5 text-xs ${i.status === "convertido" ? "text-sage" : "text-mute2"}`}
-                >
-                  {i.status === "convertido" ? "Virou cliente" : "Ainda sem histórico"}
-                  {i.recompensa ? ` · ${i.recompensa}` : ""}
-                  {i.recompensaEntregue ? " · recompensa entregue" : ""}
-                </p>
+              <div className="flex items-start justify-between gap-4">
+                <div className="min-w-0">
+                  <p className="truncate text-sm text-paper">{i.indicado}</p>
+                  <p className="mt-0.5 text-xs text-mute">
+                    {i.indicador
+                      ? `Indicado por ${i.indicador}`
+                      : "Indicação registrada no negócio"}
+                  </p>
+                  <p
+                    className={`mt-0.5 text-xs ${i.status === "convertido" ? "text-sage" : "text-mute2"}`}
+                  >
+                    {i.status === "convertido" ? "Virou cliente" : "Ainda sem histórico"}
+                    {i.recompensa ? ` · ${i.recompensa}` : ""}
+                    {i.recompensaEntregue ? " · recompensa entregue" : ""}
+                  </p>
+                </div>
               </div>
-            </div>
-            <div className="mt-2 flex gap-4">
-              {i.status !== "convertido" ? (
-                <Button
-                  variant="ghost"
-                  type="button"
-                  className="text-xs disabled:opacity-60"
-                  disabled={acao.ocupado}
-                  onClick={() =>
-                    acao.executar(
-                      `converter-${i.id}`,
-                      () => atualizar({ data: { id: i.id, acao: "converter" } }),
-                      {
-                        sucesso: `${i.indicado} marcado como cliente.`,
-                        aoConcluir: async () => {
-                          await refetch();
+              <div className="mt-2 flex gap-4">
+                {i.status !== "convertido" ? (
+                  <Button
+                    loading={acao.estaEm(`converter-${i.id}`)}
+                    success={acao.concluiu(`converter-${i.id}`)}
+                    variant="ghost"
+                    type="button"
+                    className="text-xs disabled:opacity-60"
+                    disabled={acao.ocupado}
+                    onClick={() =>
+                      acao.executar(
+                        `converter-${i.id}`,
+                        () => atualizar({ data: { id: i.id, acao: "converter" } }),
+                        {
+                          sucesso: `${i.indicado} marcado como cliente.`,
+                          aoConcluir: async () => {
+                            await refetch();
+                          },
                         },
-                      },
-                    )
-                  }
-                >
-                  {acao.estaEm(`converter-${i.id}`) ? "Salvando…" : "Marcar como cliente"}
-                </Button>
-              ) : null}
-              {!i.recompensaEntregue ? (
-                <Button
-                  variant="ghost"
-                  type="button"
-                  className="text-xs disabled:opacity-60"
-                  disabled={acao.ocupado}
-                  onClick={() =>
-                    acao.executar(
-                      `recompensar-${i.id}`,
-                      () => atualizar({ data: { id: i.id, acao: "recompensar" } }),
-                      {
-                        sucesso: "Recompensa registrada.",
-                        aoConcluir: async () => {
-                          await refetch();
+                      )
+                    }
+                  >
+                    Marcar como cliente
+                  </Button>
+                ) : null}
+                {!i.recompensaEntregue ? (
+                  <Button
+                    loading={acao.estaEm(`recompensar-${i.id}`)}
+                    success={acao.concluiu(`recompensar-${i.id}`)}
+                    variant="ghost"
+                    type="button"
+                    className="text-xs disabled:opacity-60"
+                    disabled={acao.ocupado}
+                    onClick={() =>
+                      acao.executar(
+                        `recompensar-${i.id}`,
+                        () => atualizar({ data: { id: i.id, acao: "recompensar" } }),
+                        {
+                          sucesso: "Recompensa registrada.",
+                          aoConcluir: async () => {
+                            await refetch();
+                          },
                         },
-                      },
-                    )
-                  }
-                >
-                  {acao.estaEm(`recompensar-${i.id}`) ? "Salvando…" : "Recompensa entregue"}
-                </Button>
-              ) : null}
-              <ExclusaoPermanente
-                titulo="Excluir indicação permanentemente"
-                descricao={`A indicação de ${i.indicado} será apagada e não poderá ser recuperada.`}
-                onExcluir={async () => {
-                  await atualizar({ data: { id: i.id, acao: "remover" } });
-                }}
-                onSucesso={() => {
-                  setAviso("Indicação excluída permanentemente.");
-                  refetch();
-                }}
-              />
-            </div>
+                      )
+                    }
+                  >
+                    Recompensa entregue
+                  </Button>
+                ) : null}
+                <ExclusaoPermanente
+                  titulo="Excluir indicação permanentemente"
+                  descricao={`A indicação de ${i.indicado} será apagada e não poderá ser recuperada.`}
+                  onExcluir={async () => {
+                    await atualizar({ data: { id: i.id, acao: "remover" } });
+                  }}
+                  onSucesso={() => {
+                    setAviso("Indicação excluída permanentemente.");
+                    refetch();
+                  }}
+                />
+              </div>
             </Card>
           </li>
         ))}

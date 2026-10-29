@@ -2,6 +2,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
 
+import { useSucessoDoBotao } from "@/hooks/useSucessoDoBotao";
 import { Button } from "@/components/ui/button";
 import {
   getEscalaDoProfissional,
@@ -24,6 +25,7 @@ export function EscalaDaEquipe() {
   const [prof, setProf] = useState("");
   const [dias, setDias] = useState<{ modo: Modo; abre: string; fecha: string }[]>([]);
   const [salvando, setSalvando] = useState(false);
+  const salvou = useSucessoDoBotao();
   const id = prof || equipe.data?.[0]?.id || "";
   const escala = useQuery({
     queryKey: ["escala", id],
@@ -57,6 +59,7 @@ export function EscalaDaEquipe() {
       await salvarFn({ data: { profissionalId: id, dias: lista } });
       void qc.invalidateQueries({ queryKey: ["escala", id] });
       void qc.invalidateQueries({ queryKey: ["agenda-dia"] });
+      salvou.confirmar();
       aviso.ok("Escala salva. A agenda e o agendamento já seguem esses horários.");
     } catch (e) {
       aviso.erro(e instanceof Error ? e.message : "Não foi possível salvar a escala.");
@@ -135,9 +138,11 @@ export function EscalaDaEquipe() {
         className="mt-4 w-full"
         variant="outline"
         disabled={salvando || !dias.length}
+        loading={salvando}
+        success={salvou.sucesso}
         onClick={() => void salvar()}
       >
-        {salvando ? "Salvando…" : "Salvar escala"}
+        Salvar escala
       </Button>
     </section>
   );
