@@ -3,7 +3,7 @@ import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { exigirPermissao, tenantIdDoMembro, type ContextoAutenticado } from "@/lib/tenant";
-import { hojeNoFuso, slotsDoDia, somarDias } from "@/lib/horarios";
+import { aplicarExcecaoDeIntervalo, hojeNoFuso, slotsDoDia, somarDias, type ExcecaoIntervaloAgenda } from "@/lib/horarios";
 import {
   horariosDisponiveis,
   motivoAntecedencia,
@@ -111,7 +111,26 @@ export const getGradeDoDia = createServerFn({ method: "GET" })
       profissionais,
     };
 
-    const grade = slotsDoDia(dia, regras.horarios, regras.passoMin, regras.fuso);
+    const { data: excecaoLinha, error: erroExcecao } = await db
+      .from("excecoes_intervalo_agenda")
+      .select("dia, intervalo_inicio, intervalo_fim")
+      .eq("tenant_id", tenantId)
+      .eq("dia", dia)
+      .maybeSingle();
+    if (erroExcecao) throw new Error("Não foi possível carregar a disponibilidade deste dia.");
+    const excecao: ExcecaoIntervaloAgenda | null = excecaoLinha
+      ? {
+          dia: excecaoLinha.dia,
+          intervaloInicio: excecaoLinha.intervalo_inicio
+            ? String(excecaoLinha.intervalo_inicio).slice(0, 5)
+            : null,
+          intervaloFim: excecaoLinha.intervalo_fim
+            ? String(excecaoLinha.intervalo_fim).slice(0, 5)
+            : null,
+        }
+      : null;
+    const horariosDoDia = aplicarExcecaoDeIntervalo(regras.horarios, dia, excecao);
+    const grade = slotsDoDia(dia, horariosDoDia, regras.passoMin, regras.fuso);
     if (!servico || grade.fechado) {
       return { ...base, fechado: grade.fechado, abre: grade.abre, fecha: grade.fecha, slots: [] };
     }
@@ -147,7 +166,7 @@ export const getGradeDoDia = createServerFn({ method: "GET" })
       servico,
       profissionais: todos,
       escolhido,
-      horarios: regras.horarios,
+      horarios: horariosDoDia,
       fuso: regras.fuso,
       ocupados,
       regras: {
