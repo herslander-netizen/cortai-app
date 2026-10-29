@@ -1,6 +1,6 @@
 # Créditos dos assets visuais
 
-## Assets da prévia do Cortaí
+## Assets da prévia do Flow
 
 Os arquivos atualmente em `public/exemplos/` e `public/temas/` foram gerados em 24/10/2026 com o recurso integrado de geração de imagens do Codex (ImageGen), a partir de prompts editoriais específicos para esta prévia.
 

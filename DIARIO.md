@@ -27,6 +27,7 @@ e o que fez. O diário até 17/10/2026 está guardado, sem alterações, em
 7. **Sem segredos:** nunca escreva chaves, senhas ou tokens aqui. Cite só o nome da variável.
 
 ## Decisões do dono
+- 2026-10-29: **Troca de nome sem mexer no sistema** ("siga com a mudança de nome do sistema sem mexer no sistema"): o nome Flow vale para tudo que se lê (telas, textos, comentários e documentos atuais); nomes técnicos, banco, rotas, chaves, variáveis e SQL ficam como estão. Auditorias datadas e histórico também ficam.
 - 2026-10-29: **Só o tema Padrão, em escuro e claro** ("tire os outros temas, deixe apenas o padrão escuro e claro"). Rosé, Índigo, Cobre e Clássico saíram do app (Ajustes não oferece mais identidade; valores antigos salvos caem no Padrão). Os temas das páginas públicas dos negócios e os estilos do chat não fazem parte disso.
 - 2026-10-29: **Flow: só muda o logo** ("reverta as cores e fontes pra o que estava, só muda a logo"). Paleta, fontes e layout ficam os de antes; a paleta e a Inter do manual Flow não são aplicadas. Os nomes nos textos (Flow, Flow IA, Flow Chat) continuam trocados. Substitui o trecho de paleta da decisão abaixo.
 - 2026-10-29: **A marca Flow não muda nada de layout** ("não é pra mudar nada do aplicativo referente a layout"): só cores, logo e textos. Fontes, medidas, espaçamentos e caixas ficam como estavam; a Inter do manual não é aplicada e o logo novo ocupa a caixa do anterior.
@@ -824,6 +825,9 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+
+### 2026-10-29 UTC — Claude — Nome Flow nos comentários e documentos atuais
+- Comentários do `styles.css` e do `.env.example`, `docs/creditos-de-imagens.md` e a proposta do widget passaram a dizer Flow / Flow IA / Flow Chat. Só comentários e texto: nenhum código, chave, banco ou SQL mudou. Nenhuma tela mostra mais o nome antigo. Ficam com o nome antigo de propósito: identificadores (`ShowroomCortai`, `AssistenteCortai`…), rotas `/barbeiro/cortai*`, `CORTAI_*`, chaves `cortai:*`, colunas, domínio `cortai.dev`, SQL de demos/baseline, auditorias datadas e histórico (inventário em `docs/marca-flow.md`). A migração 0051 (textos no banco) continua não aplicada. `vitest` (2201) e `build` ok.
 
 ### 2026-10-29 UTC — Claude — Só o tema Padrão (escuro e claro)
 - `aparencia.ts`: `IDENTIDADES = ["moderno"]` e `identidadeValida` sempre devolve o Padrão (banco e aparelhos com Rosé/Índigo/Cobre/Clássico abrem no Padrão, sem escrita no banco). `ThemeToggle`: saiu o seletor de identidade; fica Claro/Escuro/Sistema. Script inicial do `__root` abre sempre no Padrão. Segmento Beleza não troca mais o tema (`segmentos.ts`). CSS dos temas antigos ficou no arquivo, sem uso, para dar para voltar. Teste `aparencia.test.ts` reescrito para a nova regra. `tsc`, `vitest` (2201) e `build` ok; Ajustes conferido na vitrine.

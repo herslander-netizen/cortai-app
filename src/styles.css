@@ -82,7 +82,7 @@
 }
 
 /*
- * Cortaí design system — base semântica compartilhada.
+ * Flow design system — base semântica compartilhada.
  */
 
 @theme inline {
@@ -234,7 +234,7 @@
   );
   --mola-padrao-duracao: 190ms;
 
-  /* Identidade Cortaí: marinho profundo, superfícies neutras e coral; azul de ação recuperado do Figaro. */
+  /* Identidade Flow: marinho profundo, superfícies neutras e coral; azul de ação recuperado do Figaro. */
   --identity-accent: #ff7b86;
   --identity-accent-light: #b52d42;
   --identity-secondary: #ff7b86;
@@ -658,7 +658,7 @@
   animation-delay: 240ms;
 }
 
-/* ===== Sistema visual dos chats Cortaí ===== */
+/* ===== Sistema visual dos chats Flow ===== */
 .chat-sistema {
   --chat-surface: var(--chat-page, var(--background));
   --chat-content: var(--chat-page-text, var(--foreground));
@@ -2288,7 +2288,7 @@ body:has(.auth-screen--claro) {
   }
 }
 
-/* ---- Bolha flutuante da CortAI (painel de gestão) ---- */
+/* ---- Bolha flutuante da Flow IA (painel de gestão) ---- */
 .cortai-fab-area {
   position: fixed;
   right: 16px;
@@ -2383,7 +2383,7 @@ body:has(.auth-screen--claro) {
   }
 }
 
-/* Indicador "CortAI está pensando": três pontos discretos. */
+/* Indicador "Flow IA está pensando": três pontos discretos. */
 .cortai-digitando {
   display: inline-flex;
   align-items: center;
@@ -3895,7 +3895,7 @@ html:not([data-tela-agenda]) .mov-sheet:not([class*="agenda-"]) {
   display: none;
 }
 
-/* Cortaí Chat — cards de serviço e ingresso */
+/* Flow Chat — cards de serviço e ingresso */
 .chat-card-servico {
   overflow: hidden;
   border-radius: 20px;
@@ -5811,7 +5811,7 @@ button.agenda-timeline-bloqueio-interativo {
     border-radius: 20px;
   }
   .agenda-acao-fixa .agenda-fab-toggle {
-    /* Mais presença de azul, sem perder o marinho da identidade Cortaí. */
+    /* Mais presença de azul, sem perder o marinho da identidade Flow. */
     background: color-mix(in oklab, var(--primary) 76%, black);
     box-shadow: var(--elevacao-6);
   }
@@ -8179,7 +8179,7 @@ button.agenda-timeline-bloqueio-interativo {
   padding-top: 32px;
 }
 
-/* Temas femininos do Cortaí (Rosé, Lavanda e Pêssego): mesmos modelos, paletas e fontes delicadas. */
+/* Temas femininos do Flow (Rosé, Lavanda e Pêssego): mesmos modelos, paletas e fontes delicadas. */
 .fg[data-tema="feminino-rose"] {
   --fg-pagina: #fceff1;
   --fg-texto: #4a2130;
@@ -8716,8 +8716,8 @@ button.agenda-timeline-bloqueio-interativo {
 /* =============================================================================================
    Paleta do Figaro, exata (APK: theme/ColorKt, ThemeKt LightColorScheme/DarkColorScheme e
    Light/DarkExtendedColors; docs/referencia-figaro/apk/1-design-system.md §1). Os tokens `--figaro-*`
-   guardam os papéis do Material 3 do Figaro; depois eles alimentam a base neutra do Cortaí e as cores
-   da Agenda. A marca (ciano e rosa do Cortaí, logo, botões de destaque) continua a do Cortaí.
+   guardam os papéis do Material 3 do Figaro; depois eles alimentam a base neutra do Flow e as cores
+   da Agenda. A marca (ciano e rosa do Flow, logo, botões de destaque) continua a do Flow.
    Escuro = padrão do app; claro = classe `.light`. O tema segue o modo escolhido (claro, escuro, sistema).
    ============================================================================================= */
 :root,
@@ -8824,7 +8824,7 @@ button.agenda-timeline-bloqueio-interativo {
   --figaro-teal: #0d9b8a;
 }
 
-/* Base neutra do Cortaí = papéis do Figaro. */
+/* Base neutra do Flow = papéis do Figaro. */
 :root,
 :root[data-identidade] {
   --fundo: var(--figaro-background);
@@ -8917,7 +8917,7 @@ button.agenda-timeline-bloqueio-interativo {
   color: var(--agenda-acao-texto);
 }
 
-/* ===== Tela de entrada (estilo Figaro, com demos próprias do Cortaí) ===== */
+/* ===== Tela de entrada (estilo Figaro, com demos próprias do Flow) ===== */
 .entrada {
   --entrada-fundo: #0b1020;
   --entrada-ciano: #00b4ff;

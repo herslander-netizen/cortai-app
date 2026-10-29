@@ -1,17 +1,17 @@
-# Proposta técnica — widget Android do Cortaí
+# Proposta técnica — widget Android do Flow
 
-**Origem:** auditoria comparativa InBarber × Cortaí, 26/10/2026  
+**Origem:** auditoria comparativa InBarber × Flow, 26/10/2026  
 **Status:** especificação; nenhum aplicativo Android ou widget nativo foi criado nesta etapa.
 
 ## O que foi confirmado
 
-A estrutura do APK InBarber contém classes relacionadas a um widget Android (SchedulerWidgetReceiver e componentes Glance) e seleção de contatos. Já o repositório Cortaí analisado possui aplicação web/PWA, mas não contém pasta Android, Kotlin/Java, configuração Gradle ou projeto Capacitor/TWA.
+A estrutura do APK InBarber contém classes relacionadas a um widget Android (SchedulerWidgetReceiver e componentes Glance) e seleção de contatos. Já o repositório Flow analisado possui aplicação web/PWA, mas não contém pasta Android, Kotlin/Java, configuração Gradle ou projeto Capacitor/TWA.
 
 Um widget Android real não pode ser entregue apenas por JSX/React ou por uma PWA. Ele precisa de um pacote Android instalado, registro do provedor de widget no manifesto, layouts de widget, um mecanismo de atualização e um contrato de autenticação para obter dados com segurança.
 
 ## Experiência sugerida
 
-- **Tamanho compacto:** próximo atendimento, hora e serviço; toque abre o atendimento no Cortaí.
+- **Tamanho compacto:** próximo atendimento, hora e serviço; toque abre o atendimento no Flow.
 - **Tamanho expandido:** próximos três atendimentos e botão “Abrir agenda”.
 - **Privacidade padrão:** não mostrar telefone, observações privadas ou nome completo na tela bloqueada; deixar o proprietário escolher se o nome do cliente aparece.
 - **Estado offline:** mostrar a última atualização e um atalho para abrir o aplicativo; não apresentar dados antigos como atuais.
