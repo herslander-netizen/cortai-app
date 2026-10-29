@@ -120,7 +120,7 @@ function AgendamentoPublico() {
     servicos: data?.servicos ?? [],
     profissionais: data?.profissionais ?? [],
     horarios: data?.horarios ?? [],
-    excecoesIntervalo: data?.excecoesIntervalo ?? [],
+    excecoesIntervalo: data?.excecoesIntervalo,
     ocupados: data?.ocupados ?? [],
     fuso,
     regras: data?.regras ?? { antecedenciaMin: 0, intervaloEntreMin: 0 },
