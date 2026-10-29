@@ -15,6 +15,7 @@ import { StatusBadge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useAgora } from "@/hooks/useAgora";
 import type { AgendaItem } from "@/lib/barbeiro.functions";
+import type { Bloqueio } from "@/lib/bloqueios.functions";
 import {
   alturaDoTopoDaAgenda,
   estaAtrasado,
@@ -71,6 +72,9 @@ type AgendaTimelineProps = {
   onHorarioVazio?: (horaMin: string) => void;
   destaques?: Set<string>;
   itensEscala?: AgendaItem[];
+  bloqueios?: Bloqueio[];
+  profissionalId?: string | null;
+  profissionais?: { id: string; nome: string }[];
   alinhado?: boolean;
   mostrarProfissional?: boolean;
   discreto?: boolean;
@@ -133,6 +137,9 @@ export function AgendaTimeline({
   onHorarioVazio,
   destaques,
   itensEscala,
+  bloqueios = [],
+  profissionalId,
+  profissionais = [],
   alinhado,
   mostrarProfissional = false,
   discreto = false,
@@ -597,6 +604,38 @@ export function AgendaTimeline({
   }
   const intervalo = intervaloDoDia(horarios, dia);
   const faixasFora = faixasForaDoExpediente(horarios, dia, escala);
+  const faixasBloqueio = useMemo(
+    () =>
+      bloqueios.flatMap((bloqueio) => {
+        if (
+          profissionalId &&
+          bloqueio.profissionalId &&
+          bloqueio.profissionalId !== profissionalId
+        ) {
+          return [];
+        }
+        const inicioReal = minutosNoFuso(bloqueio.inicio, fuso);
+        const fimReal = minutosNoFuso(bloqueio.fim, fuso);
+        const inicio = Math.max(inicioReal, escala.inicio);
+        const fim = Math.min(fimReal, escala.fim);
+        if (fim <= inicio) return [];
+        const nome = bloqueio.profissionalId
+          ? (profissionais.find((p) => p.id === bloqueio.profissionalId)?.nome ?? "Profissional")
+          : null;
+        return [{
+          id: bloqueio.id,
+          inicio,
+          fim,
+          motivo: bloqueio.motivo,
+          rotulo: bloqueio.profissionalId
+            ? profissionalId
+              ? "Bloqueado"
+              : `Bloqueado · ${nome}`
+            : "Equipe bloqueada",
+        }];
+      }),
+    [bloqueios, fuso, profissionalId, profissionais, escala.inicio, escala.fim],
+  );
 
   // Prévia: posição em que o dia vai assentar (hoje no agora; senão topo do expediente).
   const funcionamentoDoDia = horarios.find((h) => h.diaSemana === diaDaSemana(dia) && !h.fechado);
@@ -751,6 +790,24 @@ export function AgendaTimeline({
               <span>Intervalo</span>
             </div>
           ) : null}
+          {faixasBloqueio.map((faixa) => (
+            <div
+              key={`bloqueio-${faixa.id}`}
+              className="pointer-events-none absolute inset-x-0 z-0 flex items-center border-y border-brick/40 bg-brick-soft px-2"
+              style={{
+                top: `${(faixa.inicio - escala.inicio) * PX_POR_MINUTO + deslocamentoAte(faixa.inicio)}px`,
+                height: `${(faixa.fim - faixa.inicio) * PX_POR_MINUTO + deslocamentoAte(faixa.fim) - deslocamentoAte(faixa.inicio)}px`,
+              }}
+              aria-hidden
+              title={faixa.motivo ? `Bloqueio: ${faixa.motivo}` : "Bloqueio de agenda"}
+            >
+              {faixa.fim - faixa.inicio >= 18 ? (
+                <span className="max-w-full truncate rounded-md bg-ink/90 px-2 py-0.5 text-[11px] font-semibold text-brick">
+                  {faixa.rotulo}
+                </span>
+              ) : null}
+            </div>
+          ))}
           {toqueVazio !== null ? (
             <div
               className="agenda-timeline-toque"
