@@ -94,6 +94,28 @@
   --font-display: "Poppins", "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 
+  /* Escala tipográfica Figaroo mapeada para as utilidades Tailwind já usadas no app. */
+  --text-xs: 12px;
+  --text-xs--line-height: 16px;
+  --text-sm: 14px;
+  --text-sm--line-height: 20px;
+  --text-base: 16px;
+  --text-base--line-height: 24px;
+  --text-lg: 18px;
+  --text-lg--line-height: 24px;
+  --text-xl: 22px;
+  --text-xl--line-height: 28px;
+  --text-2xl: 24px;
+  --text-2xl--line-height: 30px;
+  --text-3xl: 28px;
+  --text-3xl--line-height: 34px;
+  --text-4xl: 32px;
+  --text-4xl--line-height: 38px;
+  --text-5xl: 45px;
+  --text-5xl--line-height: 50px;
+  --text-6xl: 57px;
+  --text-6xl--line-height: 60px;
+
   /* Brand tokens */
   --color-ink: var(--ink);
   --color-ink2: var(--ink2);
