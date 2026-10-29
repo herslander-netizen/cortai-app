@@ -156,6 +156,64 @@ describe("alça de duração na Timeline", () => {
     expect(onEditar).toHaveBeenCalledTimes(1);
     expect(onSelecionar).not.toHaveBeenCalled();
   });
+  it("o primeiro toque longo só arma; o segundo gesto arrasta o cartão no celular", () => {
+    vi.useFakeTimers();
+    const onEditar = vi.fn();
+    const onMover = vi.fn();
+    const onSelecionar = vi.fn();
+    const alvo = document.createElement("div");
+    document.body.appendChild(alvo);
+    const raiz = createRoot(alvo);
+    limpar.push(() => act(() => raiz.unmount()));
+
+    const render = (armado: boolean) =>
+      raiz.render(
+        createElement(AgendaTimeline, {
+          dia: "2099-10-09",
+          fuso: "America/Sao_Paulo",
+          itens: [item],
+          horarios: [],
+          selecionado: null,
+          onSelecionar,
+          onMover,
+          onEditar,
+          ...(armado
+            ? { edicaoDoCartao: { id: "a1", original: { inicio: item.inicio, fim: item.fim } } }
+            : {}),
+        }),
+      );
+
+    act(() => render(false));
+    const primeiro = alvo.querySelector<HTMLElement>("[aria-pressed]")!;
+    const capturarPrimeiro = vi.fn();
+    primeiro.setPointerCapture = capturarPrimeiro;
+    act(() => {
+      primeiro.dispatchEvent(evento("pointerdown", 200, { pointerType: "touch" }));
+      vi.advanceTimersByTime(300);
+      primeiro.dispatchEvent(evento("pointermove", 250, { pointerType: "touch" }));
+      primeiro.dispatchEvent(evento("pointerup", 250, { pointerType: "touch" }));
+    });
+    expect(onEditar).toHaveBeenCalledTimes(1);
+    expect(capturarPrimeiro).not.toHaveBeenCalled();
+    expect(onMover).not.toHaveBeenCalled();
+
+    act(() => render(true));
+    const segundo = alvo.querySelector<HTMLElement>("[aria-pressed]")!;
+    const capturarSegundo = vi.fn();
+    segundo.setPointerCapture = capturarSegundo;
+    expect(segundo.hasAttribute("data-sem-gesto-dia")).toBe(true);
+    act(() => {
+      segundo.dispatchEvent(evento("pointerdown", 200, { pointerType: "touch" }));
+      segundo.dispatchEvent(evento("pointermove", 260, { pointerType: "touch" }));
+      segundo.dispatchEvent(evento("pointerup", 260, { pointerType: "touch" }));
+    });
+
+    expect(capturarSegundo).toHaveBeenCalledTimes(1);
+    expect(onMover).toHaveBeenCalledTimes(1);
+    expect(onMover.mock.calls[0]?.[1]).toBeGreaterThan(0);
+    vi.useRealTimers();
+  });
+
   it("sem onRedimensionar não há alça (atendimento só leitura)", () => {
     const alvo = montar({ onMover: vi.fn() });
     expect(alvo.querySelector("[role=separator]")).toBeNull();

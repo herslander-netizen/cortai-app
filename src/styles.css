@@ -3073,6 +3073,9 @@ body:has(.auth-screen--claro) {
   touch-action: pan-y;
   cursor: grab;
 }
+.agenda-timeline-bloco[data-sem-gesto-dia] {
+  touch-action: none;
+}
 .agenda-timeline-bloco::after {
   content: "";
   position: absolute;

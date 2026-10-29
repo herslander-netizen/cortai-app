@@ -599,11 +599,14 @@ function AgendaTimelineBase({
 
   function inicioGesto(e: React.PointerEvent, item: AgendaItem) {
     if (!podeMover(item)) return;
+    const toque = e.pointerType !== "mouse";
+    const cartaoArmado = toque && edicaoDoCartao?.id === item.id;
     const g = {
       id: item.id,
       y0: e.clientY,
       x0: e.clientX,
-      ativo: e.pointerType === "mouse",
+      ativo: e.pointerType === "mouse" || cartaoArmado,
+      ...(cartaoArmado ? { longo: true } : {}),
       arrastou: false,
       rolagem0: celularAgora() ? window.scrollY : (rolagemRef.current?.scrollTop ?? 0),
       dy: 0,
@@ -611,30 +614,35 @@ function AgendaTimelineBase({
     } as NonNullable<typeof gesto.current>;
     const alvo = e.currentTarget as HTMLElement;
     const pid = e.pointerId;
-    if (e.pointerType !== "mouse") {
+    gesto.current = g;
+
+    if (cartaoArmado) {
+      // Só o segundo gesto captura o ponteiro e bloqueia a rolagem: o primeiro toque
+      // longo apenas arma a edição e mantém a rolagem nativa disponível.
+      try {
+        alvo.setPointerCapture(pid);
+      } catch {
+        gesto.current = null;
+        return;
+      }
+      travarRolagemDoToque();
+      return;
+    }
+
+    if (toque) {
       g.timer = window.setTimeout(() => {
         if (gesto.current !== g) return;
-        try {
-          alvo.setPointerCapture(pid);
-        } catch {
-          // Sem captura o fim do toque pode não chegar: cancela o arrasto.
-          gesto.current = null;
-          return;
-        }
-        g.ativo = true;
         g.longo = true;
-        travarRolagemDoToque();
-        // Segurar só arma o cartão; o estado de arrasto nasce quando o dedo realmente se move.
+        // Não capturar o ponteiro nem bloquear a rolagem no gesto que arma a edição.
         onEditar?.(item, g.y0);
         vibrar("pressao");
       }, 280);
     }
-    gesto.current = g;
   }
   function moverGesto(e: React.PointerEvent) {
     const g = gesto.current;
     if (!g) return;
-    if (g.longo) onAtualizarYDoToque?.(g.id, e.clientY);
+    if (g.longo && g.ativo) onAtualizarYDoToque?.(g.id, e.clientY);
     const celular = celularAgora();
     const area = rolagemRef.current;
     const borda = 48;

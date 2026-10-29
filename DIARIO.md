@@ -816,6 +816,14 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-29 UTC — GPT — Agenda mobile: separar armar edição de arrasto
+- Commit de implementação: será registrado pelo GitHub Actions após este envio.
+- O que mudou: o primeiro toque longo apenas arma a edição e não captura ponteiro nem bloqueia a rolagem; o segundo gesto no cartão armado passa a capturar o ponteiro, bloquear a rolagem enquanto arrasta e mover o cartão. O CSS `touch-action: none` fica restrito ao cartão armado.
+- Testes: acrescentado teste de regressão cobrindo primeiro gesto sem arrasto e segundo gesto com arrasto; TypeScript, suíte, build, publicação e smoke test aguardam esta execução do GitHub Actions.
+- Banco/infra: sem migração, sem escrita em banco; não alterados `main`, produção ou publicação principal.
+- Pendente / atenção: conferir na prévia em celular real o scroll nativo, toque longo para armar, segundo gesto de arrasto, alça de duração, cancelar ponteiro e tema claro/escuro. Não afirmar validação física nesta sessão.
+
+
 - GPT | 2026-10-28 UTC | Personalização de compartilhamento público: metatags Open Graph/Twitter agora usam título, descrição e alt com o nome do estabelecimento; mensagem do compartilhamento nativo e do WhatsApp convida a agendar com o nome do negócio; a capa dinâmica tenta capa configurada → logo/ícone → capa padrão, mesmo quando a capa não consegue gerar URL assinada. Adicionado `src/lib/previa.test.ts` para metadados, links canônicos, fallback textual e mensagem. CI não confirmado nesta sessão: o status do commit veio sem checks, a consulta de workflow runs não listou execução e o clone local não pôde acessar github.com por falha de DNS. Manter reservado até confirmar build/TypeScript/testes no Actions; não houve alteração de banco nem publicação principal. | `src/lib/previa.ts`, `src/lib/previa.test.ts`, `src/components/marca/TelaPublicaBarbearia.tsx`, `src/routes/api/public/capa.$slug.ts`; sem migração
 
 - GPT | 2026-10-28 | Cabeçalho compacto — adicionados testes comportamentais em `src/components/layout/Screen.test.tsx` para o hook `useCabecalhoCompacto`: não exibir enquanto o título continua visível, exibir após ultrapassar o topo da área rolável, ocultar quando o título ainda está abaixo da área visível ou ao voltar ao topo, não instalar observador quando desabilitado e desconectar o `IntersectionObserver` ao desmontar. Commits de teste: `776caccf9bd88a4c16113ef6d3fcab7b3ee620ab` e `1a46e6f71b4dde2176bf1ce00cfe38a79f429e78`. TypeScript, Vitest, build, deploy da prévia e conferência visual ainda não foram confirmados nesta sessão; não há terminal nem navegador conectado. Nenhuma alteração na Agenda, banco, `main` ou produção.
