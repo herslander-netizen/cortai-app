@@ -498,6 +498,8 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Em andamento
 
+- GPT | 2026-10-29 UTC | Separar gesto de armar edição e arrasto do cartão na Agenda mobile; preservar rolagem no primeiro toque, testar segundo gesto e publicar apenas na prévia | `DIARIO.md`, `src/components/barbeiro/AgendaTimeline.tsx`, `src/components/barbeiro/agenda/arrasto-timeline.test.ts`; sem migração
+
 
 
 - GPT | 2026-10-28 UTC | Personalizar compartilhamento público — implementação e teste escritos; pendente confirmar a validação do CI, pois esta conexão não retornou checks de workflow | `DIARIO.md`, `src/lib/previa.ts`, `src/lib/previa.test.ts`, `src/components/marca/TelaPublicaBarbearia.tsx`, `src/routes/api/public/capa.$slug.ts`; sem migração
