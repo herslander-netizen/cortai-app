@@ -673,10 +673,14 @@ function AgendaTimelineBase({
       // Ao começar a mover, desconta o scroll que a animação de zoom aplicou até aqui.
       if (g.longo) g.rolagem0 = rolagemAtual;
       g.deslocamentoMin = dy / PX_POR_MINUTO;
-      try {
-        (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
-      } catch {
-        /* */
+      // O cartão armado já capturou o ponteiro no início do segundo gesto.
+      // Mouse e gestos que começaram sem captura capturam no primeiro movimento.
+      if (!g.longo) {
+        try {
+          (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+        } catch {
+          /* */
+        }
       }
     } else {
       // Durante a aproximação, cada trecho usa a escala daquele instante, como no Figaro.
