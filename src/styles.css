@@ -3330,6 +3330,12 @@ html:not(.agenda-gesto-ativo) .agenda-previa-vizinho {
 .mov-sheet {
   transition-timing-function: var(--ease-saida) !important;
 }
+/* Contorno das gavetas (dono, 29/10: "colocar essa borda de efeito em todas as gavetas dessa cor", a partir do
+   painel de edição da Agenda): um fio de 1 px em `surfaceContainer` que acompanha os cantos arredondados e separa a
+   gaveta do fundo da mesma cor. Agenda de fora (regra "Agenda protegida"). */
+html:not([data-tela-agenda]) .mov-sheet:not([class*="agenda-"]) {
+  box-shadow: 0 0 0 1px var(--figaro-surface-container, var(--line));
+}
 .esqueleto-regiao {
   opacity: 0;
   animation: esqueleto-aparecer 120ms var(--ease-saida) 40ms forwards;

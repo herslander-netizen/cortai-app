@@ -820,6 +820,9 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-29 UTC — Claude — Gavetas com o contorno fino do painel de edição
+- Dono: "colocar essa borda de efeito em todas as gavetas dessa cor" (captura do painel de edição da Agenda: fio de 1 px #303632 = `surfaceContainer` seguindo os cantos arredondados, amostrado na imagem). `.mov-sheet` fora da Agenda ganhou `box-shadow: 0 0 0 1px var(--figaro-surface-container)`. Agenda de fora pela regra "Agenda protegida" (pedido geral de gavetas). No claro o fio quase não aparece (gaveta e contorno no mesmo tom). Conferido em captura (360 px, claro e escuro). `vitest` e `build` ok.
+
 ### 2026-10-29 UTC — Claude — Sino: efeito de aviso importante refinado
 - Dono: "refine o efeito quando chegar uma notificação importante" (captura: disco rosa fixo atrás do sino e selo grande). Tirados o disco fixo e os arquinhos de vibração; ficam o sino cheio em coral (`--sino-atencao`), um anel fino de 1,5 px que se espalha uma vez (0,9 → 1,6, 800 ms, curva do sistema), balanço mais curto do sino (−12°/9°/−5°/2°, 600 ms) e o selo surgindo com um pequeno salto (mola sem quique). Respeita "menos movimento". `SinoDeAvisos.tsx`. `tsc`, `vitest` e lint ok.
 
