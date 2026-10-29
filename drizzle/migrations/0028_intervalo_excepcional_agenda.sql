@@ -246,7 +246,8 @@ BEGIN
   SELECT * INTO v_h
     FROM public.horarios_de_funcionamento
    WHERE tenant_id = _tenant_id
-     AND dia_semana = extract(dow FROM _dia)::int;
+     AND dia_semana = extract(dow FROM _dia)::int
+   FOR SHARE;
   IF NOT FOUND OR v_h.fechado THEN
     RAISE EXCEPTION 'Este dia está fechado no horário de funcionamento.';
   END IF;
