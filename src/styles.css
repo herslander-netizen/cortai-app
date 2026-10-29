@@ -140,7 +140,7 @@
   --min-touch-target: 48px;
   --screen-gutter: 20px;
 
-  /* Paleta extraída da marca oficial: marinho, azul, ciano e rosa. */
+  /* Identidade moderna: navy, azul e magenta do mapa Figaroo. */
   --identity-accent: var(--brand-primary-50);
   --identity-accent-light: var(--brand-primary-50);
   --identity-secondary: var(--brand-tertiary-50);
@@ -188,7 +188,7 @@
   --grafite-line: var(--linha);
   --grafite-line-2: #4a524e;
   --grafite-primary: #087cf0;
-  --grafite-accent: #00b7f4;
+  --grafite-accent: var(--brand-primary-50);
   --whatsapp: #25d366;
   --qr-dark: var(--identity-graphite);
   --qr-light: var(--identity-white);
@@ -210,11 +210,11 @@
   --brick-soft: color-mix(in oklab, var(--brick) 16%, transparent);
   --line: var(--grafite-line);
   --line2: var(--grafite-line-2);
-  --landing-light-surface: #f7faff;
-  --landing-light-ink: #021a46;
-  --landing-light-muted: #5d6f89;
-  --landing-light-line: #d9e3f0;
-  --landing-light-gold: #087cf0;
+  --landing-light-surface: #f0f7f2;
+  --landing-light-ink: #191c1a;
+  --landing-light-muted: #707973;
+  --landing-light-line: #d6e0d9;
+  --landing-light-gold: var(--brand-primary-50);
   --nav-shadow: 0 -10px 30px color-mix(in oklab, var(--identity-graphite) 24%, transparent);
 
   --surface-raised: var(--ink2);
@@ -416,12 +416,12 @@
 /* Sino de avisos: rosa do Cortaí fixo, independente da identidade visual. */
 :root {
   --sino-atencao: #ff1670;
-  --sino-badge: #d90b58; /* texto branco >= 4.5:1 */
+  --sino-badge: var(--brand-tertiary-40); /* texto branco >= 4.5:1 */
   --sino-badge-texto: #ffffff;
 }
 :root.light {
-  --sino-atencao: #d90b58;
-  --sino-badge: #d90b58;
+  --sino-atencao: var(--brand-tertiary-40);
+  --sino-badge: var(--brand-tertiary-40);
 }
 
 @layer base {
