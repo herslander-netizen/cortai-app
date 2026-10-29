@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { normalizarPagina, type PaginaConfig } from "@/lib/pagina-config";
 import { segmentoValido, type Segmento } from "@/lib/segmentos";
+import { hojeNoFuso, normalizarFuso, somarDias, type ExcecaoIntervaloAgenda } from "@/lib/horarios";
 
 export type PaginaPublica = {
   tenant: {
@@ -41,6 +42,7 @@ export type PaginaPublica = {
     foto_url: string | null;
   }[];
   horarios: { dia_semana: number; fechado: boolean; abre: string; fecha: string }[];
+  excecoesIntervalo: ExcecaoIntervaloAgenda[];
   avaliacoes: { media: number | null; quantidade: number };
   pagina: PaginaConfig;
   agendaOnline: "aberta" | "limite_atingido";
@@ -74,11 +76,15 @@ export const getPaginaPublica = createServerFn({ method: "GET" })
       .maybeSingle();
     if (!tenant) return null;
 
+    const fuso = normalizarFuso(tenant.fuso);
+    const hoje = hojeNoFuso(fuso);
+    const ontem = somarDias(hoje, -1);
     const [
       { data: servicos },
       { data: profissionais },
       { data: produtos },
       { data: horarios },
+      { data: excecoesRes, error: erroExcecoes },
       { data: avaliacoes },
       { data: pageConfig },
     ] = await Promise.all([
@@ -108,6 +114,12 @@ export const getPaginaPublica = createServerFn({ method: "GET" })
         .select("dia_semana, fechado, abre, fecha")
         .eq("tenant_id", tenant.id)
         .order("dia_semana"),
+      supabaseAdmin
+        .from("excecoes_intervalo_agenda")
+        .select("dia, intervalo_inicio, intervalo_fim")
+        .eq("tenant_id", tenant.id)
+        .gte("dia", ontem)
+        .lte("dia", hoje),
       supabaseAdmin.from("avaliacoes").select("nota").eq("tenant_id", tenant.id),
       supabaseAdmin
         .from("tenant_page_configs")
@@ -115,6 +127,7 @@ export const getPaginaPublica = createServerFn({ method: "GET" })
         .eq("tenant_id", tenant.id)
         .maybeSingle(),
     ]);
+    if (erroExcecoes) throw new Error("Não foi possível carregar os horários especiais deste negócio.");
     const { data: regraLoja } = await supabaseAdmin
       .from("recursos_de_plano")
       .select("liberado")
@@ -165,6 +178,11 @@ export const getPaginaPublica = createServerFn({ method: "GET" })
       loja_ativa: lojaAtiva,
       produtos: lojaAtiva ? (produtos ?? []) : [],
       horarios: horarios ?? [],
+      excecoesIntervalo: (excecoesRes ?? []).map((linha) => ({
+        dia: linha.dia,
+        intervaloInicio: linha.intervalo_inicio ? String(linha.intervalo_inicio).slice(0, 5) : null,
+        intervaloFim: linha.intervalo_fim ? String(linha.intervalo_fim).slice(0, 5) : null,
+      })),
       avaliacoes: {
         media: avaliacoes?.length
           ? Number(
