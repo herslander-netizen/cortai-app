@@ -233,3 +233,23 @@ describe("tokens visuais do Figaroo", () => {
     expect(theme["--radius-sm"]).toBe("8px");
   });
 });
+
+
+describe("contraste das ações Figaroo", () => {
+  const escuro = bloco(':root,\n:root[data-identidade="moderno"]');
+  const claro = bloco('.light,\n:root[data-identidade="moderno"].light');
+
+  it("usa texto de alto contraste no botão azul do modo escuro", () => {
+    expect(razao(hex(escuro["--action-blue-foreground"]!), hex(escuro["--action-blue"]!)))
+      .toBeGreaterThanOrEqual(4.5);
+  });
+
+  it("preserva texto branco legível no botão azul do modo claro", () => {
+    expect(razao(hex(claro["--action-blue-foreground"]!), hex(claro["--action-blue"]!)))
+      .toBeGreaterThanOrEqual(4.5);
+  });
+
+  it("mantém contraste mínimo no selo do sino", () => {
+    expect(razao(hex(escuro["--sino-badge"]!), hex("#ffffff"))).toBeGreaterThanOrEqual(4.5);
+  });
+});
