@@ -13,6 +13,14 @@
   --radius-md: 12px;
   --radius-lg: 14px;
   --radius-xl: 14px;
+  /* Figaroo Shapes & Dimensions: tokens novos sem alterar utilitários existentes. */
+  --radius-card: var(--shape-card);
+  --radius-dialog: var(--shape-dialog);
+  --radius-pill: var(--shape-pill);
+  --radius-chip: var(--shape-chip);
+  --spacing-cta: var(--height-cta);
+  --spacing-touch-target: var(--min-touch-target);
+  --spacing-screen-gutter: var(--screen-gutter);
 
   --font-sans: "Manrope", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Manrope", ui-sans-serif, system-ui, sans-serif;
@@ -43,6 +51,25 @@
   --color-whatsapp: var(--whatsapp);
   --color-qr-dark: var(--qr-dark);
   --color-qr-light: var(--qr-light);
+
+  /* Figaroo ColorKt / ExtendedColors: escala tonal e cores semânticas. */
+  --color-brand-primary-10: var(--brand-primary-10);
+  --color-brand-primary-20: var(--brand-primary-20);
+  --color-brand-primary-30: var(--brand-primary-30);
+  --color-brand-primary-40: var(--brand-primary-40);
+  --color-brand-primary-50: var(--brand-primary-50);
+  --color-brand-primary-80: var(--brand-primary-80);
+  --color-brand-primary-90: var(--brand-primary-90);
+  --color-brand-tertiary-10: var(--brand-tertiary-10);
+  --color-brand-tertiary-40: var(--brand-tertiary-40);
+  --color-brand-tertiary-50: var(--brand-tertiary-50);
+  --color-brand-tertiary-90: var(--brand-tertiary-90);
+  --color-action-blue: var(--action-blue);
+  --color-action-blue-foreground: var(--action-blue-foreground);
+  --color-confetti-gold: var(--confetti-gold);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-error: var(--error);
 
   /* Shadcn semantic mapping */
   --color-background: var(--background);
@@ -82,23 +109,54 @@
   --ease-saida: cubic-bezier(0.2, 0, 0, 1);
   --ease-entrada: cubic-bezier(0.4, 0, 1, 1);
 
+  /* Figaroo ColorKt: escala oficial, fixa nos modos claro e escuro. */
+  --brand-primary-10: #001a40;
+  --brand-primary-20: #002d6b;
+  --brand-primary-30: #01408f;
+  --brand-primary-40: #0854b5;
+  --brand-primary-50: #087cf0;
+  --brand-primary-80: #9bb9ff;
+  --brand-primary-90: #d2e4ff;
+  --brand-tertiary-10: #3e0017;
+  --brand-tertiary-40: #b9004b;
+  --brand-tertiary-50: #ff1670;
+  --brand-tertiary-90: #ffdade;
+
+  /* Figaroo ExtendedColors: o modo escuro é a base de :root. */
+  --success: #43a047;
+  --warning: #e08e22;
+  --error: #f2b8b5;
+  --confetti-gold: #ffd700;
+  --action-blue: var(--brand-primary-50);
+  --action-blue-foreground: #ffffff;
+
+  /* Formas e dimensões originais; touch target respeita o mínimo de 48px
+     definido no contrato de design do Cortaí (mais estrito que 44px). */
+  --shape-card: 12px;
+  --shape-dialog: 28px;
+  --shape-pill: 9999px;
+  --shape-chip: 8px;
+  --height-cta: 54px;
+  --min-touch-target: 48px;
+  --screen-gutter: 20px;
+
   /* Paleta extraída da marca oficial: marinho, azul, ciano e rosa. */
-  --identity-accent: #00b7f4;
-  --identity-accent-light: #087cf0;
-  --identity-secondary: #ff1670;
-  --identity-secondary-light: #d90b58;
-  --identity-primary: #087cf0;
-  --identity-secondary-strong: #ff1670;
-  --identity-deep: #021a46;
-  --identity-graphite: #021a46;
-  --identity-muted: #5d6f89;
-  --identity-off-white: #f7faff;
+  --identity-accent: var(--brand-primary-50);
+  --identity-accent-light: var(--brand-primary-50);
+  --identity-secondary: var(--brand-tertiary-50);
+  --identity-secondary-light: var(--brand-tertiary-40);
+  --identity-primary: var(--brand-primary-50);
+  --identity-secondary-strong: var(--brand-tertiary-50);
+  --identity-deep: var(--brand-primary-10);
+  --identity-graphite: var(--brand-primary-10);
+  --identity-muted: #707973;
+  --identity-off-white: #f0f7f2;
   --identity-white: #ffffff;
-  --identity-border: #d9e3f0;
+  --identity-border: #d6e0d9;
   /* Base neutra única (3.0): todos os temas só mudam o destaque. */
-  --fundo: #1a1f1b;
+  --fundo: #1b1f1c;
   --painel: #3e4440;
-  --cartao: #2a2f2b;
+  --cartao: #2a2f2c;
   --linha: #414742;
   --texto: #e8eee9;
   --texto-suave: #aeb5b0;
@@ -119,8 +177,8 @@
   --estado-faltou: #ff4d5e;
   --estado-remarcado: #ff2d78;
   --estado-encaixe: #2dd4bf;
-  --agenda-listra-base: #2a2f2b;
-  --agenda-listra: color-mix(in oklab, #e8eee9 6%, #2a2f2b);
+  --agenda-listra-base: #2a2f2c;
+  --agenda-listra: color-mix(in oklab, #e8eee9 6%, #2a2f2c);
   --grafite-ink: var(--fundo);
   --grafite-surface: var(--cartao);
   --grafite-raised: var(--painel);
@@ -214,28 +272,28 @@
   --border: var(--line);
   --input: var(--line);
   --ring: var(--gold);
-  --drawer-surface: #1a1f1c;
-  --drawer-card: #3f4543;
-  --drawer-band: #212724;
+  --drawer-surface: var(--fundo);
+  --drawer-card: var(--painel);
+  --drawer-band: var(--cartao);
   --drawer-borda: color-mix(in oklab, var(--line) 60%, transparent);
-  --menu-icone: color-mix(in oklab, var(--gold) 70%, white);
+  --menu-icone: color-mix(in oklab, var(--gold) 55%, white);
   --menu-icone-fundo: color-mix(in oklab, var(--menu-icone) 16%, transparent);
 }
 
 .light,
 :root[data-identidade="moderno"].light {
-  --fundo: #e9f3eb;
+  --fundo: #f0f7f2;
   --painel: #f0f6f2;
   --cartao: #ffffff;
-  --linha: #d6ded9;
-  --texto: #1a211d;
-  --texto-suave: #68706b;
+  --linha: #d6e0d9;
+  --texto: #191c1a;
+  --texto-suave: #707973;
   --agenda-acao: #0160c8;
   --agenda-acao-suave: #9bb9ff;
   --agenda-positivo: #43a047;
   --agenda-atencao: #d81b60;
   --agenda-aguardo: #c98a1a;
-  --agenda-linha-hora: #d8e0da;
+  --agenda-linha-hora: #d6e0d9;
   --estado-agendado: #6a5af9;
   --estado-confirmado: #1f6fe5;
   --estado-chegou: #c98500;
@@ -245,7 +303,7 @@
   --estado-faltou: #e0343a;
   --estado-remarcado: #e0145e;
   --estado-encaixe: #0f9488;
-  --agenda-listra-base: #f0f6f2;
+  --agenda-listra-base: #f0f7f2;
   --agenda-listra: #e2eae4;
   --ink: var(--fundo);
   --ink2: var(--cartao);
@@ -285,9 +343,9 @@
   --destructive: var(--brick);
   --destructive-foreground: #ffffff;
   --ring: var(--gold);
-  --drawer-surface: #e9f1eb;
+  --drawer-surface: #f0f7f2;
   --drawer-card: #ffffff;
-  --drawer-band: #f0f5f1;
+  --drawer-band: #f0f7f2;
   --drawer-borda: var(--line);
   --menu-icone: color-mix(in oklab, var(--primary) 80%, black);
   --menu-icone-fundo: color-mix(in oklab, var(--menu-icone) 10%, white);
@@ -301,6 +359,10 @@
   --status-cancelled: #725f5b;
   --status-rescheduled: #665f7d;
   --status-walk-in: #715846;
+
+  --success: #2e7d32;
+  --warning: #b6730f;
+  --error: #b3261e;
 
   --surface-raised: var(--ink2);
   --surface-emphasis: var(--ink3);
