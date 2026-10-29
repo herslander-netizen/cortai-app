@@ -2,14 +2,17 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { diaDaSemanaDoDia } from "@/lib/horarios";
+import { diaDaSemanaDoDia, isoNoFusoDaBarbearia } from "@/lib/horarios";
+import { fusoDoTenant } from "@/lib/fuso.server";
 import { exigirPermissao, tenantIdDoMembro, type ContextoAutenticado } from "@/lib/tenant";
 
 const HORA = /^([01]\d|2[0-3]):[0-5]\d$/;
 const DIA = /^\d{4}-\d{2}-\d{2}$/;
 
 function validarData(dia: string) {
-  if (!DIA.test(dia) || new Date(`${dia}T12:00:00Z`).toISOString().slice(0, 10) !== dia) {
+  if (!DIA.test(dia)) throw new Error("Data inválida.");
+  const data = new Date(`${dia}T12:00:00Z`);
+  if (Number.isNaN(data.getTime()) || data.toISOString().slice(0, 10) !== dia) {
     throw new Error("Data inválida.");
   }
 }
@@ -83,21 +86,54 @@ export const salvarIntervaloDoDia = createServerFn({ method: "POST" })
       }
     }
 
+    let atendimentosNoIntervalo = 0;
+    if (data.inicio && data.fim) {
+      const fuso = await fusoDoTenant(tenantId);
+      const inicioIso = isoNoFusoDaBarbearia(data.dia, data.inicio, fuso);
+      const fimIso = isoNoFusoDaBarbearia(data.dia, data.fim, fuso);
+      const { count, error: erroAtendimentos } = await ctx.supabase
+        .from("agendamentos")
+        .select("id", { count: "exact", head: true })
+        .eq("tenant_id", tenantId)
+        .in("status", ["agendado", "chegou", "na_cadeira"])
+        .lt("inicio", fimIso)
+        .gt("fim", inicioIso);
+      if (erroAtendimentos) {
+        throw new Error("Não foi possível verificar os atendimentos deste período.");
+      }
+      atendimentosNoIntervalo = count ?? 0;
+    }
+
     const agora = new Date().toISOString();
-    const { error } = await ctx.supabase.from("excecoes_intervalo_agenda").upsert(
-      {
-        tenant_id: tenantId,
-        dia: data.dia,
-        intervalo_inicio: data.inicio ? `${data.inicio}:00` : null,
-        intervalo_fim: data.fim ? `${data.fim}:00` : null,
-        atualizado_por: ctx.userId,
-        atualizado_em: agora,
-        criado_por: ctx.userId,
-      },
-      { onConflict: "tenant_id,dia" },
-    );
+    const { data: existente, error: erroBusca } = await ctx.supabase
+      .from("excecoes_intervalo_agenda")
+      .select("id")
+      .eq("tenant_id", tenantId)
+      .eq("dia", data.dia)
+      .maybeSingle();
+    if (erroBusca) throw new Error("Não foi possível carregar o ajuste atual.");
+
+    const valores = {
+      intervalo_inicio: data.inicio ? `${data.inicio}:00` : null,
+      intervalo_fim: data.fim ? `${data.fim}:00` : null,
+      atualizado_por: ctx.userId,
+      atualizado_em: agora,
+    };
+    const persistencia = existente
+      ? ctx.supabase
+          .from("excecoes_intervalo_agenda")
+          .update(valores)
+          .eq("tenant_id", tenantId)
+          .eq("dia", data.dia)
+      : ctx.supabase.from("excecoes_intervalo_agenda").insert({
+          tenant_id: tenantId,
+          dia: data.dia,
+          ...valores,
+          criado_por: ctx.userId,
+        });
+    const { error } = await persistencia;
     if (error) throw new Error("Não foi possível salvar o intervalo deste dia.");
-    return { ok: true };
+    return { ok: true, atendimentosNoIntervalo };
   });
 
 /** Remove a exceção; o intervalo volta a seguir a configuração semanal. */
