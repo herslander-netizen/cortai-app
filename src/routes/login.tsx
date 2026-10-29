@@ -1,5 +1,7 @@
 import { createFileRoute, useNavigate, redirect, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
+import { useMenosMovimento } from "@/hooks/useMovimento";
 
 import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
@@ -87,6 +89,7 @@ function MarcaApple() {
 
 function LoginPage() {
   const navigate = useNavigate();
+  const menosMovimento = useMenosMovimento();
   const { proximo, aba } = Route.useSearch();
   const [modo, setModo] = useState<"entrar" | "criar">(aba === "criar" ? "criar" : "entrar");
   const [email, setEmail] = useState("");
@@ -144,7 +147,12 @@ function LoginPage() {
     "h-12 w-full justify-center gap-2 rounded-full border-line2 bg-ink2 text-sm font-semibold text-paper";
 
   return (
-    <main className="auth-screen auth-screen--claro auth-login-shell mx-auto flex min-h-[100dvh] w-full max-w-[400px] flex-col justify-center px-6 py-[calc(2rem+env(safe-area-inset-bottom))]">
+    <motion.main
+      className="auth-screen auth-screen--claro auth-login-shell mx-auto flex min-h-[100dvh] w-full max-w-[400px] flex-col justify-center px-6 py-[calc(2rem+env(safe-area-inset-bottom))]"
+      initial={menosMovimento ? { opacity: 0 } : { opacity: 0, y: 8 }}
+      animate={menosMovimento ? { opacity: 1 } : { opacity: 1, y: 0 }}
+      transition={{ duration: menosMovimento ? 0.15 : 0.28, ease: [0.2, 0, 0, 1] }}
+    >
       <div className="mb-6 flex flex-col items-center text-center">
         <MarcaCortai variante="escura" className="h-auto w-36" prioridade />
         <h1 className="mt-4 text-base font-semibold text-mute">
@@ -292,6 +300,6 @@ function LoginPage() {
       >
         Sou cliente e quero só agendar
       </Link>
-    </main>
+    </motion.main>
   );
 }
