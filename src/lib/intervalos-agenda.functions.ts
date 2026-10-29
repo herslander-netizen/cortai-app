@@ -4,8 +4,8 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { exigirPermissao, tenantIdDoMembro, type ContextoAutenticado } from "@/lib/tenant";
 
-const HORA = /^([01]\\d|2[0-3]):[0-5]\\d$/;
-const DIA = /^\\d{4}-\\d{2}-\\d{2}$/;
+const HORA = /^([01]\d|2[0-3]):[0-5]\d$/;
+const DIA = /^\d{4}-\d{2}-\d{2}$/;
 
 function validarData(dia: string) {
   if (!DIA.test(dia)) throw new Error("Data inválida.");
