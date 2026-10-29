@@ -15,3 +15,14 @@ describe("cor da barra do sistema", () => {
     );
   });
 });
+
+describe("barra do sistema acompanha a transição do topo (vídeo do dono, 29/10)", () => {
+  it("a cada sinal de mudança, atualiza quadro a quadro em vez de conferir a cada 300 ms", async () => {
+    const { readFileSync } = await import("node:fs");
+    const fonte = readFileSync("src/lib/pwa/cor-do-topo.ts", "utf8");
+    expect(fonte).toContain("new MutationObserver(acordar)");
+    expect(fonte).toContain("window.requestAnimationFrame(acompanhar)");
+    expect(fonte).toContain('document.addEventListener("transitionstart", acordar, true)');
+    expect(fonte).not.toContain("setInterval(atualizar, 300)");
+  });
+});

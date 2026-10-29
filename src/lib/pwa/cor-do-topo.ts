@@ -67,13 +67,35 @@ export function useCorDoTopoNaBarraDoSistema() {
         meta.content = cor;
       }
     };
-    // Topo muda com a rota, a rolagem, o modo de edição e as gavetas: conferir de tempos em tempos é o mais simples.
-    const relogio = window.setInterval(atualizar, 300);
-    window.addEventListener("scroll", atualizar, { passive: true });
-    atualizar();
+    // O topo muda de cor com transição (abrir o mês, rolar, modo de edição). Conferir a cada 300 ms deixava a barra
+    // do sistema até 10 quadros na cor antiga e depois ela pulava (vídeo do dono, 29/10). Agora, a cada sinal de
+    // mudança, a barra acompanha quadro a quadro por 700 ms; fora disso, uma conferência lenta cobre o resto.
+    let quadro = 0;
+    let ate = 0;
+    const acompanhar = () => {
+      atualizar();
+      quadro = performance.now() < ate ? window.requestAnimationFrame(acompanhar) : 0;
+    };
+    const acordar = () => {
+      ate = performance.now() + 700;
+      if (!quadro) quadro = window.requestAnimationFrame(acompanhar);
+    };
+    const observador = new MutationObserver(acordar);
+    observador.observe(document.documentElement, {
+      attributes: true,
+      subtree: true,
+      attributeFilter: ["class", "style", "data-state", "data-calendario-aberto", "data-topo-elevado"],
+    });
+    const relogio = window.setInterval(atualizar, 1000);
+    window.addEventListener("scroll", acordar, { passive: true });
+    document.addEventListener("transitionstart", acordar, true);
+    acordar();
     return () => {
+      observador.disconnect();
       window.clearInterval(relogio);
-      window.removeEventListener("scroll", atualizar);
+      if (quadro) window.cancelAnimationFrame(quadro);
+      window.removeEventListener("scroll", acordar);
+      document.removeEventListener("transitionstart", acordar, true);
       sincronizarCorDoNavegador();
     };
   }, []);

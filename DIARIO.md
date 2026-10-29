@@ -820,6 +820,10 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-29 UTC — Claude — Barra do sistema acompanha a cor do topo quadro a quadro
+- Vídeo do dono (13:09): medido a 30 qps, o topo da Agenda troca de cor com transição (~250 ms) ao abrir/fechar o mês e ao rolar, mas a barra do sistema (relógio/bateria, `meta theme-color`) só conferia a cada 300 ms: ficava até 10 quadros na cor antiga e depois pulava.
+- `useCorDoTopoNaBarraDoSistema` (`src/lib/pwa/cor-do-topo.ts`): `MutationObserver` (classe, estilo, `data-state`, `data-calendario-aberto`, `data-topo-elevado`), `transitionstart` e rolagem acordam um acompanhamento por `requestAnimationFrame` de 700 ms; conferência lenta de 1 s cobre o resto. Teste em `cor-do-topo.test.ts`. `tsc`, `vitest` 259/2196 e `build` ok. Pendente: conferir no celular.
+
 ### 2026-10-29 UTC — Claude — Gavetas com o contorno fino do painel de edição
 - Dono: "colocar essa borda de efeito em todas as gavetas dessa cor" (captura do painel de edição da Agenda: fio de 1 px #303632 = `surfaceContainer` seguindo os cantos arredondados, amostrado na imagem). `.mov-sheet` fora da Agenda ganhou `box-shadow: 0 0 0 1px var(--figaro-surface-container)`. Agenda de fora pela regra "Agenda protegida" (pedido geral de gavetas). No claro o fio quase não aparece (gaveta e contorno no mesmo tom). Conferido em captura (360 px, claro e escuro). `vitest` e `build` ok.
 
