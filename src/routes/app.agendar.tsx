@@ -162,6 +162,7 @@ function Fluxo({
     servicos: dados.servicos,
     profissionais: dados.profissionais,
     horarios: dados.horarios,
+    excecoesIntervalo: dados.excecoesIntervalo,
     ocupados: dados.ocupados,
     fuso: dados.fuso,
     regras: dados.regrasAgenda,
