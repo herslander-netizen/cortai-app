@@ -70,6 +70,7 @@ type AgendaTimelineProps = {
   /** Cartão em edição: mostra o intervalo novo ou o motivo de não poder salvar. */
   edicaoDoCartao?: { id: string } | undefined;
   onHorarioVazio?: (horaMin: string) => void;
+  onEditarIntervalo?: () => void;
   destaques?: Set<string>;
   itensEscala?: AgendaItem[];
   bloqueios?: Bloqueio[];
@@ -135,6 +136,7 @@ export function AgendaTimeline({
   passoMin,
   edicaoDoCartao,
   onHorarioVazio,
+  onEditarIntervalo,
   destaques,
   itensEscala,
   bloqueios = [],
@@ -779,16 +781,33 @@ export function AgendaTimeline({
             </div>
           ))}
           {intervalo ? (
-            <div
-              className="agenda-timeline-intervalo"
-              style={{
-                top: `${(intervalo[0] - escala.inicio) * PX_POR_MINUTO + deslocamentoAte(intervalo[0])}px`,
-                height: `${(intervalo[1] - intervalo[0]) * PX_POR_MINUTO}px`,
-              }}
-              aria-hidden
-            >
-              <span>Intervalo</span>
-            </div>
+            onEditarIntervalo && interativo ? (
+              <Button
+                type="button"
+                variant="ghost"
+                className="agenda-timeline-intervalo agenda-timeline-intervalo-editavel h-auto min-h-0 rounded-none border-0 px-0 py-0"
+                style={{
+                  top: `${(intervalo[0] - escala.inicio) * PX_POR_MINUTO + deslocamentoAte(intervalo[0])}px`,
+                  height: `${(intervalo[1] - intervalo[0]) * PX_POR_MINUTO}px`,
+                }}
+                aria-label={`Editar intervalo de ${horaMinuto(intervalo[0])} a ${horaMinuto(intervalo[1])}`}
+                title="Toque para ajustar o intervalo deste dia"
+                onClick={onEditarIntervalo}
+              >
+                <span>Intervalo · {horaMinuto(intervalo[0])}–{horaMinuto(intervalo[1])}</span>
+              </Button>
+            ) : (
+              <div
+                className="agenda-timeline-intervalo"
+                style={{
+                  top: `${(intervalo[0] - escala.inicio) * PX_POR_MINUTO + deslocamentoAte(intervalo[0])}px`,
+                  height: `${(intervalo[1] - intervalo[0]) * PX_POR_MINUTO}px`,
+                }}
+                aria-hidden
+              >
+                <span>Intervalo · {horaMinuto(intervalo[0])}–{horaMinuto(intervalo[1])}</span>
+              </div>
+            )
           ) : null}
           {faixasBloqueio.map((faixa) => (
             <div
