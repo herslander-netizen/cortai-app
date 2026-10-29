@@ -165,6 +165,8 @@ export function PaginaPublicaConteudo({
               fechado: h.fechado,
               abre: h.abre,
               fecha: h.fecha,
+              intervaloInicio: h.intervalo_inicio,
+              intervaloFim: h.intervalo_fim,
             }))}
           />
           <LogoBarbearia
