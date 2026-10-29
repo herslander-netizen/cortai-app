@@ -38,6 +38,35 @@ export type HorarioDeFuncionamento = {
   intervaloFim?: string | null;
 };
 
+/** Intervalo substituto válido apenas para uma data específica do negócio. */
+export type ExcecaoIntervaloAgenda = {
+  dia: string;
+  intervaloInicio: string | null;
+  intervaloFim: string | null;
+};
+
+/**
+ * Aplica uma exceção diária à cópia das regras semanais usada para um único dia.
+ * Sem exceção, o expediente recorrente permanece inalterado.
+ */
+export function aplicarExcecaoDeIntervalo(
+  horarios: HorarioDeFuncionamento[],
+  dia: string,
+  excecao?: ExcecaoIntervaloAgenda | null,
+): HorarioDeFuncionamento[] {
+  if (!excecao || excecao.dia !== dia) return horarios;
+  const semana = diaDaSemanaDoDia(dia);
+  return horarios.map((horario) =>
+    horario.diaSemana === semana
+      ? {
+          ...horario,
+          intervaloInicio: excecao.intervaloInicio,
+          intervaloFim: excecao.intervaloFim,
+        }
+      : horario,
+  );
+}
+
 export type SlotDaAgenda = { iso: string; label: string; minutos: number; hora: number };
 
 const ABERTURA_PADRAO = "09:00";
