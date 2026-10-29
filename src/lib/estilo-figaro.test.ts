@@ -346,3 +346,16 @@ describe("Equipe e Profissionais no padrão Figaro (dono, 29/10)", () => {
     expect(prof).toContain("aria-expanded={estaAberto}");
   });
 });
+
+describe("Serviços no padrão Figaro (dono, 29/10)", () => {
+  it("lista agrupada por categoria e recolhível; linha toda abre a edição; cores de categoria do Figaro", () => {
+    const tela = readFileSync("src/routes/barbeiro.servicos.tsx", "utf8");
+    expect(tela).toContain("gruposDeServicos(");
+    expect(tela).toContain('"Sem categoria"');
+    expect(tela).toContain("aoTocar={() => abrirServico(indice)}");
+    expect(tela).not.toContain("Scissors");
+    const cores = readFileSync("src/lib/categorias-servicos.ts", "utf8");
+    expect(cores).toContain("var(--figaro-categoria-safira)");
+    expect(readFileSync("src/styles.css", "utf8")).toContain("--figaro-categoria-safira: #1e88e5;");
+  });
+});

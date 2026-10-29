@@ -820,6 +820,12 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-29 UTC — Claude — Reconstrução Figaro por módulo: Serviços
+- Pedido do dono: "seguir com Serviços no padrão Figaro" (spec 7 §5: lista agrupada por categoria, grupos recolhíveis, "Sem categoria").
+- `barbeiro.servicos.tsx`: lista por categoria (ordem das categorias do negócio; "Sem categoria" no fim), cabeçalho do grupo com a cor da categoria, quantidade e seta de recolher; cada grupo em `GrupoDeLinhas`; linha com a foto do serviço ou a inicial na cor da categoria (sem tesoura: símbolo de segmento), nome e "duração · preço"; a linha inteira abre a edição (o botão "Editar" saiu; mesma função `abrirServico`). Editor, salvar e remover iguais.
+- **Cores de categoria = paleta do Figaro** (`ServiceCategoryColors`): tokens `--figaro-categoria-*` em `styles.css`; `CORES_CATEGORIA` (`lib/categorias-servicos.ts`) aponta para eles (antes eram tokens da marca, o rosa sumia no fundo escuro). Valores salvos (roxo, azul…) não mudam.
+- Vitrine: lista conferida a 390 px. O editor não abre na vitrine nem na versão anterior (o `TelaDeFormulario` fecha sozinho com o histórico simulado): limitação da vitrine, não regressão. Teste em `estilo-figaro.test.ts`. `tsc` ok, `vitest` 259/2198, `build` ok.
+
 ### 2026-10-29 UTC — Claude — Reconstrução Figaro por módulo: Equipe (Acessos e Profissionais)
 - Pedido do dono: "seguir com a Equipe no padrão Figaro" (referência: vídeo da tela Equipe do Figaro). Comparado na vitrine local.
 - **Acessos (`barbeiro.equipe.tsx`):** "Quem tem acesso" vem primeiro, como grupo de linhas do Figaro (28 dp nas pontas, 4 dp por dentro): avatar de iniciais 40 dp, nome 15/20, e-mail, selos de função (container primário), "Acesso desativado" (erro) e "Convite pendente" (aviso); proprietário com escudo; tocar na linha abre o ajuste (seta), no lugar do botão "Ajustar". Função em `OpcoesConectadas`; "Ajuste fino" como botão de texto; fieldsets sem token da Agenda (`--agenda-cartao` → `surfaceContainer`). "Dar acesso a alguém" virou botão tonal embaixo da lista que abre o formulário (campo de e-mail preenchido do Figaro); "Convidar" com carregando → ✓. Nenhuma regra mudou (convite, salvar, remover, recuperar iguais).

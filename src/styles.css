@@ -11118,3 +11118,17 @@ button.agenda-timeline-pausa:focus-visible {
 .agenda-ponto-limite {
   background: var(--agenda-traco, color-mix(in oklab, var(--mute2) 45%, transparent));
 }
+
+/* Paleta de categorias de serviço do Figaro (`ServiceCategoryColors`, spec 2 §1), a mesma nos dois temas. */
+:root {
+  --figaro-categoria-ametista: #b388ff;
+  --figaro-categoria-carmim: #e53935;
+  --figaro-categoria-esmeralda: #43a047;
+  --figaro-categoria-lagoa: #00838f;
+  --figaro-categoria-rosa: #ec407a;
+  --figaro-categoria-safira: #1e88e5;
+  --figaro-categoria-prata: #607d8b;
+  --figaro-categoria-sol: #fbc02d;
+  --figaro-categoria-tangerina: #fb8c00;
+  --figaro-categoria-tropical: #26a69a;
+}

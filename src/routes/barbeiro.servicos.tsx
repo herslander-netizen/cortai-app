@@ -2,13 +2,18 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
-import { Clock3, Pencil, Plus } from "lucide-react";
+import { ChevronDown, Plus } from "lucide-react";
 
 import { Screen } from "@/components/layout/Screen";
 import { EsqueletoFormulario } from "@/components/layout/Esqueleto";
 import { EditorDeServicos, type ServicoEditavel } from "@/components/onboarding/EditorDeServicos";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import {
+  GrupoDeLinhas,
+  LinhaDeConfiguracao,
+} from "@/components/ui/formulario/LinhasDeConfiguracao";
+import { CORES_CATEGORIA } from "@/lib/categorias-servicos";
 import { TelaDeFormulario } from "@/components/ui/formulario/TelaDeFormulario";
 import {
   getConfiguracaoInicial,
@@ -51,6 +56,32 @@ function mapearServicos(config: ConfiguracaoInicial): ServicoEditavel[] {
     }));
 }
 
+/** Serviços por categoria, na ordem das categorias do negócio; o que não tem categoria fica em "Sem categoria". */
+function gruposDeServicos(
+  servicos: ServicoEditavel[],
+  categorias: { nome: string; cor: string; ordem: number }[],
+) {
+  const corDe = (nome: string) => {
+    const cat = categorias.find((c) => c.nome.trim().toLowerCase() === nome.trim().toLowerCase());
+    return CORES_CATEGORIA.find((c) => c.valor === cat?.cor)?.css ?? "var(--mute2)";
+  };
+  const ordem = (nome: string) =>
+    categorias.find((c) => c.nome.trim().toLowerCase() === nome.trim().toLowerCase())?.ordem ?? 999;
+  const grupos = new Map<string, { servico: ServicoEditavel; indice: number }[]>();
+  servicos.forEach((servico, indice) => {
+    const nome = servico.categoria?.trim() || "Sem categoria";
+    grupos.set(nome, [...(grupos.get(nome) ?? []), { servico, indice }]);
+  });
+  return [...grupos.entries()]
+    .map(([nome, itens]) => ({ nome, itens, cor: corDe(nome) }))
+    .sort(
+      (a, b) =>
+        Number(a.nome === "Sem categoria") - Number(b.nome === "Sem categoria") ||
+        ordem(a.nome) - ordem(b.nome) ||
+        a.nome.localeCompare(b.nome, "pt-BR"),
+    );
+}
+
 function ServicosPage() {
   const salvar = useServerFn(salvarServicos);
   const remover = useServerFn(removerServico);
@@ -62,7 +93,8 @@ function ServicosPage() {
     queryKey: ["categorias-servicos"],
     queryFn: () => listarCategoriasServicos(),
   });
-  const categoriasAdicionais = categoriasQuery.data?.categorias.map((categoria) => categoria.nome) ?? [];
+  const categoriasAdicionais =
+    categoriasQuery.data?.categorias.map((categoria) => categoria.nome) ?? [];
   const [servicos, setServicos] = useState<ServicoEditavel[]>([]);
   const [iniciado, setIniciado] = useState(false);
   const [estado, setEstado] = useState<"pronto" | "salvando" | "salvo">("pronto");
@@ -71,6 +103,7 @@ function ServicosPage() {
   const [idEditando, setIdEditando] = useState<string | null>(null);
   const [rascunho, setRascunho] = useState<ServicoEditavel[]>([]);
   const [rascunhoOriginal, setRascunhoOriginal] = useState("");
+  const [recolhidos, setRecolhidos] = useState<Set<string>>(() => new Set());
 
   useEffect(() => {
     if (!data || iniciado) return;
@@ -246,37 +279,82 @@ function ServicosPage() {
         {!modoEditor && !isLoading && iniciado ? (
           <>
             {servicos.length ? (
-              <ul className="space-y-2">
-                {servicos.map((servico, indice) => (
-                  <li key={servico.id ?? "servico-" + indice}>
-                    <Card variant="touchable" density="none" className="overflow-hidden">
-                      <div className="flex items-center gap-3 p-4">
-                        <div className="grid size-11 shrink-0 place-items-center rounded-[12px] bg-[var(--figaro-primary-container,var(--ink3))] text-[var(--figaro-primary,var(--primary))]">
-                          <Clock3 size={19} aria-hidden />
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <p className="truncate font-semibold text-paper">{servico.nome}</p>
-                          <p className="mt-1 text-xs text-mute">{servico.categoria || "Serviço"}</p>
-                          <p className="mt-2 text-sm text-mute">
-                            {servico.duracaoMin} min <span aria-hidden>·</span>{" "}
-                            {brl(servico.precoCentavos)}
-                          </p>
-                        </div>
-                        <Button
-                          variant="ghost"
-                          type="button"
-                          aria-label={"Editar " + servico.nome}
-                          className="min-h-12 shrink-0 rounded-full px-3"
-                          onClick={() => abrirServico(indice)}
-                        >
-                          <Pencil size={16} aria-hidden />
-                          Editar
-                        </Button>
-                      </div>
-                    </Card>
-                  </li>
-                ))}
-              </ul>
+              // Como no Figaro (spec 7 §5): lista agrupada por categoria, cada grupo recolhível, "Sem categoria"
+              // no fim; a linha mostra foto ou a cor da categoria, nome e "duração · preço", e abre a edição.
+              <div className="space-y-5">
+                {gruposDeServicos(servicos, categoriasQuery.data?.categorias ?? []).map((grupo) => {
+                  const recolhido = recolhidos.has(grupo.nome);
+                  return (
+                    <section key={grupo.nome} aria-label={grupo.nome}>
+                      <button
+                        type="button"
+                        aria-expanded={!recolhido}
+                        aria-label={`${recolhido ? "Mostrar" : "Recolher"} ${grupo.nome}`}
+                        onClick={() =>
+                          setRecolhidos((atual) => {
+                            const proximo = new Set(atual);
+                            if (proximo.has(grupo.nome)) proximo.delete(grupo.nome);
+                            else proximo.add(grupo.nome);
+                            return proximo;
+                          })
+                        }
+                        className="flex min-h-12 w-full items-center gap-2 px-4 text-left"
+                      >
+                        <span
+                          aria-hidden
+                          className="size-2.5 shrink-0 rounded-full"
+                          style={{ background: grupo.cor }}
+                        />
+                        <span className="min-w-0 flex-1 truncate text-sm font-semibold text-paper">
+                          {grupo.nome}
+                        </span>
+                        <span className="text-sm text-mute2">{grupo.itens.length}</span>
+                        <ChevronDown
+                          aria-hidden
+                          className={`size-5 text-mute2 transition-transform duration-200 ${recolhido ? "-rotate-90" : ""}`}
+                        />
+                      </button>
+                      {recolhido ? null : (
+                        <GrupoDeLinhas>
+                          {grupo.itens.map(({ servico, indice }) => (
+                            <LinhaDeConfiguracao
+                              key={servico.id ?? "servico-" + indice}
+                              aoTocar={() => abrirServico(indice)}
+                              lider={
+                                servico.fotoUrl ? (
+                                  <img
+                                    src={servico.fotoUrl}
+                                    alt=""
+                                    aria-hidden
+                                    className="size-10 shrink-0 rounded-[12px] object-cover"
+                                  />
+                                ) : (
+                                  <span
+                                    aria-hidden
+                                    className="grid size-10 shrink-0 place-items-center rounded-[12px] text-base font-semibold uppercase"
+                                    style={{
+                                      background: `color-mix(in oklab, ${grupo.cor} 22%, transparent)`,
+                                      color: grupo.cor,
+                                    }}
+                                  >
+                                    {servico.nome.trim().charAt(0) || "?"}
+                                  </span>
+                                )
+                              }
+                              titulo={<span className="block truncate">{servico.nome}</span>}
+                              suporte={
+                                <span className="block truncate">
+                                  {servico.duracaoMin} min · {brl(servico.precoCentavos)}
+                                </span>
+                              }
+                            />
+                          ))}
+                        </GrupoDeLinhas>
+                      )}
+                    </section>
+                  );
+                })}
+              </div>
             ) : (
               <Card density="default" className="text-center">
                 <p className="font-semibold text-paper">Nenhum serviço cadastrado</p>
