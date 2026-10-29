@@ -12,6 +12,7 @@ import {
 import { getAgendaDia, type AgendaDia } from "@/lib/barbeiro.functions";
 
 import { somarDias } from "./tempo";
+import { registrarAtualizacaoAoRetomarAgenda } from "./atualizacao-ao-voltar";
 
 export type AgendaDiaCarregada = AgendaDia & { origem: "rede" | "cache"; salvoEm: number | null };
 
@@ -52,6 +53,8 @@ export function useAgendaDia(dia: string) {
   const navigate = useNavigate();
   const [online, setOnline] = useState(() => typeof navigator === "undefined" || navigator.onLine);
   const [aoVivo, setAoVivo] = useState(false);
+
+  useEffect(() => registrarAtualizacaoAoRetomarAgenda(queryClient), [queryClient]);
 
   const agenda = useQuery({
     ...opcoesAgendaDia(dia),
