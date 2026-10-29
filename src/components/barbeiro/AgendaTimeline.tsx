@@ -633,8 +633,8 @@ function AgendaTimelineBase({
       g.timer = window.setTimeout(() => {
         if (gesto.current !== g) return;
         g.longo = true;
-        // Não capturar o ponteiro nem bloquear a rolagem no gesto que arma a edição.
-        onEditar?.(item, g.y0);
+        // O toque longo só arma a edição; ela abre ao soltar, sem capturar o ponteiro.
+        // A rolagem nativa continua disponível durante todo este primeiro gesto.
         vibrar("pressao");
       }, 280);
     }
@@ -662,7 +662,12 @@ function AgendaTimelineBase({
     const rolagemAtual = celular ? window.scrollY : (area?.scrollTop ?? 0);
     const dy = e.clientY - g.y0 + (g.longo && !g.arrastou ? 0 : rolagemAtual - g.rolagem0);
     if (!g.ativo) {
-      if (Math.abs(e.clientY - g.y0) > 10 || Math.abs(e.clientX - g.x0) > 10) {
+      // Antes de confirmar o toque longo, deslocamento cancela o gesto.
+      // Depois de confirmado, o usuário pode continuar rolando; a edição arma ao soltar.
+      if (
+        !g.longo &&
+        (Math.abs(e.clientY - g.y0) > 10 || Math.abs(e.clientX - g.x0) > 10)
+      ) {
         window.clearTimeout(g.timer);
         gesto.current = null;
       }
@@ -698,7 +703,7 @@ function AgendaTimelineBase({
   }
   function fimGesto(item: AgendaItem, ySolto?: number) {
     const g = gesto.current;
-    if (g?.longo && ySolto !== undefined) onAtualizarYDoToque?.(g.id, ySolto);
+    if (g?.longo && g.ativo && ySolto !== undefined) onAtualizarYDoToque?.(g.id, ySolto);
     gesto.current = null;
     soltarRolagemDoToque();
     if (!g) return;
@@ -707,8 +712,12 @@ function AgendaTimelineBase({
     ultimoPassoDoArrasto.current = null;
     setArrasto(null);
     if (!g.arrastou) {
-      // O modo armado já foi aberto no início do toque longo; soltar não deve reabri-lo.
-      if (g.longo) ignorarClique.current = true;
+      if (g.longo) {
+        ignorarClique.current = true;
+        // Primeiro gesto: abre a edição somente no pointerup. O cartão armado
+        // usa o gesto seguinte para mover, sem confundir rolagem com arrasto.
+        if (!g.ativo) onEditar?.(item, ySolto ?? g.y0);
+      }
       return;
     }
     ignorarClique.current = true;

@@ -190,12 +190,24 @@ describe("alça de duração na Timeline", () => {
     act(() => {
       primeiro.dispatchEvent(evento("pointerdown", 200, { pointerType: "touch" }));
       vi.advanceTimersByTime(300);
-      primeiro.dispatchEvent(evento("pointermove", 250, { pointerType: "touch" }));
-      primeiro.dispatchEvent(evento("pointerup", 250, { pointerType: "touch" }));
     });
+    // O toque longo confirma a pressão, mas não abre a edição com o dedo ainda pressionado.
+    expect(onEditar).not.toHaveBeenCalled();
+    expect(capturarPrimeiro).not.toHaveBeenCalled();
+
+    const movimentoPrimeiro = evento("pointermove", 250, { pointerType: "touch" });
+    act(() => {
+      primeiro.dispatchEvent(movimentoPrimeiro);
+      primeiro.dispatchEvent(evento("pointerup", 250, { pointerType: "touch" }));
+      primeiro.click();
+    });
+    // O primeiro gesto não captura o ponteiro nem bloqueia a rolagem nativa.
+    expect(movimentoPrimeiro.defaultPrevented).toBe(false);
     expect(onEditar).toHaveBeenCalledTimes(1);
+    expect(onEditar).toHaveBeenCalledWith(item, 250);
     expect(capturarPrimeiro).not.toHaveBeenCalled();
     expect(onMover).not.toHaveBeenCalled();
+    expect(onSelecionar).not.toHaveBeenCalled();
 
     act(() => render(true));
     const segundo = alvo.querySelector<HTMLElement>("[aria-pressed]")!;
