@@ -142,3 +142,91 @@ describe.each(IDENTIDADES)("identidade %s", (identidade) => {
     });
   });
 });
+
+
+describe("tokens visuais do Figaroo", () => {
+  const theme = bloco("@theme inline");
+  const escuro = bloco(':root,\\n:root[data-identidade="moderno"]');
+  const claro = bloco('.light,\\n:root[data-identidade="moderno"].light');
+
+  it("registra a escala tonal no tema do Tailwind", () => {
+    expect(theme).toMatchObject({
+      "--color-brand-primary-10": "var(--brand-primary-10)",
+      "--color-brand-primary-20": "var(--brand-primary-20)",
+      "--color-brand-primary-30": "var(--brand-primary-30)",
+      "--color-brand-primary-40": "var(--brand-primary-40)",
+      "--color-brand-primary-50": "var(--brand-primary-50)",
+      "--color-brand-primary-80": "var(--brand-primary-80)",
+      "--color-brand-primary-90": "var(--brand-primary-90)",
+      "--color-brand-tertiary-10": "var(--brand-tertiary-10)",
+      "--color-brand-tertiary-40": "var(--brand-tertiary-40)",
+      "--color-brand-tertiary-50": "var(--brand-tertiary-50)",
+      "--color-brand-tertiary-90": "var(--brand-tertiary-90)",
+      "--color-action-blue": "var(--action-blue)",
+      "--color-confetti-gold": "var(--confetti-gold)",
+      "--color-success": "var(--success)",
+      "--color-warning": "var(--warning)",
+      "--color-error": "var(--error)",
+    });
+  });
+
+  it("preserva as cores neutras oficiais nos dois modos", () => {
+    expect(escuro).toMatchObject({
+      "--brand-primary-10": "#001a40",
+      "--brand-primary-20": "#002d6b",
+      "--brand-primary-30": "#01408f",
+      "--brand-primary-40": "#0854b5",
+      "--brand-primary-50": "#087cf0",
+      "--brand-primary-80": "#9bb9ff",
+      "--brand-primary-90": "#d2e4ff",
+      "--brand-tertiary-10": "#3e0017",
+      "--brand-tertiary-40": "#b9004b",
+      "--brand-tertiary-50": "#ff1670",
+      "--brand-tertiary-90": "#ffdade",
+      "--fundo": "#1b1f1c",
+      "--cartao": "#2a2f2c",
+      "--painel": "#3e4440",
+      "--linha": "#414742",
+      "--texto": "#e8eee9",
+      "--texto-suave": "#aeb5b0",
+      "--success": "#43a047",
+      "--warning": "#e08e22",
+      "--error": "#f2b8b5",
+      "--action-blue": "var(--brand-primary-50)",
+      "--confetti-gold": "#ffd700",
+    });
+    expect(claro).toMatchObject({
+      "--fundo": "#f0f7f2",
+      "--cartao": "#ffffff",
+      "--linha": "#d6e0d9",
+      "--texto": "#191c1a",
+      "--texto-suave": "#707973",
+      "--success": "#2e7d32",
+      "--warning": "#b6730f",
+      "--error": "#b3261e",
+    });
+  });
+
+  it("disponibiliza raios, alturas e espaçamento sem alterar os tokens legados", () => {
+    expect(theme).toMatchObject({
+      "--radius-card": "var(--shape-card)",
+      "--radius-dialog": "var(--shape-dialog)",
+      "--radius-pill": "var(--shape-pill)",
+      "--radius-chip": "var(--shape-chip)",
+      "--spacing-cta": "var(--height-cta)",
+      "--spacing-touch-target": "var(--min-touch-target)",
+      "--spacing-screen-gutter": "var(--screen-gutter)",
+    });
+    expect(escuro).toMatchObject({
+      "--shape-card": "12px",
+      "--shape-dialog": "28px",
+      "--shape-pill": "9999px",
+      "--shape-chip": "8px",
+      "--height-cta": "54px",
+      "--min-touch-target": "48px",
+      "--screen-gutter": "20px",
+    });
+    expect(theme["--radius-md"]).toBe("12px");
+    expect(theme["--radius-sm"]).toBe("8px");
+  });
+});
