@@ -406,7 +406,7 @@ export function AgendaTimeline({
   useEffect(() => {
     if (previa || ehHoje || !diaCompleto || posicionouRef.current === dia) return;
     const area = rolagemRef.current;
-    const func = horarios.find((h) => h.diaSemana === diaDaSemana(dia) && !h.fechado);
+    const func = horarios.find((h) => h.data === dia) ?? horarios.find((h) => !h.data && h.diaSemana === diaDaSemana(dia) && !h.fechado);
     if (!area) return;
     const quadro = window.requestAnimationFrame(() => {
       const alvo = func ? minutosDoHorario(func.abre) : 8 * 60;
@@ -638,7 +638,7 @@ export function AgendaTimeline({
   );
 
   // Prévia: posição em que o dia vai assentar (hoje no agora; senão topo do expediente).
-  const funcionamentoDoDia = horarios.find((h) => h.diaSemana === diaDaSemana(dia) && !h.fechado);
+  const funcionamentoDoDia = horarios.find((h) => h.data === dia) ?? horarios.find((h) => !h.data && h.diaSemana === diaDaSemana(dia) && !h.fechado);
   const deslocamentoPrevia = !previa
     ? 0
     : ehHoje
