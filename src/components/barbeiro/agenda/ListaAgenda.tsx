@@ -124,7 +124,7 @@ export function ListaAgenda({
 
   return (
     <div>
-      <ul className="space-y-2.5" style={{ fontFamily: "Roboto, sans-serif" }}>
+      <ul className="space-y-2.5" style={{ fontFamily: "var(--figaro-font-body)" }}>
         {visiveis.map((item, indice) => {
           const nome = nomeDaAgenda(item.cliente, discreto);
           const atrasado = ehHoje && !aguardando.has(item.id) && estaAtrasado(item, agora);

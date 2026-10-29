@@ -5179,7 +5179,7 @@ button.agenda-nome:hover {
     repeating-linear-gradient(
       135deg,
       transparent 0 8px,
-      color-mix(in oklab, var(--figaro-hint, var(--mute2)) 22%, transparent) 8px 9px
+      color-mix(in oklab, var(--paper) 6%, transparent) 8px 9px
     ),
     var(--agenda-cartao-evento, var(--agenda-cartao));
   box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--figaro-hint, var(--mute2)) 12%, transparent);
@@ -5191,7 +5191,7 @@ button.agenda-nome:hover {
     repeating-linear-gradient(
       135deg,
       transparent 0 8px,
-      color-mix(in oklab, var(--figaro-hint, var(--mute2)) 22%, transparent) 8px 9px
+      color-mix(in oklab, var(--paper) 6%, transparent) 8px 9px
     ),
     var(--agenda-cartao-evento, #fff);
 }
@@ -5201,9 +5201,10 @@ button.agenda-nome:hover {
   top: 6px;
   bottom: 6px;
   left: 6px;
-  width: 3px;
+  width: 3.5px;
   border-radius: 2px;
-  background: color-mix(in oklab, var(--figaro-hint, var(--mute2)) 45%, transparent);
+  /* apk/2 §4.8: barra em onSurfaceVariant α 0,3; listras onSurface α 0,06. */
+  background: color-mix(in oklab, var(--mute) 30%, transparent);
   pointer-events: none;
 }
 .agenda-timeline-bloqueio .agenda-bloqueio-corpo {
@@ -5227,11 +5228,13 @@ button.agenda-nome:hover {
 }
 .agenda-timeline-bloqueio .agenda-bloqueio-nome {
   position: static;
+  font-size: inherit;
   color: var(--paper);
   font-weight: 700;
 }
 .agenda-timeline-bloqueio .agenda-bloqueio-quem {
   position: static;
+  font-size: inherit;
   color: var(--mute);
 }
 .agenda-timeline-bloqueio .agenda-bloqueio-horario {
@@ -10876,6 +10879,39 @@ input[type="range"] {
 }
 
 
+/* Tipografia e "agora" da Agenda pelas referências do Figaro (foto e vídeo do dono, 29/10; apk/2 §2.2 e §2.4):
+   texto em Plus Jakarta Sans (a fonte do app do Figaro), horas em JetBrains Mono 13 Medium, linha "agora" de
+   1,5 px e pílula "HH:mm" 10 px Bold em brandMagenta #D3145D nos dois temas, encostada 6 px antes da grade. */
+.agenda-operacional {
+  font-family: var(--figaro-font-body);
+}
+.agenda-operacional .agenda-timeline-marca span {
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+.agenda-operacional .agenda-linha-agora {
+  border-top: 1.5px solid var(--figaro-brand-magenta, #d3145d);
+}
+@media (max-width: 767px) {
+  .agenda-operacional .agenda-linha-agora {
+    left: 0;
+  }
+}
+.agenda-operacional .agenda-linha-agora span {
+  top: -8.75px;
+  right: calc(100% + 6px);
+  left: auto;
+  width: auto;
+  padding: 2px 5px;
+  border-radius: 999px;
+  background: var(--figaro-brand-magenta, #d3145d);
+  color: #fff;
+  font-family: var(--figaro-font-body);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 12px;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
 /* Intervalo: estilo listrado original, com barrinha e tons neutros da paleta atual. */
 .agenda-timeline-intervalo.agenda-timeline-pausa {
   z-index: 1;

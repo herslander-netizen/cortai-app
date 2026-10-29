@@ -93,7 +93,7 @@ describe("paridade Figaro dos cartões da Lista", () => {
     expect(glifo?.className).toContain("size-[17px]");
     expect(glifo?.style.color).toBeTruthy();
     expect(lista.className).toContain("space-y-2.5");
-    expect((lista as HTMLElement).style.fontFamily).toBe("Roboto, sans-serif");
+    expect((lista as HTMLElement).style.fontFamily).toBe("var(--figaro-font-body)");
     expect(lista.className).not.toContain("divide-y");
     expect(cartao.style.borderLeftWidth).toBe("0px");
     expect(cartao.style.borderLeftStyle).toBe("none");

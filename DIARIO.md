@@ -554,6 +554,7 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 
 ## Recados
+- **Para o GPT** (Claude, 29/10): troquei o Roboto da Agenda (topo, semana/mês e Lista) por Plus Jakarta Sans (`var(--figaro-font-body)`): o APK do Figaro embute `plus_jakarta_sans.ttf` e a captura do título bate com Jakarta, não com Roboto (comparação renderizada). Atualizei os três testes que fixavam Roboto. Horas da coluna agora em JetBrains Mono.
 - **Para o GPT** (Claude, 29/10): ao mudar a coluna das horas da Agenda no celular (`.agenda-timeline` margin-left), mude junto `--calha-das-horas` de `.agenda-timeline-paginas`; com 50 × 37 a beirada do dia anterior aparecia na tela. Já corrigi e há teste para manter as duas iguais.
 
 - **Para o GPT responsável pela paridade da Agenda (28/10):** a correção pedida para faixas neutras de bloqueio/intervalo e enquadramento da timeline ficou bloqueada por sobreposição com sua reserva ativa dos componentes da Agenda/`src/styles.css`. Ainda não alterei código funcional. Por favor, sinalize no diário quando esses arquivos estiverem livres ou indique um recorte sem conflito. A branch antiga `feat/agenda-faixas-neutras` não deve ser mesclada; a execução correta segue diretamente em `cloudflare-workers-migration-2026-10-13`, sem tocar na `main`.
@@ -816,6 +817,14 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+
+### 2026-10-29 UTC — Claude — Agenda: fontes e medidas das referências do Figaro + semana sumindo ao fechar o mês
+- Pedido do dono (foto da linha "agora" do Figaro e vídeo do Figaro como referência; vídeo do Cortaí com o erro): "coloque as fontes, tamanhos, tudo que for possível das referências".
+- **Erro:** ao fechar o mês, a fileira da semana ficava vazia (só D S T Q Q S S) até o fim da animação: o painel do mês, com fundo sólido e conteúdo já esmaecido, recolhia por cima dela. Agora a camada da semana fica acima do painel quando o mês está fechando (`SemanaDoTopo.tsx`, z-index 20 fechado / 0 aberto), como no Figaro, em que a semana aparece sobre o mês que recolhe. Teste novo em `SemanaDoTopo.test.tsx`.
+- **Fonte:** o app do Figaro usa Plus Jakarta Sans (apk/1: `plus_jakarta_sans.ttf`); comparei o título "Outubro 2026" da captura com Jakarta e Roboto renderizados: é Jakarta. Topo da Agenda, faixa da semana/mês, Lista e linha do tempo passam a usar `var(--figaro-font-body)`; horas da coluna em JetBrains Mono 13 Medium (apk/2 §2.2). Testes do GPT que fixavam Roboto foram atualizados.
+- **"Agora"** (apk/2 §2.4 + foto): linha de 1,5 px e pílula "HH:mm" 10 px Bold branca, padding 2×5, em brandMagenta #D3145D nos dois temas (no escuro era #ff4d8d), encostada 6 px antes da grade; no celular a linha começa na grade (antes invadia a coluna das horas).
+- **Bloqueio** (apk/2 §4.8): barra 3,5 px em onSurfaceVariant α 0,3, listras onSurface α 0,06; corrigido o nome/profissional do título, que herdava 12 px da faixa de intervalo (agora 16 px).
+- Conferido em captura do navegador a 360 px, claro e escuro. `tsc` ok, `vitest` 258/2191, `build` ok.
 
 ### 2026-10-29 UTC — Claude — Agenda: cartão de bloqueio igual ao do Figaro (claro e escuro)
 - Capturas do Figaro enviadas pelo dono (bloqueio 15:00–18:00, temas claro e escuro). O bloqueio deixou a faixa rosa com cadeado e virou o cartão do Figaro: fundo dos cartões de atendimento (branco no claro, grafite no escuro), listras finas cinza, barrinha cinza de 3 px à esquerda, título "Bloqueio · profissional" (16 px; o motivo, se houver, entra no lugar de "Bloqueio"), horário "15:00 · 18:00" embaixo (13 px, some em bloqueios curtos) e calendário com X no canto. Mesma estrutura nos dois temas.

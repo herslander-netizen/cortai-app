@@ -7,7 +7,7 @@ const fonte = readFileSync(resolve(__dirname, "CabecalhoAgenda.tsx"), "utf8");
 describe("tipografia do cabeçalho mobile da Agenda", () => {
   it("usa titleLarge Figaro: 22/28, mês bold e ano medium", () => {
     expect(fonte).toContain('className="truncate text-[22px] leading-7 text-paper"');
-    expect(fonte).toContain('style={{ fontFamily: "Roboto, sans-serif" }}');
+    expect(fonte).toContain('style={{ fontFamily: "var(--figaro-font-body)" }}');
     expect(fonte).toContain('<strong className="font-bold">');
     expect(fonte).toContain('<span className="font-medium">{(tituloCelular ?? tituloDoMes(dia)).split(" ")[1]}</span>');
   });

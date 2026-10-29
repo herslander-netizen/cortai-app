@@ -488,7 +488,7 @@ export function SemanaDoTopo({
     if (lista && mes) lista.scrollTop = mes.offsetTop;
   }, [expandido, mesDoDiaEscolhido, raioDosMeses]);
   return (
-    <div data-sem-gesto-dia data-calendario-aberto={expandido || painelVisivel || undefined} style={{ fontFamily: "Roboto, sans-serif" }}>
+    <div data-sem-gesto-dia data-calendario-aberto={expandido || painelVisivel || undefined} style={{ fontFamily: "var(--figaro-font-body)" }}>
       <div className="px-2 pb-9 rounded-b-xl">
         <div className="grid grid-cols-7 text-center text-[11.5px] leading-4 font-medium text-mute" aria-hidden>
           {LETRAS_SEMANA.map((letra, i) => (
@@ -503,6 +503,10 @@ export function SemanaDoTopo({
         <motion.div className="relative" style={layoutAberto ? { height: ALTURA_DO_MES } : {}}>
           <motion.div
             ref={camadaSemana}
+            // Fechando, a semana fica por cima do painel que recolhe (como no Figaro): por baixo dele, o fundo vazio
+            // do mês cobria a fileira e os dias sumiam até o fim da animação (vídeo do dono, 29/10).
+            className="relative"
+            style={{ zIndex: expandido ? 0 : 20 }}
             initial={false}
             animate={{ opacity: expandido ? 0 : 1 }}
             transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
