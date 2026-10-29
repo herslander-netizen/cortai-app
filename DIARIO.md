@@ -820,6 +820,9 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-29 UTC — Claude — Agenda: "Agora" e "+" não sobem com o teclado
+- Captura do dono (busca na Lista com teclado aberto): com `interactive-widget=resizes-content` a tela encolhe e o pé fixo subia com o teclado. Novo `useTecladoAberto` (`src/hooks`, usado por `BotaoAgoraPrincipal`) marca `html[data-teclado-aberto]` quando há campo em foco e a altura útil cai mais de 150 px da maior já vista; o CSS esconde `.agenda-botao-agora-principal` e `.agenda-acao-fixa` enquanto isso. O viewport do app não mudou (formulários seguem iguais). Teste `useTecladoAberto.test.ts`.
+
 ### 2026-10-29 UTC — Claude — Reconstrução Figaro por módulo: Serviços
 - Pedido do dono: "seguir com Serviços no padrão Figaro" (spec 7 §5: lista agrupada por categoria, grupos recolhíveis, "Sem categoria").
 - `barbeiro.servicos.tsx`: lista por categoria (ordem das categorias do negócio; "Sem categoria" no fim), cabeçalho do grupo com a cor da categoria, quantidade e seta de recolher; cada grupo em `GrupoDeLinhas`; linha com a foto do serviço ou a inicial na cor da categoria (sem tesoura: símbolo de segmento), nome e "duração · preço"; a linha inteira abre a edição (o botão "Editar" saiu; mesma função `abrirServico`). Editor, salvar e remover iguais.

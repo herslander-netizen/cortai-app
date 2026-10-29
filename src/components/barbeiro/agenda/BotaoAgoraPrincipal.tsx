@@ -12,6 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { useMediaQuery } from "@/hooks/use-mobile";
 import { useMenosMovimento } from "@/hooks/useMovimento";
+import { useTecladoAberto } from "@/hooks/useTecladoAberto";
 import { DURACAO, SUAVE } from "@/lib/motion";
 
 import type { VisualizacaoAgenda } from "./CabecalhoAgenda";
@@ -78,6 +79,8 @@ export function BotaoAgoraPrincipal({
   /** Figaro: a foto do profissional no fim da barra, para trocar a agenda na tela. */
   filtro?: ReactNode;
 }) {
+  // Teclado aberto (busca na Lista): os botões de baixo não sobem com ele (dono, 29/10).
+  useTecladoAberto();
   const celular = useMediaQuery("(max-width: 600px)");
   // Só com o menu fechado: com o menu aberto o "+" é o "X" e segurar não faz nada de especial.
   const toqueLongo = useToqueLongo(onAgendarPorVoz, { ativo: !menuAberto });

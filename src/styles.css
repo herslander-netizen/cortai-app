@@ -11132,3 +11132,10 @@ button.agenda-timeline-pausa:focus-visible {
   --figaro-categoria-tangerina: #fb8c00;
   --figaro-categoria-tropical: #26a69a;
 }
+
+/* Teclado aberto: o pé da Agenda ("Agora" e "+") fica atrás do teclado em vez de subir com a tela encolhida. */
+html[data-teclado-aberto] .agenda-botao-agora-principal,
+html[data-teclado-aberto] .agenda-acao-fixa {
+  visibility: hidden;
+  pointer-events: none;
+}
