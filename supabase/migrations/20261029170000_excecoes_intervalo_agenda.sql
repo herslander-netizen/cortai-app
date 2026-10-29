@@ -321,3 +321,7 @@ $function$;
 
 REVOKE ALL ON FUNCTION public.salvar_intervalo_agenda_dia(uuid, date, text, time without time zone, time without time zone) FROM PUBLIC, anon;
 GRANT EXECUTE ON FUNCTION public.salvar_intervalo_agenda_dia(uuid, date, text, time without time zone, time without time zone) TO authenticated, service_role;
+
+-- Preserva explicitamente o acesso restrito da RPC oficial de agendamento.
+REVOKE EXECUTE ON FUNCTION public.criar_agendamento(uuid, uuid, uuid, uuid, timestamptz, text, boolean, boolean) FROM PUBLIC, anon;
+GRANT EXECUTE ON FUNCTION public.criar_agendamento(uuid, uuid, uuid, uuid, timestamptz, text, boolean, boolean) TO authenticated, service_role;
