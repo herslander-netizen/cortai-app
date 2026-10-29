@@ -10770,7 +10770,7 @@ input[type="range"] {
 }
 
 
-/* Intervalo: mesma linguagem neutra das horas fora do expediente, sem competir com bloqueios. */
+/* Intervalo: estilo listrado original, com barrinha e tons neutros da paleta atual. */
 .agenda-timeline-intervalo.agenda-timeline-pausa {
   z-index: 1;
   pointer-events: auto;
@@ -10778,20 +10778,17 @@ input[type="range"] {
   overflow: hidden;
   padding: 0;
   border: 0;
+  border-left: 3px solid color-mix(in oklab, var(--mute) 55%, transparent);
+  border-radius: 8px;
   color: var(--mute);
+  background: repeating-linear-gradient(
+    135deg,
+    transparent 0 6px,
+    color-mix(in oklab, var(--mute) 14%, transparent) 6px 7px
+  );
   text-align: left;
   cursor: pointer;
   font: inherit;
-}
-@media (max-width: 767px) {
-  .agenda-timeline-pausa {
-    border-radius: 10px;
-    background: repeating-linear-gradient(
-      135deg,
-      var(--agenda-listra-base) 0 6px,
-      var(--agenda-listra) 6px 7px
-    );
-  }
 }
 .agenda-timeline-pausa span {
   right: auto;
