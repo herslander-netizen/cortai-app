@@ -576,6 +576,14 @@ export function AgendaOperacional() {
       ),
     [bloqueiosQ.data, profFiltro],
   );
+  const ocupacoesExtrasVisiveis = useMemo(
+    () =>
+      (agenda.data?.bloqueios ?? []).filter(
+        (ocupacao) =>
+          !profFiltro || !ocupacao.profissional_id || ocupacao.profissional_id === profFiltro,
+      ),
+    [agenda.data?.bloqueios, profFiltro],
+  );
 
   useEffect(() => {
     const lista = agenda.data?.itens;
@@ -1187,6 +1195,7 @@ export function AgendaOperacional() {
     (visualizacao === "timeline"
       ? todosItens.length === 0 &&
         bloqueiosVisiveis.length === 0 &&
+        ocupacoesExtrasVisiveis.length === 0 &&
         !temIntervaloDia &&
         !bloqueiosQ.isPending &&
         !bloqueiosQ.isError
@@ -1421,6 +1430,9 @@ export function AgendaOperacional() {
                     fuso={fuso}
                     itens={itens.filter((item) => item.profissionalId === p.id)}
                     bloqueios={bloqueiosQ.data ?? []}
+                    ocupacoesExtras={(agenda.data?.bloqueios ?? []).filter(
+                      (ocupacao) => !ocupacao.profissional_id || ocupacao.profissional_id === p.id,
+                    )}
                     profissionalId={p.id}
                     profissionais={[p]}
                     itensEscala={itens}
@@ -1459,6 +1471,7 @@ export function AgendaOperacional() {
                 fuso={fuso}
                 itens={itens}
                 bloqueios={bloqueiosQ.data ?? []}
+                ocupacoesExtras={ocupacoesExtrasVisiveis}
                 profissionalId={profFiltro}
                 profissionais={profissionais}
                 itensEscala={todosItens}
