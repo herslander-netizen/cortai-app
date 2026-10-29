@@ -90,8 +90,9 @@
   --radius-lg: 14px;
   --radius-xl: 14px;
 
-  --font-sans: "Manrope", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Manrope", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Poppins", "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 
   /* Brand tokens */
   --color-ink: var(--ink);
@@ -158,7 +159,33 @@
 
 :root,
 :root[data-identidade="moderno"] {
-  --radius: 14px;
+  --radius: 12px;
+  /* Geometrias semânticas do Figaroo: campos/chips 8, cartões 12, folhas/hero 28, pílulas totais. */
+  --figaro-radius-field: 8px;
+  --figaro-radius-card: 12px;
+  --figaro-radius-hero: 28px;
+  --figaro-radius-pill: 9999px;
+  --figaro-font-display: "Poppins", "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --figaro-font-body: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --figaro-font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --figaro-text-display-large: 57px;
+  --figaro-line-display-large: 60px;
+  --figaro-text-headline-large: 32px;
+  --figaro-line-headline-large: 38px;
+  --figaro-text-headline-medium: 28px;
+  --figaro-line-headline-medium: 34px;
+  --figaro-text-headline-small: 24px;
+  --figaro-line-headline-small: 30px;
+  --figaro-text-title-large: 22px;
+  --figaro-line-title-large: 28px;
+  --figaro-text-title-medium: 16px;
+  --figaro-line-title-medium: 24px;
+  --figaro-text-body-large: 16px;
+  --figaro-line-body-large: 24px;
+  --figaro-text-body-medium: 14px;
+  --figaro-line-body-medium: 20px;
+  --figaro-text-body-small: 12px;
+  --figaro-line-body-small: 16px;
   --tabbar-height: 72px;
   --mov-rapido: 120ms;
   --mov-base: 200ms;
