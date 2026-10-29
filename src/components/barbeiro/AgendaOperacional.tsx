@@ -1428,9 +1428,9 @@ export function AgendaOperacional() {
                     horarios={agenda.data?.horarios ?? []}
                     selecionado={selecionado}
                     onSelecionar={abrir}
-                    onEditarIntervalo={
-                      agenda.data?.dia === dia ? () => setIntervaloAberto(true) : undefined
-                    }
+                    {...(agenda.data?.dia === dia
+                      ? { onEditarIntervalo: () => setIntervaloAberto(true) }
+                      : {})}
                     onMover={moverPorArrasto}
                     onRedimensionar={redimensionarPorAlca}
                     onEditar={(item) => edicao.iniciar(item.id)}
@@ -1465,9 +1465,9 @@ export function AgendaOperacional() {
                 horarios={agenda.data?.horarios ?? []}
                 selecionado={selecionado}
                 onSelecionar={abrir}
-                onEditarIntervalo={
-                  agenda.data?.dia === dia ? () => setIntervaloAberto(true) : undefined
-                }
+                {...(agenda.data?.dia === dia
+                  ? { onEditarIntervalo: () => setIntervaloAberto(true) }
+                  : {})}
                 onMover={moverPorArrasto}
                 onRedimensionar={redimensionarPorAlca}
                 onEditar={(item) => edicao.iniciar(item.id)}
