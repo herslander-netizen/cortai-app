@@ -28,35 +28,12 @@ chegarem, basta trocar os SVG em `public/marca/flow/` e os traçados `F_CURVA`/`
 Regras: não trocar o lettering por texto, não esticar, não recolorir, sem efeitos. Gradiente
 (#CBC5F3 → #F2F1FD) só no lettering claro e no símbolo.
 
-## 3. Paleta (tokens)
+## 3. Cores, fontes e layout: sem mudança
 
-Definidos no fim de `src/styles.css` (bloco "Flow"):
-
-| Token | Hex | Papel |
-| --- | --- | --- |
-| `--flow-grafite` | #0F0F14 | fundo |
-| `--flow-superficie` | #1A1B24 | cartões e menus |
-| `--flow-violeta` | #6B5F8F | apoio |
-| `--flow-azul` | #A8C7FA | ação e seleção (`--figaro-primary`, `--figaro-action-blue`) |
-| `--flow-roxo` | #BB86FC | acentos interativos (`--figaro-secondary`) |
-| `--flow-rosa` | #F48FB1 | destaque e ponto (`--figaro-tertiary`) |
-| `--flow-rosa-escuro` | #9C425A | indicadores e contraste |
-
-O bloco mapeia esses tokens para os papéis `--figaro-*`, `--identity-*`, `--fundo/--cartao/--texto` e os
-tokens da Agenda, na identidade padrão (`moderno` ou sem identidade), nos temas escuro (principal) e claro
-(`.light`). Assim a Agenda, as gavetas, os botões e as telas herdam a paleta sem hex nos componentes. Identidades
-alternativas do painel e temas escolhidos para páginas públicas de clientes continuam respeitados.
-
-**Layout intocado** (dono, 29/10: "não é pra mudar nada do aplicativo referente a layout"): fontes, medidas, espaçamentos e caixas continuam os de antes. A Inter do manual **não** foi aplicada, e o logo novo ocupa a mesma caixa do logo anterior (centralizado dentro dela).
-
-Ajustes pontuais:
-- tela de entrada (`.entrada`): tokens locais passaram a apontar para a paleta Flow;
-- comanda/ticket: tokens `--ticket-*` na paleta Flow, e o canvas desenha o lettering em imagem;
-- página offline e página de erro do service worker: cores Flow;
-- a demonstração da `/apresentacao` remapeia os papéis dentro do showroom escuro, porque já tinha texto escuro
-  sobre fundo escuro antes da migração.
-
-Cores de **status** da Agenda (`--estado-*`) são semânticas e não mudaram.
+Decisão do dono (29/10): **só o logo muda**. Cores, fontes e layout continuam exatamente os de antes da migração
+(paleta Figaro/Cortaí de 27/10). A paleta do manual (#0F0F14, #1A1B24, #6B5F8F, #A8C7FA, #BB86FC, #F48FB1,
+#9C425A) e a Inter **não** foram aplicadas. O logo novo ocupa a mesma caixa do anterior (centralizado), e as cores do
+próprio logo (gradiente lavanda e ponto rosa) ficam só no desenho da marca.
 
 ## 4. Inventário do que ainda diz "cortai" (classificado)
 

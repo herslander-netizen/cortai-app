@@ -130,7 +130,7 @@ function LoginPage() {
 
   useEffect(() => {
     const meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
-    if (meta) meta.content = "#0f0f14";
+    if (meta) meta.content = "#0b1020";
     return sincronizarCorDoNavegador;
   }, []);
 

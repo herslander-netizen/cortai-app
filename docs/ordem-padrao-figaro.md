@@ -7,11 +7,11 @@ exceção por pressa, por "só um detalhe" nem por "já era assim".
 Referência visual e de comportamento: `docs/referencia-figaro/apk/` (começar por `1-design-system.md`).
 Contrato de design do projeto: `docs/contrato-de-design.md`. Esta ordem diz **como** cumprir os dois.
 
-## 1. Identidade do Flow (decisão do dono, 29/10/2026; substitui a identidade Cortaí de 27/10)
+## 1. Identidade do Flow (logo trocado em 29/10/2026; paleta e fontes de 27/10 continuam)
 
 - Marca: lettering "flow" em minúsculas com o F fluido e o ponto rosa (Manual da Marca Flow v1.0). Usar só `MarcaFlow` / `SimboloFlow` / `IconeFlow`; sem símbolos exclusivos de um segmento. Detalhes em `docs/marca-flow.md`.
-- Quando o dono disser “Flow” de forma geral, a identidade aplica-se a todo o produto. Cada tela usa a mesma paleta-base (`--flow-*` → papéis `--figaro-*`), superfícies e movimento; não crie um tema paralelo para uma área.
-- O Figaro dita composição, hierarquia, raios, folhas e movimento; o Flow tem a própria marca. Azul-claro `#A8C7FA` é ação e seleção; rosa é destaque e ponto de marca, roxo é acento interativo, violeta é apoio; gradiente só no símbolo e em pequenos detalhes.
+- Quando o dono disser “Flow” de forma geral, a identidade aplica-se a todo o produto. Cada tela usa a mesma paleta-base, superfícies e movimento; não crie um tema paralelo para uma área.
+- O Figaro dita composição, hierarquia, raios, folhas e movimento; o Flow mantém sua própria marca (só o logo mudou: cores e fontes continuam as de antes, decisão do dono de 29/10). Azul é ação operacional conforme a referência; coral é acento de marca, não fundo dominante.
 - Personalizações escolhidas para páginas públicas dos negócios continuam valendo.
 
 ## 2. A regra

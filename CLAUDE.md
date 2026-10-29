@@ -58,14 +58,14 @@ O CI (GitHub Actions) roda TypeScript, testes e build a cada envio; use-o como v
 
 TanStack Start (React 19), Tailwind 4, shadcn/Radix, Supabase, Drizzle (migrações em `drizzle/migrations`), Vitest, Bun. Hospedagem na Cloudflare (Pages + Worker). A IA usa um provedor compatível explicitamente configurado em `CORTAI_AI_*` ou o modo de regras; sem configuração, fica indisponível (nunca cai em outro provedor). Pagamentos via Asaas: a chave fica só em funções protegidas de `admin.functions.ts`.
 
-## Identidade visual oficial do Flow (decisão do dono, 29/10/2026 — substitui a identidade Cortaí de 27/10)
+## Identidade visual oficial do Flow (decisão do dono, 29/10/2026 — só o logo mudou)
 
 - Referência: Manual da Marca Flow v1.0 (out/2026); implementação e pendências em `docs/marca-flow.md`.
 - Marca: lettering "flow" em minúsculas com o F fluido e o ponto rosa; símbolo = F + ponto. Usar só `MarcaFlow`, `SimboloFlow` e `IconeFlow` (`src/components/marca/MarcaFlow.tsx`) ou os arquivos de `public/marca/flow/`. Não trocar o lettering por texto comum, não esticar, não mudar as cores, não pôr efeitos.
-- Paleta (tokens `--flow-*` no fim de `src/styles.css`): grafite `#0F0F14` (fundo), superfície `#1A1B24` (cards e menus), violeta `#6B5F8F` (apoio), azul-claro `#A8C7FA` (ação/seleção), roxo `#BB86FC` (acentos interativos), rosa `#F48FB1` (destaque/ponto), rosa escuro `#9C425A` (indicadores e contraste). Gradiente de marca só no símbolo e em pequenos detalhes. Nada de hex solto nos componentes.
-- Tema escuro é o principal; claro pela classe `.light`. Fontes e layout ficam como estavam (dono, 29/10: a marca Flow não muda nada de layout); a Inter do manual não foi aplicada.
+- **Só o logo mudou** (dono, 29/10: "reverta as cores e fontes pra o que estava, só muda a logo"). Paleta, fontes e layout continuam os de antes (paleta Figaro/Cortaí de 27/10); a paleta e a Inter do manual Flow **não** são aplicadas.
+- Tema escuro é o principal; claro pela classe `.light`.
 - Quando o dono disser **Flow** sem restringir uma tela, aplicar a identidade ao produto inteiro. Um pedido sobre uma tela também respeita a mesma identidade.
-- Figaro continua definindo composição, hierarquia, raios, folhas inferiores, medidas e transições; a marca e a paleta do Flow substituem a do Figaro e a antiga do Cortaí.
+- Figaro continua definindo composição, hierarquia, raios, folhas inferiores, medidas e transições; o logo do Flow substitui o antigo do Cortaí.
 - Linguagem neutra (manual §07): "negócio", "profissional", "cliente", "atendimento". Barbearia continua sendo um segmento possível, nunca a suposição padrão. Sem tesoura, pente ou símbolos de um segmento na marca.
 - Os temas escolhidos explicitamente para páginas públicas de clientes e as identidades alternativas do painel continuam respeitados.
 - Mobile-first: conferir 390px e 1280px. Contrato obrigatório: `docs/contrato-de-design.md`; ordem Figaro em `docs/ordem-padrao-figaro.md`; ícone da Flow IA via `IconeDaIA`.

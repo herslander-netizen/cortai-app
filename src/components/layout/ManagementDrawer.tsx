@@ -227,7 +227,7 @@ export function ManagementHeader() {
                 // Sem logo do negócio: o símbolo Flow no quadrado do ícone do app.
                 <span
                   aria-hidden
-                  className={`grid place-items-center bg-[var(--figaro-surface-container,var(--ink2))] ring-1 ring-[color-mix(in_oklab,var(--flow-violeta,#6b5f8f)_55%,transparent)] ${celular && caminho === "/barbeiro" ? "h-10 w-10 rounded-full" : "h-11 w-11 rounded-[8px]"}`}
+                  className={`grid place-items-center bg-[var(--figaro-surface-container,var(--ink2))] ${celular && caminho === "/barbeiro" ? "h-10 w-10 rounded-full" : "h-11 w-11 rounded-[8px]"}`}
                 >
                   <SimboloFlow className="!size-6" clara={!modoClaro} />
                 </span>
