@@ -14,6 +14,7 @@ import { AgendaSemana } from "@/components/barbeiro/AgendaSemana";
 import { AgendaFocoMobile } from "@/components/barbeiro/AgendaFocoMobile";
 import { efeitoDaAcaoCard } from "@/components/barbeiro/agenda/acao-card";
 import { BloquearHorarioSheet } from "@/components/barbeiro/agenda/BloquearHorarioSheet";
+import { IntervaloDoDiaSheet } from "@/components/barbeiro/agenda/IntervaloDoDiaSheet";
 import { CabecalhoAgenda } from "@/components/barbeiro/agenda/CabecalhoAgenda";
 import { mesDoDia, tituloDoMes } from "@/components/barbeiro/agenda/calendario";
 import { filaDeChegadaVisivel } from "@/components/barbeiro/agenda/fila-visivel";
@@ -282,6 +283,7 @@ export function AgendaOperacional() {
   const [vozSuportada, setVozSuportada] = useState(false);
   useEffect(() => setVozSuportada(comandoDeVozSuportado()), []);
   const [bloquearAberto, setBloquearAberto] = useState(false);
+  const [intervaloAberto, setIntervaloAberto] = useState(false);
   const [focoTrancado, setFocoTrancado] = useState(false);
   const [manualAberto, setManualAberto] = useState(
     acaoInicial === "agendamento" || acaoInicial === "cliente",
@@ -334,6 +336,7 @@ export function AgendaOperacional() {
   const temSobreposicao = Boolean(
     painelAberto ||
     bloquearAberto ||
+    intervaloAberto ||
     focoTrancado ||
     manualAberto ||
     rapidoAberto ||
@@ -371,6 +374,7 @@ export function AgendaOperacional() {
     setHoraVazia(undefined);
     setProfVazio(null);
     setCalAberto(false);
+    setIntervaloAberto(false);
     setDia(proximo);
   }
 
@@ -945,6 +949,12 @@ export function AgendaOperacional() {
         profissionais={agenda.data?.profissionais ?? []}
         fuso={fuso}
       />
+      <IntervaloDoDiaSheet
+        aberto={intervaloAberto}
+        onAberto={setIntervaloAberto}
+        dia={dia}
+        intervalo={agenda.data?.dia === dia ? agenda.data.intervaloDia : undefined}
+      />
       <FolhaFila
         aberta={filaAberta}
         onAberta={setFilaAberta}
@@ -1167,6 +1177,8 @@ export function AgendaOperacional() {
   // Celular: uma timeline só; trocar profissional apenas filtra. Colunas só em telas largas.
   const colunas =
     !celular && visualizacao === "timeline" && !profFiltro && profissionais.length > 1;
+  const intervaloDiaAtual = agenda.data?.dia === dia ? agenda.data.intervaloDia : undefined;
+  const temIntervaloDia = Boolean(intervaloDiaAtual?.inicio && intervaloDiaAtual?.fim);
   const diaSemAgenda =
     !carregandoInicial &&
     !erroInicial &&
@@ -1174,6 +1186,7 @@ export function AgendaOperacional() {
     (visualizacao === "timeline"
       ? todosItens.length === 0 &&
         bloqueiosVisiveis.length === 0 &&
+        !temIntervaloDia &&
         !bloqueiosQ.isPending &&
         !bloqueiosQ.isError
       : itens.length === 0);
@@ -1336,6 +1349,25 @@ export function AgendaOperacional() {
             </Button>
           </div>
         ) : null}
+        {visualizacao === "timeline" &&
+        intervaloDiaAtual?.excecao &&
+        !intervaloDiaAtual.inicio &&
+        !intervaloDiaAtual.fim ? (
+          <div
+            className="mb-2 flex items-center justify-between gap-3 rounded-lg border border-line bg-ink2 px-3 py-2"
+            role="status"
+          >
+            <p className="text-sm text-mute">Este dia está sem intervalo, diferente do padrão semanal.</p>
+            <Button
+              type="button"
+              variant="ghost"
+              className="min-h-12 shrink-0"
+              onClick={() => setIntervaloAberto(true)}
+            >
+              Ajustar
+            </Button>
+          </div>
+        ) : null}
         <div id="agenda-painel-visualizacao" aria-label={`Visualização ${visualizacao}`}>
           {carregandoInicial ? (
             <AgendaCarregando formato={visualizacao === "lista" ? "lista" : "timeline"} />
@@ -1395,6 +1427,9 @@ export function AgendaOperacional() {
                     horarios={agenda.data?.horarios ?? []}
                     selecionado={selecionado}
                     onSelecionar={abrir}
+                    onEditarIntervalo={
+                      agenda.data?.dia === dia ? () => setIntervaloAberto(true) : undefined
+                    }
                     onMover={moverPorArrasto}
                     onRedimensionar={redimensionarPorAlca}
                     onEditar={(item) => edicao.iniciar(item.id)}
@@ -1429,6 +1464,9 @@ export function AgendaOperacional() {
                 horarios={agenda.data?.horarios ?? []}
                 selecionado={selecionado}
                 onSelecionar={abrir}
+                onEditarIntervalo={
+                  agenda.data?.dia === dia ? () => setIntervaloAberto(true) : undefined
+                }
                 onMover={moverPorArrasto}
                 onRedimensionar={redimensionarPorAlca}
                 onEditar={(item) => edicao.iniciar(item.id)}
