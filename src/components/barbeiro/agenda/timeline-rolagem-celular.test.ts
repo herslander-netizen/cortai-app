@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 
 const css = readFileSync("src/styles.css", "utf8");
 const timeline = readFileSync("src/components/barbeiro/AgendaTimeline.tsx", "utf8");
+const operacional = readFileSync("src/components/barbeiro/AgendaOperacional.tsx", "utf8");
 
 function blocosCelular() {
   const blocos: string[] = [];
@@ -54,5 +55,11 @@ describe("rolagem da Timeline no celular", () => {
     expect(css).toContain(
       ".agenda-timeline-passado:not(.agenda-timeline-na_cadeira)",
     );
+  });
+
+  it("inclui ocupações extras nos limites e nas faixas da Timeline", () => {
+    expect(timeline).toContain("ocupacoesExtras.map((ocupacao) => minutosNoFuso(ocupacao.inicio, fuso))");
+    expect(timeline).toContain("const extras = ocupacoesExtras.flatMap");
+    expect(operacional).toContain("ocupacoesExtras={ocupacoesExtrasVisiveis}");
   });
 });
