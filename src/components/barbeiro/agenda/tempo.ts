@@ -130,7 +130,7 @@ export function faixasForaDoExpediente(
 ): FaixaForaDoExpediente[] {
   if (horarios.length === 0 || escala.fim <= escala.inicio) return [];
   const dow = new Date(`${dia}T12:00:00Z`).getUTCDay();
-  const horario = horarios.find((item) => item.diaSemana === dow);
+  const horario = horarios.find((item) => item.data === dia) ?? horarios.find((item) => !item.data && item.diaSemana === dow);
   if (!horario || horario.fechado) {
     return [{ inicio: escala.inicio, fim: escala.fim, fechado: true }];
   }
@@ -150,8 +150,8 @@ export function faixasForaDoExpediente(
 /** Turnos do dia (o intervalo de almoço divide o expediente em dois). */
 export function turnosDoDia(horarios: Horario[], dia: string): Array<[number, number]> {
   const dow = new Date(`${dia}T12:00:00Z`).getUTCDay();
-  const h = horarios.find((x) => x.diaSemana === dow && !x.fechado);
-  if (!h) return [];
+  const h = horarios.find((x) => x.data === dia) ?? horarios.find((x) => !x.data && x.diaSemana === dow);
+  if (!h || h.fechado) return [];
   const abre = minutosDoHorario(h.abre);
   const fecha = minutosDoHorario(h.fecha);
   if (h.intervaloInicio && h.intervaloFim) {
