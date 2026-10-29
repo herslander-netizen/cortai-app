@@ -104,7 +104,14 @@ export function usePxPorMinuto(aoVivo = true) {
   );
 }
 
-type Pinca = { distancia: number; px: number; minuto: number; y: number; quadro: number | null };
+type Pinca = {
+  distancia: number;
+  px: number;
+  pxProposto: number;
+  minuto: number;
+  y: number;
+  quadro: number | null;
+};
 
 const distanciaEntre = (toques: TouchList) => {
   const [a, b] = [toques[0], toques[1]];
@@ -145,34 +152,43 @@ export function usePincaDaTimeline({
       pinca = {
         distancia: distanciaEntre(e.touches),
         px,
+        pxProposto: px,
         minuto: inicio.current + (y + window.scrollY - topoDaGrade()) / px,
         y,
         quadro: null,
       };
     };
+    const aplicarPinca = (p: Pinca) => {
+      // A escala e a correção da rolagem entram no mesmo quadro para manter o minuto
+      // original sob o centro dos dedos, sem um salto visual.
+      flushSync(() => definirPxPorMinuto(p.pxProposto, false));
+      window.scrollTo({
+        top: Math.max(0, topoDaGrade() + (p.minuto - inicio.current) * ler() - p.y),
+        behavior: "instant",
+      });
+    };
     const mover = (e: TouchEvent) => {
       const p = pinca;
       if (!p || e.touches.length !== 2) return;
       if (e.cancelable) e.preventDefault();
-      const px = pxDaPinca(p.px, p.distancia, distanciaEntre(e.touches));
+      // Guardar sempre o evento mais recente; vários touchmove podem ocorrer antes do mesmo RAF.
+      p.pxProposto = pxDaPinca(p.px, p.distancia, distanciaEntre(e.touches));
       p.y = meioY(e.touches);
       if (p.quadro !== null) return;
       p.quadro = requestAnimationFrame(() => {
         p.quadro = null;
-        // Como no Figaro (`AgendaPinchScrollAnchor`): a escala nova e a rolagem que devolve o
-        // horário para debaixo dos dedos entram no MESMO quadro. A grade é redesenhada na hora
-        // (flushSync) e a rolagem é corrigida antes da pintura — sem quadro intermediário, a
-        // grade não "pula".
-        flushSync(() => definirPxPorMinuto(px, false));
-        window.scrollTo({
-          top: Math.max(0, topoDaGrade() + (p.minuto - inicio.current) * ler() - p.y),
-          behavior: "instant",
-        });
+        aplicarPinca(p);
       });
     };
     const terminar = (e: TouchEvent) => {
       if (!pinca || e.touches.length >= 2) return;
-      if (pinca.quadro !== null) cancelAnimationFrame(pinca.quadro);
+      const final = pinca;
+      if (final.quadro !== null) {
+        // Não descartar a última atualização se os dedos forem soltos antes do RAF.
+        cancelAnimationFrame(final.quadro);
+        final.quadro = null;
+        aplicarPinca(final);
+      }
       pinca = null;
       document.documentElement.classList.remove("agenda-pinca-ativa");
       definirPxPorMinuto(ler(), true);
@@ -182,6 +198,10 @@ export function usePincaDaTimeline({
     el.addEventListener("touchend", terminar, { passive: true });
     el.addEventListener("touchcancel", terminar, { passive: true });
     return () => {
+      if (pinca?.quadro !== null && pinca?.quadro !== undefined) {
+        cancelAnimationFrame(pinca.quadro);
+      }
+      pinca = null;
       document.documentElement.classList.remove("agenda-pinca-ativa");
       el.removeEventListener("touchstart", comecar);
       el.removeEventListener("touchmove", mover);
