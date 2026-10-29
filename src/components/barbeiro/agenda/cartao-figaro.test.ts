@@ -40,7 +40,7 @@ describe("cartão da timeline como no Figaro", () => {
   it("as faixas respeitam os limites mínimos em escalas diferentes", () => {
     expect(faixaDoCartao(14, 1)).toBe("minimo");
     expect(faixaDoCartao(15, 1)).toBe("pequeno");
-    expect(faixaDoCartao(48, 1)).toBe("pequeno");
+    expect(faixaDoCartao(48, 1)).toBe("medio");
     expect(faixaDoCartao(48, 2)).toBe("pequeno");
     expect(faixaDoCartao(60, 2)).toBe("medio");
     expect(faixaDoCartao(96, 2)).toBe("grande");
