@@ -159,6 +159,7 @@ export function PaginaPublicaConteudo({
         <div className="brand-hero-content">
           <StatusFuncionamento
             fuso={tenant.fuso}
+            excecoesIntervalo={data.excecoesIntervalo}
             horarios={data.horarios.map((h) => ({
               diaSemana: h.dia_semana,
               fechado: h.fechado,
