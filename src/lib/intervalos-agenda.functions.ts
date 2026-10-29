@@ -2,7 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { diaDaSemanaDoDia, isoNoFusoDaBarbearia } from "@/lib/horarios";
+import { diaDaSemanaDoDia, hojeNoFuso, isoNoFusoDaBarbearia } from "@/lib/horarios";
 import { fusoDoTenant } from "@/lib/fuso.server";
 import { exigirPermissao, tenantIdDoMembro, type ContextoAutenticado } from "@/lib/tenant";
 
@@ -57,6 +57,10 @@ export const salvarIntervaloDoDia = createServerFn({ method: "POST" })
     const ctx = context as ContextoAutenticado;
     const tenantId = await tenantIdDoMembro(ctx);
     await exigirPermissao(ctx, tenantId, "alterar_dados_barbearia");
+    const fusoDoNegocio = await fusoDoTenant(tenantId);
+    if (data.dia < hojeNoFuso(fusoDoNegocio)) {
+      throw new Error("Não é possível alterar o intervalo de uma data passada.");
+    }
 
     const diaSemana = diaDaSemanaDoDia(data.dia);
     const { data: expediente, error: erroExpediente } = await ctx.supabase
@@ -90,7 +94,7 @@ export const salvarIntervaloDoDia = createServerFn({ method: "POST" })
         .from("agendamentos")
         .select("id", { count: "exact", head: true })
         .eq("tenant_id", tenantId)
-        .in("status", ["agendado", "chegou", "na_cadeira"])
+        .in("status", ["agendado", "pendente", "confirmado", "chegou", "na_cadeira"])
         .lt("inicio", fimIso)
         .gt("fim", inicioIso);
       if (erroAtendimentos) {
