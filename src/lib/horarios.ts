@@ -48,6 +48,7 @@ export type ExcecaoIntervaloAgenda = {
 /**
  * Aplica uma exceção diária à cópia das regras semanais usada para um único dia.
  * Sem exceção, o expediente recorrente permanece inalterado.
+ * O resultado serve apenas para cálculo: nunca deve ser persistido sobre a regra semanal.
  */
 export function aplicarExcecaoDeIntervalo(
   horarios: HorarioDeFuncionamento[],
