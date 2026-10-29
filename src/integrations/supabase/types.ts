@@ -2195,6 +2195,47 @@ export type Database = {
           },
         ]
       }
+      excecoes_intervalo_agenda: {
+        Row: {
+          atualizado_em: string
+          atualizado_por: string | null
+          criado_em: string
+          dia: string
+          id: string
+          intervalo_fim: string | null
+          intervalo_inicio: string | null
+          tenant_id: string
+        }
+        Insert: {
+          atualizado_em?: string
+          atualizado_por?: string | null
+          criado_em?: string
+          dia: string
+          id?: string
+          intervalo_fim?: string | null
+          intervalo_inicio?: string | null
+          tenant_id: string
+        }
+        Update: {
+          atualizado_em?: string
+          atualizado_por?: string | null
+          criado_em?: string
+          dia?: string
+          id?: string
+          intervalo_fim?: string | null
+          intervalo_inicio?: string | null
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "excecoes_intervalo_agenda_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       escalas_de_profissional: {
         Row: {
           abre: string | null
