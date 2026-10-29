@@ -159,7 +159,7 @@ export function DrawerAjustes({
               <span className="min-w-0">
                 <span className="block truncate text-base font-semibold text-paper">Aparência</span>
                 <span className="mt-0.5 block truncate text-xs font-normal text-mute">
-                  Claro, escuro, sistema e identidade
+                  Claro, escuro ou seguir o sistema
                 </span>
               </span>
               <ChevronRight
