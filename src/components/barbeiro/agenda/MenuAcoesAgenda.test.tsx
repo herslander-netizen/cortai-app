@@ -122,7 +122,7 @@ describe("MenuAcoesAgenda", () => {
     const itens = Array.from(document.querySelectorAll<HTMLElement>("[role=menuitem]")).map((i) =>
       i.getAttribute("aria-label"),
     );
-    expect(itens).toHaveLength(3);
+    expect(itens).toHaveLength(4);
     expect(itens[0]).toMatch(/^Agendar horário/);
     expect(item("Equipe")).toBeUndefined();
     expect(item("Atendimento avulso")).toBeDefined();
