@@ -27,6 +27,7 @@ e o que fez. O diário até 17/10/2026 está guardado, sem alterações, em
 7. **Sem segredos:** nunca escreva chaves, senhas ou tokens aqui. Cite só o nome da variável.
 
 ## Decisões do dono
+- 2026-10-30: **Carregamento de tela cheia com o F animado** (sem o círculo): traço de baixo, traço de cima e o ponto rosa pingando. Só onde há carregamento de verdade; esqueletos continuam onde a tela tem formato conhecido.
 - 2026-10-30: **Foto padrão do topo da Agenda = ícone Flow** (F preto com ponto rosa em círculo branco, enviado pelo dono) até o negócio colocar uma foto própria.
 - 2026-10-29: **Troca de nome sem mexer no sistema** ("siga com a mudança de nome do sistema sem mexer no sistema"): o nome Flow vale para tudo que se lê (telas, textos, comentários e documentos atuais); nomes técnicos, banco, rotas, chaves, variáveis e SQL ficam como estão. Auditorias datadas e histórico também ficam.
 - 2026-10-29: **Só o tema Padrão, em escuro e claro** ("tire os outros temas, deixe apenas o padrão escuro e claro"). Rosé, Índigo, Cobre e Clássico saíram do app (Ajustes não oferece mais identidade; valores antigos salvos caem no Padrão). Os temas das páginas públicas dos negócios e os estilos do chat não fazem parte disso.
@@ -826,6 +827,9 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+
+### 2026-10-30 UTC — Claude — Carregamento animado do Flow
+- Novo `CarregamentoFlow` (`src/components/marca/CarregamentoFlow.tsx`): F reconstruído em vetor a partir do ícone do dono (traços com `pathLength` e `stroke-dashoffset`), cor do texto do tema nos traços e rosa `#fb6895` no ponto; ciclo 2,4 s (baixo 0–30 %, cima 20–48 %, ponto 46–63 % com pulo, some 80–94 %). Reduzir movimento: F parado. CSS no fim de `styles.css`. `TelaDeCarregamento` (retorno do login, loja, vaga, fila, avaliação) troca o esqueleto genérico por ele (72 px, centralizado). `tsc`, `vitest` (2203) e `build` ok.
 
 ### 2026-10-30 UTC — Claude — Título das páginas recolhe como no Figaro
 - Vídeo do Figaro (Equipe) enviado pelo dono: "o comportamento das páginas tá parecido mas não está assim". Diferenças corrigidas em `Screen.tsx` (subpáginas no celular, fora da Agenda): (1) a seta e as ações ficam numa barra que gruda no topo (`sticky`, para não cobrir abas acima, como as da Equipe), em vez de rolarem e uma segunda barra aparecer; (2) o título pequeno aparece aos poucos com a curva do Material 3 e o grande some conforme passa por baixo da barra (antes: troca de uma vez); (3) ao soltar no meio, a tela encaixa aberta ou recolhida; (4) folga do tamanho do recolhimento para recolher mesmo com pouco conteúdo. O percurso é medido pelo título real (título de duas linhas recolhe inteiro). Novo `useTituloRecolhivel.ts` (variáveis CSS, sem re-render por quadro) com teste. Parado, o layout é igual ao anterior. Computador e ADM (`AdminScreen`) sem mudança. Conferido na vitrine (Equipe: 0 / 80→60 / 120→160 / 300). `tsc`, `vitest` (2203) e `build` ok.

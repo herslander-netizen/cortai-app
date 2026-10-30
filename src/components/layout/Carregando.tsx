@@ -1,5 +1,6 @@
 import { IconeFlow } from "@/components/marca/MarcaFlow";
-import { EsqueletoFormulario, EsqueletoGenerico } from "@/components/layout/Esqueleto";
+import { EsqueletoFormulario } from "@/components/layout/Esqueleto";
+import { CarregamentoFlow } from "@/components/marca/CarregamentoFlow";
 
 /** Identidade de carregamento do Flow com o ícone oficial. */
 export function Clipper({ size = 44 }: { size?: number }) {
@@ -18,8 +19,11 @@ export function Carregando({ className = "" }: { texto?: string; className?: str
   );
 }
 
-/** Splash curto de tela cheia — só quando a tela inteira ainda não tem dados. */
+/** Carregamento de tela cheia — só quando a tela inteira ainda não tem dados nem formato conhecido. */
 export function TelaDeCarregamento({ texto = "Preparando tudo…" }: { texto?: string }) {
-  void texto;
-  return <EsqueletoGenerico />;
+  return (
+    <div className="flex min-h-dvh items-center justify-center bg-[var(--figaro-background,var(--ink))] px-6">
+      <CarregamentoFlow tamanho={72} rotulo={texto} />
+    </div>
+  );
 }

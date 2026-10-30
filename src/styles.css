@@ -11243,3 +11243,53 @@ html[data-teclado-aberto] .agenda-acao-fixa {
   height: 18px;
   flex: none;
 }
+
+/* Carregamento do Flow (dono, 30/10): F se desenhando (traço de baixo, traço de cima) e o ponto pingando; 2,4 s. */
+.carregamento-flow-baixo,
+.carregamento-flow-cima {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+}
+.carregamento-flow-baixo {
+  animation: carregamento-flow-baixo 2400ms cubic-bezier(0.2, 0, 0, 1) infinite;
+}
+.carregamento-flow-cima {
+  animation: carregamento-flow-cima 2400ms cubic-bezier(0.2, 0, 0, 1) infinite;
+}
+.carregamento-flow-ponto {
+  transform-box: fill-box;
+  transform-origin: center;
+  transform: scale(0);
+  animation: carregamento-flow-ponto 2400ms cubic-bezier(0.2, 0, 0, 1) infinite;
+}
+.carregamento-flow {
+  animation: carregamento-flow-sumir 2400ms ease-in-out infinite;
+}
+@keyframes carregamento-flow-baixo {
+  0% { stroke-dashoffset: 1; }
+  30%, 100% { stroke-dashoffset: 0; }
+}
+@keyframes carregamento-flow-cima {
+  0%, 20% { stroke-dashoffset: 1; }
+  48%, 100% { stroke-dashoffset: 0; }
+}
+@keyframes carregamento-flow-ponto {
+  0%, 46% { transform: scale(0); }
+  56% { transform: scale(1.18); }
+  63%, 100% { transform: scale(1); }
+}
+@keyframes carregamento-flow-sumir {
+  0%, 80% { opacity: 1; }
+  94%, 100% { opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .carregamento-flow,
+  .carregamento-flow-baixo,
+  .carregamento-flow-cima,
+  .carregamento-flow-ponto {
+    animation: none;
+    stroke-dashoffset: 0;
+    transform: none;
+    opacity: 1;
+  }
+}
