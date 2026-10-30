@@ -27,6 +27,7 @@ e o que fez. O diário até 17/10/2026 está guardado, sem alterações, em
 7. **Sem segredos:** nunca escreva chaves, senhas ou tokens aqui. Cite só o nome da variável.
 
 ## Decisões do dono
+- 2026-10-30: **Conversar com o dono em português do Brasil** (pedido explícito). **Campos de texto com fundo visível em todo o sistema, nos dois temas** ("tem um monte de tela assim em todo o sistema nas duas cores"), incluindo as folhas da Agenda (o dono mostrou a do Horário especial).
 - 2026-10-30: **App da equipe em tela cheia (teste)**: "Faça" para a sugestão de testar `display_override: ["fullscreen"]` só no manifesto da equipe (some a barra de status e a faixa de gestos do Android). O app do cliente continua `standalone`. Volta em uma linha se não agradar.
 - 2026-10-30: **Respostas da Flow IA no estilo do AutoResponder**: "criar um sistema parecido com o responder, depois alimentar e configurar para que a Flow IA já tenha um comportamento independente". O motor é a camada de regras e conhecimento da própria Flow IA (antes da IA de linguagem), não uma segunda IA; abre exceção à regra "não SAC/FAQ" só para respostas configuradas pelo negócio. Especificação: `docs/motor-respostas-flow-ia-especificacao.md`.
 - 2026-10-30: **"Ver Exemplo" do Layout & Tema em tela cheia, como no Figaro** (sem moldura de celular). Depois: refinar minuciosamente a experiência do chat, a personalização do chat e os ícones; então seguir com o Figaro.
@@ -846,6 +847,13 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+### 2026-10-30 UTC — Claude — Campos de texto com fundo visível no sistema todo
+- Causa: `field-control` usava `--cartao`, a mesma cor das folhas e cartões; o campo sumia e sobrava só o traço de baixo (foto do dono). O Figaro (spec 1, TextField preenchido) usa `surfaceContainerHighest`.
+- `styles.css`: novo `--campo-fundo` (= `--figaro-surface-container-highest` no painel, escuro e claro, todas as identidades); `field-control` usa `var(--campo-fundo, var(--cartao))`. Chat público, prévia do chat, modo tradicional (`.agendamento-marca`) e tela de acesso clara mantêm o campo na cor do próprio tema (`--campo-fundo: var(--cartao)`).
+- A regra global `select, option { background: --ink2 }` (fora de camada) passava por cima do campo: agora `select:not(.field-control)`.
+- Agenda: só as folhas com campo (Horário especial, Bloquear horário, Ajustar intervalo, agendamento manual) mudam de cor de campo, conforme o pedido do dono; grade, cartões e calendário não mudam. Tirado o ajuste local da folha do Horário especial (agora vem da base).
+- Conferido a 390 px, escuro e claro. `tsc`, `vitest` (2226) e `build` OK.
+
 ### 2026-10-30 UTC — Claude — Revisão do horário especial do GPT (dono: "veja se o do gpt ficou correto")
 - **Bug grave na folha:** a validação usava `/^([01]\\d|…)/` (barra dupla dentro da expressão), que recusa qualquer horário: o botão "Salvar horário" ficava sempre desabilitado com o erro na tela. Agora usa `horarioEspecialValido` (mesma regra do servidor). Teste `horario-especial-sheet.test.ts`.
 - Folha: confirmação antes de remover; campos com fundo visível (`--figaro-surface-container-highest`) — o fundo do `field-control` era igual ao da folha e sobrava só o traço de baixo (foto do dono). Só nesta folha; "Bloquear horário" e "Ajustar intervalo" têm o mesmo efeito e ficam para pedido do dono (Agenda protegida).

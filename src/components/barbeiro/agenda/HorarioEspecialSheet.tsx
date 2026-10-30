@@ -137,7 +137,7 @@ export function HorarioEspecialSheet({
               value={diaEscolhido}
               min={hoje}
               onChange={(e) => setDiaEscolhido(e.target.value)}
-              className="field-control mt-1 !bg-[var(--figaro-surface-container-highest,var(--ink3))] min-h-12 w-full"
+              className="field-control mt-1 min-h-12 w-full"
               aria-label="Data do horário especial"
             />
           </label>
@@ -147,7 +147,7 @@ export function HorarioEspecialSheet({
             <select
               value={profissionalId}
               onChange={(e) => setProfissionalId(e.target.value)}
-              className="field-control mt-1 !bg-[var(--figaro-surface-container-highest,var(--ink3))] min-h-12 w-full"
+              className="field-control mt-1 min-h-12 w-full"
             >
               <option value="">Negócio todo</option>
               {profissionais.map((p) => (
@@ -170,7 +170,7 @@ export function HorarioEspecialSheet({
                 <button
                   type="button"
                   onClick={() => setRelogio(qual)}
-                  className="field-control mt-1 !bg-[var(--figaro-surface-container-highest,var(--ink3))] flex min-h-12 w-full items-center justify-center gap-2 text-lg font-semibold tabular-nums text-paper"
+                  className="field-control mt-1 flex min-h-12 w-full items-center justify-center gap-2 text-lg font-semibold tabular-nums text-paper"
                   aria-label={`${rotulo}: ${valor}`}
                 >
                   <Clock3 className="size-4" aria-hidden /> {valor}

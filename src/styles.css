@@ -660,6 +660,8 @@
 
 /* ===== Sistema visual dos chats Flow ===== */
 .chat-sistema {
+  /* Tema próprio (do negócio ou da tela de acesso): o campo segue o cartão dele. */
+  --campo-fundo: var(--cartao);
   --chat-surface: var(--chat-page, var(--background));
   --chat-content: var(--chat-page-text, var(--foreground));
   --chat-muted: color-mix(in oklab, var(--chat-content) 62%, transparent);
@@ -884,6 +886,8 @@
   color: var(--chat-content);
 }
 .chat-preview-personalizado {
+  /* Tema próprio (do negócio ou da tela de acesso): o campo segue o cartão dele. */
+  --campo-fundo: var(--cartao);
   /* O texto segue a cor da conversa, não a da tela em volta (o nome no cabeçalho sumia no fundo claro). */
   color: var(--chat-content);
   --chat-surface: var(--chat-page, var(--background));
@@ -911,6 +915,8 @@
 
 /* O modo tradicional usa a mesma identidade publicada, sem alterar o motor de agenda. */
 .agendamento-marca {
+  /* Tema próprio (do negócio ou da tela de acesso): o campo segue o cartão dele. */
+  --campo-fundo: var(--cartao);
   --ink: var(--chat-page, var(--background));
   --ink2: var(--chat-superficie-1, var(--ink2));
   --cartao: var(
@@ -1747,7 +1753,8 @@ textarea::placeholder {
   color: var(--mute2);
 }
 
-select,
+/* O campo padrão (`field-control`) tem fundo próprio; esta regra fora de camada passava por cima dele. */
+select:not(.field-control),
 option {
   background-color: var(--ink2);
   color: var(--paper);
@@ -1871,7 +1878,7 @@ option {
   border-bottom: 2px solid var(--line2);
   border-radius: var(--raio-campo-topo) var(--raio-campo-topo) var(--raio-campo-base)
     var(--raio-campo-base);
-  background-color: var(--cartao);
+  background-color: var(--campo-fundo, var(--cartao));
   padding: 10px 16px;
   color: var(--paper);
   font-size: var(--texto-campo);
@@ -2054,6 +2061,8 @@ body:has(.auth-screen) {
 
 /* Variante clara da tela de acesso: fundo branco com a marca oficial colorida. */
 .auth-screen--claro {
+  /* Tema próprio (do negócio ou da tela de acesso): o campo segue o cartão dele. */
+  --campo-fundo: var(--cartao);
   --ink: #ffffff;
   --ink2: #ffffff;
   --ink3: #eaf2fb;
@@ -8837,6 +8846,9 @@ button.agenda-timeline-bloqueio-interativo {
   --fundo: var(--figaro-background);
   --painel: var(--figaro-surface-container-high);
   --cartao: var(--figaro-surface-container-low);
+  /* Campo preenchido do Figaro (spec 1, TextField): `surfaceContainerHighest`. Com `--cartao` o campo tinha a cor das
+     folhas e dos cartões e só sobrava o traço de baixo (foto do dono, 30/10). */
+  --campo-fundo: var(--figaro-surface-container-highest);
   --linha: var(--figaro-outline-variant);
   --texto: var(--figaro-on-surface);
   --texto-suave: var(--figaro-hint);
@@ -8879,6 +8891,7 @@ button.agenda-timeline-bloqueio-interativo {
   --fundo: var(--figaro-background);
   --painel: var(--figaro-surface-container-low);
   --cartao: var(--figaro-surface-container-lowest);
+  --campo-fundo: var(--figaro-surface-container-highest);
   --linha: var(--figaro-outline-variant);
   --texto: var(--figaro-on-surface);
   --texto-suave: var(--figaro-hint);
