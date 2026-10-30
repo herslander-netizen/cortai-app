@@ -337,6 +337,13 @@
       "when": 1793383200000,
       "tag": "0053_textos_flow_recursos_modelos",
       "breakpoints": true
+    },
+    {
+      "idx": 48,
+      "version": "7",
+      "when": 1793390400000,
+      "tag": "0054_horarios_especiais",
+      "breakpoints": true
     }
   ]
 }
