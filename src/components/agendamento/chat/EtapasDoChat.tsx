@@ -17,6 +17,8 @@ function cascata(indice: number) {
 }
 
 export function EtapaServico({ data, selecao }: { data: AgendaPublica; selecao: Selecao }) {
+  // Sem nenhuma foto de serviço, o cartão fica compacto: um quadro cinza vazio ocupava metade da tela.
+  const comFotos = data.servicos.some((s) => s.foto_url);
   return (
     <Fala>
       <p className="mb-3">{TEXTOS_CONVERSA.servico}</p>
@@ -26,26 +28,28 @@ export function EtapaServico({ data, selecao }: { data: AgendaPublica; selecao: 
             key={s.id}
             type="button"
             variant="ghost"
-            className={`chat-card-servico h-auto w-40 shrink-0 snap-start flex-col p-0 text-left ${cascata(i).className}`}
+            className={`chat-card-servico h-auto shrink-0 snap-start flex-col items-stretch p-0 text-left ${comFotos ? "w-40" : "w-44"} ${cascata(i).className}`}
             style={cascata(i).style}
             aria-pressed={selecao.servicoId === s.id}
             onClick={() => selecao.setServicoId(s.id)}
           >
-            <span className="grid aspect-[4/5] w-full place-items-center overflow-hidden bg-ink3">
-              {s.foto_url ? (
-                <img
-                  src={s.foto_url}
-                  alt=""
-                  loading="lazy"
-                  className="h-full w-full object-cover"
-                />
-              ) : (
-                <ImageIcon className="text-mute" aria-hidden />
-              )}
-            </span>
-            <span className="block p-3">
+            {comFotos ? (
+              <span className="grid aspect-[4/5] w-full place-items-center overflow-hidden bg-ink3">
+                {s.foto_url ? (
+                  <img
+                    src={s.foto_url}
+                    alt=""
+                    loading="lazy"
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <ImageIcon className="text-mute" aria-hidden />
+                )}
+              </span>
+            ) : null}
+            <span className="block w-full p-3">
               <strong className="block truncate text-sm font-extrabold text-paper">{s.nome}</strong>
-              <span className="mt-1 flex items-center justify-between text-xs text-mute">
+              <span className="mt-1 flex items-center justify-between gap-2 text-xs text-mute">
                 <span className="flex items-center gap-1">
                   <Clock3 size={12} aria-hidden />
                   {s.duracao_min} min

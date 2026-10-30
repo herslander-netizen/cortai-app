@@ -40,6 +40,23 @@ export function saudacao(primeiroNome?: string | null) {
   return primeiroNome ? `Oi, ${primeiroNome}!` : "Oi!";
 }
 
+// Sem `\b`: ele não reconhece letras acentuadas ("olá!" não teria fronteira).
+const CUMPRIMENTO_NO_INICIO = /^\s*(oi|ol[aá]|e a[ií]|bom dia|boa tarde|boa noite)(?=[\s,!.?]|$)[\s,!.]*/i;
+
+/**
+ * Primeira fala do chat: a mensagem inicial do negócio com o "Oi!" na frente, sem cumprimentar duas vezes
+ * ("Oi! Olá! Vou ajudar…"). Se a mensagem já começa cumprimentando, ela vale sozinha; com o nome do cliente,
+ * o cumprimento dela dá lugar ao "Oi, Ana!".
+ */
+export function aberturaDoChat(mensagem: string, primeiroNome?: string | null) {
+  const texto = mensagem.trim();
+  const jaCumprimenta = CUMPRIMENTO_NO_INICIO.test(texto);
+  if (!jaCumprimenta) return `${saudacao(primeiroNome)} ${texto}`.trim();
+  if (!primeiroNome) return texto;
+  const resto = texto.replace(CUMPRIMENTO_NO_INICIO, "");
+  return `${saudacao(primeiroNome)} ${resto.charAt(0).toUpperCase()}${resto.slice(1)}`.trim();
+}
+
 export function textoDeSempre(
   primeiroNome: string | undefined,
   servico: string,

@@ -4,6 +4,7 @@ import type { ChangeEvent, RefObject } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
+import { CORES_AGENDAMENTO } from "@/lib/cor-marca";
 import type { PaginaConfig } from "@/lib/pagina-config";
 import { CURVA, TEMPO } from "@/lib/movimento-figaro";
 import { fieldClass } from "./campos";
@@ -25,7 +26,10 @@ export function SecaoRecepcao({
   upload: (event: ChangeEvent<HTMLInputElement>, kind: "avatar") => void;
 }) {
   const reduzirMovimento = useReducedMotion();
-  const transicaoFoto = { duration: reduzirMovimento ? 0 : TEMPO.foto, ease: CURVA.rapidaParaLenta };
+  const transicaoFoto = {
+    duration: reduzirMovimento ? 0 : TEMPO.foto,
+    ease: CURVA.rapidaParaLenta,
+  };
   return (
     <div className="space-y-4">
       <div>
@@ -135,20 +139,32 @@ export function SecaoRecepcao({
           onChange={(e) => setPagina("chat", { ...config.chat, textoFinal: e.target.value })}
         />
       </label>
-      <div className="grid grid-cols-3 gap-2">
-        {(["azul", "ciano", "rosa", "areia", "couro"] as const).map((cor) => (
-          <Button
-            key={cor}
-            type="button"
-            variant={config.chat.corDestaque === cor ? "default" : "outline"}
-            className="h-12 capitalize"
-            aria-pressed={config.chat.corDestaque === cor}
-            onClick={() => setPagina("chat", { ...config.chat, corDestaque: cor })}
-          >
-            {cor}
-          </Button>
-        ))}
-      </div>
+      <fieldset>
+        {/* Antes os botões de cor apareciam soltos, sem dizer para que serviam. */}
+        <legend className="text-xs font-medium text-mute">Cor de destaque</legend>
+        <div className="mt-2 grid grid-cols-3 gap-2">
+          {(["azul", "ciano", "rosa", "areia", "couro"] as const).map((cor) => {
+            const marcada = config.chat.corDestaque === cor;
+            return (
+              <Button
+                key={cor}
+                type="button"
+                variant="ghost"
+                className={`h-12 justify-start gap-2 rounded-full border px-3 capitalize ${marcada ? "border-gold bg-gold/10 text-paper" : "border-line text-mute"}`}
+                aria-pressed={marcada}
+                onClick={() => setPagina("chat", { ...config.chat, corDestaque: cor })}
+              >
+                <span
+                  aria-hidden
+                  className="size-5 shrink-0 rounded-full ring-1 ring-inset ring-black/10"
+                  style={{ background: CORES_AGENDAMENTO.destaques[cor] }}
+                />
+                {cor}
+              </Button>
+            );
+          })}
+        </div>
+      </fieldset>
       {(
         [
           { key: "comemoracao", label: "Comemoração discreta" },

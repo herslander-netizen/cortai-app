@@ -36,7 +36,7 @@ export function BarraDeMensagem({
           ref={campoRef}
           value={texto}
           onChange={(e) => setTexto(e.target.value)}
-          placeholder="Escreva aqui, ex.: sábado de manhã, depois das 10h"
+          placeholder="Ex.: sábado de manhã"
           aria-label="Escreva sua mensagem"
           enterKeyHint="send"
           autoComplete="off"

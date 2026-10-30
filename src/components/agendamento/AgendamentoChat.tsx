@@ -11,7 +11,7 @@ import { FontesDaMarca } from "@/components/marca/FontesDaMarca";
 import { Button } from "@/components/ui/button";
 import { useHistoricoAgendamento } from "@/hooks/useHistoricoAgendamento";
 import type { AgendaPublica } from "@/lib/agendamento-publico.functions";
-import { diaPorExtenso, saudacao } from "@/lib/conversa/respostas";
+import { aberturaDoChat, diaPorExtenso } from "@/lib/conversa/respostas";
 import { mascaraTelefone } from "@/lib/previa";
 import { agendamentoStyle } from "@/lib/pagina-config";
 import { pausaDaResposta } from "@/lib/pausa-chat";
@@ -189,9 +189,7 @@ export function AgendamentoChat({
             aria-live="polite"
           >
             <SeparadorDeDia />
-            <Fala>
-              {saudacao(memoria?.primeiroNome)} {data.pagina.chat.mensagemInicial}
-            </Fala>
+            <Fala>{aberturaDoChat(data.pagina.chat.mensagemInicial, memoria?.primeiroNome)}</Fala>
             {abertura ? (
               <AberturaDoChat
                 tipo={abertura}

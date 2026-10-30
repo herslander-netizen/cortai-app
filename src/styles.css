@@ -884,6 +884,8 @@
   color: var(--chat-content);
 }
 .chat-preview-personalizado {
+  /* O texto segue a cor da conversa, não a da tela em volta (o nome no cabeçalho sumia no fundo claro). */
+  color: var(--chat-content);
   --chat-surface: var(--chat-page, var(--background));
   --chat-content: var(--chat-page-text, var(--foreground));
   --chat-muted: color-mix(in oklab, var(--chat-content) 62%, transparent);
@@ -9468,8 +9470,10 @@ button.agenda-timeline-bloqueio-interativo {
   }
 }
 @keyframes chat-lido {
+  /* As duas pontas no mesmo espaço de cor: de `color-mix(oklab)` para um hex o Chrome misturava os números e
+     o visto terminava amarelado em vez de azul. */
   to {
-    color: #34b7f1;
+    color: color-mix(in oklab, #34b7f1 100%, transparent);
   }
 }
 .chat-meta[data-cliente] {

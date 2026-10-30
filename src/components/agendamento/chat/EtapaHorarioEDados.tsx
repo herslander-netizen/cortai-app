@@ -117,7 +117,7 @@ export function EtapaDados({
         <br />
         {diaPorExtenso(dia)} às {escolhido.label} · {brl(servico.preco_centavos)}
       </p>
-      <p className="mt-2">{TEXTOS_CONVERSA.confirmar}</p>
+      {/* Uma frase só: "Posso confirmar?" seguido de "…para confirmar" repetia a pergunta; o botão já confirma. */}
       <p className="mb-3 mt-3 text-sm">{TEXTOS_CONVERSA.dados}</p>
       <div className="grid gap-3">
         <Input

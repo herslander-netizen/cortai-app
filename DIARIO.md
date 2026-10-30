@@ -839,6 +839,12 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+### 2026-10-30 UTC — Claude — Refino do chat de agendamento e do Personalizar Chat
+- Pedido do dono: "refinar de forma minuciosa a experiência do chat, de personalizar o chat, os ícones". Revisado na vitrine (360 dp), do lado do negócio e do cliente.
+- **Personalizar Chat** (`barbeiro.marca.chat.tsx`): Aparência deixa os botões colados que cortavam os nomes ("Foto d…", "F.. T.. C..") e vira linhas do Figaro (`LinhaDeOpcoes`) com ícone, valor atual e folha de baixo com explicação de cada opção. Balões em 3 colunas com miniaturas maiores. Cor de destaque com título e amostra da cor (`SecaoRecepcao.tsx`). Prévia: o nome da recepção sumia (texto claro no fundo claro); `.chat-preview-personalizado` passa a usar a cor da conversa.
+- **Chat do cliente**: a saudação não sai mais duplicada ("Oi! Olá! …"): `aberturaDoChat` em `conversa/respostas.ts` (com teste); cartões de serviço sem foto ficam compactos (antes um quadro cinza enorme) e duração e preço não ficam mais grudados ("60 minR$ 90,00"); texto de exemplo da caixa "Ex.: sábado de manhã" (antes cortado); confirmação sem "Posso confirmar?" repetido antes de "…para confirmar"; visto da mensagem volta a ficar azul (a animação misturava espaços de cor e terminava amarelada).
+- `tsc` e `vitest` (2211) passaram.
+
 ### 2026-10-30 UTC — Claude — "Ver Exemplo" de Layout & Tema em tela cheia, como no Figaro
 - Vídeo do dono (Personalizar Página → Escolher Layout & Tema → Ver Exemplo no Figaro): "colocar o modo de ver o site exatamente dessa forma, substituir a ideia de pôr no celular". `barbeiro.marca.layout-tema_.preview.tsx`: o site de exemplo ocupa a tela inteira, só com a barra simples "Layout · Tema" e o voltar; saem a moldura de celular, o "Prévia ao vivo", a troca celular/computador e o botão "Voltar para Layout & Tema". O voltar leva a escolha em andamento (nova prop `voltarBusca` no `Screen`). Chat e Agendamento direto também abrem em tela cheia.
 - Fila combinada com o dono: 1) isto; 2) refinar a experiência do chat, a personalização do chat e os ícones; 3) seguir com o Figaro.
