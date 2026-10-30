@@ -171,6 +171,10 @@ jobs:
           META_WHATSAPP_PHONE_NUMBER_ID: ${{ secrets.META_WHATSAPP_PHONE_NUMBER_ID }}
           META_WHATSAPP_VERIFY_TOKEN: ${{ secrets.META_WHATSAPP_VERIFY_TOKEN }}
           META_WHATSAPP_APP_SECRET: ${{ secrets.META_WHATSAPP_APP_SECRET }}
+          # Evolution API (WhatsApp por QR Code): ver docs/instalar-evolution.md.
+          EVOLUTION_API_URL: ${{ secrets.EVOLUTION_API_URL }}
+          EVOLUTION_API_KEY: ${{ secrets.EVOLUTION_API_KEY }}
+          EVOLUTION_WEBHOOK_SECRET: ${{ secrets.EVOLUTION_WEBHOOK_SECRET }}
         run: |
           set -euo pipefail
           nomes=(SUPABASE_URL SUPABASE_PUBLISHABLE_KEY SUPABASE_SERVICE_ROLE_KEY CORTAI_PUBLIC_BASE_URL
@@ -178,7 +182,8 @@ jobs:
             CORTAI_AI_CANAIS CORTAI_AI_FALLBACK_BASE_URL CORTAI_AI_FALLBACK_MODEL CORTAI_AI_FALLBACK_API_KEY
             CORTAI_AI_FALLBACK_TIMEOUT_MS CORTAI_AI_FALLBACK_REASONING_EFFORT
             META_WHATSAPP_ACCESS_TOKEN META_WHATSAPP_PHONE_NUMBER_ID
-            META_WHATSAPP_VERIFY_TOKEN META_WHATSAPP_APP_SECRET)
+            META_WHATSAPP_VERIFY_TOKEN META_WHATSAPP_APP_SECRET
+            EVOLUTION_API_URL EVOLUTION_API_KEY EVOLUTION_WEBHOOK_SECRET)
           json='{}'
           for n in "${nomes[@]}"; do
             v="$(printf '%s' "${!n}" | tr -d '\r\n' | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"

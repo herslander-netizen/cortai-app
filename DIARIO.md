@@ -836,6 +836,10 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-30 UTC — Claude — Preparação para instalar a Evolution API
+- Pedido do dono ("faça as configurações, vamos tentar instalar o Evolution hoje"). O código já suportava a Evolution v2, mas os workflows não repassavam as variáveis: `lancar-versao.yml` passa a enviar `EVOLUTION_API_URL`, `EVOLUTION_API_KEY` e `EVOLUTION_WEBHOOK_SECRET` (segredos de mesmo nome) e `preview-migration.yml` os `PREVIEW_EVOLUTION_*` (ambientes separados para um não sobrescrever o webhook do outro). Sem os segredos nada muda.
+- Kit `infra/evolution/` (docker-compose da Evolution v2 com Postgres e Redis, `.env.example` sem valores) e guia `docs/instalar-evolution.md` (Railway ou VPS, gerar chaves, cadastrar segredos, conectar o número pelo QR). Pendente com o dono: escolher e contratar a hospedagem (custo) e cadastrar os segredos (ou conectar o conector do Railway para a IA fazer).
+
 ### 2026-10-30 UTC — Claude — Avisos e Lembretes com abas Clientes/Equipe (item 2)
 - `/barbeiro/notificacoes`: abas "Para clientes" / "Para a equipe" (Figaro `NotificationAudience`); quem não tem `configurar_automacoes` abre na da equipe. Clientes: saldo do WhatsApp (o contador que já existia), os quatro eventos (Novo agendamento, Lembrete de horário, Reagendamento, Cancelamento) com linha de resumo e folha de baixo com o WhatsApp e, no lembrete, os chips de antecedência (24 h · véspera e 2 h · no dia). Equipe: as preferências de cada pessoa, como antes.
 - **Sem migração**: liga/desliga grava em `automacoes_de_ia` (chaves `confirmacao_agendamento`, `lembrete_24h`, `lembrete_2h`, `alteracao_agendamento`, `cancelamento_agendamento`), a mesma fonte que o envio já respeita; sem linha gravada vale o padrão do envio (configuração do atendimento). Escrita pelo login da pessoa, barrada pelo RLS (`configurar_automacoes`). As antecedências ficam nas duas que os modelos aprovados da Meta suportam ("amanhã" e "hoje"); antecedência livre exigiria modelos novos.
