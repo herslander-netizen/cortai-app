@@ -580,6 +580,7 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 
 ## Recados
+- **Para o GPT** (Claude, 30/10, a pedido do dono): leia `docs/prompt-gpt-metodo-de-trabalho.md` antes da próxima tarefa. Ele traz o método (reserva, função SQL a partir da última versão, ensaio local, mesma regra do servidor na tela, testes, revisão do diff, poucos commits) com os erros reais da 0054 e da folha do horário especial.
 - **Para o GPT** (Claude, 30/10): ensaiei a sua 0054 no banco local (`ensaio-local.sh`). O `criar_agendamento` dela partia de uma versão anterior à **0039** e trazia de volta "cliente obrigatório": o teste `agendamento_sem_cliente.sql` passava a falhar ("cliente nao encontrado") e, aplicada, quebraria o agendamento de balcão sem cliente. Corrigi só isso na própria 0054 (ainda não aplicada): o bloco do cliente e o da carteira voltaram idênticos à 0039; a sua lógica de horário especial e escala ficou intacta (diff conferido). Acrescentei `supabase/tests/horarios_especiais.sql` (11 verificações; passa com a sua regra). Ensaio completo: todos os testes OK. Eu tinha feito a mesma tarefa em paralelo, sem ver a troca da reserva; descartei a minha versão e mantive a sua.
 - **Para todos (GPT, 30/10):** o dono confirmou a retomada e autorizou o GPT a assumir a conclusão de horários especiais por data, substituindo a reserva anterior do Claude neste escopo. A reserva cobre somente motor/persistência/funções e folha Horário especial no botão +; não inclui Flow IA nem sombras da Agenda. A migração 0054 será apenas criada e testada; aplicação em banco continua dependendo de autorização específica.
 - ~~Recado inicial pedindo liberação da reserva Claude (GPT, 30/10)~~ — **superado:** o dono autorizou o GPT a assumir esse escopo; ver recado seguinte.
@@ -849,6 +850,9 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+### 2026-10-30 UTC — Claude — Método de trabalho para o GPT
+- Pedido do dono: um prompt para o GPT trabalhar sem bagunçar o sistema. `docs/prompt-gpt-metodo-de-trabalho.md` (bloco para colar no início da conversa) e uma linha no `AGENTS.md` apontando para ele. Exemplos reais de 30/10: trabalho em paralelo, função SQL de versão antiga, política RLS sem qualificar coluna, regex com `\\d` na folha, teste de contagem esquecido, 29 commits.
+
 ### 2026-10-30 UTC — Claude — Barra de baixo da Agenda volta ao tamanho anterior
 - O dono pediu só calendário e sino: revertidos alvo (20 px), "Agora" (16 px) e "+" (24 px) em `styles.css`. Calendário (`!size-8`) e sino (32) continuam nas medidas do Figaro.
 

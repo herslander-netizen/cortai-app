@@ -8,6 +8,8 @@ mesmas regras, mesma ordem de prioridade, mesmo critério para pedir autorizaç�
 carrega este arquivo sozinho (o GPT/Codex lê `AGENTS.md`; o `CLAUDE.md` importa este arquivo) deve
 lê-lo no começo de cada tarefa. O estado vivo fica em `DIARIO.md` e o resumo da migração em `MUSE.md`.
 
+**Método de trabalho passo a passo (obrigatório para todas, com os erros reais que ele evita):** `docs/prompt-gpt-metodo-de-trabalho.md`.
+
 **Como conversam:** não há chat direto entre as IAs; o canal é o `DIARIO.md` no GitHub.
 - Antes de mexer: `git pull`, ler "Em andamento" e "Recados" e reservar a tarefa (commit só dessa linha).
 - Depois de cada mudança enviada: uma entrada no topo do diário (o que mudou, arquivos, testes,
