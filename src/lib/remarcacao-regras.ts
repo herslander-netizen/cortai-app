@@ -72,3 +72,14 @@ export const PASSO_DO_AJUSTE_MIN = 5;
 export function passoDoGesto(_passoMin?: number | null): number {
   return PASSO_DO_AJUSTE_MIN;
 }
+
+/**
+ * Até onde a alça de duração pode ir (minutos, em passos inteiros): o fim nunca sobe acima do início mais a duração
+ * mínima nem passa da duração máxima ou da meia-noite (dono, 30/10: arrastar para cima deixava o fim antes do início).
+ */
+export function limitesDaAlca(inicio: number, fim: number, passo: number) {
+  const duracao = fim - inicio;
+  const encolher = Math.floor(Math.max(0, duracao - DURACAO_MIN_MINUTOS) / passo) * passo;
+  const crescer = Math.min(Math.max(0, DURACAO_MAX_MINUTOS - duracao), Math.max(0, 24 * 60 - fim));
+  return { min: -encolher || 0, max: Math.floor(crescer / passo) * passo };
+}

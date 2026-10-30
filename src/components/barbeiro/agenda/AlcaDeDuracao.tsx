@@ -4,7 +4,8 @@ import { useRef } from "react";
 /**
  * Alça na base do cartão para esticar ou encurtar a duração. Arrastar mostra o novo fim ao vivo
  * (`onArrastar`) e soltar propõe a mudança (`onConfirmar`, em minutos): quem grava é o Salvar.
- * Com o foco, as setas para cima e para baixo mudam um passo.
+ * Com o foco, as setas para cima e para baixo mudam um passo. A alça trava em `limites` (minutos, em passos
+ * inteiros): o fim não sobe além da duração mínima nem desce além da máxima.
  */
 export function AlcaDeDuracao({
   rotulo,
@@ -12,6 +13,7 @@ export function AlcaDeDuracao({
   estilo,
   pxPorMinuto,
   passoMin,
+  limites,
   lerRolagem,
   onTravar,
   onSoltar,
@@ -25,6 +27,8 @@ export function AlcaDeDuracao({
   pxPorMinuto: number;
   /** Passo em minutos (veja `passoDoGesto`). */
   passoMin: number;
+  /** Menor e maior mudança permitidas, em minutos (ex.: `{ min: -30, max: 445 }`). */
+  limites: { min: number; max: number };
   lerRolagem: () => number;
   onTravar: () => void;
   onSoltar: () => void;
@@ -48,7 +52,8 @@ export function AlcaDeDuracao({
     const g = gesto.current;
     if (!g) return;
     e.preventDefault();
-    g.dy = e.clientY - g.y0 + (lerRolagem() - g.rolagem0);
+    const dy = e.clientY - g.y0 + (lerRolagem() - g.rolagem0);
+    g.dy = Math.min(limites.max * pxPorMinuto, Math.max(limites.min * pxPorMinuto, dy));
     onArrastar(g.dy);
   }
   function encerrar(confirmar: boolean) {
@@ -57,7 +62,7 @@ export function AlcaDeDuracao({
     onSoltar();
     onArrastar(null);
     if (!confirmar || !g) return;
-    const delta = Math.round(g.dy / pxPorMinuto / passoMin) * passoMin;
+    const delta = travar(Math.round(g.dy / pxPorMinuto / passoMin) * passoMin);
     if (delta !== 0) {
       navigator.vibrate?.(18);
       onConfirmar(delta);
@@ -66,7 +71,11 @@ export function AlcaDeDuracao({
   function teclas(e: KeyboardEvent<HTMLDivElement>) {
     if (e.key !== "ArrowDown" && e.key !== "ArrowUp") return;
     e.preventDefault();
-    onConfirmar(e.key === "ArrowDown" ? passoMin : -passoMin);
+    const delta = travar(e.key === "ArrowDown" ? passoMin : -passoMin);
+    if (delta !== 0) onConfirmar(delta);
+  }
+  function travar(delta: number) {
+    return Math.min(limites.max, Math.max(limites.min, delta));
   }
 
   return (

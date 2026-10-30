@@ -70,3 +70,19 @@ describe("passoDoGesto", () => {
       expect(passoDoGesto(passo)).toBe(5);
   });
 });
+
+describe("limitesDaAlca", () => {
+  it("o fim não sobe acima do início mais a duração mínima", async () => {
+    const { limitesDaAlca } = await import("./remarcacao-regras");
+    // 09:00–09:35 com passo de 5: encolhe no máximo 30 (fica 09:00–09:05), nunca 09:00–08:40.
+    expect(limitesDaAlca(540, 575, 5)).toEqual({ min: -30, max: 445 });
+    // Passo de 15: só passos inteiros que mantêm 5 min ou mais.
+    expect(limitesDaAlca(540, 575, 15).min).toBe(-30);
+    expect(limitesDaAlca(540, 545, 5).min).toBe(0);
+  });
+  it("não passa da meia-noite nem da duração máxima", async () => {
+    const { limitesDaAlca } = await import("./remarcacao-regras");
+    expect(limitesDaAlca(1380, 1410, 5).max).toBe(30);
+    expect(limitesDaAlca(480, 600, 5).max).toBe(360);
+  });
+});

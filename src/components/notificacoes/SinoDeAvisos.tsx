@@ -328,7 +328,8 @@ export function SinoDeAvisos() {
         onClick={() => abrirCentralRef.current()}
         aria-label={rotuloDoSino(naoLidas, naoVistos)}
         className={`sino-de-avisos relative h-12 w-12 shrink-0 overflow-visible rounded-none border-0 ${
-          forte ? "" : "text-[var(--figaro-on-surface-variant,var(--mute))]"
+          // Sem não lidas, a mesma cor do ícone do calendário ao lado (dono, 30/10).
+          forte ? "" : "text-mute"
         }`}
         style={forte ? { color: cor } : undefined}
       >

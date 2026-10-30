@@ -26,7 +26,7 @@ import {
 import { ladoDoAgora, publicarAgora } from "@/components/barbeiro/agenda/pilula-agora";
 import { criarBloqueioDeRolagem } from "@/components/barbeiro/agenda/bloqueio-rolagem";
 import { AlcaDeDuracao } from "@/components/barbeiro/agenda/AlcaDeDuracao";
-import { PASSO_DO_AJUSTE_MIN, passoDoGesto } from "@/lib/remarcacao-regras";
+import { PASSO_DO_AJUSTE_MIN, limitesDaAlca, passoDoGesto } from "@/lib/remarcacao-regras";
 import {
   aoCorrigirRolagemDoZoom,
   usePincaDaTimeline,
@@ -1385,6 +1385,7 @@ function AgendaTimelineBase({
                     estilo={{ top: `${topo + alturaDoBloco - 32}px`, ...faixaDaColuna }}
                     pxPorMinuto={PX_POR_MINUTO}
                     passoMin={passo}
+                    limites={limitesDaAlca(minutosNoFuso(item.inicio, fuso), fim, passo)}
                     lerRolagem={() =>
                       celularAgora() ? window.scrollY : (rolagemRef.current?.scrollTop ?? 0)
                     }

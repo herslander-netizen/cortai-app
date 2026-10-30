@@ -836,6 +836,11 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+### 2026-10-30 UTC — Claude — Trava da alça de duração e sino na cor do calendário
+- Vídeo do dono ("deveria ter uma trava para não subir o horário"): ao editar o horário, a alça de baixo subia além do início (09:00 – 08:40) e só depois aparecia "Duração fora do limite". Agora `AlcaDeDuracao` recebe `limites` e trava o arraste e as setas; `limitesDaAlca` (`remarcacao-regras.ts`, com teste) deixa encolher até a duração mínima (5 min, em passos inteiros) e crescer até a máxima ou a meia-noite. A validação de antes e a do servidor continuam.
+- Captura do dono ("sino e calendário com colorações diferentes no estado normal"): sem não lidas, o sino usava `--figaro-on-surface-variant` (cinza rosado) e o calendário `text-mute`; o sino passa a `text-mute`. Com não lidas continua aceso.
+- Testes (283 nos arquivos tocados) e `tsc` passaram.
+
 ### 2026-10-30 UTC — Claude — Distância do ponto ao número no mês igual ao Figaro
 - Dono: "o negócio é a distância também". Medido nas capturas (3 px/dp): no Flow o centro do ponto ficava 5,0 dp abaixo da base do número; no Figaro, 6,3 dp, com ponto de 4,5 dp. `SemanaDoTopo.tsx` (mês, `compacto`): ponto `size-[4.5px]` e `bottom-[4.4px]` (antes 4 px e 6 px). Semana sem mudança. Conferido na vitrine (6,7 dp; a vitrine mede ~0,3 dp a mais que o aparelho).
 - Testes da Agenda e `tsc` passaram.
