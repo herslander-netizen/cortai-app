@@ -177,15 +177,14 @@ describe("troca de dia em páginas no celular (como no vídeo de referência)", 
     expect(semana).not.toContain("translate3d(${lado * 36}%,0,0)");
   });
 
-  it("a timeline desce e sobe colada no calendário: uma mola do Figaro (1,0 / 400)", () => {
+  it("a timeline segue o calendário com a segunda mola do Figaro (1,0 / 400) em série", () => {
     expect(semana).not.toContain('mode="wait"');
     // `expandSizeSpringDp` do APK: amortecimento 1 (damping 40 com massa 1) e rigidez 400.
     expect(semana).toMatch(/const MOLA_DO_FIGARO = \{\s*stiffness: 400,\s*damping: 40,\s*mass: 1,/);
-    // Vídeo do Figaro (29/10): a Agenda acompanha a borda do painel na mesma mola (a mola 2 em série a deixava
-    // parada sob o mês e depois ela saltava).
+    // Vídeo do Figaro (dono, 30/10, medido quadro a quadro): o painel abre na mola 1 e a Agenda vem atrás na
+    // mola 2 igual, perseguindo a borda dele ("quero esse efeito de mola").
     expect(semana).toContain("const alturaDoPainel = useSpring(alvoDoPainel, MOLA_DO_FIGARO)");
-    expect(semana).toContain("const espacoDaAgenda = alturaDoPainel;");
-    expect(semana).not.toContain("useSpring(alturaDoPainel");
+    expect(semana).toContain("const espacoDaAgenda = useSpring(alturaDoPainel, MOLA_DO_FIGARO);");
     // Desempenho: a Agenda desce por transform (sem refazer o layout a cada quadro) e os meses são memoizados e
     // montados em fases depois que as molas assentam.
     expect(semana).toContain("palco.style.transform = `translate3d(0,${dy}px,0)`");

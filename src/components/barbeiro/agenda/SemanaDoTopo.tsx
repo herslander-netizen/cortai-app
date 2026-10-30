@@ -372,11 +372,12 @@ export function SemanaDoTopo({
   // Altura da semana: o mês nasce dela e volta para ela ao fechar.
   const camadaSemana = useRef<HTMLDivElement>(null);
   const alturaDaSemana = useRef(60);
-  // Uma mola só (1,0 / 400): a Agenda desce e sobe colada na borda do painel, como no vídeo do Figaro (dono,
-  // 29/10). Com uma segunda mola em série ela ficava parada sob o mês que descia e depois saltava.
+  // Duas molas iguais (1,0 / 400) em série, como no Figaro: o painel abre e a Agenda vem atrás, perseguindo a
+  // borda dele (vídeo do Figaro do dono, 30/10, medido quadro a quadro: a Agenda começa ~90 ms depois e assenta
+  // ~0,35 s depois do painel). Substitui a mola única de 29/10 a pedido do dono ("quero esse efeito de mola").
   const alvoDoPainel = useMotionValue(60);
   const alturaDoPainel = useSpring(alvoDoPainel, MOLA_DO_FIGARO);
-  const espacoDaAgenda = alturaDoPainel;
+  const espacoDaAgenda = useSpring(alturaDoPainel, MOLA_DO_FIGARO);
   // O painel vai até a borda de baixo do topo (o `pb-[13px]`): sem isso, ao fim da descida o topo crescia
   // mais 24 px de uma vez e cobria o começo da timeline (vídeo do dono, 29/10).
   const alturaDoPainelAteABorda = useTransform(alturaDoPainel, (v) => v + 13);
@@ -406,14 +407,14 @@ export function SemanaDoTopo({
     const altura = camadaSemana.current?.offsetHeight;
     if (!altura) return;
     alturaDaSemana.current = altura;
-    for (const v of [alvoDoPainel, alturaDoPainel]) v.jump(altura);
-  }, [alvoDoPainel, alturaDoPainel]);
+    for (const v of [alvoDoPainel, alturaDoPainel, espacoDaAgenda]) v.jump(altura);
+  }, [alvoDoPainel, alturaDoPainel, espacoDaAgenda]);
   useLayoutEffect(() => {
     if (!expandido && !painelVisivel) return;
     const alvo = expandido ? ALTURA_DO_MES : alturaDaSemana.current;
     if (expandido) setPainelVisivel(true);
     if (prefereMenosMovimento()) {
-      for (const v of [alvoDoPainel, alturaDoPainel]) v.jump(alvo);
+      for (const v of [alvoDoPainel, alturaDoPainel, espacoDaAgenda]) v.jump(alvo);
       layoutAbertoRef.current = expandido;
       setLayoutAberto(expandido);
       aplicarDeslocamento(alvo);

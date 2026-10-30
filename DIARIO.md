@@ -27,6 +27,7 @@ e o que fez. O diário até 17/10/2026 está guardado, sem alterações, em
 7. **Sem segredos:** nunca escreva chaves, senhas ou tokens aqui. Cite só o nome da variável.
 
 ## Decisões do dono
+- 2026-10-30: **Calendário da Agenda com o efeito de mola do Figaro** (vídeo do dono): o painel abre na mola 1,0/400 e a Agenda vem atrás numa segunda mola igual, em série. **Substitui a mola única de 29/10** (conflito apontado no diário). Cantos de baixo do topo com 16 dp fechado e aberto (antes 24 fechado / 16 aberto: o canto mudava de curvatura).
 - 2026-10-30: **Personalizar Página e QR Code como no Figaro** (capturas do dono). Menu ⋮ na barra com Editar Link, QR Code e Colocar Página Offline/Online; confirmação "Desativar Página?"; tela QR Code só com Papel/Adesivo, a folha e Salvar na Galeria/Imprimir. **Página pública sem o botão flutuante "Compartilhar"**: compartilhar fica no fim da página.
 - 2026-10-30: **CortAI agora é Flow IA** (reforço do dono): a assistente se chama e se apresenta como "a Flow IA" (feminino) em telas, textos e instruções da IA.
 - 2026-10-30: **"Secretária Flow" = Flow Chat.** O recurso de agendamento conversacional nos textos (planos inclusive) se chama Flow Chat.
@@ -831,6 +832,10 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+
+### 2026-10-30 UTC — Claude — Calendário: cantos fixos em 16 dp e mola em série como no Figaro
+- Vídeo do dono ("parte inferior do calendário"): os cantos de baixo mudavam de curvatura porque a barra fechada tinha 24 px e o painel do mês 16 px. `barra-da-agenda.ts`: 16 px (no vídeo do Figaro os dois estados têm o mesmo canto).
+- Vídeo do Figaro ("quero esse efeito de mola"), medido quadro a quadro: painel abre em ~0,35 s sem passar do ponto e a Agenda começa ~90 ms depois e assenta ~0,35 s depois do painel (mola em série). `SemanaDoTopo.tsx`: `espacoDaAgenda = useSpring(alturaDoPainel, MOLA_DO_FIGARO)` (antes era a mesma mola do painel, decisão de 29/10, agora substituída); os `jump` incluem a segunda mola. Medido na vitrine: 50 % da Agenda ~100 ms depois do painel, sem salto ao abrir nem ao fechar. Teste `timeline-rolagem-celular.test.ts` atualizado. `tsc`, `vitest` e `build` ok.
 
 ### 2026-10-30 UTC — Claude — ⋮ da Personalizar Página como no Figaro
 - Captura do dono: pontos cheios de 4 dp, no tom `onSurfaceVariant`, centro a ~30 dp da borda (botão de 48 dp). Ícone próprio no lugar do `MoreVertical`. Conferido lado a lado com a captura.

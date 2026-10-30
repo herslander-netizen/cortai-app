@@ -8,6 +8,7 @@ export const ESTILO_DA_BARRA_NA_AGENDA: CSSProperties = {
   background: "var(--agenda-topo, var(--ink2))",
   borderBottomColor: "transparent",
   backdropFilter: "none",
-  borderRadius: "0 0 24px 24px",
+  // 16 dp como o painel do mês aberto (Figaro `SelectorPanelShape`): o canto não muda ao abrir e fechar (dono, 30/10).
+  borderRadius: "0 0 16px 16px",
   boxShadow: "var(--shadow-md)",
 };
