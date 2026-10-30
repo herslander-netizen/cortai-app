@@ -50,7 +50,7 @@ Textos visíveis em `src/`: **nenhuma ocorrência de "Cortaí"/"CortAI" sobrou**
 
 ## 5. Pendências que dependem do dono
 
-1. **Migração `0051_marca_flow_textos.sql`** (escrita, **não aplicada**): troca "CortAI/Cortaí" por "Flow IA/Flow"
+1. **Migração `0051_marca_flow_textos.sql`** (**aplicada em 30/10** com autorização (só a descrição do plano Conecta tinha o nome antigo)): troca "CortAI/Cortaí" por "Flow IA/Flow"
    nos textos guardados no banco (descrição dos planos, negócio de demonstração, boas-vindas da IA, rascunho e
    publicado da home). Precisa de autorização para aplicar no `cortai-prod`.
 2. **Modelos do WhatsApp na Meta** que citam "Cortaí": precisam de novos modelos aprovados (os IDs dos botões continuam).
