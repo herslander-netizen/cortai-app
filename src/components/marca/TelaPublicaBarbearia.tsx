@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { notFound } from "@tanstack/react-router";
 import { Check, Copy, MessageCircle, QrCode, Share2 } from "lucide-react";
 import QRCode from "qrcode";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 import { origemDaVisita, registrarEtapa } from "@/lib/funil";
 
@@ -10,12 +10,6 @@ import { EsqueletoPaginaPublica } from "@/components/layout/Esqueleto";
 import { Signature } from "@/components/layout/Signature";
 import { PaginaPublicaConteudo } from "@/components/marca/PaginaPublica";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { getPaginaPublica } from "@/lib/publico.functions";
 import { urlPublica } from "@/lib/origem-publica";
 import { textoDeCompartilhamento } from "@/lib/previa";
@@ -29,8 +23,6 @@ export function TelaPublicaBarbearia({ chave }: { chave: string }) {
   const [qr, setQr] = useState<string | null>(null);
   const [copiado, setCopiado] = useState(false);
   const [mostrarQr, setMostrarQr] = useState(false);
-  const [barra, setBarra] = useState(false);
-  const aoMudarBarra = useCallback((v: boolean) => setBarra(v), []);
   const slugAtual = data?.tenant.slug;
   const linkCom = (origem: string) => urlPublica(`/b/${slugAtual ?? chave}?origem=${origem}`);
   useEffect(() => {
@@ -67,72 +59,92 @@ export function TelaPublicaBarbearia({ chave }: { chave: string }) {
 
   return (
     <div className="min-h-screen bg-background pb-[calc(80px+env(safe-area-inset-bottom))] md:pb-0">
-      <PaginaPublicaConteudo data={data} config={data.pagina} onBarraVisivel={aoMudarBarra} />
-      <div
-        className="brand-tools"
-        data-acima-da-barra={barra || undefined}
-        aria-label="Opções da página"
+      <PaginaPublicaConteudo data={data} config={data.pagina} />
+      {/* Compartilhar no fim da página (dono, 30/10: o botão flutuante cobria o conteúdo). Mesmas opções de antes. */}
+      <section
+        aria-label="Compartilhar esta página"
+        className="mx-auto flex max-w-xl flex-col items-center gap-4 px-5 pb-4 pt-10 text-center"
       >
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline">
-              <Share2 /> Compartilhar
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            {typeof navigator.share === "function" ? (
-              <DropdownMenuItem
-                onSelect={() =>
-                  void navigator.share({
+        <p className="text-sm font-semibold text-paper">Compartilhe esta página</p>
+        <div className="flex items-center justify-center gap-3">
+          {typeof navigator !== "undefined" && typeof navigator.share === "function" ? (
+            <Button
+              variant="outline"
+              size="icon"
+              className="size-12 rounded-full"
+              aria-label="Compartilhar pelo celular"
+              onClick={() =>
+                void navigator
+                  .share({
                     title: data.tenant.nome,
                     text: textoDeCompartilhamento(data.tenant.nome),
                     url: linkCom("compartilhar"),
                   })
-                }
-              >
-                <Share2 /> Compartilhar pelo celular
-              </DropdownMenuItem>
-            ) : null}
-            <DropdownMenuItem
-              onSelect={() =>
-                window.open(
-                  `https://wa.me/?text=${encodeURIComponent(`${textoDeCompartilhamento(data.tenant.nome)}\n\n${linkCom("whatsapp")}`)}`,
-                  "_blank",
-                  "noopener,noreferrer",
-                )
+                  .catch(() => undefined)
               }
             >
-              <MessageCircle /> WhatsApp
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onSelect={async () => {
-                await navigator.clipboard.writeText(linkCom("link"));
-                setCopiado(true);
-                window.setTimeout(() => setCopiado(false), 1800);
-              }}
-            >
-              {copiado ? <Check /> : <Copy />} {copiado ? "Link copiado" : "Copiar link"}
-            </DropdownMenuItem>
-            <DropdownMenuItem onSelect={() => setMostrarQr((value) => !value)}>
-              <QrCode /> Código QR
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
-      {mostrarQr ? (
-        <div
-          className="brand-qr"
-          data-acima-da-barra={barra || undefined}
-          role="dialog"
-          aria-label="Código QR do negócio"
-        >
-          {qr ? (
-            <img src={qr} alt={`Código para abrir a página de ${data.tenant.nome}`} />
-          ) : (
-            <span>Gerando…</span>
-          )}
+              <Share2 aria-hidden />
+            </Button>
+          ) : null}
+          <Button
+            variant="outline"
+            size="icon"
+            className="size-12 rounded-full"
+            aria-label="Enviar pelo WhatsApp"
+            onClick={() => {
+              window.open(
+                `https://wa.me/?text=${encodeURIComponent(`${textoDeCompartilhamento(data.tenant.nome)}\n\n${linkCom("whatsapp")}`)}`,
+                "_blank",
+                "noopener,noreferrer",
+              );
+            }}
+          >
+            <MessageCircle aria-hidden />
+          </Button>
+          <Button
+            variant="outline"
+            size="icon"
+            className="size-12 rounded-full"
+            aria-label={copiado ? "Link copiado" : "Copiar link"}
+            onClick={async () => {
+              await navigator.clipboard.writeText(linkCom("link"));
+              setCopiado(true);
+              window.setTimeout(() => setCopiado(false), 1800);
+            }}
+          >
+            {copiado ? <Check aria-hidden /> : <Copy aria-hidden />}
+          </Button>
+          <Button
+            variant="outline"
+            size="icon"
+            className="size-12 rounded-full"
+            aria-label="Código QR"
+            aria-expanded={mostrarQr}
+            onClick={() => setMostrarQr((value) => !value)}
+          >
+            <QrCode aria-hidden />
+          </Button>
         </div>
-      ) : null}
+        {copiado ? (
+          <p role="status" className="text-xs text-mute">
+            Link copiado
+          </p>
+        ) : null}
+        {mostrarQr ? (
+          <div className="rounded-[20px] bg-qr-light p-3" aria-label="Código QR do negócio">
+            {qr ? (
+              <img
+                src={qr}
+                alt={`Código para abrir a página de ${data.tenant.nome}`}
+                width={180}
+                height={180}
+              />
+            ) : (
+              <span className="text-sm text-qr-dark">Gerando…</span>
+            )}
+          </div>
+        ) : null}
+      </section>
       <Signature />
     </div>
   );

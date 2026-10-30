@@ -27,6 +27,7 @@ e o que fez. O diário até 17/10/2026 está guardado, sem alterações, em
 7. **Sem segredos:** nunca escreva chaves, senhas ou tokens aqui. Cite só o nome da variável.
 
 ## Decisões do dono
+- 2026-10-30: **Personalizar Página e QR Code como no Figaro** (capturas do dono). Menu ⋮ na barra com Editar Link, QR Code e Colocar Página Offline/Online; confirmação "Desativar Página?"; tela QR Code só com Papel/Adesivo, a folha e Salvar na Galeria/Imprimir. **Página pública sem o botão flutuante "Compartilhar"**: compartilhar fica no fim da página.
 - 2026-10-30: **CortAI agora é Flow IA** (reforço do dono): a assistente se chama e se apresenta como "a Flow IA" (feminino) em telas, textos e instruções da IA.
 - 2026-10-30: **"Secretária Flow" = Flow Chat.** O recurso de agendamento conversacional nos textos (planos inclusive) se chama Flow Chat.
 - 2026-10-30: **Ícone novo do Flow** (F preto mais cheio e ponto rosa `#FC4980`, enviado pelo dono). Ícone do app **todo branco, só o F e o ponto** (sem anel nem círculo); os demais ícones derivam dele.
@@ -830,6 +831,11 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+
+### 2026-10-30 UTC — Claude — Personalizar Página, QR Code e compartilhar da página pública
+- `barbeiro.marca.index.tsx`: menu ⋮ na barra (`headerAction`) com Editar Link, QR Code e Colocar Página Offline/Online (ícones); confirmação "Desativar Página?"/"Ativar Página?" em pílula vermelha (errorContainer) e Cancelar em texto (`useConfirmar` ganhou `empilhado`, opcional, só usado aqui); linha de status vira aviso só quando a página está fora do ar; cartão "Layout e tema" com rótulo, capa de borda a borda, duas colunas com ícone e nome, sem faixa de cores, pílula Escolher Layout & Tema (primaryContainer). Saiu do menu "Ver página publicada" (continua em Opções da conta → Ver página pública).
+- `barbeiro.qr-code.tsx`: barra simples "QR Code" (nova opção `barraSimples` do `Screen`: só seta e título pequeno), Papel/Adesivo, a folha em destaque, Salvar na Galeria e Imprimir. `qr-cartao.ts`: papel branco quadrado (nome, QR, endereço, "Agende pelo celular") e símbolo do Flow no centro do QR em ambos (QR em nível H; leitura conferida com OpenCV nos dois formatos).
+- Página pública (`TelaPublicaBarbearia`): sai o botão flutuante "Compartilhar" (cobria o conteúdo); no fim da página, "Compartilhe esta página" com botões redondos (compartilhar pelo celular, WhatsApp, copiar link, QR que abre ali mesmo) em todos os layouts. Saiu o texto solto "Compartilhe o salão" (não era clicável). `navegacao-movel.test.ts` atualizado para o novo menu e textos. `tsc`, `vitest` (2203) e `build` ok; conferido na vitrine.
 
 ### 2026-10-30 UTC — Claude — A IA se apresenta como "a Flow IA"
 - Conferência após o pedido "CortAI agora é Flow IA": telas e banco já sem CortAI. Faltava a identidade interna da IA (efeito da troca automática): equipe no WhatsApp era "o Flow, falando com …" e o assistente do painel "Flow". Agora `fluxo.server.ts` usa "a Flow IA, falando com …", `assistente.functions.ts` usa "a Flow IA" e `agente.server.ts` não repete o nome ("Você é a Flow IA, atendendo pelo negócio…"; cliente: "o atendimento de X, com a Flow IA"). `tsc` e testes de `src/lib` ok.

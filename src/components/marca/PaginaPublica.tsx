@@ -9,7 +9,6 @@ import {
   MapPin,
   MessageCircle,
   Phone,
-  Share2,
   Star,
 } from "lucide-react";
 import { type ReactNode, useEffect, useRef, useState } from "react";
@@ -454,12 +453,6 @@ export function PaginaPublicaConteudo({
                 <p>Seu próximo horário começa aqui.</p>
                 <h2>Escolha o serviço e reserve em poucos passos.</h2>
                 {agendarOuAviso}
-              </section>
-            ) : null}
-            {!preview ? (
-              <section className="brand-share">
-                <Share2 size={16} />
-                <span>Compartilhe {vocabulario.comArtigo}</span>
               </section>
             ) : null}
           </main>

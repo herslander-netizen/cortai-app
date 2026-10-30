@@ -59,16 +59,18 @@ describe("navegação móvel", () => {
     expect(paginaPrincipal).toContain("Ver prévia");
     expect(paginaPrincipal).not.toContain("Prévia do rascunho");
     expect(paginaPrincipal).not.toContain("<Copy />");
-    expect(paginaPrincipal).toContain("Ver página publicada");
+    // Menu ⋮ do Figaro (dono, 30/10): Editar Link, QR Code e Colocar Página Offline/Online.
+    expect(paginaPrincipal).toContain("Editar Link");
+    expect(paginaPrincipal).toContain("Colocar Página Offline");
     expect(paginaPrincipal).not.toContain("Compartilhar link");
     expect(paginaPrincipal).not.toContain("Experiência de agendamento");
     expect(layoutTema).toContain("No layout Agendamento o link abre direto");
     expect(layoutTema).toContain("Ao tocar em Agendar");
-    expect(qrPage).toContain('title="QR Code e link público"');
+    expect(qrPage).toContain('title="QR Code"');
     expect(qrPage).not.toContain("Layout & Tema");
     expect(qrPage).not.toContain("Personalizar Página");
     expect(qrPage).not.toContain("marca.lacunas");
-    expect(qrPage).toContain("Aponte a câmera do celular");
+    expect(qrPage).toContain("Salvar na Galeria");
     expect(qrPage).toContain("Imprimir");
     const temasLegado = readFileSync("src/routes/barbeiro.temas.tsx", "utf8");
     expect(temasLegado).toContain('to: "/barbeiro/conta"');
@@ -78,7 +80,7 @@ describe("navegação móvel", () => {
     expect(paginaPrincipal).toContain("query.isError && !query.data");
     expect(paginaPrincipal).toContain('titulo="Não foi possível carregar sua página"');
     expect(paginaPrincipal).toContain("Tentar novamente");
-    expect(paginaPrincipal).toContain("Tirar página do ar");
+    expect(paginaPrincipal).toContain("Desativar Página?");
     expect(paginaPrincipal).toContain("alterarStatusPaginaPublica");
     expect(paginaPrincipal).toContain('aria-label="Seções da página pública"');
     expect(paginaPrincipal).toContain("<SecaoConteudo config={e.config} />");
@@ -90,7 +92,7 @@ describe("navegação móvel", () => {
     expect(conteudoSecoes).toContain("<AnimatePresence initial={false}>");
     const paineis = readFileSync("src/components/marca/editor/PaineisDoEditor.tsx", "utf8");
     expect(paineis).not.toContain('TabsTrigger value="conteudo"');
-    expect(paginaPrincipal).toContain("A vitrine pública deixará de abrir pelo link.");
+    expect(paginaPrincipal).toContain("Sua página ficará inacessível para visitantes.");
     expect(pagina).toContain('validateSearch: z.object({ qr: z.string().optional() })');
     expect(ajustes).not.toContain('hash={item.label === "Notificações" ? "avisos" : undefined}');
     expect(ajustes).toContain('to: "/barbeiro/notificacoes"');

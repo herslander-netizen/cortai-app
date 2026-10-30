@@ -2,7 +2,19 @@ import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { Eye, LayoutTemplate, MoreVertical, Palette, Save, Send, Undo2 } from "lucide-react";
+import {
+  CloudOff,
+  CloudUpload,
+  Eye,
+  LayoutTemplate,
+  MoreVertical,
+  Palette,
+  Pencil,
+  QrCode,
+  Save,
+  Send,
+  Undo2,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { EsqueletoFormulario } from "@/components/layout/Esqueleto";
@@ -27,13 +39,11 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { alterarStatusPaginaPublica, getMarca, type MarcaData } from "@/lib/marca.functions";
 import { exigirCapacidade } from "@/lib/guarda-capacidade";
-import { urlPublica } from "@/lib/origem-publica";
 import {
   ajustarAoCatalogo,
   LAYOUTS,
@@ -185,17 +195,18 @@ function Editor({
   const telaLarga = useMediaQuery("(min-width: 1280px)");
   const reduzirMovimento = useReducedMotion();
   const [confirmar, dialogo] = useConfirmar();
-  const link = urlPublica(`/${e.slug}`);
   const mudarStatusPagina = async () => {
     const online = !paginaOnline;
+    // Figaro (capturas do dono, 30/10): "Desativar Página?" com a ação em pílula e "Cancelar" em texto.
     const aceitou = await confirmar({
-      titulo: online ? "Colocar a página no ar?" : "Tirar a página do ar?",
+      titulo: online ? "Ativar Página?" : "Desativar Página?",
       descricao: online
-        ? "A página pública voltará a abrir pelo link compartilhável."
-        : "A vitrine pública deixará de abrir pelo link. O link direto de agendamento e a agenda interna continuarão funcionando.",
-      confirmar: online ? "Colocar no ar" : "Tirar do ar",
+        ? "Sua página voltará a ficar acessível para visitantes."
+        : "Sua página ficará inacessível para visitantes. Você pode reativá-la a qualquer momento.",
+      confirmar: online ? "Ativar" : "Desativar",
       cancelar: "Cancelar",
       destrutivo: !online,
+      empilhado: true,
     });
     if (!aceitou) return;
 
@@ -255,47 +266,69 @@ function Editor({
     <Screen
       wide
       voltarPara="/barbeiro"
-      title="Personalizar página"
-      subtitle="Escolha o layout, tema e quais seções aparecem na página pública."
-    >
-      <div className="mb-5 flex items-center justify-between gap-3">
-        <p role="status" className="min-w-0 truncate text-sm text-mute">
-          {paginaOnline ? "Página pública online" : "Página pública fora do ar"}
-        </p>
+      title="Personalizar Página"
+      subtitle="Escolha o layout, o tema e quais seções aparecem na sua página pública."
+      headerAction={
+        // Figaro (capturas do dono, 30/10): menu ⋮ na barra com Editar Link, QR Code e Colocar Página Offline.
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="icon" aria-label="Mais ações da página">
-              <MoreVertical size={18} aria-hidden />
+            <Button
+              variant="ghost"
+              size="icon"
+              className="size-11 rounded-full"
+              aria-label="Mais ações da página"
+            >
+              <MoreVertical size={24} aria-hidden />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem asChild>
-              <a href={link} target="_blank" rel="noreferrer">
-                Ver página publicada
-              </a>
-            </DropdownMenuItem>
+          <DropdownMenuContent align="end" className="min-w-56">
             <DropdownMenuItem
+              className="min-h-14 gap-4 px-4 text-base"
               onSelect={() => {
                 setAbaAtiva("divulgacao");
                 setAvancadoAberto(true);
               }}
             >
-              Editar link
+              <Pencil size={22} aria-hidden />
+              Editar Link
             </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Link to="/barbeiro/qr-code">QR Code e compartilhar</Link>
+            <DropdownMenuItem asChild className="min-h-14 gap-4 px-4 text-base">
+              <Link to="/barbeiro/qr-code">
+                <QrCode size={22} aria-hidden />
+                QR Code
+              </Link>
             </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem disabled={alterandoStatus} onSelect={() => void mudarStatusPagina()}>
+            <DropdownMenuItem
+              className="min-h-14 gap-4 px-4 text-base"
+              disabled={alterandoStatus}
+              onSelect={() => void mudarStatusPagina()}
+            >
+              {paginaOnline ? (
+                <CloudOff size={22} aria-hidden />
+              ) : (
+                <CloudUpload size={22} aria-hidden />
+              )}
               {alterandoStatus
                 ? "Atualizando…"
                 : paginaOnline
-                  ? "Tirar página do ar"
-                  : "Colocar página no ar"}
+                  ? "Colocar Página Offline"
+                  : "Colocar Página Online"}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-      </div>
+      }
+    >
+      <p role="status" className="sr-only">
+        {paginaOnline ? "Página pública online" : "Página pública fora do ar"}
+      </p>
+      {paginaOnline ? null : (
+        <section className="mb-4 rounded-[20px] bg-[var(--figaro-surface-container,var(--ink2))] p-4">
+          <h2 className="text-sm font-semibold text-paper">Página fora do ar</h2>
+          <p className="mt-1 text-sm leading-relaxed text-mute">
+            Visitantes não conseguem abrir sua página. Use o menu ⋮ para colocá-la online.
+          </p>
+        </section>
+      )}
 
       <AnimatePresence>
         {e.pendente ? (
@@ -334,50 +367,46 @@ function Editor({
         ) : null}
       </AnimatePresence>
 
-      <section className="mb-5 overflow-hidden rounded-[28px] bg-ink2">
-        <div className="p-3 sm:p-4">
-          <div className="aspect-video overflow-hidden rounded-[20px] bg-background">
-            <CapaDoTema tema={visual.tema} />
-          </div>
-          <div className="mt-4 grid grid-cols-2 divide-x divide-line">
-            <div className="min-w-0 pr-3">
-              <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-mute">
-                <LayoutTemplate size={16} aria-hidden />
-                Layout
-              </div>
-              <p className="mt-2 text-sm font-semibold text-paper">{LAYOUTS[visual.layout]}</p>
-              <p className="mt-1 text-xs leading-relaxed text-mute">
+      {/* Figaro (capturas do dono, 30/10): rótulo da seção, capa de borda a borda, duas colunas e a pílula. */}
+      <h2 className="mb-3 px-4 text-sm font-semibold text-[var(--figaro-on-surface-variant,var(--mute))]">
+        Layout e tema
+      </h2>
+      <section className="mb-6 overflow-hidden rounded-[28px] bg-[var(--figaro-surface-container,var(--ink2))]">
+        <div className="aspect-video overflow-hidden bg-background">
+          <CapaDoTema tema={visual.tema} />
+        </div>
+        <div className="p-5 pt-6">
+          <div className="grid grid-cols-2 divide-x divide-line">
+            <div className="min-w-0 pr-4">
+              <LayoutTemplate
+                size={24}
+                className="text-[var(--figaro-primary,var(--primary))]"
+                aria-label="Layout"
+              />
+              <p className="mt-3 truncate text-lg font-semibold leading-7 text-paper">
+                {LAYOUTS[visual.layout]}
+              </p>
+              <p className="text-sm leading-5 text-mute">
                 {visual.layout === "cortai-chat"
                   ? "Atendimento em conversa"
                   : `${totalDeSecoesAtivas(e.config)} seções ativas`}
               </p>
             </div>
-            <div className="min-w-0 pl-3">
-              <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-mute">
-                <Palette size={16} aria-hidden />
-                Tema
-              </div>
-              <p className="mt-2 text-sm font-semibold text-paper">{TEMAS[visual.tema].nome}</p>
-              <div
-                className="mt-2 flex h-2 overflow-hidden rounded-full"
-                aria-label="Paleta do tema atual"
-              >
-                <span
-                  className="flex-1"
-                  style={{ background: TEMAS[visual.tema].cores.principal }}
-                />
-                <span
-                  className="flex-1"
-                  style={{ background: TEMAS[visual.tema].cores.destaque }}
-                />
-                <span className="flex-1" style={{ background: TEMAS[visual.tema].cores.fundo }} />
-              </div>
+            <div className="min-w-0 pl-4">
+              <Palette
+                size={24}
+                className="text-[var(--figaro-primary,var(--primary))]"
+                aria-label="Tema"
+              />
+              <p className="mt-3 truncate text-lg font-semibold leading-7 text-paper">
+                {TEMAS[visual.tema].nome}
+              </p>
             </div>
           </div>
-          <p className="mt-4 text-xs leading-relaxed text-mute">
-            Altere o visual e confira o exemplo antes de salvar.
-          </p>
-          <Button asChild className="mt-3 min-h-12 w-full">
+          <Button
+            asChild
+            className="mt-6 h-14 w-full rounded-full bg-[var(--figaro-primary-container,var(--primary))] text-base text-[var(--figaro-on-primary-container,var(--primary-foreground))] hover:bg-[var(--figaro-primary-container,var(--primary))]"
+          >
             <Link to="/barbeiro/marca/layout-tema">Escolher Layout & Tema</Link>
           </Button>
         </div>

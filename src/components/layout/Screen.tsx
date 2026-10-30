@@ -16,6 +16,7 @@ export function Screen({
   hideHeader = false,
   headerAction,
   assinaturaSoComputador = false,
+  barraSimples = false,
   children,
 }: {
   title: string;
@@ -30,6 +31,8 @@ export function Screen({
   headerAction?: ReactNode;
   /** Opt-in: assinatura institucional apenas em telas largas; desligada por padrão no app. */
   assinaturaSoComputador?: boolean;
+  /** Celular: só a barra com a seta e o título pequeno, sem título grande (barra simples do Figaro, ex.: QR Code). */
+  barraSimples?: boolean;
   children?: ReactNode;
 }) {
   const caminho = useRouterState({ select: (state) => state.location.pathname });
@@ -46,7 +49,7 @@ export function Screen({
   const offsetCabecalhoGlobal = caminho.startsWith("/barbeiro") && !subpaginaGestaoMobile;
   const destinoVoltar = voltarPara ?? (subpaginaGestaoMobile ? "/barbeiro" : undefined);
   const recolhivelRef = useTituloRecolhivel({
-    enabled: compactaTituloNoCelular,
+    enabled: compactaTituloNoCelular && !barraSimples,
     chave: `${caminho}:${title}`,
   });
 
@@ -54,7 +57,7 @@ export function Screen({
     <Link
       to={destinoVoltar}
       aria-label={voltarRotulo}
-      className="-ml-2 flex size-11 shrink-0 items-center justify-center rounded-full bg-[var(--figaro-surface-container-highest,var(--ink3))] text-[var(--figaro-on-surface,var(--paper))] transition-[background-color,transform] duration-150 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring motion-reduce:transition-none"
+      className={`-ml-2 flex size-11 shrink-0 items-center justify-center rounded-full ${barraSimples && compactaTituloNoCelular ? "" : "bg-[var(--figaro-surface-container-highest,var(--ink3))]"} text-[var(--figaro-on-surface,var(--paper))] transition-[background-color,transform] duration-150 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring motion-reduce:transition-none`}
     >
       <ArrowLeft size={24} aria-hidden />
     </Link>
@@ -67,7 +70,7 @@ export function Screen({
       data-largura={wide ? "larga" : undefined}
       // No celular, folga do tamanho do recolhimento: a barra recolhe mesmo com pouco conteúdo, como no Figaro.
       style={
-        compactaTituloNoCelular
+        compactaTituloNoCelular && !barraSimples
           ? { minHeight: `calc(100dvh + var(--titulo-distancia, ${DISTANCIA_DO_TITULO}px))` }
           : undefined
       }
@@ -85,7 +88,7 @@ export function Screen({
               {botaoVoltar}
               <div
                 aria-hidden
-                className="flex min-w-0 flex-1 items-center gap-3 opacity-[var(--titulo-pequeno-alfa,0)]"
+                className={`flex min-w-0 flex-1 items-center gap-3 ${barraSimples ? "" : "opacity-[var(--titulo-pequeno-alfa,0)]"}`}
               >
                 {titleLeading ? (
                   <span className="flex size-9 shrink-0 items-center justify-center rounded-[10px] bg-[var(--figaro-primary-container,var(--ink2))] text-[var(--whatsapp)]">
@@ -102,16 +105,20 @@ export function Screen({
               ) : null}
             </div>
           </div>
-          <header
-            data-figaro-header="page"
-            className="bg-[var(--figaro-background,var(--ink))] px-4 pb-5 [&_h1]:opacity-[var(--titulo-grande-alfa,1)]"
-          >
-            <CabecalhoDeTela
-              title={title}
-              {...(subtitle ? { subtitle } : {})}
-              {...(titleLeading ? { titleLeading } : {})}
-            />
-          </header>
+          {barraSimples ? (
+            <h1 className="sr-only">{title}</h1>
+          ) : (
+            <header
+              data-figaro-header="page"
+              className="bg-[var(--figaro-background,var(--ink))] px-4 pb-5 [&_h1]:opacity-[var(--titulo-grande-alfa,1)]"
+            >
+              <CabecalhoDeTela
+                title={title}
+                {...(subtitle ? { subtitle } : {})}
+                {...(titleLeading ? { titleLeading } : {})}
+              />
+            </header>
+          )}
         </>
       ) : !hideHeader ? (
         <header
