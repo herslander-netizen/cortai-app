@@ -136,9 +136,12 @@ BEGIN
             OR v_escala.abre IS NULL OR v_escala.fecha IS NULL THEN
             RAISE EXCEPTION 'fora do horario de funcionamento';
           END IF;
-          v_abre := v_base + v_escala.abre;
-          v_fecha := v_base + v_escala.fecha
+          v_pi := v_base + v_escala.abre;
+          v_pf := v_base + v_escala.fecha
             + CASE WHEN v_escala.fecha <= v_escala.abre THEN interval '1 day' ELSE interval '0' END;
+          IF v_local < v_pi OR v_local + v_dur > v_pf THEN
+            RAISE EXCEPTION 'fora do horario de funcionamento';
+          END IF;
         END IF;
       END IF;
       IF v_local >= v_abre AND v_local + v_dur <= v_fecha THEN
