@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 
-/** Rosa do ponto do ícone Flow (amostrado do ícone enviado pelo dono, 30/10). Cor de marca: exceção do contrato. */
-const ROSA_DO_PONTO = "#fb6895";
+/** Rosa do ponto do ícone Flow (amostrado do ícone novo enviado pelo dono, 30/10). Cor de marca: exceção do contrato. */
+const ROSA_DO_PONTO = "#fc4980";
 
 /**
  * Carregamento do Flow (pedido do dono, 30/10): o F do ícone se desenha, primeiro o traço de baixo (sobe da base e
@@ -23,9 +23,9 @@ export function CarregamentoFlow({
       role="status"
       aria-label={rotulo}
       data-carregamento-flow=""
-      viewBox="300 380 660 550"
+      viewBox="290 384 700 546"
       width={tamanho}
-      height={(tamanho * 550) / 660}
+      height={(tamanho * 546) / 700}
       className={cn(
         "carregamento-flow shrink-0 text-[var(--figaro-on-background,var(--paper))]",
         className,
@@ -35,17 +35,23 @@ export function CarregamentoFlow({
         <path
           className="carregamento-flow-baixo"
           pathLength={1}
-          strokeWidth={120}
-          d="M383 852 C 390 768, 402 716, 446 684 C 488 652, 540 640, 600 639 L 764 638"
+          strokeWidth={124}
+          d="M358 862 C 364 795, 385 740, 440 700 C 480 668, 530 645, 600 641.5 L 776 641.5"
         />
         <path
           className="carregamento-flow-cima"
           pathLength={1}
-          strokeWidth={120}
-          d="M432 522 C 455 482, 510 462, 585 461 L 875 460"
+          strokeWidth={128}
+          d="M418 508 C 445 470, 500 456, 570 455.5 L 918 455.5"
         />
       </g>
-      <circle className="carregamento-flow-ponto" cx={896} cy={612} r={54} fill={ROSA_DO_PONTO} />
+      <circle
+        className="carregamento-flow-ponto"
+        cx={917.5}
+        cy={616.4}
+        r={57.8}
+        fill={ROSA_DO_PONTO}
+      />
     </svg>
   );
 }

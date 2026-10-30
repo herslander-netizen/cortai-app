@@ -99,7 +99,7 @@ describe("página offline", () => {
     const html = paginaOffline();
     expect(html).toContain("Flow");
     expect(html).toContain("Tentar de novo");
-    expect(html).toContain("/icone-flow-192.png");
+    expect(html).toContain("/icone-flow-v2-192.png");
   });
 });
 

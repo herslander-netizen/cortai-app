@@ -33,8 +33,8 @@ export function mostrarAviso(titulo: string, corpo?: string | null, link?: strin
   }
   try {
     const opcoes: NotificationOptions = {
-      icon: "/icone-flow-192.png",
-      badge: "/icone-flow-192.png",
+      icon: "/icone-flow-v2-192.png",
+      badge: "/icone-flow-v2-192.png",
       tag: link ?? titulo,
     };
     if (corpo) opcoes.body = corpo;

@@ -63,7 +63,7 @@ export function ConviteDeInstalacao({ posicao = "base" }: { posicao?: "base" | "
       >
         <div className="flex items-start gap-3">
           <img
-            src="/icone-flow-192.png"
+            src="/icone-flow-v2-192.png"
             alt=""
             width={40}
             height={40}

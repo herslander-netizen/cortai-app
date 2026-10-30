@@ -5,7 +5,7 @@
  */
 import { VERSAO_INSTALADA } from "@/lib/versao";
 
-export const ICONE_OFFLINE = "/icone-flow-192.png";
+export const ICONE_OFFLINE = "/icone-flow-v2-192.png";
 
 export function paginaOffline() {
   return `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#1A1F1C"><title>Sem conexão · Flow</title><style>body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:#1A1F1C;color:#E3EAE6;font-family:Inter,system-ui,sans-serif;padding:24px;box-sizing:border-box;text-align:center}img{width:72px;height:72px;border-radius:18px}h1{font-size:20px;margin:20px 0 8px}p{font-size:15px;line-height:1.5;color:#A9B3AE;margin:0 0 24px}button{min-height:48px;padding:0 28px;border:0;border-radius:999px;background:#00B7F4;color:#1A1F1C;font-size:16px;font-weight:700}</style></head><body><main><img src="${ICONE_OFFLINE}" alt="Flow"><h1>Sem conexão</h1><p>Confira a internet do aparelho e tente de novo.</p><button type="button" onclick="location.reload()">Tentar de novo</button></main></body></html>`;

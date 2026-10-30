@@ -106,7 +106,10 @@ export function MarcaFlow({
   );
 }
 
-/** Símbolo isolado (F + ponto), para tamanhos pequenos como o topo e o menu (manual: 24 px ou mais). */
+/**
+ * Símbolo isolado (F + ponto) do ícone novo (dono, 30/10), vetorizado do arquivo enviado: `clara` = F branco para
+ * fundo escuro; senão F escuro para fundo claro. O ponto é sempre rosa.
+ */
 export function SimboloFlow({
   className = "size-6",
   clara = true,
@@ -114,23 +117,17 @@ export function SimboloFlow({
   className?: string;
   clara?: boolean;
 }) {
-  const id = `flow-s-${useId().replace(/:/g, "")}`;
-  const tinta = clara ? `url(#${id})` : TINTA_ESCURA;
   return (
-    <svg viewBox="66 82 264 228" className={className} aria-hidden>
-      {clara ? (
-        <defs>
-          <Degrade id={id} de={[66, 310]} ate={[330, 82]} />
-        </defs>
-      ) : null}
-      <path fill={tinta} d={F_CURVA} />
-      <path fill="none" stroke={tinta} strokeWidth={44} strokeLinecap="round" d={F_HASTE} />
-      <circle cx={309} cy={184} r={16} fill={ROSA} />
-    </svg>
+    <img
+      src={clara ? "/marca/flow/flow-simbolo-claro-v2.svg" : "/marca/flow/flow-simbolo-v2.svg"}
+      alt=""
+      aria-hidden
+      className={`shrink-0 object-contain ${className}`}
+    />
   );
 }
 
-export const iconeFlowUrl = "/icone-flow-512.png";
+export const iconeFlowUrl = "/icone-flow-v2-512.png";
 
 /** Ícone do aplicativo (símbolo no quadrado arredondado), como na instalação. */
 export function IconeFlow({ className = "h-12 w-12" }: { className?: string }) {

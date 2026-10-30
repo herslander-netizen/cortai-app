@@ -27,6 +27,7 @@ e o que fez. O diário até 17/10/2026 está guardado, sem alterações, em
 7. **Sem segredos:** nunca escreva chaves, senhas ou tokens aqui. Cite só o nome da variável.
 
 ## Decisões do dono
+- 2026-10-30: **Ícone novo do Flow** (F preto mais cheio e ponto rosa `#FC4980`, enviado pelo dono). Ícone do app **todo branco, só o F e o ponto** (sem anel nem círculo); os demais ícones derivam dele.
 - 2026-10-30: **Carregamento de tela cheia com o F animado** (sem o círculo): traço de baixo, traço de cima e o ponto rosa pingando. Só onde há carregamento de verdade; esqueletos continuam onde a tela tem formato conhecido.
 - 2026-10-30: **Foto padrão do topo da Agenda = ícone Flow** (F preto com ponto rosa em círculo branco, enviado pelo dono) até o negócio colocar uma foto própria.
 - 2026-10-29: **Troca de nome sem mexer no sistema** ("siga com a mudança de nome do sistema sem mexer no sistema"): o nome Flow vale para tudo que se lê (telas, textos, comentários e documentos atuais); nomes técnicos, banco, rotas, chaves, variáveis e SQL ficam como estão. Auditorias datadas e histórico também ficam.
@@ -827,6 +828,9 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+
+### 2026-10-30 UTC — Claude — Ícone novo do Flow em todos os ícones
+- F vetorizado (potrace) do ícone enviado pelo dono; ponto ajustado como círculo (917,5; 616,4; r 57,8; `#FC4980`). Arquivos novos com sufixo `-v2` para furar o cache dos apps instalados: `public/icone-flow-v2-192.png`, `-512`, `-maskable-512` (margem de 50 %), `apple-touch-icon-flow-v2.png`, `favicon-flow-v2-256.png` (quadrado arredondado), `favicon.ico` (16–64), `public/marca/flow/flow-icone-v2.svg`, `flow-simbolo-v2.svg` (F escuro) e `flow-simbolo-claro-v2.svg` (F branco), PNGs 256 do símbolo, `flow-avatar-padrao-v2-256.png` (foto padrão do topo: disco branco com o F). Manifests, `__root`, service worker, push, convite de instalação, ticket e `SimboloFlow` apontam para os novos. Animação de carregamento redesenhada sobre o F novo. Arquivos `-v1` ficam sem uso (apagar só com autorização). `tsc`, `vitest` (2203) e `build` ok; topo da Agenda conferido na vitrine.
 
 ### 2026-10-30 UTC — Claude — Carregamento animado do Flow
 - Novo `CarregamentoFlow` (`src/components/marca/CarregamentoFlow.tsx`): F reconstruído em vetor a partir do ícone do dono (traços com `pathLength` e `stroke-dashoffset`), cor do texto do tema nos traços e rosa `#fb6895` no ponto; ciclo 2,4 s (baixo 0–30 %, cima 20–48 %, ponto 46–63 % com pulo, some 80–94 %). Reduzir movimento: F parado. CSS no fim de `styles.css`. `TelaDeCarregamento` (retorno do login, loja, vaga, fila, avaliação) troca o esqueleto genérico por ele (72 px, centralizado). `tsc`, `vitest` (2203) e `build` ok.
