@@ -33,14 +33,32 @@ DROP POLICY IF EXISTS "membros criam horarios especiais" ON public.horarios_espe
 --> statement-breakpoint
 CREATE POLICY "membros criam horarios especiais"
   ON public.horarios_especiais FOR INSERT TO authenticated
-  WITH CHECK (public.has_tenant_permission(tenant_id, 'alterar_dados_barbearia'));
+  WITH CHECK (
+    public.has_tenant_permission(tenant_id, 'alterar_dados_barbearia')
+    AND (
+      profissional_id IS NULL
+      OR EXISTS (
+        SELECT 1 FROM public.profissionais p
+        WHERE p.id = profissional_id AND p.tenant_id = tenant_id
+      )
+    )
+  );
 --> statement-breakpoint
 DROP POLICY IF EXISTS "membros atualizam horarios especiais" ON public.horarios_especiais;
 --> statement-breakpoint
 CREATE POLICY "membros atualizam horarios especiais"
   ON public.horarios_especiais FOR UPDATE TO authenticated
   USING (public.has_tenant_permission(tenant_id, 'alterar_dados_barbearia'))
-  WITH CHECK (public.has_tenant_permission(tenant_id, 'alterar_dados_barbearia'));
+  WITH CHECK (
+    public.has_tenant_permission(tenant_id, 'alterar_dados_barbearia')
+    AND (
+      profissional_id IS NULL
+      OR EXISTS (
+        SELECT 1 FROM public.profissionais p
+        WHERE p.id = profissional_id AND p.tenant_id = tenant_id
+      )
+    )
+  );
 --> statement-breakpoint
 DROP POLICY IF EXISTS "membros removem horarios especiais" ON public.horarios_especiais;
 --> statement-breakpoint
