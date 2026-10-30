@@ -27,6 +27,7 @@ e o que fez. O diário até 17/10/2026 está guardado, sem alterações, em
 7. **Sem segredos:** nunca escreva chaves, senhas ou tokens aqui. Cite só o nome da variável.
 
 ## Decisões do dono
+- 2026-10-30: **Ícones da Agenda no tamanho e na cor do Figaro** ("ajuste sutil… análise bem minuciosa", capturas lado a lado). Medidas tiradas da captura do Figaro (1080 px, 2,625 px/dp).
 - 2026-10-30: **Conversar com o dono em português do Brasil** (pedido explícito). **Campos de texto com fundo visível em todo o sistema, nos dois temas** ("tem um monte de tela assim em todo o sistema nas duas cores"), incluindo as folhas da Agenda (o dono mostrou a do Horário especial).
 - 2026-10-30: **App da equipe em tela cheia (teste)**: "Faça" para a sugestão de testar `display_override: ["fullscreen"]` só no manifesto da equipe (some a barra de status e a faixa de gestos do Android). O app do cliente continua `standalone`. Volta em uma linha se não agradar.
 - 2026-10-30: **Respostas da Flow IA no estilo do AutoResponder**: "criar um sistema parecido com o responder, depois alimentar e configurar para que a Flow IA já tenha um comportamento independente". O motor é a camada de regras e conhecimento da própria Flow IA (antes da IA de linguagem), não uma segunda IA; abre exceção à regra "não SAC/FAQ" só para respostas configuradas pelo negócio. Especificação: `docs/motor-respostas-flow-ia-especificacao.md`.
@@ -847,6 +848,12 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+### 2026-10-30 UTC — Claude — Ícones da Agenda nas medidas do Figaro (capturas do dono)
+- Medição pixel a pixel (1080 px): Figaro calendário 66×71, sino 70×76, alvo do "Agora" 56, texto "Agora" 139×48, "+" 48 — o Flow estava 10–15% menor em tudo; ícone de lista igual. Espessura do traço igual nos dois (mantida na tela, afinando o traço na proporção).
+- `CabecalhoAgenda`: calendário `!size-8` (traços 1,95/1,5/1,6). `SinoDeAvisos`: `Bell`/`BellRing` 32 com traço 1,6 (e a regra do topo da Agenda em 32 px). `styles.css`: alvo 23 px com traço 1,75, "Agora" 18 px, `--agenda-fab-icone` 27 px com traço 1,8. Medido no navegador a 2,625: "Agora" 140 px, alvo ≈55, "+" ≈47 (Figaro 139/56/48).
+- Cor: o código já usa `--figaro-on-surface-variant` (#D7C7C2, Figaro medido #D4C4C0) no calendário e no sino; a captura do dono mostrava #DEE8E1 porque o app instalado está com versão antiga em cache (conferido: build atual calcula rgb(215,199,194)).
+- `tsc`, `vitest` (2229) e `build` OK.
+
 ### 2026-10-30 UTC — Claude — Mover/esticar na Agenda sem sobrescrever edição simultânea (intenção da PR 17)
 - PR 17 (`ccr-8f81504f-pl8p1y` → `main`, fechada): 863 arquivos, já contida na branch de trabalho; não integrar. A intenção dela (não sobrescrever edição simultânea) já existia como conferência antes de gravar em `moverAgendamentoPainel`, mas o UPDATE não exigia que o horário continuasse igual: duas gravações no mesmo instante passavam as duas.
 - Novo `src/lib/agendamento-sem-sobrescrever.ts`: o UPDATE leva `inicio`, `fim` e `status in (agendado, chegou)` vistos pela tela; nenhuma linha alterada = "Este agendamento mudou enquanto você editava…" (mesma mensagem de antes, sem aviso ao cliente). Teste `agendamento-sem-sobrescrever.test.ts`. Sem mudança visual nem de banco.

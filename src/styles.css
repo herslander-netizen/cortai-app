@@ -5469,13 +5469,15 @@ button.agenda-timeline-bloqueio-interativo {
 .agenda-botao-agora-principal .agenda-botao-agora-visualizacao:focus-visible {
   color: var(--agenda-destaque);
 }
-/* Pílula enxuta: texto e ícones na medida do polegar, sem pesar na tela. */
+/* Pílula enxuta, nas medidas da captura do Figaro (dono, 30/10): alvo com ≈21 dp desenhados (caixa de 23, traço
+   com a mesma espessura de antes) e "Agora" em 18 px. */
 .agenda-botao-agora-ir {
-  font-size: 16px;
+  font-size: 18px;
 }
 .agenda-botao-agora-ir svg {
-  width: 20px;
-  height: 20px;
+  width: 23px;
+  height: 23px;
+  stroke-width: 1.75;
 }
 .agenda-botao-agora-visualizacao svg {
   width: 24px;
@@ -5762,7 +5764,8 @@ button.agenda-timeline-bloqueio-interativo {
 /* Agenda 3.0: uma geometria compartilhada pelo "+", "Agora" e speed dial. */
 :root {
   --agenda-fab-tamanho: 56px;
-  --agenda-fab-icone: 24px;
+  /* "+" com ≈18 dp desenhados como no Figaro (captura do dono, 30/10); traço com a mesma espessura de antes. */
+  --agenda-fab-icone: 27px;
   --agenda-fab-margem: 16px;
   --agenda-fab-direita: max(20px, calc((100vw - 760px) / 2 + 32px));
   --agenda-fab-pe: calc(24px + env(safe-area-inset-bottom));
@@ -5790,6 +5793,7 @@ button.agenda-timeline-bloqueio-interativo {
 .agenda-fab-toggle .agenda-fab-icone {
   width: var(--agenda-fab-icone);
   height: var(--agenda-fab-icone);
+  stroke-width: 1.8;
 }
 /* Segurar o "+" abre o agendamento por voz: sem seleção/menu do sistema, com retorno visual
    (só transform) enquanto o tempo corre. */
@@ -10915,11 +10919,12 @@ input[type="range"] {
   --agenda-ponto-do-dia: #b61055;
 }
 
-/* Sino no topo da Agenda (celular) no tamanho do Figaro: 28 dp como o ícone do calendário (o Button forçava 16 px). */
+/* Sino no topo da Agenda (celular) no tamanho do Figaro: caixa de 32 como o calendário (≈27×29 dp desenhados na
+   captura do dono, 30/10; o Button forçava 16 px). */
 html[data-tela-agenda] .management-header .sino-de-avisos svg.lucide-bell,
 html[data-tela-agenda] .management-header .sino-de-avisos svg.lucide-bell-ring {
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
 }
 
 /* Tipografia e "agora" da Agenda pelas referências do Figaro (foto e vídeo do dono, 29/10; apk/2 §2.2 e §2.4):

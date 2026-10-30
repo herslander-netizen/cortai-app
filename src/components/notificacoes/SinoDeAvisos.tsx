@@ -343,9 +343,9 @@ export function SinoDeAvisos() {
         >
           {/* Figaro: `icon_bell` sem não lidas e `icon_bell_on` (sino tocando) com não lidas, em tertiary. */}
           {forte ? (
-            <BellRing size={28} strokeWidth={1.8} className="fill-current" aria-hidden />
+            <BellRing size={32} strokeWidth={1.6} className="fill-current" aria-hidden />
           ) : (
-            <Bell size={28} strokeWidth={1.8} aria-hidden />
+            <Bell size={32} strokeWidth={1.6} aria-hidden />
           )}
         </motion.span>
       </Button>

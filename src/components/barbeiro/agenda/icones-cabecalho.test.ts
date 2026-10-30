@@ -12,16 +12,16 @@ const sino = readFileSync(
 );
 
 describe("ícones do cabeçalho da Agenda no mobile", () => {
-  it("calendário e sino com 20 dp desenhados, como na captura do Figaro, em alvos de 48 dp", () => {
-    expect(cabecalho).toContain('className={`!size-7 transition-colors');
+  it("calendário e sino na medida da captura do Figaro (caixa de 32), em alvos de 48 dp", () => {
+    expect(cabecalho).toContain('className={`!size-8 transition-colors');
     expect(cabecalho).toContain('className="h-12 w-12 min-w-12 shrink-0');
     expect(sino).toContain("sino-de-avisos relative h-12 w-12");
     expect(cabecalho).toContain('aria-label={\n          modoBusca');
   });
 
-  it("sino como no Figaro: 28 dp, magenta tertiary com não lidas, sem número, com o balanço", () => {
-    expect(sino).toContain("<BellRing size={28}");
-    expect(sino).toContain("<Bell size={28}");
+  it("sino como no Figaro: caixa de 32, magenta tertiary com não lidas, sem número, com o balanço", () => {
+    expect(sino).toContain("<BellRing size={32}");
+    expect(sino).toContain("<Bell size={32}");
     expect(sino).toContain('const cor = "var(--figaro-tertiary, var(--sino-atencao))";');
     expect(sino).not.toContain("selo-${toque}");
     expect(sino).not.toContain("anel-${toque}");

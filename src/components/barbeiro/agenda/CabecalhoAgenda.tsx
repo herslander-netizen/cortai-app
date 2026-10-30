@@ -330,9 +330,10 @@ export function CabecalhoAgenda({
                 viewBox="0 0 24 24"
                 fill="none"
                 aria-hidden
-                // Figaro: ícone de 20 dp desenhado (caixa de 28), cheio e em azul quando o mês está aberto, sem girar.
-                // Fechado, na mesma cor do sino ao lado (dono, 30/10).
-                className={`!size-7 transition-colors duration-[200ms] motion-reduce:transition-none ${
+                // Figaro: caixa de 32 (≈25×27 dp desenhados, medidos na captura do dono, 30/10), cheio e em azul quando
+                // o mês está aberto, sem girar. Fechado, na cor do sino ao lado. Traço afinado na proporção para manter
+                // a mesma espessura na tela.
+                className={`!size-8 transition-colors duration-[200ms] motion-reduce:transition-none ${
                   calendarioAberto
                     ? "text-primary"
                     : "text-[var(--figaro-on-surface-variant,var(--mute))]"
@@ -341,7 +342,7 @@ export function CabecalhoAgenda({
                 <path
                   d="M7.5 3.5v3 M16.5 3.5v3"
                   stroke="currentColor"
-                  strokeWidth="2.2"
+                  strokeWidth="1.95"
                   strokeLinecap="round"
                 />
                 <rect
@@ -351,7 +352,7 @@ export function CabecalhoAgenda({
                   height="15.3"
                   rx="2.5"
                   stroke="currentColor"
-                  strokeWidth={calendarioAberto ? 1.8 : 1.7}
+                  strokeWidth={calendarioAberto ? 1.6 : 1.5}
                   fill={calendarioAberto ? "currentColor" : "none"}
                 />
                 <rect
@@ -361,7 +362,7 @@ export function CabecalhoAgenda({
                   height="4.6"
                   rx="0.8"
                   stroke={calendarioAberto ? "var(--ink)" : "currentColor"}
-                  strokeWidth={calendarioAberto ? 1.8 : 1.7}
+                  strokeWidth={calendarioAberto ? 1.6 : 1.5}
                   fill={calendarioAberto ? "var(--ink)" : "none"}
                 />
               </svg>
