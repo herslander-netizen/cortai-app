@@ -276,7 +276,7 @@ export const perguntarAoCortai = createServerFn({ method: "POST" })
                 profissionalId: acesso.profissionalId,
                 permissoes: acesso.permissoes,
               },
-              persona: { nome: "Flow", negocio: contexto.nome, segmento: contexto.segmento },
+              persona: { nome: "a Flow IA", negocio: contexto.nome, segmento: contexto.segmento },
               historico: historicoBruto.map((m) => ({
                 autor: m["autor"] === "barbeiro" ? "usuario" : "assistente",
                 texto: String(m["conteudo"] ?? ""),

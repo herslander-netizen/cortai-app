@@ -926,7 +926,7 @@ async function responderComCerebro(input: {
     },
     persona: {
       nome: equipe
-        ? `o Flow${equipe.nome ? `, falando com ${equipe.nome.split(" ")[0]}` : ""}`
+        ? `a Flow IA${equipe.nome ? `, falando com ${equipe.nome.split(" ")[0]}` : ""}`
         : `o atendimento de ${tenant?.nome ?? "o negócio"}`,
       negocio: tenant?.nome ?? "o negócio",
       segmento: tenant?.segmento ?? null,

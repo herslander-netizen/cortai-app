@@ -27,6 +27,7 @@ e o que fez. O diário até 17/10/2026 está guardado, sem alterações, em
 7. **Sem segredos:** nunca escreva chaves, senhas ou tokens aqui. Cite só o nome da variável.
 
 ## Decisões do dono
+- 2026-10-30: **CortAI agora é Flow IA** (reforço do dono): a assistente se chama e se apresenta como "a Flow IA" (feminino) em telas, textos e instruções da IA.
 - 2026-10-30: **"Secretária Flow" = Flow Chat.** O recurso de agendamento conversacional nos textos (planos inclusive) se chama Flow Chat.
 - 2026-10-30: **Ícone novo do Flow** (F preto mais cheio e ponto rosa `#FC4980`, enviado pelo dono). Ícone do app **todo branco, só o F e o ponto** (sem anel nem círculo); os demais ícones derivam dele.
 - 2026-10-30: **Carregamento de tela cheia com o F animado** (sem o círculo): traço de baixo, traço de cima e o ponto rosa pingando. Só onde há carregamento de verdade; esqueletos continuam onde a tela tem formato conhecido.
@@ -829,6 +830,9 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+
+### 2026-10-30 UTC — Claude — A IA se apresenta como "a Flow IA"
+- Conferência após o pedido "CortAI agora é Flow IA": telas e banco já sem CortAI. Faltava a identidade interna da IA (efeito da troca automática): equipe no WhatsApp era "o Flow, falando com …" e o assistente do painel "Flow". Agora `fluxo.server.ts` usa "a Flow IA, falando com …", `assistente.functions.ts` usa "a Flow IA" e `agente.server.ts` não repete o nome ("Você é a Flow IA, atendendo pelo negócio…"; cliente: "o atendimento de X, com a Flow IA"). `tsc` e testes de `src/lib` ok.
 
 ### 2026-10-30 UTC — Claude — E-mails de login do Flow prontos para colar
 - `docs/emails-de-login-flow.md`: assunto e HTML de Confirm signup, Invite user e Reset password (os três que o app dispara: `signUp`/`resend`, `inviteUserByEmail`, `resetPasswordForEmail`), com o nome Flow, linguagem neutra e sem imagem externa. O dono cola em Supabase → Authentication → Email Templates. WhatsApp: os 2 modelos aprovados (lembretes) não citam Cortaí e os 7 não submetidos já estão com "Enviado pelo Flow" (0053); nada a refazer na Meta por causa do nome (os nomes técnicos `cortai_*` não aparecem para o cliente).

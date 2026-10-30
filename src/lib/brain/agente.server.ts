@@ -127,7 +127,7 @@ async function instrucoes(ctx: ContextoDoCerebro, persona: Persona) {
     hour12: false,
   }).format(new Date());
   const hoje = new Intl.DateTimeFormat("en-CA", { timeZone: fuso }).format(new Date());
-  return `Você é ${persona.nome}, a Flow IA, atendendo pelo negócio "${persona.negocio}".
+  return `Você é ${persona.nome}${persona.nome.includes("Flow IA") ? "" : ", com a Flow IA"}, atendendo pelo negócio "${persona.negocio}".
 Agora: ${agora} (fuso ${fuso}; hoje = ${hoje}). Fale português do Brasil, com naturalidade, frases curtas, horário 24h. Texto puro: sem markdown (nada de ** ou #).
 ${regrasDoCanal(ctx)}
 
