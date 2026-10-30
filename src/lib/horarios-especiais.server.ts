@@ -49,10 +49,11 @@ export async function horariosDaSemana(
   db: any,
   tenantId: string,
 ): Promise<HorarioDeFuncionamento[]> {
-  const { data } = await db
+  const { data, error } = await db
     .from("horarios_de_funcionamento")
     .select("dia_semana, fechado, abre, fecha, intervalo_inicio, intervalo_fim")
     .eq("tenant_id", tenantId);
+  if (error) throw new Error("Não foi possível carregar o expediente semanal.");
   return ((data ?? []) as Record<string, unknown>[]).map((h) => ({
     diaSemana: Number(h["dia_semana"]),
     fechado: Boolean(h["fechado"]),
