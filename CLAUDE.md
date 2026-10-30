@@ -100,7 +100,7 @@ TanStack Start (React 19), Tailwind 4, shadcn/Radix, Supabase, Drizzle (migraç�
 
 ## WhatsApp
 
-- É secretária de notificações e acompanhamento, não SAC, FAQ nem venda consultiva.
+- É secretária de notificações e acompanhamento, não SAC, FAQ nem venda consultiva. Exceção (dono, 30/10/2026): respostas configuradas pelo próprio negócio na camada de regras da Flow IA (`docs/motor-respostas-flow-ia-especificacao.md`), sempre com porteiro, ritmo e janela de 24h — não é uma segunda IA.
 - As mensagens nascem de eventos reais. Botões permitidos: confirmar, remarcar, cancelar, cheguei, aceitar vaga, opt-out. Mensagem livre é encaminhada para o Flow Chat.
 - O remetente é escolhido sempre por `conexaoDeEnvio` (número próprio → número oficial compartilhado). Falhas passam por `erros-meta.ts` + `falhas-envio.server.ts`.
 - Falha do WhatsApp nunca bloqueia a operação.

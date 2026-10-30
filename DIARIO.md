@@ -27,6 +27,7 @@ e o que fez. O diário até 17/10/2026 está guardado, sem alterações, em
 7. **Sem segredos:** nunca escreva chaves, senhas ou tokens aqui. Cite só o nome da variável.
 
 ## Decisões do dono
+- 2026-10-30: **Respostas da Flow IA no estilo do AutoResponder**: "criar um sistema parecido com o responder, depois alimentar e configurar para que a Flow IA já tenha um comportamento independente". O motor é a camada de regras e conhecimento da própria Flow IA (antes da IA de linguagem), não uma segunda IA; abre exceção à regra "não SAC/FAQ" só para respostas configuradas pelo negócio. Especificação: `docs/motor-respostas-flow-ia-especificacao.md`.
 - 2026-10-30: **"Ver Exemplo" do Layout & Tema em tela cheia, como no Figaro** (sem moldura de celular). Depois: refinar minuciosamente a experiência do chat, a personalização do chat e os ícones; então seguir com o Figaro.
 - 2026-10-30: **Lista da Agenda: resumo do dia na linha de baixo, alinhado à esquerda** (sem corte), e dias mais separados entre si.
 - 2026-10-30: **Ícones do topo da Agenda na cor do sino**: calendário fechado, lupa e sino sem não lidas em `--figaro-on-surface-variant`.
@@ -517,7 +518,7 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Em andamento
 
-- Claude | 2026-10-30 UTC | Motor de automação de mensagens (inspirado no AutoResponder WA): **Fase 0 concluída, aguardando aprovação do dono**; nada implementado. Pendente também: horário especial por data (migração 0054, funções e folha no botão + da Agenda) e sombras da Agenda como no Figaro | `docs/motor-automacao-diagnostico.md`
+- Claude | 2026-10-30 UTC | Respostas da Flow IA (inspirado no AutoResponder WA): Fase 0 e Fase 1 (especificação) concluídas, aguardando aprovação da especificação; nada implementado. Pendente também: horário especial por data (migração 0054, funções e folha no botão + da Agenda) e sombras da Agenda como no Figaro | `docs/motor-automacao-diagnostico.md`
 
 - GPT | 2026-10-29 UTC | Separar gesto de armar edição e arrasto do cartão na Agenda mobile; preservar rolagem no primeiro toque, testar segundo gesto e publicar apenas na prévia | `DIARIO.md`, `src/components/barbeiro/AgendaTimeline.tsx`, `src/components/barbeiro/agenda/arrasto-timeline.test.ts`; sem migração
 
@@ -841,6 +842,11 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+### 2026-10-30 UTC — Claude — Respostas da Flow IA: Fase 1 (especificação)
+- Dono definiu a direção (sistema parecido com o AutoResponder, alimentado e configurado por negócio, para a Flow IA ter comportamento independente). `docs/motor-respostas-flow-ia-especificacao.md`: camadas L1 regras → L2 conhecimento (dados oficiais + respostas cadastradas) → L3 IA de linguagem (`pensarCortai`, opcional) → L4 orientação fixa; contrato da regra; RegEx em subconjunto seguro; similaridade por bigramas; ciclo de vida da execução; rascunho das tabelas `regras_de_resposta` e `execucoes_de_regra` (migração 0055 só depois da aprovação); variáveis seguras; ameaças; critérios de aceite; plano da Fase 2.
+- Achado: hoje, sem `whatsapp` em `CORTAI_AI_CANAIS`, a mensagem livre não passa pela IA e cai na orientação fixa — as camadas L1/L2 é que dão a independência.
+- `CLAUDE.md`: exceção registrada na regra "não SAC/FAQ". Sem código, banco ou publicação.
+
 ### 2026-10-30 UTC — Claude — Motor de automação: Fase 0 (diagnóstico, sem alterar código)
 - Pedido do dono com dois pacotes (APK de referência e dossiê do AutoResponder WA, mantidos fora do repositório). Entregue `docs/motor-automacao-diagnostico.md`: inventário com caminhos reais, fluxo atual e proposto, matriz de recursos (A/B/C), tabelas reutilizáveis, lacunas, riscos, plano por fases e testes.
 - Achados principais: a infraestrutura de entrada, dedupe, porteiro, ritmo, formato da janela 24 h, falhas e varredura já existe; faltam regras configuráveis com prioridade, registro da decisão, simulador, atraso curto durável (o Worker não tem Queues nem crons próprios; só `cron.job` de 15 min e `waitUntil`), pausa e subfluxo.
