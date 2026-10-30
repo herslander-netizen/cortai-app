@@ -847,6 +847,11 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+### 2026-10-30 UTC — Claude — Mover/esticar na Agenda sem sobrescrever edição simultânea (intenção da PR 17)
+- PR 17 (`ccr-8f81504f-pl8p1y` → `main`, fechada): 863 arquivos, já contida na branch de trabalho; não integrar. A intenção dela (não sobrescrever edição simultânea) já existia como conferência antes de gravar em `moverAgendamentoPainel`, mas o UPDATE não exigia que o horário continuasse igual: duas gravações no mesmo instante passavam as duas.
+- Novo `src/lib/agendamento-sem-sobrescrever.ts`: o UPDATE leva `inicio`, `fim` e `status in (agendado, chegou)` vistos pela tela; nenhuma linha alterada = "Este agendamento mudou enquanto você editava…" (mesma mensagem de antes, sem aviso ao cliente). Teste `agendamento-sem-sobrescrever.test.ts`. Sem mudança visual nem de banco.
+- `tsc`, `vitest` (2229), `eslint` dos arquivos novos e `build` OK.
+
 ### 2026-10-30 UTC — Claude — Campos de texto com fundo visível no sistema todo
 - Causa: `field-control` usava `--cartao`, a mesma cor das folhas e cartões; o campo sumia e sobrava só o traço de baixo (foto do dono). O Figaro (spec 1, TextField preenchido) usa `surfaceContainerHighest`.
 - `styles.css`: novo `--campo-fundo` (= `--figaro-surface-container-highest` no painel, escuro e claro, todas as identidades); `field-control` usa `var(--campo-fundo, var(--cartao))`. Chat público, prévia do chat, modo tradicional (`.agendamento-marca`) e tela de acesso clara mantêm o campo na cor do próprio tema (`--campo-fundo: var(--cartao)`).

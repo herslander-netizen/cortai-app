@@ -1834,20 +1834,26 @@ export const moverAgendamentoPainel = createServerFn({ method: "POST" })
     }
     if (data.apenasVerificar)
       return { ok: true, livre: true, inicioAnterior: atual.inicio as string };
-    const { error } = await db
-      .from("agendamentos")
-      .update({
+    const { gravarHorarioSemSobrescrever, TEXTO_MUDOU_ENQUANTO_EDITAVA } = await import(
+      "@/lib/agendamento-sem-sobrescrever"
+    );
+    const { error, mudou } = await gravarHorarioSemSobrescrever(
+      db,
+      tenant.id,
+      { id: atual.id as string, inicio: atual.inicio as string, fim: atual.fim as string },
+      {
         inicio: inicio.toISOString(),
         fim: fim.toISOString(),
         ...(profissionalId ? { profissional_id: profissionalId } : {}),
-      })
-      .eq("id", atual.id)
-      .eq("tenant_id", tenant.id);
+      },
+    );
     if (error) {
       if (error.code === "23P01" || /sobreposicao/i.test(error.message))
         throw new Error("Esse horário já está ocupado.");
       throw new Error(error.message);
     }
+    // Outra pessoa gravou entre a conferência e a gravação: nada foi alterado nem avisado.
+    if (mudou) throw new Error(TEXTO_MUDOU_ENQUANTO_EDITAVA);
     if (data.avisarCliente !== false) {
       try {
         const { notificarAgendamento } = await import("@/lib/whatsapp/notificacoes.server");
