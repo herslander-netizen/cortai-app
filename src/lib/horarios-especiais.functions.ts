@@ -23,7 +23,9 @@ export const listarHorariosEspeciaisDoDia = createServerFn({ method: "GET" })
   .validator((d) => z.object({ dia: z.string().regex(DIA) }).parse(d))
   .handler(async ({ data, context }): Promise<HorarioEspecialDaAgenda[]> => {
     const tenantId = await tenantIdDoMembro(context);
-    const { data: linhas, error } = await context.supabase
+    // A tabela nasce na migração 0054; os tipos Supabase gerados ainda não a incluem.
+    const db = context.supabase as any;
+    const { data: linhas, error } = await db
       .from("horarios_especiais")
       .select("id, dia, profissional_id, abre, fecha")
       .eq("tenant_id", tenantId)
@@ -52,6 +54,8 @@ export const salvarHorarioEspecial = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const tenantId = await tenantIdDoMembro(context);
     await exigirPermissao(context, tenantId, "alterar_dados_barbearia");
+    // A tabela nasce na migração 0054; os tipos Supabase gerados ainda não a incluem.
+    const db = context.supabase as any;
     const fuso = await fusoDoTenant(tenantId);
     if (data.dia < hojeNoFuso(fuso)) {
       throw new Error("Só é possível configurar hoje ou uma data futura.");
@@ -60,7 +64,7 @@ export const salvarHorarioEspecial = createServerFn({ method: "POST" })
       throw new Error("O fechamento precisa ser depois da abertura, no mesmo dia.");
     }
     if (data.profissionalId) {
-      const { data: profissional, error } = await context.supabase
+      const { data: profissional, error } = await db
         .from("profissionais")
         .select("id")
         .eq("id", data.profissionalId)
@@ -69,7 +73,7 @@ export const salvarHorarioEspecial = createServerFn({ method: "POST" })
         .maybeSingle();
       if (error || !profissional) throw new Error("Profissional não encontrado neste negócio.");
     }
-    const { error } = await context.supabase
+    const { error } = await db
       .from("horarios_especiais")
       .upsert({
         tenant_id: tenantId,
@@ -90,7 +94,9 @@ export const removerHorarioEspecial = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const tenantId = await tenantIdDoMembro(context);
     await exigirPermissao(context, tenantId, "alterar_dados_barbearia");
-    const { error } = await context.supabase
+    // A tabela nasce na migração 0054; os tipos Supabase gerados ainda não a incluem.
+    const db = context.supabase as any;
+    const { error } = await db
       .from("horarios_especiais")
       .delete()
       .eq("id", data.id)
