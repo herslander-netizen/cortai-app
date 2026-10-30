@@ -839,6 +839,12 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+### 2026-10-30 UTC — Claude — Horário especial por data (parte 1: motor), negócio e profissional
+- Pedido do dono (captura de outro app, "abrir antes / fechar depois" num dia; "pra ambos": negócio todo e por profissional). Regra pura em `src/lib/horarios-especiais.ts` (com teste): a janela do negócio no dia é a união do horário (especial ou da semana) com os especiais dos profissionais; quem não estende ganha bloqueios na parte a mais; quem tem especial próprio deixa de seguir a escala naquele dia; abre dia fechado.
+- Entra no motor oficial sem caminho paralelo: `IntervalosPorData` passa a levar `abre`/`fecha` além do intervalo, `horarioDoDia` usa a janela da data; `intervalosPersonalizadosPorData` (agenda-regras) e `ocupacoesExtras` leem `horarios_especiais` (`horarios-especiais.server.ts`); a grade do dia (`barbeiro.functions.ts`) recebe o horário do dia já estendido.
+- **Sem efeito até a tabela existir**: leitura tolerante como a de `intervalos_agenda_dia`. Pendente: migração 0054 (tabela + `criar_agendamento` aceitando a janela especial; aplicar só com autorização), funções de salvar/remover e a folha "Horário especial" no botão + da Agenda (dono aprovou o lugar).
+- `tsc` e `vitest` (2221) passaram.
+
 ### 2026-10-30 UTC — Claude — Refino do chat de agendamento e do Personalizar Chat
 - Pedido do dono: "refinar de forma minuciosa a experiência do chat, de personalizar o chat, os ícones". Revisado na vitrine (360 dp), do lado do negócio e do cliente.
 - **Personalizar Chat** (`barbeiro.marca.chat.tsx`): Aparência deixa os botões colados que cortavam os nomes ("Foto d…", "F.. T.. C..") e vira linhas do Figaro (`LinhaDeOpcoes`) com ícone, valor atual e folha de baixo com explicação de cada opção. Balões em 3 colunas com miniaturas maiores. Cor de destaque com título e amostra da cor (`SecaoRecepcao.tsx`). Prévia: o nome da recepção sumia (texto claro no fundo claro); `.chat-preview-personalizado` passa a usar a cor da conversa.

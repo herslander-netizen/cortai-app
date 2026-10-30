@@ -39,7 +39,14 @@ export type HorarioDeFuncionamento = {
 };
 
 /** Ajustes excepcionais de intervalo para uma data, sem alterar a regra semanal. */
-export type IntervalosPorData = Record<string, { intervaloInicio: string; intervaloFim: string }>;
+/**
+ * Ajustes de uma data: intervalo personalizado (`intervalos_agenda_dia`) e horário especial do negócio
+ * (`horarios_especiais`, ver `horarios-especiais.ts`). Campos ausentes seguem o horário da semana.
+ */
+export type IntervalosPorData = Record<
+  string,
+  { intervaloInicio?: string; intervaloFim?: string; abre?: string; fecha?: string }
+>;
 
 export type SlotDaAgenda = { iso: string; label: string; minutos: number; hora: number };
 
@@ -129,7 +136,20 @@ export function horarioDoDia(
   intervaloFim: string | null;
 } {
   const semana = diaDaSemanaDoDia(dia);
-  const achado = (horarios ?? []).find((h) => h.diaSemana === semana);
+  const ajuste = intervalosPorData?.[dia];
+  const semanal = (horarios ?? []).find((h) => h.diaSemana === semana);
+  // Horário especial na data: abre o dia (mesmo se fechado na semana) com a janela gravada para ele.
+  const achado =
+    ajuste?.abre && ajuste.fecha
+      ? {
+          diaSemana: semana,
+          fechado: false,
+          abre: ajuste.abre,
+          fecha: ajuste.fecha,
+          intervaloInicio: semanal?.fechado ? null : (semanal?.intervaloInicio ?? null),
+          intervaloFim: semanal?.fechado ? null : (semanal?.intervaloFim ?? null),
+        }
+      : semanal;
   // Dia sem horário cadastrado = FECHADO. Nunca abrimos a agenda por suposição.
   if (!achado)
     return {
@@ -139,9 +159,9 @@ export function horarioDoDia(
       intervaloInicio: null,
       intervaloFim: null,
     };
-  const intervaloPersonalizado = intervalosPorData?.[dia];
-  const inicioIntervalo = intervaloPersonalizado?.intervaloInicio ?? achado.intervaloInicio;
-  const fimIntervalo = intervaloPersonalizado?.intervaloFim ?? achado.intervaloFim;
+  const personalizado = ajuste?.intervaloInicio && ajuste.intervaloFim ? ajuste : null;
+  const inicioIntervalo = personalizado?.intervaloInicio ?? achado.intervaloInicio;
+  const fimIntervalo = personalizado?.intervaloFim ?? achado.intervaloFim;
   const temIntervalo = Boolean(inicioIntervalo && fimIntervalo);
   return {
     fechado: Boolean(achado.fechado),

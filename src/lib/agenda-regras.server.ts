@@ -16,6 +16,8 @@ import {
   type HorarioDeFuncionamento,
   type IntervalosPorData,
 } from "@/lib/horarios";
+import { janelaDoNegocioNoDia } from "@/lib/horarios-especiais";
+import { horariosDaSemana, horariosEspeciaisDoPeriodo } from "@/lib/horarios-especiais.server";
 import { PASSO_MAXIMO_MINUTOS, PASSO_MINIMO_MINUTOS } from "@/lib/onboarding-regras";
 
 import { STATUS_QUE_OCUPAM } from "@/lib/disponibilidade";
@@ -78,6 +80,16 @@ export async function intervalosPersonalizadosPorData(
   de: string,
   ate: string = de,
 ): Promise<IntervalosPorData> {
+  const ajustes: IntervalosPorData = {};
+  // Horário especial do dia: a janela do negócio (união com a de quem estende) entra no mesmo mapa por data.
+  const especiais = await horariosEspeciaisDoPeriodo(db, tenantId, de, ate);
+  if (especiais.length) {
+    const semana = await horariosDaSemana(db, tenantId);
+    for (const dia of new Set(especiais.map((e) => e.dia))) {
+      const janela = janelaDoNegocioNoDia(dia, semana, especiais);
+      if (janela) ajustes[dia] = { ...janela };
+    }
+  }
   const { data, error } = await db
     .from("intervalos_agenda_dia")
     .select("dia, intervalo_inicio, intervalo_fim")
@@ -90,18 +102,18 @@ export async function intervalosPersonalizadosPorData(
       error.code === "42P01" ||
       error.code === "PGRST205" ||
       (/intervalos_agenda_dia/i.test(mensagem) && /schema cache|not exist|not found/i.test(mensagem))
-    ) return {};
+    ) return ajustes;
     throw new Error(mensagem || "Não foi possível carregar os intervalos do dia.");
   }
-  return Object.fromEntries(
-    (data ?? []).map((linha: { dia: string; intervalo_inicio: string; intervalo_fim: string }) => [
-      String(linha.dia).slice(0, 10),
-      {
-        intervaloInicio: String(linha.intervalo_inicio).slice(0, 5),
-        intervaloFim: String(linha.intervalo_fim).slice(0, 5),
-      },
-    ]),
-  );
+  for (const linha of (data ?? []) as { dia: string; intervalo_inicio: string; intervalo_fim: string }[]) {
+    const dia = String(linha.dia).slice(0, 10);
+    ajustes[dia] = {
+      ...ajustes[dia],
+      intervaloInicio: String(linha.intervalo_inicio).slice(0, 5),
+      intervaloFim: String(linha.intervalo_fim).slice(0, 5),
+    };
+  }
+  return ajustes;
 }
 
 export type ConflitoDoCliente = { agendamentoId: string; hora: string };

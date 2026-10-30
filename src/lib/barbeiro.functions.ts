@@ -1,5 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
-import { inicioDoDiaNoFuso, inicioDoMesNoFuso } from "@/lib/horarios";
+import { diaDaSemanaDoDia, inicioDoDiaNoFuso, inicioDoMesNoFuso } from "@/lib/horarios";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { tenantIdDoMembro, exigirPermissao, type ContextoAutenticado } from "@/lib/tenant";
@@ -282,6 +282,20 @@ export const getAgendaDia = createServerFn({ method: "GET" })
     const { intervalosPersonalizadosPorData } = await import("@/lib/agenda-regras.server");
     const intervalosPorData = await intervalosPersonalizadosPorData(db, tenant.id, diaAlvo);
     const ajusteIntervalo = intervalosPorData[diaAlvo];
+    // Horário especial na data: a grade do dia mostra a janela estendida (o motor já a usa pelo mapa por data).
+    if (ajusteIntervalo?.abre && ajusteIntervalo.fecha) {
+      const dow = diaDaSemanaDoDia(diaAlvo);
+      const semanal = horarios.find((h) => h.diaSemana === dow);
+      const doDia = {
+        diaSemana: dow,
+        fechado: false,
+        abre: ajusteIntervalo.abre,
+        fecha: ajusteIntervalo.fecha,
+        intervaloInicio: semanal && !semanal.fechado ? semanal.intervaloInicio : null,
+        intervaloFim: semanal && !semanal.fechado ? semanal.intervaloFim : null,
+      };
+      horarios.splice(0, horarios.length, ...horarios.filter((h) => h.diaSemana !== dow), doDia);
+    }
     const profissionais = (profsRes.data ?? []).map((p) => ({
       id: p.id,
       nome: p.nome,
@@ -323,9 +337,10 @@ export const getAgendaDia = createServerFn({ method: "GET" })
       itens,
       bloqueios,
       bloqueiosDoDia,
-      intervaloPersonalizado: ajusteIntervalo
-        ? { inicio: ajusteIntervalo.intervaloInicio, fim: ajusteIntervalo.intervaloFim }
-        : null,
+      intervaloPersonalizado:
+        ajusteIntervalo?.intervaloInicio && ajusteIntervalo.intervaloFim
+          ? { inicio: ajusteIntervalo.intervaloInicio, fim: ajusteIntervalo.intervaloFim }
+          : null,
       fila,
       horarios,
       fuso,
