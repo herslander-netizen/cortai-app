@@ -32,7 +32,7 @@ export const listarHorariosEspeciaisDoDia = createServerFn({ method: "GET" })
       .eq("dia", data.dia)
       .order("profissional_id", { ascending: true });
     if (error) throw new Error("Não foi possível carregar os horários especiais.");
-    return (linhas ?? []).map((linha) => ({
+    return ((linhas ?? []) as { id: string; dia: string; profissional_id: string | null; abre: string; fecha: string }[]).map((linha) => ({
       id: linha.id,
       dia: String(linha.dia).slice(0, 10),
       profissionalId: linha.profissional_id,
