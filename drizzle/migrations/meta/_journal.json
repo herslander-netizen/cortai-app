@@ -330,6 +330,13 @@
       "when": 1793379600000,
       "tag": "0052_plano_flow_chat",
       "breakpoints": true
+    },
+    {
+      "idx": 47,
+      "version": "7",
+      "when": 1793383200000,
+      "tag": "0053_textos_flow_recursos_modelos",
+      "breakpoints": true
     }
   ]
 }

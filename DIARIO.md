@@ -830,6 +830,9 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-30 UTC — Claude — Varredura do nome antigo no banco + migração 0053
+- Varredura de leitura em todas as colunas de texto do `public`: sobravam "Secretária Cortaí e WhatsApp" (4× em `recursos_de_plano.rotulo`) e "Enviado pelo Cortaí" (7 modelos de WhatsApp, todos `NAO_SUBMETIDO`). `0053_textos_flow_recursos_modelos.sql` troca para "Flow Chat e WhatsApp" e "Enviado pelo Flow" (os 2 modelos aprovados não têm o nome antigo e não são tocados). Ficam como histórico: 1 notificação antiga ("Uma semana de Cortaí", 22/10) e 3 mensagens já enviadas em `envios_de_whatsapp`, além das migrações antigas. Aplicada pelo workflow "Aplicar migrações novas".
+
 ### 2026-10-30 UTC — Claude — Plano Conecta: "Secretária Flow" → "Flow Chat"
 - Pedido do dono. Migração `0052_plano_flow_chat.sql` (só UPDATE idempotente do texto da descrição do plano Conecta), aplicada pelo workflow "Aplicar migrações novas". Nenhum outro texto do banco ou do código tinha "Secretária".
 
