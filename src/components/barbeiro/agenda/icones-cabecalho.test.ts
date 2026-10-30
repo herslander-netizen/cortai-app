@@ -19,8 +19,12 @@ describe("ícones do cabeçalho da Agenda no mobile", () => {
     expect(cabecalho).toContain('aria-label={\n          modoBusca');
   });
 
-  it("usa sino maior sem alterar badge, animação nem alvo de toque de 48 dp", () => {
-    expect(sino).toContain("<Bell\n            size={30}");
+  it("sino como no Figaro: 28 dp, magenta tertiary com não lidas, sem número, com o balanço", () => {
+    expect(sino).toContain("<Bell\n            size={28}");
+    expect(sino).toContain('const cor = "var(--figaro-tertiary, var(--sino-atencao))";');
+    expect(sino).not.toContain("selo-${toque}");
+    expect(sino).not.toContain("anel-${toque}");
+    expect(sino).toContain("rotate: [0, -12, 9, -5, 2, 0]");
     expect(sino).toContain("h-12 w-12 shrink-0 overflow-visible");
     expect(sino).toContain("aria-label={rotuloDoSino(naoLidas, naoVistos)}");
   });

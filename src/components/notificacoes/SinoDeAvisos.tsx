@@ -313,9 +313,12 @@ export function SinoDeAvisos() {
     </div>
   );
 
-  const forte = naoVistos > 0;
+  // Figaro: aceso enquanto houver não lidas (`unreadNotificationsCount > 0`).
+  const forte = naoLidas > 0;
   const animar = toque > 0 && !menosMovimento;
-  const cor = "var(--sino-atencao)";
+  // Figaro (apk/2 §1.1): sem não lidas, `icon_bell` na cor dos ícones; com não lidas, `icon_bell_on` em tertiary
+  // (#B61055 claro / #FFA6BF escuro), sem número no sino. Do nosso, fica só o balanço ao chegar aviso (dono, 30/10).
+  const cor = "var(--figaro-tertiary, var(--sino-atencao))";
   return (
     <>
       <Button
@@ -325,23 +328,10 @@ export function SinoDeAvisos() {
         onClick={() => abrirCentralRef.current()}
         aria-label={rotuloDoSino(naoLidas, naoVistos)}
         className={`sino-de-avisos relative h-12 w-12 shrink-0 overflow-visible rounded-none border-0 ${
-          forte ? "" : "text-mute hover:text-gold"
+          forte ? "" : "text-[var(--figaro-on-surface-variant,var(--mute))]"
         }`}
         style={forte ? { color: cor } : undefined}
       >
-        {/* Aviso importante chegando (dono, 29/10: "refine"): sem disco fixo nem arquinhos; um anel fino que se
-            espalha uma vez, o sino balança de leve e o selo surge com um pequeno salto. */}
-        {animar ? (
-          <motion.span
-            key={`anel-${toque}`}
-            aria-hidden
-            className="pointer-events-none absolute left-1/2 top-1/2 -ml-[18px] -mt-[18px] h-9 w-9 rounded-full border-[1.5px]"
-            style={{ borderColor: cor }}
-            initial={{ scale: 0.9, opacity: 0.4 }}
-            animate={{ scale: 1.6, opacity: 0 }}
-            transition={{ duration: 0.8, ease: [0.2, 0, 0, 1] }}
-          />
-        ) : null}
         <motion.span
           key={`sino-${toque}`}
           className="relative inline-flex"
@@ -351,33 +341,12 @@ export function SinoDeAvisos() {
           style={{ transformOrigin: "top center" }}
         >
           <Bell
-            size={30}
+            size={28}
             strokeWidth={1.8}
             className={forte ? "fill-current" : undefined}
             aria-hidden
           />
         </motion.span>
-        {naoLidas ? (
-          <motion.span
-            key={`selo-${toque}`}
-            aria-hidden
-            initial={animar ? { scale: 0.6, opacity: 0 } : false}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ type: "spring", stiffness: 500, damping: 26, delay: animar ? 0.12 : 0 }}
-            // Selo de contagem do Figaro (spec 1 §6.3): pílula pequena de 11 sp, encostada no canto de cima do sino,
-            // com um contorno fino na cor do fundo (dono, 29/10: "refine").
-            className={`pointer-events-none absolute left-[calc(50%+3px)] top-[7px] flex h-4 min-w-4 items-center justify-center rounded-full px-[3px] text-[11px] font-semibold leading-none tabular-nums ring-[1.5px] ring-[var(--agenda-topo,var(--background))] ${
-              forte
-                ? ""
-                : "bg-[var(--figaro-surface-container-highest,var(--ink3))] text-[var(--figaro-on-surface,var(--paper))]"
-            }`}
-            {...(forte
-              ? { style: { background: "var(--sino-badge)", color: "var(--sino-badge-texto)" } }
-              : {})}
-          >
-            {naoLidas > 9 ? "9+" : naoLidas}
-          </motion.span>
-        ) : null}
       </Button>
 
       {typeof document !== "undefined"

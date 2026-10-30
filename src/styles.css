@@ -10887,10 +10887,10 @@ input[type="range"] {
 }
 
 
-/* Sino no topo da Agenda (celular) no tamanho do Figaro: 20 dp desenhados (o Button forçava 16 px). */
+/* Sino no topo da Agenda (celular) no tamanho do Figaro: 28 dp como o ícone do calendário (o Button forçava 16 px). */
 html[data-tela-agenda] .management-header .sino-de-avisos svg.lucide-bell {
-  width: 26px;
-  height: 26px;
+  width: 28px;
+  height: 28px;
 }
 
 /* Tipografia e "agora" da Agenda pelas referências do Figaro (foto e vídeo do dono, 29/10; apk/2 §2.2 e §2.4):
