@@ -845,6 +845,12 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+### 2026-10-30 UTC — GPT — Corrige teste do menu + após incluir Horário especial
+- O CI do commit `611301d` confirmou build e TypeScript, mas falhou em um teste desatualizado: o menu agora tem quatro ações (Agendar horário, Atendimento avulso, Bloquear horário e Horário especial), enquanto uma asserção ainda esperava três.
+- Atualizada a expectativa em `src/components/barbeiro/agenda/MenuAcoesAgenda.test.tsx` para quatro. O teste anterior já verificava explicitamente a presença de Horário especial; a correção alinha a contagem ao comportamento implementado, sem alterar a interface ou regras.
+- Commit da correção: `ec41882`. Aguardando nova execução completa do CI; não considerar a prévia validada até ela passar.
+- Nenhum banco foi alterado, a migração 0054 não foi aplicada e produção/site principal permanecem intactos.
+
 ### 2026-10-30 UTC — GPT — Horários especiais por data (persistência e folha; validação pendente)
 - Assumi o escopo por autorização do dono e registrei a transferência da reserva em "Em andamento". O trabalho fica restrito a horários especiais; Flow IA e sombras da Agenda permanecem fora.
 - Criada a migração aditiva `drizzle/migrations/0054_horarios_especiais.sql` e registrada no `drizzle/migrations/meta/_journal.json`. A tabela é isolada por tenant, permite uma janela por negócio/profissional/data, tem RLS e exige a permissão `alterar_dados_barbearia`; as policies também verificam que o profissional informado pertence ao mesmo tenant. O RPC oficial `criar_agendamento` foi atualizado para aceitar o horário especial, mantendo o intervalo semanal, a janela excepcional do negócio e a escala individual (exceto quando o próprio profissional tem um especial que a substitui).
