@@ -1,4 +1,4 @@
-import { CalendarPlus, Lock, Scissors, type LucideIcon } from "lucide-react";
+import { CalendarClock, CalendarPlus, Lock, Scissors, type LucideIcon } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useRef, type KeyboardEvent } from "react";
 import { createPortal } from "react-dom";
@@ -35,6 +35,7 @@ export function MenuAcoesAgenda({
   onEncaixe,
   onChamarFila: _onChamarFila,
   onBloquear,
+  onHorarioEspecial,
   onNovoCliente: _onNovoCliente,
   visivel = true,
 }: {
@@ -50,6 +51,7 @@ export function MenuAcoesAgenda({
   onEncaixe: () => void;
   onChamarFila: () => void;
   onBloquear: () => void;
+  onHorarioEspecial: () => void;
   onNovoCliente: () => void;
   /** Mantido por compatibilidade: voz é acionada segurando o botão principal. */
   onAgendarPorVoz?: () => void;
@@ -120,6 +122,13 @@ export function MenuAcoesAgenda({
       descricao: "Fechar um período da agenda",
       Icone: Lock,
       onSelect: onBloquear,
+    },
+    {
+      id: "horario-especial",
+      rotulo: "Horário especial",
+      descricao: "Ajustar a abertura e o fechamento desta data",
+      Icone: CalendarClock,
+      onSelect: onHorarioEspecial,
     },
     {
       id: "encaixe",
