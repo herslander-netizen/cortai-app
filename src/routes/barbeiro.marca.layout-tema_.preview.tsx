@@ -1,10 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
 
 import { EsqueletoFormulario } from "@/components/layout/Esqueleto";
 import { Screen } from "@/components/layout/Screen";
-import { PreviaDaExperiencia } from "@/components/marca/editor/PreviaDaExperiencia";
+import { ChatPreview } from "@/components/agendamento/ChatPreview";
+import { PreviaDireta } from "@/components/marca/editor/PreviaDireta";
+import { PaginaPublicaConteudo } from "@/components/marca/PaginaPublica";
+import { useMediaQuery } from "@/hooks/use-mobile";
 import { useEditorDaPagina } from "@/components/marca/editor/useEditorDaPagina";
 import { Button } from "@/components/ui/button";
 import { paginaDeExemplo } from "@/lib/pagina-exemplo";
@@ -37,7 +40,6 @@ export const Route = createFileRoute("/barbeiro/marca/layout-tema_/preview")({
 });
 
 function PreviaLayoutTemaPage() {
-  const navigate = useNavigate();
   const { layout, tema } = Route.useSearch();
   const query = useQuery({ queryKey: ["marca"], queryFn: () => getMarca(), retry: false });
 
@@ -62,28 +64,24 @@ function PreviaLayoutTemaPage() {
     );
   }
 
-  return (
-    <ConteudoPrevia
-      initial={query.data.marca}
-      layout={layout}
-      tema={tema}
-      voltar={() => void navigate({ to: "/barbeiro/marca/layout-tema", search: { layout, tema } })}
-    />
-  );
+  return <ConteudoPrevia initial={query.data.marca} layout={layout} tema={tema} />;
 }
 
+/**
+ * "Ver Exemplo" como no Figaro (vídeo do dono, 30/10): o site de exemplo em tela cheia, só com a barra
+ * "Layout · Tema" e o voltar por cima. Substitui a prévia dentro de um celular desenhado.
+ */
 function ConteudoPrevia({
   initial,
   layout,
   tema,
-  voltar,
 }: {
   initial: NonNullable<Awaited<ReturnType<typeof getMarca>>>["marca"];
   layout?: (typeof layoutIds)[number] | undefined;
   tema?: (typeof temaIds)[number] | undefined;
-  voltar: () => void;
 }) {
   const e = useEditorDaPagina(initial, () => undefined);
+  const celular = useMediaQuery("(max-width: 767px)");
   const comLayout = layout ? aplicarLayout(e.config, layout) : e.config;
   const config = tema ? aplicarTema(comLayout, tema) : comLayout;
   // Exemplo com um negócio fictício (como no Figaro): mostra o layout e o tema escolhidos sem depender dos dados do negócio.
@@ -92,23 +90,26 @@ function ConteudoPrevia({
   return (
     <Screen
       wide
+      barraSimples
       voltarPara="/barbeiro/marca/layout-tema"
+      voltarBusca={{ layout, tema }}
       title={`${LAYOUTS[config.layout]} · ${TEMAS[config.tema].nome}`}
     >
-      <div className="space-y-4 pb-6">
-        <PreviaDaExperiencia
-          data={exemplo}
-          config={config}
-          device={e.device}
-          setDevice={e.setDevice}
-          nome={exemplo.tenant.nome}
-          avatarUrl={exemplo.tenant.logo_signed_url}
-          capaUrl={exemplo.tenant.capa_signed_url}
-          altura="h-[calc(100dvh-250px)]"
-        />
-        <Button variant="outline" className="min-h-12 w-full" onClick={voltar}>
-          Voltar para Layout & Tema
-        </Button>
+      {/* O site ocupa a largura toda, sem moldura nem margem da tela. */}
+      <div className="-mx-4 md:-mx-8">
+        {config.experiencia === "conversa" ? (
+          <ChatPreview
+            ativo
+            config={config}
+            nome={exemplo.tenant.nome}
+            logoUrl={exemplo.tenant.logo_signed_url}
+            capaUrl={exemplo.tenant.capa_signed_url}
+          />
+        ) : config.experiencia === "direta" ? (
+          <PreviaDireta data={exemplo} config={config} />
+        ) : (
+          <PaginaPublicaConteudo data={exemplo} config={config} preview previaCelular={celular} />
+        )}
       </div>
     </Screen>
   );

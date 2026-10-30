@@ -12,6 +12,7 @@ export function Screen({
   titleLeading,
   voltarPara,
   voltarRotulo = "Voltar",
+  voltarBusca,
   wide = false,
   hideHeader = false,
   headerAction,
@@ -25,6 +26,8 @@ export function Screen({
   titleLeading?: ReactNode;
   voltarPara?: LinkProps["to"];
   voltarRotulo?: string;
+  /** Busca levada no voltar (ex.: a escolha em andamento de Layout & Tema). */
+  voltarBusca?: Record<string, unknown>;
   wide?: boolean;
   hideHeader?: boolean;
   /** Ação contextual alinhada à direita do topo (por exemplo, Categorias na tela Serviços). */
@@ -56,6 +59,7 @@ export function Screen({
   const botaoVoltar = destinoVoltar ? (
     <Link
       to={destinoVoltar}
+      search={voltarBusca as never}
       aria-label={voltarRotulo}
       className={`-ml-2 flex size-11 shrink-0 items-center justify-center rounded-full ${barraSimples && compactaTituloNoCelular ? "" : "bg-[var(--figaro-surface-container-highest,var(--ink3))]"} text-[var(--figaro-on-surface,var(--paper))] transition-[background-color,transform] duration-150 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring motion-reduce:transition-none`}
     >
