@@ -184,15 +184,18 @@ export function ManagementHeader() {
     caminho.startsWith("/barbeiro/agenda/");
 
   if (celular && !telaDaAgenda) return null;
+  // A Agenda abre por `/barbeiro` e por `/barbeiro/agenda` (mesma regra de `barbeiro.tsx`): a barra é a mesma nos dois.
+  const naAgenda = /^\/barbeiro(\/agenda)?\/?$/.test(caminho);
+  const agendaNoCelular = celular && naAgenda;
 
   return (
     <header
       className="management-header"
-      style={celular && caminho === "/barbeiro" ? ESTILO_DA_BARRA_NA_AGENDA : undefined}
+      style={agendaNoCelular ? ESTILO_DA_BARRA_NA_AGENDA : undefined}
     >
       <div
         // Agenda no celular: barra de 64 dp do Figaro (`topAppBarHeight`), logo de 40 a 8 px da borda e sino colado à direita.
-        className={`mx-auto flex w-full max-w-[1180px] items-center justify-between ${celular && caminho === "/barbeiro" ? "h-16 gap-0.5 px-1 md:px-8" : "h-14 gap-3 px-4 md:px-8"}`}
+        className={`mx-auto flex w-full max-w-[1180px] items-center justify-between ${agendaNoCelular ? "h-16 gap-0.5 px-1 md:px-8" : "h-14 gap-3 px-4 md:px-8"}`}
       >
         <Sheet open={aberto} onOpenChange={setAberto}>
           <SheetTrigger asChild>
@@ -208,7 +211,7 @@ export function ManagementHeader() {
                   onError={() => setLogoFalhou(logoUsavel)}
                   alt=""
                   aria-hidden
-                  className={`object-cover ${celular && caminho === "/barbeiro" ? "h-10 w-10 rounded-full" : "h-11 w-11 rounded-[8px]"}`}
+                  className={`object-cover ${agendaNoCelular ? "h-10 w-10 rounded-full" : "h-11 w-11 rounded-[8px]"}`}
                 />
               ) : (
                 // Sem foto do negócio: o ícone padrão do Flow (dono, 30/10) até colocarem uma foto própria.
@@ -216,7 +219,7 @@ export function ManagementHeader() {
                   src={avatarPadrao.url}
                   alt=""
                   aria-hidden
-                  className={`object-cover ${celular && caminho === "/barbeiro" ? "h-10 w-10 rounded-full" : "h-11 w-11 rounded-full"}`}
+                  className={`object-cover ${agendaNoCelular ? "h-10 w-10 rounded-full" : "h-11 w-11 rounded-full"}`}
                 />
               )}
             </Button>
@@ -306,9 +309,7 @@ export function ManagementHeader() {
         <div className="flex items-center gap-1">
           {mostrarAcoesRapidas ? <AcoesRapidas /> : null}
           {/* A Agenda mantém o topo livre; a Flow IA continua acessível nas demais telas. */}
-          {caminho === "/barbeiro" || caminho === "/barbeiro/agenda" ? null : (
-            <AtalhoCortaiNoCabecalho />
-          )}
+          {naAgenda ? null : <AtalhoCortaiNoCabecalho />}
           <SinoDeAvisos />
         </div>
       </div>
