@@ -8,7 +8,7 @@ describe("calendário da Agenda como na captura do Figaro (dono, 29/10)", () => 
   it("pontinho na cor terciária do tema, 26 px abaixo do centro na semana e 12 px no mês", () => {
     expect(semana).toContain("bg-[var(--agenda-ponto-do-dia)]");
     expect(semana).toContain('"absolute -bottom-[6px]"');
-    expect(semana).toContain('"absolute bottom-[6px]"');
+    expect(semana).toContain('"absolute bottom-[4.4px]"');
     expect(semana).not.toContain('"bg-rosa"');
   });
 

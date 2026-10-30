@@ -103,9 +103,10 @@ function DiaDoCalendario({
       </span>
       <span
         aria-hidden
-        // Captura do Figaro (29/10): 26,6 px abaixo do centro do dia na semana e 12 px no mês. Cor: o magenta
-        // terciário do tema claro (#B61055) nos dois modos, como na captura do dono de 30/10.
-        className={`${compacto ? "size-1" : "size-[5px]"} rounded-full ${compacto ? "absolute bottom-[6px]" : "absolute -bottom-[6px]"} ${comAtendimento ? "bg-[var(--agenda-ponto-do-dia)]" : "bg-transparent"}`}
+        // Captura do Figaro (29/10): 26,6 px abaixo do centro do dia na semana. No mês, medido na captura do dono de
+        // 30/10: ponto de 4,5 dp com o centro 6,3 dp abaixo da base do número. Cor: o magenta terciário do tema claro
+        // (#B61055) nos dois modos.
+        className={`${compacto ? "size-[4.5px]" : "size-[5px]"} rounded-full ${compacto ? "absolute bottom-[4.4px]" : "absolute -bottom-[6px]"} ${comAtendimento ? "bg-[var(--agenda-ponto-do-dia)]" : "bg-transparent"}`}
       />
     </Button>
   );

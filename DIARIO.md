@@ -836,6 +836,10 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+### 2026-10-30 UTC — Claude — Distância do ponto ao número no mês igual ao Figaro
+- Dono: "o negócio é a distância também". Medido nas capturas (3 px/dp): no Flow o centro do ponto ficava 5,0 dp abaixo da base do número; no Figaro, 6,3 dp, com ponto de 4,5 dp. `SemanaDoTopo.tsx` (mês, `compacto`): ponto `size-[4.5px]` e `bottom-[4.4px]` (antes 4 px e 6 px). Semana sem mudança. Conferido na vitrine (6,7 dp; a vitrine mede ~0,3 dp a mais que o aparelho).
+- Testes da Agenda e `tsc` passaram.
+
 ### 2026-10-30 UTC — Claude — Pontos dos dias com atendimento no magenta do Figaro nos dois temas
 - Pedido específico do dono para a Agenda ("os pontinhos da foto 1 precisam ficar igual da foto 2"). Medido nas capturas: tamanho (4 dp) e posição já eram os do Figaro; só a cor diferia. No escuro o ponto usava o terciário escuro (#FFA6BF, rosa claro); o Figaro mostra #B61055. Novo token `--agenda-ponto-do-dia: #b61055` em `styles.css`, usado em `SemanaDoTopo.tsx` (semana e mês). Teste `calendario-ponto-e-dia.test.ts` atualizado.
 - Testes da Agenda (269) e `tsc` passaram.
