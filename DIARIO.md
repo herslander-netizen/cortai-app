@@ -27,6 +27,7 @@ e o que fez. O diário até 17/10/2026 está guardado, sem alterações, em
 7. **Sem segredos:** nunca escreva chaves, senhas ou tokens aqui. Cite só o nome da variável.
 
 ## Decisões do dono
+- 2026-10-30: **Ícones do topo da Agenda na cor do sino**: calendário fechado, lupa e sino sem não lidas em `--figaro-on-surface-variant`.
 - 2026-10-30: **Pontos de "dia com atendimento" na Agenda em #B61055 nos dois temas** (captura do Figaro): no escuro deixam de ser rosa claro.
 - 2026-10-30: **Avisos e WhatsApp no padrão do Figaro**, na ordem 1 → 3 → 2 → 4 (dono: "certo"): 1) sininho com Hoje/Ontem/Esta semana/data e filtros Todas, Não lidas, Agendamentos, Clientes; 3) aviso de telefone ausente na ficha; 2) tela Avisos e Lembretes com abas Clientes/Equipe, 4 eventos e folha com canais e até 2 antecedências; 4) saldo mensal do WhatsApp (depende de decisões do dono: cota por plano, o que fazer ao acabar, se o número compartilhado conta).
 - 2026-10-30: **Sino igual ao do Figaro, só com o nosso balanço** ("deixe igual ao figaro apenas preserve o balanço"): sem não lidas, contorno na cor dos ícones; com não lidas, sino aceso em tertiary (#B61055 claro / #FFA6BF escuro); 28 dp; sem número nem anel. Substitui o selo vermelho com contagem e o anel de 29/10.
@@ -836,6 +837,9 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+### 2026-10-30 UTC — Claude — Calendário e lupa na cor do sino
+- Dono: "deixe os dois da cor do sino". Volta o sino para `--figaro-on-surface-variant` (sem não lidas) e o ícone do calendário fechado e a lupa do topo da Agenda (`CabecalhoAgenda.tsx`) passam para a mesma cor (antes `text-mute`). Aberto, o calendário continua azul. Teste do ícone atualizado.
+
 ### 2026-10-30 UTC — Claude — Trava da alça de duração e sino na cor do calendário
 - Vídeo do dono ("deveria ter uma trava para não subir o horário"): ao editar o horário, a alça de baixo subia além do início (09:00 – 08:40) e só depois aparecia "Duração fora do limite". Agora `AlcaDeDuracao` recebe `limites` e trava o arraste e as setas; `limitesDaAlca` (`remarcacao-regras.ts`, com teste) deixa encolher até a duração mínima (5 min, em passos inteiros) e crescer até a máxima ou a meia-noite. A validação de antes e a do servidor continuam.
 - Captura do dono ("sino e calendário com colorações diferentes no estado normal"): sem não lidas, o sino usava `--figaro-on-surface-variant` (cinza rosado) e o calendário `text-mute`; o sino passa a `text-mute`. Com não lidas continua aceso.

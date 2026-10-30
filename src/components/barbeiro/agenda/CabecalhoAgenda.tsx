@@ -290,7 +290,7 @@ export function CabecalhoAgenda({
       <Button
         variant="ghost"
         size="icon"
-        className="h-12 w-12 min-w-12 shrink-0 rounded-xl text-mute transition-transform duration-[200ms] hover:bg-transparent hover:text-mute motion-reduce:transition-none"
+        className="h-12 w-12 min-w-12 shrink-0 rounded-xl text-[var(--figaro-on-surface-variant,var(--mute))] transition-transform duration-[200ms] hover:bg-transparent hover:text-[var(--figaro-on-surface-variant,var(--mute))] motion-reduce:transition-none"
         aria-label={
           modoBusca
             ? "Buscar atendimento"
@@ -311,7 +311,11 @@ export function CabecalhoAgenda({
               transition={MOLA.rapidaEspacial}
               className="inline-flex"
             >
-              <Search className="size-9 text-mute" strokeWidth={1.8} aria-hidden />
+              <Search
+                className="size-9 text-[var(--figaro-on-surface-variant,var(--mute))]"
+                strokeWidth={1.8}
+                aria-hidden
+              />
             </motion.span>
           ) : (
             <motion.span
@@ -327,8 +331,11 @@ export function CabecalhoAgenda({
                 fill="none"
                 aria-hidden
                 // Figaro: ícone de 20 dp desenhado (caixa de 28), cheio e em azul quando o mês está aberto, sem girar.
+                // Fechado, na mesma cor do sino ao lado (dono, 30/10).
                 className={`!size-7 transition-colors duration-[200ms] motion-reduce:transition-none ${
-                  calendarioAberto ? "text-primary" : "text-mute"
+                  calendarioAberto
+                    ? "text-primary"
+                    : "text-[var(--figaro-on-surface-variant,var(--mute))]"
                 }`}
               >
                 <path

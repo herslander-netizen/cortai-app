@@ -18,7 +18,9 @@ describe("ícone animado do calendário no cabeçalho mobile", () => {
     expect(fonte).toContain('fill={calendarioAberto ? "currentColor" : "none"}');
     expect(fonte).toContain('fill={calendarioAberto ? "var(--ink)" : "none"}');
     // Captura do Figaro (dono, 29/10): aberto fica cheio e azul, sem crescer nem girar.
-    expect(fonte).toContain('calendarioAberto ? "text-primary" : "text-mute"');
+    expect(fonte).toMatch(
+      /calendarioAberto\s*\?\s*"text-primary"\s*:\s*"text-\[var\(--figaro-on-surface-variant,var\(--mute\)\)\]"/,
+    );
     expect(fonte).not.toContain("rotate-[-8deg]");
   });
 
