@@ -4,6 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { CalendarClock, Clock3, RotateCcw, Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { useConfirmar } from "@/components/ui/useConfirmar";
 import { SeletorDeHorario } from "@/components/ui/seletor-de-horario";
 import {
   Sheet,
@@ -14,6 +15,7 @@ import {
 } from "@/components/ui/sheet";
 import { aviso } from "@/lib/avisos";
 import { hojeNoFuso } from "@/lib/horarios";
+import { horarioEspecialValido } from "@/lib/horarios-especiais";
 import {
   listarHorariosEspeciaisDoDia,
   removerHorarioEspecial,
@@ -55,6 +57,7 @@ export function HorarioEspecialSheet({
   const [abre, setAbre] = useState("08:00");
   const [fecha, setFecha] = useState("20:00");
   const [relogio, setRelogio] = useState<"abre" | "fecha" | null>(null);
+  const [confirmar, dialogoDeConfirmacao] = useConfirmar();
   const chave = ["horarios-especiais", diaEscolhido] as const;
   const lista = useQuery({
     queryKey: chave,
@@ -78,19 +81,21 @@ export function HorarioEspecialSheet({
   };
 
   const salvar = useMutation({
-    mutationFn: () => salvarFn({
-      data: {
-        dia: diaEscolhido,
-        profissionalId: profissionalId || null,
-        abre,
-        fecha,
-      },
-    }),
+    mutationFn: () =>
+      salvarFn({
+        data: {
+          dia: diaEscolhido,
+          profissionalId: profissionalId || null,
+          abre,
+          fecha,
+        },
+      }),
     onSuccess: () => {
       atualizar();
       aviso.ok("Horário especial salvo para esta data.");
     },
-    onError: (erro) => aviso.erro(erro instanceof Error ? erro.message : "Não foi possível salvar."),
+    onError: (erro) =>
+      aviso.erro(erro instanceof Error ? erro.message : "Não foi possível salvar."),
   });
 
   const remover = useMutation({
@@ -99,14 +104,14 @@ export function HorarioEspecialSheet({
       atualizar();
       aviso.ok("Horário especial removido.");
     },
-    onError: (erro) => aviso.erro(erro instanceof Error ? erro.message : "Não foi possível remover."),
+    onError: (erro) =>
+      aviso.erro(erro instanceof Error ? erro.message : "Não foi possível remover."),
   });
 
   const nomeDoAlvo = (id: string | null) =>
-    id ? profissionais.find((p) => p.id === id)?.nome ?? "Profissional" : "Negócio todo";
-  const valido = /^([01]\\d|2[0-3]):[0-5]\\d$/.test(abre)
-    && /^([01]\\d|2[0-3]):[0-5]\\d$/.test(fecha)
-    && fecha > abre;
+    id ? (profissionais.find((p) => p.id === id)?.nome ?? "Profissional") : "Negócio todo";
+  // Mesma regra do servidor (antes um `\\d` na expressão recusava qualquer horário e travava o botão).
+  const valido = horarioEspecialValido(abre, fecha);
   const ocupado = salvar.isPending || remover.isPending;
 
   return (
@@ -124,13 +129,15 @@ export function HorarioEspecialSheet({
 
         <div className="mt-5 space-y-4">
           <label className="block text-sm text-mute">
-            <span className="flex items-center gap-2"><CalendarClock className="size-4" aria-hidden /> Data</span>
+            <span className="flex items-center gap-2">
+              <CalendarClock className="size-4" aria-hidden /> Data
+            </span>
             <input
               type="date"
               value={diaEscolhido}
               min={hoje}
               onChange={(e) => setDiaEscolhido(e.target.value)}
-              className="field-control mt-1 min-h-12 w-full"
+              className="field-control mt-1 !bg-[var(--figaro-surface-container-highest,var(--ink3))] min-h-12 w-full"
               aria-label="Data do horário especial"
             />
           </label>
@@ -140,26 +147,30 @@ export function HorarioEspecialSheet({
             <select
               value={profissionalId}
               onChange={(e) => setProfissionalId(e.target.value)}
-              className="field-control mt-1 min-h-12 w-full"
+              className="field-control mt-1 !bg-[var(--figaro-surface-container-highest,var(--ink3))] min-h-12 w-full"
             >
               <option value="">Negócio todo</option>
               {profissionais.map((p) => (
-                <option key={p.id} value={p.id}>{p.nome}</option>
+                <option key={p.id} value={p.id}>
+                  {p.nome}
+                </option>
               ))}
             </select>
           </label>
 
           <div className="grid grid-cols-2 gap-3">
-            {([
-              { qual: "abre", rotulo: "Abrir às", valor: abre },
-              { qual: "fecha", rotulo: "Fechar às", valor: fecha },
-            ] as const).map(({ qual, rotulo, valor }) => (
+            {(
+              [
+                { qual: "abre", rotulo: "Abrir às", valor: abre },
+                { qual: "fecha", rotulo: "Fechar às", valor: fecha },
+              ] as const
+            ).map(({ qual, rotulo, valor }) => (
               <div key={qual} className="min-w-0 text-sm text-mute">
                 {rotulo}
                 <button
                   type="button"
                   onClick={() => setRelogio(qual)}
-                  className="field-control mt-1 flex min-h-12 w-full items-center justify-center gap-2 text-lg font-semibold tabular-nums text-paper"
+                  className="field-control mt-1 !bg-[var(--figaro-surface-container-highest,var(--ink3))] flex min-h-12 w-full items-center justify-center gap-2 text-lg font-semibold tabular-nums text-paper"
                   aria-label={`${rotulo}: ${valor}`}
                 >
                   <Clock3 className="size-4" aria-hidden /> {valor}
@@ -183,14 +194,29 @@ export function HorarioEspecialSheet({
           </p>
 
           {!valido ? (
-            <p className="text-sm text-brick" role="alert">O fechamento precisa ser depois da abertura, no mesmo dia.</p>
+            <p className="text-sm text-brick" role="alert">
+              O fechamento precisa ser depois da abertura, no mesmo dia.
+            </p>
           ) : null}
 
           <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)] gap-3">
-            <Button type="button" variant="outline" size="lg" className="min-w-0" disabled={ocupado} onClick={() => onAberto(false)}>
+            <Button
+              type="button"
+              variant="outline"
+              size="lg"
+              className="min-w-0"
+              disabled={ocupado}
+              onClick={() => onAberto(false)}
+            >
               Fechar
             </Button>
-            <Button type="button" size="lg" className="min-w-0" disabled={!valido || diaEscolhido < hoje || ocupado} onClick={() => salvar.mutate()}>
+            <Button
+              type="button"
+              size="lg"
+              className="min-w-0"
+              disabled={!valido || diaEscolhido < hoje || ocupado}
+              onClick={() => salvar.mutate()}
+            >
               {salvar.isPending ? "Salvando…" : "Salvar horário"}
             </Button>
           </div>
@@ -205,7 +231,9 @@ export function HorarioEspecialSheet({
               {lista.data.map((item: HorarioEspecial) => (
                 <li key={item.id} className="flex min-h-14 items-center justify-between gap-3 py-2">
                   <div className="min-w-0">
-                    <p className="text-sm font-semibold tabular-nums text-paper">{item.abre} – {item.fecha}</p>
+                    <p className="text-sm font-semibold tabular-nums text-paper">
+                      {item.abre} – {item.fecha}
+                    </p>
                     <p className="truncate text-xs text-mute">{nomeDoAlvo(item.profissionalId)}</p>
                   </div>
                   <Button
@@ -214,7 +242,15 @@ export function HorarioEspecialSheet({
                     size="sm"
                     className="min-h-11 shrink-0"
                     disabled={ocupado}
-                    onClick={() => remover.mutate(item.id)}
+                    onClick={async () => {
+                      const ok = await confirmar({
+                        titulo: "Remover este horário especial?",
+                        descricao: `${nomeDoAlvo(item.profissionalId)} volta ao horário da semana nesta data. Atendimentos já marcados continuam.`,
+                        confirmar: "Remover",
+                        cancelar: "Cancelar",
+                      });
+                      if (ok) remover.mutate(item.id);
+                    }}
                     aria-label={`Remover horário especial de ${nomeDoAlvo(item.profissionalId)}`}
                   >
                     <Trash2 aria-hidden /> Remover
@@ -228,6 +264,7 @@ export function HorarioEspecialSheet({
             Nenhum horário especial em {dataEditorial(diaEscolhido)}.
           </p>
         )}
+        {dialogoDeConfirmacao}
       </SheetContent>
     </Sheet>
   );

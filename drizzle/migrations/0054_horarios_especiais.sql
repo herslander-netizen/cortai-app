@@ -55,7 +55,7 @@ CREATE POLICY "membros atualizam horarios especiais"
       profissional_id IS NULL
       OR EXISTS (
         SELECT 1 FROM public.profissionais p
-        WHERE p.id = profissional_id AND p.tenant_id = tenant_id
+        WHERE p.id = horarios_especiais.profissional_id AND p.tenant_id = horarios_especiais.tenant_id
       )
     )
   );
@@ -173,6 +173,7 @@ BEGIN
           FROM public.horarios_de_funcionamento
           WHERE tenant_id = _tenant_id
             AND dia_semana = extract(dow FROM v_local)::int
+            AND NOT fechado
           LIMIT 1;
         IF FOUND AND v_h.intervalo_inicio IS NOT NULL AND v_h.intervalo_fim IS NOT NULL THEN
           v_pi := v_base + v_h.intervalo_inicio

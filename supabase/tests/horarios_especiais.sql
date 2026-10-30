@@ -51,6 +51,25 @@ BEGIN
   EXCEPTION WHEN unique_violation THEN msg := 'recusou'; END;
   IF msg <> 'recusou' THEN falhas := falhas || 'aceitou dois horários especiais do negócio na mesma data'::text; END IF;
 
+  -- Salvar de novo para o mesmo alvo atualiza (o servidor grava com ON CONFLICT no alvo).
+  total := total + 1;
+  INSERT INTO public.horarios_especiais (tenant_id, profissional_id, dia, abre, fecha) VALUES (t, NULL, d, '06:00', '21:00')
+  ON CONFLICT (tenant_id, dia, alvo_id) DO UPDATE SET abre = EXCLUDED.abre, fecha = EXCLUDED.fecha;
+  IF (SELECT abre FROM public.horarios_especiais WHERE tenant_id = t AND dia = d AND profissional_id IS NULL) <> '06:00' THEN
+    falhas := falhas || 'regravar não atualizou o horário do negócio'::text;
+  END IF;
+
+  -- Dia fechado na semana: o especial abre o dia e a pausa cadastrada nele não vale (como no app).
+  UPDATE public.horarios_de_funcionamento SET fechado = true
+  WHERE tenant_id = t AND dia_semana = extract(dow FROM (d + 4))::int;
+  INSERT INTO public.horarios_especiais (tenant_id, profissional_id, dia, abre, fecha) VALUES (t, NULL, d + 4, '10:00', '16:00');
+  total := total + 1;
+  BEGIN
+    PERFORM public.criar_agendamento(t, NULL, p1, sv, ((d + 4) + time '12:15') AT TIME ZONE fuso, 'balcao', false, true);
+    msg := 'ok';
+  EXCEPTION WHEN others THEN msg := SQLERRM; END;
+  IF msg <> 'ok' THEN falhas := falhas || format('dia fechado com especial: "%s"', msg); END IF;
+
   -- Fim antes do início é recusado.
   total := total + 1;
   BEGIN
