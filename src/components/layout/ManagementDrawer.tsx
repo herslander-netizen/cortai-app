@@ -42,15 +42,9 @@ import {
   itensDoDiaADiaNoMenuMovel,
   modulosDeNavegacao,
 } from "@/lib/navegacao-barbeiro";
-import {
-  APPEARANCE_EVENT,
-  aplicarIdentidade,
-  aplicarModo,
-  identidadeValida,
-  MODE_KEY,
-} from "@/lib/aparencia";
+import { aplicarIdentidade, aplicarModo, identidadeValida, MODE_KEY } from "@/lib/aparencia";
 import { useMediaQuery } from "@/hooks/use-mobile";
-import { SimboloFlow } from "@/components/marca/MarcaFlow";
+import avatarPadrao from "@/assets/flow-avatar-padrao.png.asset.json";
 import { Barra, BlocoEsqueleto } from "@/components/layout/Esqueleto";
 import { useLayoutEquipe } from "@/components/layout/ContextoLayoutEquipe";
 
@@ -59,7 +53,6 @@ export function ManagementHeader() {
   const [abertoLocal, setAbertoLocal] = useState(false);
   const aberto = layoutEquipe?.menuAberto ?? abertoLocal;
   const setAberto = layoutEquipe?.setMenuAberto ?? setAbertoLocal;
-  const [modoClaro, setModoClaro] = useState(false);
   const [abertos, setAbertos] = useState<string[]>(["Dia a dia"]);
   const celular = useMediaQuery("(max-width: 767px)");
   const inicioDaBorda = useRef<{ x: number; y: number } | null>(null);
@@ -104,12 +97,6 @@ export function ManagementHeader() {
     if (sessao?.tenantModo && !window.localStorage.getItem(MODE_KEY))
       aplicarModo(sessao.tenantModo, true);
   }, [sessao?.identidadeApp, sessao?.tenantModo]);
-  useEffect(() => {
-    const atualizar = () => setModoClaro(document.documentElement.classList.contains("light"));
-    atualizar();
-    window.addEventListener(APPEARANCE_EVENT, atualizar);
-    return () => window.removeEventListener(APPEARANCE_EVENT, atualizar);
-  }, []);
   useEffect(() => {
     const abrir = () => setAberto(true);
     window.addEventListener("cortai:abrir-menu", abrir);
@@ -224,13 +211,13 @@ export function ManagementHeader() {
                   className={`object-cover ${celular && caminho === "/barbeiro" ? "h-10 w-10 rounded-full" : "h-11 w-11 rounded-[8px]"}`}
                 />
               ) : (
-                // Sem logo do negócio: o símbolo Flow no quadrado do ícone do app.
-                <span
+                // Sem foto do negócio: o ícone padrão do Flow (dono, 30/10) até colocarem uma foto própria.
+                <img
+                  src={avatarPadrao.url}
+                  alt=""
                   aria-hidden
-                  className={`grid place-items-center bg-[var(--figaro-surface-container,var(--ink2))] ${celular && caminho === "/barbeiro" ? "h-10 w-10 rounded-full" : "h-11 w-11 rounded-[8px]"}`}
-                >
-                  <SimboloFlow className="!size-6" clara={!modoClaro} />
-                </span>
+                  className={`object-cover ${celular && caminho === "/barbeiro" ? "h-10 w-10 rounded-full" : "h-11 w-11 rounded-full"}`}
+                />
               )}
             </Button>
           </SheetTrigger>
