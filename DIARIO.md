@@ -830,6 +830,9 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-30 UTC — Claude — E-mails de login do Flow prontos para colar
+- `docs/emails-de-login-flow.md`: assunto e HTML de Confirm signup, Invite user e Reset password (os três que o app dispara: `signUp`/`resend`, `inviteUserByEmail`, `resetPasswordForEmail`), com o nome Flow, linguagem neutra e sem imagem externa. O dono cola em Supabase → Authentication → Email Templates. WhatsApp: os 2 modelos aprovados (lembretes) não citam Cortaí e os 7 não submetidos já estão com "Enviado pelo Flow" (0053); nada a refazer na Meta por causa do nome (os nomes técnicos `cortai_*` não aparecem para o cliente).
+
 ### 2026-10-30 UTC — Claude — Varredura do nome antigo no banco + migração 0053
 - Varredura de leitura em todas as colunas de texto do `public`: sobravam "Secretária Cortaí e WhatsApp" (4× em `recursos_de_plano.rotulo`) e "Enviado pelo Cortaí" (7 modelos de WhatsApp, todos `NAO_SUBMETIDO`). `0053_textos_flow_recursos_modelos.sql` troca para "Flow Chat e WhatsApp" e "Enviado pelo Flow" (os 2 modelos aprovados não têm o nome antigo e não são tocados). Ficam como histórico: 1 notificação antiga ("Uma semana de Cortaí", 22/10) e 3 mensagens já enviadas em `envios_de_whatsapp`, além das migrações antigas. Aplicada pelo workflow "Aplicar migrações novas".
 
