@@ -309,7 +309,7 @@ export const getAgendaDia = createServerFn({ method: "GET" })
         desde: de,
         ate,
         profissionalIds: profissionais.map((p) => p.id),
-      }).catch(() => [])
+      })
     ).map((b) => ({ profissional_id: b.profissional_id, inicio: b.inicio, fim: b.fim }));
     // Bloqueios cadastrados (com id e motivo) para a faixa visual da linha do tempo. Leitura à
     // parte: se falhar, a Agenda abre igual, só sem a faixa.
@@ -1923,7 +1923,7 @@ export const getHorariosParaRemarcar = createServerFn({ method: "GET" })
           desde,
           ate,
           profissionalIds: [profissionalId],
-        }).catch(() => []),
+        }),
       ]);
       const { horariosDisponiveis } = await import("@/lib/disponibilidade");
       const { fechado, opcoes } = horariosDisponiveis({
