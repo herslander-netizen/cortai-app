@@ -27,6 +27,7 @@ e o que fez. O diário até 17/10/2026 está guardado, sem alterações, em
 7. **Sem segredos:** nunca escreva chaves, senhas ou tokens aqui. Cite só o nome da variável.
 
 ## Decisões do dono
+- 2026-10-30: **"Secretária Flow" = Flow Chat.** O recurso de agendamento conversacional nos textos (planos inclusive) se chama Flow Chat.
 - 2026-10-30: **Ícone novo do Flow** (F preto mais cheio e ponto rosa `#FC4980`, enviado pelo dono). Ícone do app **todo branco, só o F e o ponto** (sem anel nem círculo); os demais ícones derivam dele.
 - 2026-10-30: **Carregamento de tela cheia com o F animado** (sem o círculo): traço de baixo, traço de cima e o ponto rosa pingando. Só onde há carregamento de verdade; esqueletos continuam onde a tela tem formato conhecido.
 - 2026-10-30: **Foto padrão do topo da Agenda = ícone Flow** (F preto com ponto rosa em círculo branco, enviado pelo dono) até o negócio colocar uma foto própria.
@@ -828,6 +829,9 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+
+### 2026-10-30 UTC — Claude — Plano Conecta: "Secretária Flow" → "Flow Chat"
+- Pedido do dono. Migração `0052_plano_flow_chat.sql` (só UPDATE idempotente do texto da descrição do plano Conecta), aplicada pelo workflow "Aplicar migrações novas". Nenhum outro texto do banco ou do código tinha "Secretária".
 
 ### 2026-10-30 UTC — Claude — Migração 0051 aplicada no cortai-prod (autorizada)
 - Dono autorizou ("siga com atualização"). Ensaio antes, sem gravar: só a descrição do plano Conecta ainda tinha o nome antigo ("Secretária Cortaí"); negócio de demonstração, boas-vindas da IA e home pública já estavam sem ele. Aplicada pelo workflow "Aplicar migrações novas" (run 40995620540, sucesso). Conferido no banco: Conecta diz "Secretária Flow" e `0051_marca_flow_textos.sql` está em `cortai_controle.migracoes_aplicadas`. Nenhum dado apagado.
