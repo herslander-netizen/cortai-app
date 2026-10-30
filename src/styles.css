@@ -10887,6 +10887,12 @@ input[type="range"] {
 }
 
 
+/* Ponto de "dia com atendimento" na semana e no mês: o magenta terciário claro do Figaro (#B61055) nos dois temas
+   (captura do dono, 30/10). */
+:root {
+  --agenda-ponto-do-dia: #b61055;
+}
+
 /* Sino no topo da Agenda (celular) no tamanho do Figaro: 28 dp como o ícone do calendário (o Button forçava 16 px). */
 html[data-tela-agenda] .management-header .sino-de-avisos svg.lucide-bell,
 html[data-tela-agenda] .management-header .sino-de-avisos svg.lucide-bell-ring {

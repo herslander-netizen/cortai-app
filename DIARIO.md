@@ -27,6 +27,7 @@ e o que fez. O diário até 17/10/2026 está guardado, sem alterações, em
 7. **Sem segredos:** nunca escreva chaves, senhas ou tokens aqui. Cite só o nome da variável.
 
 ## Decisões do dono
+- 2026-10-30: **Pontos de "dia com atendimento" na Agenda em #B61055 nos dois temas** (captura do Figaro): no escuro deixam de ser rosa claro.
 - 2026-10-30: **Avisos e WhatsApp no padrão do Figaro**, na ordem 1 → 3 → 2 → 4 (dono: "certo"): 1) sininho com Hoje/Ontem/Esta semana/data e filtros Todas, Não lidas, Agendamentos, Clientes; 3) aviso de telefone ausente na ficha; 2) tela Avisos e Lembretes com abas Clientes/Equipe, 4 eventos e folha com canais e até 2 antecedências; 4) saldo mensal do WhatsApp (depende de decisões do dono: cota por plano, o que fazer ao acabar, se o número compartilhado conta).
 - 2026-10-30: **Sino igual ao do Figaro, só com o nosso balanço** ("deixe igual ao figaro apenas preserve o balanço"): sem não lidas, contorno na cor dos ícones; com não lidas, sino aceso em tertiary (#B61055 claro / #FFA6BF escuro); 28 dp; sem número nem anel. Substitui o selo vermelho com contagem e o anel de 29/10.
 - 2026-10-30: **Calendário da Agenda com o efeito de mola do Figaro** (vídeo do dono): o painel abre na mola 1,0/400 e a Agenda vem atrás numa segunda mola igual, em série. **Substitui a mola única de 29/10** (conflito apontado no diário). Cantos de baixo do topo com 16 dp fechado e aberto (antes 24 fechado / 16 aberto: o canto mudava de curvatura).
@@ -835,6 +836,10 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+### 2026-10-30 UTC — Claude — Pontos dos dias com atendimento no magenta do Figaro nos dois temas
+- Pedido específico do dono para a Agenda ("os pontinhos da foto 1 precisam ficar igual da foto 2"). Medido nas capturas: tamanho (4 dp) e posição já eram os do Figaro; só a cor diferia. No escuro o ponto usava o terciário escuro (#FFA6BF, rosa claro); o Figaro mostra #B61055. Novo token `--agenda-ponto-do-dia: #b61055` em `styles.css`, usado em `SemanaDoTopo.tsx` (semana e mês). Teste `calendario-ponto-e-dia.test.ts` atualizado.
+- Testes da Agenda (269) e `tsc` passaram.
+
 ### 2026-10-30 UTC — Claude — Cartão Suporte do menu com as medidas do cartão da Agenda
 - Pedido do dono ("ajuste o botão", captura do cartão Suporte no menu). `CartaoSuporte.tsx` deixa de ser um `Button` ghost (grade de 32 px com ícone forçado a 32, altura 64, recuo 12) e passa a ser um link com as mesmas medidas do cartão da Agenda logo acima: ícone de 24, recuo 20 × 16, altura mínima 76, título 18/24. A linha de baixo continua em 13/18 e quebra em vez de cortar quando não cabe.
 - Testes do menu (36) e `tsc` passaram.
