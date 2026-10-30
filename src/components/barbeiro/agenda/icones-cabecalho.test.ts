@@ -20,7 +20,8 @@ describe("ícones do cabeçalho da Agenda no mobile", () => {
   });
 
   it("sino como no Figaro: 28 dp, magenta tertiary com não lidas, sem número, com o balanço", () => {
-    expect(sino).toContain("<Bell\n            size={28}");
+    expect(sino).toContain("<BellRing size={28}");
+    expect(sino).toContain("<Bell size={28}");
     expect(sino).toContain('const cor = "var(--figaro-tertiary, var(--sino-atencao))";');
     expect(sino).not.toContain("selo-${toque}");
     expect(sino).not.toContain("anel-${toque}");

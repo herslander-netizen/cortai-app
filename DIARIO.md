@@ -834,6 +834,9 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-30 UTC — Claude — Sino aceso nos dois temas como no Figaro
+- Pedido do dono ("os dois modos igual ao Figaro, pra ele ficar em destaque"). Com não lidas, o sino troca para o sino tocando (`BellRing`, equivalente ao `icon_bell_on` do Figaro; o APK usa `_filled` para ícones só preenchidos), preenchido em tertiary: #FFA6BF no escuro e #B61055 no claro. Sem não lidas, `icon_bell` em contorno. Conferido na vitrine nos dois temas. Testes e build ok.
+
 ### 2026-10-30 UTC — Claude — Sino como no Figaro
 - `SinoDeAvisos.tsx`: cor `--figaro-tertiary` quando há não lidas (regra do Figaro: `unreadNotificationsCount > 0`; antes acendia só para não vistos), contorno em `onSurfaceVariant` sem não lidas, ícone de 28 dp (também no CSS da Agenda, igual ao ícone do calendário), sem selo com número e sem anel; o balanço ao chegar aviso foi mantido. Contagem continua no rótulo de acessibilidade, no título da aba e no ícone do app instalado. Teste `icones-cabecalho.test.ts` atualizado. Conferido na vitrine (escuro). `tsc`, `vitest` e `build` ok.
 

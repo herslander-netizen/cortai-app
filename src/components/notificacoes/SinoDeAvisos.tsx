@@ -3,7 +3,7 @@ import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
-import { Bell, X } from "lucide-react";
+import { Bell, BellRing, X } from "lucide-react";
 
 import { supabase } from "@/integrations/supabase/client";
 import { getSessao } from "@/lib/sessao.functions";
@@ -340,12 +340,12 @@ export function SinoDeAvisos() {
           transition={animar ? { duration: 0.6, ease: "easeInOut" } : transicaoRapida}
           style={{ transformOrigin: "top center" }}
         >
-          <Bell
-            size={28}
-            strokeWidth={1.8}
-            className={forte ? "fill-current" : undefined}
-            aria-hidden
-          />
+          {/* Figaro: `icon_bell` sem não lidas e `icon_bell_on` (sino tocando) com não lidas, em tertiary. */}
+          {forte ? (
+            <BellRing size={28} strokeWidth={1.8} className="fill-current" aria-hidden />
+          ) : (
+            <Bell size={28} strokeWidth={1.8} aria-hidden />
+          )}
         </motion.span>
       </Button>
 

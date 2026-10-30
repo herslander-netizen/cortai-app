@@ -10888,7 +10888,8 @@ input[type="range"] {
 
 
 /* Sino no topo da Agenda (celular) no tamanho do Figaro: 28 dp como o ícone do calendário (o Button forçava 16 px). */
-html[data-tela-agenda] .management-header .sino-de-avisos svg.lucide-bell {
+html[data-tela-agenda] .management-header .sino-de-avisos svg.lucide-bell,
+html[data-tela-agenda] .management-header .sino-de-avisos svg.lucide-bell-ring {
   width: 28px;
   height: 28px;
 }
