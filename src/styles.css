@@ -11153,11 +11153,11 @@ html[data-teclado-aberto] .agenda-acao-fixa {
    selo "Hoje"; dias vazios com "Livre" e "Nada marcado"; cartão em `cardTile` com raio 8, barra de 4 dp na cor
    da categoria, serviço em destaque, cliente e detalhes separados por bolinhas de 3 dp. */
 .agenda-lista-dia-titulo.agenda-lista-dia-titulo {
-  /* Quando o resumo não cabe ao lado da data, desce inteiro para a linha de baixo em vez de ser cortado (dono, 30/10). */
+  /* Data na primeira linha e resumo inteiro na segunda, sem corte (dono, 30/10). */
   flex-wrap: wrap;
-  row-gap: 2px;
+  row-gap: 4px;
   align-items: baseline;
-  padding: 14px 0 10px;
+  padding: 14px 0 12px;
   background: var(--background);
 }
 .agenda-lista-dia-titulo.agenda-lista-dia-titulo h3 {
@@ -11189,14 +11189,18 @@ html[data-teclado-aberto] .agenda-acao-fixa {
   line-height: 16px;
 }
 .agenda-lista-dia-titulo.agenda-lista-dia-titulo .agenda-lista-dia-resumo {
-  flex: 0 0 auto;
-  margin-left: auto;
+  /* Sempre na linha de baixo, alinhado à esquerda com a data (dono, 30/10): todos os dias com o mesmo desenho. */
+  flex: 1 0 100%;
   overflow: visible;
   font-size: 12.5px;
   white-space: nowrap;
 }
 .agenda-lista-linha + .agenda-lista-linha {
   margin-top: 10px;
+}
+/* Mais respiro entre um dia e o próximo do que entre os cartões do mesmo dia: os grupos ficam claros. */
+.agenda-lista-dia + .agenda-lista-dia {
+  margin-top: 28px;
 }
 .agenda-lista-cartao.agenda-lista-cartao {
   border-radius: 8px;

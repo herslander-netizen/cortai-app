@@ -27,6 +27,7 @@ e o que fez. O diário até 17/10/2026 está guardado, sem alterações, em
 7. **Sem segredos:** nunca escreva chaves, senhas ou tokens aqui. Cite só o nome da variável.
 
 ## Decisões do dono
+- 2026-10-30: **Lista da Agenda: resumo do dia na linha de baixo, alinhado à esquerda** (sem corte), e dias mais separados entre si.
 - 2026-10-30: **Ícones do topo da Agenda na cor do sino**: calendário fechado, lupa e sino sem não lidas em `--figaro-on-surface-variant`.
 - 2026-10-30: **Pontos de "dia com atendimento" na Agenda em #B61055 nos dois temas** (captura do Figaro): no escuro deixam de ser rosa claro.
 - 2026-10-30: **Avisos e WhatsApp no padrão do Figaro**, na ordem 1 → 3 → 2 → 4 (dono: "certo"): 1) sininho com Hoje/Ontem/Esta semana/data e filtros Todas, Não lidas, Agendamentos, Clientes; 3) aviso de telefone ausente na ficha; 2) tela Avisos e Lembretes com abas Clientes/Equipe, 4 eventos e folha com canais e até 2 antecedências; 4) saldo mensal do WhatsApp (depende de decisões do dono: cota por plano, o que fazer ao acabar, se o número compartilhado conta).
@@ -837,6 +838,9 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+### 2026-10-30 UTC — Claude — Cabeçalho do dia da lista em duas linhas e mais respiro entre os dias
+- Dono: "prefiro alinhado à esquerda, depois dê uma refinada visual na organização dessa tela". `styles.css`: o resumo ("2 atendimentos · R$ 90" / "Livre") fica sempre na segunda linha, alinhado à esquerda com a data, em todos os dias; 4 px entre as linhas e 12 px até o primeiro cartão; 28 px entre um dia e o próximo (antes 18), contra 10 px entre cartões do mesmo dia. Conferido na vitrine a 360 dp.
+
 ### 2026-10-30 UTC — Claude — Resumo do dia na lista da Agenda sem corte
 - Captura do dono ("1 atendimento… depois o texto corta"): no cabeçalho do dia da lista, o resumo ("1 atendimento · R$ 85") era cortado com reticências quando não cabia ao lado de "30 out. Sexta-feira Hoje". `styles.css` (`.agenda-lista-dia-titulo`): a linha quebra e o resumo desce inteiro, alinhado à direita; quando cabe, continua na mesma linha. Conferido na vitrine a 360 dp.
 
