@@ -837,6 +837,9 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+### 2026-10-30 UTC — Claude — Resumo do dia na lista da Agenda sem corte
+- Captura do dono ("1 atendimento… depois o texto corta"): no cabeçalho do dia da lista, o resumo ("1 atendimento · R$ 85") era cortado com reticências quando não cabia ao lado de "30 out. Sexta-feira Hoje". `styles.css` (`.agenda-lista-dia-titulo`): a linha quebra e o resumo desce inteiro, alinhado à direita; quando cabe, continua na mesma linha. Conferido na vitrine a 360 dp.
+
 ### 2026-10-30 UTC — Claude — Calendário e lupa na cor do sino
 - Dono: "deixe os dois da cor do sino". Volta o sino para `--figaro-on-surface-variant` (sem não lidas) e o ícone do calendário fechado e a lupa do topo da Agenda (`CabecalhoAgenda.tsx`) passam para a mesma cor (antes `text-mute`). Aberto, o calendário continua azul. Teste do ícone atualizado.
 

@@ -11153,7 +11153,9 @@ html[data-teclado-aberto] .agenda-acao-fixa {
    selo "Hoje"; dias vazios com "Livre" e "Nada marcado"; cartão em `cardTile` com raio 8, barra de 4 dp na cor
    da categoria, serviço em destaque, cliente e detalhes separados por bolinhas de 3 dp. */
 .agenda-lista-dia-titulo.agenda-lista-dia-titulo {
-  flex-wrap: nowrap;
+  /* Quando o resumo não cabe ao lado da data, desce inteiro para a linha de baixo em vez de ser cortado (dono, 30/10). */
+  flex-wrap: wrap;
+  row-gap: 2px;
   align-items: baseline;
   padding: 14px 0 10px;
   background: var(--background);
@@ -11187,8 +11189,9 @@ html[data-teclado-aberto] .agenda-acao-fixa {
   line-height: 16px;
 }
 .agenda-lista-dia-titulo.agenda-lista-dia-titulo .agenda-lista-dia-resumo {
-  flex: 0 1 auto;
+  flex: 0 0 auto;
   margin-left: auto;
+  overflow: visible;
   font-size: 12.5px;
   white-space: nowrap;
 }
