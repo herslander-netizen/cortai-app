@@ -517,6 +517,8 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Em andamento
 
+- Claude | 2026-10-30 UTC | Motor de automação de mensagens (inspirado no AutoResponder WA): **Fase 0 concluída, aguardando aprovação do dono**; nada implementado. Pendente também: horário especial por data (migração 0054, funções e folha no botão + da Agenda) e sombras da Agenda como no Figaro | `docs/motor-automacao-diagnostico.md`
+
 - GPT | 2026-10-29 UTC | Separar gesto de armar edição e arrasto do cartão na Agenda mobile; preservar rolagem no primeiro toque, testar segundo gesto e publicar apenas na prévia | `DIARIO.md`, `src/components/barbeiro/AgendaTimeline.tsx`, `src/components/barbeiro/agenda/arrasto-timeline.test.ts`; sem migração
 
 
@@ -839,6 +841,12 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+### 2026-10-30 UTC — Claude — Motor de automação: Fase 0 (diagnóstico, sem alterar código)
+- Pedido do dono com dois pacotes (APK de referência e dossiê do AutoResponder WA, mantidos fora do repositório). Entregue `docs/motor-automacao-diagnostico.md`: inventário com caminhos reais, fluxo atual e proposto, matriz de recursos (A/B/C), tabelas reutilizáveis, lacunas, riscos, plano por fases e testes.
+- Achados principais: a infraestrutura de entrada, dedupe, porteiro, ritmo, formato da janela 24 h, falhas e varredura já existe; faltam regras configuráveis com prioridade, registro da decisão, simulador, atraso curto durável (o Worker não tem Queues nem crons próprios; só `cron.job` de 15 min e `waitUntil`), pausa e subfluxo.
+- **Conflito para o dono decidir antes da Fase 1:** `CLAUDE.md` diz que o WhatsApp "não é SAC, FAQ nem venda consultiva"; o motor é um FAQ automático. E a documentação diverge sobre a mensagem livre (`CLAUDE.md`: Flow Chat; `whatsapp/AGENTS.md` e código: Flow IA).
+- Nenhuma alteração em código, banco, conectores, Flow IA, segredos ou publicação.
+
 ### 2026-10-30 UTC — Claude — Horário especial por data (parte 1: motor), negócio e profissional
 - Pedido do dono (captura de outro app, "abrir antes / fechar depois" num dia; "pra ambos": negócio todo e por profissional). Regra pura em `src/lib/horarios-especiais.ts` (com teste): a janela do negócio no dia é a união do horário (especial ou da semana) com os especiais dos profissionais; quem não estende ganha bloqueios na parte a mais; quem tem especial próprio deixa de seguir a escala naquele dia; abre dia fechado.
 - Entra no motor oficial sem caminho paralelo: `IntervalosPorData` passa a levar `abre`/`fecha` além do intervalo, `horarioDoDia` usa a janela da data; `intervalosPersonalizadosPorData` (agenda-regras) e `ocupacoesExtras` leem `horarios_especiais` (`horarios-especiais.server.ts`); a grade do dia (`barbeiro.functions.ts`) recebe o horário do dia já estendido.
