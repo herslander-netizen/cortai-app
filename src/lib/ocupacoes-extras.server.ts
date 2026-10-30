@@ -18,7 +18,7 @@ export async function ocupacoesExtras(
     const { data } = await db.from("profissionais").select("id").eq("tenant_id", p.tenantId);
     ids = ((data ?? []) as { id: string }[]).map((x) => x.id);
   }
-  const [{ data: bloqueios }, { data: escalas }] = await Promise.all([
+  const [{ data: bloqueios, error: erroBloqueios }, { data: escalas, error: erroEscalas }] = await Promise.all([
     db
       .from("bloqueios_de_agenda")
       .select("profissional_id, inicio, fim")
@@ -30,6 +30,8 @@ export async function ocupacoesExtras(
       .select("profissional_id, dia_semana, trabalha, abre, fecha")
       .eq("tenant_id", p.tenantId),
   ]);
+  if (erroBloqueios) throw new Error("Não foi possível carregar os bloqueios da agenda.");
+  if (erroEscalas) throw new Error("Não foi possível carregar a escala dos profissionais.");
   const primeiroDia = hojeNoFuso(p.fuso, p.desde);
   const ultimoDia = hojeNoFuso(p.fuso, p.ate);
   // A leitura só retorna vazio quando a tabela ainda não existe (migração pendente).
