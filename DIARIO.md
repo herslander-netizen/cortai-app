@@ -832,6 +832,9 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-30 UTC — Claude — ⋮ da Personalizar Página como no Figaro
+- Captura do dono: pontos cheios de 4 dp, no tom `onSurfaceVariant`, centro a ~30 dp da borda (botão de 48 dp). Ícone próprio no lugar do `MoreVertical`. Conferido lado a lado com a captura.
+
 ### 2026-10-30 UTC — Claude — Personalizar Página, QR Code e compartilhar da página pública
 - `barbeiro.marca.index.tsx`: menu ⋮ na barra (`headerAction`) com Editar Link, QR Code e Colocar Página Offline/Online (ícones); confirmação "Desativar Página?"/"Ativar Página?" em pílula vermelha (errorContainer) e Cancelar em texto (`useConfirmar` ganhou `empilhado`, opcional, só usado aqui); linha de status vira aviso só quando a página está fora do ar; cartão "Layout e tema" com rótulo, capa de borda a borda, duas colunas com ícone e nome, sem faixa de cores, pílula Escolher Layout & Tema (primaryContainer). Saiu do menu "Ver página publicada" (continua em Opções da conta → Ver página pública).
 - `barbeiro.qr-code.tsx`: barra simples "QR Code" (nova opção `barraSimples` do `Screen`: só seta e título pequeno), Papel/Adesivo, a folha em destaque, Salvar na Galeria e Imprimir. `qr-cartao.ts`: papel branco quadrado (nome, QR, endereço, "Agende pelo celular") e símbolo do Flow no centro do QR em ambos (QR em nível H; leitura conferida com OpenCV nos dois formatos).

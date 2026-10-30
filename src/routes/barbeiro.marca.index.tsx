@@ -7,7 +7,6 @@ import {
   CloudUpload,
   Eye,
   LayoutTemplate,
-  MoreVertical,
   Palette,
   Pencil,
   QrCode,
@@ -275,10 +274,15 @@ function Editor({
             <Button
               variant="ghost"
               size="icon"
-              className="size-11 rounded-full"
+              // Figaro (captura do dono, 30/10): pontos cheios de 4 dp, centro a ~30 dp da borda direita.
+              className="-mr-2 size-12 rounded-full text-[var(--figaro-on-surface-variant,var(--mute))] [&_svg]:size-6"
               aria-label="Mais ações da página"
             >
-              <MoreVertical size={24} aria-hidden />
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+                <circle cx="12" cy="5" r="2" />
+                <circle cx="12" cy="12" r="2" />
+                <circle cx="12" cy="19" r="2" />
+              </svg>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="min-w-56">
