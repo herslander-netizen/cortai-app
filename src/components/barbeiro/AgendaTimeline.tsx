@@ -663,7 +663,7 @@ function AgendaTimelineBase({
         // O toque longo só arma a edição; ela abre ao soltar, sem capturar o ponteiro.
         // A rolagem nativa continua disponível durante todo este primeiro gesto.
         vibrar("pressao");
-      }, 450);
+      }, 300);
     }
   }
   function pararRolagemAutomatica() {
