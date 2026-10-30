@@ -44,6 +44,7 @@ function montar(
     onEncaixe: vi.fn(),
     onChamarFila: vi.fn(),
     onBloquear: vi.fn(),
+    onHorarioEspecial: vi.fn(),
     onNovoCliente: vi.fn(),
   };
   host = document.createElement("div");
@@ -86,6 +87,7 @@ describe("MenuAcoesAgenda", () => {
     ["Agendar horário", "onNovoAgendamento"],
     ["Atendimento avulso", "onEncaixe"],
     ["Bloquear horário", "onBloquear"],
+    ["Horário especial", "onHorarioEspecial"],
   ] as const)("fecha e executa %s", (rotulo, callback) => {
     const controles = montar();
     const botao = Array.from(document.querySelectorAll<HTMLButtonElement>("[role=menuitem]")).find(
@@ -112,10 +114,10 @@ describe("MenuAcoesAgenda", () => {
   it("não mostra agendamento por voz no menu, mesmo com suporte a voz", () => {
     montar(vi.fn(), true, { onAgendarPorVoz: vi.fn() });
     expect(item("Agendar por voz")).toBeUndefined();
-    expect(document.querySelectorAll("[role=menuitem]")).toHaveLength(3);
+    expect(document.querySelectorAll("[role=menuitem]")).toHaveLength(4);
   });
 
-  it("não mostra Equipe no botão + e mantém as três ações operacionais", () => {
+  it("não mostra Equipe no botão + e mantém as ações operacionais", () => {
     montar();
     const itens = Array.from(document.querySelectorAll<HTMLElement>("[role=menuitem]")).map((i) =>
       i.getAttribute("aria-label"),
@@ -125,5 +127,6 @@ describe("MenuAcoesAgenda", () => {
     expect(item("Equipe")).toBeUndefined();
     expect(item("Atendimento avulso")).toBeDefined();
     expect(item("Bloquear horário")).toBeDefined();
+    expect(item("Horário especial")).toBeDefined();
   });
 });
