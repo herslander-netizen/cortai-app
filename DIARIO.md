@@ -203,7 +203,7 @@ Tudo o que o dono decidir com qualquer IA entra aqui, com a data. Vale para toda
 - Validação visual, TypeScript/testes/build e publicação da prévia ainda não confirmados. Nenhuma mudança em `main` ou banco.
 
 ## Próximas tarefas (ordem combinada)
-- **Claude (30/10):** Avisos e Lembretes no padrão do Figaro — item 2 (abas Clientes/Equipe, 4 eventos com linha de resumo, folha com canais e até 2 antecedências; migração só de acréscimo para antecedências configuráveis, aplicar só com autorização) e item 4 (saldo mensal do WhatsApp; aguardando decisões do dono).
+- **Claude (30/10):** Avisos e Lembretes no padrão do Figaro — item 4 (saldo mensal do WhatsApp por plano, aviso na Agenda e pausa) aguardando decisões do dono ("depois resolvemos isso"). Itens 1, 2 e 3 feitos.
 
 Pegar a primeira livre; reservar em "Em andamento" antes.
 
@@ -835,6 +835,11 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+
+### 2026-10-30 UTC — Claude — Avisos e Lembretes com abas Clientes/Equipe (item 2)
+- `/barbeiro/notificacoes`: abas "Para clientes" / "Para a equipe" (Figaro `NotificationAudience`); quem não tem `configurar_automacoes` abre na da equipe. Clientes: saldo do WhatsApp (o contador que já existia), os quatro eventos (Novo agendamento, Lembrete de horário, Reagendamento, Cancelamento) com linha de resumo e folha de baixo com o WhatsApp e, no lembrete, os chips de antecedência (24 h · véspera e 2 h · no dia). Equipe: as preferências de cada pessoa, como antes.
+- **Sem migração**: liga/desliga grava em `automacoes_de_ia` (chaves `confirmacao_agendamento`, `lembrete_24h`, `lembrete_2h`, `alteracao_agendamento`, `cancelamento_agendamento`), a mesma fonte que o envio já respeita; sem linha gravada vale o padrão do envio (configuração do atendimento). Escrita pelo login da pessoa, barrada pelo RLS (`configurar_automacoes`). As antecedências ficam nas duas que os modelos aprovados da Meta suportam ("amanhã" e "hoje"); antecedência livre exigiria modelos novos.
+- Novos: `src/lib/avisos-clientes.functions.ts`, `src/components/notificacoes/AvisosParaClientes.tsx`. Conferido na vitrine. `tsc`, `vitest` e `build` ok.
 
 ### 2026-10-30 UTC — Claude — Sininho e ficha do cliente no padrão do Figaro (itens 1 e 3)
 - `notificacoes.ts`: `agrupar` no fuso do negócio (antes relógio do aparelho) com Hoje, Ontem, Esta semana (até 6 dias) e data por extenso ("18 de outubro", com ano se for outro); `tipoDoFiltro` (Agendamentos: agendamento_*, lembrete, cliente_chegou, atraso, vaga…; Clientes: cliente_novo, avaliações). Teste `notificacoes-grupos.test.ts`.
