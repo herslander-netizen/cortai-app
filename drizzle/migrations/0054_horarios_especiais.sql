@@ -39,7 +39,7 @@ CREATE POLICY "membros criam horarios especiais"
       profissional_id IS NULL
       OR EXISTS (
         SELECT 1 FROM public.profissionais p
-        WHERE p.id = profissional_id AND p.tenant_id = tenant_id
+        WHERE p.id = horarios_especiais.profissional_id AND p.tenant_id = horarios_especiais.tenant_id
       )
     )
   );
