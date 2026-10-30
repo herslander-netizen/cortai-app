@@ -3247,6 +3247,9 @@ html.agenda-gesto-ativo body {
 .agenda-dia-vizinha {
   position: absolute;
   top: 0;
+  /* Corta só nas laterais: a etiqueta "agora" (16:08), 40 px à esquerda da linha, vazava do dia vizinho para a borda
+     da tela do dia aberto (foto do dono, 30/10). Na vertical o dia vizinho continua inteiro. */
+  clip-path: inset(-100000px 0);
   /* A página vizinha tem a largura da grade inteira, com a coluna das horas. */
   width: calc(100% + var(--calha-das-horas));
   height: 100%;

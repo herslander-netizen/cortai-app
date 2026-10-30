@@ -842,6 +842,10 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+### 2026-10-30 UTC — Claude — Linha do "agora" do dia vizinho vazando para a tela do dia aberto
+- Pedido específico do dono para a Agenda (foto: dia 29 aberto, hoje 30; um ponto rosa na borda direita). Era a etiqueta "16:08" da linha do agora do dia vizinho (40 px à esquerda da linha) saindo do painel do dia seguinte. `.agenda-dia-vizinha` ganha `clip-path: inset(-100000px 0)` (corta só nas laterais; na vertical o dia vizinho continua inteiro). Teste em `timeline-rolagem-celular.test.ts`.
+- Tela de ponta a ponta (barra de gestos/status no app instalado): em análise; a faixa de baixo é reservada pelo Chrome no modo instalado (`display: standalone`), não pelo CSS do app — ver resposta ao dono.
+
 ### 2026-10-30 UTC — Claude — Respostas da Flow IA: Fase 1 (especificação)
 - Dono definiu a direção (sistema parecido com o AutoResponder, alimentado e configurado por negócio, para a Flow IA ter comportamento independente). `docs/motor-respostas-flow-ia-especificacao.md`: camadas L1 regras → L2 conhecimento (dados oficiais + respostas cadastradas) → L3 IA de linguagem (`pensarCortai`, opcional) → L4 orientação fixa; contrato da regra; RegEx em subconjunto seguro; similaridade por bigramas; ciclo de vida da execução; rascunho das tabelas `regras_de_resposta` e `execucoes_de_regra` (migração 0055 só depois da aprovação); variáveis seguras; ameaças; critérios de aceite; plano da Fase 2.
 - Achado: hoje, sem `whatsapp` em `CORTAI_AI_CANAIS`, a mensagem livre não passa pela IA e cai na orientação fixa — as camadas L1/L2 é que dão a independência.

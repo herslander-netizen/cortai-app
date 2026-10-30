@@ -146,6 +146,8 @@ describe("troca de dia em páginas no celular (como no vídeo de referência)", 
     );
     expect(previa).toContain("<MarcaDoLimiteDoDia");
     expect(css).not.toMatch(/\.agenda-dia-vizinha \.agenda-timeline-marca/);
+    // O dia vizinho não vaza para a tela do dia aberto (etiqueta "agora" na borda direita, 30/10).
+    expect(css).toMatch(/\.agenda-dia-vizinha \{[^}]*clip-path: inset\(-100000px 0\);/);
     expect(css).toContain("left: calc(-100% - 2 * var(--calha-das-horas) - var(--trilho-vao));");
     expect(css).toContain("width: calc(100% + var(--calha-das-horas));");
     expect(css).toMatch(/\.agenda-dia-vizinha \.agenda-timeline-scroll \{\s*padding-block: 0;/);
