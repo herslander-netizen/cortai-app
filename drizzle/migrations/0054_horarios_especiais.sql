@@ -102,8 +102,13 @@ BEGIN
   IF NOT EXISTS (SELECT 1 FROM public.profissionais WHERE id = _profissional_id AND tenant_id = _tenant_id) THEN
     RAISE EXCEPTION 'profissional nao encontrado';
   END IF;
-  SELECT * INTO v_cliente FROM public.clientes WHERE id = _cliente_id AND tenant_id = _tenant_id;
-  IF NOT FOUND THEN RAISE EXCEPTION 'cliente nao encontrado'; END IF;
+  -- Agendamento de balcão sem cliente continua valendo (0039).
+  IF _cliente_id IS NOT NULL THEN
+    SELECT * INTO v_cliente FROM public.clientes WHERE id = _cliente_id AND tenant_id = _tenant_id;
+    IF NOT FOUND THEN RAISE EXCEPTION 'cliente nao encontrado'; END IF;
+  ELSIF _forma_pagamento <> 'balcao' THEN
+    RAISE EXCEPTION 'cliente obrigatorio para esta forma de pagamento';
+  END IF;
 
   v_fim := _inicio + make_interval(mins => v_servico.duracao_min);
   v_dur := make_interval(mins => v_servico.duracao_min);
@@ -225,21 +230,23 @@ BEGIN
     RAISE EXCEPTION 'horario ja ocupado';
   END IF;
 
-  SELECT * INTO v_carteira FROM public.carteiras WHERE cliente_id = _cliente_id AND tenant_id = _tenant_id FOR UPDATE;
-  IF NOT FOUND THEN
-    INSERT INTO public.carteiras (tenant_id, cliente_id) VALUES (_tenant_id, _cliente_id) RETURNING * INTO v_carteira;
-  END IF;
+  IF _cliente_id IS NOT NULL THEN
+    SELECT * INTO v_carteira FROM public.carteiras WHERE cliente_id = _cliente_id AND tenant_id = _tenant_id FOR UPDATE;
+    IF NOT FOUND THEN
+      INSERT INTO public.carteiras (tenant_id, cliente_id) VALUES (_tenant_id, _cliente_id) RETURNING * INTO v_carteira;
+    END IF;
 
-  IF _forma_pagamento = 'credito' THEN
-    IF v_carteira.saldo_creditos < 1 THEN RAISE EXCEPTION 'sem creditos disponiveis'; END IF;
-  ELSIF _forma_pagamento = 'saldo' THEN
-    IF v_carteira.saldo_centavos < v_servico.preco_centavos THEN RAISE EXCEPTION 'saldo insuficiente na carteira'; END IF;
-  ELSIF _forma_pagamento = 'fiado' THEN
-    SELECT * INTO v_regra FROM public.regras_de_plano WHERE tenant_id = _tenant_id AND tipo = 'fiado' AND ativo LIMIT 1;
-    IF NOT FOUND THEN RAISE EXCEPTION 'fiado nao disponivel'; END IF;
-    v_disponivel := v_cliente.limite_fiado_centavos + LEAST(v_carteira.saldo_centavos, 0);
-    IF v_servico.preco_centavos > v_disponivel AND v_regra.bloqueia_agendamento_no_limite THEN
-      RAISE EXCEPTION 'limite de fiado atingido';
+    IF _forma_pagamento = 'credito' THEN
+      IF v_carteira.saldo_creditos < 1 THEN RAISE EXCEPTION 'sem creditos disponiveis'; END IF;
+    ELSIF _forma_pagamento = 'saldo' THEN
+      IF v_carteira.saldo_centavos < v_servico.preco_centavos THEN RAISE EXCEPTION 'saldo insuficiente na carteira'; END IF;
+    ELSIF _forma_pagamento = 'fiado' THEN
+      SELECT * INTO v_regra FROM public.regras_de_plano WHERE tenant_id = _tenant_id AND tipo = 'fiado' AND ativo LIMIT 1;
+      IF NOT FOUND THEN RAISE EXCEPTION 'fiado nao disponivel'; END IF;
+      v_disponivel := v_cliente.limite_fiado_centavos + LEAST(v_carteira.saldo_centavos, 0);
+      IF v_servico.preco_centavos > v_disponivel AND v_regra.bloqueia_agendamento_no_limite THEN
+        RAISE EXCEPTION 'limite de fiado atingido';
+      END IF;
     END IF;
   END IF;
 
