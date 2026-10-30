@@ -86,7 +86,7 @@ export function Screen({
               fim do recolhimento e o conteúdo passa por baixo dela. Sticky (não fixa) para não cobrir abas acima da tela. */}
           <div
             data-figaro-header="compact"
-            className="sticky top-0 z-40 flex items-center gap-3 bg-[var(--figaro-background,var(--ink))] px-4 pb-3.5 pt-4"
+            className="sticky top-0 z-40 flex items-center gap-3 bg-[var(--figaro-background,var(--ink))] px-4 pb-3.5 pt-[calc(1rem+env(safe-area-inset-top,0px))]"
           >
             <div className="flex min-h-11 min-w-0 flex-1 items-center gap-3">
               {botaoVoltar}
@@ -127,7 +127,7 @@ export function Screen({
       ) : !hideHeader ? (
         <header
           data-figaro-header="page"
-          className={`relative ${offsetCabecalhoGlobal ? "top-14" : "top-0"} z-10 grid gap-3.5 bg-[var(--figaro-background,var(--ink))] px-4 pb-5 pt-4 md:static md:px-8 md:pb-5 md:pt-6`}
+          className={`relative ${offsetCabecalhoGlobal ? "top-14" : "top-0"} z-10 grid gap-3.5 bg-[var(--figaro-background,var(--ink))] px-4 pb-5 ${offsetCabecalhoGlobal ? "pt-4" : "pt-[calc(1rem+env(safe-area-inset-top,0px))]"} md:static md:px-8 md:pb-5 md:pt-6`}
         >
           {destinoVoltar || headerAction ? (
             <div className="flex min-h-11 items-center justify-between gap-3">

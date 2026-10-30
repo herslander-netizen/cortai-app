@@ -1088,6 +1088,8 @@
   position: sticky;
   top: 0;
   z-index: 30;
+  /* App da equipe em tela cheia (teste do dono, 30/10): a barra desce o tamanho do recorte da câmera; fora dela é 0. */
+  padding-top: env(safe-area-inset-top, 0px);
   border-bottom: 1px solid var(--line);
   background: color-mix(in oklab, var(--ink) 94%, transparent);
   backdrop-filter: blur(14px);

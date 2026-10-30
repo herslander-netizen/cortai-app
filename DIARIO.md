@@ -27,6 +27,7 @@ e o que fez. O diário até 17/10/2026 está guardado, sem alterações, em
 7. **Sem segredos:** nunca escreva chaves, senhas ou tokens aqui. Cite só o nome da variável.
 
 ## Decisões do dono
+- 2026-10-30: **App da equipe em tela cheia (teste)**: "Faça" para a sugestão de testar `display_override: ["fullscreen"]` só no manifesto da equipe (some a barra de status e a faixa de gestos do Android). O app do cliente continua `standalone`. Volta em uma linha se não agradar.
 - 2026-10-30: **Respostas da Flow IA no estilo do AutoResponder**: "criar um sistema parecido com o responder, depois alimentar e configurar para que a Flow IA já tenha um comportamento independente". O motor é a camada de regras e conhecimento da própria Flow IA (antes da IA de linguagem), não uma segunda IA; abre exceção à regra "não SAC/FAQ" só para respostas configuradas pelo negócio. Especificação: `docs/motor-respostas-flow-ia-especificacao.md`.
 - 2026-10-30: **"Ver Exemplo" do Layout & Tema em tela cheia, como no Figaro** (sem moldura de celular). Depois: refinar minuciosamente a experiência do chat, a personalização do chat e os ícones; então seguir com o Figaro.
 - 2026-10-30: **Lista da Agenda: resumo do dia na linha de baixo, alinhado à esquerda** (sem corte), e dias mais separados entre si.
@@ -842,6 +843,11 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+### 2026-10-30 UTC — Claude — App da equipe em tela cheia (teste do dono)
+- `public/manifest-equipe.webmanifest`: `display_override: ["fullscreen"]`, com `display: standalone` como reserva (navegador sem suporte continua como antes). Só vale depois de reinstalar o app da equipe. Manifesto do cliente intacto.
+- Topo: `.management-header` (barra da Agenda no celular) e as barras de `Screen` (compacta e de página, quando não há cabeçalho global) ganham `env(safe-area-inset-top)`, para nada ficar sob o recorte da câmera. Fora da tela cheia o valor é 0, então nada muda. O rodapé (FAB, "Agora", folhas, menu) já usava `env(safe-area-inset-bottom)`.
+- Para reverter: tirar a linha `display_override`. `tsc` e `vitest` (2221) passaram.
+
 ### 2026-10-30 UTC — Claude — Linha do "agora" do dia vizinho vazando para a tela do dia aberto
 - Pedido específico do dono para a Agenda (foto: dia 29 aberto, hoje 30; um ponto rosa na borda direita). Era a etiqueta "16:08" da linha do agora do dia vizinho (40 px à esquerda da linha) saindo do painel do dia seguinte. `.agenda-dia-vizinha` ganha `clip-path: inset(-100000px 0)` (corta só nas laterais; na vertical o dia vizinho continua inteiro). Teste em `timeline-rolagem-celular.test.ts`.
 - Tela de ponta a ponta (barra de gestos/status no app instalado): em análise; a faixa de baixo é reservada pelo Chrome no modo instalado (`display: standalone`), não pelo CSS do app — ver resposta ao dono.
