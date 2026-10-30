@@ -32,9 +32,9 @@ export async function ocupacoesExtras(
   ]);
   const primeiroDia = hojeNoFuso(p.fuso, p.desde);
   const ultimoDia = hojeNoFuso(p.fuso, p.ate);
-  const especiais = await horariosEspeciaisDoPeriodo(db, p.tenantId, primeiroDia, ultimoDia).catch(
-    () => [],
-  );
+  // A leitura só retorna vazio quando a tabela ainda não existe (migração pendente).
+  // Erros reais de banco precisam interromper a validação, nunca liberar horários por omissão.
+  const especiais = await horariosEspeciaisDoPeriodo(db, p.tenantId, primeiroDia, ultimoDia);
   // Quem tem horário especial próprio no dia não segue a escala naquele dia.
   const especialProprio = new Set(
     especiais.filter((e) => e.profissionalId).map((e) => `${e.profissionalId}|${e.dia}`),
