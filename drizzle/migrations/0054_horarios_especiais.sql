@@ -66,6 +66,8 @@ DECLARE
   v_local timestamp; v_dur interval; v_ok boolean := false;
   v_h record; v_base timestamp; v_abre timestamp; v_fecha timestamp; v_pi timestamp; v_pf timestamp;
   v_especial record;
+  v_especial_proprio boolean := false;
+  v_escala record;
 BEGIN
   IF NOT v_servidor AND (auth.uid() IS NULL OR NOT public.permissao_efetiva(auth.uid(), _tenant_id, 'criar_agendamento')) THEN
     RAISE EXCEPTION 'sem permissao para agendar nesta barbearia';
@@ -106,7 +108,9 @@ BEGIN
       WHERE tenant_id = _tenant_id
         AND dia = v_local::date
         AND profissional_id = _profissional_id;
-    IF NOT FOUND THEN
+    IF FOUND THEN
+      v_especial_proprio := true;
+    ELSE
       SELECT abre, fecha INTO v_especial
         FROM public.horarios_especiais
         WHERE tenant_id = _tenant_id
@@ -118,6 +122,25 @@ BEGIN
       v_base := date_trunc('day', v_local);
       v_abre := v_base + v_especial.abre;
       v_fecha := v_base + v_especial.fecha;
+      -- Quando a exceção é do negócio, a escala individual continua valendo.
+      -- Só o especial próprio substitui a escala do profissional nesta data.
+      IF NOT v_especial_proprio THEN
+        SELECT trabalha, abre, fecha INTO v_escala
+          FROM public.escalas_de_profissional
+          WHERE tenant_id = _tenant_id
+            AND profissional_id = _profissional_id
+            AND dia_semana = extract(dow FROM v_local)::int
+          LIMIT 1;
+        IF FOUND THEN
+          IF v_escala.trabalha IS DISTINCT FROM true
+            OR v_escala.abre IS NULL OR v_escala.fecha IS NULL THEN
+            RAISE EXCEPTION 'fora do horario de funcionamento';
+          END IF;
+          v_abre := v_base + v_escala.abre;
+          v_fecha := v_base + v_escala.fecha
+            + CASE WHEN v_escala.fecha <= v_escala.abre THEN interval '1 day' ELSE interval '0' END;
+        END IF;
+      END IF;
       IF v_local >= v_abre AND v_local + v_dur <= v_fecha THEN
         -- A pausa semanal continua valendo na data especial, se estiver configurada.
         SELECT * INTO v_h
