@@ -24,6 +24,7 @@ import { AgendaFocoMobile } from "@/components/barbeiro/AgendaFocoMobile";
 import { efeitoDaAcaoCard } from "@/components/barbeiro/agenda/acao-card";
 import { BloquearHorarioSheet } from "@/components/barbeiro/agenda/BloquearHorarioSheet";
 import { AjustarIntervaloSheet } from "@/components/barbeiro/agenda/AjustarIntervaloSheet";
+import { HorarioEspecialSheet } from "@/components/barbeiro/agenda/HorarioEspecialSheet";
 import { DetalheBloqueioSheet } from "@/components/barbeiro/agenda/DetalheBloqueioSheet";
 import { CabecalhoAgenda } from "@/components/barbeiro/agenda/CabecalhoAgenda";
 import { mesDoDia, tituloDoMes } from "@/components/barbeiro/agenda/calendario";
@@ -311,6 +312,7 @@ export function AgendaOperacional() {
   useEffect(() => setVozSuportada(comandoDeVozSuportado()), []);
   const [bloquearAberto, setBloquearAberto] = useState(false);
   const [intervaloAberto, setIntervaloAberto] = useState(false);
+  const [horarioEspecialAberto, setHorarioEspecialAberto] = useState(false);
   const [bloqueioSelecionado, setBloqueioSelecionado] = useState<{
     id: string;
     inicio: string;
@@ -370,6 +372,7 @@ export function AgendaOperacional() {
     painelAberto ||
     bloquearAberto ||
     intervaloAberto ||
+    horarioEspecialAberto ||
     Boolean(bloqueioSelecionado) ||
     focoTrancado ||
     manualAberto ||
@@ -1032,6 +1035,7 @@ export function AgendaOperacional() {
       onEncaixe={() => setRapidoAberto(true)}
       onChamarFila={() => void chamarFila()}
       onBloquear={() => setBloquearAberto(true)}
+      onHorarioEspecial={() => setHorarioEspecialAberto(true)}
       onNovoCliente={() => {
         setNovoCliente(true);
         setManualAberto(true);
@@ -1108,6 +1112,13 @@ export function AgendaOperacional() {
         fuso={fuso}
         horarios={agenda.data?.horarios ?? []}
         intervaloPersonalizado={agenda.data?.intervaloPersonalizado ?? null}
+      />
+      <HorarioEspecialSheet
+        aberto={horarioEspecialAberto}
+        onAberto={setHorarioEspecialAberto}
+        dia={dia}
+        fuso={fuso}
+        profissionais={agenda.data?.profissionais ?? []}
       />
       {bloqueioSelecionado ? (
         <DetalheBloqueioSheet
