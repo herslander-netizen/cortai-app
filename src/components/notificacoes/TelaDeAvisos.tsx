@@ -2,7 +2,13 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { ArrowLeft, CheckCheck } from "lucide-react";
 
-import { agrupar, valoresEmReais, type Notificacao } from "@/lib/notificacoes";
+import {
+  agrupar,
+  tipoDoFiltro,
+  valoresEmReais,
+  type FiltroDeAvisos,
+  type Notificacao,
+} from "@/lib/notificacoes";
 import { ConvitesNoSino } from "@/components/notificacoes/ConvitesNoSino";
 import { useMenosMovimento } from "@/hooks/useMovimento";
 import { Button } from "@/components/ui/button";
@@ -11,7 +17,7 @@ function quando(iso: string) {
   return new Date(iso).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
 }
 
-/** Notificações em tela cheia no celular, com abas "Não lidas" e "Todas". */
+/** Notificações em tela cheia no celular, com os filtros do Figaro: Todas, Não lidas, Agendamentos e Clientes. */
 export function TelaDeAvisos({
   lista,
   naoLidasAoAbrir,
@@ -26,18 +32,24 @@ export function TelaDeAvisos({
   onAbrir: (aviso: Notificacao) => void;
   onMarcarTodas: () => void;
 }) {
-  const [aba, setAba] = useState<"nao_lidas" | "todas">("nao_lidas");
+  const [aba, setAba] = useState<FiltroDeAvisos>("nao_lidas");
   const menos = useMenosMovimento();
   const temNaoLidas = lista.some((a) => !a.lida_em);
+  const naoLidas = lista.filter((a) => !a.lida_em).length;
   const visiveis =
-    aba === "todas" ? lista : lista.filter((a) => !a.lida_em || naoLidasAoAbrir.has(a.id));
+    aba === "todas"
+      ? lista
+      : aba === "nao_lidas"
+        ? lista.filter((a) => !a.lida_em || naoLidasAoAbrir.has(a.id))
+        : lista.filter((a) => tipoDoFiltro(a.tipo) === aba);
 
   return (
     <motion.div
       role="dialog"
       aria-modal="true"
       aria-labelledby="titulo-notificacoes"
-      className="fixed inset-0 z-50 flex flex-col bg-background pt-[env(safe-area-inset-top)]"
+      // Acima das ações fixas da Agenda (z 60): o "+" e o "Agora" não podem ficar por cima das notificações.
+      className="fixed inset-0 z-[70] flex flex-col bg-background pt-[env(safe-area-inset-top)]"
       initial={menos ? { opacity: 0 } : { x: "100%" }}
       animate={menos ? { opacity: 1 } : { x: 0 }}
       exit={menos ? { opacity: 0 } : { x: "100%" }}
@@ -68,11 +80,17 @@ export function TelaDeAvisos({
       <h1 id="titulo-notificacoes" className="px-5 pb-4 text-3xl font-semibold text-paper">
         Notificações
       </h1>
-      <div className="grid grid-cols-2 gap-2 px-5 pb-3" role="tablist">
+      <div
+        className="flex gap-2 overflow-x-auto px-5 pb-3 [scrollbar-width:none]"
+        role="tablist"
+        aria-label="Filtrar notificações"
+      >
         {(
           [
-            ["nao_lidas", "Não lidas"],
             ["todas", "Todas"],
+            ["nao_lidas", naoLidas ? `Não lidas · ${naoLidas}` : "Não lidas"],
+            ["agendamentos", "Agendamentos"],
+            ["clientes", "Clientes"],
           ] as const
         ).map(([id, rotulo]) => (
           <Button
@@ -82,7 +100,7 @@ export function TelaDeAvisos({
             role="tab"
             aria-selected={aba === id}
             onClick={() => setAba(id)}
-            className={`h-auto min-h-12 rounded-full text-sm font-medium ${
+            className={`h-auto min-h-10 shrink-0 whitespace-nowrap rounded-full px-4 text-sm font-medium ${
               aba === id ? "bg-primary text-primary-foreground" : "bg-card text-paper"
             }`}
           >
@@ -95,12 +113,20 @@ export function TelaDeAvisos({
         {visiveis.length === 0 ? (
           <div className="px-5 py-8 text-left">
             <p className="text-base font-semibold text-paper">
-              {aba === "nao_lidas" ? "Tudo em dia!" : "Nada por aqui ainda"}
+              {aba === "nao_lidas"
+                ? "Tudo em dia!"
+                : aba === "todas"
+                  ? "Nenhuma notificação ainda"
+                  : "Nada por aqui"}
             </p>
             <p className="mt-1 text-sm text-mute">
               {aba === "nao_lidas"
                 ? "Nenhuma notificação não lida. Volte mais tarde para atualizações sobre seus agendamentos."
-                : "Avisos de agendamentos, confirmações e fila aparecem aqui."}
+                : aba === "todas"
+                  ? "Avisos de agendamentos, confirmações e fila aparecem aqui."
+                  : aba === "agendamentos"
+                    ? "Novos agendamentos, remarcações, cancelamentos e lembretes aparecem aqui."
+                    : "Novos clientes e avaliações aparecem aqui."}
             </p>
           </div>
         ) : (

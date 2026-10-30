@@ -27,6 +27,7 @@ e o que fez. O diário até 17/10/2026 está guardado, sem alterações, em
 7. **Sem segredos:** nunca escreva chaves, senhas ou tokens aqui. Cite só o nome da variável.
 
 ## Decisões do dono
+- 2026-10-30: **Avisos e WhatsApp no padrão do Figaro**, na ordem 1 → 3 → 2 → 4 (dono: "certo"): 1) sininho com Hoje/Ontem/Esta semana/data e filtros Todas, Não lidas, Agendamentos, Clientes; 3) aviso de telefone ausente na ficha; 2) tela Avisos e Lembretes com abas Clientes/Equipe, 4 eventos e folha com canais e até 2 antecedências; 4) saldo mensal do WhatsApp (depende de decisões do dono: cota por plano, o que fazer ao acabar, se o número compartilhado conta).
 - 2026-10-30: **Sino igual ao do Figaro, só com o nosso balanço** ("deixe igual ao figaro apenas preserve o balanço"): sem não lidas, contorno na cor dos ícones; com não lidas, sino aceso em tertiary (#B61055 claro / #FFA6BF escuro); 28 dp; sem número nem anel. Substitui o selo vermelho com contagem e o anel de 29/10.
 - 2026-10-30: **Calendário da Agenda com o efeito de mola do Figaro** (vídeo do dono): o painel abre na mola 1,0/400 e a Agenda vem atrás numa segunda mola igual, em série. **Substitui a mola única de 29/10** (conflito apontado no diário). Cantos de baixo do topo com 16 dp fechado e aberto (antes 24 fechado / 16 aberto: o canto mudava de curvatura).
 - 2026-10-30: **Personalizar Página e QR Code como no Figaro** (capturas do dono). Menu ⋮ na barra com Editar Link, QR Code e Colocar Página Offline/Online; confirmação "Desativar Página?"; tela QR Code só com Papel/Adesivo, a folha e Salvar na Galeria/Imprimir. **Página pública sem o botão flutuante "Compartilhar"**: compartilhar fica no fim da página.
@@ -202,6 +203,7 @@ Tudo o que o dono decidir com qualquer IA entra aqui, com a data. Vale para toda
 - Validação visual, TypeScript/testes/build e publicação da prévia ainda não confirmados. Nenhuma mudança em `main` ou banco.
 
 ## Próximas tarefas (ordem combinada)
+- **Claude (30/10):** Avisos e Lembretes no padrão do Figaro — item 2 (abas Clientes/Equipe, 4 eventos com linha de resumo, folha com canais e até 2 antecedências; migração só de acréscimo para antecedências configuráveis, aplicar só com autorização) e item 4 (saldo mensal do WhatsApp; aguardando decisões do dono).
 
 Pegar a primeira livre; reservar em "Em andamento" antes.
 
@@ -833,6 +835,12 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+
+### 2026-10-30 UTC — Claude — Sininho e ficha do cliente no padrão do Figaro (itens 1 e 3)
+- `notificacoes.ts`: `agrupar` no fuso do negócio (antes relógio do aparelho) com Hoje, Ontem, Esta semana (até 6 dias) e data por extenso ("18 de outubro", com ano se for outro); `tipoDoFiltro` (Agendamentos: agendamento_*, lembrete, cliente_chegou, atraso, vaga…; Clientes: cliente_novo, avaliações). Teste `notificacoes-grupos.test.ts`.
+- `TelaDeAvisos.tsx`: chips Todas, Não lidas · N, Agendamentos, Clientes (aba inicial continua Não lidas); vazios por filtro; tela na camada 70 (o "+" e o "Agora" da Agenda, camada 60, ficavam por cima).
+- Ficha do cliente (`ConteudoDoPerfil.tsx`): com o WhatsApp do plano liberado (`secretaria_whatsapp`) e telefone sem DDD/vazio, aviso âmbar "Sem telefone para o WhatsApp" com "Adicionar telefone" (abre a edição). Cliente avulso fica de fora.
+- `tsc`, `vitest` e `build` ok; sininho conferido na vitrine.
 
 ### 2026-10-30 UTC — Claude — Sino aceso nos dois temas como no Figaro
 - Pedido do dono ("os dois modos igual ao Figaro, pra ele ficar em destaque"). Com não lidas, o sino troca para o sino tocando (`BellRing`, equivalente ao `icon_bell_on` do Figaro; o APK usa `_filled` para ícones só preenchidos), preenchido em tertiary: #FFA6BF no escuro e #B61055 no claro. Sem não lidas, `icon_bell` em contorno. Conferido na vitrine nos dois temas. Testes e build ok.

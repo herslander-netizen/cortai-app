@@ -4,6 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { ArrowLeft, Plus, TriangleAlert, Trash2 } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 
+import { Aviso } from "@/components/ui/aviso";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/ui/badge";
 import { GrupoDeCartoes, LinhaDeCartao } from "@/components/ui/formulario/GrupoDeCartoes";
@@ -14,6 +15,7 @@ import {
   EditorFicha,
   EditorPreferencias,
 } from "@/components/cliente-perfil/EditoresDoPerfil";
+import { getCapacidades } from "@/lib/capacidades.functions";
 import { brl } from "@/lib/format";
 import {
   apagarFotoCorte,
@@ -76,6 +78,12 @@ export function Conteudo({
   const [editarFicha, setEditarFicha] = useState(false);
   const [editarPref, setEditarPref] = useState(false);
   const [editarDetalhes, setEditarDetalhes] = useState(false);
+  // Figaro (`MissingContactBanner`): com o WhatsApp do plano ligado e a ficha sem telefone com DDD, avisa a recepção.
+  const capacidades = useQuery({ queryKey: ["capacidades"], queryFn: () => getCapacidades() });
+  const semTelefoneValido =
+    !p.cliente.avulso && (p.cliente.telefone ?? "").replace(/\D/g, "").length < 10;
+  const avisarTelefone =
+    semTelefoneValido && capacidades.data?.liberados["secretaria_whatsapp"] !== false;
   const recarregar = () => qc.invalidateQueries({ queryKey: ["perfil-cliente", p.cliente.id] });
   const pref = Object.entries(p.preferencias ?? {}).filter(([, v]) => typeof v === "string" && v);
   const rotuloPref = (k: string, v: string) =>
@@ -115,6 +123,26 @@ export function Conteudo({
           )
         }
       >
+        {avisarTelefone && !editarDetalhes ? (
+          <div className="mb-3">
+            <Aviso
+              tom="atencao"
+              titulo="Sem telefone para o WhatsApp"
+              acao={
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  className="min-h-12 rounded-full"
+                  onClick={() => setEditarDetalhes(true)}
+                >
+                  Adicionar telefone
+                </Button>
+              }
+            >
+              Adicione o telefone do cliente com DDD para ativar os lembretes por WhatsApp.
+            </Aviso>
+          </div>
+        ) : null}
         {editarDetalhes ? (
           <div className="mb-3">
             <EditorDetalhes
