@@ -5469,15 +5469,13 @@ button.agenda-timeline-bloqueio-interativo {
 .agenda-botao-agora-principal .agenda-botao-agora-visualizacao:focus-visible {
   color: var(--agenda-destaque);
 }
-/* Pílula enxuta, nas medidas da captura do Figaro (dono, 30/10): alvo com ≈21 dp desenhados (caixa de 23, traço
-   com a mesma espessura de antes) e "Agora" em 18 px. */
+/* Pílula enxuta: texto e ícones na medida do polegar, sem pesar na tela. */
 .agenda-botao-agora-ir {
-  font-size: 18px;
+  font-size: 16px;
 }
 .agenda-botao-agora-ir svg {
-  width: 23px;
-  height: 23px;
-  stroke-width: 1.75;
+  width: 20px;
+  height: 20px;
 }
 .agenda-botao-agora-visualizacao svg {
   width: 24px;
@@ -5764,8 +5762,7 @@ button.agenda-timeline-bloqueio-interativo {
 /* Agenda 3.0: uma geometria compartilhada pelo "+", "Agora" e speed dial. */
 :root {
   --agenda-fab-tamanho: 56px;
-  /* "+" com ≈18 dp desenhados como no Figaro (captura do dono, 30/10); traço com a mesma espessura de antes. */
-  --agenda-fab-icone: 27px;
+  --agenda-fab-icone: 24px;
   --agenda-fab-margem: 16px;
   --agenda-fab-direita: max(20px, calc((100vw - 760px) / 2 + 32px));
   --agenda-fab-pe: calc(24px + env(safe-area-inset-bottom));
@@ -5793,7 +5790,6 @@ button.agenda-timeline-bloqueio-interativo {
 .agenda-fab-toggle .agenda-fab-icone {
   width: var(--agenda-fab-icone);
   height: var(--agenda-fab-icone);
-  stroke-width: 1.8;
 }
 /* Segurar o "+" abre o agendamento por voz: sem seleção/menu do sistema, com retorno visual
    (só transform) enquanto o tempo corre. */
