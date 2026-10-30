@@ -835,6 +835,10 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+### 2026-10-30 UTC — Claude — Cartão Suporte do menu com as medidas do cartão da Agenda
+- Pedido do dono ("ajuste o botão", captura do cartão Suporte no menu). `CartaoSuporte.tsx` deixa de ser um `Button` ghost (grade de 32 px com ícone forçado a 32, altura 64, recuo 12) e passa a ser um link com as mesmas medidas do cartão da Agenda logo acima: ícone de 24, recuo 20 × 16, altura mínima 76, título 18/24. A linha de baixo continua em 13/18 e quebra em vez de cortar quando não cabe.
+- Testes do menu (36) e `tsc` passaram.
+
 ### 2026-10-30 UTC — Claude — Topo da Agenda igual em `/barbeiro` e `/barbeiro/agenda`
 - Pedido específico do dono para o topo da Agenda (duas capturas: "foto 1 como está, foto 2 como quero"). Causa: a barra de 64 dp do Figaro (foto de 40 dp a 8 dp da borda, título a 57 dp, sino colado à direita) só valia quando o endereço era exatamente `/barbeiro`; abrindo por `/barbeiro/agenda` ou `/barbeiro/` caía na barra das outras telas (foto de 44 dp, recuo de 16 dp, ícones mais para dentro).
 - `ManagementDrawer.tsx`: `naAgenda` com a mesma regra de `barbeiro.tsx` (`/^\/barbeiro(\/agenda)?\/?$/`) para barra, foto e atalho da Flow IA. Medido na vitrine a 360 dp: as posições batem com a foto 2. Nada mais da Agenda mudou.
