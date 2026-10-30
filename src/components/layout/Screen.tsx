@@ -4,7 +4,7 @@ import { ArrowLeft } from "lucide-react";
 import { useMediaQuery } from "@/hooks/use-mobile";
 import { Signature } from "./Signature";
 import { CabecalhoDeTela } from "./CabecalhoDeTela";
-import { useCabecalhoCompacto } from "./useCabecalhoCompacto";
+import { DISTANCIA_DO_TITULO, useTituloRecolhivel } from "./useTituloRecolhivel";
 
 export function Screen({
   title,
@@ -41,89 +41,99 @@ export function Screen({
     caminho.startsWith("/barbeiro/agenda/");
   const subpaginaGestaoMobile = celular && caminho.startsWith("/barbeiro/") && !telaDaAgenda;
   const subpaginaClienteMobile = celular && caminho.startsWith("/app/");
-  const compactaTituloNoCelular =
-    !hideHeader && (subpaginaGestaoMobile || subpaginaClienteMobile);
+  const compactaTituloNoCelular = !hideHeader && (subpaginaGestaoMobile || subpaginaClienteMobile);
   // A barra global da gestão fica no desktop e na Agenda; o app do cliente não tem cabeçalho global.
-  const offsetCabecalhoGlobal =
-    caminho.startsWith("/barbeiro") && !subpaginaGestaoMobile;
+  const offsetCabecalhoGlobal = caminho.startsWith("/barbeiro") && !subpaginaGestaoMobile;
   const destinoVoltar = voltarPara ?? (subpaginaGestaoMobile ? "/barbeiro" : undefined);
-  const { ref: cabecalhoInicialRef, visivel: cabecalhoCompactoVisivel } = useCabecalhoCompacto({
+  const recolhivelRef = useTituloRecolhivel({
     enabled: compactaTituloNoCelular,
     chave: `${caminho}:${title}`,
   });
 
-
+  const botaoVoltar = destinoVoltar ? (
+    <Link
+      to={destinoVoltar}
+      aria-label={voltarRotulo}
+      className="-ml-2 flex size-11 shrink-0 items-center justify-center rounded-full bg-[var(--figaro-surface-container-highest,var(--ink3))] text-[var(--figaro-on-surface,var(--paper))] transition-[background-color,transform] duration-150 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring motion-reduce:transition-none"
+    >
+      <ArrowLeft size={24} aria-hidden />
+    </Link>
+  ) : null;
 
   return (
     <div
+      ref={recolhivelRef}
       data-padrao-figaro="tela"
       data-largura={wide ? "larga" : undefined}
+      // No celular, folga do tamanho do recolhimento: a barra recolhe mesmo com pouco conteúdo, como no Figaro.
+      style={
+        compactaTituloNoCelular
+          ? { minHeight: `calc(100dvh + var(--titulo-distancia, ${DISTANCIA_DO_TITULO}px))` }
+          : undefined
+      }
       className={`screen-shell mx-auto flex ${offsetCabecalhoGlobal ? "min-h-[calc(100dvh-3.5rem)]" : "min-h-dvh"} w-full flex-col pb-[calc(2rem+env(safe-area-inset-bottom))] ${wide ? "max-w-[1180px]" : "max-w-[760px]"}`}
     >
-      {!hideHeader ? (
+      {!hideHeader && compactaTituloNoCelular ? (
         <>
-          <header
-            ref={cabecalhoInicialRef}
-            aria-hidden={cabecalhoCompactoVisivel || undefined}
-            inert={cabecalhoCompactoVisivel || undefined}
-            data-figaro-header="page"
-            className={`relative ${offsetCabecalhoGlobal ? "top-14" : "top-0"} z-10 grid gap-3.5 bg-[var(--figaro-background,var(--ink))] px-4 pb-5 pt-4 md:static md:px-8 md:pb-5 md:pt-6`}
+          {/* Barra do Figaro (vídeo do dono, 30/10): gruda no topo com a seta e as ações; o título pequeno aparece no
+              fim do recolhimento e o conteúdo passa por baixo dela. Sticky (não fixa) para não cobrir abas acima da tela. */}
+          <div
+            data-figaro-header="compact"
+            className="sticky top-0 z-40 flex items-center gap-3 bg-[var(--figaro-background,var(--ink))] px-4 pb-3.5 pt-4"
           >
-            {destinoVoltar || headerAction ? (
-              <div className="flex min-h-11 items-center justify-between gap-3">
-                {destinoVoltar ? (
-                  <Link
-                    to={destinoVoltar}
-                    aria-label={voltarRotulo}
-                    className="-ml-2 flex size-11 shrink-0 items-center justify-center rounded-full bg-[var(--figaro-surface-container-highest,var(--ink3))] text-[var(--figaro-on-surface,var(--paper))] transition-[background-color,transform] duration-150 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring motion-reduce:transition-none"
-                  >
-                    <ArrowLeft size={24} aria-hidden />
-                  </Link>
-                ) : (
-                  <span aria-hidden className="size-11 shrink-0" />
-                )}
-                {headerAction ? <div className="ml-auto flex min-h-11 items-center">{cabecalhoCompactoVisivel ? null : headerAction}</div> : null}
+            <div className="flex min-h-11 min-w-0 flex-1 items-center gap-3">
+              {botaoVoltar}
+              <div
+                aria-hidden
+                className="flex min-w-0 flex-1 items-center gap-3 opacity-[var(--titulo-pequeno-alfa,0)]"
+              >
+                {titleLeading ? (
+                  <span className="flex size-9 shrink-0 items-center justify-center rounded-[10px] bg-[var(--figaro-primary-container,var(--ink2))] text-[var(--whatsapp)]">
+                    {titleLeading}
+                  </span>
+                ) : null}
+                {/* Título pequeno: titleLarge 22/28. */}
+                <span className="min-w-0 flex-1 truncate text-[22px] font-normal leading-7 text-[var(--figaro-on-background,var(--paper))]">
+                  {title}
+                </span>
               </div>
-            ) : null}
+              {headerAction ? (
+                <div className="flex shrink-0 items-center">{headerAction}</div>
+              ) : null}
+            </div>
+          </div>
+          <header
+            data-figaro-header="page"
+            className="bg-[var(--figaro-background,var(--ink))] px-4 pb-5 [&_h1]:opacity-[var(--titulo-grande-alfa,1)]"
+          >
             <CabecalhoDeTela
               title={title}
               {...(subtitle ? { subtitle } : {})}
               {...(titleLeading ? { titleLeading } : {})}
             />
           </header>
-
-          {compactaTituloNoCelular ? (
-            <div
-              data-figaro-header="compact"
-              aria-hidden={!cabecalhoCompactoVisivel || undefined}
-              inert={!cabecalhoCompactoVisivel || undefined}
-              className={`fixed inset-x-0 top-0 z-40 flex min-h-[calc(4.25rem+env(safe-area-inset-top,0px))] items-center gap-3 bg-[var(--figaro-background,var(--ink))] px-4 pb-2 pt-[calc(1rem+env(safe-area-inset-top,0px))] transition-[opacity,transform] duration-[var(--mola-padrao-duracao)] ease-[var(--mola-padrao)] motion-reduce:transition-none ${cabecalhoCompactoVisivel ? "translate-y-0 opacity-100" : "-translate-y-2 opacity-0 pointer-events-none"}`}
-            >
-              {destinoVoltar ? (
-                <Link
-                  to={destinoVoltar}
-                  aria-label={voltarRotulo}
-                  className="-ml-2 flex size-11 shrink-0 items-center justify-center rounded-full bg-[var(--figaro-surface-container-highest,var(--ink3))] text-[var(--figaro-on-surface,var(--paper))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                >
-                  <ArrowLeft size={24} aria-hidden />
-                </Link>
+        </>
+      ) : !hideHeader ? (
+        <header
+          data-figaro-header="page"
+          className={`relative ${offsetCabecalhoGlobal ? "top-14" : "top-0"} z-10 grid gap-3.5 bg-[var(--figaro-background,var(--ink))] px-4 pb-5 pt-4 md:static md:px-8 md:pb-5 md:pt-6`}
+        >
+          {destinoVoltar || headerAction ? (
+            <div className="flex min-h-11 items-center justify-between gap-3">
+              {botaoVoltar ?? <span aria-hidden className="size-11 shrink-0" />}
+              {headerAction ? (
+                <div className="ml-auto flex min-h-11 items-center">{headerAction}</div>
               ) : null}
-              {titleLeading ? (
-                <span className="flex size-9 shrink-0 items-center justify-center rounded-[10px] bg-[var(--figaro-primary-container,var(--ink2))] text-[var(--whatsapp)]">
-                  {titleLeading}
-                </span>
-              ) : null}
-              {/* Figaro (vídeo do dono, 29/10): o botão de voltar não se move e o título pequeno é titleLarge 22/28. */}
-              <h1 className="min-w-0 flex-1 truncate text-[22px] font-normal leading-7 text-[var(--figaro-on-background,var(--paper))]">{title}</h1>
-              {headerAction ? <div className="flex shrink-0 items-center">{cabecalhoCompactoVisivel ? headerAction : null}</div> : null}
             </div>
           ) : null}
-        </>
+          <CabecalhoDeTela
+            title={title}
+            {...(subtitle ? { subtitle } : {})}
+            {...(titleLeading ? { titleLeading } : {})}
+          />
+        </header>
       ) : null}
-      <main
-        data-figaro-conteudo="page"
-        className="screen-content min-w-0 flex-1 px-4 md:px-8"
-      >
+      <main data-figaro-conteudo="page" className="screen-content min-w-0 flex-1 px-4 md:px-8">
         {children}
       </main>
       {assinaturaSoComputador ? (

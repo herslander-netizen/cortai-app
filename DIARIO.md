@@ -827,6 +827,9 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-10-30 UTC — Claude — Título das páginas recolhe como no Figaro
+- Vídeo do Figaro (Equipe) enviado pelo dono: "o comportamento das páginas tá parecido mas não está assim". Diferenças corrigidas em `Screen.tsx` (subpáginas no celular, fora da Agenda): (1) a seta e as ações ficam numa barra que gruda no topo (`sticky`, para não cobrir abas acima, como as da Equipe), em vez de rolarem e uma segunda barra aparecer; (2) o título pequeno aparece aos poucos com a curva do Material 3 e o grande some conforme passa por baixo da barra (antes: troca de uma vez); (3) ao soltar no meio, a tela encaixa aberta ou recolhida; (4) folga do tamanho do recolhimento para recolher mesmo com pouco conteúdo. O percurso é medido pelo título real (título de duas linhas recolhe inteiro). Novo `useTituloRecolhivel.ts` (variáveis CSS, sem re-render por quadro) com teste. Parado, o layout é igual ao anterior. Computador e ADM (`AdminScreen`) sem mudança. Conferido na vitrine (Equipe: 0 / 80→60 / 120→160 / 300). `tsc`, `vitest` (2203) e `build` ok.
+
 ### 2026-10-30 UTC — Claude — Ícone Flow como foto padrão do topo
 - Pedido do dono (específico da Agenda). Ícone enviado recortado em `public/marca/flow/flow-avatar-padrao-256.png` (`src/assets/flow-avatar-padrao.png.asset.json`). `ManagementDrawer.tsx`: sem logo do negócio, o botão do menu mostra esse ícone (40 px redondo na Agenda, 44 px nas outras telas, as mesmas caixas da foto personalizada); com logo, nada muda. Saiu o estado `modoClaro`, que só servia ao símbolo anterior. Conferido na vitrine. `tsc`, `vitest` (2201) e `build` ok.
 

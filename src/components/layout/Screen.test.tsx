@@ -15,8 +15,11 @@ vi.mock("@/hooks/use-mobile", () => ({
 }));
 
 vi.mock("@tanstack/react-router", () => ({
-  useRouterState: ({ select }: { select: (state: { location: { pathname: string } }) => unknown }) =>
-    select({ location: { pathname: routerState.pathname } }),
+  useRouterState: ({
+    select,
+  }: {
+    select: (state: { location: { pathname: string } }) => unknown;
+  }) => select({ location: { pathname: routerState.pathname } }),
   Link: (props: {
     to?: unknown;
     "aria-label"?: string;
@@ -46,7 +49,11 @@ describe("moldura de tela no padrão Figaro", () => {
   it("usa altura completa e fixa o cabeçalho no topo em subpáginas internas", () => {
     routerState.pathname = "/barbeiro/produtos";
     const html = renderToStaticMarkup(
-      <Screen title="Personalizar Página" subtitle="Escolha o layout e tema." voltarPara="/barbeiro">
+      <Screen
+        title="Personalizar Página"
+        subtitle="Escolha o layout e tema."
+        voltarPara="/barbeiro"
+      >
         <p>Conteúdo</p>
       </Screen>,
     );
@@ -56,7 +63,7 @@ describe("moldura de tela no padrão Figaro", () => {
     expect(html).not.toContain("top-14");
   });
 
-  it("mantém a barra compacta montada para animar a entrada e a saída", () => {
+  it("barra do Figaro fica parada no topo e o título pequeno segue o recolhimento", () => {
     const html = renderToStaticMarkup(
       <Screen title="Serviços" voltarPara="/barbeiro/mais">
         <p>Catálogo</p>
@@ -64,11 +71,15 @@ describe("moldura de tela no padrão Figaro", () => {
     );
 
     expect(html).toContain('data-figaro-header="compact"');
-    expect(html).toContain('aria-hidden="true"');
-    expect(html).toContain("transition-[opacity,transform]");
-    expect(html).toContain("duration-[var(--mola-padrao-duracao)]");
-    expect(html).toContain("ease-[var(--mola-padrao)]");
-    expect(html).toContain("pointer-events-none");
+    expect(html).toContain("sticky top-0");
+    expect(html).not.toContain("pointer-events-none");
+    // O título pequeno nasce invisível e aparece pela variável do recolhimento; o grande some pela outra.
+    expect(html).toContain("opacity-[var(--titulo-pequeno-alfa,0)]");
+    expect(html).toContain("[&amp;_h1]:opacity-[var(--titulo-grande-alfa,1)]");
+    // A seta fica só na barra (uma vez), antes do título grande.
+    expect(html.split('aria-label="Voltar"').length - 1).toBe(1);
+    // Folga para recolher mesmo com pouco conteúdo.
+    expect(html).toContain("min-height:calc(100dvh + var(--titulo-distancia, 58px))");
   });
 
   it("não reserva espaço para cabeçalho global ausente no app do cliente e compacta o título", () => {
@@ -98,13 +109,20 @@ describe("moldura de tela no padrão Figaro", () => {
 
     expect(html).toContain('href="/barbeiro/categorias"');
     expect(html).toContain(">Categorias</a>");
-    expect(html).toContain("justify-between");
+    expect(html.indexOf('data-figaro-header="compact"')).toBeLessThan(
+      html.indexOf(">Categorias</a>"),
+    );
     expect(html.indexOf('aria-label="Voltar"')).toBeLessThan(html.indexOf(">Categorias</a>"));
+    expect(html.indexOf(">Categorias</a>")).toBeLessThan(html.indexOf('data-figaro-header="page"'));
   });
 
   it("usa ação de retorno e hierarquia do título abaixo, sem botão de interrogação", () => {
     const html = renderToStaticMarkup(
-      <Screen title="Serviços" subtitle="Seus serviços, duração e preços." voltarPara="/barbeiro/mais">
+      <Screen
+        title="Serviços"
+        subtitle="Seus serviços, duração e preços."
+        voltarPara="/barbeiro/mais"
+      >
         <p>Catálogo</p>
       </Screen>,
     );
@@ -157,7 +175,9 @@ describe("moldura de tela no padrão Figaro", () => {
   it("adiciona retorno para a Agenda em subpáginas que não declaram outro destino", () => {
     routerState.pathname = "/barbeiro/mais";
     const html = renderToStaticMarkup(
-      <Screen title="Ajustes e ajuda"><p>Configurações</p></Screen>,
+      <Screen title="Ajustes e ajuda">
+        <p>Configurações</p>
+      </Screen>,
     );
 
     expect(html).toContain('href="/barbeiro"');
@@ -167,7 +187,9 @@ describe("moldura de tela no padrão Figaro", () => {
   it("preserva a moldura com o deslocamento global na Agenda protegida", () => {
     routerState.pathname = "/barbeiro";
     const html = renderToStaticMarkup(
-      <Screen title="Agenda"><p>Atendimentos</p></Screen>,
+      <Screen title="Agenda">
+        <p>Atendimentos</p>
+      </Screen>,
     );
 
     expect(html).toContain("min-h-[calc(100dvh-3.5rem)]");
@@ -177,7 +199,9 @@ describe("moldura de tela no padrão Figaro", () => {
   it("mantém a Agenda e suas subrotas fora da regra de cabeçalho mobile", () => {
     routerState.pathname = "/barbeiro/agenda/ajustes";
     const html = renderToStaticMarkup(
-      <Screen title="Agenda"><p>Conteúdo operacional</p></Screen>,
+      <Screen title="Agenda">
+        <p>Conteúdo operacional</p>
+      </Screen>,
     );
 
     expect(html).toContain("min-h-[calc(100dvh-3.5rem)]");
@@ -188,7 +212,9 @@ describe("moldura de tela no padrão Figaro", () => {
     routerState.pathname = "/barbeiro/produtos";
     routerState.mobile = false;
     const html = renderToStaticMarkup(
-      <Screen title="Produtos" voltarPara="/barbeiro"><p>Estoque</p></Screen>,
+      <Screen title="Produtos" voltarPara="/barbeiro">
+        <p>Estoque</p>
+      </Screen>,
     );
 
     expect(html).toContain("min-h-[calc(100dvh-3.5rem)]");
@@ -203,8 +229,8 @@ describe("moldura de tela no padrão Figaro", () => {
   });
 });
 
-
-(globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
+(globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT: boolean }).IS_REACT_ACT_ENVIRONMENT =
+  true;
 
 class ObservadorCabecalhoFalso {
   disconnect = vi.fn();
@@ -218,7 +244,13 @@ class ObservadorCabecalhoFalso {
 const observadoresCabecalho: ObservadorCabecalhoFalso[] = [];
 const raizesCabecalho: Root[] = [];
 
-function CabecalhoCompactoEmTeste({ ativo = true, titulo = "Clientes" }: { ativo?: boolean; titulo?: string }) {
+function CabecalhoCompactoEmTeste({
+  ativo = true,
+  titulo = "Clientes",
+}: {
+  ativo?: boolean;
+  titulo?: string;
+}) {
   const { ref, visivel } = useCabecalhoCompacto({ enabled: ativo, chave: titulo });
 
   return (
