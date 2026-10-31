@@ -85,7 +85,6 @@ export function SequenciaDaEntrada() {
   const [emFoco, setEmFoco] = useState(false);
   const [sobPonteiro, setSobPonteiro] = useState(false);
   const referenciasDasAbas = useRef<Array<HTMLButtonElement | null>>([]);
-  const inicioDoToque = useRef<number | null>(null);
   const reduzirMovimento = useReducedMotion();
 
   function vibrarInteracao() {
@@ -169,26 +168,14 @@ export function SequenciaDaEntrada() {
       }}
       onMouseEnter={() => setSobPonteiro(true)}
       onMouseLeave={() => setSobPonteiro(false)}
-      onPointerDown={(event) => {
-        setSobPonteiro(true);
-        inicioDoToque.current = event.pointerType === "mouse" ? null : event.clientX;
-      }}
-      onPointerUp={(event) => {
-        setSobPonteiro(false);
-        const inicio = inicioDoToque.current;
-        inicioDoToque.current = null;
-        if (inicio === null || reduzirMovimento) return;
-        const deslocamento = event.clientX - inicio;
-        if (Math.abs(deslocamento) > 48) {
-          trocarEtapa(indice + (deslocamento < 0 ? 1 : -1));
-        }
-      }}
-      onPointerCancel={() => {
-        setSobPonteiro(false);
-        inicioDoToque.current = null;
-      }}
-      onLostPointerCapture={() => setSobPonteiro(false)}
     >
+      <SwipeableShowcase
+        currentIndex={indice}
+        totalScenes={PASSOS_DA_ENTRADA.length}
+        onIndexChange={trocarEtapa}
+        onHoldStart={() => setSobPonteiro(true)}
+        onHoldEnd={() => setSobPonteiro(false)}
+      >
       <Card
         variant="surface"
         density="none"
@@ -198,8 +185,9 @@ export function SequenciaDaEntrada() {
         tabIndex={0}
         className="entrada-cartao"
         style={{
-          width: "min(100%, 260px)",
-          maxWidth: "min(100%, 260px)",
+          width: "100%",
+          height: "100%",
+          maxWidth: "100%",
           flex: "1 1 0",
           minHeight: 0,
           display: "flex",
@@ -270,6 +258,7 @@ export function SequenciaDaEntrada() {
           </p>
         </motion.div>
       </Card>
+      </SwipeableShowcase>
 
       <div
         className="entrada-chips"
