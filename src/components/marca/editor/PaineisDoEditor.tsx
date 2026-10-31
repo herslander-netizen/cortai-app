@@ -12,6 +12,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { AjustadorImagem } from "@/components/ui/ajustador-imagem";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import type { MarcaData, getMarca } from "@/lib/marca.functions";
@@ -164,6 +165,23 @@ export function PaineisDoEditor({
           </motion.div>
         </TabsContent>
       </Tabs>
+
+      {e.imagemPendente ? (
+        <AjustadorImagem
+          file={e.imagemPendente.file}
+          titulo={
+            e.imagemPendente.kind === "capa"
+              ? "Ajustar foto de capa"
+              : e.imagemPendente.kind === "logo"
+                ? "Ajustar logo"
+                : "Ajustar foto da recepção"
+          }
+          proporcao={e.imagemPendente.kind === "capa" ? 16 / 9 : 1}
+          fit={e.imagemPendente.kind === "logo" ? "contain" : "cover"}
+          onCancelar={e.cancelarImagem}
+          onConfirmar={e.confirmarImagem}
+        />
+      ) : null}
 
       <FaixaDeEstado
         fase={e.fase}
