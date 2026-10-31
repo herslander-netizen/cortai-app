@@ -10,6 +10,8 @@ import {
   MapPin,
   MessageCircle,
   Sparkles,
+  Star,
+  ChartNoAxesCombined,
   type LucideIcon,
 } from "lucide-react";
 
@@ -224,6 +226,79 @@ export function DemoCaixa() {
         >
           <Check size={14} /> Pix recebido e confirmado
         </motion.div>
+      </div>
+    </Aparelho>
+  );
+}
+
+
+export function DemoAvaliacoes() {
+  return (
+    <Aparelho nome="Tela de avaliações com nota média, distribuição e comentários dos clientes">
+      <div className="w-full max-w-[280px] space-y-3">
+        <CabecalhoDemo icone={Star} titulo="Avaliações" detalhe="Experiência dos clientes" />
+        <div className="rounded-2xl p-3" style={cartao}>
+          <div className="flex items-center justify-between">
+            <div><b className="text-3xl tabular-nums">4,8</b><p style={suave}>Nota média</p></div>
+            <div className="text-right"><div className="text-lg" style={{ color: "var(--figaro-tertiary)" }}>★★★★★</div><p style={suave}>32 avaliações</p></div>
+          </div>
+          <div className="mt-3 space-y-1.5">
+            {[["5 estrelas","82%"],["4 estrelas","12%"],["3 estrelas","6%"]].map(([label, value]) => (
+              <div key={label} className="flex items-center gap-2 text-[10px]">
+                <span className="w-16" style={suave}>{label}</span>
+                <div className="h-1.5 flex-1 overflow-hidden rounded-full" style={{ background: "color-mix(in oklab, var(--figaro-on-primary) 12%, transparent)" }}>
+                  <div className="h-full rounded-full" style={{ width: value, background: "var(--figaro-tertiary)" }} />
+                </div>
+                <b className="w-7 text-right">{value}</b>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="space-y-2">
+          {[
+            ["Mariana Costa","Atendimento excelente!"],
+            ["Rafael Lima","Muito atenciosos e pontuais."],
+          ].map(([nome, comentario]) => (
+            <div key={nome} className="rounded-xl p-3" style={cartao}>
+              <div className="flex items-center justify-between text-[10px]"><b>{nome}</b><span style={{ color: "var(--figaro-tertiary)" }}>★★★★★</span></div>
+              <p className="mt-1 text-[10px]" style={suave}>{comentario}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </Aparelho>
+  );
+}
+
+export function DemoDesempenho() {
+  return (
+    <Aparelho nome="Painel de desempenho com indicadores e configurações do negócio">
+      <div className="w-full max-w-[280px] space-y-3">
+        <CabecalhoDemo icone={ChartNoAxesCombined} titulo="Seu negócio" detalhe="Visão geral · Este mês" />
+        <div className="grid grid-cols-2 gap-2">
+          {[
+            ["1.240","Visitas na página"],
+            ["186","Agendamentos"],
+            ["15%","Conversão"],
+            ["R$ 10,8k","Faturamento"],
+          ].map(([valor, label]) => (
+            <div key={label} className="rounded-xl p-3" style={cartao}>
+              <b className="block text-lg tabular-nums">{valor}</b>
+              <span className="text-[9px]" style={suave}>{label}</span>
+            </div>
+          ))}
+        </div>
+        <div className="rounded-xl p-3" style={cartao}>
+          <div className="mb-2 flex items-center justify-between"><b className="text-[11px]">Mais procurados</b><span style={suave}>Este mês</span></div>
+          {["Serviço completo","Corte e finalização","Cuidados especiais"].map((item, i) => (
+            <div key={item} className="flex items-center justify-between border-t py-2 text-[10px]" style={{ borderColor: "color-mix(in oklab, var(--figaro-on-primary) 12%, transparent)" }}>
+              <span>{item}</span><b>{[76, 48, 32][i]}</b>
+            </div>
+          ))}
+        </div>
+        <div className="flex items-center gap-2 rounded-xl p-2.5 text-[10px]" style={{ background: "var(--figaro-primary-container)", color: "var(--figaro-on-primary-container)" }}>
+          <Check size={13} /> Acompanhe e ajuste seu negócio
+        </div>
       </div>
     </Aparelho>
   );
