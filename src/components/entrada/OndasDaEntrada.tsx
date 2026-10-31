@@ -30,8 +30,9 @@ export function OndasDaEntrada() {
       </defs>
 
       <motion.g
-        animate={reduzirMovimento ? undefined : { x: [0, 10, 0], y: [0, -5, 0] }}
-        transition={reduzirMovimento ? undefined : transicaoSuperior}
+        {...(!reduzirMovimento
+          ? { animate: { x: [0, 10, 0], y: [0, -5, 0] }, transition: transicaoSuperior }
+          : {})}
       >
         <path
           d="M-36 112 C35 52 93 133 169 119 C257 104 302 34 430 -18 L430 119 C334 161 282 222 183 205 C96 190 34 133 -36 228 Z"
@@ -48,8 +49,9 @@ export function OndasDaEntrada() {
       </motion.g>
 
       <motion.g
-        animate={reduzirMovimento ? undefined : { x: [0, -8, 0], y: [0, 5, 0] }}
-        transition={reduzirMovimento ? undefined : transicaoInferior}
+        {...(!reduzirMovimento
+          ? { animate: { x: [0, -8, 0], y: [0, 5, 0] }, transition: transicaoInferior }
+          : {})}
       >
         <path
           d="M-34 700 C48 635 102 711 182 696 C275 678 324 604 428 628 L428 866 L-34 866 Z"
