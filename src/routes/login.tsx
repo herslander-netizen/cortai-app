@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate, redirect, Link } from "@tanstack/react-router";
-import { useEffect, useState, type CSSProperties } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 
 import { Button } from "@/components/ui/button";
@@ -121,6 +121,73 @@ function LoginPage() {
   const [mostrarForm, setMostrarForm] = useState(
     aba === "criar" || Boolean(proximo) || erroNaSessao === "perfil",
   );
+
+  const painelLoginRef = useRef<HTMLDivElement>(null);
+  const elementoAnteriorRef = useRef<HTMLElement | null>(null);
+
+  function fecharPainelLogin() {
+    setMostrarForm(false);
+    setFaseLogin("identificar");
+    setSenha("");
+    setErro(null);
+    setAviso(null);
+  }
+
+  useEffect(() => {
+    if (!mostrarForm) return;
+
+    elementoAnteriorRef.current =
+      document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const overflowAnterior = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    const focoInicial = window.requestAnimationFrame(() => {
+      const alvo = painelLoginRef.current?.querySelector<HTMLElement>(
+        'input:not([disabled]), button:not([disabled]), a[href]',
+      );
+      alvo?.focus();
+    });
+
+    function controlarTeclado(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        fecharPainelLogin();
+        return;
+      }
+      if (event.key !== "Tab") return;
+
+      const painel = painelLoginRef.current;
+      if (!painel) return;
+      const elementos = Array.from(
+        painel.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+        ),
+      ).filter((elemento) => elemento.getClientRects().length > 0);
+      if (!elementos.length) {
+        event.preventDefault();
+        painel.focus();
+        return;
+      }
+
+      const primeiro = elementos[0];
+      const ultimo = elementos[elementos.length - 1];
+      if (event.shiftKey && (document.activeElement === primeiro || !painel.contains(document.activeElement))) {
+        event.preventDefault();
+        ultimo?.focus();
+      } else if (!event.shiftKey && (document.activeElement === ultimo || !painel.contains(document.activeElement))) {
+        event.preventDefault();
+        primeiro?.focus();
+      }
+    }
+
+    document.addEventListener("keydown", controlarTeclado);
+    return () => {
+      window.cancelAnimationFrame(focoInicial);
+      document.removeEventListener("keydown", controlarTeclado);
+      document.body.style.overflow = overflowAnterior;
+      elementoAnteriorRef.current?.focus();
+    };
+  }, [mostrarForm]);
 
   useEffect(() => {
     const meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
@@ -304,17 +371,20 @@ function LoginPage() {
               <motion.button
                 type="button"
                 aria-label="Fechar acesso"
-                onClick={() => { setMostrarForm(false); setFaseLogin("identificar"); setSenha(""); setErro(null); setAviso(null); }}
+                onClick={fecharPainelLogin}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 className="fixed inset-0 z-20 bg-black/65 backdrop-blur-sm"
               />
               <div
-                className="entrada-painel fixed bottom-0 left-1/2 z-30 w-full max-w-[430px] rounded-t-[28px] px-6 pb-[calc(24px+env(safe-area-inset-bottom))] pt-5"
+                ref={painelLoginRef}
+                tabIndex={-1}
+                className="entrada-painel fixed bottom-0 left-1/2 z-30 w-full max-w-[430px] rounded-t-[28px] px-6 pb-[calc(24px+env(safe-area-inset-bottom))] pt-5 outline-none"
                 role="dialog"
                 aria-modal="true"
                 aria-labelledby="flow-login-title"
+                aria-describedby="flow-login-description"
                 style={{
                   transform: "translateX(-50%)",
                   background: "var(--ink2)",
@@ -327,13 +397,29 @@ function LoginPage() {
                   animation: "none",
                 }}
               >
-            <div className="mx-auto mb-5 h-1 w-10 rounded-full bg-white/20" />
-            <h1 id="flow-login-title" className="mb-1 text-center text-lg font-bold text-paper">
-              {modo === "entrar" ? (faseLogin === "identificar" ? "Acessar sua conta" : "Digite sua senha") : "Criar conta"}
-            </h1>
-            <p className="mb-5 text-center text-xs text-mute">
-              {modo === "entrar" ? (faseLogin === "identificar" ? "Entre com seu e-mail e continue" : `Bem-vindo de volta, ${email}`) : "Comece a organizar seu negócio com o Flow"}
-            </p>
+            <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-white/20" />
+            <div className="mb-5 flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <h1 id="flow-login-title" className="text-left text-xl font-bold text-paper">
+                  {modo === "entrar" ? (faseLogin === "identificar" ? "Acessar sua conta" : "Digite sua senha") : "Criar conta"}
+                </h1>
+                <p id="flow-login-description" className="mt-1 text-left text-xs text-mute">
+                  {modo === "entrar"
+                    ? (faseLogin === "identificar" ? "Digite seu e-mail ou telefone para continuar" : `Bem-vindo de volta, ${email}`)
+                    : "Comece a organizar seu negócio com o Flow"}
+                </p>
+              </div>
+              <button
+                type="button"
+                aria-label="Fechar painel de acesso"
+                onClick={fecharPainelLogin}
+                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/5 text-mute transition-colors hover:bg-white/10 hover:text-paper focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#A8C7FA]"
+              >
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+                  <path d="m18 6-12 12M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
             {modo === "criar" || faseLogin === "identificar" ? (
               <div className="space-y-2">
                 <Button
@@ -448,7 +534,7 @@ function LoginPage() {
                   </Link>
                 </div>
               ) : null}
-              {erro ? <p className="text-sm text-brick" role="alert">{erro}</p> : null}
+              {erro ? <p className="text-sm text-brick" role="alert" aria-live="assertive">{erro}</p> : null}
               {aviso ? <Aviso tom="info">{aviso}</Aviso> : null}
               <Button className="h-12 w-full rounded-full font-bold" disabled={enviando || (modo === "entrar" && faseLogin === "identificar" ? !email.trim() : !senha.trim() || (modo === "criar" && !email.trim()))}>
                 {enviando ? "Aguarde…" : modo === "entrar" ? (faseLogin === "identificar" ? "Continuar" : "Entrar no Flow") : "Criar conta"}
@@ -479,7 +565,7 @@ function LoginPage() {
               size="sm"
               className="entrada-entrar mt-2 min-h-12 w-full"
               style={{ minHeight: 48 }}
-              onClick={() => { setMostrarForm(false); setFaseLogin("identificar"); setSenha(""); }}
+              onClick={fecharPainelLogin}
             >
               Ver como o Flow funciona
               </Button>
