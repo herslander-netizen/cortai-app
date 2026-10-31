@@ -215,6 +215,7 @@ Tudo o que o dono decidir com qualquer IA entra aqui, com a data. Vale para toda
 - Validação visual, TypeScript/testes/build e publicação da prévia ainda não confirmados. Nenhuma mudança em `main` ou banco.
 
 ## Próximas tarefas (ordem combinada)
+- **Aguardando o dono dar o início — Flow Bot dentro do Flow, Fase A** (`docs/flow-bot-no-flow-analise.md` §7): motor embutido, entrada no WhatsApp na ordem da §4, rastro, modo sombra, horário, detecção de pessoa que assumiu (`fromMe`), modo humano com prazo, texto de reserva verdadeiro; migração 0055 só com autorização. Decisões pendentes na §8.
 - **Claude (30/10):** Avisos e Lembretes no padrão do Figaro — item 4 (saldo mensal do WhatsApp por plano, aviso na Agenda e pausa) aguardando decisões do dono ("depois resolvemos isso"). Itens 1, 2 e 3 feitos.
 
 Pegar a primeira livre; reservar em "Em andamento" antes.
@@ -525,8 +526,6 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Em andamento
 
-- Claude | 2026-10-31 UTC | Análise do Flow Bot dentro do Flow (skills, aprendizados e aprimoramentos), a pedido do dono; só documento, sem código, banco ou Agenda | `docs/flow-bot-no-flow-analise.md`, `DIARIO.md`; sem migração
-
 - GPT | 2026-10-31 UTC | Reforçar o protocolo obrigatório de trabalho com documento canônico, referência no AGENTS.md e verificação estrutural no CI; sem alterações funcionais, banco ou Agenda | `DIARIO.md`, `AGENTS.md`, `PROTOCOLO-OBRIGATORIO.md`, `scripts/verificar-protocolo.sh`, `.github/workflows/preview-migration.yml`; sem migração
 
 - GPT | 2026-10-30 UTC | Assumida por autorização do dono a conclusão de horários especiais por data: revisar motor já implementado, criar migração aditiva 0054, funções protegidas de salvar/remover e folha Horário especial no botão + da Agenda; manter Flow IA e sombras da Agenda fora deste escopo. Não aplicar migração em banco algum sem autorização específica | `src/lib/horarios-especiais.ts`, `src/lib/horarios-especiais.server.ts`, `src/lib/agenda-regras.server.ts`, `src/lib/ocupacoes-extras.server.ts`, novos arquivos de funções/UI/testes e `drizzle/migrations/0054_horarios_especiais.sql`
@@ -587,6 +586,7 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 
 ## Recados
+- **Para todos** (Claude, 31/10): análise do Flow Bot dentro do Flow em `docs/flow-bot-no-flow-analise.md`. Pontos que valem para qualquer IA: (1) o Flow Bot é a camada de regras e conhecimento (L1/L2) de `docs/motor-respostas-flow-ia-especificacao.md` — não criar `regras_de_resposta` à parte nem segundo motor; (2) ordem do WhatsApp da seção 4 (bot depois das respostas a avisos e antes da Flow IA); (3) nada de implementação antes do dono dar o início — a Fase A está em "Próximas tarefas" aguardando ele.
 - **Para todos** (Claude, 31/10): novo `CONTEXTO.md` na raiz — contexto completo do sistema (produto, arquitetura, fontes únicas de verdade, onde mexer, armadilhas, estado). O `AGENTS.md` manda lê-lo antes de toda tarefa; o `CLAUDE.md` agora só importa `AGENTS.md` + `CONTEXTO.md` (o texto dele foi para lá, integral). Corrigida a regra do remetente do WhatsApp no `AGENTS.md`: o código não tem número reserva (`conexaoDeEnvio`). **Migração 0054 aplicada** no `cortai-prod`.
 - **Para o GPT** (Claude, 30/10, a pedido do dono): leia `docs/prompt-gpt-metodo-de-trabalho.md` antes da próxima tarefa. Ele traz o método (reserva, função SQL a partir da última versão, ensaio local, mesma regra do servidor na tela, testes, revisão do diff, poucos commits) com os erros reais da 0054 e da folha do horário especial.
 - **Para o GPT** (Claude, 30/10): ensaiei a sua 0054 no banco local (`ensaio-local.sh`). O `criar_agendamento` dela partia de uma versão anterior à **0039** e trazia de volta "cliente obrigatório": o teste `agendamento_sem_cliente.sql` passava a falhar ("cliente nao encontrado") e, aplicada, quebraria o agendamento de balcão sem cliente. Corrigi só isso na própria 0054 (ainda não aplicada): o bloco do cliente e o da carteira voltaram idênticos à 0039; a sua lógica de horário especial e escala ficou intacta (diff conferido). Acrescentei `supabase/tests/horarios_especiais.sql` (11 verificações; passa com a sua regra). Ensaio completo: todos os testes OK. Eu tinha feito a mesma tarefa em paralelo, sem ver a troca da reserva; descartei a minha versão e mantive a sua.
@@ -858,6 +858,13 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+### 2026-10-31 UTC — Claude — Análise do Flow Bot dentro do Flow (skills, aprendizados e aprimoramentos)
+- Pedido do dono. `docs/flow-bot-no-flow-analise.md`: resumo em 12 pontos, fatos com evidência, skills do Claude para o fluxo "dono → Claude corrige", habilidades do bot reaproveitando o Flow, ordem de quem responde no WhatsApp, aprimoramentos P0/P1/P2, riscos, fases e 6 decisões pendentes.
+- Fatos do `cortai-prod` (só leitura, agregados): 0 conexões e 0 mensagens de WhatsApp; `responder_whatsapp` desligado nos 2 negócios com configuração; 3 negócios (2 barbearias, 1 salão), ~30 agendamentos em 30 dias.
+- Achados no código: `fromMe` ignorado (`evolution.ts:125`), `modo_humano` sem desligamento, texto de reserva "Estou com instabilidade agora" mesmo sem instabilidade (`fluxo.server.ts`, após `responderComCerebro`), nenhum "digitando…"/"marcar como lida". Catálogo de skills sem nada de chatbot/WhatsApp; repositório sem skills.
+- Pesquisa externa (fontes no documento): política da Meta de 15/01/2026 (IA de uso geral proibida na API Business; bot do próprio negócio permitido), endpoints `sendPresence`/`markMessageAsRead` da Evolution v2, práticas contra bloqueio em API não oficial, concorrentes focados em link e lembrete.
+- Só documento; sem código, banco ou Agenda.
+
 ### 2026-10-31 UTC — Claude — Migração 0054 aplicada e contexto único para todas as IAs
 - **0054 (horários especiais) aplicada** no `cortai-prod` com autorização do dono, pelo workflow "Aplicar migrações novas" (execução 41147480057, sucesso). Conferido no banco: tabela `horarios_especiais` com RLS e 4 políticas, `criar_agendamento` nova mantendo o agendamento sem cliente (0039), anônimo sem execução, registrada em `cortai_controle.migracoes_aplicadas`, 0 linhas. Teste `supabase/tests/horarios_especiais.sql` rodado no real: "13 verificações OK", sem resto de teste no banco. As três tentativas anteriores pelo conector do Supabase pararam na confirmação.
 - **`CONTEXTO.md`** (raiz): produto, onde vive, arquitetura (cliente do usuário × service role), fontes únicas de verdade, onde mexer por tipo de pedido, interface, regras que não se quebram, autorizações, 14 armadilhas reais, validação, estado atual e, na seção 12, o texto integral do antigo `CLAUDE.md` (conferido linha a linha). `CLAUDE.md` passa a importar `AGENTS.md` + `CONTEXTO.md`; `AGENTS.md` manda ler `CONTEXTO.md` e o método antes de toda tarefa.
