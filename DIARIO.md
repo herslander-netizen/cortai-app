@@ -35,6 +35,7 @@ e o que fez. O diário até 17/10/2026 está guardado, sem alterações, em
 - 2026-10-30: **Só o ícone do calendário e o sino do topo da Agenda** vão para as medidas do Figaro ("Incone da agenda e do sino somente"); "Agora", alvo e "+" ficam como estavam.
 - 2026-10-30 (substituída pela linha acima): **Ícones da Agenda no tamanho e na cor do Figaro** ("ajuste sutil… análise bem minuciosa", capturas lado a lado). Medidas tiradas da captura do Figaro (1080 px, 2,625 px/dp).
 - 2026-10-30: **Conversar com o dono em português do Brasil** (pedido explícito). **Campos de texto com fundo visível em todo o sistema, nos dois temas** ("tem um monte de tela assim em todo o sistema nas duas cores"), incluindo as folhas da Agenda (o dono mostrou a do Horário especial).
+- 2026-10-31: **Documento único obrigatório para todas as IAs:** `ORIENTACOES-GERAIS-IA.md` (junta todas as orientações e traz o checklist de página nova); leitura obrigatória antes de qualquer processo.
 - 2026-10-31: **Toque dos ícones do topo da Agenda afunda** (sem o quadrado); **Aparência sai da gaveta de Ajustes e vai para o menu** em três ícones (claro, escuro, seguir o aparelho); **"Restaurar semanal" sai do Ajustar intervalo**, com a pílula de salvar refinada.
 - 2026-10-31: **Modelo de gaveta = ficha do atendimento** (dono, "cartão 1"): toda gaveta nova nasce de `ui/folha-padrao.tsx` (fundo da tela, conteúdo em cartões, título no primeiro cartão, rótulos de seção, nota com ícone, uma pílula no rodapé, sem "Cancelar", uma função por controle). Regra em `docs/ordem-padrao-figaro.md` §3.1.
 - 2026-10-31: **Sem logo do negócio, o ícone do Flow** (dono, vídeo): no lugar da inicial ("B"), o mesmo ícone do topo da Agenda em todo lugar (menu, página pública, agendamento, confirmação, link curto, chat) até o negócio personalizar. Iniciais de pessoas (profissionais) continuam.
@@ -606,6 +607,8 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 
 ## Recados
+
+- **Para todos (GPT, Muse e Claude) — 31/10, Claude:** por decisão do dono, **antes de qualquer processo, leiam `ORIENTACOES-GERAIS-IA.md` inteiro**. Ele junta todas as orientações (AGENTS, PROTOCOLO, CONTEXTO, método, Figaro, contrato de design) e traz o **checklist de página nova** (§4): `Screen` com abas abaixo do título, gaveta pelo modelo `ui/folha-padrao.tsx`, uma função por controle, textos que cabem, ícone do Flow quando não há logo, nada aparecendo do nada, gates antes de enviar. O `verificar-protocolo.sh` do CI exige o arquivo e as referências.
 - **Para o GPT** (Claude, 31/10): o **horário especial já funciona na prévia** (banco de testes atualizado). Agora falta terminar o **Flow Bot** (Fase A). Leia `docs/flow-bot-no-flow-analise.md` §4, §5 e §7 e o código em `src/lib/flow-bot/` antes de mexer. O que já está pronto e testado:
   - motor copiado do flow-bot em `src/lib/flow-bot/nucleo/` (não editar à mão; use `scripts/sincronizar-flow-bot.sh`);
   - decisão (`decisao.ts`), retrato `flow/v1` (`realidade.ts`, `realidade.server.ts`), orquestrador (`bot.server.ts`), pessoa que respondeu pelo celular (`humano.server.ts`);
@@ -887,6 +890,10 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+### 2026-10-31 UTC — Claude — Orientações gerais das IAs num documento único e obrigatório
+- Pedido do dono: analisar tudo que uma página nova precisa ter, juntar todas as orientações existentes num documento e obrigar todas as IAs a ler antes de qualquer processo.
+- Novo `ORIENTACOES-GERAIS-IA.md` (raiz): ordem obrigatória de leitura (§1), regras que nunca se quebram (§2), fluxo da tarefa (§3), **checklist de página nova** (§4: estrutura, visual Figaro, marca e conteúdo padrão, dados e estados, fechamento — cada item de uma decisão do dono ou defeito real), fontes únicas (§5), negócio e segurança (§6), armadilhas (§7), prévia e publicação (§8).
+- Obrigatoriedade: aviso no topo do `AGENTS.md`; `CLAUDE.md` importa o arquivo; `CONTEXTO.md` e `PROTOCOLO-OBRIGATORIO.md` o colocam primeiro na leitura e exigem o checklist em toda página/gaveta nova; `scripts/verificar-protocolo.sh` (CI) exige o arquivo, as referências e as seções. Recado para todos em Recados.
 ### 2026-10-31 UTC — Claude — Toque que afunda no topo da Agenda, Aparência no menu e intervalo sem "Restaurar"
 - Topo da Agenda: o toque no logo/menu, no calendário e no sino pintava um fundo quadrado (botão fantasma). Nova classe `.toque-afunda` (`styles.css`): sem fundo nem destaque do sistema, o ícone afunda (86 %, 1 px para baixo) e volta com a mola de toque; com movimento reduzido, só esmaece. Aplicada em `CabecalhoAgenda.tsx`, `SinoDeAvisos.tsx` e no gatilho do menu (`ManagementDrawer.tsx`, agora redondo).
 - Aparência: novo `AparenciaDoMenu.tsx`, uma linha no estilo dos cartões do menu (antes de Suporte) com os três modos em ícones (rádio acessível; marcado em primaryContainer), mesmas funções de `lib/aparencia` e acompanha mudanças feitas em outras telas. Saiu da gaveta de Ajustes (`DrawerAjustes.tsx`). Conta e Perfil continuam com o `ThemeToggle`.

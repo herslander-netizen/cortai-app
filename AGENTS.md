@@ -1,5 +1,9 @@
 # Regras da equipe de IAs — Claude, GPT e Muse (valem igual para todos)
 
+> **OBRIGATÓRIO ANTES DE QUALQUER PROCESSO: ler `ORIENTACOES-GERAIS-IA.md` inteiro** (decisão do dono,
+> 31/10/2026). Ele junta todas as orientações num lugar só, traz a ordem de leitura e o **checklist de página
+> nova**. Sem essa leitura, nenhuma tarefa começa — nem investigação para editar, nem publicação.
+
 O dono usa Claude (Claude Code), GPT (Codex ou ChatGPT ligado ao GitHub) e Muse (Muse Spark, da
 Meta), juntos ou só um deles. **Todos têm o mesmo poder de acesso e as mesmas autorizações**
 (decisão do dono, 16 e 17/10/2026): nenhum precisa do aval de outro para mudar o código, e o que um

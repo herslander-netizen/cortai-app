@@ -8,6 +8,7 @@ Este documento transforma as regras do projeto em um roteiro verificável. Ele c
 
 - [ ] Confirmar que o repositório é herslander-netizen/cortai-app e a branch é cloudflare-workers-migration-2026-10-13.
 - [ ] Atualizar a branch a partir da origem antes de começar; nunca trabalhar na main ou em outra branch.
+- [ ] Ler integralmente o ORIENTACOES-GERAIS-IA.md (obrigatório antes de qualquer processo; inclui o checklist de página nova).
 - [ ] Ler integralmente o AGENTS.md da raiz, o CONTEXTO.md, docs/prompt-gpt-metodo-de-trabalho.md e MUSE.md.
 - [ ] Ler no DIARIO.md as seções **Decisões do dono**, **Próximas tarefas**, **Em andamento**, **Recados** e as entradas mais recentes de **Diário**. Responder ou marcar como lidos os recados endereçados à IA que está trabalhando.
 - [ ] Ler o AGENTS.md de cada pasta que será alterada. Verificar também as regras específicas de src/lib, src/lib/brain, src/lib/whatsapp, src/components/barbeiro/agenda e src/components/comanda quando a tarefa alcançar essas áreas.
@@ -39,6 +40,7 @@ Este documento transforma as regras do projeto em um roteiro verificável. Ele c
 - Fazer a menor alteração que resolva o pedido. Não reformate arquivos inteiros, não renomeie elementos fora do escopo e não enfraqueça regras.
 - Reutilizar a regra já existente no servidor/lib; não reimplementar validação na tela.
 - Datas e períodos sempre no fuso do negócio (hojeNoFuso, inicioDoDiaNoFuso etc.), nunca no relógio local do aparelho.
+- Toda tela, página ou gaveta nova cumpre o **checklist de página nova** (ORIENTACOES-GERAIS-IA.md §4); gaveta nova usa o modelo ui/folha-padrao.tsx.
 - Toda tela nova ou refeita segue o Figaro, docs/ordem-padrao-figaro.md, docs/contrato-de-design.md e os primitivos de src/components/ui.
 - Mobile-first: conferir 390 px e, quando aplicável, 360 px; conferir tema escuro e claro. Na Agenda, respeitar também as regras próprias de paridade e proteção.
 - Não tocar em evolution-crm, segredos, DNS ou produção fora das autorizações documentadas.

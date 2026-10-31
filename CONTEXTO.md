@@ -5,7 +5,7 @@ Este arquivo dá a qualquer IA o mesmo contexto que o Claude tem ao editar o Flo
 estado vivo está no `DIARIO.md`. O `CLAUDE.md` importa este arquivo, então Claude e GPT leem exatamente o mesmo texto.
 Mantenha-o curto e verdadeiro: se o código mudar algo descrito aqui, atualize na mesma entrega.
 
-**Ordem de leitura no início de cada tarefa:** `AGENTS.md` → este arquivo → `docs/prompt-gpt-metodo-de-trabalho.md` →
+**Ordem de leitura no início de cada tarefa:** `ORIENTACOES-GERAIS-IA.md` (obrigatório, junta tudo e traz o checklist de página nova) → `AGENTS.md` → este arquivo → `docs/prompt-gpt-metodo-de-trabalho.md` →
 no `DIARIO.md`: "Decisões do dono", "Em andamento", "Recados" e as 5 entradas mais novas do "Diário" (o arquivo é
 longo; não precisa ler tudo) → `AGENTS.md` das pastas que vai tocar → `docs/mapa-do-codigo.md` quando precisar achar
 algo.

@@ -18,6 +18,7 @@ require_text() {
 }
 
 for file in \
+  ORIENTACOES-GERAIS-IA.md \
   AGENTS.md \
   CONTEXTO.md \
   CLAUDE.md \
@@ -34,6 +35,17 @@ for file in \
 done
 
 require_text AGENTS.md "PROTOCOLO-OBRIGATORIO.md"
+require_text AGENTS.md "ORIENTACOES-GERAIS-IA.md"
+require_text CLAUDE.md "@ORIENTACOES-GERAIS-IA.md"
+require_text PROTOCOLO-OBRIGATORIO.md "ORIENTACOES-GERAIS-IA.md"
+require_text CONTEXTO.md "ORIENTACOES-GERAIS-IA.md"
+for heading in \
+  "## 1. Ordem obrigatória de leitura" \
+  "## 2. Regras que nunca se quebram" \
+  "## 4. Checklist de página nova" \
+  "## 8. Prévia e publicação"; do
+  require_text ORIENTACOES-GERAIS-IA.md "$heading"
+done
 require_text AGENTS.md "CONTEXTO.md"
 require_text AGENTS.md "docs/prompt-gpt-metodo-de-trabalho.md"
 require_text CLAUDE.md "@AGENTS.md"
