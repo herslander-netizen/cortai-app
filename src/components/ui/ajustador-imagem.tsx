@@ -35,7 +35,7 @@ export function AjustadorImagem({
   const [processando, setProcessando] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
   const ponteiros = useRef(new Map<number, Ponto>());
-  const gesto = useRef<{ centro: Ponto; distancia: number; zoom: number; deslocamento: Ponto } | null>(null);
+  const gesto = useRef<{ distancia: number; zoom: number; deslocamento: Ponto } | null>(null);
   const arrasto = useRef<{ ponto: Ponto; deslocamento: Ponto } | null>(null);
   const url = useMemo(() => URL.createObjectURL(file), [file]);
 
@@ -59,7 +59,9 @@ export function AjustadorImagem({
     if (!imagem) return null;
     const largura = 320;
     const altura = largura / proporcao;
-    const escalaBase = fit === "contain"\n      ? Math.min(largura / imagem.naturalWidth, altura / imagem.naturalHeight)\n      : Math.max(largura / imagem.naturalWidth, altura / imagem.naturalHeight);
+    const escalaBase = fit === "contain"
+      ? Math.min(largura / imagem.naturalWidth, altura / imagem.naturalHeight)
+      : Math.max(largura / imagem.naturalWidth, altura / imagem.naturalHeight);
     return {
       largura,
       altura,
@@ -81,12 +83,10 @@ export function AjustadorImagem({
   };
 
   const distancia = (a: Ponto, b: Ponto) => Math.hypot(a.x - b.x, a.y - b.y);
-  const meio = (a: Ponto, b: Ponto): Ponto => ({ x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 });
 
   const atualizarGesto = () => {
     const pontos = [...ponteiros.current.values()];
     if (pontos.length >= 2 && gesto.current) {
-      const centro = meio(pontos[0]!, pontos[1]!);
       const distanciaAtual = distancia(pontos[0]!, pontos[1]!);
       const novoZoom = limitar(
         gesto.current.zoom * (distanciaAtual / Math.max(1, gesto.current.distancia)),
@@ -119,7 +119,6 @@ export function AjustadorImagem({
     const pontos = [...ponteiros.current.values()];
     if (pontos.length >= 2) {
       gesto.current = {
-        centro: meio(pontos[0]!, pontos[1]!),
         distancia: distancia(pontos[0]!, pontos[1]!),
         zoom,
         deslocamento,
