@@ -544,6 +544,8 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Em andamento
 
+- GPT | 2026-10-31 UTC | Adaptar o fluxo completo de entrada e login `/login` à especificação de Landing progressiva, transição e autenticação em fases, preservando identidade Flow, componentes Figaro e regras existentes; sem alterar provedores, backend, textos de produto além dos já especificados ou Agenda | `src/routes/login.tsx`, `src/components/entrada/*`, componentes e testes de acesso diretamente usados pelo login; sem migração
+
 
 
 
