@@ -102,8 +102,14 @@ export function useArrastarParaFechar(
       if (distancia > tamanho * 0.3 || (rapido && distancia > 20)) {
         elemento.dataset["arrastado"] = "true";
         elemento.style.transition = reduzido ? "none" : "transform 200ms ease-out";
+        if (fundo) fundo.style.transition = reduzido ? "none" : "opacity 200ms ease-out";
         aplicar(sinal * tamanho);
-        elemento.querySelector<HTMLButtonElement>("[data-fechar-gaveta]")?.click();
+        // Fecha só depois de a gaveta terminar de sair: fechando junto, ela era removida no meio do caminho e
+        // sumia de uma vez (vídeo do dono, 31/10).
+        const fechar = () =>
+          elemento.querySelector<HTMLButtonElement>("[data-fechar-gaveta]")?.click();
+        if (reduzido) fechar();
+        else window.setTimeout(fechar, 200);
       } else {
         elemento.style.transition = reduzido ? "none" : "transform 200ms ease-out";
         if (fundo) fundo.style.transition = reduzido ? "none" : "opacity 200ms ease-out";

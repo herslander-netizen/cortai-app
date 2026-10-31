@@ -3,6 +3,7 @@ import { useDeferredValue, useEffect } from "react";
 import type { Ref } from "react";
 
 import { AgendaTimeline } from "@/components/barbeiro/AgendaTimeline";
+import type { AgendaDia } from "@/lib/barbeiro.functions";
 import { EsqueletoAgenda, EsqueletoTimeline } from "@/components/layout/Esqueleto";
 
 import { useVizinhoDoGesto } from "./gesto-dia";
@@ -142,6 +143,7 @@ export function CamadasVizinhas({
   discreto,
   diaCompleto = false,
   mostrarProfissional = false,
+  horariosDaSemana,
 }: {
   diaAtual: string;
   profissionalId: string | null;
@@ -149,6 +151,8 @@ export function CamadasVizinhas({
   diaCompleto?: boolean;
   /** Mesmo critério do dia aberto: senão o nome do profissional aparece de repente quando o dia assenta. */
   mostrarProfissional?: boolean;
+  /** Horário semanal do negócio (o mesmo em todo dia): o vizinho já entra com as listras do fechado. */
+  horariosDaSemana?: AgendaDia["horarios"] | undefined;
 }) {
   // Os vizinhos estão fora da tela: na troca de dia o commit urgente renderiza só o dia que entra
   // e as duas camadas se atualizam logo depois, em prioridade baixa (menos trabalho no quadro do
@@ -163,6 +167,7 @@ export function CamadasVizinhas({
         discreto={discreto}
         diaCompleto={diaCompleto}
         mostrarProfissional={mostrarProfissional}
+        horariosDaSemana={horariosDaSemana}
       />
       <CamadaVizinha
         lado="proximo"
@@ -171,6 +176,7 @@ export function CamadasVizinhas({
         discreto={discreto}
         diaCompleto={diaCompleto}
         mostrarProfissional={mostrarProfissional}
+        horariosDaSemana={horariosDaSemana}
       />
     </>
   );
@@ -183,6 +189,7 @@ function CamadaVizinha({
   discreto,
   diaCompleto,
   mostrarProfissional,
+  horariosDaSemana,
 }: {
   lado: "anterior" | "proximo";
   dia: string;
@@ -190,6 +197,7 @@ function CamadaVizinha({
   discreto: boolean;
   diaCompleto: boolean;
   mostrarProfissional: boolean;
+  horariosDaSemana: AgendaDia["horarios"] | undefined;
 }) {
   const { data } = useQuery({
     ...opcoesAgendaDia(dia),
@@ -210,7 +218,9 @@ function CamadaVizinha({
         dia={dia}
         fuso={data?.fuso}
         itens={itens}
-        horarios={data?.horarios ?? []}
+        // Sem os dados do vizinho ainda, o horário semanal do dia aberto (é o mesmo): as listras do fechado não
+        // aparecem do nada quando ele carrega (vídeo do dono, 31/10).
+        horarios={data?.horarios ?? horariosDaSemana ?? []}
         selecionado={null}
         onSelecionar={nada}
         discreto={discreto}

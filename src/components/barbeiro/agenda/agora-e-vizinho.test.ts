@@ -27,7 +27,7 @@ describe("linha agora, pontos e dia vizinho no padrão do Figaro (vídeo e fotos
   it("dia vizinho mostra o profissional com o mesmo critério do dia aberto", () => {
     expect(vizinho.match(/mostrarProfissional=\{mostrarProfissional\}/g)).toHaveLength(3);
     expect(operacional).toContain(
-      "mostrarProfissional={!profFiltro && profissionais.length > 1}\n        />\n      ) : undefined,",
+      "mostrarProfissional={!profFiltro && profissionais.length > 1}\n          horariosDaSemana={agenda.data?.horarios}\n        />\n      ) : undefined,",
     );
   });
 
@@ -63,5 +63,24 @@ describe("lupa do topo da Agenda (dono, 31/10)", () => {
       'className="!size-[27px] text-[var(--figaro-on-surface,var(--paper))]"',
     );
     expect(cabecalho).not.toContain("size-9 text-[var(--figaro-on-surface-variant");
+  });
+});
+
+describe("nada aparece do nada ao trocar de dia (vídeo do dono, 31/10)", () => {
+  it("bloqueios e intervalo do dia anterior não ficam na tela enquanto o novo dia carrega", () => {
+    expect(operacional).toContain("const intervaloDoDia = agenda.isPlaceholderData");
+    expect(operacional).toContain(
+      "(agenda.isPlaceholderData ? [] : (agenda.data?.bloqueiosDoDia ?? []))",
+    );
+    expect(operacional).not.toContain(
+      "intervaloPersonalizado={agenda.data?.intervaloPersonalizado ?? null}",
+    );
+  });
+
+  it("dia vizinho entra com as listras do horário semanal e o intervalo já com o relógio", () => {
+    expect(vizinho).toContain("horarios={data?.horarios ?? horariosDaSemana ?? []}");
+    expect(operacional).toContain("horariosDaSemana={agenda.data?.horarios}");
+    const timeline = readFileSync(resolve(__dirname, "../AgendaTimeline.tsx"), "utf8");
+    expect(timeline.match(/<Clock3 aria-hidden \/>\s*Intervalo ·/g)).toHaveLength(2);
   });
 });

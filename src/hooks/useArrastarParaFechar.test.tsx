@@ -69,7 +69,12 @@ describe("menu lateral: arrastar em qualquer ponto para fechar (como o Figaro)",
     toque(item, "touchmove", 140, 302, 30);
     expect(Number(fundo.style.opacity)).toBeCloseTo(0.8, 1);
     toque(item, "touchmove", 60, 304, 60);
+    vi.useFakeTimers();
     toque(item, "touchend", 0, 0, 90);
+    // Primeiro a gaveta termina de sair; só então fecha (antes sumia no meio do caminho).
+    expect(fechou).not.toHaveBeenCalled();
+    vi.advanceTimersByTime(200);
+    vi.useRealTimers();
     expect(fechou).toHaveBeenCalledTimes(1);
   });
 

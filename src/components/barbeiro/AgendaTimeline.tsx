@@ -1080,7 +1080,9 @@ function AgendaTimelineBase({
                 }}
                 aria-hidden
               >
+                {/* Mesmo desenho do intervalo tocável (com o relógio): no dia vizinho o ícone surgia ao assentar. */}
                 <span>
+                  <Clock3 aria-hidden />
                   Intervalo · {horaMinuto(intervalo[0])}–{horaMinuto(intervalo[1])}
                 </span>
               </div>

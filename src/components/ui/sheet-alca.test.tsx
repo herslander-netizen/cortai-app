@@ -87,6 +87,8 @@ describe("barra (alça) da gaveta", () => {
   it("arrastar a barra para baixo fecha a gaveta", async () => {
     const { gaveta, aoMudar } = await abrir();
     await arrastar(gaveta.querySelector("[data-alca-gaveta]")!, [200, 10], [200, 220]);
+    // A gaveta termina de sair (200 ms) e só então fecha.
+    await act(async () => void (await new Promise((ok) => setTimeout(ok, 260))));
     expect(aoMudar).toHaveBeenCalledWith(false);
   });
 

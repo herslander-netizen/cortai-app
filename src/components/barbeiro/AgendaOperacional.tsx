@@ -626,7 +626,8 @@ export function AgendaOperacional() {
   );
   /** Bloqueios cadastrados do dia; os da equipe toda (sem profissional) valem para qualquer coluna. */
   const bloqueiosDoDia = (profissional: string | null) =>
-    (agenda.data?.bloqueiosDoDia ?? [])
+    // Nunca os bloqueios do dia anterior enquanto o novo carrega (ver `intervaloDoDia`).
+    (agenda.isPlaceholderData ? [] : (agenda.data?.bloqueiosDoDia ?? []))
       .filter((b) => !b.profissional_id || !profissional || b.profissional_id === profissional)
       .map((b) => ({
         id: b.id,
@@ -989,10 +990,16 @@ export function AgendaOperacional() {
         : undefined,
     [edicao.original, edicao.textoDoMotivo],
   );
+  // Enquanto o dia novo carrega, a consulta mostra os dados do dia anterior (placeholder). Os cartões já eram
+  // escondidos; bloqueios e intervalo do dia também precisam esperar, senão aparecem do dia errado e trocam de
+  // repente (vídeo do dono, 31/10). O horário semanal é o mesmo em todo dia e pode continuar na tela.
+  const intervaloDoDia = agenda.isPlaceholderData
+    ? null
+    : (agenda.data?.intervaloPersonalizado ?? null);
   const bloqueiosDoDiaGeral = useMemo(
     () => bloqueiosDoDia(profFiltro),
     // eslint-disable-next-line react-hooks/exhaustive-deps -- depende só dos dados e do filtro
-    [agenda.data?.bloqueiosDoDia, profFiltro, profissionais],
+    [agenda.data?.bloqueiosDoDia, agenda.isPlaceholderData, profFiltro, profissionais],
   );
   const vizinhosMemo = useMemo(
     () =>
@@ -1003,9 +1010,10 @@ export function AgendaOperacional() {
           discreto={modoDiscreto}
           diaCompleto
           mostrarProfissional={!profFiltro && profissionais.length > 1}
+          horariosDaSemana={agenda.data?.horarios}
         />
       ) : undefined,
-    [celular, dia, profFiltro, modoDiscreto, profissionais.length],
+    [celular, dia, profFiltro, modoDiscreto, profissionais.length, agenda.data?.horarios],
   );
   const faixa = (
     <FaixaConexao
@@ -1112,7 +1120,7 @@ export function AgendaOperacional() {
         dia={dia}
         fuso={fuso}
         horarios={agenda.data?.horarios ?? []}
-        intervaloPersonalizado={agenda.data?.intervaloPersonalizado ?? null}
+        intervaloPersonalizado={intervaloDoDia}
       />
       <HorarioEspecialSheet
         aberto={horarioEspecialAberto}
@@ -1605,7 +1613,7 @@ export function AgendaOperacional() {
                       bloqueiosDoDia={bloqueiosDoDia(p.id)}
                       alinhado
                       horarios={agenda.data?.horarios ?? []}
-                      intervaloPersonalizado={agenda.data?.intervaloPersonalizado ?? null}
+                      intervaloPersonalizado={intervaloDoDia}
                       onAbrirIntervalo={
                         dia >= hojeNoFuso(fuso) ? () => setIntervaloAberto(true) : undefined
                       }
@@ -1648,7 +1656,7 @@ export function AgendaOperacional() {
                   itensEscala={todosItens}
                   bloqueiosDoDia={bloqueiosDoDiaGeral}
                   horarios={agenda.data?.horarios ?? []}
-                  intervaloPersonalizado={agenda.data?.intervaloPersonalizado ?? null}
+                  intervaloPersonalizado={intervaloDoDia}
                   onAbrirIntervalo={
                     dia >= hojeNoFuso(fuso) ? () => setIntervaloAberto(true) : undefined
                   }
