@@ -8,7 +8,7 @@ mesmas regras, mesma ordem de prioridade, mesmo critério para pedir autorizaç�
 carrega este arquivo sozinho (o GPT/Codex lê `AGENTS.md`; o `CLAUDE.md` importa este arquivo) deve
 lê-lo no começo de cada tarefa. O estado vivo fica em `DIARIO.md` e o resumo da migração em `MUSE.md`.
 
-**Método de trabalho passo a passo (obrigatório para todas, com os erros reais que ele evita):** `docs/prompt-gpt-metodo-de-trabalho.md`.
+**Antes de qualquer tarefa, leia o `CONTEXTO.md` (contexto completo do sistema: produto, arquitetura, fontes únicas de verdade, onde mexer, armadilhas e estado atual) e o `docs/prompt-gpt-metodo-de-trabalho.md` (método passo a passo, obrigatório para todas, com os erros reais que ele evita).**
 
 **Como conversam:** não há chat direto entre as IAs; o canal é o `DIARIO.md` no GitHub.
 - Antes de mexer: `git pull`, ler "Em andamento" e "Recados" e reservar a tarefa (commit só dessa linha).
@@ -108,7 +108,7 @@ decisão nova contradiz uma regra daqui, apontar o conflito ao dono antes de agi
 - Movimento: escala 120/200/280 ms, só transform/opacity, cascata até 6 itens, redução de movimento global.
 - Bloqueios por data e escala por profissional entram no motor como ocupações (`ocupacoes-extras.server.ts`) — todos os cálculos de horário livre e a validação usam a mesma fonte.
 - Papéis neutros em todo o código: negócio (tenant), dono, profissional, cliente. Palavras de segmento só na tela via `termos(segmento)`; nunca em rotas, arquivos, funções, tipos, banco, modelos de WhatsApp, textos fixos ou emojis de segmento — o produto atende todo o universo de beleza.
-- WhatsApp: todo envio escolhe o remetente por `conexaoDeEnvio` (próprio → número oficial compartilhado) e toda falha passa por `erros-meta.ts` + `falhas-envio.server.ts` — uma regra só para roteamento, reserva e falhas.
+- WhatsApp: todo envio escolhe o remetente por `conexaoDeEnvio` (só a conexão do próprio negócio; sem ela nada sai e o gestor é avisado — sem número reserva) e toda falha passa por `erros-meta.ts` + `falhas-envio.server.ts` — uma regra só para roteamento e falhas.
 - Links de tela do painel ficam em `src/lib/links-de-tela.ts` (espelho SQL `link_de_tela`) — a troca de rota acontece num lugar só.
 - Movimento: `MotionConfig` na raiz (GlobalDesign) com reducedMotion="user" e transição padrão de `motion.ts`; molas novas só as oficiais de `motion.ts` (sem quique) — uma base para todo o app. Exceção (dono, 22/10): animação recuperada do Figaro usa só os valores de `src/lib/movimento-figaro.ts`, com a fonte no APK.
 - Preferências privadas de atendimento estendem a ficha existente em `clientes.preferencias`; validação dupla e acesso por negócio evitam fontes paralelas e exposição pública.
