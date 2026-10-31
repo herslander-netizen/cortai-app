@@ -31,7 +31,6 @@ export function AjustadorImagem({
   const [deslocamento, setDeslocamento] = useState<Ponto>({ x: 0, y: 0 });
   const [processando, setProcessando] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
-  const areaRef = useRef<HTMLDivElement>(null);
   const ponteiros = useRef(new Map<number, Ponto>());
   const gesto = useRef<{ centro: Ponto; distancia: number; zoom: number; deslocamento: Ponto } | null>(null);
   const arrasto = useRef<{ ponto: Ponto; deslocamento: Ponto } | null>(null);
@@ -171,7 +170,6 @@ export function AjustadorImagem({
       const contexto = canvas.getContext("2d");
       if (!contexto) throw new Error("Não foi possível preparar a imagem.");
 
-      const fatorSaida = larguraSaida / dimensoes.largura;
       const origemX = imagem.naturalWidth / 2 - deslocamento.x / escala;
       const origemY = imagem.naturalHeight / 2 - deslocamento.y / escala;
       const recorteLargura = dimensoes.largura / escala;
@@ -225,7 +223,6 @@ export function AjustadorImagem({
         </header>
 
         <div
-          ref={areaRef}
           className="relative mx-auto overflow-hidden rounded-xl bg-black touch-none select-none"
           style={{ width: "min(100%, 320px)", aspectRatio: String(proporcao) }}
           onPointerDown={iniciarPonteiro}
