@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { act, createElement } from "react";
 import { createRoot } from "react-dom/client";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { ForgotPasswordSheet } from "./ForgotPasswordSheet";
 
@@ -11,6 +11,11 @@ vi.mock("framer-motion", async (importOriginal) => {
 });
 
 (globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
+
+beforeEach(() => {
+  Object.defineProperty(window, "requestAnimationFrame", { configurable: true, value: () => 1 });
+  Object.defineProperty(window, "cancelAnimationFrame", { configurable: true, value: () => undefined });
+});
 
 let host: HTMLDivElement | null = null;
 let root: ReturnType<typeof createRoot> | null = null;
