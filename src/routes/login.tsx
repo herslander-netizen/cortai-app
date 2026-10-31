@@ -117,6 +117,7 @@ function LoginPage() {
   );
   const [aviso, setAviso] = useState<string | null>(null);
   const [enviando, setEnviando] = useState(false);
+  const [enviandoGoogle, setEnviandoGoogle] = useState(false);
   // A vitrine animada abre primeiro; quem chega para criar conta, com destino ou com erro de
   // sessão vai direto ao formulário.
   const [mostrarForm, setMostrarForm] = useState(
@@ -251,7 +252,7 @@ function LoginPage() {
 
   async function entrarCom(provedor: "google") {
     setErro(null);
-    setEnviando(true);
+    setEnviandoGoogle(true);
     try {
       const retorno = new URL("/entrar/retorno", window.location.origin);
       if (proximo && proximo.startsWith("/") && !proximo.startsWith("//"))
@@ -260,15 +261,15 @@ function LoginPage() {
         retorno: retorno.toString(),
       });
       if (resultado.error) {
-        setEnviando(false);
+        setEnviandoGoogle(false);
         falha(provedor, resultado.error);
         return;
       }
       if (resultado.redirected) return;
       await seguirParaMinhaArea();
-      setEnviando(false);
+      setEnviandoGoogle(false);
     } catch {
-      setEnviando(false);
+      setEnviandoGoogle(false);
       falha(provedor);
     }
   }
@@ -457,7 +458,7 @@ function LoginPage() {
                   type="button"
                   variant="outline"
                   className={botaoSocial}
-                  disabled={enviando}
+                  disabled={enviandoGoogle || enviando}
                   onClick={() => void entrarCom("google")}
                 >
                   <MarcaGoogle /> Continuar com o Google
