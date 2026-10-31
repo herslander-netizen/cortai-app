@@ -36,7 +36,9 @@ describe("navegação móvel", () => {
     expect(drawer).not.toContain("saudacao.titulo");
     expect(ajustes).toContain("Opções da conta");
     expect(ajustes).toContain("Plano");
-    expect(ajustes).toContain("Aparência do aplicativo");
+    // Aparência saiu de Ajustes e foi para o próprio menu, com os três modos em ícones (dono, 31/10).
+    expect(ajustes).not.toContain("Aparência do aplicativo");
+    expect(drawer).toContain("<AparenciaDoMenu");
     expect(ajustes).toContain("Sua Página");
     expect(ajustes).toContain('to: "/barbeiro/marca"');
     const pagina = readFileSync("src/routes/barbeiro.sua-pagina.tsx", "utf8");

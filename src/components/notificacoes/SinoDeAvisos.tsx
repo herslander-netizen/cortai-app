@@ -327,7 +327,7 @@ export function SinoDeAvisos() {
         size="icon"
         onClick={() => abrirCentralRef.current()}
         aria-label={rotuloDoSino(naoLidas, naoVistos)}
-        className={`sino-de-avisos relative h-12 w-12 shrink-0 overflow-visible rounded-full border-0 bg-transparent ${
+        className={`sino-de-avisos toque-afunda relative h-12 w-12 shrink-0 overflow-visible rounded-full border-0 bg-transparent ${
           // Sem não lidas, a cor dos ícones do Figaro; o calendário ao lado usa a mesma (dono, 30/10).
           forte ? "" : "text-[var(--figaro-on-surface,var(--paper))]"
         }`}

@@ -397,3 +397,34 @@ describe("modelo de gaveta (ficha da Agenda)", () => {
     expect(intervalo).not.toContain(">Cancelar<");
   });
 });
+
+describe("toque dos ícones do topo da Agenda e aparência no menu (dono, 31/10)", () => {
+  it("logo, calendário e sino afundam ao tocar, sem fundo quadrado", () => {
+    const css = readFileSync("src/styles.css", "utf8");
+    expect(css).toMatch(/\.toque-afunda:active \{\s*transform: scale\(0\.86\) translateY\(1px\);/);
+    for (const arquivo of [
+      "src/components/barbeiro/agenda/CabecalhoAgenda.tsx",
+      "src/components/notificacoes/SinoDeAvisos.tsx",
+      "src/components/layout/ManagementDrawer.tsx",
+    ])
+      expect(readFileSync(arquivo, "utf8")).toContain("toque-afunda");
+  });
+
+  it("aparência em três ícones no menu; a gaveta de Ajustes não tem mais a opção", () => {
+    const menu = readFileSync("src/components/layout/AparenciaDoMenu.tsx", "utf8");
+    expect(menu).toContain('role="radiogroup"');
+    expect(menu.match(/\{ id: "(claro|escuro|sistema)"/g)).toHaveLength(3);
+    expect(readFileSync("src/components/layout/DrawerAjustes.tsx", "utf8")).not.toContain(
+      "ThemeToggle",
+    );
+  });
+
+  it("intervalo sem 'Restaurar semanal' e com a pílula de salvar carregando → ✓", () => {
+    const intervalo = readFileSync(
+      "src/components/barbeiro/agenda/AjustarIntervaloSheet.tsx",
+      "utf8",
+    );
+    expect(intervalo).not.toContain("restaurar");
+    expect(intervalo).toContain("success={gravar.isSuccess}");
+  });
+});

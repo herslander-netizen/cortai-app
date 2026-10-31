@@ -293,7 +293,7 @@ export function CabecalhoAgenda({
       <Button
         variant="ghost"
         size="icon"
-        className="h-12 w-12 min-w-12 shrink-0 rounded-full bg-transparent text-[var(--figaro-on-surface,var(--paper))] transition-transform duration-[200ms] hover:bg-transparent hover:text-[var(--figaro-on-surface,var(--paper))] motion-reduce:transition-none"
+        className="toque-afunda h-12 w-12 min-w-12 shrink-0 rounded-full bg-transparent text-[var(--figaro-on-surface,var(--paper))] hover:bg-transparent hover:text-[var(--figaro-on-surface,var(--paper))] motion-reduce:transition-none"
         aria-label={
           modoBusca
             ? "Buscar atendimento"

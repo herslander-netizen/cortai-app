@@ -21,6 +21,7 @@ import { DrawerAjustes } from "@/components/layout/DrawerAjustes";
 import { DrawerDestaques } from "@/components/layout/DrawerDestaques";
 import { GruposDoMenu } from "@/components/layout/GruposDoMenu";
 import { ESTILO_DA_BARRA_NA_AGENDA } from "@/components/layout/barra-da-agenda";
+import { AparenciaDoMenu } from "@/components/layout/AparenciaDoMenu";
 import { CartaoSuporte } from "@/components/layout/CartaoSuporte";
 import { getSessao } from "@/lib/sessao.functions";
 import { getCapacidades } from "@/lib/capacidades.functions";
@@ -201,7 +202,7 @@ export function ManagementHeader() {
           <SheetTrigger asChild>
             <Button
               variant="ghost"
-              className="menu-cortai-trigger h-12 w-12 shrink-0 rounded-[8px] p-0 hover:bg-transparent"
+              className="menu-cortai-trigger toque-afunda h-12 w-12 shrink-0 rounded-full p-0 hover:bg-transparent"
               aria-label="Abrir navegação"
             >
               {logoUsavel ? (
@@ -250,12 +251,19 @@ export function ManagementHeader() {
                     <div className="min-w-0">
                       <SheetTitle
                         data-conta-nome=""
-                        className={sessao ? "line-clamp-2 break-words text-lg font-bold leading-6 tracking-normal text-paper" : "sr-only"}
+                        className={
+                          sessao
+                            ? "line-clamp-2 break-words text-lg font-bold leading-6 tracking-normal text-paper"
+                            : "sr-only"
+                        }
                       >
                         {sessao?.tenantNome ?? "Menu"}
                       </SheetTitle>
                       {sessao ? (
-                        <SheetDescription data-conta-papel="" className="mt-0.5 truncate text-[13px] leading-[18px] text-mute">
+                        <SheetDescription
+                          data-conta-papel=""
+                          className="mt-0.5 truncate text-[13px] leading-[18px] text-mute"
+                        >
                           {sessao.nome ?? "Equipe"} · {rotuloDoPapel(sessao.papelNaEquipe)}
                         </SheetDescription>
                       ) : (
@@ -301,6 +309,7 @@ export function ManagementHeader() {
                   onAlternar={alternar}
                   onNavegar={() => setAberto(false)}
                 />
+                <AparenciaDoMenu identidade={sessao?.identidadeApp} />
                 <CartaoSuporte />
               </nav>
             </div>

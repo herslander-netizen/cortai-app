@@ -8,7 +8,6 @@ import {
   CreditCard,
   Eye,
   LogOut,
-  Palette,
   Repeat,
   Settings,
   Share2,
@@ -37,7 +36,6 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { sair } from "@/lib/guarda";
 
 type Props = {
@@ -110,7 +108,6 @@ export function DrawerAjustes({
   fecharDrawer,
 }: Props) {
   const [aberto, setAberto] = useState(false);
-  const [aparenciaAberta, setAparenciaAberta] = useState(false);
   const gatilhoRef = useRef<HTMLButtonElement | null>(null);
 
   function navegar() {
@@ -144,139 +141,107 @@ export function DrawerAjustes({
         <div className="shrink-0 pb-4">
           <SheetTitle className="text-xl text-paper">Ajustes</SheetTitle>
           <SheetDescription className="mt-1 text-sm text-mute">
-            Conta, aparência e preferências do aplicativo.
+            Conta e preferências do aplicativo. A aparência fica no menu.
           </SheetDescription>
         </div>
 
         <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain pb-[calc(1rem+env(safe-area-inset-bottom))]">
           <div className="mt-1 space-y-1.5">
-          {ITENS.slice(0, 3).map((item) => {
-            const Icon = item.icon;
-            return (
-              <Button key={item.label} asChild variant="ghost" size="bloco" className={CARTAO}>
-                <Link to={item.to} onClick={navegar}>
-                  <span className={LINHA}>
-                    <IconeDoMenu icone={Icon} />
-                    <span className="min-w-0">
-                      <span className="block truncate text-base font-semibold text-paper">
-                        {item.label}
+            {ITENS.slice(0, 3).map((item) => {
+              const Icon = item.icon;
+              return (
+                <Button key={item.label} asChild variant="ghost" size="bloco" className={CARTAO}>
+                  <Link to={item.to} onClick={navegar}>
+                    <span className={LINHA}>
+                      <IconeDoMenu icone={Icon} />
+                      <span className="min-w-0">
+                        <span className="block truncate text-base font-semibold text-paper">
+                          {item.label}
+                        </span>
+                        <span className="mt-0.5 block truncate text-xs font-normal text-mute">
+                          {item.detalhe}
+                        </span>
                       </span>
-                      <span className="mt-0.5 block truncate text-xs font-normal text-mute">
-                        {item.detalhe}
-                      </span>
+                      <ChevronRight className="size-5 text-mute2" aria-hidden />
                     </span>
-                    <ChevronRight className="size-5 text-mute2" aria-hidden />
-                  </span>
-                </Link>
-              </Button>
-            );
-          })}
+                  </Link>
+                </Button>
+              );
+            })}
 
-          <Button
-            type="button"
-            variant="ghost"
-            size="bloco"
-            aria-expanded={aparenciaAberta}
-            onClick={() => setAparenciaAberta((valor) => !valor)}
-            className={CARTAO}
-          >
-            <span className={LINHA}>
-              <IconeDoMenu icone={Palette} />
-              <span className="min-w-0">
-                <span className="block truncate text-base font-semibold text-paper">Aparência do aplicativo</span>
-                <span className="mt-0.5 block truncate text-xs font-normal text-mute">
-                  Tema, modo de exibição e identidade do painel
-                </span>
-              </span>
-              <ChevronRight
-                className={`size-5 text-mute2 transition-transform duration-[120ms] motion-reduce:transition-none ${aparenciaAberta ? "rotate-90" : ""}`}
-                aria-hidden
-              />
-            </span>
-          </Button>
-          {aparenciaAberta ? (
-            <div className="rounded-[18px] border border-drawer-borda bg-drawer-card px-4 animate-in fade-in-0 duration-[120ms] motion-reduce:animate-none">
-              <ThemeToggle
-                identidadeDaBarbearia={identidade}
-                tenantId={tenantId}
-                podeAlterarIdentidade={podeAlterarIdentidade}
-              />
-            </div>
-          ) : null}
-
-          {ITENS.slice(3).map((item) => {
-            const Icon = item.icon;
-            return (
-              <Button key={item.label} asChild variant="ghost" size="bloco" className={CARTAO}>
-                <Link to={item.to} onClick={navegar}>
-                  <span className={LINHA}>
-                    <IconeDoMenu icone={Icon} />
-                    <span className="min-w-0">
-                      <span className="block truncate text-base font-semibold text-paper">
-                        {item.label}
+            {ITENS.slice(3).map((item) => {
+              const Icon = item.icon;
+              return (
+                <Button key={item.label} asChild variant="ghost" size="bloco" className={CARTAO}>
+                  <Link to={item.to} onClick={navegar}>
+                    <span className={LINHA}>
+                      <IconeDoMenu icone={Icon} />
+                      <span className="min-w-0">
+                        <span className="block truncate text-base font-semibold text-paper">
+                          {item.label}
+                        </span>
+                        <span className="mt-0.5 block truncate text-xs font-normal text-mute">
+                          {item.detalhe}
+                        </span>
                       </span>
-                      <span className="mt-0.5 block truncate text-xs font-normal text-mute">
-                        {item.detalhe}
-                      </span>
+                      <ChevronRight className="size-5 text-mute2" aria-hidden />
                     </span>
-                    <ChevronRight className="size-5 text-mute2" aria-hidden />
-                  </span>
-                </Link>
-              </Button>
-            );
-          })}
+                  </Link>
+                </Button>
+              );
+            })}
 
-          <Button asChild variant="ghost" size="bloco" className={CARTAO}>
-            <Link to="/escolher" onClick={navegar}>
-              <span className={LINHA}>
-                <IconeDoMenu icone={Repeat} />
-                <span className="min-w-0">
-                  <span className="block truncate text-base font-semibold text-paper">
-                    Trocar de perfil
+            <Button asChild variant="ghost" size="bloco" className={CARTAO}>
+              <Link to="/escolher" onClick={navegar}>
+                <span className={LINHA}>
+                  <IconeDoMenu icone={Repeat} />
+                  <span className="min-w-0">
+                    <span className="block truncate text-base font-semibold text-paper">
+                      Trocar de perfil
+                    </span>
+                    <span className="mt-0.5 block truncate text-xs font-normal text-mute">
+                      Cliente ou negócio, sem sair da conta
+                    </span>
                   </span>
-                  <span className="mt-0.5 block truncate text-xs font-normal text-mute">
-                    Cliente ou negócio, sem sair da conta
-                  </span>
+                  <ChevronRight className="size-5 text-mute2" aria-hidden />
                 </span>
-                <ChevronRight className="size-5 text-mute2" aria-hidden />
-              </span>
-            </Link>
-          </Button>
+              </Link>
+            </Button>
 
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button
-                variant="ghost"
-                size="bloco"
-                className={`${CARTAO} text-brick hover:bg-brick-soft`}
-              >
-                <span className="flex w-full items-center gap-3">
-                  <LogOut className="size-6" aria-hidden />
-                  <span className="text-base font-semibold">Sair da conta</span>
-                </span>
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent
-              overlayClassName="z-[80]"
-              className="z-[80] w-[calc(100%-2rem)] rounded-[20px] border-line bg-ink3"
-            >
-              <AlertDialogHeader>
-                <AlertDialogTitle>Sair da conta?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  Você precisará entrar novamente para acessar o seu negócio.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Continuar conectado</AlertDialogCancel>
-                <AlertDialogAction
-                  onClick={() => void sair()}
-                  className="bg-destructive text-destructive-foreground"
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="bloco"
+                  className={`${CARTAO} text-brick hover:bg-brick-soft`}
                 >
-                  Sair
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
+                  <span className="flex w-full items-center gap-3">
+                    <LogOut className="size-6" aria-hidden />
+                    <span className="text-base font-semibold">Sair da conta</span>
+                  </span>
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent
+                overlayClassName="z-[80]"
+                className="z-[80] w-[calc(100%-2rem)] rounded-[20px] border-line bg-ink3"
+              >
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Sair da conta?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Você precisará entrar novamente para acessar o seu negócio.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Continuar conectado</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={() => void sair()}
+                    className="bg-destructive text-destructive-foreground"
+                  >
+                    Sair
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </div>
         </div>
       </SheetContent>

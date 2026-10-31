@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Check, Clock3, RotateCcw } from "lucide-react";
+import { Check, Clock3 } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
 import { SeletorDeHorario } from "@/components/ui/seletor-de-horario";
 import {
   AcaoDaFolha,
@@ -16,10 +15,7 @@ import {
 import { aviso } from "@/lib/avisos";
 import { diaDaSemanaDoDia, hojeNoFuso } from "@/lib/horarios";
 import type { AgendaDia } from "@/lib/barbeiro.functions";
-import {
-  restaurarIntervaloAgendaDia,
-  salvarIntervaloAgendaDia,
-} from "@/lib/intervalos-agenda.functions";
+import { salvarIntervaloAgendaDia } from "@/lib/intervalos-agenda.functions";
 
 import { dataEditorial } from "./tempo";
 
@@ -52,7 +48,6 @@ export function AjustarIntervaloSheet({
 }) {
   const qc = useQueryClient();
   const salvarFn = useServerFn(salvarIntervaloAgendaDia);
-  const restaurarFn = useServerFn(restaurarIntervaloAgendaDia);
   const hoje = hojeNoFuso(fuso);
   const horario = horarios.find((h) => h.diaSemana === diaDaSemanaDoDia(dia) && !h.fechado);
   const semanal =
@@ -66,6 +61,8 @@ export function AjustarIntervaloSheet({
 
   useEffect(() => {
     if (!aberto) return;
+    // Reabrir começa do zero: o ✓ do último salvamento não fica marcado nem trava o botão.
+    gravar.reset();
     setInicio(atual?.inicio ?? "12:00");
     setFim(atual?.fim ?? "13:00");
     setRelogio(null);
@@ -84,21 +81,10 @@ export function AjustarIntervaloSheet({
       void qc.invalidateQueries({ queryKey: ["agenda-dia", dia] });
       void qc.invalidateQueries({ queryKey: ["agenda-periodo"] });
       aviso.ok("Intervalo atualizado somente para este dia.");
-      onAberto(false);
+      window.setTimeout(() => onAberto(false), 700);
     },
     onError: (erro) =>
       aviso.erro(erro instanceof Error ? erro.message : "Não foi possível salvar o intervalo."),
-  });
-  const restaurar = useMutation({
-    mutationFn: () => restaurarFn({ data: { dia } }),
-    onSuccess: () => {
-      void qc.invalidateQueries({ queryKey: ["agenda-dia", dia] });
-      void qc.invalidateQueries({ queryKey: ["agenda-periodo"] });
-      aviso.ok("Intervalo semanal restaurado para este dia.");
-      onAberto(false);
-    },
-    onError: (erro) =>
-      aviso.erro(erro instanceof Error ? erro.message : "Não foi possível restaurar o intervalo."),
   });
 
   const dentroDoExpediente = (() => {
@@ -119,7 +105,7 @@ export function AjustarIntervaloSheet({
     return v;
   })();
   const invalido = !horario || !dentroDoExpediente || !duracao || dia < hoje;
-  const ocupado = gravar.isPending || restaurar.isPending;
+  const ocupado = gravar.isPending || gravar.isSuccess;
 
   // Modelo padrão de gaveta (ficha da Agenda; dono, 31/10). Um controle por função: cada horário muda pelo relógio,
   // a duração é só o resultado. Saíram os "−15/+15" de início e fim e o "Diminuir/Aumentar 15 min" da duração,
@@ -140,28 +126,19 @@ export function AjustarIntervaloSheet({
           </p>
         }
         rodape={
-          <>
-            {intervaloPersonalizado ? (
-              <Button
-                type="button"
-                variant="text"
-                className="mr-auto"
-                disabled={ocupado || dia < hoje}
-                onClick={() => restaurar.mutate()}
-              >
-                <RotateCcw aria-hidden /> Restaurar semanal
-              </Button>
-            ) : null}
-            <AcaoDaFolha
-              type="button"
-              loading={gravar.isPending}
-              disabled={invalido || ocupado}
-              onClick={() => gravar.mutate()}
-            >
-              <Check aria-hidden />
-              Salvar intervalo
-            </AcaoDaFolha>
-          </>
+          // Pílula de largura inteira com carregando → ✓ (700 ms) e só então fecha (padrão Figaro do botão de
+          // salvar). "Restaurar semanal" saiu (dono, 31/10).
+          <AcaoDaFolha
+            type="button"
+            className="w-full"
+            loading={gravar.isPending}
+            success={gravar.isSuccess}
+            disabled={invalido || ocupado}
+            onClick={() => gravar.mutate()}
+          >
+            <Check aria-hidden />
+            Salvar intervalo
+          </AcaoDaFolha>
         }
       >
         <SecaoDaFolha titulo="Horário" />

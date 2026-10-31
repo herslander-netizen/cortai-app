@@ -11438,3 +11438,24 @@ html:not([data-tela-agenda]) [data-figaro-empty-state]:not(:first-child) {
 .light .agenda-botao-agora-principal {
   background: var(--figaro-surface-container-low, var(--ink2));
 }
+
+/* Toque dos ícones do topo da Agenda (dono, 31/10: "tem efeito de um quadrado"): sem fundo nem destaque do sistema;
+   o ícone afunda (86 % e 1 px para baixo) e volta com a mola de toque do app. Sem movimento reduzido, fica parado. */
+.toque-afunda {
+  -webkit-tap-highlight-color: transparent;
+  transition: transform var(--mola-toque-duracao) var(--mola-toque);
+}
+.toque-afunda:hover,
+.toque-afunda:active,
+.toque-afunda[data-state="open"] {
+  background: transparent !important;
+}
+.toque-afunda:active {
+  transform: scale(0.86) translateY(1px);
+}
+@media (prefers-reduced-motion: reduce) {
+  .toque-afunda:active {
+    transform: none;
+    opacity: 0.7;
+  }
+}
