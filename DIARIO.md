@@ -543,7 +543,7 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Em andamento
 
-- GPT | 2026-10-31 UTC | Refinar minuciosamente a tela de entrada Flow após capturas do Android: impedir vazamento do mockup sobre a legenda, corrigir contraste nos demos no tema claro, organizar proporções/ritmo vertical e estados acessíveis; preservar autenticação, cadastro e acesso de cliente | `src/routes/login.tsx`, `src/components/entrada/SequenciaDaEntrada.tsx`, `src/components/entrada/DemosDaEntrada.tsx`, testes da entrada; **não alterar `src/styles.css` nem Agenda**
+
 
 
 
@@ -895,6 +895,15 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+
+### 2026-10-31 UTC — GPT — Refinamento minucioso da entrada Flow (prévia publicada)
+- Commits de código: `3b12d9d` (cartão, demonstrações e navegação acessível), `7179d3e` (tipo ReactNode explícito), `15d0782` (teste de contraste corrigido). Reserva iniciada em `5a9b1dc`.
+- O que mudou: a demonstração e a legenda agora ficam em áreas separadas com recorte explícito, proporção compacta e tokens Figaro; os cinco passos usam tabs acessíveis com setas/Home/End; o avanço automático pausa com foco, ponteiro, aba oculta e preferência por movimento reduzido. As demos usam cores pareadas de primeiro plano/fundo e escalas menores para caber no cartão. CTA de cadastro reforçado para 56 px e link de cliente com alvo mínimo de 48 px. Fluxos de autenticação e cadastro preservados.
+- Arquivos: `src/routes/login.tsx`, `src/components/entrada/SequenciaDaEntrada.tsx`, `src/components/entrada/DemosDaEntrada.tsx`, `src/components/entrada/SequenciaDaEntrada.test.tsx`.
+- Validação GitHub Actions `41218954188`, commit `15d07823343c0ec6e93459e8e195fe2564e50d6c`: `bun install --frozen-lockfile` (815 pacotes), TypeScript, build e Vitest passaram; 278 arquivos de teste, 2.310 testes aprovados e 1 ignorado. Deploy isolado da prévia e smoke test passaram.
+- Limites: ESLint não foi executado (não há etapa de lint no workflow e não houve terminal local nesta sessão). Conferência visual manual em 360/390 px, claro/escuro e dispositivo real ainda pendente. Sem alterações em `src/styles.css`, Agenda, banco, regras de autenticação, site principal ou DNS.
+- Banco/infra: nada alterado; nenhuma publicação em produção.
+- Reserva concluída e removida de "Em andamento".
 
 ### 2026-10-31 UTC — GPT — Entrada Flow clara, ondas suaves e layout móvel compacto
 - A tela /login agora usa fundo claro, marca Flow escura com ponto rosa, ondas translúcidas em azul/violeta/rosa com movimento lento e respeito a prefers-reduced-motion. A sequência mantém as cinco demonstrações automáticas, os cinco seletores e o acesso para criar conta, entrar ou seguir como cliente.
