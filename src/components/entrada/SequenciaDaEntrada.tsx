@@ -254,7 +254,7 @@ export function SequenciaDaEntrada() {
               aria-selected={ativa}
               aria-controls={idDoPainel}
               tabIndex={ativa ? 0 : -1}
-              className="entrada-chip relative shrink-0 overflow-hidden"
+              className="entrada-chip relative shrink-0 overflow-hidden rounded-full"
               style={{ flex: "0 0 48px", width: 48, height: 48, minWidth: 48, minHeight: 48, color: ativa ? "var(--figaro-on-primary-container)" : "var(--figaro-on-surface-variant)" }}
               onClick={() => trocarEtapa(i)}
               onKeyDown={(event) => navegarPelasAbas(event, i)}
