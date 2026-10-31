@@ -1650,7 +1650,8 @@ html.light .brand-logo-on-light,
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  background: var(--surface-overlay);
+  /* Película do Figaro (Material 3): preto a 32 % nos dois temas (dono, 31/10: "escurecer o fundo"). */
+  background: rgb(0 0 0 / 0.32);
 }
 .agenda-folha-conteudo {
   width: 100%;
