@@ -1,0 +1,160 @@
+name: Gerar APK Android de homologação
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - cloudflare-workers-migration-2026-10-13
+    paths:
+      - capacitor.config.json
+      - .github/workflows/android-preview-apk.yml
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: flow-android-preview-apk
+  cancel-in-progress: true
+
+jobs:
+  build-apk:
+    name: Compilar APK do Flow para teste
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - name: Checkout da branch de migração
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+
+      - name: Confirmar que a prévia está isolada
+        shell: bash
+        env:
+          PREVIEW_SUPABASE_URL: ${{ secrets.PREVIEW_SUPABASE_URL }}
+          PREVIEW_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.PREVIEW_SUPABASE_PUBLISHABLE_KEY }}
+        run: |
+          set -euo pipefail
+          url="${PREVIEW_SUPABASE_URL%/}"
+          if [[ -z "$url" || -z "$PREVIEW_SUPABASE_PUBLISHABLE_KEY" ]]; then
+            echo "::error::As credenciais publicáveis do Supabase de teste não estão configuradas."
+            exit 1
+          fi
+          if [[ "$url" != "https://pfkxvindedkuktogbcsv.supabase.co" ]]; then
+            echo "::error::O APK só pode ser compilado com o projeto isolado cortai-preview (pfkxvindedkuktogbcsv)."
+            exit 1
+          fi
+          if [[ "$url" == *"ibsberidejlbczxrweqg"* || "$PREVIEW_SUPABASE_PUBLISHABLE_KEY" == sb_secret_* ]]; then
+            echo "::error::Configuração insegura: produção ou chave secreta detectada."
+            exit 1
+          fi
+          echo "OK: build web configurado para o Supabase isolado cortai-preview."
+
+      - name: Aguardar a publicação da prévia deste commit
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+          BRANCH: cloudflare-workers-migration-2026-10-13
+          COMMIT: ${{ github.sha }}
+          PREVIEW_URL: https://previa.cortaiapp.pages.dev
+        shell: bash
+        run: |
+          set -euo pipefail
+          api="repos/$REPOSITORY/actions/workflows/preview-migration.yml/runs?branch=$BRANCH&per_page=30"
+          for tentativa in $(seq 1 90); do
+            runs="$(gh api "$api")"
+            run="$(jq -c --arg sha "$COMMIT" '[.workflow_runs[] | select(.head_sha == $sha and .event == "push") ] | first // empty' <<< "$runs")"
+            if [[ -n "$run" ]]; then
+              run_id="$(jq -r '.id' <<< "$run")"
+              status="$(jq -r '.status' <<< "$run")"
+              conclusion="$(jq -r '.conclusion // ""' <<< "$run")"
+              if [[ "$status" == "completed" && "$conclusion" != "success" ]]; then
+                echo "::error::A validação/publicação da prévia falhou (run $run_id; $conclusion)."
+                exit 1
+              fi
+              if [[ "$status" == "completed" && "$conclusion" == "success" ]]; then
+                marcador="$(curl -fsS --connect-timeout 5 --max-time 15 "${PREVIEW_URL%/}/__deploy-check-${run_id}.json" 2>/dev/null || true)"
+                if [[ -n "$marcador" ]] && jq -e --arg sha "$COMMIT" --arg id "$run_id" '.commit == $sha and .run_id == $id' <<< "$marcador" >/dev/null; then
+                  echo "OK: a prévia publicada serve exatamente o commit $COMMIT (run $run_id)."
+                  exit 0
+                fi
+              fi
+            fi
+            echo "Aguardando a prévia deste commit (tentativa $tentativa/90)..."
+            sleep 10
+          done
+          echo "::error::A prévia não confirmou a publicação do commit $COMMIT dentro do prazo."
+          exit 1
+
+      - name: Configurar Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Configurar Node.js para o Capacitor
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Instalar dependências do Flow
+        run: bun install --frozen-lockfile
+
+      - name: Instalar Capacitor e gerador de ícones (somente no runner)
+        run: npm install --no-save --no-package-lock --legacy-peer-deps @capacitor/core@8.6.0 @capacitor/cli@8.6.0 @capacitor/android@8.6.0 @capacitor/assets@3.0.5
+
+      - name: Compilar os recursos web com as credenciais de teste
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.PREVIEW_SUPABASE_URL }}
+          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.PREVIEW_SUPABASE_PUBLISHABLE_KEY }}
+          VITE_CORTAI_PUBLIC_URL: https://previa.cortaiapp.pages.dev
+          CORTAI_BUILD_ID: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          VITE_SUPABASE_URL="$(printf '%s' "$VITE_SUPABASE_URL" | tr -d '\r\n ' | sed -E 's#/(rest|auth)/v1/?$##; s#/$##')"
+          export VITE_SUPABASE_URL
+          bunx vite build
+          test -d dist/client
+
+      - name: Configurar Android SDK e Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Instalar Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Adicionar plataforma Android
+        run: npx cap add android
+
+      - name: Gerar ícones e tela de abertura oficiais do Flow
+        run: |
+          set -euo pipefail
+          mkdir -p assets
+          cp public/marca/flow/flow-icone-v2.svg assets/icon.svg
+          npx capacitor-assets generate --android --iconBackgroundColor "#ffffff" --splashBackgroundColor "#121212"
+
+      - name: Sincronizar o projeto Android
+        run: npx cap sync android
+
+      - name: Compilar APK de depuração instalável
+        run: |
+          set -euo pipefail
+          cd android
+          chmod +x gradlew
+          ./gradlew --no-daemon assembleDebug
+          mkdir -p ../artifacts
+          cp app/build/outputs/apk/debug/app-debug.apk "../artifacts/Flow-Teste-${GITHUB_SHA:0:7}.apk"
+          cd ..
+          "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --verbose "artifacts/Flow-Teste-${GITHUB_SHA:0:7}.apk"
+          sha256sum "artifacts/Flow-Teste-${GITHUB_SHA:0:7}.apk" > artifacts/SHA256SUMS.txt
+
+      - name: Disponibilizar APK para baixar
+        uses: actions/upload-artifact@v4
+        with:
+          name: flow-android-preview-apk
+          path: |
+            artifacts/*.apk
+            artifacts/SHA256SUMS.txt
+          if-no-files-found: error
+          retention-days: 30
