@@ -545,6 +545,8 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Em andamento
 
+- GPT | 2026-10-31 UTC | Aplicar a referência enviada à recuperação de senha: experiência em tela cheia, seis campos e ação inferior fixa, mantendo o motor atual de envio/verificação e as rotas existentes; sem alteração de banco, provedor ou produção | `src/components/auth/ForgotPasswordSheet.tsx`, `src/components/auth/AccessCodeInput.tsx` e testes relacionados; sem migração
+
 
 
 
