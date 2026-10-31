@@ -1,6 +1,7 @@
 import { useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { MOLA } from "@/lib/movimento-figaro";
+import { SwipeableShowcase } from "@/components/auth/SwipeableShowcase";
 import {
   CalendarDays,
   CreditCard,
