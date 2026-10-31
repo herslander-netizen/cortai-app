@@ -3,9 +3,10 @@ import { motion, useReducedMotion } from "framer-motion";
 import {
   CalendarDays,
   Clock3,
-  CreditCard,
+  ChartNoAxesCombined,
   Globe,
   MessageCircle,
+  Star,
   type LucideIcon,
 } from "lucide-react";
 
@@ -16,7 +17,8 @@ import { MOLA } from "@/lib/movimento-figaro";
 import {
   DemoAgendamento,
   DemoAgenda,
-  DemoCaixa,
+  DemoAvaliacoes,
+  DemoDesempenho,
   DemoSite,
   DemoWhatsApp,
 } from "@/components/entrada/DemosDaEntrada";
@@ -38,12 +40,12 @@ export const PASSOS_DA_ENTRADA: {
     demo: <DemoSite />,
   },
   {
-    id: "agendamento",
-    icone: Clock3,
-    rotulo: "AUTONOMIA",
-    titulo: "Cliente agenda rápido sozinho",
-    texto: "Sem cadastros chatos: o cliente escolhe o profissional, o horário e confirma.",
-    demo: <DemoAgendamento />,
+    id: "agenda",
+    icone: CalendarDays,
+    rotulo: "AGENDA",
+    titulo: "Sua rotina organizada",
+    texto: "Visualize os horários, os profissionais e os próximos atendimentos.",
+    demo: <DemoAgenda />,
   },
   {
     id: "whatsapp",
@@ -54,20 +56,20 @@ export const PASSOS_DA_ENTRADA: {
     demo: <DemoWhatsApp />,
   },
   {
-    id: "agenda",
-    icone: CalendarDays,
-    rotulo: "AGENDA",
-    titulo: "Controle total do seu dia",
-    texto: "Timeline em tempo real com modo foco e contagem regressiva para cada cliente.",
-    demo: <DemoAgenda />,
+    id: "avaliacoes",
+    icone: Star,
+    rotulo: "AVALIAÇÕES",
+    titulo: "A confiança aparece",
+    texto: "Acompanhe as avaliações e veja o que seus clientes dizem do atendimento.",
+    demo: <DemoAvaliacoes />,
   },
   {
-    id: "caixa",
-    icone: CreditCard,
-    rotulo: "CAIXA & PIX",
-    titulo: "Pagamentos e caixa sem estresse",
-    texto: "Comandas integradas à agenda com Pix instantâneo e conciliação fácil.",
-    demo: <DemoCaixa />,
+    id: "desempenho",
+    icone: ChartNoAxesCombined,
+    rotulo: "DESEMPENHO",
+    titulo: "Seu negócio em números",
+    texto: "Acompanhe os indicadores e ajuste as configurações do seu negócio.",
+    demo: <DemoDesempenho />,
   },
 ];
 
@@ -193,20 +195,6 @@ export function SequenciaDaEntrada() {
             overflow: "hidden",
           }}
         >
-          <div className="flex shrink-0 items-center gap-1.5 px-3 pt-3" aria-label="Progresso da apresentação">
-            {PASSOS_DA_ENTRADA.map((cena, i) => (
-              <div key={cena.id} className="h-1 min-w-0 flex-1 overflow-hidden rounded-full" style={{ background: "color-mix(in oklab, var(--figaro-on-surface) 16%, transparent)" }}>
-                <div
-                  className="h-full rounded-full"
-                  style={{
-                    width: i < indice ? "100%" : i === indice ? `${progresso}%` : "0%",
-                    background: "var(--figaro-tertiary)",
-                    transition: "width 50ms linear",
-                  }}
-                />
-              </div>
-            ))}
-          </div>
           <motion.div
             key={passo.id}
             className="entrada-cartao-demo"
@@ -255,19 +243,12 @@ export function SequenciaDaEntrada() {
               aria-controls={idDoPainel}
               tabIndex={ativa ? 0 : -1}
               className="entrada-chip relative shrink-0 overflow-hidden rounded-full"
-              style={{ flex: "0 0 48px", width: 48, height: 48, minWidth: 48, minHeight: 48, color: ativa ? "var(--figaro-on-primary-container)" : "var(--figaro-on-surface-variant)" }}
+              style={{ flex: "0 0 48px", width: 48, height: 48, minWidth: 48, minHeight: 48, color: ativa ? "var(--figaro-tertiary)" : "var(--figaro-on-surface-variant)" }}
               onClick={() => trocarEtapa(i)}
               onKeyDown={(event) => navegarPelasAbas(event, i)}
             >
-              {ativa ? (
-                <motion.span
-                  layoutId="activeDockPill"
-                  className="absolute inset-0 rounded-full"
-                  style={{ background: "var(--figaro-primary-container)", border: "1px solid var(--figaro-primary)" }}
-                  transition={MOLA.padraoEspacial}
-                />
-              ) : null}
               <Icone className="relative z-10 size-5" aria-hidden="true" />
+              <span aria-hidden="true" className="absolute bottom-0 left-1/2 h-[3px] w-5 -translate-x-1/2 rounded-full" style={{ background: ativa ? "var(--figaro-tertiary)" : "transparent", transition: "background 180ms ease" }} />
             </Button>
           );
         })}
