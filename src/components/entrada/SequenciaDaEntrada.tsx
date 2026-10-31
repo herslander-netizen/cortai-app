@@ -1,5 +1,6 @@
 import { useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
-import { useReducedMotion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
+import { MOLA } from "@/lib/movimento-figaro";
 import {
   Bell,
   CalendarDays,
@@ -173,17 +174,21 @@ export function SequenciaDaEntrada() {
           overflow: "hidden",
         }}
       >
-        <div
+        <motion.div
           key={passo.id}
           className="entrada-cartao-demo"
+          initial={reduzirMovimento ? { opacity: 0 } : { opacity: 0, y: 8, scale: 0.98 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={reduzirMovimento ? { duration: 0.15 } : MOLA.padraoEspacial}
           style={{
             flex: "1 1 0",
             minHeight: 0,
             overflow: "hidden",
+            animation: "none",
           }}
         >
           {passo.demo}
-        </div>
+        </motion.div>
         <div
           className="entrada-cartao-divisor"
           aria-hidden
@@ -192,10 +197,13 @@ export function SequenciaDaEntrada() {
             background: "linear-gradient(90deg, var(--figaro-primary), var(--figaro-tertiary))",
           }}
         />
-        <div
+        <motion.div
           key={`${passo.id}-legenda`}
           className="entrada-cartao-legenda"
-          style={{ minHeight: 104, flexShrink: 0, padding: "13px 18px 17px" }}
+          initial={reduzirMovimento ? { opacity: 0 } : { opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={reduzirMovimento ? { duration: 0.15 } : MOLA.padraoEspacial}
+          style={{ minHeight: 104, flexShrink: 0, padding: "13px 18px 17px", animation: "none" }}
         >
           <p
             aria-hidden="true"
@@ -223,7 +231,7 @@ export function SequenciaDaEntrada() {
           >
             {passo.texto}
           </p>
-        </div>
+        </motion.div>
       </Card>
 
       <div
