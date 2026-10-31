@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type CSSProperties, type FormEvent } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Mail, X } from "lucide-react";
 
@@ -156,6 +156,12 @@ export function ForgotPasswordSheet({
           exit={{ opacity: 0 }}
           transition={{ duration: reducedMotion ? 0.12 : 0.2 }}
           className="auth-screen fixed inset-0 z-[60] flex min-h-[100dvh] w-full flex-col overflow-y-auto bg-[var(--figaro-surface)] text-[var(--figaro-on-surface)]"
+          style={{
+            "--campo-fundo": "var(--figaro-surface-container-highest)",
+            "--paper": "var(--figaro-on-surface)",
+            "--mute": "var(--figaro-on-surface-variant)",
+            "--mute2": "var(--figaro-on-surface-variant)",
+          } as CSSProperties}
         >
           <div className="mx-auto flex min-h-[100dvh] w-full max-w-[480px] flex-1 flex-col px-5 pt-[calc(24px+env(safe-area-inset-top))]">
             <button
