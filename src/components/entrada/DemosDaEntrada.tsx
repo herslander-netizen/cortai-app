@@ -83,6 +83,17 @@ export function DemoSite() {
           <b className="block text-sm">Seu próximo atendimento começa aqui</b>
           <p className="mt-1 text-[10px] leading-relaxed" style={suave}>Conheça os serviços, veja os detalhes e escolha seu melhor horário.</p>
         </div>
+        <div className="rounded-xl p-3" style={cartao}>
+          <div className="mb-2 flex items-center justify-between"><b className="text-[10px]">Nossa equipe</b><span style={suave}>Ver todos</span></div>
+          <div className="flex gap-3">
+            {["LM", "RC", "DA"].map((iniciais, i) => (
+              <div key={iniciais} className="flex flex-1 flex-col items-center gap-1">
+                <span className="grid size-8 place-items-center rounded-full text-[10px] font-bold" style={{ background: i === 0 ? "var(--figaro-primary-container)" : "color-mix(in oklab, var(--figaro-tertiary) 18%, transparent)", color: "var(--figaro-on-primary)" }}>{iniciais}</span>
+                <span className="text-[9px]" style={suave}>{["Lucas","Rafael","Diego"][i]}</span>
+              </div>
+            ))}
+          </div>
+        </div>
         <div className="space-y-2">
           <p className="text-[10px] font-bold uppercase tracking-wider" style={suave}>Serviços em destaque</p>
           <div className="flex items-center justify-between gap-2 rounded-xl p-2.5" style={cartao}>
@@ -169,7 +180,11 @@ export function DemoAgenda() {
   return (
     <Aparelho nome="Agenda do Flow com timeline em tempo real e modo foco">
       <div className="w-full max-w-[280px] space-y-3">
-        <CabecalhoDemo icone={CalendarDays} titulo="Terça-feira · Hoje" detalhe="3 atendimentos restantes" />
+        <CabecalhoDemo icone={CalendarDays} titulo="Agosto, 2026" detalhe="Agenda da equipe" />
+        <div className="grid grid-cols-7 gap-1 text-center">
+          {["D","S","T","Q","Q","S","S"].map((dia, i) => <span key={dia + i} className="text-[9px]" style={suave}>{dia}</span>)}
+          {["27","28","29","30","31","1","2"].map((dia, i) => <span key={dia} className="grid h-7 place-items-center rounded-lg text-[10px]" style={i === 2 ? { background: "var(--figaro-tertiary)", color: "var(--figaro-on-tertiary)" } : { background: "color-mix(in oklab, var(--figaro-on-primary) 8%, transparent)" }}>{dia}</span>)}
+        </div>
         <div className="space-y-2">
           <motion.div
             initial={reduzir ? false : { opacity: 0, y: 6 }}
