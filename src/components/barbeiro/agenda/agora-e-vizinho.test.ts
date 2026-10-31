@@ -30,4 +30,13 @@ describe("linha agora, pontos e dia vizinho no padrão do Figaro (vídeo e fotos
       "mostrarProfissional={!profFiltro && profissionais.length > 1}\n        />\n      ) : undefined,",
     );
   });
+
+  it("lista com as cores de texto do Figaro: secundário em onSurfaceVariant só no escuro (contraste no claro)", () => {
+    expect(css).toMatch(
+      /:root:not\(\.light\) \.agenda-lista-cartao \.agenda-lista-servico,[\s\S]*?color: var\(--figaro-on-surface-variant, var\(--mute\)\);/,
+    );
+    expect(css).toMatch(
+      /\.agenda-lista-cartao-topo\.agenda-lista-cartao-topo strong \{\s*color: var\(--figaro-on-surface, var\(--paper\)\);/,
+    );
+  });
 });
