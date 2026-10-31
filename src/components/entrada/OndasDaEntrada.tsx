@@ -23,12 +23,12 @@ export function OndasDaEntrada() {
         <linearGradient id={`${id}-superior`} x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" stopColor="var(--figaro-secondary)" stopOpacity="0.6" />
           <stop offset="52%" stopColor="var(--figaro-primary)" stopOpacity="0.42" />
-          <stop offset="100%" stopColor="var(--flow-rosa, #f48fb1)" stopOpacity="0.3" />
+          <stop offset="100%" stopColor="var(--figaro-tertiary)" stopOpacity="0.3" />
         </linearGradient>
         <linearGradient id={`${id}-inferior`} x1="0%" y1="0%" x2="100%" y2="0%">
           <stop offset="0%" stopColor="var(--figaro-primary)" stopOpacity="0.32" />
           <stop offset="55%" stopColor="var(--figaro-secondary)" stopOpacity="0.42" />
-          <stop offset="100%" stopColor="var(--flow-rosa, #f48fb1)" stopOpacity="0.34" />
+          <stop offset="100%" stopColor="var(--figaro-tertiary)" stopOpacity="0.34" />
         </linearGradient>
       </defs>
 
