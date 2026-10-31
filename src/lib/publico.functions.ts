@@ -217,7 +217,7 @@ export const getPaginaPublica = createServerFn({ method: "GET" })
           return {
             id: p.id,
             nome: p.nome,
-            avatar_url: p.avatar_url,
+            avatar_url: await signedUrl(supabaseAdmin, p.avatar_url),
             descricao: p.descricao,
             portfolio: links.filter((l): l is string => Boolean(l)),
           };
