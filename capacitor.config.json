@@ -1,0 +1,12 @@
+{
+  "appId": "dev.flowapp.preview",
+  "appName": "Flow Teste",
+  "webDir": "dist/client",
+  "server": {
+    "url": "https://previa.cortaiapp.pages.dev",
+    "cleartext": false,
+    "allowNavigation": [
+      "previa.cortaiapp.pages.dev"
+    ]
+  }
+}
