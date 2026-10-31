@@ -10,7 +10,7 @@ import { urlPublica } from "@/lib/origem-publica";
  */
 
 /** Versão embutida nesta build. Fonte única de verdade. */
-export const VERSAO_INSTALADA = "3.6.0";
+export const VERSAO_INSTALADA = "3.7.0";
 
 /** Alias público da versão do aplicativo. */
 export const APP_VERSION = VERSAO_INSTALADA;
