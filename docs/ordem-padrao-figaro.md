@@ -45,7 +45,7 @@ Contrato de design do projeto: `docs/contrato-de-design.md`. Esta ordem diz **co
 | Campo de texto, data, hora, select | classe `field-control` (`Input`, `Textarea`) | `TextField` preenchido, 8 dp no topo |
 | Caixa de seleção | `<input type="checkbox">` ou `Checkbox` | `SquareCheckbox` 18 dp, raio 5 dp |
 | Interruptor | `Switch` | `FigarooSwitch` |
-| Folha de baixo | `Sheet` (`side="bottom"`) com alça | `ModalBottomSheet` 28 dp só no topo |
+| **Folha de baixo (gaveta) — modelo obrigatório** | `FolhaPadrao` + `SecaoDaFolha`, `CartaoDaFolha`, `LinhaDaFolha`, `NotaDaFolha`, `AcaoDaFolha` (`ui/folha-padrao.tsx`). Desenho da ficha do atendimento: fundo da tela, conteúdo em cartões, título no primeiro cartão, uma pílula principal no rodapé, sem "Cancelar". Ver §3.1 | `ModalBottomSheet` 28 dp só no topo |
 | Confirmação | `useConfirmar` / `AlertDialog` | diálogo de 28 dp |
 | Ação principal flutuante ("Salvar alterações") | `BotaoFlutuante` (`ui/botao-flutuante.tsx`) | `ExtendedFloatingActionButton` |
 | Escolher um horário (nunca `<input type="time">`: o relógio do Android sai cortado) | `SeletorDeHorario` (`ui/seletor-de-horario.tsx`) | `TimePickerDialog` do Material 3 |
@@ -53,6 +53,23 @@ Contrato de design do projeto: `docs/contrato-de-design.md`. Esta ordem diz **co
 | Carregando | `Esqueleto*` (`layout/Esqueleto.tsx`) | esqueleto com o desenho da tela |
 | Aviso rápido (some sozinho) | `aviso` (`lib/avisos`) | snackbar |
 | Aviso ou erro dentro da tela | `Aviso` (`ui/aviso.tsx`, `tom` `info`, `atencao`, `sucesso`, `acao`) | banner tonal de 20 dp, sem faixa lateral |
+
+### 3.1 Modelo de gaveta (dono, 31/10/2026)
+
+O dono escolheu a **ficha do atendimento na Agenda** como o modelo de toda gaveta nova ("cartão 1"). Toda gaveta
+criada a partir de agora usa `ui/folha-padrao.tsx`; as antigas passam para ele quando forem mexidas.
+
+- **Fundo e forma:** a gaveta tem a cor da tela (não branca), cantos de 28 só no topo, alça e arrastar para fechar.
+- **Conteúdo em cartões:** `CartaoDaFolha` (branco no claro, um degrau acima do fundo no escuro, cantos de 20).
+  O **primeiro cartão** traz o título (20 px, negrito), a descrição e o resumo (ex.: horário em fonte de horário).
+- **Grupos:** `SecaoDaFolha` com rótulo curto acima de cada cartão ("Horário", "Serviços").
+- **Linhas:** `LinhaDaFolha` (rótulo à esquerda, valor e seta à direita) para o que se toca e escolhe.
+- **Avisos:** `NotaDaFolha` (ícone + texto de 13 px); `tom="erro"` para o que impede salvar.
+- **Ações:** no rodapé, **uma** pílula principal à direita (`AcaoDaFolha`) e no máximo uma secundária em texto.
+  Sem "Cancelar": a gaveta fecha pela alça ou tocando fora.
+- **Uma função, um controle.** Nada de repetir o mesmo ajuste em botões diferentes (ex.: relógio + −15/+15 +
+  "aumentar duração" para o mesmo horário). Valores derivados (duração) aparecem como informação.
+- Primeiro exemplo: `AjustarIntervaloSheet` (Agenda).
 
 ## 4. Proibido (o teste de guarda falha)
 

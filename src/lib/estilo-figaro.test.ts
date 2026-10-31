@@ -13,7 +13,10 @@ function arquivos(pasta: string, saida: string[] = []): string[] {
   return saida;
 }
 
-const FONTES = arquivos("src").map((caminho) => ({ caminho, texto: readFileSync(caminho, "utf8") }));
+const FONTES = arquivos("src").map((caminho) => ({
+  caminho,
+  texto: readFileSync(caminho, "utf8"),
+}));
 
 /** Decisão do dono (24/10/2026): toda tela segue o padrão Figaro. Estes testes seguram os primitivos. */
 describe("padrão Figaro nos primitivos", () => {
@@ -65,7 +68,8 @@ describe("padrão Figaro nos primitivos", () => {
     for (const f of FONTES) {
       for (const m of f.texto.matchAll(/<select\b/g)) {
         const trecho = f.texto.slice(m.index, m.index + 700).split("</select>")[0] ?? "";
-        if (!trecho.includes("field-control") && !trecho.includes("className={input}")) fora.push(f.caminho);
+        if (!trecho.includes("field-control") && !trecho.includes("className={input}"))
+          fora.push(f.caminho);
       }
     }
     expect(fora).toEqual([]);
@@ -140,8 +144,8 @@ describe("superfícies administrativas no padrão Figaro", () => {
 describe("hierarquia e listas de operação", () => {
   it("automação usa a mesma escala do cabeçalho Figaro", () => {
     const fonte = readFileSync("src/components/automacao/CentralDeAutomacao.tsx", "utf8");
-    expect(fonte).toContain('text-[22px] font-semibold leading-7');
-    expect(fonte).not.toContain('text-3xl font-bold');
+    expect(fonte).toContain("text-[22px] font-semibold leading-7");
+    expect(fonte).not.toContain("text-3xl font-bold");
   });
 
   it("ficha do cliente separa seções com espaço, sem divisor decorativo", () => {
@@ -251,7 +255,9 @@ describe("painel WhatsApp no padrão Figaro", () => {
     expect(fonte).toContain('import { Aviso } from "@/components/ui/aviso"');
     expect(fonte).toContain("aria-pressed={aba === id}");
     expect(fonte).not.toContain("rounded-[12px] border border-brick/50");
-    expect(fonte).not.toContain("border border-gold/50 bg-[var(--figaro-surface-container,var(--ink2))]");
+    expect(fonte).not.toContain(
+      "border border-gold/50 bg-[var(--figaro-surface-container,var(--ink2))]",
+    );
     expect(fonte).not.toContain('className="mt-5 border-t border-line pt-4"');
   });
 });
@@ -259,7 +265,7 @@ describe("painel WhatsApp no padrão Figaro", () => {
 describe("descoberta de negócios no padrão Figaro", () => {
   it("usa título compacto, campo compartilhado e aviso tonal sem assumir barbearia", () => {
     const fonte = readFileSync("src/components/cliente/DescobrirBarbearias.tsx", "utf8");
-    expect(fonte).toContain('text-[22px] font-semibold leading-7');
+    expect(fonte).toContain("text-[22px] font-semibold leading-7");
     expect(fonte).toContain("field-control");
     expect(fonte).toContain('import { Aviso } from "@/components/ui/aviso"');
     expect(fonte).toContain("Ainda não há lugares disponíveis.");
@@ -359,5 +365,35 @@ describe("Serviços no padrão Figaro (dono, 29/10)", () => {
     const cores = readFileSync("src/lib/categorias-servicos.ts", "utf8");
     expect(cores).toContain("var(--figaro-categoria-safira)");
     expect(readFileSync("src/styles.css", "utf8")).toContain("--figaro-categoria-safira: #1e88e5;");
+  });
+});
+
+/** Decisão do dono (31/10/2026): a ficha da Agenda é o modelo de toda gaveta nova (`ui/folha-padrao.tsx`). */
+describe("modelo de gaveta (ficha da Agenda)", () => {
+  it("o modelo tem fundo da tela, cartões, rótulos, nota e pílula, sem Cancelar", () => {
+    const folha = readFileSync("src/components/ui/folha-padrao.tsx", "utf8");
+    expect(folha).toContain("rounded-t-[28px]");
+    expect(folha).toContain("bg-ink");
+    expect(folha).toContain("rounded-[20px] bg-[var(--agenda-cartao,var(--figaro-card-tile))]");
+    expect(folha).toContain("export function SecaoDaFolha");
+    expect(folha).toContain("export function NotaDaFolha");
+    expect(folha).toContain('className={cn("h-14 rounded-full px-6"');
+    expect(folha).not.toContain(">Cancelar<");
+    expect(readFileSync("docs/ordem-padrao-figaro.md", "utf8")).toContain(
+      "### 3.1 Modelo de gaveta",
+    );
+  });
+
+  it("Ajustar intervalo segue o modelo e não repete o mesmo ajuste em vários botões", () => {
+    const intervalo = readFileSync(
+      "src/components/barbeiro/agenda/AjustarIntervaloSheet.tsx",
+      "utf8",
+    );
+    expect(intervalo).toContain("<FolhaPadrao");
+    // Nada de botões de ±15 repetindo o relógio (os comentários explicam o que saiu).
+    expect(intervalo).not.toContain("<Minus");
+    expect(intervalo).not.toContain("<Plus");
+    expect(intervalo).not.toContain("ajustar(");
+    expect(intervalo).not.toContain(">Cancelar<");
   });
 });
