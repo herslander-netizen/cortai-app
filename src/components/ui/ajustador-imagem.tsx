@@ -7,6 +7,7 @@ type AjustadorImagemProps = {
   onConfirmar: (arquivo: File) => void;
   onCancelar: () => void;
   zoomMaximo?: number;
+  fit?: "cover" | "contain";
 };
 
 type Ponto = { x: number; y: number };
@@ -25,6 +26,7 @@ export function AjustadorImagem({
   onConfirmar,
   onCancelar,
   zoomMaximo = 4,
+  fit = "cover",
 }: AjustadorImagemProps) {
   const [imagem, setImagem] = useState<HTMLImageElement | null>(null);
   const [zoom, setZoom] = useState(1);
@@ -56,7 +58,7 @@ export function AjustadorImagem({
     if (!imagem) return null;
     const largura = 320;
     const altura = largura / proporcao;
-    const escalaBase = Math.max(largura / imagem.naturalWidth, altura / imagem.naturalHeight);
+    const escalaBase = fit === "contain"\n      ? Math.min(largura / imagem.naturalWidth, altura / imagem.naturalHeight)\n      : Math.max(largura / imagem.naturalWidth, altura / imagem.naturalHeight);
     return {
       largura,
       altura,
@@ -64,7 +66,7 @@ export function AjustadorImagem({
       imagemLargura: imagem.naturalWidth * escalaBase,
       imagemAltura: imagem.naturalHeight * escalaBase,
     };
-  }, [imagem, proporcao]);
+  }, [imagem, proporcao, fit]);
 
   const limitarDeslocamento = (ponto: Ponto, nivelZoom: number): Ponto => {
     if (!dimensoes) return ponto;
@@ -170,30 +172,33 @@ export function AjustadorImagem({
       const contexto = canvas.getContext("2d");
       if (!contexto) throw new Error("Não foi possível preparar a imagem.");
 
-      const origemX = imagem.naturalWidth / 2 - deslocamento.x / escala;
-      const origemY = imagem.naturalHeight / 2 - deslocamento.y / escala;
-      const recorteLargura = dimensoes.largura / escala;
-      const recorteAltura = dimensoes.altura / escala;
-      contexto.drawImage(
-        imagem,
-        origemX - recorteLargura / 2,
-        origemY - recorteAltura / 2,
-        recorteLargura,
-        recorteAltura,
-        0,
-        0,
-        larguraSaida,
-        alturaSaida,
-      );
+      if (fit === "contain") {
+        const escalaSaida = escala * (larguraSaida / dimensoes.largura);
+        const larguraImagem = imagem.naturalWidth * escalaSaida;
+        const alturaImagem = imagem.naturalHeight * escalaSaida;
+        contexto.drawImage(
+          imagem,
+          (larguraSaida - larguraImagem) / 2 + deslocamento.x * (larguraSaida / dimensoes.largura),
+          (alturaSaida - alturaImagem) / 2 + deslocamento.y * (larguraSaida / dimensoes.largura),
+          larguraImagem,
+          alturaImagem,
+        );
+      } else {
+        const origemX = imagem.naturalWidth / 2 - deslocamento.x / escala;
+        const origemY = imagem.naturalHeight / 2 - deslocamento.y / escala;
+        const recorteLargura = dimensoes.largura / escala;
+        const recorteAltura = dimensoes.altura / escala;
+        contexto.drawImage(imagem, origemX - recorteLargura / 2, origemY - recorteAltura / 2, recorteLargura, recorteAltura, 0, 0, larguraSaida, alturaSaida);
+      }
       const blob = await new Promise<Blob>((resolve, reject) => {
         canvas.toBlob(
           (resultado) => resultado ? resolve(resultado) : reject(new Error("Falha ao gerar a imagem.")),
-          file.type === "image/png" ? "image/png" : "image/jpeg",
+          fit === "contain" ? "image/png" : (file.type === "image/png" ? "image/png" : "image/jpeg"),
           0.92,
         );
       });
       const extensao = blob.type === "image/png" ? "png" : "jpg";
-      const nome = file.name.replace(/\\.[^.]+$/, "") + "-enquadrada." + extensao;
+      const nome = file.name.replace(/\\.[^.]+$/, "") + (fit === "contain" ? "-ajustada." : "-enquadrada.") + extensao;
       onConfirmar(new File([blob], nome, { type: blob.type, lastModified: Date.now() }));
     } catch (causa) {
       setErro(causa instanceof Error ? causa.message : "Não foi possível preparar a imagem.");
