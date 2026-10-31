@@ -326,6 +326,9 @@ function LoginPage() {
               />
               <div
                 className="entrada-painel fixed bottom-0 left-1/2 z-30 w-full max-w-[430px] rounded-t-[28px] px-6 pb-[calc(24px+env(safe-area-inset-bottom))] pt-5"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="flow-login-title"
                 style={{
                   transform: "translateX(-50%)",
                   background: "var(--ink2)",
@@ -339,7 +342,7 @@ function LoginPage() {
                 }}
               >
             <div className="mx-auto mb-5 h-1 w-10 rounded-full bg-white/20" />
-            <h1 className="mb-1 text-center text-lg font-bold text-paper">
+            <h1 id="flow-login-title" className="mb-1 text-center text-lg font-bold text-paper">
               {modo === "entrar" ? (faseLogin === "identificar" ? "Acessar sua conta" : "Digite sua senha") : "Criar conta"}
             </h1>
             <p className="mb-5 text-center text-xs text-mute">
@@ -392,10 +395,11 @@ function LoginPage() {
                 setEnviando(true);
                 try {
                   if (modo === "entrar") {
-                    const { error } = await supabase.auth.signInWithPassword({
-                      email: email.trim().toLowerCase(),
-                      password: senha,
-                    });
+                    const identificador = email.trim();
+                    const credencial = identificador.includes("@")
+                      ? { email: identificador.toLowerCase(), password: senha }
+                      : { phone: identificador.replace(/[\\s().-]/g, ""), password: senha };
+                    const { error } = await supabase.auth.signInWithPassword(credencial);
                     if (error) {
                       setErro(mensagemDeErroDeAuth(error, "entrar"));
                       return;
@@ -428,14 +432,15 @@ function LoginPage() {
               }}
             >
               {(modo === "criar" || faseLogin === "identificar") && (
-                <Field label="E-mail">
+                <Field label={modo === "entrar" ? "E-mail ou WhatsApp" : "E-mail"}>
                   <Input
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    type="email"
-                    autoComplete="email"
+                    type={modo === "entrar" ? "text" : "email"}
+                    autoComplete={modo === "entrar" ? "username" : "email"}
+                    inputMode={modo === "entrar" ? "email" : "email"}
                     required
-                    placeholder="voce@exemplo.com"
+                    placeholder={modo === "entrar" ? "voce@exemplo.com ou +55 79 99999-9999" : "voce@exemplo.com"}
                     className="mt-1.5"
                   />
                 </Field>
