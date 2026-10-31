@@ -118,11 +118,16 @@ function RedefinirSenhaPage() {
       ) : linkInvalido && !pronto ? (
         <div className="space-y-5">
           <Aviso tom="atencao" titulo="Este link não vale mais.">
-            Peça um novo link de recuperação para criar sua senha.
+            Peça um novo código de recuperação para criar sua senha.
           </Aviso>
           <Button asChild className="h-12 w-full rounded-full">
-            <Link to="/recuperar-senha">Pedir novo link</Link>
+            <Link to="/login">Voltar ao login</Link>
           </Button>
+        </div>
+      ) : !pronto ? (
+        <div className="flex items-center justify-center gap-3 py-8 text-sm text-mute" role="status">
+          <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+          Validando seu acesso…
         </div>
       ) : (
         <form
@@ -228,7 +233,7 @@ function RedefinirSenhaPage() {
               {erro}
             </p>
           ) : null}
-          <Button className="h-12 w-full rounded-full font-bold" disabled={salvando || !pronto}>
+          <Button className="h-12 w-full rounded-full font-bold" disabled={salvando}>
             {salvando ? "Salvando…" : "Salvar nova senha"}
           </Button>
         </form>
