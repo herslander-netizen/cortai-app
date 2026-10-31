@@ -136,6 +136,19 @@ function LoginPage() {
     }
   }
 
+  async function verificarCodigoRecuperacao(emailRecuperacao: string, codigo: string): Promise<boolean> {
+    const { error } = await supabase.auth.verifyOtp({
+      email: emailRecuperacao,
+      token: codigo,
+      type: "recovery",
+    });
+    return !error;
+  }
+
+  function continuarRedefinicao() {
+    window.location.assign("/redefinir-senha#type=recovery");
+  }
+
   const painelLoginRef = useRef<HTMLDivElement>(null);
   const elementoAnteriorRef = useRef<HTMLElement | null>(null);
 
@@ -597,6 +610,8 @@ function LoginPage() {
           onClose={fecharRecuperacao}
           initialEmail={email.includes("@") ? email : ""}
           onSubmitEmail={solicitarRecuperacao}
+          onVerifyCode={verificarCodigoRecuperacao}
+          onContinue={continuarRedefinicao}
         />
 
         <Link
