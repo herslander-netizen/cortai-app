@@ -1,12 +1,15 @@
 import { useId } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 
+/** Ciclos mais curtos deixam o movimento das ondas mais perceptível sem acelerar demais a composição. */
+export const DURACAO_ONDAS_SEGUNDOS = { superior: 7, inferior: 8.5 } as const;
+
 /** Ondas leves da identidade Flow. O movimento é decorativo e para com a preferência do aparelho. */
 export function OndasDaEntrada() {
   const id = useId().replace(/:/g, "");
   const reduzirMovimento = useReducedMotion();
-  const transicaoSuperior = { duration: 14, ease: "easeInOut" as const, repeat: Infinity };
-  const transicaoInferior = { duration: 17, ease: "easeInOut" as const, repeat: Infinity };
+  const transicaoSuperior = { duration: DURACAO_ONDAS_SEGUNDOS.superior, ease: "easeInOut" as const, repeat: Infinity };
+  const transicaoInferior = { duration: DURACAO_ONDAS_SEGUNDOS.inferior, ease: "easeInOut" as const, repeat: Infinity };
 
   return (
     <motion.svg

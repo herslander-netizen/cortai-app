@@ -3,7 +3,7 @@ import { act, createElement } from "react";
 import { createRoot } from "react-dom/client";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { OndasDaEntrada } from "./OndasDaEntrada";
+import { DURACAO_ONDAS_SEGUNDOS, OndasDaEntrada } from "./OndasDaEntrada";
 
 vi.mock("framer-motion", async (importOriginal) => {
   const actual = await importOriginal<typeof import("framer-motion")>();
@@ -23,6 +23,13 @@ afterEach(async () => {
 });
 
 describe("OndasDaEntrada", () => {
+  it("usa ciclos mais rápidos nas duas ondas", () => {
+    expect(DURACAO_ONDAS_SEGUNDOS.superior).toBe(7);
+    expect(DURACAO_ONDAS_SEGUNDOS.inferior).toBe(8.5);
+    expect(DURACAO_ONDAS_SEGUNDOS.superior).toBeLessThan(14);
+    expect(DURACAO_ONDAS_SEGUNDOS.inferior).toBeLessThan(17);
+  });
+
   it("é decorativa, não captura toques e mantém as quatro curvas da composição", async () => {
     host = document.createElement("div");
     document.body.appendChild(host);
