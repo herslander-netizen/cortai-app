@@ -534,7 +534,6 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Em andamento
 
-- Claude | 2026-10-31 UTC | Telas do Financeiro (Relatórios e Caixa do dia): melhoria de organização e visual pedida pelo dono com capturas; sem mudança de regra de cobrança | `src/routes/barbeiro.caixa.tsx`, `src/routes/barbeiro.financeiro*.tsx`, `src/components/financeiro/*`
 
 
 
@@ -881,6 +880,12 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+### 2026-10-31 UTC — Claude — Financeiro: organização e visual (Relatórios e Caixa do dia)
+- Capturas do dono ("as telas do financeiro precisam de melhoria logística e visual"). Sem mudança de regra de cobrança ou de dados.
+- **Abas da área** (Caixa · Comissões · Relatórios, e as das outras áreas): eram desenhadas no layout acima de tudo, antes do voltar e do título. Agora o `Screen` as desenha logo abaixo do cabeçalho e antes do conteúdo (`AbasDaSecao` saiu de `barbeiro.tsx`); fora de `/barbeiro` não aparecem nem buscam a sessão. Todas as 15 rotas com abas usam `Screen`.
+- **Relatórios** (`barbeiro.financeiro.tsx`): espaço entre Hoje/Semana/Mês e o cartão; cartão do total em `surface-container` com 28 dp; a barra tinha a cor do próprio cartão (sobrava um vazio) — agora aparece só com faturamento e diz "x% em serviços"; ícone de tesoura (símbolo de segmento, proibido) trocado por `HandHelping`.
+- **Caixa do dia** (`BuscaDeComandas.tsx`): o valor era empurrado para fora do cartão (código e data numa linha só, sem quebra). Linha nova: nome e valor juntos; estado em selo (sucesso/atenção/erro do Figaro; no claro o texto vai escuro por contraste) com a forma de pagamento; data e código por último, menores. Busca "Buscar comanda" (o longo era cortado; o aria-label mantém código, cliente, telefone ou data). Filtros rolam até a borda do cartão. `rotuloDaForma("balcao")` = "No balcão" (aparecia "Balcao").
+- Testes: `BuscaDeComandas.layout.test.ts` (novo); `Screen.test.tsx` simula as abas. `tsc`, `vitest` (273 arquivos), lint dos arquivos mexidos e `build` OK. Linha da comanda conferida no navegador a 360 px, escuro e claro; Relatórios e abas não conferidos no celular.
 ### 2026-10-31 UTC — Claude — Fim da lista da Agenda no padrão Figaro
 - Dono (captura): "Mostrar cancelados (1)", "Ver mais dias" e a dica soltos como texto "ficam feios". `ListaPeriodo.tsx`: "Ver mais dias" virou pílula tonal de largura inteira (primaryContainer, seta para baixo), "Mostrar cancelados (n)" virou chip de filtro (`Chip`, olho, "Cancelados · n", marcado enquanto aparecem; aria-label diz mostrar/esconder) e a dica virou legenda discreta com ícone, encurtada para caber numa linha: "Toque no cartão para remarcar ou cancelar". Conferido no navegador a 360 px, escuro e claro. Teste atualizado.
 ### 2026-10-31 UTC — Claude — "Agora" na lista leva ao dia de hoje

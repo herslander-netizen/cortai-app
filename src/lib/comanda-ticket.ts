@@ -68,6 +68,8 @@ const ROTULOS_FORMA: Record<string, string> = {
   credito: "Plano do cliente",
   plano: "Plano do cliente",
   fiado: "Fiado",
+  // "Pagar no balcão" do agendamento público (aparecia como "Balcao", sem acento).
+  balcao: "No balcão",
 };
 
 export function rotuloDaForma(forma: string | null | undefined): string {

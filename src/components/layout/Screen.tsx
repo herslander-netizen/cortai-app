@@ -1,3 +1,4 @@
+import { AbasDaSecao } from "@/components/layout/AbasDaSecao";
 import type { ReactNode } from "react";
 import { Link, type LinkProps, useRouterState } from "@tanstack/react-router";
 import { ArrowLeft } from "lucide-react";
@@ -144,6 +145,9 @@ export function Screen({
           />
         </header>
       ) : null}
+      {/* Abas da área (Caixa · Comissões · Relatórios…) logo abaixo do voltar e do título, como no Figaro; antes
+          ficavam acima deles, no topo de todas as telas da área (dono, 31/10). */}
+      <AbasDaSecao />
       <main data-figaro-conteudo="page" className="screen-content min-w-0 flex-1 px-4 md:px-8">
         {children}
       </main>

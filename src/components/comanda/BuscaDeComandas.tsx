@@ -17,10 +17,13 @@ const FILTROS: Array<{ v: "todos" | EstadoDoTicket; r: string }> = [
   { v: "cancelado", r: "Canceladas" },
 ];
 
-const COR: Record<EstadoDoTicket, string> = {
-  pago: "text-sage",
-  pendente: "text-gold",
-  cancelado: "text-brick",
+/** Selo do estado (Figaro: containers de sucesso, atenção e erro). */
+const SELO: Record<EstadoDoTicket, string> = {
+  // No claro, o texto do Figaro sobre esses containers fica perto de 3:1: lá vai o texto escuro padrão.
+  pago: "bg-[var(--figaro-success-container)] text-[var(--figaro-on-success-container)] [.light_&]:text-paper",
+  pendente:
+    "bg-[var(--figaro-warning-container)] text-[var(--figaro-on-warning-container)] [.light_&]:text-paper",
+  cancelado: "bg-[var(--figaro-error-container)] text-[var(--figaro-on-error-container)]",
 };
 
 /** Pesquisa e histórico de comandas: código primeiro, depois cliente, telefone ou data. */
@@ -55,12 +58,15 @@ export function BuscaDeComandas() {
           className="field-control pl-11"
           type="search"
           enterKeyHint="search"
-          placeholder="Código, cliente, telefone ou data"
+          // Curto para caber no celular; a busca continua aceitando código, cliente, telefone ou data.
+          placeholder="Buscar comanda"
+          aria-label="Buscar comanda por código, cliente, telefone ou data"
           value={termo}
           onChange={(e) => setTermo(e.target.value)}
         />
       </label>
-      <div className="mt-3 flex gap-2 overflow-x-auto">
+      {/* Os filtros rolam até a borda do cartão (antes eram cortados pelo recuo). */}
+      <div className="-mx-4 mt-3 flex gap-2 overflow-x-auto px-4 [scrollbar-width:none] md:-mx-5 md:px-5">
         {FILTROS.map((f) => (
           <Chip key={f.v} selecionado={estado === f.v} onClick={() => setEstado(f.v)}>
             {f.r}
@@ -77,26 +83,34 @@ export function BuscaDeComandas() {
         ) : null}
         {q.data?.map((c) => (
           <li key={c.id}>
+            {/* Nome e valor na primeira linha (o valor era cortado na borda: o código e a data numa linha só
+                empurravam tudo), estado em selo e código/data por último, menores (dono, 31/10). */}
             <Button
               variant="ghost"
               type="button"
               onClick={() => setAberta(c.id)}
-              className="h-auto min-h-14 w-full justify-start rounded-[var(--raio-bloco)] px-2 py-2 text-left hover:bg-ink2"
+              className="h-auto min-h-14 w-full items-start justify-start gap-2 whitespace-normal rounded-[var(--raio-bloco)] px-2 py-3 text-left font-normal hover:bg-ink2"
             >
-              <span className="min-w-0 flex-1">
-                <span className="block truncate text-sm font-semibold text-paper">{c.cliente}</span>
-                <span className="block text-xs tabular-nums text-mute">
-                  #{c.codigo} · {c.quando}
+              <span className="grid min-w-0 flex-1 gap-1">
+                <span className="flex min-w-0 items-baseline justify-between gap-3">
+                  <span className="truncate text-[15px] font-semibold text-paper">{c.cliente}</span>
+                  <span className="shrink-0 text-[15px] font-semibold tabular-nums text-paper">
+                    {brl(c.totalCentavos)}
+                  </span>
                 </span>
-                <span className="block text-xs text-mute">
-                  {rotuloDaForma(c.forma)} ·{" "}
-                  <span className={COR[c.estado]}>{rotuloDoEstado(c.estado, c.motivo)}</span>
+                <span className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 text-xs text-mute">
+                  <span
+                    className={`rounded-full px-2 py-0.5 text-[11px] font-semibold leading-4 ${SELO[c.estado]}`}
+                  >
+                    {rotuloDoEstado(c.estado, c.motivo)}
+                  </span>
+                  <span>{rotuloDaForma(c.forma)}</span>
+                </span>
+                <span className="truncate text-xs tabular-nums text-mute">
+                  {c.quando} · #{c.codigo}
                 </span>
               </span>
-              <span className="text-sm font-semibold tabular-nums text-paper">
-                {brl(c.totalCentavos)}
-              </span>
-              <ChevronRight className="size-4 text-mute" aria-hidden />
+              <ChevronRight className="mt-0.5 size-4 shrink-0 text-mute" aria-hidden />
             </Button>
           </li>
         ))}

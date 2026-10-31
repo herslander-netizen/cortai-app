@@ -10,6 +10,9 @@ const routerState = vi.hoisted(() => ({ pathname: "/barbeiro/servicos", mobile: 
 import { EmptyState, Screen } from "./Screen";
 import { useCabecalhoCompacto } from "./useCabecalhoCompacto";
 
+// As abas da área buscam a sessão; aqui só a moldura importa.
+vi.mock("./AbasDaSecao", () => ({ AbasDaSecao: () => null }));
+
 vi.mock("@/hooks/use-mobile", () => ({
   useMediaQuery: () => routerState.mobile,
 }));

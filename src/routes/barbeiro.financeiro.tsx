@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { Banknote, PackageCheck, Scissors, Shapes } from "lucide-react";
+import { Banknote, HandHelping, PackageCheck, Shapes } from "lucide-react";
 import { OpcoesConectadas } from "@/components/ui/opcoes-conectadas";
 
 import { Screen } from "@/components/layout/Screen";
@@ -60,7 +60,7 @@ function FinanceiroPage() {
           { valor: "mes", texto: "Mês" },
         ]}
         onChange={setPeriodo}
-        className="mt-4"
+        className="mb-4 mt-4"
       />
       {isLoading ? <EsqueletoPainel onTentarDeNovo={() => void refetch()} /> : null}
       {isError ? (
@@ -68,27 +68,38 @@ function FinanceiroPage() {
       ) : null}
       {data ? (
         <>
-          <section data-guia="financeiro-total" className="surface-card bg-ink3 p-5 md:max-w-xl">
+          {/* Cartão do total no padrão Figaro (dono, 31/10): a barra tinha a mesma cor do cartão e só sobrava um vazio
+              embaixo. Agora mostra quanto do total veio de serviços, e só quando há faturamento. */}
+          <section
+            data-guia="financeiro-total"
+            className="rounded-[28px] bg-[var(--figaro-surface-container,var(--ink2))] p-5 md:max-w-xl"
+          >
             <p className="text-xs text-mute">{rotuloFaturamento}</p>
             <p className="mt-2 text-[32px] font-bold leading-none text-paper">{brl(data.total)}</p>
             <p className="mt-2 text-sm text-mute">
-              {data.atendimentos.length} {data.atendimentos.length === 1 ? "atendimento concluído" : "atendimentos concluídos"}
+              {data.atendimentos.length}{" "}
+              {data.atendimentos.length === 1 ? "atendimento concluído" : "atendimentos concluídos"}
             </p>
-            <div className="mt-5 h-1.5 overflow-hidden rounded-full bg-ink3">
-              <div
-                className="h-full rounded-full bg-gold"
-                style={{
-                  width: `${data.total ? Math.max(8, (data.servicos / data.total) * 100) : 0}%`,
-                }}
-              />
-            </div>
+            {data.total > 0 ? (
+              <div className="mt-4">
+                <div className="h-1.5 overflow-hidden rounded-full bg-[var(--figaro-surface-container-highest,var(--ink3))]">
+                  <div
+                    className="h-full rounded-full bg-primary"
+                    style={{ width: `${Math.max(8, (data.servicos / data.total) * 100)}%` }}
+                  />
+                </div>
+                <p className="mt-1.5 text-xs text-mute">
+                  {Math.round((data.servicos / data.total) * 100)}% em serviços
+                </p>
+              </div>
+            ) : null}
           </section>
           <div
             data-guia="financeiro-categorias"
             className="mt-6 grid grid-cols-2 gap-2 md:max-w-3xl md:grid-cols-4 md:gap-4"
           >
             {[
-              { label: "Serviços", value: data.servicos, icon: Scissors },
+              { label: "Serviços", value: data.servicos, icon: HandHelping },
               { label: "Produtos", value: data.produtos, icon: PackageCheck },
               { label: "Outros", value: data.outros, icon: Shapes },
               { label: "Ganhos extras", value: data.ganhosExtras, icon: Banknote },
@@ -137,42 +148,52 @@ function FinanceiroPage() {
             <div className="mt-3 grid grid-cols-2 gap-2">
               <div className="surface min-w-0 p-3">
                 <p className="text-xs text-mute">Despesas registradas</p>
-                <p className="mt-1 truncate text-base font-semibold text-paper">{brl(data.despesas)}</p>
+                <p className="mt-1 truncate text-base font-semibold text-paper">
+                  {brl(data.despesas)}
+                </p>
               </div>
               <div className="surface min-w-0 p-3">
                 <p className="text-xs text-mute">Outras saídas</p>
-                <p className="mt-1 truncate text-base font-semibold text-paper">{brl(data.saidas)}</p>
+                <p className="mt-1 truncate text-base font-semibold text-paper">
+                  {brl(data.saidas)}
+                </p>
               </div>
             </div>
             <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
               <div className="surface min-w-0 p-3">
                 <p className="text-xs text-mute">Receita vs. período anterior</p>
-                <p className={`mt-1 text-base font-semibold ${
-                  data.comparacao.receitaVariacaoPercentual === null
-                    ? "text-mute"
-                    : data.comparacao.receitaVariacaoPercentual > 0
-                      ? "text-sage"
-                      : data.comparacao.receitaVariacaoPercentual < 0
-                        ? "text-brick"
-                        : "text-paper"
-                }`}>
+                <p
+                  className={`mt-1 text-base font-semibold ${
+                    data.comparacao.receitaVariacaoPercentual === null
+                      ? "text-mute"
+                      : data.comparacao.receitaVariacaoPercentual > 0
+                        ? "text-sage"
+                        : data.comparacao.receitaVariacaoPercentual < 0
+                          ? "text-brick"
+                          : "text-paper"
+                  }`}
+                >
                   {data.comparacao.receitaVariacaoPercentual === null
                     ? "Sem base anterior"
                     : `${data.comparacao.receitaVariacaoPercentual > 0 ? "+" : ""}${data.comparacao.receitaVariacaoPercentual}%`}
                 </p>
-                <p className="mt-1 text-xs text-mute2">Antes: {brl(data.comparacao.receitaAnterior)}</p>
+                <p className="mt-1 text-xs text-mute2">
+                  Antes: {brl(data.comparacao.receitaAnterior)}
+                </p>
               </div>
               <div className="surface min-w-0 p-3">
                 <p className="text-xs text-mute">Saídas vs. período anterior</p>
-                <p className={`mt-1 text-base font-semibold ${
-                  data.comparacao.despesasVariacaoPercentual === null
-                    ? "text-mute"
-                    : data.comparacao.despesasVariacaoPercentual > 0
-                      ? "text-brick"
-                      : data.comparacao.despesasVariacaoPercentual < 0
-                        ? "text-sage"
-                        : "text-paper"
-                }`}>
+                <p
+                  className={`mt-1 text-base font-semibold ${
+                    data.comparacao.despesasVariacaoPercentual === null
+                      ? "text-mute"
+                      : data.comparacao.despesasVariacaoPercentual > 0
+                        ? "text-brick"
+                        : data.comparacao.despesasVariacaoPercentual < 0
+                          ? "text-sage"
+                          : "text-paper"
+                  }`}
+                >
                   {data.comparacao.despesasVariacaoPercentual === null
                     ? "Sem base anterior"
                     : `${data.comparacao.despesasVariacaoPercentual > 0 ? "+" : ""}${data.comparacao.despesasVariacaoPercentual}%`}
@@ -183,7 +204,9 @@ function FinanceiroPage() {
               </div>
             </div>
             <p className="mt-3 text-xs leading-relaxed text-mute2">
-              Comparação entre períodos equivalentes no fuso do negócio. Os valores consideram lançamentos registrados e não representam lucro contábil. Sangrias não entram como despesa, pois são movimentações internas do caixa.
+              Comparação entre períodos equivalentes no fuso do negócio. Os valores consideram
+              lançamentos registrados e não representam lucro contábil. Sangrias não entram como
+              despesa, pois são movimentações internas do caixa.
             </p>
           </section>
           <Link

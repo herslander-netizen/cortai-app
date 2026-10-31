@@ -9,7 +9,6 @@ import { SegmentoProvider } from "@/lib/segmento-contexto";
 import { ManagementHeader } from "@/components/layout/ManagementDrawer";
 import { NavegacaoEquipe } from "@/components/layout/NavegacaoEquipe";
 import { usePushNoApp } from "@/lib/push/use-push-no-app";
-import { AbasDaSecao } from "@/components/layout/AbasDaSecao";
 import { EsqueletoCascoEquipe } from "@/components/layout/Esqueleto";
 import { ProvedorLayoutEquipe } from "@/components/layout/ContextoLayoutEquipe";
 import { useCorDoTopoNaBarraDoSistema } from "@/lib/pwa/cor-do-topo";
@@ -82,7 +81,6 @@ function BarberLayout() {
           ) : null}
           <NavegacaoEquipe />
           <div className="equipe-conteudo">
-            <AbasDaSecao />
             <Outlet />
           </div>
           {/* No topo: embaixo ficam o "+" da agenda e o rodapé do cockpit. */}
