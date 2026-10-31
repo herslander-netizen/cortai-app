@@ -97,20 +97,6 @@ function MarcaGoogle() {
   );
 }
 
-function MarcaApple() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      width={20}
-      height={20}
-      aria-hidden
-      focusable="false"
-      fill="currentColor"
-    >
-      <path d="M16.36 12.7c-.02-2.3 1.88-3.4 1.96-3.45-1.07-1.56-2.73-1.78-3.32-1.8-1.41-.14-2.76.83-3.48.83-.72 0-1.83-.81-3-.79-1.55.02-2.98.9-3.78 2.28-1.61 2.8-.41 6.94 1.16 9.21.77 1.11 1.68 2.36 2.88 2.31 1.16-.05 1.6-.75 3-.75s1.79.75 3.01.72c1.24-.02 2.03-1.13 2.79-2.25.88-1.29 1.24-2.54 1.26-2.6-.03-.01-2.42-.93-2.44-3.71zM14.1 5.6c.64-.78 1.07-1.85.95-2.93-.92.04-2.03.61-2.69 1.38-.59.69-1.11 1.79-.97 2.84 1.02.08 2.07-.52 2.71-1.29z" />
-    </svg>
-  );
-}
 
 function LoginPage() {
   const navigate = useNavigate();
@@ -165,7 +151,7 @@ function LoginPage() {
     await navigate({ to: destino });
   }
 
-  async function entrarCom(provedor: "google" | "apple") {
+  async function entrarCom(provedor: "google") {
     setErro(null);
     setEnviando(true);
     try {
@@ -189,8 +175,8 @@ function LoginPage() {
     }
   }
 
-  const falha = (provedor: "google" | "apple", detalhe?: unknown) => {
-    const nome = provedor === "google" ? "o Google" : "a Apple";
+  const falha = (provedor: "google", detalhe?: unknown) => {
+    const nome = "o Google";
     const mensagem =
       detalhe &&
       typeof detalhe === "object" &&
@@ -357,15 +343,6 @@ function LoginPage() {
                 onClick={() => void entrarCom("google")}
               >
                 <MarcaGoogle /> Continuar com o Google
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                className={botaoSocial}
-                disabled={enviando}
-                onClick={() => void entrarCom("apple")}
-              >
-                <MarcaApple /> Continuar com a Apple
               </Button>
             </div>
 
