@@ -95,11 +95,21 @@ export function ChatHeader({
     <header className="chat-header">
       {voltar ? (
         voltar.href ? (
-          <a href={voltar.href} className="chat-header-botao -ml-2" aria-label={rotuloVoltar} onClick={voltar.onClick}>
+          <a
+            href={voltar.href}
+            className="chat-header-botao -ml-2"
+            aria-label={rotuloVoltar}
+            onClick={voltar.onClick}
+          >
             <ArrowLeft className="size-6" aria-hidden />
           </a>
         ) : (
-          <button type="button" className="chat-header-botao -ml-2" aria-label={rotuloVoltar} onClick={voltar.onClick}>
+          <button
+            type="button"
+            className="chat-header-botao -ml-2"
+            aria-label={rotuloVoltar}
+            onClick={voltar.onClick}
+          >
             <ArrowLeft className="size-6" aria-hidden />
           </button>
         )
@@ -120,11 +130,18 @@ export function ChatHeader({
       <div className="min-w-0 flex-1">
         <h1 className="truncate text-base font-extrabold leading-tight">{nomeExibido}</h1>
         {mostrarStatus ? (
-          <p className="flex items-center gap-1.5 truncate text-xs font-semibold" role="status" aria-live="polite" aria-atomic="true">
+          <p
+            className="flex items-center gap-1.5 truncate text-xs font-semibold"
+            role="status"
+            aria-live="polite"
+            aria-atomic="true"
+          >
             {detalhe ? (
               <>
                 <span className="chat-estabelecimento truncate">{detalhe}</span>
-                <span className="chat-mute" aria-hidden>·</span>
+                <span className="chat-mute" aria-hidden>
+                  ·
+                </span>
               </>
             ) : null}
             {processando ? (
@@ -155,7 +172,11 @@ export function ChatHeader({
                   </a>
                 </DropdownMenuItem>
               ) : (
-                <DropdownMenuItem key={a.rotulo} className="min-h-12" onSelect={() => a.onSelect?.()}>
+                <DropdownMenuItem
+                  key={a.rotulo}
+                  className="min-h-12"
+                  onSelect={() => a.onSelect?.()}
+                >
                   {a.icone}
                   {a.rotulo}
                 </DropdownMenuItem>
