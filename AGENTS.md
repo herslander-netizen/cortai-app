@@ -10,6 +10,8 @@ lê-lo no começo de cada tarefa. O estado vivo fica em `DIARIO.md` e o resumo d
 
 **Antes de qualquer tarefa, leia o `CONTEXTO.md` (contexto completo do sistema: produto, arquitetura, fontes únicas de verdade, onde mexer, armadilhas e estado atual) e o `docs/prompt-gpt-metodo-de-trabalho.md` (método passo a passo, obrigatório para todas, com os erros reais que ele evita).**
 
+**Checklist operacional obrigatório:** siga também `PROTOCOLO-OBRIGATORIO.md` em toda tarefa. Ele define os gates de início, execução, banco, revisão e envio. Se não conseguir confirmar uma etapa, não edite; investigue somente em leitura e informe o bloqueio. O GitHub Actions confere automaticamente a presença e os vínculos dos documentos antes de validar e publicar a prévia; isso não substitui o cumprimento humano/da IA.
+
 **Como conversam:** não há chat direto entre as IAs; o canal é o `DIARIO.md` no GitHub.
 - Antes de mexer: `git pull`, ler "Em andamento" e "Recados" e reservar a tarefa (commit só dessa linha).
 - Depois de cada mudança enviada: uma entrada no topo do diário (o que mudou, arquivos, testes,
