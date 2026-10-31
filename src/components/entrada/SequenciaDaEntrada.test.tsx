@@ -55,7 +55,7 @@ describe("SequenciaDaEntrada", () => {
     expect(painel?.getAttribute("aria-labelledby")).toBe(abas[0]?.id);
     expect(alvo.querySelector("h2")?.textContent).toBe("Seu site pronto em minutos");
 
-    const lembretes = abas.find((aba) => aba.textContent?.includes("Lembretes"));
+    const lembretes = abas.find((aba) => aba.getAttribute("aria-label") === "Mostrar etapa: Lembretes");
     await act(async () => lembretes?.click());
 
     expect(lembretes?.getAttribute("aria-selected")).toBe("true");
@@ -133,8 +133,8 @@ describe("SequenciaDaEntrada", () => {
     expect(alvo.querySelector(".entrada-cartao-legenda p")?.textContent).toBe("Seu site");
     expect(alvo.querySelector(".entrada-cartao")?.getAttribute("style")).toContain("var(--elevacao-2)");
 
-    const abaAgendar = [...alvo.querySelectorAll<HTMLButtonElement>('[role="tab"]')].find((aba) =>
-      aba.textContent?.includes("Agendar"),
+    const abaAgendar = [...alvo.querySelectorAll<HTMLButtonElement>('[role="tab"]')].find(
+      (aba) => aba.getAttribute("aria-label") === "Mostrar etapa: Agendar",
     );
     await act(async () => abaAgendar?.click());
 
