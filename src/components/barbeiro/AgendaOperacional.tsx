@@ -1002,9 +1002,10 @@ export function AgendaOperacional() {
           profissionalId={profFiltro}
           discreto={modoDiscreto}
           diaCompleto
+          mostrarProfissional={!profFiltro && profissionais.length > 1}
         />
       ) : undefined,
-    [celular, dia, profFiltro, modoDiscreto],
+    [celular, dia, profFiltro, modoDiscreto, profissionais.length],
   );
   const faixa = (
     <FaixaConexao

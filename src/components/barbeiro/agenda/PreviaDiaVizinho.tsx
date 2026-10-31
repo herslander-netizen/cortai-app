@@ -141,11 +141,14 @@ export function CamadasVizinhas({
   profissionalId,
   discreto,
   diaCompleto = false,
+  mostrarProfissional = false,
 }: {
   diaAtual: string;
   profissionalId: string | null;
   discreto: boolean;
   diaCompleto?: boolean;
+  /** Mesmo critério do dia aberto: senão o nome do profissional aparece de repente quando o dia assenta. */
+  mostrarProfissional?: boolean;
 }) {
   // Os vizinhos estão fora da tela: na troca de dia o commit urgente renderiza só o dia que entra
   // e as duas camadas se atualizam logo depois, em prioridade baixa (menos trabalho no quadro do
@@ -159,6 +162,7 @@ export function CamadasVizinhas({
         profissionalId={profissionalId}
         discreto={discreto}
         diaCompleto={diaCompleto}
+        mostrarProfissional={mostrarProfissional}
       />
       <CamadaVizinha
         lado="proximo"
@@ -166,6 +170,7 @@ export function CamadasVizinhas({
         profissionalId={profissionalId}
         discreto={discreto}
         diaCompleto={diaCompleto}
+        mostrarProfissional={mostrarProfissional}
       />
     </>
   );
@@ -177,12 +182,14 @@ function CamadaVizinha({
   profissionalId,
   discreto,
   diaCompleto,
+  mostrarProfissional,
 }: {
   lado: "anterior" | "proximo";
   dia: string;
   profissionalId: string | null;
   discreto: boolean;
   diaCompleto: boolean;
+  mostrarProfissional: boolean;
 }) {
   const { data } = useQuery({
     ...opcoesAgendaDia(dia),
@@ -208,6 +215,7 @@ function CamadaVizinha({
         onSelecionar={nada}
         discreto={discreto}
         diaCompleto={diaCompleto}
+        mostrarProfissional={mostrarProfissional}
       />
       {/* Os pontos do fim também vêm com a página: não podem aparecer do nada quando ela assenta. */}
       <MarcaDoLimiteDoDia className="agenda-dia-vizinha-pontos-fim" />

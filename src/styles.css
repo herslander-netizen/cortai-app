@@ -7220,8 +7220,15 @@ button.agenda-timeline-bloqueio-interativo {
   opacity: 0.4;
   transition: opacity 300ms cubic-bezier(0.4, 0, 0.2, 1);
 }
+/* Foto do Figaro (dono, 31/10): a linha "agora" mede 1,9 dp; com 1,5 px ficava mais fina. */
 .agenda-linha-agora {
-  border-top-width: 1.5px;
+  border-top-width: 2px;
+}
+/* Dia vizinho (o que entra com o dedo): a etiqueta da hora fica 14 px além da coluna das horas no celular e o corte
+   lateral do vizinho a mostrava pela metade ("4:10") e deixava um fio rosa na borda do dia aberto (vídeo do dono,
+   31/10). No vizinho fica só a linha; a etiqueta aparece quando o dia assenta. */
+.agenda-dia-vizinha .agenda-linha-agora span {
+  display: none;
 }
 
 /* Barra de baixo do Figaro: foto do profissional para trocar a agenda (38 px). */
@@ -10920,10 +10927,10 @@ input[type="range"] {
 }
 
 
-/* Ponto de "dia com atendimento" na semana e no mês: o magenta terciário claro do Figaro (#B61055) nos dois temas
-   (captura do dono, 30/10). */
+/* Ponto de "dia com atendimento" na semana e no mês: o `tertiary` do Figaro, que muda com o tema. Foto do Figaro no
+   escuro (dono, 31/10) mediu #FEA6BE (rosa claro), não o #B61055 do claro que valia para os dois desde 30/10. */
 :root {
-  --agenda-ponto-do-dia: #b61055;
+  --agenda-ponto-do-dia: var(--figaro-tertiary, #b61055);
 }
 
 /* Sino no topo da Agenda (celular): mesma altura do calendário, como na foto 3 do Figaro (31/10, dono). */
