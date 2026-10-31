@@ -1,5 +1,16 @@
+import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { PointerEvent } from "react";
+
+import { Button } from "@/components/ui/button";
+
+/** Como a foto vai aparecer: proporção do quadro, recorte (`cover`) ou foto inteira (`contain`) e moldura redonda. */
+export type AjusteDeFoto = {
+  proporcao: number;
+  fit?: "cover" | "contain";
+  redondo?: boolean;
+  titulo?: string;
+};
 
 type AjustadorImagemProps = {
   file: File;
@@ -9,6 +20,8 @@ type AjustadorImagemProps = {
   onCancelar: () => void;
   zoomMaximo?: number;
   fit?: "cover" | "contain";
+  /** Foto de perfil: mostra a moldura redonda (o arquivo continua quadrado). */
+  redondo?: boolean;
 };
 
 type Ponto = { x: number; y: number };
@@ -28,6 +41,7 @@ export function AjustadorImagem({
   onCancelar,
   zoomMaximo = 4,
   fit = "cover",
+  redondo = false,
 }: AjustadorImagemProps) {
   const [imagem, setImagem] = useState<HTMLImageElement | null>(null);
   const [zoom, setZoom] = useState(1);
@@ -47,21 +61,14 @@ export function AjustadorImagem({
     return () => URL.revokeObjectURL(url);
   }, [url]);
 
-  useEffect(() => {
-    const aoPressionarEsc = (event: KeyboardEvent) => {
-      if (event.key === "Escape" && !processando) onCancelar();
-    };
-    window.addEventListener("keydown", aoPressionarEsc);
-    return () => window.removeEventListener("keydown", aoPressionarEsc);
-  }, [onCancelar, processando]);
-
   const dimensoes = useMemo(() => {
     if (!imagem) return null;
     const largura = 320;
     const altura = largura / proporcao;
-    const escalaBase = fit === "contain"
-      ? Math.min(largura / imagem.naturalWidth, altura / imagem.naturalHeight)
-      : Math.max(largura / imagem.naturalWidth, altura / imagem.naturalHeight);
+    const escalaBase =
+      fit === "contain"
+        ? Math.min(largura / imagem.naturalWidth, altura / imagem.naturalHeight)
+        : Math.max(largura / imagem.naturalWidth, altura / imagem.naturalHeight);
     return {
       largura,
       altura,
@@ -139,9 +146,7 @@ export function AjustadorImagem({
     ponteiros.current.delete(event.pointerId);
     const pontos = [...ponteiros.current.values()];
     gesto.current = null;
-    arrasto.current = pontos.length === 1
-      ? { ponto: pontos[0]!, deslocamento }
-      : null;
+    arrasto.current = pontos.length === 1 ? { ponto: pontos[0]!, deslocamento } : null;
     if (pontos.length >= 2) {
       gesto.current = {
         distancia: distancia(pontos[0]!, pontos[1]!),
@@ -187,17 +192,31 @@ export function AjustadorImagem({
         const origemY = imagem.naturalHeight / 2 - deslocamento.y / escala;
         const recorteLargura = dimensoes.largura / escala;
         const recorteAltura = dimensoes.altura / escala;
-        contexto.drawImage(imagem, origemX - recorteLargura / 2, origemY - recorteAltura / 2, recorteLargura, recorteAltura, 0, 0, larguraSaida, alturaSaida);
+        contexto.drawImage(
+          imagem,
+          origemX - recorteLargura / 2,
+          origemY - recorteAltura / 2,
+          recorteLargura,
+          recorteAltura,
+          0,
+          0,
+          larguraSaida,
+          alturaSaida,
+        );
       }
       const blob = await new Promise<Blob>((resolve, reject) => {
         canvas.toBlob(
-          (resultado) => resultado ? resolve(resultado) : reject(new Error("Falha ao gerar a imagem.")),
-          fit === "contain" ? "image/png" : (file.type === "image/png" ? "image/png" : "image/jpeg"),
+          (resultado) =>
+            resultado ? resolve(resultado) : reject(new Error("Falha ao gerar a imagem.")),
+          fit === "contain" ? "image/png" : file.type === "image/png" ? "image/png" : "image/jpeg",
           0.92,
         );
       });
       const extensao = blob.type === "image/png" ? "png" : "jpg";
-      const nome = file.name.replace(/\\.[^.]+$/, "") + (fit === "contain" ? "-ajustada." : "-enquadrada.") + extensao;
+      const nome =
+        file.name.replace(/\.[^.]+$/, "") +
+        (fit === "contain" ? "-ajustada." : "-enquadrada.") +
+        extensao;
       onConfirmar(new File([blob], nome, { type: blob.type, lastModified: Date.now() }));
     } catch (causa) {
       setErro(causa instanceof Error ? causa.message : "Não foi possível preparar a imagem.");
@@ -208,90 +227,100 @@ export function AjustadorImagem({
   const escala = dimensoes ? dimensoes.escalaBase * zoom : 1;
 
   return (
-    <div
-      className="fixed inset-0 z-[100] grid place-items-center bg-black/75 p-4 backdrop-blur-sm"
-      role="presentation"
-      onMouseDown={(event) => {
-        if (event.target === event.currentTarget && !processando) onCancelar();
+    // Diálogo do Radix: funciona por cima de gavetas abertas (galeria, ficha, produto) sem perder os toques.
+    <DialogPrimitive.Root
+      open
+      onOpenChange={(aberto) => {
+        if (!aberto && !processando) onCancelar();
       }}
     >
-      <section
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="ajustador-imagem-titulo"
-        className="w-full max-w-md overflow-hidden rounded-2xl border border-white/10 bg-ink2 p-4 text-paper"
-      >
-        <header className="mb-4">
-          <h2 id="ajustador-imagem-titulo" className="text-base font-semibold">{titulo}</h2>
-          <p className="mt-1 text-sm text-mute">Arraste para posicionar e use dois dedos para ampliar ou reduzir.</p>
-        </header>
-
-        <div
-          className="relative mx-auto overflow-hidden rounded-xl bg-black touch-none select-none"
-          style={{ width: "min(100%, 320px)", aspectRatio: String(proporcao) }}
-          onPointerDown={iniciarPonteiro}
-          onPointerMove={moverPonteiro}
-          onPointerUp={finalizarPonteiro}
-          onPointerCancel={finalizarPonteiro}
-          onLostPointerCapture={finalizarPonteiro}
+      <DialogPrimitive.Portal>
+        <DialogPrimitive.Overlay className="fixed inset-0 z-[100] bg-black/75 backdrop-blur-sm" />
+        <DialogPrimitive.Content
+          aria-describedby="ajustador-imagem-dica"
+          // Sem foco automático na barra de zoom (o contorno de foco aparecia logo ao abrir).
+          onOpenAutoFocus={(event) => event.preventDefault()}
+          className="fixed left-1/2 top-1/2 z-[100] max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-[28px] bg-[var(--figaro-surface-container,var(--ink2))] p-5 text-paper outline-none"
         >
-          {imagem && dimensoes ? (
-            <img
-              src={url}
-              alt="Pré-visualização do enquadramento"
-              draggable={false}
-              className="pointer-events-none absolute max-w-none"
-              style={{
-                width: imagem.naturalWidth * escala,
-                height: imagem.naturalHeight * escala,
-                left: "50%",
-                top: "50%",
-                transform: `translate(calc(-50% + ${deslocamento.x}px), calc(-50% + ${deslocamento.y}px))`,
-              }}
+          <header className="mb-4">
+            <DialogPrimitive.Title className="text-base font-semibold">
+              {titulo}
+            </DialogPrimitive.Title>
+            <DialogPrimitive.Description
+              id="ajustador-imagem-dica"
+              className="mt-1 text-sm text-mute"
+            >
+              Arraste para posicionar e use dois dedos ou a barra para ampliar ou reduzir.
+            </DialogPrimitive.Description>
+          </header>
+
+          <div
+            className={`relative mx-auto touch-none overflow-hidden select-none ${fit === "contain" ? "bg-[var(--figaro-surface-container-high,var(--ink3))]" : "bg-black"} ${redondo ? "rounded-full" : "rounded-xl"}`}
+            style={{ width: "min(100%, 320px)", aspectRatio: String(proporcao) }}
+            onPointerDown={iniciarPonteiro}
+            onPointerMove={moverPonteiro}
+            onPointerUp={finalizarPonteiro}
+            onPointerCancel={finalizarPonteiro}
+            onLostPointerCapture={finalizarPonteiro}
+          >
+            {imagem && dimensoes ? (
+              <img
+                src={url}
+                alt="Pré-visualização do enquadramento"
+                draggable={false}
+                className="pointer-events-none absolute max-w-none"
+                style={{
+                  width: imagem.naturalWidth * escala,
+                  height: imagem.naturalHeight * escala,
+                  left: "50%",
+                  top: "50%",
+                  transform: `translate(calc(-50% + ${deslocamento.x}px), calc(-50% + ${deslocamento.y}px))`,
+                }}
+              />
+            ) : (
+              <div className="grid h-full place-items-center text-sm text-white/70">
+                Carregando imagem…
+              </div>
+            )}
+            <div
+              className={`pointer-events-none absolute inset-0 ring-1 ring-inset ring-white/30 ${redondo ? "rounded-full" : ""}`}
             />
-          ) : (
-            <div className="grid h-full place-items-center text-sm text-white/70">Carregando imagem…</div>
-          )}
-          <div className="pointer-events-none absolute inset-0 ring-1 ring-inset ring-white/30" />
-        </div>
+          </div>
 
-        <div className="mx-auto mt-4 flex max-w-[320px] items-center gap-3">
-          <span className="text-xs text-mute">−</span>
-          <input
-            aria-label="Nível de zoom"
-            type="range"
-            min={1}
-            max={zoomMaximo}
-            step={0.01}
-            value={zoom}
-            onChange={(event) => alterarZoom(Number(event.target.value))}
-            className="min-w-0 flex-1 accent-primary"
-          />
-          <span className="text-xs text-mute">+</span>
-          <span className="w-12 text-right text-xs tabular-nums text-mute">{zoom.toFixed(1)}×</span>
-        </div>
+          <div className="mx-auto mt-4 flex max-w-[320px] items-center gap-3">
+            <span className="text-xs text-mute">−</span>
+            <input
+              aria-label="Nível de zoom"
+              type="range"
+              min={1}
+              max={zoomMaximo}
+              step={0.01}
+              value={zoom}
+              onChange={(event) => alterarZoom(Number(event.target.value))}
+              className="min-w-0 flex-1 accent-primary"
+            />
+            <span className="text-xs text-mute">+</span>
+            <span className="w-12 text-right text-xs tabular-nums text-mute">
+              {zoom.toFixed(1)}×
+            </span>
+          </div>
 
-        {erro ? <p role="alert" className="mt-3 text-sm text-red-400">{erro}</p> : null}
+          {erro ? (
+            <p role="alert" className="mt-3 text-sm text-red-400">
+              {erro}
+            </p>
+          ) : null}
 
-        <footer className="mt-5 flex justify-end gap-2">
-          <button
-            type="button"
-            disabled={processando}
-            onClick={onCancelar}
-            className="min-h-11 rounded-lg px-4 text-sm font-medium text-mute transition hover:bg-white/5 disabled:opacity-50"
-          >
-            Cancelar
-          </button>
-          <button
-            type="button"
-            disabled={!imagem || processando}
-            onClick={confirmar}
-            className="min-h-11 rounded-lg bg-primary px-4 text-sm font-semibold text-primary-foreground transition hover:opacity-90 disabled:opacity-50"
-          >
-            {processando ? "Preparando…" : "Usar esta imagem"}
-          </button>
-        </footer>
-      </section>
-    </div>
+          <footer className="mt-5 flex justify-end gap-2">
+            <Button type="button" variant="text" disabled={processando} onClick={onCancelar}>
+              Cancelar
+            </Button>
+            <Button type="button" disabled={!imagem} loading={processando} onClick={confirmar}>
+              Usar esta imagem
+            </Button>
+          </footer>
+        </DialogPrimitive.Content>
+      </DialogPrimitive.Portal>
+    </DialogPrimitive.Root>
   );
 }

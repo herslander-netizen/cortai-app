@@ -4,10 +4,11 @@ import { Trash2 } from "lucide-react";
 import { SEGMENTOS_CONFIG, segmentoParaApresentacao, type Segmento } from "@/lib/segmentos";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { AjustadorImagem } from "@/components/ui/ajustador-imagem";
 import { useConfirmar } from "@/components/ui/useConfirmar";
 import { ItemCascata } from "@/components/layout/ItemCascata";
 import { supabase } from "@/integrations/supabase/client";
-import { comprimirImagem } from "@/lib/imagem";
+import { arquivoDaUrl, comprimirImagem } from "@/lib/imagem";
 import { AssistenteDeServicos } from "./AssistenteDeServicos";
 import { SugestoesDeServicos } from "./SugestoesDeServicos";
 import type { ServicoEditavel } from "./servicos.types";
@@ -44,6 +45,8 @@ export function EditorDeServicos({
 
   const [erroFoto, setErroFoto] = useState<string | null>(null);
   const [enviandoFoto, setEnviandoFoto] = useState<number | null>(null);
+  /** Foto esperando o enquadramento (zoom e arrastar) antes do envio. */
+  const [ajustando, setAjustando] = useState<{ indice: number; arquivo: File } | null>(null);
   const [confirmarRemocao, dialogoRemocao] = useConfirmar();
   const arquivos = useRef<Record<number, HTMLInputElement | null>>({});
   const segmentoNormalizado = segmentoParaApresentacao(segmento);
@@ -52,6 +55,40 @@ export function EditorDeServicos({
 
   function atualizar(indice: number, campos: Partial<ServicoEditavel>) {
     onChange(servicos.map((s, i) => (i === indice ? { ...s, ...campos } : s)));
+  }
+
+  async function enviarFotoDoServico(i: number, file: File) {
+    if (!tenantId) return;
+    const s = servicos[i];
+    if (!s) return;
+    setEnviandoFoto(i);
+    setErroFoto(null);
+    try {
+      const blob = await comprimirImagem(file, {
+        maxLado: 1600,
+        transparente: false,
+      });
+      const path = `${tenantId}/servico-${s.id ?? `novo-${i}`}-${Date.now()}.jpg`;
+      const { error } = await supabase.storage
+        .from("tenant-logos")
+        .upload(path, blob, { contentType: blob.type || "image/jpeg" });
+      if (error) throw error;
+      const preview = URL.createObjectURL(blob);
+      atualizar(i, { fotoUrl: path });
+      fotosAssinadas[path] = preview;
+    } catch {
+      setErroFoto("Não foi possível enviar a foto do serviço.");
+    } finally {
+      setEnviandoFoto(null);
+    }
+  }
+
+  async function reajustarFoto(i: number, url: string) {
+    try {
+      setAjustando({ indice: i, arquivo: await arquivoDaUrl(url, "servico") });
+    } catch {
+      setErroFoto("Não foi possível abrir a foto do serviço para ajustar.");
+    }
   }
 
   return (
@@ -89,6 +126,20 @@ export function EditorDeServicos({
                   <p className="mt-1 text-xs text-mute">
                     {enviandoFoto === i ? "Enviando…" : "Horizontal 4:3. Opcional."}
                   </p>
+                  {s.fotoUrl && (fotosAssinadas[s.fotoUrl] ?? s.fotoUrl.startsWith("http")) ? (
+                    <Button
+                      type="button"
+                      variant="text"
+                      size="sm"
+                      className="mt-1 h-auto px-0"
+                      disabled={enviandoFoto === i}
+                      onClick={() =>
+                        void reajustarFoto(i, fotosAssinadas[s.fotoUrl!] ?? s.fotoUrl!)
+                      }
+                    >
+                      Ajustar foto
+                    </Button>
+                  ) : null}
                 </div>
                 <input
                   ref={(node) => {
@@ -97,29 +148,10 @@ export function EditorDeServicos({
                   type="file"
                   accept="image/*"
                   className="hidden"
-                  onChange={async (event) => {
+                  onChange={(event) => {
                     const file = event.target.files?.[0];
                     event.target.value = "";
-                    if (!file) return;
-                    setEnviandoFoto(i);
-                    try {
-                      const blob = await comprimirImagem(file, {
-                        maxLado: 1600,
-                        transparente: false,
-                      });
-                      const path = `${tenantId}/servico-${s.id ?? `novo-${i}`}-${Date.now()}.jpg`;
-                      const { error } = await supabase.storage
-                        .from("tenant-logos")
-                        .upload(path, blob, { contentType: blob.type || "image/jpeg" });
-                      if (error) throw error;
-                      const preview = URL.createObjectURL(blob);
-                      atualizar(i, { fotoUrl: path });
-                      fotosAssinadas[path] = preview;
-                    } catch {
-                      setErroFoto("Não foi possível enviar a foto do serviço.");
-                    } finally {
-                      setEnviandoFoto(null);
-                    }
+                    if (file) setAjustando({ indice: i, arquivo: file });
                   }}
                 />
               </div>
@@ -311,6 +343,19 @@ export function EditorDeServicos({
         <AssistenteDeServicos servicos={servicos} onChange={onChange} segmento={segmentoNormalizado} />
       )}
       {dialogoRemocao}
+      {ajustando ? (
+        <AjustadorImagem
+          file={ajustando.arquivo}
+          titulo="Ajustar foto do serviço"
+          proporcao={4 / 3}
+          onCancelar={() => setAjustando(null)}
+          onConfirmar={(arquivo) => {
+            const { indice } = ajustando;
+            setAjustando(null);
+            void enviarFotoDoServico(indice, arquivo);
+          }}
+        />
+      ) : null}
     </div>
   );
 }

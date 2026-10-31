@@ -189,8 +189,11 @@ export function PaineisDoEditor({
               ? "Ajustar foto de capa"
               : e.imagemPendente.kind === "logo"
                 ? "Ajustar logo"
-                : "Ajustar foto da recepção"
+                : e.imagemPendente.kind === "foto"
+                  ? "Ajustar foto da galeria"
+                  : "Ajustar foto da recepção"
           }
+          redondo={e.imagemPendente.kind === "avatar"}
           proporcao={e.imagemPendente.kind === "capa" ? 16 / 9 : 1}
           fit={e.imagemPendente.kind === "logo" ? "contain" : "cover"}
           onCancelar={e.cancelarImagem}

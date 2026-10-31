@@ -2,6 +2,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Camera, Check, ImagePlus, Loader2 } from "lucide-react";
 import { useRef, useState, type ChangeEvent } from "react";
 
+import { AjustadorImagem, type AjusteDeFoto } from "@/components/ui/ajustador-imagem";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -24,6 +25,8 @@ type Props = {
   max?: number;
   prefixo?: "produto" | "profissional" | "foto";
   titulo?: string;
+  /** Com ajuste, cada foto nova passa pelo enquadramento (zoom e arrastar) antes de ser enviada. */
+  ajuste?: AjusteDeFoto;
   onEscolher: (fotos: FotoEscolhida[]) => void;
 };
 
@@ -38,6 +41,7 @@ export function GaleriaDeFotos({
   max = 6,
   prefixo = "foto",
   titulo = "Galeria de fotos",
+  ajuste,
   onEscolher,
 }: Props) {
   const qc = useQueryClient();
@@ -50,6 +54,8 @@ export function GaleriaDeFotos({
   const [marcadas, setMarcadas] = useState<FotoEscolhida[]>([]);
   const [enviando, setEnviando] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
+  /** Fotos novas esperando o enquadramento, uma de cada vez. */
+  const [fila, setFila] = useState<File[]>([]);
   const doAparelho = useRef<HTMLInputElement>(null);
   const daCamera = useRef<HTMLInputElement>(null);
 
@@ -78,6 +84,10 @@ export function GaleriaDeFotos({
     e.target.value = "";
     if (!arquivos.length) return;
     setErro(null);
+    if (ajuste) {
+      setFila(arquivos);
+      return;
+    }
     setEnviando(true);
     try {
       const enviadas: FotoEscolhida[] = [];
@@ -92,7 +102,23 @@ export function GaleriaDeFotos({
     }
   }
 
+  async function enviarAjustada(arquivo: File) {
+    setFila((atual) => atual.slice(1));
+    setEnviando(true);
+    try {
+      const enviada = await enviarFoto(arquivo, prefixo);
+      void qc.invalidateQueries({ queryKey: ["fotos-do-negocio"] });
+      if (!multiplo) return concluir([enviada]);
+      setMarcadas((atual) => [...atual, enviada].slice(0, max));
+    } catch (falha) {
+      setErro(falha instanceof Error ? falha.message : "Não foi possível enviar a foto.");
+    } finally {
+      setEnviando(false);
+    }
+  }
+
   const fotos = data ?? [];
+  const proxima = fila[0];
   return (
     <Sheet open={aberto} onOpenChange={(v) => (v ? onAberto(true) : fechar())}>
       <SheetContent side="bottom" className="max-h-[88dvh]">
@@ -210,6 +236,18 @@ export function GaleriaDeFotos({
           </Button>
         ) : null}
       </SheetContent>
+      {ajuste && proxima ? (
+        <AjustadorImagem
+          key={`${proxima.name}-${proxima.lastModified}-${fila.length}`}
+          file={proxima}
+          titulo={ajuste.titulo ?? "Ajustar foto"}
+          proporcao={ajuste.proporcao}
+          fit={ajuste.fit ?? "cover"}
+          redondo={ajuste.redondo ?? false}
+          onCancelar={() => setFila((atual) => atual.slice(1))}
+          onConfirmar={(arquivo) => void enviarAjustada(arquivo)}
+        />
+      ) : null}
     </Sheet>
   );
 }

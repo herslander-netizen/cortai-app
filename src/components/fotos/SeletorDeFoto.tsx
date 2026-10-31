@@ -1,8 +1,12 @@
-import { ImagePlus, X } from "lucide-react";
+import { Crop, ImagePlus, X } from "lucide-react";
 import { useState } from "react";
 
 import { GaleriaDeFotos, type FotoEscolhida } from "@/components/fotos/GaleriaDeFotos";
+import { AjustadorImagem, type AjusteDeFoto } from "@/components/ui/ajustador-imagem";
 import { Button } from "@/components/ui/button";
+import { aviso } from "@/lib/avisos";
+import { enviarFoto } from "@/lib/enviar-foto";
+import { arquivoDaUrl } from "@/lib/imagem";
 
 type Prefixo = "produto" | "profissional" | "foto";
 
@@ -15,6 +19,7 @@ export function SeletorDeFoto({
   onEscolher,
   onRemover,
   formato = "miniatura",
+  ajuste,
 }: {
   /** `cartao`: imagem grande com "Alterar imagem" por cima, como o Hero do Figaro. */
   formato?: "miniatura" | "cartao";
@@ -25,8 +30,73 @@ export function SeletorDeFoto({
   prefixo?: Prefixo;
   onEscolher: (foto: FotoEscolhida) => void;
   onRemover: () => void;
+  /** Enquadramento da foto (zoom e arrastar). Padrão: capa 16:9 no cartão, quadrada na miniatura. */
+  ajuste?: AjusteDeFoto;
 }) {
   const [aberta, setAberta] = useState(false);
+  const enquadramento: AjusteDeFoto = ajuste ?? {
+    proporcao: formato === "cartao" ? 16 / 9 : 1,
+    redondo: prefixo === "profissional",
+  };
+  const [reajuste, setReajuste] = useState<File | null>(null);
+  const [abrindo, setAbrindo] = useState(false);
+
+  async function reajustar() {
+    if (!previewUrl) return;
+    setAbrindo(true);
+    try {
+      setReajuste(await arquivoDaUrl(previewUrl, prefixo));
+    } catch (falha) {
+      aviso.erro(falha instanceof Error ? falha.message : "Não foi possível abrir a foto.");
+    } finally {
+      setAbrindo(false);
+    }
+  }
+
+  async function enviarReajuste(arquivo: File) {
+    setReajuste(null);
+    try {
+      onEscolher(await enviarFoto(arquivo, prefixo));
+    } catch (falha) {
+      aviso.erro(falha instanceof Error ? falha.message : "Não foi possível enviar a foto.");
+    }
+  }
+
+  const botaoAjustar =
+    temFoto && previewUrl ? (
+      <Button
+        type="button"
+        variant={formato === "cartao" ? "text" : "ghost"}
+        size="sm"
+        loading={abrindo}
+        onClick={() => void reajustar()}
+      >
+        <Crop aria-hidden /> Ajustar
+      </Button>
+    ) : null;
+
+  const ajustador = reajuste ? (
+    <AjustadorImagem
+      file={reajuste}
+      titulo={enquadramento.titulo ?? `Ajustar ${rotulo.toLowerCase()}`}
+      proporcao={enquadramento.proporcao}
+      fit={enquadramento.fit ?? "cover"}
+      redondo={enquadramento.redondo ?? false}
+      onCancelar={() => setReajuste(null)}
+      onConfirmar={(arquivo) => void enviarReajuste(arquivo)}
+    />
+  ) : null;
+
+  const galeria = (
+    <GaleriaDeFotos
+      aberto={aberta}
+      onAberto={setAberta}
+      prefixo={prefixo}
+      titulo={`${rotulo}: galeria de fotos`}
+      ajuste={enquadramento}
+      onEscolher={([foto]) => foto && onEscolher(foto)}
+    />
+  );
   if (formato === "cartao") {
     return (
       <div className="space-y-2">
@@ -49,17 +119,15 @@ export function SeletorDeFoto({
           </Button>
         </div>
         {temFoto ? (
-          <Button type="button" variant="text" size="sm" onClick={onRemover}>
-            Remover
-          </Button>
+          <div className="flex flex-wrap gap-2">
+            {botaoAjustar}
+            <Button type="button" variant="text" size="sm" onClick={onRemover}>
+              Remover
+            </Button>
+          </div>
         ) : null}
-        <GaleriaDeFotos
-          aberto={aberta}
-          onAberto={setAberta}
-          prefixo={prefixo}
-          titulo={`${rotulo}: galeria de fotos`}
-          onEscolher={([foto]) => foto && onEscolher(foto)}
-        />
+        {galeria}
+        {ajustador}
       </div>
     );
   }
@@ -71,10 +139,14 @@ export function SeletorDeFoto({
         aria-label={
           temFoto ? `Trocar ${rotulo.toLowerCase()}` : `Adicionar ${rotulo.toLowerCase()}`
         }
-        className="grid size-20 shrink-0 place-items-center overflow-hidden rounded-lg border border-dashed border-line2 bg-ink2 text-mute"
+        className={`grid size-20 shrink-0 place-items-center overflow-hidden border border-dashed border-line2 bg-ink2 text-mute ${enquadramento.redondo ? "rounded-full" : "rounded-lg"}`}
       >
         {previewUrl ? (
-          <img src={previewUrl} alt="" className="size-full object-cover" />
+          <img
+            src={previewUrl}
+            alt=""
+            className={`size-full ${enquadramento.fit === "contain" ? "object-contain" : "object-cover"}`}
+          />
         ) : (
           <ImagePlus size={22} aria-hidden />
         )}
@@ -85,6 +157,7 @@ export function SeletorDeFoto({
           <Button type="button" variant="outline" size="sm" onClick={() => setAberta(true)}>
             {temFoto ? "Trocar foto" : "Escolher foto"}
           </Button>
+          {botaoAjustar}
           {temFoto ? (
             <Button type="button" variant="ghost" size="sm" onClick={onRemover}>
               Remover
@@ -92,13 +165,8 @@ export function SeletorDeFoto({
           ) : null}
         </div>
       </div>
-      <GaleriaDeFotos
-        aberto={aberta}
-        onAberto={setAberta}
-        prefixo={prefixo}
-        titulo={`${rotulo}: galeria de fotos`}
-        onEscolher={([foto]) => foto && onEscolher(foto)}
-      />
+      {galeria}
+      {ajustador}
     </div>
   );
 }
@@ -162,6 +230,7 @@ export function ListaDeFotos({
         multiplo
         max={Math.max(restantes, 1)}
         prefixo={prefixo}
+        ajuste={{ proporcao: 1 }}
         {...(titulo ? { titulo } : {})}
         onEscolher={(novas) =>
           onChange(

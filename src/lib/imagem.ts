@@ -40,3 +40,16 @@ export async function comprimirImagem(
     URL.revokeObjectURL(url);
   }
 }
+
+/**
+ * Baixa uma foto já enviada (link assinado do armazenamento) como arquivo, para reajustar o enquadramento
+ * de uma foto antiga no mesmo ajustador das fotos novas.
+ */
+export async function arquivoDaUrl(url: string, nome = "foto"): Promise<File> {
+  const resposta = await fetch(url);
+  if (!resposta.ok) throw new Error("Não foi possível abrir a foto para ajustar.");
+  const blob = await resposta.blob();
+  if (!blob.type.startsWith("image/")) throw new Error("Esse arquivo não é uma imagem.");
+  const extensao = blob.type.split("/")[1]?.replace("jpeg", "jpg") ?? "jpg";
+  return new File([blob], `${nome}.${extensao}`, { type: blob.type, lastModified: Date.now() });
+}

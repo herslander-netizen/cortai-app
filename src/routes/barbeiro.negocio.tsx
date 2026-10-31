@@ -105,6 +105,7 @@ function InformacoesBasicasPage() {
             <SeletorDeFoto
               rotulo="Logo"
               prefixo="foto"
+              ajuste={{ proporcao: 1, fit: "contain", titulo: "Ajustar logo" }}
               temFoto={temLogo}
               previewUrl={logoMostrada}
               onEscolher={(foto) => {

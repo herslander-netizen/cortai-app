@@ -19,6 +19,8 @@ export async function enviarFoto(
   prefixo: "produto" | "profissional" | "foto" = "foto",
 ): Promise<{ path: string; url: string }> {
   if (!arquivo.type.startsWith("image/")) throw new Error("Escolha um arquivo de imagem.");
-  const reduzida = await comprimirImagem(arquivo, { maxLado: 1600, transparente: false });
+  // PNG/WebP (logo ajustada com sobra transparente) continua transparente; foto comum vira JPEG.
+  const transparente = arquivo.type === "image/png" || arquivo.type === "image/webp";
+  const reduzida = await comprimirImagem(arquivo, { maxLado: 1600, transparente });
   return enviarFotoDoNegocio({ data: { base64: await paraBase64(reduzida), prefixo } });
 }

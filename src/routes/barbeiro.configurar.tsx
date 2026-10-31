@@ -28,6 +28,8 @@ import { avancarSeSalvar } from "@/lib/erro-amigavel";
 import { convidarMembro } from "@/lib/equipe.functions";
 import { getSessao } from "@/lib/sessao.functions";
 import { Button } from "@/components/ui/button";
+import { AjustadorImagem } from "@/components/ui/ajustador-imagem";
+import { comprimirImagem } from "@/lib/imagem";
 import { EsqueletoFormulario } from "@/components/layout/Esqueleto";
 import {
   adicionarProfissional,
@@ -173,6 +175,8 @@ function ConfigurarPage() {
   const [endereco, setEndereco] = useState<string | null>(null);
   const [logo, setLogo] = useState<{ caminho: string; previa: string } | null>(null);
   const [enviandoLogo, setEnviandoLogo] = useState(false);
+  /** Logo esperando o enquadramento (zoom e arrastar) antes do envio. */
+  const [logoPendente, setLogoPendente] = useState<File | null>(null);
   const [horarios, setHorarios] = useState<HorarioSugerido[] | null>(null);
   const [servicos, setServicos] = useState<ServicoEditavel[] | null>(null);
   const [regras, setRegras] = useState<RegrasDeAgendamento | null>(null);
@@ -264,22 +268,39 @@ function ConfigurarPage() {
     const arquivo = evento.target.files?.[0];
     evento.target.value = "";
     if (!arquivo || !data) return;
-    if (!arquivo.type.startsWith("image/") || arquivo.size > 2 * 1024 * 1024) {
-      aviso.erro("Use uma imagem de até 2 MB.");
+    if (!arquivo.type.startsWith("image/")) {
+      aviso.erro("Escolha uma imagem.");
       return;
     }
+    setLogoPendente(arquivo);
+  }
+
+  async function enviarLogoAjustada(arquivo: File) {
+    setLogoPendente(null);
+    if (!data) return;
     setEnviandoLogo(true);
-    const extensao = arquivo.name.split(".").pop()?.toLowerCase() ?? "jpg";
-    const caminho = `${data.tenant.id}/logo-${Date.now()}.${extensao}`;
-    const { error } = await supabase.storage
-      .from("tenant-logos")
-      .upload(caminho, arquivo, { contentType: arquivo.type });
-    setEnviandoLogo(false);
-    if (error) {
-      aviso.erro("Não consegui enviar a imagem. Tente outra.");
-      return;
+    try {
+      const blob = await comprimirImagem(arquivo, { maxLado: 800, transparente: true });
+      if (blob.size > 2 * 1024 * 1024) {
+        aviso.erro("Use uma imagem de até 2 MB.");
+        return;
+      }
+      const extensao =
+        blob.type === "image/png" ? "png" : blob.type === "image/webp" ? "webp" : "jpg";
+      const caminho = `${data.tenant.id}/logo-${Date.now()}.${extensao}`;
+      const { error } = await supabase.storage
+        .from("tenant-logos")
+        .upload(caminho, blob, { contentType: blob.type || "image/png" });
+      if (error) {
+        aviso.erro("Não consegui enviar a imagem. Tente outra.");
+        return;
+      }
+      setLogo({ caminho, previa: URL.createObjectURL(blob) });
+    } catch {
+      aviso.erro("Não consegui preparar a imagem. Tente outra.");
+    } finally {
+      setEnviandoLogo(false);
     }
-    setLogo({ caminho, previa: URL.createObjectURL(arquivo) });
   }
 
   async function adicionarPessoa() {
@@ -488,6 +509,16 @@ function ConfigurarPage() {
                     className="hidden"
                     onChange={enviarLogo}
                   />
+                  {logoPendente ? (
+                    <AjustadorImagem
+                      file={logoPendente}
+                      titulo="Ajustar logo ou foto"
+                      proporcao={1}
+                      fit="contain"
+                      onCancelar={() => setLogoPendente(null)}
+                      onConfirmar={(arquivo) => void enviarLogoAjustada(arquivo)}
+                    />
+                  ) : null}
                 </div>
                 <label className="block text-xs font-medium text-mute">
                   Nome {vocabulario.de}

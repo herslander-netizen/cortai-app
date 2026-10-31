@@ -2,6 +2,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { Camera, Check } from "lucide-react";
 import { useRef, useState } from "react";
 
+import { AjustadorImagem } from "@/components/ui/ajustador-imagem";
 import { Button } from "@/components/ui/button";
 import { enviarFotoCorte } from "@/lib/perfil-cliente.functions";
 import { termos as termosPara, type Segmento } from "@/lib/segmentos";
@@ -36,9 +37,12 @@ export function FotoDoCorte({
   const [autorizou, setAutorizou] = useState(false);
   const [estado, setEstado] = useState<"livre" | "enviando" | "ok">("livre");
   const [erro, setErro] = useState<string | null>(null);
+  /** Foto esperando o enquadramento (zoom e arrastar) antes do envio. */
+  const [pendente, setPendente] = useState<File | null>(null);
 
   async function escolher(arquivo: File | undefined) {
     if (!arquivo) return;
+    setPendente(null);
     setEstado("enviando");
     setErro(null);
     try {
@@ -88,7 +92,11 @@ export function FotoDoCorte({
         accept="image/*"
         capture="environment"
         className="hidden"
-        onChange={(e) => void escolher(e.target.files?.[0])}
+        onChange={(e) => {
+          const arquivo = e.target.files?.[0];
+          e.target.value = "";
+          if (arquivo) setPendente(arquivo);
+        }}
       />
       <Button
         variant="outline"
@@ -107,6 +115,15 @@ export function FotoDoCorte({
         <p className="mt-2 text-sm text-paper" role="alert">
           {erro}
         </p>
+      ) : null}
+      {pendente ? (
+        <AjustadorImagem
+          file={pendente}
+          titulo={`Ajustar ${termos.fotoAtendimento.toLocaleLowerCase("pt-BR")}`}
+          proporcao={1}
+          onCancelar={() => setPendente(null)}
+          onConfirmar={(arquivo) => void escolher(arquivo)}
+        />
       ) : null}
     </div>
   );

@@ -12,6 +12,7 @@ vi.mock("@/lib/fotos.functions", () => ({
   enviarFotoDoNegocio: vi.fn(),
 }));
 
+import { enviarFotoDoNegocio } from "@/lib/fotos.functions";
 import { ListaDeFotos, SeletorDeFoto } from "./SeletorDeFoto";
 
 (globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT: boolean }).IS_REACT_ACT_ENVIRONMENT =
@@ -91,5 +92,62 @@ describe("fotos por galeria, sem campo de link", () => {
       }),
     );
     expect(alvo.querySelector('button[aria-label="Adicionar fotos"]')).toBeNull();
+  });
+
+  it("foto nova do aparelho abre o ajuste (zoom e arrastar) antes de qualquer envio", async () => {
+    // O jsdom não cria links de arquivo: a prévia do ajuste só precisa de um endereço qualquer.
+    const criar = vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:teste");
+    const revogar = vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => {});
+    limpar.push(() => (criar.mockRestore(), revogar.mockRestore()));
+    const alvo = montar(
+      createElement(SeletorDeFoto, {
+        rotulo: "Foto do produto",
+        prefixo: "produto",
+        previewUrl: null,
+        temFoto: false,
+        onEscolher: () => {},
+        onRemover: () => {},
+      }),
+    );
+    act(() =>
+      [...alvo.querySelectorAll("button")].find((b) => b.textContent === "Escolher foto")!.click(),
+    );
+    await esperar();
+    const entrada = document.querySelector("input[type=file]") as HTMLInputElement;
+    const arquivo = new File(["x"], "produto.jpg", { type: "image/jpeg" });
+    Object.defineProperty(entrada, "files", { value: [arquivo], configurable: true });
+    act(() => entrada.dispatchEvent(new Event("change", { bubbles: true })));
+    await esperar();
+    const dialogo = document.querySelector(
+      '[role="dialog"][aria-describedby="ajustador-imagem-dica"]',
+    );
+    expect(dialogo?.textContent).toContain("Ajustar foto");
+    expect(
+      dialogo?.querySelector('input[type="range"][aria-label="Nível de zoom"]'),
+    ).not.toBeNull();
+    expect(enviarFotoDoNegocio).not.toHaveBeenCalled();
+    act(() =>
+      [...dialogo!.querySelectorAll("button")].find((b) => b.textContent === "Cancelar")!.click(),
+    );
+    await esperar();
+    expect(document.querySelector('[aria-describedby="ajustador-imagem-dica"]')).toBeNull();
+    expect(enviarFotoDoNegocio).not.toHaveBeenCalled();
+  });
+
+  it("foto já escolhida pode ser reajustada; foto de profissional usa moldura redonda", () => {
+    const alvo = montar(
+      createElement(SeletorDeFoto, {
+        rotulo: "Foto",
+        prefixo: "profissional",
+        previewUrl: "https://x/p.jpg",
+        temFoto: true,
+        onEscolher: () => {},
+        onRemover: () => {},
+      }),
+    );
+    expect(
+      [...alvo.querySelectorAll("button")].some((b) => b.textContent?.includes("Ajustar")),
+    ).toBe(true);
+    expect(alvo.querySelector("button.rounded-full img")).not.toBeNull();
   });
 });

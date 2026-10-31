@@ -43,7 +43,7 @@ export function useEditorDaPagina(initial: MarcaData, reload: () => void) {
   const [slug, setSlug] = useState(initial.slug);
   const [device, setDevice] = useState<"mobile" | "desktop">("mobile");
   const [busy, setBusy] = useState(false);
-  const [imagemPendente, setImagemPendente] = useState<{ file: File; kind: "logo" | "capa" | "avatar" } | null>(null);
+  const [imagemPendente, setImagemPendente] = useState<{ file: File; kind: "logo" | "capa" | "avatar" | "foto" } | null>(null);
   const [fase, setFase] = useState<FaseDoEditor>("ocioso");
   const [erro, setErro] = useState(false);
   const [status, setStatusBruto] = useState<string | null>(null);
@@ -103,10 +103,7 @@ export function useEditorDaPagina(initial: MarcaData, reload: () => void) {
     const file = event.target.files?.[0];
     event.target.value = "";
     if (!file) return;
-    if (kind === "foto") {
-      void enviarArquivo(file, kind);
-      return;
-    }
+    // Toda foto passa pelo enquadramento (zoom e arrastar) antes do envio, inclusive as da galeria.
     setImagemPendente({ file, kind });
   };
 

@@ -529,7 +529,6 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Em andamento
 
-- Claude | 2026-10-31 UTC | Ajuste de fotos e capas (zoom e arrastar) no ponto de envio: `GaleriaDeFotos`, `SeletorDeFoto`, editor da página (capa/logo), editor de serviços; componente novo `AjustarFoto`. Sem migração (o recorte vai na própria imagem enviada) | `src/components/fotos/*`, `src/lib/imagem.ts`, `src/lib/enviar-foto.ts`, `src/components/marca/editor/useEditorDaPagina.ts`, `src/components/onboarding/EditorDeServicos.tsx`
 
 - Claude | 2026-10-31 UTC | Flow Bot dentro do Flow — Fase A (dono: "vamos criar a integração"): motor do flow-bot embutido em `src/lib/flow-bot/`, entrada no WhatsApp antes da Flow IA, rastro, modo sombra, horário, detecção de pessoa que assumiu (`fromMe`), modo humano com prazo; sem tela (Fase B) | `src/lib/flow-bot/*`, `src/lib/whatsapp/fluxo.server.ts`, `src/routes/api/public/whatsapp/evolution.ts`, `src/integrations/supabase/types.ts`, `supabase/tests/flow_bot.sql`, migração **0055** `drizzle/migrations/0055_flow_bot.sql` (não aplicar sem autorização)
 
@@ -874,6 +873,12 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+### 2026-10-31 UTC — Claude — Ajustar (zoom e arrastar) toda foto e capa escolhida, em todo o sistema
+- Pedido do dono: "ajuste é redimensionar para deixar a foto da maneira que a pessoa quer e não forçar a foto lá estática", em "todo sistema". Cada foto nova passa pelo enquadramento antes de ser enviada: arrastar para escolher a parte que aparece, dois dedos ou a barra para ampliar. Foto já escolhida ganhou o botão **Ajustar**, que reabre o enquadramento a partir da foto salva.
+- Onde vale: galeria de fotos do negócio (`GaleriaDeFotos`, com fila quando são várias), `SeletorDeFoto` (capa 16:9, produto 1:1, profissional com moldura redonda), `ListaDeFotos` (portfólio 1:1), logo em Informações básicas e no primeiro acesso (`barbeiro.configurar`, foto inteira com sobra transparente), foto de serviço (4:3, `EditorDeServicos`), galeria do editor da página pública (antes ia direto, sem ajuste), foto do atendimento na ficha do cliente (`FotoDoCorte`, 1:1; está dentro da ficha da Agenda: só ganhou o ajuste, nada visual da Agenda mudou).
+- Sem migração: o recorte vai na própria imagem enviada. `AjustadorImagem` virou diálogo do Radix (funciona por cima das gavetas abertas, sem perder os toques), no estilo Figaro (cartão de 28 dp, `Button`), com moldura redonda opcional e o tipo `AjusteDeFoto`. Corrigida a expressão `\\.` do nome do arquivo. `enviarFoto` mantém PNG/WebP transparente (antes a sobra da logo virava preto). Novo `arquivoDaUrl` em `imagem.ts` para reajustar foto salva.
+- Testes: `SeletorDeFoto.test.tsx` (+2: foto do aparelho abre o ajuste e nada é enviado antes de confirmar; foto salva tem "Ajustar" e a de profissional é redonda). `tsc`, `vitest` (270 arquivos, 2273 testes), `build` e protocolo OK. Lint: nenhum erro novo, exceto 10 de recuo no bloco de `barbeiro.configurar.tsx` que já estava fora do padrão (seguido o recuo vizinho).
+- Visual conferido a 390 px num navegador (capa no escuro com zoom 2× e arrasto, perfil redondo, logo no claro). Falta conferir no celular, na prévia, o fluxo completo de envio.
 ### 2026-10-31 UTC — GPT — APK Android de homologação do Flow
 
 - Pedido do dono: criar e entregar um APK instalável para teste no Android. Implementado wrapper Capacitor 8.6.0, app separado `dev.flowapp.preview`, nome `Flow Teste`, ícone oficial e URL fixa `https://previa.cortaiapp.pages.dev`.
