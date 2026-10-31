@@ -1,6 +1,7 @@
 import { FaixaDeEstado } from "@/components/marca/editor/FaixaDeEstado";
 import { SecaoAjustesFinos } from "@/components/marca/editor/SecaoAjustesFinos";
 import { SecaoImagens } from "@/components/marca/editor/SecaoImagens";
+import { SecaoRecepcao } from "@/components/marca/editor/SecaoRecepcao";
 import { SecaoLink } from "@/components/marca/editor/SecaoLink";
 import { SecaoRedes } from "@/components/marca/editor/SecaoRedes";
 import { SecaoVersoes } from "@/components/marca/editor/SecaoVersoes";
@@ -104,6 +105,20 @@ export function PaineisDoEditor({
                   upload={e.upload}
                   usarLogo={e.usarLogo}
                   removerLogo={e.removerLogo}
+                />
+              </Item>
+              <Item
+                id="recepcao"
+                titulo="Foto da recepção"
+                descricao="Personalize a imagem que identifica a recepção no atendimento por conversa."
+              >
+                <SecaoRecepcao
+                  config={e.config}
+                  setPagina={e.setPagina}
+                  avatarRef={e.avatarRef}
+                  avatarPreview={e.avatarPreview}
+                  setAvatarPreview={e.setAvatarPreview}
+                  upload={e.upload}
                 />
               </Item>
               <Item
