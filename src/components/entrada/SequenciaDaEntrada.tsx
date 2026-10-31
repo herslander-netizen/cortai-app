@@ -2,7 +2,6 @@ import { useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode 
 import { motion, useReducedMotion } from "framer-motion";
 import {
   CalendarDays,
-  Clock3,
   ChartNoAxesCombined,
   Globe,
   MessageCircle,
@@ -15,7 +14,6 @@ import { Card } from "@/components/ui/card";
 import { SwipeableShowcase } from "@/components/auth/SwipeableShowcase";
 import { MOLA } from "@/lib/movimento-figaro";
 import {
-  DemoAgendamento,
   DemoAgenda,
   DemoAvaliacoes,
   DemoDesempenho,
