@@ -534,6 +534,8 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Em andamento
 
+- Claude | 2026-10-31 UTC | Telas do Financeiro (Relatórios e Caixa do dia): melhoria de organização e visual pedida pelo dono com capturas; sem mudança de regra de cobrança | `src/routes/barbeiro.caixa.tsx`, `src/routes/barbeiro.financeiro*.tsx`, `src/components/financeiro/*`
+
 
 
 - Claude | 2026-10-31 UTC | Flow Bot dentro do Flow — Fase A (dono: "vamos criar a integração"): motor do flow-bot embutido em `src/lib/flow-bot/`, entrada no WhatsApp antes da Flow IA, rastro, modo sombra, horário, detecção de pessoa que assumiu (`fromMe`), modo humano com prazo; sem tela (Fase B) | `src/lib/flow-bot/*`, `src/lib/whatsapp/fluxo.server.ts`, `src/routes/api/public/whatsapp/evolution.ts`, `src/integrations/supabase/types.ts`, `supabase/tests/flow_bot.sql`, migração **0055** `drizzle/migrations/0055_flow_bot.sql` (não aplicar sem autorização)
