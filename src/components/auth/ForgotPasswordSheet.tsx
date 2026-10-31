@@ -208,7 +208,7 @@ export function ForgotPasswordSheet({
                 <button
                   type="submit"
                   disabled={loading || !email.trim()}
-                  className="min-h-12 w-full rounded-xl bg-gradient-to-r from-[#A8C7FA] to-[#BB86FC] text-sm font-bold text-[#171923] shadow-lg transition hover:brightness-105 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50"
+                  className="min-h-12 w-full rounded-xl bg-gradient-to-r from-[#A8C7FA] to-[#BB86FC] text-sm font-bold text-[#171923] transition hover:brightness-105 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {loading ? "Enviando…" : "Enviar código de recuperação"}
                 </button>
