@@ -873,6 +873,12 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+### 2026-10-31 UTC — GPT — Remove fundo circular dos ícones superiores da Agenda
+- Pedido do dono: retirar o círculo que envolve os ícones superiores à direita (calendário e sino) na captura da Agenda.
+- Alteração mínima: os botões mantêm seus alvos de toque de 48 dp, dimensões, ícones, cores, estados e ações; somente o preenchimento circular foi removido em `CabecalhoAgenda.tsx` e `SinoDeAvisos.tsx`. Nenhum outro controle da Agenda foi alterado.
+- Testes específicos existentes: `icones-cabecalho.test.ts` e `CabecalhoAgenda.icone.test.ts` (não alterados). Validação automatizada e inspeção visual na prévia aguardam o workflow deste envio.
+- Sem banco, migração, secrets, `main` ou publicação principal.
+
 ### 2026-10-31 UTC — Claude — Ajustar (zoom e arrastar) toda foto e capa escolhida, em todo o sistema
 - Pedido do dono: "ajuste é redimensionar para deixar a foto da maneira que a pessoa quer e não forçar a foto lá estática", em "todo sistema". Cada foto nova passa pelo enquadramento antes de ser enviada: arrastar para escolher a parte que aparece, dois dedos ou a barra para ampliar. Foto já escolhida ganhou o botão **Ajustar**, que reabre o enquadramento a partir da foto salva.
 - Onde vale: galeria de fotos do negócio (`GaleriaDeFotos`, com fila quando são várias), `SeletorDeFoto` (capa 16:9, produto 1:1, profissional com moldura redonda), `ListaDeFotos` (portfólio 1:1), logo em Informações básicas e no primeiro acesso (`barbeiro.configurar`, foto inteira com sobra transparente), foto de serviço (4:3, `EditorDeServicos`), galeria do editor da página pública (antes ia direto, sem ajuste), foto do atendimento na ficha do cliente (`FotoDoCorte`, 1:1; está dentro da ficha da Agenda: só ganhou o ajuste, nada visual da Agenda mudou).
