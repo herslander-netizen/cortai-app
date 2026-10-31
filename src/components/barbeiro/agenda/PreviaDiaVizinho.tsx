@@ -51,11 +51,13 @@ export function PreviaDiaVizinho({
     staleTime: 15_000,
   });
   const { data } = consulta;
+  const timeline = visualizacao === "timeline";
+  // Mesma regra do dia aberto: na grade aparecem também os cancelados e remarcados (riscados); só a lista os
+  // esconde. Escondê-los na prévia fazia o cartão riscado surgir ao assentar (vídeo do dono, 31/10).
   const itens = (data?.itens ?? [])
-    .filter((i) => !ENCERRADOS.has(i.status))
+    .filter((i) => timeline || !ENCERRADOS.has(i.status))
     .filter((i) => !profissionalId || i.profissionalId === profissionalId)
     .sort((a, b) => a.inicio.localeCompare(b.inicio));
-  const timeline = visualizacao === "timeline";
   return (
     <div ref={ref} className="agenda-previa-vizinho" aria-hidden="true" data-formato={visualizacao}>
       <strong className="agenda-previa-data">{dataEditorial(dia)}</strong>
@@ -204,11 +206,25 @@ function CamadaVizinha({
     refetchOnMount: false,
     staleTime: 15_000,
   });
-  // Sem o dia carregado a página entra mesmo assim, com horas e linhas (como no modelo).
+  // Sem o dia carregado a página entra mesmo assim, com horas e linhas (como no modelo). Os mesmos atendimentos do
+  // dia aberto, cancelados e remarcados inclusive: senão o cartão riscado surgia ao assentar e o vizinho se
+  // rearrumava (vídeo do dono, 31/10).
   const itens = (data?.itens ?? [])
-    .filter((i) => !ENCERRADOS.has(i.status))
     .filter((i) => !profissionalId || i.profissionalId === profissionalId)
     .sort((a, b) => a.inicio.localeCompare(b.inicio));
+  // Bloqueios e intervalo do dia com a mesma regra do dia aberto (`bloqueiosDoDia` em AgendaOperacional): os da
+  // equipe toda valem para qualquer filtro. Sem isso eles só apareciam quando o dia assentava.
+  const nomeDoProf = (id: string | null) =>
+    id ? (data?.profissionais?.find((p) => p.id === id)?.nome ?? null) : null;
+  const bloqueios = (data?.bloqueiosDoDia ?? [])
+    .filter((b) => !b.profissional_id || !profissionalId || b.profissional_id === profissionalId)
+    .map((b) => ({
+      id: b.id,
+      inicio: b.inicio,
+      fim: b.fim,
+      motivo: b.motivo,
+      profissional: nomeDoProf(b.profissional_id),
+    }));
   return (
     <div className="agenda-dia-vizinha" data-lado={lado} aria-hidden="true">
       <MarcaDoLimiteDoDia className="agenda-dia-vizinha-pontos" />
@@ -221,6 +237,8 @@ function CamadaVizinha({
         // Sem os dados do vizinho ainda, o horário semanal do dia aberto (é o mesmo): as listras do fechado não
         // aparecem do nada quando ele carrega (vídeo do dono, 31/10).
         horarios={data?.horarios ?? horariosDaSemana ?? []}
+        bloqueiosDoDia={bloqueios}
+        intervaloPersonalizado={data?.intervaloPersonalizado ?? null}
         selecionado={null}
         onSelecionar={nada}
         discreto={discreto}

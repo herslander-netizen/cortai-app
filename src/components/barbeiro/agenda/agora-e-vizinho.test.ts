@@ -84,3 +84,14 @@ describe("nada aparece do nada ao trocar de dia (vídeo do dono, 31/10)", () => 
     expect(timeline.match(/<Clock3 aria-hidden \/>\s*Intervalo ·/g)).toHaveLength(2);
   });
 });
+
+describe("dia vizinho desenhado com os mesmos dados do dia aberto (vídeo do dono, 31/10)", () => {
+  it("na grade, o vizinho não esconde cancelados/remarcados e traz bloqueios e intervalo do dia", () => {
+    const camada = vizinho.slice(vizinho.indexOf("function CamadaVizinha"));
+    expect(camada).not.toContain("ENCERRADOS");
+    expect(camada).toContain("bloqueiosDoDia={bloqueios}");
+    expect(camada).toContain("intervaloPersonalizado={data?.intervaloPersonalizado ?? null}");
+    // Só a prévia em lista esconde os encerrados (a lista do dia aberto também esconde).
+    expect(vizinho).toContain(".filter((i) => timeline || !ENCERRADOS.has(i.status))");
+  });
+});
