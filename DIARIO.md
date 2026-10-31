@@ -545,7 +545,6 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Em andamento
 
-- GPT | 2026-10-31 UTC | Adaptar visualmente a entrada e o login `/login` à especificação de landing, movimento e transições, preservando identidade Flow e todas as funcionalidades atuais de autenticação; sem PIN/OTP, novos provedores, backend, regra de negócio ou Agenda | `src/routes/login.tsx`, `src/components/entrada/*` e testes diretamente usados pelo login; sem migração
 
 
 
@@ -905,6 +904,14 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+
+### 2026-10-31 UTC — GPT — Corrige legibilidade da entrada Flow e fecha validação da prévia
+- O que mudou: textos e ícones inativos da apresentação de `/login` agora usam o token Figaro `on-surface` na área clara das ondas, sem alterar os tokens do cartão escuro ou do painel de autenticação. O link para agendamento de cliente também recebe contraste alto. Corrigidos os testes da sequência para refletir as cinco etapas que o código atual realmente apresenta. No painel de recuperação, as sombras Tailwind foram substituídas/removidas em favor do padrão de elevação do projeto.
+- Arquivos: `src/routes/login.tsx`, `src/components/entrada/SequenciaDaEntrada.tsx`, `src/components/entrada/SequenciaDaEntrada.test.tsx`, `src/components/auth/ForgotPasswordSheet.tsx`.
+- Commits: `4bb4ffaaff873191b23dcbbdbd8c0eab876f55b6` e `fa311a519271558c709988174d8c362a41573603`.
+- Validação GitHub Actions `41241851082`: instalação, build, TypeScript e Vitest passaram; 278 arquivos de teste, 2.311 testes aprovados e 1 ignorado. Publicação isolada na prévia, configuração do Worker e smoke test passaram.
+- ESLint não faz parte do workflow e não foi executado localmente. A conferência visual manual em 360/390 px, nos dois temas e em aparelho real permanece pendente; o smoke test confirma a publicação/funcionamento, não substitui essa inspeção visual.
+- Prévia: `https://previa.cortaiapp.pages.dev`. Sem alterações na Agenda, autenticação/backend, banco, `main`, DNS ou site principal. Reserva concluída e removida.
 
 ### 2026-10-31 UTC — GPT — Acelera o movimento das ondas da entrada
 - Alteração: ciclos das ondas superior/inferior reduzidos de 14/17 s para 7/8,5 s, mantendo caminhos, cores, camadas, sentido e respeito a `prefers-reduced-motion`.
