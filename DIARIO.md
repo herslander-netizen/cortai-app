@@ -546,7 +546,6 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Em andamento
 
-- GPT | 2026-10-31 UTC | Revisão visual do acesso `/login`: consistência tipográfica, legibilidade e campos nos dois temas; preservar autenticação, recuperação, provedores, apresentação aprovada e redirecionamentos | `src/routes/login.tsx`, `src/components/auth/ForgotPasswordSheet.tsx`, `src/styles.css` (somente se necessário), testes relacionados; sem migração
 
 
 
@@ -909,6 +908,13 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+
+### 2026-10-31 UTC — GPT — Alinha os campos do login e da recuperação às superfícies
+- O que mudou: o campo de login agora usa a superfície elevada escura do painel de acesso, em vez de herdar o preenchimento claro da classe `light`. A recuperação em tela cheia define explicitamente fundo, texto e rótulos dos campos pelos tokens da superfície clara, sem depender do tema global anterior.
+- Arquivos: `src/routes/login.tsx`, `src/components/auth/ForgotPasswordSheet.tsx`, novo `src/components/auth/ForgotPasswordSheet.test.tsx`.
+- Teste novo: verifica os tokens claros e a presença do primitivo `field-control` na recuperação. Validação TypeScript/Vitest/build e publicação da prévia ainda aguardam GitHub Actions; conferência visual manual em 390/360 px e nos dois temas também permanece pendente.
+- Escopo preservado: nenhuma mudança em autenticação, sessão, provedores, recuperação funcional, redirecionamentos, Agenda, banco, `main` ou site principal. Sem migração.
+
 
 ### 2026-10-31 UTC — GPT — Recuperação de senha em tela cheia conforme referência
 - O que mudou: a recuperação deixou de ser uma gaveta e passou a ocupar a tela inteira, com botão de fechar circular, título grande, e-mail identificado, seis campos numéricos, contador de reenvio e ação principal ancorada no rodapé. A verificação agora acontece ao tocar em “Confirmar código” (ou Enter), não imediatamente ao preencher o sexto dígito. Colagem de seis dígitos, navegação por teclado, estados de erro, reenvio e redução de movimento preservados.
