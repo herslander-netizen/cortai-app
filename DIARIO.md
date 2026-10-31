@@ -543,6 +543,8 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Em andamento
 
+- GPT | 2026-10-31 UTC | Refinar minuciosamente a tela de entrada Flow após capturas do Android: impedir vazamento do mockup sobre a legenda, corrigir contraste nos demos no tema claro, organizar proporções/ritmo vertical e estados acessíveis; preservar autenticação, cadastro e acesso de cliente | `src/routes/login.tsx`, `src/components/entrada/SequenciaDaEntrada.tsx`, `src/components/entrada/DemosDaEntrada.tsx`, testes da entrada; **não alterar `src/styles.css` nem Agenda**
+
 
 
 
