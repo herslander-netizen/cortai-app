@@ -223,7 +223,10 @@ function LoginPage() {
 
   useEffect(() => {
     const meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
-    if (meta) meta.content = "#ffffff";
+    if (meta) {
+      const fundo = getComputedStyle(document.documentElement).getPropertyValue("--background").trim();
+      if (fundo) meta.content = fundo;
+    }
     return sincronizarCorDoNavegador;
   }, []);
 
@@ -304,8 +307,8 @@ function LoginPage() {
         {
           "--entrada-fundo": "var(--cartao)",
           "--campo-fundo": "var(--ink3)",
-          "--entrada-ciano": "#A8C7FA",
-          "--entrada-rosa": "#F48FB1",
+          "--entrada-ciano": "var(--figaro-primary)",
+          "--entrada-rosa": "var(--figaro-tertiary)",
           // A apresentação fica sobre ondas claras; usa o on-surface Figaro para garantir contraste.
           // Os tokens --paper/--mute do painel de autenticação permanecem inalterados.
           "--entrada-texto": "var(--figaro-on-surface)",
@@ -327,6 +330,9 @@ function LoginPage() {
           maxHeight: "100dvh",
           gap: "clamp(6px, 1svh, 10px)",
           padding: "calc(10px + env(safe-area-inset-top)) 20px calc(8px + env(safe-area-inset-bottom))",
+          width: "100%",
+          maxWidth: 390,
+          marginInline: "auto",
           overflow: "hidden",
         }}
       >
@@ -357,12 +363,7 @@ function LoginPage() {
                 variant="primary"
                 size="lg"
                 className="entrada-cta w-full"
-                style={{
-                  height: 56,
-                  background: "linear-gradient(110deg, #A8C7FA 0%, #BB86FC 100%)",
-                  color: "#171923",
-                  boxShadow: "none",
-                }}
+                style={{ height: 56 }}
                 onClick={() => {
                   setModo("criar");
                   setFaseLogin("identificar");
@@ -432,7 +433,7 @@ function LoginPage() {
                   animation: "none",
                 }}
               >
-            <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-white/20" />
+            <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-line2" />
             <div className="mb-5 flex items-start justify-between gap-3">
               <div className="min-w-0">
                 <h1 id="flow-login-title" className="text-left text-xl font-bold text-paper">
@@ -448,7 +449,7 @@ function LoginPage() {
                 type="button"
                 aria-label="Fechar painel de acesso"
                 onClick={fecharPainelLogin}
-                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/5 text-mute transition-colors hover:bg-white/10 hover:text-paper focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#A8C7FA]"
+                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-line2 bg-ink3 text-mute transition-colors hover:bg-ink hover:text-paper focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
               >
                 <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
                   <path d="m18 6-12 12M6 6l12 12" />
@@ -561,7 +562,7 @@ function LoginPage() {
               )}
               {modo === "entrar" && faseLogin === "credencial" ? (
                 <div className="flex items-center justify-between gap-2">
-                  <button type="button" onClick={() => { setFaseLogin("identificar"); setSenha(""); setErro(null); }} className="min-h-11 text-xs font-medium text-[#A8C7FA]">
+                  <button type="button" onClick={() => { setFaseLogin("identificar"); setSenha(""); setErro(null); }} className="min-h-11 text-xs font-medium text-primary">
                     Trocar e-mail ou telefone
                   </button>
                   <button type="button" onClick={() => setMostrarRecuperacao(true)} className="flex min-h-11 items-center text-xs font-medium text-mute hover:text-paper">
