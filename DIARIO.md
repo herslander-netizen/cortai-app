@@ -523,6 +523,8 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Em andamento
 
+- GPT | 2026-10-31 UTC | Reforçar o protocolo obrigatório de trabalho com documento canônico, referência no AGENTS.md e verificação estrutural no CI; sem alterações funcionais, banco ou Agenda | `DIARIO.md`, `AGENTS.md`, `PROTOCOLO-OBRIGATORIO.md`, `scripts/verificar-protocolo.sh`, `.github/workflows/preview-migration.yml`; sem migração
+
 - GPT | 2026-10-30 UTC | Assumida por autorização do dono a conclusão de horários especiais por data: revisar motor já implementado, criar migração aditiva 0054, funções protegidas de salvar/remover e folha Horário especial no botão + da Agenda; manter Flow IA e sombras da Agenda fora deste escopo. Não aplicar migração em banco algum sem autorização específica | `src/lib/horarios-especiais.ts`, `src/lib/horarios-especiais.server.ts`, `src/lib/agenda-regras.server.ts`, `src/lib/ocupacoes-extras.server.ts`, novos arquivos de funções/UI/testes e `drizzle/migrations/0054_horarios_especiais.sql`
 
 - GPT | 2026-10-29 UTC | Separar gesto de armar edição e arrasto do cartão na Agenda mobile; preservar rolagem no primeiro toque, testar segundo gesto e publicar apenas na prévia | `DIARIO.md`, `src/components/barbeiro/AgendaTimeline.tsx`, `src/components/barbeiro/agenda/arrasto-timeline.test.ts`; sem migração
