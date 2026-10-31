@@ -43,6 +43,7 @@ export function useEditorDaPagina(initial: MarcaData, reload: () => void) {
   const [slug, setSlug] = useState(initial.slug);
   const [device, setDevice] = useState<"mobile" | "desktop">("mobile");
   const [busy, setBusy] = useState(false);
+  const [imagemPendente, setImagemPendente] = useState<{ file: File; kind: "logo" | "capa" | "avatar" } | null>(null);
   const [fase, setFase] = useState<FaseDoEditor>("ocioso");
   const [erro, setErro] = useState(false);
   const [status, setStatusBruto] = useState<string | null>(null);
@@ -98,10 +99,25 @@ export function useEditorDaPagina(initial: MarcaData, reload: () => void) {
   const previasLocais = useRef<string[]>([]);
   useEffect(() => () => previasLocais.current.forEach((u) => URL.revokeObjectURL(u)), []);
 
-  const upload = async (event: ChangeEvent<HTMLInputElement>, kind: "logo" | "capa" | "avatar" | "foto") => {
+  const upload = (event: ChangeEvent<HTMLInputElement>, kind: "logo" | "capa" | "avatar" | "foto") => {
     const file = event.target.files?.[0];
     event.target.value = "";
     if (!file) return;
+    if (kind === "foto") {
+      void enviarArquivo(file, kind);
+      return;
+    }
+    setImagemPendente({ file, kind });
+  };
+
+  const cancelarImagem = () => setImagemPendente(null);
+  const confirmarImagem = async (file: File) => {
+    const kind = imagemPendente?.kind;
+    setImagemPendente(null);
+    if (kind) await enviarArquivo(file, kind);
+  };
+
+  const enviarArquivo = async (file: File, kind: "logo" | "capa" | "avatar" | "foto") => {
     if (kind === "foto" && form.fotos.length >= 8) {
       setStatus("A galeria aceita até 8 fotos.", true);
       return;
@@ -307,6 +323,9 @@ export function useEditorDaPagina(initial: MarcaData, reload: () => void) {
     removerCapa,
     definirFotos,
     upload,
+    imagemPendente,
+    cancelarImagem,
+    confirmarImagem,
     usarLogo,
     removerLogo,
     salvarSlug,
