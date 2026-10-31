@@ -304,7 +304,7 @@ function LoginPage() {
               <motion.button
                 type="button"
                 aria-label="Fechar acesso"
-                onClick={() => { setMostrarForm(false); setErro(null); setAviso(null); }}
+                onClick={() => { setMostrarForm(false); setFaseLogin("identificar"); setSenha(""); setErro(null); setAviso(null); }}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
@@ -334,17 +334,19 @@ function LoginPage() {
             <p className="mb-5 text-center text-xs text-mute">
               {modo === "entrar" ? (faseLogin === "identificar" ? "Entre com seu e-mail e continue" : `Bem-vindo de volta, ${email}`) : "Comece a organizar seu negócio com o Flow"}
             </p>
-            <div className="space-y-2">
-              <Button
-                type="button"
-                variant="outline"
-                className={botaoSocial}
-                disabled={enviando}
-                onClick={() => void entrarCom("google")}
-              >
-                <MarcaGoogle /> Continuar com o Google
-              </Button>
-            </div>
+            {modo === "criar" || faseLogin === "identificar" ? (
+              <div className="space-y-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className={botaoSocial}
+                  disabled={enviando}
+                  onClick={() => void entrarCom("google")}
+                >
+                  <MarcaGoogle /> Continuar com o Google
+                </Button>
+              </div>
+            ) : null}
 
             <div
               className="my-5 flex items-center gap-3 text-xs font-medium uppercase tracking-wide text-mute"
@@ -409,7 +411,7 @@ function LoginPage() {
               }}
             >
               {(modo === "criar" || faseLogin === "identificar") && (
-                <Field label={modo === "entrar" ? "E-mail ou WhatsApp" : "E-mail"}>
+                <Field label={modo === "entrar" ? "E-mail ou telefone" : "E-mail"}>
                   <Input
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
@@ -439,7 +441,7 @@ function LoginPage() {
               {modo === "entrar" && faseLogin === "credencial" ? (
                 <div className="flex items-center justify-between gap-2">
                   <button type="button" onClick={() => { setFaseLogin("identificar"); setSenha(""); setErro(null); }} className="min-h-11 text-xs font-medium text-[#A8C7FA]">
-                    Trocar e-mail
+                    Trocar e-mail ou telefone
                   </button>
                   <Link to="/recuperar-senha" className="flex min-h-11 items-center text-xs font-medium text-mute hover:text-paper">
                     Esqueceu a senha?
