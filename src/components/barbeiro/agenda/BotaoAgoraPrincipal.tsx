@@ -91,11 +91,17 @@ export function BotaoAgoraPrincipal({
   const proxima = visualizacao === "timeline" ? "lista" : "timeline";
 
   const rolarLista = useCallback(() => {
+    // A lista começa no primeiro dia com atendimento da semana (pode ser antes de hoje): "Agora" leva o bloco de hoje
+    // para o topo, logo abaixo da barra; sem lista suficiente embaixo, para no limite da rolagem (dono, 31/10). O
+    // bloco do dia (não o cabeçalho, que fica preso no topo) dá a posição real.
+    const hoje = document
+      .querySelector<HTMLElement>("#agenda-painel-visualizacao [data-hoje-dia]")
+      ?.closest<HTMLElement>(".agenda-lista-dia");
     const primeiro = document.querySelector<HTMLElement>(
       "#agenda-painel-visualizacao .agenda-item",
     );
     const topo = document.getElementById("agenda-painel-visualizacao");
-    const alvo = primeiro ?? topo;
+    const alvo = hoje ?? primeiro ?? topo;
     if (!alvo) return;
     window.scrollTo({
       top: window.scrollY + alvo.getBoundingClientRect().top - alturaDoTopoDaAgenda() - 8,

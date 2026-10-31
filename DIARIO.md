@@ -879,6 +879,8 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+### 2026-10-31 UTC — Claude — "Agora" na lista leva ao dia de hoje
+- Dono: "Aperta agora nessa tela sobe para o dia de hoje no topo ou ele aparece no limite que der". Com a lista começando no primeiro dia com atendimento da semana, o "Agora" rolava até o primeiro atendimento (um dia passado). `BotaoAgoraPrincipal.tsx` (`rolarLista`): mira o bloco do dia de hoje (`[data-hoje-dia]` → `.agenda-lista-dia`) e o põe logo abaixo da barra; sem lista suficiente embaixo, o navegador para no limite da rolagem. Sem hoje na lista, cai no primeiro atendimento como antes. Teste novo em `BotaoAgoraPrincipal.test.tsx`.
 ### 2026-10-31 UTC — Claude — Busca e lupa do topo da Agenda
 - Captura do dono: o texto de exemplo da busca aparecia cortado ("Buscar cliente, tele"). Agora "Buscar cliente"; a descrição completa (cliente, telefone, serviço ou profissional) fica no `aria-label`. A busca continua igual.
 - "A lupa está rosa": usava `on-surface-variant` (#D7C7C2) e 36 px. Agora `on-surface` e 27 px, como o calendário e o sino. `CabecalhoAgenda.tsx`; testes em `agora-e-vizinho.test.ts`. `tsc`, `vitest`, `build` OK.

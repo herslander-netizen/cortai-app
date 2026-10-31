@@ -213,6 +213,44 @@ describe("BotaoAgoraPrincipal", () => {
     painel.remove();
   });
 
+  it("na Lista com dias anteriores, leva o bloco de hoje para o topo (não o primeiro atendimento)", async () => {
+    await montar(390, "lista");
+    const rolar = vi.spyOn(window, "scrollTo").mockImplementation(() => undefined);
+    const retangulo = (top: number) =>
+      ({
+        top,
+        bottom: top + 60,
+        left: 0,
+        right: 300,
+        width: 300,
+        height: 60,
+        x: 0,
+        y: top,
+        toJSON: () => ({}),
+      }) as DOMRect;
+    const painel = document.createElement("div");
+    painel.id = "agenda-painel-visualizacao";
+    const passado = document.createElement("section");
+    passado.className = "agenda-lista-dia";
+    const itemPassado = document.createElement("li");
+    itemPassado.className = "agenda-item";
+    vi.spyOn(itemPassado, "getBoundingClientRect").mockReturnValue(retangulo(200));
+    passado.appendChild(itemPassado);
+    const hoje = document.createElement("section");
+    hoje.className = "agenda-lista-dia";
+    vi.spyOn(hoje, "getBoundingClientRect").mockReturnValue(retangulo(900));
+    const titulo = document.createElement("header");
+    titulo.dataset["hojeDia"] = "true";
+    hoje.appendChild(titulo);
+    painel.append(passado, hoje);
+    document.body.appendChild(painel);
+    act(() => host?.querySelector<HTMLButtonElement>('[aria-label="Ir para agora"]')?.click());
+    const chamada = rolar.mock.calls.at(-1)?.[0] as ScrollToOptions;
+    // 900 do bloco de hoje menos a barra do topo e o respiro: nunca a posição do atendimento de 28/10 (200).
+    expect(chamada.top).toBeGreaterThan(700);
+    painel.remove();
+  });
+
   it("fora de hoje volta para hoje antes de levar ao agora", async () => {
     vi.spyOn(window, "requestAnimationFrame").mockImplementation((callback) => {
       callback(0);
