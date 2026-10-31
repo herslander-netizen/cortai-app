@@ -732,6 +732,25 @@ export async function processarMensagemRecebida(input: {
     }).catch(() => undefined);
     return { tratada: true, motivo: "audio_nao_entendido" };
   }
+  // Flow Bot (regras e conhecimento do negócio, sem IA): depois das respostas a avisos e antes da Flow IA.
+  // Desligado por padrão; em modo sombra só registra o que responderia. Falha nunca trava: segue adiante.
+  if (input.tipo === "text" && input.conteudo.trim()) {
+    const { responderComFlowBot } = await import("@/lib/flow-bot/bot.server");
+    const peloBot = await responderComFlowBot({
+      tenantId,
+      conversaId: conversa.id,
+      conexaoId: conexao.id,
+      sessaoId: conexao.sessao_id,
+      telefone,
+      texto: input.conteudo,
+      mensagemExternaId: input.mensagemExternaId ?? null,
+      nomeContato: input.nomeContato ?? null,
+    }).catch((e: unknown) => {
+      console.error("[flow-bot] whatsapp", e);
+      return false;
+    });
+    if (peloBot) return { tratada: true, motivo: "flow_bot" };
+  }
   // Flow: mesmo cérebro do painel; falha ou falta de crédito cai na orientação fixa abaixo.
   if (input.tipo === "text" && input.conteudo.trim()) {
     const respondida = await responderComCerebro({
@@ -749,7 +768,8 @@ export async function processarMensagemRecebida(input: {
   }
   const { data: tenant } = await db.from("tenants").select("slug").eq("id", tenantId).maybeSingle();
   const link = tenant?.slug ? urlPublica(`/agendar/${tenant.slug}`) : urlPublica("");
-  const fallback = `Recebi sua mensagem! Estou com instabilidade agora — pode me escrever de novo daqui a pouco, que eu continuo por aqui. Se preferir, também dá para agendar pelo link: ${link}`;
+  // Sem resposta automática para esta mensagem: diz a verdade (a equipe responde por aqui), nunca "instabilidade".
+  const fallback = `Recebi sua mensagem! Alguém da equipe vai te responder por aqui. Se preferir, já dá para agendar pelo link: ${link}`;
   const desde = new Date(Date.now() - 24 * 60 * 60_000).toISOString();
   const { data: jaOrientado } = await db
     .from("mensagens_whatsapp")
@@ -885,16 +905,19 @@ async function responderComCerebro(input: {
   const db = await admin();
   const { iaDisponivel } = await import("@/lib/brain/gateway.server");
   if (!iaDisponivel("whatsapp")) return false;
+  // `*`: inclui `modo_humano_ate` (migração 0055) sem quebrar enquanto ela não estiver aplicada.
   const { data: conversa } = await db
     .from("conversas_whatsapp")
-    .select("modo_humano, ia_ativa, contexto")
+    .select("*")
     .eq("id", input.conversaId)
     .maybeSingle();
   // Quem fala: equipe com telefone verificado deste negócio, ou cliente.
   const { identificarEquipe } = await import("./identidade.server");
   const equipe = await identificarEquipe(input.tenantId, input.telefone).catch(() => null);
   if (!conversa || conversa.ia_ativa === false) return false;
-  if (!equipe && conversa.modo_humano) return false;
+  // Alguém da equipe com a conversa (pediu atendente ou respondeu pelo celular há pouco): a IA não fala por cima.
+  const { humanoNoControle } = await import("@/lib/flow-bot/decisao");
+  if (!equipe && humanoNoControle(conversa, Date.now())) return false;
   const config = await configuracaoDoTenant(input.tenantId);
   if (!equipe && !config.responderWhatsapp) return false;
   if (!(await whatsappLiberadoNoPlano(input.tenantId))) return false;

@@ -7,7 +7,8 @@
  *   configurado, o webhook recusa tudo (503);
  * - a barbearia vem SEMPRE da sessão registrada (nome da instância), nunca de
  *   um tenant_id enviado pelo chamador;
- * - mensagens enviadas pela própria barbearia (fromMe) são ignoradas.
+ * - mensagens enviadas pela própria barbearia (fromMe) não são respondidas; se não foram enviadas pelo Flow,
+ *   pausam o bot e a Flow IA naquela conversa (alguém da equipe respondeu pelo celular).
  */
 import { createFileRoute } from "@tanstack/react-router";
 
@@ -122,8 +123,26 @@ export const Route = createFileRoute("/api/public/whatsapp/evolution")({
 
         if (evento === "messages.upsert") {
           const chave = (dados["key"] as Record<string, unknown>) ?? {};
-          if (chave["fromMe"] === true) return Response.json({ ok: true, ignorada: true });
           const remoteJid = String(chave["remoteJid"] ?? "");
+          if (chave["fromMe"] === true) {
+            // Mensagem do próprio número do negócio. Se não foi o Flow que enviou, alguém da equipe respondeu pelo
+            // celular: o bot e a Flow IA ficam em silêncio naquela conversa por um tempo (nunca falam por cima).
+            if (remoteJid.endsWith("@s.whatsapp.net")) {
+              const { texto } = textoDaMensagem(
+                dados["message"] as Record<string, unknown> | undefined,
+              );
+              const { registrarRespostaDoNegocio } = await import("@/lib/flow-bot/humano.server");
+              const trabalho = registrarRespostaDoNegocio({
+                sessaoId,
+                telefone: remoteJid.split("@")[0] ?? "",
+                mensagemExternaId: (chave["id"] as string) ?? null,
+                texto,
+              }).catch(() => console.error("[evolution] falha ao registrar resposta do negócio"));
+              const { emSegundoPlano } = await import("@/lib/segundo-plano.server");
+              if (!emSegundoPlano(trabalho)) await trabalho;
+            }
+            return Response.json({ ok: true, ignorada: true });
+          }
           // Grupos e transmissões não são atendidos pela Flow IA.
           if (!remoteJid || !remoteJid.endsWith("@s.whatsapp.net")) {
             return Response.json({ ok: true, ignorada: true });

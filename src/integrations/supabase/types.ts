@@ -1838,6 +1838,7 @@ export type Database = {
           id: string
           intencao: string | null
           modo_humano: boolean
+          modo_humano_ate: string | null
           nao_lidas: number
           nome_contato: string | null
           status: string
@@ -1855,6 +1856,7 @@ export type Database = {
           id?: string
           intencao?: string | null
           modo_humano?: boolean
+          modo_humano_ate?: string | null
           nao_lidas?: number
           nome_contato?: string | null
           status?: string
@@ -1872,6 +1874,7 @@ export type Database = {
           id?: string
           intencao?: string | null
           modo_humano?: boolean
+          modo_humano_ate?: string | null
           nao_lidas?: number
           nome_contato?: string | null
           status?: string
@@ -2678,6 +2681,181 @@ export type Database = {
           },
           {
             foreignKeyName: "fila_de_espera_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      flow_bot_config: {
+        Row: {
+          atualizado_em: string
+          atualizado_por: string | null
+          horario: string
+          modo: string
+          pausa_humano_min: number
+          tenant_id: string
+          versao_publicada: number | null
+        }
+        Insert: {
+          atualizado_em?: string
+          atualizado_por?: string | null
+          horario?: string
+          modo?: string
+          pausa_humano_min?: number
+          tenant_id: string
+          versao_publicada?: number | null
+        }
+        Update: {
+          atualizado_em?: string
+          atualizado_por?: string | null
+          horario?: string
+          modo?: string
+          pausa_humano_min?: number
+          tenant_id?: string
+          versao_publicada?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "flow_bot_config_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      flow_bot_rastro: {
+        Row: {
+          conversa_id: string
+          criado_em: string
+          enviado: boolean
+          fluxo_ref: string
+          id: string
+          mensagem_externa_id: string | null
+          modo: string
+          motivo: string
+          passos: Json
+          realidade_ausente: string[]
+          respostas: Json
+          tenant_id: string
+        }
+        Insert: {
+          conversa_id: string
+          criado_em?: string
+          enviado?: boolean
+          fluxo_ref: string
+          id?: string
+          mensagem_externa_id?: string | null
+          modo: string
+          motivo: string
+          passos?: Json
+          realidade_ausente?: string[]
+          respostas?: Json
+          tenant_id: string
+        }
+        Update: {
+          conversa_id?: string
+          criado_em?: string
+          enviado?: boolean
+          fluxo_ref?: string
+          id?: string
+          mensagem_externa_id?: string | null
+          modo?: string
+          motivo?: string
+          passos?: Json
+          realidade_ausente?: string[]
+          respostas?: Json
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "flow_bot_rastro_conversa_id_fkey"
+            columns: ["conversa_id"]
+            isOneToOne: false
+            referencedRelation: "conversas_whatsapp"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "flow_bot_rastro_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      flow_bot_sessoes: {
+        Row: {
+          atualizado_em: string
+          conversa_id: string
+          fluxo_ref: string
+          sessao: Json
+          tenant_id: string
+        }
+        Insert: {
+          atualizado_em?: string
+          conversa_id: string
+          fluxo_ref: string
+          sessao: Json
+          tenant_id: string
+        }
+        Update: {
+          atualizado_em?: string
+          conversa_id?: string
+          fluxo_ref?: string
+          sessao?: Json
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "flow_bot_sessoes_conversa_id_fkey"
+            columns: ["conversa_id"]
+            isOneToOne: false
+            referencedRelation: "conversas_whatsapp"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "flow_bot_sessoes_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      flow_bot_versoes: {
+        Row: {
+          criado_em: string
+          criado_por: string | null
+          fluxo: Json
+          id: string
+          nota: string | null
+          tenant_id: string
+          versao: number
+        }
+        Insert: {
+          criado_em?: string
+          criado_por?: string | null
+          fluxo: Json
+          id?: string
+          nota?: string | null
+          tenant_id: string
+          versao: number
+        }
+        Update: {
+          criado_em?: string
+          criado_por?: string | null
+          fluxo?: Json
+          id?: string
+          nota?: string | null
+          tenant_id?: string
+          versao?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "flow_bot_versoes_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
             referencedRelation: "tenants"

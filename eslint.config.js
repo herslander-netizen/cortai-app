@@ -6,7 +6,8 @@ import reactRefresh from "eslint-plugin-react-refresh";
 import tseslint from "typescript-eslint";
 
 export default tseslint.config(
-  { ignores: ["dist", ".output", ".vinxi"] },
+  // Cópia do motor do flow-bot (scripts/sincronizar-flow-bot.sh): o estilo é o do repositório de origem.
+  { ignores: ["dist", ".output", ".vinxi", "src/lib/flow-bot/nucleo/**"] },
   {
     extends: [js.configs.recommended, ...tseslint.configs.recommended],
     files: ["**/*.{ts,tsx}"],
