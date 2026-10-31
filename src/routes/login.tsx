@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate, redirect, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type CSSProperties } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
@@ -18,6 +18,7 @@ import { MarcaFlow } from "@/components/marca/MarcaFlow";
 import { sincronizarCorDoNavegador } from "@/lib/aparencia";
 import { mensagemDeErroDeAuth } from "@/lib/auth-flow";
 import { SequenciaDaEntrada } from "@/components/entrada/SequenciaDaEntrada";
+import { OndasDaEntrada } from "@/components/entrada/OndasDaEntrada";
 
 export const Route = createFileRoute("/login")({
   ssr: false,
@@ -130,7 +131,7 @@ function LoginPage() {
 
   useEffect(() => {
     const meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
-    if (meta) meta.content = "#0b1020";
+    if (meta) meta.content = "#ffffff";
     return sincronizarCorDoNavegador;
   }, []);
 
@@ -205,42 +206,82 @@ function LoginPage() {
     "h-12 w-full justify-center gap-2 rounded-full border-line2 bg-ink2 text-sm font-semibold text-paper";
 
   return (
-    <main className="auth-screen entrada">
-      <div className="entrada-listras" aria-hidden />
-      <div className="entrada-vinheta" aria-hidden />
-      <div className="entrada-conteudo">
+    <main
+      className="auth-screen entrada light"
+      style={
+        {
+          "--entrada-fundo": "var(--cartao)",
+          "--entrada-ciano": "var(--identity-primary)",
+          "--entrada-rosa": "var(--flow-rosa, #f48fb1)",
+          "--entrada-texto": "var(--paper)",
+          "--entrada-suave": "var(--mute)",
+          height: "100dvh",
+          minHeight: "100dvh",
+          background: "var(--cartao)",
+          color: "var(--paper)",
+          colorScheme: "light",
+        } as CSSProperties
+      }
+    >
+      <OndasDaEntrada />
+      <div
+        className="entrada-conteudo relative z-10"
+        style={{
+          height: "100dvh",
+          minHeight: 0,
+          maxHeight: "100dvh",
+          gap: "clamp(8px, 1.4svh, 12px)",
+          padding: "calc(10px + env(safe-area-inset-top)) 20px calc(8px + env(safe-area-inset-bottom))",
+          overflow: "hidden",
+        }}
+      >
         <div className="entrada-marca">
-          <MarcaFlow variante="clara" className="h-auto w-40" prioridade />
+          <MarcaFlow variante="escura" className="h-auto w-32" prioridade />
         </div>
 
         {!mostrarForm ? (
           <>
             <SequenciaDaEntrada />
             <div className="entrada-acoes">
-              <button
+              <Button
                 type="button"
-                className="entrada-cta"
+                variant="primary"
+                className="entrada-cta w-full"
+                style={{ height: 48, background: "var(--identity-primary)", boxShadow: "none" }}
                 onClick={() => {
                   setModo("criar");
                   setMostrarForm(true);
                 }}
               >
                 Criar conta
-              </button>
-              <button
+              </Button>
+              <Button
                 type="button"
-                className="entrada-entrar"
+                variant="ghost"
+                size="sm"
+                className="entrada-entrar min-h-12 w-full"
+                style={{ minHeight: 48 }}
                 onClick={() => {
                   setModo("entrar");
                   setMostrarForm(true);
                 }}
               >
                 Já tem conta? <b>Entrar</b>
-              </button>
+              </Button>
             </div>
           </>
         ) : (
-          <div className="entrada-painel">
+          <div
+            className="entrada-painel"
+            style={{
+              background: "var(--ink2)",
+              border: "1px solid var(--line)",
+              boxShadow: "0 12px 28px color-mix(in oklab, var(--ink) 10%, transparent)",
+              maxHeight: "calc(100dvh - 156px)",
+              overflowY: "auto",
+              overscrollBehavior: "contain",
+            }}
+          >
             <h1 className="mb-4 text-center text-base font-semibold text-mute">
               {modo === "entrar" ? "Entrar" : "Criar conta"}
             </h1>
@@ -381,13 +422,16 @@ function LoginPage() {
               </Button>
             </p>
 
-            <button
+            <Button
               type="button"
-              className="entrada-entrar mt-2 w-full"
+              variant="ghost"
+              size="sm"
+              className="entrada-entrar mt-2 min-h-12 w-full"
+              style={{ minHeight: 48 }}
               onClick={() => setMostrarForm(false)}
             >
               Ver como o Flow funciona
-            </button>
+            </Button>
           </div>
         )}
 

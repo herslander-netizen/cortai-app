@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 
 /**
  * Demonstrações animadas da tela de entrada. São feitas só com CSS (transform/opacity) e não
@@ -8,8 +8,28 @@ import type { ReactNode } from "react";
 
 function Aparelho({ children, nome }: { children: ReactNode; nome: string }) {
   return (
-    <div className="entrada-demo" role="img" aria-label={nome}>
-      {children}
+    <div
+      className="entrada-demo"
+      role="img"
+      aria-label={nome}
+      style={
+        {
+          background: "var(--identity-deep)",
+          color: "var(--identity-white)",
+          borderRadius: 18,
+          margin: 10,
+          width: "calc(100% - 20px)",
+          height: "calc(100% - 20px)",
+          padding: 10,
+          "--entrada-suave": "var(--identity-muted)",
+          "--ec": "var(--figaro-primary)",
+          "--er": "var(--flow-rosa, #f48fb1)",
+        } as CSSProperties
+      }
+    >
+      <div style={{ width: "100%", transform: "scale(0.78)", transformOrigin: "center" }}>
+        {children}
+      </div>
     </div>
   );
 }
