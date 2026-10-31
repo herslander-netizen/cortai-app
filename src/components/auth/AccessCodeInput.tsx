@@ -65,7 +65,7 @@ export function AccessCodeInput({
 
   function aplicarCodigo(indice: number, valor: string) {
     if (loading) return;
-    const numeros = valor.replace(/\\D/g, "");
+    const numeros = valor.replace(/\D/g, "");
     if (!numeros) {
       const atualizados = [...digits];
       atualizados[indice] = "";
@@ -107,7 +107,7 @@ export function AccessCodeInput({
   }
 
   function lidarComColagem(event: ClipboardEvent<HTMLInputElement>) {
-    const colado = event.clipboardData.getData("text").replace(/\\D/g, "").slice(0, TAMANHO_CODIGO);
+    const colado = event.clipboardData.getData("text").replace(/\D/g, "").slice(0, TAMANHO_CODIGO);
     if (!colado) return;
     event.preventDefault();
     const atualizados = Array(TAMANHO_CODIGO).fill("");
