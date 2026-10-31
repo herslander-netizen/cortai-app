@@ -531,7 +531,6 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - Claude | 2026-10-31 UTC | Flow Bot dentro do Flow — Fase A (dono: "vamos criar a integração"): motor do flow-bot embutido em `src/lib/flow-bot/`, entrada no WhatsApp antes da Flow IA, rastro, modo sombra, horário, detecção de pessoa que assumiu (`fromMe`), modo humano com prazo; sem tela (Fase B) | `src/lib/flow-bot/*`, `src/lib/whatsapp/fluxo.server.ts`, `src/routes/api/public/whatsapp/evolution.ts`, `src/integrations/supabase/types.ts`, `supabase/tests/flow_bot.sql`, migração **0055** `drizzle/migrations/0055_flow_bot.sql` (não aplicar sem autorização)
 
 - GPT | 2026-10-31 UTC | Reforçar o protocolo obrigatório de trabalho com documento canônico, referência no AGENTS.md e verificação estrutural no CI; sem alterações funcionais, banco ou Agenda | `DIARIO.md`, `AGENTS.md`, `PROTOCOLO-OBRIGATORIO.md`, `scripts/verificar-protocolo.sh`, `.github/workflows/preview-migration.yml`; sem migração
-- GPT | 2026-10-31 UTC | APK Android de homologação do Flow via Capacitor, apontado exclusivamente para `https://previa.cortaiapp.pages.dev`; gerar APK debug instalável e artefato no GitHub Actions. Não incluir offline completo, não usar produção, não aplicar migrações nem alterar `cortai-prod` | `capacitor.config.json`, `.github/workflows/android-preview-apk.yml`, `MUSE.md`, `DIARIO.md`; sem migração
 
 - GPT | 2026-10-30 UTC | Assumida por autorização do dono a conclusão de horários especiais por data: revisar motor já implementado, criar migração aditiva 0054, funções protegidas de salvar/remover e folha Horário especial no botão + da Agenda; manter Flow IA e sombras da Agenda fora deste escopo. Não aplicar migração em banco algum sem autorização específica | `src/lib/horarios-especiais.ts`, `src/lib/horarios-especiais.server.ts`, `src/lib/agenda-regras.server.ts`, `src/lib/ocupacoes-extras.server.ts`, novos arquivos de funções/UI/testes e `drizzle/migrations/0054_horarios_especiais.sql`
 
@@ -872,6 +871,16 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+### 2026-10-31 UTC — GPT — APK Android de homologação do Flow
+
+- Pedido do dono: criar e entregar um APK instalável para teste no Android. Implementado wrapper Capacitor 8.6.0, app separado `dev.flowapp.preview`, nome `Flow Teste`, ícone oficial e URL fixa `https://previa.cortaiapp.pages.dev`.
+- Arquivos: `capacitor.config.json`, `.github/workflows/android-preview-apk.yml`, `MUSE.md`. Workflow manual e por alteração da configuração Android; espera a prévia publicar o mesmo commit e valida o marcador de deploy antes de compilar.
+- Segurança: o workflow recusa qualquer Supabase que não seja `cortai-preview` (`pfkxvindedkuktogbcsv)); usa somente a chave publicável, nunca service-role. Prévia validada e publicada (run **41161814638**). Banco de teste conferido; nenhuma escrita ou migração em `cortai-prod`.
+- Validação: protocolo, build web, TypeScript e testes passaram; deploy isolado e smoke test da prévia passaram. Primeira tentativa Android encontrou o pacote legado `tools` do setup-android; corrigido com `packages: ''` e instalação explícita de platform-tools, Android 36 e build-tools 36.0.0.
+- APK final compilado e assinatura debug verificada por `apksigner` (run **41161814682**, sucesso). Artefato GitHub `flow-android-preview-apk`, ID `13027651965`, válido até 30/11/2026. Tamanho 25.656.175 bytes; SHA-256 `dafb7402b141601e4d817dd1be2679598dfbd718fdedd7c23629e929ce38edee`.
+- Limite conhecido: wrapper online; precisa de internet e usa os serviços da prévia. Não oferece funcionamento offline nem assinatura de release para Play Store. Nenhuma publicação do site principal.
+
+
 ### 2026-10-31 UTC — Claude — Calendário e sino do topo da Agenda: tamanho, cor e formato redondo
 - Pedido do dono, com a foto 3 do Figaro como referência: calendário e sino com o mesmo tamanho (27 px, em vez de 32 px) e cor branca frio (`--figaro-on-surface`, em vez do bege). Agora ficam em botões redondos com fundo de `--figaro-surface-container-highest`, como a foto de perfil.
 - Arquivos: `CabecalhoAgenda.tsx` (calendário), `SinoDeAvisos.tsx` (sino, só o botão e o ícone), `styles.css` (tamanho do sino no topo da Agenda), testes `icones-cabecalho.test.ts` e `CabecalhoAgenda.icone.test.ts`.
