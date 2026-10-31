@@ -93,7 +93,7 @@ export function ForgotPasswordSheet({
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const normalizedEmail = email.trim().toLowerCase();
-    if (!/^\\S+@\\S+\\.\\S+$/.test(normalizedEmail) || loading) {
+    if (!/^\S+@\S+\.\S+$/.test(normalizedEmail) || loading) {
       setError("Digite um e-mail válido.");
       return;
     }
