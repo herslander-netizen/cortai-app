@@ -543,7 +543,6 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Em andamento
 
-- GPT | 2026-10-31 UTC | Redesenhar a tela de entrada Flow para tema branco clean com ondas suaves, carrossel compacto e ações sem rolagem em celular; preservar autenticação/cadastro e acesso do cliente | `src/routes/login.tsx`, `src/components/entrada/SequenciaDaEntrada.tsx`, `src/components/entrada/SequenciaDaEntrada.test.tsx`; sem migração; **não tocar em `src/styles.css` (reserva existente)**
 
 
 
@@ -894,6 +893,13 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+
+### 2026-10-31 UTC — GPT — Entrada Flow clara, ondas suaves e layout móvel compacto
+- A tela /login agora usa fundo claro, marca Flow escura com ponto rosa, ondas translúcidas em azul/violeta/rosa com movimento lento e respeito a prefers-reduced-motion. A sequência mantém as cinco demonstrações automáticas, os cinco seletores e o acesso para criar conta, entrar ou seguir como cliente.
+- O carrossel e a legenda ficaram compactos e responsivos; a tela externa usa a altura do viewport e não rola. O formulário tem rolagem interna própria apenas quando o conteúdo/teclado não cabe. Os handlers de autenticação, cadastro, Google/Apple, recuperação e redirecionamento foram preservados.
+- Arquivos: src/routes/login.tsx, src/components/entrada/SequenciaDaEntrada.tsx, src/components/entrada/DemosDaEntrada.tsx, novos src/components/entrada/OndasDaEntrada.tsx, src/components/entrada/SequenciaDaEntrada.test.tsx e src/components/entrada/OndasDaEntrada.test.tsx.
+- Validação no GitHub Actions 41216433880, commit ac44cbabcb9de66713ee97638906a1a9838423f5: instalação congelada, build, TypeScript e Vitest passaram; 278 arquivos de teste, 2.307 testes aprovados e 1 ignorado. Build isolado, deploy da prévia e smoke test do marcador do commit passaram. Prévia: https://previa.cortaiapp.pages.dev.
+- Limites de verificação: ESLint não foi executado (o workflow da prévia não o inclui e o clone local falhou por indisponibilidade de DNS para github.com); a conferência visual manual em 360/390 px ainda depende de navegador/dispositivo conectado. Não houve alteração em src/styles.css, Agenda, banco, site principal ou regras de autenticação.
 ### 2026-10-31 UTC — Claude — Versão 3.7 publicada no site principal
 - Pedido do dono ("mande pra main"). Prévia do `3ba425bb` validada (execução 41212517000) e "Lançar versão" rodou com sucesso (execução 41212876548): commit `6267ad49` "Versão 3.7", tag `v3.7`, `cortaiapp.pages.dev` atualizado.
 - Entram: Agenda no padrão Figaro (linha agora, dia vizinho completo, lista e "Agora"), menu lateral (medidas, arrastar, Aparência), toque que afunda no topo, Financeiro refeito, cobrança em duas etapas, película escura, ajuste de fotos, capas e ícone do Flow como padrão, modelo de gaveta, app da equipe sem tela cheia.
