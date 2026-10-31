@@ -2,11 +2,11 @@ import { useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode 
 import { motion, useReducedMotion } from "framer-motion";
 import { MOLA } from "@/lib/movimento-figaro";
 import {
-  Bell,
   CalendarDays,
-  Globe,
-  LineChart,
-  Star,
+  CreditCard,
+  MessageCircle,
+  UsersRound,
+  ChartNoAxesCombined,
   type LucideIcon,
 } from "lucide-react";
 
@@ -14,11 +14,11 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 
 import {
-  DemoAgendar,
-  DemoAvaliacoes,
-  DemoDesempenho,
-  DemoLembretes,
-  DemoSeuSite,
+  DemoAgenda,
+  DemoCaixa,
+  DemoWhatsApp,
+  DemoClientes,
+  DemoMetricas,
 } from "@/components/entrada/DemosDaEntrada";
 
 export const PASSOS_DA_ENTRADA: {
@@ -30,44 +30,44 @@ export const PASSOS_DA_ENTRADA: {
   icone: LucideIcon;
 }[] = [
   {
-    id: "site",
-    icone: Globe,
-    rotulo: "Seu site",
-    titulo: "Seu site pronto em minutos",
-    texto: "Capa, serviços e botão de agendar, com a cara do seu negócio.",
-    demo: <DemoSeuSite />,
-  },
-  {
-    id: "agendar",
+    id: "agenda",
     icone: CalendarDays,
-    rotulo: "Agendar",
-    titulo: "Seus clientes agendam sozinhos",
-    texto: "Horários livres em tempo real, sem troca de mensagens.",
-    demo: <DemoAgendar />,
+    rotulo: "Agenda",
+    titulo: "Uma agenda que acompanha seu ritmo",
+    texto: "Ajuste horários e acompanhe confirmações sem perder o controle do dia.",
+    demo: <DemoAgenda />,
   },
   {
-    id: "lembretes",
-    icone: Bell,
-    rotulo: "Lembretes",
-    titulo: "Menos faltas, mais agenda cheia",
-    texto: "Avisos automáticos pelo WhatsApp, só quando fazem sentido.",
-    demo: <DemoLembretes />,
+    id: "caixa",
+    icone: CreditCard,
+    rotulo: "Caixa",
+    titulo: "Receba e organize seus pagamentos",
+    texto: "Registre serviços e pagamentos em um caixa simples e conectado à operação.",
+    demo: <DemoCaixa />,
   },
   {
-    id: "avaliacoes",
-    icone: Star,
-    rotulo: "Avaliações",
-    titulo: "Avaliações que trazem clientes",
-    texto: "Quem gostou conta para todo mundo, direto na sua página.",
-    demo: <DemoAvaliacoes />,
+    id: "whatsapp",
+    icone: MessageCircle,
+    rotulo: "WhatsApp",
+    titulo: "Confirmações direto no WhatsApp",
+    texto: "Envie lembretes e deixe o cliente confirmar ou pedir para remarcar.",
+    demo: <DemoWhatsApp />,
   },
   {
-    id: "desempenho",
-    icone: LineChart,
-    rotulo: "Desempenho",
-    titulo: "Veja o negócio crescer",
-    texto: "Faturamento, clientes e horários num só lugar.",
-    demo: <DemoDesempenho />,
+    id: "clientes",
+    icone: UsersRound,
+    rotulo: "Clientes",
+    titulo: "Conheça melhor cada cliente",
+    texto: "Histórico, frequência e preferências para um atendimento mais próximo.",
+    demo: <DemoClientes />,
+  },
+  {
+    id: "metricas",
+    icone: ChartNoAxesCombined,
+    rotulo: "Métricas",
+    titulo: "Entenda como o negócio está evoluindo",
+    texto: "Acompanhe faturamento e crescimento com indicadores fáceis de ler.",
+    demo: <DemoMetricas />,
   },
 ];
 
@@ -85,7 +85,25 @@ export function SequenciaDaEntrada() {
   const [emFoco, setEmFoco] = useState(false);
   const [sobPonteiro, setSobPonteiro] = useState(false);
   const referenciasDasAbas = useRef<Array<HTMLButtonElement | null>>([]);
+  const inicioDoToque = useRef<number | null>(null);
   const reduzirMovimento = useReducedMotion();
+
+  function vibrarInteracao() {
+    if (reduzirMovimento) return;
+    try {
+      if (typeof navigator !== "undefined" && typeof navigator.vibrate === "function") {
+        navigator.vibrate(12);
+      }
+    } catch {
+      // Vibração é um detalhe opcional; nunca pode bloquear a navegação.
+    }
+  }
+
+  function trocarEtapa(proximo: number) {
+    if (proximo === indice) return;
+    setIndice((proximo + PASSOS_DA_ENTRADA.length) % PASSOS_DA_ENTRADA.length);
+    vibrarInteracao();
+  }
 
   useEffect(() => {
     const aoMudar = () => setVisivel(document.visibilityState !== "hidden");
@@ -122,7 +140,7 @@ export function SequenciaDaEntrada() {
         return;
     }
     event.preventDefault();
-    setIndice(proximo);
+    trocarEtapa(proximo);
     referenciasDasAbas.current[proximo]?.focus();
   }
 
@@ -151,9 +169,24 @@ export function SequenciaDaEntrada() {
       }}
       onMouseEnter={() => setSobPonteiro(true)}
       onMouseLeave={() => setSobPonteiro(false)}
-      onPointerDown={() => setSobPonteiro(true)}
-      onPointerUp={() => setSobPonteiro(false)}
-      onPointerCancel={() => setSobPonteiro(false)}
+      onPointerDown={(event) => {
+        setSobPonteiro(true);
+        inicioDoToque.current = event.pointerType === "mouse" ? null : event.clientX;
+      }}
+      onPointerUp={(event) => {
+        setSobPonteiro(false);
+        const inicio = inicioDoToque.current;
+        inicioDoToque.current = null;
+        if (inicio === null || reduzirMovimento) return;
+        const deslocamento = event.clientX - inicio;
+        if (Math.abs(deslocamento) > 48) {
+          trocarEtapa(indice + (deslocamento < 0 ? 1 : -1));
+        }
+      }}
+      onPointerCancel={() => {
+        setSobPonteiro(false);
+        inicioDoToque.current = null;
+      }}
       onLostPointerCapture={() => setSobPonteiro(false)}
     >
       <Card
@@ -277,7 +310,7 @@ export function SequenciaDaEntrada() {
               background: i === indice ? "var(--figaro-primary-container)" : "transparent",
               color: i === indice ? "var(--figaro-on-primary-container)" : "var(--mute)",
             }}
-            onClick={() => setIndice(i)}
+            onClick={() => trocarEtapa(i)}
             onKeyDown={(event) => navegarPelasAbas(event, i)}
           >
             <p.icone aria-hidden="true" size={20} strokeWidth={2} />
