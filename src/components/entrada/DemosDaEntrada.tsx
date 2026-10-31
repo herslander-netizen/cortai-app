@@ -10,6 +10,7 @@ import {
   MapPin,
   MessageCircle,
   Sparkles,
+  type LucideIcon,
 } from "lucide-react";
 
 const suave: CSSProperties = { color: "var(--figaro-on-primary)", opacity: 0.72, fontSize: 10, fontWeight: 600 };
@@ -46,7 +47,7 @@ function Aparelho({ children, nome }: { children: ReactNode; nome: string }) {
   );
 }
 
-function CabecalhoDemo({ icone: Icone, titulo, detalhe }: { icone: typeof Globe; titulo: string; detalhe: string }) {
+function CabecalhoDemo({ icone: Icone, titulo, detalhe }: { icone: LucideIcon; titulo: string; detalhe: string }) {
   return (
     <div className="flex items-center justify-between gap-2">
       <div className="flex min-w-0 items-center gap-2">
