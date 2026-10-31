@@ -12,5 +12,6 @@ describe("HorarioEspecialSheet", () => {
 
   it("pede confirmação antes de remover", () => {
     expect(fonte).toContain("Remover este horário especial?");
+    expect(fonte).toContain("Esta ação não pode ser desfeita");
   });
 });

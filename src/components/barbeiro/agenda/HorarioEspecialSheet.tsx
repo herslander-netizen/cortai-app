@@ -245,7 +245,7 @@ export function HorarioEspecialSheet({
                     onClick={async () => {
                       const ok = await confirmar({
                         titulo: "Remover este horário especial?",
-                        descricao: `${nomeDoAlvo(item.profissionalId)} volta ao horário da semana nesta data. Atendimentos já marcados continuam.`,
+                        descricao: `${nomeDoAlvo(item.profissionalId)} volta ao horário da semana nesta data. Atendimentos já marcados continuam. Esta ação não pode ser desfeita: se mudar de ideia, será preciso criar o horário especial de novo.`,
                         confirmar: "Remover",
                         cancelar: "Cancelar",
                       });

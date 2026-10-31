@@ -27,6 +27,7 @@ e o que fez. O diário até 17/10/2026 está guardado, sem alterações, em
 7. **Sem segredos:** nunca escreva chaves, senhas ou tokens aqui. Cite só o nome da variável.
 
 ## Decisões do dono
+- 2026-10-31: **Remover horário especial continua pedindo confirmação**, agora com o aviso de que a ação não pode ser desfeita ("junto com o arrependimento": se mudar de ideia, criar de novo). Dono escolheu isso em vez do Desfazer de 5 s que foi sugerido.
 - 2026-10-31: **Flow Bot dentro do Flow, como peça do sistema** (sem servidor próprio): motor do `flow-bot` embutido no código, entrada pelo webhook de WhatsApp que já existe (bot primeiro; sem regra que sirva, segue para a Flow IA), envio pelo caminho oficial do Flow (porteiro, ritmo, 24h, falhas), dados pelo motor oficial, liga/desliga por negócio (começa desligado) e horário de atendimento (o do negócio ou próprio). Configuração do negócio: respostas cadastradas, regras estilo AutoResponder, modelos prontos, perguntas sem resposta e simulador.
 - 2026-10-31: **A IA na configuração do bot é só entre o dono e o sistema** ("o barbeiro fulano me avisa, mando mensagem pra vc corrigir e vc corrige"): nenhum recurso de IA para o negócio configurar o bot. Correção vem por pedido do dono a uma das IAs; o pedido do dono para corrigir as regras de um negócio vale como autorização daquela mudança específica no banco, sempre com versão anterior guardada e relato do que mudou. Painel do ADM para o dono ver o bot de cada negócio.
 - 2026-10-31: **GPT com o mesmo contexto do Claude** ("documento que faça ele não fazer besteira e ter contexto de todo sistema sempre"): contexto único em `CONTEXTO.md`, lido por todas as IAs.
@@ -870,6 +871,10 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+### 2026-10-31 UTC — Claude — Aviso de ação irreversível ao remover horário especial
+- Pedido do dono. O diálogo de remoção em `HorarioEspecialSheet.tsx` agora diz: "Esta ação não pode ser desfeita: se mudar de ideia, será preciso criar o horário especial de novo." Teste em `horario-especial-sheet.test.ts`. Nenhum outro arquivo mudou.
+- `tsc`, `vitest` da Agenda (272) e `build` OK.
+
 ### 2026-10-31 UTC — Claude — Mensagens do sistema (avisos) no padrão do Figaro
 - Pedido do dono ("é justamente nelas que eu tô achando feio"): as mensagens rápidas da Agenda e do sistema, com o verde e vermelho sólidos e o X. Pedido específico para as mensagens; nenhuma tela da Agenda mudou além do aviso.
 - `src/components/ui/sonner.tsx`: aviso com fundo `--figaro-surface-container-high`, cantos de 20 dp, sombra `--elevacao-8`, ícone em caixa suave (sucesso em primary-container, erro em error-container), ação em pílula primary. Sem X; some sozinho em 4 s ou com arrasto.
