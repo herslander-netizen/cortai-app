@@ -43,27 +43,49 @@ function RedefinirSenhaPage() {
 
   useEffect(() => {
     let ativo = true;
+    let sessaoConfirmada = false;
     const meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
     if (meta) meta.content = "#ffffff";
-    const tipoNoHash = new URLSearchParams(window.location.hash.slice(1)).get("type");
-    if (tipoNoHash === "recovery") setPronto(true);
 
-    const limite = window.setTimeout(() => {
-      if (ativo) setLinkInvalido(true);
-    }, 2500);
-    const { data: sub } = supabase.auth.onAuthStateChange((evento) => {
-      if (evento === "PASSWORD_RECOVERY") {
+    const tipoNoHash = new URLSearchParams(window.location.hash.slice(1)).get("type");
+    const fluxoDeRecuperacao = tipoNoHash === "recovery";
+
+    const { data: sub } = supabase.auth.onAuthStateChange((evento, sessao) => {
+      if (
+        evento === "PASSWORD_RECOVERY" ||
+        (convite && evento === "SIGNED_IN" && Boolean(sessao))
+      ) {
+        sessaoConfirmada = true;
         setPronto(true);
         setLinkInvalido(false);
       }
     });
+
+    void supabase.auth.getSession().then(({ data, error }) => {
+      if (!ativo) return;
+      const temSessao = Boolean(data.session);
+      if (temSessao && (fluxoDeRecuperacao || convite)) {
+        sessaoConfirmada = true;
+        setPronto(true);
+        setLinkInvalido(false);
+      } else if (!error && !temSessao) {
+        setLinkInvalido(true);
+      }
+    }).catch(() => {
+      if (ativo && !sessaoConfirmada) setLinkInvalido(true);
+    });
+
+    const limite = window.setTimeout(() => {
+      if (ativo && !sessaoConfirmada) setLinkInvalido(true);
+    }, 5000);
+
     return () => {
       ativo = false;
       window.clearTimeout(limite);
       sub.subscription.unsubscribe();
       sincronizarCorDoNavegador();
     };
-  }, []);
+  }, [convite]);
 
   const senhaValida = senha.length >= 8 && /[A-Za-z]/.test(senha) && /\d/.test(senha);
 
