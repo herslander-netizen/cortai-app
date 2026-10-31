@@ -345,7 +345,7 @@ export function SinoDeAvisos() {
         size="icon"
         onClick={() => abrirCentralRef.current()}
         aria-label={rotuloDoSino(naoLidas, naoVistos)}
-        className={`relative h-12 w-12 shrink-0 overflow-visible rounded-none border-0 ${
+        className={`relative h-12 w-12 shrink-0 overflow-visible rounded-none border-0 bg-transparent shadow-none hover:bg-transparent active:bg-transparent ${
           forte ? "" : "text-mute hover:text-gold"
         }`}
         style={forte ? { color: cor } : undefined}
