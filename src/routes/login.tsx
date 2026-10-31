@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate, redirect, Link } from "@tanstack/react-router";
-import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 
 import { Button } from "@/components/ui/button";
@@ -21,6 +21,7 @@ import { mensagemDeErroDeAuth } from "@/lib/auth-flow";
 import { SequenciaDaEntrada } from "@/components/entrada/SequenciaDaEntrada";
 import { OndasDaEntrada } from "@/components/entrada/OndasDaEntrada";
 import { CURVA, TEMPO } from "@/lib/movimento-figaro";
+import { ForgotPasswordSheet } from "@/components/auth/ForgotPasswordSheet";
 
 export const Route = createFileRoute("/login")({
   ssr: false,
@@ -121,6 +122,19 @@ function LoginPage() {
   const [mostrarForm, setMostrarForm] = useState(
     aba === "criar" || Boolean(proximo) || erroNaSessao === "perfil",
   );
+  const [mostrarRecuperacao, setMostrarRecuperacao] = useState(false);
+  const fecharRecuperacao = useCallback(() => setMostrarRecuperacao(false), []);
+
+  async function solicitarRecuperacao(emailRecuperacao: string): Promise<boolean> {
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(emailRecuperacao, {
+        redirectTo: new URL("/redefinir-senha", window.location.origin).toString(),
+      });
+      return !error;
+    } catch {
+      return false;
+    }
+  }
 
   const painelLoginRef = useRef<HTMLDivElement>(null);
   const elementoAnteriorRef = useRef<HTMLElement | null>(null);
@@ -533,9 +547,9 @@ function LoginPage() {
                   <button type="button" onClick={() => { setFaseLogin("identificar"); setSenha(""); setErro(null); }} className="min-h-11 text-xs font-medium text-[#A8C7FA]">
                     Trocar e-mail ou telefone
                   </button>
-                  <Link to="/recuperar-senha" className="flex min-h-11 items-center text-xs font-medium text-mute hover:text-paper">
+                  <button type="button" onClick={() => setMostrarRecuperacao(true)} className="flex min-h-11 items-center text-xs font-medium text-mute hover:text-paper">
                     Esqueceu a senha?
-                  </Link>
+                  </button>
                 </div>
               ) : null}
               {erro ? <p className="text-sm text-brick" role="alert" aria-live="assertive">{erro}</p> : null}
@@ -577,6 +591,13 @@ function LoginPage() {
             </motion.div>
           )}
         </AnimatePresence>
+
+        <ForgotPasswordSheet
+          isOpen={mostrarRecuperacao}
+          onClose={fecharRecuperacao}
+          initialEmail={email.includes("@") ? email : ""}
+          onSubmitEmail={solicitarRecuperacao}
+        />
 
         <Link
           to="/barbearias"
