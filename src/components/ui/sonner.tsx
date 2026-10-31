@@ -30,6 +30,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
       }}
       toastOptions={{
         classNames: {
+          icon: "!h-9 !w-9 shrink-0 !m-0",
           toast:
             "group toast gap-3 rounded-[20px] border-0 bg-[var(--figaro-surface-container-high)] p-3.5 text-[var(--figaro-on-surface)] shadow-[var(--elevacao-8)] group-[.toaster]:text-[var(--figaro-on-surface)]",
           title: "text-[15px] font-medium leading-5",

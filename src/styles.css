@@ -5346,6 +5346,17 @@ button.agenda-timeline-bloqueio-interativo {
   animation-duration: var(--mov-lento);
 }
 
+/* Avisos do sistema (sonner) no padrão do Figaro: o padrão do componente é branco no claro e preto no escuro,
+   e vence uma classe comum; por isso a cor vem daqui, com seletor de maior prioridade. */
+[data-sonner-toaster] [data-sonner-toast] {
+  background: var(--figaro-surface-container-high) !important;
+  color: var(--figaro-on-surface) !important;
+  border: 0 !important;
+}
+[data-sonner-toaster] [data-sonner-toast] [data-description] {
+  color: var(--figaro-on-surface-variant) !important;
+}
+
 /* Movimento leve e unificado: avisos, painéis e estados transitórios. */
 .toast-desfazer {
   position: relative;
