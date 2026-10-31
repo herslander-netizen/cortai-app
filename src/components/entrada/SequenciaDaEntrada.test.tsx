@@ -42,26 +42,26 @@ describe("SequenciaDaEntrada", () => {
 
     expect(abas.length).toBe(5);
     expect(abas.map((aba) => aba.getAttribute("aria-label"))).toEqual([
-      "Mostrar etapa: Agenda",
-      "Mostrar etapa: Caixa",
-      "Mostrar etapa: WhatsApp",
-      "Mostrar etapa: Clientes",
-      "Mostrar etapa: Métricas",
+      "Mostrar etapa: SITE PRÓPRIO",
+      "Mostrar etapa: AUTONOMIA",
+      "Mostrar etapa: WHATSAPP",
+      "Mostrar etapa: AGENDA",
+      "Mostrar etapa: CAIXA & PIX",
     ]);
     expect(abas.every((aba) => aba.getAttribute("style")?.includes("48px"))).toBe(true);
-    expect(abas[1]?.style.color).toBe("var(--entrada-suave)");
+    expect(abas[1]?.style.color).toBe("var(--figaro-on-surface-variant)");
     expect(abas[0]?.getAttribute("aria-selected")).toBe("true");
     expect(abas[0]?.tabIndex).toBe(0);
     expect(abas[1]?.tabIndex).toBe(-1);
     expect(painel?.getAttribute("aria-labelledby")).toBe(abas[0]?.id);
-    expect(alvo.querySelector("h2")?.textContent).toBe("Uma agenda que acompanha seu ritmo");
+    expect(alvo.querySelector("h2")?.textContent).toBe("Seu site próprio em minutos");
 
-    const whatsapp = abas.find((aba) => aba.getAttribute("aria-label") === "Mostrar etapa: WhatsApp");
+    const whatsapp = abas.find((aba) => aba.getAttribute("aria-label") === "Mostrar etapa: WHATSAPP");
     await act(async () => whatsapp?.click());
 
     expect(whatsapp?.getAttribute("aria-selected")).toBe("true");
     expect(whatsapp?.tabIndex).toBe(0);
-    expect(alvo.querySelector("h2")?.textContent).toBe("Confirmações direto no WhatsApp");
+    expect(alvo.querySelector("h2")?.textContent).toBe("Lembretes direto no WhatsApp");
   });
 
   it("permite navegar pelas etapas com as setas e Home/End", async () => {
@@ -136,12 +136,14 @@ describe("SequenciaDaEntrada", () => {
     expect(cartao?.style.display).toBe("flex");
     expect(cartao?.style.flexDirection).toBe("column");
     expect(alvo.querySelector(".entrada-sequencia")?.getAttribute("style")).toContain("flex: 1");
-    expect(alvo.querySelector(".entrada-cartao-legenda p")?.textContent).toBe("Agenda");
+    expect(alvo.querySelector(".entrada-cartao-legenda p")?.textContent).toBe("SITE PRÓPRIO");
+    expect(alvo.querySelectorAll('[aria-label="Progresso da apresentação"] > div')).toHaveLength(5);
+    expect(alvo.querySelector(".entrada-cartao")?.textContent).toContain("Seu site próprio em minutos");
     expect(alvo.querySelector(".entrada-cartao")?.getAttribute("style")).toContain("var(--elevacao-2)");
 
     const aparelho = alvo.querySelector<HTMLElement>(".entrada-demo");
     expect(aparelho?.getAttribute("aria-label")).toBe(
-      "Agenda do Flow com atendimento em andamento e confirmação",
+      "Página pública do Flow com apresentação do negócio, serviços e ação de agendamento",
     );
     expect(aparelho?.style.background).toBe("var(--figaro-primary)");
     expect(aparelho?.style.color).toBe("var(--figaro-on-primary)");
