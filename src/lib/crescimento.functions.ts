@@ -562,7 +562,7 @@ export const getProfissionaisPerfil = createServerFn({ method: "GET" })
     const { db, tenant } = await tenantPadrao(context);
     const { data } = await db
       .from("profissionais")
-      .select("id, nome, descricao, portfolio, ativo")
+      .select("id, nome, descricao, portfolio, ativo, avatar_url")
       .eq("tenant_id", tenant.id)
       .order("criado_em");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -580,7 +580,7 @@ export const getProfissionaisPerfil = createServerFn({ method: "GET" })
             })),
           )
         ).filter((f): f is { valor: string; url: string } => Boolean(f.url));
-        return { id: p.id, nome: p.nome, descricao: p.descricao, portfolio, fotos, ativo: p.ativo };
+        return { id: p.id, tenantId: tenant.id, nome: p.nome, descricao: p.descricao, portfolio, fotos, ativo: p.ativo, avatarUrl: p.avatar_url, avatarPreview: await assinarFoto(supabaseAdmin, p.avatar_url) };
       }),
     );
   });
@@ -593,17 +593,20 @@ export const salvarPerfilProfissional = createServerFn({ method: "POST" })
         id: z.string().uuid(),
         descricao: z.string().trim().max(2000),
         portfolio: z.array(z.string().trim().min(1).max(400)).max(MAX_FOTOS_DO_PORTFOLIO),
+        avatarUrl: z.string().trim().max(500).nullable().optional(),
       })
       .parse(input),
   )
   .handler(async ({ data, context }) => {
     const { db, tenant } = await tenantPadrao(context);
     await exigirPermissao(context, tenant.id, "gerenciar_profissionais");
+    if (data.avatarUrl && !fotoValida(data.avatarUrl, tenant.id))
+      throw new Error("Escolha uma foto de perfil válida.");
     if (!data.portfolio.every((f) => fotoValida(f, tenant.id)))
       throw new Error("Escolha as fotos pela galeria de fotos.");
     const { error } = await db
       .from("profissionais")
-      .update({ descricao: data.descricao || null, portfolio: data.portfolio })
+      .update({ descricao: data.descricao || null, portfolio: data.portfolio, ...(data.avatarUrl !== undefined ? { avatar_url: data.avatarUrl } : {}) })
       .eq("id", data.id)
       .eq("tenant_id", tenant.id);
     if (error) throw new Error(error.message);
