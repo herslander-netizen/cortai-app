@@ -125,9 +125,17 @@ describe("SequenciaDaEntrada", () => {
     const legenda = alvo.querySelector<HTMLElement>(".entrada-cartao-legenda");
     const siteCapa = alvo.querySelector<HTMLElement>(".ed-site-capa");
 
-    expect(demo?.style.height).toBe("clamp(184px, 29svh, 248px)");
+    expect(demo?.style.flex).toBe("1 1 0");
+    expect(demo?.style.minHeight).toBe("0px");
     expect(demo?.style.overflow).toBe("hidden");
-    expect(legenda?.style.minHeight).toBe("96px");
+    expect(legenda?.style.minHeight).toBe("104px");
+    expect(legenda?.style.flexShrink).toBe("0");
+    const cartao = alvo.querySelector<HTMLElement>(".entrada-cartao");
+    expect(cartao?.style.width).toBe("min(100%, 260px)");
+    expect(cartao?.style.flex).toBe("1 1 0");
+    expect(cartao?.style.minHeight).toBe("0px");
+    expect(cartao?.style.display).toBe("flex");
+    expect(cartao?.style.flexDirection).toBe("column");
     expect(alvo.querySelector(".entrada-sequencia")?.getAttribute("style")).toContain("flex: 1");
     expect(siteCapa?.style.height).toBe("64px");
     expect(alvo.querySelector(".entrada-cartao-legenda p")?.textContent).toBe("Seu site");

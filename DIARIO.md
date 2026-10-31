@@ -27,6 +27,7 @@ e o que fez. O diário até 17/10/2026 está guardado, sem alterações, em
 7. **Sem segredos:** nunca escreva chaves, senhas ou tokens aqui. Cite só o nome da variável.
 
 ## Decisões do dono
+- 2026-10-31: **Entrada móvel no estilo da referência enviada**: cartão de demonstração alto e vertical, com a demonstração na parte superior e legenda categorizada dentro do mesmo cartão, abaixo de um divisor; indicadores por ícone e ações ancoradas no rodapé. Não impor proporção 9:16 ao cartão nem à área da demonstração.
 - 2026-10-31: **Ajustar fotos e capas em todo o sistema** ("redimensionar para deixar a foto da maneira que a pessoa quer e não forçar a foto estática"; escopo "todo sistema", inclusive Agenda e logo): ao escolher foto de perfil, logo, capa ou foto de serviço/produto, a pessoa dá zoom e arrasta para mostrar a parte que quer.
 - 2026-10-31: **Remover horário especial continua pedindo confirmação**, agora com o aviso de que a ação não pode ser desfeita ("junto com o arrependimento": se mudar de ideia, criar de novo). Dono escolheu isso em vez do Desfazer de 5 s que foi sugerido.
 - 2026-10-31: **Flow Bot dentro do Flow, como peça do sistema** (sem servidor próprio): motor do `flow-bot` embutido no código, entrada pelo webhook de WhatsApp que já existe (bot primeiro; sem regra que sirva, segue para a Flow IA), envio pelo caminho oficial do Flow (porteiro, ritmo, 24h, falhas), dados pelo motor oficial, liga/desliga por negócio (começa desligado) e horário de atendimento (o do negócio ou próprio). Configuração do negócio: respostas cadastradas, regras estilo AutoResponder, modelos prontos, perguntas sem resposta e simulador.
@@ -543,7 +544,6 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Em andamento
 
-- GPT | 2026-10-31 UTC | Adaptar a composição móvel da entrada Flow ao vídeo de referência (marca no topo, cartão de demonstração alto com legenda categorizada, indicadores por ícone e ações ancoradas no rodapé), **preservando integralmente identidade Flow, paleta clara, ondas, marca e caminhos de acesso existentes**; o vídeo orienta só o arranjo | `src/routes/login.tsx`, `src/components/entrada/SequenciaDaEntrada.tsx`, testes da entrada; **não alterar `src/styles.css`, Agenda, autenticação ou outras telas**
 
 
 
@@ -900,6 +900,14 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+
+### 2026-10-31 UTC — GPT — Cartão vertical da entrada Flow conforme referência
+- O que mudou e por quê: a demonstração passa a ocupar a parte alta e flexível do cartão; a legenda categorizada permanece dentro do mesmo cartão, abaixo do divisor. O cartão fica estreito e alto, sem impor 9:16 à moldura ou à demonstração, seguindo a composição do vídeo.
+- Arquivos: `src/components/entrada/SequenciaDaEntrada.tsx`, `src/components/entrada/SequenciaDaEntrada.test.tsx`.
+- Testes: não executados localmente nesta sessão (sem terminal/repositório montado); aguardando GitHub Actions para TypeScript, Vitest, ESLint, build e publicação da prévia.
+- Banco/infra: nada alterado.
+- Pendente / atenção: conferir a prévia em 390 px e 360 px, temas claro/escuro, e verificar se o cartão preserva a legenda inteira e se as ações continuam ancoradas no rodapé.
+
 
 ### 2026-10-31 UTC — GPT — Refinamento minucioso da entrada Flow (prévia publicada)
 - Commits de código: `3b12d9d` (cartão, demonstrações e navegação acessível), `7179d3e` (tipo ReactNode explícito), `15d0782` (teste de contraste corrigido). Reserva iniciada em `5a9b1dc`.

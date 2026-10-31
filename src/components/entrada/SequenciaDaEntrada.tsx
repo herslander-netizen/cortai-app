@@ -160,9 +160,12 @@ export function SequenciaDaEntrada() {
         tabIndex={0}
         className="entrada-cartao"
         style={{
-          width: "100%",
-          maxWidth: "min(100%, 360px)",
-          flexShrink: 0,
+          width: "min(100%, 260px)",
+          maxWidth: "min(100%, 260px)",
+          flex: "1 1 0",
+          minHeight: 0,
+          display: "flex",
+          flexDirection: "column",
           borderRadius: 28,
           background: "var(--ink2)",
           color: "var(--paper)",
@@ -174,7 +177,7 @@ export function SequenciaDaEntrada() {
           key={passo.id}
           className="entrada-cartao-demo"
           style={{
-            height: "clamp(184px, 29svh, 248px)",
+            flex: "1 1 0",
             minHeight: 0,
             overflow: "hidden",
           }}
@@ -192,7 +195,7 @@ export function SequenciaDaEntrada() {
         <div
           key={`${passo.id}-legenda`}
           className="entrada-cartao-legenda"
-          style={{ minHeight: 96, padding: "13px 18px 17px" }}
+          style={{ minHeight: 104, flexShrink: 0, padding: "13px 18px 17px" }}
         >
           <p
             aria-hidden="true"
