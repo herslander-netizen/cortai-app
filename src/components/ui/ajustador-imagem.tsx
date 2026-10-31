@@ -129,7 +129,7 @@ export function AjustadorImagem({
     }
   };
 
-  const moverPonteiro = (event: React.PointerEvent<HTMLDivElement>) => {
+  const moverPonteiro = (event: PointerEvent<HTMLDivElement>) => {
     if (!ponteiros.current.has(event.pointerId)) return;
     ponteiros.current.set(event.pointerId, { x: event.clientX, y: event.clientY });
     atualizarGesto();
@@ -144,7 +144,6 @@ export function AjustadorImagem({
       : null;
     if (pontos.length >= 2) {
       gesto.current = {
-        centro: meio(pontos[0]!, pontos[1]!),
         distancia: distancia(pontos[0]!, pontos[1]!),
         zoom,
         deslocamento,
