@@ -27,6 +27,7 @@ e o que fez. O diário até 17/10/2026 está guardado, sem alterações, em
 7. **Sem segredos:** nunca escreva chaves, senhas ou tokens aqui. Cite só o nome da variável.
 
 ## Decisões do dono
+- 2026-10-31: **Ajustar fotos e capas em todo o sistema** ("redimensionar para deixar a foto da maneira que a pessoa quer e não forçar a foto estática"; escopo "todo sistema", inclusive Agenda e logo): ao escolher foto de perfil, logo, capa ou foto de serviço/produto, a pessoa dá zoom e arrasta para mostrar a parte que quer.
 - 2026-10-31: **Remover horário especial continua pedindo confirmação**, agora com o aviso de que a ação não pode ser desfeita ("junto com o arrependimento": se mudar de ideia, criar de novo). Dono escolheu isso em vez do Desfazer de 5 s que foi sugerido.
 - 2026-10-31: **Flow Bot dentro do Flow, como peça do sistema** (sem servidor próprio): motor do `flow-bot` embutido no código, entrada pelo webhook de WhatsApp que já existe (bot primeiro; sem regra que sirva, segue para a Flow IA), envio pelo caminho oficial do Flow (porteiro, ritmo, 24h, falhas), dados pelo motor oficial, liga/desliga por negócio (começa desligado) e horário de atendimento (o do negócio ou próprio). Configuração do negócio: respostas cadastradas, regras estilo AutoResponder, modelos prontos, perguntas sem resposta e simulador.
 - 2026-10-31: **A IA na configuração do bot é só entre o dono e o sistema** ("o barbeiro fulano me avisa, mando mensagem pra vc corrigir e vc corrige"): nenhum recurso de IA para o negócio configurar o bot. Correção vem por pedido do dono a uma das IAs; o pedido do dono para corrigir as regras de um negócio vale como autorização daquela mudança específica no banco, sempre com versão anterior guardada e relato do que mudou. Painel do ADM para o dono ver o bot de cada negócio.
@@ -527,6 +528,8 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - 2026-10-26: **Cabeçalho do menu mobile mais compacto** (dono aprovou a reformulação após captura: logo menor, nome do negócio com hierarquia discreta, papel secundário, ajustes alinhados e menos espaço vazio; manter nome em até duas linhas quando necessário, sem afetar a Agenda).
 
 ## Em andamento
+
+- Claude | 2026-10-31 UTC | Ajuste de fotos e capas (zoom e arrastar) no ponto de envio: `GaleriaDeFotos`, `SeletorDeFoto`, editor da página (capa/logo), editor de serviços; componente novo `AjustarFoto`. Sem migração (o recorte vai na própria imagem enviada) | `src/components/fotos/*`, `src/lib/imagem.ts`, `src/lib/enviar-foto.ts`, `src/components/marca/editor/useEditorDaPagina.ts`, `src/components/onboarding/EditorDeServicos.tsx`
 
 - Claude | 2026-10-31 UTC | Flow Bot dentro do Flow — Fase A (dono: "vamos criar a integração"): motor do flow-bot embutido em `src/lib/flow-bot/`, entrada no WhatsApp antes da Flow IA, rastro, modo sombra, horário, detecção de pessoa que assumiu (`fromMe`), modo humano com prazo; sem tela (Fase B) | `src/lib/flow-bot/*`, `src/lib/whatsapp/fluxo.server.ts`, `src/routes/api/public/whatsapp/evolution.ts`, `src/integrations/supabase/types.ts`, `supabase/tests/flow_bot.sql`, migração **0055** `drizzle/migrations/0055_flow_bot.sql` (não aplicar sem autorização)
 
