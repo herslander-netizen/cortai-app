@@ -50,41 +50,52 @@ jobs:
           fi
           echo "OK: build web configurado para o Supabase isolado cortai-preview."
 
-      - name: Aguardar a publicação da prévia deste commit
+      - name: Aguardar a publicação da versão mais recente da branch
+        id: preview
         env:
           GH_TOKEN: ${{ github.token }}
           REPOSITORY: ${{ github.repository }}
           BRANCH: cloudflare-workers-migration-2026-10-13
-          COMMIT: ${{ github.sha }}
           PREVIEW_URL: https://previa.cortaiapp.pages.dev
         shell: bash
         run: |
           set -euo pipefail
           api="repos/$REPOSITORY/actions/workflows/preview-migration.yml/runs?branch=$BRANCH&per_page=30"
           for tentativa in $(seq 1 90); do
+            commit="$(git ls-remote origin "refs/heads/$BRANCH" | awk 'NR == 1 {print $1}')"
+            if [[ -z "$commit" ]]; then
+              echo "::error::Não foi possível identificar o commit atual da branch."
+              exit 1
+            fi
             runs="$(gh api "$api")"
-            run="$(jq -c --arg sha "$COMMIT" '[.workflow_runs[] | select(.head_sha == $sha and .event == "push") ] | first // empty' <<< "$runs")"
+            run="$(jq -c --arg sha "$commit" '[.workflow_runs[] | select(.head_sha == $sha and .event == "push")] | first // empty' <<< "$runs")"
             if [[ -n "$run" ]]; then
               run_id="$(jq -r '.id' <<< "$run")"
               status="$(jq -r '.status' <<< "$run")"
               conclusion="$(jq -r '.conclusion // ""' <<< "$run")"
-              if [[ "$status" == "completed" && "$conclusion" != "success" ]]; then
+              if [[ "$status" == "completed" && "$conclusion" == "success" ]]; then
+                marcador="$(curl -fsS --connect-timeout 5 --max-time 15 "${PREVIEW_URL%/}/__deploy-check-${run_id}.json" 2>/dev/null || true)"
+                if [[ -n "$marcador" ]] && jq -e --arg sha "$commit" --arg id "$run_id" '.commit == $sha and .run_id == $id' <<< "$marcador" >/dev/null; then
+                  echo "commit=$commit" >> "$GITHUB_OUTPUT"
+                  echo "run_id=$run_id" >> "$GITHUB_OUTPUT"
+                  echo "OK: a prévia publicada serve exatamente o commit $commit (run $run_id)."
+                  exit 0
+                fi
+              elif [[ "$status" == "completed" && "$conclusion" != "success" && "$conclusion" != "cancelled" ]]; then
                 echo "::error::A validação/publicação da prévia falhou (run $run_id; $conclusion)."
                 exit 1
               fi
-              if [[ "$status" == "completed" && "$conclusion" == "success" ]]; then
-                marcador="$(curl -fsS --connect-timeout 5 --max-time 15 "${PREVIEW_URL%/}/__deploy-check-${run_id}.json" 2>/dev/null || true)"
-                if [[ -n "$marcador" ]] && jq -e --arg sha "$COMMIT" --arg id "$run_id" '.commit == $sha and .run_id == $id' <<< "$marcador" >/dev/null; then
-                  echo "OK: a prévia publicada serve exatamente o commit $COMMIT (run $run_id)."
-                  exit 0
-                fi
-              fi
             fi
-            echo "Aguardando a prévia deste commit (tentativa $tentativa/90)..."
+            echo "Aguardando a prévia do commit atual $commit (tentativa $tentativa/90)..."
             sleep 10
           done
-          echo "::error::A prévia não confirmou a publicação do commit $COMMIT dentro do prazo."
+          echo "::error::A prévia não confirmou a publicação do commit mais recente dentro do prazo."
           exit 1
+
+      - name: Atualizar checkout para o commit publicado
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.preview.outputs.commit }}
 
       - name: Configurar Bun
         uses: oven-sh/setup-bun@v2
@@ -107,7 +118,7 @@ jobs:
           VITE_SUPABASE_URL: ${{ secrets.PREVIEW_SUPABASE_URL }}
           VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.PREVIEW_SUPABASE_PUBLISHABLE_KEY }}
           VITE_CORTAI_PUBLIC_URL: https://previa.cortaiapp.pages.dev
-          CORTAI_BUILD_ID: ${{ github.sha }}
+          CORTAI_BUILD_ID: ${{ steps.preview.outputs.commit }}
         run: |
           set -euo pipefail
           VITE_SUPABASE_URL="$(printf '%s' "$VITE_SUPABASE_URL" | tr -d '\r\n ' | sed -E 's#/(rest|auth)/v1/?$##; s#/$##')"
@@ -123,6 +134,9 @@ jobs:
 
       - name: Instalar Android SDK
         uses: android-actions/setup-android@v3
+
+      - name: Instalar plataforma e ferramentas Android
+        run: sdkmanager "platform-tools" "platforms;android-36" "build-tools;36.0.0"
 
       - name: Adicionar plataforma Android
         run: npx cap add android
@@ -144,10 +158,10 @@ jobs:
           chmod +x gradlew
           ./gradlew --no-daemon assembleDebug
           mkdir -p ../artifacts
-          cp app/build/outputs/apk/debug/app-debug.apk "../artifacts/Flow-Teste-${GITHUB_SHA:0:7}.apk"
+          cp app/build/outputs/apk/debug/app-debug.apk "../artifacts/Flow-Teste-${{ steps.preview.outputs.commit }}.apk"
           cd ..
-          "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --verbose "artifacts/Flow-Teste-${GITHUB_SHA:0:7}.apk"
-          sha256sum "artifacts/Flow-Teste-${GITHUB_SHA:0:7}.apk" > artifacts/SHA256SUMS.txt
+          "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --verbose "artifacts/Flow-Teste-${{ steps.preview.outputs.commit }}.apk"
+          sha256sum "artifacts/Flow-Teste-${{ steps.preview.outputs.commit }}.apk" > artifacts/SHA256SUMS.txt
 
       - name: Disponibilizar APK para baixar
         uses: actions/upload-artifact@v4
