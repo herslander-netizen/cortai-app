@@ -151,6 +151,10 @@ export function SequenciaDaEntrada() {
       }}
       onMouseEnter={() => setSobPonteiro(true)}
       onMouseLeave={() => setSobPonteiro(false)}
+      onPointerDown={() => setSobPonteiro(true)}
+      onPointerUp={() => setSobPonteiro(false)}
+      onPointerCancel={() => setSobPonteiro(false)}
+      onLostPointerCapture={() => setSobPonteiro(false)}
     >
       <Card
         variant="surface"
@@ -269,6 +273,7 @@ export function SequenciaDaEntrada() {
               padding: 0,
               border: 0,
               borderRadius: 999,
+              position: "relative",
               background: i === indice ? "var(--figaro-primary-container)" : "transparent",
               color: i === indice ? "var(--figaro-on-primary-container)" : "var(--mute)",
             }}
@@ -276,6 +281,14 @@ export function SequenciaDaEntrada() {
             onKeyDown={(event) => navegarPelasAbas(event, i)}
           >
             <p.icone aria-hidden="true" size={20} strokeWidth={2} />
+            {i === indice ? (
+              <motion.span
+                aria-hidden="true"
+                layoutId={`${prefixo}-progresso-ativo`}
+                className="absolute bottom-[3px] left-1/2 h-[3px] w-5 -translate-x-1/2 rounded-full"
+                style={{ background: "var(--flow-rosa, #f48fb1)", boxShadow: "0 0 10px var(--flow-rosa, #f48fb1)" }}
+              />
+            ) : null}
           </Button>
         ))}
       </div>
