@@ -890,6 +890,10 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+### 2026-10-31 UTC — Claude — Versão 3.7 publicada no site principal
+- Pedido do dono ("mande pra main"). Prévia do `3ba425bb` validada (execução 41212517000) e "Lançar versão" rodou com sucesso (execução 41212876548): commit `6267ad49` "Versão 3.7", tag `v3.7`, `cortaiapp.pages.dev` atualizado.
+- Entram: Agenda no padrão Figaro (linha agora, dia vizinho completo, lista e "Agora"), menu lateral (medidas, arrastar, Aparência), toque que afunda no topo, Financeiro refeito, cobrança em duas etapas, película escura, ajuste de fotos, capas e ícone do Flow como padrão, modelo de gaveta, app da equipe sem tela cheia.
+- Banco: nada novo exigido; a 0055 (Flow Bot) continua só na branch e o código tolera a ausência. `CONTEXTO.md` §11 atualizado.
 ### 2026-10-31 UTC — Claude — Orientações gerais das IAs num documento único e obrigatório
 - Pedido do dono: analisar tudo que uma página nova precisa ter, juntar todas as orientações existentes num documento e obrigar todas as IAs a ler antes de qualquer processo.
 - Novo `ORIENTACOES-GERAIS-IA.md` (raiz): ordem obrigatória de leitura (§1), regras que nunca se quebram (§2), fluxo da tarefa (§3), **checklist de página nova** (§4: estrutura, visual Figaro, marca e conteúdo padrão, dados e estados, fechamento — cada item de uma decisão do dono ou defeito real), fontes únicas (§5), negócio e segurança (§6), armadilhas (§7), prévia e publicação (§8).

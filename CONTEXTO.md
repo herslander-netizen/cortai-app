@@ -188,12 +188,13 @@ supabase/baseline/ensaio/ensaio-local.sh   # quando houver migração; todos os 
 Sem terminal: envie e confira o GitHub Actions antes de dizer que está pronto. Visual: conferir a 390 px, escuro e
 claro. Nunca diga que testou, aplicou ou publicou sem ter feito.
 
-## 11. Estado em 30/10/2026 (atualize quando mudar)
+## 11. Estado em 31/10/2026 (atualize quando mudar)
 
-- Versão publicada no site principal: **v3.6** (23/10). Tudo depois disso está só na prévia.
+- Versão publicada no site principal: **v3.7** (31/10, pedido do dono, execução 41212876548). Tudo depois disso está só na prévia.
+- Migração **0055** (Flow Bot) ainda **não** aplicada no `cortai-prod`; o código tolera a tabela ausente.
 - Migração **0054** (horários especiais) **aplicada** no `cortai-prod` em 30/10, com autorização do dono, pelo workflow
   "Aplicar migrações novas" (execução 41147480057); teste de banco no real: 13 verificações OK.
-- App da equipe em tela cheia (`display_override: ["fullscreen"]`) em teste; vale após reinstalar.
+- App da equipe voltou a `standalone` (tela cheia desligada pelo dono em 31/10); vale após reinstalar.
 - Pendências abertas: "Próximas tarefas" e "Em andamento" no `DIARIO.md` e "Auditoria e segurança" na seção 12.
 - Projeto à parte: **Flow Bot** (motor de automação reutilizável), repositório próprio; integra com o Flow por
   "realidade" e "handoff" (ainda não ligados).
