@@ -305,8 +305,10 @@ function LoginPage() {
           "--entrada-fundo": "var(--cartao)",
           "--entrada-ciano": "#A8C7FA",
           "--entrada-rosa": "#F48FB1",
-          "--entrada-texto": "var(--paper)",
-          "--entrada-suave": "var(--mute)",
+          // A apresentação fica sobre ondas claras; usa o on-surface Figaro para garantir contraste.
+          // Os tokens --paper/--mute do painel de autenticação permanecem inalterados.
+          "--entrada-texto": "var(--figaro-on-surface)",
+          "--entrada-suave": "var(--figaro-on-surface)",
           height: "100dvh",
           minHeight: "100dvh",
           background: "var(--cartao)",
@@ -617,7 +619,7 @@ function LoginPage() {
 
         <Link
           to="/barbearias"
-          className="flex min-h-12 items-center justify-center text-center text-sm font-medium text-mute hover:text-paper"
+          className="flex min-h-12 items-center justify-center text-center text-sm font-medium text-[var(--figaro-on-surface)] hover:text-[var(--figaro-on-surface)]"
           style={{ flexShrink: 0 }}
         >
           Sou cliente e quero só agendar

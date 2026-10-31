@@ -42,25 +42,26 @@ describe("SequenciaDaEntrada", () => {
 
     expect(abas.length).toBe(5);
     expect(abas.map((aba) => aba.getAttribute("aria-label"))).toEqual([
-      "Mostrar etapa: Seu site",
-      "Mostrar etapa: Agendar",
-      "Mostrar etapa: Lembretes",
-      "Mostrar etapa: Avaliações",
-      "Mostrar etapa: Desempenho",
+      "Mostrar etapa: Agenda",
+      "Mostrar etapa: Caixa",
+      "Mostrar etapa: WhatsApp",
+      "Mostrar etapa: Clientes",
+      "Mostrar etapa: Métricas",
     ]);
     expect(abas.every((aba) => aba.getAttribute("style")?.includes("48px"))).toBe(true);
+    expect(abas[1]?.style.color).toBe("var(--entrada-suave)");
     expect(abas[0]?.getAttribute("aria-selected")).toBe("true");
     expect(abas[0]?.tabIndex).toBe(0);
     expect(abas[1]?.tabIndex).toBe(-1);
     expect(painel?.getAttribute("aria-labelledby")).toBe(abas[0]?.id);
-    expect(alvo.querySelector("h2")?.textContent).toBe("Seu site pronto em minutos");
+    expect(alvo.querySelector("h2")?.textContent).toBe("Uma agenda que acompanha seu ritmo");
 
-    const lembretes = abas.find((aba) => aba.getAttribute("aria-label") === "Mostrar etapa: Lembretes");
-    await act(async () => lembretes?.click());
+    const whatsapp = abas.find((aba) => aba.getAttribute("aria-label") === "Mostrar etapa: WhatsApp");
+    await act(async () => whatsapp?.click());
 
-    expect(lembretes?.getAttribute("aria-selected")).toBe("true");
-    expect(lembretes?.tabIndex).toBe(0);
-    expect(alvo.querySelector("h2")?.textContent).toBe("Menos faltas, mais agenda cheia");
+    expect(whatsapp?.getAttribute("aria-selected")).toBe("true");
+    expect(whatsapp?.tabIndex).toBe(0);
+    expect(alvo.querySelector("h2")?.textContent).toBe("Confirmações direto no WhatsApp");
   });
 
   it("permite navegar pelas etapas com as setas e Home/End", async () => {
@@ -123,37 +124,27 @@ describe("SequenciaDaEntrada", () => {
     const alvo = await montar();
     const demo = alvo.querySelector<HTMLElement>(".entrada-cartao-demo");
     const legenda = alvo.querySelector<HTMLElement>(".entrada-cartao-legenda");
-    const siteCapa = alvo.querySelector<HTMLElement>(".ed-site-capa");
-
     expect(demo?.style.flex).toBe("1 1 0px");
     expect(demo?.style.minHeight).toBe("0px");
     expect(demo?.style.overflow).toBe("hidden");
     expect(legenda?.style.minHeight).toBe("104px");
     expect(legenda?.style.flexShrink).toBe("0");
     const cartao = alvo.querySelector<HTMLElement>(".entrada-cartao");
-    expect(cartao?.style.width).toBe("min(100%, 260px)");
+    expect(cartao?.style.width).toBe("100%");
     expect(cartao?.style.flex).toBe("1 1 0px");
     expect(cartao?.style.minHeight).toBe("0px");
     expect(cartao?.style.display).toBe("flex");
     expect(cartao?.style.flexDirection).toBe("column");
     expect(alvo.querySelector(".entrada-sequencia")?.getAttribute("style")).toContain("flex: 1");
-    expect(siteCapa?.style.height).toBe("64px");
-    expect(alvo.querySelector(".entrada-cartao-legenda p")?.textContent).toBe("Seu site");
+    expect(alvo.querySelector(".entrada-cartao-legenda p")?.textContent).toBe("Agenda");
     expect(alvo.querySelector(".entrada-cartao")?.getAttribute("style")).toContain("var(--elevacao-2)");
 
-    const abaAgendar = [...alvo.querySelectorAll<HTMLButtonElement>('[role="tab"]')].find(
-      (aba) => aba.getAttribute("aria-label") === "Mostrar etapa: Agendar",
-    );
-    await act(async () => abaAgendar?.click());
-
     const aparelho = alvo.querySelector<HTMLElement>(".entrada-demo");
-    const diaAtivo = alvo.querySelector<HTMLElement>(".ed-agendar-dias [data-ativo]");
-    const horarioAtivo = alvo.querySelector<HTMLElement>(".ed-agendar-horas [data-alvo]");
+    expect(aparelho?.getAttribute("aria-label")).toBe(
+      "Agenda do Flow com atendimento em andamento e confirmação",
+    );
     expect(aparelho?.style.background).toBe("var(--figaro-primary)");
     expect(aparelho?.style.color).toBe("var(--figaro-on-primary)");
     expect(aparelho?.style.overflow).toBe("hidden");
-    expect(diaAtivo?.style.background).toBe("var(--figaro-primary-container)");
-    expect(diaAtivo?.style.color).toBe("var(--figaro-on-primary-container)");
-    expect(horarioAtivo?.style.background).toBe("var(--figaro-tertiary)");
   });
 });

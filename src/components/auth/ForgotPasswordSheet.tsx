@@ -156,7 +156,7 @@ export function ForgotPasswordSheet({
             animate={{ y: 0, opacity: 1 }}
             exit={reducedMotion ? { opacity: 0 } : { y: "100%", opacity: 0.8 }}
             transition={{ type: "spring", damping: 28, stiffness: 350 }}
-            className="relative z-10 w-full max-w-md rounded-t-[28px] border border-white/10 bg-[#20212A] p-6 pb-[calc(24px+env(safe-area-inset-bottom))] shadow-2xl sm:rounded-[28px]"
+            className="relative z-10 w-full max-w-md rounded-t-[28px] border border-white/10 bg-[#20212A] p-6 pb-[calc(24px+env(safe-area-inset-bottom))] shadow-[var(--elevacao-3)] sm:rounded-[28px]"
           >
             <div className="mb-5 flex items-center justify-between border-b border-white/10 pb-4">
               <div className="flex items-center gap-2">

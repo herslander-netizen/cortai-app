@@ -298,7 +298,7 @@ export function SequenciaDaEntrada() {
               borderRadius: 999,
               position: "relative",
               background: i === indice ? "var(--figaro-primary-container)" : "transparent",
-              color: i === indice ? "var(--figaro-on-primary-container)" : "var(--mute)",
+              color: i === indice ? "var(--figaro-on-primary-container)" : "var(--entrada-suave)",
             }}
             onClick={() => trocarEtapa(i)}
             onKeyDown={(event) => navegarPelasAbas(event, i)}
