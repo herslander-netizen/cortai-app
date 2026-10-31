@@ -1,6 +1,8 @@
+import avatarPadrao from "@/assets/flow-avatar-padrao.png.asset.json";
+
 /**
- * Marca da barbearia nos pontos públicos. Sem logo, mostra um monograma neutro
- * com a inicial da barbearia — nunca uma logo inventada.
+ * Marca do negócio nos pontos públicos e no menu. Sem logo, o ícone padrão do Flow (o mesmo do topo da Agenda),
+ * até o negócio colocar a própria (dono, 31/10: antes era a inicial, "B"). Nunca uma logo inventada do negócio.
  */
 export function LogoBarbearia({
   nome,
@@ -13,7 +15,6 @@ export function LogoBarbearia({
   size?: number;
   className?: string;
 }) {
-  const inicial = (nome.trim()[0] ?? "C").toUpperCase();
   if (url) {
     // Fundo neutro sólido: logos claras ou escuras continuam legíveis
     // em qualquer identidade e nos modos claro e escuro.
@@ -29,13 +30,13 @@ export function LogoBarbearia({
     );
   }
   return (
-    <span
-      role="img"
-      aria-label={`Marca ${nome}`}
-      style={{ width: size, height: size, fontSize: Math.round(size * 0.4) }}
-      className={`flex shrink-0 items-center justify-center rounded-xl border border-border bg-card font-bold text-foreground ${className}`}
-    >
-      {inicial}
-    </span>
+    <img
+      src={avatarPadrao.url}
+      alt={`Marca ${nome}`}
+      width={size}
+      height={size}
+      style={{ width: size, height: size }}
+      className={`shrink-0 rounded-full object-cover ${className}`}
+    />
   );
 }

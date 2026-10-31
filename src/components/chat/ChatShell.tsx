@@ -9,6 +9,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import fundo from "@/assets/flow-chat-fundo.png.asset.json";
+import avatarPadrao from "@/assets/flow-avatar-padrao.png.asset.json";
 import type { PaginaConfig } from "@/lib/pagina-config";
 
 type ChatConfig = PaginaConfig["chat"];
@@ -107,9 +108,12 @@ export function ChatHeader({
         {avatarUrl ? (
           <img src={avatarUrl} alt="" className="chat-header-avatar !rounded-full object-cover" />
         ) : (
-          <span className="chat-avatar-letra chat-header-avatar !rounded-full" aria-hidden>
-            {nomeExibido.slice(0, 1).toUpperCase()}
-          </span>
+          // Sem foto: o ícone padrão do Flow, como no topo da Agenda (dono, 31/10), até o negócio personalizar.
+          <img
+            src={avatarPadrao.url}
+            alt=""
+            className="chat-header-avatar !rounded-full object-cover"
+          />
         )}
         {online ? <span className="chat-presenca" aria-hidden /> : null}
       </span>

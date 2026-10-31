@@ -36,3 +36,14 @@ describe("capas da marca e imagens padrão (dono, 31/10)", () => {
     );
   });
 });
+
+describe("ícone padrão do Flow no lugar da inicial do negócio (dono, 31/10)", () => {
+  it("logo do negócio e avatar do chat usam o ícone do Flow até o negócio personalizar", () => {
+    const logo = readFileSync("src/components/marca/LogoBarbearia.tsx", "utf8");
+    expect(logo).toContain('import avatarPadrao from "@/assets/flow-avatar-padrao.png.asset.json"');
+    expect(logo).not.toContain("inicial");
+    const chat = readFileSync("src/components/chat/ChatShell.tsx", "utf8");
+    expect(chat).toContain("src={avatarPadrao.url}");
+    expect(chat).not.toContain("nomeExibido.slice(0, 1).toUpperCase()");
+  });
+});
