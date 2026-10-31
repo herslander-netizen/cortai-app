@@ -151,7 +151,11 @@ function LoginPage() {
     function controlarTeclado(event: KeyboardEvent) {
       if (event.key === "Escape") {
         event.preventDefault();
-        fecharPainelLogin();
+        setMostrarForm(false);
+        setFaseLogin("identificar");
+        setSenha("");
+        setErro(null);
+        setAviso(null);
         return;
       }
       if (event.key !== "Tab") return;
