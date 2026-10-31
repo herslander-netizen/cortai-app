@@ -43,10 +43,10 @@ describe("SequenciaDaEntrada", () => {
     expect(abas.length).toBe(5);
     expect(abas.map((aba) => aba.getAttribute("aria-label"))).toEqual([
       "Mostrar etapa: SITE PRÓPRIO",
-      "Mostrar etapa: AUTONOMIA",
-      "Mostrar etapa: WHATSAPP",
       "Mostrar etapa: AGENDA",
-      "Mostrar etapa: CAIXA & PIX",
+      "Mostrar etapa: WHATSAPP",
+      "Mostrar etapa: AVALIAÇÕES",
+      "Mostrar etapa: DESEMPENHO",
     ]);
     expect(abas.every((aba) => aba.getAttribute("style")?.includes("48px"))).toBe(true);
     expect(abas[1]?.style.color).toBe("var(--figaro-on-surface-variant)");
@@ -137,7 +137,9 @@ describe("SequenciaDaEntrada", () => {
     expect(cartao?.style.flexDirection).toBe("column");
     expect(alvo.querySelector(".entrada-sequencia")?.getAttribute("style")).toContain("flex: 1");
     expect(alvo.querySelector(".entrada-cartao-legenda p")?.textContent).toBe("SITE PRÓPRIO");
-    expect(alvo.querySelectorAll('[aria-label="Progresso da apresentação"] > div')).toHaveLength(5);
+    expect(alvo.querySelector('[aria-label="Progresso da apresentação"]')).toBeNull();
+    expect(alvo.querySelectorAll(".entrada-chips [aria-hidden=true]")).toHaveLength(5);
+    expect(alvo.querySelector(".entrada-chips [aria-hidden=true]")?.getAttribute("style")).toContain("var(--figaro-tertiary)");
     expect(alvo.querySelector(".entrada-cartao")?.textContent).toContain("Seu site próprio em minutos");
     expect(alvo.querySelector(".entrada-cartao")?.getAttribute("style")).toContain("var(--elevacao-2)");
 
