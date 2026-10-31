@@ -230,19 +230,19 @@ function LoginPage() {
           height: "100dvh",
           minHeight: 0,
           maxHeight: "100dvh",
-          gap: "clamp(8px, 1.4svh, 12px)",
+          gap: "clamp(6px, 1svh, 10px)",
           padding: "calc(10px + env(safe-area-inset-top)) 20px calc(8px + env(safe-area-inset-bottom))",
           overflow: "hidden",
         }}
       >
-        <div className="entrada-marca">
+        <div className="entrada-marca" style={{ flexShrink: 0 }}>
           <MarcaFlow variante="escura" className="h-auto w-32" prioridade />
         </div>
 
         {!mostrarForm ? (
           <>
             <SequenciaDaEntrada />
-            <div className="entrada-acoes">
+            <div className="entrada-acoes" style={{ width: "100%", flexShrink: 0 }}>
               <Button
                 type="button"
                 variant="primary"
@@ -444,6 +444,7 @@ function LoginPage() {
         <Link
           to="/barbearias"
           className="flex min-h-12 items-center justify-center text-center text-sm font-medium text-mute hover:text-paper"
+          style={{ flexShrink: 0 }}
         >
           Sou cliente e quero só agendar
         </Link>

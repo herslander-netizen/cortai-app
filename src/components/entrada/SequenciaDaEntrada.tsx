@@ -1,5 +1,13 @@
 import { useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
 import { useReducedMotion } from "framer-motion";
+import {
+  Bell,
+  CalendarDays,
+  Globe,
+  LineChart,
+  Star,
+  type LucideIcon,
+} from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -18,9 +26,11 @@ export const PASSOS_DA_ENTRADA: {
   titulo: string;
   texto: string;
   demo: ReactNode;
+  icone: LucideIcon;
 }[] = [
   {
     id: "site",
+    icone: Globe,
     rotulo: "Seu site",
     titulo: "Seu site pronto em minutos",
     texto: "Capa, serviços e botão de agendar, com a cara do seu negócio.",
@@ -28,6 +38,7 @@ export const PASSOS_DA_ENTRADA: {
   },
   {
     id: "agendar",
+    icone: CalendarDays,
     rotulo: "Agendar",
     titulo: "Seus clientes agendam sozinhos",
     texto: "Horários livres em tempo real, sem troca de mensagens.",
@@ -35,6 +46,7 @@ export const PASSOS_DA_ENTRADA: {
   },
   {
     id: "lembretes",
+    icone: Bell,
     rotulo: "Lembretes",
     titulo: "Menos faltas, mais agenda cheia",
     texto: "Avisos automáticos pelo WhatsApp, só quando fazem sentido.",
@@ -42,6 +54,7 @@ export const PASSOS_DA_ENTRADA: {
   },
   {
     id: "avaliacoes",
+    icone: Star,
     rotulo: "Avaliações",
     titulo: "Avaliações que trazem clientes",
     texto: "Quem gostou conta para todo mundo, direto na sua página.",
@@ -49,6 +62,7 @@ export const PASSOS_DA_ENTRADA: {
   },
   {
     id: "desempenho",
+    icone: LineChart,
     rotulo: "Desempenho",
     titulo: "Veja o negócio crescer",
     texto: "Faturamento, clientes e horários num só lugar.",
@@ -119,7 +133,14 @@ export function SequenciaDaEntrada() {
     <section
       className="entrada-sequencia"
       aria-label="Como o Flow ajuda o seu negócio"
-      style={{ gap: 10, marginTop: "auto", flexShrink: 0 }}
+      style={{
+        gap: 10,
+        marginTop: 0,
+        flex: 1,
+        minHeight: 0,
+        width: "100%",
+        justifyContent: "center",
+      }}
       onFocusCapture={() => setEmFoco(true)}
       onBlurCapture={(event) => {
         const proximoFoco = event.relatedTarget;
@@ -140,7 +161,8 @@ export function SequenciaDaEntrada() {
         className="entrada-cartao"
         style={{
           width: "100%",
-          maxWidth: "min(100%, 328px)",
+          maxWidth: "min(100%, 360px)",
+          flexShrink: 0,
           borderRadius: 28,
           background: "var(--ink2)",
           color: "var(--paper)",
@@ -152,7 +174,7 @@ export function SequenciaDaEntrada() {
           key={passo.id}
           className="entrada-cartao-demo"
           style={{
-            height: "clamp(144px, 25svh, 212px)",
+            height: "clamp(184px, 29svh, 248px)",
             minHeight: 0,
             overflow: "hidden",
           }}
@@ -170,9 +192,22 @@ export function SequenciaDaEntrada() {
         <div
           key={`${passo.id}-legenda`}
           className="entrada-cartao-legenda"
-          style={{ minHeight: 0, padding: "12px 18px 16px" }}
+          style={{ minHeight: 96, padding: "13px 18px 17px" }}
         >
-          <h2 style={{ fontSize: "clamp(15px, 4vw, 17px)", lineHeight: 1.25 }}>
+          <p
+            aria-hidden="true"
+            style={{
+              color: "var(--figaro-tertiary)",
+              fontSize: 10,
+              fontWeight: 700,
+              letterSpacing: "0.12em",
+              lineHeight: 1.2,
+              textTransform: "uppercase",
+            }}
+          >
+            {passo.rotulo}
+          </p>
+          <h2 style={{ marginTop: 5, fontSize: "clamp(15px, 4vw, 17px)", lineHeight: 1.25 }}>
             {passo.titulo}
           </h2>
           <p
@@ -188,7 +223,12 @@ export function SequenciaDaEntrada() {
         </div>
       </Card>
 
-      <div className="entrada-chips" role="tablist" aria-label="Etapas da apresentação" style={{ gap: 3 }}>
+      <div
+        className="entrada-chips"
+        role="tablist"
+        aria-label="Etapas da apresentação"
+        style={{ gap: 8, justifyContent: "space-between", flexShrink: 0 }}
+      >
         {PASSOS_DA_ENTRADA.map((p, i) => (
           <Button
             key={p.id}
@@ -200,34 +240,31 @@ export function SequenciaDaEntrada() {
             variant="ghost"
             size="sm"
             role="tab"
+            aria-label={`Mostrar etapa: ${p.rotulo}`}
             aria-selected={i === indice}
             aria-controls={idDoPainel}
             tabIndex={i === indice ? 0 : -1}
-            className="entrada-chip min-w-0"
+            className="entrada-chip shrink-0"
             data-estado={i < indice ? "feito" : i === indice ? "ativo" : "espera"}
             style={{
+              display: "flex",
+              flex: "0 0 48px",
+              alignItems: "center",
+              justifyContent: "center",
+              width: 48,
+              height: 48,
+              minWidth: 48,
               minHeight: 48,
-              minWidth: 0,
-              flexGrow: i === indice ? 1.5 : 1,
-              padding: "6px 2px 5px",
-              fontSize: "clamp(9px, 2.7vw, 11px)",
+              padding: 0,
+              border: 0,
+              borderRadius: 999,
+              background: i === indice ? "var(--figaro-primary-container)" : "transparent",
+              color: i === indice ? "var(--figaro-on-primary-container)" : "var(--mute)",
             }}
             onClick={() => setIndice(i)}
             onKeyDown={(event) => navegarPelasAbas(event, i)}
           >
-            <span className="entrada-chip-rotulo">{p.rotulo}</span>
-            <span
-              className="entrada-chip-trilho"
-              aria-hidden
-              style={{ background: "var(--line)" }}
-            >
-              <span
-                key={i === indice ? `${indice}` : "x"}
-                className="entrada-chip-progresso"
-                style={{ animationDuration: `${DURACAO_DO_PASSO_MS}ms` }}
-                data-pausado={pausada ? "" : undefined}
-              />
-            </span>
+            <p.icone aria-hidden="true" size={20} strokeWidth={2} />
           </Button>
         ))}
       </div>

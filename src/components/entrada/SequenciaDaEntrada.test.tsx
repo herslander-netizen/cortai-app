@@ -41,6 +41,14 @@ describe("SequenciaDaEntrada", () => {
     const painel = alvo.querySelector<HTMLElement>('[role="tabpanel"]');
 
     expect(abas.length).toBe(5);
+    expect(abas.map((aba) => aba.getAttribute("aria-label"))).toEqual([
+      "Mostrar etapa: Seu site",
+      "Mostrar etapa: Agendar",
+      "Mostrar etapa: Lembretes",
+      "Mostrar etapa: Avaliações",
+      "Mostrar etapa: Desempenho",
+    ]);
+    expect(abas.every((aba) => aba.getAttribute("style")?.includes("48px"))).toBe(true);
     expect(abas[0]?.getAttribute("aria-selected")).toBe("true");
     expect(abas[0]?.tabIndex).toBe(0);
     expect(abas[1]?.tabIndex).toBe(-1);
@@ -117,10 +125,12 @@ describe("SequenciaDaEntrada", () => {
     const legenda = alvo.querySelector<HTMLElement>(".entrada-cartao-legenda");
     const siteCapa = alvo.querySelector<HTMLElement>(".ed-site-capa");
 
-    expect(demo?.style.height).toBe("clamp(144px, 25svh, 212px)");
+    expect(demo?.style.height).toBe("clamp(184px, 29svh, 248px)");
     expect(demo?.style.overflow).toBe("hidden");
-    expect(legenda?.style.minHeight).toBe("0px");
+    expect(legenda?.style.minHeight).toBe("96px");
+    expect(alvo.querySelector(".entrada-sequencia")?.getAttribute("style")).toContain("flex: 1");
     expect(siteCapa?.style.height).toBe("64px");
+    expect(alvo.querySelector(".entrada-cartao-legenda p")?.textContent).toBe("Seu site");
     expect(alvo.querySelector(".entrada-cartao")?.getAttribute("style")).toContain("var(--elevacao-2)");
 
     const abaAgendar = [...alvo.querySelectorAll<HTMLButtonElement>('[role="tab"]')].find((aba) =>
