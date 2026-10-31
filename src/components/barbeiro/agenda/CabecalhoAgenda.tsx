@@ -242,7 +242,7 @@ export function CabecalhoAgenda({
       <Button
         variant="ghost"
         size="icon"
-        className="h-12 w-11 min-w-11 shrink-0"
+        className="h-12 w-11 min-w-11 shrink-0 rounded-none border-0 bg-transparent shadow-none hover:bg-transparent active:bg-transparent"
         aria-label={calendarioAberto ? "Recolher calendário" : "Abrir calendário"}
         aria-pressed={calendarioAberto}
         onClick={onCalendario}
