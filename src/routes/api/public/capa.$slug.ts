@@ -6,7 +6,7 @@ export const Route = createFileRoute("/api/public/capa/$slug")({
   server: {
     handlers: {
       GET: async ({ params }) => {
-        const reserva = urlPublica("/capa-social-flow.jpg");
+        const reserva = urlPublica("/capa-social-flow-v3.jpg");
         let destino = reserva;
         try {
           const { supabaseAdmin } = await import("@/integrations/supabase/client.server");

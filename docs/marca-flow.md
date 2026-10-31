@@ -58,3 +58,20 @@ Textos visíveis em `src/`: **nenhuma ocorrência de "Cortaí"/"CortAI" sobrou**
 4. **Modelos de e-mail do Supabase Auth** (confirmação, recuperação): editar no painel do Supabase.
 5. **Vetores-mestre do logo** do designer.
 6. **Assets antigos sem uso**: apagar só se o dono autorizar.
+
+## Capas de redes e imagens padrão (dono, 31/10/2026)
+
+Kit oficial em `public/marca/flow/capas/` (WebP). **Prioridade: as escuras**; as claras são variação para fundos claros.
+
+| Arquivo | Formato | Uso |
+|---|---|---|
+| `flow-escura-quadrada.webp` | 1:1 (1254 px) | Perfil e posts quadrados |
+| `flow-escura-paisagem.webp` | 1484 × 1060 | Banners e capas horizontais; origem da imagem de compartilhamento |
+| `flow-escura-9x16.webp` | 9:16 (941 × 1672) | Stories e telas verticais |
+| `flow-escura-story.webp` | 841 × 1870 | Stories altos |
+| `flow-clara-quadrada.webp`, `flow-clara-paisagem.webp`, `flow-clara-retrato.webp`, `flow-clara-story.webp` | idem | Variações claras |
+
+Onde o Flow usa por padrão (o que o usuário não personalizou):
+- **Imagem de compartilhamento** (link do Flow, login, apresentação e reserva da página pública sem capa própria): `public/capa-social-flow-v3.jpg`, 1200 × 630, recortada da paisagem escura. Nome novo para as redes não mostrarem a antiga em cache.
+- **Não usadas, de propósito** ("a não ser que fique feio"): a capa padrão da página do negócio continua o fundo neutro (`flow-capa-neutra.png`), porque o nome do negócio fica por cima e brigaria com o logo; o fundo do chat continua sem logo, porque as mensagens passariam por cima. Ícone do aplicativo e da Agenda: sem mudança.
+- Uma das imagens recebidas era um print da tela do celular e foi descartada.

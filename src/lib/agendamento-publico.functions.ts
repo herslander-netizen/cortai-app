@@ -751,7 +751,7 @@ export const getPreviaDaBarbearia = createServerFn({ method: "GET" })
         // Endereço estável: redireciona para uma URL assinada nova a cada acesso.
         imagem: temImagem
           ? urlPublica(`/api/public/capa/${slugAtual}`)
-          : urlPublica("/capa-social-flow.jpg"),
+          : urlPublica("/capa-social-flow-v3.jpg"),
         logo,
         segmento: (t.segmento as string | null) ?? null,
         endereco: (t.endereco as string | null) ?? null,

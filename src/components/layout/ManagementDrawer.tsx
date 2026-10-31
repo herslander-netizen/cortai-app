@@ -242,7 +242,7 @@ export function ManagementHeader() {
                         nome={sessao.tenantNome ?? "Meu negócio"}
                         url={sessao.tenantLogoUrl ?? null}
                         size={40}
-                        className="rounded-full border-0 bg-drawer-card"
+                        className="!rounded-full border-0 bg-drawer-card"
                       />
                     ) : (
                       <BlocoEsqueleto className="size-11 shrink-0 rounded-full" />
