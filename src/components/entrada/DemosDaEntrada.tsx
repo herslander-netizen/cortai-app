@@ -1,113 +1,229 @@
 import type { CSSProperties, ReactNode } from "react";
 import { motion, useReducedMotion } from "framer-motion";
-import { CalendarDays, MessageCircle, TrendingUp, Check, Clock3, Sparkles, ArrowUpRight, Scissors } from "lucide-react";
+import {
+  CalendarDays,
+  Check,
+  Clock3,
+  CreditCard,
+  Globe,
+  HandHelping,
+  MapPin,
+  MessageCircle,
+  Sparkles,
+} from "lucide-react";
 
-const azul = "#A8C7FA";
-const rosa = "#F48FB1";
-const verde = "#86D6B0";
-const suave: CSSProperties = { opacity: .62, fontSize: 10, fontWeight: 600 };
+const suave: CSSProperties = { color: "var(--figaro-on-primary)", opacity: 0.72, fontSize: 10, fontWeight: 600 };
 const cartao: CSSProperties = {
-  borderRadius: 16,
-  padding: 13,
-  background: "color-mix(in oklab, var(--figaro-on-primary) 8%, transparent)",
-  border: "1px solid color-mix(in oklab, var(--figaro-on-primary) 12%, transparent)",
+  borderRadius: 12,
+  padding: 12,
+  background: "color-mix(in oklab, var(--figaro-on-primary) 9%, transparent)",
+  border: "1px solid color-mix(in oklab, var(--figaro-on-primary) 16%, transparent)",
 };
 
 function Aparelho({ children, nome }: { children: ReactNode; nome: string }) {
   return (
-    <div className="entrada-demo" role="img" aria-label={nome} style={{
-      background: "var(--figaro-primary)", color: "var(--figaro-on-primary)",
-      borderRadius: 20, margin: 10, width: "calc(100% - 20px)",
-      height: "calc(100% - 20px)", boxSizing: "border-box", overflow: "hidden",
-      padding: 12, display: "flex", alignItems: "center", justifyContent: "center",
-    }}>
+    <div
+      className="entrada-demo"
+      role="img"
+      aria-label={nome}
+      style={{
+        background: "var(--figaro-primary)",
+        color: "var(--figaro-on-primary)",
+        borderRadius: 20,
+        margin: 10,
+        width: "calc(100% - 20px)",
+        height: "calc(100% - 20px)",
+        boxSizing: "border-box",
+        overflow: "hidden",
+        padding: 12,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
       {children}
     </div>
   );
 }
 
-export function DemoAgenda() {
-  const reduzir = useReducedMotion();
-  return <Aparelho nome="Agenda do Flow com atendimento em andamento e confirmação">
-    <div style={{ width: "100%", maxWidth: 280 }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <span style={{ width: 30, height: 30, borderRadius: 10, display: "grid", placeItems: "center", color: azul, background: "rgba(168,199,250,.12)" }}><CalendarDays size={16} /></span>
-          <div><b style={{ display: "block", fontSize: 12 }}>Hoje, 14:00</b><span style={suave}>4 atendimentos restantes</span></div>
+function CabecalhoDemo({ icone: Icone, titulo, detalhe }: { icone: typeof Globe; titulo: string; detalhe: string }) {
+  return (
+    <div className="flex items-center justify-between gap-2">
+      <div className="flex min-w-0 items-center gap-2">
+        <span
+          className="grid size-8 shrink-0 place-items-center rounded-lg"
+          style={{ background: "color-mix(in oklab, var(--figaro-on-primary) 12%, transparent)", color: "var(--figaro-on-primary)" }}
+        >
+          <Icone size={16} aria-hidden />
+        </span>
+        <div className="min-w-0">
+          <b className="block truncate text-xs">{titulo}</b>
+          <span style={suave}>{detalhe}</span>
         </div>
-        <span style={{ fontSize: 9, color: azul, border: "1px solid rgba(168,199,250,.25)", background: "rgba(168,199,250,.1)", borderRadius: 99, padding: "4px 7px" }}>MODO FOCO</span>
       </div>
-      <div style={{ ...cartao, padding: 10 }}>
-        {["13:30", "14:00", "15:00"].map((hora, i) => <div key={hora} style={{ display: "flex", alignItems: "center", gap: 8, minHeight: i === 1 ? 65 : 39, borderBottom: i === 2 ? 0 : "1px solid rgba(255,255,255,.09)", opacity: i === 0 ? .48 : 1 }}>
-          <span style={{ width: 34, flexShrink: 0, fontSize: 9, fontFamily: "monospace", color: i === 1 ? azul : "inherit" }}>{hora}</span>
-          {i === 1 ? <motion.div initial={reduzir ? false : { opacity: 0, scale: .96, y: 5 }} animate={{ opacity: 1, scale: 1, y: 0 }} transition={{ type: "spring", stiffness: 400, damping: 25 }} style={{ flex: 1, padding: "8px 9px", borderRadius: 10, background: "linear-gradient(110deg, rgba(168,199,250,.22), rgba(187,134,252,.16))", border: "1px solid rgba(168,199,250,.4)" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", gap: 5 }}><b style={{ fontSize: 10, display: "flex", alignItems: "center", gap: 5 }}><Scissors size={12} color={azul} /> Serviço agendado</b><span style={{ fontSize: 9, color: azul }}>R$ 85</span></div>
-            <div style={{ marginTop: 5, display: "flex", justifyContent: "space-between", fontSize: 9, opacity: .72 }}><span>Cliente · profissional</span><span style={{ color: verde }}>● Em andamento</span></div>
-          </motion.div> : <div style={{ flex: 1, borderRadius: 8, padding: "8px 9px", background: "rgba(255,255,255,.045)", display: "flex", justifyContent: "space-between", fontSize: 9 }}><span>{i === 0 ? "Atendimento anterior" : "Próximo atendimento"}</span><span style={{ color: i === 0 ? verde : rosa }}>{i === 0 ? "Concluído" : "Próximo"}</span></div>}
-        </div>)}
-      </div>
-      <div style={{ display: "flex", justifyContent: "space-between", marginTop: 9, fontSize: 9, opacity: .62 }}><span>Próximo cliente em 45 min</span><span style={{ color: azul }}>+ Encaixe</span></div>
+      <span className="shrink-0 rounded-full px-2 py-1 text-[10px] font-semibold" style={{ background: "var(--sage-soft)", color: "var(--sage)" }}>
+        Ativo
+      </span>
     </div>
-  </Aparelho>;
+  );
 }
 
-export function DemoCaixa() {
-  const reduzir = useReducedMotion();
-  return <Aparelho nome="Caixa do Flow com serviço, item adicional e pagamento Pix registrado">
-    <div style={{ width: "100%", maxWidth: 280, ...cartao, padding: 14 }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 13 }}><div><b style={{ display: "block", fontSize: 13 }}>Fechar atendimento</b><span style={suave}>COMANDA #4082</span></div><span style={{ fontSize: 9, color: verde, borderRadius: 99, padding: "4px 8px", background: "rgba(134,214,176,.12)", border: "1px solid rgba(134,214,176,.25)" }}>PAGO</span></div>
-      <div style={{ display: "grid", gap: 9 }}>
-        <div style={{ display: "flex", justifyContent: "space-between", fontSize: 10, opacity: .78 }}><span>Serviço realizado</span><span>R$ 55,00</span></div>
-        <div style={{ display: "flex", justifyContent: "space-between", fontSize: 10, opacity: .78 }}><span>Produto / adicional</span><span>R$ 42,00</span></div>
-        <div style={{ borderTop: "1px solid rgba(255,255,255,.12)", paddingTop: 10, display: "flex", justifyContent: "space-between", alignItems: "baseline" }}><span style={{ fontSize: 10, opacity: .6 }}>Total recebido</span><b style={{ fontSize: 19, fontFamily: "monospace" }}>R$ 97,00</b></div>
+export function DemoSite() {
+  return (
+    <Aparelho nome="Página pública do Flow com apresentação do negócio, serviços e ação de agendamento">
+      <div className="w-full max-w-[280px] space-y-3">
+        <CabecalhoDemo icone={Globe} titulo="Studio Flow Concept" detalhe="Página pública do negócio" />
+        <div className="rounded-xl p-3" style={{ background: "color-mix(in oklab, var(--figaro-on-primary) 11%, transparent)" }}>
+          <div className="mb-2 flex items-center gap-1 text-[10px]" style={{ color: "var(--figaro-on-primary)", opacity: 0.75 }}>
+            <MapPin size={11} aria-hidden /> Jardins · São Paulo
+          </div>
+          <b className="block text-sm">Seu próximo atendimento começa aqui</b>
+          <p className="mt-1 text-[10px] leading-relaxed" style={suave}>Conheça os serviços, veja os detalhes e escolha seu melhor horário.</p>
+        </div>
+        <div className="space-y-2">
+          <p className="text-[10px] font-bold uppercase tracking-wider" style={suave}>Serviços em destaque</p>
+          <div className="flex items-center justify-between gap-2 rounded-xl p-2.5" style={cartao}>
+            <div className="flex min-w-0 items-center gap-2">
+              <HandHelping size={16} aria-hidden />
+              <div className="min-w-0"><b className="block truncate text-[11px]">Atendimento completo</b><span style={suave}>45 min · Profissional</span></div>
+            </div>
+            <b className="shrink-0 text-xs">R$ 85</b>
+          </div>
+        </div>
+        <div className="flex items-center justify-center gap-2 rounded-full px-3 py-2.5 text-xs font-bold" style={{ background: "var(--figaro-tertiary)", color: "var(--figaro-on-tertiary)" }}>
+          <Sparkles size={14} aria-hidden /> Agendar horário online
+        </div>
       </div>
-      <div style={{ display: "flex", gap: 7, marginTop: 12 }}><span style={{ flex: 1, textAlign: "center", borderRadius: 9, padding: 8, color: verde, border: "1px solid rgba(134,214,176,.45)", background: "rgba(134,214,176,.1)", fontSize: 10, fontWeight: 700 }}>✓ Pix</span><span style={{ flex: 1, textAlign: "center", borderRadius: 9, padding: 8, border: "1px solid rgba(255,255,255,.12)", fontSize: 10, opacity: .6 }}>Cartão</span></div>
-      <motion.div initial={reduzir ? false : { opacity: 0, y: 12, scale: .97 }} animate={{ opacity: 1, y: 0, scale: 1 }} transition={{ duration: .55, delay: .15 }} style={{ marginTop: 11, borderRadius: 9, padding: 9, background: "rgba(134,214,176,.12)", border: "1px solid rgba(134,214,176,.24)", color: verde, textAlign: "center", fontSize: 10, fontWeight: 700 }}><Check size={13} style={{ verticalAlign: "middle", marginRight: 5 }} />Pagamento registrado</motion.div>
-    </div>
-  </Aparelho>;
+    </Aparelho>
+  );
+}
+
+export function DemoAgendamento() {
+  return (
+    <Aparelho nome="Agendamento online em três passos com horário confirmado">
+      <div className="w-full max-w-[280px] space-y-3">
+        <CabecalhoDemo icone={Clock3} titulo="Escolha seu horário" detalhe="Agendamento online" />
+        <div className="flex items-center gap-1.5">
+          {["Serviço", "Horário", "Confirmação"].map((etapa, i) => (
+            <div key={etapa} className="flex min-w-0 flex-1 flex-col items-center gap-1">
+              <span className="grid size-6 place-items-center rounded-full text-[10px] font-bold" style={{ background: i === 2 ? "var(--figaro-tertiary)" : "var(--figaro-primary-container)", color: i === 2 ? "var(--figaro-on-tertiary)" : "var(--figaro-on-primary-container)" }}>
+                {i < 2 ? <Check size={12} /> : "3"}
+              </span>
+              <span className="text-[9px]" style={suave}>{etapa}</span>
+            </div>
+          ))}
+        </div>
+        <div className="rounded-xl p-3" style={cartao}>
+          <p className="mb-2 text-[10px] font-bold uppercase tracking-wider" style={suave}>Horários disponíveis</p>
+          <div className="grid grid-cols-3 gap-1.5">
+            {["10:00", "11:30", "14:00", "15:30", "17:00", "18:30"].map((hora, i) => (
+              <span key={hora} className="rounded-lg px-1 py-2 text-center text-[10px] font-semibold" style={i === 2 ? { background: "var(--figaro-tertiary)", color: "var(--figaro-on-tertiary)" } : { background: "color-mix(in oklab, var(--figaro-on-primary) 8%, transparent)", color: "var(--figaro-on-primary)" }}>
+                {hora}
+              </span>
+            ))}
+          </div>
+        </div>
+        <div className="flex items-center justify-between gap-2 rounded-xl p-2.5" style={{ background: "var(--sage-soft)", color: "var(--sage)" }}>
+          <span className="flex items-center gap-1.5 text-[11px] font-bold"><Check size={14} /> Horário reservado!</span>
+          <span className="text-[10px] font-semibold">14:00</span>
+        </div>
+      </div>
+    </Aparelho>
+  );
 }
 
 export function DemoWhatsApp() {
   const reduzir = useReducedMotion();
-  return <Aparelho nome="Demonstração de lembrete com opções para confirmar ou remarcar">
-    <div style={{ width: "100%", maxWidth: 280, ...cartao, background: "#17382F", color: "#F2FFF8", padding: 14 }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 13 }}><span style={{ width: 29, height: 29, borderRadius: 10, background: "rgba(134,214,176,.16)", color: verde, display: "grid", placeItems: "center" }}><MessageCircle size={16} /></span><div><b style={{ display: "block", fontSize: 12 }}>Lembrete automático</b><span style={{ fontSize: 9, opacity: .65 }}>Canal de notificações</span></div><span style={{ marginLeft: "auto", fontSize: 9, opacity: .6 }}>24h antes</span></div>
-      <motion.div initial={reduzir ? false : { y: 14, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ type: "spring", stiffness: 350, damping: 25, delay: .1 }} style={{ padding: 12, borderRadius: "5px 14px 14px 14px", background: "#205044", fontSize: 10, lineHeight: 1.55 }}>
-        Olá, <b style={{ color: "#B8F0D1" }}>Gabriel</b>! Seu horário é amanhã às <b>10:30</b>. Podemos confirmar?
-        <div style={{ display: "flex", justifyContent: "flex-end", alignItems: "center", gap: 4, marginTop: 8, fontSize: 9, opacity: .6 }}><Clock3 size={11} />09:00 · Enviado</div>
-        <div style={{ display: "grid", gap: 6, marginTop: 9, paddingTop: 9, borderTop: "1px solid rgba(255,255,255,.12)" }}><span style={{ borderRadius: 7, padding: 7, textAlign: "center", background: "rgba(134,214,176,.17)", color: "#B8F0D1", fontWeight: 700 }}><Check size={11} style={{ verticalAlign: "middle", marginRight: 4 }} />1 · Confirmar</span><span style={{ borderRadius: 7, padding: 7, textAlign: "center", background: "rgba(255,255,255,.07)" }}>2 · Remarcar</span></div>
-      </motion.div>
-      <div style={{ marginTop: 10, textAlign: "center", fontSize: 9, opacity: .62, display: "flex", justifyContent: "center", alignItems: "center", gap: 5 }}><Sparkles size={11} color={rosa} />Menos tarefas manuais no dia a dia</div>
-    </div>
-  </Aparelho>;
-}
-
-export function DemoClientes() {
-  return <Aparelho nome="Ficha de cliente com histórico, frequência e preferências de atendimento">
-    <div style={{ width: "100%", maxWidth: 280, ...cartao, padding: 14 }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 10, paddingBottom: 12, borderBottom: "1px solid rgba(255,255,255,.1)" }}><div style={{ width: 40, height: 40, borderRadius: 99, background: "linear-gradient(135deg,#A8C7FA,#BB86FC)", display: "grid", placeItems: "center", color: "#171923", fontWeight: 800, fontSize: 12 }}>RA</div><div><b style={{ display: "block", fontSize: 12 }}>Rodrigo Alves</b><span style={suave}>Cliente · 18 visitas</span></div><span style={{ marginLeft: "auto", color: rosa, fontSize: 9, fontWeight: 700 }}>VIP</span></div>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginTop: 12 }}>
-        <div style={{ borderRadius: 10, padding: 10, background: "rgba(255,255,255,.06)" }}><span style={suave}>ÚLTIMO SERVIÇO</span><b style={{ display: "block", fontSize: 11, marginTop: 5 }}>Atendimento completo</b><span style={{ fontSize: 9, color: azul }}>Há 12 dias</span></div>
-        <div style={{ borderRadius: 10, padding: 10, background: "rgba(255,255,255,.06)" }}><span style={suave}>FREQUÊNCIA</span><b style={{ display: "block", fontSize: 18, marginTop: 5 }}>15 dias</b><span style={{ fontSize: 9, color: verde }}>Regular</span></div>
+  return (
+    <Aparelho nome="Lembrete no WhatsApp com ações para confirmar ou remarcar">
+      <div className="w-full max-w-[280px] space-y-3">
+        <CabecalhoDemo icone={MessageCircle} titulo="Lembrete automático" detalhe="Notificação do atendimento" />
+        <motion.div
+          initial={reduzir ? false : { opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: reduzir ? 0.12 : 0.22 }}
+          className="space-y-2 rounded-xl p-3"
+          style={{ background: "color-mix(in oklab, var(--whatsapp) 18%, var(--figaro-primary))", border: "1px solid color-mix(in oklab, var(--whatsapp) 35%, transparent)" }}
+        >
+          <p className="text-[11px] leading-relaxed">Olá, <b>Lucas</b>! Seu horário é hoje às <b>14:00</b>. Podemos confirmar seu atendimento?</p>
+          <div className="flex items-center justify-end gap-1 text-[9px]" style={suave}><Clock3 size={10} /> 09:01 · Enviado</div>
+        </motion.div>
+        <div className="grid gap-1.5">
+          <div className="flex items-center justify-center gap-1.5 rounded-lg px-2 py-2 text-[11px] font-bold" style={{ background: "var(--sage-soft)", color: "var(--sage)" }}>
+            <Check size={13} /> 1 · Confirmar horário
+          </div>
+          <div className="rounded-lg px-2 py-2 text-center text-[11px] font-semibold" style={{ background: "color-mix(in oklab, var(--figaro-on-primary) 8%, transparent)", color: "var(--figaro-on-primary)" }}>
+            2 · Remarcar
+          </div>
+        </div>
       </div>
-      <div style={{ marginTop: 12, fontSize: 9, opacity: .62 }}>PREFERÊNCIA DE ATENDIMENTO</div><div style={{ marginTop: 5, borderRadius: 9, padding: 9, background: "rgba(168,199,250,.12)", border: "1px solid rgba(168,199,250,.18)", fontSize: 10, fontWeight: 700 }}>Serviço e profissional favoritos</div>
-      <div style={{ marginTop: 10, display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: 9, opacity: .75 }}><span>Ciclo de retorno estimado</span><b style={{ color: azul }}>Em 3 dias</b></div>
-    </div>
-  </Aparelho>;
+    </Aparelho>
+  );
 }
 
-export function DemoMetricas() {
+export function DemoAgenda() {
   const reduzir = useReducedMotion();
-  const valores = [35, 50, 45, 70, 60, 85, 100];
-  return <Aparelho nome="Painel de faturamento e métricas com evolução semanal">
-    <div style={{ width: "100%", maxWidth: 280, ...cartao, padding: 14 }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}><div style={{ display: "flex", alignItems: "center", gap: 8 }}><span style={{ width: 29, height: 29, borderRadius: 10, background: "rgba(134,214,176,.12)", color: verde, display: "grid", placeItems: "center" }}><TrendingUp size={16} /></span><div><b style={{ display: "block", fontSize: 11 }}>Faturamento do mês</b><span style={suave}>Meta mensal · 82%</span></div></div><span style={{ color: verde, background: "rgba(134,214,176,.1)", borderRadius: 99, padding: "4px 7px", fontSize: 9, fontWeight: 800 }}><ArrowUpRight size={11} style={{ verticalAlign: "middle" }} />+28,4%</span></div>
-      <div style={{ fontSize: 25, fontWeight: 800, letterSpacing: -1 }}>R$ 14.850<span style={{ fontSize: 13, opacity: .5 }}>,00</span></div>
-      <div style={{ display: "flex", alignItems: "end", gap: 7, height: 100, marginTop: 15, paddingBottom: 5, borderBottom: "1px solid rgba(255,255,255,.13)" }}>
-        {valores.map((valor, i) => <div key={i} style={{ height: "100%", flex: 1, display: "flex", alignItems: "end", background: "rgba(255,255,255,.04)", borderRadius: "5px 5px 0 0" }}><motion.div initial={reduzir ? false : { height: 0 }} animate={{ height: valor + "%" }} transition={reduzir ? { duration: 0 } : { duration: .65, delay: i * .05, ease: "easeOut" }} style={{ width: "100%", borderRadius: "5px 5px 0 0", background: i === 6 ? "linear-gradient(0deg,#A8C7FA,#BB86FC)" : "rgba(168,199,250,.5)" }} /></div>)}
+  return (
+    <Aparelho nome="Agenda do Flow com timeline em tempo real e modo foco">
+      <div className="w-full max-w-[280px] space-y-3">
+        <CabecalhoDemo icone={CalendarDays} titulo="Terça-feira · Hoje" detalhe="3 atendimentos restantes" />
+        <div className="space-y-2">
+          <motion.div
+            initial={reduzir ? false : { opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: reduzir ? 0.12 : 0.22 }}
+            className="rounded-xl p-3"
+            style={{ background: "color-mix(in oklab, var(--figaro-tertiary) 16%, transparent)", border: "1px solid var(--figaro-tertiary)" }}
+          >
+            <div className="flex items-center justify-between gap-2">
+              <b className="text-[11px]">14:00 · Atendimento</b>
+              <span className="text-[10px] font-bold" style={{ color: "var(--figaro-tertiary)" }}>R$ 85</span>
+            </div>
+            <p className="mt-1 text-[10px]" style={suave}>Lucas Silveira</p>
+            <span className="mt-2 inline-flex items-center gap-1 text-[9px] font-bold" style={{ color: "var(--sage)" }}>● Em andamento</span>
+          </motion.div>
+          <div className="flex items-center justify-between rounded-lg px-3 py-2 text-[10px]" style={cartao}>
+            <span>15:00 · Próximo atendimento</span><b style={{ color: "var(--figaro-tertiary)" }}>Em 45 min</b>
+          </div>
+        </div>
+        <div className="flex items-center justify-center gap-2 text-[10px]" style={suave}>
+          <Clock3 size={12} /> Timeline sincronizada em tempo real
+        </div>
       </div>
-      <div style={{ display: "flex", justifyContent: "space-between", marginTop: 7, ...suave }}><span>Seg</span><span>Ter</span><span>Qua</span><span>Qui</span><span>Sex</span><span>Sáb</span><span>Dom</span></div>
-      <div style={{ marginTop: 10, paddingTop: 9, borderTop: "1px solid rgba(255,255,255,.08)", display: "flex", justifyContent: "space-between", fontSize: 9, opacity: .65 }}><span>Equipe e operação</span><span style={{ color: azul }}>Visão completa</span></div>
-    </div>
-  </Aparelho>;
+    </Aparelho>
+  );
+}
+
+export function DemoCaixa() {
+  const reduzir = useReducedMotion();
+  return (
+    <Aparelho nome="Fechamento de comanda com Pix recebido e total do caixa">
+      <div className="w-full max-w-[280px] space-y-3">
+        <CabecalhoDemo icone={CreditCard} titulo="Fechar atendimento" detalhe="COMANDA #4082" />
+        <div className="rounded-xl p-3" style={cartao}>
+          <div className="mb-3 flex items-center justify-between">
+            <span className="text-[10px] font-bold uppercase tracking-wider" style={suave}>Resumo da comanda</span>
+            <span className="rounded-full px-2 py-1 text-[9px] font-bold" style={{ background: "var(--sage-soft)", color: "var(--sage)" }}>PAGO</span>
+          </div>
+          <div className="space-y-2 text-[10px]" style={{ color: "var(--figaro-on-primary)" }}>
+            <div className="flex justify-between"><span style={suave}>Serviço realizado</span><b>R$ 55,00</b></div>
+            <div className="flex justify-between"><span style={suave}>Produto / adicional</span><b>R$ 42,00</b></div>
+          </div>
+          <div className="mt-3 flex items-baseline justify-between border-t pt-3" style={{ borderColor: "color-mix(in oklab, var(--figaro-on-primary) 18%, transparent)" }}>
+            <span className="text-[10px]" style={suave}>Total recebido</span>
+            <b className="text-xl tabular-nums">R$ 97,00</b>
+          </div>
+        </div>
+        <motion.div
+          initial={reduzir ? false : { opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: reduzir ? 0.12 : 0.22 }}
+          className="flex items-center justify-center gap-1.5 rounded-xl p-2.5 text-[11px] font-bold"
+          style={{ background: "var(--sage-soft)", color: "var(--sage)" }}
+        >
+          <Check size={14} /> Pix recebido e confirmado
+        </motion.div>
+      </div>
+    </Aparelho>
+  );
 }
