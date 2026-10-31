@@ -23,6 +23,7 @@ import {
 import { sugestoesDeHorario } from "@/lib/sugestoes-de-horario";
 import type { PreferenciasCliente } from "@/lib/preferencias-cliente";
 import { expedienteDoProfissional, type Expediente } from "@/lib/expediente";
+import { assinarFoto } from "@/lib/fotos.server";
 
 async function admin() {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -296,11 +297,13 @@ export const getAgendaDia = createServerFn({ method: "GET" })
       };
       horarios.splice(0, horarios.length, ...horarios.filter((h) => h.diaSemana !== dow), doDia);
     }
-    const profissionais = (profsRes.data ?? []).map((p) => ({
-      id: p.id,
-      nome: p.nome,
-      avatarUrl: p.avatar_url,
-    }));
+    const profissionais = await Promise.all(
+      (profsRes.data ?? []).map(async (p) => ({
+        id: p.id,
+        nome: p.nome,
+        avatarUrl: await assinarFoto(db, p.avatar_url),
+      })),
+    );
     const { ocupacoesExtras } = await import("@/lib/ocupacoes-extras.server");
     const bloqueios = (
       await ocupacoesExtras(db, {
