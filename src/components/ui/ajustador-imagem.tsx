@@ -135,7 +135,7 @@ export function AjustadorImagem({
     atualizarGesto();
   };
 
-  const finalizarPonteiro = (event: React.PointerEvent<HTMLDivElement>) => {
+  const finalizarPonteiro = (event: PointerEvent<HTMLDivElement>) => {
     ponteiros.current.delete(event.pointerId);
     const pontos = [...ponteiros.current.values()];
     gesto.current = null;
