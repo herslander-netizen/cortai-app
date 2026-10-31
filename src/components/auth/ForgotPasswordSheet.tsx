@@ -2,22 +2,30 @@ import { useEffect, useRef, useState, type FormEvent } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { ArrowLeft, CheckCircle2, Mail, X } from "lucide-react";
 
+import { AccessCodeInput } from "@/components/auth/AccessCodeInput";
+
 interface ForgotPasswordSheetProps {
   isOpen: boolean;
   onClose: () => void;
   initialEmail?: string;
   onSubmitEmail: (email: string) => Promise<boolean>;
+  onVerifyCode: (email: string, code: string) => Promise<boolean>;
+  onContinue: () => void;
 }
+
+type EtapaRecuperacao = "email" | "codigo" | "concluido";
 
 export function ForgotPasswordSheet({
   isOpen,
   onClose,
   initialEmail = "",
   onSubmitEmail,
+  onVerifyCode,
+  onContinue,
 }: ForgotPasswordSheetProps) {
   const [email, setEmail] = useState(initialEmail);
   const [loading, setLoading] = useState(false);
-  const [sentSuccess, setSentSuccess] = useState(false);
+  const [etapa, setEtapa] = useState<EtapaRecuperacao>("email");
   const [error, setError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
@@ -30,22 +38,21 @@ export function ForgotPasswordSheet({
       document.activeElement instanceof HTMLElement ? document.activeElement : null;
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-    const frame = window.requestAnimationFrame(() => inputRef.current?.focus());
+    const frame = window.requestAnimationFrame(() => {
+      if (etapa === "email") inputRef.current?.focus();
+      else closeRef.current?.focus();
+    });
     function onKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") {
         event.preventDefault();
         onClose();
       }
-      if (event.key === "Tab") {
-        const first = inputRef.current;
-        const last = closeRef.current;
-        if (event.shiftKey && document.activeElement === first) {
-          event.preventDefault();
-          last?.focus();
-        } else if (!event.shiftKey && document.activeElement === last) {
-          event.preventDefault();
-          first?.focus();
-        }
+      if (event.key === "Tab" && event.shiftKey && document.activeElement === inputRef.current) {
+        event.preventDefault();
+        closeRef.current?.focus();
+      } else if (event.key === "Tab" && !event.shiftKey && document.activeElement === closeRef.current) {
+        event.preventDefault();
+        inputRef.current?.focus();
       }
     }
     document.addEventListener("keydown", onKeyDown);
@@ -55,15 +62,33 @@ export function ForgotPasswordSheet({
       document.body.style.overflow = previousOverflow;
       previousFocusRef.current?.focus();
     };
-  }, [isOpen, onClose]);
+  }, [isOpen, etapa, onClose]);
 
   useEffect(() => {
     if (isOpen) {
       setEmail(initialEmail);
       setError(null);
-      setSentSuccess(false);
+      setEtapa("email");
     }
   }, [isOpen, initialEmail]);
+
+  async function solicitarCodigo(endereco: string) {
+    setLoading(true);
+    setError(null);
+    try {
+      const sucesso = await onSubmitEmail(endereco);
+      if (sucesso) {
+        setEmail(endereco);
+        setEtapa("codigo");
+      } else {
+        setError("Não foi possível enviar o código agora. Aguarde um pouco e tente novamente.");
+      }
+    } catch {
+      setError("Não foi possível conectar agora. Confira sua internet e tente novamente.");
+    } finally {
+      setLoading(false);
+    }
+  }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -72,18 +97,21 @@ export function ForgotPasswordSheet({
       setError("Digite um e-mail válido.");
       return;
     }
+    await solicitarCodigo(normalizedEmail);
+  }
+
+  async function verificarCodigo(codigo: string): Promise<boolean> {
     setLoading(true);
     setError(null);
     try {
-      const success = await onSubmitEmail(normalizedEmail);
-      if (success) {
-        setEmail(normalizedEmail);
-        setSentSuccess(true);
-      } else {
-        setError("Não foi possível enviar o link agora. Confira o endereço e tente novamente.");
+      const sucesso = await onVerifyCode(email, codigo);
+      if (sucesso) {
+        setEtapa("concluido");
+        return true;
       }
+      return false;
     } catch {
-      setError("Não foi possível conectar agora. Confira sua internet e tente novamente.");
+      return false;
     } finally {
       setLoading(false);
     }
@@ -100,9 +128,7 @@ export function ForgotPasswordSheet({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: reducedMotion ? 0.12 : 0.2 }}
-            onClick={() => {
-              onClose();
-            }}
+            onClick={onClose}
             className="absolute inset-0 cursor-default bg-black/70 backdrop-blur-md"
           />
           <motion.section
@@ -117,48 +143,30 @@ export function ForgotPasswordSheet({
           >
             <div className="mb-5 flex items-center justify-between border-b border-white/10 pb-4">
               <div className="flex items-center gap-2">
-                {sentSuccess ? (
+                {etapa === "concluido" ? (
                   <CheckCircle2 className="h-4 w-4 text-[#F48FB1]" aria-hidden />
                 ) : (
                   <Mail className="h-4 w-4 text-[#A8C7FA]" aria-hidden />
                 )}
                 <h2 id="flow-forgot-password-title" className="text-sm font-bold text-white">
-                  {sentSuccess ? "Confira seu e-mail" : "Recuperar acesso"}
+                  {etapa === "email" ? "Recuperar acesso" : etapa === "codigo" ? "Verificar código" : "Código confirmado"}
                 </h2>
               </div>
               <button
                 ref={closeRef}
                 type="button"
                 onClick={onClose}
-                disabled={loading}
                 aria-label="Fechar"
-                className="flex h-10 w-10 items-center justify-center rounded-full text-white/55 transition hover:bg-white/10 hover:text-white disabled:opacity-40"
+                className="flex h-10 w-10 items-center justify-center rounded-full text-white/55 transition hover:bg-white/10 hover:text-white"
               >
                 <X className="h-5 w-5" aria-hidden />
               </button>
             </div>
 
-            {sentSuccess ? (
-              <div className="space-y-4 py-5 text-center">
-                <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full border border-[#F48FB1]/30 bg-[#F48FB1]/10 text-[#F48FB1]">
-                  <CheckCircle2 className="h-7 w-7" aria-hidden />
-                </div>
-                <h3 className="text-base font-bold text-white">Link de recuperação solicitado!</h3>
-                <p className="mx-auto max-w-xs text-xs leading-relaxed text-white/65">
-                  Se houver uma conta associada a <strong className="text-white">{email}</strong>, enviaremos as instruções. Confira também a caixa de spam.
-                </p>
-                <button
-                  type="button"
-                  onClick={onClose}
-                  className="mt-2 min-h-12 w-full rounded-xl bg-white/10 text-sm font-semibold text-white transition hover:bg-white/15"
-                >
-                  Voltar ao login
-                </button>
-              </div>
-            ) : (
+            {etapa === "email" ? (
               <form onSubmit={handleSubmit} className="space-y-4 py-2" noValidate>
                 <p className="text-xs leading-relaxed text-white/65">
-                  Informe o e-mail cadastrado. Enviaremos um link seguro para você criar uma nova senha.
+                  Informe o e-mail cadastrado. Enviaremos um código de 6 dígitos para confirmar sua identidade.
                 </p>
                 <label className="block">
                   <span className="sr-only">E-mail cadastrado</span>
@@ -179,28 +187,52 @@ export function ForgotPasswordSheet({
                     />
                   </span>
                 </label>
-                {error ? (
-                  <p id="flow-forgot-password-error" role="alert" className="text-xs text-red-300">
-                    {error}
-                  </p>
-                ) : null}
+                {error ? <p id="flow-forgot-password-error" role="alert" className="text-xs text-red-300">{error}</p> : null}
                 <button
                   type="submit"
                   disabled={loading || !email.trim()}
                   className="min-h-12 w-full rounded-xl bg-gradient-to-r from-[#A8C7FA] to-[#BB86FC] text-sm font-bold text-[#171923] shadow-lg transition hover:brightness-105 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  {loading ? "Enviando…" : "Enviar link de redefinição"}
+                  {loading ? "Enviando…" : "Enviar código de recuperação"}
                 </button>
-                <button
-                  type="button"
-                  onClick={onClose}
-                  disabled={loading}
-                  className="flex min-h-11 w-full items-center justify-center gap-2 text-xs font-medium text-white/55 transition hover:text-white disabled:opacity-40"
-                >
+                <button type="button" onClick={onClose} className="flex min-h-11 w-full items-center justify-center gap-2 text-xs font-medium text-white/55 transition hover:text-white">
                   <ArrowLeft className="h-3.5 w-3.5" aria-hidden />
                   Voltar ao login
                 </button>
               </form>
+            ) : etapa === "codigo" ? (
+              <div className="py-2">
+                <AccessCodeInput
+                  emailOuTelefone={email}
+                  onCodeComplete={verificarCodigo}
+                  onResendCode={async () => {
+                    const sucesso = await onSubmitEmail(email);
+                    if (!sucesso) throw new Error("Falha ao reenviar código");
+                  }}
+                  onVoltar={() => {
+                    setEtapa("email");
+                    setError(null);
+                  }}
+                />
+                {error ? <p className="mt-3 text-center text-xs text-red-300" role="alert">{error}</p> : null}
+              </div>
+            ) : (
+              <div className="space-y-4 py-5 text-center">
+                <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full border border-[#F48FB1]/30 bg-[#F48FB1]/10 text-[#F48FB1]">
+                  <CheckCircle2 className="h-7 w-7" aria-hidden />
+                </div>
+                <h3 className="text-base font-bold text-white">Identidade confirmada!</h3>
+                <p className="mx-auto max-w-xs text-xs leading-relaxed text-white/65">
+                  Agora você pode definir uma nova senha para sua conta.
+                </p>
+                <button
+                  type="button"
+                  onClick={onContinue}
+                  className="min-h-12 w-full rounded-xl bg-gradient-to-r from-[#A8C7FA] to-[#BB86FC] text-sm font-bold text-[#171923] transition hover:brightness-105"
+                >
+                  Criar nova senha
+                </button>
+              </div>
             )}
           </motion.section>
         </div>
