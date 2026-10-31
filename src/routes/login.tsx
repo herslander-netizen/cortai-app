@@ -303,6 +303,7 @@ function LoginPage() {
       style={
         {
           "--entrada-fundo": "var(--cartao)",
+          "--campo-fundo": "var(--ink3)",
           "--entrada-ciano": "#A8C7FA",
           "--entrada-rosa": "#F48FB1",
           // A apresentação fica sobre ondas claras; usa o on-surface Figaro para garantir contraste.
