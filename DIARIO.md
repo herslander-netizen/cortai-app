@@ -543,6 +543,8 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Em andamento
 
+- GPT | 2026-10-31 UTC | Adaptar a composição móvel da entrada Flow ao vídeo de referência (marca no topo, cartão de demonstração alto com legenda categorizada, indicadores por ícone e ações ancoradas no rodapé), **preservando integralmente identidade Flow, paleta clara, ondas, marca e caminhos de acesso existentes**; o vídeo orienta só o arranjo | `src/routes/login.tsx`, `src/components/entrada/SequenciaDaEntrada.tsx`, testes da entrada; **não alterar `src/styles.css`, Agenda, autenticação ou outras telas**
+
 
 
 
