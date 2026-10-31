@@ -1,9 +1,8 @@
 import type { CSSProperties, ReactNode } from "react";
 import { motion, useReducedMotion } from "framer-motion";
-import { CalendarDays, MessageCircle, CreditCard, UsersRound, TrendingUp, Check, Clock3, Sparkles, ArrowUpRight, Scissors } from "lucide-react";
+import { CalendarDays, MessageCircle, TrendingUp, Check, Clock3, Sparkles, ArrowUpRight, Scissors } from "lucide-react";
 
 const azul = "#A8C7FA";
-const lilas = "#BB86FC";
 const rosa = "#F48FB1";
 const verde = "#86D6B0";
 const suave: CSSProperties = { opacity: .62, fontSize: 10, fontWeight: 600 };
