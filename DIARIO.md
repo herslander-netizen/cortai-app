@@ -546,6 +546,8 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Em andamento
 
+- GPT | 2026-10-31 UTC | Revisão visual do acesso `/login`: consistência tipográfica, legibilidade e campos nos dois temas; preservar autenticação, recuperação, provedores, apresentação aprovada e redirecionamentos | `src/routes/login.tsx`, `src/components/auth/ForgotPasswordSheet.tsx`, `src/styles.css` (somente se necessário), testes relacionados; sem migração
+
 
 
 
