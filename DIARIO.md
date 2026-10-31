@@ -525,6 +525,8 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Em andamento
 
+- Claude | 2026-10-31 UTC | Análise do Flow Bot dentro do Flow (skills, aprendizados e aprimoramentos), a pedido do dono; só documento, sem código, banco ou Agenda | `docs/flow-bot-no-flow-analise.md`, `DIARIO.md`; sem migração
+
 - GPT | 2026-10-31 UTC | Reforçar o protocolo obrigatório de trabalho com documento canônico, referência no AGENTS.md e verificação estrutural no CI; sem alterações funcionais, banco ou Agenda | `DIARIO.md`, `AGENTS.md`, `PROTOCOLO-OBRIGATORIO.md`, `scripts/verificar-protocolo.sh`, `.github/workflows/preview-migration.yml`; sem migração
 
 - GPT | 2026-10-30 UTC | Assumida por autorização do dono a conclusão de horários especiais por data: revisar motor já implementado, criar migração aditiva 0054, funções protegidas de salvar/remover e folha Horário especial no botão + da Agenda; manter Flow IA e sombras da Agenda fora deste escopo. Não aplicar migração em banco algum sem autorização específica | `src/lib/horarios-especiais.ts`, `src/lib/horarios-especiais.server.ts`, `src/lib/agenda-regras.server.ts`, `src/lib/ocupacoes-extras.server.ts`, novos arquivos de funções/UI/testes e `drizzle/migrations/0054_horarios_especiais.sql`
