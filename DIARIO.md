@@ -532,6 +532,8 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Em andamento
 
+- Claude | 2026-10-31 UTC | Menu lateral como o Figaro (espessura e curvatura dos cartões, largura, gesto de arrastar) e lista da Agenda com várias datas como no Figaro (pedido específico do dono, com fotos) | `src/components/layout/*Drawer*`, `src/styles.css`, `src/components/barbeiro/agenda/ListaAgenda.tsx`, `ListaPeriodo.tsx`
+
 
 - Claude | 2026-10-31 UTC | Flow Bot dentro do Flow — Fase A (dono: "vamos criar a integração"): motor do flow-bot embutido em `src/lib/flow-bot/`, entrada no WhatsApp antes da Flow IA, rastro, modo sombra, horário, detecção de pessoa que assumiu (`fromMe`), modo humano com prazo; sem tela (Fase B) | `src/lib/flow-bot/*`, `src/lib/whatsapp/fluxo.server.ts`, `src/routes/api/public/whatsapp/evolution.ts`, `src/integrations/supabase/types.ts`, `supabase/tests/flow_bot.sql`, migração **0055** `drizzle/migrations/0055_flow_bot.sql` (não aplicar sem autorização)
 
