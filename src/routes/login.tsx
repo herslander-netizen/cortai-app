@@ -122,6 +122,7 @@ function LoginPage() {
   const [modo, setModo] = useState<"entrar" | "criar">(aba === "criar" ? "criar" : "entrar");
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
+  const [faseLogin, setFaseLogin] = useState<"identificar" | "credencial">("identificar");
   const [erro, setErro] = useState<string | null>(
     erroNaSessao === "perfil"
       ? "Sua conta foi autenticada, mas não conseguimos carregar seu perfil. Tente novamente em instantes; você não precisa sair da conta."
@@ -276,6 +277,7 @@ function LoginPage() {
                 }}
                 onClick={() => {
                   setModo("criar");
+                  setFaseLogin("identificar");
                   setMostrarForm(true);
                 }}
               >
@@ -289,6 +291,7 @@ function LoginPage() {
                 style={{ minHeight: 48 }}
                 onClick={() => {
                   setModo("entrar");
+                  setFaseLogin("identificar");
                   setMostrarForm(true);
                 }}
               >
@@ -312,21 +315,36 @@ function LoginPage() {
                 width: "100%",
               }}
             >
+              <motion.button
+                type="button"
+                aria-label="Fechar acesso"
+                onClick={() => { setMostrarForm(false); setErro(null); setAviso(null); }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 z-20 bg-black/65 backdrop-blur-sm"
+              />
               <div
-                className="entrada-painel"
+                className="entrada-painel fixed bottom-0 left-1/2 z-30 w-full max-w-[430px] rounded-t-[28px] px-6 pb-[calc(24px+env(safe-area-inset-bottom))] pt-5"
                 style={{
+                  transform: "translateX(-50%)",
                   background: "var(--ink2)",
                   border: "1px solid var(--line)",
                   boxShadow: "0 12px 28px color-mix(in oklab, var(--ink) 10%, transparent)",
-                  maxHeight: "calc(100dvh - 156px)",
+                  maxHeight: "min(82dvh, 720px)",
+                  borderTop: "1px solid var(--line2, var(--line))",
                   overflowY: "auto",
                   overscrollBehavior: "contain",
                   animation: "none",
                 }}
               >
-            <h1 className="mb-4 text-center text-base font-semibold text-mute">
-              {modo === "entrar" ? "Entrar" : "Criar conta"}
+            <div className="mx-auto mb-5 h-1 w-10 rounded-full bg-white/20" />
+            <h1 className="mb-1 text-center text-lg font-bold text-paper">
+              {modo === "entrar" ? (faseLogin === "identificar" ? "Acessar sua conta" : "Digite sua senha") : "Criar conta"}
             </h1>
+            <p className="mb-5 text-center text-xs text-mute">
+              {modo === "entrar" ? (faseLogin === "identificar" ? "Entre com seu e-mail e continue" : `Bem-vindo de volta, ${email}`) : "Comece a organizar seu negócio com o Flow"}
+            </p>
             <div className="space-y-2">
               <Button
                 type="button"
@@ -362,9 +380,16 @@ function LoginPage() {
               onSubmit={async (event) => {
                 event.preventDefault();
                 if (enviando) return;
-                setEnviando(true);
                 setErro(null);
                 setAviso(null);
+
+                if (modo === "entrar" && faseLogin === "identificar") {
+                  if (!email.trim()) return;
+                  setFaseLogin("credencial");
+                  return;
+                }
+
+                setEnviando(true);
                 try {
                   if (modo === "entrar") {
                     const { error } = await supabase.auth.signInWithPassword({
@@ -389,62 +414,60 @@ function LoginPage() {
                     return;
                   }
                   if (!data.session) {
-                    setAviso(
-                      "Verifique seu e-mail para confirmar sua conta. Se este e-mail já tiver cadastro, nenhuma mensagem nova é enviada: use Entrar ou Esqueceu a senha.",
-                    );
+                    setAviso("Verifique seu e-mail para confirmar sua conta. Se este e-mail já tiver cadastro, use Entrar ou Esqueceu a senha.");
                     return;
                   }
                   await seguirParaMinhaArea();
                 } catch {
-                  setErro(
-                    modo === "entrar"
-                      ? "Não foi possível concluir o acesso. Confira sua conexão e tente novamente."
-                      : "Não foi possível concluir o cadastro. Confira sua conexão e tente novamente.",
-                  );
+                  setErro(modo === "entrar"
+                    ? "Não foi possível concluir o acesso. Confira sua conexão e tente novamente."
+                    : "Não foi possível concluir o cadastro. Confira sua conexão e tente novamente.");
                 } finally {
                   setEnviando(false);
                 }
               }}
             >
-              <Field label="E-mail">
-                <Input
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  type="email"
-                  autoComplete="email"
-                  required
-                  placeholder="voce@exemplo.com"
-                  className="mt-1.5"
-                />
-              </Field>
-              <Field label="Senha">
-                <Input
-                  value={senha}
-                  onChange={(e) => setSenha(e.target.value)}
-                  type="password"
-                  autoComplete={modo === "entrar" ? "current-password" : "new-password"}
-                  required
-                  minLength={8}
-                  placeholder="Sua senha"
-                  className="mt-1.5"
-                />
-              </Field>
-              {modo === "entrar" ? (
-                <Link
-                  to="/recuperar-senha"
-                  className="flex min-h-11 items-center justify-center text-xs font-medium text-mute hover:text-paper"
-                >
-                  Esqueceu a senha?
-                </Link>
+              {(modo === "criar" || faseLogin === "identificar") && (
+                <Field label="E-mail">
+                  <Input
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    type="email"
+                    autoComplete="email"
+                    required
+                    placeholder="voce@exemplo.com"
+                    className="mt-1.5"
+                  />
+                </Field>
+              )}
+              {(modo === "criar" || faseLogin === "credencial") && (
+                <Field label="Senha">
+                  <Input
+                    value={senha}
+                    onChange={(e) => setSenha(e.target.value)}
+                    type="password"
+                    autoComplete={modo === "entrar" ? "current-password" : "new-password"}
+                    required
+                    minLength={modo === "criar" ? 8 : 1}
+                    placeholder="Sua senha"
+                    className="mt-1.5"
+                  />
+                </Field>
+              )}
+              {modo === "entrar" && faseLogin === "credencial" ? (
+                <div className="flex items-center justify-between gap-2">
+                  <button type="button" onClick={() => { setFaseLogin("identificar"); setSenha(""); setErro(null); }} className="min-h-11 text-xs font-medium text-[var(--figaro-primary)]">
+                    Trocar e-mail
+                  </button>
+                  <Link to="/recuperar-senha" className="flex min-h-11 items-center text-xs font-medium text-mute hover:text-paper">
+                    Esqueceu a senha?
+                  </Link>
+                </div>
               ) : null}
-              {erro ? (
-                <p className="text-sm text-brick" role="alert">
-                  {erro}
-                </p>
-              ) : null}
+              {erro ? <p className="text-sm text-brick" role="alert">{erro}</p> : null}
               {aviso ? <Aviso tom="info">{aviso}</Aviso> : null}
-              <Button className="h-12 w-full rounded-full font-bold" disabled={enviando}>
-                {enviando ? "Aguarde…" : modo === "entrar" ? "Entrar" : "Criar conta"}
+              <Button className="h-12 w-full rounded-full font-bold" disabled={enviando || (modo === "entrar" && faseLogin === "identificar" ? !email.trim() : !senha.trim() || (modo === "criar" && !email.trim()))}>
+                {enviando ? "Aguarde…" : modo === "entrar" ? (faseLogin === "identificar" ? "Continuar" : "Entrar no Flow") : "Criar conta"}
               </Button>
             </form>
 
@@ -456,6 +479,8 @@ function LoginPage() {
                 className="h-auto min-h-12 px-1"
                 onClick={() => {
                   setModo(modo === "entrar" ? "criar" : "entrar");
+                  setFaseLogin("identificar");
+                  setSenha("");
                   setErro(null);
                   setAviso(null);
                 }}
@@ -470,7 +495,7 @@ function LoginPage() {
               size="sm"
               className="entrada-entrar mt-2 min-h-12 w-full"
               style={{ minHeight: 48 }}
-              onClick={() => setMostrarForm(false)}
+              onClick={() => { setMostrarForm(false); setFaseLogin("identificar"); setSenha(""); }}
             >
               Ver como o Flow funciona
               </Button>
