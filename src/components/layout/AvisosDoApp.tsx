@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 import { Toaster } from "@/components/ui/sonner";
 
 /**
- * Mensagens rápidas: no celular aparecem embaixo (acima da barra de navegação)
- * e no computador no canto superior direito.
+ * Mensagens rápidas no padrão do Figaro: no celular aparecem embaixo (acima da barra de navegação)
+ * e no computador no canto superior direito. Somem sozinhas em 4 s ou com um arrasto.
  */
 export function AvisosDoApp() {
   const [desktop, setDesktop] = useState(false);
@@ -21,8 +21,6 @@ export function AvisosDoApp() {
       position={desktop ? "top-right" : "bottom-center"}
       offset={desktop ? 16 : 96}
       duration={4000}
-      closeButton
-      richColors
     />
   );
 }

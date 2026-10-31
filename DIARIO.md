@@ -870,6 +870,13 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+### 2026-10-31 UTC — Claude — Mensagens do sistema (avisos) no padrão do Figaro
+- Pedido do dono ("é justamente nelas que eu tô achando feio"): as mensagens rápidas da Agenda e do sistema, com o verde e vermelho sólidos e o X. Pedido específico para as mensagens; nenhuma tela da Agenda mudou além do aviso.
+- `src/components/ui/sonner.tsx`: aviso com fundo `--figaro-surface-container-high`, cantos de 20 dp, sombra `--elevacao-8`, ícone em caixa suave (sucesso em primary-container, erro em error-container), ação em pílula primary. Sem X; some sozinho em 4 s ou com arrasto.
+- `src/components/layout/AvisosDoApp.tsx`: tirado `richColors` e `closeButton`.
+- `src/styles.css`: barra do "Desfazer" em primary do Figaro, 3 dp.
+- Conferido com o componente real no escuro e no claro (captura enviada). `vitest` e `build` OK; testes de contraste e da Agenda passaram.
+
 ### 2026-10-31 UTC — Claude — Flow Bot dentro do Flow, Fase A (parte 1, desligado por padrão)
 - Motor do flow-bot copiado em `src/lib/flow-bot/nucleo/` (versão `eebd25a`) por `scripts/sincronizar-flow-bot.sh` (zod 3.25 usa `zod/v4`; lint/prettier ignoram a cópia). Modelo padrão e perfil `flow/v1` em `src/lib/flow-bot/modelos/`; no flow-bot, o modelo passou a tratar endereço, pagamento e próximo horário ausentes (`3ee39f3`, `eebd25a`; 21 cenários).
 - `decisao.ts` (quando atende, menu numerado, máx. 3 mensagens, pessoa no controle, envio próprio × digitado), `realidade.ts`/`.server.ts` (retrato `flow/v1` com dados oficiais: horário do dia com especial e intervalo, próxima abertura, catálogo com preço), `bot.server.ts` (desligado/sombra/ligado, rastro, sessão, prazo vencido sem mensagem atrasada, pedido de atendente com prazo e sininho), `humano.server.ts` (`fromMe` não enviado pelo Flow pausa bot e IA pelo prazo do negócio).

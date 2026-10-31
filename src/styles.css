@@ -5356,8 +5356,8 @@ button.agenda-timeline-bloqueio-interativo {
   right: 0;
   bottom: 0;
   left: 0;
-  height: 2px;
-  background: var(--primary);
+  height: 3px;
+  background: var(--figaro-primary, var(--primary));
   content: "";
   transform: scaleX(1);
   transform-origin: left center;
