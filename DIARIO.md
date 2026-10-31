@@ -544,6 +544,9 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Em andamento
 
+- GPT | 2026-10-31 UTC | Acelerar somente o movimento decorativo das ondas na entrada `/login`, preservando formas, cores, camadas e respeito a `prefers-reduced-motion` | `src/components/entrada/OndasDaEntrada.tsx`, `src/components/entrada/OndasDaEntrada.test.tsx`; sem migração
+
+
 
 
 
