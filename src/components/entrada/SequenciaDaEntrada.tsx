@@ -1,25 +1,24 @@
 import { useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
-import { motion, useReducedMotion } from "framer-motion";
-import { MOLA } from "@/lib/movimento-figaro";
-import { SwipeableShowcase } from "@/components/auth/SwipeableShowcase";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import {
   CalendarDays,
+  Clock3,
   CreditCard,
+  Globe,
   MessageCircle,
-  UsersRound,
-  ChartNoAxesCombined,
   type LucideIcon,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-
+import { SwipeableShowcase } from "@/components/auth/SwipeableShowcase";
+import { MOLA } from "@/lib/movimento-figaro";
 import {
+  DemoAgendamento,
   DemoAgenda,
   DemoCaixa,
+  DemoSite,
   DemoWhatsApp,
-  DemoClientes,
-  DemoMetricas,
 } from "@/components/entrada/DemosDaEntrada";
 
 export const PASSOS_DA_ENTRADA: {
@@ -31,57 +30,55 @@ export const PASSOS_DA_ENTRADA: {
   icone: LucideIcon;
 }[] = [
   {
+    id: "site",
+    icone: Globe,
+    rotulo: "SITE PRÓPRIO",
+    titulo: "Seu site próprio em minutos",
+    texto: "Compartilhe seu link profissional com fotos, serviços e avaliações reais.",
+    demo: <DemoSite />,
+  },
+  {
+    id: "agendamento",
+    icone: Clock3,
+    rotulo: "AUTONOMIA",
+    titulo: "Cliente agenda rápido sozinho",
+    texto: "Sem cadastros chatos: o cliente escolhe o profissional, o horário e confirma.",
+    demo: <DemoAgendamento />,
+  },
+  {
+    id: "whatsapp",
+    icone: MessageCircle,
+    rotulo: "WHATSAPP",
+    titulo: "Lembretes direto no WhatsApp",
+    texto: "Confirmações automáticas que reduzem faltas e organizam seus horários.",
+    demo: <DemoWhatsApp />,
+  },
+  {
     id: "agenda",
     icone: CalendarDays,
-    rotulo: "Agenda",
-    titulo: "Uma agenda que acompanha seu ritmo",
-    texto: "Ajuste horários e acompanhe confirmações sem perder o controle do dia.",
+    rotulo: "AGENDA",
+    titulo: "Controle total do seu dia",
+    texto: "Timeline em tempo real com modo foco e contagem regressiva para cada cliente.",
     demo: <DemoAgenda />,
   },
   {
     id: "caixa",
     icone: CreditCard,
-    rotulo: "Caixa",
-    titulo: "Receba e organize seus pagamentos",
-    texto: "Registre serviços e pagamentos em um caixa simples e conectado à operação.",
+    rotulo: "CAIXA & PIX",
+    titulo: "Pagamentos e caixa sem estresse",
+    texto: "Comandas integradas à agenda com Pix instantâneo e conciliação fácil.",
     demo: <DemoCaixa />,
-  },
-  {
-    id: "whatsapp",
-    icone: MessageCircle,
-    rotulo: "WhatsApp",
-    titulo: "Confirmações direto no WhatsApp",
-    texto: "Envie lembretes e deixe o cliente confirmar ou pedir para remarcar.",
-    demo: <DemoWhatsApp />,
-  },
-  {
-    id: "clientes",
-    icone: UsersRound,
-    rotulo: "Clientes",
-    titulo: "Conheça melhor cada cliente",
-    texto: "Histórico, frequência e preferências para um atendimento mais próximo.",
-    demo: <DemoClientes />,
-  },
-  {
-    id: "metricas",
-    icone: ChartNoAxesCombined,
-    rotulo: "Métricas",
-    titulo: "Entenda como o negócio está evoluindo",
-    texto: "Acompanhe faturamento e crescimento com indicadores fáceis de ler.",
-    demo: <DemoMetricas />,
   },
 ];
 
-/** Tempo de cada passo antes de seguir sozinho. */
-export const DURACAO_DO_PASSO_MS = 5200;
+/** Cada cena dura 4,5 s; o avanço pausa durante foco, interação e movimento reduzido. */
+export const DURACAO_DO_PASSO_MS = 4500;
+const INTERVALO_PROGRESSO_MS = 50;
 
-/**
- * Sequência da tela de entrada: demonstração, legenda e cinco abas com progresso.
- * A rotação pausa quando a pessoa interage, quando a página fica oculta ou quando há movimento reduzido.
- */
 export function SequenciaDaEntrada() {
   const prefixo = useId().replace(/:/g, "");
   const [indice, setIndice] = useState(0);
+  const [progresso, setProgresso] = useState(0);
   const [visivel, setVisivel] = useState(true);
   const [emFoco, setEmFoco] = useState(false);
   const [sobPonteiro, setSobPonteiro] = useState(false);
@@ -91,17 +88,15 @@ export function SequenciaDaEntrada() {
   function vibrarInteracao() {
     if (reduzirMovimento) return;
     try {
-      if (typeof navigator !== "undefined" && typeof navigator.vibrate === "function") {
-        navigator.vibrate(12);
-      }
+      if (typeof navigator !== "undefined" && typeof navigator.vibrate === "function") navigator.vibrate(12);
     } catch {
-      // Vibração é um detalhe opcional; nunca pode bloquear a navegação.
+      // Vibração é opcional e nunca bloqueia a navegação.
     }
   }
 
   function trocarEtapa(proximo: number) {
-    if (proximo === indice) return;
     setIndice((proximo + PASSOS_DA_ENTRADA.length) % PASSOS_DA_ENTRADA.length);
+    setProgresso(0);
     vibrarInteracao();
   }
 
@@ -115,10 +110,17 @@ export function SequenciaDaEntrada() {
 
   useEffect(() => {
     if (pausada) return;
-    const temporizador = window.setTimeout(() => {
-      setIndice((atual) => (atual + 1) % PASSOS_DA_ENTRADA.length);
-    }, DURACAO_DO_PASSO_MS);
-    return () => window.clearTimeout(temporizador);
+    const temporizador = window.setInterval(() => {
+      setProgresso((atual) => {
+        const seguinte = atual + (INTERVALO_PROGRESSO_MS / DURACAO_DO_PASSO_MS) * 100;
+        if (seguinte >= 100) {
+          setIndice((anterior) => (anterior + 1) % PASSOS_DA_ENTRADA.length);
+          return 0;
+        }
+        return seguinte;
+      });
+    }, INTERVALO_PROGRESSO_MS);
+    return () => window.clearInterval(temporizador);
   }, [indice, pausada]);
 
   function navegarPelasAbas(event: KeyboardEvent<HTMLButtonElement>, atual: number) {
@@ -151,24 +153,15 @@ export function SequenciaDaEntrada() {
   return (
     <section
       className="entrada-sequencia"
-      aria-label="Como o Flow ajuda o seu negócio"
-      style={{
-        gap: 10,
-        marginTop: 0,
-        flex: 1,
-        minHeight: 0,
-        width: "100%",
-        justifyContent: "center",
-      }}
+      aria-label="Como o Flow ajuda seu negócio"
       onFocusCapture={() => setEmFoco(true)}
       onBlurCapture={(event) => {
         const proximoFoco = event.relatedTarget;
-        if (!(proximoFoco instanceof Node) || !event.currentTarget.contains(proximoFoco)) {
-          setEmFoco(false);
-        }
+        if (!(proximoFoco instanceof Node) || !event.currentTarget.contains(proximoFoco)) setEmFoco(false);
       }}
       onMouseEnter={() => setSobPonteiro(true)}
       onMouseLeave={() => setSobPonteiro(false)}
+      style={{ gap: 10, marginTop: 0, flex: 1, minHeight: 0, width: "100%", justifyContent: "center" }}
     >
       <SwipeableShowcase
         currentIndex={indice}
@@ -177,143 +170,107 @@ export function SequenciaDaEntrada() {
         onHoldStart={() => setSobPonteiro(true)}
         onHoldEnd={() => setSobPonteiro(false)}
       >
-      <Card
-        variant="surface"
-        density="none"
-        id={idDoPainel}
-        role="tabpanel"
-        aria-labelledby={idDaAbaAtiva}
-        tabIndex={0}
-        className="entrada-cartao"
-        style={{
-          width: "100%",
-          height: "100%",
-          maxWidth: "100%",
-          flex: "1 1 0",
-          minHeight: 0,
-          display: "flex",
-          flexDirection: "column",
-          borderRadius: 28,
-          background: "var(--ink2)",
-          color: "var(--paper)",
-          boxShadow: "var(--elevacao-2)",
-          overflow: "hidden",
-        }}
-      >
-        <motion.div
-          key={passo.id}
-          className="entrada-cartao-demo"
-          initial={reduzirMovimento ? { opacity: 0 } : { opacity: 0, y: 8, scale: 0.98 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={reduzirMovimento ? { duration: 0.15 } : MOLA.padraoEspacial}
+        <Card
+          variant="surface"
+          density="none"
+          id={idDoPainel}
+          role="tabpanel"
+          aria-labelledby={idDaAbaAtiva}
+          tabIndex={0}
+          className="entrada-cartao"
           style={{
+            width: "100%",
+            height: "100%",
+            maxWidth: "100%",
             flex: "1 1 0",
             minHeight: 0,
+            display: "flex",
+            flexDirection: "column",
+            borderRadius: 28,
+            background: "var(--ink2)",
+            color: "var(--paper)",
+            boxShadow: "var(--elevacao-2)",
             overflow: "hidden",
-            animation: "none",
           }}
         >
-          {passo.demo}
-        </motion.div>
-        <div
-          className="entrada-cartao-divisor"
-          aria-hidden
-          style={{
-            height: 2,
-            background: "linear-gradient(90deg, var(--figaro-primary), var(--figaro-tertiary))",
-          }}
-        />
-        <motion.div
-          key={`${passo.id}-legenda`}
-          className="entrada-cartao-legenda"
-          initial={reduzirMovimento ? { opacity: 0 } : { opacity: 0, y: 6 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={reduzirMovimento ? { duration: 0.15 } : MOLA.padraoEspacial}
-          style={{ minHeight: 104, flexShrink: 0, padding: "13px 18px 17px", animation: "none" }}
-        >
-          <p
-            aria-hidden="true"
-            style={{
-              color: "var(--figaro-tertiary)",
-              fontSize: 10,
-              fontWeight: 700,
-              letterSpacing: "0.12em",
-              lineHeight: 1.2,
-              textTransform: "uppercase",
-            }}
+          <div className="flex shrink-0 items-center gap-1.5 px-3 pt-3" aria-label="Progresso da apresentação">
+            {PASSOS_DA_ENTRADA.map((cena, i) => (
+              <div key={cena.id} className="h-1 min-w-0 flex-1 overflow-hidden rounded-full" style={{ background: "color-mix(in oklab, var(--figaro-on-surface) 16%, transparent)" }}>
+                <div
+                  className="h-full rounded-full"
+                  style={{
+                    width: i < indice ? "100%" : i === indice ? `${progresso}%` : "0%",
+                    background: "var(--figaro-tertiary)",
+                    transition: "width 50ms linear",
+                  }}
+                />
+              </div>
+            ))}
+          </div>
+          <motion.div
+            key={passo.id}
+            className="entrada-cartao-demo"
+            initial={reduzirMovimento ? { opacity: 0 } : { opacity: 0, y: 8, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={reduzirMovimento ? { duration: 0.12 } : MOLA.padraoEspacial}
+            style={{ flex: "1 1 0", minHeight: 0, overflow: "hidden", animation: "none" }}
           >
-            {passo.rotulo}
-          </p>
-          <h2 style={{ marginTop: 5, fontSize: "clamp(15px, 4vw, 17px)", lineHeight: 1.25 }}>
-            {passo.titulo}
-          </h2>
-          <p
-            style={{
-              marginTop: 6,
-              color: "var(--mute)",
-              fontSize: "clamp(12.5px, 3.2vw, 13px)",
-              lineHeight: 1.45,
-            }}
+            {passo.demo}
+          </motion.div>
+          <div className="entrada-cartao-divisor" aria-hidden style={{ height: 2, flexShrink: 0, background: "linear-gradient(90deg, var(--figaro-primary), var(--figaro-tertiary))" }} />
+          <motion.div
+            key={`${passo.id}-legenda`}
+            className="entrada-cartao-legenda"
+            initial={reduzirMovimento ? { opacity: 0 } : { opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={reduzirMovimento ? { duration: 0.12 } : MOLA.padraoEspacial}
+            style={{ minHeight: 104, flexShrink: 0, padding: "13px 18px 17px", animation: "none" }}
           >
-            {passo.texto}
-          </p>
-        </motion.div>
-      </Card>
+            <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: "var(--figaro-tertiary)", lineHeight: 1.2 }}>
+              {passo.rotulo}
+            </p>
+            <h2 className="mt-1 text-base font-bold leading-tight">{passo.titulo}</h2>
+            <p className="mt-1.5 line-clamp-2 text-xs leading-relaxed" style={{ color: "var(--mute)" }}>
+              {passo.texto}
+            </p>
+          </motion.div>
+        </Card>
       </SwipeableShowcase>
 
-      <div
-        className="entrada-chips"
-        role="tablist"
-        aria-label="Etapas da apresentação"
-        style={{ gap: 8, justifyContent: "space-between", flexShrink: 0 }}
-      >
-        {PASSOS_DA_ENTRADA.map((p, i) => (
-          <Button
-            key={p.id}
-            ref={(element) => {
-              referenciasDasAbas.current[i] = element;
-            }}
-            id={`${prefixo}-aba-${p.id}`}
-            type="button"
-            variant="ghost"
-            size="sm"
-            role="tab"
-            aria-label={`Mostrar etapa: ${p.rotulo}`}
-            aria-selected={i === indice}
-            aria-controls={idDoPainel}
-            tabIndex={i === indice ? 0 : -1}
-            className="entrada-chip shrink-0"
-            data-estado={i < indice ? "feito" : i === indice ? "ativo" : "espera"}
-            style={{
-              display: "flex",
-              flex: "0 0 48px",
-              alignItems: "center",
-              justifyContent: "center",
-              width: 48,
-              height: 48,
-              minWidth: 48,
-              minHeight: 48,
-              padding: 0,
-              border: 0,
-              borderRadius: 999,
-              position: "relative",
-              background: i === indice ? "var(--figaro-primary-container)" : "transparent",
-              color: i === indice ? "var(--figaro-on-primary-container)" : "var(--entrada-suave)",
-            }}
-            onClick={() => trocarEtapa(i)}
-            onKeyDown={(event) => navegarPelasAbas(event, i)}
-          >
-            <p.icone aria-hidden="true" size={20} strokeWidth={2} />
-            {i === indice ? (
-              <motion.span
-                aria-hidden="true"
-                layoutId={`${prefixo}-progresso-ativo`}
-                className="absolute bottom-[3px] left-1/2 h-[3px] w-5 -translate-x-1/2 rounded-full"
-                style={{ background: "var(--flow-rosa, #f48fb1)", boxShadow: "0 0 10px var(--flow-rosa, #f48fb1)" }}
-              />
-            ) : null}
-          </Button>
-        ))}
+      <div className="entrada-chips flex shrink-0 items-center justify-between gap-2" role="tablist" aria-label="Cenas da apresentação">
+        {PASSOS_DA_ENTRADA.map((cena, i) => {
+          const Icone = cena.icone;
+          const ativa = i === indice;
+          return (
+            <Button
+              key={cena.id}
+              ref={(element) => { referenciasDasAbas.current[i] = element; }}
+              id={`${prefixo}-aba-${cena.id}`}
+              type="button"
+              variant="ghost"
+              size="icon"
+              role="tab"
+              aria-label={`Mostrar etapa: ${cena.rotulo}`}
+              aria-selected={ativa}
+              aria-controls={idDoPainel}
+              tabIndex={ativa ? 0 : -1}
+              className="entrada-chip relative shrink-0 overflow-hidden"
+              style={{ flex: "0 0 48px", width: 48, height: 48, minWidth: 48, minHeight: 48, color: ativa ? "var(--figaro-on-primary-container)" : "var(--figaro-on-surface-variant)" }}
+              onClick={() => trocarEtapa(i)}
+              onKeyDown={(event) => navegarPelasAbas(event, i)}
+            >
+              {ativa ? (
+                <motion.span
+                  layoutId="activeDockPill"
+                  className="absolute inset-0 rounded-full"
+                  style={{ background: "var(--figaro-primary-container)", border: "1px solid var(--figaro-primary)" }}
+                  transition={MOLA.padraoEspacial}
+                />
+              ) : null}
+              <Icone className="relative z-10 size-5" aria-hidden="true" />
+            </Button>
+          );
+        })}
       </div>
     </section>
   );
