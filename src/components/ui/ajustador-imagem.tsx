@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import type { PointerEvent } from "react";
 
 type AjustadorImagemProps = {
   file: File;
@@ -110,7 +111,7 @@ export function AjustadorImagem({
     }
   };
 
-  const iniciarPonteiro = (event: React.PointerEvent<HTMLDivElement>) => {
+  const iniciarPonteiro = (event: PointerEvent<HTMLDivElement>) => {
     event.preventDefault();
     event.currentTarget.setPointerCapture(event.pointerId);
     const ponto = { x: event.clientX, y: event.clientY };
