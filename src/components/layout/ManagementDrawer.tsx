@@ -227,13 +227,14 @@ export function ManagementHeader() {
           <SheetContent
             side="left"
             arrastarParaFechar
+            arrastarDeQualquerPonto
             esconderX
             className="management-drawer overflow-hidden rounded-r-[28px] border-0 bg-drawer-surface p-0 duration-200"
           >
             {/* Rola o menu inteiro; o topo fica preso por cima e a lista some por baixo dele em degradê (Figaro). */}
             <div className="h-full min-h-0 overflow-y-auto overscroll-contain">
               {/* Como no Figaro: logo, nome e "pessoa · papel", sem saudação; 38 dp até o cartão Sua Página. */}
-              <div className="menu-topo-degrade sticky top-0 z-10 px-4 pb-6 pt-[max(1rem,env(safe-area-inset-top))]">
+              <div className="menu-topo-degrade sticky top-0 z-10 px-3 pb-6 pt-[max(1rem,env(safe-area-inset-top))]">
                 <div className="grid grid-cols-[minmax(0,1fr)_44px] items-center gap-3">
                   <div className="flex min-w-0 items-center gap-3">
                     {sessao ? (
@@ -279,7 +280,7 @@ export function ManagementHeader() {
 
               <nav
                 aria-label="Módulos do negócio"
-                className="px-4 pb-[calc(1.5rem+env(safe-area-inset-bottom))]"
+                className="px-3 pb-[calc(1.5rem+env(safe-area-inset-bottom))]"
               >
                 <DrawerDestaques
                   slug={sessao?.tenantSlug}

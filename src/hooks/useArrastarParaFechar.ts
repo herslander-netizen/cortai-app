@@ -11,11 +11,16 @@ export const SELETOR_DA_ALCA = "[data-alca-gaveta]";
  * toca, escolhe) e nunca fecha por arrasto. A gaveta acompanha o dedo (transform direto no
  * elemento, sem re-render); ao soltar, fecha acima de 30% do tamanho ou 0,5 px/ms, senão volta.
  * Recebe o elemento (não um ref) para religar quando o portal monta a gaveta a cada abertura.
+ *
+ * `qualquerPonto` (menu lateral, como a gaveta do Figaro/Material 3): o arrasto nasce em qualquer ponto da gaveta.
+ * O eixo trava nos primeiros 10 px: na vertical a lista rola normalmente; na horizontal, só no sentido de fechar,
+ * a gaveta acompanha o dedo e o fundo escurecido clareia junto.
  */
 export function useArrastarParaFechar(
   elemento: HTMLElement | null,
   lado: LadoDaGaveta,
   ativo: boolean,
+  qualquerPonto = false,
 ) {
   useEffect(() => {
     if (!ativo || !elemento || lado === "top") return;
@@ -29,13 +34,25 @@ export function useArrastarParaFechar(
     let ultimo = { d: 0, t: 0 };
     let velocidade = 0;
 
+    // Fundo escurecido (irmão anterior no portal): acompanha o arrasto no menu lateral.
+    const anterior = elemento.previousElementSibling as HTMLElement | null;
+    const fundo =
+      qualquerPonto && anterior?.hasAttribute("data-state") && !anterior.getAttribute("role")
+        ? anterior
+        : null;
     const aplicar = (d: number) => {
       elemento.style.transform = horizontal ? `translateX(${d}px)` : `translateY(${d}px)`;
+      if (fundo) {
+        const tamanho = horizontal ? elemento.offsetWidth : elemento.offsetHeight;
+        fundo.style.opacity = String(Math.max(0, 1 - Math.abs(d) / Math.max(1, tamanho)));
+      }
     };
 
     const comecar = (e: TouchEvent) => {
       const t = e.touches[0];
-      const naAlca = (e.target as HTMLElement | null)?.closest(SELETOR_DA_ALCA);
+      const naAlca = qualquerPonto
+        ? elemento
+        : (e.target as HTMLElement | null)?.closest(SELETOR_DA_ALCA);
       if (e.touches.length !== 1 || !t || !naAlca || !elemento.contains(naAlca)) {
         inicio = null;
         return;
@@ -54,7 +71,9 @@ export function useArrastarParaFechar(
       if (!arrastando) {
         if (Math.max(Math.abs(dx), Math.abs(dy)) < LIMIAR_EIXO) return;
         const principal = horizontal ? Math.abs(dx) > Math.abs(dy) : Math.abs(dy) > Math.abs(dx);
-        if (!principal) {
+        // No menu lateral, arrastar para o lado de abrir não faz nada (e não prende o toque).
+        const sentidoDeFechar = horizontal ? dx * sinal > 0 : dy * sinal > 0;
+        if (!principal || (qualquerPonto && !sentidoDeFechar)) {
           inicio = null;
           return;
         }
@@ -87,11 +106,16 @@ export function useArrastarParaFechar(
         elemento.querySelector<HTMLButtonElement>("[data-fechar-gaveta]")?.click();
       } else {
         elemento.style.transition = reduzido ? "none" : "transform 200ms ease-out";
+        if (fundo) fundo.style.transition = reduzido ? "none" : "opacity 200ms ease-out";
         aplicar(0);
         window.setTimeout(
           () => {
             elemento.style.transform = "";
             elemento.style.transition = "";
+            if (fundo) {
+              fundo.style.opacity = "";
+              fundo.style.transition = "";
+            }
           },
           reduzido ? 0 : 220,
         );
@@ -108,5 +132,5 @@ export function useArrastarParaFechar(
       elemento.removeEventListener("touchend", terminar);
       elemento.removeEventListener("touchcancel", terminar);
     };
-  }, [ativo, elemento, lado]);
+  }, [ativo, elemento, lado, qualquerPonto]);
 }

@@ -31,7 +31,7 @@ export function InterruptorListaDeEspera() {
   }
 
   return (
-    <div className="mt-6">
+    <div className="mb-4 mt-6">
       <div className="flex min-h-12 items-center justify-between gap-4">
         <label htmlFor="lista-espera-automatica" className="field-label">
           Oferecer vagas automaticamente à lista de espera
@@ -44,7 +44,8 @@ export function InterruptorListaDeEspera() {
           aria-describedby="lista-espera-automatica-dica"
         />
       </div>
-      <p id="lista-espera-automatica-dica" className="field-hint">
+      {/* Dica alinhada ao rótulo (o recuo de 16 px do `field-hint` é para campos de texto). */}
+      <p id="lista-espera-automatica-dica" className="field-hint !pl-1">
         Quando um horário é cancelado, a vaga é oferecida ao próximo da lista. Desligado, ninguém é
         removido da lista.
       </p>

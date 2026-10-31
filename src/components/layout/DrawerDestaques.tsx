@@ -91,15 +91,15 @@ export function DrawerDestaques({
       {slug ? (
         <div className="space-y-[3px]">
           <div
-            className={`overflow-hidden bg-drawer-card ${tenantId && verDesempenho ? "rounded-b-[10px] rounded-t-[28px]" : "rounded-[28px]"}`}
+            className={`overflow-hidden bg-drawer-card ${tenantId && verDesempenho ? "rounded-b-[4px] rounded-t-[28px]" : "rounded-[28px]"}`}
           >
-            <div className="grid min-h-[60px] grid-cols-[minmax(0,1fr)_40px] items-center pl-1 pr-3">
+            <div className="grid min-h-[56px] grid-cols-[minmax(0,1fr)_40px] items-center pl-1 pr-3">
               {/* Como no Figaro (`onOpenSuaPagina`): o cartão fecha o menu e abre o Personalizar Página; a página
                   pública abre por "Ver como ficou", dentro dele. */}
               <Link
                 to="/barbeiro/marca"
                 onClick={fechar}
-                className="grid min-w-0 grid-cols-[48px_minmax(0,1fr)] items-center gap-[3px] py-2"
+                className="grid min-w-0 grid-cols-[48px_minmax(0,1fr)] items-center gap-[3px] py-1"
               >
                 <ElosDaPagina />
                 <span className="min-w-0">
@@ -139,7 +139,8 @@ export function DrawerDestaques({
         to="/barbeiro"
         onClick={fechar}
         aria-current={agendaAtiva ? "page" : undefined}
-        className={`grid min-h-[76px] grid-cols-[24px_minmax(0,1fr)_8px] items-center gap-4 rounded-[28px] bg-drawer-card px-5 py-4 ${agendaAtiva ? "ring-2 ring-primary/30" : ""}`}
+        // Figaro (foto do dono, 31/10): 68 px, cantos de 28 e sem contorno, mesmo com a Agenda aberta.
+        className="grid min-h-[68px] grid-cols-[24px_minmax(0,1fr)_8px] items-center gap-4 rounded-[28px] bg-drawer-card px-5 py-3"
       >
         {/* Como no Figaro: calendário cheio, sem ladrilho atrás. */}
         <IconeAgendaFigaro className="size-6" />

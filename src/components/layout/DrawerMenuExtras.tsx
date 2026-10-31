@@ -64,9 +64,9 @@ export function FaixaDesempenho({ tenantId, ativo }: { tenantId: string; ativo: 
     </>
   );
   const linha =
-    "flex min-h-9 w-full items-center gap-1.5 px-3 text-left text-[13px] font-medium leading-[18px] text-mute";
+    "flex min-h-[31px] w-full items-center gap-1.5 px-3 text-left text-[13px] font-medium leading-[18px] text-mute";
   return (
-    <div className="overflow-hidden rounded-b-[28px] rounded-t-[10px] bg-drawer-band">
+    <div className="overflow-hidden rounded-b-[28px] rounded-t-[4px] bg-drawer-band">
       <div
         className={`grid transition-[grid-template-rows] duration-[var(--mola-tamanho-duracao)] ease-[var(--mola-tamanho)] motion-reduce:transition-none ${mostrar ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}
       >

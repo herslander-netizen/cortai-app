@@ -60,6 +60,8 @@ interface SheetContentProps
    * baixo. No computador (≥768px) a barra some e o "X" continua.
    */
   arrastarParaFechar?: boolean;
+  /** Menu lateral: arrastar em qualquer ponto da gaveta fecha (eixo travado; rolar continua rolando). */
+  arrastarDeQualquerPonto?: boolean;
   /** Esconde o "X" também no computador (gaveta que fecha por fora, como o menu lateral). */
   esconderX?: boolean;
 }
@@ -95,12 +97,20 @@ const SheetContent = React.forwardRef<
   SheetContentProps
 >(
   (
-    { side = "right", className, children, arrastarParaFechar, esconderX = false, ...props },
+    {
+      side = "right",
+      className,
+      children,
+      arrastarParaFechar,
+      arrastarDeQualquerPonto = false,
+      esconderX = false,
+      ...props
+    },
     ref,
   ) => {
     const [elementoGaveta, setElementoGaveta] = React.useState<HTMLDivElement | null>(null);
     const comAlca = (arrastarParaFechar ?? side === "bottom") && side !== "top";
-    useArrastarParaFechar(elementoGaveta, side ?? "right", comAlca);
+    useArrastarParaFechar(elementoGaveta, side ?? "right", comAlca, arrastarDeQualquerPonto);
     return (
       <SheetPortal>
         <SheetOverlay />

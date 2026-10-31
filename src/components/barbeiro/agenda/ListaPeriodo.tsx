@@ -61,9 +61,16 @@ function valorCurto(centavos: number) {
   return centavos % 100 === 0 ? brl(centavos).replace(/,00$/, "") : brl(centavos);
 }
 
+/** Domingo da semana do dia (a lista busca desde ele, para mostrar os dias desta semana que já passaram). */
+export function inicioDaSemana(dia: string) {
+  const data = new Date(`${dia}T12:00:00Z`);
+  return new Date(data.getTime() - data.getUTCDay() * 86_400_000).toISOString().slice(0, 10);
+}
+
 /**
- * Como no Figaro (`populatedAgendaDays`): de hoje até o último dia com atendimento, passando por todos os dias do
- * meio, inclusive os vazios ("Livre" + "Nada marcado"). Com busca, só os dias que têm resultado.
+ * Como no Figaro (`populatedAgendaDays`, foto do dono, 31/10): do primeiro dia com atendimento (desta semana, ou
+ * hoje) até o último, passando por todos os dias do meio, inclusive os vazios ("Livre" + "Nada marcado"). Com busca,
+ * só os dias que têm resultado.
  */
 export function diasDaLista(
   grupos: { dia: string; itens: AgendaItem[] }[],
@@ -72,15 +79,16 @@ export function diasDaLista(
 ) {
   if (comBusca || grupos.length === 0) return grupos;
   const porDia = new Map(grupos.map((g) => [g.dia, g.itens]));
-  const ultimo = grupos[grupos.length - 1]!.dia;
+  const primeiro = grupos[0]!.dia < hoje ? grupos[0]!.dia : hoje;
+  const ultimo = grupos[grupos.length - 1]!.dia > hoje ? grupos[grupos.length - 1]!.dia : hoje;
   const dias: { dia: string; itens: AgendaItem[] }[] = [];
-  for (let n = 0; n <= Math.min(diasEntre(hoje, ultimo), DIAS_NO_MAXIMO); n += 1) {
-    const dia = new Date(Date.parse(`${hoje}T12:00:00Z`) + n * 86_400_000)
+  for (let n = 0; n <= Math.min(diasEntre(primeiro, ultimo), DIAS_NO_MAXIMO); n += 1) {
+    const dia = new Date(Date.parse(`${primeiro}T12:00:00Z`) + n * 86_400_000)
       .toISOString()
       .slice(0, 10);
     dias.push({ dia, itens: porDia.get(dia) ?? [] });
   }
-  return [...grupos.filter((g) => g.dia < hoje), ...dias];
+  return dias;
 }
 
 /** Agrupa por dia (no fuso do negócio), já em ordem de horário. */
@@ -102,7 +110,7 @@ export function agruparPorDia(itens: AgendaItem[], fuso: string) {
 export function opcoesAgendaPeriodo(hoje: string) {
   return infiniteQueryOptions({
     queryKey: ["agenda-periodo", hoje],
-    initialPageParam: hoje,
+    initialPageParam: inicioDaSemana(hoje),
     queryFn: ({ pageParam }) => getAgendaPeriodo({ data: { de: pageParam, dias: DIAS_POR_BLOCO } }),
     getNextPageParam: (ultima: { ate: string }) =>
       diasEntre(hoje, ultima.ate) < DIAS_NO_MAXIMO ? ultima.ate : undefined,

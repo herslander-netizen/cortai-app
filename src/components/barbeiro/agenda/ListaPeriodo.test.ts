@@ -109,4 +109,27 @@ describe("dias da lista (Figaro: todos os dias de hoje até o último com atendi
     // Com busca, só os dias que têm resultado.
     expect(diasDaLista([{ dia: "2026-10-31", itens: [a] }], "2026-10-29", true)).toHaveLength(1);
   });
+
+  it("como na foto do Figaro: começa no primeiro dia com atendimento desta semana e chega até hoje", async () => {
+    const { diasDaLista, inicioDaSemana } = await import("./ListaPeriodo");
+    const a = item("a", "2026-10-28T13:00:00.000Z");
+    const b = item("b", "2026-10-30T16:00:00.000Z");
+    const dias = diasDaLista(
+      [
+        { dia: "2026-10-28", itens: [a] },
+        { dia: "2026-10-30", itens: [b] },
+      ],
+      "2026-10-31",
+      false,
+    );
+    expect(dias.map((d) => [d.dia, d.itens.length])).toEqual([
+      ["2026-10-28", 1],
+      ["2026-10-29", 0],
+      ["2026-10-30", 1],
+      ["2026-10-31", 0],
+    ]);
+    // A busca da lista começa no domingo da semana (31/10/2026 é sábado).
+    expect(inicioDaSemana("2026-10-31")).toBe("2026-10-25");
+    expect(inicioDaSemana("2026-10-25")).toBe("2026-10-25");
+  });
 });

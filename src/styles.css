@@ -3260,7 +3260,10 @@ html.agenda-gesto-ativo body {
   top: 0;
   /* Corta só nas laterais: a etiqueta "agora" (16:08), 40 px à esquerda da linha, vazava do dia vizinho para a borda
      da tela do dia aberto (foto do dono, 30/10). Na vertical o dia vizinho continua inteiro. */
-  clip-path: inset(-100000px 0);
+  /* À esquerda o corte inclui os 16 px de recuo da página: a coluna das horas do vizinho fica com os mesmos 50 px
+     do dia aberto e a etiqueta "agora" desliza inteira com ele (vídeos do dono, 31/10). Com o dia assentado, esses
+     16 px a mais caem fora da tela (o vizinho começa 8 px além da borda e a etiqueta, 8 px depois do início). */
+  clip-path: inset(-100000px 0 -100000px -16px);
   /* A página vizinha tem a largura da grade inteira, com a coluna das horas. */
   width: calc(100% + var(--calha-das-horas));
   height: 100%;
@@ -7224,12 +7227,7 @@ button.agenda-timeline-bloqueio-interativo {
 .agenda-linha-agora {
   border-top-width: 2px;
 }
-/* Dia vizinho (o que entra com o dedo): a etiqueta da hora fica 14 px além da coluna das horas no celular e o corte
-   lateral do vizinho a mostrava pela metade ("4:10") e deixava um fio rosa na borda do dia aberto (vídeo do dono,
-   31/10). No vizinho fica só a linha; a etiqueta aparece quando o dia assenta. */
-.agenda-dia-vizinha .agenda-linha-agora span {
-  display: none;
-}
+
 
 /* Barra de baixo do Figaro: foto do profissional para trocar a agenda (38 px). */
 .agenda-botao-agora-principal:has(.agenda-filtro-gatilho) .agenda-botao-agora-visualizacao {
@@ -9999,9 +9997,11 @@ html:root.light[data-identidade="classico"][data-identidade] {
   --identity-accent: var(--figaro-primary);
   --identity-accent-light: var(--figaro-primary);
 }
-/* Gaveta: 348 dp, cantos de 28 dp só do lado de dentro, títulos de seção 14/20 e itens 15/20 (Jakarta). */
+/* Gaveta: 348 dp, cantos de 28 dp só do lado de dentro, títulos de seção 14/20 e itens 15/20 (Jakarta). Foto do
+   Figaro num celular de 360 px (dono, 31/10): 347 px de largura e 12 px de margem; com 94vw ficava em 338. */
 .management-drawer {
-  width: min(348px, 94vw) !important;
+  width: min(348px, 96.5vw) !important;
+  max-width: none !important;
 }
 /* Topo do menu preso por cima da lista (dono, 26/10, vídeo do Figaro): a lista passa por baixo e some em degradê.
    Figaro `DrawerHeaderScrimAlpha`: 0,95 até 72% da altura e 0 no fim. */
@@ -11367,4 +11367,33 @@ html:root.light:not([data-tela-agenda]) {
   --accent: var(--figaro-surface-container-high);
   --secondary: var(--figaro-surface-container-high);
   --muted: var(--figaro-surface-container-high);
+}
+
+/* Estado vazio logo abaixo de outro bloco ficava colado nele (Lista de espera, captura do dono, 31/10): 12 px de vão,
+   como entre grupos de cartões do Figaro. Fora da Agenda (protegida). */
+html:not([data-tela-agenda]) [data-figaro-empty-state]:not(:first-child) {
+  margin-top: 12px;
+}
+
+/* Linha "agora" no celular, igual à do Figaro (foto e vídeos do dono, 31/10, num celular de 360 px): etiqueta de
+   35 × 16 px inteira na coluna das horas (8 a 43 px da borda; a grade começa em 50), linha de 2 px começando na grade
+   e sem a bolinha. Cabe na página vizinha, então desliza junto com o dia, sem corte e sem vazar na borda. */
+@media (max-width: 767px) {
+  .agenda-timeline .agenda-linha-agora {
+    left: 0;
+  }
+  .agenda-timeline .agenda-linha-agora::before {
+    display: none;
+  }
+  .agenda-timeline .agenda-linha-agora span {
+    left: -42px;
+    top: -8px;
+    width: 35px;
+    height: 16px;
+    padding: 0;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 16px;
+    letter-spacing: -0.02em;
+  }
 }

@@ -86,7 +86,7 @@ export function GruposDoMenu({
                     const Icon = item.icon;
                     const ativo = itemDeNavegacaoAtivo(caminho, item.to);
                     const total = grupo.itens.length;
-                    // Grupo de linhas do Figaro: 28 dp nos cantos de fora, 4 dp entre as linhas, 3 dp de vão.
+                    // Grupo de linhas do Figaro: 56 dp de altura (M3), 28 dp nos cantos de fora, 4 dp entre as linhas, 3 dp de vão.
                     const forma =
                       total <= 1
                         ? "rounded-[28px]"
@@ -103,7 +103,7 @@ export function GruposDoMenu({
                           preload="intent"
                           onClick={onNavegar}
                           aria-current={ativo ? "page" : undefined}
-                          className={`flex min-h-[60px] w-full items-center gap-4 bg-drawer-card px-4 text-paper transition-[filter,transform] duration-[var(--mola-toque-duracao)] ease-[var(--mola-toque)] active:scale-[0.99] active:brightness-95 motion-reduce:transition-none ${forma}`}
+                          className={`flex min-h-[56px] w-full items-center gap-4 bg-drawer-card px-4 text-paper transition-[filter,transform] duration-[var(--mola-toque-duracao)] ease-[var(--mola-toque)] active:scale-[0.99] active:brightness-95 motion-reduce:transition-none ${forma}`}
                         >
                           <Icon
                             className="size-6 shrink-0 text-primary"

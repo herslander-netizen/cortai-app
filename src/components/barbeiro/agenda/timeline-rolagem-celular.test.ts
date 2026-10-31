@@ -146,8 +146,13 @@ describe("troca de dia em páginas no celular (como no vídeo de referência)", 
     );
     expect(previa).toContain("<MarcaDoLimiteDoDia");
     expect(css).not.toMatch(/\.agenda-dia-vizinha \.agenda-timeline-marca/);
-    // O dia vizinho não vaza para a tela do dia aberto (etiqueta "agora" na borda direita, 30/10).
-    expect(css).toMatch(/\.agenda-dia-vizinha \{[^}]*clip-path: inset\(-100000px 0\);/);
+    // O dia vizinho não vaza para a tela do dia aberto (etiqueta "agora" na borda direita, 30/10). Desde 31/10 o corte
+    // inclui os 16 px de recuo à esquerda (coluna das horas de 50 px, como no dia aberto): com o dia assentado eles
+    // ficam fora da tela e a etiqueta de 35 px (a 42 px da grade) começa exatamente na borda.
+    expect(css).toMatch(
+      /\.agenda-dia-vizinha \{[^}]*clip-path: inset\(-100000px 0 -100000px -16px\);/,
+    );
+    expect(css).toMatch(/\.agenda-timeline \.agenda-linha-agora span \{\s*left: -42px;/);
     expect(css).toContain("left: calc(-100% - 2 * var(--calha-das-horas) - var(--trilho-vao));");
     expect(css).toContain("width: calc(100% + var(--calha-das-horas));");
     expect(css).toMatch(/\.agenda-dia-vizinha \.agenda-timeline-scroll \{\s*padding-block: 0;/);
