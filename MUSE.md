@@ -116,10 +116,11 @@ Segredos: a prévia usa exclusivamente `PREVIEW_SUPABASE_URL`, `PREVIEW_SUPABASE
 - O APK de teste é um wrapper **Capacitor 8.6.0**, com identificador separado `dev.flowapp.preview` e nome visível **Flow Teste**.
 - `capacitor.config.json` aponta fixamente para `https://previa.cortaiapp.pages.dev`; não contém URL do site principal nem permite tráfego HTTP sem TLS.
 - Workflow `.github/workflows/android-preview-apk.yml`: dispara quando a configuração Android/workflow muda ou manualmente em Actions. Antes de compilar, espera o workflow `preview-migration.yml` terminar com sucesso para o mesmo commit e valida o marcador exclusivo do deploy.
-- O build recusa qualquer Supabase diferente de `cortai-preview` (`pfkxvindedkuktogbcsv)); usa apenas a URL e a chave publicável desse projeto. Nunca passa service-role ao build Android.
+- O build recusa qualquer Supabase diferente de `cortai-preview` (`pfkxvindedkuktogbcsv`); usa apenas a URL e a chave publicável desse projeto. Nunca passa service-role ao build Android.
 - Gera APK `debug` instalável (não é release assinada para Play Store), usa o ícone oficial `flow-icone-v2.svg` e publica o artefato `flow-android-preview-apk` por 30 dias. A assinatura debug é própria do build e não serve para atualização de uma versão de produção.
 - **Limites:** o app carrega o sistema hospedado na prévia; precisa de internet. Não é um app offline e não inclui backend local. Novas versões web aparecem quando a prévia é publicada novamente; o APK continua apontando para o mesmo ambiente de teste.
 - Estado verificado em 31/10: o workflow de prévia `41159834826` terminou com validação e deploy isolado bem-sucedidos; o projeto `cortai-preview` lista a migração `atualizar_previa_2026_10_31` e contém `horarios_especiais`, `intervalos_agenda_dia`, `pacotes` e `categorias_servicos`. Nenhuma alteração foi feita em `cortai-prod`.
+- APK entregue: run `41161814682` concluído com sucesso; artefato `13027651965` (`flow-android-preview-apk`), expira em 30/11/2026. SHA-256 do APK: `dafb7402b141601e4d817dd1be2679598dfbd718fdedd7c23629e929ce38edee`. Primeira tentativa do SDK corrigida ao pular o pacote legado `tools` e instalar explicitamente os pacotes Android 36.
 
 ## Pendências
 
