@@ -218,8 +218,8 @@ function LoginPage() {
       style={
         {
           "--entrada-fundo": "var(--cartao)",
-          "--entrada-ciano": "var(--figaro-primary)",
-          "--entrada-rosa": "var(--figaro-tertiary)",
+          "--entrada-ciano": "#A8C7FA",
+          "--entrada-rosa": "#F48FB1",
           "--entrada-texto": "var(--paper)",
           "--entrada-suave": "var(--mute)",
           height: "100dvh",
@@ -271,8 +271,8 @@ function LoginPage() {
                 className="entrada-cta w-full"
                 style={{
                   height: 56,
-                  background: "var(--figaro-primary)",
-                  color: "var(--figaro-on-primary)",
+                  background: "linear-gradient(110deg, #A8C7FA 0%, #BB86FC 100%)",
+                  color: "#171923",
                   boxShadow: "none",
                 }}
                 onClick={() => {
@@ -461,7 +461,7 @@ function LoginPage() {
               )}
               {modo === "entrar" && faseLogin === "credencial" ? (
                 <div className="flex items-center justify-between gap-2">
-                  <button type="button" onClick={() => { setFaseLogin("identificar"); setSenha(""); setErro(null); }} className="min-h-11 text-xs font-medium text-[var(--figaro-primary)]">
+                  <button type="button" onClick={() => { setFaseLogin("identificar"); setSenha(""); setErro(null); }} className="min-h-11 text-xs font-medium text-[#A8C7FA]">
                     Trocar e-mail
                   </button>
                   <Link to="/recuperar-senha" className="flex min-h-11 items-center text-xs font-medium text-mute hover:text-paper">
