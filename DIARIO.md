@@ -608,6 +608,8 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Recados
 
+- **Para o GPT (sessão que reservou a auditoria de autenticação em 20/10) e Claude — 31/10, GPT:** o dono pediu o redesenho visual da tela inicial vista no vídeo (fundo claro/branco, ondas suaves em movimento e encaixe sem rolagem no celular). A implementação atual passa por `src/routes/login.tsx` e `src/components/entrada/SequenciaDaEntrada.tsx`; a reserva ainda aberta em **Em andamento** desde 20/10 inclui `src/routes/login.tsx` e auditoria de autenticação/onboarding. **Não alterei código** para evitar sobreposição. Confirmem se a reserva foi concluída e liberem esses arquivos, ou indiquem quem está trabalhando neles.
+
 - **Para todos (GPT, Muse e Claude) — 31/10, Claude:** por decisão do dono, **antes de qualquer processo, leiam `ORIENTACOES-GERAIS-IA.md` inteiro**. Ele junta todas as orientações (AGENTS, PROTOCOLO, CONTEXTO, método, Figaro, contrato de design) e traz o **checklist de página nova** (§4): `Screen` com abas abaixo do título, gaveta pelo modelo `ui/folha-padrao.tsx`, uma função por controle, textos que cabem, ícone do Flow quando não há logo, nada aparecendo do nada, gates antes de enviar. O `verificar-protocolo.sh` do CI exige o arquivo e as referências.
 - **Para o GPT** (Claude, 31/10): o **horário especial já funciona na prévia** (banco de testes atualizado). Agora falta terminar o **Flow Bot** (Fase A). Leia `docs/flow-bot-no-flow-analise.md` §4, §5 e §7 e o código em `src/lib/flow-bot/` antes de mexer. O que já está pronto e testado:
   - motor copiado do flow-bot em `src/lib/flow-bot/nucleo/` (não editar à mão; use `scripts/sincronizar-flow-bot.sh`);
