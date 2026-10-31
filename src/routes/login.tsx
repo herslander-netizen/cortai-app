@@ -362,7 +362,7 @@ function LoginPage() {
                 type="button"
                 variant="primary"
                 size="lg"
-                className="entrada-cta w-full"
+                className="w-full"
                 style={{ height: 56 }}
                 onClick={() => {
                   setModo("criar");
