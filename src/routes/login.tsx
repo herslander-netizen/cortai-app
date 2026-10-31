@@ -1,5 +1,6 @@
 import { createFileRoute, useNavigate, redirect, Link } from "@tanstack/react-router";
 import { useEffect, useState, type CSSProperties } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 
 import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
@@ -19,6 +20,7 @@ import { sincronizarCorDoNavegador } from "@/lib/aparencia";
 import { mensagemDeErroDeAuth } from "@/lib/auth-flow";
 import { SequenciaDaEntrada } from "@/components/entrada/SequenciaDaEntrada";
 import { OndasDaEntrada } from "@/components/entrada/OndasDaEntrada";
+import { CURVA, TEMPO } from "@/lib/movimento-figaro";
 
 export const Route = createFileRoute("/login")({
   ssr: false,
@@ -113,6 +115,10 @@ function MarcaApple() {
 function LoginPage() {
   const navigate = useNavigate();
   const { proximo, aba, erro: erroNaSessao } = Route.useSearch();
+  const reduzirMovimento = useReducedMotion();
+  const transicaoEntrada = reduzirMovimento
+    ? { duration: 0.15, ease: CURVA.rapidaParaLenta }
+    : { duration: TEMPO.trocaCruzada, ease: CURVA.rapidaParaLenta };
   const [modo, setModo] = useState<"entrar" | "criar">(aba === "criar" ? "criar" : "entrar");
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
@@ -239,10 +245,24 @@ function LoginPage() {
           <MarcaFlow variante="escura" className="h-auto w-32" prioridade />
         </div>
 
-        {!mostrarForm ? (
-          <>
-            <SequenciaDaEntrada />
-            <div className="entrada-acoes" style={{ width: "100%", flexShrink: 0 }}>
+        <AnimatePresence mode="wait" initial={false}>
+          {!mostrarForm ? (
+            <motion.div
+              key="vitrine"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={transicaoEntrada}
+              style={{
+                display: "flex",
+                flex: 1,
+                flexDirection: "column",
+                minHeight: 0,
+                width: "100%",
+              }}
+            >
+              <SequenciaDaEntrada />
+              <div className="entrada-acoes" style={{ width: "100%", flexShrink: 0 }}>
               <Button
                 type="button"
                 variant="primary"
@@ -274,20 +294,36 @@ function LoginPage() {
               >
                 Já tem conta? <b>Entrar</b>
               </Button>
-            </div>
-          </>
-        ) : (
-          <div
-            className="entrada-painel"
-            style={{
-              background: "var(--ink2)",
-              border: "1px solid var(--line)",
-              boxShadow: "0 12px 28px color-mix(in oklab, var(--ink) 10%, transparent)",
-              maxHeight: "calc(100dvh - 156px)",
-              overflowY: "auto",
-              overscrollBehavior: "contain",
-            }}
-          >
+              </div>
+            </motion.div>
+          ) : (
+            <motion.div
+              key="formulario"
+              initial={reduzirMovimento ? { opacity: 0 } : { opacity: 0, y: "100%" }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={reduzirMovimento ? { opacity: 0 } : { opacity: 0, y: "100%" }}
+              transition={transicaoEntrada}
+              style={{
+                display: "flex",
+                flex: 1,
+                flexDirection: "column",
+                justifyContent: "flex-end",
+                minHeight: 0,
+                width: "100%",
+              }}
+            >
+              <div
+                className="entrada-painel"
+                style={{
+                  background: "var(--ink2)",
+                  border: "1px solid var(--line)",
+                  boxShadow: "0 12px 28px color-mix(in oklab, var(--ink) 10%, transparent)",
+                  maxHeight: "calc(100dvh - 156px)",
+                  overflowY: "auto",
+                  overscrollBehavior: "contain",
+                  animation: "none",
+                }}
+              >
             <h1 className="mb-4 text-center text-base font-semibold text-mute">
               {modo === "entrar" ? "Entrar" : "Criar conta"}
             </h1>
@@ -437,9 +473,11 @@ function LoginPage() {
               onClick={() => setMostrarForm(false)}
             >
               Ver como o Flow funciona
-            </Button>
-          </div>
-        )}
+              </Button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         <Link
           to="/barbearias"
