@@ -879,6 +879,8 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+### 2026-10-31 UTC — Claude — Fim da lista da Agenda no padrão Figaro
+- Dono (captura): "Mostrar cancelados (1)", "Ver mais dias" e a dica soltos como texto "ficam feios". `ListaPeriodo.tsx`: "Ver mais dias" virou pílula tonal de largura inteira (primaryContainer, seta para baixo), "Mostrar cancelados (n)" virou chip de filtro (`Chip`, olho, "Cancelados · n", marcado enquanto aparecem; aria-label diz mostrar/esconder) e a dica virou legenda discreta com ícone, encurtada para caber numa linha: "Toque no cartão para remarcar ou cancelar". Conferido no navegador a 360 px, escuro e claro. Teste atualizado.
 ### 2026-10-31 UTC — Claude — "Agora" na lista leva ao dia de hoje
 - Dono: "Aperta agora nessa tela sobe para o dia de hoje no topo ou ele aparece no limite que der". Com a lista começando no primeiro dia com atendimento da semana, o "Agora" rolava até o primeiro atendimento (um dia passado). `BotaoAgoraPrincipal.tsx` (`rolarLista`): mira o bloco do dia de hoje (`[data-hoje-dia]` → `.agenda-lista-dia`) e o põe logo abaixo da barra; sem lista suficiente embaixo, o navegador para no limite da rolagem. Sem hoje na lista, cai no primeiro atendimento como antes. Teste novo em `BotaoAgoraPrincipal.test.tsx`.
 ### 2026-10-31 UTC — Claude — Busca e lupa do topo da Agenda

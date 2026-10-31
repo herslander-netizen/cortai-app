@@ -1,9 +1,10 @@
 import { useBuscaDaLista } from "./busca-da-lista";
 import { infiniteQueryOptions, useInfiniteQuery } from "@tanstack/react-query";
-import { CalendarX } from "lucide-react";
+import { CalendarX, ChevronDown, Eye, EyeOff, Hand } from "lucide-react";
 import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { Chip } from "@/components/ui/chip";
 import { useAgora } from "@/hooks/useAgora";
 import { getAgendaPeriodo, type AgendaItem } from "@/lib/barbeiro.functions";
 import { brl } from "@/lib/format";
@@ -310,31 +311,45 @@ export function ListaPeriodo({
         })
       )}
 
-      {cancelados > 0 ? (
-        <Button
-          variant="ghost"
-          className="mt-2 min-h-12 w-full"
-          aria-expanded={comCancelados}
-          onClick={() => setComCancelados((v) => !v)}
-        >
-          {comCancelados ? "Esconder cancelados" : `Mostrar cancelados (${cancelados})`}
-        </Button>
-      ) : null}
+      {/* Fim da lista no padrão Figaro (dono, 31/10: os três textos soltos ficavam feios): a ação principal em pílula
+          tonal, o filtro de cancelados como chip e a dica como legenda discreta. */}
       {hasNextPage ? (
         <Button
-          variant="ghost"
-          className="mt-2 min-h-12 w-full"
+          className="mt-6 min-h-12 w-full rounded-full bg-[var(--figaro-primary-container,var(--ink3))] text-[var(--figaro-on-primary-container,var(--paper))] hover:brightness-110"
           loading={isFetchingNextPage}
           onClick={() => void buscarMais.current()}
         >
+          <ChevronDown aria-hidden />
           Ver mais dias
         </Button>
       ) : null}
       <div ref={fim} aria-hidden />
-      {grupos.length > 0 ? (
-        <p className="mt-3 text-center text-xs text-mute" role="note">
-          Toque no cartão para ver opções, remarcar ou cancelar
-        </p>
+      {cancelados > 0 || grupos.length > 0 ? (
+        <div className="mt-5 flex flex-col items-center gap-3 pb-2">
+          {cancelados > 0 ? (
+            <Chip
+              selecionado={comCancelados}
+              aria-label={
+                comCancelados
+                  ? "Esconder cancelados"
+                  : `Mostrar ${cancelados} ${cancelados === 1 ? "cancelado" : "cancelados"}`
+              }
+              onClick={() => setComCancelados((v) => !v)}
+            >
+              {comCancelados ? <EyeOff aria-hidden /> : <Eye aria-hidden />}
+              Cancelados · {cancelados}
+            </Chip>
+          ) : null}
+          {grupos.length > 0 ? (
+            <p
+              className="flex items-center gap-1.5 text-[12px] leading-4 text-[var(--figaro-hint,var(--mute))]"
+              role="note"
+            >
+              <Hand aria-hidden className="size-3.5 shrink-0" />
+              Toque no cartão para remarcar ou cancelar
+            </p>
+          ) : null}
+        </div>
       ) : null}
     </div>
   );

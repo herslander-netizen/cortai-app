@@ -76,9 +76,13 @@ describe("modo lista no celular", () => {
   });
 
   it("cancelados continuam recolhidos e os cartões não mostram ações inline", () => {
-    expect(lista).toContain("Mostrar cancelados");
+    // Fim da lista no padrão Figaro (31/10): filtro de cancelados como chip, "Ver mais dias" em pílula tonal.
+    expect(lista).toContain("<Chip");
+    expect(lista).toContain("Cancelados · {cancelados}");
+    expect(lista).toContain("Esconder cancelados");
+    expect(lista).toMatch(/rounded-full bg-\[var\(--figaro-primary-container/);
     expect(lista).not.toContain("<AcoesDoItem");
-    expect(lista).toContain("Toque no cartão para ver opções, remarcar ou cancelar");
+    expect(lista).toContain("Toque no cartão para remarcar ou cancelar");
   });
 
   it("o marcador Hoje é o selo azul do Figaro (par actionBlue/onActionBlue, contraste nos dois temas)", () => {
