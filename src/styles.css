@@ -11340,3 +11340,24 @@ html[data-teclado-aberto] .agenda-acao-fixa {
     opacity: 1;
   }
 }
+
+/* Papéis do Figaro em todo o Flow, fora da Agenda (dono, 31/10: "aplicar todas no Flow com a lógica delas"):
+   painel elevado = surfaceContainer (no escuro era igual ao fundo e sumia) e fundos de toque/realce =
+   surfaceContainerHigh. Ficam de propósito: texto auxiliar (`--mute`), porque o onSurfaceHint do Figaro dá 3,3:1 a
+   3,8:1 e a regra é 4,5:1 no texto; divisórias (`--line`), porque o `outlineVariant` é amarronzado e o dono pediu
+   linhas sem marrom (26/10). A Agenda é protegida
+   (`data-tela-agenda`) e continua com os próprios valores. `html:root` vence os blocos de identidade. */
+html:root:not([data-tela-agenda]) {
+  --ink3: var(--figaro-surface-container);
+  --painel: var(--figaro-surface-container);
+  --accent: var(--figaro-surface-container-high);
+  --secondary: var(--figaro-surface-container-high);
+  --muted: var(--figaro-surface-container-high);
+}
+html:root.light:not([data-tela-agenda]) {
+  --ink3: var(--figaro-surface-container-low);
+  --painel: var(--figaro-surface-container-low);
+  --accent: var(--figaro-surface-container-high);
+  --secondary: var(--figaro-surface-container-high);
+  --muted: var(--figaro-surface-container-high);
+}

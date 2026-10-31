@@ -209,7 +209,7 @@ function ProfissionaisPage() {
         })}
       </ul>
 
-      {erroAvatar ? <p role="alert" className="mt-3 text-sm text-red-400">{erroAvatar}</p> : null}
+      {erroAvatar ? <p role="alert" className="mt-3 text-sm text-[var(--figaro-error,var(--brick))]">{erroAvatar}</p> : null}
       <input
         ref={avatarInput}
         type="file"
