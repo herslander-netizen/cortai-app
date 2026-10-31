@@ -115,21 +115,27 @@ describe("SequenciaDaEntrada", () => {
     const alvo = await montar();
     const demo = alvo.querySelector<HTMLElement>(".entrada-cartao-demo");
     const legenda = alvo.querySelector<HTMLElement>(".entrada-cartao-legenda");
-    const aparelho = alvo.querySelector<HTMLElement>(".entrada-demo");
-    const diaAtivo = alvo.querySelector<HTMLElement>(".ed-agendar-dias [data-ativo]");
-    const horarioAtivo = alvo.querySelector<HTMLElement>(".ed-agendar-horas [data-alvo]");
     const siteCapa = alvo.querySelector<HTMLElement>(".ed-site-capa");
 
     expect(demo?.style.height).toBe("clamp(144px, 25svh, 212px)");
     expect(demo?.style.overflow).toBe("hidden");
     expect(legenda?.style.minHeight).toBe("0px");
+    expect(siteCapa?.style.height).toBe("64px");
+    expect(alvo.querySelector(".entrada-cartao")?.getAttribute("style")).toContain("var(--elevacao-2)");
+
+    const abaAgendar = [...alvo.querySelectorAll<HTMLButtonElement>('[role="tab"]')].find((aba) =>
+      aba.textContent?.includes("Agendar"),
+    );
+    await act(async () => abaAgendar?.click());
+
+    const aparelho = alvo.querySelector<HTMLElement>(".entrada-demo");
+    const diaAtivo = alvo.querySelector<HTMLElement>(".ed-agendar-dias [data-ativo]");
+    const horarioAtivo = alvo.querySelector<HTMLElement>(".ed-agendar-horas [data-alvo]");
     expect(aparelho?.style.background).toBe("var(--figaro-primary)");
     expect(aparelho?.style.color).toBe("var(--figaro-on-primary)");
     expect(aparelho?.style.overflow).toBe("hidden");
     expect(diaAtivo?.style.background).toBe("var(--figaro-primary-container)");
     expect(diaAtivo?.style.color).toBe("var(--figaro-on-primary-container)");
     expect(horarioAtivo?.style.background).toBe("var(--figaro-tertiary)");
-    expect(siteCapa?.style.height).toBe("64px");
-    expect(alvo.querySelector(".entrada-cartao")?.getAttribute("style")).toContain("var(--elevacao-2)");
   });
 });
