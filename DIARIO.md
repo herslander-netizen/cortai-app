@@ -27,6 +27,7 @@ e o que fez. O diário até 17/10/2026 está guardado, sem alterações, em
 7. **Sem segredos:** nunca escreva chaves, senhas ou tokens aqui. Cite só o nome da variável.
 
 ## Decisões do dono
+- 2026-10-31: **Redesign visual do login Flow sem alterar funcionalidades de autenticação**: preservar a identidade Flow e adaptar apresentação, transições e movimento; manter login por e-mail/senha, cadastro, Google/Apple, recuperação e redirecionamentos existentes. Não adicionar PIN/OTP/WhatsApp nem mudar backend/provedores.
 - 2026-10-31: **Entrada móvel no estilo da referência enviada**: cartão de demonstração alto e vertical, com a demonstração na parte superior e legenda categorizada dentro do mesmo cartão, abaixo de um divisor; indicadores por ícone e ações ancoradas no rodapé. Não impor proporção 9:16 ao cartão nem à área da demonstração.
 - 2026-10-31: **Ajustar fotos e capas em todo o sistema** ("redimensionar para deixar a foto da maneira que a pessoa quer e não forçar a foto estática"; escopo "todo sistema", inclusive Agenda e logo): ao escolher foto de perfil, logo, capa ou foto de serviço/produto, a pessoa dá zoom e arrasta para mostrar a parte que quer.
 - 2026-10-31: **Remover horário especial continua pedindo confirmação**, agora com o aviso de que a ação não pode ser desfeita ("junto com o arrependimento": se mudar de ideia, criar de novo). Dono escolheu isso em vez do Desfazer de 5 s que foi sugerido.
@@ -544,7 +545,7 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Em andamento
 
-- GPT | 2026-10-31 UTC | Adaptar o fluxo completo de entrada e login `/login` à especificação de Landing progressiva, transição e autenticação em fases, preservando identidade Flow, componentes Figaro e regras existentes; sem alterar provedores, backend, textos de produto além dos já especificados ou Agenda | `src/routes/login.tsx`, `src/components/entrada/*`, componentes e testes de acesso diretamente usados pelo login; sem migração
+- GPT | 2026-10-31 UTC | Adaptar visualmente a entrada e o login `/login` à especificação de landing, movimento e transições, preservando identidade Flow e todas as funcionalidades atuais de autenticação; sem PIN/OTP, novos provedores, backend, regra de negócio ou Agenda | `src/routes/login.tsx`, `src/components/entrada/*` e testes diretamente usados pelo login; sem migração
 
 
 
