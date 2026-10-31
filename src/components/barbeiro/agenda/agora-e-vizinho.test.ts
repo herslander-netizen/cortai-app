@@ -40,3 +40,24 @@ describe("linha agora, pontos e dia vizinho no padrão do Figaro (vídeo e fotos
     );
   });
 });
+
+describe("busca da lista no topo da Agenda (captura do dono, 31/10)", () => {
+  it("texto de exemplo curto, sem corte no celular; a descrição completa fica no aria-label", () => {
+    const cabecalho = readFileSync(resolve(__dirname, "CabecalhoAgenda.tsx"), "utf8");
+    expect(cabecalho).toContain('placeholder="Buscar cliente"');
+    expect(cabecalho).not.toContain('placeholder="Buscar cliente, telefone ou serviço"');
+    expect(cabecalho).toContain(
+      'aria-label="Buscar atendimento por cliente, telefone, serviço ou profissional"',
+    );
+  });
+});
+
+describe("lupa do topo da Agenda (dono, 31/10)", () => {
+  it("na mesma cor e tamanho do calendário e do sino, não no tom rosado", () => {
+    const cabecalho = readFileSync(resolve(__dirname, "CabecalhoAgenda.tsx"), "utf8");
+    expect(cabecalho).toContain(
+      'className="!size-[27px] text-[var(--figaro-on-surface,var(--paper))]"',
+    );
+    expect(cabecalho).not.toContain("size-9 text-[var(--figaro-on-surface-variant");
+  });
+});

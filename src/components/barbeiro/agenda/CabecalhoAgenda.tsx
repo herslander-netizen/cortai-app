@@ -75,8 +75,10 @@ function PainelDeBusca() {
         onKeyDown={(e) => {
           if (e.key === "Escape") buscaDaLista.fechar();
         }}
-        placeholder="Buscar cliente, telefone ou serviço"
-        aria-label="Buscar atendimento"
+        // Curto para caber no celular (o longo aparecia cortado: "Buscar cliente, tele", captura do dono, 31/10). A busca
+        // continua achando cliente, telefone, serviço e profissional; a descrição completa fica para leitores de tela.
+        placeholder="Buscar cliente"
+        aria-label="Buscar atendimento por cliente, telefone, serviço ou profissional"
         className="h-12 min-w-0 flex-1 bg-transparent text-base text-paper outline-none placeholder:text-mute"
       />
       <Button
@@ -312,9 +314,10 @@ export function CabecalhoAgenda({
               transition={MOLA.rapidaEspacial}
               className="inline-flex"
             >
+              {/* Mesma cor e tamanho do calendário e do sino ao lado (dono, 31/10: "a lupa está rosa"). */}
               <Search
-                className="size-9 text-[var(--figaro-on-surface-variant,var(--mute))]"
-                strokeWidth={1.8}
+                className="!size-[27px] text-[var(--figaro-on-surface,var(--paper))]"
+                strokeWidth={1.6}
                 aria-hidden
               />
             </motion.span>

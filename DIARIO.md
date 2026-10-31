@@ -879,6 +879,9 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+### 2026-10-31 UTC — Claude — Busca e lupa do topo da Agenda
+- Captura do dono: o texto de exemplo da busca aparecia cortado ("Buscar cliente, tele"). Agora "Buscar cliente"; a descrição completa (cliente, telefone, serviço ou profissional) fica no `aria-label`. A busca continua igual.
+- "A lupa está rosa": usava `on-surface-variant` (#D7C7C2) e 36 px. Agora `on-surface` e 27 px, como o calendário e o sino. `CabecalhoAgenda.tsx`; testes em `agora-e-vizinho.test.ts`. `tsc`, `vitest`, `build` OK.
 ### 2026-10-31 UTC — Claude — Lista da Agenda com as cores de texto do Figaro
 - Foto da lista do Figaro amostrada: data/hora/título #DEE8E1 (onSurface); dia da semana, total, duração, cliente, serviço, "Livre", "Nada marcado" e ícone #D7C7C2 (onSurfaceVariant); bolinha separadora a 60 %; hoje em azul (já era). No Flow o secundário herdava `--mute` (#B9C2BC, cinza esverdeado).
 - `styles.css` (bloco no fim): cores por papel nas classes `agenda-lista-*`. No claro o onSurfaceVariant do Figaro (#7B7977) dá 3,8:1–4,3:1, abaixo dos 4,5:1: lá o secundário fica no cinza atual. Teste em `agora-e-vizinho.test.ts`.
