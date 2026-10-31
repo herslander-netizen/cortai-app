@@ -1,5 +1,5 @@
 import { ConteudoDoTicket } from "@/components/comanda/FolhaDoTicket";
-import { ArrowLeft, FileText } from "lucide-react";
+import { ArrowLeft, ArrowRight, FileText } from "lucide-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { invalidarComandas, ROTULO_DA_ETAPA_EQUIPE } from "@/lib/comanda-ticket";
 import {
@@ -31,6 +31,7 @@ import {
 import { useEffect, useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { Chip } from "@/components/ui/chip";
 import { StatusBadge } from "@/components/ui/badge";
 import { FotoDoCorte } from "@/components/cliente-perfil/FotoDoCorte";
 import { brl, hora } from "@/lib/format";
@@ -99,7 +100,12 @@ export function FechamentoComanda({
   const pagarPlano = useServerFn(pagarComPlano);
   const sugerir = useServerFn(getSugestaoRetorno);
   const marcar = useServerFn(criarRetorno);
-  const [etapa, setEtapa] = useState<"itens" | "pix" | "retorno">("itens");
+  // Como no Figaro (vídeo do dono, 31/10): "itens" é o checkout (revisar a conta) e "forma" é escolher a forma e
+  // confirmar. Antes um toque no botão da forma já registrava o pagamento.
+  const [etapa, setEtapa] = useState<"itens" | "forma" | "pix" | "retorno">("itens");
+  const [forma, setForma] = useState<Forma | "plano" | null>(null);
+  const [recebido, setRecebido] = useState("");
+  const [adicionando, setAdicionando] = useState<"servico" | "produto" | null>(null);
   const query = useQuery({
     queryKey: ["fechamento-comanda", agendamentoId],
     queryFn: () => buscar({ data: { agendamentoId } }),
@@ -147,7 +153,7 @@ export function FechamentoComanda({
   const pixInformado = statusComanda === "aguardando_confirmacao_pix";
   // Comanda reaberta já aguardando Pix: volta direto para a conferência, sem refazer a escolha.
   useEffect(() => {
-    if (etapa !== "itens") return;
+    if (etapa !== "itens" && etapa !== "forma") return;
     if (pixInformado || (statusComanda === "aguardando_pagamento" && formaEscolhida === "pix"))
       setEtapa("pix");
   }, [etapa, pixInformado, statusComanda, formaEscolhida]);
@@ -273,48 +279,96 @@ export function FechamentoComanda({
   const mensagem = d
     ? `Olá! Segue o comprovante Pix de ${d.comanda.clientes?.nome ?? "cliente"}, ${itens.map((i) => i.descricao).join(" + ")}, ${d.comanda.agendamentos?.inicio ? `${hora(d.comanda.agendamentos.inicio)}, ` : ""}${brl(total)}, comanda #${d.comanda.numero}.`
     : "";
-  const botaoForma = (forma: Forma, rotulo: string, Icone: typeof Banknote) => (
-    <Button
-      key={forma}
-      variant="secondary"
-      className="h-14 flex-col gap-1 px-1 text-xs"
-      loading={ocupado === forma}
-      disabled={Boolean(ocupado) || !itens.length}
-      onClick={() => receber(forma)}
-    >
-      <Icone aria-hidden className="size-5" />
-      {ocupado === forma ? "…" : rotulo}
-    </Button>
-  );
+  const formas: Array<{
+    v: Forma | "plano";
+    rotulo: string;
+    Icone: typeof Banknote;
+    detalhe?: string;
+  }> = [
+    ...(planoDisponivel
+      ? [
+          {
+            v: "plano" as const,
+            rotulo: "Plano do cliente",
+            Icone: Ticket,
+            detalhe: "Usa os créditos do plano",
+          },
+        ]
+      : []),
+    { v: "dinheiro", rotulo: "Dinheiro", Icone: Banknote },
+    { v: "pix", rotulo: "Pix", Icone: QrCode },
+    { v: "cartao", rotulo: "Cartão", Icone: CreditCard },
+    ...(fiadoDisponivel ? [{ v: "fiado" as const, rotulo: "Fiado", Icone: Wallet }] : []),
+  ];
+  const recebidoCentavos = Math.round(Number(recebido.replace(",", ".") || 0) * 100);
+  const troco = forma === "dinheiro" && recebidoCentavos > total ? recebidoCentavos - total : 0;
+  const confirmarForma = () => {
+    if (forma === "plano") void usarPlano();
+    else if (forma) void receber(forma);
+  };
+  const iniciais = (nome: string | undefined) =>
+    (nome ?? "?")
+      .split(/\s+/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((p) => p[0]!.toUpperCase())
+      .join("");
+  /** Linhas agrupadas do Figaro: 20 px nas pontas do grupo, 4 px no meio. */
+  const forma_da_linha = (i: number, total_: number) =>
+    total_ <= 1
+      ? "rounded-[20px]"
+      : i === 0
+        ? "rounded-t-[20px] rounded-b-[4px]"
+        : i === total_ - 1
+          ? "rounded-b-[20px] rounded-t-[4px]"
+          : "rounded-[4px]";
+  const cartao = "bg-[var(--figaro-card-tile,var(--ink2))]";
+  const rotuloSecao = "mb-2 mt-5 px-1 text-[13px] font-semibold text-mute";
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end bg-overlay/70 pt-[env(safe-area-inset-top)] md:items-center md:justify-center"
+      className="fixed inset-0 z-50 flex items-end bg-[rgb(0_0_0/0.32)] pt-[env(safe-area-inset-top)] md:items-center md:justify-center"
       role="dialog"
       aria-modal="true"
       aria-label="Fechar comanda"
     >
       <div className="max-h-[94dvh] w-full overflow-y-auto overscroll-contain rounded-t-2xl border border-line bg-ink px-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] pt-5 md:max-w-xl md:rounded-xl">
         <div className="sticky -top-5 z-10 -mx-5 flex items-start justify-between gap-4 bg-ink px-5 pb-4 pt-5 -mt-5">
-          {verTicket ? (
+          {verTicket || etapa === "forma" ? (
             <Button
               variant="ghost"
               size="icon"
-              aria-label="Voltar para o pagamento"
-              onClick={() => setVerTicket(false)}
+              aria-label={verTicket ? "Voltar para o pagamento" : "Voltar para o checkout"}
+              onClick={() => (verTicket ? setVerTicket(false) : setEtapa("itens"))}
             >
               <ArrowLeft />
             </Button>
           ) : null}
           <div className="min-w-0 flex-1">
-            <p className="text-xs font-semibold uppercase text-mute">
-              Comanda{d ? ` #${d.comanda.numero}` : ""}
-            </p>
-            <h2 className="mt-1 truncate text-xl font-bold text-paper">
-              {d?.comanda.clientes?.nome ?? "Comanda"}
+            <h2 className="truncate text-xl font-bold text-paper">
+              {etapa === "forma"
+                ? "Pagamento"
+                : etapa === "itens"
+                  ? "Checkout"
+                  : (d?.comanda.clientes?.nome ?? "Comanda")}
             </h2>
-            <p className="text-xs text-mute">{d?.comanda.profissionais?.nome ?? "Profissional"}</p>
+            <p className="text-xs text-mute">
+              Comanda{d ? ` #${d.comanda.numero}` : ""}
+              {etapa === "itens" || etapa === "forma"
+                ? ""
+                : ` · ${d?.comanda.profissionais?.nome ?? "Profissional"}`}
+            </p>
           </div>
+          {comandaId && (etapa === "itens" || etapa === "forma") && !verTicket ? (
+            <Button
+              variant="ghost"
+              size="icon"
+              aria-label="Ver comanda"
+              onClick={() => setVerTicket(true)}
+            >
+              <FileText />
+            </Button>
+          ) : null}
           <Button variant="ghost" size="icon" aria-label="Fechar" onClick={onFechar}>
             <X />
           </Button>
@@ -337,44 +391,134 @@ export function FechamentoComanda({
                   await query.refetch();
                 }}
               />
-            ) : null}
-            <ul className="divide-y divide-line border-y border-line">
+            ) : (
+              <>
+                <p className={rotuloSecao}>Cliente</p>
+                <div
+                  className={`flex min-h-14 items-center gap-3 px-4 py-2 ${cartao} rounded-[20px]`}
+                >
+                  <span
+                    aria-hidden
+                    className="grid size-9 shrink-0 place-items-center rounded-full bg-[var(--figaro-surface-container-highest,var(--ink3))] text-sm font-semibold text-paper"
+                  >
+                    {iniciais(d.comanda.clientes?.nome)}
+                  </span>
+                  <span className="truncate text-[15px] font-medium text-paper">
+                    {d.comanda.clientes?.nome ?? "Cliente"}
+                  </span>
+                </div>
+              </>
+            )}
+
+            <p className={rotuloSecao}>Itens</p>
+            <ul className="grid gap-[2px]">
               {itens.map((item, index) => (
                 <li
                   key={`${item.tipo}-${item.id}`}
-                  className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 py-3"
+                  className={`grid grid-cols-[36px_minmax(0,1fr)_auto] items-center gap-3 px-4 py-3 ${cartao} ${forma_da_linha(index, itens.length)}`}
                 >
+                  <span
+                    aria-hidden
+                    className="grid size-9 place-items-center rounded-full bg-[var(--figaro-surface-container-highest,var(--ink3))] text-xs font-semibold text-paper"
+                  >
+                    {item.tipo === "servico"
+                      ? iniciais(d.comanda.profissionais?.nome)
+                      : iniciais(item.descricao)}
+                  </span>
                   <div className="min-w-0">
-                    <p className="truncate text-sm font-semibold text-paper">{item.descricao}</p>
-                    <p className="mt-0.5 text-xs text-mute">{brl(item.valor_unitario_centavos)}</p>
+                    <p className="truncate text-[15px] font-semibold text-paper">
+                      {item.descricao}
+                    </p>
+                    <p className="mt-0.5 truncate text-xs text-mute">
+                      {item.tipo === "servico"
+                        ? (d.comanda.profissionais?.nome ?? "Serviço")
+                        : "Produto"}
+                      {item.quantidade > 1
+                        ? ` · ${item.quantidade}× ${brl(item.valor_unitario_centavos)}`
+                        : ""}
+                    </p>
                   </div>
-                  <div className="flex items-center gap-1">
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      aria-label={`Remover um ${item.descricao}`}
-                      onClick={() => alterar(index, -1)}
-                    >
-                      <Minus />
-                    </Button>
-                    <span className="w-5 text-center text-sm font-semibold text-paper">
-                      {item.quantidade}
+                  <div className="flex flex-col items-end gap-1">
+                    <span className="money-value text-[15px] font-semibold text-paper">
+                      {brl(item.quantidade * item.valor_unitario_centavos)}
                     </span>
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      aria-label={`Adicionar um ${item.descricao}`}
-                      onClick={() => alterar(index, 1)}
-                    >
-                      <Plus />
-                    </Button>
+                    <span className="flex items-center rounded-full bg-[var(--figaro-surface-container-highest,var(--ink3))]">
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className="size-8 rounded-full [&_svg]:size-3.5"
+                        aria-label={`Remover um ${item.descricao}`}
+                        onClick={() => alterar(index, -1)}
+                      >
+                        <Minus />
+                      </Button>
+                      <span className="w-5 text-center text-xs font-semibold tabular-nums text-paper">
+                        {item.quantidade}
+                      </span>
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className="size-8 rounded-full [&_svg]:size-3.5"
+                        aria-label={`Adicionar um ${item.descricao}`}
+                        onClick={() => alterar(index, 1)}
+                      >
+                        <Plus />
+                      </Button>
+                    </span>
                   </div>
                 </li>
               ))}
             </ul>
+
+            <div className="mt-3 grid grid-cols-2 gap-2">
+              {(["servico", "produto"] as const).map((tipo) => (
+                <Button
+                  key={tipo}
+                  type="button"
+                  size="sm"
+                  aria-expanded={adicionando === tipo}
+                  aria-label={tipo === "servico" ? "Adicionar serviço" : "Adicionar produto"}
+                  onClick={() => setAdicionando((a) => (a === tipo ? null : tipo))}
+                  className="rounded-full bg-[var(--figaro-primary-container,var(--ink3))] text-[var(--figaro-on-primary-container,var(--paper))] hover:brightness-105"
+                >
+                  <Plus aria-hidden />
+                  {tipo === "servico" ? "Serviço" : "Produto"}
+                </Button>
+              ))}
+            </div>
+            {adicionando ? (
+              <ul className="mt-2 grid max-h-64 gap-[2px] overflow-y-auto">
+                {(adicionando === "servico" ? d.servicos : d.produtos).map(
+                  (x: ServicoDoCatalogo | ProdutoDoCatalogo, i: number, todos: unknown[]) => {
+                    const semEstoque =
+                      adicionando === "produto" &&
+                      (x as ProdutoDoCatalogo).controla_estoque &&
+                      (x as ProdutoDoCatalogo).quantidade < 1;
+                    return (
+                      <li key={x.id}>
+                        <button
+                          type="button"
+                          disabled={semEstoque}
+                          onClick={() => {
+                            adicionar(adicionando, x.id);
+                            setAdicionando(null);
+                          }}
+                          className={`flex min-h-12 w-full items-center justify-between gap-3 px-4 text-left text-sm text-paper disabled:opacity-40 ${cartao} ${forma_da_linha(i, todos.length)}`}
+                        >
+                          <span className="truncate">{x.nome}</span>
+                          <span className="money-value shrink-0 text-mute">
+                            {semEstoque ? "Sem estoque" : brl(x.preco_centavos)}
+                          </span>
+                        </button>
+                      </li>
+                    );
+                  },
+                )}
+              </ul>
+            ) : null}
             {atalhos.length ? (
               <div className="mt-4">
-                <p className="text-xs font-semibold text-mute">Mais vendidos</p>
+                <p className="px-1 text-[13px] font-semibold text-mute">Mais vendidos</p>
                 <div className="mt-2 flex flex-wrap gap-2">
                   {atalhos.map((p) => (
                     <Button
@@ -394,116 +538,189 @@ export function FechamentoComanda({
                 </div>
               </div>
             ) : null}
-            <div className="mt-4 grid grid-cols-2 gap-3">
-              <label className="text-xs text-mute">
-                Outro serviço
-                <select
-                  className="field-control"
-                  value=""
-                  onChange={(e) => {
-                    if (e.target.value) adicionar("servico", e.target.value);
-                  }}
-                >
-                  <option value="">Escolher</option>
-                  {d.servicos.map((s: ServicoDoCatalogo) => (
-                    <option key={s.id} value={s.id}>
-                      {s.nome}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label className="text-xs text-mute">
-                Outro produto
-                <select
-                  className="field-control"
-                  value=""
-                  onChange={(e) => {
-                    if (e.target.value) adicionar("produto", e.target.value);
-                  }}
-                >
-                  <option value="">Escolher</option>
-                  {d.produtos.map((p: ProdutoDoCatalogo) => (
-                    <option
-                      key={p.id}
-                      value={p.id}
-                      disabled={p.controla_estoque && p.quantidade < 1}
-                    >
-                      {p.nome}
-                    </option>
-                  ))}
-                </select>
-              </label>
-            </div>
-            {verDesconto ? (
-              <label className="mt-4 block text-xs text-mute">
-                Desconto (R$)
-                <input
-                  className="field-control"
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  inputMode="decimal"
-                  value={desconto}
-                  onChange={(e) => setDesconto(e.target.value)}
-                  placeholder="0,00"
-                  autoFocus
-                />
-              </label>
-            ) : (
-              <Button
-                variant="link"
-                size="sm"
-                className="mt-2 px-0 text-xs"
-                onClick={() => setVerDesconto(true)}
-              >
-                Aplicar desconto
-              </Button>
-            )}
-            <div className="mt-3 flex items-baseline justify-between border-t border-line pt-4">
-              <span className="text-sm text-mute">
-                {descontoCentavos ? `Total (− ${brl(descontoCentavos)})` : "Total"}
-              </span>
-              <span className="money-value text-2xl text-paper">{brl(total)}</span>
-            </div>
 
-            {d.podeReceber ? (
-              <div className="mt-4 space-y-2">
-                {planoDisponivel ? (
-                  <Button
-                    size="lg"
-                    className="w-full"
-                    loading={ocupado === "plano"}
-                    disabled={Boolean(ocupado)}
-                    onClick={usarPlano}
-                  >
-                    <Ticket aria-hidden />
-                    {ocupado === "plano" ? "Usando plano…" : "Usar plano"}
-                  </Button>
-                ) : null}
-                <div className={`grid gap-2 ${fiadoDisponivel ? "grid-cols-4" : "grid-cols-3"}`}>
-                  {botaoForma("pix", "Pix", QrCode)}
-                  {botaoForma("cartao", "Cartão", CreditCard)}
-                  {botaoForma("dinheiro", "Dinheiro", Banknote)}
-                  {fiadoDisponivel ? botaoForma("fiado", "Fiado", Wallet) : null}
-                </div>
+            {/* Rodapé do Figaro: valores e a ação principal em pílula, presos embaixo. */}
+            <div className="sticky -bottom-[calc(1.25rem+env(safe-area-inset-bottom))] -mx-5 mt-6 border-t border-line bg-ink px-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] pt-3">
+              <div className="flex items-baseline justify-between text-xs text-mute">
+                <span>Valor dos itens</span>
+                <span className="money-value">{brl(subtotal)}</span>
               </div>
-            ) : (
-              <div className="mt-4">
+              {verDesconto ? (
+                <label className="mt-2 flex items-center justify-between gap-3 text-xs text-mute">
+                  Desconto (R$)
+                  <input
+                    className="field-control h-10 max-w-[140px] text-right"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    inputMode="decimal"
+                    value={desconto}
+                    onChange={(e) => setDesconto(e.target.value)}
+                    placeholder="0,00"
+                    autoFocus
+                  />
+                </label>
+              ) : (
+                <div className="mt-1 flex items-baseline justify-between text-xs text-mute">
+                  <span>Desconto sobre o total</span>
+                  <Button
+                    variant="link"
+                    size="sm"
+                    className="h-auto px-0 text-xs text-primary"
+                    onClick={() => setVerDesconto(true)}
+                  >
+                    Adicionar desconto
+                  </Button>
+                </div>
+              )}
+              {erro ? (
+                <p className="mt-3 rounded-md bg-brick px-3 py-2 text-sm text-ink" role="alert">
+                  {erro}
+                </p>
+              ) : null}
+              <div className="mt-2 flex items-baseline justify-between">
+                <span className="text-sm font-semibold text-paper">Total a cobrar</span>
+                <span className="money-value text-xl font-bold text-paper">{brl(total)}</span>
+              </div>
+              {d.podeReceber ? (
                 <Button
                   size="lg"
-                  className="w-full"
-                  loading={ocupado === "recepcao"}
+                  className="mt-3 h-14 w-full rounded-full"
                   disabled={Boolean(ocupado) || !itens.length}
-                  onClick={paraRecepcao}
+                  onClick={() => {
+                    setErro(null);
+                    setEtapa("forma");
+                  }}
                 >
-                  <Send aria-hidden />
-                  {ocupado === "recepcao" ? "Enviando…" : "Enviar para a recepção"}
+                  <ArrowRight aria-hidden />
+                  Escolher pagamento
                 </Button>
-                <p className="mt-2 text-center text-xs text-mute">
-                  A comanda fica aguardando pagamento na recepção.
-                </p>
+              ) : (
+                <>
+                  <Button
+                    size="lg"
+                    className="mt-3 h-14 w-full rounded-full"
+                    loading={ocupado === "recepcao"}
+                    disabled={Boolean(ocupado) || !itens.length}
+                    onClick={paraRecepcao}
+                  >
+                    <Send aria-hidden />
+                    {ocupado === "recepcao" ? "Enviando…" : "Enviar para a recepção"}
+                  </Button>
+                  <p className="mt-2 text-center text-xs text-mute">
+                    A comanda fica aguardando pagamento na recepção.
+                  </p>
+                </>
+              )}
+            </div>
+          </>
+        ) : null}
+
+        {d && etapa === "forma" && !verTicket ? (
+          <>
+            <p className={rotuloSecao}>Forma de pagamento</p>
+            <div role="radiogroup" aria-label="Forma de pagamento" className="grid gap-[2px]">
+              {formas.map(({ v, rotulo, Icone, detalhe }, i) => {
+                const marcada = forma === v;
+                return (
+                  <div key={v} className={`${cartao} ${forma_da_linha(i, formas.length)}`}>
+                    <button
+                      type="button"
+                      role="radio"
+                      aria-checked={marcada}
+                      onClick={() => setForma(v)}
+                      className="flex min-h-14 w-full items-center gap-3 px-4 text-left"
+                    >
+                      <Icone aria-hidden className="size-5 shrink-0 text-paper" />
+                      <span className="min-w-0 flex-1">
+                        <span className="block text-[15px] font-medium text-paper">{rotulo}</span>
+                        {detalhe ? (
+                          <span className="block text-xs text-mute">{detalhe}</span>
+                        ) : null}
+                      </span>
+                      <span
+                        aria-hidden
+                        className={`grid size-5 shrink-0 place-items-center rounded-full border-2 ${marcada ? "border-primary bg-primary text-primary-foreground" : "border-[var(--figaro-outline,var(--line2))]"}`}
+                      >
+                        {marcada ? <Check className="size-3" strokeWidth={3} /> : null}
+                      </span>
+                    </button>
+                    {marcada && v === "dinheiro" ? (
+                      <div className="px-4 pb-4">
+                        <div className="flex flex-wrap gap-2">
+                          {[
+                            { rotulo: "Valor exato", centavos: total },
+                            ...[10000, 20000]
+                              .filter((c) => c > total)
+                              .map((c) => ({ rotulo: `R$ ${c / 100}`, centavos: c })),
+                          ].map((op) => (
+                            <Chip
+                              key={op.rotulo}
+                              selecionado={recebidoCentavos === op.centavos}
+                              onClick={() =>
+                                setRecebido((op.centavos / 100).toFixed(2).replace(".", ","))
+                              }
+                            >
+                              {op.rotulo}
+                            </Chip>
+                          ))}
+                        </div>
+                        <label className="mt-3 block text-xs text-mute">
+                          <span className="sr-only">Valor recebido</span>
+                          <input
+                            className="field-control"
+                            type="text"
+                            inputMode="decimal"
+                            value={recebido}
+                            onChange={(e) => setRecebido(e.target.value)}
+                            placeholder="Valor recebido"
+                          />
+                        </label>
+                        {troco ? (
+                          <p className="mt-2 text-sm font-semibold text-paper">
+                            Troco: <span className="money-value">{brl(troco)}</span>
+                          </p>
+                        ) : null}
+                      </div>
+                    ) : null}
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="sticky -bottom-[calc(1.25rem+env(safe-area-inset-bottom))] -mx-5 mt-6 border-t border-line bg-ink px-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] pt-3">
+              <div className="flex items-baseline justify-between text-xs text-mute">
+                <span>Valor dos itens</span>
+                <span className="money-value">{brl(subtotal)}</span>
               </div>
-            )}
+              {descontoCentavos ? (
+                <div className="mt-1 flex items-baseline justify-between text-xs text-mute">
+                  <span>Desconto</span>
+                  <span className="money-value">− {brl(descontoCentavos)}</span>
+                </div>
+              ) : null}
+              {erro ? (
+                <p className="mt-3 rounded-md bg-brick px-3 py-2 text-sm text-ink" role="alert">
+                  {erro}
+                </p>
+              ) : null}
+              <div className="mt-2 flex items-baseline justify-between">
+                <span className="text-sm font-semibold text-paper">Total a cobrar</span>
+                <span className="money-value text-xl font-bold text-paper">{brl(total)}</span>
+              </div>
+              <Button
+                size="lg"
+                className="mt-3 h-14 w-full rounded-full"
+                loading={Boolean(ocupado)}
+                disabled={!forma || Boolean(ocupado) || !itens.length}
+                onClick={confirmarForma}
+              >
+                <Check aria-hidden />
+                {forma === "pix" && d.config?.pix_ativo && d.config.pix_chave
+                  ? "Gerar cobrança Pix"
+                  : "Confirmar pagamento"}
+              </Button>
+            </div>
           </>
         ) : null}
 
@@ -599,7 +816,7 @@ export function FechamentoComanda({
           </div>
         ) : null}
 
-        {comandaId && etapa !== "retorno" && !verTicket ? (
+        {comandaId && etapa === "pix" && !verTicket ? (
           <Button
             variant="ghost"
             className="mt-4 h-12 w-full rounded-full"
@@ -674,7 +891,7 @@ export function FechamentoComanda({
             )}
           </div>
         ) : null}
-        {erro ? (
+        {erro && etapa !== "itens" && etapa !== "forma" ? (
           <p className="mt-4 rounded-md bg-brick px-3 py-2 text-sm text-ink" role="alert">
             {erro}
           </p>
