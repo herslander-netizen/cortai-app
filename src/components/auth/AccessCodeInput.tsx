@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ClipboardEvent, type KeyboardEvent } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 
 interface AccessCodeInputProps {
@@ -74,7 +74,7 @@ export function AccessCodeInput({
     }
   }
 
-  function lidarComTecla(indice: number, event: React.KeyboardEvent<HTMLInputElement>) {
+  function lidarComTecla(indice: number, event: KeyboardEvent<HTMLInputElement>) {
     if (event.key === "Backspace" && !digits[indice] && indice > 0) {
       event.preventDefault();
       const proximo = [...digits];
@@ -94,7 +94,7 @@ export function AccessCodeInput({
     }
   }
 
-  function lidarComColagem(event: React.ClipboardEvent<HTMLInputElement>) {
+  function lidarComColagem(event: ClipboardEvent<HTMLInputElement>) {
     const texto = event.clipboardData.getData("text").replace(/[^0-9]/g, "").slice(0, tamanho);
     if (!texto) return;
     event.preventDefault();
