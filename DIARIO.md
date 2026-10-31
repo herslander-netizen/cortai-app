@@ -544,7 +544,6 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Em andamento
 
-- GPT | 2026-10-31 UTC | Acelerar somente o movimento decorativo das ondas na entrada `/login`, preservando formas, cores, camadas e respeito a `prefers-reduced-motion` | `src/components/entrada/OndasDaEntrada.tsx`, `src/components/entrada/OndasDaEntrada.test.tsx`; sem migração
 
 
 
@@ -903,6 +902,14 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+
+### 2026-10-31 UTC — GPT — Acelera o movimento das ondas da entrada
+- Alteração: ciclos das ondas superior/inferior reduzidos de 14/17 s para 7/8,5 s, mantendo caminhos, cores, camadas, sentido e respeito a `prefers-reduced-motion`.
+- Arquivos: `src/components/entrada/OndasDaEntrada.tsx`, `src/components/entrada/OndasDaEntrada.test.tsx`.
+- Commit: `b3e86b6606a31d9d6a3f0f87f298b694180e6d14`.
+- GitHub Actions: execução 41228969975 concluída com sucesso; instalação congelada, TypeScript, build, 278 arquivos de teste aprovados (2.311 testes aprovados, 1 ignorado), deploy isolado da prévia e smoke test passaram.
+- ESLint não está incluído no workflow e não foi executado localmente nesta sessão. Conferência visual manual em 360/390 px e nos dois temas não foi feita nesta sessão.
+- Prévia: `https://previa.cortaiapp.pages.dev`. Sem alterações na Agenda, banco ou site principal. Reserva concluída.
 
 ### 2026-10-31 UTC — GPT — Cartão vertical da entrada Flow conforme referência
 - O que mudou e por quê: a demonstração passa a ocupar a parte alta e flexível do cartão; a legenda categorizada permanece dentro do mesmo cartão, abaixo do divisor. O cartão fica estreito e alto, sem impor 9:16 à moldura ou à demonstração, seguindo a composição do vídeo.
