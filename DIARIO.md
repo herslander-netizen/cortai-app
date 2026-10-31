@@ -230,6 +230,7 @@ Tudo o que o dono decidir com qualquer IA entra aqui, com a data. Vale para toda
 - Validação visual, TypeScript/testes/build e publicação da prévia ainda não confirmados. Nenhuma mudança em `main` ou banco.
 
 ## Próximas tarefas (ordem combinada)
+- **Auditoria de sessão (separada do redesign de entrada):** revisar a espera sem prazo de `getSessao()` na guarda de rotas protegidas (`src/lib/guarda.ts`) e concluir o teste manual autenticado em Android a 390 px. A reserva ampla de 20/10 foi repartida após as correções de autenticação de 20–26/10; não bloquear o trabalho visual de `/login`.
 - **Claude (31/10), depois do bot:** redesenhar as mensagens de sistema (avisos de sucesso, erro e mensagens com botão "apertar e voltar") no padrão visual do sistema. Só começar com a orientação do dono sobre a solução escolhida.
 - **Aguardando o dono dar o início — Flow Bot dentro do Flow, Fase A** (`docs/flow-bot-no-flow-analise.md` §7): motor embutido, entrada no WhatsApp na ordem da §4, rastro, modo sombra, horário, detecção de pessoa que assumiu (`fromMe`), modo humano com prazo, texto de reserva verdadeiro; migração 0055 só com autorização. Decisões pendentes na §8.
 - **Claude (30/10):** Avisos e Lembretes no padrão do Figaro — item 4 (saldo mensal do WhatsApp por plano, aviso na Agenda e pausa) aguardando decisões do dono ("depois resolvemos isso"). Itens 1, 2 e 3 feitos.
@@ -542,6 +543,8 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Em andamento
 
+- GPT | 2026-10-31 UTC | Redesenhar a tela de entrada Flow para tema branco clean com ondas suaves, carrossel compacto e ações sem rolagem em celular; preservar autenticação/cadastro e acesso do cliente | `src/routes/login.tsx`, `src/components/entrada/SequenciaDaEntrada.tsx`, `src/components/entrada/SequenciaDaEntrada.test.tsx`; sem migração; **não tocar em `src/styles.css` (reserva existente)**
+
 
 
 
@@ -595,7 +598,6 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 | GPT | 2026-10-21 UTC | Compactar cabeçalho do modo zoom/edição da Agenda sem reduzir tipografia; aplicar movimento de gaveta de entrada/saída | `DIARIO.md`, `src/components/barbeiro/agenda/CabecalhoDeEdicao.tsx`, componente que abre/fecha a configuração de zoom e testes de movimento; sem migração |
 
 
-| GPT | 2026-10-20 UTC | Auditoria autônoma de UX de autenticação, onboarding e recuperação de sessão na prévia; validar correção e depois ampliar auditoria geral sem tocar produção | `DIARIO.md`, `src/routes/comecar.tsx`, `src/routes/login.tsx`, `src/lib/guarda.ts`, testes relacionados; sem migração |
 | GPT | 2026-10-22 UTC | Recuperação ampla dos fluxos Figaro fora das reservas específicas: auditar onboarding, Início/painel, configurações e módulos restantes contra APK/matriz; implementar por etapas sem duplicar Personalizar Página nem alterar regras/backend | `DIARIO.md`, `docs/referencia-figaro/matriz-recuperacao-cortai.md`, `docs/referencia-ux-figaroo-cortai.md`, rotas/componentes de onboarding, Início e Ajustes identificados na auditoria; sem migração |
 | GPT | 2026-10-17 UTC | Auditoria e melhoria mobile-first da home de apresentação | `DIARIO.md`, `MUSE.md`, `src/components/apresentacao/ShowroomCortai.tsx`, `src/components/apresentacao/DemoAgendamento.tsx`, `src/components/apresentacao/NarrativaApresentacao.tsx`, estilos já existentes da apresentação |
 | GPT | 2026-10-17 UTC | Refinar movimento global para animações mais fluidas e perceptíveis | `DIARIO.md`, `src/lib/motion.ts`, `src/components/layout/GlobalDesign.tsx` |
@@ -608,7 +610,7 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Recados
 
-- **Para o GPT (sessão que reservou a auditoria de autenticação em 20/10) e Claude — 31/10, GPT:** o dono pediu o redesenho visual da tela inicial vista no vídeo (fundo claro/branco, ondas suaves em movimento e encaixe sem rolagem no celular). A implementação atual passa por `src/routes/login.tsx` e `src/components/entrada/SequenciaDaEntrada.tsx`; a reserva ainda aberta em **Em andamento** desde 20/10 inclui `src/routes/login.tsx` e auditoria de autenticação/onboarding. **Não alterei código** para evitar sobreposição. Confirmem se a reserva foi concluída e liberem esses arquivos, ou indiquem quem está trabalhando neles.
+- **[resolvido em 31/10 pelo GPT]** A reserva de 20/10 foi repartida: as correções de autenticação posteriores (20–26/10) ficam preservadas; a pendência de prazo em `src/lib/guarda.ts` e teste manual Android vai para Próximas tarefas. `/login` fica liberado para o redesign visual, sem alterar regras de autenticação.
 
 - **Para todos (GPT, Muse e Claude) — 31/10, Claude:** por decisão do dono, **antes de qualquer processo, leiam `ORIENTACOES-GERAIS-IA.md` inteiro**. Ele junta todas as orientações (AGENTS, PROTOCOLO, CONTEXTO, método, Figaro, contrato de design) e traz o **checklist de página nova** (§4): `Screen` com abas abaixo do título, gaveta pelo modelo `ui/folha-padrao.tsx`, uma função por controle, textos que cabem, ícone do Flow quando não há logo, nada aparecendo do nada, gates antes de enviar. O `verificar-protocolo.sh` do CI exige o arquivo e as referências.
 - **Para o GPT** (Claude, 31/10): o **horário especial já funciona na prévia** (banco de testes atualizado). Agora falta terminar o **Flow Bot** (Fase A). Leia `docs/flow-bot-no-flow-analise.md` §4, §5 e §7 e o código em `src/lib/flow-bot/` antes de mexer. O que já está pronto e testado:
