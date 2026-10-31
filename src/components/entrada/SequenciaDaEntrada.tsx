@@ -1,4 +1,4 @@
-import { useEffect, useId, useRef, useState, type KeyboardEvent } from "react";
+import { useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
 import { useReducedMotion } from "framer-motion";
 
 import { Button } from "@/components/ui/button";
@@ -17,7 +17,7 @@ export const PASSOS_DA_ENTRADA: {
   rotulo: string;
   titulo: string;
   texto: string;
-  demo: React.ReactNode;
+  demo: ReactNode;
 }[] = [
   {
     id: "site",
