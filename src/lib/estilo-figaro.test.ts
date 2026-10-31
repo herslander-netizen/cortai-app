@@ -330,7 +330,9 @@ describe("ordem permanente", () => {
     const ordem = readFileSync("docs/ordem-padrao-figaro.md", "utf8");
     expect(ordem).toContain("ORDEM PERMANENTE");
     expect(readFileSync("AGENTS.md", "utf8")).toContain("docs/ordem-padrao-figaro.md");
-    expect(readFileSync("CLAUDE.md", "utf8")).toContain("docs/ordem-padrao-figaro.md");
+    // O CLAUDE.md importa o CONTEXTO.md (o mesmo texto que o GPT lê); a ordem precisa estar lá.
+    expect(readFileSync("CLAUDE.md", "utf8")).toContain("@CONTEXTO.md");
+    expect(readFileSync("CONTEXTO.md", "utf8")).toContain("docs/ordem-padrao-figaro.md");
   });
 });
 
