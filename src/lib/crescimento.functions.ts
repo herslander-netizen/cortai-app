@@ -580,7 +580,17 @@ export const getProfissionaisPerfil = createServerFn({ method: "GET" })
             })),
           )
         ).filter((f): f is { valor: string; url: string } => Boolean(f.url));
-        return { id: p.id, tenantId: tenant.id, nome: p.nome, descricao: p.descricao, portfolio, fotos, ativo: p.ativo, avatarUrl: p.avatar_url, avatarPreview: await assinarFoto(supabaseAdmin, p.avatar_url) };
+        return {
+          id: p.id,
+          tenantId: tenant.id,
+          nome: p.nome,
+          descricao: p.descricao,
+          portfolio,
+          fotos,
+          ativo: p.ativo,
+          avatarUrl: p.avatar_url,
+          avatarPreview: await assinarFoto(supabaseAdmin, p.avatar_url),
+        };
       }),
     );
   });
@@ -606,7 +616,11 @@ export const salvarPerfilProfissional = createServerFn({ method: "POST" })
       throw new Error("Escolha as fotos pela galeria de fotos.");
     const { error } = await db
       .from("profissionais")
-      .update({ descricao: data.descricao || null, portfolio: data.portfolio, ...(data.avatarUrl !== undefined ? { avatar_url: data.avatarUrl } : {}) })
+      .update({
+        descricao: data.descricao || null,
+        portfolio: data.portfolio,
+        ...(data.avatarUrl !== undefined ? { avatar_url: data.avatarUrl } : {}),
+      })
       .eq("id", data.id)
       .eq("tenant_id", tenant.id);
     if (error) throw new Error(error.message);
