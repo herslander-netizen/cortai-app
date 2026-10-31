@@ -27,6 +27,7 @@ e o que fez. O diário até 17/10/2026 está guardado, sem alterações, em
 7. **Sem segredos:** nunca escreva chaves, senhas ou tokens aqui. Cite só o nome da variável.
 
 ## Decisões do dono
+- 2026-10-31: **Recuperação de senha com código de seis dígitos**: autorização específica dada pelo dono em 31/10 para apresentar a recuperação por código em tela cheia, com seis campos e confirmação no rodapé, conforme referência enviada. Esta autorização substitui apenas o veto anterior a OTP no fluxo de recuperação; não altera login normal, cadastro, provedores ou regras de sessão.
 - 2026-10-31: **Redesign visual do login Flow sem alterar funcionalidades de autenticação**: preservar a identidade Flow e adaptar apresentação, transições e movimento; manter login por e-mail/senha, cadastro, Google/Apple, recuperação e redirecionamentos existentes. Não adicionar PIN/OTP/WhatsApp nem mudar backend/provedores.
 - 2026-10-31: **Entrada móvel no estilo da referência enviada**: cartão de demonstração alto e vertical, com a demonstração na parte superior e legenda categorizada dentro do mesmo cartão, abaixo de um divisor; indicadores por ícone e ações ancoradas no rodapé. Não impor proporção 9:16 ao cartão nem à área da demonstração.
 - 2026-10-31: **Ajustar fotos e capas em todo o sistema** ("redimensionar para deixar a foto da maneira que a pessoa quer e não forçar a foto estática"; escopo "todo sistema", inclusive Agenda e logo): ao escolher foto de perfil, logo, capa ou foto de serviço/produto, a pessoa dá zoom e arrasta para mostrar a parte que quer.
@@ -545,7 +546,7 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Em andamento
 
-- GPT | 2026-10-31 UTC | Aplicar a referência enviada à recuperação de senha: experiência em tela cheia, seis campos e ação inferior fixa, mantendo o motor atual de envio/verificação e as rotas existentes; sem alteração de banco, provedor ou produção | `src/components/auth/ForgotPasswordSheet.tsx`, `src/components/auth/AccessCodeInput.tsx` e testes relacionados; sem migração
+
 
 
 
@@ -906,6 +907,13 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+
+### 2026-10-31 UTC — GPT — Recuperação de senha em tela cheia conforme referência
+- O que mudou: a recuperação deixou de ser uma gaveta e passou a ocupar a tela inteira, com botão de fechar circular, título grande, e-mail identificado, seis campos numéricos, contador de reenvio e ação principal ancorada no rodapé. A verificação agora acontece ao tocar em “Confirmar código” (ou Enter), não imediatamente ao preencher o sexto dígito. Colagem de seis dígitos, navegação por teclado, estados de erro, reenvio e redução de movimento preservados.
+- Arquivos: `src/components/auth/ForgotPasswordSheet.tsx`, `src/components/auth/AccessCodeInput.tsx`, `src/components/auth/AccessCodeInput.test.tsx`.
+- Teste novo cobre os seis campos, habilitação da confirmação e colagem sem envio automático. Ainda não executado localmente; aguardando GitHub Actions.
+- Importante: o código mantém o método Supabase existente (`resetPasswordForEmail` + `verifyOtp(type: "recovery")`). O template de e-mail do Auth não foi alterado: a conexão disponível não expõe configuração de templates. Enquanto o template do projeto continuar enviando link, a tela de seis dígitos não receberá um OTP utilizável; a configuração `{{ .Token }}` ainda precisa ser aplicada no painel Auth do Supabase.
+- Sem alteração em banco, sessão, provedores, login normal, `main`, site principal ou Agenda. Conferência visual manual em 390/360 px e nos dois temas permanece pendente.
 
 ### 2026-10-31 UTC — GPT — Corrige legibilidade da entrada Flow e fecha validação da prévia
 - O que mudou: textos e ícones inativos da apresentação de `/login` agora usam o token Figaro `on-surface` na área clara das ondas, sem alterar os tokens do cartão escuro ou do painel de autenticação. O link para agendamento de cliente também recebe contraste alto. Corrigidos os testes da sequência para refletir as cinco etapas que o código atual realmente apresenta. No painel de recuperação, as sombras Tailwind foram substituídas/removidas em favor do padrão de elevação do projeto.

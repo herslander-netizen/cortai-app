@@ -1,8 +1,11 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { ArrowLeft, CheckCircle2, Mail, X } from "lucide-react";
+import { Mail, X } from "lucide-react";
 
 import { AccessCodeInput } from "@/components/auth/AccessCodeInput";
+import { Button } from "@/components/ui/button";
+import { Field } from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
 
 interface ForgotPasswordSheetProps {
   isOpen: boolean;
@@ -28,7 +31,7 @@ export function ForgotPasswordSheet({
   const [etapa, setEtapa] = useState<EtapaRecuperacao>("email");
   const [error, setError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const dialogRef = useRef<HTMLElement>(null);
+  const pageRef = useRef<HTMLElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   const previousFocusRef = useRef<HTMLElement | null>(null);
   const reducedMotion = useReducedMotion();
@@ -38,35 +41,39 @@ export function ForgotPasswordSheet({
     previousFocusRef.current =
       document.activeElement instanceof HTMLElement ? document.activeElement : null;
     const previousOverflow = document.body.style.overflow;
+    const previousThemeColor = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]')?.content;
     document.body.style.overflow = "hidden";
+    const meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
+    if (meta) meta.content = "#1B1F1C";
     const frame = window.requestAnimationFrame(() => {
       if (etapa === "email") inputRef.current?.focus();
       else closeRef.current?.focus();
     });
+
     function onKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") {
         event.preventDefault();
         onClose();
       }
       if (event.key === "Tab") {
-        const dialog = dialogRef.current;
-        if (!dialog) return;
+        const page = pageRef.current;
+        if (!page) return;
         const focusable = Array.from(
-          dialog.querySelectorAll<HTMLElement>(
+          page.querySelectorAll<HTMLElement>(
             'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
           ),
         ).filter((element) => element.getClientRects().length > 0);
         if (!focusable.length) {
           event.preventDefault();
-          dialog.focus();
+          page.focus();
           return;
         }
         const first = focusable[0];
         const last = focusable[focusable.length - 1];
-        if (event.shiftKey && (document.activeElement === first || !dialog.contains(document.activeElement))) {
+        if (event.shiftKey && (document.activeElement === first || !page.contains(document.activeElement))) {
           event.preventDefault();
           last?.focus();
-        } else if (!event.shiftKey && (document.activeElement === last || !dialog.contains(document.activeElement))) {
+        } else if (!event.shiftKey && (document.activeElement === last || !page.contains(document.activeElement))) {
           event.preventDefault();
           first?.focus();
         }
@@ -77,6 +84,7 @@ export function ForgotPasswordSheet({
       window.cancelAnimationFrame(frame);
       document.removeEventListener("keydown", onKeyDown);
       document.body.style.overflow = previousOverflow;
+      if (meta && previousThemeColor) meta.content = previousThemeColor;
       previousFocusRef.current?.focus();
     };
   }, [isOpen, etapa, onClose]);
@@ -137,122 +145,135 @@ export function ForgotPasswordSheet({
   return (
     <AnimatePresence>
       {isOpen ? (
-        <div className="fixed inset-0 z-[60] flex items-end justify-center p-0 sm:items-center sm:p-4">
-          <motion.button
-            type="button"
-            aria-label="Fechar recuperação de senha"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: reducedMotion ? 0.12 : 0.2 }}
-            onClick={onClose}
-            className="absolute inset-0 cursor-default bg-black/70 backdrop-blur-md"
-          />
-          <motion.section
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="flow-forgot-password-title"
-            initial={reducedMotion ? { opacity: 0 } : { y: "100%", opacity: 0.8 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={reducedMotion ? { opacity: 0 } : { y: "100%", opacity: 0.8 }}
-            transition={{ type: "spring", damping: 28, stiffness: 350 }}
-            className="relative z-10 w-full max-w-md rounded-t-[28px] border border-white/10 bg-[#20212A] p-6 pb-[calc(24px+env(safe-area-inset-bottom))] shadow-[var(--elevacao-3)] sm:rounded-[28px]"
-          >
-            <div className="mb-5 flex items-center justify-between border-b border-white/10 pb-4">
-              <div className="flex items-center gap-2">
-                {etapa === "concluido" ? (
-                  <CheckCircle2 className="h-4 w-4 text-[#F48FB1]" aria-hidden />
-                ) : (
-                  <Mail className="h-4 w-4 text-[#A8C7FA]" aria-hidden />
-                )}
-                <h2 id="flow-forgot-password-title" className="text-sm font-bold text-white">
-                  {etapa === "email" ? "Recuperar acesso" : etapa === "codigo" ? "Verificar código" : "Código confirmado"}
-                </h2>
-              </div>
-              <button
-                ref={closeRef}
-                type="button"
-                onClick={onClose}
-                aria-label="Fechar"
-                className="flex h-10 w-10 items-center justify-center rounded-full text-white/55 transition hover:bg-white/10 hover:text-white"
-              >
-                <X className="h-5 w-5" aria-hidden />
-              </button>
-            </div>
+        <motion.main
+          ref={pageRef}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="flow-forgot-password-title"
+          tabIndex={-1}
+          initial={reducedMotion ? { opacity: 0 } : { opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: reducedMotion ? 0.12 : 0.2 }}
+          className="auth-screen fixed inset-0 z-[60] flex min-h-[100dvh] w-full flex-col overflow-y-auto bg-[var(--figaro-surface)] text-[var(--figaro-on-surface)]"
+        >
+          <div className="mx-auto flex min-h-[100dvh] w-full max-w-[480px] flex-1 flex-col px-5 pt-[calc(24px+env(safe-area-inset-top))]">
+            <button
+              ref={closeRef}
+              type="button"
+              onClick={onClose}
+              aria-label="Fechar recuperação de senha"
+              className="mb-8 flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-[var(--figaro-surface-container-high)] text-[var(--figaro-on-surface)] transition-transform active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--figaro-action-blue)]"
+            >
+              <X className="h-8 w-8" aria-hidden />
+            </button>
 
-            {etapa === "email" ? (
-              <form onSubmit={handleSubmit} className="space-y-4 py-2" noValidate>
-                <p className="text-xs leading-relaxed text-white/65">
-                  Informe o e-mail cadastrado. Enviaremos um código de 6 dígitos para confirmar sua identidade.
-                </p>
-                <label className="block">
-                  <span className="sr-only">E-mail cadastrado</span>
-                  <span className="relative block">
-                    <Mail className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-white/40" aria-hidden />
-                    <input
-                      ref={inputRef}
-                      type="email"
-                      inputMode="email"
-                      autoComplete="email"
-                      required
-                      value={email}
-                      onChange={(event) => setEmail(event.target.value)}
-                      placeholder="voce@exemplo.com"
-                      aria-invalid={Boolean(error)}
-                      aria-describedby={error ? "flow-forgot-password-error" : undefined}
-                      className="h-12 w-full rounded-xl border border-white/10 bg-white/5 pl-10 pr-4 text-sm text-white outline-none transition placeholder:text-white/30 focus:border-[#A8C7FA] focus:ring-2 focus:ring-[#A8C7FA]/20"
-                    />
-                  </span>
-                </label>
-                {error ? <p id="flow-forgot-password-error" role="alert" className="text-xs text-red-300">{error}</p> : null}
-                <button
-                  type="submit"
-                  disabled={loading || !email.trim()}
-                  className="min-h-12 w-full rounded-xl bg-gradient-to-r from-[#A8C7FA] to-[#BB86FC] text-sm font-bold text-[#171923] transition hover:brightness-105 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50"
+            <AnimatePresence mode="wait" initial={false}>
+              {etapa === "email" ? (
+                <motion.section
+                  key="email"
+                  initial={reducedMotion ? { opacity: 0 } : { opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: reducedMotion ? 0.1 : 0.18 }}
+                  className="flex min-h-0 flex-1 flex-col"
                 >
-                  {loading ? "Enviando…" : "Enviar código de recuperação"}
-                </button>
-                <button type="button" onClick={onClose} className="flex min-h-11 w-full items-center justify-center gap-2 text-xs font-medium text-white/55 transition hover:text-white">
-                  <ArrowLeft className="h-3.5 w-3.5" aria-hidden />
-                  Voltar ao login
-                </button>
-              </form>
-            ) : etapa === "codigo" ? (
-              <div className="py-2">
-                <AccessCodeInput
-                  emailOuTelefone={email}
-                  onCodeComplete={verificarCodigo}
-                  onResendCode={async () => {
-                    const sucesso = await onSubmitEmail(email);
-                    if (!sucesso) throw new Error("Falha ao reenviar código");
-                  }}
-                  onVoltar={() => {
-                    setEtapa("email");
-                    setError(null);
-                  }}
-                />
-                {error ? <p className="mt-3 text-center text-xs text-red-300" role="alert">{error}</p> : null}
-              </div>
-            ) : (
-              <div className="space-y-4 py-5 text-center">
-                <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full border border-[#F48FB1]/30 bg-[#F48FB1]/10 text-[#F48FB1]">
-                  <CheckCircle2 className="h-7 w-7" aria-hidden />
-                </div>
-                <h3 className="text-base font-bold text-white">Identidade confirmada!</h3>
-                <p className="mx-auto max-w-xs text-xs leading-relaxed text-white/65">
-                  Agora você pode definir uma nova senha para sua conta.
-                </p>
-                <button
-                  type="button"
-                  onClick={onContinue}
-                  className="min-h-12 w-full rounded-xl bg-gradient-to-r from-[#A8C7FA] to-[#BB86FC] text-sm font-bold text-[#171923] transition hover:brightness-105"
+                  <h1 id="flow-forgot-password-title" className="mb-8 text-[clamp(2.25rem,8vw,3.25rem)] font-bold leading-[1.12] tracking-tight">
+                    Recuperar sua senha
+                  </h1>
+                  <form onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col" noValidate>
+                    <Field label="E-mail cadastrado">
+                      <div className="relative mt-2">
+                        <Mail className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[var(--figaro-on-surface-variant)]" aria-hidden />
+                        <Input
+                          ref={inputRef}
+                          type="email"
+                          inputMode="email"
+                          autoComplete="email"
+                          required
+                          value={email}
+                          onChange={(event) => setEmail(event.target.value)}
+                          placeholder="voce@exemplo.com"
+                          aria-invalid={Boolean(error)}
+                          className="h-[68px] rounded-xl pl-12 pr-4 text-lg"
+                        />
+                      </div>
+                    </Field>
+                    <p className="mt-5 text-base leading-relaxed text-[var(--figaro-on-surface-variant)]">
+                      Enviaremos um código de 6 dígitos para confirmar sua identidade.
+                    </p>
+                    {error ? <p role="alert" className="mt-4 text-sm font-medium text-[var(--figaro-error)]">{error}</p> : null}
+                    <div className="mt-auto pb-[calc(20px+env(safe-area-inset-bottom))] pt-8">
+                      <Button type="submit" variant="primary" size="lg" className="h-[64px] w-full rounded-full text-base" disabled={loading || !email.trim()} loading={loading}>
+                        Enviar código
+                      </Button>
+                    </div>
+                  </form>
+                </motion.section>
+              ) : etapa === "codigo" ? (
+                <motion.section
+                  key="codigo"
+                  initial={reducedMotion ? { opacity: 0 } : { opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: reducedMotion ? 0.1 : 0.18 }}
+                  className="flex min-h-0 flex-1 flex-col"
                 >
-                  Criar nova senha
-                </button>
-              </div>
-            )}
-          </motion.section>
-        </div>
+                  <h1 id="flow-forgot-password-title" className="mb-8 text-[clamp(2.25rem,8vw,3.25rem)] font-bold leading-[1.12] tracking-tight">
+                    Insira seu código de acesso
+                  </h1>
+                  <div className="mb-8 flex min-h-[68px] items-center gap-4 rounded-xl bg-[var(--figaro-surface-container-high)] px-4">
+                    <Mail className="h-6 w-6 shrink-0 text-[var(--figaro-on-surface-variant)]" aria-hidden />
+                    <div className="min-w-0 flex-1">
+                      <span className="block text-sm text-[var(--figaro-on-surface-variant)]">E-mail</span>
+                      <span className="block truncate text-lg text-[var(--figaro-on-surface)]">{email}</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEtapa("email");
+                        setError(null);
+                      }}
+                      aria-label="Alterar e-mail"
+                      className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-[var(--figaro-action-blue)]"
+                    >
+                      <X className="h-7 w-7" aria-hidden />
+                    </button>
+                  </div>
+                  <AccessCodeInput
+                    emailOuTelefone={email}
+                    onCodeComplete={verificarCodigo}
+                    onResendCode={async () => {
+                      const sucesso = await onSubmitEmail(email);
+                      if (!sucesso) throw new Error("Falha ao reenviar código");
+                    }}
+                  />
+                  {error ? <p className="mt-3 text-center text-sm text-[var(--figaro-error)]" role="alert">{error}</p> : null}
+                </motion.section>
+              ) : (
+                <motion.section
+                  key="concluido"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="flex min-h-0 flex-1 flex-col"
+                >
+                  <h1 id="flow-forgot-password-title" className="mb-8 text-[clamp(2.25rem,8vw,3.25rem)] font-bold leading-[1.12] tracking-tight">
+                    Código confirmado
+                  </h1>
+                  <p className="text-base leading-relaxed text-[var(--figaro-on-surface-variant)]">
+                    Sua identidade foi confirmada. Agora você pode definir uma nova senha.
+                  </p>
+                  <div className="mt-auto pb-[calc(20px+env(safe-area-inset-bottom))] pt-8">
+                    <Button type="button" variant="primary" size="lg" className="h-[64px] w-full rounded-full text-base" onClick={onContinue}>
+                      Criar nova senha
+                    </Button>
+                  </div>
+                </motion.section>
+              )}
+            </AnimatePresence>
+          </div>
+        </motion.main>
       ) : null}
     </AnimatePresence>
   );
