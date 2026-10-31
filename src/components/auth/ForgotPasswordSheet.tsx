@@ -32,7 +32,7 @@ export function ForgotPasswordSheet({
     document.body.style.overflow = "hidden";
     const frame = window.requestAnimationFrame(() => inputRef.current?.focus());
     function onKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape" && !loading) {
+      if (event.key === "Escape") {
         event.preventDefault();
         onClose();
       }
@@ -55,7 +55,7 @@ export function ForgotPasswordSheet({
       document.body.style.overflow = previousOverflow;
       previousFocusRef.current?.focus();
     };
-  }, [isOpen, loading, onClose]);
+  }, [isOpen, onClose]);
 
   useEffect(() => {
     if (isOpen) {
@@ -101,7 +101,7 @@ export function ForgotPasswordSheet({
             exit={{ opacity: 0 }}
             transition={{ duration: reducedMotion ? 0.12 : 0.2 }}
             onClick={() => {
-              if (!loading) onClose();
+              onClose();
             }}
             className="absolute inset-0 cursor-default bg-black/70 backdrop-blur-md"
           />
