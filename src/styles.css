@@ -11399,28 +11399,42 @@ html:not([data-tela-agenda]) [data-figaro-empty-state]:not(:first-child) {
   }
 }
 
-/* Lista da Agenda com as cores de texto do Figaro (foto do dono, 31/10, amostrada): principal (data, hora, título)
-   em onSurface #DEE8E1; secundário (dia da semana, total, duração, cliente, serviço, "Livre", "Nada marcado") em
-   onSurfaceVariant #D7C7C2; bolinha separadora a 60 %; data de hoje continua no azul. No claro o onSurfaceVariant
-   (#7B7977) dá 3,8:1 a 4,3:1, abaixo dos 4,5:1 exigidos: lá o secundário fica no cinza atual. */
+/* Lista da Agenda com as cores de texto do Figaro (fotos do dono, 31/10, escuro e claro, amostradas): principal
+   (data, hora, título) em onSurface; secundário (dia da semana, total, duração, cliente, serviço, "Livre", "Nada
+   marcado") em onSurfaceVariant — #D7C7C2 no escuro, #7B7977 no claro; bolinha a 60 %; hoje em primary (#2467BB no
+   claro). No claro o #7B7977 fica perto de 4:1, abaixo da regra de 4,5:1: o dono pediu as cores do Figaro também no
+   claro ("Trazer as cores no tema claro"), registrado em Decisões do dono. */
 .agenda-lista-dia-titulo.agenda-lista-dia-titulo strong,
 .agenda-lista-hora strong,
 .agenda-lista-cartao-topo.agenda-lista-cartao-topo strong {
   color: var(--figaro-on-surface, var(--paper));
 }
 .agenda-lista-dia-titulo.agenda-lista-dia-titulo[data-hoje-dia] strong {
-  color: var(--figaro-action-blue, var(--primary));
+  color: var(--figaro-primary, var(--primary));
 }
-:root:not(.light) .agenda-lista-dia-titulo.agenda-lista-dia-titulo h3 span:not([data-hoje]),
-:root:not(.light) .agenda-lista-dia-titulo.agenda-lista-dia-titulo .agenda-lista-dia-resumo,
-:root:not(.light) .agenda-lista-hora span,
-:root:not(.light) .agenda-lista-cartao .agenda-lista-servico,
-:root:not(.light) .agenda-lista-cartao .agenda-lista-detalhe,
-:root:not(.light) .agenda-lista-vazio,
-:root:not(.light) .agenda-lista-vazio svg {
+.agenda-lista-dia-titulo.agenda-lista-dia-titulo [data-hoje] {
+  background: var(--figaro-primary, var(--primary));
+  color: var(--figaro-on-primary, var(--primary-foreground));
+}
+.agenda-lista-dia-titulo.agenda-lista-dia-titulo h3 span:not([data-hoje]),
+.agenda-lista-dia-titulo.agenda-lista-dia-titulo .agenda-lista-dia-resumo,
+.agenda-lista-hora span,
+.agenda-lista-cartao .agenda-lista-servico,
+.agenda-lista-cartao .agenda-lista-detalhe,
+.agenda-lista-vazio,
+.agenda-lista-vazio svg {
   color: var(--figaro-on-surface-variant, var(--mute));
 }
-:root:not(.light) .agenda-lista-ponto {
+.agenda-lista-ponto {
   color: var(--figaro-on-surface-variant, var(--mute));
   opacity: 0.6;
+}
+/* "Nada marcado" em surfaceContainerHigh (#E4EDE8 no claro; no escuro já era o mesmo #3E4440). */
+.agenda-lista-vazio.agenda-lista-vazio {
+  background: var(--figaro-surface-container-high, var(--agenda-cartao));
+}
+/* Barra de baixo no claro como no Figaro: surfaceContainerLow (#F0F7F2; antes branco). No escuro já era o mesmo.
+   O "+" já é tonal (primaryContainer) pela regra da identidade padrão. */
+.light .agenda-botao-agora-principal {
+  background: var(--figaro-surface-container-low, var(--ink2));
 }

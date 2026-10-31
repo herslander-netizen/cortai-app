@@ -31,12 +31,16 @@ describe("linha agora, pontos e dia vizinho no padrão do Figaro (vídeo e fotos
     );
   });
 
-  it("lista com as cores de texto do Figaro: secundário em onSurfaceVariant só no escuro (contraste no claro)", () => {
+  it("lista com as cores de texto do Figaro nos dois temas (dono pediu também no claro)", () => {
     expect(css).toMatch(
-      /:root:not\(\.light\) \.agenda-lista-cartao \.agenda-lista-servico,[\s\S]*?color: var\(--figaro-on-surface-variant, var\(--mute\)\);/,
+      /\.agenda-lista-cartao \.agenda-lista-servico,[\s\S]*?color: var\(--figaro-on-surface-variant, var\(--mute\)\);/,
+    );
+    expect(css).not.toContain(":root:not(.light) .agenda-lista-cartao .agenda-lista-servico");
+    expect(css).toMatch(
+      /\[data-hoje\] \{\s*background: var\(--figaro-primary, var\(--primary\)\);/,
     );
     expect(css).toMatch(
-      /\.agenda-lista-cartao-topo\.agenda-lista-cartao-topo strong \{\s*color: var\(--figaro-on-surface, var\(--paper\)\);/,
+      /\.light \.agenda-botao-agora-principal \{\s*background: var\(--figaro-surface-container-low/,
     );
   });
 });
