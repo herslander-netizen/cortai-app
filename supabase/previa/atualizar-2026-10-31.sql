@@ -1,3 +1,5 @@
+https://raw.githubusercontent.com/herslander-netizen/cortai-app/cloudflare-workers-migration-2026-10-13/supabase/previa/atualizar-2026-10-31.sql
+
 -- Atualiza o banco de TESTES da prévia (cortai-preview, pfkxvindedkuktogbcsv) com as migrações que faltavam em 31/10/2026.
 -- NÃO rodar no cortai-prod. Gerado a partir de drizzle/migrations (0043 fica de fora: tarefas agendadas).
 -- Tudo numa transação: se algo falhar, nada fica gravado. Uso: SQL Editor do projeto cortai-preview → Run.
