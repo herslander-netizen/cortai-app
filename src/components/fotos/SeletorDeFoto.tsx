@@ -62,16 +62,22 @@ export function SeletorDeFoto({
     }
   }
 
+  // Botão redondo sobre o canto da foto: não disputa espaço com "Trocar foto" e "Remover".
   const botaoAjustar =
     temFoto && previewUrl ? (
       <Button
         type="button"
-        variant={formato === "cartao" ? "text" : "ghost"}
-        size="sm"
+        size="icon"
+        aria-label={`Ajustar ${rotulo.toLowerCase()}`}
         loading={abrindo}
         onClick={() => void reajustar()}
+        className={`absolute rounded-full bg-[var(--figaro-surface-container-highest,var(--ink3))] text-[var(--figaro-on-surface,var(--paper))] hover:bg-[var(--figaro-surface-container-highest,var(--ink3))] ${
+          formato === "cartao"
+            ? "bottom-3 left-3 size-10"
+            : "-bottom-1 -right-1 size-8 after:absolute after:-inset-2 after:content-[''] [&_svg]:size-4"
+        }`}
       >
-        <Crop aria-hidden /> Ajustar
+        <Crop aria-hidden />
       </Button>
     ) : null;
 
@@ -108,6 +114,7 @@ export function SeletorDeFoto({
               <ImagePlus size={28} aria-hidden />
             </div>
           )}
+          {botaoAjustar}
           <Button
             type="button"
             size="sm"
@@ -119,12 +126,9 @@ export function SeletorDeFoto({
           </Button>
         </div>
         {temFoto ? (
-          <div className="flex flex-wrap gap-2">
-            {botaoAjustar}
-            <Button type="button" variant="text" size="sm" onClick={onRemover}>
-              Remover
-            </Button>
-          </div>
+          <Button type="button" variant="text" size="sm" onClick={onRemover}>
+            Remover
+          </Button>
         ) : null}
         {galeria}
         {ajustador}
@@ -133,31 +137,33 @@ export function SeletorDeFoto({
   }
   return (
     <div className="flex items-center gap-3">
-      <button
-        type="button"
-        onClick={() => setAberta(true)}
-        aria-label={
-          temFoto ? `Trocar ${rotulo.toLowerCase()}` : `Adicionar ${rotulo.toLowerCase()}`
-        }
-        className={`grid size-20 shrink-0 place-items-center overflow-hidden border border-dashed border-line2 bg-ink2 text-mute ${enquadramento.redondo ? "rounded-full" : "rounded-lg"}`}
-      >
-        {previewUrl ? (
-          <img
-            src={previewUrl}
-            alt=""
-            className={`size-full ${enquadramento.fit === "contain" ? "object-contain" : "object-cover"}`}
-          />
-        ) : (
-          <ImagePlus size={22} aria-hidden />
-        )}
-      </button>
+      <div className="relative shrink-0">
+        <button
+          type="button"
+          onClick={() => setAberta(true)}
+          aria-label={
+            temFoto ? `Trocar ${rotulo.toLowerCase()}` : `Adicionar ${rotulo.toLowerCase()}`
+          }
+          className={`grid size-20 shrink-0 place-items-center overflow-hidden border border-dashed border-line2 bg-ink2 text-mute ${enquadramento.redondo ? "rounded-full" : "rounded-lg"}`}
+        >
+          {previewUrl ? (
+            <img
+              src={previewUrl}
+              alt=""
+              className={`size-full ${enquadramento.fit === "contain" ? "object-contain" : "object-cover"}`}
+            />
+          ) : (
+            <ImagePlus size={22} aria-hidden />
+          )}
+        </button>
+        {botaoAjustar}
+      </div>
       <div className="flex min-w-0 flex-col items-start gap-1">
         <span className="text-xs text-mute">{rotulo}</span>
         <div className="flex flex-wrap gap-2">
           <Button type="button" variant="outline" size="sm" onClick={() => setAberta(true)}>
             {temFoto ? "Trocar foto" : "Escolher foto"}
           </Button>
-          {botaoAjustar}
           {temFoto ? (
             <Button type="button" variant="ghost" size="sm" onClick={onRemover}>
               Remover

@@ -873,6 +873,10 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+### 2026-10-31 UTC — Claude — Ajuste de tela do seletor de foto (depois do "Ajustar")
+- Pedido do dono: "ajuste de tela por conta da última atualização". Conferido a 390 px, escuro e claro: com o "Ajustar" em texto, logo/produto/profissional tinham três botões e o "Remover" caía sozinho na linha de baixo; na capa, "Ajustar" e "Remover" ficavam soltos sob a imagem.
+- Correção (`SeletorDeFoto.tsx`): "Ajustar" virou botão redondo com o ícone de recorte sobre o canto da foto (miniatura: 32 px com área de toque ampliada; capa: 40 px no canto inferior esquerdo, ao lado de "Alterar imagem"). "Trocar foto" e "Remover" voltaram a uma linha, como antes. Teste ajustado para o rótulo acessível "Ajustar …".
+- `tsc`, testes de fotos e `build` OK; visual conferido nos dois temas a 390 px.
 ### 2026-10-31 UTC — GPT — Remove fundo circular dos ícones superiores da Agenda
 - Pedido do dono: retirar o círculo que envolve os ícones superiores à direita (calendário e sino) na captura da Agenda.
 - Alteração mínima: os botões mantêm seus alvos de toque de 48 dp, dimensões, ícones, cores, estados e ações; somente o preenchimento circular foi removido em `CabecalhoAgenda.tsx` e `SinoDeAvisos.tsx`. Nenhum outro controle da Agenda foi alterado.

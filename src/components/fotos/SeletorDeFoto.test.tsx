@@ -146,7 +146,7 @@ describe("fotos por galeria, sem campo de link", () => {
       }),
     );
     expect(
-      [...alvo.querySelectorAll("button")].some((b) => b.textContent?.includes("Ajustar")),
+      [...alvo.querySelectorAll("button")].some((b) => b.getAttribute("aria-label")?.startsWith("Ajustar")),
     ).toBe(true);
     expect(alvo.querySelector("button.rounded-full img")).not.toBeNull();
   });
