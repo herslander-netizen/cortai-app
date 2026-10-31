@@ -327,9 +327,9 @@ export function SinoDeAvisos() {
         size="icon"
         onClick={() => abrirCentralRef.current()}
         aria-label={rotuloDoSino(naoLidas, naoVistos)}
-        className={`sino-de-avisos relative h-12 w-12 shrink-0 overflow-visible rounded-none border-0 ${
+        className={`sino-de-avisos relative h-12 w-12 shrink-0 overflow-visible rounded-full border-0 bg-[var(--figaro-surface-container-highest,var(--ink3))] ${
           // Sem não lidas, a cor dos ícones do Figaro; o calendário ao lado usa a mesma (dono, 30/10).
-          forte ? "" : "text-[var(--figaro-on-surface-variant,var(--mute))]"
+          forte ? "" : "text-[var(--figaro-on-surface,var(--paper))]"
         }`}
         style={forte ? { color: cor } : undefined}
       >
@@ -343,9 +343,9 @@ export function SinoDeAvisos() {
         >
           {/* Figaro: `icon_bell` sem não lidas e `icon_bell_on` (sino tocando) com não lidas, em tertiary. */}
           {forte ? (
-            <BellRing size={32} strokeWidth={1.6} className="fill-current" aria-hidden />
+            <BellRing size={27} strokeWidth={1.6} className="fill-current" aria-hidden />
           ) : (
-            <Bell size={32} strokeWidth={1.6} aria-hidden />
+            <Bell size={27} strokeWidth={1.6} aria-hidden />
           )}
         </motion.span>
       </Button>

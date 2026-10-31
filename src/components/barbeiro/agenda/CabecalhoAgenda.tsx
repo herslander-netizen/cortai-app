@@ -280,17 +280,18 @@ export function CabecalhoAgenda({
         aria-label={`${tituloCelular ?? tituloDoMes(dia)}. ${calendarioAberto ? "Recolher mês" : "Abrir mês"}`}
         aria-expanded={calendarioAberto}
       >
-        <span className="truncate text-[22px] leading-7 text-paper" style={{ fontFamily: "var(--figaro-font-body)" }}>
-          <strong className="font-bold">
-            {(tituloCelular ?? tituloDoMes(dia)).split(" ")[0]}
-          </strong>{" "}
+        <span
+          className="truncate text-[22px] leading-7 text-paper"
+          style={{ fontFamily: "var(--figaro-font-body)" }}
+        >
+          <strong className="font-bold">{(tituloCelular ?? tituloDoMes(dia)).split(" ")[0]}</strong>{" "}
           <span className="font-medium">{(tituloCelular ?? tituloDoMes(dia)).split(" ")[1]}</span>
         </span>
       </Button>
       <Button
         variant="ghost"
         size="icon"
-        className="h-12 w-12 min-w-12 shrink-0 rounded-xl text-[var(--figaro-on-surface-variant,var(--mute))] transition-transform duration-[200ms] hover:bg-transparent hover:text-[var(--figaro-on-surface-variant,var(--mute))] motion-reduce:transition-none"
+        className="h-12 w-12 min-w-12 shrink-0 rounded-full bg-[var(--figaro-surface-container-highest,var(--ink3))] text-[var(--figaro-on-surface,var(--paper))] transition-transform duration-[200ms] hover:bg-transparent hover:text-[var(--figaro-on-surface,var(--paper))] motion-reduce:transition-none"
         aria-label={
           modoBusca
             ? "Buscar atendimento"
@@ -333,10 +334,8 @@ export function CabecalhoAgenda({
                 // Figaro: caixa de 32 (≈25×27 dp desenhados, medidos na captura do dono, 30/10), cheio e em azul quando
                 // o mês está aberto, sem girar. Fechado, na cor do sino ao lado. Traço afinado na proporção para manter
                 // a mesma espessura na tela.
-                className={`!size-8 transition-colors duration-[200ms] motion-reduce:transition-none ${
-                  calendarioAberto
-                    ? "text-primary"
-                    : "text-[var(--figaro-on-surface-variant,var(--mute))]"
+                className={`!size-[27px] transition-colors duration-[200ms] motion-reduce:transition-none ${
+                  calendarioAberto ? "text-primary" : "text-[var(--figaro-on-surface,var(--paper))]"
                 }`}
               >
                 <path

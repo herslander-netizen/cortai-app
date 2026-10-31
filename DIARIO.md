@@ -871,6 +871,12 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+### 2026-10-31 UTC — Claude — Calendário e sino do topo da Agenda: tamanho, cor e formato redondo
+- Pedido do dono, com a foto 3 do Figaro como referência: calendário e sino com o mesmo tamanho (27 px, em vez de 32 px) e cor branca frio (`--figaro-on-surface`, em vez do bege). Agora ficam em botões redondos com fundo de `--figaro-surface-container-highest`, como a foto de perfil.
+- Arquivos: `CabecalhoAgenda.tsx` (calendário), `SinoDeAvisos.tsx` (sino, só o botão e o ícone), `styles.css` (tamanho do sino no topo da Agenda), testes `icones-cabecalho.test.ts` e `CabecalhoAgenda.icone.test.ts`.
+- `vitest` (393 da Agenda, notificações e contraste), `tsc` e `build` OK. Ainda NÃO conferido visualmente no celular: precisa olhar na prévia.
+- Também: o aviso do sistema (sonner) agora fica escuro no padrão do Figaro, com ícone que não cobre o texto (commit `2131941b`).
+
 ### 2026-10-31 UTC — Claude — Aviso de ação irreversível ao remover horário especial
 - Pedido do dono. O diálogo de remoção em `HorarioEspecialSheet.tsx` agora diz: "Esta ação não pode ser desfeita: se mudar de ideia, será preciso criar o horário especial de novo." Teste em `horario-especial-sheet.test.ts`. Nenhum outro arquivo mudou.
 - `tsc`, `vitest` da Agenda (272) e `build` OK.
