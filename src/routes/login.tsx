@@ -211,8 +211,8 @@ function LoginPage() {
       style={
         {
           "--entrada-fundo": "var(--cartao)",
-          "--entrada-ciano": "var(--identity-primary)",
-          "--entrada-rosa": "var(--flow-rosa, #f48fb1)",
+          "--entrada-ciano": "var(--figaro-primary)",
+          "--entrada-rosa": "var(--figaro-tertiary)",
           "--entrada-texto": "var(--paper)",
           "--entrada-suave": "var(--mute)",
           height: "100dvh",
@@ -246,8 +246,14 @@ function LoginPage() {
               <Button
                 type="button"
                 variant="primary"
+                size="lg"
                 className="entrada-cta w-full"
-                style={{ height: 48, background: "var(--identity-primary)", boxShadow: "none" }}
+                style={{
+                  height: 56,
+                  background: "var(--figaro-primary)",
+                  color: "var(--figaro-on-primary)",
+                  boxShadow: "none",
+                }}
                 onClick={() => {
                   setModo("criar");
                   setMostrarForm(true);
@@ -437,7 +443,7 @@ function LoginPage() {
 
         <Link
           to="/barbearias"
-          className="flex min-h-11 items-center justify-center text-center text-sm font-medium text-mute hover:text-paper"
+          className="flex min-h-12 items-center justify-center text-center text-sm font-medium text-mute hover:text-paper"
         >
           Sou cliente e quero só agendar
         </Link>
