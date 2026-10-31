@@ -219,7 +219,7 @@ export function AjustadorImagem({
         role="dialog"
         aria-modal="true"
         aria-labelledby="ajustador-imagem-titulo"
-        className="w-full max-w-md overflow-hidden rounded-2xl border border-white/10 bg-ink2 p-4 text-paper shadow-2xl"
+        className="w-full max-w-md overflow-hidden rounded-2xl border border-white/10 bg-ink2 p-4 text-paper"
       >
         <header className="mb-4">
           <h2 id="ajustador-imagem-titulo" className="text-base font-semibold">{titulo}</h2>
