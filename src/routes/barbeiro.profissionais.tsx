@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { ListaDeFotos, type FotoDaLista } from "@/components/fotos/SeletorDeFoto";
 import { MAX_FOTOS_DO_PORTFOLIO } from "@/lib/fotos-do-negocio";
@@ -11,7 +11,9 @@ import { useAcao } from "@/hooks/useAcao";
 import { EsqueletoFormulario } from "@/components/layout/Esqueleto";
 import { Button } from "@/components/ui/button";
 import { AvatarDeIniciais } from "@/components/ui/avatar-iniciais";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, ImagePlus } from "lucide-react";
+import { AjustadorImagem } from "@/components/ui/ajustador-imagem";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/barbeiro/profissionais")({
   head: () => ({
@@ -31,6 +33,8 @@ export const Route = createFileRoute("/barbeiro/profissionais")({
   component: ProfissionaisPage,
 });
 
+type PerfilLocal = { descricao: string; fotos: FotoDaLista[]; avatarUrl: string | null; avatarPreview: string | null; avatarFile: File | null };
+
 function ProfissionaisPage() {
   const salvar = useServerFn(salvarPerfilProfissional);
   const { data, isLoading, refetch } = useQuery({
@@ -38,7 +42,11 @@ function ProfissionaisPage() {
     queryFn: () => getProfissionaisPerfil(),
   });
 
-  const [form, setForm] = useState<Record<string, { descricao: string; fotos: FotoDaLista[] }>>({});
+  const [form, setForm] = useState<Record<string, PerfilLocal>>({});
+  const avatarInput = useRef<HTMLInputElement>(null);
+  const [profissionalAlvo, setProfissionalAlvo] = useState<string | null>(null);
+  const [imagemPendente, setImagemPendente] = useState<{ profissionalId: string; file: File } | null>(null);
+  const [erroAvatar, setErroAvatar] = useState<string | null>(null);
   const acao = useAcao();
   // Lista do Figaro (Equipe): uma linha por pessoa; tocar abre o perfil público dela logo abaixo.
   const [aberto, setAberto] = useState<string | null>(null);
@@ -46,7 +54,7 @@ function ProfissionaisPage() {
   useEffect(() => {
     if (!data) return;
     setForm(
-      Object.fromEntries(data.map((p) => [p.id, { descricao: p.descricao ?? "", fotos: p.fotos }])),
+      Object.fromEntries(data.map((p) => [p.id, { descricao: p.descricao ?? "", fotos: p.fotos, avatarUrl: p.avatarUrl ?? null, avatarPreview: p.avatarPreview ?? null, avatarFile: null }])),
     );
   }, [data]);
 
@@ -61,7 +69,7 @@ function ProfissionaisPage() {
 
       <ul className="flex flex-col gap-0.5 [&>li]:overflow-hidden [&>li]:rounded-[4px] [&>li]:bg-[var(--figaro-surface-container-high,var(--ink2))] [&>li:first-child]:rounded-t-[28px] [&>li:last-child]:rounded-b-[28px]">
         {(data ?? []).map((p) => {
-          const atual = form[p.id] ?? { descricao: "", fotos: [] };
+          const atual = form[p.id] ?? { descricao: "", fotos: [], avatarUrl: null, avatarPreview: null, avatarFile: null };
           const estaAberto = aberto === p.id;
           const resumo = [
             atual.descricao.trim() || "Sem descrição",
@@ -81,7 +89,11 @@ function ProfissionaisPage() {
                 onClick={() => setAberto(estaAberto ? null : p.id)}
                 className="grid min-h-14 w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 rounded-none bg-transparent p-0 text-left hover:bg-transparent active:bg-transparent"
               >
-                <AvatarDeIniciais nome={p.nome} />
+                {atual.avatarPreview ? (
+                  <img src={atual.avatarPreview} alt={`Foto de ${p.nome}`} className="size-11 rounded-full object-cover" />
+                ) : (
+                  <AvatarDeIniciais nome={p.nome} />
+                )}
                 <span className="min-w-0">
                   <span className="flex min-w-0 items-center gap-2">
                     <span className="truncate text-[15px] font-semibold leading-5 text-paper">
@@ -104,6 +116,23 @@ function ProfissionaisPage() {
               </Button>
               {estaAberto ? (
                 <div className="pb-1 pt-2">
+                  <div className="mb-4 flex items-center gap-3">
+                    {atual.avatarPreview ? (
+                      <img src={atual.avatarPreview} alt={`Prévia da foto de ${p.nome}`} className="size-16 rounded-full object-cover" />
+                    ) : (
+                      <AvatarDeIniciais nome={p.nome} />
+                    )}
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium text-paper">Foto do profissional</p>
+                      <p className="text-xs text-mute">Ajuste o enquadramento que aparece na Agenda e na página pública.</p>
+                      <Button type="button" variant="outline" size="sm" className="mt-2" onClick={() => {
+                        setProfissionalAlvo(p.id);
+                        avatarInput.current?.click();
+                      }}>
+                        <ImagePlus className="size-4" /> {atual.avatarPreview ? "Trocar foto" : "Adicionar foto"}
+                      </Button>
+                    </div>
+                  </div>
                   <label className="mt-2 block">
                     <span className="text-xs text-mute2">Descrição curta</span>
                     <textarea
@@ -140,16 +169,28 @@ function ProfissionaisPage() {
                     onClick={() =>
                       acao.executar(
                         p.id,
-                        () =>
-                          salvar({
+                        async () => {
+                          let avatarUrl = atual.avatarUrl;
+                          if (atual.avatarFile) {
+                            const extensao = atual.avatarFile.type === "image/png" ? "png" : "jpg";
+                            const caminho = `${p.tenantId}/profissional-${p.id}-${Date.now()}.${extensao}`;
+                            const { error } = await supabase.storage
+                              .from("tenant-logos")
+                              .upload(caminho, atual.avatarFile, { contentType: atual.avatarFile.type });
+                            if (error) throw new Error("Não foi possível enviar a foto do profissional.");
+                            avatarUrl = caminho;
+                          }
+                          return salvar({
                             data: {
                               id: p.id,
                               descricao: atual.descricao,
                               portfolio: atual.fotos
                                 .map((f) => f.valor)
                                 .slice(0, MAX_FOTOS_DO_PORTFOLIO),
+                              avatarUrl,
                             },
-                          }),
+                          });
+                        },
                         {
                           sucesso: `Perfil de ${p.nome} salvo.`,
                           aoConcluir: async () => {
@@ -167,6 +208,53 @@ function ProfissionaisPage() {
           );
         })}
       </ul>
+
+      {erroAvatar ? <p role="alert" className="mt-3 text-sm text-red-400">{erroAvatar}</p> : null}
+      <input
+        ref={avatarInput}
+        type="file"
+        accept="image/png,image/jpeg,image/webp"
+        className="hidden"
+        onChange={(event) => {
+          const file = event.target.files?.[0];
+          event.target.value = "";
+          if (!file || !profissionalAlvo) return;
+          if (!["image/png", "image/jpeg", "image/webp"].includes(file.type) || file.size > 20 * 1024 * 1024) {
+            setErroAvatar("Escolha uma imagem JPG, PNG ou WebP de até 20 MB.");
+            return;
+          }
+          setErroAvatar(null);
+          setImagemPendente({ profissionalId: profissionalAlvo, file });
+          setProfissionalAlvo(null);
+        }}
+      />
+      {imagemPendente ? (
+        <AjustadorImagem
+          file={imagemPendente.file}
+          titulo="Ajustar foto do profissional"
+          proporcao={1}
+          fit="cover"
+          onCancelar={() => setImagemPendente(null)}
+          onConfirmar={(arquivo) => {
+            const profissionalId = imagemPendente.profissionalId;
+            const preview = URL.createObjectURL(arquivo);
+            setForm((s) => {
+              const atual = s[profissionalId];
+              if (!atual) return s;
+              if (atual.avatarPreview?.startsWith("blob:")) URL.revokeObjectURL(atual.avatarPreview);
+              return {
+                ...s,
+                [profissionalId]: {
+                  ...atual,
+                  avatarFile: arquivo,
+                  avatarPreview: preview,
+                },
+              };
+            });
+            setImagemPendente(null);
+          }}
+        />
+      ) : null}
     </Screen>
   );
 }
