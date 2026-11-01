@@ -4,7 +4,6 @@ import {
   CalendarDays,
   Check,
   Clock3,
-  CreditCard,
   Globe,
   HandHelping,
   MapPin,
