@@ -1,6 +1,8 @@
 import type { CSSProperties } from "react";
 
 /** Tema independente da rota pública de entrada: sempre Dark Navy, mesmo se html estiver .light. */
+export const CLASSE_TELA_ENTRADA = "auth-screen entrada dark";
+
 export const TEMA_FIXO_ENTRADA = {
   "--fundo": "#07152d",
   "--painel": "#18324f",
