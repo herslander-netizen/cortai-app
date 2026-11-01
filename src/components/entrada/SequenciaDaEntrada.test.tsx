@@ -43,8 +43,8 @@ describe("SequenciaDaEntrada", () => {
     expect(abas.length).toBe(5);
     expect(abas.map((aba) => aba.getAttribute("aria-label"))).toEqual([
       "Mostrar etapa: SITE PRÓPRIO",
-      "Mostrar etapa: AGENDA",
-      "Mostrar etapa: WHATSAPP",
+      "Mostrar etapa: AGENDAR",
+      "Mostrar etapa: LEMBRETES",
       "Mostrar etapa: AVALIAÇÕES",
       "Mostrar etapa: DESEMPENHO",
     ]);
@@ -61,7 +61,7 @@ describe("SequenciaDaEntrada", () => {
 
     expect(whatsapp?.getAttribute("aria-selected")).toBe("true");
     expect(whatsapp?.tabIndex).toBe(0);
-    expect(alvo.querySelector("h2")?.textContent).toBe("Lembretes direto no WhatsApp");
+    expect(alvo.querySelector("h2")?.textContent).toBe("Menos faltas, mais agenda cheia");
   });
 
   it("permite navegar pelas etapas com as setas e Home/End", async () => {
