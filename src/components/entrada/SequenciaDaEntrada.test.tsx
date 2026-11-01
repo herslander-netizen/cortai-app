@@ -49,7 +49,9 @@ describe("SequenciaDaEntrada", () => {
       "Mostrar etapa: DESEMPENHO",
     ]);
     expect(abas.every((aba) => aba.getAttribute("style")?.includes("48px"))).toBe(true);
-    expect(abas[1]?.style.color).toBe("var(--figaro-on-surface-variant)");
+    expect(abas[1]?.style.color).toBe("rgba(255, 255, 255, 0.45)");
+    expect(abas[0]?.style.color).toBe("#FF2D78");
+    expect(abas[0]?.style.filter).toBe("drop-shadow(0 0 10px rgba(255,45,120,0.75))");
     expect(abas[0]?.getAttribute("aria-selected")).toBe("true");
     expect(abas[0]?.tabIndex).toBe(0);
     expect(abas[1]?.tabIndex).toBe(-1);
@@ -139,7 +141,7 @@ describe("SequenciaDaEntrada", () => {
     expect(alvo.querySelector(".entrada-cartao-legenda p")?.textContent).toBe("SITE PRÓPRIO");
     expect(alvo.querySelector('[aria-label="Progresso da apresentação"]')).toBeNull();
     expect(alvo.querySelectorAll(".entrada-chips span[aria-hidden=\"true\"]")).toHaveLength(5);
-    expect(alvo.querySelector('.entrada-chip span[aria-hidden="true"]')?.getAttribute("style")).toContain("var(--figaro-tertiary)");
+    expect(alvo.querySelector('.entrada-chip span[aria-hidden="true"]')?.getAttribute("style")).toContain("#FFD700");
     expect(alvo.querySelector(".entrada-cartao")?.textContent).toContain("Seu site próprio em minutos");
     expect(alvo.querySelector(".entrada-cartao")?.getAttribute("style")).toContain("var(--elevacao-2)");
 
