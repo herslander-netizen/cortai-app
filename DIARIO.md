@@ -548,7 +548,6 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Em andamento
 
-- GPT | 2026-11-01 UTC | Suavizar exclusivamente as sombras de elevação da Agenda, mantendo-as visíveis e preservando a paridade entre tema claro/escuro; não alterar layout nem as reservas do Login/Showcase | `DIARIO.md`, `src/styles.css`, `src/lib/estilo-figaro.test.ts`; sem migração
 
 
 
@@ -917,6 +916,14 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+
+### 2026-11-01 UTC — GPT — Suaviza as sombras de elevação da Agenda
+- O que mudou: as elevações 3 e 6 usadas pelos elementos flutuantes da Agenda ficaram mais discretas (opacidade de 0,30/0,15 para 0,16/0,08). O ajuste está limitado a `:root[data-tela-agenda]`, preserva a sombra e mantém a mesma regra nos temas claro e escuro; os demais módulos continuam com os tokens originais.
+- Arquivos: `src/styles.css`, `src/lib/estilo-figaro.test.ts`.
+- Teste novo: guarda que verifica os valores suavizados dentro do escopo da Agenda e confirma que os tokens globais permanecem intactos.
+- Validação: não executei os comandos localmente nesta sessão. GitHub Actions ainda precisa confirmar TypeScript, Vitest, build e deploy da prévia; conferência visual em 360/390 px nos dois temas também está pendente.
+- Escopo preservado: sem mudança de layout, comportamento, autenticação, trabalho do Login/Showcase, banco, `main`, produção ou site principal.
+
 
 ### 2026-10-31 UTC — GPT — Alinha os campos do login e da recuperação às superfícies
 - O que mudou: o campo de login agora usa a superfície elevada escura do painel de acesso, em vez de herdar o preenchimento claro da classe `light`. A recuperação em tela cheia define explicitamente fundo, texto e rótulos dos campos pelos tokens da superfície clara, sem depender do tema global anterior.
