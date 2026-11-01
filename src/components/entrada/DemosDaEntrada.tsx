@@ -145,35 +145,6 @@ export function DemoAgendamento() {
   );
 }
 
-export function DemoWhatsApp() {
-  const reduzir = useReducedMotion();
-  return (
-    <Aparelho nome="Lembrete no WhatsApp com ações para confirmar ou remarcar">
-      <div className="w-full max-w-[280px] space-y-3">
-        <CabecalhoDemo icone={MessageCircle} titulo="Lembrete automático" detalhe="Notificação do atendimento" />
-        <motion.div
-          initial={reduzir ? false : { opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: reduzir ? 0.12 : 0.22 }}
-          className="space-y-2 rounded-xl p-3"
-          style={{ background: "color-mix(in oklab, var(--whatsapp) 18%, var(--figaro-primary))", border: "1px solid color-mix(in oklab, var(--whatsapp) 35%, transparent)" }}
-        >
-          <p className="text-[11px] leading-relaxed">Olá, <b>Lucas</b>! Seu horário é hoje às <b>14:00</b>. Podemos confirmar seu atendimento?</p>
-          <div className="flex items-center justify-end gap-1 text-[9px]" style={suave}><Clock3 size={10} /> 09:01 · Enviado</div>
-        </motion.div>
-        <div className="grid gap-1.5">
-          <div className="flex items-center justify-center gap-1.5 rounded-lg px-2 py-2 text-[11px] font-bold" style={{ background: "var(--sage-soft)", color: "var(--sage)" }}>
-            <Check size={13} /> 1 · Confirmar horário
-          </div>
-          <div className="rounded-lg px-2 py-2 text-center text-[11px] font-semibold" style={{ background: "color-mix(in oklab, var(--figaro-on-primary) 8%, transparent)", color: "var(--figaro-on-primary)" }}>
-            2 · Remarcar
-          </div>
-        </div>
-      </div>
-    </Aparelho>
-  );
-}
-
 export function DemoAgenda() {
   return (
     <Aparelho nome="Agendamento online com seleção de dias e horários disponíveis">
