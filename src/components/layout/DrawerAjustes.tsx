@@ -6,7 +6,6 @@ import {
   ChevronRight,
   CircleHelp,
   CreditCard,
-  Eye,
   LogOut,
   Repeat,
   Settings,
@@ -63,12 +62,6 @@ const ITENS = [
     detalhe: "Perfil, formas de entrar e segurança",
     to: "/barbeiro/conta",
     icon: Settings,
-  },
-  {
-    label: "Sua Página",
-    detalhe: "Personalize a página pública, layout e seções",
-    to: "/barbeiro/marca",
-    icon: Eye,
   },
   {
     label: "Funcionalidades",
