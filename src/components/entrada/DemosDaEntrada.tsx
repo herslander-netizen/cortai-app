@@ -7,7 +7,6 @@ import {
   Globe,
   HandHelping,
   MapPin,
-  MessageCircle,
   Sparkles,
   Star,
   ChartNoAxesCombined,
