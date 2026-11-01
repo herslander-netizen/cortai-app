@@ -141,7 +141,7 @@ describe("SequenciaDaEntrada", () => {
     expect(alvo.querySelector(".entrada-cartao-legenda p")?.textContent).toBe("SITE PRÓPRIO");
     expect(alvo.querySelector('[aria-label="Progresso da apresentação"]')).toBeNull();
     expect(alvo.querySelectorAll(".entrada-chips span[aria-hidden=\"true\"]")).toHaveLength(5);
-    expect(alvo.querySelector('.entrada-chip span[aria-hidden="true"]')?.getAttribute("style")).toContain("#FFD700");
+    expect(alvo.querySelector('.entrada-chip span[aria-hidden="true"]')?.getAttribute("style")).toContain("rgba(255, 215, 0, 0.18)");
     expect(alvo.querySelector(".entrada-cartao")?.textContent).toContain("Seu site próprio em minutos");
     expect(alvo.querySelector(".entrada-cartao")?.getAttribute("style")).toContain("var(--elevacao-2)");
 
