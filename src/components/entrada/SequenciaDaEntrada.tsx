@@ -281,7 +281,7 @@ export function SequenciaDaEntrada() {
               </span>
             </Button>
           );
-        })}}
+        })}
       </div>
     </section>
   );
