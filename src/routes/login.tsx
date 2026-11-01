@@ -19,7 +19,7 @@ import { MarcaFlow } from "@/components/marca/MarcaFlow";
 import { sincronizarCorDoNavegador } from "@/lib/aparencia";
 import { mensagemDeErroDeAuth } from "@/lib/auth-flow";
 import { SequenciaDaEntrada } from "@/components/entrada/SequenciaDaEntrada";
-import { TEMA_FIXO_ENTRADA } from "@/components/entrada/tema-fixo";
+import { CLASSE_TELA_ENTRADA, TEMA_FIXO_ENTRADA } from "@/components/entrada/tema-fixo";
 import { OndasDaEntrada } from "@/components/entrada/OndasDaEntrada";
 import { CURVA, TEMPO } from "@/lib/movimento-figaro";
 import { ForgotPasswordSheet } from "@/components/auth/ForgotPasswordSheet";
@@ -304,7 +304,7 @@ function LoginPage() {
 
   return (
     <main
-      className="auth-screen entrada dark"
+      className={CLASSE_TELA_ENTRADA}
       style={TEMA_FIXO_ENTRADA}
     >
       <OndasDaEntrada />
