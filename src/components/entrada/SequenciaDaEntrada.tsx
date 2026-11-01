@@ -1,12 +1,6 @@
 import { useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import {
-  Bell,
-  CalendarDays,
-  ChartNoAxesCombined,
-  Globe,
-  Star,
-  type LucideIcon,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -27,11 +21,11 @@ export const PASSOS_DA_ENTRADA: {
   titulo: string;
   texto: string;
   demo: ReactNode;
-  icone: LucideIcon;
+  icone: "site" | "agenda" | "chatbot" | "financeiro" | "relatorios";
 }[] = [
   {
     id: "site",
-    icone: Globe,
+    icone: "site",
     rotulo: "SITE PRÓPRIO",
     titulo: "Seu site próprio em minutos",
     texto: "Compartilhe seu link profissional com fotos, serviços e avaliações reais.",
@@ -39,7 +33,7 @@ export const PASSOS_DA_ENTRADA: {
   },
   {
     id: "agenda",
-    icone: CalendarDays,
+    icone: "agenda",
     rotulo: "AGENDAR",
     titulo: "Seus clientes agendam sozinhos",
     texto: "Horários livres em tempo real, sem troca de mensagens.",
@@ -47,7 +41,7 @@ export const PASSOS_DA_ENTRADA: {
   },
   {
     id: "whatsapp",
-    icone: Bell,
+    icone: "chatbot",
     rotulo: "LEMBRETES",
     titulo: "Menos faltas, mais agenda cheia",
     texto: "Avisos automáticos pelo WhatsApp, só quando fazem sentido.",
@@ -55,7 +49,7 @@ export const PASSOS_DA_ENTRADA: {
   },
   {
     id: "avaliacoes",
-    icone: Star,
+    icone: "financeiro",
     rotulo: "AVALIAÇÕES",
     titulo: "A confiança aparece",
     texto: "Acompanhe as avaliações e veja o que seus clientes dizem do atendimento.",
@@ -63,7 +57,7 @@ export const PASSOS_DA_ENTRADA: {
   },
   {
     id: "desempenho",
-    icone: ChartNoAxesCombined,
+    icone: "relatorios",
     rotulo: "DESEMPENHO",
     titulo: "Seu negócio em números",
     texto: "Acompanhe os indicadores e ajuste as configurações do seu negócio.",
@@ -71,8 +65,8 @@ export const PASSOS_DA_ENTRADA: {
   },
 ];
 
-/** Cada cena dura 4,5 s; o avanço pausa durante foco, interação e movimento reduzido. */
-export const DURACAO_DO_PASSO_MS = 4500;
+/** Cada cena dura 5 s; o avanço pausa durante foco, interação e movimento reduzido. */
+export const DURACAO_DO_PASSO_MS = 5000;
 const INTERVALO_PROGRESSO_MS = 50;
 
 export function SequenciaDaEntrada() {
@@ -223,10 +217,10 @@ export function SequenciaDaEntrada() {
         </Card>
       </SwipeableShowcase>
 
-      <div className="entrada-chips flex shrink-0 items-center justify-between gap-2" role="tablist" aria-label="Cenas da apresentação">
+      <div className="entrada-chips flex shrink-0 items-center justify-between gap-2" role="tablist" aria-label="Cenas da apresentação" onPointerDownCapture={() => setSobPonteiro(true)} onPointerUpCapture={() => setSobPonteiro(false)} onPointerCancel={() => setSobPonteiro(false)} onLostPointerCapture={() => setSobPonteiro(false)}>
         {PASSOS_DA_ENTRADA.map((cena, i) => {
-          const Icone = cena.icone;
           const ativa = i === indice;
+          const concluida = i < indice;
           return (
             <Button
               key={cena.id}
@@ -240,16 +234,51 @@ export function SequenciaDaEntrada() {
               aria-selected={ativa}
               aria-controls={idDoPainel}
               tabIndex={ativa ? 0 : -1}
-              className="entrada-chip relative shrink-0 overflow-hidden rounded-full"
-              style={{ flex: "0 0 48px", width: 48, height: 48, minWidth: 48, minHeight: 48, color: ativa ? "var(--figaro-tertiary)" : "var(--figaro-on-surface-variant)" }}
+              className="entrada-chip relative shrink-0 overflow-visible rounded-full"
+              style={{
+                flex: "0 0 48px", width: 48, height: 48, minWidth: 48, minHeight: 48,
+                color: ativa ? "#FF2D78" : "rgba(255,255,255,0.45)",
+                filter: ativa ? "drop-shadow(0 0 10px rgba(255,45,120,0.75))" : "none",
+                transition: "color 180ms ease, filter 180ms ease, transform 180ms ease",
+                transform: ativa ? "scale(1.08)" : "scale(1)",
+              }}
               onClick={() => trocarEtapa(i)}
               onKeyDown={(event) => navegarPelasAbas(event, i)}
+              onPointerDown={() => setSobPonteiro(true)}
+              onPointerUp={() => setSobPonteiro(false)}
+              onPointerCancel={() => setSobPonteiro(false)}
+              onLostPointerCapture={() => setSobPonteiro(false)}
             >
-              <Icone className="relative z-10 size-5" aria-hidden="true" />
-              <span aria-hidden="true" className="absolute bottom-0 left-1/2 h-[3px] w-5 -translate-x-1/2 rounded-full" style={{ background: ativa ? "var(--figaro-tertiary)" : "transparent", transition: "background 180ms ease" }} />
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="relative z-10 size-6" aria-hidden="true">
+                {cena.icone === "site" && <>
+                  <circle cx="12" cy="12" r="9.5" />
+                  <path d="M2.8 9h18.4M2.8 15h18.4M12 2.5c2.5 2.6 3.8 5.8 3.8 9.5s-1.3 6.9-3.8 9.5c-2.5-2.6-3.8-5.8-3.8-9.5S9.5 5.1 12 2.5Z" />
+                </>}
+                {cena.icone === "agenda" && <>
+                  <rect x="3" y="4.5" width="18" height="17" rx="3.5" />
+                  <path d="M8 2.5v4M16 2.5v4M3.5 9.5h17" />
+                </>}
+                {cena.icone === "chatbot" && <>
+                  <path d="M20.5 11.5a8 8 0 0 1-8.1 8 8.8 8.8 0 0 1-3.6-.8L3 20l1.3-4.2a7.6 7.6 0 0 1-.9-3.8 8 8 0 0 1 8.1-8h.9a8 8 0 0 1 8.1 7.5Z" />
+                  <path d="M8.5 11.5h.01M12 11.5h.01M15.5 11.5h.01" strokeWidth="2.6" />
+                  <path d="M17.5 4.5v-2m-1 1h2" />
+                </>}
+                {cena.icone === "financeiro" && <>
+                  <rect x="3" y="5.5" width="18" height="14" rx="2.5" />
+                  <path d="M3.5 9h17M15 13h6v4h-6a2 2 0 0 1 0-4Z" />
+                  <circle cx="16.5" cy="15" r=".55" fill="currentColor" stroke="none" />
+                </>}
+                {cena.icone === "relatorios" && <>
+                  <path d="M4 20.5V13a1.5 1.5 0 0 1 3 0v7.5M10.5 20.5V5.5a1.5 1.5 0 0 1 3 0v15M17 20.5V9a1.5 1.5 0 0 1 3 0v11.5M3 20.5h18" />
+                </>}
+              </svg>
+              <span aria-hidden="true" className="absolute bottom-[-5px] left-1/2 h-[3px] w-6 -translate-x-1/2 overflow-hidden rounded-full" style={{ background: ativa || concluida ? "rgba(255,215,0,0.18)" : "rgba(255,255,255,0.12)" }}>
+                {ativa && <motion.span className="block h-full rounded-full" style={{ width: `${Math.min(100, Math.max(0, progresso))}%`, background: "#FFD700" }} transition={{ duration: 0.05, ease: "linear" }} />}
+                {concluida && <span className="block h-full w-full rounded-full" style={{ background: "rgba(255,215,0,0.42)" }} />}
+              </span>
             </Button>
           );
-        })}
+        })}}
       </div>
     </section>
   );
