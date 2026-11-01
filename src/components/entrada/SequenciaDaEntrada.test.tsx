@@ -50,7 +50,7 @@ describe("SequenciaDaEntrada", () => {
     ]);
     expect(abas.every((aba) => aba.getAttribute("style")?.includes("48px"))).toBe(true);
     expect(abas[1]?.style.color).toBe("rgba(255, 255, 255, 0.45)");
-    expect(abas[0]?.style.color).toBe("#FF2D78");
+    expect(abas[0]?.style.color).toBe("rgb(255, 45, 120)");
     expect(abas[0]?.style.filter).toBe("drop-shadow(0 0 10px rgba(255,45,120,0.75))");
     expect(abas[0]?.getAttribute("aria-selected")).toBe("true");
     expect(abas[0]?.tabIndex).toBe(0);
