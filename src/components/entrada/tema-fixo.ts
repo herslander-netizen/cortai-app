@@ -89,4 +89,4 @@ export const TEMA_FIXO_ENTRADA = {
   background: "var(--fundo)",
   color: "var(--texto)",
   colorScheme: "dark",
-} as CSSProperties;
+} as CSSProperties & Record<string, string | number>;
