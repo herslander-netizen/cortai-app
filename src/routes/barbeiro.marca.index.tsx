@@ -375,7 +375,7 @@ function Editor({
       <h2 className="mb-3 px-4 text-sm font-semibold text-[var(--figaro-on-surface-variant,var(--mute))]">
         Layout e tema
       </h2>
-      <section className="mb-6 overflow-hidden rounded-[28px] bg-[var(--figaro-surface-container,var(--ink2))]">
+      <section className="mb-6 overflow-hidden rounded-[28px] border border-[#e8edf2] bg-white shadow-sm">
         <div className="aspect-video overflow-hidden bg-background">
           <CapaDoTema tema={visual.tema} />
         </div>
@@ -384,13 +384,13 @@ function Editor({
             <div className="min-w-0 pr-4">
               <LayoutTemplate
                 size={24}
-                className="text-[var(--figaro-primary,var(--primary))]"
+                className="text-[#27569a]"
                 aria-label="Layout"
               />
-              <p className="mt-3 truncate text-lg font-semibold leading-7 text-paper">
+              <p className="mt-3 truncate text-lg font-semibold leading-7 text-[#202833]">
                 {LAYOUTS[visual.layout]}
               </p>
-              <p className="text-sm leading-5 text-mute">
+              <p className="text-sm leading-5 text-[#687385]">
                 {visual.layout === "cortai-chat"
                   ? "Atendimento em conversa"
                   : `${totalDeSecoesAtivas(e.config)} seções ativas`}
