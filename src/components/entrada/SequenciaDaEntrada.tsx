@@ -1,10 +1,10 @@
 import { useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import {
+  Bell,
   CalendarDays,
   ChartNoAxesCombined,
   Globe,
-  MessageCircle,
   Star,
   type LucideIcon,
 } from "lucide-react";
@@ -40,17 +40,17 @@ export const PASSOS_DA_ENTRADA: {
   {
     id: "agenda",
     icone: CalendarDays,
-    rotulo: "AGENDA",
-    titulo: "Sua rotina organizada",
-    texto: "Visualize os horários, os profissionais e os próximos atendimentos.",
+    rotulo: "AGENDAR",
+    titulo: "Seus clientes agendam sozinhos",
+    texto: "Horários livres em tempo real, sem troca de mensagens.",
     demo: <DemoAgenda />,
   },
   {
     id: "whatsapp",
-    icone: MessageCircle,
-    rotulo: "WHATSAPP",
-    titulo: "Lembretes direto no WhatsApp",
-    texto: "Confirmações automáticas que reduzem faltas e organizam seus horários.",
+    icone: Bell,
+    rotulo: "LEMBRETES",
+    titulo: "Menos faltas, mais agenda cheia",
+    texto: "Avisos automáticos pelo WhatsApp, só quando fazem sentido.",
     demo: <DemoWhatsApp />,
   },
   {
