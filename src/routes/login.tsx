@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate, redirect, Link } from "@tanstack/react-router";
-import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 
 import { Button } from "@/components/ui/button";
@@ -19,6 +19,7 @@ import { MarcaFlow } from "@/components/marca/MarcaFlow";
 import { sincronizarCorDoNavegador } from "@/lib/aparencia";
 import { mensagemDeErroDeAuth } from "@/lib/auth-flow";
 import { SequenciaDaEntrada } from "@/components/entrada/SequenciaDaEntrada";
+import { TEMA_FIXO_ENTRADA } from "@/components/entrada/tema-fixo";
 import { OndasDaEntrada } from "@/components/entrada/OndasDaEntrada";
 import { CURVA, TEMPO } from "@/lib/movimento-figaro";
 import { ForgotPasswordSheet } from "@/components/auth/ForgotPasswordSheet";
@@ -223,7 +224,11 @@ function LoginPage() {
 
   useEffect(() => {
     const meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
-    if (meta) meta.content = "#07152d";
+    const tela = document.querySelector<HTMLElement>(".auth-screen.entrada");
+    const fundo = tela
+      ? getComputedStyle(tela).getPropertyValue("--fundo").trim()
+      : "";
+    if (meta && fundo) meta.content = fundo;
     return () => sincronizarCorDoNavegador();
   }, []);
 
@@ -300,94 +305,7 @@ function LoginPage() {
   return (
     <main
       className="auth-screen entrada dark"
-      style={
-        {
-          // Tema exclusivo da entrada: escuro Navy, isolado do tema global/sistema.
-          "--fundo": "#07152d",
-          "--painel": "#18324f",
-          "--cartao": "#0f2742",
-          "--linha": "#2a405c",
-          "--texto": "#f2f6fc",
-          "--texto-suave": "#b6c7df",
-          "--grafite-ink": "var(--fundo)",
-          "--grafite-surface": "var(--cartao)",
-          "--grafite-raised": "var(--painel)",
-          "--grafite-paper": "var(--texto)",
-          "--grafite-muted": "var(--texto-suave)",
-          "--grafite-muted-2": "var(--texto-suave)",
-          "--grafite-line": "var(--linha)",
-          "--grafite-line-2": "#405878",
-          "--ink": "var(--fundo)",
-          "--ink2": "var(--cartao)",
-          "--ink3": "var(--painel)",
-          "--paper": "var(--texto)",
-          "--mute": "var(--texto-suave)",
-          "--mute2": "var(--texto-suave)",
-          "--line": "var(--linha)",
-          "--line2": "#405878",
-          "--background": "var(--fundo)",
-          "--foreground": "var(--texto)",
-          "--card": "var(--cartao)",
-          "--card-foreground": "var(--texto)",
-          "--popover": "var(--painel)",
-          "--popover-foreground": "var(--texto)",
-          "--primary": "#27569a",
-          "--primary-foreground": "#ffffff",
-          "--secondary": "var(--painel)",
-          "--secondary-foreground": "var(--texto)",
-          "--muted": "var(--painel)",
-          "--muted-foreground": "var(--texto-suave)",
-          "--accent": "var(--painel)",
-          "--accent-foreground": "var(--texto)",
-          "--border": "var(--linha)",
-          "--input": "#405878",
-          "--ring": "#9bb9ff",
-          "--figaro-primary": "#9fbef6",
-          "--figaro-on-primary": "#002e66",
-          "--figaro-primary-container": "#00408f",
-          "--figaro-on-primary-container": "#d5e2ff",
-          "--figaro-secondary": "#f7b5bf",
-          "--figaro-on-secondary": "#54222e",
-          "--figaro-secondary-container": "#6e3843",
-          "--figaro-on-secondary-container": "#ffdade",
-          "--figaro-tertiary": "#ffa6bf",
-          "--figaro-on-tertiary": "#65052a",
-          "--figaro-tertiary-container": "#8e0e3f",
-          "--figaro-on-tertiary-container": "#ffdade",
-          "--figaro-background": "var(--fundo)",
-          "--figaro-on-background": "var(--texto)",
-          "--figaro-surface": "var(--cartao)",
-          "--figaro-on-surface": "var(--texto)",
-          "--figaro-surface-variant": "var(--painel)",
-          "--figaro-on-surface-variant": "var(--texto-suave)",
-          "--figaro-inverse-surface": "var(--texto)",
-          "--figaro-inverse-on-surface": "var(--fundo)",
-          "--figaro-error": "#f2b8b5",
-          "--figaro-on-error": "#601410",
-          "--figaro-error-container": "#8c1d18",
-          "--figaro-on-error-container": "#f9dedc",
-          "--figaro-outline": "#9d8f8b",
-          "--figaro-outline-variant": "var(--linha)",
-          "--figaro-surface-bright": "#545b56",
-          "--figaro-surface-container": "var(--painel)",
-          "--figaro-surface-container-high": "#3e4440",
-          "--figaro-surface-container-highest": "#4e5550",
-          "--figaro-surface-container-low": "#122b48",
-          "--figaro-surface-container-lowest": "var(--fundo)",
-          "--figaro-surface-dim": "var(--fundo)",
-          "--entrada-fundo": "var(--fundo)",
-          "--campo-fundo": "var(--cartao)",
-          "--entrada-ciano": "var(--figaro-primary)",
-          "--entrada-rosa": "var(--figaro-tertiary)",
-          "--entrada-texto": "var(--texto)",
-          "--entrada-suave": "var(--texto-suave)",
-          height: "100dvh",
-          minHeight: "100dvh",
-          background: "var(--fundo)",
-          color: "var(--texto)",
-          colorScheme: "dark",
-        } as CSSProperties
-      }
+      style={TEMA_FIXO_ENTRADA}
     >
       <OndasDaEntrada />
       <div
