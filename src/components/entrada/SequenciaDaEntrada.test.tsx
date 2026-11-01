@@ -56,7 +56,7 @@ describe("SequenciaDaEntrada", () => {
     expect(painel?.getAttribute("aria-labelledby")).toBe(abas[0]?.id);
     expect(alvo.querySelector("h2")?.textContent).toBe("Seu site próprio em minutos");
 
-    const whatsapp = abas.find((aba) => aba.getAttribute("aria-label") === "Mostrar etapa: WHATSAPP");
+    const whatsapp = abas.find((aba) => aba.getAttribute("aria-label") === "Mostrar etapa: LEMBRETES");
     await act(async () => whatsapp?.click());
 
     expect(whatsapp?.getAttribute("aria-selected")).toBe("true");
@@ -139,7 +139,7 @@ describe("SequenciaDaEntrada", () => {
     expect(alvo.querySelector(".entrada-cartao-legenda p")?.textContent).toBe("SITE PRÓPRIO");
     expect(alvo.querySelector('[aria-label="Progresso da apresentação"]')).toBeNull();
     expect(alvo.querySelectorAll(".entrada-chips span[aria-hidden=\"true\"]")).toHaveLength(5);
-    expect(alvo.querySelector(".entrada-chips [aria-hidden=true]")?.getAttribute("style")).toContain("var(--figaro-tertiary)");
+    expect(alvo.querySelector(".entrada-chip span[aria-hidden="true"]")?.getAttribute("style")).toContain("var(--figaro-tertiary)");
     expect(alvo.querySelector(".entrada-cartao")?.textContent).toContain("Seu site próprio em minutos");
     expect(alvo.querySelector(".entrada-cartao")?.getAttribute("style")).toContain("var(--elevacao-2)");
 
