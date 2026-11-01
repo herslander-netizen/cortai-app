@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-const card = "w-full h-full bg-white rounded-2xl overflow-hidden shadow-2xl border border-gray-100 flex flex-col";
+const card = "w-full h-full bg-white rounded-2xl overflow-hidden shadow-[var(--elevacao-2)] border border-gray-100 flex flex-col";
 
 type Servico = [string, string, string];
 type Segmento = {
@@ -70,7 +70,7 @@ export function AgendaMockup() {
 export function AutoMockup() {
   const [confirmado, setConfirmado] = useState(false);
   return (
-    <div className="w-full h-full flex gap-3 items-stretch justify-center bg-gradient-to-b from-emerald-50 to-gray-100 p-4 rounded-2xl border shadow-2xl overflow-hidden">
+    <div className="w-full h-full flex gap-3 items-stretch justify-center bg-gradient-to-b from-emerald-50 to-gray-100 p-4 rounded-2xl border shadow-[var(--elevacao-2)] overflow-hidden">
       <div className="w-[260px] max-w-full bg-[#0b141a] rounded-[1.8rem] p-1.5 shadow-xl"><div className="bg-[#e7ddd3] rounded-[1.4rem] overflow-hidden flex flex-col h-[380px]">
         <div className="bg-[#075E54] text-white px-3 py-2.5 flex items-center gap-2"><div className="w-7 h-7 rounded-full bg-white flex items-center justify-center">✨</div><div className="flex-1"><div className="text-[12px] font-bold leading-none">Espaço Bella 🤖</div><div className="text-[10px] opacity-80">online • responde na hora</div></div></div>
         <div className="flex-1 p-2.5 space-y-2 text-[11px] leading-snug"><div className="bg-white p-2 rounded-lg rounded-tl-none shadow max-w-[90%]">Olá, Mariana! 👋 Aqui é do <b>Espaço Bella</b>. Seu horário amanhã às <b>14:00</b> com a Paula ainda está de pé?</div>
@@ -101,7 +101,7 @@ export function FilaMockup() {
     { nome: "Mariana", tempo: "~30 min", cor: "bg-gray-300", pos: 3 },
   ]);
   return (
-    <div className="w-full h-full bg-zinc-950 text-white rounded-2xl p-4 shadow-2xl border border-white/10 flex flex-col overflow-hidden">
+    <div className="w-full h-full bg-zinc-950 text-white rounded-2xl p-4 shadow-[var(--elevacao-2)] border border-white/10 flex flex-col overflow-hidden">
       <div className="flex items-center justify-between"><div><div className="text-[10px] tracking-widest text-violet-300 font-black">🔴 AO VIVO • PAINEL E QR CODE</div><div className="text-[15px] font-extrabold">Fila de Espera Automática</div><div className="text-[11px] opacity-60">Salão • Clínica • Barbearia • Studio</div></div><div className="text-center bg-white text-black rounded-xl px-2.5 py-1.5"><div className="text-[9px] font-bold">AGORA</div><div className="text-lg font-black leading-none">03</div></div></div>
       <div className="mt-3 space-y-2 flex-1">{fila.map((f) => <div key={f.pos} className="flex items-center gap-3 bg-white/10 border border-white/10 rounded-xl p-2.5"><div className="w-8 h-8 rounded-full bg-white text-black font-black flex items-center justify-center">{f.pos}</div><div className="flex-1"><div className="text-[13px] font-bold">{f.nome}</div><div className="text-[11px] opacity-60">{f.tempo}</div></div><div className={"w-2.5 h-2.5 rounded-full " + f.cor + " animate-pulse"} /></div>)}</div>
       <button type="button" onClick={() => setFila((prev) => prev.length > 1 ? prev.slice(1).map((p,i) => ({...p,pos:i+1,tempo:i===0 ? "Em atendimento" : "~" + (i*15) + " min"})) : prev)} className="mt-3 w-full bg-white text-black font-extrabold text-[13px] py-2.5 rounded-xl hover:bg-violet-200 transition">Chamar próximo ⏭️ • Sem app, via QR Code</button>
