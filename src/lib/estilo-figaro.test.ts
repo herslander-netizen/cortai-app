@@ -428,3 +428,15 @@ describe("toque dos ícones do topo da Agenda e aparência no menu (dono, 31/10)
     expect(intervalo).toContain("success={gravar.isSuccess}");
   });
 });
+
+
+describe("sombras da Agenda", () => {
+  it("usa elevações mais suaves somente dentro da tela da Agenda", () => {
+    const css = readFileSync("src/styles.css", "utf8");
+    expect(css).toMatch(
+      /:root\\[data-tela-agenda\\] \\{[^}]*--elevacao-3: 0 1px 2px rgb\\(0 0 0 \\/ 0\\.16\\), 0 2px 6px 2px rgb\\(0 0 0 \\/ 0\\.08\\);[^}]*--elevacao-6: 0 1px 3px rgb\\(0 0 0 \\/ 0\\.16\\), 0 4px 8px 3px rgb\\(0 0 0 \\/ 0\\.08\\);/s,
+    );
+    expect(css).toContain("--elevacao-3: 0 1px 2px rgb(0 0 0 / 0.3), 0 2px 6px 2px rgb(0 0 0 / 0.15);");
+    expect(css).toContain("--elevacao-6: 0 1px 3px rgb(0 0 0 / 0.3), 0 4px 8px 3px rgb(0 0 0 / 0.15);");
+  });
+});
