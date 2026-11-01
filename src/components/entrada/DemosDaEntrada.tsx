@@ -176,77 +176,40 @@ export function DemoWhatsApp() {
 }
 
 export function DemoAgenda() {
-  const reduzir = useReducedMotion();
   return (
-    <Aparelho nome="Agenda do Flow com timeline em tempo real e modo foco">
-      <div className="w-full max-w-[280px] space-y-3">
-        <CabecalhoDemo icone={CalendarDays} titulo="Agosto, 2026" detalhe="Agenda da equipe" />
-        <div className="grid grid-cols-7 gap-1 text-center">
-          {["D","S","T","Q","Q","S","S"].map((dia, i) => <span key={dia + i} className="text-[9px]" style={suave}>{dia}</span>)}
-          {["27","28","29","30","31","1","2"].map((dia, i) => <span key={dia} className="grid h-7 place-items-center rounded-lg text-[10px]" style={i === 2 ? { background: "var(--figaro-tertiary)", color: "var(--figaro-on-tertiary)" } : { background: "color-mix(in oklab, var(--figaro-on-primary) 8%, transparent)" }}>{dia}</span>)}
+    <Aparelho nome="Agendamento online com seleção de dias e horários disponíveis">
+      <div className="w-full max-w-[280px] space-y-5">
+        <div className="flex items-center justify-center gap-2">
+          {["S", "T", "Q", "Q", "S"].map((dia, i) => (
+            <span key={dia + i} className="grid size-11 place-items-center rounded-full text-sm font-bold" style={i === 2 ? { background: "var(--figaro-primary-container)", color: "var(--figaro-on-primary-container)" } : { background: "color-mix(in oklab, var(--figaro-on-primary) 12%, transparent)", color: "var(--figaro-on-primary)" }}>{dia}</span>
+          ))}
         </div>
-        <div className="space-y-2">
-          <motion.div
-            initial={reduzir ? false : { opacity: 0, y: 6 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: reduzir ? 0.12 : 0.22 }}
-            className="rounded-xl p-3"
-            style={{ background: "color-mix(in oklab, var(--figaro-tertiary) 16%, transparent)", border: "1px solid var(--figaro-tertiary)" }}
-          >
-            <div className="flex items-center justify-between gap-2">
-              <b className="text-[11px]">14:00 · Atendimento</b>
-              <span className="text-[10px] font-bold" style={{ color: "var(--figaro-tertiary)" }}>R$ 85</span>
-            </div>
-            <p className="mt-1 text-[10px]" style={suave}>Lucas Silveira</p>
-            <span className="mt-2 inline-flex items-center gap-1 text-[9px] font-bold" style={{ color: "var(--sage)" }}>● Em andamento</span>
-          </motion.div>
-          <div className="flex items-center justify-between rounded-lg px-3 py-2 text-[10px]" style={cartao}>
-            <span>15:00 · Próximo atendimento</span><b style={{ color: "var(--figaro-tertiary)" }}>Em 45 min</b>
-          </div>
-        </div>
-        <div className="flex items-center justify-center gap-2 text-[10px]" style={suave}>
-          <Clock3 size={12} /> Timeline sincronizada em tempo real
+        <div className="grid grid-cols-3 gap-2">
+          {["09:00", "09:30", "10:00", "10:30", "11:00", "11:30"].map((hora, i) => (
+            <span key={hora} className="flex h-12 items-center justify-center rounded-2xl text-sm font-semibold" style={i === 3 ? { background: "var(--figaro-tertiary)", color: "var(--figaro-on-tertiary)" } : i === 1 ? { background: "color-mix(in oklab, var(--figaro-on-primary) 8%, transparent)", color: "var(--figaro-on-primary)", opacity: 0.45, textDecoration: "line-through" } : { background: "color-mix(in oklab, var(--figaro-on-primary) 12%, transparent)", color: "var(--figaro-on-primary)" }}>{hora}</span>
+          ))}
         </div>
       </div>
     </Aparelho>
   );
 }
 
-export function DemoCaixa() {
-  const reduzir = useReducedMotion();
+export function DemoWhatsApp() {
   return (
-    <Aparelho nome="Fechamento de comanda com Pix recebido e total do caixa">
-      <div className="w-full max-w-[280px] space-y-3">
-        <CabecalhoDemo icone={CreditCard} titulo="Fechar atendimento" detalhe="COMANDA #4082" />
-        <div className="rounded-xl p-3" style={cartao}>
-          <div className="mb-3 flex items-center justify-between">
-            <span className="text-[10px] font-bold uppercase tracking-wider" style={suave}>Resumo da comanda</span>
-            <span className="rounded-full px-2 py-1 text-[9px] font-bold" style={{ background: "var(--sage-soft)", color: "var(--sage)" }}>PAGO</span>
-          </div>
-          <div className="space-y-2 text-[10px]" style={{ color: "var(--figaro-on-primary)" }}>
-            <div className="flex justify-between"><span style={suave}>Serviço realizado</span><b>R$ 55,00</b></div>
-            <div className="flex justify-between"><span style={suave}>Produto / adicional</span><b>R$ 42,00</b></div>
-          </div>
-          <div className="mt-3 flex items-baseline justify-between border-t pt-3" style={{ borderColor: "color-mix(in oklab, var(--figaro-on-primary) 18%, transparent)" }}>
-            <span className="text-[10px]" style={suave}>Total recebido</span>
-            <b className="text-xl tabular-nums">R$ 97,00</b>
+    <Aparelho nome="Mensagem automática de lembrete pelo WhatsApp com confirmação do cliente">
+      <div className="w-full max-w-[280px] space-y-4">
+        <div className="max-w-[92%] rounded-2xl rounded-bl-md px-4 py-3 text-sm leading-snug" style={{ background: "color-mix(in oklab, var(--figaro-on-primary) 16%, transparent)", color: "var(--figaro-on-primary)" }}>
+          Oi, Ana! Amanhã às 10:30 você tem horário. Confirma?
+        </div>
+        <div className="flex justify-end">
+          <div className="rounded-2xl rounded-br-md px-4 py-3 text-sm font-bold" style={{ background: "var(--figaro-tertiary)", color: "var(--figaro-on-tertiary)" }}>
+            Confirmo ✓
           </div>
         </div>
-        <motion.div
-          initial={reduzir ? false : { opacity: 0, y: 6 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: reduzir ? 0.12 : 0.22 }}
-          className="flex items-center justify-center gap-1.5 rounded-xl p-2.5 text-[11px] font-bold"
-          style={{ background: "var(--sage-soft)", color: "var(--sage)" }}
-        >
-          <Check size={14} /> Pix recebido e confirmado
-        </motion.div>
       </div>
     </Aparelho>
   );
 }
-
-
 export function DemoAvaliacoes() {
   return (
     <Aparelho nome="Tela de avaliações com nota média, distribuição e comentários dos clientes">
