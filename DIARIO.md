@@ -562,6 +562,7 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 
 - GPT | 2026-11-01 UTC | Fixar a rota `/login`/showcase permanentemente no tema escuro Navy, independente do tema global/sistema; isolar tokens do palco e mockups sem alterar o tema global, preservar layout mobile 390px/100dvh e fluxos reais de cadastro/login/agendamento; concluir a reprodução demonstrativa do vídeo Fígaroo | `DIARIO.md`, `src/routes/login.tsx`, `src/styles.css`, `src/components/entrada/SequenciaDaEntrada.tsx`, `src/components/entrada/DemosDaEntrada.tsx`, `src/components/entrada/OndasDaEntrada.tsx`, testes da entrada; sem migração
+- GPT | 2026-11-01 UTC | Remover de Ajustes os acessos que já existem no menu lateral, mantendo os itens exclusivos de Ajustes; preservar rotas e funcionalidades | `src/components/layout/DrawerAjustes.tsx`, `src/lib/navegacao-movel.test.ts`, `DIARIO.md`; sem migração
 
 - Claude | 2026-10-31 UTC | Flow Bot dentro do Flow — Fase A (dono: "vamos criar a integração"): motor do flow-bot embutido em `src/lib/flow-bot/`, entrada no WhatsApp antes da Flow IA, rastro, modo sombra, horário, detecção de pessoa que assumiu (`fromMe`), modo humano com prazo; sem tela (Fase B) | `src/lib/flow-bot/*`, `src/lib/whatsapp/fluxo.server.ts`, `src/routes/api/public/whatsapp/evolution.ts`, `src/integrations/supabase/types.ts`, `supabase/tests/flow_bot.sql`, migração **0055** `drizzle/migrations/0055_flow_bot.sql` (não aplicar sem autorização)
 
