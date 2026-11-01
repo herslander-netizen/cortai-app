@@ -71,7 +71,7 @@ export function AutoMockup() {
   const [confirmado, setConfirmado] = useState(false);
   return (
     <div className="w-full h-full flex gap-3 items-stretch justify-center bg-gradient-to-b from-emerald-50 to-gray-100 p-4 rounded-2xl border shadow-[var(--elevacao-2)] overflow-hidden">
-      <div className="w-[260px] max-w-full bg-[#0b141a] rounded-[1.8rem] p-1.5 shadow-xl"><div className="bg-[#e7ddd3] rounded-[1.4rem] overflow-hidden flex flex-col h-[380px]">
+      <div className="w-[260px] max-w-full bg-[#0b141a] rounded-[1.8rem] p-1.5 shadow-[var(--elevacao-2)]"><div className="bg-[#e7ddd3] rounded-[1.4rem] overflow-hidden flex flex-col h-[380px]">
         <div className="bg-[#075E54] text-white px-3 py-2.5 flex items-center gap-2"><div className="w-7 h-7 rounded-full bg-white flex items-center justify-center">✨</div><div className="flex-1"><div className="text-[12px] font-bold leading-none">Espaço Bella 🤖</div><div className="text-[10px] opacity-80">online • responde na hora</div></div></div>
         <div className="flex-1 p-2.5 space-y-2 text-[11px] leading-snug"><div className="bg-white p-2 rounded-lg rounded-tl-none shadow max-w-[90%]">Olá, Mariana! 👋 Aqui é do <b>Espaço Bella</b>. Seu horário amanhã às <b>14:00</b> com a Paula ainda está de pé?</div>
           <div className="flex gap-1.5"><button type="button" onClick={() => setConfirmado(true)} className="flex-1 bg-white rounded-full py-1.5 font-bold text-green-700 shadow border border-green-200">✅ Confirmar</button><button type="button" className="flex-1 bg-white rounded-full py-1.5 font-bold text-gray-600 shadow">Reagendar</button></div>
