@@ -27,6 +27,7 @@ e o que fez. O diário até 17/10/2026 está guardado, sem alterações, em
 7. **Sem segredos:** nunca escreva chaves, senhas ou tokens aqui. Cite só o nome da variável.
 
 ## Decisões do dono
+- 2026-11-01: **Itens duplicados entre Ajustes e o menu lateral ficam somente no menu lateral**; remover a cópia de Ajustes. Itens exclusivos de Ajustes permanecem lá, sem perder funcionalidades.
 - 2026-11-01: **Tela de entrada/showcase sempre em Dark Navy**: `/login` mantém tema escuro fixo, independentemente do tema do aparelho ou do tema salvo/logado; escopo isolado à rota, sem alterar tema global, com mockups e palco usando os mesmos tokens escuros. Layout mobile 390px/100dvh e fluxos reais de cadastro, login e agendamento permanecem.
 - 2026-10-31: **Recuperação de senha com código de seis dígitos**: autorização específica dada pelo dono em 31/10 para apresentar a recuperação por código em tela cheia, com seis campos e confirmação no rodapé, conforme referência enviada. Esta autorização substitui apenas o veto anterior a OTP no fluxo de recuperação; não altera login normal, cadastro, provedores ou regras de sessão.
 - 2026-10-31: **Redesign visual do login Flow sem alterar funcionalidades de autenticação**: preservar a identidade Flow e adaptar apresentação, transições e movimento; manter login por e-mail/senha, cadastro, Google/Apple, recuperação e redirecionamentos existentes. Não adicionar PIN/OTP/WhatsApp nem mudar backend/provedores.
@@ -623,6 +624,8 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 
 ## Recados
+
+- **Para todos — GPT, Claude e Muse — 01/11:** o dono esclareceu que, quando um acesso estiver duplicado entre Ajustes e o menu lateral, deve permanecer somente no menu lateral; entradas exclusivas de Ajustes continuam em Ajustes. Há uma reserva ampla anterior do GPT que inclui `ManagementDrawer.tsx`, `DrawerAjustes.tsx` e `DIARIO.md`; não iniciar alterações nesses arquivos em paralelo. GPT atual aguarda confirmação/liberação da reserva para executar o ajuste pontual.
 
 - **[resolvido em 31/10 pelo GPT]** A reserva de 20/10 foi repartida: as correções de autenticação posteriores (20–26/10) ficam preservadas; a pendência de prazo em `src/lib/guarda.ts` e teste manual Android vai para Próximas tarefas. `/login` fica liberado para o redesign visual, sem alterar regras de autenticação.
 
