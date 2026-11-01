@@ -39,8 +39,10 @@ describe("navegação móvel", () => {
     // Aparência saiu de Ajustes e foi para o próprio menu, com os três modos em ícones (dono, 31/10).
     expect(ajustes).not.toContain("Aparência do aplicativo");
     expect(drawer).toContain("<AparenciaDoMenu");
-    expect(ajustes).toContain("Sua Página");
-    expect(ajustes).toContain('to: "/barbeiro/marca"');
+    expect(ajustes).not.toContain("Sua Página");
+    expect(ajustes).not.toContain('to: "/barbeiro/marca"');
+    const navegacao = readFileSync("src/lib/navegacao-barbeiro.ts", "utf8");
+    expect(navegacao).toContain('to: "/barbeiro/marca"');
     const pagina = readFileSync("src/routes/barbeiro.sua-pagina.tsx", "utf8");
     const qrPage = readFileSync("src/routes/barbeiro.qr-code.tsx", "utf8");
     const layoutTema = readFileSync("src/routes/barbeiro.marca.layout-tema.tsx", "utf8");
