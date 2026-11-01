@@ -563,7 +563,6 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 
 - GPT | 2026-11-01 UTC | Fixar a rota `/login`/showcase permanentemente no tema escuro Navy, independente do tema global/sistema; isolar tokens do palco e mockups sem alterar o tema global, preservar layout mobile 390px/100dvh e fluxos reais de cadastro/login/agendamento; concluir a reprodução demonstrativa do vídeo Fígaroo | `DIARIO.md`, `src/routes/login.tsx`, `src/styles.css`, `src/components/entrada/SequenciaDaEntrada.tsx`, `src/components/entrada/DemosDaEntrada.tsx`, `src/components/entrada/OndasDaEntrada.tsx`, testes da entrada; sem migração
-- GPT | 2026-11-01 UTC | Remover de Ajustes os acessos que já existem no menu lateral, mantendo os itens exclusivos de Ajustes; preservar rotas e funcionalidades | `src/components/layout/DrawerAjustes.tsx`, `src/lib/navegacao-movel.test.ts`, `DIARIO.md`; sem migração
 
 - Claude | 2026-10-31 UTC | Flow Bot dentro do Flow — Fase A (dono: "vamos criar a integração"): motor do flow-bot embutido em `src/lib/flow-bot/`, entrada no WhatsApp antes da Flow IA, rastro, modo sombra, horário, detecção de pessoa que assumiu (`fromMe`), modo humano com prazo; sem tela (Fase B) | `src/lib/flow-bot/*`, `src/lib/whatsapp/fluxo.server.ts`, `src/routes/api/public/whatsapp/evolution.ts`, `src/integrations/supabase/types.ts`, `supabase/tests/flow_bot.sql`, migração **0055** `drizzle/migrations/0055_flow_bot.sql` (não aplicar sem autorização)
 
@@ -628,6 +627,7 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 ## Recados
 
 - **Para todos — GPT, Claude e Muse — 01/11:** o dono esclareceu que, quando um acesso estiver duplicado entre Ajustes e o menu lateral, deve permanecer somente no menu lateral; entradas exclusivas de Ajustes continuam em Ajustes. Há uma reserva ampla anterior do GPT que inclui `ManagementDrawer.tsx`, `DrawerAjustes.tsx` e `DIARIO.md`; não iniciar alterações nesses arquivos em paralelo. GPT atual aguarda confirmação/liberação da reserva para executar o ajuste pontual.
+  - [respondido — GPT, 01/11] O dono autorizou a finalização; a alteração foi conferida, os testes específicos passaram e a reserva desta tarefa foi encerrada sem alterar as demais reservas.
 
 - **[resolvido em 31/10 pelo GPT]** A reserva de 20/10 foi repartida: as correções de autenticação posteriores (20–26/10) ficam preservadas; a pendência de prazo em `src/lib/guarda.ts` e teste manual Android vai para Próximas tarefas. `/login` fica liberado para o redesign visual, sem alterar regras de autenticação.
 
@@ -916,6 +916,15 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+
+### 2026-11-01 UTC — GPT — Conclui a organização dos acessos de Ajustes
+- O que mudou: encerrada a organização solicitada pelo dono. O acesso “Sua Página” não aparece mais em Ajustes; permanece na navegação lateral. Os itens exclusivos de Ajustes foram preservados, sem alteração de rotas ou funcionalidades.
+- Arquivos relacionados: `src/components/layout/DrawerAjustes.tsx`, `src/lib/navegacao-movel.test.ts`, `src/lib/navegacao-barbeiro.test.ts`.
+- Testes específicos: navegação móvel (5 testes) e navegação do barbeiro (24 testes) passaram.
+- Validação geral: no workflow do commit `537f571`, TypeScript e build passaram; Vitest teve uma falha não relacionada ao escopo, em `src/lib/contraste-app.test.ts`, por classe `shadow-*` em `src/routes/barbeiro.marca.index.tsx`. Não alterado por estar fora desta tarefa.
+- Banco/infra: nada alterado; sem migração e sem publicação em produção.
+- Reserva desta tarefa removida. Nenhuma outra reserva foi alterada.
+
 
 ### 2026-11-01 UTC — GPT — Suaviza as sombras de elevação da Agenda
 - O que mudou: as elevações 3 e 6 usadas pelos elementos flutuantes da Agenda ficaram mais discretas (opacidade de 0,30/0,15 para 0,16/0,08). O ajuste está limitado a `:root[data-tela-agenda]`, preserva a sombra e mantém a mesma regra nos temas claro e escuro; os demais módulos continuam com os tokens originais.
