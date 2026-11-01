@@ -16,7 +16,7 @@ const CENAS = [
 ];
 
 /** Cada cena dura 5 s; a sequência pausa durante foco, interação e movimento reduzido. */
-const DURACAO_DO_PASSO_MS = 5000;
+export const DURACAO_DO_PASSO_MS = 5000;
 const INTERVALO_PROGRESSO_MS = 50;
 
 export function SequenciaDaEntrada() {
@@ -98,7 +98,7 @@ export function SequenciaDaEntrada() {
             transition={reduzirMovimento ? { duration: 0.12 } : MOLA.padraoEspacial}
             style={{ flex: "1 1 0", minHeight: 0, overflow: "hidden", animation: "none" }}
           >
-            {CENAS[pagina].el}
+            {passo.el}
           </motion.div>
           <div className="entrada-cartao-divisor" aria-hidden style={{ height: 2, flexShrink: 0, background: "linear-gradient(90deg, var(--figaro-primary), var(--figaro-tertiary))" }} />
           <motion.div
