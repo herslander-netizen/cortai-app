@@ -35,122 +35,75 @@ afterEach(async () => {
 });
 
 describe("SequenciaDaEntrada", () => {
-  it("mantém as cinco etapas acessíveis e permite escolher uma demonstração", async () => {
+  it("apresenta cinco demonstrações e permite escolher cada uma pela navegação", async () => {
     const alvo = await montar();
-    const abas = [...alvo.querySelectorAll<HTMLButtonElement>('[role="tab"]')];
+    const nav = alvo.querySelector('nav[aria-label="Navegação das demonstrações"]');
+    const botoes = [...(nav?.querySelectorAll<HTMLButtonElement>("button") ?? [])];
     const painel = alvo.querySelector<HTMLElement>('[role="tabpanel"]');
 
-    expect(abas.length).toBe(5);
-    expect(abas.map((aba) => aba.getAttribute("aria-label"))).toEqual([
-      "Mostrar etapa: SITE PRÓPRIO",
-      "Mostrar etapa: AGENDAR",
-      "Mostrar etapa: LEMBRETES",
-      "Mostrar etapa: AVALIAÇÕES",
-      "Mostrar etapa: DESEMPENHO",
+    expect(botoes).toHaveLength(5);
+    expect(botoes.map((botao) => botao.getAttribute("aria-label"))).toEqual([
+      "Site", "Agenda", "Atendimento Automatizado", "Financeiro", "Fila de espera",
     ]);
-    expect(abas.every((aba) => aba.getAttribute("style")?.includes("48px"))).toBe(true);
-    expect(abas[1]?.style.color).toBe("rgba(255, 255, 255, 0.45)");
-    expect(abas[0]?.style.color).toBe("rgb(255, 45, 120)");
-    expect(abas[0]?.style.filter).toBe("drop-shadow(0 0 10px rgba(255,45,120,0.75))");
-    expect(abas[0]?.getAttribute("aria-selected")).toBe("true");
-    expect(abas[0]?.tabIndex).toBe(0);
-    expect(abas[1]?.tabIndex).toBe(-1);
-    expect(painel?.getAttribute("aria-labelledby")).toBe(abas[0]?.id);
-    expect(alvo.querySelector("h2")?.textContent).toBe("Seu site próprio em minutos");
+    expect(botoes[0]?.getAttribute("aria-current")).toBe("page");
+    expect(painel?.getAttribute("aria-label")).toBe("Seu site próprio e marca");
+    expect(alvo.querySelector("h2")?.textContent).toBe("Seu site próprio e marca");
 
-    const whatsapp = abas.find((aba) => aba.getAttribute("aria-label") === "Mostrar etapa: LEMBRETES");
-    await act(async () => whatsapp?.click());
+    await act(async () => botoes[2]?.click());
+    expect(botoes[2]?.getAttribute("aria-current")).toBe("page");
+    expect(botoes[0]?.hasAttribute("aria-current")).toBe(false);
+    expect(alvo.querySelector('[role="tabpanel"]')?.getAttribute("aria-label")).toBe("Atendimento e lembretes via WhatsApp");
+    expect(alvo.querySelector("h2")?.textContent).toBe("Atendimento e lembretes via WhatsApp");
 
-    expect(whatsapp?.getAttribute("aria-selected")).toBe("true");
-    expect(whatsapp?.tabIndex).toBe(0);
-    expect(alvo.querySelector("h2")?.textContent).toBe("Menos faltas, mais agenda cheia");
-  });
-
-  it("permite navegar pelas etapas com as setas e Home/End", async () => {
-    const alvo = await montar();
-    const abas = [...alvo.querySelectorAll<HTMLButtonElement>('[role="tab"]')];
-
-    await act(async () => {
-      abas[0]?.focus();
-      abas[0]?.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true }));
-    });
-    expect(abas[1]?.getAttribute("aria-selected")).toBe("true");
-    expect(document.activeElement).toBe(abas[1]);
-
-    await act(async () => {
-      abas[1]?.dispatchEvent(new KeyboardEvent("keydown", { key: "End", bubbles: true }));
-    });
-    expect(abas[4]?.getAttribute("aria-selected")).toBe("true");
-    expect(document.activeElement).toBe(abas[4]);
-
-    await act(async () => {
-      abas[4]?.dispatchEvent(new KeyboardEvent("keydown", { key: "Home", bubbles: true }));
-    });
-    expect(abas[0]?.getAttribute("aria-selected")).toBe("true");
-    expect(document.activeElement).toBe(abas[0]);
+    await act(async () => botoes[4]?.click());
+    expect(alvo.querySelector("h2")?.textContent).toBe("Fila de espera automática");
   });
 
   it("pausa o avanço automático enquanto a pessoa navega com foco", async () => {
     vi.useFakeTimers();
     const alvo = await montar();
-    const abas = [...alvo.querySelectorAll<HTMLButtonElement>('[role="tab"]')];
+    const botoes = [...alvo.querySelectorAll<HTMLButtonElement>('nav button')];
     const fora = document.createElement("button");
     host?.appendChild(fora);
 
-    await act(async () => abas[0]?.focus());
-    await act(async () => {
-      vi.advanceTimersByTime(DURACAO_DO_PASSO_MS * 2);
-    });
-    expect(abas[0]?.getAttribute("aria-selected")).toBe("true");
+    await act(async () => botoes[0]?.focus());
+    await act(async () => vi.advanceTimersByTime(DURACAO_DO_PASSO_MS * 2));
+    expect(botoes[0]?.getAttribute("aria-current")).toBe("page");
 
     await act(async () => fora.focus());
-    await act(async () => {
-      vi.advanceTimersByTime(DURACAO_DO_PASSO_MS);
-    });
-    expect(abas[1]?.getAttribute("aria-selected")).toBe("true");
+    await act(async () => vi.advanceTimersByTime(DURACAO_DO_PASSO_MS));
+    expect(botoes[1]?.getAttribute("aria-current")).toBe("page");
   });
 
-  it("não gira automaticamente quando o aparelho pede movimento reduzido", async () => {
+  it("não avança automaticamente quando o aparelho pede movimento reduzido", async () => {
     vi.useFakeTimers();
     movimento.reduzido = true;
     const alvo = await montar();
-    const abas = [...alvo.querySelectorAll<HTMLButtonElement>('[role="tab"]')];
+    const botoes = [...alvo.querySelectorAll<HTMLButtonElement>('nav button')];
 
-    await act(async () => {
-      vi.advanceTimersByTime(DURACAO_DO_PASSO_MS * 3);
-    });
-    expect(abas[0]?.getAttribute("aria-selected")).toBe("true");
+    await act(async () => vi.advanceTimersByTime(DURACAO_DO_PASSO_MS * 3));
+    expect(botoes[0]?.getAttribute("aria-current")).toBe("page");
   });
 
-  it("mantém a demonstração dentro da moldura e usa cores legíveis do Figaro", async () => {
+  it("mantém a demonstração dentro do cartão e exibe cinco atalhos", async () => {
     const alvo = await montar();
     const demo = alvo.querySelector<HTMLElement>(".entrada-cartao-demo");
     const legenda = alvo.querySelector<HTMLElement>(".entrada-cartao-legenda");
+    const cartao = alvo.querySelector<HTMLElement>(".entrada-cartao");
+
     expect(demo?.style.flex).toBe("1 1 0px");
     expect(demo?.style.minHeight).toBe("0px");
     expect(demo?.style.overflow).toBe("hidden");
-    expect(legenda?.style.minHeight).toBe("104px");
+    expect(legenda?.style.minHeight).toBe("84px");
     expect(legenda?.style.flexShrink).toBe("0");
-    const cartao = alvo.querySelector<HTMLElement>(".entrada-cartao");
     expect(cartao?.style.width).toBe("100%");
     expect(cartao?.style.flex).toBe("1 1 0px");
     expect(cartao?.style.minHeight).toBe("0px");
     expect(cartao?.style.display).toBe("flex");
     expect(cartao?.style.flexDirection).toBe("column");
     expect(alvo.querySelector(".entrada-sequencia")?.getAttribute("style")).toContain("flex: 1");
-    expect(alvo.querySelector(".entrada-cartao-legenda p")?.textContent).toBe("SITE PRÓPRIO");
-    expect(alvo.querySelector('[aria-label="Progresso da apresentação"]')).toBeNull();
-    expect(alvo.querySelectorAll(".entrada-chips span[aria-hidden=\"true\"]")).toHaveLength(5);
-    expect(alvo.querySelector('.entrada-chip span[aria-hidden="true"]')?.getAttribute("style")).toContain("rgba(255, 215, 0, 0.18)");
-    expect(alvo.querySelector(".entrada-cartao")?.textContent).toContain("Seu site próprio em minutos");
-    expect(alvo.querySelector(".entrada-cartao")?.getAttribute("style")).toContain("var(--elevacao-2)");
-
-    const aparelho = alvo.querySelector<HTMLElement>(".entrada-demo");
-    expect(aparelho?.getAttribute("aria-label")).toBe(
-      "Página pública do Flow com apresentação do negócio, serviços e ação de agendamento",
-    );
-    expect(aparelho?.style.background).toBe("var(--figaro-primary)");
-    expect(aparelho?.style.color).toBe("var(--figaro-on-primary)");
-    expect(aparelho?.style.overflow).toBe("hidden");
+    expect(alvo.querySelectorAll('nav button')).toHaveLength(5);
+    expect(alvo.querySelector(".entrada-cartao")?.textContent).toContain("Seu site próprio e marca");
+    expect(cartao?.getAttribute("style")).toContain("var(--elevacao-2)");
   });
 });
