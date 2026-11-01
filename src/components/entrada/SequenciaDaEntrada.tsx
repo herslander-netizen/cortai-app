@@ -245,7 +245,10 @@ export function SequenciaDaEntrada() {
               onClick={() => trocarEtapa(i)}
               onKeyDown={(event) => navegarPelasAbas(event, i)}
               onPointerDown={() => setSobPonteiro(true)}
-              onPointerUp={() => setSobPonteiro(false)}
+              onPointerUp={(event) => {
+                setSobPonteiro(false);
+                event.currentTarget.blur();
+              }}
               onPointerCancel={() => setSobPonteiro(false)}
               onLostPointerCapture={() => setSobPonteiro(false)}
             >
