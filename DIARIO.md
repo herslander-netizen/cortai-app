@@ -548,6 +548,8 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Em andamento
 
+- GPT | 2026-11-01 UTC | Suavizar exclusivamente as sombras de elevação da Agenda, mantendo-as visíveis e preservando a paridade entre tema claro/escuro; não alterar layout nem as reservas do Login/Showcase | `DIARIO.md`, `src/styles.css`, `src/lib/estilo-figaro.test.ts`; sem migração
+
 
 
 
