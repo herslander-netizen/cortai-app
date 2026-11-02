@@ -105,20 +105,16 @@ function AnimatedWaves() {
           >
             <motion.div
               className="h-full w-full"
-              animate={
-                reduceMotion
-                  ? undefined
-                  : { x: layer.reverse ? ["-25%", "0%"] : ["0%", "-25%"] }
-              }
-              transition={
-                reduceMotion
-                  ? undefined
-                  : {
+              {...(!reduceMotion
+                ? {
+                    animate: { x: layer.reverse ? ["-25%", "0%"] : ["0%", "-25%"] },
+                    transition: {
                       duration: layer.duration,
-                      ease: "linear",
+                      ease: "linear" as const,
                       repeat: Infinity,
-                    }
-              }
+                    },
+                  }
+                : {})}
             >
               <svg
                 viewBox="0 0 780 150"
