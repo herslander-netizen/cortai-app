@@ -167,27 +167,21 @@ export function FlowWelcome({
 }: FlowWelcomeProps) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [pausedUntil, setPausedUntil] = useState(0);
-  const [now, setNow] = useState(() => Date.now());
   const reduceMotion = useReducedMotion();
 
   const interact = useCallback((nextIndex: number) => {
     setActiveIndex((nextIndex + SLIDES.length) % SLIDES.length);
     setPausedUntil(Date.now() + RESUME_AFTER_INTERACTION_MS);
-    setNow(Date.now());
   }, []);
 
   useEffect(() => {
-    const timer = window.setInterval(() => setNow(Date.now()), 250);
-    return () => window.clearInterval(timer);
-  }, []);
-
-  useEffect(() => {
-    if (reduceMotion || now < pausedUntil) return;
+    if (reduceMotion) return;
+    const pauseRemaining = Math.max(0, pausedUntil - Date.now());
     const timer = window.setTimeout(() => {
       setActiveIndex((index) => (index + 1) % SLIDES.length);
-    }, AUTOPLAY_MS);
+    }, pauseRemaining + AUTOPLAY_MS);
     return () => window.clearTimeout(timer);
-  }, [activeIndex, now, pausedUntil, reduceMotion]);
+  }, [activeIndex, pausedUntil, reduceMotion]);
 
   const slide = SLIDES[activeIndex]!;
   const Preview = slide.preview;
@@ -237,7 +231,6 @@ export function FlowWelcome({
                     dragElastic={0.18}
                     onDragStart={() => {
                       setPausedUntil(Date.now() + RESUME_AFTER_INTERACTION_MS);
-                      setNow(Date.now());
                     }}
                     onDragEnd={(_, info) => {
                       if (info.offset.x < -45 || info.velocity.x < -350) {
