@@ -36,8 +36,8 @@ como parte do vetor; não repetir o slogan fora do lockup quando essa versão fo
 
 Decisão do dono (29/10): **só o logo muda**. Cores, fontes e layout continuam exatamente os de antes da migração
 (paleta Figaro/Cortaí de 27/10). A paleta do manual (#0F0F14, #1A1B24, #6B5F8F, #A8C7FA, #BB86FC, #F48FB1,
-#9C425A) e a Inter **não** foram aplicadas. O logo novo ocupa a mesma caixa do anterior (centralizado), e as cores do
-próprio logo (gradiente lavanda e ponto rosa) ficam só no desenho da marca.
+#9C425A) e a Inter **não** foram aplicadas. O logotipo oficial usa lettering preto em fundos claros ou branco em fundos
+escuros, mantendo o ponto rosa #FC51A6; o slogan faz parte do lockup completo.
 
 ## 4. Inventário do que ainda diz "cortai" (classificado)
 
@@ -60,7 +60,7 @@ Textos visíveis em `src/`: **nenhuma ocorrência de "Cortaí"/"CortAI" sobrou**
 2. **Modelos do WhatsApp na Meta** que citam "Cortaí": precisam de novos modelos aprovados (os IDs dos botões continuam).
 3. **Domínio Flow**: definir; depois trocar canônicas, links curtos e textos de divulgação.
 4. **Modelos de e-mail do Supabase Auth** (confirmação, recuperação): editar no painel do Supabase.
-5. **Vetores-mestre do logo** do designer.
+5. **Vetor oficial do logo:** concluído a partir da arte oficial enviada e confirmada pelo dono em 02/11/2026.
 6. **Assets antigos sem uso**: apagar só se o dono autorizar.
 
 ## Capas de redes e imagens padrão (dono, 31/10/2026)
