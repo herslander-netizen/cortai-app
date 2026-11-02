@@ -195,14 +195,14 @@ export function FlowWelcome({
   const activate = (callback?: () => void) => callback?.();
 
   return (
-    <main className="relative mx-auto flex h-[100dvh] min-h-[620px] w-full max-w-[430px] flex-col overflow-hidden bg-white px-5 pb-[calc(14px+env(safe-area-inset-bottom))] pt-[calc(16px+env(safe-area-inset-top))] text-[#17151f]">
+    <div className="relative mx-auto flex h-full min-h-0 w-full max-w-[430px] flex-col overflow-hidden bg-white px-5 pb-[calc(14px+env(safe-area-inset-bottom))] pt-[calc(16px+env(safe-area-inset-top))] text-[#17151f]">
       <AnimatedWaves />
 
       <header className="relative z-10 flex shrink-0 flex-col items-center gap-1.5">
         {logoSrc ? (
           <img src={logoSrc} alt="Flow." className="h-auto w-[min(48vw,210px)] object-contain" />
         ) : (
-          <MarcaFlowCompleta variante="escura" className="h-auto w-[min(82vw,350px)]" />
+          <MarcaFlowCompleta variante="escura" className="h-auto w-[min(82vw,350px)]" prioridade />
         )}
         <p className="text-center text-[12px] font-medium tracking-[0.035em] text-[#777583]">
           Seu negócio no ritmo certo.
@@ -364,7 +364,7 @@ export function FlowWelcome({
           Sou cliente e quero só agendar
         </button>
       </footer>
-    </main>
+    </div>
   );
 }
 
