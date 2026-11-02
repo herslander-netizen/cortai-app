@@ -72,14 +72,36 @@ export function MarcaFlow({
 
 /** Assinatura oficial completa Flow, incluindo o slogan vetorizado no próprio SVG. */
 export function MarcaFlowCompleta({
-  variante = "escura",
+  variante = "automatica",
   className = "h-auto w-64",
   prioridade = false,
 }: {
-  variante?: "clara" | "escura";
+  variante?: "clara" | "escura" | "automatica";
   className?: string;
   prioridade?: boolean;
 }) {
+  if (variante === "automatica") {
+    return (
+      <span
+        className={`brand-logo-auto ${className}`}
+        role="img"
+        aria-label="Flow. Seu negócio no ritmo certo."
+        style={{ aspectRatio: "585 / 205" } as CSSProperties}
+      >
+        <ImagemMarca
+          src={ASSINATURA_BRANCA}
+          className="brand-logo-on-dark h-full w-full"
+          prioridade={prioridade}
+        />
+        <ImagemMarca
+          src={ASSINATURA_PRETA}
+          className="brand-logo-on-light h-full w-full"
+          prioridade={prioridade}
+        />
+      </span>
+    );
+  }
+
   return (
     <ImagemMarca
       src={variante === "clara" ? ASSINATURA_BRANCA : ASSINATURA_PRETA}
