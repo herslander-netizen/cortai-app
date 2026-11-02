@@ -22,6 +22,7 @@ export function PreviaDaExperiencia({
   avatarUrl,
   capaUrl,
   altura,
+  telaCheia = false,
 }: {
   data: PaginaPublica | null;
   config: PaginaConfig;
@@ -31,10 +32,12 @@ export function PreviaDaExperiencia({
   avatarUrl: string | null;
   capaUrl: string | null;
   altura?: string | undefined;
+  telaCheia?: boolean | undefined;
 }) {
   const conversa = config.experiencia === "conversa";
   return (
-    <div>
+    <div className={telaCheia ? "h-full w-full" : ""}>
+      {!telaCheia ? (
       <div className="mb-3 flex items-center justify-between">
         <p className="text-xs font-semibold uppercase text-mute">Prévia ao vivo</p>
         {config.experiencia === "vitrine" ? (
@@ -60,13 +63,14 @@ export function PreviaDaExperiencia({
           </div>
         ) : null}
       </div>
+      ) : null}
       {conversa ? (
         <ChatPreview ativo config={config} nome={nome} logoUrl={avatarUrl} capaUrl={capaUrl} />
       ) : (
         <motion.div
           layout
           transition={transicaoBase}
-          className={`sem-barra mx-auto max-w-full overflow-y-auto rounded-[28px] border border-line bg-background shadow-[var(--elevacao-3)] ${altura ?? "h-[720px]"} ${config.experiencia === "vitrine" && device === "desktop" ? "w-full" : "w-[390px]"}`}
+          className={telaCheia ? "sem-barra h-full w-full max-w-full overflow-y-auto rounded-none border-0 bg-background shadow-none" : `sem-barra mx-auto max-w-full overflow-y-auto rounded-[28px] border border-line bg-background shadow-[var(--elevacao-3)] ${altura ?? "h-[720px]"} ${config.experiencia === "vitrine" && device === "desktop" ? "w-full" : "w-[390px]"}`}
         >
           {!data ? (
             <EsqueletoPaginaPublica />
