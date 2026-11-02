@@ -10,7 +10,7 @@ describe("tema fixo da entrada", () => {
     expect(TEMA_FIXO_ENTRADA["--fundo"]).toBe("#090a12");
     expect(TEMA_FIXO_ENTRADA["--figaro-background"]).toBe("var(--fundo)");
     expect(TEMA_FIXO_ENTRADA["--figaro-on-surface"]).toBe("var(--texto)");
-    expect(TEMA_FIXO_ENTRADA["--figaro-primary"]).toBe("#9fbef6");
+    expect(TEMA_FIXO_ENTRADA["--figaro-primary"]).toBe("#766cff");
     expect(TEMA_FIXO_ENTRADA["--figaro-tertiary"]).toBe("#ffa6bf");
   });
 });
