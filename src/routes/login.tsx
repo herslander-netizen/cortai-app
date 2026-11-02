@@ -401,8 +401,8 @@ function LoginPage() {
                   overscrollBehavior: "contain",
                   animation: "none",
                 }}
-              />
-            <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-line2" />
+              >
+                <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-line2" />
             <div className="mb-5 flex items-start justify-between gap-3">
               <div className="min-w-0">
                 <h1 id="flow-login-title" className="text-left text-xl font-bold text-paper">
