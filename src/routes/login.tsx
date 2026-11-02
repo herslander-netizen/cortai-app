@@ -19,6 +19,7 @@ import { MarcaFlow } from "@/components/marca/MarcaFlow";
 import { sincronizarCorDoNavegador } from "@/lib/aparencia";
 import { mensagemDeErroDeAuth } from "@/lib/auth-flow";
 import { SequenciaDaEntrada } from "@/components/entrada/SequenciaDaEntrada";
+import { FlowWelcome } from "@/components/entrada/FlowWelcome";
 import { CLASSE_TELA_ENTRADA, TEMA_FIXO_ENTRADA } from "@/components/entrada/tema-fixo";
 import { OndasDaEntrada } from "@/components/entrada/OndasDaEntrada";
 import { CURVA, TEMPO } from "@/lib/movimento-figaro";
@@ -354,95 +355,18 @@ function LoginPage() {
                 gap: "clamp(10px, 1.8svh, 18px)",
               }}
             >
-              <div
-                className="w-full"
-                style={{
-                  flex: "1 1 0",
-                  minHeight: 0,
-                  maxHeight: "min(68svh, 690px)",
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "stretch",
+              <FlowWelcome
+                onCreateAccount={() => {
+                  setModo("criar");
+                  setFaseLogin("identificar");
+                  setMostrarForm(true);
                 }}
-              >
-                <div
-                  className="w-full overflow-hidden"
-                  style={{
-                    maxWidth: 390,
-                    borderRadius: 30,
-                    border: "1px solid rgba(182, 177, 255, .42)",
-                    background: "linear-gradient(155deg, rgba(29,30,49,.98), rgba(13,14,24,.98))",
-                    boxShadow: "0 24px 70px rgba(0,0,0,.46), 0 0 38px rgba(104,92,255,.14)",
-                    display: "flex",
-                    flexDirection: "column",
-                    minHeight: 0,
-                  }}
-                >
-                  <div
-                    className="flex min-h-7 shrink-0 items-center justify-between px-5 text-[10px] font-semibold"
-                    style={{ color: "rgba(235,236,255,.76)", background: "rgba(255,255,255,.025)" }}
-                    aria-hidden="true"
-                  >
-                    <span>14:31</span>
-                    <span className="flex items-center gap-1.5"><span>●</span><span>◔</span><span>▰</span></span>
-                  </div>
-                  <div className="min-h-0 flex-1 p-3 sm:p-4">
-                  <SequenciaDaEntrada />
-                </div>
-                </div>
-              </div>
-
-              <div className="w-full shrink-0 text-center" style={{ maxWidth: 390 }}>
-                <p
-                  className="text-[11px] font-extrabold uppercase tracking-[.24em]"
-                  style={{ color: "#f05aa9" }}
-                >
-                  Gestão completa
-                </p>
-                <motion.p
-                  key="entrada-chamada"
-                  initial={{ opacity: 0, y: 5 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="mx-auto mt-2 max-w-[340px] text-[clamp(19px,5.4vw,26px)] font-semibold leading-tight tracking-tight text-white"
-                >
-                  Tudo o que seu negócio precisa em um só lugar.
-                </motion.p>
-              </div>
-
-              <div className="w-full shrink-0" style={{ maxWidth: 390 }}>
-                <Button
-                  type="button"
-                  variant="primary"
-                  size="lg"
-                  className="w-full rounded-full font-bold text-white shadow-[0_12px_35px_rgba(49,62,233,.30)]"
-                  style={{
-                    height: "clamp(58px, 8svh, 70px)",
-                    background: "linear-gradient(105deg, #665cff 0%, #3155ed 55%, #3148d8 100%)",
-                    border: "1px solid rgba(165,158,255,.6)",
-                    fontSize: 17,
-                  }}
-                  onClick={() => {
-                    setModo("criar");
-                    setFaseLogin("identificar");
-                    setMostrarForm(true);
-                  }}
-                >
-                  Começar Agora
-                </Button>
-                <button
-                  type="button"
-                  className="mt-3 flex min-h-12 w-full items-center justify-center gap-2 text-center text-sm"
-                  style={{ color: "var(--texto-suave)" }}
-                  onClick={() => {
-                    setModo("entrar");
-                    setFaseLogin("identificar");
-                    setMostrarForm(true);
-                  }}
-                >
-                  Já possui conta?
-                  <span className="font-bold" style={{ color: "#9288ff" }}>Faça Login</span>
-                </button>
-              </div>
+                onSignIn={() => {
+                  setModo("entrar");
+                  setFaseLogin("identificar");
+                  setMostrarForm(true);
+                }}
+              />
             </motion.div>
           ) : (
             <motion.div
