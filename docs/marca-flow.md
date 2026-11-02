@@ -14,19 +14,23 @@ Referência: **Manual da Marca Flow v1.0 (out/2026)**, enviado pelo dono. Substi
 
 | Uso | Onde |
 | --- | --- |
-| Lettering "flow" (F fluido + ponto rosa) | `MarcaFlow` em `src/components/marca/MarcaFlow.tsx` (`clara` = para fundo escuro, `escura` = para fundo claro, `automatica` = segue o tema) |
-| Símbolo F + ponto | `SimboloFlow` (mesmo arquivo) |
-| Ícone do app | `IconeFlow` / `iconeFlowUrl` (`/icone-flow-512.png`) |
-| Arquivos vetoriais | `public/marca/flow/flow-logotipo-clara.svg`, `flow-logotipo-escura.svg`, `flow-simbolo.svg`, `flow-simbolo-escuro.svg`, `flow-icone.svg` |
+| Lettering oficial "Flow." | `MarcaFlow` em `src/components/marca/MarcaFlow.tsx`; preto em fundos claros, branco em fundos escuros e ponto rosa preservado |
+| Assinatura completa com slogan | `MarcaFlowCompleta` (mesmo arquivo), usada na entrada/login |
+| Símbolo F + ponto | `SimboloFlow` (mesmo arquivo); símbolo compacto do app, independente do lettering |
+| Ícone do app | `IconeFlow` / `iconeFlowUrl` (`/icone-flow-v2-512.png`) |
+| Arquivos vetoriais oficiais | `flow-wordmark-oficial.svg`, `flow-lockup-oficial-escura.svg`, `flow-lockup-oficial-clara.svg`, `flow-logotipo-escura.svg`, `flow-logotipo-clara.svg` em `public/marca/flow/` |
 | PNG derivados | `public/marca/flow/*-256.png`, `flow-logotipo-escura-560.png` (ticket), `flow-capa-neutra.png`, `flow-chat-fundo.png` |
 | PWA e navegador | `public/icone-flow-192.png`, `icone-flow-512.png`, `icone-flow-maskable-512.png`, `apple-touch-icon-flow.png`, `favicon-flow-256.png`, `favicon.ico`, `capa-social-flow.jpg` |
 
-**Origem dos vetores:** o SVG foi **reconstruído a partir da prancha do manual** (o PDF não traz os vetores
-originais). Formas fiéis à prancha, mas **os arquivos-mestre do designer continuam pendentes**. Quando
-chegarem, basta trocar os SVG em `public/marca/flow/` e os traçados `F_CURVA`/`F_HASTE` de `MarcaFlow.tsx`.
+**Origem do vetor oficial:** traçado diretamente da imagem oficial enviada e confirmada pelo dono em 02/11/2026.
+O arquivo `flow-wordmark-oficial.svg` contém os contornos do lettering e do ponto; `flow-lockup-oficial-escura.svg`
+e `flow-lockup-oficial-clara.svg` preservam também o slogan vetorizado. As versões compactas
+`flow-logotipo-escura.svg` e `flow-logotipo-clara.svg` usam o mesmo desenho sem o slogan.
 
-Regras: não trocar o lettering por texto, não esticar, não recolorir, sem efeitos. Gradiente
-(#CBC5F3 → #F2F1FD) só no lettering claro e no símbolo.
+Regras: não substituir o lettering por fonte, não redesenhar, não esticar e não aplicar filtros sobre o ponto.
+Em fundo claro, usar lettering preto (#15161B); em fundo escuro, usar branco (#FFFFFF). O ponto rosa oficial
+(#FC51A6) permanece igual nas duas versões. A assinatura completa mantém o texto "Seu negócio no ritmo certo."
+como parte do vetor; não repetir o slogan fora do lockup quando essa versão for usada.
 
 ## 3. Cores, fontes e layout: sem mudança
 
