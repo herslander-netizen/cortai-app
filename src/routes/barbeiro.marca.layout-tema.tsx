@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { Eye, ListChecks, MessageCircle, Save, Send } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -12,7 +13,7 @@ import { useEditorDaPagina } from "@/components/marca/editor/useEditorDaPagina";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { useConfirmar } from "@/components/ui/useConfirmar";
-import { getMarca } from "@/lib/marca.functions";
+import { getMarca, salvarRascunhoPagina } from "@/lib/marca.functions";
 import { exigirCapacidade } from "@/lib/guarda-capacidade";
 import {
   aplicarTema,
@@ -58,6 +59,7 @@ function LayoutTemaPendente() {
 
 function LayoutTemaPage() {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const query = useQuery({ queryKey: ["marca"], queryFn: () => getMarca(), retry: false });
 
   if (query.isLoading) {
@@ -92,6 +94,7 @@ function LayoutTemaPage() {
         await queryClient.invalidateQueries({ queryKey: ["marca"] });
         await queryClient.invalidateQueries({ queryKey: ["pagina-publica", marcaInicial.slug] });
       }}
+      onVoltar={() => void navigate({ to: "/barbeiro/marca" })}
     />
   );
 }
@@ -99,10 +102,13 @@ function LayoutTemaPage() {
 function EditorLayoutTema({
   initial,
   reload,
+  onVoltar,
 }: {
   initial: NonNullable<Awaited<ReturnType<typeof getMarca>>>["marca"];
   reload: () => Promise<void>;
+  onVoltar: () => void;
 }) {
+  const saveDraft = useServerFn(salvarRascunhoPagina);
   const e = useEditorDaPagina(initial, () => void reload());
   // Como no Figaro, a tela abre com um layout e um tema do catálogo já escolhidos.
   const { setConfig } = e;
@@ -120,7 +126,24 @@ function EditorLayoutTema({
     [],
   );
   const [previaAberta, setPreviaAberta] = useState(false);
+  const [salvando, setSalvando] = useState(false);
   const [confirmar, dialogo] = useConfirmar();
+
+  const salvar = async () => {
+    setSalvando(true);
+    try {
+      await saveDraft({ data: { marca: e.form, pagina: e.config } });
+      await reload();
+      onVoltar();
+    } catch (error) {
+      e.setStatus(
+        error instanceof Error ? error.message : "Não foi possível salvar o rascunho.",
+        true,
+      );
+    } finally {
+      setSalvando(false);
+    }
+  };
 
   const publicar = async () => {
     const ausentes = secoesObrigatoriasAusentes(e.config);
@@ -212,15 +235,16 @@ function EditorLayoutTema({
             <Button
               variant="outline"
               className="h-14 w-full rounded-full"
-              disabled={e.busy}
-              onClick={() => void e.executar("draft")}
+              disabled={e.busy || salvando}
+              loading={salvando}
+              onClick={() => void salvar()}
             >
               <Save size={18} aria-hidden />
-              {e.fase === "salvando" ? "Salvando…" : "Salvar rascunho"}
+              {salvando ? "Salvando…" : "Salvar rascunho"}
             </Button>
             <Button
               className="h-14 w-full rounded-full"
-              disabled={e.busy}
+              disabled={e.busy || salvando}
               onClick={() => void publicar()}
             >
               <Send size={18} aria-hidden />
