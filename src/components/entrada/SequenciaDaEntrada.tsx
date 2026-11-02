@@ -59,7 +59,7 @@ export function SequenciaDaEntrada() {
       }}
       onMouseEnter={() => setSobPonteiro(true)}
       onMouseLeave={() => setSobPonteiro(false)}
-      style={{ gap: 10, marginTop: 0, flex: 1, minHeight: 0, width: "100%", justifyContent: "center" }}
+      style={{ gap: "clamp(8px, 1.4svh, 14px)", marginTop: 0, flex: 1, minHeight: 0, width: "100%", justifyContent: "center" }}
     >
       <SwipeableShowcase
         currentIndex={pagina}
@@ -83,10 +83,11 @@ export function SequenciaDaEntrada() {
             minHeight: 0,
             display: "flex",
             flexDirection: "column",
-            borderRadius: 28,
-            background: "var(--ink2)",
+            borderRadius: 24,
+            background: "linear-gradient(160deg, #e5e7e7 0%, #d9dedb 100%)",
+            color: "#252b2a",
             color: "var(--paper)",
-            boxShadow: "var(--elevacao-2)",
+            boxShadow: "0 12px 34px rgba(0,0,0,.24)",
             overflow: "hidden",
           }}
         >
@@ -107,10 +108,10 @@ export function SequenciaDaEntrada() {
             initial={reduzirMovimento ? { opacity: 0 } : { opacity: 0, y: 6 }}
             animate={{ opacity: 1, y: 0 }}
             transition={reduzirMovimento ? { duration: 0.12 } : MOLA.padraoEspacial}
-            style={{ minHeight: 84, flexShrink: 0, padding: "13px 18px 15px", animation: "none" }}
+            style={{ minHeight: 76, flexShrink: 0, padding: "12px 16px 14px", animation: "none", textAlign: "center", background: "#0b0b10", color: "#f4f3f7" }}
           >
-            <h2 className="text-base font-bold leading-tight">{passo.titulo}</h2>
-            <p className="mt-1.5 line-clamp-2 text-xs leading-relaxed" style={{ color: "var(--mute)" }}>{passo.texto}</p>
+            <p className="mb-1 text-[10px] font-extrabold uppercase tracking-[.2em]" style={{ color: "#f05aa9" }}>{passo.id === "auto" ? "Atendimento" : passo.id === "site" ? "Seu espaço" : passo.id === "agenda" ? "Agenda" : passo.id === "financeiro" ? "Desempenho" : "Organização"}</p><h2 className="text-sm font-bold leading-tight">{passo.titulo}</h2>
+            <p className="mt-1 line-clamp-2 text-[11px] leading-snug" style={{ color: "#c7c6ce" }}>{passo.texto}</p>
           </motion.div>
         </Card>
       </SwipeableShowcase>
