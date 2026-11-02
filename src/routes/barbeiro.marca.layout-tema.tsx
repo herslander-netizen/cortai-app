@@ -2,7 +2,7 @@ import { z } from "zod";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { Eye, ListChecks, MessageCircle, Save, Send } from "lucide-react";
+import { ArrowLeft, Eye, ListChecks, MessageCircle, Save, Send } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { EsqueletoFormulario } from "@/components/layout/Esqueleto";
@@ -11,7 +11,6 @@ import { SecaoLayoutsETemas } from "@/components/marca/editor/SecaoLayoutsETemas
 import { PreviaDaExperiencia } from "@/components/marca/editor/PreviaDaExperiencia";
 import { useEditorDaPagina } from "@/components/marca/editor/useEditorDaPagina";
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { useConfirmar } from "@/components/ui/useConfirmar";
 import { getMarca, salvarRascunhoPagina } from "@/lib/marca.functions";
 import { exigirCapacidade } from "@/lib/guarda-capacidade";
@@ -254,28 +253,19 @@ function EditorLayoutTema({
         </div>
       </div>
 
-      <Sheet open={previaAberta} onOpenChange={setPreviaAberta}>
-        <SheetContent
-          side="bottom"
-          className="h-[100dvh] overflow-y-auto p-4 pb-[calc(1rem+env(safe-area-inset-bottom))]"
-        >
-          <SheetHeader>
-            <SheetTitle>Prévia ao vivo</SheetTitle>
-          </SheetHeader>
-          <div className="mt-2">
-            <PreviaDaExperiencia
-              data={e.previewData}
-              config={e.config}
-              device={e.device}
-              setDevice={e.setDevice}
-              nome={e.form.nome}
-              avatarUrl={e.avatarPreview || e.logoPreview}
-              capaUrl={e.coverPreview}
-              altura="h-[calc(100dvh-150px)]"
-            />
+      {previaAberta ? (
+        <div className="fixed inset-0 z-[70] flex h-[100dvh] flex-col overflow-hidden bg-background" role="dialog" aria-modal="true" aria-label="Prévia ao vivo da página pública">
+          <div className="relative z-10 flex h-12 shrink-0 items-center gap-3 border-b border-line bg-background/95 px-3 pt-[env(safe-area-inset-top)] backdrop-blur">
+            <Button variant="ghost" size="icon" aria-label="Voltar ao editor" onClick={() => setPreviaAberta(false)}>
+              <ArrowLeft size={21} aria-hidden />
+            </Button>
+            <p className="text-sm font-semibold">Prévia ao vivo</p>
           </div>
-        </SheetContent>
-      </Sheet>
+          <div className="min-h-0 flex-1 overflow-hidden">
+            <PreviaDaExperiencia data={e.previewData} config={e.config} device={e.device} setDevice={e.setDevice} nome={e.form.nome} avatarUrl={e.avatarPreview || e.logoPreview} capaUrl={e.coverPreview} altura="h-full" telaCheia />
+          </div>
+        </div>
+      ) : null}
       {dialogo}
     </Screen>
   );
