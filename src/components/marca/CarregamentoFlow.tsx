@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 
 /** Rosa do ponto do ícone Flow (amostrado do ícone novo enviado pelo dono, 30/10). Cor de marca: exceção do contrato. */
-const ROSA_DO_PONTO = "#fc4980";
+const ROSA_DO_PONTO = "#FC51A6";
 
 /**
  * Carregamento do Flow (pedido do dono, 30/10): o F do ícone se desenha, primeiro o traço de baixo (sobe da base e

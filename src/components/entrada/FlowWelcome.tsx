@@ -206,7 +206,7 @@ export function FlowWelcome({
         {logoSrc ? (
           <img src={logoSrc} alt="Flow." className="h-auto w-[min(48vw,210px)] object-contain" />
         ) : (
-          <MarcaFlow variante="escura" className="h-auto w-[min(48vw,210px)]" />
+          <MarcaFlow variante="escura" className="h-auto w-[min(82vw,350px)]" />
         )}
         <p className="text-center text-[12px] font-medium tracking-[0.035em] text-[#777583]">
           Seu negócio no ritmo certo.
