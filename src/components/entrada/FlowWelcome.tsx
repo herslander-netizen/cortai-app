@@ -9,7 +9,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 
-import { MarcaFlowCompleta } from "@/components/marca/MarcaFlow";
+import { MarcaFlow } from "@/components/marca/MarcaFlow";
 import {
   SiteMockup,
   AgendaMockup,
@@ -197,17 +197,20 @@ export function FlowWelcome({
         {logoSrc ? (
           <img
             src={logoSrc}
-            alt="Flow. Seu negócio no ritmo certo."
-            className="h-auto w-[min(56vw,210px)] object-contain"
+            alt="Flow"
+            className="h-auto w-[min(42vw,160px)] object-contain"
             fetchPriority="high"
           />
         ) : (
-          <MarcaFlowCompleta
+          <MarcaFlow
             variante="escura"
-            className="h-auto w-[min(56vw,210px)]"
+            className="h-auto w-[min(42vw,160px)]"
             prioridade
           />
         )}
+        <p className="mt-2 text-center text-[14px] font-semibold tracking-[0.01em] text-[#514B60]">
+          Seu negócio no ritmo certo.
+        </p>
       </header>
 
       <section
