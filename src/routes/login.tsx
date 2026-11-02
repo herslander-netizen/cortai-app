@@ -352,9 +352,7 @@ function LoginPage() {
                   setFaseLogin("identificar");
                   setMostrarForm(true);
                 }}
-                onCustomerBooking={() => {
-                  void navigate({ to: "/barbearias" });
-                }}
+                onCustomerBooking={() => navigate({ to: "/barbearias" })}
               />
             </motion.div>
           ) : (
