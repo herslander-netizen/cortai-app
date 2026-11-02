@@ -311,20 +311,29 @@ function LoginPage() {
       <div
         className="entrada-conteudo relative z-10"
         style={{
+          minHeight: "100dvh",
           height: "100dvh",
-          minHeight: 0,
           maxHeight: "100dvh",
-          gap: "clamp(6px, 1svh, 10px)",
-          padding: "calc(10px + env(safe-area-inset-top)) 20px calc(8px + env(safe-area-inset-bottom))",
           width: "100%",
-          maxWidth: 390,
+          maxWidth: 480,
           marginInline: "auto",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          gap: "clamp(8px, 1.4svh, 16px)",
+          padding: "calc(18px + env(safe-area-inset-top)) 22px calc(14px + env(safe-area-inset-bottom))",
           overflow: "hidden",
         }}
       >
-        <div className="entrada-marca" style={{ flexShrink: 0 }}>
-          <MarcaFlow variante="escura" className="h-auto w-32" prioridade />
-        </div>
+        <header
+          className="flex w-full shrink-0 flex-col items-center"
+          style={{ gap: 4, paddingTop: "clamp(4px, 1.2svh, 14px)" }}
+        >
+          <MarcaFlow variante="escura" className="h-auto w-[min(48vw,220px)]" prioridade />
+          <p className="text-center text-sm font-medium tracking-wide" style={{ color: "var(--texto-suave)" }}>
+            Seu negócio no ritmo certo.
+          </p>
+        </header>
 
         <AnimatePresence mode="wait" initial={false}>
           {!mostrarForm ? (
@@ -338,40 +347,101 @@ function LoginPage() {
                 display: "flex",
                 flex: 1,
                 flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
                 minHeight: 0,
                 width: "100%",
+                gap: "clamp(10px, 1.8svh, 18px)",
               }}
             >
-              <SequenciaDaEntrada />
-              <div className="entrada-acoes" style={{ width: "100%", flexShrink: 0 }}>
-              <Button
-                type="button"
-                variant="primary"
-                size="lg"
-                className="entrada-cta w-full"
-                style={{ height: 56 }}
-                onClick={() => {
-                  setModo("criar");
-                  setFaseLogin("identificar");
-                  setMostrarForm(true);
+              <div
+                className="w-full"
+                style={{
+                  flex: "1 1 0",
+                  minHeight: 0,
+                  maxHeight: "min(68svh, 690px)",
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "stretch",
                 }}
               >
-                Criar conta
-              </Button>
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                className="entrada-entrar min-h-12 w-full"
-                style={{ minHeight: 48 }}
-                onClick={() => {
-                  setModo("entrar");
-                  setFaseLogin("identificar");
-                  setMostrarForm(true);
-                }}
-              >
-                Já tem conta? <b>Entrar</b>
-              </Button>
+                <div
+                  className="w-full overflow-hidden"
+                  style={{
+                    maxWidth: 390,
+                    borderRadius: 30,
+                    border: "1px solid rgba(182, 177, 255, .42)",
+                    background: "linear-gradient(155deg, rgba(29,30,49,.98), rgba(13,14,24,.98))",
+                    boxShadow: "0 24px 70px rgba(0,0,0,.46), 0 0 38px rgba(104,92,255,.14)",
+                    display: "flex",
+                    flexDirection: "column",
+                    minHeight: 0,
+                  }}
+                >
+                  <div
+                    className="flex min-h-7 shrink-0 items-center justify-between px-5 text-[10px] font-semibold"
+                    style={{ color: "rgba(235,236,255,.76)", background: "rgba(255,255,255,.025)" }}
+                    aria-hidden="true"
+                  >
+                    <span>14:31</span>
+                    <span className="flex items-center gap-1.5"><span>●</span><span>◔</span><span>▰</span></span>
+                  </div>
+                  <div className="min-h-0 flex-1 p-3 sm:p-4">
+                    <SequenciaDaEntrada />
+                  </div>
+                </div>
+              </div>
+
+              <div className="w-full shrink-0 text-center" style={{ maxWidth: 390 }}>
+                <p
+                  className="text-[11px] font-extrabold uppercase tracking-[.24em]"
+                  style={{ color: "#f05aa9" }}
+                >
+                  Gestão completa
+                </p>
+                <motion.p
+                  key="entrada-chamada"
+                  initial={{ opacity: 0, y: 5 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mx-auto mt-2 max-w-[340px] text-[clamp(19px,5.4vw,26px)] font-semibold leading-tight tracking-tight text-white"
+                >
+                  Tudo o que seu negócio precisa em um só lugar.
+                </motion.p>
+              </div>
+
+              <div className="w-full shrink-0" style={{ maxWidth: 390 }}>
+                <Button
+                  type="button"
+                  variant="primary"
+                  size="lg"
+                  className="w-full rounded-full font-bold text-white shadow-[0_12px_35px_rgba(49,62,233,.30)]"
+                  style={{
+                    height: "clamp(58px, 8svh, 70px)",
+                    background: "linear-gradient(105deg, #665cff 0%, #3155ed 55%, #3148d8 100%)",
+                    border: "1px solid rgba(165,158,255,.6)",
+                    fontSize: 17,
+                  }}
+                  onClick={() => {
+                    setModo("criar");
+                    setFaseLogin("identificar");
+                    setMostrarForm(true);
+                  }}
+                >
+                  Começar Agora
+                </Button>
+                <button
+                  type="button"
+                  className="mt-3 flex min-h-12 w-full items-center justify-center gap-2 text-center text-sm"
+                  style={{ color: "var(--texto-suave)" }}
+                  onClick={() => {
+                    setModo("entrar");
+                    setFaseLogin("identificar");
+                    setMostrarForm(true);
+                  }}
+                >
+                  Já possui conta?
+                  <span className="font-bold" style={{ color: "#9288ff" }}>Faça Login</span>
+                </button>
               </div>
             </motion.div>
           ) : (
@@ -397,23 +467,23 @@ function LoginPage() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="fixed inset-0 z-20 bg-black/65 backdrop-blur-sm"
+                className="fixed inset-0 z-20 bg-black/70 backdrop-blur-md"
               />
               <div
                 ref={painelLoginRef}
                 tabIndex={-1}
-                className="entrada-painel fixed bottom-0 left-1/2 z-30 w-full max-w-[430px] rounded-t-[28px] px-6 pb-[calc(24px+env(safe-area-inset-bottom))] pt-5 outline-none"
+                className="entrada-painel fixed bottom-0 left-1/2 z-30 w-full max-w-[430px] rounded-t-[30px] px-6 pb-[calc(24px+env(safe-area-inset-bottom))] pt-5 outline-none"
                 role="dialog"
                 aria-modal="true"
                 aria-labelledby="flow-login-title"
                 aria-describedby="flow-login-description"
                 style={{
                   transform: "translateX(-50%)",
-                  background: "var(--ink2)",
-                  border: "1px solid var(--line)",
-                  boxShadow: "0 12px 28px color-mix(in oklab, var(--ink) 10%, transparent)",
+                  background: "linear-gradient(155deg, #1a1b2d, #10111d)",
+                  border: "1px solid rgba(182,177,255,.28)",
+                  boxShadow: "0 12px 34px rgba(0,0,0,.45)",
                   maxHeight: "min(82dvh, 720px)",
-                  borderTop: "1px solid var(--line2, var(--line))",
+                  borderTop: "1px solid rgba(182,177,255,.45)",
                   overflowY: "auto",
                   overscrollBehavior: "contain",
                   animation: "none",
@@ -456,10 +526,7 @@ function LoginPage() {
               </div>
             ) : null}
 
-            <div
-              className="my-5 flex items-center gap-3 text-xs font-medium uppercase tracking-wide text-mute"
-              aria-hidden
-            >
+            <div className="my-5 flex items-center gap-3 text-xs font-medium uppercase tracking-wide text-mute" aria-hidden>
               <span className="h-px flex-1 bg-line" />
               ou
               <span className="h-px flex-1 bg-line" />
@@ -495,24 +562,17 @@ function LoginPage() {
                     return;
                   }
 
-                  const { data, error } = await supabase.auth.signUp({
+                  const { error } = await supabase.auth.signUp({
                     email: email.trim().toLowerCase(),
                     password: senha,
-                    options: { emailRedirectTo: window.location.origin },
                   });
                   if (error) {
                     setErro(mensagemDeErroDeAuth(error, "criar"));
                     return;
                   }
-                  if (!data.session) {
-                    setAviso("Verifique seu e-mail para confirmar sua conta. Se este e-mail já tiver cadastro, use Entrar ou Esqueceu a senha.");
-                    return;
-                  }
-                  await seguirParaMinhaArea();
+                  setAviso("Conta criada. Confira seu e-mail para confirmar o cadastro.");
                 } catch {
-                  setErro(modo === "entrar"
-                    ? "Não foi possível concluir o acesso. Confira sua conexão e tente novamente."
-                    : "Não foi possível concluir o cadastro. Confira sua conexão e tente novamente.");
+                  setErro("Não foi possível concluir agora. Tente novamente.");
                 } finally {
                   setEnviando(false);
                 }
@@ -525,7 +585,7 @@ function LoginPage() {
                     onChange={(e) => setEmail(e.target.value)}
                     type={modo === "entrar" ? "text" : "email"}
                     autoComplete={modo === "entrar" ? "username" : "email"}
-                    inputMode={modo === "entrar" ? "email" : "email"}
+                    inputMode="email"
                     required
                     placeholder={modo === "entrar" ? "voce@exemplo.com ou +55 79 99999-9999" : "voce@exemplo.com"}
                     className="mt-1.5"
@@ -590,12 +650,29 @@ function LoginPage() {
               onClick={fecharPainelLogin}
             >
               Ver como o Flow funciona
-              </Button>
+            </Button>
               </div>
             </motion.div>
           )}
         </AnimatePresence>
 
+        <ForgotPasswordSheet
+          isOpen={mostrarRecuperacao}
+          onClose={fecharRecuperacao}
+          initialEmail={email.includes("@") ? email : ""}
+          onSubmitEmail={solicitarRecuperacao}
+          onVerifyCode={verificarCodigoRecuperacao}
+          onContinue={continuarRedefinicao}
+        />
+
+        <Link
+          to="/barbearias"
+          className="flex min-h-11 shrink-0 items-center justify-center text-center text-xs font-medium"
+          style={{ color: "var(--texto-suave)" }}
+        >
+          Sou cliente e quero só agendar
+        </Link>
+      </div>
         <ForgotPasswordSheet
           isOpen={mostrarRecuperacao}
           onClose={fecharRecuperacao}
