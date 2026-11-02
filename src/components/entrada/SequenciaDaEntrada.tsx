@@ -86,7 +86,6 @@ export function SequenciaDaEntrada() {
             borderRadius: 24,
             background: "linear-gradient(160deg, #e5e7e7 0%, #d9dedb 100%)",
             color: "#252b2a",
-            color: "var(--paper)",
             boxShadow: "0 12px 34px rgba(0,0,0,.24)",
             overflow: "hidden",
           }}
