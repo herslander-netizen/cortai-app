@@ -1,16 +1,18 @@
 import { z } from "zod";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useServerFn } from "@tanstack/react-start";
-import { Eye, ListChecks, MessageCircle } from "lucide-react";
+import { createFileRoute } from "@tanstack/react-router";
+import { Eye, ListChecks, MessageCircle, Save, Send } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { EsqueletoFormulario } from "@/components/layout/Esqueleto";
 import { Screen } from "@/components/layout/Screen";
 import { SecaoLayoutsETemas } from "@/components/marca/editor/SecaoLayoutsETemas";
+import { PreviaDaExperiencia } from "@/components/marca/editor/PreviaDaExperiencia";
 import { useEditorDaPagina } from "@/components/marca/editor/useEditorDaPagina";
 import { Button } from "@/components/ui/button";
-import { getMarca, salvarRascunhoPagina } from "@/lib/marca.functions";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { useConfirmar } from "@/components/ui/useConfirmar";
+import { getMarca } from "@/lib/marca.functions";
 import { exigirCapacidade } from "@/lib/guarda-capacidade";
 import {
   aplicarTema,
@@ -18,14 +20,16 @@ import {
   layoutIds,
   temaIds,
   trocarLayoutNoCatalogo,
+  secoesObrigatoriasAusentes,
   type LayoutId,
 } from "@/lib/pagina-config";
+import { CATALOGO_DE_SECOES } from "@/components/marca/editor/secoes/catalogo";
 import { LinhaDeOpcoes } from "@/components/ui/formulario/LinhaDeOpcoes";
 import { GrupoDeLinhas, LinhaDeConfiguracao } from "@/components/ui/formulario/LinhasDeConfiguracao";
 import { RouteError } from "@/components/layout/RouteError";
 
 export const Route = createFileRoute("/barbeiro/marca/layout-tema")({
-  // Voltando do "Ver Exemplo" a escolha em andamento continua (no Figaro o estado da tela se mantém).
+  // Mantém layout e tema selecionados ao reabrir a tela.
   validateSearch: z.object({
     layout: z.enum(layoutIds).optional(),
     tema: z.enum(temaIds).optional(),
@@ -54,7 +58,6 @@ function LayoutTemaPendente() {
 
 function LayoutTemaPage() {
   const queryClient = useQueryClient();
-  const navigate = useNavigate();
   const query = useQuery({ queryKey: ["marca"], queryFn: () => getMarca(), retry: false });
 
   if (query.isLoading) {
@@ -89,7 +92,6 @@ function LayoutTemaPage() {
         await queryClient.invalidateQueries({ queryKey: ["marca"] });
         await queryClient.invalidateQueries({ queryKey: ["pagina-publica", marcaInicial.slug] });
       }}
-      onVoltar={() => void navigate({ to: "/barbeiro/marca" })}
     />
   );
 }
@@ -97,14 +99,10 @@ function LayoutTemaPage() {
 function EditorLayoutTema({
   initial,
   reload,
-  onVoltar,
 }: {
   initial: NonNullable<Awaited<ReturnType<typeof getMarca>>>["marca"];
   reload: () => Promise<void>;
-  onVoltar: () => void;
 }) {
-  const navigate = useNavigate();
-  const saveDraft = useServerFn(salvarRascunhoPagina);
   const e = useEditorDaPagina(initial, () => void reload());
   // Como no Figaro, a tela abre com um layout e um tema do catálogo já escolhidos.
   const { setConfig } = e;
@@ -121,27 +119,22 @@ function EditorLayoutTema({
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [],
   );
-  const [salvando, setSalvando] = useState(false);
-  const [mensagem, setMensagem] = useState("");
-  const [erro, setErro] = useState(false);
+  const [previaAberta, setPreviaAberta] = useState(false);
+  const [confirmar, dialogo] = useConfirmar();
 
-  const salvar = async () => {
-    setSalvando(true);
-    setMensagem("");
-    setErro(false);
-    try {
-      await saveDraft({ data: { marca: e.form, pagina: e.config } });
-      await reload();
-      setMensagem("Alterações salvas como rascunho.");
-      onVoltar();
-    } catch (error) {
-      setErro(true);
-      setMensagem(
-        error instanceof Error ? error.message : "Não foi possível salvar as alterações.",
-      );
-    } finally {
-      setSalvando(false);
+  const publicar = async () => {
+    const ausentes = secoesObrigatoriasAusentes(e.config);
+    if (ausentes.length > 0) {
+      await confirmar({
+        titulo: "Seções obrigatórias ausentes",
+        descricao: `As seções a seguir são obrigatórias para este layout: ${ausentes.map((id) => CATALOGO_DE_SECOES[id].nome).join(", ")}. Ative-as para publicar.`,
+        confirmar: "Entendi",
+        cancelar: "Cancelar",
+      });
+      return;
     }
+
+    await e.executar("publish");
   };
 
   return (
@@ -151,7 +144,7 @@ function EditorLayoutTema({
       title="Layout & Tema"
       subtitle="Escolha o visual da página pública do seu negócio."
     >
-      <div className="space-y-4 pb-28">
+      <div className="space-y-4 pb-48">
         <SecaoLayoutsETemas
           config={e.config}
           setLayout={(layout: LayoutId) =>
@@ -198,38 +191,68 @@ function EditorLayoutTema({
             </p>
           </section>
         )}
-        {mensagem ? (
-          <p role={erro ? "alert" : "status"} className="text-sm text-mute">
-            {mensagem}
+        {e.status ? (
+          <p role={e.erro ? "alert" : "status"} className={`px-4 text-sm ${e.erro ? "text-brick" : "text-mute"}`}>
+            {e.status}
           </p>
         ) : null}
       </div>
 
       <div className="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-ink/95 p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] backdrop-blur md:sticky md:bottom-0 md:rounded-xl md:border md:bg-ink">
-        <div className="mx-auto flex max-w-[1180px] gap-2">
+        <div className="mx-auto max-w-[1180px] rounded-[26px] border border-line bg-ink2 p-3 shadow-[var(--elevacao-2)] md:p-4">
           <Button
-            variant="outline"
-            className="min-h-12 flex-1 rounded-full"
-            onClick={() =>
-              void navigate({
-                to: "/barbeiro/marca/layout-tema/preview",
-                search: { layout: e.config.layout, tema: e.config.tema },
-              })
-            }
+            variant="ghost"
+            className="mb-2 h-12 w-full rounded-full text-base font-semibold"
+            onClick={() => setPreviaAberta(true)}
           >
-            <Eye size={17} aria-hidden />
-            Ver Exemplo
+            <Eye size={20} aria-hidden />
+            Prévia ao vivo
           </Button>
-          <Button
-            className="min-h-12 flex-1 rounded-full"
-            disabled={e.busy || salvando}
-            loading={salvando}
-            onClick={() => void salvar()}
-          >
-            Salvar Alterações
-          </Button>
+          <div className="grid grid-cols-2 gap-2">
+            <Button
+              variant="outline"
+              className="h-14 w-full rounded-full"
+              disabled={e.busy}
+              onClick={() => void e.executar("draft")}
+            >
+              <Save size={18} aria-hidden />
+              {e.fase === "salvando" ? "Salvando…" : "Salvar rascunho"}
+            </Button>
+            <Button
+              className="h-14 w-full rounded-full"
+              disabled={e.busy}
+              onClick={() => void publicar()}
+            >
+              <Send size={18} aria-hidden />
+              {e.fase === "publicando" ? "Publicando…" : "Publicar"}
+            </Button>
+          </div>
         </div>
       </div>
+
+      <Sheet open={previaAberta} onOpenChange={setPreviaAberta}>
+        <SheetContent
+          side="bottom"
+          className="h-[100dvh] overflow-y-auto p-4 pb-[calc(1rem+env(safe-area-inset-bottom))]"
+        >
+          <SheetHeader>
+            <SheetTitle>Prévia ao vivo</SheetTitle>
+          </SheetHeader>
+          <div className="mt-2">
+            <PreviaDaExperiencia
+              data={e.previewData}
+              config={e.config}
+              device={e.device}
+              setDevice={e.setDevice}
+              nome={e.form.nome}
+              avatarUrl={e.avatarPreview || e.logoPreview}
+              capaUrl={e.coverPreview}
+              altura="h-[calc(100dvh-150px)]"
+            />
+          </div>
+        </SheetContent>
+      </Sheet>
+      {dialogo}
     </Screen>
   );
 }
