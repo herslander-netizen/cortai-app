@@ -49,6 +49,20 @@ export function MarcaFlow({
   return <Logotipo clara={clara} className={className} rotulo="Flow" />;
 }
 
+/** Assinatura completa oficial Flow, incluindo o slogan vetorizado. */
+export function MarcaFlowCompleta({
+  variante = "escura",
+  className = "h-auto w-64",
+}: {
+  variante?: "clara" | "escura";
+  className?: string;
+}) {
+  const src = variante === "clara"
+    ? "/marca/flow/flow-lockup-oficial-clara.svg"
+    : "/marca/flow/flow-lockup-oficial-escura.svg";
+  return <img src={src} alt="Flow. Seu negócio no ritmo certo." className={`block object-contain ${className}`} />;
+}
+
 /** Símbolo isolado (F + ponto) usado no ícone do aplicativo. */
 export function SimboloFlow({ className = "size-6", clara = true }: {
   className?: string;
