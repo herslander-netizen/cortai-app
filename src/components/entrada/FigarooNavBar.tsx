@@ -23,7 +23,7 @@ const ITEMS: NavItem[] = [
 ];
 
 export const FigarooNavBar = ({ currentIndex, onTap }: Props) => (
-  <nav className="flex justify-between px-8 max-w-[390px] mx-auto w-full" aria-label="Navegação das demonstrações">
+  <nav className="flex justify-between px-3 sm:px-8 max-w-[390px] mx-auto w-full shrink-0" aria-label="Navegação das demonstrações">
     {ITEMS.map((item, i) => {
       const isActive = i === currentIndex;
       const Icon = item.icon;
@@ -36,8 +36,8 @@ export const FigarooNavBar = ({ currentIndex, onTap }: Props) => (
             whileTap={{ scale: 0.85 }}
             className="relative p-1.5 rounded-full"
             style={{
-              color: isActive ? "#FF7AB8" : "rgba(255,255,255,0.35)",
-              filter: isActive ? "drop-shadow(0 0 10px rgba(255,122,184,0.9)) drop-shadow(0 0 24px rgba(255,122,184,0.45))" : "none",
+              color: isActive ? "#f05aa9" : "rgba(255,255,255,0.62)",
+              filter: isActive ? "drop-shadow(0 0 9px rgba(240,90,169,0.8)) drop-shadow(0 0 18px rgba(118,108,255,0.35))" : "none",
             }}
           >
             <Icon size={28} strokeWidth={isActive ? 2.5 : 2} />
@@ -48,8 +48,8 @@ export const FigarooNavBar = ({ currentIndex, onTap }: Props) => (
             initial={false}
             animate={{ width: isActive ? 28 : 16, opacity: isActive ? 1 : 0.6 }}
             transition={{ type: "spring", stiffness: 500, damping: 25 }}
-            className="h-1 rounded-full bg-[#C7A900]"
-            style={{ boxShadow: isActive ? "0 0 8px rgba(199,169,0,.8)" : "none" }}
+            className="h-1 rounded-full bg-[#766cff]"
+            style={{ boxShadow: isActive ? "0 0 8px rgba(118,108,255,.8)" : "none" }}
           />
         </button>
       );
