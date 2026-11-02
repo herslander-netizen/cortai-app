@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate, redirect, Link } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, redirect } from "@tanstack/react-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 
@@ -15,12 +15,10 @@ import {
 } from "@/lib/guarda";
 import type { Sessao } from "@/lib/sessao.functions";
 import { Aviso } from "@/components/ui/aviso";
-import { MarcaFlow } from "@/components/marca/MarcaFlow";
 import { sincronizarCorDoNavegador } from "@/lib/aparencia";
 import { mensagemDeErroDeAuth } from "@/lib/auth-flow";
 import { FlowWelcome } from "@/components/entrada/FlowWelcome";
 import { CLASSE_TELA_ENTRADA, TEMA_FIXO_ENTRADA } from "@/components/entrada/tema-fixo";
-import { OndasDaEntrada } from "@/components/entrada/OndasDaEntrada";
 import { CURVA, TEMPO } from "@/lib/movimento-figaro";
 import { ForgotPasswordSheet } from "@/components/auth/ForgotPasswordSheet";
 
@@ -307,7 +305,6 @@ function LoginPage() {
       className={CLASSE_TELA_ENTRADA}
       style={TEMA_FIXO_ENTRADA}
     >
-      <OndasDaEntrada />
       <div
         className="entrada-conteudo relative z-10"
         style={{
@@ -315,26 +312,16 @@ function LoginPage() {
           height: "100dvh",
           maxHeight: "100dvh",
           width: "100%",
-          maxWidth: 480,
+          maxWidth: 430,
           marginInline: "auto",
           display: "flex",
           flexDirection: "column",
-          alignItems: "center",
-          gap: "clamp(8px, 1.4svh, 16px)",
-          padding: "calc(18px + env(safe-area-inset-top)) 22px calc(14px + env(safe-area-inset-bottom))",
+          alignItems: "stretch",
+          gap: 0,
+          padding: 0,
           overflow: "hidden",
         }}
       >
-        <header
-          className="flex w-full shrink-0 flex-col items-center"
-          style={{ gap: 4, paddingTop: "clamp(4px, 1.2svh, 14px)" }}
-        >
-          <MarcaFlow variante="automatica" className="h-auto w-[min(48vw,220px)]" prioridade />
-          <p className="text-center text-sm font-medium tracking-wide" style={{ color: "var(--texto-suave)" }}>
-            Seu negócio no ritmo certo.
-          </p>
-        </header>
-
         <AnimatePresence mode="wait" initial={false}>
           {!mostrarForm ? (
             <motion.div
@@ -364,6 +351,9 @@ function LoginPage() {
                   setModo("entrar");
                   setFaseLogin("identificar");
                   setMostrarForm(true);
+                }}
+                onCustomerBooking={() => {
+                  void navigate({ to: "/barbearias" });
                 }}
               />
             </motion.div>
@@ -588,12 +578,5 @@ function LoginPage() {
           onContinue={continuarRedefinicao}
         />
 
-        <Link
-          to="/barbearias"
-          className="flex min-h-11 shrink-0 items-center justify-center text-center text-xs font-medium"
-          style={{ color: "var(--texto-suave)" }}
-        >
-          Sou cliente e quero só agendar
-        </Link>
       </div>
     </main>
