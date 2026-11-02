@@ -329,7 +329,7 @@ function LoginPage() {
           className="flex w-full shrink-0 flex-col items-center"
           style={{ gap: 4, paddingTop: "clamp(4px, 1.2svh, 14px)" }}
         >
-          <MarcaFlow variante="escura" className="h-auto w-[min(48vw,220px)]" prioridade />
+          <MarcaFlow variante="automatica" className="h-auto w-[min(48vw,220px)]" prioridade />
           <p className="text-center text-sm font-medium tracking-wide" style={{ color: "var(--texto-suave)" }}>
             Seu negócio no ritmo certo.
           </p>
@@ -597,5 +597,3 @@ function LoginPage() {
         </Link>
       </div>
     </main>
-  );
-}
