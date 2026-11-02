@@ -580,3 +580,5 @@ function LoginPage() {
 
       </div>
     </main>
+  );
+}
