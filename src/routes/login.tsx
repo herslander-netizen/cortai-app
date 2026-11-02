@@ -387,8 +387,8 @@ function LoginPage() {
                     <span className="flex items-center gap-1.5"><span>●</span><span>◔</span><span>▰</span></span>
                   </div>
                   <div className="min-h-0 flex-1 p-3 sm:p-4">
-                    <SequenciaDaEntrada />
-                  </div>
+                  <SequenciaDaEntrada />
+                </div>
                 </div>
               </div>
 
