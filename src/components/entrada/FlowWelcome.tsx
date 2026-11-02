@@ -92,16 +92,16 @@ function WaveRow({
     <motion.div
       className="flex h-full w-[200%] will-change-transform"
       style={{ opacity }}
-      animate={
-        reduceMotion
-          ? undefined
-          : { x: reverse ? ["-50%", "0%"] : ["0%", "-50%"] }
-      }
-      transition={{
-        duration,
-        repeat: Infinity,
-        ease: "linear",
-      }}
+      {...(!reduceMotion
+        ? {
+            animate: { x: reverse ? ["-50%", "0%"] : ["0%", "-50%"] },
+            transition: {
+              duration,
+              repeat: Infinity,
+              ease: "linear" as const,
+            },
+          }
+        : {})}
     >
       {[0, 1].map((copy) => (
         <svg
