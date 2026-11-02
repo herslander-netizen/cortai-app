@@ -18,7 +18,6 @@ import { Aviso } from "@/components/ui/aviso";
 import { MarcaFlow } from "@/components/marca/MarcaFlow";
 import { sincronizarCorDoNavegador } from "@/lib/aparencia";
 import { mensagemDeErroDeAuth } from "@/lib/auth-flow";
-import { SequenciaDaEntrada } from "@/components/entrada/SequenciaDaEntrada";
 import { FlowWelcome } from "@/components/entrada/FlowWelcome";
 import { CLASSE_TELA_ENTRADA, TEMA_FIXO_ENTRADA } from "@/components/entrada/tema-fixo";
 import { OndasDaEntrada } from "@/components/entrada/OndasDaEntrada";
@@ -593,23 +592,6 @@ function LoginPage() {
           to="/barbearias"
           className="flex min-h-11 shrink-0 items-center justify-center text-center text-xs font-medium"
           style={{ color: "var(--texto-suave)" }}
-        >
-          Sou cliente e quero só agendar
-        </Link>
-      </div>
-        <ForgotPasswordSheet
-          isOpen={mostrarRecuperacao}
-          onClose={fecharRecuperacao}
-          initialEmail={email.includes("@") ? email : ""}
-          onSubmitEmail={solicitarRecuperacao}
-          onVerifyCode={verificarCodigoRecuperacao}
-          onContinue={continuarRedefinicao}
-        />
-
-        <Link
-          to="/barbearias"
-          className="flex min-h-12 items-center justify-center text-center text-sm font-medium text-[var(--figaro-on-surface)] hover:text-[var(--figaro-on-surface)]"
-          style={{ flexShrink: 0 }}
         >
           Sou cliente e quero só agendar
         </Link>
