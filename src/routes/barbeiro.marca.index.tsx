@@ -375,7 +375,7 @@ function Editor({
       <h2 className="mb-3 px-4 text-sm font-semibold text-[var(--figaro-on-surface-variant,var(--mute))]">
         Layout e tema
       </h2>
-      <section className="mb-6 overflow-hidden rounded-[28px] border border-[#e8edf2] bg-white shadow-sm">
+      <section className="mb-6 overflow-hidden rounded-[28px] border border-[#e8edf2] bg-white shadow-[var(--elevacao-2)]">
         <div className="aspect-video overflow-hidden bg-background">
           <CapaDoTema tema={visual.tema} />
         </div>

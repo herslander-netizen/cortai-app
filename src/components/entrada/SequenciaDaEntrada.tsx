@@ -107,7 +107,7 @@ export function SequenciaDaEntrada() {
             initial={reduzirMovimento ? { opacity: 0 } : { opacity: 0, y: 6 }}
             animate={{ opacity: 1, y: 0 }}
             transition={reduzirMovimento ? { duration: 0.12 } : MOLA.padraoEspacial}
-            style={{ minHeight: 76, flexShrink: 0, padding: "12px 16px 14px", animation: "none", textAlign: "center", background: "#0b0b10", color: "#f4f3f7" }}
+            style={{ minHeight: 84, flexShrink: 0, padding: "12px 16px 14px", animation: "none", textAlign: "center", background: "#0b0b10", color: "#f4f3f7" }}
           >
             <p className="mb-1 text-[10px] font-extrabold uppercase tracking-[.2em]" style={{ color: "#f05aa9" }}>{passo.id === "auto" ? "Atendimento" : passo.id === "site" ? "Seu espaço" : passo.id === "agenda" ? "Agenda" : passo.id === "financeiro" ? "Desempenho" : "Organização"}</p><h2 className="text-sm font-bold leading-tight">{passo.titulo}</h2>
             <p className="mt-1 line-clamp-2 text-[11px] leading-snug" style={{ color: "#c7c6ce" }}>{passo.texto}</p>
