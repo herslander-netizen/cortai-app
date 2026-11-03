@@ -1,4 +1,4 @@
-import { Crosshair, Plus } from "lucide-react";
+import { Crosshair } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   useCallback,
@@ -10,6 +10,7 @@ import {
 } from "react";
 
 import { Button } from "@/components/ui/button";
+import { BotaoCircularAdicionar } from "./BotaoCircularAdicionar";
 import { useMediaQuery } from "@/hooks/use-mobile";
 import { useMenosMovimento } from "@/hooks/useMovimento";
 import { useTecladoAberto } from "@/hooks/useTecladoAberto";
@@ -216,26 +217,19 @@ export function BotaoAgoraPrincipal({
         </div>
       ) : null}
       <div className="agenda-acao-fixa">
-        <Button
-          size="lg"
-          variant="primary"
+        <BotaoCircularAdicionar
+          menuAberto={menuAberto}
           aria-label={menuAberto ? "Fechar ações da agenda" : "Ações da agenda"}
           aria-haspopup="menu"
           aria-expanded={menuAberto}
           aria-describedby={onAgendarPorVoz ? "agenda-fab-dica-voz" : undefined}
           data-acoes-agenda
-          className="agenda-acao-redonda agenda-fab-toggle"
-          style={{ filter: "none" }}
+          className="agenda-fab-toggle"
           data-aberto={menuAberto}
           data-segurando={toqueLongo.segurando || undefined}
           onClick={onAlternarMenu}
           {...toqueLongo.propriedades}
-        >
-          <Plus
-            aria-hidden
-            className={`agenda-fab-icone ${menuAberto ? "agenda-fab-icone-aberto" : ""}`}
-          />
-        </Button>
+        />
         {onAgendarPorVoz ? (
           <span id="agenda-fab-dica-voz" className="sr-only">
             Segure para agendar por voz.
