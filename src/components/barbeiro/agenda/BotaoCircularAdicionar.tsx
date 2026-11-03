@@ -1,11 +1,12 @@
 import { motion, type HTMLMotionProps } from "framer-motion";
 import { Plus } from "lucide-react";
 
-type BotaoCircularAdicionarProps = HTMLMotionProps<"button">;
+type BotaoCircularAdicionarProps = HTMLMotionProps<"button"> & { menuAberto?: boolean };
 
 /** FAB circular com anel duplo azul e núcleo grafite. */
 export function BotaoCircularAdicionar({
   className,
+  menuAberto = false,
   ...props
 }: BotaoCircularAdicionarProps) {
   return (
@@ -33,7 +34,7 @@ export function BotaoCircularAdicionar({
         aria-hidden="true"
         className="grid size-full place-items-center rounded-full border border-white/[0.12] bg-[#26282D]"
       >
-        <Plus size={22} strokeWidth={2.5} className="text-white" />
+        <Plus size={22} strokeWidth={2.5} className={`text-white agenda-fab-icone ${menuAberto ? "agenda-fab-icone-aberto" : ""}`} />
       </span>
     </motion.button>
   );
