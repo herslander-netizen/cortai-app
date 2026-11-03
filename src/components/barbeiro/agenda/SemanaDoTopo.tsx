@@ -499,7 +499,7 @@ export function SemanaDoTopo({
       <div className="px-2 pb-[13px] rounded-b-xl">
         <div className="grid grid-cols-7 text-center text-[11.5px] leading-4 font-medium text-[var(--figaro-hint,var(--mute))]" aria-hidden>
           {LETRAS_SEMANA.map((letra, i) => (
-            <span key={i} className="pb-2 pt-3">
+            <span key={i} className="pb-1 pt-2">
               {letra}
             </span>
           ))}
@@ -512,7 +512,7 @@ export function SemanaDoTopo({
             ref={camadaSemana}
             // Fechando, a semana fica por cima do painel que recolhe (como no Figaro): por baixo dele, o fundo vazio
             // do mês cobria a fileira e os dias sumiam até o fim da animação (vídeo do dono, 29/10).
-            className="relative pt-[11px]"
+            className="relative pt-[8px]"
             style={{ zIndex: expandido ? 0 : 20 }}
             initial={false}
             animate={{ opacity: expandido ? 0 : 1 }}
