@@ -153,7 +153,7 @@ export function CockpitFoco(props: Props) {
         </Button>
         <Button
           size="lg"
-          className="min-h-16 text-base"
+          className="min-h-16 text-base active:scale-[0.98] motion-reduce:active:scale-100"
           onClick={props.onPrincipal}
           disabled={props.somenteLeitura || props.bloqueado}
         >
