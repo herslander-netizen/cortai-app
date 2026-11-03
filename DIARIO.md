@@ -547,7 +547,6 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - 2026-10-26: **Cabeçalho do menu mobile mais compacto** (dono aprovou a reformulação após captura: logo menor, nome do negócio com hierarquia discreta, papel secundário, ajustes alinhados e menos espaço vazio; manter nome em até duas linhas quando necessário, sem afetar a Agenda).
 
 ## Em andamento
-- GPT | 2026-11-03 UTC | Reverter somente a cor do núcleo central do botão + ao estilo anterior à alteração visual recente; preservar anel, ícone e comportamento | `src/components/barbeiro/agenda/BotaoCircularAdicionar.tsx`; sem migração
 - GPT | 2026-11-03 UTC | Corrigir teste quebrado do FAB da Agenda: alinhar expectativa do teste ao estilo atual do núcleo, sem alterar componente/comportamento | `src/components/barbeiro/agenda/BotaoAgoraPrincipal.test.tsx`; sem migração
 
 
@@ -921,6 +920,14 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+
+### 2026-11-03 UTC — GPT — Restaura cor anterior do núcleo do botão +
+- Commit: `46f09d3`.
+- O que mudou e por quê: restaurado somente o fundo do núcleo central para `var(--figaro-surface-container-low, var(--painel, var(--ink3)))`, voltando ao estilo anterior à alteração recente; anel, ícone, dimensões e comportamento não foram modificados.
+- Testes: não executados localmente nesta sessão; validação pelo GitHub Actions pendente.
+- Banco/infra: nada alterado; sem migração e sem publicação em produção.
+- Pendente / atenção para as outras IAs: conferir o CI e validar o centro do botão + na prévia oficial, nos temas claro e escuro.
+
 
 ### 2026-11-03 UTC — GPT — Refina o cabeçalho móvel da Agenda
 - O que mudou: cabeçalho do mês no celular reduzido de 22/28 para 20/24; letras da semana e faixa de dias ganharam menos respiro vertical. Alvos de toque de 48 px mantidos.
