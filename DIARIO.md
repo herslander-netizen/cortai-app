@@ -547,7 +547,6 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - 2026-10-26: **Cabeçalho do menu mobile mais compacto** (dono aprovou a reformulação após captura: logo menor, nome do negócio com hierarquia discreta, papel secundário, ajustes alinhados e menos espaço vazio; manter nome em até duas linhas quando necessário, sem afetar a Agenda).
 
 ## Em andamento
-- GPT | 2026-11-03 UTC | Ajustar a referência visual do rodapé da Agenda: núcleo do botão + branco e retirar disco branco do filtro de equipe, preservando o fundo padrão da pílula e o comportamento | `src/components/barbeiro/agenda/BotaoCircularAdicionar.tsx`, `src/components/barbeiro/agenda/FiltroDaAgenda.tsx`, `src/components/barbeiro/agenda/BotaoAgoraPrincipal.test.tsx`; sem migração
 - GPT | 2026-11-03 UTC | Corrigir teste quebrado do FAB da Agenda: alinhar expectativa do teste ao estilo atual do núcleo, sem alterar componente/comportamento | `src/components/barbeiro/agenda/BotaoAgoraPrincipal.test.tsx`; sem migração
 
 
@@ -921,6 +920,14 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+
+### 2026-11-03 UTC — GPT — Ajusta rodapé da Agenda conforme referência
+- Commits: `b687b70` (núcleo do + branco), `3d0c6de`/`e43e340` (filtro de equipe sem círculo branco), `6902d9f` (teste do núcleo).
+- O que mudou e por quê: núcleo do FAB + passou para branco; gatilho do filtro de equipe não desenha mais superfície branca própria, deixando a pílula com sua superfície padrão. Ícones, anel, dimensões, navegação e seleção de equipe foram preservados.
+- Testes: teste de expectativa atualizado; validação integral e inspeção visual aguardam GitHub Actions/prévia.
+- Banco/infra: nada alterado; sem migração e sem publicação em produção.
+- Pendente / atenção para as outras IAs: conferir CI e visualizar em celular nos temas claro/escuro se o fundo da pílula permanece uniforme, sem círculo sob equipe.
+
 
 ### 2026-11-03 UTC — GPT — Restaura cor anterior do núcleo do botão +
 - Commit: `46f09d3`.
