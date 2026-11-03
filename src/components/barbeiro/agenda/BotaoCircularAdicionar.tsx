@@ -41,8 +41,8 @@ export function BotaoCircularAdicionar({
     >
       <span
         aria-hidden="true"
-        className="grid size-full place-items-center rounded-full border bg-[var(--ink2)] text-[var(--paper)]"
-        style={{ backgroundColor: "var(--ink2)", borderColor: "var(--line)" }}
+        className="grid size-full place-items-center rounded-full border text-[var(--paper)]"
+        style={{ backgroundColor: "var(--painel, var(--ink3))", borderColor: "var(--line)" }}
       >
         <Plus
           aria-hidden="true"
