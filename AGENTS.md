@@ -13,6 +13,8 @@
 
 <!-- LOVABLE:END -->
 
+- **Nome oficial do projeto: FLOW** (decisão do responsável em 03/11/2026). Cortaí é a identificação anterior e permanece no código/interface/documentação histórica até uma migração de marca aprovada. Não substituir nomes, logos, domínios, rotas, identificadores ou integrações automaticamente; qualquer transição deve ser explícita, gradual e compatível.
+
 - Sobreposição travada no banco (`agendamentos_sem_sobreposicao`); só membros criam encaixes.
 - Webhooks públicos: `webhook-guard.server.ts` com contadores persistidos (instâncias sem memória comum).
 - Cortaí = Beleza; barbearia é segmento. Linguagem em `src/lib/segmentos.ts`; sem segmento, neutro.
