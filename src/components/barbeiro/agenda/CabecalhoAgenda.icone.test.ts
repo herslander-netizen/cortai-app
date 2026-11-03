@@ -5,8 +5,9 @@ import { describe, expect, it } from "vitest";
 const fonte = readFileSync(resolve(__dirname, "CabecalhoAgenda.tsx"), "utf8");
 
 describe("tipografia do cabeçalho mobile da Agenda", () => {
-  it("usa titleLarge Figaro: 22/28, mês bold e ano medium", () => {
-    expect(fonte).toContain('className="truncate text-[22px] leading-7 text-paper"');
+  it("usa título compacto 20/24, preservando mês bold e ano medium", () => {
+    expect(fonte).toContain('className="truncate text-[20px] leading-6 text-paper"');
+    expect(fonte).toContain('className="toque-afunda h-12 w-12 min-w-12');
     expect(fonte).toContain('style={{ fontFamily: "var(--figaro-font-body)" }}');
     expect(fonte).toContain('<strong className="font-bold">');
     expect(fonte).toContain(
