@@ -3,6 +3,8 @@ import { Plus } from "lucide-react";
 import { Button, type ButtonProps } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
+import "./BotaoCircularAdicionar.css";
+
 type BotaoCircularAdicionarProps = Omit<ButtonProps, "children" | "size" | "variant"> & {
   menuAberto?: boolean;
 };
