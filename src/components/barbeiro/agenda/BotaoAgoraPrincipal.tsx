@@ -151,6 +151,7 @@ export function BotaoAgoraPrincipal({
       ) : null}
       <div className="agenda-acao-fixa">
         <BotaoCircularAdicionar
+          menuAberto={menuAberto}
           aria-label={menuAberto ? "Fechar ações da agenda" : "Adicionar"}
           aria-haspopup="menu"
           aria-expanded={menuAberto}
