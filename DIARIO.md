@@ -548,7 +548,6 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Em andamento
 
-- GPT | 2026-11-03 UTC | Ajustar somente o contorno interno suave da pílula “Agora” conforme a referência enviada pelo dono; preservar botão circular +, handlers, menu, alternador e toque longo. Reserva anterior do FAB fica suspensa nesta execução e não será alterada; escopo atual somente CSS e teste visual da pílula | `DIARIO.md`, `src/styles.css`, `src/components/barbeiro/agenda/BotaoAgoraPrincipal.test.tsx`; sem migração
 
 
 
@@ -918,6 +917,14 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+
+### 2026-11-03 UTC — GPT — Aplica contorno suave na pílula Agora
+- O que mudou: a pílula “Agora” recebeu contorno externo discreto derivado de `--line` e filete interno sutil derivado de `--paper`, mantendo a elevação existente. Como os tokens acompanham o tema, a mesma estrutura funciona em claro e escuro.
+- Arquivos: `src/styles.css`, `src/components/barbeiro/agenda/BotaoAgoraPrincipal.test.tsx`.
+- Commits: reserva `bc2373485e6949b525765cf804b396379a7ea9ba`; CSS `dc4c8ccf590e49f31d5aeb9e53b6ca89c52368db`; teste `3f211dade1fcd114aa08b0e35d19b3ac02ae6b63`.
+- Testes: não executados localmente nesta sessão; aguardando GitHub Actions. Conferência visual em 360/390 px nos dois temas ainda pendente.
+- Escopo preservado: botão circular +, handlers, menu, alternador e toque longo não foram alterados. Sem migração, banco, `main` ou produção.
+
 
 ### 2026-11-03 UTC — GPT — Corrige a entrada pública do Flow e valida a prévia
 - Commit de código: `b23465410773d6f54e6098b1d0cb8b9e30f5f887`.
