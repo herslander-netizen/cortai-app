@@ -11441,6 +11441,12 @@ html:not([data-tela-agenda]) [data-figaro-empty-state]:not(:first-child) {
   background: var(--figaro-surface-container-low, var(--ink2));
 }
 
+/* Núcleo do botão +: mantém o tema escuro; no tema claro usa o token surfaceContainerLow. */
+.light .agenda-fab-nucleo,
+:root.light .agenda-fab-nucleo {
+  background-color: var(--figaro-surface-container-low, var(--painel, var(--ink3)));
+}
+
 /* Toque dos ícones do topo da Agenda (dono, 31/10: "tem efeito de um quadrado"): sem fundo nem destaque do sistema;
    o ícone afunda (86 % e 1 px para baixo) e volta com a mola de toque do app. Sem movimento reduzido, fica parado. */
 .toque-afunda {
