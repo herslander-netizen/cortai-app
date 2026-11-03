@@ -204,7 +204,7 @@ export function FlowWelcome({
                 >
                   <motion.span
                     animate={{ scale: active ? 1.1 : 1 }}
-                    transition={MOLA.toque}
+                    transition={MOLA.rapidaEspacial}
                     className="flex items-center justify-center"
                   >
                     <Icon size={25} strokeWidth={active ? 2.4 : 1.8} />
@@ -249,7 +249,7 @@ export function FlowWelcome({
             aria-label="Entrar na sua conta"
             onClick={onSignIn}
             disabled={!onSignIn}
-            className="h-8 min-h-8 px-1 font-bold text-[var(--figaro-primary)]"
+            className="h-auto min-h-12 px-1 font-bold text-[var(--figaro-primary)]"
           >
             Entrar
           </Button>
@@ -261,7 +261,7 @@ export function FlowWelcome({
           aria-label="Sou cliente e quero só agendar"
           onClick={onCustomerBooking}
           disabled={!onCustomerBooking}
-          className="mt-1 h-8 min-h-8 text-center text-[12px] font-medium text-mute"
+          className="mt-1 h-auto min-h-12 text-center text-[12px] font-medium text-mute"
         >
           Sou cliente e quero só agendar
         </Button>
