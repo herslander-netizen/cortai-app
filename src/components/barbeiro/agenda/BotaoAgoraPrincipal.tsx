@@ -48,6 +48,7 @@ function IconeAgendaFigaroDoPe() {
       stroke="currentColor"
       strokeWidth="2"
       strokeLinecap="round"
+      style={{ color: "var(--agenda-acao)" }}
     >
       <path d="M6.2 4.3h11.6" />
       <path d="M4.2 8h15.6" />
