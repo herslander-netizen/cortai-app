@@ -5439,10 +5439,10 @@ button.agenda-timeline-bloqueio-interativo {
   height: 50px;
   align-items: center;
   overflow: hidden;
-  border: 1px solid var(--line2);
+  border: 1px solid color-mix(in oklab, var(--line) 58%, transparent);
   border-radius: 999px;
   background: var(--ink2);
-  outline: 1px solid color-mix(in oklab, var(--line2) 38%, transparent);
+  outline: 1px solid color-mix(in oklab, var(--paper) 12%, transparent);
   outline-offset: -4px;
   box-shadow: var(--elevacao-3);
 }
