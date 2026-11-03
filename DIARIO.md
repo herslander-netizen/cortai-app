@@ -548,6 +548,8 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Em andamento
 
+- GPT | 2026-11-03 UTC | Refinar a composição visual da Agenda conforme análise aprovada pelo dono: cabeçalho mais compacto, calendário mensal integrado por transição, indicadores discretos somente para dias que já possuem agendamentos nos dados atuais, alinhamento da escala horária com a grade e espaçamento inferior dos controles flutuantes. Preservar regras, gestos, navegação, dados, comportamento dos controles e paridade claro/escuro | `DIARIO.md`, componentes/estilos/testes estritamente necessários de `src/components/barbeiro/agenda/` e `src/styles.css`; sem migração
+
 
 
 
