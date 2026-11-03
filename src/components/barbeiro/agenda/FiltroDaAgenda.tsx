@@ -56,7 +56,7 @@ export function FiltroDaAgenda({
         type="button"
         variant="ghost"
         size="icon"
-        className="agenda-filtro-gatilho"
+        className="agenda-filtro-gatilho bg-transparent hover:bg-transparent focus-visible:bg-transparent active:bg-transparent"
         aria-label={`Trocar agenda (${atual ? atual.nome : "toda a equipe"})`}
         onClick={() => setAberto(true)}
       >
