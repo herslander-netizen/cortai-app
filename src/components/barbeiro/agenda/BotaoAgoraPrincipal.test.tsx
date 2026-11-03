@@ -146,6 +146,16 @@ describe("BotaoAgoraPrincipal", () => {
     expect(host?.querySelector(".agenda-botao-agora-principal")).toBeNull();
   });
 
+  it("mantém o contorno interno suave da pílula Agora com tokens dos dois temas", () => {
+    const estilos = readFileSync("src/styles.css", "utf8");
+    const inicio = estilos.indexOf(".agenda-botao-agora-principal {");
+    const fim = estilos.indexOf("\n}", inicio);
+    const regra = estilos.slice(inicio, fim);
+    expect(regra).toContain("border: 1px solid color-mix(in oklab, var(--line) 72%, transparent);");
+    expect(regra).toContain("inset 0 0 0 1px color-mix(in oklab, var(--paper) 10%, transparent)");
+    expect(regra).toContain("var(--elevacao-3)");
+  });
+
   it("mantém cor e fundo da cápsula em todos os estados e solta o foco após toque", async () => {
     await montar(390);
     const estilos = readFileSync("src/styles.css", "utf8");
