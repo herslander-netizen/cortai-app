@@ -24,6 +24,8 @@ A estrutura foi pensada para só gerar custo quando houver clientes.
 A branch `main` do Git é só arquivo do período antigo: não alimenta nenhum site.
 Documentos daquela fase ficam em `docs/historico/`.
 
+**Regra confirmada em 03/11/2026:** o ambiente visual usado para testes pontuais em 02/11 não faz parte do desenvolvimento do Flow e não deve ser retomado. Não é fonte de verdade nem caminho de publicação. O trabalho ocorre apenas em `cloudflare-workers-migration-2026-10-13`; a prévia oficial é `https://previa.cortaiapp.pages.dev`, publicada pelo GitHub Actions após validação. Não transportar alterações do ambiente experimental automaticamente. Produção só recebe versão pelo workflow **Lançar versão**, com autorização do dono.
+
 ## Recuperação do Figaro (ativa em 18/10/2026)
 
 O APK reencontrado `Figaroo.apk` é a referência original para layout, cartões, fluxos, agenda e movimento. A decisão do dono e o mapa de escopo estão em `DIARIO.md` e `docs/referencia-ux-figaroo-cortai.md`; o contrato obrigatório está em `docs/contrato-de-design.md`. Preservar a experiência antiga verificável, substituir a marca pela marca atual do Flow e integrar funções novas sem redesign. A Agenda foi passada ao Codex/GPT em 18/10; seguir `docs/CONTINUAR-CODEX.md` e as reservas ainda listadas no diário. Autorização explícita do dono em 19/10: migrações 0039–0041 somente no projeto isolado `cortai-preview`; a migração 0042, autorizada no trabalho de 21/10, também é exclusiva da prévia. Nenhuma alteração em `cortai-prod`, `main`, DNS ou site principal.
