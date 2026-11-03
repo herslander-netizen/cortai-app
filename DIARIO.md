@@ -547,6 +547,7 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - 2026-10-26: **Cabeçalho do menu mobile mais compacto** (dono aprovou a reformulação após captura: logo menor, nome do negócio com hierarquia discreta, papel secundário, ajustes alinhados e menos espaço vazio; manter nome em até duas linhas quando necessário, sem afetar a Agenda).
 
 ## Em andamento
+- GPT | 2026-11-03 UTC | Ajustar a referência visual do rodapé da Agenda: núcleo do botão + branco e retirar disco branco do filtro de equipe, preservando o fundo padrão da pílula e o comportamento | `src/components/barbeiro/agenda/BotaoCircularAdicionar.tsx`, `src/components/barbeiro/agenda/FiltroDaAgenda.tsx`, `src/components/barbeiro/agenda/BotaoAgoraPrincipal.test.tsx`; sem migração
 - GPT | 2026-11-03 UTC | Corrigir teste quebrado do FAB da Agenda: alinhar expectativa do teste ao estilo atual do núcleo, sem alterar componente/comportamento | `src/components/barbeiro/agenda/BotaoAgoraPrincipal.test.tsx`; sem migração
 
 
