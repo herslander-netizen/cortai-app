@@ -104,7 +104,7 @@ export function FlowWelcome({
   const slide = SLIDES[activeIndex]!;
 
   return (
-    <main className="relative mx-auto flex h-full min-h-0 w-full max-w-[430px] flex-col overflow-hidden bg-ink px-5 pb-[calc(24px+env(safe-area-inset-bottom))] pt-[calc(40px+env(safe-area-inset-top))] text-paper">
+    <div className="relative mx-auto flex h-full min-h-0 w-full max-w-[430px] flex-col overflow-hidden bg-ink px-5 pb-[calc(24px+env(safe-area-inset-bottom))] pt-[calc(40px+env(safe-area-inset-top))] text-paper">
       <OndasDaEntrada />
 
       <header className="relative z-10 flex shrink-0 flex-col items-center">
@@ -197,10 +197,10 @@ export function FlowWelcome({
                   type="button"
                   variant="ghost"
                   size="icon"
-                  aria-label={\`Mostrar recurso: \${item.label}\`}
+                  aria-label={"Mostrar recurso: " + item.label}
                   aria-pressed={active}
                   onClick={() => interact(index)}
-                  className={\`text-[var(--figaro-\${active ? "tertiary" : "on-surface-variant"})]\`}
+                  className={active ? "text-[var(--figaro-tertiary)]" : "text-mute"}
                 >
                   <motion.span
                     animate={{ scale: active ? 1.1 : 1 }}
@@ -266,7 +266,7 @@ export function FlowWelcome({
           Sou cliente e quero só agendar
         </Button>
       </footer>
-    </main>
+    </div>
   );
 }
 
