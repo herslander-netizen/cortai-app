@@ -547,7 +547,6 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - 2026-10-26: **Cabeçalho do menu mobile mais compacto** (dono aprovou a reformulação após captura: logo menor, nome do negócio com hierarquia discreta, papel secundário, ajustes alinhados e menos espaço vazio; manter nome em até duas linhas quando necessário, sem afetar a Agenda).
 
 ## Em andamento
-- GPT | 2026-11-03 UTC | Restaurar a cor original do núcleo do FAB no tema escuro e manter o branco somente no claro; sem alterar anel, ícone ou dimensões | `src/components/barbeiro/agenda/BotaoCircularAdicionar.tsx`, novo CSS isolado do componente e teste dedicado; sem migração
 - GPT | 2026-11-03 UTC | Corrigir teste quebrado do FAB da Agenda: alinhar expectativa do teste ao estilo atual do núcleo, sem alterar componente/comportamento | `src/components/barbeiro/agenda/BotaoAgoraPrincipal.test.tsx`; sem migração
 
 
@@ -921,6 +920,14 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+
+### 2026-11-03 UTC — GPT — Preserva a cor original do FAB no tema escuro
+- Commits: `3e54a9b` (restaura o token original do núcleo), `ff65f46` (CSS isolado por tema), `23ab026` (teste por tema), `170249a` (importa o CSS).
+- Correção: o núcleo branco fica restrito ao tema claro; no escuro volta a usar `--figaro-surface-container-low`, como antes. Anel, ícone, tamanho e comportamento não foram alterados.
+- Teste: criado `BotaoCircularAdicionar.tema.test.ts`; validação CI ainda pendente.
+- Banco/infra: nada alterado; sem migração, sem produção.
+- Atenção: o CSS global anterior ainda contém uma regra de branco; o CSS isolado do componente usa seletor mais específico para preservar o token no escuro.
+ 
 
 ### 2026-11-03 UTC — GPT — Corrige cores da barra inferior da Agenda
 - Commits: `d11acc1` (sobrescrita CSS do núcleo do + e avatar da equipe), `d852cfb` (teste de regressão dedicado).
