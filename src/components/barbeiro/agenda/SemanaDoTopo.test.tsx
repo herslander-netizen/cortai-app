@@ -88,7 +88,8 @@ describe("medidas visuais Figaro no seletor de data", () => {
       el.className.includes("text-[11.5px]"),
     );
     expect(rotulos?.textContent).toContain("D");
-    expect(rotulos?.firstElementChild?.className).toContain("pb-2 pt-3");
+    expect(rotulos?.firstElementChild?.className).toContain("pb-1 pt-2");
+    expect(alvo.querySelector<HTMLElement>("[data-sem-gesto-dia] > div > div.relative")?.className).toContain("pt-[8px]");
   });
 
   it("usa título mensal 22/28 e círculo de 38 px com texto de 15 px", async () => {
@@ -105,6 +106,17 @@ describe("medidas visuais Figaro no seletor de data", () => {
     expect(selecionado?.closest("button")?.className).toContain("h-10");
     expect(alvo.querySelector('[aria-label="Calendário"]')?.className).toContain("h-[286px]");
     expect(titulo?.className).toContain("pt-[13px]");
+  });
+});
+
+describe("compactação do cabeçalho móvel", () => {
+  it("usa título 20/24 sem reduzir o alvo de toque do cabeçalho", async () => {
+    const fonte = (await import("node:fs")).readFileSync(
+      "src/components/barbeiro/agenda/CabecalhoAgenda.tsx",
+      "utf8",
+    );
+    expect(fonte).toContain('className="truncate text-[20px] leading-6 text-paper"');
+    expect(fonte).toContain('className="toque-afunda h-12 w-12 min-w-12');
   });
 });
 
