@@ -5439,10 +5439,12 @@ button.agenda-timeline-bloqueio-interativo {
   height: 50px;
   align-items: center;
   overflow: hidden;
-  border: 1px solid transparent;
+  border: 1px solid color-mix(in oklab, var(--line) 72%, transparent);
   border-radius: 999px;
   background: var(--ink2);
-  box-shadow: var(--elevacao-3);
+  box-shadow:
+    inset 0 0 0 1px color-mix(in oklab, var(--paper) 10%, transparent),
+    var(--elevacao-3);
 }
 .agenda-botao-agora-ir {
   height: 50px;
