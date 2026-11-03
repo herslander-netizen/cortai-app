@@ -151,8 +151,8 @@ describe("BotaoAgoraPrincipal", () => {
     const inicio = estilos.indexOf(".agenda-botao-agora-principal {");
     const fim = estilos.indexOf("\n}", inicio);
     const regra = estilos.slice(inicio, fim);
-    expect(regra).toContain("border: 1px solid var(--line2);");
-    expect(regra).toContain("outline: 1px solid color-mix(in oklab, var(--line2) 38%, transparent);");
+    expect(regra).toContain("border: 1px solid color-mix(in oklab, var(--line) 58%, transparent);");
+    expect(regra).toContain("outline: 1px solid color-mix(in oklab, var(--paper) 12%, transparent);");
     expect(regra).toContain("outline-offset: -4px;");
     expect(regra).toContain("box-shadow: var(--elevacao-3);");
   });
