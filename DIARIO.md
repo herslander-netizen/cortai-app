@@ -562,7 +562,6 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 
 
-- GPT | 2026-11-01 UTC | Fixar a rota `/login`/showcase permanentemente no tema escuro Navy, independente do tema global/sistema; isolar tokens do palco e mockups sem alterar o tema global, preservar layout mobile 390px/100dvh e fluxos reais de cadastro/login/agendamento; concluir a reprodução demonstrativa do vídeo Fígaroo | `DIARIO.md`, `src/routes/login.tsx`, `src/styles.css`, `src/components/entrada/FlowWelcome.tsx`, `src/components/entrada/DemoFrame.tsx`, `src/components/entrada/DemosPublicasDaEntrada.tsx`, `src/components/entrada/DemosOperacionaisDaEntrada.tsx`, `src/components/entrada/DemosDaEntrada.tsx`, `src/components/entrada/OndasDaEntrada.tsx`, `src/components/entrada/SequenciaDaEntrada.tsx`, testes da entrada; sem migração
 
 - Claude | 2026-10-31 UTC | Flow Bot dentro do Flow — Fase A (dono: "vamos criar a integração"): motor do flow-bot embutido em `src/lib/flow-bot/`, entrada no WhatsApp antes da Flow IA, rastro, modo sombra, horário, detecção de pessoa que assumiu (`fromMe`), modo humano com prazo; sem tela (Fase B) | `src/lib/flow-bot/*`, `src/lib/whatsapp/fluxo.server.ts`, `src/routes/api/public/whatsapp/evolution.ts`, `src/integrations/supabase/types.ts`, `supabase/tests/flow_bot.sql`, migração **0055** `drizzle/migrations/0055_flow_bot.sql` (não aplicar sem autorização)
 
@@ -916,6 +915,15 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+
+### 2026-11-03 UTC — GPT — Corrige a entrada pública do Flow e valida a prévia
+- Commit de código: `b23465410773d6f54e6098b1d0cb8b9e30f5f887`.
+- O que mudou: entrada /login em Navy por tokens locais, marca Flow clara oficial, ondas reutilizadas; controles convertidos para o Button do design system; callbacks de cadastro/login/agendamento preservados; removida folha de login simulada; demos divididas em módulos menores que 300 linhas e identificadas como exemplos.
+- Testes: GitHub Actions `41586310995` passou protocolo, build, TypeScript e Vitest (282 arquivos, 2.319 testes aprovados, 1 ignorado). Deploy isolado da prévia, variáveis do Worker e smoke test também passaram; o smoke confirmou o commit `b23465410773d6f54e6098b1d0cb8b9e30f5f887`.
+- Prévia: https://previa.cortaiapp.pages.dev/login
+- Limites: não houve conferência visual manual em aparelho/390px/1280px nesta sessão; ESLint não faz parte do workflow.
+- Banco/infra: nada alterado; sem migração, sem escrita em banco, sem alteração em `main` ou no site principal. Agenda não foi tocada.
+- Reserva GPT de /login concluída e encerrada. PRs rascunho de outras áreas não foram integrados.
 
 ### 2026-11-01 UTC — GPT — Conclui a organização dos acessos de Ajustes
 - O que mudou: encerrada a organização solicitada pelo dono. O acesso “Sua Página” não aparece mais em Ajustes; permanece na navegação lateral. Os itens exclusivos de Ajustes foram preservados, sem alteração de rotas ou funcionalidades.
