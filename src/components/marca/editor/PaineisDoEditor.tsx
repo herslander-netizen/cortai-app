@@ -1,5 +1,4 @@
 import { LacunasDaPagina } from "@/components/marca/editor/LacunasDaPagina";
-import { FaixaDeEstado } from "@/components/marca/editor/FaixaDeEstado";
 import { SecaoAjustesFinos } from "@/components/marca/editor/SecaoAjustesFinos";
 import { SecaoConteudo } from "@/components/marca/editor/SecaoConteudo";
 import { SecaoExperiencia } from "@/components/marca/editor/SecaoExperiencia";
@@ -228,13 +227,6 @@ export function PaineisDoEditor({
         </TabsContent>
       </Tabs>
 
-      <FaixaDeEstado
-        fase={e.fase}
-        erro={e.erro}
-        status={e.status}
-        naoSalvo={e.naoSalvo}
-        pendente={e.pendente}
-      />
     </>
   );
 }

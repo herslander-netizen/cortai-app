@@ -5,14 +5,15 @@ import { useState } from "react";
 
 import { EsqueletoFormulario } from "@/components/layout/Esqueleto";
 import { Screen } from "@/components/layout/Screen";
+import { FaixaDeEstado } from "@/components/marca/editor/FaixaDeEstado";
 import { PaineisDoEditor } from "@/components/marca/editor/PaineisDoEditor";
-import { useConfirmar } from "@/components/ui/useConfirmar";
 import { PreviaDaExperiencia } from "@/components/marca/editor/PreviaDaExperiencia";
 import { useEditorDaPagina } from "@/components/marca/editor/useEditorDaPagina";
 import { Button } from "@/components/ui/button";
+import { useConfirmar } from "@/components/ui/useConfirmar";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { getMarca, type MarcaData } from "@/lib/marca.functions";
 import { exigirCapacidade } from "@/lib/guarda-capacidade";
+import { getMarca, type MarcaData } from "@/lib/marca.functions";
 
 export const Route = createFileRoute("/barbeiro/marca")({
   beforeLoad: ({ context }) => exigirCapacidade(context.queryClient, "branding_avancado"),
@@ -91,7 +92,15 @@ function Editor({
       title="Personalizar página"
       subtitle={`Escolha como seu cliente chega até ${e.vocabulario.comArtigo} e veja a mudança na hora.`}
     >
-      <div className="mb-5 flex flex-wrap items-center gap-2">
+      <FaixaDeEstado
+        fase={e.fase}
+        erro={e.erro}
+        status={e.status}
+        naoSalvo={e.naoSalvo}
+        pendente={e.pendente}
+      />
+
+      <div className="mb-5 mt-3 flex flex-wrap items-center gap-2">
         <Button variant="outline" size="sm" asChild>
           <a href={link} target="_blank" rel="noreferrer">
             <Eye />
@@ -105,7 +114,7 @@ function Editor({
           onClick={() => setPreviaAberta(true)}
         >
           <Smartphone />
-          Ver como ficou
+          Ver prévia
         </Button>
         <Button
           variant="outline"
@@ -150,14 +159,28 @@ function Editor({
           <PaineisDoEditor e={e} initial={initial} versions={versions} />
 
           <div className="sticky bottom-20 z-20 mt-6 rounded-lg border border-line bg-ink p-2 shadow-xl xl:bottom-4">
-            <Button
-              variant="ghost"
-              className="mb-2 h-12 w-full xl:hidden"
-              onClick={() => setPreviaAberta(true)}
-            >
-              <Eye />
-              Ver prévia
-            </Button>
+            {e.pendente ? (
+              <Button
+                type="button"
+                variant="ghost"
+                className="mb-2 h-11 w-full"
+                disabled={e.busy}
+                onClick={async () => {
+                  const ok = await confirmar({
+                    titulo: "Descartar rascunho?",
+                    descricao:
+                      "A versão pública será mantida. Todas as alterações ainda não publicadas, inclusive as desta edição, serão descartadas. O rascunho atual ficará disponível no histórico.",
+                    confirmar: "Descartar rascunho",
+                    cancelar: "Continuar editando",
+                    destrutivo: true,
+                  });
+                  if (ok) await e.descartar();
+                }}
+              >
+                <Undo2 />
+                Descartar rascunho
+              </Button>
+            ) : null}
             <div className="grid grid-cols-2 gap-2">
               <Button
                 variant="outline"

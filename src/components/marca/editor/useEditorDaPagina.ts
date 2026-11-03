@@ -217,10 +217,16 @@ export function useEditorDaPagina(initial: MarcaData, reload: () => void) {
 
   const restaurar = async (versaoId: string) => {
     setBusy(true);
+    setStatus(null);
     try {
       await restore({ data: { versaoId } });
       await reload();
       setStatus("Versão restaurada como rascunho.");
+    } catch (error) {
+      setStatus(
+        error instanceof Error ? error.message : "Não foi possível restaurar a versão. Tente novamente.",
+        true,
+      );
     } finally {
       setBusy(false);
     }
