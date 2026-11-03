@@ -87,6 +87,7 @@ describe("BotaoAgoraPrincipal", () => {
     act(() => botao?.click());
     expect(onVisualizacao).toHaveBeenCalledWith("lista");
     expect(botao?.querySelector("svg")).not.toBeNull();
+    expect(botao?.querySelector("svg")?.getAttribute("style")).toContain("var(--agenda-acao)");
   });
 
   it("mantém um único FAB e representa os estados fechado e aberto", async () => {
