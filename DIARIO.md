@@ -547,7 +547,6 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - 2026-10-26: **Cabeçalho do menu mobile mais compacto** (dono aprovou a reformulação após captura: logo menor, nome do negócio com hierarquia discreta, papel secundário, ajustes alinhados e menos espaço vazio; manter nome em até duas linhas quando necessário, sem afetar a Agenda).
 
 ## Em andamento
-- GPT | 2026-11-03 UTC | Corrigir sobrescritas CSS da cor do núcleo FAB e do avatar de equipe na barra Agora, com regressões de CSS em arquivo novo; sem alterar lógica/comportamento | `src/styles.css`, novo teste de estilos dedicado; sem migração
 - GPT | 2026-11-03 UTC | Corrigir teste quebrado do FAB da Agenda: alinhar expectativa do teste ao estilo atual do núcleo, sem alterar componente/comportamento | `src/components/barbeiro/agenda/BotaoAgoraPrincipal.test.tsx`; sem migração
 
 
@@ -921,6 +920,14 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+
+### 2026-11-03 UTC — GPT — Corrige cores da barra inferior da Agenda
+- Commits: `d11acc1` (sobrescrita CSS do núcleo do + e avatar da equipe), `d852cfb` (teste de regressão dedicado).
+- O que mudou: regra do tema claro que repintava o núcleo removida/substituída por regra de superfície branca nos dois temas; avatar do filtro de equipe fica transparente dentro da pílula, sem disco próprio.
+- Testes: teste estrutural acrescentado em `cores-do-pe.test.ts`; aguarda GitHub Actions da revisão final.
+- Banco/infra: nada alterado; sem migração, sem segredo e sem publicação no site principal.
+- Pendente: conferir a prévia oficial em celular, temas claro e escuro, e confirmar o smoke test do commit final.
+
 
 ### 2026-11-03 UTC — GPT — Ajusta rodapé da Agenda conforme referência
 - Commits: `b687b70` (núcleo do + branco), `3d0c6de`/`e43e340` (filtro de equipe sem círculo branco), `6902d9f` (teste do núcleo).
