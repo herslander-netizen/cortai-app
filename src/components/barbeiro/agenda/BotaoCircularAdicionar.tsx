@@ -1,8 +1,7 @@
-import { motion } from "framer-motion";
-import type { ButtonHTMLAttributes } from "react";
+import { motion, type HTMLMotionProps } from "framer-motion";
 import { Plus } from "lucide-react";
 
-type BotaoCircularAdicionarProps = ButtonHTMLAttributes<HTMLButtonElement>;
+type BotaoCircularAdicionarProps = HTMLMotionProps<"button">;
 
 /** FAB circular com anel duplo azul e núcleo grafite. */
 export function BotaoCircularAdicionar({
