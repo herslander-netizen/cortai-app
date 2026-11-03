@@ -1,6 +1,6 @@
-# Cortaí — Contexto do projeto
+# FLOW — Contexto do projeto
 
-Este repositório é sincronizado nos dois sentidos com o projeto Cortaí no Lovable:
+Este repositório é sincronizado nos dois sentidos com o projeto FLOW no Lovable (o projeto anteriormente identificado como Cortaí):
 - Editor: https://lovable.dev/projects/a3550de1-ec98-4622-8484-7dadb8b04ed0
 - Prévia: https://id-preview--a3550de1-ec98-4622-8484-7dadb8b04ed0.lovable.app
 - Site publicado: https://cortai.dev
@@ -22,6 +22,12 @@ npx vitest run
 npx eslint .
 npx vite build
 ```
+
+## Nome do projeto e transição de marca
+
+- **Nome oficial do projeto: FLOW**, conforme decisão expressa do responsável em 03/11/2026.
+- Cortaí é o nome anterior e ainda aparece no código, na interface, nos domínios, nos componentes e em documentos históricos. Essa presença é legado do estado atual, não uma reversão da decisão de nome.
+- Esta decisão documenta o nome do projeto; **não autoriza uma renomeação técnica ou visual automática**. Não alterar logos, textos de interface, domínio, identificadores, nomes de pacotes, rotas, banco ou integrações apenas para substituir Cortaí por FLOW. Fazer a transição em etapas, com escopo e aprovação explícitos, preservando compatibilidade.
 
 ## Produto
 
