@@ -548,7 +548,7 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Em andamento
 
-- GPT | 2026-11-03 UTC | Adaptar o botão circular de adicionar da Agenda a partir da referência experimental #34, preservando handlers, menu e toque longo; anel usa token de ação e núcleo/ícone usam tokens de superfície para paridade claro/escuro. Escopo liberado pelo dono nesta conversa; não inclui outras áreas da Agenda nem a folha de horários especiais | `DIARIO.md`, `src/components/barbeiro/agenda/BotaoAgoraPrincipal.tsx`, `src/components/barbeiro/agenda/BotaoCircularAdicionar.tsx`, `src/components/barbeiro/agenda/BotaoAgoraPrincipal.test.tsx`; sem migração
+- GPT | 2026-11-03 UTC | Ajustar somente o contorno interno suave da pílula “Agora” conforme a referência enviada pelo dono; preservar botão circular +, handlers, menu, alternador e toque longo. Reserva anterior do FAB fica suspensa nesta execução e não será alterada; escopo atual somente CSS e teste visual da pílula | `DIARIO.md`, `src/styles.css`, `src/components/barbeiro/agenda/BotaoAgoraPrincipal.test.tsx`; sem migração
 
 
 
