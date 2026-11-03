@@ -32,6 +32,7 @@ Claude recebe 1, 2 e 4 automaticamente pelo `CLAUDE.md`; o GPT/Codex lê o `AGEN
 
 - **Onde trabalhar:** só `herslander-netizen/cortai-app`, branch `cloudflare-workers-migration-2026-10-13`.
   `main` do Git é arquivo antigo: nunca push, merge ou PR para ela. O Lovable não é mais usado.
+- **Prévia não é ambiente de edição:** a prévia/editor visual usada para testes pontuais em 02/11/2026 não faz parte do fluxo oficial. Não a retomar, usar como fonte de verdade ou publicar por ela. Não copiar, sincronizar ou mesclar automaticamente alterações feitas nesse ambiente. Qualquer experimento que mereça aproveitamento deve ser comparado com a branch oficial e reaplicado de forma cirúrgica, somente dentro do escopo solicitado pelo dono. O único ambiente de desenvolvimento é a branch `cloudflare-workers-migration-2026-10-13`; a única prévia oficial é `https://previa.cortaiapp.pages.dev`, publicada pelo GitHub Actions após os gates. O site principal só recebe versão pelo workflow autorizado **Lançar versão**.
 - **Nunca:** tocar no `evolution-crm` (`guuvderpqspldyrlbhxa`); force-push, rebase ou amend de commit enviado;
   segredo em arquivo, commit, log ou chat; DROP ou DELETE de dados.
 - **Pedir autorização ao dono antes de:** aplicar migração ou escrever em banco real (`cortai-prod`); publicar
