@@ -190,7 +190,7 @@ export function BotaoAgoraPrincipal({
             <AnimatePresence initial={false} mode="wait">
               <motion.span
                 key={proxima}
-                className="inline-flex"
+                className="agenda-botao-agora-visualizacao-icone grid size-9 place-items-center rounded-full border bg-[var(--ink2)]"
                 initial={menosMovimento ? { opacity: 0 } : { opacity: 0, rotate: 90, scale: 0.8 }}
                 animate={{
                   opacity: 1,
