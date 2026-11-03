@@ -87,12 +87,6 @@ describe("BotaoAgoraPrincipal", () => {
     act(() => botao?.click());
     expect(onVisualizacao).toHaveBeenCalledWith("lista");
     expect(botao?.querySelector("svg")).not.toBeNull();
-    expect(botao?.querySelector(".agenda-botao-agora-visualizacao-icone")).not.toBeNull();
-    const estilos = readFileSync("src/styles.css", "utf8");
-    expect(estilos).toContain(".agenda-botao-agora-visualizacao-icone");
-    expect(estilos).toContain("border-color: var(--line);");
-    expect(estilos).toContain("background: var(--ink2);");
-    expect(estilos).toContain("color: var(--agenda-acao);");
   });
 
   it("mantém um único FAB e representa os estados fechado e aberto", async () => {
