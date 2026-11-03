@@ -5988,7 +5988,7 @@ button.agenda-nome:hover {
 /* Agenda 3.0: uma geometria compartilhada pelo "+", "Agora" e speed dial. */
 :root {
   --agenda-fab-tamanho: 56px;
-  --agenda-fab-icone: 24px;
+  --agenda-fab-icone: 18px;
   --agenda-fab-margem: 16px;
   --agenda-fab-direita: max(20px, calc((100vw - 760px) / 2 + 32px));
   --agenda-fab-pe: calc(24px + env(safe-area-inset-bottom));
@@ -6017,6 +6017,19 @@ button.agenda-nome:hover {
   width: var(--agenda-fab-icone);
   height: var(--agenda-fab-icone);
 }
+.agenda-acao-fixa .agenda-fab-toggle {
+  border: 1px solid var(--line2);
+  border-radius: 9999px;
+  background: var(--ink2);
+  color: var(--paper);
+  box-shadow:
+    0 0 0 5px var(--ink),
+    0 0 0 7px var(--primary),
+    var(--shadow-md);
+}
+.agenda-acao-fixa .agenda-fab-toggle:hover {
+  background: var(--ink2);
+}
 /* Segurar o "+" abre o agendamento por voz: sem seleção/menu do sistema, com retorno visual
    (só transform) enquanto o tempo corre. */
 .agenda-fab-toggle {
@@ -6042,13 +6055,6 @@ button.agenda-nome:hover {
   }
   .agenda-acao-fixa {
     right: var(--agenda-fab-direita);
-  }
-  /* Modelo: "+" em quadrado de cantos bem arredondados; no escuro, azul mais fechado. */
-  .agenda-acao-fixa .agenda-acao-redonda {
-    border-radius: 20px;
-  }
-  :root:not(.light) .agenda-acao-fixa .agenda-fab-toggle {
-    background: color-mix(in oklab, var(--primary) 55%, black);
   }
   .agenda-acao-fixa .agenda-acao-redonda {
     width: var(--agenda-fab-tamanho);
