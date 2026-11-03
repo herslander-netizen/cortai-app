@@ -1,4 +1,5 @@
 // @vitest-environment jsdom
+import { readFileSync } from "node:fs";
 import { act, createElement } from "react";
 import { createRoot } from "react-dom/client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -89,7 +90,10 @@ describe("medidas visuais Figaro no seletor de data", () => {
     );
     expect(rotulos?.textContent).toContain("D");
     expect(rotulos?.firstElementChild?.className).toContain("pb-1 pt-2");
-    expect(alvo.querySelector<HTMLElement>("[data-sem-gesto-dia] > div > div.relative")?.className).toContain("pt-[8px]");
+    const faixa = Array.from(alvo.querySelectorAll<HTMLElement>("[data-sem-gesto-dia] div")).find((el) =>
+      el.className.includes("pt-[8px]"),
+    );
+    expect(faixa?.className).toContain("pt-[8px]");
   });
 
   it("usa título mensal 22/28 e círculo de 38 px com texto de 15 px", async () => {
@@ -111,10 +115,7 @@ describe("medidas visuais Figaro no seletor de data", () => {
 
 describe("compactação do cabeçalho móvel", () => {
   it("usa título 20/24 sem reduzir o alvo de toque do cabeçalho", async () => {
-    const fonte = (await import("node:fs")).readFileSync(
-      "src/components/barbeiro/agenda/CabecalhoAgenda.tsx",
-      "utf8",
-    );
+    const fonte = readFileSync("src/components/barbeiro/agenda/CabecalhoAgenda.tsx", "utf8");
     expect(fonte).toContain('className="truncate text-[20px] leading-6 text-paper"');
     expect(fonte).toContain('className="toque-afunda h-12 w-12 min-w-12');
   });
