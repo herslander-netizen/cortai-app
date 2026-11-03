@@ -99,7 +99,7 @@ describe("BotaoAgoraPrincipal", () => {
     expect(fab?.style.backgroundColor).toBe("transparent");
     expect(fab?.style.borderColor).toBe("var(--agenda-acao)");
     expect(fab?.style.width).toBe("var(--agenda-fab-tamanho)");
-    expect(fab?.querySelector("span")?.getAttribute("style")).toContain("var(--painel, var(--ink3))");
+    expect(fab?.querySelector("span")?.getAttribute("style")).toContain("rgb(255, 255, 255)");
     expect(fab?.querySelector("svg")?.getAttribute("style")).toContain("var(--paper)");
     expect(fab?.style.filter).toBe("none");
     expect(fab?.querySelector(".agenda-fab-icone-aberto")).toBeNull();
