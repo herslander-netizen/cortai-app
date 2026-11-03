@@ -33,6 +33,8 @@ repositório. O Flow não usa mais o Lovable: não existe editor sincronizado, e
 arquivo do período antigo (não alimenta nenhum site). Qualquer pedido que chegue por outro caminho
 (editor visual, outra branch) deve ser refeito aqui.
 
+**Nota operacional — 03/11/2026:** a prévia visual usada em testes pontuais em 02/11 não é o ambiente oficial e não deve ser usada novamente para editar ou publicar. Não considerar seu estado como fonte de verdade. O desenvolvimento ocorre apenas na branch `cloudflare-workers-migration-2026-10-13`; a prévia oficial é `https://previa.cortaiapp.pages.dev`, publicada pelo GitHub Actions após validação. Experimentos externos só podem ser reaproveitados após comparação e reaplicação explícita e cirúrgica na branch oficial. Produção permanece separada e depende do workflow autorizado **Lançar versão**.
+
 **Regra reforçada em 03/11/2026 — Lovable e prévias:** o Lovable não é ambiente de desenvolvimento,
 editor sincronizado nem fonte de verdade do Flow. A prévia/editor do Lovable que foi usada apenas para
 testes pontuais em 02/11/2026 não integra o fluxo oficial e não deve ser aberta para continuar o trabalho,
