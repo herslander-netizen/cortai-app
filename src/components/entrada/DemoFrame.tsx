@@ -57,7 +57,7 @@ export function CabecalhoDemo({
 }) {
   return (
     <div className="flex items-center justify-between gap-2">
-      <div className="flex min-w-0 items-center gap-2">
+      <div className="flex min-w-0 max-w-[calc(100%-80px)] items-center gap-2">
         <span
           className="grid size-8 shrink-0 place-items-center rounded-lg"
           style={{
@@ -72,15 +72,6 @@ export function CabecalhoDemo({
           <span style={suaveDemo}>{detalhe}</span>
         </div>
       </div>
-      <span
-        className="shrink-0 rounded-full px-2 py-1 text-[10px] font-semibold"
-        style={{
-          background: "color-mix(in oklab, var(--figaro-tertiary) 18%, transparent)",
-          color: "var(--figaro-on-primary)",
-        }}
-      >
-        Exemplo
-      </span>
     </div>
   );
 }
