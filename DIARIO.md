@@ -919,7 +919,7 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 ## Diário
 
 ### 2026-11-03 UTC — GPT — Aplica contorno suave na pílula Agora
-- O que mudou: a pílula “Agora” recebeu contorno externo discreto derivado de `--line` e filete interno sutil derivado de `--paper`, mantendo a elevação existente. Como os tokens acompanham o tema, a mesma estrutura funciona em claro e escuro.
+- O que mudou: após comparar a prévia com a referência, removido o aro escuro de `--line2`. A pílula agora usa contorno externo atenuado com `--line` (58%), filete interno quase branco com `--paper` (12%) e a elevação original. O botão + não foi alterado.
 - Arquivos: `src/styles.css`, `src/components/barbeiro/agenda/BotaoAgoraPrincipal.test.tsx`.
 - Commits: reserva `bc2373485e6949b525765cf804b396379a7ea9ba`; CSS `dc4c8ccf590e49f31d5aeb9e53b6ca89c52368db`; teste `3f211dade1fcd114aa08b0e35d19b3ac02ae6b63`.
 - Testes: não executados localmente nesta sessão; aguardando GitHub Actions. Conferência visual em 360/390 px nos dois temas ainda pendente.
