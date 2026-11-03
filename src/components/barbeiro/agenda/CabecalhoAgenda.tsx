@@ -283,7 +283,7 @@ export function CabecalhoAgenda({
         aria-expanded={calendarioAberto}
       >
         <span
-          className="truncate text-[22px] leading-7 text-paper"
+          className="truncate text-[20px] leading-6 text-paper"
           style={{ fontFamily: "var(--figaro-font-body)" }}
         >
           <strong className="font-bold">{(tituloCelular ?? tituloDoMes(dia)).split(" ")[0]}</strong>{" "}
