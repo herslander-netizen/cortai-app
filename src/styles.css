@@ -5480,6 +5480,11 @@ button.agenda-timeline-bloqueio-interativo {
     color 160ms ease,
     transform 160ms ease;
 }
+.agenda-botao-agora-visualizacao-icone {
+  border-color: var(--line);
+  background: var(--ink2);
+  color: var(--agenda-acao);
+}
 .agenda-botao-agora-principal .agenda-botao-agora-visualizacao:hover,
 .agenda-botao-agora-principal .agenda-botao-agora-visualizacao:focus-visible {
   color: var(--agenda-destaque);
