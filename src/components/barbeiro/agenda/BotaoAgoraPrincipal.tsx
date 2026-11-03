@@ -156,7 +156,7 @@ export function BotaoAgoraPrincipal({
           aria-expanded={menuAberto}
           aria-describedby={onAgendarPorVoz ? "agenda-fab-dica-voz" : undefined}
           data-acoes-agenda
-          className="agenda-acao-redonda agenda-fab-toggle"
+          className="agenda-fab-toggle"
           data-aberto={menuAberto}
           data-segurando={toqueLongo.segurando || undefined}
           onClick={onAlternarMenu}
