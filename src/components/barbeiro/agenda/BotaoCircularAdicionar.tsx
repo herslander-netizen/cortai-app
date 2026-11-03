@@ -24,7 +24,7 @@ export function BotaoCircularAdicionar({
       size="icon"
       className={cn(
         "agenda-fab-toggle shrink-0 rounded-full border-[3px] border-solid p-[3px]",
-        "bg-transparent shadow-none hover:bg-transparent active:bg-transparent active:scale-100",
+        "bg-transparent hover:bg-transparent active:bg-transparent active:scale-100",
         className,
       )}
       style={{
@@ -33,7 +33,7 @@ export function BotaoCircularAdicionar({
         height: "var(--agenda-fab-tamanho)",
         backgroundColor: "transparent",
         borderColor: "var(--agenda-acao)",
-        boxShadow: "none",
+        boxShadow: "var(--elevacao-6)",
         filter: "none",
         ...style,
       }}
