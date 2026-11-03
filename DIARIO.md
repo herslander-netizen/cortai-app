@@ -548,7 +548,6 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Em andamento
 
-- GPT | 2026-11-03 UTC | Refinar a composição visual da Agenda conforme análise aprovada pelo dono: cabeçalho mais compacto, calendário mensal integrado por transição, indicadores discretos somente para dias que já possuem agendamentos nos dados atuais, alinhamento da escala horária com a grade e espaçamento inferior dos controles flutuantes. Preservar regras, gestos, navegação, dados, comportamento dos controles e paridade claro/escuro | `DIARIO.md`, componentes/estilos/testes estritamente necessários de `src/components/barbeiro/agenda/` e `src/styles.css`; sem migração
 
 
 
@@ -919,6 +918,16 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+
+### 2026-11-03 UTC — GPT — Refina o cabeçalho móvel da Agenda
+- O que mudou: cabeçalho do mês no celular reduzido de 22/28 para 20/24; letras da semana e faixa de dias ganharam menos respiro vertical. Alvos de toque de 48 px mantidos.
+- O que foi preservado após inspeção: expansão/recolhimento do mês com duas molas do Figaro; indicadores baseados nas contagens reais por dia/profissional; calha horária móvel de 50 px; botões inferiores com recuo simétrico e área segura. Esses mecanismos já existiam e não foram duplicados nem alterados.
+- Arquivos: `src/components/barbeiro/agenda/CabecalhoAgenda.tsx`, `src/components/barbeiro/agenda/SemanaDoTopo.tsx`, `src/components/barbeiro/agenda/SemanaDoTopo.test.tsx`, `src/components/barbeiro/agenda/CabecalhoAgenda.icone.test.ts`.
+- CI GitHub Actions #1986 (`41683564030`): protocolo, instalação, build, TypeScript e Vitest passaram; deploy Pages, configuração do Worker e smoke test da prévia também passaram. Testes: 282 arquivos, 2.321 aprovados, 1 ignorado.
+- Limites: ESLint dos arquivos alterados não foi executado nesta sessão. Não houve captura manual em aparelho nos tamanhos 360/390 px nem conferência separada dos dois temas; validar visualmente na prévia.
+- Prévia publicada: https://previa.cortaiapp.pages.dev
+- Sem alteração em regras de agenda, dados, banco, migração, `main` ou produção.
+
 
 ### 2026-11-03 UTC — GPT — Aplica contorno suave na pílula Agora
 - O que mudou: após comparar a prévia com a referência, removido o aro escuro de `--line2`. A pílula agora usa contorno externo atenuado com `--line` (58%), filete interno quase branco com `--paper` (12%) e a elevação original. O botão + não foi alterado.
