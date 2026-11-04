@@ -246,9 +246,7 @@ Hoje, em `processarMensagemRecebida`, o bot entra entre a resposta a avisos e a 
 
 1. **Planos:** em quais o bot entra.
 2. **Hospedagem da Evolution:** um servidor pequeno (estimativa: R$ 30 a 60 por mês).
-3. **Mensagem livre sem regra:**
-   - o código manda para a Flow IA, e o texto antigo do `CLAUDE.md` dizia Flow Chat;
-   - sugestão: bot primeiro; sem regra, Flow IA se estiver ligada; senão, o menu de opções da Conversa Padrão.
+3. **Mensagem livre sem regra — decidido em 04/11/2026:** a mensagem segue para a Flow IA. No modo sombra, o Bot registra sua previsão e a Flow IA atende; no modo ligado, o Bot só encerra o turno quando produzir uma resposta útil, caso contrário a Flow IA assume. O fluxo completo está em `docs/fluxo-cooperativo-flow-bot-flow-ia.md`.
 4. **Pausa quando uma pessoa responde pelo celular:** quanto tempo (sugestão: 2 h, ou até o fim do expediente).
 5. **Áudio no bot:** usar a transcrição, que tem custo por minuto no provedor configurado, ou pedir que o cliente
    escreva.
