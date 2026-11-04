@@ -570,7 +570,7 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 
 
-- Claude | 2026-10-31 UTC | Flow Bot dentro do Flow — Fase A (dono: "vamos criar a integração"): motor do flow-bot embutido em `src/lib/flow-bot/`, entrada no WhatsApp antes da Flow IA, rastro, modo sombra, horário, detecção de pessoa que assumiu (`fromMe`), modo humano com prazo; sem tela (Fase B) | `src/lib/flow-bot/*`, `src/lib/whatsapp/fluxo.server.ts`, `src/routes/api/public/whatsapp/evolution.ts`, `src/integrations/supabase/types.ts`, `supabase/tests/flow_bot.sql`, migração **0055** `drizzle/migrations/0055_flow_bot.sql` (não aplicar sem autorização)
+- GPT | 2026-11-04 UTC | **Reserva transferida de Claude para GPT por autorização do dono**: assumir a conclusão do Flow Bot — Fase A, revisar o que já existe e finalizar testes do orquestrador, integração e documentação; sem tela (Fase B), sem aplicar migração sem autorização e sem alterar banco real | `src/lib/flow-bot/*`, `src/lib/whatsapp/fluxo.server.ts`, `src/routes/api/public/whatsapp/evolution.ts`, `src/integrations/supabase/types.ts`, `supabase/tests/flow_bot.sql`, `drizzle/migrations/0055_flow_bot.sql`
 
 - GPT | 2026-10-31 UTC | Reforçar o protocolo obrigatório de trabalho com documento canônico, referência no AGENTS.md e verificação estrutural no CI; sem alterações funcionais, banco ou Agenda | `DIARIO.md`, `AGENTS.md`, `PROTOCOLO-OBRIGATORIO.md`, `scripts/verificar-protocolo.sh`, `.github/workflows/preview-migration.yml`; sem migração
 
