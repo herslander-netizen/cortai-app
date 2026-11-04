@@ -547,7 +547,6 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - 2026-10-26: **Cabeçalho do menu mobile mais compacto** (dono aprovou a reformulação após captura: logo menor, nome do negócio com hierarquia discreta, papel secundário, ajustes alinhados e menos espaço vazio; manter nome em até duas linhas quando necessário, sem afetar a Agenda).
 
 ## Em andamento
-- GPT | 2026-11-03 UTC | Corrigir a precedência do CSS do núcleo do FAB: branco só no tema claro e token original no escuro; alinhar testes de tema e do componente | `src/components/barbeiro/agenda/BotaoCircularAdicionar.css`, `src/components/barbeiro/agenda/BotaoCircularAdicionar.tema.test.ts`, `src/components/barbeiro/agenda/BotaoAgoraPrincipal.test.tsx`; sem migração
 
 
 
@@ -920,6 +919,13 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+
+### 2026-11-03 UTC — GPT — Corrige precedência de cor do FAB entre tema claro e escuro
+- Commits: `03b7799` (seletor de tema com precedência sobre a regra global antiga) e `2a550b3` (teste estrutural dos dois temas).
+- O núcleo branco fica restrito ao tema claro; no escuro, o seletor aplicado ao contêiner real do FAB restaura `--figaro-surface-container-low`. O componente mantém o token original inline. Anel, ícone, tamanho e comportamento não foram alterados.
+- Teste dedicado atualizado para garantir a precedência e os valores de cada tema. CI ainda precisa validar o conjunto completo; não houve inspeção visual manual.
+- Sem alterações em banco, infraestrutura, produção ou `main`.
+
 
 ### 2026-11-03 UTC — GPT — Preserva a cor original do FAB no tema escuro
 - Commits: `3e54a9b` (restaura o token original do núcleo), `ff65f46` (CSS isolado por tema), `23ab026` (teste por tema), `170249a` (importa o CSS).
