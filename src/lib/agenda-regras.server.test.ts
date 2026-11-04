@@ -155,6 +155,27 @@ describe("validarAgendamento — contexto da equipe", () => {
     ).resolves.toBeNull();
   });
 
+  it("aceita a ampliação de expediente configurada como horário especial", async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date(agora));
+    estado.especiais = [
+      {
+        dia: "2026-11-04",
+        profissionalId: null,
+        abre: "08:00",
+        fecha: "20:00",
+      },
+    ];
+
+    await expect(
+      validarAgendamento(
+        criarBanco(),
+        pedido("2026-11-04T11:30:00.000Z", { contexto: "equipe" }), // 08:30 em São Paulo
+      ),
+    ).resolves.toBeNull();
+  });
+
+
   it("continua respeitando bloqueios e escala como ocupações", async () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date(agora));
