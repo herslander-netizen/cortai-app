@@ -548,7 +548,7 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Em andamento
 
-- GPT | 2026-11-04 UTC | Auditoria e correções da fila de espera — motor de ofertas, compatibilidade, aceite/recusa/expiração e varredura; escopo restrito ao backend de ofertas e seus testes, sem tocar na tela `src/routes/barbeiro.fila.tsx` (já incluída em reserva ampla anterior), banco, migrações ou produção | `src/lib/whatsapp/fila-ofertas.server.ts`, `src/lib/whatsapp/fila-ofertas.server.test.ts`, `src/lib/fila-compatibilidade.ts`, testes diretamente relacionados; sem migração; relatório `docs/auditoria-lista-espera-2026-11-03.md`
+
 
 
 
@@ -922,6 +922,14 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+
+### 2026-11-04 UTC — GPT — Auditoria técnica da Lista de Espera
+- Relatório: `docs/auditoria-lista-espera-2026-11-03.md`.
+- Comparados os fluxos atuais do cliente/equipe, motor de compatibilidade, ofertas, aceite SQL, expiração e WhatsApp com Fresha, Booksy, SQUIRE e repositórios Easy!Appointments, LibreBooking, VoxelBooking e OpenSalon.
+- Achados principais: oferta pode permanecer ativa sem entrega do WhatsApp; transições de fila não estão vinculadas à oferta específica; teste atual não simula concorrência real; mudança de telefone precisa preservar a confirmação; varredura pode atrasar até 15 min; teto de 20 candidatos pode deixar candidatos posteriores sem avaliação; prioridade ainda não é configurável.
+- Nenhuma alteração funcional, de tela, banco, migração, produção ou `main`. Nenhum teste/build executado nesta etapa (auditoria estática).
+- Próxima ordem: integridade do ciclo de oferta; canal/telefone; escala/compatibilidade; UX e decisão sobre modos de prioridade.
+
 
 ### 2026-11-03 UTC — GPT — Corrige precedência de cor do FAB entre tema claro e escuro
 - Commits: `03b7799` (seletor de tema com precedência sobre a regra global antiga) e `2a550b3` (teste estrutural dos dois temas).
