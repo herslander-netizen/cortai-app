@@ -548,7 +548,7 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Em andamento
 
-- GPT | 2026-11-04 UTC | Auditoria e correções da fila de espera — motor de ofertas, compatibilidade, aceite/recusa/expiração e varredura; escopo restrito ao backend de ofertas e seus testes, sem tocar na tela `src/routes/barbeiro.fila.tsx` (já incluída em reserva ampla anterior), banco, migrações ou produção | `src/lib/whatsapp/fila-ofertas.server.ts`, `src/lib/whatsapp/fila-ofertas.server.test.ts`, `src/lib/fila-compatibilidade.ts`, testes diretamente relacionados; sem migração
+- GPT | 2026-11-04 UTC | Auditoria e correções da fila de espera — motor de ofertas, compatibilidade, aceite/recusa/expiração e varredura; escopo restrito ao backend de ofertas e seus testes, sem tocar na tela `src/routes/barbeiro.fila.tsx` (já incluída em reserva ampla anterior), banco, migrações ou produção | `src/lib/whatsapp/fila-ofertas.server.ts`, `src/lib/whatsapp/fila-ofertas.server.test.ts`, `src/lib/fila-compatibilidade.ts`, testes diretamente relacionados; sem migração; relatório `docs/auditoria-lista-espera-2026-11-03.md`
 
 
 
