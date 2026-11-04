@@ -11,6 +11,7 @@ vi.mock("./confirmacao.server", () => ({
 /** Banco simulado: nenhuma chamada sai para o banco real. */
 type Estado = {
   automatica: boolean;
+  reservaFila: boolean;
   fila: Record<string, unknown>[];
   inserts: Record<string, unknown>[];
   ranges: [number, number][];
@@ -75,6 +76,8 @@ function builder(tabela: string) {
     return b;
   };
   b.maybeSingle = async () => {
+    if (tabela === "fila_de_espera" && ctx.op === "update")
+      return { data: st.reservaFila ? { id: ctx.filtros["id"] ?? "primeiro" } : null, error: null };
     const r = resolver();
     if (tabela === "agendamentos" && Array.isArray(r.data)) return { data: null };
     return r;
@@ -119,6 +122,7 @@ beforeEach(() => {
   vi.setSystemTime(AGORA);
   st = {
     automatica: true,
+    reservaFila: true,
     fila: [linha("primeiro", 1), linha("segundo", 2)],
     inserts: [],
     ranges: [],
@@ -157,6 +161,16 @@ describe("recuperação automática de vagas", () => {
     await ofertarVaga("ag1");
     expect(st.inserts[0]?.["expira_em"]).toBe(new Date(INICIO - 10 * 60_000).toISOString());
   });
+
+  it("não cria oferta se outra execução já reservou o cliente", async () => {
+    st.reservaFila = false;
+    const { ofertarVaga } = await import("./fila-ofertas.server");
+    const r = await ofertarVaga("ag1");
+    expect(r.ofertaId).toBeNull();
+    expect(r.motivo).toBe("sem_compativel");
+    expect(st.inserts).toHaveLength(0);
+  });
+
 
   it("recusa passa ao próximo quando ligada", async () => {
     st.recusada = { fila_id: "primeiro", agendamento_liberado_id: "ag1" };
