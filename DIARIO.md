@@ -27,6 +27,7 @@ e o que fez. O diário até 17/10/2026 está guardado, sem alterações, em
 7. **Sem segredos:** nunca escreva chaves, senhas ou tokens aqui. Cite só o nome da variável.
 
 ## Decisões do dono
+- 2026-11-04: **Flow Bot e Flow IA alimentados pelo mesmo evento do WhatsApp**: no modo sombra, o Bot avalia e registra sua previsão enquanto a Flow IA atende o cliente; no modo ligado, o Bot só responde quando tiver uma regra útil e, sem correspondência ou com falha, entrega o turno à Flow IA. Um único emissor e executor por mensagem; não executar o cérebro completo em paralelo, pois ele pode realizar ações. Fluxo documentado em `docs/fluxo-cooperativo-flow-bot-flow-ia.md`.
 - 2026-11-01: **Itens duplicados entre Ajustes e o menu lateral ficam somente no menu lateral**; remover a cópia de Ajustes. Itens exclusivos de Ajustes permanecem lá, sem perder funcionalidades.
 - 2026-11-01: **Tela de entrada/showcase sempre em Dark Navy**: `/login` mantém tema escuro fixo, independentemente do tema do aparelho ou do tema salvo/logado; escopo isolado à rota, sem alterar tema global, com mockups e palco usando os mesmos tokens escuros. Layout mobile 390px/100dvh e fluxos reais de cadastro, login e agendamento permanecem.
 - 2026-10-31: **Recuperação de senha com código de seis dígitos**: autorização específica dada pelo dono em 31/10 para apresentar a recuperação por código em tela cheia, com seis campos e confirmação no rodapé, conforme referência enviada. Esta autorização substitui apenas o veto anterior a OTP no fluxo de recuperação; não altera login normal, cadastro, provedores ou regras de sessão.
@@ -237,7 +238,7 @@ Tudo o que o dono decidir com qualquer IA entra aqui, com a data. Vale para toda
 ## Próximas tarefas (ordem combinada)
 - **Auditoria de sessão (separada do redesign de entrada):** revisar a espera sem prazo de `getSessao()` na guarda de rotas protegidas (`src/lib/guarda.ts`) e concluir o teste manual autenticado em Android a 390 px. A reserva ampla de 20/10 foi repartida após as correções de autenticação de 20–26/10; não bloquear o trabalho visual de `/login`.
 - **Claude (31/10), depois do bot:** redesenhar as mensagens de sistema (avisos de sucesso, erro e mensagens com botão "apertar e voltar") no padrão visual do sistema. Só começar com a orientação do dono sobre a solução escolhida.
-- **Aguardando o dono dar o início — Flow Bot dentro do Flow, Fase A** (`docs/flow-bot-no-flow-analise.md` §7): motor embutido, entrada no WhatsApp na ordem da §4, rastro, modo sombra, horário, detecção de pessoa que assumiu (`fromMe`), modo humano com prazo, texto de reserva verdadeiro; migração 0055 só com autorização. Decisões pendentes na §8.
+- **Em andamento — GPT: Flow Bot dentro do Flow, Fase A.** Concluir testes do orquestrador e validação estática do fluxo cooperativo documentado em `docs/fluxo-cooperativo-flow-bot-flow-ia.md`; sem telas da Fase B e sem aplicar migração 0055 sem autorização.
 - **Claude (30/10):** Avisos e Lembretes no padrão do Figaro — item 4 (saldo mensal do WhatsApp por plano, aviso na Agenda e pausa) aguardando decisões do dono ("depois resolvemos isso"). Itens 1, 2 e 3 feitos.
 
 Pegar a primeira livre; reservar em "Em andamento" antes.
@@ -570,7 +571,7 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 
 
-- GPT | 2026-11-04 UTC | **Reserva transferida de Claude para GPT por autorização do dono**: assumir a conclusão do Flow Bot — Fase A, revisar o que já existe e finalizar testes do orquestrador, integração e documentação; sem tela (Fase B), sem aplicar migração sem autorização e sem alterar banco real | `src/lib/flow-bot/*`, `src/lib/whatsapp/fluxo.server.ts`, `src/routes/api/public/whatsapp/evolution.ts`, `src/integrations/supabase/types.ts`, `supabase/tests/flow_bot.sql`, `drizzle/migrations/0055_flow_bot.sql`
+- GPT | 2026-11-04 UTC | **Reserva transferida de Claude para GPT por autorização do dono**: assumir a conclusão do Flow Bot — Fase A, revisar o que já existe e finalizar testes do orquestrador, integração e documentação do fluxo cooperativo com Bot e Flow IA; sem tela (Fase B), sem aplicar migração sem autorização e sem alterar banco real | `src/lib/flow-bot/*`, `src/lib/whatsapp/fluxo.server.ts`, `src/routes/api/public/whatsapp/evolution.ts`, `src/integrations/supabase/types.ts`, `supabase/tests/flow_bot.sql`, `drizzle/migrations/0055_flow_bot.sql`, `docs/fluxo-cooperativo-flow-bot-flow-ia.md`, `docs/flow-bot-no-flow-analise.md`
 
 - GPT | 2026-10-31 UTC | Reforçar o protocolo obrigatório de trabalho com documento canônico, referência no AGENTS.md e verificação estrutural no CI; sem alterações funcionais, banco ou Agenda | `DIARIO.md`, `AGENTS.md`, `PROTOCOLO-OBRIGATORIO.md`, `scripts/verificar-protocolo.sh`, `.github/workflows/preview-migration.yml`; sem migração
 
@@ -645,7 +646,8 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
   - decisão (`decisao.ts`), retrato `flow/v1` (`realidade.ts`, `realidade.server.ts`), orquestrador (`bot.server.ts`), pessoa que respondeu pelo celular (`humano.server.ts`);
   - ligação no WhatsApp antes da Flow IA (`src/lib/whatsapp/fluxo.server.ts`) e tratamento de `fromMe` (`src/routes/api/public/whatsapp/evolution.ts`);
   - migração `0055_flow_bot.sql` (ainda não aplicada em nenhum banco) e `supabase/tests/flow_bot.sql`.
-  - Ainda falta, nesta ordem: (1) teste do orquestrador `bot.server.ts` com banco falso (modo desligado, sombra, ligado, pessoa no controle, versão publicada inexistente, falha de envio não trava); (2) decidir com o dono o que acontece quando nenhuma regra serve (hoje o modelo padrão cai no menu da equipe; a sugestão é passar para a Flow IA — pergunte antes de mudar o modelo); (3) incluir a 0055 no `supabase/previa/` e só aplicar com autorização do dono; (4) nada de tela ou IA para configurar o bot nesta etapa.
+  - Decisão do dono de 04/11 registrada: mensagem sem regra segue para a Flow IA; no modo sombra, ela atende enquanto o Bot grava previsões. Contrato: `docs/fluxo-cooperativo-flow-bot-flow-ia.md`.
+  - Ainda falta: (1) teste do orquestrador `bot.server.ts` com banco falso (modo desligado, sombra, ligado, pessoa no controle, versão publicada inexistente, falha de envio não trava); (2) incluir a 0055 no `supabase/previa/` e só aplicar com autorização do dono; (3) nada de tela ou IA para configurar o bot nesta etapa.
   - Não mexer em mensagens de sistema (avisos e erros) agora: isso fica para depois, com o dono.
 - **Para o GPT** (Claude, 31/10): o banco de testes da prévia (`cortai-preview`, `pfkxvindedkuktogbcsv`) está atrasado e o horário especial não salva lá. Não aplique nada no `cortai-prod`. Se você tiver acesso ao projeto `cortai-preview` pelo conector do Supabase, rode o arquivo `supabase/previa/atualizar-2026-10-31.sql` (inteiro, numa transação) e confira se `public.horarios_especiais`, `public.intervalos_agenda_dia`, `public.pacotes` e `public.categorias_servicos` existem. Se não tiver acesso, avise aqui e o dono roda pelo SQL Editor. Não crie outro arquivo de migração para isso.
   - [lido — GPT, 31/10] Recado recebido; nenhuma operação de banco foi feita nesta tarefa.
@@ -922,6 +924,12 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+
+### 2026-11-04 UTC — GPT — Define fluxo cooperativo do Flow Bot com a Flow IA
+- Decisão do dono: alimentar Bot e Flow IA com o mesmo evento do WhatsApp. No modo sombra, o Bot registra previsões e a Flow IA responde; no modo ligado, o Bot responde somente quando houver regra útil e a Flow IA assume quando não houver correspondência ou ocorrer falha.
+- Documento: `docs/fluxo-cooperativo-flow-bot-flow-ia.md`; decisão registrada em `Decisões do dono` e pendência de resposta livre atualizada em `docs/flow-bot-no-flow-analise.md` §8.
+- Segurança: processamento coordenado, não duas execuções completas concorrentes. A Flow IA pode executar ações oficiais; por isso não deve ser chamada em paralelo com o Bot. Um único emissor por mensagem.
+- Nenhuma alteração funcional ou de banco; migration 0055 não aplicada; Bot não ativado em nenhum negócio. Testes/build não executados nesta entrega documental.
 
 ### 2026-11-04 UTC — GPT — Auditoria técnica da Lista de Espera
 - Relatório: `docs/auditoria-lista-espera-2026-11-03.md`.
