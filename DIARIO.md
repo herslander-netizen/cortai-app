@@ -927,6 +927,15 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-11-04 UTC — GPT — Corrige validação de arrastar/remarcar na Agenda (correção 1)
+- `validarAgendamento` ganhou o contexto explícito `equipe`: preserva as regras públicas de antecedência/janela para clientes, mas permite à equipe reagendar próximo de agora e fora da janela pública.
+- `moverAgendamentoPainel` agora chama a validação oficial com serviço, duração efetiva, profissional, cliente e o próprio agendamento ignorado. Reutiliza expediente, pausas semanais e por data, horários especiais, escala, bloqueios, folga, compatibilidade serviço×profissional e conflito do cliente; a consulta prévia trata recusas como indisponível e o salvamento não grava quando a regra falha.
+- Testes adicionados em `src/lib/agenda-regras.server.test.ts`: antecedência pública, liberdade operacional da equipe, expediente, pausa semanal, intervalo por data, horário especial ampliado, bloqueio e compatibilidade de serviço/profissional.
+- Commits: `330d6c5`, `1308a5f`, `eafa6fa`, `f7dbc44`, `8ebddb8`, `f243d4d`.
+- Validação: nenhum teste/TypeScript/build foi executado localmente nesta sessão. `get_commit_combined_status` não retornou checks e `fetch_commit_workflow_runs` não retornou execuções para o push; portanto CI/prévia continuam sem confirmação. A reserva permanece aberta até essa validação.
+- Sem alteração visual, migração, escrita em banco, conta de teste, `main`, produção ou site principal.
+
+
 ### 2026-11-04 UTC — GPT — Define fluxo cooperativo do Flow Bot com a Flow IA
 - Decisão do dono: alimentar Bot e Flow IA com o mesmo evento do WhatsApp. No modo sombra, o Bot registra previsões e a Flow IA responde; no modo ligado, o Bot responde somente quando houver regra útil e a Flow IA assume quando não houver correspondência ou ocorrer falha.
 - Documento: `docs/fluxo-cooperativo-flow-bot-flow-ia.md`; decisão registrada em `Decisões do dono` e pendência de resposta livre atualizada em `docs/flow-bot-no-flow-analise.md` §8.
