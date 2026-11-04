@@ -200,6 +200,20 @@ export async function ofertarVaga(
         }
         const agoraOferta = Date.now();
         if (!ofertaViavel(agoraOferta, inicioMs)) return { ofertaId: null, motivo: "muito_perto" };
+
+        // Reserva compare-and-set: duas vagas concorrentes não podem oferecer ao mesmo cliente.
+        // Só a execução que ainda encontra a entrada como "aguardando" pode prosseguir.
+        const avisadoEm = new Date().toISOString();
+        const { data: reservado, error: erroReserva } = await db
+          .from("fila_de_espera")
+          .update({ status: "avisado", avisado_em: avisadoEm })
+          .eq("id", c.id)
+          .eq("tenant_id", ag.tenant_id)
+          .eq("status", "aguardando")
+          .select("id")
+          .maybeSingle();
+        if (erroReserva || !reservado) continue;
+
         const { data: oferta, error } = await db
           .from("ofertas_da_fila")
           .insert({
@@ -214,13 +228,18 @@ export async function ofertarVaga(
           })
           .select("id, token")
           .maybeSingle();
-        // Índice único: outra execução já ofertou esta vaga.
-        if (error || !oferta) return { ofertaId: null, motivo: "concorrente" };
-        await db
-          .from("fila_de_espera")
-          .update({ status: "avisado", avisado_em: new Date().toISOString() })
-          .eq("id", c.id)
-          .eq("status", "aguardando");
+        // Índice único: outra execução já ofertou esta vaga. Libera apenas a reserva
+        // que esta execução fez; nunca desfaz uma reserva posterior de outro processo.
+        if (error || !oferta) {
+          await db
+            .from("fila_de_espera")
+            .update({ status: "aguardando", avisado_em: null })
+            .eq("id", c.id)
+            .eq("tenant_id", ag.tenant_id)
+            .eq("status", "avisado")
+            .eq("avisado_em", avisadoEm);
+          return { ofertaId: null, motivo: "concorrente" };
+        }
         await enviarOferta(oferta.id).catch(() => undefined);
         return { ofertaId: oferta.id };
       }
