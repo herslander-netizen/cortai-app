@@ -132,17 +132,22 @@ export async function validarAgendamento(
     inicio: Date;
     clienteId: string | null;
     ignorarId?: string | null;
+    /** Equipe mantém a liberdade operacional do painel; cliente segue as regras públicas. */
+    contexto?: "cliente" | "equipe";
   },
 ): Promise<ConflitoDoCliente | null> {
   const regras = await regrasDaBarbearia(db, p.tenantId);
   const ini = p.inicio.getTime();
   const fim = ini + p.servico.duracao_min * 60_000;
-  const antecedencia = motivoAntecedencia(ini, regras.antecedenciaMin);
-  if (antecedencia) throw new Error(antecedencia);
-  if (ini > Date.now() + regras.janelaDias * 86_400_000) {
-    throw new Error(
-      `Este local agenda com até ${regras.janelaDias} dias de antecedência. Escolha uma data mais próxima.`,
-    );
+  // Antecedência mínima e janela máxima limitam o autoagendamento público, não o trabalho da equipe.
+  if (p.contexto !== "equipe") {
+    const antecedencia = motivoAntecedencia(ini, regras.antecedenciaMin);
+    if (antecedencia) throw new Error(antecedencia);
+    if (ini > Date.now() + regras.janelaDias * 86_400_000) {
+      throw new Error(
+        `Este local agenda com até ${regras.janelaDias} dias de antecedência. Escolha uma data mais próxima.`,
+      );
+    }
   }
   const diaAlvo = diaEMinutoNoFuso(ini, regras.fuso).dia;
   const intervalosPorData = await intervalosPersonalizadosPorData(
