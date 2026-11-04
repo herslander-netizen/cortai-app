@@ -1743,7 +1743,7 @@ export const moverAgendamentoPainel = createServerFn({ method: "POST" })
     await exigirPermissao(context, tenant.id, "agendamento_manual");
     const { data: atual } = await db
       .from("agendamentos")
-      .select("id, inicio, fim, status, profissional_id, servicos(profissional_ids)")
+      .select("id, inicio, fim, status, profissional_id, cliente_id, servicos(id, duracao_min, profissional_ids)")
       .eq("id", data.agendamentoId)
       .eq("tenant_id", tenant.id)
       .maybeSingle();
@@ -1782,58 +1782,51 @@ export const moverAgendamentoPainel = createServerFn({ method: "POST" })
         .eq("ativo", true)
         .maybeSingle();
       if (!prof) throw new Error("Profissional não encontrado neste negócio.");
-      const ids = ((atual as { servicos?: { profissional_ids?: string[] | null } | null }).servicos
-        ?.profissional_ids ?? []) as string[];
-      if (ids.length && !ids.includes(profissionalId))
-        throw new Error("Esse profissional não faz este serviço.");
     }
-    // Checagem prévia com as mesmas regras de ocupação; a trava do banco continua valendo.
-    if (profissionalId) {
-      const { STATUS_QUE_OCUPAM } = await import("@/lib/agenda-regras.server");
-      const { data: choques } = await db
-        .from("agendamentos")
-        .select("id")
-        .eq("tenant_id", tenant.id)
-        .eq("profissional_id", profissionalId)
-        .in("status", [...STATUS_QUE_OCUPAM])
-        .neq("id", atual.id)
-        .lt("inicio", fim.toISOString())
-        .gt("fim", inicio.toISOString())
-        .limit(1);
-      if (choques?.length) {
-        if (data.apenasVerificar)
-          return { ok: false, livre: false, inicioAnterior: atual.inicio as string };
-        throw new Error("Esse horário já está ocupado para este profissional.");
+    const servicoAtual = (
+      atual as {
+        cliente_id?: string | null;
+        servicos?: {
+          id?: string;
+          duracao_min?: number;
+          profissional_ids?: string[] | null;
+        } | null;
       }
-      const fuso = await fusoDoTenant(tenant.id);
-      const diaAlvo = hojeNoFuso(fuso, inicio);
-      const desde = new Date(isoNoFusoDaBarbearia(diaAlvo, "00:00", fuso));
-      const ate = new Date(
-        isoNoFusoDaBarbearia(
-          new Date(desde.getTime() + 36 * 60 * 60 * 1000).toISOString().slice(0, 10),
-          "00:00",
-          fuso,
-        ),
-      );
-      const { ocupacoesExtras } = await import("@/lib/ocupacoes-extras.server");
-      const extras = await ocupacoesExtras(db, {
+    ).servicos;
+    const indisponivel = () => ({
+      ok: false as const,
+      livre: false as const,
+      inicioAnterior: atual.inicio as string,
+    });
+    if (!profissionalId || !servicoAtual?.id) {
+      if (data.apenasVerificar) return indisponivel();
+      throw new Error("Não foi possível validar o serviço e o profissional deste agendamento.");
+    }
+    // Reutiliza a validação oficial: expediente, pausas/exceções por data, escala, bloqueios,
+    // folga, serviço × profissional e conflito do cliente. A equipe não herda limites públicos.
+    let conflitoCliente: Awaited<ReturnType<typeof validarAgendamento>>;
+    try {
+      conflitoCliente = await validarAgendamento(db, {
         tenantId: tenant.id,
-        fuso,
-        desde,
-        ate,
-        profissionalIds: [profissionalId],
+        servico: {
+          id: servicoAtual.id,
+          // A alça da Agenda pode ajustar a duração; validar exatamente o intervalo que será salvo.
+          duracao_min: Math.round(duracao / 60_000),
+          profissional_ids: servicoAtual.profissional_ids ?? null,
+        },
+        profissionalId,
+        inicio,
+        clienteId: (atual as { cliente_id?: string | null }).cliente_id ?? null,
+        ignorarId: atual.id as string,
+        contexto: "equipe",
       });
-      const extraConflitante = extras.some(
-        (ocupacao) =>
-          ocupacao.profissional_id === profissionalId &&
-          new Date(ocupacao.inicio).getTime() < fim.getTime() &&
-          new Date(ocupacao.fim).getTime() > inicio.getTime(),
-      );
-      if (extraConflitante) {
-        if (data.apenasVerificar)
-          return { ok: false, livre: false, inicioAnterior: atual.inicio as string };
-        throw new Error("Esse horário coincide com um bloqueio ou com a escala do profissional.");
-      }
+    } catch (erro) {
+      if (data.apenasVerificar) return indisponivel();
+      throw erro;
+    }
+    if (conflitoCliente) {
+      if (data.apenasVerificar) return indisponivel();
+      throw new Error(`Esse cliente já tem um agendamento às ${conflitoCliente.hora}.`);
     }
     if (data.apenasVerificar)
       return { ok: true, livre: true, inicioAnterior: atual.inicio as string };
