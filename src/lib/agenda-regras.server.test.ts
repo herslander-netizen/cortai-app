@@ -78,14 +78,17 @@ function criarBanco(intervalos: Record<string, unknown>[] = [], agendamentos: Re
   };
 }
 
-function pedido(inicio: string, extras: Partial<Parameters<typeof validarAgendamento>[1]> = {}) {
+function pedido(
+  inicio: string,
+  extras: { contexto?: "cliente" | "equipe"; servico?: typeof servico } = {},
+) {
   return {
     tenantId: "tenant-1",
-    servico,
+    servico: extras.servico ?? servico,
     profissionalId,
     inicio: new Date(inicio),
     clienteId: null,
-    ...extras,
+    contexto: extras.contexto,
   };
 }
 
