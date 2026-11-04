@@ -1,9 +1,9 @@
-/* Núcleo do FAB: branco somente no tema claro; no escuro preserva o token de superfície original.
-   Isolado do CSS global para não afetar outros elementos da Agenda. */
-:root.light[data-tela-agenda] .agenda-fab-nucleo {
+/* Núcleo do FAB: branco somente no tema claro; no escuro preserva o token original.
+   O seletor inclui o contêiner real do FAB e supera a regra global antiga de branco. */
+html.light[data-tela-agenda] .agenda-acao-fixa .agenda-fab-nucleo {
   background-color: #FFFFFF !important;
 }
 
-:root:not(.light)[data-tela-agenda] .agenda-fab-nucleo {
+html.dark[data-tela-agenda] .agenda-acao-fixa .agenda-fab-nucleo {
   background-color: var(--figaro-surface-container-low, var(--painel, var(--ink3))) !important;
 }
