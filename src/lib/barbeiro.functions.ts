@@ -1743,7 +1743,9 @@ export const moverAgendamentoPainel = createServerFn({ method: "POST" })
     await exigirPermissao(context, tenant.id, "agendamento_manual");
     const { data: atual } = await db
       .from("agendamentos")
-      .select("id, inicio, fim, status, profissional_id, cliente_id, servicos(id, duracao_min, profissional_ids)")
+      .select(
+        "id, inicio, fim, status, profissional_id, cliente_id, servicos(id, duracao_min, profissional_ids)",
+      )
       .eq("id", data.agendamentoId)
       .eq("tenant_id", tenant.id)
       .maybeSingle();
