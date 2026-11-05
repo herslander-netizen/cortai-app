@@ -88,7 +88,7 @@ function pedido(
     profissionalId,
     inicio: new Date(inicio),
     clienteId: null,
-    contexto: extras.contexto,
+    ...(extras.contexto ? { contexto: extras.contexto } : {}),
   };
 }
 
