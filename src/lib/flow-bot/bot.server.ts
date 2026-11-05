@@ -13,6 +13,7 @@ import {
   humanoNoControle,
   motivoParaNaoAtender,
   prazoDoHumano,
+  semRegraReconhecida,
   textosDasAcoes,
 } from "./decisao";
 import { PerfilDeRealidade } from "./nucleo/contratos";
@@ -153,8 +154,11 @@ export async function responderComFlowBot(input: EntradaDoBot): Promise<boolean>
     { realidade },
   );
   passos.push(...r.passos);
-  const textos = textosDasAcoes(r.acoes);
-  const handoff = r.acoes.some((a: Acao) => a.type === "handoff");
+  // Sem regra para a mensagem (remarcar, cancelar, agradecimento…): a Flow IA assume e o bot não guarda o menu
+  // como pergunta em aberto. O rastro registra o caminho percorrido, sem resposta prevista.
+  const semRegra = semRegraReconhecida(r.passos);
+  const textos = semRegra ? [] : textosDasAcoes(r.acoes);
+  const handoff = !semRegra && r.acoes.some((a: Acao) => a.type === "handoff");
 
   const { data: rastro, error: erroRastro } = await db
     .from("flow_bot_rastro")
@@ -164,7 +168,7 @@ export async function responderComFlowBot(input: EntradaDoBot): Promise<boolean>
       mensagem_externa_id: input.mensagemExternaId,
       modo: config.modo,
       fluxo_ref: fluxoRef,
-      motivo: r.motivo,
+      motivo: semRegra ? "sem_regra" : r.motivo,
       passos,
       respostas: textos,
       realidade_ausente: r.realidadeAusente,
@@ -180,7 +184,7 @@ export async function responderComFlowBot(input: EntradaDoBot): Promise<boolean>
     conversa_id: input.conversaId,
     tenant_id: input.tenantId,
     fluxo_ref: fluxoRef,
-    sessao: r.sessao,
+    sessao: semRegra ? sessao : r.sessao,
     atualizado_em: new Date(agora).toISOString(),
   });
 

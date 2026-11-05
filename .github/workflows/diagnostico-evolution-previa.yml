@@ -101,3 +101,12 @@ jobs:
           echo "Segredo errado (espera 401): $(curl -s -o /dev/null -w '%{http_code}' -m 20 -X POST -H 'content-type: application/json' -H 'x-webhook-secret: errado' --data "$corpo" "$alvo")"
           r="$(curl -s -w ' HTTP %{http_code}' -m 20 -X POST -H 'content-type: application/json' -H "x-webhook-secret: $WEBHOOK_SECRET" --data "$corpo" "$alvo")"
           echo "Segredo certo, sessão inexistente (espera 404 Unknown session): $r"
+          # Sessão pedida: repassa o estado REAL que a Evolution informa agora (nada inventado). 200 = o Flow achou a
+          # sessão em conexoes_whatsapp e o negócio dela; 404 = a sessão não está registrada no banco da prévia.
+          real="$(curl -sS -m 15 -H "apikey: $EVO_KEY" "${EVO_URL%/}/instance/connectionState/$INSTANCIA" | jq -r '.instance.state // empty')"
+          if [ -n "$real" ]; then
+            corpo="$(jq -nc --arg i "$INSTANCIA" --arg s "$real" --arg d "$(date -u +%Y-%m-%dT%H:%M:%S.000Z)" \
+              '{event: "connection.update", instance: $i, date_time: $d, data: {state: $s}}')"
+            r="$(curl -s -w ' HTTP %{http_code}' -m 20 -X POST -H 'content-type: application/json' -H "x-webhook-secret: $WEBHOOK_SECRET" --data "$corpo" "$alvo")"
+            echo "Sessão '$INSTANCIA' com o estado real '$real' (espera 200): $r"
+          fi

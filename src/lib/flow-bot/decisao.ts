@@ -67,6 +67,15 @@ export function motivoParaNaoAtender(p: {
   return null;
 }
 
+/**
+ * Nenhum assunto do fluxo reconheceu a mensagem: o motor só entrou pela entrada genérica (`trigger.message_received`,
+ * a saudação com menu). Regra 7 do fluxo cooperativo (dono, 04/11): sem regra não é erro, a Flow IA assume o turno e
+ * nenhum menu genérico vai antes dela. Ex.: "Quero remarcar meu horário", "Quero cancelar", "Obrigado".
+ */
+export function semRegraReconhecida(passos: readonly { type: string }[]): boolean {
+  return passos[0]?.type === "trigger.message_received";
+}
+
 /** Ações do motor que viram mensagem, na ordem, com o menu numerado em texto (a Evolution não tem botões). */
 export function textosDasAcoes(acoes: readonly Acao[]): string[] {
   const textos: string[] = [];
