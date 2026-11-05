@@ -189,7 +189,8 @@ function RedesPage() {
                       Desconectar
                     </Button>
                   ) : (
-                    <Button loading={ocupado === plataforma}
+                    <Button
+                      loading={ocupado === plataforma}
                       variant="primary"
                       className="min-h-12 flex-1 rounded-full"
                       disabled={ocupado !== null}

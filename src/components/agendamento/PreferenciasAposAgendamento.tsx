@@ -283,7 +283,8 @@ export function PreferenciasAposAgendamento({
       ) : null}
 
       <div className="mt-4 grid grid-cols-2 gap-2">
-        <Button loading={salvar.isPending}
+        <Button
+          loading={salvar.isPending}
           type="button"
           className="min-h-12 rounded-full font-semibold"
           disabled={!temAlgo || salvar.isPending}

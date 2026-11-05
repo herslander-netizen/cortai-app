@@ -931,6 +931,13 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+### 2026-11-05 UTC — Claude — Conexão do WhatsApp: QR velho na tela e código recusado pelo número
+- Dono (prints 11:58 e 12:01): "Não foi possível conectar o dispositivo" no QR e no código por número (VHSR-MADK). A cor do QR não era a causa (o WhatsApp leu o código).
+- **QR velho:** o cartão de conexão só consultava o estado nos primeiros 10 min da tela e, depois disso, continuava mostrando o resultado guardado da última consulta. A Evolution troca o QR a cada ~40 s e reinicia a tentativa a cada ~3,5 min (logs: 11:40, 11:43, 11:47, 11:50, 11:54, 11:57), então a tela mostrava um código vencido. `barbeiro.cortai.tsx`: com a gaveta do QR aberta acompanha sempre; ações e abrir a gaveta recomeçam a janela e buscam o código na hora; sem acompanhamento vale o que o painel leu por último.
+- **Código por número:** o código saiu (correção anterior), mas o WhatsApp recusou: celular de DDD 31 em diante é registrado sem o 9 extra (55 79 9178-7208). `numeroParaPareamento` agora tira o 9 nesses DDDs (11 a 28 mantêm). Testes novos.
+- Formatação: `loading` dos botões convertidos hoje passou para linha própria.
+- tsc 0; vitest 290/2400; build OK; protocolo OK. Não testado ponta a ponta (depende do celular do dono).
+
 ### 2026-11-05 UTC — Claude — Conectar com número: código não vinha
 - Dono (print): "O WhatsApp não devolveu o código" ao conectar com número na prévia. Logs da Evolution no Railway (14:45–14:50 UTC): `pairingCode: null, qrcodeCount: 8…15` — a instância `cortai_…` estava em "connecting" gerando QR, e nesse estado a Evolution ignora o `?number=` e não gera o código (só gera partindo de "fechada").
 - `gateway.server.ts` (`obterCodigoDePareamento`, Evolution): sem código na 1ª tentativa, fecha a tentativa por QR (`DELETE /instance/logout`) e pede de novo com o número, até 3 vezes (1,5 s e 2 s entre elas); sem código depois disso, erro claro. `whatsapp.functions.ts`: esse erro não dispara mais o "criar sessão e tentar de novo". Teste novo `gateway-pareamento.test.ts` (3).

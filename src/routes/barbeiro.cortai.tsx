@@ -631,7 +631,8 @@ function CartaoDeConexao({ painel, tipo }: { painel: PainelDoCortai; tipo: TipoD
   const sincronizar = useServerFn(sincronizarConexao);
   const [aviso, setAviso] = useState<string | null>(null);
   const [restante, setRestante] = useState<number | null>(null);
-  const [desde] = useState(() => Date.now());
+  // Início da janela de acompanhamento; toda ação (conectar, novo QR, abrir a gaveta) recomeça a contagem.
+  const [desde, setDesde] = useState(() => Date.now());
   const [agora, setAgora] = useState(() => Date.now());
   const [qrAberto, setQrAberto] = useState(false);
 
@@ -643,6 +644,7 @@ function CartaoDeConexao({ painel, tipo }: { painel: PainelDoCortai; tipo: TipoD
       return desconectar({ data: { tipo } });
     },
     onSuccess: (r: unknown) => {
+      setDesde(Date.now());
       setAviso((r as { aviso?: string | null })?.aviso ?? null);
       void cliente.invalidateQueries({ queryKey: ["cortai-painel"] });
       void cliente.invalidateQueries({ queryKey: ["cortai-conexao", tipo] });
@@ -657,7 +659,8 @@ function CartaoDeConexao({ painel, tipo }: { painel: PainelDoCortai; tipo: TipoD
     painel.podeGerenciarWhatsapp &&
     painel.gatewayConfigurado &&
     statusBase !== "conectado" &&
-    agora - desde < 10 * 60 * 1000;
+    // Gaveta do QR aberta: acompanha sempre (a Evolution troca o código a cada ~40 s; QR velho o WhatsApp recusa).
+    (qrAberto || agora - desde < 10 * 60 * 1000);
 
   const estado = useQuery({
     queryKey: ["cortai-conexao", tipo],
@@ -667,7 +670,8 @@ function CartaoDeConexao({ painel, tipo }: { painel: PainelDoCortai; tipo: TipoD
     refetchIntervalInBackground: false,
   });
 
-  const conexao = estado.data?.conexao ?? daLinha;
+  // Sem acompanhamento o resultado guardado da consulta fica velho: vale o que o painel leu por último.
+  const conexao = (acompanhar ? estado.data?.conexao : null) ?? daLinha;
   const status = conexao?.status ?? "desconectado";
   const expira = conexao?.qrExpiraEm ?? null;
 
@@ -675,6 +679,13 @@ function CartaoDeConexao({ painel, tipo }: { painel: PainelDoCortai; tipo: TipoD
     const id = window.setInterval(() => setAgora(Date.now()), 15000);
     return () => window.clearInterval(id);
   }, []);
+
+  // Gaveta do QR aberta: busca o código atual na hora, sem esperar a próxima consulta.
+  useEffect(() => {
+    if (!qrAberto) return;
+    setDesde(Date.now());
+    void cliente.invalidateQueries({ queryKey: ["cortai-conexao", tipo] });
+  }, [qrAberto, cliente, tipo]);
 
   // Assim que o serviço confirma a conexão, o painel inteiro se atualiza.
   useEffect(() => {
@@ -883,7 +894,8 @@ function CartaoDeConexao({ painel, tipo }: { painel: PainelDoCortai; tipo: TipoD
       <div className="mt-6 space-y-3">
         {status === "conectado" ? (
           <>
-            <Button loading={estado.isFetching}
+            <Button
+              loading={estado.isFetching}
               variant="outline"
               type="button"
               className="w-full text-paper disabled:opacity-50"
@@ -892,7 +904,8 @@ function CartaoDeConexao({ painel, tipo }: { painel: PainelDoCortai; tipo: TipoD
             >
               Atualizar conexão
             </Button>
-            <Button loading={acao.isPending}
+            <Button
+              loading={acao.isPending}
               variant="outline"
               type="button"
               className="w-full text-paper disabled:opacity-50"
@@ -936,7 +949,8 @@ function CartaoDeConexao({ painel, tipo }: { painel: PainelDoCortai; tipo: TipoD
               </Button>
             ) : null}
             {qrVisivel ? (
-              <Button loading={acao.isPending}
+              <Button
+                loading={acao.isPending}
                 variant="outline"
                 type="button"
                 className="w-full text-paper disabled:opacity-50"

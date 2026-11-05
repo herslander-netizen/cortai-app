@@ -115,7 +115,8 @@ export function AtualizacaoObrigatoria() {
           </p>
         )}
         <div className="mt-5 flex flex-col gap-2">
-          <Button loading={ocupado}
+          <Button
+            loading={ocupado}
             ref={principal}
             variant="primary"
             className="min-h-12 w-full"

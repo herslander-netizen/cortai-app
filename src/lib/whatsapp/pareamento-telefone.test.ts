@@ -16,6 +16,14 @@ describe("numeroParaPareamento", () => {
     expect(numeroParaPareamento("99999")).toBeNull();
     expect(numeroParaPareamento("1234567890123456")).toBeNull();
   });
+  it("celular de DDD 31 em diante sai sem o 9 extra, como o WhatsApp registra", () => {
+    expect(numeroParaPareamento("79991787208")).toBe("557991787208");
+    expect(numeroParaPareamento("+55 (79) 99178-7208")).toBe("557991787208");
+    expect(numeroParaPareamento("31 98888-7777")).toBe("553188887777");
+    // DDD 11 a 28 mantêm o 9; fixo não muda.
+    expect(numeroParaPareamento("21 98888-7777")).toBe("5521988887777");
+    expect(numeroParaPareamento("79 3214-5678")).toBe("557932145678");
+  });
   it("ignora o zero de tronco", () => {
     expect(numeroParaPareamento("011 99999-8888")).toBe("5511999998888");
   });

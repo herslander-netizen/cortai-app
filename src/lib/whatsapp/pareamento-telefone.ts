@@ -7,12 +7,21 @@
 /** O código do WhatsApp vale poucos minutos; a tela mostra a contagem. */
 export const MINUTOS_DO_CODIGO = 2;
 
-/** Número com DDI só com dígitos (12 a 15), ou null. Sem DDI e com 10 ou 11 dígitos, assume Brasil (55). */
+/**
+ * Número com DDI só com dígitos (12 a 15), ou null. Sem DDI e com 10 ou 11 dígitos, assume Brasil (55).
+ * Celular brasileiro de DDD 31 em diante: o WhatsApp registra o número SEM o 9 extra (55 79 9178-7208), e o código
+ * de pareamento só vale para o número exatamente como o WhatsApp o conhece — com o 9, o celular recusa o código.
+ * DDD 11 a 28 mantêm o 9.
+ */
 export function numeroParaPareamento(entrada: string): string | null {
   const digitos = entrada.replace(/\D/g, "").replace(/^0+/, "");
-  if (digitos.length === 10 || digitos.length === 11) return `55${digitos}`;
-  if (digitos.length >= 12 && digitos.length <= 15) return digitos;
-  return null;
+  let numero: string | null = null;
+  if (digitos.length === 10 || digitos.length === 11) numero = `55${digitos}`;
+  else if (digitos.length >= 12 && digitos.length <= 15) numero = digitos;
+  if (!numero) return null;
+  const celularBr = numero.match(/^55(\d{2})9(\d{8})$/);
+  if (celularBr && Number(celularBr[1]) >= 31) return `55${celularBr[1]}${celularBr[2]}`;
+  return numero;
 }
 
 /** Extrai o código de pareamento da resposta do serviço (Evolution: `pairingCode`). */

@@ -396,7 +396,8 @@ function ConfigurarPage() {
             Voltar
           </Button>
         ) : null}
-        <Button loading={salvando}
+        <Button
+          loading={salvando}
           variant="primary"
           type="button"
           className="min-h-14 flex-1 text-sm"

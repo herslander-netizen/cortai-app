@@ -125,7 +125,8 @@ export function RegistrarGanhoExtra({ profissionais }: { profissionais: Profissi
           </select>
         </label>
       </div>
-      <Button loading={salvando}
+      <Button
+        loading={salvando}
         variant="outline"
         className="mt-3 w-full"
         disabled={

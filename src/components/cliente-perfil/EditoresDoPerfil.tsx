@@ -70,7 +70,8 @@ export function EditorDetalhes({ p, onSalvo }: { p: PerfilCliente; onSalvo: () =
         erro={emailVal.ok ? null : emailVal.erro}
         onChange={(e) => setEmail(e.target.value)}
       />
-      <Button loading={salvando}
+      <Button
+        loading={salvando}
         variant="secondary"
         className="h-12 w-full rounded-full"
         disabled={salvando || !nomeOk || !telOk || !emailVal.ok}
@@ -156,7 +157,8 @@ export function EditorPreferencias({ p, onSalvo }: { p: PerfilCliente; onSalvo: 
       {texto("corte_habitual", "Atendimento de sempre", 60)}
       {texto("atencao", "Cuidados", 80)}
       {texto("assuntos", "Assuntos de que gosta", 80)}
-      <Button loading={salvando}
+      <Button
+        loading={salvando}
         variant="secondary"
         className="h-12 w-full rounded-full"
         disabled={salvando}
