@@ -1,36 +1,31 @@
-import { useSucessoDoBotao } from "@/hooks/useSucessoDoBotao";
 import { IndicadorDeCarregamento } from "@/components/ui/IndicadorDeCarregamento";
 import { exigirCapacidade } from "@/lib/guarda-capacidade";
 import { useConfirmar } from "@/components/ui/useConfirmar";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState, type ReactNode } from "react";
-import { CalendarPlus, MessageCircle, ShieldCheck, Smartphone } from "lucide-react";
+import { MessageCircle, ShieldCheck, Smartphone } from "lucide-react";
 
-import { Screen, EmptyState } from "@/components/layout/Screen";
-import { EsqueletoLista, EsqueletoPainel } from "@/components/layout/Esqueleto";
+import { Screen } from "@/components/layout/Screen";
+import { EsqueletoPainel } from "@/components/layout/Esqueleto";
+import { CentralDeAutomacao } from "@/components/automacao/CentralDeAutomacao";
+import { AvisosDaMeta } from "@/components/whatsapp/HistoricoDeEnvios";
 import { CodigoPorTelefone } from "@/components/ia/CodigoPorTelefone";
 import { FolhaQrWhatsapp } from "@/components/ia/FolhaQrWhatsapp";
-import { diagnosticoDoEnvio, type TomDoEnvio } from "@/lib/whatsapp/erros-meta";
-import { TONS, type ConfiguracaoDoAtendimento } from "@/lib/whatsapp/contrato";
 import { Aviso } from "@/components/ui/aviso";
 import { Button } from "@/components/ui/button";
 import { mensagemDeAcessoNegado, RouteError } from "@/components/layout/RouteError";
-import { getAvaliacoes } from "@/lib/crescimento.functions";
 import { type TipoDeConexao } from "@/lib/whatsapp/finalidade-conexao";
 import {
   atualizarQrCode,
   conectarWhatsapp,
-  definirNotificacoesWhatsapp,
   desconectarWhatsapp,
   getDiagnosticoDoWhatsapp,
   getPainelDoCortai,
   getRemetenteOficial,
-  listarEnviosDaSecretaria,
   type DiagnosticoDoWhatsapp,
   reconectarWhatsapp,
-  salvarConfiguracaoDoCortai,
   sincronizarConexao,
   type PainelDoCortai,
 } from "@/lib/whatsapp.functions";
@@ -76,393 +71,52 @@ export const Route = createFileRoute("/barbeiro/cortai")({
 
 type Aba = "whatsapp" | "ajustes" | "experiencia" | "envios";
 
-function Ponto({ ligado }: { ligado: boolean }) {
-  return (
-    <span
-      aria-hidden
-      className={`inline-block h-2 w-2 rounded-full ${ligado ? "bg-sage" : "bg-brick"}`}
-    />
-  );
-}
+/** Endereços antigos com `?aba=` (avisos, links e favoritos) levam à aba nova de mesmo assunto. */
+const DESTINO_DA_ABA_ANTIGA = {
+  ajustes: "/barbeiro/whatsapp-avisos",
+  envios: "/barbeiro/cortai-atividade",
+  experiencia: "/barbeiro/avaliacoes",
+} as const;
 
+/**
+ * WhatsApp → Conexão (reorganização do dono, 05/11/2026). As abas da área (Conexão · Avisos · Atividade) aparecem
+ * sozinhas abaixo do título (`navegacao-barbeiro.ts`). Aqui: o atendimento automático (liga/desliga e o estado de
+ * cada parte) e a conexão do número. Avisos aos clientes ficam em "Avisos"; envios e ocorrências em "Atividade".
+ */
 function CortaiPage() {
   const busca = Route.useSearch();
-  const [aba, setAba] = useState<Aba>(busca.aba ?? "whatsapp");
+  const navegar = useNavigate();
   const painel = useQuery({
     queryKey: ["cortai-painel"],
     queryFn: () => getPainelDoCortai() as Promise<PainelDoCortai>,
   });
+  const antiga = busca.aba && busca.aba !== "whatsapp" ? DESTINO_DA_ABA_ANTIGA[busca.aba] : null;
+  useEffect(() => {
+    if (antiga) void navegar({ to: antiga, replace: true });
+  }, [antiga, navegar]);
 
   return (
     <Screen
       voltarPara="/barbeiro/mais"
       title="WhatsApp"
-      subtitle="O WhatsApp do seu negócio conversa com clientes e envia os avisos."
+      subtitle="Conexão do número e atendimento automático."
     >
       {painel.isLoading ? <EsqueletoPainel /> : null}
       {painel.isError ? (
         <Aviso tom="acao" className="mb-5">
           {mensagemDeAcessoNegado(painel.error)
             ? "Você não tem acesso a esta área"
-            : "Não conseguimos carregar a Flow IA agora. Tente de novo em instantes."}
+            : "Não conseguimos carregar o WhatsApp agora. Tente de novo em instantes."}
         </Aviso>
       ) : null}
-
-      {!painel.isError ? (
-        <Button asChild variant="secondary" className="mb-5">
-          <Link to="/barbeiro/agenda" search={{ acao: "agendamento" }}>
-            <CalendarPlus aria-hidden /> Novo agendamento
-          </Link>
-        </Button>
-      ) : null}
-
       {painel.data ? (
-        <>
-          <section className="grid grid-cols-3 gap-2" aria-label="Situação do atendimento">
-            <div className="rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))] px-3 py-3">
-              <p className="text-xs text-mute2">WhatsApp</p>
-              <p className="mt-1 flex items-center gap-2 text-xs text-paper">
-                <Ponto ligado={painel.data.conexao?.status === "conectado"} />
-                {painel.data.conexao?.status === "conectado" ? "Ligado" : "Desligado"}
-              </p>
-            </div>
-            <div className="rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))] px-3 py-3">
-              <p className="text-xs text-mute2">Notificações</p>
-              <p className="mt-1 flex items-center gap-2 text-xs text-paper">
-                <Ponto ligado={painel.data.notificacoesAtivas} />
-                {painel.data.notificacoesAtivas ? "Ativas" : "Desativadas"}
-              </p>
-            </div>
-            <div className="rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))] px-3 py-3">
-              <p className="text-xs text-mute2">Envio de avisos</p>
-              <p className="mt-1 flex items-center gap-2 text-xs text-paper">
-                <Ponto
-                  ligado={
-                    painel.data.notificacoesAtivas && painel.data.envioDeNotificacoesDisponivel
-                  }
-                />
-                {!painel.data.notificacoesAtivas
-                  ? "Desligado"
-                  : painel.data.envioDeNotificacoesDisponivel
-                    ? "Disponível"
-                    : "Restabelecendo"}
-              </p>
-            </div>
-          </section>
-
-          <nav className="mt-5 flex gap-2 overflow-x-auto pb-1" aria-label="Seções da Flow IA">
-            {(
-              [
-                ["whatsapp", "Conexão"],
-                ["ajustes", "Notificações"],
-                ["experiencia", "Experiência"],
-                ["envios", "Histórico"],
-              ] as [Aba, string][]
-            ).map(([id, rotulo]) => (
-              <Button
-                variant="ghost"
-                key={id}
-                type="button"
-                onClick={() => setAba(id)}
-                aria-pressed={aba === id}
-                className={`shrink-0 whitespace-nowrap rounded-full px-4 py-2 text-xs font-medium transition-colors ${
-                  aba === id
-                    ? "bg-[var(--figaro-primary-container,var(--ink2))] text-[var(--figaro-primary,var(--primary))]"
-                    : "bg-[var(--figaro-surface-container,var(--ink2))] text-mute"
-                }`}
-              >
-                {rotulo}
-              </Button>
-            ))}
-          </nav>
-
-          <div className="mt-5">
-            {aba === "whatsapp" ? (
-              <>
-                <AvisosDaMeta />
-                <BlocoConexao painel={painel.data} />
-              </>
-            ) : null}
-            {aba === "envios" ? <BlocoEnvios irParaConexao={() => setAba("whatsapp")} /> : null}
-            {aba === "ajustes" ? <BlocoSecretaria painel={painel.data} /> : null}
-            {aba === "experiencia" ? <BlocoExperiencia /> : null}
-          </div>
-        </>
+        <div className="space-y-4">
+          <AvisosDaMeta />
+          <CentralDeAutomacao semOcorrencias />
+          <BlocoConexao painel={painel.data} />
+        </div>
       ) : null}
     </Screen>
-  );
-}
-
-function BlocoExperiencia() {
-  const avaliacoes = useQuery({
-    queryKey: ["secretaria-experiencia"],
-    queryFn: () => getAvaliacoes(),
-  });
-  if (avaliacoes.isLoading) return <EsqueletoLista />;
-  if (avaliacoes.isError)
-    return (
-      <Aviso tom="acao" className="mt-3">
-        Não foi possível carregar a experiência dos clientes.
-      </Aviso>
-    );
-  const dados = avaliacoes.data;
-  return (
-    <section className="space-y-4" aria-label="Experiência do cliente">
-      <div className="grid grid-cols-2 gap-3">
-        <div className="rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))] p-4">
-          <p className="text-xs text-mute2">Média</p>
-          <p className="mt-1 text-2xl font-semibold text-paper">{dados?.media ?? "—"}</p>
-        </div>
-        <div className="rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))] p-4">
-          <p className="text-xs text-mute2">Aguardando avaliação</p>
-          <p className="mt-1 text-2xl font-semibold text-paper">{dados?.pendentes.length ?? 0}</p>
-        </div>
-      </div>
-      <div className="rounded-[28px] bg-[var(--figaro-surface-container,var(--ink2))] p-5">
-        <h2 className="text-sm font-semibold text-paper">Avaliações recentes</h2>
-        {!dados?.registradas.length ? (
-          <p className="mt-3 text-sm text-mute">Nenhuma avaliação registrada ainda.</p>
-        ) : (
-          <ul className="mt-3 space-y-2">
-            {dados.registradas.slice(0, 5).map((avaliacao) => (
-              <li
-                key={avaliacao.id}
-                className="rounded-[12px] bg-[var(--figaro-surface-container-high,var(--ink3))] px-3 py-3"
-              >
-                <div className="flex items-center justify-between gap-3">
-                  <p className="text-sm text-paper">{avaliacao.cliente}</p>
-                  <span className="text-sm font-semibold text-gold">{avaliacao.nota}/5</span>
-                </div>
-                {avaliacao.comentario ? (
-                  <p className="mt-1 text-xs leading-relaxed text-mute">{avaliacao.comentario}</p>
-                ) : null}
-              </li>
-            ))}
-          </ul>
-        )}
-        <Button asChild variant="secondary" className="mt-4 w-full">
-          <Link to="/barbeiro/avaliacoes">Ver experiência completa</Link>
-        </Button>
-      </div>
-    </section>
-  );
-}
-
-const COR_DO_TOM: Record<TomDoEnvio, string> = {
-  enviado: "border-sage/50 text-sage",
-  entregue: "border-sage/60 text-sage",
-  lida: "border-gold/60 text-gold",
-  aguardando: "border-line2 text-mute",
-  sem_modelo: "border-gold/60 text-gold",
-  falhou: "border-brick/50 text-brick",
-  conta: "border-brick/60 text-brick",
-};
-
-const SEMANA = 7 * 24 * 3600_000;
-
-function useEnviosDaSecretaria() {
-  return useQuery({
-    queryKey: ["secretaria-envios"],
-    queryFn: () => listarEnviosDaSecretaria(),
-    refetchInterval: 30000,
-  });
-}
-
-/** Aviso geral: problemas recentes que a Meta está apontando. Não promete correção. */
-function AvisosDaMeta() {
-  const envios = useEnviosDaSecretaria();
-  const recentes = (envios.data ?? []).filter(
-    (e) => Date.now() - new Date(e.criadoEm).getTime() < SEMANA,
-  );
-  const classes = new Set(recentes.map((e) => diagnosticoDoEnvio(e).tom));
-  if (!classes.has("conta") && !classes.has("sem_modelo")) return null;
-  return (
-    <div className="mb-4 space-y-2">
-      {classes.has("conta") ? (
-        <Aviso tom="acao" titulo="Regularize a conta oficial">
-          A Meta está recusando os envios por um problema de elegibilidade ou pagamento. A conexão
-          técnica está ativa, mas a conta precisa ser regularizada na Meta.
-        </Aviso>
-      ) : null}
-      {classes.has("sem_modelo") ? (
-        <Aviso tom="atencao" titulo="Template aprovado necessário">
-          Algumas mensagens estão fora da janela de 24 horas e precisam de um template aprovado.
-        </Aviso>
-      ) : null}
-    </div>
-  );
-}
-
-function BlocoEnvios({ irParaConexao }: { irParaConexao: () => void }) {
-  const envios = useEnviosDaSecretaria();
-  if (envios.isLoading) return <EsqueletoLista />;
-  if (envios.isError)
-    return (
-      <Aviso tom="acao" className="mt-3">
-        Não foi possível carregar os envios.
-      </Aviso>
-    );
-  if (!envios.data?.length) return <EmptyState text="Nenhuma notificação enviada ainda." />;
-  return (
-    <>
-      <AvisosDaMeta />
-      <section
-        className="rounded-[28px] bg-[var(--figaro-surface-container,var(--ink2))] overflow-hidden"
-        aria-label="Histórico de envios"
-      >
-        <ul className="space-y-2 p-2">
-          {envios.data.map((envio) => {
-            const d = diagnosticoDoEnvio(envio);
-            return (
-              <li
-                key={envio.id}
-                className="grid gap-2 rounded-[12px] bg-[var(--figaro-surface-container-high,var(--ink3))] px-3 py-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start"
-              >
-                <div className="min-w-0">
-                  <p className="text-sm font-medium text-paper">
-                    {envio.tipo.replaceAll("_", " ")}
-                  </p>
-                  {d.titulo ? (
-                    <div className="mt-1">
-                      <p className="text-sm font-semibold text-paper">{d.titulo}</p>
-                      <p className="text-xs leading-relaxed text-mute">{d.detalhe}</p>
-                      {d.acao === "conexao" ? (
-                        <Button
-                          variant="secondary"
-                          className="mt-2 min-h-11"
-                          onClick={irParaConexao}
-                        >
-                          Verificar conta Meta
-                        </Button>
-                      ) : null}
-                    </div>
-                  ) : (
-                    <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-mute">
-                      {envio.conteudo ?? "Envio aguardando processamento."}
-                    </p>
-                  )}
-                  <p className="mt-2 text-xs text-mute2">
-                    Final {envio.telefone.slice(-4)} ·{" "}
-                    {new Date(envio.criadoEm).toLocaleString("pt-BR")}
-                  </p>
-                  {d.tecnico ? (
-                    <details className="mt-1 text-xs text-mute2">
-                      <summary className="cursor-pointer py-1">Detalhe técnico</summary>
-                      <p className="break-words">{d.tecnico}</p>
-                    </details>
-                  ) : null}
-                </div>
-                <span
-                  className={`w-fit rounded-full border px-2.5 py-1 text-xs ${COR_DO_TOM[d.tom]}`}
-                >
-                  {envio.respondidoEm ? "Respondido" : d.rotulo}
-                </span>
-              </li>
-            );
-          })}
-        </ul>
-      </section>
-    </>
-  );
-}
-
-function BlocoSecretaria({ painel }: { painel: PainelDoCortai }) {
-  const cliente = useQueryClient();
-  const salvar = useServerFn(salvarConfiguracaoDoCortai);
-  const [config, setConfig] = useState(painel.configuracao);
-  const [retorno, setRetorno] = useState(String(painel.configuracao.recuperacaoDias));
-  const salvou = useSucessoDoBotao();
-  const mutation = useMutation({
-    mutationFn: () => salvar({ data: { ...config, recuperacaoDias: Number(retorno) || 30 } }),
-    onSuccess: () => {
-      salvou.confirmar();
-      void cliente.invalidateQueries({ queryKey: ["cortai-painel"] });
-    },
-  });
-  const chave = (rotulo: string, detalhe: string, valor: boolean, mudar: (v: boolean) => void) => (
-    <Chave rotulo={rotulo} detalhe={detalhe} valor={valor} aoMudar={mudar} />
-  );
-  return (
-    <section className="space-y-5">
-      <Bloco
-        titulo="Notificações"
-        descricao="Mensagens transacionais ligadas a eventos reais do atendimento."
-      >
-        <ul className="space-y-4">
-          {chave(
-            "Confirmação automática",
-            "Envia os dados reais assim que o horário é confirmado.",
-            config.confirmacaoAutomatica,
-            (v) => setConfig({ ...config, confirmacaoAutomatica: v }),
-          )}
-          {chave(
-            "Lembretes",
-            "Envia lembretes antecipado e próximo, respeitando preferências e silêncio.",
-            config.lembretes,
-            (v) => setConfig({ ...config, lembretes: v }),
-          )}
-          {chave(
-            "Retorno",
-            "Lembra o cliente quando chega a hora real de voltar.",
-            config.recuperacaoAtiva,
-            (v) => setConfig({ ...config, recuperacaoAtiva: v }),
-          )}
-        </ul>
-        {config.recuperacaoAtiva ? (
-          <label className="field-label mt-4">
-            Intervalo mínimo de retorno
-            <input
-              type="number"
-              min={7}
-              max={180}
-              value={retorno}
-              onChange={(e) => setRetorno(e.target.value)}
-              className="field-control mt-1 w-full"
-            />
-          </label>
-        ) : null}
-      </Bloco>
-      <Bloco titulo="Tom" descricao="Aplicado aos avisos, sem interpretação de conversa livre.">
-        <select
-          value={config.tom}
-          onChange={(e) =>
-            setConfig({ ...config, tom: e.target.value as ConfiguracaoDoAtendimento["tom"] })
-          }
-          className="field-control w-full"
-        >
-          {Object.entries(TONS).map(([valor, rotulo]) => (
-            <option key={valor} value={valor}>
-              {rotulo}
-            </option>
-          ))}
-        </select>
-      </Bloco>
-      <div className="rounded-[28px] bg-[var(--figaro-surface-container,var(--ink2))] p-5">
-        <Button
-          className="w-full"
-          disabled={mutation.isPending}
-          loading={mutation.isPending}
-          success={salvou.sucesso}
-          onClick={() => mutation.mutate()}
-        >
-          Salvar configurações
-        </Button>
-        {mutation.isSuccess ? (
-          <Aviso tom="sucesso" className="mt-2">
-            Configurações salvas.
-          </Aviso>
-        ) : null}
-        {mutation.isError ? (
-          <Aviso tom="acao" className="mt-2">
-            Não foi possível salvar.
-          </Aviso>
-        ) : null}
-      </div>
-      <p className="text-xs leading-relaxed text-mute">
-        Mensagens livres recebem somente uma orientação para a Flow IA. A Flow IA não abre
-        atendimento, FAQ ou transferência humana.
-      </p>
-    </section>
   );
 }
 
@@ -543,71 +197,13 @@ function BlocoRemetenteOficial() {
 /** Uma conexão por negócio + interruptor de notificações sobre ela. */
 export function BlocoConexao({ painel }: { painel: PainelDoCortai }) {
   return (
-    <div className="space-y-4">
+    <div id="conexao-do-numero" className="scroll-mt-24 space-y-4">
       {painel.podeGerenciarWhatsapp ? <CartaoDeConexao painel={painel} tipo="atendimento" /> : null}
-      <CartaoNotificacoes painel={painel} />
       {/* Número antigo de avisos (legado): não envia mais; só pode ser desconectado. */}
       {painel.podeGerenciarWhatsapp && painel.conexaoNotificacoes ? (
         <CartaoDeConexao painel={painel} tipo="notificacoes" />
       ) : null}
     </div>
-  );
-}
-
-/** Notificações pelo WhatsApp: liga ou desliga os avisos enviados pelo número da empresa. */
-function CartaoNotificacoes({ painel }: { painel: PainelDoCortai }) {
-  const cliente = useQueryClient();
-  const definir = useServerFn(definirNotificacoesWhatsapp);
-  const alterar = useMutation({
-    mutationFn: (ativas: boolean) => definir({ data: { ativas } }),
-    onSettled: () => cliente.invalidateQueries({ queryKey: ["cortai-painel"] }),
-  });
-  const ativas = alterar.isPending ? !!alterar.variables : painel.notificacoesAtivas;
-  const selo = !ativas
-    ? { estado: "desconectado" as const, texto: "Desativadas" }
-    : painel.envioDeNotificacoesDisponivel
-      ? { estado: "conectado" as const, texto: "Envio disponível" }
-      : { estado: "conectando" as const, texto: "WhatsApp desconectado" };
-  return (
-    <section className="rounded-[28px] bg-[var(--figaro-surface-container,var(--ink2))] p-5">
-      <div className="flex items-start gap-3">
-        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] bg-[var(--figaro-primary-container,var(--ink2))] text-[var(--figaro-primary,var(--primary))]">
-          <MessageCircle size={18} aria-hidden />
-        </span>
-        <div className="min-w-0 flex-1">
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <h2 className="text-sm font-semibold text-paper">Notificações</h2>
-            <Selo estado={selo.estado} texto={selo.texto} />
-          </div>
-          <p className="mt-2 text-sm leading-relaxed text-mute">
-            Confirmações, lembretes e avisos saem pelo WhatsApp do seu negócio, para clientes e para
-            a equipe que ativou avisos.
-          </p>
-          {ativas && !painel.envioDeNotificacoesDisponivel ? (
-            <Aviso tom="info" className="mt-2">
-              Conecte o WhatsApp acima. Enquanto isso, os avisos ficam no sininho.
-            </Aviso>
-          ) : null}
-          {alterar.isError ? (
-            <Aviso tom="acao" className="mt-2">
-              Não foi possível salvar agora. Tente de novo.
-            </Aviso>
-          ) : null}
-        </div>
-      </div>
-      {painel.podeGerenciarWhatsapp ? (
-        <div className="mt-5 pt-4">
-          <Button
-            type="button"
-            variant={ativas ? "secondary" : "default"}
-            disabled={alterar.isPending}
-            onClick={() => alterar.mutate(!ativas)}
-          >
-            {ativas ? "Desativar notificações" : "Ativar notificações"}
-          </Button>
-        </div>
-      ) : null}
-    </section>
   );
 }
 
@@ -1136,54 +732,5 @@ function BlocoDiagnostico() {
         </>
       )}
     </section>
-  );
-}
-
-function Bloco({
-  titulo,
-  descricao,
-  children,
-}: {
-  titulo: string;
-  descricao?: string;
-  children: ReactNode;
-}) {
-  return (
-    <div className="rounded-[28px] bg-[var(--figaro-surface-container,var(--ink2))] p-5">
-      <h2 className="text-sm font-semibold text-paper">{titulo}</h2>
-      {descricao ? <p className="mt-1 text-xs leading-relaxed text-mute">{descricao}</p> : null}
-      <div className="mt-4">{children}</div>
-    </div>
-  );
-}
-
-function Chave({
-  rotulo,
-  detalhe,
-  valor,
-  aoMudar,
-  desabilitado,
-}: {
-  rotulo: string;
-  detalhe?: string;
-  valor: boolean;
-  aoMudar: (v: boolean) => void;
-  desabilitado?: boolean;
-}) {
-  return (
-    <li className={`flex items-start justify-between gap-4 ${desabilitado ? "opacity-60" : ""}`}>
-      <div className="min-w-0">
-        <p className="text-xs text-paper">{rotulo}</p>
-        {detalhe ? <p className="mt-0.5 text-xs leading-relaxed text-mute2">{detalhe}</p> : null}
-      </div>
-      <input
-        type="checkbox"
-        checked={valor}
-        disabled={desabilitado}
-        onChange={(e) => aoMudar(e.target.checked)}
-        className="mt-0.5 h-4 w-4 shrink-0 accent-[var(--gold)]"
-        aria-label={rotulo}
-      />
-    </li>
   );
 }

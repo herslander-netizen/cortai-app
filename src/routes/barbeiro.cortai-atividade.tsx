@@ -5,8 +5,10 @@ import { AlertTriangle, CheckCircle2 } from "lucide-react";
 
 import { Screen, EmptyState } from "@/components/layout/Screen";
 import { EsqueletoPainel } from "@/components/layout/Esqueleto";
-import { Button } from "@/components/ui/button";
 import { PainelDeLembretes } from "@/components/notificacoes/PainelDeLembretes";
+import { OcorrenciasDaAutomacao } from "@/components/automacao/CentralDeAutomacao";
+import { OpcoesConectadas } from "@/components/ui/opcoes-conectadas";
+import { HistoricoDeEnvios } from "@/components/whatsapp/HistoricoDeEnvios";
 import {
   getAtividadeDoCortai,
   getMetricasDoCortai,
@@ -98,7 +100,45 @@ function Cartao({ rotulo, valor, alerta }: { rotulo: string; valor: number; aler
   );
 }
 
+type Assunto = "envios" | "ia" | "conexao";
+
+/**
+ * WhatsApp → Atividade (reorganização do dono, 05/11/2026): tudo o que já aconteceu, num lugar só — os envios
+ * automáticos (antes na aba Histórico), o que a Flow IA fez (antes só aqui) e as ocorrências da conexão (antes na
+ * Automação do WhatsApp).
+ */
 function AtividadePage() {
+  const [assunto, setAssunto] = useState<Assunto>("envios");
+  return (
+    <Screen
+      voltarPara="/barbeiro/mais"
+      title="WhatsApp"
+      subtitle="O que foi enviado, o que a Flow IA fez e como está a conexão."
+    >
+      <OpcoesConectadas
+        rotulo="O que ver"
+        valor={assunto}
+        onChange={setAssunto}
+        className="mb-4"
+        opcoes={[
+          { valor: "envios", texto: "Envios" },
+          { valor: "ia", texto: "Flow IA" },
+          { valor: "conexao", texto: "Conexão" },
+        ]}
+      />
+      {assunto === "envios" ? (
+        <div className="space-y-4">
+          <HistoricoDeEnvios />
+          <PainelDeLembretes />
+        </div>
+      ) : null}
+      {assunto === "ia" ? <AtividadeDaIa /> : null}
+      {assunto === "conexao" ? <OcorrenciasDaAutomacao /> : null}
+    </Screen>
+  );
+}
+
+function AtividadeDaIa() {
   const [apenasFalhas, setApenasFalhas] = useState(false);
 
   const metricas = useQuery({
@@ -115,11 +155,10 @@ function AtividadePage() {
   });
 
   return (
-    <Screen
-      voltarPara="/barbeiro/cortai"
-      title="Atividade da Flow IA"
-      subtitle="O que ele entendeu, o que consultou no seu negócio e o que não deu certo — nos últimos 30 dias."
-    >
+    <>
+      <p className="mb-4 px-1 text-sm text-mute">
+        O que a Flow IA entendeu, consultou e não conseguiu fazer nos últimos 30 dias.
+      </p>
       {metricas.isLoading || atividade.isLoading ? <EsqueletoPainel /> : null}
       {metricas.isError || atividade.isError ? (
         <p className="rounded-[28px] bg-[var(--figaro-surface-container,var(--ink2))] px-5 py-8 text-center text-sm text-brick">
@@ -228,7 +267,6 @@ function AtividadePage() {
           ))}
         </ul>
       </section>
-      <PainelDeLembretes />
-    </Screen>
+    </>
   );
 }

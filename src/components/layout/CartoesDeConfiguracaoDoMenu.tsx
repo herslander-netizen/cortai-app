@@ -111,7 +111,7 @@ export function CartaoDeWhatsappNoMenu({ tenantId }: { tenantId: string | null }
   return (
     <CartaoDeAvisoDoMenu icone={MessageCircle} titulo={textos.titulo} texto={textos.corpo}>
       <Button asChild className="h-10 rounded-full px-5 text-sm">
-        <Link to="/barbeiro/automacao">Ver avisos</Link>
+        <Link to="/barbeiro/whatsapp-avisos">Ver avisos</Link>
       </Button>
       <Button
         variant="ghost"

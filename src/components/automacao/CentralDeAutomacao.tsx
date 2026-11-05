@@ -1,4 +1,3 @@
-import { Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { History } from "lucide-react";
@@ -29,7 +28,12 @@ const TEXTO_DO_TOM: Record<TomDaLinha, string> = {
 const CHAVE = ["central-automacao"] as const;
 
 /** Central de automação: um cartão principal, cinco linhas de estado e o histórico. */
-export function CentralDeAutomacao() {
+export function CentralDeAutomacao({
+  semOcorrencias = false,
+}: {
+  /** Na aba Conexão as ocorrências ficam de fora: elas moram na aba Atividade (`OcorrenciasDaAutomacao`). */
+  semOcorrencias?: boolean;
+} = {}) {
   const cliente = useQueryClient();
   const carregar = useServerFn(getCentralDeAutomacao);
   const definir = useServerFn(definirAutomacaoWhatsapp);
@@ -63,7 +67,10 @@ export function CentralDeAutomacao() {
   if (!consulta.data && consulta.isLoading) return <Carregando />;
   if (!consulta.data)
     return (
-      <p className="rounded-[28px] bg-[var(--figaro-surface-container,var(--ink2))] px-5 py-8 text-center text-sm text-brick" role="alert">
+      <p
+        className="rounded-[28px] bg-[var(--figaro-surface-container,var(--ink2))] px-5 py-8 text-center text-sm text-brick"
+        role="alert"
+      >
         Não conseguimos carregar a automação agora. Tente de novo em instantes.
       </p>
     );
@@ -129,9 +136,8 @@ export function CentralDeAutomacao() {
           <div className="mt-4">
             {central.principal.acao === "conectar" ? (
               <Button asChild className="min-h-12 w-full">
-                <Link to="/barbeiro/cortai" search={{ aba: "whatsapp" }}>
-                  Conectar WhatsApp
-                </Link>
+                {/* O cartão de conexão está logo abaixo, na mesma aba. */}
+                <a href="#conexao-do-numero">Conectar WhatsApp</a>
               </Button>
             ) : (
               <Button
@@ -149,7 +155,10 @@ export function CentralDeAutomacao() {
 
       <section aria-label="Estado de cada parte" className="grid gap-2">
         {linhas.map((l) => (
-          <div key={l.chave} className="flex min-h-12 items-center justify-between gap-3 rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))] px-4 py-3">
+          <div
+            key={l.chave}
+            className="flex min-h-12 items-center justify-between gap-3 rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))] px-4 py-3"
+          >
             <span className="text-sm text-paper">{l.rotulo}</span>
             <span className={`flex items-center gap-2 text-sm font-medium ${TEXTO_DO_TOM[l.tom]}`}>
               <span aria-hidden className={`size-2 rounded-full ${COR_DO_TOM[l.tom]}`} />
@@ -170,48 +179,102 @@ export function CentralDeAutomacao() {
         </div>
       </section>
 
-      <section aria-label="Ocorrências recentes">
-        <Button
-          variant="ghost"
-          className="min-h-12 w-full justify-between px-1 text-sm text-mute"
-          aria-expanded={verHistorico}
-          onClick={() => setVerHistorico((v) => !v)}
-        >
-          <span className="flex items-center gap-2">
-            <History className="size-4" aria-hidden />
-            Ocorrências recentes
-          </span>
-          <span>{verHistorico ? "Ocultar" : "Ver"}</span>
-        </Button>
-        {verHistorico ? (
-          historico.length === 0 ? (
-            <p className="rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))] px-4 py-3 text-sm text-mute2">Nenhuma ocorrência registrada ainda.</p>
-          ) : (
-            <ul className="space-y-2">
-              {historico.map((o) => (
-                <li key={o.id} className="flex items-start justify-between gap-3 rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))] px-4 py-3">
-                  <span className="flex items-start gap-2 text-sm text-paper">
-                    <span
-                      aria-hidden
-                      className={`mt-1.5 size-2 shrink-0 rounded-full ${COR_DO_TOM[o.resultado]}`}
-                    />
-                    {o.texto}
-                  </span>
-                  <span className="shrink-0 text-xs text-mute2">
-                    {new Date(o.quando).toLocaleString("pt-BR", {
-                      day: "2-digit",
-                      month: "2-digit",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          )
-        ) : null}
-      </section>
+      {semOcorrencias ? null : (
+        <section aria-label="Ocorrências recentes">
+          <Button
+            variant="ghost"
+            className="min-h-12 w-full justify-between px-1 text-sm text-mute"
+            aria-expanded={verHistorico}
+            onClick={() => setVerHistorico((v) => !v)}
+          >
+            <span className="flex items-center gap-2">
+              <History className="size-4" aria-hidden />
+              Ocorrências recentes
+            </span>
+            <span>{verHistorico ? "Ocultar" : "Ver"}</span>
+          </Button>
+          {verHistorico ? (
+            historico.length === 0 ? (
+              <p className="rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))] px-4 py-3 text-sm text-mute2">
+                Nenhuma ocorrência registrada ainda.
+              </p>
+            ) : (
+              <ul className="space-y-2">
+                {historico.map((o) => (
+                  <li
+                    key={o.id}
+                    className="flex items-start justify-between gap-3 rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))] px-4 py-3"
+                  >
+                    <span className="flex items-start gap-2 text-sm text-paper">
+                      <span
+                        aria-hidden
+                        className={`mt-1.5 size-2 shrink-0 rounded-full ${COR_DO_TOM[o.resultado]}`}
+                      />
+                      {o.texto}
+                    </span>
+                    <span className="shrink-0 text-xs text-mute2">
+                      {new Date(o.quando).toLocaleString("pt-BR", {
+                        day: "2-digit",
+                        month: "2-digit",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )
+          ) : null}
+        </section>
+      )}
     </div>
+  );
+}
+
+/** Aba Atividade: as ocorrências da conexão (quedas, recuperações, verificações), sempre abertas. */
+export function OcorrenciasDaAutomacao() {
+  const carregar = useServerFn(getCentralDeAutomacao);
+  const consulta = useQuery({
+    queryKey: CHAVE,
+    queryFn: () => carregar(),
+    refetchInterval: 60_000,
+  });
+  if (!consulta.data && consulta.isLoading) return <Carregando />;
+  const historico = consulta.data?.historico ?? [];
+  return (
+    <section aria-label="Ocorrências da conexão" className="space-y-2">
+      <h2 className="px-1 text-sm font-semibold text-mute">Ocorrências da conexão</h2>
+      {historico.length === 0 ? (
+        <p className="rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))] px-4 py-3 text-sm text-mute2">
+          Nenhuma ocorrência registrada ainda.
+        </p>
+      ) : (
+        <ul className="space-y-2">
+          {historico.map((o) => (
+            <li
+              key={o.id}
+              className="flex items-start justify-between gap-3 rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))] px-4 py-3"
+            >
+              <span className="flex items-start gap-2 text-sm text-paper">
+                <span
+                  aria-hidden
+                  className={`mt-1.5 size-2 shrink-0 rounded-full ${COR_DO_TOM[o.resultado]}`}
+                />
+                {o.texto}
+              </span>
+              <span className="shrink-0 text-xs text-mute2">
+                {new Date(o.quando).toLocaleString("pt-BR", {
+                  day: "2-digit",
+                  month: "2-digit",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
   );
 }
 
@@ -223,7 +286,9 @@ export function CabecalhoDaAutomacao() {
         <IconeWhatsApp className="size-5" />
       </span>
       <div className="min-w-0">
-        <h1 className="text-[22px] font-semibold leading-7 tracking-tight text-[var(--figaro-on-background,var(--paper))] md:text-2xl">Automação do WhatsApp</h1>
+        <h1 className="text-[22px] font-semibold leading-7 tracking-tight text-[var(--figaro-on-background,var(--paper))] md:text-2xl">
+          Automação do WhatsApp
+        </h1>
         <p className="text-sm text-mute">Atendimento e avisos inteligentes</p>
       </div>
     </div>

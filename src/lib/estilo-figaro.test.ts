@@ -250,10 +250,16 @@ describe("linguagem multi-serviços em telas compartilhadas", () => {
 });
 
 describe("painel WhatsApp no padrão Figaro", () => {
-  it("usa avisos tonais, estado acessível nas abas e separação por espaçamento", () => {
+  it("usa avisos tonais, abas da área (sem abas à mão) e separação por espaçamento", () => {
     const fonte = readFileSync("src/routes/barbeiro.cortai.tsx", "utf8");
     expect(fonte).toContain('import { Aviso } from "@/components/ui/aviso"');
-    expect(fonte).toContain("aria-pressed={aba === id}");
+    // Reorganização do dono (05/11/2026): Conexão · Avisos · Atividade vêm de `navegacao-barbeiro.ts`.
+    expect(fonte).not.toContain("aria-pressed={aba === id}");
+    const navegacao = readFileSync("src/lib/navegacao-barbeiro.ts", "utf8");
+    expect(navegacao).toMatch(/to: "\/barbeiro\/cortai", label: "Conexão"/);
+    expect(navegacao).toMatch(/to: "\/barbeiro\/whatsapp-avisos", label: "Avisos"/);
+    expect(navegacao).toMatch(/to: "\/barbeiro\/cortai-atividade", label: "Atividade"/);
+    expect(navegacao).not.toContain('label: "Automação do WhatsApp"');
     expect(fonte).not.toContain("rounded-[12px] border border-brick/50");
     expect(fonte).not.toContain(
       "border border-gold/50 bg-[var(--figaro-surface-container,var(--ink2))]",

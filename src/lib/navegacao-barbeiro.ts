@@ -1,6 +1,5 @@
 import {
   Banknote,
-  Bot,
   Gauge,
   HeartHandshake,
   MessageCircle,
@@ -111,17 +110,8 @@ export const MODULOS_DE_NAVEGACAO = [
     grupo: "Clientes e marca",
     to: "/barbeiro/cortai",
     label: "WhatsApp",
-    detail: "Conexão, notificações e experiência",
+    detail: "Conexão, avisos e atividade",
     icon: MessageCircle,
-    permissao: "ver_cortai",
-    rotaDaCapacidade: "/barbeiro/cortai",
-  },
-  {
-    grupo: "Clientes e marca",
-    to: "/barbeiro/automacao",
-    label: "Automação do WhatsApp",
-    detail: "Atendimento e avisos inteligentes",
-    icon: Bot,
     permissao: "ver_cortai",
     rotaDaCapacidade: "/barbeiro/cortai",
   },
@@ -186,7 +176,8 @@ export const SECOES: ReadonlyArray<{ titulo: string; abas: ReadonlyArray<Aba> }>
   {
     titulo: "WhatsApp",
     abas: [
-      { to: "/barbeiro/cortai", label: "Flow", permissao: "ver_cortai" },
+      { to: "/barbeiro/cortai", label: "Conexão", permissao: "ver_cortai" },
+      { to: "/barbeiro/whatsapp-avisos", label: "Avisos", permissao: "ver_cortai" },
       { to: "/barbeiro/cortai-atividade", label: "Atividade", permissao: "ver_cortai" },
     ],
   },

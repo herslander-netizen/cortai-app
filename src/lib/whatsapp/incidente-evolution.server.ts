@@ -74,7 +74,7 @@ async function alertarGestor(
       evento: "whatsapp_conexao",
       titulo,
       corpo,
-      link: "/barbeiro/automacao",
+      link: "/barbeiro/cortai",
       referencia: linha.id,
       versao,
       alvos: [{ destinatario: "gestor" }],

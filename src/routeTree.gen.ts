@@ -91,6 +91,7 @@ import { Route as BarbeiroRedesRouteImport } from './routes/barbeiro.redes'
 import { Route as BarbeiroServicosRouteImport } from './routes/barbeiro.servicos'
 import { Route as BarbeiroSuaPaginaRouteImport } from './routes/barbeiro.sua-pagina'
 import { Route as BarbeiroTemasRouteImport } from './routes/barbeiro.temas'
+import { Route as BarbeiroWhatsappAvisosRouteImport } from './routes/barbeiro.whatsapp-avisos'
 import { Route as EntrarRetornoRouteImport } from './routes/entrar.retorno'
 import { Route as FSlugRouteImport } from './routes/f.$slug'
 import { Route as LojaSlugRouteImport } from './routes/loja.$slug'
@@ -532,6 +533,11 @@ const BarbeiroTemasRoute = BarbeiroTemasRouteImport.update({
   path: '/temas',
   getParentRoute: () => BarbeiroRoute,
 } as any)
+const BarbeiroWhatsappAvisosRoute = BarbeiroWhatsappAvisosRouteImport.update({
+  id: '/whatsapp-avisos',
+  path: '/whatsapp-avisos',
+  getParentRoute: () => BarbeiroRoute,
+} as any)
 const EntrarRetornoRoute = EntrarRetornoRouteImport.update({
   id: '/entrar/retorno',
   path: '/entrar/retorno',
@@ -759,6 +765,7 @@ export interface FileRoutesByFullPath {
   '/barbeiro/servicos': typeof BarbeiroServicosRoute
   '/barbeiro/sua-pagina': typeof BarbeiroSuaPaginaRoute
   '/barbeiro/temas': typeof BarbeiroTemasRoute
+  '/barbeiro/whatsapp-avisos': typeof BarbeiroWhatsappAvisosRoute
   '/entrar/retorno': typeof EntrarRetornoRoute
   '/f/$slug': typeof FSlugRoute
   '/loja/$slug': typeof LojaSlugRoute
@@ -867,6 +874,7 @@ export interface FileRoutesByTo {
   '/barbeiro/servicos': typeof BarbeiroServicosRoute
   '/barbeiro/sua-pagina': typeof BarbeiroSuaPaginaRoute
   '/barbeiro/temas': typeof BarbeiroTemasRoute
+  '/barbeiro/whatsapp-avisos': typeof BarbeiroWhatsappAvisosRoute
   '/entrar/retorno': typeof EntrarRetornoRoute
   '/f/$slug': typeof FSlugRoute
   '/loja/$slug': typeof LojaSlugRoute
@@ -980,6 +988,7 @@ export interface FileRoutesById {
   '/barbeiro/servicos': typeof BarbeiroServicosRoute
   '/barbeiro/sua-pagina': typeof BarbeiroSuaPaginaRoute
   '/barbeiro/temas': typeof BarbeiroTemasRoute
+  '/barbeiro/whatsapp-avisos': typeof BarbeiroWhatsappAvisosRoute
   '/entrar/retorno': typeof EntrarRetornoRoute
   '/f/$slug': typeof FSlugRoute
   '/loja/$slug': typeof LojaSlugRoute
@@ -1094,6 +1103,7 @@ export interface FileRouteTypes {
     | '/barbeiro/servicos'
     | '/barbeiro/sua-pagina'
     | '/barbeiro/temas'
+    | '/barbeiro/whatsapp-avisos'
     | '/entrar/retorno'
     | '/f/$slug'
     | '/loja/$slug'
@@ -1202,6 +1212,7 @@ export interface FileRouteTypes {
     | '/barbeiro/servicos'
     | '/barbeiro/sua-pagina'
     | '/barbeiro/temas'
+    | '/barbeiro/whatsapp-avisos'
     | '/entrar/retorno'
     | '/f/$slug'
     | '/loja/$slug'
@@ -1314,6 +1325,7 @@ export interface FileRouteTypes {
     | '/barbeiro/servicos'
     | '/barbeiro/sua-pagina'
     | '/barbeiro/temas'
+    | '/barbeiro/whatsapp-avisos'
     | '/entrar/retorno'
     | '/f/$slug'
     | '/loja/$slug'
@@ -1970,6 +1982,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BarbeiroTemasRouteImport
       parentRoute: typeof BarbeiroRoute
     }
+    '/barbeiro/whatsapp-avisos': {
+      id: '/barbeiro/whatsapp-avisos'
+      path: '/whatsapp-avisos'
+      fullPath: '/barbeiro/whatsapp-avisos'
+      preLoaderRoute: typeof BarbeiroWhatsappAvisosRouteImport
+      parentRoute: typeof BarbeiroRoute
+    }
     '/entrar/retorno': {
       id: '/entrar/retorno'
       path: '/entrar/retorno'
@@ -2277,6 +2296,7 @@ interface BarbeiroRouteChildren {
   BarbeiroServicosRoute: typeof BarbeiroServicosRoute
   BarbeiroSuaPaginaRoute: typeof BarbeiroSuaPaginaRoute
   BarbeiroTemasRoute: typeof BarbeiroTemasRoute
+  BarbeiroWhatsappAvisosRoute: typeof BarbeiroWhatsappAvisosRoute
   BarbeiroIndexRoute: typeof BarbeiroIndexRoute
   BarbeiroMarcaChatRoute: typeof BarbeiroMarcaChatRoute
   BarbeiroMarcaLayoutTemaRoute: typeof BarbeiroMarcaLayoutTemaRoute
@@ -2324,6 +2344,7 @@ const BarbeiroRouteChildren: BarbeiroRouteChildren = {
   BarbeiroServicosRoute: BarbeiroServicosRoute,
   BarbeiroSuaPaginaRoute: BarbeiroSuaPaginaRoute,
   BarbeiroTemasRoute: BarbeiroTemasRoute,
+  BarbeiroWhatsappAvisosRoute: BarbeiroWhatsappAvisosRoute,
   BarbeiroIndexRoute: BarbeiroIndexRoute,
   BarbeiroMarcaChatRoute: BarbeiroMarcaChatRoute,
   BarbeiroMarcaLayoutTemaRoute: BarbeiroMarcaLayoutTemaRoute,

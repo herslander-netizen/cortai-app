@@ -27,6 +27,7 @@ e o que fez. O diário até 17/10/2026 está guardado, sem alterações, em
 7. **Sem segredos:** nunca escreva chaves, senhas ou tokens aqui. Cite só o nome da variável.
 
 ## Decisões do dono
+- 2026-11-05: **WhatsApp numa tela só, com 3 abas**: Conexão (número + atendimento automático), Avisos (único lugar dos avisos aos clientes, um interruptor por aviso, retorno e tom) e Atividade (envios, Flow IA e ocorrências da conexão). "Automação do WhatsApp" deixa de ser item de menu; Experiência sai (já existe em Relacionamento); Ajustes → Notificações fica só com os avisos da equipe e um atalho para Avisos.
 - 2026-11-05: **Automações de conversa robustas, ligadas primeiro na prévia**: construir o agendamento, a remarcação e o cancelamento dentro da conversa do WhatsApp sem IA, com o Flow Bot **ligado** e a Flow IA só de apoio (entra no que o Bot não reconhece). Ativar primeiro na prévia; o site principal (migração 0055 no `cortai-prod`, segredos da Evolution e "Lançar versão") só com nova autorização. Trabalho enviado na branch oficial.
 - 2026-11-04: **Flow Bot e Flow IA alimentados pelo mesmo evento do WhatsApp**: no modo sombra, o Bot avalia e registra sua previsão enquanto a Flow IA atende o cliente; no modo ligado, o Bot só responde quando tiver uma regra útil e, sem correspondência ou com falha, entrega o turno à Flow IA. Um único emissor e executor por mensagem; não executar o cérebro completo em paralelo, pois ele pode realizar ações. Fluxo documentado em `docs/fluxo-cooperativo-flow-bot-flow-ia.md`.
 - 2026-11-01: **Itens duplicados entre Ajustes e o menu lateral ficam somente no menu lateral**; remover a cópia de Ajustes. Itens exclusivos de Ajustes permanecem lá, sem perder funcionalidades.
@@ -931,6 +932,18 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+### 2026-11-05 UTC — Claude — WhatsApp reorganizado: Conexão · Avisos · Atividade
+- Pedido do dono: "o fluxo do WhatsApp ficou confuso, telas com mesmas funções, organize"; plano aprovado por ele.
+- Antes: 4 telas (WhatsApp com 4 abas desenhadas à mão + 3 blocos de situação + "Novo agendamento"; Automação do WhatsApp; Notificações com "Para clientes"; Atividade da Flow IA). Duplicações: situação da conexão em 2 telas, histórico em 2, Experiência = Avaliações, e **confirmação/lembretes com dois controles** (o da tela WhatsApp grava `config_atendimento_ia`, o de Notificações grava `automacoes_de_ia`; o envio respeita o segundo e só usa o primeiro como padrão de quem nunca mexeu — o interruptor da tela WhatsApp parava de funcionar sem avisar).
+- Agora (abas da área em `navegacao-barbeiro.ts`, uma entrada "WhatsApp" no menu):
+  - **Conexão** `/barbeiro/cortai`: avisos da Meta, atendimento automático (`CentralDeAutomacao` sem ocorrências; "Conectar WhatsApp" rola até o cartão) e o cartão de conexão.
+  - **Avisos** `/barbeiro/whatsapp-avisos` (nova): interruptor geral (`InterruptorDosAvisos`, era o botão "Ativar/Desativar notificações"), saldo de mensagens, `AvisosParaClientes` (um interruptor por aviso, único controle) e `RetornoETom`.
+  - **Atividade** `/barbeiro/cortai-atividade`: Envios (`HistoricoDeEnvios` + lembretes), Flow IA (conteúdo de antes) e Conexão (`OcorrenciasDaAutomacao`).
+  - `/barbeiro/automacao` redireciona para Conexão; `?aba=ajustes|envios|experiencia` antigos levam à aba nova. Notificações (Ajustes) só com a equipe + atalho. Links de incidente e do aviso de saldo apontam para o lugar novo.
+- Nenhuma regra de servidor mudou; nenhuma migração. Guarda de `estilo-figaro.test.ts` atualizada (abas da área, sem abas à mão).
+- tsc 0; vitest 290/2400; build OK; protocolo OK; eslint limpo nos arquivos tocados. **Visual não conferido por captura** (as telas dependem de login e banco); conferir na prévia.
+- Pendente: `/barbeiro/funcionalidades` ainda tem "Confirmações automáticas" e "Lembretes" gravando a configuração antiga (mesmo problema do controle duplicado) — aguardando o dono.
+
 ### 2026-11-05 UTC — Claude — Conexão do WhatsApp: QR velho na tela e código recusado pelo número
 - Dono (prints 11:58 e 12:01): "Não foi possível conectar o dispositivo" no QR e no código por número (VHSR-MADK). A cor do QR não era a causa (o WhatsApp leu o código).
 - **QR velho:** o cartão de conexão só consultava o estado nos primeiros 10 min da tela e, depois disso, continuava mostrando o resultado guardado da última consulta. A Evolution troca o QR a cada ~40 s e reinicia a tentativa a cada ~3,5 min (logs: 11:40, 11:43, 11:47, 11:50, 11:54, 11:57), então a tela mostrava um código vencido. `barbeiro.cortai.tsx`: com a gaveta do QR aberta acompanha sempre; ações e abrir a gaveta recomeçam a janela e buscam o código na hora; sem acompanhamento vale o que o painel leu por último.
