@@ -358,6 +358,13 @@
       "when": 1793397600000,
       "tag": "0056_linha_da_plataforma",
       "breakpoints": true
+    },
+    {
+      "idx": 51,
+      "version": "7",
+      "when": 1793484000000,
+      "tag": "0057_plano_gratis_ate_50",
+      "breakpoints": true
     }
   ]
 }

@@ -45,7 +45,7 @@ describe("teste grátis", () => {
   });
 
   it("vitrine tem 3 planos e não cobra por profissional", () => {
-    expect(PLANOS_COMERCIAIS.map((p) => p.chave)).toEqual(["essencial", "conecta", "studio"]);
+    expect(PLANOS_COMERCIAIS.map((p) => p.chave)).toEqual(["essencial", "studio"]);
     const tabela = readFileSync("src/components/planos/TabelaDePlanos.tsx", "utf8");
     const textos = readFileSync("src/lib/apresentacao-conteudo.ts", "utf8");
     expect(tabela + textos).not.toMatch(/por profissional\/mês|mensais por profissional/);

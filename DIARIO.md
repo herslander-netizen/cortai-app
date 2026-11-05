@@ -27,6 +27,7 @@ e o que fez. O diário até 17/10/2026 está guardado, sem alterações, em
 7. **Sem segredos:** nunca escreva chaves, senhas ou tokens aqui. Cite só o nome da variável.
 
 ## Decisões do dono
+- 2026-11-05: **Plano inicial igual ao AgendaClick**: Essencial grátis até 50 agendamentos por mês, com todos os recursos liberados (WhatsApp incluído). Passou de 50, o app bloqueia novos agendamentos até o negócio assinar o Studio (R$ 49,90, sem limite). Conecta e Profissional saem da venda (inativos, sem apagar dados). Pode mudar depois, se precisar. Migração 0057 (dados + trava em `criar_agendamento`), só na prévia até autorização.
 - 2026-11-05: **WhatsApp administrativo da plataforma ativado com uso fechado** (substitui a regra "central congelada"): a conexão `escopo='central'` envia só eventos da plataforma para donos e admins — queda do WhatsApp do negócio, cobrança da assinatura, boas-vindas do negócio e alertas ao admin. Nunca para clientes e nunca no lugar do número de um negócio (a regra "sem número reserva" para avisos de negócio continua). Opt-in por pessoa.
 - 2026-11-05: **Redis da Evolution como cache puro, sem disco** (`--save "" --appendonly no --stop-writes-on-bgsave-error no`); **segredo de webhook por instância**; **checar o serviço antes de mostrar o QR**; **gaveta de conexão abre em "Número" no celular e em "QR Code" no computador**. Tudo só na prévia.
 - 2026-11-05: **WhatsApp numa tela só, com 3 abas**: Conexão (número + atendimento automático), Avisos (único lugar dos avisos aos clientes, um interruptor por aviso, retorno e tom) e Atividade (envios, Flow IA e ocorrências da conexão). "Automação do WhatsApp" deixa de ser item de menu; Experiência sai (já existe em Relacionamento); Ajustes → Notificações fica só com os avisos da equipe e um atalho para Avisos.
@@ -934,6 +935,12 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+### 2026-11-05 UTC — Claude — Plano grátis até 50 agendamentos (estilo AgendaClick)
+- Decisão do dono (ver "Decisões do dono"). Migração `drizzle/migrations/0057_plano_gratis_ate_50.sql`: Essencial com preço 0, limite 50 e todos os recursos liberados; `pro` e `conecta` com `ativo = false`; nova `conferir_limite_agendamentos_do_mes` chamada por `criar_agendamento` (cópia da 0054 + a chamada). Limite conta agendamentos não cancelados do mês no fuso do negócio; teste ativo e plano sem limite não bloqueiam.
+- Vitrine (`src/lib/planos-comerciais.ts`): só Essencial (grátis, 50) e Studio (R$ 49,90, sem limite). `teste-gratis.test.ts` atualizado.
+- Testes: `supabase/tests/limite_plano_gratis.sql` (4 verificações) e ensaio local com todos os testes SQL OK; `tsc` 0; vitest 293 arquivos / 2415 testes OK; protocolo OK.
+- **Pendente:** aplicar 0057 na prévia (não aplicado ainda). Em `cortai-prod` só com autorização. Pontos em aberto: o banco da prévia tem nome "Equipe" para o plano de R$ 49,90 (a vitrine diz "Studio"); a vitrine diz 1 profissional no Essencial, mas o banco não tem limite; o Essencial agora libera também equipe avançada e branding, então o Studio só se diferencia pelo limite.
+
 ### 2026-11-05 UTC — Claude — WhatsApp: Redis corrigido, linha da plataforma, segredo por instância, checagem do serviço
 - Decisões do dono de hoje (ver "Decisões do dono"). Auditoria em `docs/auditoria-whatsapp-conexoes-2026-11-05.md`.
 - **Railway (prévia):** Redis com início `redis-server --save "" --appendonly no --stop-writes-on-bgsave-error no` e reimplantado (implantação f34a94cc…): "Ready to accept connections" e a Evolution reconectou ("redis ready" 18:05 UTC). A mudança pendente do Postgres (porta pública) **não** foi aplicada (não usei aplicar mudanças pendentes).
