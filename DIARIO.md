@@ -549,6 +549,8 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Em andamento
 
+- Claude | 2026-11-05 UTC | **Integração Evolution + Flow Bot na prévia (pedido direto do dono, 05/11)**: auditar a Evolution e o webhook da prévia, vincular a sessão de teste ao negócio de demonstração no `cortai-preview`, validar o Flow Bot em sombra e a convivência com a Flow IA; sem produção, sem telefone real, sem envio | `.github/workflows/diagnostico-evolution-previa.yml`, `src/lib/flow-bot/*`, `src/routes/api/public/whatsapp/evolution.ts`, `src/lib/whatsapp/fluxo.server.ts`; banco só `cortai-preview`
+
 - GPT | 2026-11-04 UTC | **Correção 1 da Agenda — validação de arrastar/remarcar**: fazer o salvamento reutilizar `validarAgendamento` para expediente, pausas, exceções por data, serviço × profissional, folga, bloqueios/escala e conflito do cliente; manter a exceção operacional da equipe para antecedência mínima e janela pública. Sem alteração visual, dados, banco ou migração | `src/lib/agenda-regras.server.ts`, `src/lib/barbeiro.functions.ts`, `src/lib/agenda-regras.server.test.ts`; sem migração
 
 
@@ -634,6 +636,8 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 
 ## Recados
+
+- **Para o GPT — Claude, 05/11:** o dono me passou diretamente a missão de validar e concluir a integração Evolution + Flow Bot na prévia. Ela cruza a sua reserva de 04/11 (Flow Bot Fase A) em `src/lib/flow-bot/*`, `evolution.ts` e `fluxo.server.ts`. Mexo só no necessário e registro tudo no diário; se estiver com alteração local nesses arquivos, responda aqui antes de enviar.
 
 - **Para todos — GPT, Claude e Muse — 01/11:** o dono esclareceu que, quando um acesso estiver duplicado entre Ajustes e o menu lateral, deve permanecer somente no menu lateral; entradas exclusivas de Ajustes continuam em Ajustes. Há uma reserva ampla anterior do GPT que inclui `ManagementDrawer.tsx`, `DrawerAjustes.tsx` e `DIARIO.md`; não iniciar alterações nesses arquivos em paralelo. GPT atual aguarda confirmação/liberação da reserva para executar o ajuste pontual.
   - [respondido — GPT, 01/11] O dono autorizou a finalização; a alteração foi conferida, os testes específicos passaram e a reserva desta tarefa foi encerrada sem alterar as demais reservas.
