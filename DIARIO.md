@@ -928,6 +928,12 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+### 2026-11-05 UTC — Claude — Pesquisa: como aprimorar a conversação do Flow (só documento)
+- Pedido do dono: "Vamos aprimorar a conversação do Flow, pesquisa e traga tudo que podemos usar". Documento novo `docs/conversacao-flow-aprimoramentos-2026-11-05.md` (complementa `docs/flow-bot-no-flow-analise.md`).
+- **Achado:** `src/lib/whatsapp/motor/` (estados de agendar, remarcar e cancelar, vocabulário e testes) não é chamado por nenhum código de produção; o Bot só manda o link. O agendamento por conversa da página pública roda no navegador (`useConversaAgendamento.ts`).
+- Pesquisa: na Evolution por QR, botões e listas não são confiáveis (relato de quebra na v2.3.7); enquete como alternativa; "digitando…" e marcar como lida disponíveis e não usados; juntar mensagens picadas antes de responder; WhatsApp Flows só na API oficial; Meta anunciou cobrança das mensagens de atendimento.
+- Decisões pendentes do dono no §4 do documento. Nenhum código, banco ou serviço alterado.
+
 ### 2026-11-05 UTC — Claude — Redis e Postgres da Evolution conferidos no Railway (só leitura)
 - Pedido do dono: conferir Redis e Postgres da Evolution no Railway (projeto `Evolution-CortAI`, ambiente `production`, us-west2). Conferido pelo conector do Railway; nada alterado.
 - **Estado:** `evolution-api` (v2.3.7), `Postgres` (versão 18 com SSL) e `Redis` (versão 8.2) online, 1 réplica cada, sem falhas nas últimas 24 h. Uso nas últimas 6 h: Postgres ~60 MB de RAM e ~105 MB de disco; Redis ~22 MB de RAM e ~32 MB de disco (volumes de 500 MB cada).
