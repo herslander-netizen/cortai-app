@@ -934,6 +934,7 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 ### 2026-11-05 UTC — Claude — Todos os QR do tema claro legíveis
 - Dono: "corrige os outros QR do tema claro também". `--qr-dark` herdava `--identity-graphite`, que no claro vira `#f0f7f2` (quase branco): QR do link (`/barbeiro/qr-code`), crescimento, artes de divulgação, marketing do ADM e o `QrCodeReal` padrão saíam ilegíveis. Regra no fim do `styles.css`: no claro (qualquer identidade) `--qr-dark: var(--qr-modulo)` (#121513). Escuro inalterado.
 - Conferido no navegador: `--qr-dark` = #121513 no claro para sem identidade, moderno, copper, rose, indigo e clássico; escuro mantém os valores de antes. Guarda em `estilo-figaro.test.ts`.
+- **Erro meu, corrigido em seguida:** o commit 7b6c662 foi enviado encadeado ao comando de testes com 1 teste falhando (`contraste-app.test.ts`: o seletor novo `html.light, :root.light, :root[data-identidade].light` continha o texto que o teste da Agenda usa para achar o bloco do tema claro). Nada visual da Agenda mudou; o seletor foi reordenado e o envio seguinte passa com todos os testes. Gates separados do envio daqui em diante.
 - Prévia: as publicações de 14:14 e 14:33 falharam no passo "Set up Bun" (GitHub devolveu 504 ao baixar o Bun, inclusive na nova tentativa); a validação passou. Nada de código; a próxima publicação deve levar tudo junto.
 
 ### 2026-11-05 UTC — Claude — QR da conexão sempre preto

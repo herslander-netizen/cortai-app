@@ -457,7 +457,7 @@ describe("conexão do WhatsApp por QR", () => {
     expect(readFileSync("src/styles.css", "utf8")).toMatch(/--qr-modulo: #121513;/);
     // Todos os QR do tema claro (link, divulgação, marketing) com pontos escuros.
     expect(readFileSync("src/styles.css", "utf8")).toMatch(
-      /:root\[data-identidade\]\.light \{\n {2}--qr-dark: var\(--qr-modulo\);/,
+      /html\.light \{\n {2}--qr-dark: var\(--qr-modulo\);/,
     );
   });
 });
