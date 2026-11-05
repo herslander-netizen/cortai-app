@@ -29,6 +29,7 @@ import {
   SEGUNDOS_DE_CADA_CODIGO,
   type EstadoDoCodigo,
 } from "@/lib/whatsapp/pareamento-telefone";
+import { numeroParaEnvio } from "@/lib/whatsapp/link-whatsapp";
 
 function configEvolution(): Config | null {
   const baseUrl = process.env["EVOLUTION_API_URL"] ?? process.env["WHATSAPP_GATEWAY_URL"];
@@ -365,7 +366,7 @@ function criarEvolution(cfg: Config | null) {
         cfg,
         `/message/sendText/${encodeURIComponent(sessaoId)}`,
         "POST",
-        { number: telefone.replace(/\D/g, ""), text: texto },
+        { number: numeroParaEnvio(telefone), text: texto },
       );
       const chave = (r["key"] as Record<string, unknown>) ?? {};
       return { id: (chave["id"] as string) ?? (r["id"] as string) ?? null };
@@ -374,7 +375,7 @@ function criarEvolution(cfg: Config | null) {
     /** "digitando…" por `ms` (a Evolution segura a resposta pelo tempo pedido). */
     async digitando(sessaoId: string, telefone: string, ms: number) {
       await chamar(cfg, `/chat/sendPresence/${encodeURIComponent(sessaoId)}`, "POST", {
-        number: telefone.replace(/\D/g, ""),
+        number: numeroParaEnvio(telefone),
         presence: "composing",
         delay: ms,
       });
@@ -385,7 +386,7 @@ function criarEvolution(cfg: Config | null) {
       await chamar(cfg, `/chat/markMessageAsRead/${encodeURIComponent(sessaoId)}`, "POST", {
         readMessages: [
           {
-            remoteJid: `${telefone.replace(/\D/g, "")}@s.whatsapp.net`,
+            remoteJid: `${numeroParaEnvio(telefone)}@s.whatsapp.net`,
             fromMe: false,
             id: mensagemId,
           },

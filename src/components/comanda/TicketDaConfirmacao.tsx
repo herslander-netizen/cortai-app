@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { linkDoWhatsApp } from "@/lib/whatsapp/link-whatsapp";
 import { useServerFn } from "@tanstack/react-start";
 import { Link } from "@tanstack/react-router";
 import { CheckCircle2, ChevronDown, Clock, Copy, Download, Home, ReceiptText, Share2 } from "lucide-react";
@@ -85,7 +86,7 @@ export function TicketDaConfirmacao({
           ) : null}
           <div className="mt-3 grid gap-2">
             <Button variant="outline" onClick={() => void acoes.copiarPix()}><Copy aria-hidden />Copiar chave Pix</Button>
-            {ticket.pixWhatsapp ? <Button variant="outline" asChild><a href={`https://wa.me/${ticket.pixWhatsapp}?text=${encodeURIComponent(textoComprovante)}`} target="_blank" rel="noreferrer"><IconeWhatsApp />Enviar comprovante pelo WhatsApp</a></Button> : null}
+            {ticket.pixWhatsapp ? <Button variant="outline" asChild><a href={linkDoWhatsApp(ticket.pixWhatsapp, textoComprovante) ?? undefined} target="_blank" rel="noreferrer"><IconeWhatsApp />Enviar comprovante pelo WhatsApp</a></Button> : null}
             {ticket.podeInformarPix ? <Button size="lg" className="h-12 rounded-full" loading={jaPaguei.isPending} disabled={jaPaguei.isPending} onClick={() => jaPaguei.mutate()}><CheckCircle2 aria-hidden />Já paguei</Button> : null}
           </div>
         </div>

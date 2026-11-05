@@ -13,6 +13,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { mascaraTelefone } from "@/lib/previa";
+import { linkDoWhatsApp } from "@/lib/whatsapp/link-whatsapp";
 import { useServerFn } from "@tanstack/react-start";
 import {
   Banknote,
@@ -761,7 +762,7 @@ export function FechamentoComanda({
               {d.config?.pix_whatsapp ? (
                 <Button variant="outline" asChild>
                   <a
-                    href={`https://wa.me/${d.config.pix_whatsapp}?text=${encodeURIComponent(mensagem)}`}
+                    href={linkDoWhatsApp(d.config.pix_whatsapp, mensagem) ?? undefined}
                     target="_blank"
                     rel="noreferrer"
                   >

@@ -1,6 +1,8 @@
 import { Link } from "@tanstack/react-router";
 import { IconeDaRede } from "@/components/marca/editor/IconesDasRedes";
 import { linkDaRede } from "@/lib/redes-do-negocio";
+import { linkDoWhatsApp } from "@/lib/whatsapp/link-whatsapp";
+import { numeroParaWhatsApp } from "@/lib/comanda-ticket";
 import { FontesDaMarca } from "@/components/marca/FontesDaMarca";
 import {
   CalendarDays,
@@ -87,13 +89,14 @@ export function PaginaPublicaConteudo({
   const nota = data.avaliacoes;
   const mostrarSelo = config.componentes.avaliacoes && nota.quantidade >= 5 && nota.media != null;
   const { tenant } = data;
-  const whatsapp = tenant.whatsapp?.replace(/\D/g, "") || null;
-  const telefone = tenant.telefone?.replace(/\D/g, "") || null;
-  const linkContato = whatsapp ? `https://wa.me/${whatsapp}` : telefone ? `tel:+${telefone}` : null;
+  // Sempre com o 55: sem DDI o WhatsApp lia "+7" (Rússia).
+  const whatsapp = linkDoWhatsApp(tenant.whatsapp);
+  const telefone = numeroParaWhatsApp(tenant.telefone);
+  const linkContato = whatsapp ?? (telefone ? `tel:+${telefone}` : null);
   const instagram = tenant.instagram?.replace(/^@/, "") || null;
   const limiteAtingido = !preview && data.agendaOnline === "limite_atingido";
   const linkAgendarContato = whatsapp
-    ? `https://wa.me/${whatsapp}?text=${encodeURIComponent("Olá! Quero agendar um horário.")}`
+    ? linkDoWhatsApp(tenant.whatsapp, "Olá! Quero agendar um horário.")
     : telefone
       ? `tel:+${telefone}`
       : null;

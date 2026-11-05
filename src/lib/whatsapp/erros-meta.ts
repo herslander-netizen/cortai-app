@@ -1,3 +1,4 @@
+import { linkDoWhatsApp } from "./link-whatsapp";
 /**
  * Mapa único: código de erro da Meta → o que o Flow faz.
  * Puro e testado; quem aplica é `falhas-envio.server.ts`.
@@ -66,7 +67,10 @@ export function lerErroMeta(mensagem: string): {
 
 /** Link pronto para o profissional mandar pelo próprio celular, sem custo. */
 export function linkWaMe(telefone: string, texto: string): string {
-  return `https://wa.me/${telefone.replace(/\D/g, "")}?text=${encodeURIComponent(texto)}`;
+  return (
+    linkDoWhatsApp(telefone, texto) ??
+    `https://wa.me/${telefone.replace(/\D/g, "")}?text=${encodeURIComponent(texto)}`
+  );
 }
 
 /** Lembrete que perdeu o momento (mais de 2h além do previsto) não sai. */

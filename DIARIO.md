@@ -935,6 +935,12 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+### 2026-11-05 UTC — Claude — Link do WhatsApp abria "+7" (Rússia): fonte única com o 55
+- Teste01 tem no cadastro `79991787208` (sem DDI) e conectou outro número (79 99818-1983). A página pública montava `wa.me/79991787208`, que o WhatsApp lê como +7 999… (print do dono).
+- Cada tela montava o link de um jeito. Nova fonte única `src/lib/whatsapp/link-whatsapp.ts` (`linkDoWhatsApp`, `numeroParaEnvio`, sobre `numeroParaWhatsApp`): página pública (contato e agendar; `tel:` também com 55), resposta "falar com a equipe" da conversa, contato da plataforma, aviso de falha de envio, código de verificação, redes do negócio, confirmação do agendamento, Pix da comanda e do ticket. Envios pela Evolution (`sendText`, digitando, lida) também saem com 55. Agenda não tocada (os dois links de lá já punham o 55).
+- Testes: `link-whatsapp.test.ts`; tsc 0, vitest 295/2433, build OK, protocolo OK; eslint sem erro novo.
+- **Decisão pendente do dono:** número do cadastro ≠ número conectado. Proposta na conversa.
+
 ### 2026-11-05 UTC — Claude — WhatsApp conectado (Teste01): contatos @lid e número/nome da conta
 - Teste01 conectado (número pessoal do dono, com contatos reais). Atendimento automático segue desligado (padrão, sem config) e Bot sem configuração: ninguém recebe resposta automática.
 - **Contatos @lid:** o WhatsApp passou a identificar contatos por código anônimo; o webhook descartava essas mensagens como grupo. Novo `remetente-evolution.ts` usa o número que a Evolution manda junto (`remoteJidAlt`/`senderPn`); grupos, transmissões e canais continuam fora; @lid sem número é registrado com motivo próprio.

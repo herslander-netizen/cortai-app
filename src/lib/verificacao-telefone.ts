@@ -1,3 +1,4 @@
+import { linkDoWhatsApp } from "@/lib/whatsapp/link-whatsapp";
 /**
  * Confirmação do telefone no agendamento público — regras puras.
  *
@@ -22,8 +23,11 @@ export function textoDoCodigo(codigo: string): string {
 
 /** Link que abre o WhatsApp do negócio com o código já escrito. */
 export function linkParaEnviarCodigo(numeroDoNegocio: string, codigo: string): string {
-  const numero = numeroDoNegocio.replace(/\D/g, "");
-  return `https://wa.me/${numero}?text=${encodeURIComponent(textoDoCodigo(codigo))}`;
+  const texto = textoDoCodigo(codigo);
+  return (
+    linkDoWhatsApp(numeroDoNegocio, texto) ??
+    `https://wa.me/${numeroDoNegocio.replace(/\D/g, "")}?text=${encodeURIComponent(texto)}`
+  );
 }
 
 export type LinhaDeVerificacao = {

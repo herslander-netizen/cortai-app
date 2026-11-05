@@ -1,3 +1,4 @@
+import { linkDoWhatsApp } from "@/lib/whatsapp/link-whatsapp";
 /** Validação e links das redes sociais do negócio (seguro no navegador). */
 
 export type RedeId = "instagram" | "facebook" | "tiktok" | "youtube" | "whatsapp" | "site";
@@ -29,8 +30,7 @@ export function linkDaRede(rede: RedeId, valor: string | null | undefined): stri
   const v = (valor ?? "").trim();
   if (!v || validarRede(rede, v)) return null;
   if (rede === "whatsapp") {
-    const d = v.replace(/\D/g, "");
-    return `https://wa.me/${d.length <= 11 ? `55${d}` : d}`;
+    return linkDoWhatsApp(v);
   }
   if (/^https?:\/\//i.test(v)) return v;
   if (rede === "site") return `https://${v}`;

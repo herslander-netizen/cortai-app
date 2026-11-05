@@ -1,3 +1,4 @@
+import { linkDoWhatsApp } from "@/lib/whatsapp/link-whatsapp";
 /**
  * Textos da conversa em um só lugar (prontos para virar editáveis por negócio).
  * Sem React nem DOM: o mesmo motor poderá ser usado em outros canais.
@@ -83,6 +84,5 @@ export function textoOferta(profissional: string | null, dia: string) {
 }
 
 export function contatoDaEquipe(whatsapp: string | null) {
-  const digitos = whatsapp?.replace(/\D/g, "") ?? "";
-  return digitos ? `https://wa.me/${digitos}` : null;
+  return linkDoWhatsApp(whatsapp);
 }

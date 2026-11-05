@@ -78,7 +78,7 @@ export const getContatoDaPlataforma = createServerFn({ method: "GET" }).handler(
     const { data, error } = await supabaseAdmin.rpc("contato_da_plataforma");
     if (error) return { whatsapp: null };
     const linha = Array.isArray(data) ? data[0] : null;
-    const digitos = String(linha?.whatsapp_alvo ?? "").replace(/\D/g, "");
-    return { whatsapp: digitos.length >= 10 ? `https://wa.me/${digitos}` : null };
+    const { linkDoWhatsApp } = await import("@/lib/whatsapp/link-whatsapp");
+    return { whatsapp: linkDoWhatsApp(String(linha?.whatsapp_alvo ?? "")) };
   },
 );

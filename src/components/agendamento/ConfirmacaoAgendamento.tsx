@@ -17,6 +17,7 @@ import {
 import { LogoBarbearia } from "@/components/marca/LogoBarbearia";
 import { IngressoAgendamento } from "./IngressoAgendamento";
 import { baixarArquivoIcs, linkGoogleAgenda } from "@/lib/calendario-agendamento";
+import { linkDoWhatsApp } from "@/lib/whatsapp/link-whatsapp";
 import type { ConfirmacaoPublica } from "@/lib/agendamento-publico.functions";
 
 function dataLocal(iso: string, fuso: string) {
@@ -170,7 +171,10 @@ export function ConfirmacaoAgendamento({
                 {confirmacao.whatsapp ? (
                   <Button asChild variant="outline">
                     <a
-                      href={`https://wa.me/${confirmacao.whatsapp.replace(/\D/g, "")}?text=${encodeURIComponent(`Olá! ${compartilhamento}`)}`}
+                      href={
+                        linkDoWhatsApp(confirmacao.whatsapp, `Olá! ${compartilhamento}`) ??
+                        undefined
+                      }
                       target="_blank"
                       rel="noreferrer"
                     >
