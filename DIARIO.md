@@ -935,6 +935,12 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+### 2026-11-05 UTC — Claude — Número antes de conectar e Teste01 pronto para testes de automação
+- **Gaveta de conexão** (pedido do dono): mostra o WhatsApp do cadastro antes de conectar ("Gerar código para este número" / escanear com ele) e oferece "Conectar outro número". Ao conectar um número diferente, `tenants.whatsapp` passa a ser o conectado (`numero-do-negocio.ts` + `.server.ts`, auditoria `whatsapp.numero_do_negocio_atualizado`), no webhook e na sincronização. Testes do número (4); tsc 0, vitest 296/2437, build e protocolo OK.
+- **Teste01 na prévia** (pedido do dono, conta de teste): horário seg–sáb 9h–19h com almoço 12h–13h (domingo fechado), profissional "Ana (teste)" ligada ao dono, 4 serviços (Limpeza de pele, Design de sobrancelha, Massagem relaxante, Manicure), atendimento automático e Flow IA ligados (tom amigável), Flow Bot ligado (sempre, pausa 120 min quando a equipe responde), 12 automações de aviso ligadas, avisos pelo WhatsApp ligados. Conferido no banco.
+- **Atenção:** o número conectado (79 99818-1983) é o pessoal do dono, com contatos reais — qualquer contato que escrever recebe resposta automática. Desligar em WhatsApp → Conexão se precisar.
+- Conexão de pé (piscou 22:21 UTC e voltou sozinha). Redis ainda com MISCONF.
+
 ### 2026-11-05 UTC — Claude — Link do WhatsApp abria "+7" (Rússia): fonte única com o 55
 - Teste01 tem no cadastro `79991787208` (sem DDI) e conectou outro número (79 99818-1983). A página pública montava `wa.me/79991787208`, que o WhatsApp lê como +7 999… (print do dono).
 - Cada tela montava o link de um jeito. Nova fonte única `src/lib/whatsapp/link-whatsapp.ts` (`linkDoWhatsApp`, `numeroParaEnvio`, sobre `numeroParaWhatsApp`): página pública (contato e agendar; `tel:` também com 55), resposta "falar com a equipe" da conversa, contato da plataforma, aviso de falha de envio, código de verificação, redes do negócio, confirmação do agendamento, Pix da comanda e do ticket. Envios pela Evolution (`sendText`, digitando, lida) também saem com 55. Agenda não tocada (os dois links de lá já punham o 55).
