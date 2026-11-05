@@ -162,6 +162,7 @@ export function FolhaQrWhatsapp({
                   valor={valor}
                   alt="QR Code para conectar o WhatsApp do negócio"
                   corDosModulos="--qr-modulo"
+                  repintarImagem
                 />
               </div>
               {expirado ? (

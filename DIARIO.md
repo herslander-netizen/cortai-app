@@ -931,6 +931,11 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+### 2026-11-05 UTC — Claude — QR da conexão sempre preto
+- Dono: "o QR code atualmente tá azul, pode ser preto?". Causa: a publicação da prévia de 14:14 (execução 42043017355) falhou ao instalar o Bun (falha do GitHub, validação passou), então a correção anterior não chegou; e na prévia o QR guardado ainda era a imagem azul da Evolution.
+- Garantia independente do formato: `QrCodeReal` ganhou `repintarImagem`; quando o QR chega como imagem, `repintarQr` (`qr-compartilhar.ts`) repinta cada ponto escuro com `--qr-modulo` (preto) sobre branco antes de mostrar; o "Compartilhar" usa a mesma imagem preta. Sem canvas, mostra a imagem como veio. Só a gaveta de conexão usa.
+- Conferido em captura com uma imagem azul de teste a 390 px: sai preta. tsc 0; vitest 289/2396; build OK; protocolo OK.
+
 ### 2026-11-05 UTC — Claude — Animação de carregamento nos botões e listas; QR: conectar por número e compartilhar
 - Pedido do dono (imagem da forma que gira e se transforma): "colocar a animação no loading e onde achar que encaixa bem". Pedido geral → **Agenda e comanda excluídas** (conferido no diff).
 - `IndicadorDeCarregamento` (a forma do Figaro) passa a aparecer: em 20 botões que trocavam o texto por "Salvando…/Gerando…/Enviando…/Atualizando…/Conectando…/Verificando…/Entrando…" (agora `loading`, texto fixo, regra do checklist §4.2), nos três giradores antigos (logo da marca, galeria de fotos, redefinir senha) e ao lado de "Carregando suas fotos…", "Carregando fiados…" e "Verificando…" (Asaas). Esqueletos de tela e o `CarregamentoFlow` de tela cheia continuam como estão.

@@ -451,6 +451,8 @@ describe("conexão do WhatsApp por QR", () => {
     const folha = readFileSync("src/components/ia/FolhaQrWhatsapp.tsx", "utf8");
     expect(folha).toContain("<FolhaPadrao");
     expect(folha).toContain('corDosModulos="--qr-modulo"');
+    // A imagem azul da Evolution é repintada de preto antes de aparecer.
+    expect(folha).toContain("repintarImagem");
     expect(readFileSync("src/routes/barbeiro.cortai.tsx", "utf8")).not.toContain("DialogContent");
     expect(readFileSync("src/styles.css", "utf8")).toMatch(/--qr-modulo: #121513;/);
   });

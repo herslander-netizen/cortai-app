@@ -12,11 +12,14 @@ export function QrCodeReal({
   valor,
   alt,
   corDosModulos = "--qr-dark",
+  repintarImagem = false,
 }: {
   valor: string;
   alt: string;
   /** Variável CSS da cor dos módulos (padrão `--qr-dark`). */
   corDosModulos?: string;
+  /** QR que chega como imagem colorida (Evolution): repinta em preto sobre branco. */
+  repintarImagem?: boolean;
 }) {
   const jaEhImagem = valor.startsWith("data:image");
   const pareceBase64Png = !jaEhImagem && /^[A-Za-z0-9+/=\s]+$/.test(valor) && valor.length > 300;
@@ -26,7 +29,21 @@ export function QrCodeReal({
   useEffect(() => {
     if (jaEhImagem || pareceBase64Png) {
       setDesenhado(null);
-      return;
+      if (!repintarImagem) return;
+      let ativo = true;
+      const url = jaEhImagem ? valor : `data:image/png;base64,${valor.replace(/\s/g, "")}`;
+      void import("./qr-compartilhar")
+        .then((m) => m.repintarQr(url))
+        .then((pronto) => {
+          if (ativo) setDesenhado(pronto);
+        })
+        // Sem canvas: mostra a imagem como veio, nunca some com o QR.
+        .catch(() => {
+          if (ativo) setDesenhado(url);
+        });
+      return () => {
+        ativo = false;
+      };
     }
     let ativo = true;
     setFalhou(false);
@@ -52,13 +69,15 @@ export function QrCodeReal({
     return () => {
       ativo = false;
     };
-  }, [valor, jaEhImagem, pareceBase64Png, corDosModulos]);
+  }, [valor, jaEhImagem, pareceBase64Png, corDosModulos, repintarImagem]);
 
-  const src = jaEhImagem
+  const imagemPronta = jaEhImagem
     ? valor
     : pareceBase64Png
       ? `data:image/png;base64,${valor.replace(/\s/g, "")}`
-      : desenhado;
+      : null;
+  // Repintando: espera o QR preto (alguns milissegundos) em vez de piscar o azul.
+  const src = imagemPronta && !repintarImagem ? imagemPronta : desenhado;
 
   if (falhou) {
     return (
