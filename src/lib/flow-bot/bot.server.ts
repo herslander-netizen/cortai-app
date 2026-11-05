@@ -94,6 +94,21 @@ export async function responderComFlowBot(input: EntradaDoBot): Promise<boolean>
   });
   if (naoAtende) return false;
 
+  // Ligado: agendar, remarcar, cancelar e "meus horários" dentro da conversa, sem IA (dono, 05/11). Em sombra não roda:
+  // ele grava agendamentos, e o modo sombra nunca muda nada.
+  if (config.modo === "ligado") {
+    const { atenderAgendaNaConversa } = await import("./agenda-na-conversa/atender.server");
+    const pelaAgenda = await atenderAgendaNaConversa({
+      ...input,
+      conversa: conversa as Record<string, unknown> | null,
+      agora,
+    }).catch((e: unknown) => {
+      console.error("[agenda-na-conversa]", e instanceof Error ? e.message : e);
+      return null;
+    });
+    if (pelaAgenda !== null) return pelaAgenda;
+  }
+
   // Fluxo: a versão publicada do negócio ou o modelo padrão do Flow.
   let fluxoRef = `padrao@${VERSAO_DO_NUCLEO}`;
   let fluxo: unknown = modeloPadrao;

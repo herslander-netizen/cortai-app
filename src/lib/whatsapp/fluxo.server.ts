@@ -288,6 +288,11 @@ export async function enviarPelaBarbearia(input: {
   interativo?: { id: string; titulo: string }[] | null;
   /** Lembrete, pós-atendimento, reativação: sujeito à janela de 24h no canal oficial. */
   iniciadaPelaBarbearia?: boolean;
+  /**
+   * Resposta automática: marca a mensagem do cliente como lida e mostra "digitando…" antes (só na Evolution).
+   * Padrão: ligado para resposta automática; desligado para aviso iniciado pelo negócio e para quem digita no painel.
+   */
+  digitar?: boolean;
 }) {
   const db = await admin();
   // Provedor da própria conexão (Evolution/Meta) + trava de isolamento por negócio.
@@ -340,6 +345,9 @@ export async function enviarPelaBarbearia(input: {
           r = await gatewayDeWhatsapp.enviarTemplate(input.telefone, input.modelo);
         } else throw e;
       }
+    }
+    if (!r && (input.digitar ?? (!input.iniciadaPelaBarbearia && !input.autorUserId))) {
+      await prepararResposta(gatewayDeWhatsapp, input);
     }
     r ??= await gatewayDeWhatsapp.enviarMensagem(input.sessaoId, input.telefone, input.texto);
     externoId = r.id;
@@ -395,6 +403,36 @@ export async function enviarPelaBarbearia(input: {
 
   if (erro) throw new Error(erro);
   return { externoId };
+}
+
+/**
+ * Antes de uma resposta automática: "visto" na última mensagem do cliente e "digitando…" proporcional ao texto.
+ * Só a Evolution tem os dois; qualquer falha é ignorada (nunca atrasa nem impede o envio).
+ */
+async function prepararResposta(
+  gateway: Awaited<ReturnType<typeof import("./conexao-envio.server").gatewayDaSessao>>,
+  input: { conversaId: string; sessaoId: string; telefone: string; texto: string },
+) {
+  if (gateway.provedor() !== "evolution") return;
+  const { tempoDeDigitar } = await import("./naturalidade");
+  const db = await admin();
+  const { data: ultima } = await db
+    .from("mensagens_whatsapp")
+    .select("mensagem_externa_id")
+    .eq("conversa_id", input.conversaId)
+    .eq("direcao", "entrada")
+    .order("criado_em", { ascending: false })
+    .limit(1)
+    .maybeSingle()
+    .then(
+      (r) => r,
+      () => ({ data: null }),
+    );
+  const id = (ultima as { mensagem_externa_id?: string | null } | null)?.mensagem_externa_id;
+  if (id) await gateway.marcarComoLida(input.sessaoId, input.telefone, id).catch(() => undefined);
+  await gateway
+    .digitando(input.sessaoId, input.telefone, tempoDeDigitar(input.texto))
+    .catch(() => undefined);
 }
 
 /** Liga a conversa ao cadastro do cliente quando ele passa a existir. */
@@ -732,6 +770,18 @@ export async function processarMensagemRecebida(input: {
     }).catch(() => undefined);
     return { tratada: true, motivo: "audio_nao_entendido" };
   }
+  // Mensagens picadas ("oi" / "queria marcar" / "amanhã"): espera um instante de silêncio e a mais nova responde
+  // por todas. As respostas a avisos (acima) já trataram esta mensagem sozinha, com o sentido fixo dos números.
+  let textoDoTurno = input.conteudo;
+  if (input.tipo === "text" && input.conteudo.trim()) {
+    const juntado = await juntarMensagensPicadas(
+      conversa.id,
+      input.mensagemExternaId ?? null,
+      input.conteudo,
+    );
+    if (juntado === null) return { tratada: true, motivo: "respondida_com_a_seguinte" };
+    textoDoTurno = juntado;
+  }
   // Flow Bot (regras e conhecimento do negócio, sem IA): depois das respostas a avisos e antes da Flow IA.
   // Desligado por padrão; em modo sombra só registra o que responderia. Falha nunca trava: segue adiante.
   if (input.tipo === "text" && input.conteudo.trim()) {
@@ -742,7 +792,7 @@ export async function processarMensagemRecebida(input: {
       conexaoId: conexao.id,
       sessaoId: conexao.sessao_id,
       telefone,
-      texto: input.conteudo,
+      texto: textoDoTurno,
       mensagemExternaId: input.mensagemExternaId ?? null,
       nomeContato: input.nomeContato ?? null,
     }).catch((e: unknown) => {
@@ -795,6 +845,28 @@ export async function processarMensagemRecebida(input: {
     tratada: true,
     motivo: jaOrientado ? "fallback_ja_enviado" : "fallback_informativo_whatsapp",
   };
+}
+
+/** Espera o silêncio do cliente; `null` = chegou mensagem mais nova, que responde por esta. */
+async function juntarMensagensPicadas(
+  conversaId: string,
+  mensagemExternaId: string | null,
+  texto: string,
+): Promise<string | null> {
+  const { esperaParaJuntar, textoJuntado } = await import("./naturalidade");
+  const espera = esperaParaJuntar();
+  if (!espera || !mensagemExternaId) return texto;
+  await new Promise((r) => setTimeout(r, espera));
+  const db = await admin();
+  const { data, error } = await db
+    .from("mensagens_whatsapp")
+    .select("direcao, conteudo, mensagem_externa_id, criado_em")
+    .eq("conversa_id", conversaId)
+    .order("criado_em", { ascending: false })
+    .limit(10);
+  // Sem conseguir ler, responde esta mensagem sozinha (nunca deixa o cliente sem resposta).
+  if (error || !data) return texto;
+  return textoJuntado(data as never, { mensagemExternaId, texto });
 }
 
 /** Atualiza o estado da conexão a partir de um aviso do gateway. */

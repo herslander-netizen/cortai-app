@@ -318,6 +318,28 @@ function criarEvolution(cfg: Config | null) {
       return { id: (chave["id"] as string) ?? (r["id"] as string) ?? null };
     },
 
+    /** "digitando…" por `ms` (a Evolution segura a resposta pelo tempo pedido). */
+    async digitando(sessaoId: string, telefone: string, ms: number) {
+      await chamar(cfg, `/chat/sendPresence/${encodeURIComponent(sessaoId)}`, "POST", {
+        number: telefone.replace(/\D/g, ""),
+        presence: "composing",
+        delay: ms,
+      });
+    },
+
+    /** Marca como lida a mensagem que o cliente mandou (o "visto" azul do lado dele). */
+    async marcarComoLida(sessaoId: string, telefone: string, mensagemId: string) {
+      await chamar(cfg, `/chat/markMessageAsRead/${encodeURIComponent(sessaoId)}`, "POST", {
+        readMessages: [
+          {
+            remoteJid: `${telefone.replace(/\D/g, "")}@s.whatsapp.net`,
+            fromMe: false,
+            id: mensagemId,
+          },
+        ],
+      });
+    },
+
     async reiniciarSessao(sessaoId: string): Promise<EstadoDaSessao> {
       await chamar(cfg, `/instance/restart/${encodeURIComponent(sessaoId)}`, "POST", {}).catch(
         () => undefined,
@@ -546,6 +568,16 @@ export function gatewayDoProvedor(preferido?: string | null) {
      * para mensagens iniciadas pelo negócio. Demais: opções numeradas, sem janela.
      */
     capacidades: () => ({ botoes: oficial(), exigeTemplateForaDaJanela: oficial() }),
+    /** Só na Evolution (conexão por QR); nos demais provedores não faz nada. */
+    digitando: async (sessaoId: string, telefone: string, ms: number) => {
+      const c = config();
+      if (c?.provedor === "evolution") await criarEvolution(c).digitando(sessaoId, telefone, ms);
+    },
+    marcarComoLida: async (sessaoId: string, telefone: string, mensagemId: string) => {
+      const c = config();
+      if (c?.provedor === "evolution")
+        await criarEvolution(c).marcarComoLida(sessaoId, telefone, mensagemId);
+    },
     reiniciarSessao: (sessaoId: string) => impl().reiniciarSessao(sessaoId),
     desconectar: (sessaoId: string) => impl().desconectar(sessaoId),
   };

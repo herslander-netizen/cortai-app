@@ -81,6 +81,8 @@ vi.mock("./realidade.server", () => ({
 }));
 vi.mock("@/lib/whatsapp/identidade.server", () => ({ identificarEquipe: async () => null }));
 vi.mock("@/lib/whatsapp/fluxo.server", () => ({ enviarPelaBarbearia: enviar }));
+const agenda = vi.fn(async (_e: Record<string, unknown>): Promise<boolean | null> => null);
+vi.mock("./agenda-na-conversa/atender.server", () => ({ atenderAgendaNaConversa: agenda }));
 
 const { responderComFlowBot } = await import("./bot.server");
 
@@ -116,6 +118,8 @@ beforeEach(() => {
   estado.upserts = [];
   estado.rpcs = [];
   enviar.mockClear();
+  agenda.mockReset();
+  agenda.mockResolvedValue(null);
 });
 
 describe("Flow Bot em sombra — oito pedidos do dono (05/11)", () => {
@@ -217,5 +221,26 @@ describe("Flow Bot — convivência com a Flow IA e com a equipe", () => {
     estado.config = { modo: "sombra", horario: "sempre", pausa_humano_min: 120 };
     expect(await responderComFlowBot(entrada("Quanto custa a escova?"))).toBe(false);
     expect(enviar).not.toHaveBeenCalled();
+  });
+
+  it("ligado: o agendamento na conversa responde primeiro e o bot não fala por cima", async () => {
+    estado.config = { modo: "ligado", horario: "sempre", pausa_humano_min: 120 };
+    agenda.mockResolvedValue(true);
+    expect(await responderComFlowBot(entrada("Quero remarcar meu horário."))).toBe(true);
+    expect(agenda).toHaveBeenCalledTimes(1);
+    expect(rastros()).toHaveLength(0);
+    expect(enviar).not.toHaveBeenCalled();
+  });
+
+  it("sombra nunca roda o agendamento na conversa (ele grava na agenda)", async () => {
+    expect(await responderComFlowBot(entrada("Quero remarcar meu horário."))).toBe(false);
+    expect(agenda).not.toHaveBeenCalled();
+  });
+
+  it("falha no agendamento na conversa não trava: as regras do bot seguem", async () => {
+    estado.config = { modo: "ligado", horario: "sempre", pausa_humano_min: 120 };
+    agenda.mockRejectedValue(new Error("banco fora"));
+    expect(await responderComFlowBot(entrada("Olá, gostaria de agendar."))).toBe(true);
+    expect(enviar).toHaveBeenCalledTimes(1);
   });
 });
