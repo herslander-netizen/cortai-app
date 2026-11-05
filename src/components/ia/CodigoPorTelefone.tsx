@@ -1,4 +1,4 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { Copy } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -6,48 +6,58 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { aviso } from "@/lib/avisos";
-import { gerarCodigoPorTelefone } from "@/lib/whatsapp.functions";
-import { formatarCodigo } from "@/lib/whatsapp/pareamento-telefone";
+import { codigoAtualPorTelefone, gerarCodigoPorTelefone } from "@/lib/whatsapp.functions";
+import {
+  formatarCodigo,
+  SEGUNDOS_DE_CADA_CODIGO,
+  type EstadoDoCodigo,
+} from "@/lib/whatsapp/pareamento-telefone";
 import type { TipoDeConexao } from "@/lib/whatsapp/finalidade-conexao";
 
-function formatarRestante(segundos: number) {
-  const min = Math.floor(segundos / 60);
-  return `${min}:${String(segundos % 60).padStart(2, "0")}`;
-}
+type Gerado = { codigo: string | null; expiraEm: string | null; aviso: string | null };
 
 /**
  * Alternativa ao QR Code, dentro da gaveta de conexão: o dono informa o número do WhatsApp e digita no celular o
- * código de 8 caracteres (WhatsApp → Aparelhos conectados → Conectar com número de telefone).
+ * código de 8 caracteres. A Evolution troca o código a cada ~45 s e o antigo deixa de valer: depois de gerado, a
+ * tela pergunta o código em vigor a cada poucos segundos e mostra sempre o atual.
  */
 export function CodigoPorTelefone({
   tipo,
   aoGerar,
   gerarCodigo,
+  acompanharCodigo,
 }: {
   tipo: TipoDeConexao;
   /** Chamado depois de um código gerado, para o cartão atualizar o estado da conexão. */
   aoGerar?: () => void;
   /** Outra conexão (ex.: linha da plataforma, no ADM): quem gera o código. Padrão: a conexão do negócio. */
-  gerarCodigo?: (
-    telefone: string,
-  ) => Promise<{ codigo: string | null; expiraEm: string | null; aviso: string | null }>;
+  gerarCodigo?: (telefone: string) => Promise<Gerado>;
+  /** Par de `gerarCodigo`: quem informa o código em vigor. */
+  acompanharCodigo?: (telefone: string) => Promise<EstadoDoCodigo>;
 }) {
   const gerarDoNegocio = useServerFn(gerarCodigoPorTelefone);
+  const atualDoNegocio = useServerFn(codigoAtualPorTelefone);
   const [telefone, setTelefone] = useState("");
-  const [resultado, setResultado] = useState<{ codigo: string; expiraEm: string } | null>(null);
-  const [restante, setRestante] = useState<number | null>(null);
+  const [codigo, setCodigo] = useState<string | null>(null);
+  const [desde, setDesde] = useState(0);
+  const [agora, setAgora] = useState(() => Date.now());
+  const [trocou, setTrocou] = useState(false);
+  const [encerrado, setEncerrado] = useState(false);
   const [mensagem, setMensagem] = useState<string | null>(null);
 
   const pedido = useMutation({
     mutationFn: () =>
       gerarCodigo ? gerarCodigo(telefone) : gerarDoNegocio({ data: { tipo, telefone } }),
     onSuccess: (r) => {
-      if (r.codigo && r.expiraEm) {
-        setResultado({ codigo: r.codigo, expiraEm: r.expiraEm });
+      if (r.codigo) {
+        setCodigo(r.codigo);
+        setDesde(Date.now());
+        setTrocou(false);
+        setEncerrado(false);
         setMensagem(null);
         aoGerar?.();
       } else {
-        setResultado(null);
+        setCodigo(null);
         setMensagem(r.aviso ?? "Não foi possível gerar o código agora.");
       }
     },
@@ -55,26 +65,43 @@ export function CodigoPorTelefone({
       setMensagem(e instanceof Error ? e.message : "Não foi possível gerar o código agora."),
   });
 
-  const expiraEm = resultado?.expiraEm ?? null;
-  useEffect(() => {
-    if (!expiraEm) {
-      setRestante(null);
-      return;
-    }
-    const calcular = () =>
-      setRestante(Math.max(0, Math.round((new Date(expiraEm).getTime() - Date.now()) / 1000)));
-    calcular();
-    const id = window.setInterval(calcular, 1000);
-    return () => window.clearInterval(id);
-  }, [expiraEm]);
+  const atual = useQuery({
+    queryKey: ["whatsapp-codigo-atual", tipo, telefone],
+    queryFn: () =>
+      acompanharCodigo ? acompanharCodigo(telefone) : atualDoNegocio({ data: { tipo, telefone } }),
+    enabled: codigo !== null && !encerrado,
+    refetchInterval: 4000,
+    retry: false,
+  });
 
-  const expirado = resultado !== null && restante !== null && restante <= 0;
+  useEffect(() => {
+    const r = atual.data;
+    if (!r) return;
+    if (r.estado === "encerrado") setEncerrado(true);
+    else if (r.estado === "aguardando" && r.codigo && r.codigo !== codigo) {
+      setCodigo(r.codigo);
+      setDesde(Date.now());
+      setTrocou(true);
+    }
+  }, [atual.data, codigo]);
+
+  useEffect(() => {
+    if (codigo === null) return;
+    const id = window.setInterval(() => setAgora(Date.now()), 1000);
+    return () => window.clearInterval(id);
+  }, [codigo]);
+
+  const decorrido = Math.max(0, Math.floor((agora - desde) / 1000));
+  const restante = Math.max(0, SEGUNDOS_DE_CADA_CODIGO - decorrido);
+  const fracao = restante / SEGUNDOS_DE_CADA_CODIGO;
+  const mostrarCodigo = codigo !== null && !encerrado;
 
   async function copiar() {
-    if (!resultado) return;
+    if (!codigo) return;
     try {
-      await navigator.clipboard.writeText(resultado.codigo);
-      aviso.ok("Código copiado");
+      await navigator.clipboard.writeText(codigo);
+      setTrocou(false);
+      aviso.ok("Código copiado. Cole no WhatsApp agora.");
     } catch {
       aviso.erro("Não foi possível copiar. Digite o código no celular.");
     }
@@ -82,33 +109,40 @@ export function CodigoPorTelefone({
 
   return (
     <div>
-      <p className="text-xs leading-relaxed text-mute">
-        Informe o número do WhatsApp que será o do negócio. Vamos gerar um código para você digitar
-        no celular.
-      </p>
-
-      {resultado && !expirado ? (
-        <div className="mt-4 text-center">
+      {mostrarCodigo ? (
+        <div className="text-center">
+          <ol className="space-y-1 text-left text-xs leading-relaxed text-paper">
+            <li>
+              1. No celular do negócio, abra o WhatsApp → Dispositivos conectados → Conectar
+              dispositivo → Conectar com número de telefone.
+            </li>
+            <li>2. Com a tela “Insira o código” aberta, digite ou cole o código abaixo.</li>
+          </ol>
           <p
-            className="select-all font-mono text-3xl font-semibold tracking-[0.18em] text-paper"
-            aria-label={`Código ${resultado.codigo.split("").join(" ")}`}
+            className="mt-4 select-all font-mono text-3xl font-semibold tracking-[0.18em] text-paper"
+            aria-live="polite"
+            aria-label={`Código ${codigo.split("").join(" ")}`}
           >
-            {formatarCodigo(resultado.codigo)}
+            {formatarCodigo(codigo)}
           </p>
-          {restante !== null ? (
-            <p
-              className={`mt-2 text-xs font-medium ${restante <= 15 ? "text-brick" : "text-mute2"}`}
-              role="timer"
-              aria-live="polite"
-            >
-              Este código expira em {formatarRestante(restante)}.
+          {trocou ? (
+            <p className="mt-1 text-xs font-medium text-brick">
+              O WhatsApp trocou o código. Use este.
             </p>
           ) : null}
-          <ol className="mt-4 space-y-1 text-left text-xs leading-relaxed text-paper">
-            <li>1. Abra o WhatsApp no celular do negócio.</li>
-            <li>2. Toque em Aparelhos conectados → Conectar um aparelho.</li>
-            <li>3. Escolha “Conectar com número de telefone” e digite o código acima.</li>
-          </ol>
+          <div className="mx-auto mt-3 w-full max-w-[248px]" role="timer" aria-live="off">
+            <div className="h-1.5 overflow-hidden rounded-full bg-line">
+              <div
+                className={`h-full w-full origin-left rounded-full transition-transform duration-1000 ease-linear motion-reduce:transition-none ${restante <= 10 ? "bg-brick" : "bg-gold"}`}
+                style={{ transform: `scaleX(${fracao})` }}
+              />
+            </div>
+            <p className="mt-2 text-xs text-mute2 tabular-nums">
+              {restante > 0
+                ? `Vale por mais ${restante} s. Depois aparece outro aqui sozinho.`
+                : "Buscando o próximo código…"}
+            </p>
+          </div>
           <Button
             variant="outline"
             type="button"
@@ -121,12 +155,16 @@ export function CodigoPorTelefone({
         </div>
       ) : (
         <form
-          className="mt-4 space-y-3"
+          className="space-y-3"
           onSubmit={(e) => {
             e.preventDefault();
             pedido.mutate();
           }}
         >
+          <p className="text-xs leading-relaxed text-mute">
+            Informe o número do WhatsApp que será o do negócio. Vamos gerar um código para você
+            digitar no celular.
+          </p>
           <label className="block text-xs text-mute" htmlFor={`telefone-pareamento-${tipo}`}>
             Número do WhatsApp (com DDD)
           </label>
@@ -140,9 +178,9 @@ export function CodigoPorTelefone({
             value={telefone}
             onChange={(e) => setTelefone(e.target.value)}
           />
-          {expirado ? (
+          {encerrado ? (
             <p className="text-xs text-brick">
-              O código expirou. Gere um novo para tentar de novo.
+              Esta tentativa terminou sem conectar. Gere um novo código.
             </p>
           ) : null}
           <Button
@@ -151,7 +189,7 @@ export function CodigoPorTelefone({
             className="min-h-12 w-full"
             disabled={pedido.isPending || telefone.replace(/\D/g, "").length < 10}
           >
-            {expirado ? "Gerar novo código" : "Gerar código"}
+            {encerrado ? "Gerar novo código" : "Gerar código"}
           </Button>
         </form>
       )}

@@ -12,6 +12,7 @@
  */
 import { createFileRoute } from "@tanstack/react-router";
 
+import { SEGUNDOS_DE_CADA_CODIGO } from "@/lib/whatsapp/pareamento-telefone";
 import { autorizarInstancia, segredoDoCabecalho } from "@/lib/whatsapp/segredo-webhook";
 
 function textoDaMensagem(mensagem: Record<string, unknown> | undefined) {
@@ -100,7 +101,7 @@ export const Route = createFileRoute("/api/public/whatsapp/evolution")({
           const atualizou = await fluxo.atualizarEstadoDaConexao(sessaoId, {
             status: base64 ? "qr_ready" : "pending",
             qrCode: base64,
-            qrExpiraEm: new Date(Date.now() + 2 * 60_000).toISOString(),
+            qrExpiraEm: new Date(Date.now() + SEGUNDOS_DE_CADA_CODIGO * 1000).toISOString(),
             numero: null,
             nomeExibicao: null,
             erro: null,

@@ -12,8 +12,10 @@ import { aviso } from "@/lib/avisos";
 import type { TipoDeConexao } from "@/lib/whatsapp/finalidade-conexao";
 import { imagemDoQr } from "./qr-compartilhar";
 
-/** Validade do QR da Evolution (mesmo valor de `MINUTOS_DO_QR` no gateway). */
-const VALIDADE_DO_QR_S = 120;
+import {
+  SEGUNDOS_DE_CADA_CODIGO as VALIDADE_DO_QR_S,
+  type EstadoDoCodigo,
+} from "@/lib/whatsapp/pareamento-telefone";
 
 const PASSOS = [
   "Abra o WhatsApp do número do negócio.",
@@ -45,6 +47,7 @@ export function FolhaQrWhatsapp({
   tipo,
   aoGerarCodigoPorNumero,
   gerarCodigo,
+  acompanharCodigo,
 }: {
   valor: string | null;
   restante: number | null;
@@ -57,6 +60,8 @@ export function FolhaQrWhatsapp({
   gerarCodigo?: (
     telefone: string,
   ) => Promise<{ codigo: string | null; expiraEm: string | null; aviso: string | null }>;
+  /** Par de `gerarCodigo`: o código em vigor (a Evolution troca a cada ~45 s). */
+  acompanharCodigo?: (telefone: string) => Promise<EstadoDoCodigo>;
 }) {
   // No celular o painel costuma estar no mesmo aparelho do WhatsApp, que não escaneia a própria tela: abre em
   // "Número". No computador, "QR Code" (dono, 05/11/2026). A escolha da pessoa sempre vence.
@@ -162,6 +167,7 @@ export function FolhaQrWhatsapp({
             tipo={tipo}
             aoGerar={aoGerarCodigoPorNumero}
             {...(gerarCodigo ? { gerarCodigo } : {})}
+            {...(acompanharCodigo ? { acompanharCodigo } : {})}
           />
         </CartaoDaFolha>
       ) : (

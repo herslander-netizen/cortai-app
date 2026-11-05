@@ -6,7 +6,10 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 const gerar = vi.fn();
 vi.mock("@tanstack/react-start", () => ({ useServerFn: () => gerar }));
-vi.mock("@/lib/whatsapp.functions", () => ({ gerarCodigoPorTelefone: () => undefined }));
+vi.mock("@/lib/whatsapp.functions", () => ({
+  gerarCodigoPorTelefone: () => undefined,
+  codigoAtualPorTelefone: () => undefined,
+}));
 
 import { CodigoPorTelefone } from "./CodigoPorTelefone";
 
@@ -64,7 +67,31 @@ describe("CodigoPorTelefone", () => {
       data: { tipo: "atendimento", telefone: "(11) 99999-8888" },
     });
     expect(alvo.textContent).toContain("WZYE-H1YY");
+    expect(alvo.textContent).toContain("Vale por mais 45 s");
     expect(aoGerar).toHaveBeenCalled();
+  });
+
+  it("troca o código na tela quando o WhatsApp gera outro", async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    gerar.mockImplementation(async (arg: { data: { tipo?: string } }) =>
+      "tipo" in arg.data && gerar.mock.calls.length > 1
+        ? { estado: "aguardando", codigo: "FWN8JEMC" }
+        : {
+            codigo: "L7ZJFCBV",
+            expiraEm: new Date(Date.now() + 45_000).toISOString(),
+            aviso: null,
+          },
+    );
+    const alvo = await montar();
+    await digitar(alvo.querySelector<HTMLInputElement>("input[type=tel]")!, "79998181983");
+    await act(async () => alvo.querySelector<HTMLButtonElement>("button[type=submit]")!.click());
+    expect(alvo.textContent).toContain("L7ZJ-FCBV");
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(4500);
+    });
+    expect(alvo.textContent).toContain("FWN8-JEMC");
+    expect(alvo.textContent).toContain("O WhatsApp trocou o código");
+    vi.useRealTimers();
   });
 
   it("mostra o aviso do servidor quando não há código", async () => {

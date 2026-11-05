@@ -233,6 +233,20 @@ export const codigoDaLinhaDaPlataforma = createServerFn({ method: "POST" })
     },
   );
 
+/** Código em vigor agora (a Evolution troca a cada ~45 s). Só lê. */
+export const codigoAtualDaLinhaDaPlataforma = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((d: unknown) => z.object({ telefone: z.string().min(8).max(30) }).parse(d))
+  .handler(async ({ context, data }) => {
+    const db = await exigirAdminDaPlataforma(context);
+    const { numeroParaPareamento } = await import("@/lib/whatsapp/pareamento-telefone");
+    const numero = numeroParaPareamento(data.telefone);
+    const linha = await linhaAtual(db);
+    if (!numero || !linha) return { estado: "encerrado" as const };
+    const gw = await gatewayDaLinha();
+    return gw.codigoDePareamentoAtual(linha.sessao_id, numero);
+  });
+
 export const desconectarLinhaDaPlataforma = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<{ ok: boolean; aviso: string | null }> => {

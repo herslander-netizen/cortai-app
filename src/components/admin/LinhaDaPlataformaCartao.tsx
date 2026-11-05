@@ -8,6 +8,7 @@ import { Aviso } from "@/components/ui/aviso";
 import { Button } from "@/components/ui/button";
 import { useConfirmar } from "@/components/ui/useConfirmar";
 import {
+  codigoAtualDaLinhaDaPlataforma,
   codigoDaLinhaDaPlataforma,
   conectarLinhaDaPlataforma,
   desconectarLinhaDaPlataforma,
@@ -45,6 +46,7 @@ export function LinhaDaPlataformaCartao() {
   const sincronizar = useServerFn(sincronizarLinhaDaPlataforma);
   const desconectar = useServerFn(desconectarLinhaDaPlataforma);
   const pedirCodigo = useServerFn(codigoDaLinhaDaPlataforma);
+  const codigoAtual = useServerFn(codigoAtualDaLinhaDaPlataforma);
   const [aviso, setAviso] = useState<string | null>(null);
   const [gaveta, setGaveta] = useState(false);
   const [restante, setRestante] = useState<number | null>(null);
@@ -187,6 +189,7 @@ export function LinhaDaPlataformaCartao() {
           tipo="atendimento"
           aoGerarCodigoPorNumero={() => void cliente.invalidateQueries({ queryKey: CHAVE })}
           gerarCodigo={(telefone) => pedirCodigo({ data: { telefone } })}
+          acompanharCodigo={(telefone) => codigoAtual({ data: { telefone } })}
         />
       ) : null}
     </section>

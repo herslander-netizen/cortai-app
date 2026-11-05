@@ -935,6 +935,13 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+### 2026-11-05 UTC — Claude — Código por número recusado: causa nos logs e correção
+- **Causa (logs da Evolution, 20:38–20:42 UTC):** a Evolution gera um código novo a cada novo QR (~45 s) e o anterior deixa de valer. O dono colou `L7ZJ…` (gerado 20:38:29) às 20:40:10, depois de duas trocas (20:39:14 e 20:39:59). A tela mostrava o primeiro código com "expira em 2 min".
+- **Segunda causa:** o Redis continuava gravando em `/data` e falhando (`MISCONF` a cada QR). A implantação de 18:04 não aplicou o comando; a imagem do Redis 8 não corrige a permissão porque existe `lost+found` no volume. Novo comando `redis-server --dir /tmp --save "" --appendonly no --stop-writes-on-bgsave-error no`, reimplantado (52a6257b, 21:12 UTC). Desde então, sem gravação nem `MISCONF`; confirmação final no próximo pareamento.
+- **Código:** `codigoDePareamentoAtual` no gateway (só chama `connect` com a sessão em "connecting", sempre com o número) + `codigoAtualPorTelefone` e `codigoAtualDaLinhaDaPlataforma`. A gaveta pergunta a cada 4 s e troca o código na tela, avisando; contagem real de 45 s; passos na ordem certa (abrir "Insira o código" no WhatsApp antes de copiar). QR e webhook também passam a 45 s (`SEGUNDOS_DE_CADA_CODIGO`).
+- Testes: gateway (código em vigor: aguardando, encerrado, conectado; validade 45 s) e tela (troca do código). tsc 0, vitest 293/2420, build OK, protocolo OK; eslint sem erro novo (9 erros antigos em `whatsapp.functions.ts` e `evolution.ts`).
+- Ainda não provado: se o número sem o 9 (DDD ≥ 31) é o que o WhatsApp espera. Se um código colado logo após aparecer for recusado, o próximo passo é testar com o 9.
+
 ### 2026-11-05 UTC — Claude — Conexão do WhatsApp: informação só na gaveta do QR
 - Pedido do dono (vídeo 17:29): a gaveta do QR volta a aparecer e concentra toda a informação de conexão; o cartão deixa de repetir.
 - `barbeiro.cortai.tsx`: removidos o spinner duplicado, o contador repetido, "Gerar novo QR Code" e o bloco "Conectar com número de telefone" do cartão. Único acesso no cartão: "Abrir conexão". "Conectar" abre a gaveta na hora.

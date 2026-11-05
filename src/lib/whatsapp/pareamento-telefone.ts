@@ -4,8 +4,16 @@
  * para digitar no celular. Regras puras, sem rede.
  */
 
-/** O código do WhatsApp vale poucos minutos; a tela mostra a contagem. */
-export const MINUTOS_DO_CODIGO = 2;
+/**
+ * A Evolution troca o QR — e, junto, o código por número — a cada ~45 s (visto nos logs de 05/11/2026). Um código
+ * trocado é recusado pelo celular: a tela mostra sempre o código atual e conta esse tempo.
+ */
+export const SEGUNDOS_DE_CADA_CODIGO = 45;
+
+export type EstadoDoCodigo =
+  | { estado: "aguardando"; codigo: string | null }
+  | { estado: "conectado" }
+  | { estado: "encerrado" };
 
 /**
  * Número com DDI só com dígitos (12 a 15), ou null. Sem DDI e com 10 ou 11 dígitos, assume Brasil (55).

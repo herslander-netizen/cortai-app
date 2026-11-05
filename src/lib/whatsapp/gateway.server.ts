@@ -24,7 +24,11 @@ import { GatewayNaoConfiguradoError, type StatusDaConexao } from "./contrato";
 type Provedor = "evolution" | "generico" | "meta";
 type Config = { baseUrl: string; apiKey: string; provedor: Provedor };
 
-import { codigoDePareamento, MINUTOS_DO_CODIGO } from "@/lib/whatsapp/pareamento-telefone";
+import {
+  codigoDePareamento,
+  SEGUNDOS_DE_CADA_CODIGO,
+  type EstadoDoCodigo,
+} from "@/lib/whatsapp/pareamento-telefone";
 
 function configEvolution(): Config | null {
   const baseUrl = process.env["EVOLUTION_API_URL"] ?? process.env["WHATSAPP_GATEWAY_URL"];
@@ -191,9 +195,6 @@ function normalizarEstado(bruto: Record<string, unknown>): EstadoDaSessao {
 export const pausaDoPareamento = { ms: (n: number) => new Promise<void>((r) => setTimeout(r, n)) };
 const esperarPareamento = (n: number) => pausaDoPareamento.ms(n);
 
-/** O QR da Evolution chega como texto (`code`) e imagem (`base64`) e vale poucos minutos. */
-const MINUTOS_DO_QR = 2;
-
 function qrDaEvolution(bruto: Record<string, unknown>): {
   qrCode: string | null;
   expiraEm: string | null;
@@ -205,7 +206,10 @@ function qrDaEvolution(bruto: Record<string, unknown>): {
   // O texto do código vem primeiro: o Flow desenha o QR nas cores do tema (a imagem da Evolution vem azul).
   const qr = codigo ?? base64;
   if (!qr) return { qrCode: null, expiraEm: null };
-  return { qrCode: qr, expiraEm: new Date(Date.now() + MINUTOS_DO_QR * 60_000).toISOString() };
+  return {
+    qrCode: qr,
+    expiraEm: new Date(Date.now() + SEGUNDOS_DE_CADA_CODIGO * 1000).toISOString(),
+  };
 }
 
 function numeroDoDono(bruto: Record<string, unknown>): string | null {
@@ -308,8 +312,24 @@ function criarEvolution(cfg: Config | null) {
       if (!codigo) throw new Error("O WhatsApp não devolveu o código. Tente de novo em instantes.");
       return {
         codigo,
-        expiraEm: new Date(Date.now() + MINUTOS_DO_CODIGO * 60_000).toISOString(),
+        expiraEm: new Date(Date.now() + SEGUNDOS_DE_CADA_CODIGO * 1000).toISOString(),
       };
+    },
+
+    /**
+     * Código em vigor agora (a Evolution troca a cada novo QR). Só lê: o `connect` só é chamado com a sessão em
+     * "connecting", quando devolve o código atual sem abrir outra conexão; leva o número para nunca virar QR puro.
+     */
+    async codigoDePareamentoAtual(sessaoId: string, numero: string): Promise<EstadoDoCodigo> {
+      const { status } = await evolution.consultarStatus(sessaoId);
+      if (status === "conectado") return { estado: "conectado" };
+      if (status !== "conectando") return { estado: "encerrado" };
+      const r = await chamar<Record<string, unknown>>(
+        cfg,
+        `/instance/connect/${encodeURIComponent(sessaoId)}?number=${encodeURIComponent(numero)}`,
+        "GET",
+      );
+      return { estado: "aguardando", codigo: codigoDePareamento(r) };
     },
 
     async consultarStatus(sessaoId: string): Promise<EstadoDaSessao> {
@@ -578,6 +598,12 @@ export function gatewayDoProvedor(preferido?: string | null) {
     consultarStatus: (sessaoId: string) => impl().consultarStatus(sessaoId),
     obterCodigoDePareamento: (sessaoId: string, numero: string) =>
       impl().obterCodigoDePareamento(sessaoId, numero),
+    /** Só na Evolution (os outros provedores não têm código por número). */
+    codigoDePareamentoAtual: async (sessaoId: string, numero: string): Promise<EstadoDoCodigo> => {
+      const c = config();
+      if (c?.provedor !== "evolution") throw new Error(SEM_PAREAMENTO);
+      return criarEvolution(c).codigoDePareamentoAtual(sessaoId, numero);
+    },
     enviarMensagem: (sessaoId: string, telefone: string, texto: string) =>
       impl().enviarMensagem(sessaoId, telefone, texto),
     /** Só a API oficial garante botões; nos demais provedores devolve null. */

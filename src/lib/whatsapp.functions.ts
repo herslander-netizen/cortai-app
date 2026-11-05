@@ -575,6 +575,32 @@ export const gerarCodigoPorTelefone = createServerFn({ method: "POST" })
     },
   );
 
+/**
+ * Código em vigor agora para o número informado. A Evolution troca o código a cada novo QR (~45 s): a gaveta
+ * pergunta de novo a cada poucos segundos e mostra sempre o atual. Só lê a conexão já existente.
+ */
+export const codigoAtualPorTelefone = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => pareamentoSchema.parse(d))
+  .handler(async ({ context, data }) => {
+    const tenantId = await tenantIdDoMembro(context);
+    await exigirPermissao(context, tenantId, "gerenciar_whatsapp");
+    await exigirRecurso(context.supabase, tenantId, "secretaria_whatsapp");
+    const { numeroParaPareamento } = await import("@/lib/whatsapp/pareamento-telefone");
+    const numero = numeroParaPareamento(data.telefone);
+    if (!numero) return { estado: "encerrado" as const };
+    const db = await admin();
+    const { data: conexao } = await db
+      .from("conexoes_whatsapp")
+      .select("sessao_id")
+      .eq("tenant_id", tenantId)
+      .eq("tipo", tipoValido(data.tipo))
+      .maybeSingle();
+    if (!conexao) return { estado: "encerrado" as const };
+    const { gatewayDeWhatsapp } = await import("@/lib/whatsapp/gateway.server");
+    return gatewayDeWhatsapp.codigoDePareamentoAtual(conexao.sessao_id, numero);
+  });
+
 export const reconectarWhatsapp = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) => tipoSchema.parse(d))

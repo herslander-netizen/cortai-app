@@ -56,10 +56,71 @@ describe("código de pareamento por número (Evolution)", () => {
     ]);
   });
 
+  it("código gerado vale o tempo de um QR (~45 s), não 2 minutos", async () => {
+    evolutionFalsa([{ pairingCode: "WZYEH1YY" }]);
+    const antes = Date.now();
+    const r = await gatewayDoProvedor("evolution").obterCodigoDePareamento("s1", "557998181983");
+    const segundos = (new Date(r.expiraEm).getTime() - antes) / 1000;
+    expect(segundos).toBeGreaterThan(40);
+    expect(segundos).toBeLessThanOrEqual(46);
+  });
+
   it("sem código depois das tentativas: erro claro, sem ficar preso", async () => {
     evolutionFalsa([{ pairingCode: null }, { pairingCode: null }, { pairingCode: null }, {}]);
     await expect(
       gatewayDoProvedor("evolution").obterCodigoDePareamento("s1", "5579991787208"),
     ).rejects.toThrow("O WhatsApp não devolveu o código");
+  });
+});
+
+/** Evolution falsa por caminho: estado da instância e o que o connect devolve. */
+function evolutionComEstado(estado: string, connect: unknown) {
+  const chamadas: string[] = [];
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async (url: string, init: RequestInit) => {
+      const u = new URL(url);
+      chamadas.push(`${String(init.method)} ${u.pathname}${u.search}`);
+      const corpo = u.pathname.startsWith("/instance/connectionState")
+        ? { instance: { state: estado } }
+        : connect;
+      return new Response(JSON.stringify(corpo), { status: 200 });
+    }),
+  );
+  return chamadas;
+}
+
+describe("código em vigor (a Evolution troca a cada novo QR)", () => {
+  beforeEach(() => {
+    vi.stubEnv("EVOLUTION_API_URL", "https://evo.exemplo");
+    vi.stubEnv("EVOLUTION_API_KEY", "chave");
+  });
+  afterEach(() => {
+    vi.unstubAllEnvs();
+    vi.unstubAllGlobals();
+  });
+
+  it("aguardando leitura: devolve o código atual, pedindo com o número", async () => {
+    const chamadas = evolutionComEstado("connecting", { pairingCode: "FWN8JEMC", count: 25 });
+    const r = await gatewayDoProvedor("evolution").codigoDePareamentoAtual("s1", "557998181983");
+    expect(r).toEqual({ estado: "aguardando", codigo: "FWN8JEMC" });
+    expect(chamadas).toEqual([
+      "GET /instance/connectionState/s1",
+      "GET /instance/connect/s1?number=557998181983",
+    ]);
+  });
+
+  it("tentativa encerrada: não abre outra conexão", async () => {
+    const chamadas = evolutionComEstado("close", {});
+    const r = await gatewayDoProvedor("evolution").codigoDePareamentoAtual("s1", "557998181983");
+    expect(r).toEqual({ estado: "encerrado" });
+    expect(chamadas).toEqual(["GET /instance/connectionState/s1"]);
+  });
+
+  it("já conectou: avisa sem pedir código", async () => {
+    const chamadas = evolutionComEstado("open", {});
+    const r = await gatewayDoProvedor("evolution").codigoDePareamentoAtual("s1", "557998181983");
+    expect(r).toEqual({ estado: "conectado" });
+    expect(chamadas).toEqual(["GET /instance/connectionState/s1"]);
   });
 });
