@@ -932,6 +932,12 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+### 2026-11-05 UTC — Claude — Auditoria das conexões WhatsApp (só leitura)
+- Pedido do dono: auditar se a falha vem de mistura entre WhatsApp administrativo e de estabelecimentos. Relatório: `docs/auditoria-whatsapp-conexoes-2026-11-05.md`. Nada alterado no Railway, na Evolution ou nos bancos.
+- **Causa raiz:** Redis da Evolution sem permissão de gravar em `/data` desde ~14:58 UTC (`Permission denied` → `MISCONF`); a Evolution derruba toda sessão ~5 s depois de abrir (`close 401 LOGOUT`). Não é mistura de conexões: as 10 hipóteses do dono foram descartadas com evidência (sessões únicas, negócio vindo do banco, `escopo` tenant/central já no banco, envio só pela conexão do próprio negócio).
+- O WhatsApp administrativo (`escopo='central'`) existe no banco mas está congelado por decisão anterior ("sem número reserva"); ativá-lo é decisão do dono. Recomendado também: token de webhook por instância.
+- Aguardando o dono: (1) autorizar a correção do Redis; (2) decidir sobre o WhatsApp administrativo.
+
 ### 2026-11-05 UTC — Claude — WhatsApp reorganizado: Conexão · Avisos · Atividade
 - Pedido do dono: "o fluxo do WhatsApp ficou confuso, telas com mesmas funções, organize"; plano aprovado por ele.
 - Antes: 4 telas (WhatsApp com 4 abas desenhadas à mão + 3 blocos de situação + "Novo agendamento"; Automação do WhatsApp; Notificações com "Para clientes"; Atividade da Flow IA). Duplicações: situação da conexão em 2 telas, histórico em 2, Experiência = Avaliações, e **confirmação/lembretes com dois controles** (o da tela WhatsApp grava `config_atendimento_ia`, o de Notificações grava `automacoes_de_ia`; o envio respeita o segundo e só usa o primeiro como padrão de quem nunca mexeu — o interruptor da tela WhatsApp parava de funcionar sem avisar).
