@@ -549,7 +549,6 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - 2026-10-26: **Cabeçalho do menu mobile mais compacto** (dono aprovou a reformulação após captura: logo menor, nome do negócio com hierarquia discreta, papel secundário, ajustes alinhados e menos espaço vazio; manter nome em até duas linhas quando necessário, sem afetar a Agenda).
 
 ## Em andamento
-- Claude | 2026-11-05 UTC | **Automações de conversa do WhatsApp (pedido direto do dono)**: agendar/remarcar/cancelar na conversa sem IA ligando `src/lib/whatsapp/motor/`, "digitando…" e lida na Evolution, juntar mensagens picadas, completar dados do Bot; Bot ligado na prévia. Sem migração aplicada, sem produção | `src/lib/whatsapp/*`, `src/lib/flow-bot/*`, `src/routes/api/public/whatsapp/evolution.ts`, testes
 
 - GPT | 2026-11-04 UTC | **Correção 1 da Agenda — validação de arrastar/remarcar**: fazer o salvamento reutilizar `validarAgendamento` para expediente, pausas, exceções por data, serviço × profissional, folga, bloqueios/escala e conflito do cliente; manter a exceção operacional da equipe para antecedência mínima e janela pública. Sem alteração visual, dados, banco ou migração | `src/lib/agenda-regras.server.ts`, `src/lib/barbeiro.functions.ts`, `src/lib/agenda-regras.server.test.ts`; sem migração
 
@@ -938,6 +937,7 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - **Naturalidade** (`src/lib/whatsapp/naturalidade.ts`, `fluxo.server.ts`, `gateway.server.ts`): mensagens picadas esperam 3 s de silêncio e a mais nova responde por todas (`CORTAI_WHATSAPP_JUNTAR_MS`, 0 desliga; respostas a avisos continuam tratando cada mensagem sozinha); antes de resposta automática, "visto" na mensagem do cliente e "digitando…" de 0,8 a 2,5 s, só na Evolution; falha nunca impede o envio.
 - Regra 4 de `docs/fluxo-cooperativo-flow-bot-flow-ia.md` atualizada com a decisão de hoje; regra nova no `src/lib/whatsapp/AGENTS.md`.
 - Testes: `conduzir.test.ts` (18), `naturalidade.test.ts` (7), `bot.server.test.ts` (+3). tsc 0; vitest 288 arquivos / 2393 testes; eslint sem erro novo (o `any` de `fluxo.server.ts` já existia); build OK; protocolo OK.
+- **Ativado na prévia:** execução 42036861112 publicou a prévia com sucesso; no banco `cortai-preview`, `flow_bot_config.modo` do `barbearia-prime` passou de `sombra` para `ligado` (horário: sempre). A instância `flow-bot-teste` continua desconectada: nenhuma conversa real foi testada ponta a ponta e nenhuma mensagem foi enviada. Para testar, conectar um telefone pelo QR e mandar mensagens de outro número. `cortai-prod` não foi tocado.
 
 ### 2026-11-05 UTC — Claude — Pesquisa: como aprimorar a conversação do Flow (só documento)
 - Pedido do dono: "Vamos aprimorar a conversação do Flow, pesquisa e traga tudo que podemos usar". Documento novo `docs/conversacao-flow-aprimoramentos-2026-11-05.md` (complementa `docs/flow-bot-no-flow-analise.md`).
