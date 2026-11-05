@@ -935,6 +935,13 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+### 2026-11-05 UTC — Claude — WhatsApp conectado (Teste01): contatos @lid e número/nome da conta
+- Teste01 conectado (número pessoal do dono, com contatos reais). Atendimento automático segue desligado (padrão, sem config) e Bot sem configuração: ninguém recebe resposta automática.
+- **Contatos @lid:** o WhatsApp passou a identificar contatos por código anônimo; o webhook descartava essas mensagens como grupo. Novo `remetente-evolution.ts` usa o número que a Evolution manda junto (`remoteJidAlt`/`senderPn`); grupos, transmissões e canais continuam fora; @lid sem número é registrado com motivo próprio.
+- **Número e nome da conta:** o evento de conexão aberta traz o número em `wuid` (agora lido); o status, quando conectado, busca dono e nome em `fetchInstances`. "Atualizar conexão" atualiza o painel.
+- Testes: remetente (6), webhook (@lid com e sem número), gateway (status com dono). tsc 0, vitest 294/2429, build OK, protocolo OK.
+- Pendentes: Redis (implantar sem a porta pública do Postgres), troca da chave da Evolution e log menor (reinicia, precisa de autorização), modo "só números de teste" antes de ligar respostas automáticas num número pessoal.
+
 ### 2026-11-05 UTC — Claude — Código por número recusado: causa nos logs e correção
 - **Causa (logs da Evolution, 20:38–20:42 UTC):** a Evolution gera um código novo a cada novo QR (~45 s) e o anterior deixa de valer. O dono colou `L7ZJ…` (gerado 20:38:29) às 20:40:10, depois de duas trocas (20:39:14 e 20:39:59). A tela mostrava o primeiro código com "expira em 2 min".
 - **Segunda causa:** o Redis continuava gravando em `/data` e falhando (`MISCONF` a cada QR). A implantação de 18:04 não aplicou o comando; a imagem do Redis 8 não corrige a permissão porque existe `lost+found` no volume. Novo comando `redis-server --dir /tmp --save "" --appendonly no --stop-writes-on-bgsave-error no`, reimplantado (52a6257b, 21:12 UTC). Desde então, sem gravação nem `MISCONF`; confirmação final no próximo pareamento.

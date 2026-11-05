@@ -230,6 +230,38 @@ describe("webhook da Evolution", () => {
     expect(processar).not.toHaveBeenCalled();
   });
 
+  it("contato identificado por @lid é atendido pelo número que vem junto", async () => {
+    const r = await chamar(
+      mensagem({
+        key: {
+          remoteJid: "153197792497769@lid",
+          remoteJidAlt: "557999171258@s.whatsapp.net",
+          fromMe: false,
+          id: "L1",
+        },
+        message: { conversation: "Tem horário amanhã?" },
+      }),
+      comSegredo,
+    );
+    expect(r.status).toBe(200);
+    expect(processar.mock.calls[0]?.[0]).toMatchObject({
+      telefone: "557999171258",
+      conteudo: "Tem horário amanhã?",
+    });
+  });
+
+  it("contato @lid sem número: não atende e diz o motivo", async () => {
+    const r = await chamar(
+      mensagem({
+        key: { remoteJid: "153197792497769@lid", id: "L2" },
+        message: { conversation: "oi" },
+      }),
+      comSegredo,
+    );
+    expect(await r.json()).toMatchObject({ ignorada: true, motivo: "lid_sem_numero" });
+    expect(processar).not.toHaveBeenCalled();
+  });
+
   it("mensagem do próprio número nunca é respondida: só registra que a equipe falou", async () => {
     const r = await chamar(
       mensagem({

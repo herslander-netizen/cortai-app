@@ -117,10 +117,29 @@ describe("código em vigor (a Evolution troca a cada novo QR)", () => {
     expect(chamadas).toEqual(["GET /instance/connectionState/s1"]);
   });
 
+  it("conectado: o status traz número e nome da conta pela ficha da instância", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (url: string) => {
+        const u = new URL(url);
+        const corpo = u.pathname.startsWith("/instance/connectionState")
+          ? { instance: { state: "open" } }
+          : [{ ownerJid: "557998181983:3@s.whatsapp.net", profileName: "Teste01" }];
+        return new Response(JSON.stringify(corpo), { status: 200 });
+      }),
+    );
+    const r = await gatewayDoProvedor("evolution").consultarStatus("s1");
+    expect(r).toMatchObject({
+      status: "conectado",
+      numero: "557998181983",
+      nomeExibicao: "Teste01",
+    });
+  });
+
   it("já conectou: avisa sem pedir código", async () => {
     const chamadas = evolutionComEstado("open", {});
     const r = await gatewayDoProvedor("evolution").codigoDePareamentoAtual("s1", "557998181983");
     expect(r).toEqual({ estado: "conectado" });
-    expect(chamadas).toEqual(["GET /instance/connectionState/s1"]);
+    expect(chamadas.filter((c) => c.includes("/instance/connect/"))).toEqual([]);
   });
 });

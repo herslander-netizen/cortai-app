@@ -131,7 +131,13 @@ export const Route = createFileRoute("/api/public/whatsapp/evolution")({
             eventoEm,
             status: estado,
             ...(conectado ? { qrCode: null, qrExpiraEm: null } : {}),
-            numero: typeof dados["number"] === "string" ? (dados["number"] as string) : null,
+            // Ao abrir, a Evolution manda o número da conta em `wuid` ("5579…@s.whatsapp.net").
+            numero:
+              typeof dados["number"] === "string"
+                ? (dados["number"] as string)
+                : typeof dados["wuid"] === "string"
+                  ? ((dados["wuid"] as string).split("@")[0]?.split(":")[0] ?? null)
+                  : null,
             nomeExibicao:
               typeof dados["profileName"] === "string" ? (dados["profileName"] as string) : null,
             erro,
@@ -143,18 +149,19 @@ export const Route = createFileRoute("/api/public/whatsapp/evolution")({
 
         if (evento === "messages.upsert") {
           const chave = (dados["key"] as Record<string, unknown>) ?? {};
-          const remoteJid = String(chave["remoteJid"] ?? "");
+          const { remetenteDaEvolution } = await import("@/lib/whatsapp/remetente-evolution");
+          const remetente = remetenteDaEvolution(dados);
           if (chave["fromMe"] === true) {
             // Mensagem do próprio número do negócio. Se não foi o Flow que enviou, alguém da equipe respondeu pelo
             // celular: o bot e a Flow IA ficam em silêncio naquela conversa por um tempo (nunca falam por cima).
-            if (remoteJid.endsWith("@s.whatsapp.net")) {
+            if (remetente.tipo === "contato") {
               const { texto } = textoDaMensagem(
                 dados["message"] as Record<string, unknown> | undefined,
               );
               const { registrarRespostaDoNegocio } = await import("@/lib/flow-bot/humano.server");
               const trabalho = registrarRespostaDoNegocio({
                 sessaoId,
-                telefone: remoteJid.split("@")[0] ?? "",
+                telefone: remetente.telefone,
                 mensagemExternaId: (chave["id"] as string) ?? null,
                 texto,
               }).catch(() => console.error("[evolution] falha ao registrar resposta do negócio"));
@@ -163,11 +170,15 @@ export const Route = createFileRoute("/api/public/whatsapp/evolution")({
             }
             return Response.json({ ok: true, ignorada: true });
           }
-          // Grupos e transmissões não são atendidos pela Flow IA.
-          if (!remoteJid || !remoteJid.endsWith("@s.whatsapp.net")) {
-            return Response.json({ ok: true, ignorada: true });
+          // Grupos e transmissões não são atendidos; contato por @lid usa o número que vem junto.
+          if (remetente.tipo === "ignorar") {
+            if (remetente.motivo === "lid_sem_numero")
+              console.warn("[evolution] mensagem de contato @lid sem número; não atendida", {
+                sessao: sessaoId.slice(0, 16),
+              });
+            return Response.json({ ok: true, ignorada: true, motivo: remetente.motivo });
           }
-          const telefone = remoteJid.split("@")[0] ?? "";
+          const telefone = remetente.telefone;
           const mensagem = dados["message"] as Record<string, unknown> | undefined;
           const { tipo, texto } = textoDaMensagem(mensagem);
           if (tipo === "audio") {

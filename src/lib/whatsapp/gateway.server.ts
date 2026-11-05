@@ -215,7 +215,7 @@ function qrDaEvolution(bruto: Record<string, unknown>): {
 function numeroDoDono(bruto: Record<string, unknown>): string | null {
   const dono = (bruto["owner"] as string) ?? (bruto["ownerJid"] as string) ?? null;
   if (!dono) return null;
-  return dono.split("@")[0] ?? null;
+  return dono.split("@")[0]?.split(":")[0] ?? null;
 }
 
 /** Webhook da Evolution sempre com o segredo no cabeçalho (nunca na URL). */
@@ -339,14 +339,25 @@ function criarEvolution(cfg: Config | null) {
         "GET",
       );
       const instancia = (r["instance"] as Record<string, unknown>) ?? r;
-      return {
-        status: normalizarStatus(instancia["state"] ?? instancia["status"]),
-        qrCode: null,
-        qrExpiraEm: null,
-        numero: numeroDoDono(instancia),
-        nomeExibicao: (instancia["profileName"] as string) ?? null,
-        erro: null,
-      };
+      const status = normalizarStatus(instancia["state"] ?? instancia["status"]);
+      let numero = numeroDoDono(instancia);
+      let nomeExibicao = (instancia["profileName"] as string) ?? null;
+      // O connectionState não traz o dono: conectado, busca número e nome na ficha da instância.
+      if (status === "conectado" && (!numero || !nomeExibicao)) {
+        const ficha = await chamar<unknown>(
+          cfg,
+          `/instance/fetchInstances?instanceName=${encodeURIComponent(sessaoId)}`,
+          "GET",
+        ).catch(() => null);
+        const primeira = (Array.isArray(ficha) ? ficha[0] : ficha) as Record<
+          string,
+          unknown
+        > | null;
+        const dados = ((primeira?.["instance"] as Record<string, unknown>) ?? primeira) || {};
+        numero = numero ?? numeroDoDono(dados);
+        nomeExibicao = nomeExibicao ?? (dados["profileName"] as string) ?? null;
+      }
+      return { status, qrCode: null, qrExpiraEm: null, numero, nomeExibicao, erro: null };
     },
 
     async enviarMensagem(sessaoId: string, telefone: string, texto: string) {

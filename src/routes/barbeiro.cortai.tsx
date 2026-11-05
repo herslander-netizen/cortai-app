@@ -475,7 +475,11 @@ function CartaoDeConexao({ painel, tipo }: { painel: PainelDoCortai; tipo: TipoD
               type="button"
               className="w-full text-paper disabled:opacity-50"
               disabled={acao.isPending || estado.isFetching}
-              onClick={() => void estado.refetch()}
+              onClick={() =>
+                void estado
+                  .refetch()
+                  .then(() => cliente.invalidateQueries({ queryKey: ["cortai-painel"] }))
+              }
             >
               Atualizar conexão
             </Button>
