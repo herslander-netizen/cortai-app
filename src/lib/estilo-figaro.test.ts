@@ -445,3 +445,13 @@ describe("sombras da Agenda", () => {
     expect(css).toContain("--elevacao-6: 0 1px 3px rgb(0 0 0 / 0.3), 0 4px 8px 3px rgb(0 0 0 / 0.15);");
   });
 });
+
+describe("conexão do WhatsApp por QR", () => {
+  it("abre na gaveta padrão e desenha o QR com módulos sempre escuros (legível no tema claro)", () => {
+    const folha = readFileSync("src/components/ia/FolhaQrWhatsapp.tsx", "utf8");
+    expect(folha).toContain("<FolhaPadrao");
+    expect(folha).toContain('corDosModulos="--qr-modulo"');
+    expect(readFileSync("src/routes/barbeiro.cortai.tsx", "utf8")).not.toContain("DialogContent");
+    expect(readFileSync("src/styles.css", "utf8")).toMatch(/--qr-modulo: #121513;/);
+  });
+});

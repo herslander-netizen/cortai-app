@@ -292,6 +292,8 @@
   --whatsapp: #25d366;
   --qr-dark: var(--identity-graphite);
   --qr-light: var(--identity-white);
+  /* Módulos do QR de conexão do WhatsApp: sempre escuros sobre a placa branca, nos dois temas (leitura da câmera). */
+  --qr-modulo: #121513;
   --ink: var(--grafite-ink);
   --ink2: var(--grafite-surface);
   --ink3: var(--grafite-raised);

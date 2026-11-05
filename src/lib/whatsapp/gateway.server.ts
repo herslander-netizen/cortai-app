@@ -187,7 +187,7 @@ function normalizarEstado(bruto: Record<string, unknown>): EstadoDaSessao {
 
 /* ---------------------------------------------------------------- Evolution */
 
-/** O QR da Evolution chega em base64 (data URL) e vale poucos minutos. */
+/** O QR da Evolution chega como texto (`code`) e imagem (`base64`) e vale poucos minutos. */
 const MINUTOS_DO_QR = 2;
 
 function qrDaEvolution(bruto: Record<string, unknown>): {
@@ -198,7 +198,8 @@ function qrDaEvolution(bruto: Record<string, unknown>): {
   const objeto = (typeof cru === "object" && cru !== null ? cru : {}) as Record<string, unknown>;
   const base64 = (objeto["base64"] as string) ?? (bruto["base64"] as string) ?? null;
   const codigo = (objeto["code"] as string) ?? (bruto["code"] as string) ?? null;
-  const qr = base64 ?? codigo;
+  // O texto do código vem primeiro: o Flow desenha o QR nas cores do tema (a imagem da Evolution vem azul).
+  const qr = codigo ?? base64;
   if (!qr) return { qrCode: null, expiraEm: null };
   return { qrCode: qr, expiraEm: new Date(Date.now() + MINUTOS_DO_QR * 60_000).toISOString() };
 }

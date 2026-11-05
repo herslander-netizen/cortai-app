@@ -8,7 +8,16 @@ import { BlocoEsqueleto, RegiaoDeEsqueleto } from "@/components/layout/Esqueleto
  * base64 de PNG) ou como o texto cru da sessão. Nos dois casos o conteúdo vem
  * do serviço — aqui só desenhamos. Nada é estático, decorativo ou inventado.
  */
-export function QrCodeReal({ valor, alt }: { valor: string; alt: string }) {
+export function QrCodeReal({
+  valor,
+  alt,
+  corDosModulos = "--qr-dark",
+}: {
+  valor: string;
+  alt: string;
+  /** Variável CSS da cor dos módulos (padrão `--qr-dark`). */
+  corDosModulos?: string;
+}) {
   const jaEhImagem = valor.startsWith("data:image");
   const pareceBase64Png = !jaEhImagem && /^[A-Za-z0-9+/=\s]+$/.test(valor) && valor.length > 300;
   const [desenhado, setDesenhado] = useState<string | null>(null);
@@ -29,7 +38,7 @@ export function QrCodeReal({ valor, alt }: { valor: string; alt: string }) {
           margin: 1,
           width: 512,
           color: {
-            dark: estilos.getPropertyValue("--qr-dark").trim(),
+            dark: estilos.getPropertyValue(corDosModulos).trim(),
             light: estilos.getPropertyValue("--qr-light").trim(),
           },
         }),
@@ -43,7 +52,7 @@ export function QrCodeReal({ valor, alt }: { valor: string; alt: string }) {
     return () => {
       ativo = false;
     };
-  }, [valor, jaEhImagem, pareceBase64Png]);
+  }, [valor, jaEhImagem, pareceBase64Png, corDosModulos]);
 
   const src = jaEhImagem
     ? valor

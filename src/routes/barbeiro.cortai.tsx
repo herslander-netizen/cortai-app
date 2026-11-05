@@ -11,12 +11,11 @@ import { CalendarPlus, MessageCircle, ShieldCheck, Smartphone } from "lucide-rea
 import { Screen, EmptyState } from "@/components/layout/Screen";
 import { EsqueletoLista, EsqueletoPainel } from "@/components/layout/Esqueleto";
 import { CodigoPorTelefone } from "@/components/ia/CodigoPorTelefone";
-import { QrCodeReal } from "@/components/ia/QrCodeReal";
+import { FolhaQrWhatsapp } from "@/components/ia/FolhaQrWhatsapp";
 import { diagnosticoDoEnvio, type TomDoEnvio } from "@/lib/whatsapp/erros-meta";
 import { TONS, type ConfiguracaoDoAtendimento } from "@/lib/whatsapp/contrato";
 import { Aviso } from "@/components/ui/aviso";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { mensagemDeAcessoNegado, RouteError } from "@/components/layout/RouteError";
 import { getAvaliacoes } from "@/lib/crescimento.functions";
 import { type TipoDeConexao } from "@/lib/whatsapp/finalidade-conexao";
@@ -969,8 +968,9 @@ function CartaoDeConexao({ painel, tipo }: { painel: PainelDoCortai; tipo: TipoD
         reais do seu negócio e nunca acessa dados de outro.
       </p>
 
-      {qrAberto && conexao?.qrCode && qrVisivel ? (
-        <ModalQr
+      {/* Aberta também depois de vencer: mostra "Código vencido" em vez de sumir da tela. */}
+      {qrAberto && conexao?.qrCode && qrPronto ? (
+        <FolhaQrWhatsapp
           valor={conexao.qrCode}
           restante={restante}
           aoFechar={() => setQrAberto(false)}
@@ -1117,69 +1117,6 @@ function BlocoDiagnostico() {
         </>
       )}
     </section>
-  );
-}
-
-function ModalQr({
-  valor,
-  restante,
-  aoFechar,
-  aoGerarNovo,
-  gerando,
-}: {
-  valor: string;
-  restante: number | null;
-  aoFechar: () => void;
-  aoGerarNovo: () => void;
-  gerando: boolean;
-}) {
-  return (
-    <Dialog
-      open
-      onOpenChange={(aberto) => {
-        if (!aberto) aoFechar();
-      }}
-    >
-      <DialogContent
-        aria-describedby="instrucoes-conectar-whatsapp"
-        className="w-full max-w-sm text-center"
-      >
-        <div className="pr-8 text-left">
-          <DialogTitle className="text-sm font-semibold text-paper">Conectar WhatsApp</DialogTitle>
-        </div>
-
-        <div className="mt-1">
-          <QrCodeReal valor={valor} alt="QR Code para conectar o WhatsApp do negócio" />
-        </div>
-
-        <DialogDescription
-          id="instrucoes-conectar-whatsapp"
-          className="text-xs leading-relaxed text-paper"
-        >
-          Abra o WhatsApp no celular → Dispositivos conectados → Conectar dispositivo → escaneie o
-          QR Code.
-        </DialogDescription>
-        {restante !== null ? (
-          <p
-            className={`mt-2 text-xs font-medium ${restante <= 15 ? "text-brick" : "text-mute2"}`}
-            role="timer"
-            aria-live="polite"
-          >
-            Este código expira em {formatarRestante(restante)}.
-          </p>
-        ) : null}
-
-        <Button
-          variant="outline"
-          type="button"
-          className="mt-2 w-full text-paper disabled:opacity-50"
-          disabled={gerando}
-          onClick={aoGerarNovo}
-        >
-          {gerando ? "Gerando…" : "Gerar novo QR Code"}
-        </Button>
-      </DialogContent>
-    </Dialog>
   );
 }
 
