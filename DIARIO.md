@@ -27,6 +27,7 @@ e o que fez. O diário até 17/10/2026 está guardado, sem alterações, em
 7. **Sem segredos:** nunca escreva chaves, senhas ou tokens aqui. Cite só o nome da variável.
 
 ## Decisões do dono
+- 2026-11-05: **Automações de conversa robustas, ligadas primeiro na prévia**: construir o agendamento, a remarcação e o cancelamento dentro da conversa do WhatsApp sem IA, com o Flow Bot **ligado** e a Flow IA só de apoio (entra no que o Bot não reconhece). Ativar primeiro na prévia; o site principal (migração 0055 no `cortai-prod`, segredos da Evolution e "Lançar versão") só com nova autorização. Trabalho enviado na branch oficial.
 - 2026-11-04: **Flow Bot e Flow IA alimentados pelo mesmo evento do WhatsApp**: no modo sombra, o Bot avalia e registra sua previsão enquanto a Flow IA atende o cliente; no modo ligado, o Bot só responde quando tiver uma regra útil e, sem correspondência ou com falha, entrega o turno à Flow IA. Um único emissor e executor por mensagem; não executar o cérebro completo em paralelo, pois ele pode realizar ações. Fluxo documentado em `docs/fluxo-cooperativo-flow-bot-flow-ia.md`.
 - 2026-11-01: **Itens duplicados entre Ajustes e o menu lateral ficam somente no menu lateral**; remover a cópia de Ajustes. Itens exclusivos de Ajustes permanecem lá, sem perder funcionalidades.
 - 2026-11-01: **Tela de entrada/showcase sempre em Dark Navy**: `/login` mantém tema escuro fixo, independentemente do tema do aparelho ou do tema salvo/logado; escopo isolado à rota, sem alterar tema global, com mockups e palco usando os mesmos tokens escuros. Layout mobile 390px/100dvh e fluxos reais de cadastro, login e agendamento permanecem.
@@ -548,6 +549,7 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - 2026-10-26: **Cabeçalho do menu mobile mais compacto** (dono aprovou a reformulação após captura: logo menor, nome do negócio com hierarquia discreta, papel secundário, ajustes alinhados e menos espaço vazio; manter nome em até duas linhas quando necessário, sem afetar a Agenda).
 
 ## Em andamento
+- Claude | 2026-11-05 UTC | **Automações de conversa do WhatsApp (pedido direto do dono)**: agendar/remarcar/cancelar na conversa sem IA ligando `src/lib/whatsapp/motor/`, "digitando…" e lida na Evolution, juntar mensagens picadas, completar dados do Bot; Bot ligado na prévia. Sem migração aplicada, sem produção | `src/lib/whatsapp/*`, `src/lib/flow-bot/*`, `src/routes/api/public/whatsapp/evolution.ts`, testes
 
 - GPT | 2026-11-04 UTC | **Correção 1 da Agenda — validação de arrastar/remarcar**: fazer o salvamento reutilizar `validarAgendamento` para expediente, pausas, exceções por data, serviço × profissional, folga, bloqueios/escala e conflito do cliente; manter a exceção operacional da equipe para antecedência mínima e janela pública. Sem alteração visual, dados, banco ou migração | `src/lib/agenda-regras.server.ts`, `src/lib/barbeiro.functions.ts`, `src/lib/agenda-regras.server.test.ts`; sem migração
 
@@ -634,6 +636,8 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 
 ## Recados
+
+- **Para o GPT — Claude, 05/11:** o dono pediu diretamente as automações de conversa (Bot + IA) e escolheu o Bot ligado na prévia. Isso cruza sua reserva de 04/11 do Flow Bot (`src/lib/flow-bot/*`, `fluxo.server.ts`, `evolution.ts`). Se estiver com alteração local nesses arquivos, responda aqui antes de enviar.
 
 - **Para o GPT — Claude, 05/11:** o dono me passou diretamente a missão de validar e concluir a integração Evolution + Flow Bot na prévia. Ela cruza a sua reserva de 04/11 (Flow Bot Fase A) em `src/lib/flow-bot/*`, `evolution.ts` e `fluxo.server.ts`. Mexo só no necessário e registro tudo no diário; se estiver com alteração local nesses arquivos, responda aqui antes de enviar.
 
