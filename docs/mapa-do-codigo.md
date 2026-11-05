@@ -58,7 +58,7 @@ Variáveis: `.env` só traz as chaves públicas do Supabase. Os segredos do serv
   - **Dinheiro:** `barbeiro.financeiro`, `barbeiro.caixa`, `barbeiro.comissoes`, `barbeiro.plano`.
   - **Cadastro:** `barbeiro.servicos`, `barbeiro.profissionais`, `barbeiro.equipe`, `barbeiro.horarios`, `barbeiro.produtos`.
   - **Marca e divulgação:** `barbeiro.marca`, `barbeiro.temas`, `barbeiro.divulgar`, `barbeiro.redes`.
-  - **Flow IA e WhatsApp:** `barbeiro.cortai` (conexão do WhatsApp e configuração) e `barbeiro.cortai-atividade`.
+  - **Flow IA e WhatsApp** (abas da área, 05/11/2026): `barbeiro.cortai` (Conexão: número e atendimento automático), `barbeiro.whatsapp-avisos` (Avisos aos clientes, retorno e tom) e `barbeiro.cortai-atividade` (Atividade: envios, Flow IA e ocorrências). `barbeiro.automacao` só redireciona.
   - **Ajustes:** `barbeiro.configurar`, `barbeiro.conta`, `barbeiro.funcionalidades`, `barbeiro.mais`, `barbeiro.barbearias`.
 - **Dono da plataforma, `/admin`:** `admin.index`, `admin.barbearias`, `admin.monetizacao` (planos, cupons, condições, banners), `admin.asaas`, `admin.whatsapp`, `admin.recursos`, `admin.home`, `admin.marketing`, `admin.parceiros`, `admin.pedidos`, `admin.ajustes`, `admin.perfil`.
 - **API pública (`api/public`):** veja a seção Integrações.
