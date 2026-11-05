@@ -46,8 +46,8 @@ export function CodigoPorNumeroDoNegocio({ tenantId }: { tenantId: string }) {
             onChange={(e) => setTelefone(e.target.value)}
           />
         </label>
-        <Button type="button" disabled={ocupado || telefone.trim().length < 8} onClick={pedir}>
-          {ocupado ? "Gerando…" : "Gerar código"}
+        <Button loading={ocupado} type="button" disabled={ocupado || telefone.trim().length < 8} onClick={pedir}>
+          Gerar código
         </Button>
       </div>
       {codigo ? (

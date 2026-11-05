@@ -25,6 +25,7 @@ import {
   testarConexaoAsaas,
 } from "@/lib/admin.functions";
 import { Aviso } from "@/components/ui/aviso";
+import { IndicadorDeCarregamento } from "@/components/ui/IndicadorDeCarregamento";
 
 export const Route = createFileRoute("/admin/asaas")({
   head: () => ({
@@ -82,7 +83,10 @@ function ContaAsaasPage() {
             <div className="min-w-0">
               <h2 className="text-base font-semibold text-paper">Estado da configuração</h2>
               {!estado ? (
-                <p className="mt-2 text-sm text-mute">Verificando…</p>
+                <p className="mt-2 flex items-center gap-3 text-sm text-mute">
+                  <IndicadorDeCarregamento tamanho={24} decorativo />
+                  Verificando…
+                </p>
               ) : estado.configurada ? (
                 <p className="mt-2 flex items-center gap-2 text-sm font-semibold text-sage">
                   <CheckCircle2 size={18} aria-hidden />

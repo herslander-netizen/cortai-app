@@ -85,7 +85,8 @@ export const Route = createFileRoute("/api/public/whatsapp/evolution")({
 
         if (evento === "qrcode.updated") {
           const qr = (dados["qrcode"] as Record<string, unknown>) ?? dados;
-          const base64 = (qr["base64"] as string) ?? (qr["code"] as string) ?? null;
+          // Texto do código primeiro: o Flow desenha o QR nas cores do tema (a imagem da Evolution vem azul).
+          const base64 = (qr["code"] as string) ?? (qr["base64"] as string) ?? null;
           const atualizou = await fluxo.atualizarEstadoDaConexao(sessaoId, {
             status: base64 ? "qr_ready" : "pending",
             qrCode: base64,

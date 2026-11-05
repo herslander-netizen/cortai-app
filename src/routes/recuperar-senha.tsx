@@ -123,8 +123,8 @@ function RecuperarSenhaPage() {
               {erro}
             </p>
           ) : null}
-          <Button className="h-12 w-full rounded-full font-bold" disabled={enviando}>
-            {enviando ? "Enviando…" : "Enviar instruções"}
+          <Button loading={enviando} className="h-12 w-full rounded-full font-bold" disabled={enviando}>
+            Enviar instruções
           </Button>
           <Link
             to="/login"

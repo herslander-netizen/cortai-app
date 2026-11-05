@@ -189,13 +189,13 @@ function RedesPage() {
                       Desconectar
                     </Button>
                   ) : (
-                    <Button
+                    <Button loading={ocupado === plataforma}
                       variant="primary"
                       className="min-h-12 flex-1 rounded-full"
                       disabled={ocupado !== null}
                       onClick={() => void conectar(plataforma)}
                     >
-                      {ocupado === plataforma ? "Conectando…" : "Conectar"}
+                      Conectar
                     </Button>
                   )}
                 </div>

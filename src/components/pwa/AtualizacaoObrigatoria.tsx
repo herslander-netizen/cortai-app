@@ -115,14 +115,14 @@ export function AtualizacaoObrigatoria() {
           </p>
         )}
         <div className="mt-5 flex flex-col gap-2">
-          <Button
+          <Button loading={ocupado}
             ref={principal}
             variant="primary"
             className="min-h-12 w-full"
             disabled={ocupado}
             onClick={() => void atualizar()}
           >
-            {ocupado ? "Atualizando…" : estado === "erro" ? "Tentar de novo" : "Atualizar agora"}
+            {estado === "erro" ? "Tentar de novo" : "Atualizar agora"}
           </Button>
           {!bloqueio && (
             <Button

@@ -783,8 +783,8 @@ function MudarPlano({
         <div />
       )}
       <div className="sm:col-span-4">
-        <Button type="submit" variant="primary" className="px-5 text-sm" disabled={acao.ocupado}>
-          {acao.estaEm("plano") ? "Atualizando…" : "Atualizar plano do negócio"}
+        <Button loading={acao.estaEm("plano")} type="submit" variant="primary" className="px-5 text-sm" disabled={acao.ocupado}>
+          Atualizar plano do negócio
         </Button>
       </div>
     </form>

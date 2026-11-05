@@ -125,7 +125,7 @@ export function RegistrarGanhoExtra({ profissionais }: { profissionais: Profissi
           </select>
         </label>
       </div>
-      <Button
+      <Button loading={salvando}
         variant="outline"
         className="mt-3 w-full"
         disabled={
@@ -136,7 +136,7 @@ export function RegistrarGanhoExtra({ profissionais }: { profissionais: Profissi
         }
         onClick={() => void salvar()}
       >
-        {salvando ? "Salvando…" : "Registrar ganho extra"}
+        Registrar ganho extra
       </Button>
     </section>
   );

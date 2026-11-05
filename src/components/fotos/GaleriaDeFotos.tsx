@@ -1,5 +1,5 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Camera, Check, ImagePlus, Loader2 } from "lucide-react";
+import { Camera, Check, ImagePlus } from "lucide-react";
 import { useRef, useState, type ChangeEvent } from "react";
 
 import { AjustadorImagem, type AjusteDeFoto } from "@/components/ui/ajustador-imagem";
@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/sheet";
 import { enviarFoto } from "@/lib/enviar-foto";
 import { listarFotosDoNegocio, type FotoDaGaleria } from "@/lib/fotos.functions";
+import { IndicadorDeCarregamento } from "@/components/ui/IndicadorDeCarregamento";
 
 export type FotoEscolhida = { path: string; url: string };
 
@@ -135,11 +136,11 @@ export function GaleriaDeFotos({
           <Button
             type="button"
             variant="outline"
-            disabled={enviando}
+            loading={enviando}
             onClick={() => doAparelho.current?.click()}
           >
-            {enviando ? <Loader2 className="animate-spin" /> : <ImagePlus />}
-            {enviando ? "Enviando…" : "Enviar do aparelho"}
+            <ImagePlus />
+            Enviar do aparelho
           </Button>
           <Button
             type="button"
@@ -176,7 +177,10 @@ export function GaleriaDeFotos({
 
         <div className="mt-4">
           {isLoading ? (
-            <p className="text-sm text-mute">Carregando suas fotos…</p>
+            <p className="flex items-center gap-3 text-sm text-mute">
+              <IndicadorDeCarregamento tamanho={24} decorativo />
+              Carregando suas fotos…
+            </p>
           ) : isError ? (
             <p className="text-sm text-mute">
               Não foi possível carregar a galeria.{" "}

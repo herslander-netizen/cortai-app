@@ -19,6 +19,7 @@ import {
   quitarFiado,
   registrarMovimentoDeCaixa,
 } from "@/lib/financeiro.functions";
+import { IndicadorDeCarregamento } from "@/components/ui/IndicadorDeCarregamento";
 
 export const Route = createFileRoute("/barbeiro/caixa")({
   beforeLoad: ({ context }) => exigirCapacidade(context.queryClient, "comanda_caixa"),
@@ -466,7 +467,10 @@ function CaixaPage() {
             </Link>
           </div>
           {fiados.isLoading ? (
-            <p className="mt-3 text-sm text-mute2">Carregando fiados…</p>
+            <p className="mt-3 flex items-center gap-3 text-sm text-mute2">
+              <IndicadorDeCarregamento tamanho={24} decorativo />
+              Carregando fiados…
+            </p>
           ) : null}
           {fiados.isError ? (
             <p className="mt-3 text-sm text-brick" role="alert">

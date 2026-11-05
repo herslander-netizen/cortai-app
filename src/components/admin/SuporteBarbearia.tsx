@@ -198,8 +198,8 @@ export function SuporteBarbearia({ tenantId }: { tenantId: string }) {
           />
         </Field>
 
-        <Button className="w-full sm:w-auto" disabled={salvando}>
-          {salvando ? "Salvando…" : "Salvar alterações"}
+        <Button loading={salvando} className="w-full sm:w-auto" disabled={salvando}>
+          Salvar alterações
         </Button>
         {status ? (
           <p className="text-xs text-sage" role="status">

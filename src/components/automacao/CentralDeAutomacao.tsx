@@ -137,10 +137,10 @@ export function CentralDeAutomacao() {
               <Button
                 variant="secondary"
                 className="min-h-12 w-full"
-                disabled={checagem.isPending}
+                loading={checagem.isPending}
                 onClick={() => checagem.mutate()}
               >
-                {checagem.isPending ? "Verificando…" : "Verificar conexão"}
+                Verificar conexão
               </Button>
             )}
           </div>

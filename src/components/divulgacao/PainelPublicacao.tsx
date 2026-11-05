@@ -95,11 +95,11 @@ export function PainelPublicacao({ gerarImagem, legenda }: { gerarImagem: () => 
           {agendar && (
             <input type="datetime-local" className="field-control" value={quando} onChange={(e) => setQuando(e.target.value)} aria-label="Data e hora da postagem" />
           )}
-          <Button variant="primary" className="min-h-12 w-full rounded-full sm:w-auto"
+          <Button loading={publicar.isPending} variant="primary" className="min-h-12 w-full rounded-full sm:w-auto"
             disabled={escolhidas.length === 0 || (agendar && !quando) || publicar.isPending}
             onClick={() => publicar.mutate()}>
             {agendar ? <CalendarClock className="size-4" /> : <Send className="size-4" />}
-            {publicar.isPending ? "Enviando…" : agendar ? "Agendar postagem" : "Publicar agora"}
+            {agendar ? "Agendar postagem" : "Publicar agora"}
           </Button>
         </>
       )}

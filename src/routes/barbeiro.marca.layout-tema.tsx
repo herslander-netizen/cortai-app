@@ -239,7 +239,7 @@ function EditorLayoutTema({
               onClick={() => void salvar()}
             >
               <Save size={18} aria-hidden />
-              {salvando ? "Salvando…" : "Salvar rascunho"}
+              Salvar rascunho
             </Button>
             <Button
               className="h-14 w-full rounded-full"

@@ -883,23 +883,23 @@ function CartaoDeConexao({ painel, tipo }: { painel: PainelDoCortai; tipo: TipoD
       <div className="mt-6 space-y-3">
         {status === "conectado" ? (
           <>
-            <Button
+            <Button loading={estado.isFetching}
               variant="outline"
               type="button"
               className="w-full text-paper disabled:opacity-50"
               disabled={acao.isPending || estado.isFetching}
               onClick={() => void estado.refetch()}
             >
-              {estado.isFetching ? "Atualizando…" : "Atualizar conexão"}
+              Atualizar conexão
             </Button>
-            <Button
+            <Button loading={acao.isPending}
               variant="outline"
               type="button"
               className="w-full text-paper disabled:opacity-50"
               disabled={acao.isPending}
               onClick={() => acao.mutate("reconectar")}
             >
-              {acao.isPending ? "Aguarde…" : "Reconectar"}
+              Reconectar
             </Button>
             <Button
               variant="outline"
@@ -936,14 +936,14 @@ function CartaoDeConexao({ painel, tipo }: { painel: PainelDoCortai; tipo: TipoD
               </Button>
             ) : null}
             {qrVisivel ? (
-              <Button
+              <Button loading={acao.isPending}
                 variant="outline"
                 type="button"
                 className="w-full text-paper disabled:opacity-50"
                 disabled={acao.isPending}
                 onClick={() => acao.mutate("qr")}
               >
-                {acao.isPending ? "Gerando…" : "Gerar novo QR Code"}
+                Gerar novo QR Code
               </Button>
             ) : null}
           </>
@@ -976,6 +976,11 @@ function CartaoDeConexao({ painel, tipo }: { painel: PainelDoCortai; tipo: TipoD
           aoFechar={() => setQrAberto(false)}
           aoGerarNovo={() => acao.mutate("qr")}
           gerando={acao.isPending}
+          tipo={tipo}
+          aoGerarCodigoPorNumero={() => {
+            void cliente.invalidateQueries({ queryKey: ["cortai-painel"] });
+            void estado.refetch();
+          }}
         />
       ) : null}
     </section>

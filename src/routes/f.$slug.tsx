@@ -204,8 +204,8 @@ function FilaPublicaPage() {
             />
           </label>
 
-          <Button type="submit" variant="primary" className="mt-6 w-full" disabled={enviando}>
-            {enviando ? "Entrando…" : "Entrar na fila"}
+          <Button type="submit" variant="primary" className="mt-6 w-full" loading={enviando}>
+            Entrar na fila
           </Button>
           <p className="mt-3 text-center text-xs text-mute2">
             Sem cadastro e sem senha. Usamos seu WhatsApp só para te chamar.

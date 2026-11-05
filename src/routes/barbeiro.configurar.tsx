@@ -396,14 +396,14 @@ function ConfigurarPage() {
             Voltar
           </Button>
         ) : null}
-        <Button
+        <Button loading={salvando}
           variant="primary"
           type="button"
           className="min-h-14 flex-1 text-sm"
           disabled={desabilitado || salvando}
           onClick={aoContinuar}
         >
-          {salvando ? "Salvando…" : rotulo}
+          {rotulo}
         </Button>
       </div>
       {pular ? (

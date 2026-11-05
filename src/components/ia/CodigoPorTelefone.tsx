@@ -23,13 +23,16 @@ function formatarRestante(segundos: number) {
 export function CodigoPorTelefone({
   tipo,
   aoGerar,
+  embutido = false,
 }: {
   tipo: TipoDeConexao;
   /** Chamado depois de um código gerado, para o cartão atualizar o estado da conexão. */
   aoGerar?: () => void;
+  /** Dentro da gaveta de conexão: já aberto, sem moldura própria e sem "Voltar para o QR Code". */
+  embutido?: boolean;
 }) {
   const gerar = useServerFn(gerarCodigoPorTelefone);
-  const [aberto, setAberto] = useState(false);
+  const [aberto, setAberto] = useState(embutido);
   const [telefone, setTelefone] = useState("");
   const [resultado, setResultado] = useState<{ codigo: string; expiraEm: string } | null>(null);
   const [restante, setRestante] = useState<number | null>(null);
@@ -91,9 +94,11 @@ export function CodigoPorTelefone({
   }
 
   return (
-    <div className="rounded-md border border-line2 p-4">
-      <p className="text-sm font-semibold text-paper">Conectar com número de telefone</p>
-      <p className="mt-1 text-xs leading-relaxed text-mute">
+    <div className={embutido ? "" : "rounded-md border border-line2 p-4"}>
+      {embutido ? null : (
+        <p className="text-sm font-semibold text-paper">Conectar com número de telefone</p>
+      )}
+      <p className={`${embutido ? "" : "mt-1 "}text-xs leading-relaxed text-mute`}>
         Informe o número do WhatsApp que será o do negócio. Vamos gerar um código para você digitar
         no celular.
       </p>
@@ -157,25 +162,28 @@ export function CodigoPorTelefone({
             </p>
           ) : null}
           <Button
+            loading={pedido.isPending}
             type="submit"
             className="min-h-12 w-full"
             disabled={pedido.isPending || telefone.replace(/\D/g, "").length < 10}
           >
-            {pedido.isPending ? "Gerando…" : expirado ? "Gerar novo código" : "Gerar código"}
+            {expirado ? "Gerar novo código" : "Gerar código"}
           </Button>
         </form>
       )}
 
       {mensagem ? <p className="mt-3 text-center text-sm text-brick">{mensagem}</p> : null}
 
-      <Button
-        variant="ghost"
-        type="button"
-        className="mt-3 min-h-12 w-full text-sm text-mute"
-        onClick={() => setAberto(false)}
-      >
-        Voltar para o QR Code
-      </Button>
+      {embutido ? null : (
+        <Button
+          variant="ghost"
+          type="button"
+          className="mt-3 min-h-12 w-full text-sm text-mute"
+          onClick={() => setAberto(false)}
+        >
+          Voltar para o QR Code
+        </Button>
+      )}
     </div>
   );
 }

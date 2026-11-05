@@ -470,14 +470,14 @@ function Editor({
               </Button>
             ) : null}
             <div className="grid grid-cols-2 gap-2">
-              <Button
+              <Button loading={e.busy}
                 variant="outline"
                 className="h-12"
                 disabled={e.busy}
                 onClick={() => e.executar("draft")}
               >
                 <Save />
-                {e.busy ? "Salvando…" : "Salvar rascunho"}
+                Salvar rascunho
               </Button>
               <Button className="h-12" disabled={e.busy} onClick={() => void publicar()}>
                 <Send />

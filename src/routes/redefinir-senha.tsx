@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { MarcaFlow } from "@/components/marca/MarcaFlow";
 import { supabase } from "@/integrations/supabase/client";
 import { sincronizarCorDoNavegador } from "@/lib/aparencia";
+import { IndicadorDeCarregamento } from "@/components/ui/IndicadorDeCarregamento";
 
 export const Route = createFileRoute("/redefinir-senha")({
   ssr: false,
@@ -126,7 +127,7 @@ function RedefinirSenhaPage() {
         </div>
       ) : !pronto ? (
         <div className="flex items-center justify-center gap-3 py-8 text-sm text-mute" role="status">
-          <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+          <IndicadorDeCarregamento tamanho={28} decorativo />
           Validando seu acesso…
         </div>
       ) : (

@@ -133,7 +133,7 @@ export function AlterarSenha({ emGrupo = false }: { emGrupo?: boolean }) {
             <Aviso tom="sucesso">Sua senha foi alterada. Ela já vale no próximo acesso.</Aviso>
           ) : null}
           <Button variant="primary" className="w-full" loading={salvando} disabled={salvando}>
-            {salvando ? "Salvando…" : "Salvar nova senha"}
+            Salvar nova senha
           </Button>
         </form>
       ) : null}

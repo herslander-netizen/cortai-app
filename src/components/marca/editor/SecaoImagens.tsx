@@ -1,11 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
 import { motion, useReducedMotion } from "framer-motion";
-import { Check, ImagePlus, Loader2, RefreshCw, Trash2 } from "lucide-react";
+import { Check, ImagePlus, RefreshCw, Trash2 } from "lucide-react";
 import type { ChangeEvent, RefObject } from "react";
 
 import { Button } from "@/components/ui/button";
 import { listarLogosDoNegocio } from "@/lib/marca.functions";
 import { MOLA } from "@/lib/movimento-figaro";
+import { IndicadorDeCarregamento } from "@/components/ui/IndicadorDeCarregamento";
 
 export function SecaoImagens({
   coverRef,
@@ -48,7 +49,7 @@ export function SecaoImagens({
           className="flex min-h-36 w-full flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-line2 bg-ink2 p-4 text-sm text-mute transition-colors hover:border-gold focus-visible:border-gold focus-visible:outline-none disabled:opacity-60"
         >
           {busy ? (
-            <Loader2 className="animate-spin" />
+            <IndicadorDeCarregamento tamanho={36} rotulo="Enviando a logo" />
           ) : logoPreview ? (
             <img src={logoPreview} alt="Logo selecionada" className="h-28 w-28 object-contain" />
           ) : (

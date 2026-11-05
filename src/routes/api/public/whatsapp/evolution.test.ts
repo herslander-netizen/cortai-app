@@ -100,6 +100,22 @@ describe("webhook da Evolution", () => {
     );
   });
 
+  it("QR com texto e imagem: guarda o texto, que o Flow desenha nas cores do tema", async () => {
+    const r = await chamar(
+      {
+        event: "QRCODE_UPDATED",
+        instance: "flow-bot-teste",
+        data: { qrcode: { base64: "data:imagem-azul", code: "2@codigo" } },
+      },
+      comSegredo,
+    );
+    expect(r.status).toBe(200);
+    expect(atualizar).toHaveBeenCalledWith(
+      "flow-bot-teste",
+      expect.objectContaining({ qrCode: "2@codigo" }),
+    );
+  });
+
   it("conexão aberta limpa o QR e leva a hora do evento", async () => {
     await chamar(
       {
