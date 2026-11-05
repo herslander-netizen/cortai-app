@@ -413,6 +413,29 @@ export async function sincronizarPagamento(
     { onConflict: "asaas_payment_id" },
   );
 
+  // Linha da plataforma: pagamento vencido avisa os donos uma vez por cobrança. Nunca trava a sincronização.
+  if (statusAsaas === "OVERDUE" && !pagamento.deleted) {
+    const plataforma = await import("@/lib/whatsapp/linha-da-plataforma.server");
+    const { data: negocio } = await client
+      .from("tenants")
+      .select("nome")
+      .eq("id", assinatura.tenant_id)
+      .maybeSingle();
+    const venc = typeof pagamento.dueDate === "string" ? pagamento.dueDate.split("-") : [];
+    await plataforma
+      .avisarVarios(await plataforma.donosDoNegocio(assinatura.tenant_id as string), {
+        evento: "cobranca_assinatura",
+        tenantId: assinatura.tenant_id as string,
+        chaveBase: `cobranca:${paymentId}:OVERDUE`,
+        dados: {
+          negocio: (negocio as { nome?: string } | null)?.nome ?? null,
+          vencimento: venc.length === 3 ? `${venc[2]}/${venc[1]}` : null,
+          link: (pagamento.invoiceUrl as string | undefined) ?? null,
+        },
+      })
+      .catch(() => undefined);
+  }
+
   if (pago) {
     // Troca agendada vale na renovação.
     const plano = (assinatura.plano_agendado as string | null) ?? assinatura.plano_chave;

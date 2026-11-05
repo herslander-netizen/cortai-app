@@ -2,9 +2,9 @@
  * Entrada dos avisos da Evolution API para o Flow.
  *
  * Segurança:
- * - toda instância exige `EVOLUTION_WEBHOOK_SECRET` (ou `WHATSAPP_WEBHOOK_SECRET`),
- *   conferido em tempo constante no cabeçalho `x-webhook-secret` ou `apikey` (nunca na URL); sem segredo
- *   configurado, o webhook recusa tudo (503);
+ * - toda instância envia o PRÓPRIO segredo (HMAC do `EVOLUTION_WEBHOOK_SECRET` com o nome dela,
+ *   `segredoDaInstancia`), conferido em tempo constante no cabeçalho `x-webhook-secret` ou `apikey` (nunca na URL);
+ *   o segredo do ambiente só vale para instâncias antigas até reconectarem; sem segredo configurado, recusa tudo (503);
  * - a barbearia vem SEMPRE da sessão registrada (nome da instância), nunca de
  *   um tenant_id enviado pelo chamador;
  * - mensagens enviadas pela própria barbearia (fromMe) não são respondidas; se não foram enviadas pelo Flow,
@@ -12,7 +12,7 @@
  */
 import { createFileRoute } from "@tanstack/react-router";
 
-import { autorizarWebhook } from "@/lib/whatsapp/segredo-webhook";
+import { autorizarInstancia, segredoDoCabecalho } from "@/lib/whatsapp/segredo-webhook";
 
 function textoDaMensagem(mensagem: Record<string, unknown> | undefined) {
   if (!mensagem) return { tipo: "unknown" as const, texto: "" };
@@ -42,13 +42,12 @@ export const Route = createFileRoute("/api/public/whatsapp/evolution")({
 
         // Fail-closed, antes de ler o corpo: sem segredo no ambiente → 503;
         // segredo ausente/errado → 401. Vale para todas as sessões.
-        const auth = autorizarWebhook(request.headers, segredo);
-        if (!auth.ok) {
-          if (auth.status === 503) {
-            console.error("[evolution] webhook recusado: EVOLUTION_WEBHOOK_SECRET ausente");
-            return new Response("Service unavailable", { status: 503 });
-          }
-          await guard.rejeitar(request, "whatsapp/evolution", auth.motivo);
+        if (!segredo) {
+          console.error("[evolution] webhook recusado: EVOLUTION_WEBHOOK_SECRET ausente");
+          return new Response("Service unavailable", { status: 503 });
+        }
+        if (!segredoDoCabecalho(request.headers)) {
+          await guard.rejeitar(request, "whatsapp/evolution", "sem token");
           return new Response(null, { status: 401 });
         }
 
@@ -76,6 +75,17 @@ export const Route = createFileRoute("/api/public/whatsapp/evolution")({
           .replace(/_/g, ".");
         const sessaoId = String(corpo["instance"] ?? "");
         if (!sessaoId) return new Response("Missing instance", { status: 400 });
+        // O segredo é DESTA instância: uma instância nunca fala em nome de outra.
+        const auth = autorizarInstancia(request.headers, segredo, sessaoId);
+        if (!auth.ok) {
+          await guard.rejeitar(request, "whatsapp/evolution", auth.motivo);
+          return new Response(null, { status: 401 });
+        }
+        if (auth.origem === "ambiente_legado") {
+          console.info("[evolution] webhook com segredo do ambiente (legado); reconectar migra", {
+            sessao: sessaoId.slice(0, 16),
+          });
+        }
 
         const limite = await guard.limiteAutenticado(request, "whatsapp/evolution");
         if (limite) return limite;
@@ -107,6 +117,14 @@ export const Route = createFileRoute("/api/public/whatsapp/evolution")({
           const bruto = corpo["date_time"] ?? dados["date_time"];
           const data = typeof bruto === "string" ? new Date(bruto) : null;
           const eventoEm = data && !Number.isNaN(data.getTime()) ? data.toISOString() : null;
+          // Caiu ainda abrindo (401): a tela explica que é o serviço, não o número.
+          const { erroDaQueda } = await import("@/lib/whatsapp/queda-ao-abrir");
+          const anterior = estado === "close" ? await fluxo.conexaoPorSessao(sessaoId) : null;
+          const erro = erroDaQueda({
+            estadoNovo: estado,
+            motivo: dados["statusReason"],
+            statusAnterior: anterior?.status,
+          });
           const atualizou = await fluxo.atualizarEstadoDaConexao(sessaoId, {
             origem: "webhook_evolution",
             eventoEm,
@@ -115,7 +133,7 @@ export const Route = createFileRoute("/api/public/whatsapp/evolution")({
             numero: typeof dados["number"] === "string" ? (dados["number"] as string) : null,
             nomeExibicao:
               typeof dados["profileName"] === "string" ? (dados["profileName"] as string) : null,
-            erro: null,
+            erro,
           });
           return atualizou
             ? Response.json({ ok: true })

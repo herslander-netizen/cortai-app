@@ -382,6 +382,19 @@ async function sessaoDoTenant(tenantId: string, tipo: TipoDeConexao) {
   return criada;
 }
 
+const SERVICO_INSTAVEL =
+  "O serviço de WhatsApp está instável agora — não é o seu número. Tente de novo em alguns minutos.";
+
+/** O serviço de WhatsApp responde? Usado antes de entregar QR ou código (dono, 05/11/2026). */
+async function servicoResponde(gateway: { saude: () => Promise<void> }) {
+  try {
+    await gateway.saude();
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 /** Pede a conexão ao serviço de WhatsApp e devolve o estado real da sessão. */
 export const conectarWhatsapp = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -401,6 +414,9 @@ export const conectarWhatsapp = createServerFn({ method: "POST" })
             "O serviço de WhatsApp ainda não está configurado nesta instalação. Fale com o suporte do Flow para liberar.",
         };
       }
+      // Serviço fora do ar: avisa sem entregar QR (escanear não adiantaria e parece erro do número).
+      if (!(await servicoResponde(gatewayDeWhatsapp)))
+        return { status: "desconectado", aviso: SERVICO_INSTAVEL };
       const sessao = await sessaoDoTenant(tenantId, tipo);
       const db = await admin();
       try {
@@ -452,6 +468,8 @@ export const atualizarQrCode = createServerFn({ method: "POST" })
         await import("@/lib/whatsapp/gateway.server");
       if (!gatewayConfigurado())
         return { conexao: null, aviso: "Serviço de WhatsApp não configurado." };
+      if (!(await servicoResponde(gatewayDeWhatsapp)))
+        return { conexao: null, aviso: SERVICO_INSTAVEL };
       const sessao = await sessaoDoTenant(tenantId, tipo);
       const db = await admin();
       try {
@@ -520,6 +538,8 @@ export const gerarCodigoPorTelefone = createServerFn({ method: "POST" })
           expiraEm: null,
           aviso: "Neste serviço a conexão é só pelo QR Code.",
         };
+      if (!(await servicoResponde(gatewayDeWhatsapp)))
+        return { codigo: null, expiraEm: null, aviso: SERVICO_INSTAVEL };
       const sessao = await sessaoDoTenant(tenantId, tipoValido(data.tipo));
       const db = await admin();
       try {

@@ -351,6 +351,13 @@
       "when": 1793394000000,
       "tag": "0055_flow_bot",
       "breakpoints": true
+    },
+    {
+      "idx": 50,
+      "version": "7",
+      "when": 1793397600000,
+      "tag": "0056_linha_da_plataforma",
+      "breakpoints": true
     }
   ]
 }

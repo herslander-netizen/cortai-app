@@ -67,7 +67,9 @@ describe("webhook da Evolution fail-closed", () => {
     const fonte = readFileSync("src/routes/api/public/whatsapp/evolution.ts", "utf8");
     expect(fonte).not.toMatch(/instanciaDeTesteSemSegredo/);
     expect(fonte).not.toMatch(/searchParams\.get\("token"\)/);
-    expect(fonte).toMatch(/autorizarWebhook\(request\.headers, segredo\)/);
+    // Desde 05/11/2026 o segredo é conferido contra a instância do corpo (`segredoDaInstancia`).
+    expect(fonte).toMatch(/autorizarInstancia\(request\.headers, segredo, sessaoId\)/);
+    expect(fonte).toMatch(/Service unavailable", \{ status: 503 \}/);
   });
 });
 

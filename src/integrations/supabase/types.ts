@@ -2106,6 +2106,39 @@ export type Database = {
         }
         Relationships: []
       }
+      envios_da_plataforma: {
+        Row: {
+          chave: string
+          criado_em: string
+          evento: string
+          id: string
+          motivo: string | null
+          status: string
+          tenant_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          chave: string
+          criado_em?: string
+          evento: string
+          id?: string
+          motivo?: string | null
+          status?: string
+          tenant_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          chave?: string
+          criado_em?: string
+          evento?: string
+          id?: string
+          motivo?: string | null
+          status?: string
+          tenant_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       envios_de_whatsapp: {
         Row: {
           acoes: string[]
@@ -4589,6 +4622,7 @@ export type Database = {
       telefones_da_equipe: {
         Row: {
           atualizado_em: string
+          avisos_da_plataforma: boolean
           codigo_expira_em: string | null
           codigo_hash: string | null
           criado_em: string
@@ -4599,6 +4633,7 @@ export type Database = {
         }
         Insert: {
           atualizado_em?: string
+          avisos_da_plataforma?: boolean
           codigo_expira_em?: string | null
           codigo_hash?: string | null
           criado_em?: string
@@ -4609,6 +4644,7 @@ export type Database = {
         }
         Update: {
           atualizado_em?: string
+          avisos_da_plataforma?: boolean
           codigo_expira_em?: string | null
           codigo_hash?: string | null
           criado_em?: string

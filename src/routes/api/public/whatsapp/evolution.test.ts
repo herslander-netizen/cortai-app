@@ -22,9 +22,11 @@ vi.mock("@/lib/webhook-guard.server", () => ({
   rejeitar,
   limiteAutenticado: async () => null,
 }));
+const conexaoPorSessao = vi.fn(async (): Promise<{ status: string } | null> => null);
 vi.mock("@/lib/whatsapp/fluxo.server", () => ({
   atualizarEstadoDaConexao: atualizar,
   processarMensagemRecebida: processar,
+  conexaoPorSessao,
 }));
 vi.mock("@/lib/flow-bot/humano.server", () => ({
   registrarRespostaDoNegocio: respostaDoNegocio,
@@ -78,6 +80,41 @@ describe("webhook da Evolution", () => {
       { apikey: "segredo-de-teste" },
     );
     expect(r.status).toBe(200);
+  });
+
+  it("segredo da própria instância é aceito; o de outra instância, recusado", async () => {
+    const { segredoDaInstancia } = await import("@/lib/whatsapp/segredo-webhook");
+    const corpo = {
+      event: "CONNECTION_UPDATE",
+      instance: "flow-bot-teste",
+      data: { state: "close" },
+    };
+    const proprio = {
+      "x-webhook-secret": segredoDaInstancia("segredo-de-teste", "flow-bot-teste"),
+    };
+    expect((await chamar(corpo, proprio)).status).toBe(200);
+    const deOutra = { "x-webhook-secret": segredoDaInstancia("segredo-de-teste", "cortai_outra") };
+    expect((await chamar(corpo, deOutra)).status).toBe(401);
+  });
+
+  it("caiu com 401 enquanto o QR estava na tela: grava que pode ser o serviço, não o número", async () => {
+    conexaoPorSessao.mockResolvedValueOnce({ status: "qr_pronto" });
+    const r = await chamar(
+      {
+        event: "CONNECTION_UPDATE",
+        instance: "flow-bot-teste",
+        data: { state: "close", statusReason: 401 },
+      },
+      comSegredo,
+    );
+    expect(r.status).toBe(200);
+    expect(atualizar).toHaveBeenLastCalledWith(
+      "flow-bot-teste",
+      expect.objectContaining({
+        status: "close",
+        erro: expect.stringContaining("não é o seu número"),
+      }),
+    );
   });
 
   it("sem instância: 400", async () => {

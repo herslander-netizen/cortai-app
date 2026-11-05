@@ -228,7 +228,10 @@ export function webhookDaEvolution(url: string, segredo: string | null) {
 function criarEvolution(cfg: Config | null) {
   const evolution = {
     async criarSessao(sessaoId: string, webhookUrl: string): Promise<EstadoDaSessao> {
-      const segredo = segredoDoWebhookDeWhatsapp();
+      // Cada instância com o próprio segredo (derivado); o do ambiente nunca vai para a Evolution.
+      const doAmbiente = segredoDoWebhookDeWhatsapp();
+      const { segredoDaInstancia } = await import("./segredo-webhook");
+      const segredo = doAmbiente ? segredoDaInstancia(doAmbiente, sessaoId) : null;
       try {
         const criado = await chamar<Record<string, unknown>>(cfg, "/instance/create", "POST", {
           instanceName: sessaoId,
@@ -587,6 +590,11 @@ export function gatewayDoProvedor(preferido?: string | null) {
      * para mensagens iniciadas pelo negócio. Demais: opções numeradas, sem janela.
      */
     capacidades: () => ({ botoes: oficial(), exigeTemplateForaDaJanela: oficial() }),
+    /** Antes de mostrar QR ou código: o serviço responde? (Evolution: raiz da API). Lança se não. */
+    saude: async () => {
+      const c = config();
+      if (c?.provedor === "evolution") await chamar(c, "/", "GET");
+    },
     /** Só na Evolution (conexão por QR); nos demais provedores não faz nada. */
     digitando: async (sessaoId: string, telefone: string, ms: number) => {
       const c = config();

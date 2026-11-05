@@ -112,6 +112,16 @@ async function alertaDaPlataforma(
           tenant_id: linha.tenant_id as string,
           detalhes: { sessao: linha.sessao_id, classe: classe ?? "desconhecido" } as never,
         });
+      // Linha da plataforma: um alerta por hora aos admins quando o serviço do WhatsApp cai (não por negócio).
+      const plataforma = await import("./linha-da-plataforma.server");
+      const { horaDaChave } = await import("./linha-da-plataforma");
+      await plataforma.avisarVarios(await plataforma.adminsDaPlataforma(), {
+        evento: "alerta_admin",
+        chaveBase: `evolution:${horaDaChave()}`,
+        dados: {
+          detalhe: "o serviço de WhatsApp (Evolution) não está respondendo para os negócios.",
+        },
+      });
     } else {
       await db
         .from("alertas_da_plataforma")

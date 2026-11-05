@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { MessageCircle } from "lucide-react";
 
 import { Screen } from "@/components/layout/Screen";
+import { AvisosDaPlataforma } from "@/components/notificacoes/AvisosDaPlataforma";
 import { PreferenciasDeAvisos } from "@/components/notificacoes/PreferenciasDeAvisos";
 import {
   GrupoDeLinhas,
@@ -36,6 +37,7 @@ function NotificacoesPage() {
     >
       <div className="space-y-4 pb-8 pt-2">
         <PreferenciasDeAvisos />
+        <AvisosDaPlataforma />
         <SecaoDeConfiguracao titulo="Avisos para clientes">
           <GrupoDeLinhas>
             <LinhaDeConfiguracao

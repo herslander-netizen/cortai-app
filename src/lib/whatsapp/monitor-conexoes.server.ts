@@ -82,6 +82,26 @@ async function avisarDono(linha: Linha, tipo: "queda" | "qr") {
     versao: `${tipo}-${linha.conectado_em ?? "nunca"}`,
     alvos: [{ destinatario: "gestor" }],
   });
+  // Linha da plataforma (dono, 05/11): o número do negócio caiu, então o aviso ao dono sai pelo WhatsApp do Flow.
+  const plataforma = await import("./linha-da-plataforma.server");
+  const { data: negocio } = await (
+    await import("@/integrations/supabase/client.server")
+  ).supabaseAdmin
+    .from("tenants")
+    .select("nome")
+    .eq("id", linha.tenant_id as string)
+    .maybeSingle();
+  await plataforma
+    .avisarVarios(await plataforma.donosDoNegocio(linha.tenant_id as string), {
+      evento: "whatsapp_do_negocio_caiu",
+      tenantId: linha.tenant_id,
+      chaveBase: `queda:${linha.id}:${tipo}-${linha.conectado_em ?? "nunca"}`,
+      dados: {
+        negocio: (negocio as { nome?: string } | null)?.nome ?? null,
+        detalhe: tipo === "qr" ? "qr" : "caiu",
+      },
+    })
+    .catch(() => undefined);
 }
 
 async function verificarUma(linha: Linha, agora: Date) {

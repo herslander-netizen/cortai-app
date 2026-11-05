@@ -24,14 +24,19 @@ export function CodigoPorTelefone({
   tipo,
   aoGerar,
   embutido = false,
+  gerarCodigo,
 }: {
   tipo: TipoDeConexao;
   /** Chamado depois de um código gerado, para o cartão atualizar o estado da conexão. */
   aoGerar?: () => void;
   /** Dentro da gaveta de conexão: já aberto, sem moldura própria e sem "Voltar para o QR Code". */
   embutido?: boolean;
+  /** Outra conexão (ex.: linha da plataforma, no ADM): quem gera o código. Padrão: a conexão do negócio. */
+  gerarCodigo?: (
+    telefone: string,
+  ) => Promise<{ codigo: string | null; expiraEm: string | null; aviso: string | null }>;
 }) {
-  const gerar = useServerFn(gerarCodigoPorTelefone);
+  const gerarDoNegocio = useServerFn(gerarCodigoPorTelefone);
   const [aberto, setAberto] = useState(embutido);
   const [telefone, setTelefone] = useState("");
   const [resultado, setResultado] = useState<{ codigo: string; expiraEm: string } | null>(null);
@@ -39,7 +44,8 @@ export function CodigoPorTelefone({
   const [mensagem, setMensagem] = useState<string | null>(null);
 
   const pedido = useMutation({
-    mutationFn: () => gerar({ data: { tipo, telefone } }),
+    mutationFn: () =>
+      gerarCodigo ? gerarCodigo(telefone) : gerarDoNegocio({ data: { tipo, telefone } }),
     onSuccess: (r) => {
       if (r.codigo && r.expiraEm) {
         setResultado({ codigo: r.codigo, expiraEm: r.expiraEm });

@@ -5,7 +5,7 @@ name: Diagnóstico Evolution (prévia)
 #   e testa o endpoint de webhook da prévia: sem segredo (espera 401) e com segredo para uma sessão inexistente
 #   (espera 404, nada é gravado).
 # - configurar-webhook: aplica na instância pedida o mesmo webhook que o app aplica ao conectar
-#   (`webhookDaEvolution`: URL da prévia, segredo no cabeçalho, QRCODE_UPDATED/CONNECTION_UPDATE/MESSAGES_UPSERT).
+#   (`webhookDaEvolution`: URL da prévia, segredo DA INSTÂNCIA no cabeçalho, QRCODE_UPDATED/CONNECTION_UPDATE/MESSAGES_UPSERT).
 # Nunca cria, conecta, desconecta ou apaga instância e nunca envia mensagem.
 on:
   push:
@@ -70,8 +70,10 @@ jobs:
           echo "connectionState: $(curl -sS -m 15 -H "apikey: $EVO_KEY" "$base/instance/connectionState/$INSTANCIA" | jq -c '.instance // .')"
           curl -sS -m 15 -H "apikey: $EVO_KEY" "$base/webhook/find/$INSTANCIA" > webhook.json || true
           echo "Webhook atual:"
-          jq -c --arg s "$WEBHOOK_SECRET" '{enabled, url, events, webhookByEvents, webhookBase64,
-            cabecalhos: ((.headers // {}) | keys), segredo_confere: ((.headers // {})["x-webhook-secret"] == $s)}' webhook.json 2>/dev/null \
+          proprio="$(printf '%s' "evolution-webhook:$INSTANCIA" | openssl dgst -sha256 -hmac "$WEBHOOK_SECRET" | awk '{print $NF}')"
+          jq -c --arg s "$proprio" --arg g "$WEBHOOK_SECRET" '{enabled, url, events, webhookByEvents, webhookBase64,
+            cabecalhos: ((.headers // {}) | keys),
+            segredo: (((.headers // {})["x-webhook-secret"]) as $h | if $h == $s then "da_instancia" elif $h == $g then "do_ambiente_legado" else "nao_confere" end)}' webhook.json 2>/dev/null \
             || echo "(sem webhook configurado)"
 
       - name: Configurar webhook (só com acao=configurar-webhook)
@@ -79,7 +81,9 @@ jobs:
         run: |
           set -euo pipefail
           base="${EVO_URL%/}"
-          corpo="$(jq -nc --arg url "$PREVIA/api/public/whatsapp/evolution" --arg s "$WEBHOOK_SECRET" \
+          # Segredo DA INSTÂNCIA (HMAC do segredo do ambiente com o nome dela), igual a `segredoDaInstancia`.
+          proprio="$(printf '%s' "evolution-webhook:$INSTANCIA" | openssl dgst -sha256 -hmac "$WEBHOOK_SECRET" | awk '{print $NF}')"
+          corpo="$(jq -nc --arg url "$PREVIA/api/public/whatsapp/evolution" --arg s "$proprio" \
             '{webhook: {enabled: true, url: $url, byEvents: false, base64: true,
               headers: {"x-webhook-secret": $s},
               events: ["QRCODE_UPDATED","CONNECTION_UPDATE","MESSAGES_UPSERT"]}}')"
@@ -89,7 +93,7 @@ jobs:
           jq -c '{enabled, url, events}' resposta.json || true
           [ "$codigo" = "200" ] || [ "$codigo" = "201" ]
           curl -sS -m 15 -H "apikey: $EVO_KEY" "$base/webhook/find/$INSTANCIA" \
-            | jq -c --arg s "$WEBHOOK_SECRET" '{enabled, url, events, segredo_confere: ((.headers // {})["x-webhook-secret"] == $s)}'
+            | jq -c --arg s "$proprio" '{enabled, url, events, segredo_da_instancia: ((.headers // {})["x-webhook-secret"] == $s)}'
 
       - name: Webhook do Flow na prévia
         run: |
@@ -107,6 +111,7 @@ jobs:
           if [ -n "$real" ]; then
             corpo="$(jq -nc --arg i "$INSTANCIA" --arg s "$real" --arg d "$(date -u +%Y-%m-%dT%H:%M:%S.000Z)" \
               '{event: "connection.update", instance: $i, date_time: $d, data: {state: $s}}')"
-            r="$(curl -s -w ' HTTP %{http_code}' -m 20 -X POST -H 'content-type: application/json' -H "x-webhook-secret: $WEBHOOK_SECRET" --data "$corpo" "$alvo")"
-            echo "Sessão '$INSTANCIA' com o estado real '$real' (espera 200): $r"
+            proprio="$(printf '%s' "evolution-webhook:$INSTANCIA" | openssl dgst -sha256 -hmac "$WEBHOOK_SECRET" | awk '{print $NF}')"
+            r="$(curl -s -w ' HTTP %{http_code}' -m 20 -X POST -H 'content-type: application/json' -H "x-webhook-secret: $proprio" --data "$corpo" "$alvo")"
+            echo "Sessão '$INSTANCIA' com o estado real '$real' e o segredo da instância (espera 200): $r"
           fi

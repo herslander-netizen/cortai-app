@@ -551,9 +551,15 @@ export async function processarMensagemRecebida(input: {
       return { tratada: true, motivo: doCliente ? "verificacao_cliente" : "verificacao_equipe" };
     }
   }
-  // Central de Notificações da plataforma: sem negócio próprio; o negócio vem do
-  // aviso enviado ao telefone (mesma regra do número compartilhado). Nunca conversa com IA.
-  const ehCentral = conexao.escopo === "central" || !conexao.tenant_id;
+  // Linha da plataforma (dono, 05/11/2026): só avisa donos e admins, nunca conversa e nunca entra em conversa de
+  // negócio. A confirmação de telefone ("CODIGO 123456") já foi tratada acima; o resto recebe uma orientação por dia.
+  if (conexao.escopo === "central") {
+    const { orientarNaLinhaDaPlataforma } = await import("./linha-da-plataforma.server");
+    await orientarNaLinhaDaPlataforma(conexao, telefone).catch(() => undefined);
+    return { tratada: true, motivo: "linha_da_plataforma" };
+  }
+  // Conexão sem negócio que não é a central não existe (restrição do banco); mantida por segurança.
+  const ehCentral = !conexao.tenant_id;
   let tenantId: string = conexao.tenant_id ?? "";
   if (ehCentral) {
     const r = await negocioDoNumeroCompartilhado(

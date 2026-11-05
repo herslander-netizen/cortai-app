@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { IndicadorDeCarregamento } from "@/components/ui/IndicadorDeCarregamento";
 import { AcaoDaFolha, CartaoDaFolha, FolhaPadrao } from "@/components/ui/folha-padrao";
 import { OpcoesConectadas } from "@/components/ui/opcoes-conectadas";
+import { useMediaQuery } from "@/hooks/use-mobile";
 import { aviso } from "@/lib/avisos";
 import type { TipoDeConexao } from "@/lib/whatsapp/finalidade-conexao";
 import { imagemDoQr } from "./qr-compartilhar";
@@ -44,6 +45,7 @@ export function FolhaQrWhatsapp({
   gerando,
   tipo,
   aoGerarCodigoPorNumero,
+  gerarCodigo,
 }: {
   valor: string;
   restante: number | null;
@@ -52,8 +54,16 @@ export function FolhaQrWhatsapp({
   gerando: boolean;
   tipo: TipoDeConexao;
   aoGerarCodigoPorNumero: () => void;
+  /** Linha da plataforma (ADM): gera o código pela função dela, não pela do negócio. */
+  gerarCodigo?: (
+    telefone: string,
+  ) => Promise<{ codigo: string | null; expiraEm: string | null; aviso: string | null }>;
 }) {
-  const [modo, setModo] = useState<Modo>("qr");
+  // No celular o painel costuma estar no mesmo aparelho do WhatsApp, que não escaneia a própria tela: abre em
+  // "Número". No computador, "QR Code" (dono, 05/11/2026). A escolha da pessoa sempre vence.
+  const celular = useMediaQuery("(pointer: coarse) and (max-width: 767px)");
+  const [escolhido, setModo] = useState<Modo | null>(null);
+  const modo: Modo = escolhido ?? (celular ? "numero" : "qr");
   const [compartilhando, setCompartilhando] = useState(false);
   const expirado = restante !== null && restante <= 0;
   const acabando = restante !== null && restante > 0 && restante <= 15;
@@ -148,7 +158,12 @@ export function FolhaQrWhatsapp({
 
       {modo === "numero" ? (
         <CartaoDaFolha className="mt-3 p-4">
-          <CodigoPorTelefone tipo={tipo} aoGerar={aoGerarCodigoPorNumero} embutido />
+          <CodigoPorTelefone
+            tipo={tipo}
+            aoGerar={aoGerarCodigoPorNumero}
+            embutido
+            {...(gerarCodigo ? { gerarCodigo } : {})}
+          />
         </CartaoDaFolha>
       ) : (
         <>

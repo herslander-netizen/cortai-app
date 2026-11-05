@@ -16,6 +16,7 @@ import {
   operarWhatsappDoNegocio,
   type WhatsappDoNegocio,
 } from "@/lib/whatsapp-central.functions";
+import { LinhaDaPlataformaCartao } from "@/components/admin/LinhaDaPlataformaCartao";
 
 export const Route = createFileRoute("/admin/whatsapp")({
   ssr: false,
@@ -60,8 +61,10 @@ function AdminWhatsappPage() {
   return (
     <AdminScreen
       title="WhatsApp"
-      subtitle="Uma conexão por estabelecimento. Notificações saem pelo número da própria empresa."
+      subtitle="A linha da plataforma e uma conexão por estabelecimento. Avisos de negócio saem só pelo número da própria empresa."
     >
+      <LinhaDaPlataformaCartao />
+      <h2 className="mb-2 px-1 text-sm font-semibold text-mute">Estabelecimentos</h2>
       {negocios.isLoading ? <Carregando /> : null}
       {negocios.isError ? (
         <Aviso tom="acao">

@@ -12,7 +12,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import type { Database } from "@/integrations/supabase/types";
 
 /** URL de callback exclusiva do ambiente atual; falha fechada sem configuração. */
-function urlDeEventos(provedor: "evolution" | "meta"): string {
+export function urlDeEventos(provedor: "evolution" | "meta"): string {
   const base = process.env["CORTAI_PUBLIC_BASE_URL"]?.trim().replace(/\/$/, "");
   if (!base) throw new Error("Configure CORTAI_PUBLIC_BASE_URL antes de conectar o WhatsApp.");
   let parsed: URL;
