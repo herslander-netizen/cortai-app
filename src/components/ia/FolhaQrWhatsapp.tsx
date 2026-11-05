@@ -30,10 +30,9 @@ function formatarRestante(segundos: number) {
 type Modo = "qr" | "numero";
 
 /**
- * Gaveta de conexão do WhatsApp, no modelo padrão (`FolhaPadrao`). Duas formas, lado a lado:
- * - QR Code: código grande em fundo claro, tempo em barra, passos numerados, "Gerar novo código" (vira a principal
- *   quando vence) e "Compartilhar" (manda a imagem para outro aparelho mostrar o código — o celular do negócio não
- *   consegue escanear a própria tela);
+ * Gaveta de conexão do WhatsApp, no modelo padrão (`FolhaPadrao`). Toda a informação de conexão fica aqui:
+ * - QR Code: código grande, tempo, passos e "Compartilhar" (manda a imagem para outro aparelho, já que o celular do
+ *   negócio não escaneia a própria tela); enquanto o código não chega, mostra que está sendo gerado;
  * - Número de telefone: código de 8 caracteres para digitar no celular do negócio (`CodigoPorTelefone`).
  * Fecha sozinha quando o WhatsApp conecta (quem abre acompanha o estado).
  */
@@ -47,7 +46,7 @@ export function FolhaQrWhatsapp({
   aoGerarCodigoPorNumero,
   gerarCodigo,
 }: {
-  valor: string;
+  valor: string | null;
   restante: number | null;
   aoFechar: () => void;
   aoGerarNovo: () => void;
@@ -70,6 +69,7 @@ export function FolhaQrWhatsapp({
   const fracao = restante === null ? 1 : Math.max(0, Math.min(1, restante / VALIDADE_DO_QR_S));
 
   async function compartilhar() {
+    if (!valor) return;
     setCompartilhando(true);
     try {
       const imagem = await imagemDoQr(valor);
@@ -112,13 +112,13 @@ export function FolhaQrWhatsapp({
           ) : (
             <>
               <IndicadorDeCarregamento tamanho={16} decorativo />
-              {modo === "qr" ? "Aguardando leitura" : "Aguardando conexão"} · fecha ao conectar
+              Aguardando conexão · fecha ao conectar
             </>
           )}
         </p>
       }
       rodape={
-        modo === "qr" ? (
+        modo === "qr" && valor ? (
           <>
             {expirado ? null : (
               <Button
@@ -161,33 +161,39 @@ export function FolhaQrWhatsapp({
           <CodigoPorTelefone
             tipo={tipo}
             aoGerar={aoGerarCodigoPorNumero}
-            embutido
             {...(gerarCodigo ? { gerarCodigo } : {})}
           />
         </CartaoDaFolha>
       ) : (
         <>
           <CartaoDaFolha className="mt-3 flex flex-col items-center gap-3 px-5 py-4">
-            <div className="relative rounded-[20px] bg-qr-light p-1 ring-1 ring-line">
-              <div
-                className={`transition-opacity duration-200 [@media(max-height:900px)]:[&_img]:size-52 max-[380px]:[&_img]:size-48 ${expirado ? "opacity-15" : "opacity-100"}`}
-                aria-hidden={expirado}
-              >
-                <QrCodeReal
-                  valor={valor}
-                  alt="QR Code para conectar o WhatsApp do negócio"
-                  corDosModulos="--qr-modulo"
-                  repintarImagem
-                />
-              </div>
-              {expirado ? (
-                <div className="absolute inset-0 grid place-items-center px-6 text-center">
-                  <p className="rounded-full bg-qr-light px-3 py-1 text-sm font-semibold text-[var(--qr-modulo)]">
-                    Código vencido
-                  </p>
+            {valor ? (
+              <div className="relative rounded-[20px] bg-qr-light p-1 ring-1 ring-line">
+                <div
+                  className={`transition-opacity duration-200 [@media(max-height:900px)]:[&_img]:size-52 max-[380px]:[&_img]:size-48 ${expirado ? "opacity-15" : "opacity-100"}`}
+                  aria-hidden={expirado}
+                >
+                  <QrCodeReal
+                    valor={valor}
+                    alt="QR Code para conectar o WhatsApp do negócio"
+                    corDosModulos="--qr-modulo"
+                    repintarImagem
+                  />
                 </div>
-              ) : null}
-            </div>
+                {expirado ? (
+                  <div className="absolute inset-0 grid place-items-center px-6 text-center">
+                    <p className="rounded-full bg-qr-light px-3 py-1 text-sm font-semibold text-[var(--qr-modulo)]">
+                      Código vencido
+                    </p>
+                  </div>
+                ) : null}
+              </div>
+            ) : (
+              <p className="flex items-center gap-2 py-16 text-sm text-mute">
+                <IndicadorDeCarregamento tamanho={16} decorativo />
+                Gerando QR Code…
+              </p>
+            )}
 
             {restante !== null ? (
               <div className="w-full max-w-[248px]" role="timer" aria-live="off">

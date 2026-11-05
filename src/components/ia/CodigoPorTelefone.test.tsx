@@ -54,7 +54,6 @@ describe("CodigoPorTelefone", () => {
     });
     const aoGerar = vi.fn();
     const alvo = await montar(aoGerar);
-    await act(async () => alvo.querySelector<HTMLButtonElement>("button")!.click());
     const campo = alvo.querySelector<HTMLInputElement>("input[type=tel]")!;
     const botao = () => alvo.querySelector<HTMLButtonElement>("button[type=submit]")!;
     expect(botao().disabled).toBe(true);
@@ -71,7 +70,6 @@ describe("CodigoPorTelefone", () => {
   it("mostra o aviso do servidor quando não há código", async () => {
     gerar.mockResolvedValue({ codigo: null, expiraEm: null, aviso: "Confira o número." });
     const alvo = await montar();
-    await act(async () => alvo.querySelector<HTMLButtonElement>("button")!.click());
     await digitar(alvo.querySelector<HTMLInputElement>("input[type=tel]")!, "11999998888");
     await act(async () => alvo.querySelector<HTMLButtonElement>("button[type=submit]")!.click());
     expect(alvo.textContent).toContain("Confira o número.");

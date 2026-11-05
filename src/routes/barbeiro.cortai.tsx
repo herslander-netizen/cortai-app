@@ -1,4 +1,3 @@
-import { IndicadorDeCarregamento } from "@/components/ui/IndicadorDeCarregamento";
 import { exigirCapacidade } from "@/lib/guarda-capacidade";
 import { useConfirmar } from "@/components/ui/useConfirmar";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
@@ -11,7 +10,6 @@ import { Screen } from "@/components/layout/Screen";
 import { EsqueletoPainel } from "@/components/layout/Esqueleto";
 import { CentralDeAutomacao } from "@/components/automacao/CentralDeAutomacao";
 import { AvisosDaMeta } from "@/components/whatsapp/HistoricoDeEnvios";
-import { CodigoPorTelefone } from "@/components/ia/CodigoPorTelefone";
 import { FolhaQrWhatsapp } from "@/components/ia/FolhaQrWhatsapp";
 import { Aviso } from "@/components/ui/aviso";
 import { Button } from "@/components/ui/button";
@@ -239,9 +237,11 @@ function CartaoDeConexao({ painel, tipo }: { painel: PainelDoCortai; tipo: TipoD
       if (qual === "reconectar") return reconectar({ data: { tipo } });
       return desconectar({ data: { tipo } });
     },
-    onSuccess: (r: unknown) => {
+    onSuccess: (r: unknown, qual) => {
       setDesde(Date.now());
-      setAviso((r as { aviso?: string | null })?.aviso ?? null);
+      const avisoDaAcao = (r as { aviso?: string | null })?.aviso ?? null;
+      setAviso(avisoDaAcao);
+      if (qual === "conectar" && !avisoDaAcao) setQrAberto(true);
       void cliente.invalidateQueries({ queryKey: ["cortai-painel"] });
       void cliente.invalidateQueries({ queryKey: ["cortai-conexao", tipo] });
     },
@@ -454,18 +454,7 @@ function CartaoDeConexao({ painel, tipo }: { painel: PainelDoCortai; tipo: TipoD
         </dl>
       ) : null}
 
-      {conectando && !qrVisivel ? (
-        <div className="mt-5 flex items-center gap-3 rounded-[12px] bg-[var(--figaro-surface-container-high,var(--ink3))] px-4 py-3">
-          <IndicadorDeCarregamento tamanho={20} decorativo />
-          <p className="text-xs text-mute">
-            {status === "conectando" || qrExpirado
-              ? "Conectando seu WhatsApp…"
-              : "Preparando conexão…"}
-          </p>
-        </div>
-      ) : null}
-
-      {qrVisivel && conexao?.qrCode && !qrAberto ? (
+      {(conectando || qrPronto) && !qrAberto && status !== "conectado" ? (
         <Button
           variant="outline"
           size="lg"
@@ -473,18 +462,8 @@ function CartaoDeConexao({ painel, tipo }: { painel: PainelDoCortai; tipo: TipoD
           className="mt-5 w-full"
           onClick={() => setQrAberto(true)}
         >
-          Mostrar QR Code
+          Abrir conexão
         </Button>
-      ) : null}
-
-      {qrVisivel && restante !== null ? (
-        <p
-          className={`mt-3 text-center text-xs font-medium ${restante <= 15 ? "text-brick" : "text-mute2"}`}
-          role="timer"
-          aria-live="polite"
-        >
-          Este código expira em {formatarRestante(restante)}.
-        </p>
       ) : null}
 
       <div className="mt-6 space-y-3">
@@ -544,29 +523,8 @@ function CartaoDeConexao({ painel, tipo }: { painel: PainelDoCortai; tipo: TipoD
                 {rotuloPrincipal}
               </Button>
             ) : null}
-            {qrVisivel ? (
-              <Button
-                loading={acao.isPending}
-                variant="outline"
-                type="button"
-                className="w-full text-paper disabled:opacity-50"
-                disabled={acao.isPending}
-                onClick={() => acao.mutate("qr")}
-              >
-                Gerar novo QR Code
-              </Button>
-            ) : null}
           </>
         )}
-        {status !== "conectado" ? (
-          <CodigoPorTelefone
-            tipo={tipo}
-            aoGerar={() => {
-              void cliente.invalidateQueries({ queryKey: ["cortai-painel"] });
-              void estado.refetch();
-            }}
-          />
-        ) : null}
         {aviso ? <p className="text-center text-sm text-brick">{aviso}</p> : null}
         {conexao?.ultimoErro ? (
           <p className="text-center text-xs text-brick">{conexao.ultimoErro}</p>
@@ -579,9 +537,9 @@ function CartaoDeConexao({ painel, tipo }: { painel: PainelDoCortai; tipo: TipoD
       </p>
 
       {/* Aberta também depois de vencer: mostra "Código vencido" em vez de sumir da tela. */}
-      {qrAberto && conexao?.qrCode && qrPronto ? (
+      {qrAberto && status !== "conectado" ? (
         <FolhaQrWhatsapp
-          valor={conexao.qrCode}
+          valor={conexao?.qrCode ?? null}
           restante={restante}
           aoFechar={() => setQrAberto(false)}
           aoGerarNovo={() => acao.mutate("qr")}
@@ -606,14 +564,6 @@ function Linha({ rotulo, valor, alerta }: { rotulo: string; valor: ReactNode; al
       </dd>
     </div>
   );
-}
-
-/** Formata o tempo restante do QR Code: mm:ss a partir de 60 s, senão segundos. */
-function formatarRestante(segundos: number) {
-  if (segundos < 60) return `${segundos} segundo${segundos === 1 ? "" : "s"}`;
-  const min = Math.floor(segundos / 60);
-  const seg = segundos % 60;
-  return `${min}:${String(seg).padStart(2, "0")} min`;
 }
 
 function quando(valor: string | null | undefined) {

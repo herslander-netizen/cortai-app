@@ -935,6 +935,13 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+### 2026-11-05 UTC — Claude — Conexão do WhatsApp: informação só na gaveta do QR
+- Pedido do dono (vídeo 17:29): a gaveta do QR volta a aparecer e concentra toda a informação de conexão; o cartão deixa de repetir.
+- `barbeiro.cortai.tsx`: removidos o spinner duplicado, o contador repetido, "Gerar novo QR Code" e o bloco "Conectar com número de telefone" do cartão. Único acesso no cartão: "Abrir conexão". "Conectar" abre a gaveta na hora.
+- `FolhaQrWhatsapp.tsx`: mostra "Gerando QR Code…" enquanto o código não chega; Compartilhar e Gerar novo só quando há QR.
+- `CodigoPorTelefone.tsx`: sem modo fechado (era só a versão do cartão); teste ajustado.
+- Testes: tsc 0, eslint 0, vitest 293 arquivos / 2415 testes, build OK, protocolo OK. **Visual não conferido em 360/390 px** (sem sessão logada para capturar).
+
 ### 2026-11-05 UTC — Claude — Plano grátis até 50 agendamentos (estilo AgendaClick)
 - Decisão do dono (ver "Decisões do dono"). Migração `drizzle/migrations/0057_plano_gratis_ate_50.sql`: Essencial com preço 0, limite 50 e todos os recursos liberados; `pro` e `conecta` com `ativo = false`; nova `conferir_limite_agendamentos_do_mes` chamada por `criar_agendamento` (cópia da 0054 + a chamada). Limite conta agendamentos não cancelados do mês no fuso do negócio; teste ativo e plano sem limite não bloqueiam.
 - Vitrine (`src/lib/planos-comerciais.ts`): só Essencial (grátis, 50) e Studio (R$ 49,90, sem limite). `teste-gratis.test.ts` atualizado.

@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Copy, Smartphone } from "lucide-react";
+import { Copy } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -16,28 +16,23 @@ function formatarRestante(segundos: number) {
 }
 
 /**
- * Alternativa ao QR Code: o dono informa o número do WhatsApp e digita no celular o código
- * de 8 caracteres (WhatsApp → Aparelhos conectados → Conectar com número de telefone).
- * O estado da conexão segue sendo acompanhado pelo cartão de conexão.
+ * Alternativa ao QR Code, dentro da gaveta de conexão: o dono informa o número do WhatsApp e digita no celular o
+ * código de 8 caracteres (WhatsApp → Aparelhos conectados → Conectar com número de telefone).
  */
 export function CodigoPorTelefone({
   tipo,
   aoGerar,
-  embutido = false,
   gerarCodigo,
 }: {
   tipo: TipoDeConexao;
   /** Chamado depois de um código gerado, para o cartão atualizar o estado da conexão. */
   aoGerar?: () => void;
-  /** Dentro da gaveta de conexão: já aberto, sem moldura própria e sem "Voltar para o QR Code". */
-  embutido?: boolean;
   /** Outra conexão (ex.: linha da plataforma, no ADM): quem gera o código. Padrão: a conexão do negócio. */
   gerarCodigo?: (
     telefone: string,
   ) => Promise<{ codigo: string | null; expiraEm: string | null; aviso: string | null }>;
 }) {
   const gerarDoNegocio = useServerFn(gerarCodigoPorTelefone);
-  const [aberto, setAberto] = useState(embutido);
   const [telefone, setTelefone] = useState("");
   const [resultado, setResultado] = useState<{ codigo: string; expiraEm: string } | null>(null);
   const [restante, setRestante] = useState<number | null>(null);
@@ -85,26 +80,9 @@ export function CodigoPorTelefone({
     }
   }
 
-  if (!aberto) {
-    return (
-      <Button
-        variant="outline"
-        type="button"
-        className="min-h-12 w-full text-paper"
-        onClick={() => setAberto(true)}
-      >
-        <Smartphone aria-hidden />
-        Conectar com número de telefone
-      </Button>
-    );
-  }
-
   return (
-    <div className={embutido ? "" : "rounded-md border border-line2 p-4"}>
-      {embutido ? null : (
-        <p className="text-sm font-semibold text-paper">Conectar com número de telefone</p>
-      )}
-      <p className={`${embutido ? "" : "mt-1 "}text-xs leading-relaxed text-mute`}>
+    <div>
+      <p className="text-xs leading-relaxed text-mute">
         Informe o número do WhatsApp que será o do negócio. Vamos gerar um código para você digitar
         no celular.
       </p>
@@ -179,17 +157,6 @@ export function CodigoPorTelefone({
       )}
 
       {mensagem ? <p className="mt-3 text-center text-sm text-brick">{mensagem}</p> : null}
-
-      {embutido ? null : (
-        <Button
-          variant="ghost"
-          type="button"
-          className="mt-3 min-h-12 w-full text-sm text-mute"
-          onClick={() => setAberto(false)}
-        >
-          Voltar para o QR Code
-        </Button>
-      )}
     </div>
   );
 }
