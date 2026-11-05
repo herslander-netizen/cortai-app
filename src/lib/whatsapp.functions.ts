@@ -87,6 +87,8 @@ export type PainelDoCortai = {
   notificacoesPelaCentral: boolean;
   /** Existe hoje um número pronto para enviar as notificações deste negócio? */
   envioDeNotificacoesDisponivel: boolean;
+  /** WhatsApp do cadastro (página e agenda): a gaveta de conexão mostra antes de conectar. */
+  numeroDoNegocio: string | null;
 };
 
 export type EnvioDaSecretaria = {
@@ -183,7 +185,11 @@ export const getPainelDoCortai = createServerFn({ method: "GET" })
         _tenant_id: tenantId,
         _permission: "gerenciar_whatsapp",
       }),
-      db.from("tenants").select("notificacoes_whatsapp_ativas").eq("id", tenantId).maybeSingle(),
+      db
+        .from("tenants")
+        .select("notificacoes_whatsapp_ativas, whatsapp")
+        .eq("id", tenantId)
+        .maybeSingle(),
     ]);
     // Modelo de conexão única: os avisos saem pela conexão principal.
     const pelaCentral = false;
@@ -209,6 +215,7 @@ export const getPainelDoCortai = createServerFn({ method: "GET" })
       notificacoesAtivas: tenantFlags?.notificacoes_whatsapp_ativas !== false,
       notificacoesPelaCentral: pelaCentral,
       envioDeNotificacoesDisponivel: envioDisponivel,
+      numeroDoNegocio: (tenantFlags?.whatsapp as string | null) ?? null,
     };
   });
 
@@ -723,6 +730,14 @@ export const sincronizarConexao = createServerFn({ method: "POST" })
           .eq("id", atual.id)
           .select("*")
           .single();
+        if (conectou) {
+          const { alinharNumeroDoNegocio } = await import("@/lib/whatsapp/numero-do-negocio.server");
+          await alinharNumeroDoNegocio({
+            tenantId,
+            tipo,
+            numeroConectado: estado.numero ?? atual.numero,
+          });
+        }
         return { conexao: conexaoDaLinha(data), aviso: null };
       } catch (erro) {
         return {

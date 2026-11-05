@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { IndicadorDeCarregamento } from "@/components/ui/IndicadorDeCarregamento";
 import { AcaoDaFolha, CartaoDaFolha, FolhaPadrao } from "@/components/ui/folha-padrao";
 import { OpcoesConectadas } from "@/components/ui/opcoes-conectadas";
+import { mascaraTelefone } from "@/lib/previa";
 import { useMediaQuery } from "@/hooks/use-mobile";
 import { aviso } from "@/lib/avisos";
 import type { TipoDeConexao } from "@/lib/whatsapp/finalidade-conexao";
@@ -48,6 +49,7 @@ export function FolhaQrWhatsapp({
   aoGerarCodigoPorNumero,
   gerarCodigo,
   acompanharCodigo,
+  numeroCadastrado,
 }: {
   valor: string | null;
   restante: number | null;
@@ -62,6 +64,8 @@ export function FolhaQrWhatsapp({
   ) => Promise<{ codigo: string | null; expiraEm: string | null; aviso: string | null }>;
   /** Par de `gerarCodigo`: o código em vigor (a Evolution troca a cada ~45 s). */
   acompanharCodigo?: (telefone: string) => Promise<EstadoDoCodigo>;
+  /** WhatsApp do cadastro do negócio: mostrado antes de conectar, para não ligar outro número sem querer. */
+  numeroCadastrado?: string | null;
 }) {
   // No celular o painel costuma estar no mesmo aparelho do WhatsApp, que não escaneia a própria tela: abre em
   // "Número". No computador, "QR Code" (dono, 05/11/2026). A escolha da pessoa sempre vence.
@@ -168,6 +172,7 @@ export function FolhaQrWhatsapp({
             aoGerar={aoGerarCodigoPorNumero}
             {...(gerarCodigo ? { gerarCodigo } : {})}
             {...(acompanharCodigo ? { acompanharCodigo } : {})}
+            numeroCadastrado={numeroCadastrado ?? null}
           />
         </CartaoDaFolha>
       ) : (
@@ -222,6 +227,21 @@ export function FolhaQrWhatsapp({
             ) : null}
           </CartaoDaFolha>
 
+          {numeroCadastrado ? (
+            <CartaoDaFolha className="mt-3 px-4 py-3">
+              <p className="text-[14px] leading-5 text-paper">
+                Escaneie com o WhatsApp do{" "}
+                <span className="font-semibold tabular-nums">
+                  {mascaraTelefone(numeroCadastrado)}
+                </span>
+                .
+              </p>
+              <p className="mt-1 text-xs leading-relaxed text-mute">
+                Se escanear com outro número, ele passa a ser o WhatsApp de atendimento da sua
+                página e da agenda.
+              </p>
+            </CartaoDaFolha>
+          ) : null}
           <CartaoDaFolha className="mt-3">
             <ol aria-label="Como conectar">
               {PASSOS.map((passo, i) => (

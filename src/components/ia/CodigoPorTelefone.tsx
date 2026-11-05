@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { mascaraTelefone } from "@/lib/previa";
 import { aviso } from "@/lib/avisos";
 import { codigoAtualPorTelefone, gerarCodigoPorTelefone } from "@/lib/whatsapp.functions";
 import {
@@ -26,6 +27,7 @@ export function CodigoPorTelefone({
   aoGerar,
   gerarCodigo,
   acompanharCodigo,
+  numeroCadastrado,
 }: {
   tipo: TipoDeConexao;
   /** Chamado depois de um código gerado, para o cartão atualizar o estado da conexão. */
@@ -34,10 +36,17 @@ export function CodigoPorTelefone({
   gerarCodigo?: (telefone: string) => Promise<Gerado>;
   /** Par de `gerarCodigo`: quem informa o código em vigor. */
   acompanharCodigo?: (telefone: string) => Promise<EstadoDoCodigo>;
+  /** WhatsApp já no cadastro do negócio: aparece primeiro, para conectar o mesmo número sem digitar. */
+  numeroCadastrado?: string | null;
 }) {
   const gerarDoNegocio = useServerFn(gerarCodigoPorTelefone);
   const atualDoNegocio = useServerFn(codigoAtualPorTelefone);
   const [telefone, setTelefone] = useState("");
+  const [outro, setOutro] = useState(false);
+  const [emUso, setEmUso] = useState("");
+  const cadastrado =
+    numeroCadastrado && numeroCadastrado.replace(/\D/g, "").length >= 10 ? numeroCadastrado : null;
+  const usarCadastrado = cadastrado !== null && !outro;
   const [codigo, setCodigo] = useState<string | null>(null);
   const [desde, setDesde] = useState(0);
   const [agora, setAgora] = useState(() => Date.now());
@@ -46,10 +55,11 @@ export function CodigoPorTelefone({
   const [mensagem, setMensagem] = useState<string | null>(null);
 
   const pedido = useMutation({
-    mutationFn: () =>
-      gerarCodigo ? gerarCodigo(telefone) : gerarDoNegocio({ data: { tipo, telefone } }),
-    onSuccess: (r) => {
+    mutationFn: (numero: string) =>
+      gerarCodigo ? gerarCodigo(numero) : gerarDoNegocio({ data: { tipo, telefone: numero } }),
+    onSuccess: (r, numero) => {
       if (r.codigo) {
+        setEmUso(numero);
         setCodigo(r.codigo);
         setDesde(Date.now());
         setTrocou(false);
@@ -66,9 +76,11 @@ export function CodigoPorTelefone({
   });
 
   const atual = useQuery({
-    queryKey: ["whatsapp-codigo-atual", tipo, telefone],
+    queryKey: ["whatsapp-codigo-atual", tipo, emUso],
     queryFn: () =>
-      acompanharCodigo ? acompanharCodigo(telefone) : atualDoNegocio({ data: { tipo, telefone } }),
+      acompanharCodigo
+        ? acompanharCodigo(emUso)
+        : atualDoNegocio({ data: { tipo, telefone: emUso } }),
     enabled: codigo !== null && !encerrado,
     refetchInterval: 4000,
     retry: false,
@@ -158,26 +170,42 @@ export function CodigoPorTelefone({
           className="space-y-3"
           onSubmit={(e) => {
             e.preventDefault();
-            pedido.mutate();
+            pedido.mutate(usarCadastrado ? cadastrado : telefone);
           }}
         >
-          <p className="text-xs leading-relaxed text-mute">
-            Informe o número do WhatsApp que será o do negócio. Vamos gerar um código para você
-            digitar no celular.
-          </p>
-          <label className="block text-xs text-mute" htmlFor={`telefone-pareamento-${tipo}`}>
-            Número do WhatsApp (com DDD)
-          </label>
-          <Input
-            id={`telefone-pareamento-${tipo}`}
-            type="tel"
-            inputMode="tel"
-            autoComplete="tel"
-            placeholder="(11) 99999-8888"
-            className="min-h-12"
-            value={telefone}
-            onChange={(e) => setTelefone(e.target.value)}
-          />
+          {usarCadastrado ? (
+            <div className="rounded-[16px] bg-[var(--figaro-surface-container-high,var(--ink3))] p-4">
+              <p className="text-xs text-mute">WhatsApp do negócio</p>
+              <p className="mt-1 text-xl font-semibold tabular-nums text-paper">
+                {mascaraTelefone(cadastrado)}
+              </p>
+              <p className="mt-1 text-xs leading-relaxed text-mute">
+                É o número da sua página e da agenda. Gere o código e digite no celular deste
+                número.
+              </p>
+            </div>
+          ) : (
+            <>
+              <p className="text-xs leading-relaxed text-mute">
+                {cadastrado
+                  ? "O número que você conectar passa a ser o WhatsApp de atendimento da sua página e da agenda."
+                  : "Informe o número do WhatsApp que será o do negócio. Vamos gerar um código para você digitar no celular."}
+              </p>
+              <label className="block text-xs text-mute" htmlFor={`telefone-pareamento-${tipo}`}>
+                Número do WhatsApp (com DDD)
+              </label>
+              <Input
+                id={`telefone-pareamento-${tipo}`}
+                type="tel"
+                inputMode="tel"
+                autoComplete="tel"
+                placeholder="(11) 99999-8888"
+                className="min-h-12"
+                value={telefone}
+                onChange={(e) => setTelefone(e.target.value)}
+              />
+            </>
+          )}
           {encerrado ? (
             <p className="text-xs text-brick">
               Esta tentativa terminou sem conectar. Gere um novo código.
@@ -187,10 +215,26 @@ export function CodigoPorTelefone({
             loading={pedido.isPending}
             type="submit"
             className="min-h-12 w-full"
-            disabled={pedido.isPending || telefone.replace(/\D/g, "").length < 10}
+            disabled={
+              pedido.isPending || (!usarCadastrado && telefone.replace(/\D/g, "").length < 10)
+            }
           >
-            {encerrado ? "Gerar novo código" : "Gerar código"}
+            {encerrado
+              ? "Gerar novo código"
+              : usarCadastrado
+                ? "Gerar código para este número"
+                : "Gerar código"}
           </Button>
+          {cadastrado ? (
+            <Button
+              type="button"
+              variant="text"
+              className="min-h-12 w-full"
+              onClick={() => setOutro((v) => !v)}
+            >
+              {usarCadastrado ? "Conectar outro número" : "Usar o número cadastrado"}
+            </Button>
+          ) : null}
         </form>
       )}
 

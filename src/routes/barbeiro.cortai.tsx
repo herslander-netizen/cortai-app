@@ -549,6 +549,7 @@ function CartaoDeConexao({ painel, tipo }: { painel: PainelDoCortai; tipo: TipoD
           aoGerarNovo={() => acao.mutate("qr")}
           gerando={acao.isPending}
           tipo={tipo}
+          numeroCadastrado={tipo === "atendimento" ? painel.numeroDoNegocio : null}
           aoGerarCodigoPorNumero={() => {
             void cliente.invalidateQueries({ queryKey: ["cortai-painel"] });
             void estado.refetch();

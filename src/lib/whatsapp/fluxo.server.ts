@@ -938,6 +938,15 @@ export async function atualizarEstadoDaConexao(
     .eq("id", conexao.id)
     .or(`ultimo_evento_em.is.null,ultimo_evento_em.lte.${eventoEm}`);
 
+  if (status === "conectado" && novo.numero) {
+    const { alinharNumeroDoNegocio } = await import("./numero-do-negocio.server");
+    await alinharNumeroDoNegocio({
+      tenantId: conexao.tenant_id,
+      tipo: conexao.tipo,
+      numeroConectado: novo.numero,
+    });
+  }
+
   if (novo.mudou) {
     logConexao("estado_mudou", {
       sessaoId,
