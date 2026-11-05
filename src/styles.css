@@ -11481,3 +11481,11 @@ html:not([data-tela-agenda]) [data-figaro-empty-state]:not(:first-child) {
   --elevacao-3: 0 1px 2px rgb(0 0 0 / 0.16), 0 2px 6px 2px rgb(0 0 0 / 0.08);
   --elevacao-6: 0 1px 3px rgb(0 0 0 / 0.16), 0 4px 8px 3px rgb(0 0 0 / 0.08);
 }
+
+/* QR no tema claro (dono, 05/11/2026): o `--qr-dark` herdava `--identity-graphite`, que no claro vira quase branco e
+   deixava todo QR ilegível. No claro os pontos são sempre escuros (`--qr-modulo`) sobre a placa branca. O escuro não muda. */
+html.light,
+:root.light,
+:root[data-identidade].light {
+  --qr-dark: var(--qr-modulo);
+}

@@ -931,6 +931,11 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+### 2026-11-05 UTC — Claude — Todos os QR do tema claro legíveis
+- Dono: "corrige os outros QR do tema claro também". `--qr-dark` herdava `--identity-graphite`, que no claro vira `#f0f7f2` (quase branco): QR do link (`/barbeiro/qr-code`), crescimento, artes de divulgação, marketing do ADM e o `QrCodeReal` padrão saíam ilegíveis. Regra no fim do `styles.css`: no claro (qualquer identidade) `--qr-dark: var(--qr-modulo)` (#121513). Escuro inalterado.
+- Conferido no navegador: `--qr-dark` = #121513 no claro para sem identidade, moderno, copper, rose, indigo e clássico; escuro mantém os valores de antes. Guarda em `estilo-figaro.test.ts`.
+- Prévia: as publicações de 14:14 e 14:33 falharam no passo "Set up Bun" (GitHub devolveu 504 ao baixar o Bun, inclusive na nova tentativa); a validação passou. Nada de código; a próxima publicação deve levar tudo junto.
+
 ### 2026-11-05 UTC — Claude — QR da conexão sempre preto
 - Dono: "o QR code atualmente tá azul, pode ser preto?". Causa: a publicação da prévia de 14:14 (execução 42043017355) falhou ao instalar o Bun (falha do GitHub, validação passou), então a correção anterior não chegou; e na prévia o QR guardado ainda era a imagem azul da Evolution.
 - Garantia independente do formato: `QrCodeReal` ganhou `repintarImagem`; quando o QR chega como imagem, `repintarQr` (`qr-compartilhar.ts`) repinta cada ponto escuro com `--qr-modulo` (preto) sobre branco antes de mostrar; o "Compartilhar" usa a mesma imagem preta. Sem canvas, mostra a imagem como veio. Só a gaveta de conexão usa.
