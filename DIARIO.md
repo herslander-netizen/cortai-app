@@ -549,8 +549,6 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Em andamento
 
-- Claude | 2026-11-05 UTC | **Integração Evolution + Flow Bot na prévia (pedido direto do dono, 05/11)**: auditar a Evolution e o webhook da prévia, vincular a sessão de teste ao negócio de demonstração no `cortai-preview`, validar o Flow Bot em sombra e a convivência com a Flow IA; sem produção, sem telefone real, sem envio | `.github/workflows/diagnostico-evolution-previa.yml`, `src/lib/flow-bot/*`, `src/routes/api/public/whatsapp/evolution.ts`, `src/lib/whatsapp/fluxo.server.ts`; banco só `cortai-preview`
-
 - GPT | 2026-11-04 UTC | **Correção 1 da Agenda — validação de arrastar/remarcar**: fazer o salvamento reutilizar `validarAgendamento` para expediente, pausas, exceções por data, serviço × profissional, folga, bloqueios/escala e conflito do cliente; manter a exceção operacional da equipe para antecedência mínima e janela pública. Sem alteração visual, dados, banco ou migração | `src/lib/agenda-regras.server.ts`, `src/lib/barbeiro.functions.ts`, `src/lib/agenda-regras.server.test.ts`; sem migração
 
 
@@ -930,6 +928,13 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+### 2026-11-05 UTC — Claude — Evolution + Flow Bot validados na prévia (sem produção, sem telefone, sem envio)
+- **Evolution (prévia):** v2.3.7 responde; chave confere (401 sem, 200 com); banco dela responde (lista de instâncias). Única instância: `flow-bot-teste`, estado `close`, sem número. Redis/Postgres do Railway não conferidos diretamente (o conector do Railway pede autorização).
+- **Quebrado e causa:** a `flow-bot-teste` foi criada direto na Evolution, fora do app. O app só grava `conexoes_whatsapp` ao conectar pelo painel (`sessaoDoTenant`, nome `cortai_…`), então o webhook respondia "Unknown session". A instância também estava **sem webhook**.
+- **Vínculo (só `cortai-preview`):** linha criada como o app cria (`tenant_id`, `sessao_id`, `status`, `tipo`, `provedor`) para o negócio de demonstração `barbearia-prime` (Bot em sombra). Webhook aplicado pelo novo workflow **Diagnóstico Evolution (prévia)** igual ao `webhookDaEvolution` (URL da prévia, segredo no cabeçalho, 3 eventos): `segredo_confere: true`. Conferência ponta a ponta com o estado real (`close`): 200 e `ultimo_evento_em` gravado. Sem segredo/errado: 401; sessão inexistente: 404.
+- **Flow Bot:** remarcar, cancelar e "Obrigado." não têm regra e caíam no menu genérico (no modo ligado iria antes da Flow IA, contra a regra 7 de 04/11). Agora o rastro grava `sem_regra`, sem resposta prevista, e a Flow IA assume (`decisao.ts` `semRegraReconhecida`, `bot.server.ts`). Os outros 5 pedidos: agendar/horário livre → link; preço/serviços → catálogo; atendente → encaminhar.
+- **Testes:** `bot.server.test.ts` (15: oito pedidos em sombra sem envio, sem pausa e com rastro; ligado; humano; duplicada; desligado) e `evolution.test.ts` (14: segredo, QR, conexão, texto, grupos, fromMe, sessão desconhecida). tsc 0, vitest 286 arquivos/2365 testes, eslint 0, build OK, protocolo OK; prévia publicada (execução 42029699625).
+- **Atenção:** em sombra a Flow IA responde de verdade (decisão de 04/11). Ao conectar um telefone na `flow-bot-teste`, a IA do negócio de demonstração responderia. Nenhuma mensagem foi enviada; nenhum evento de mensagem artificial foi mandado à prévia.
 
 ### 2026-11-04 UTC — GPT — Corrige validação de arrastar/remarcar na Agenda (correção 1)
 - `validarAgendamento` ganhou o contexto explícito `equipe`: preserva as regras públicas de antecedência/janela para clientes, mas permite à equipe reagendar próximo de agora e fora da janela pública.

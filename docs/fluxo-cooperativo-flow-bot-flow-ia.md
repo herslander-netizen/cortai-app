@@ -101,4 +101,6 @@ O Bot não interfere. A Flow IA segue o fluxo atual. Esse é o estado inicial de
 
 O fluxo atual já implementa a base deste contrato: `fluxo.server.ts` chama o Bot antes do cérebro; no modo `sombra`, o Bot registra e devolve o turno para a Flow IA; no modo `ligado`, ausência de texto útil devolve o turno à IA; e o envio do Bot usa `enviarPelaBarbearia`. A próxima validação técnica da Fase A é testar o orquestrador com banco falso nos cenários registrados no `DIARIO.md`.
 
+**Sem regra (05/11):** quando o motor só entra pela entrada genérica (`trigger.message_received`, saudação com menu), `semRegraReconhecida` marca o rastro como `sem_regra`, sem resposta prevista, e o turno vai para a Flow IA nos dois modos; o menu nunca é enviado nem fica como pergunta em aberto. Testes: `src/lib/flow-bot/bot.server.test.ts`.
+
 **Importante:** o modo sombra ainda não está ativo para os negócios por padrão. A migration 0055 permanece não aplicada, e este documento não representa ativação em WhatsApp real.
