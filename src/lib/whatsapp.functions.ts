@@ -526,7 +526,10 @@ export const gerarCodigoPorTelefone = createServerFn({ method: "POST" })
         let pareamento;
         try {
           pareamento = await gatewayDeWhatsapp.obterCodigoDePareamento(sessao.sessao_id, numero);
-        } catch {
+        } catch (primeiro) {
+          // O serviço respondeu, só não gerou o código (o gateway já tentou de novo): não recria a sessão.
+          if (primeiro instanceof Error && /não devolveu o código/.test(primeiro.message))
+            throw primeiro;
           // Sessão ainda não existe no serviço: cria e tenta de novo.
           await gatewayDeWhatsapp.criarSessao(sessao.sessao_id, urlDeEventos("evolution"));
           pareamento = await gatewayDeWhatsapp.obterCodigoDePareamento(sessao.sessao_id, numero);

@@ -187,6 +187,10 @@ function normalizarEstado(bruto: Record<string, unknown>): EstadoDaSessao {
 
 /* ---------------------------------------------------------------- Evolution */
 
+/** Pausa entre as tentativas do código por número (trocada nos testes). */
+export const pausaDoPareamento = { ms: (n: number) => new Promise<void>((r) => setTimeout(r, n)) };
+const esperarPareamento = (n: number) => pausaDoPareamento.ms(n);
+
 /** O QR da Evolution chega como texto (`code`) e imagem (`base64`) e vale poucos minutos. */
 const MINUTOS_DO_QR = 2;
 
@@ -278,12 +282,26 @@ function criarEvolution(cfg: Config | null) {
 
     /** Código de 8 caracteres para digitar no celular, no lugar de ler o QR Code. */
     async obterCodigoDePareamento(sessaoId: string, numero: string): Promise<CodigoDePareamento> {
-      const r = await chamar<Record<string, unknown>>(
-        cfg,
-        `/instance/connect/${encodeURIComponent(sessaoId)}?number=${encodeURIComponent(numero)}`,
-        "GET",
-      );
-      const codigo = codigoDePareamento(r);
+      const pedir = async () =>
+        codigoDePareamento(
+          await chamar<Record<string, unknown>>(
+            cfg,
+            `/instance/connect/${encodeURIComponent(sessaoId)}?number=${encodeURIComponent(numero)}`,
+            "GET",
+          ),
+        );
+      let codigo = await pedir();
+      if (!codigo) {
+        // A Evolution só gera o código quando a instância parte de "fechada": com o QR já rodando ("connecting")
+        // ela ignora o número e devolve `pairingCode: null`. Fecha a tentativa por QR e pede de novo com o número.
+        await chamar(cfg, `/instance/logout/${encodeURIComponent(sessaoId)}`, "DELETE").catch(
+          () => undefined,
+        );
+        for (let tentativa = 0; tentativa < 3 && !codigo; tentativa++) {
+          await esperarPareamento(tentativa === 0 ? 1500 : 2000);
+          codigo = await pedir().catch(() => null);
+        }
+      }
       if (!codigo) throw new Error("O WhatsApp não devolveu o código. Tente de novo em instantes.");
       return {
         codigo,

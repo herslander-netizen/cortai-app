@@ -931,6 +931,12 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+### 2026-11-05 UTC — Claude — Conectar com número: código não vinha
+- Dono (print): "O WhatsApp não devolveu o código" ao conectar com número na prévia. Logs da Evolution no Railway (14:45–14:50 UTC): `pairingCode: null, qrcodeCount: 8…15` — a instância `cortai_…` estava em "connecting" gerando QR, e nesse estado a Evolution ignora o `?number=` e não gera o código (só gera partindo de "fechada").
+- `gateway.server.ts` (`obterCodigoDePareamento`, Evolution): sem código na 1ª tentativa, fecha a tentativa por QR (`DELETE /instance/logout`) e pede de novo com o número, até 3 vezes (1,5 s e 2 s entre elas); sem código depois disso, erro claro. `whatsapp.functions.ts`: esse erro não dispara mais o "criar sessão e tentar de novo". Teste novo `gateway-pareamento.test.ts` (3).
+- A prévia com as mudanças de hoje publicou às 14:50 (execução 42048462144); o print do dono era da versão anterior em cache.
+- tsc 0; vitest 290/2399; build OK; protocolo OK; eslint sem erro novo. **Não testado ponta a ponta**: depende do dono pedir o código com o celular em mãos.
+
 ### 2026-11-05 UTC — Claude — Todos os QR do tema claro legíveis
 - Dono: "corrige os outros QR do tema claro também". `--qr-dark` herdava `--identity-graphite`, que no claro vira `#f0f7f2` (quase branco): QR do link (`/barbeiro/qr-code`), crescimento, artes de divulgação, marketing do ADM e o `QrCodeReal` padrão saíam ilegíveis. Regra no fim do `styles.css`: no claro (qualquer identidade) `--qr-dark: var(--qr-modulo)` (#121513). Escuro inalterado.
 - Conferido no navegador: `--qr-dark` = #121513 no claro para sem identidade, moderno, copper, rose, indigo e clássico; escuro mantém os valores de antes. Guarda em `estilo-figaro.test.ts`.
