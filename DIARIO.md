@@ -928,6 +928,14 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+### 2026-11-05 UTC — Claude — Redis e Postgres da Evolution conferidos no Railway (só leitura)
+- Pedido do dono: conferir Redis e Postgres da Evolution no Railway (projeto `Evolution-CortAI`, ambiente `production`, us-west2). Conferido pelo conector do Railway; nada alterado.
+- **Estado:** `evolution-api` (v2.3.7), `Postgres` (versão 18 com SSL) e `Redis` (versão 8.2) online, 1 réplica cada, sem falhas nas últimas 24 h. Uso nas últimas 6 h: Postgres ~60 MB de RAM e ~105 MB de disco; Redis ~22 MB de RAM e ~32 MB de disco (volumes de 500 MB cada).
+- **Ligação da Evolution (versão das 11:25 UTC):** Redis "redis ready" e cache em `baileys`, `groups` e `instance`; Postgres pela rede interna (`postgres.railway.internal`, banco `railway`), 57 migrações e "No pending migrations"; "Repository:Prisma - ON".
+- **Erros antigos, já resolvidos:** entre 10:57 e 11:05 UTC o Postgres registrou `relation "public.Instance" does not exist` (consulta antes de as tabelas existirem); não voltou depois das 11:25. As mensagens "SSL error: unexpected eof" são conexões fechadas sem despedida e não indicam problema.
+- **Pendente com o dono:** mudança preparada desde 06:20 UTC e **não aplicada** no Postgres, que abre a porta 5432 para a internet e cria `DATABASE_PUBLIC_URL`. A Evolution não precisa dela (usa a rede interna). Recomendação: descartar no painel do Railway, salvo se o dono quiser acessar o banco de fora. Não apliquei nem descartei.
+- Fecha a pendência da entrada abaixo ("Redis/Postgres do Railway não conferidos diretamente"). Só documentação; nenhum código, banco do Flow, segredo ou produção tocado.
+
 ### 2026-11-05 UTC — Claude — Evolution + Flow Bot validados na prévia (sem produção, sem telefone, sem envio)
 - **Evolution (prévia):** v2.3.7 responde; chave confere (401 sem, 200 com); banco dela responde (lista de instâncias). Única instância: `flow-bot-teste`, estado `close`, sem número. Redis/Postgres do Railway não conferidos diretamente (o conector do Railway pede autorização).
 - **Quebrado e causa:** a `flow-bot-teste` foi criada direto na Evolution, fora do app. O app só grava `conexoes_whatsapp` ao conectar pelo painel (`sessaoDoTenant`, nome `cortai_…`), então o webhook respondia "Unknown session". A instância também estava **sem webhook**.
