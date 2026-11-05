@@ -1,0 +1,103 @@
+name: Diagnóstico Evolution (prévia)
+
+# Confere a Evolution API e o webhook da PRÉVIA com os segredos PREVIEW_EVOLUTION_*, sem mostrá-los.
+# - diagnosticar (padrão): só leitura. Lista instâncias (número mascarado), estado e webhook da instância pedida,
+#   e testa o endpoint de webhook da prévia: sem segredo (espera 401) e com segredo para uma sessão inexistente
+#   (espera 404, nada é gravado).
+# - configurar-webhook: aplica na instância pedida o mesmo webhook que o app aplica ao conectar
+#   (`webhookDaEvolution`: URL da prévia, segredo no cabeçalho, QRCODE_UPDATED/CONNECTION_UPDATE/MESSAGES_UPSERT).
+# Nunca cria, conecta, desconecta ou apaga instância e nunca envia mensagem.
+on:
+  push:
+    branches: [cloudflare-workers-migration-2026-10-13]
+    paths: [.github/workflows/diagnostico-evolution-previa.yml]
+  workflow_dispatch:
+    inputs:
+      instancia:
+        description: Nome da instância na Evolution
+        default: flow-bot-teste
+      acao:
+        description: O que fazer
+        type: choice
+        default: diagnosticar
+        options: [diagnosticar, configurar-webhook]
+
+permissions:
+  contents: read
+
+jobs:
+  evolution:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      EVO_URL: ${{ secrets.PREVIEW_EVOLUTION_API_URL }}
+      EVO_KEY: ${{ secrets.PREVIEW_EVOLUTION_API_KEY }}
+      WEBHOOK_SECRET: ${{ secrets.PREVIEW_EVOLUTION_WEBHOOK_SECRET }}
+      PREVIA: https://previa.cortaiapp.pages.dev
+      INSTANCIA: ${{ inputs.instancia }}
+      ACAO: ${{ inputs.acao }}
+    steps:
+      - name: Segredos presentes
+        run: |
+          for n in EVO_URL EVO_KEY WEBHOOK_SECRET; do
+            if [ -n "${!n}" ]; then echo "$n: definido"; else echo "::error::$n ausente"; fi
+          done
+          [ -n "$EVO_URL" ] && [ -n "$EVO_KEY" ] && [ -n "$WEBHOOK_SECRET" ]
+          echo "Host da Evolution: $(printf '%s' "$EVO_URL" | sed -E 's#^(https?://[^/]+).*#\1#')"
+
+      - name: Evolution responde e autentica
+        run: |
+          set -euo pipefail
+          base="${EVO_URL%/}"
+          echo "Raiz:"; curl -sS -m 15 "$base/" | jq -c '{status, version, clientName}'
+          echo "Sem chave (espera 401): $(curl -s -o /dev/null -w '%{http_code}' -m 15 "$base/instance/fetchInstances")"
+          codigo="$(curl -s -o instancias.json -w '%{http_code}' -m 20 -H "apikey: $EVO_KEY" "$base/instance/fetchInstances")"
+          echo "Com chave: HTTP $codigo"
+          [ "$codigo" = "200" ]
+          echo "Instâncias (o banco da Evolution respondeu):"
+          jq -r '.[] | "- \(.name // .instance.instanceName) | estado=\(.connectionStatus // .instance.status) | integração=\(.integration // "-") | número=…\((.ownerJid // "" | split("@")[0])[-4:])"' instancias.json
+
+      - name: Instância pedida
+        run: |
+          set -uo pipefail
+          base="${EVO_URL%/}"
+          if jq -e --arg n "$INSTANCIA" 'any(.[]; (.name // .instance.instanceName) == $n)' instancias.json >/dev/null; then
+            echo "Instância '$INSTANCIA': EXISTE"
+          else
+            echo "::warning::Instância '$INSTANCIA' NÃO existe na Evolution."
+          fi
+          echo "connectionState: $(curl -sS -m 15 -H "apikey: $EVO_KEY" "$base/instance/connectionState/$INSTANCIA" | jq -c '.instance // .')"
+          curl -sS -m 15 -H "apikey: $EVO_KEY" "$base/webhook/find/$INSTANCIA" > webhook.json || true
+          echo "Webhook atual:"
+          jq -c --arg s "$WEBHOOK_SECRET" '{enabled, url, events, webhookByEvents, webhookBase64,
+            cabecalhos: ((.headers // {}) | keys), segredo_confere: ((.headers // {})["x-webhook-secret"] == $s)}' webhook.json 2>/dev/null \
+            || echo "(sem webhook configurado)"
+
+      - name: Configurar webhook (só com acao=configurar-webhook)
+        if: inputs.acao == 'configurar-webhook'
+        run: |
+          set -euo pipefail
+          base="${EVO_URL%/}"
+          corpo="$(jq -nc --arg url "$PREVIA/api/public/whatsapp/evolution" --arg s "$WEBHOOK_SECRET" \
+            '{webhook: {enabled: true, url: $url, byEvents: false, base64: true,
+              headers: {"x-webhook-secret": $s},
+              events: ["QRCODE_UPDATED","CONNECTION_UPDATE","MESSAGES_UPSERT"]}}')"
+          codigo="$(curl -s -o resposta.json -w '%{http_code}' -m 20 -X POST -H "apikey: $EVO_KEY" \
+            -H 'content-type: application/json' --data "$corpo" "$base/webhook/set/$INSTANCIA")"
+          echo "webhook/set: HTTP $codigo"
+          jq -c '{enabled, url, events}' resposta.json || true
+          [ "$codigo" = "200" ] || [ "$codigo" = "201" ]
+          curl -sS -m 15 -H "apikey: $EVO_KEY" "$base/webhook/find/$INSTANCIA" \
+            | jq -c --arg s "$WEBHOOK_SECRET" '{enabled, url, events, segredo_confere: ((.headers // {})["x-webhook-secret"] == $s)}'
+
+      - name: Webhook do Flow na prévia
+        run: |
+          set -uo pipefail
+          alvo="$PREVIA/api/public/whatsapp/evolution"
+          sessao="diagnostico-inexistente-${GITHUB_RUN_ID}"
+          corpo="$(jq -nc --arg i "$sessao" '{event: "connection.update", instance: $i, data: {state: "close"}}')"
+          echo "Sem segredo (espera 401): $(curl -s -o /dev/null -w '%{http_code}' -m 20 -X POST -H 'content-type: application/json' --data "$corpo" "$alvo")"
+          echo "Segredo errado (espera 401): $(curl -s -o /dev/null -w '%{http_code}' -m 20 -X POST -H 'content-type: application/json' -H 'x-webhook-secret: errado' --data "$corpo" "$alvo")"
+          r="$(curl -s -w ' HTTP %{http_code}' -m 20 -X POST -H 'content-type: application/json' -H "x-webhook-secret: $WEBHOOK_SECRET" --data "$corpo" "$alvo")"
+          echo "Segredo certo, sessão inexistente (espera 404 Unknown session): $r"
