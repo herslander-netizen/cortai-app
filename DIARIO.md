@@ -935,6 +935,13 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+### 2026-11-05 UTC — Claude — Prompt master do atendimento: auditoria e P0 (padrão de mensagens)
+- Auditoria com matriz e evidências em `docs/auditoria-atendimento-whatsapp-2026-11-05.md`.
+- **P0:** `src/lib/whatsapp/formatacao.ts` — `paraWhatsApp` (markdown → formatação do WhatsApp, espaçamento) aplicado no ponto único `enviarPelaBarbearia`; `resumoDoAgendamento` e `listaDeHorarios` usados pelo Flow Bot (resumo com um dado por linha; horários na vertical com o dia em negrito). Flow IA: no WhatsApp pode usar *negrito* no essencial; painel segue texto puro.
+- **P1 (parcial):** a IA passa a receber o mesmo texto juntado que o Bot (antes, só a última mensagem picada). Guardas em `atendimento-p0.test.ts`.
+- Achado para P2: áudio recebido pela Meta não é transcrito (só o da Evolution).
+- Testes: formatação (11), guardas (3), testes do Bot atualizados para o texto novo. tsc 0, vitest 298/2451, eslint sem erro novo.
+
 ### 2026-11-05 UTC — Claude — Número antes de conectar e Teste01 pronto para testes de automação
 - **Gaveta de conexão** (pedido do dono): mostra o WhatsApp do cadastro antes de conectar ("Gerar código para este número" / escanear com ele) e oferece "Conectar outro número". Ao conectar um número diferente, `tenants.whatsapp` passa a ser o conectado (`numero-do-negocio.ts` + `.server.ts`, auditoria `whatsapp.numero_do_negocio_atualizado`), no webhook e na sincronização. Testes do número (4); tsc 0, vitest 296/2437, build e protocolo OK.
 - **Teste01 na prévia** (pedido do dono, conta de teste): horário seg–sáb 9h–19h com almoço 12h–13h (domingo fechado), profissional "Ana (teste)" ligada ao dono, 4 serviços (Limpeza de pele, Design de sobrancelha, Massagem relaxante, Manicure), atendimento automático e Flow IA ligados (tom amigável), Flow Bot ligado (sempre, pausa 120 min quando a equipe responde), 12 automações de aviso ligadas, avisos pelo WhatsApp ligados. Conferido no banco.

@@ -81,10 +81,10 @@ describe("agendar na conversa", () => {
     expect(respostas[0]![0]).toContain("1. Corte — R$ 40,00");
     expect(respostas[1]![0]).toContain("Com quem");
     expect(respostas[1]![0]).toContain("3. Tanto faz");
-    expect(respostas[2]![0]).toMatch(/Tenho estes horários sábado, 07\/11/);
+    expect(respostas[2]![0]).toMatch(/Tenho estes horários livres:\n\n\*Sábado, 07\/11\*/);
     expect(respostas[2]![0]).toContain("1. 09:00");
     expect(respostas[3]![0]).toMatch(
-      /Confirmando: \*Corte\* com Zé, sábado, 07\/11, às \d\d:00 — R\$ 40,00/,
+      /Confira seu agendamento:\n\n\*Serviço:\* Corte\n\*Profissional:\* Zé\n\*Quando:\* Sábado, 07\/11, às \d\d:00\n\*Valor:\* R\$ 40,00/,
     );
     expect(respostas[4]![0]).toMatch(/^Pronto, João! Marquei \*Corte\*/);
     expect(gravados).toEqual([
@@ -99,7 +99,9 @@ describe("agendar na conversa", () => {
   it("aproveita o que o cliente já disse e vai direto para a confirmação do horário exato", async () => {
     const { portas } = portasFalsas({ livres: { "2026-11-07": LIVRES_SABADO } });
     const r = await conduzir("quero marcar corte amanhã às 15h com o Zé", null, portas);
-    expect(r?.textos[0]).toMatch(/Confirmando: \*Corte\* com Zé, sábado, 07\/11, às 15:00/);
+    expect(r?.textos[0]).toMatch(
+      /\*Serviço:\* Corte\n\*Profissional:\* Zé\n\*Quando:\* Sábado, 07\/11, às 15:00/,
+    );
     expect(r?.estado?.etapa).toBe("confirmar");
   });
 
@@ -110,7 +112,7 @@ describe("agendar na conversa", () => {
     });
     const r = await conduzir("quero marcar corte amanhã", null, portas);
     expect(r?.textos[0]).toBe("Não tenho horário livre sábado, 07/11.");
-    expect(r?.textos[1]).toMatch(/Tenho estes horários segunda-feira, 09\/11/);
+    expect(r?.textos[1]).toMatch(/\*Segunda-feira, 09\/11\*/);
   });
 
   it("cliente sem cadastro: pede o nome antes de confirmar", async () => {
@@ -124,7 +126,7 @@ describe("agendar na conversa", () => {
       portas,
     );
     expect(respostas[0]![0]).toBe("Para concluir, qual é o seu nome?");
-    expect(respostas[1]![0]).toContain("Confirmando");
+    expect(respostas[1]![0]).toContain("Confira seu agendamento");
     expect(respostas[2]![0]).toMatch(/^Pronto, Maria!/);
     expect(gravados[0]?.dados).toMatchObject({ nomeCliente: "Maria Souza" });
   });
@@ -227,7 +229,9 @@ describe("remarcar, cancelar e consultar", () => {
     const { respostas } = await conversar(["preciso remarcar", "1", "sim"], portas);
     expect(respostas[0]![0]).toMatch(/Vamos remarcar \*Corte\*/);
     expect(respostas[0]![1]).toContain("Tenho estes horários");
-    expect(respostas[1]![0]).toMatch(/Remarcar \*Corte\* com Zé para sábado, 07\/11, às 09:00\?/);
+    expect(respostas[1]![0]).toMatch(
+      /Confira a remarcação:\n\n\*Serviço:\* Corte\n\*Profissional:\* Zé\n\*Quando:\* Sábado, 07\/11, às 09:00\n\nPosso remarcar\?/,
+    );
     expect(respostas[2]![0]).toMatch(/^Pronto, remarquei/);
     expect(gravados[0]).toMatchObject({
       tipo: "remarcar",

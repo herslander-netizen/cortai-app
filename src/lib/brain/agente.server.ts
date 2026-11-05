@@ -128,7 +128,7 @@ async function instrucoes(ctx: ContextoDoCerebro, persona: Persona) {
   }).format(new Date());
   const hoje = new Intl.DateTimeFormat("en-CA", { timeZone: fuso }).format(new Date());
   return `Você é ${persona.nome}${persona.nome.includes("Flow IA") ? "" : ", com a Flow IA"}, atendendo pelo negócio "${persona.negocio}".
-Agora: ${agora} (fuso ${fuso}; hoje = ${hoje}). Fale português do Brasil, com naturalidade, frases curtas, horário 24h. Texto puro: sem markdown (nada de ** ou #).
+Agora: ${agora} (fuso ${fuso}; hoje = ${hoje}). Fale português do Brasil, com naturalidade, frases curtas, horário 24h. ${ctx.canal === "whatsapp" ? "Formatação do WhatsApp: *negrito* só no essencial (serviço, dia, horário) e um item por linha nas listas; nunca markdown (** ou #)." : "Texto puro: sem markdown (nada de ** ou #)."}
 ${regrasDoCanal(ctx)}
 
 Regras obrigatórias:

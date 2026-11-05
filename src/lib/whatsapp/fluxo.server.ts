@@ -294,6 +294,9 @@ export async function enviarPelaBarbearia(input: {
    */
   digitar?: boolean;
 }) {
+  // Padrão único de apresentação (formatação do WhatsApp) para toda mensagem livre que sai daqui.
+  const { paraWhatsApp } = await import("./formatacao");
+  input = { ...input, texto: paraWhatsApp(input.texto) };
   const db = await admin();
   // Provedor da própria conexão (Evolution/Meta) + trava de isolamento por negócio.
   const { gatewayDaSessao } = await import("./conexao-envio.server");
@@ -815,7 +818,8 @@ export async function processarMensagemRecebida(input: {
       conexaoId: conexao.id,
       sessaoId: conexao.sessao_id,
       telefone,
-      texto: input.conteudo,
+      // Mesmo texto que o Flow Bot viu: as mensagens picadas já juntadas, não só a última.
+      texto: textoDoTurno,
     }).catch((e: unknown) => {
       console.error("[cerebro] whatsapp", e);
       return false;

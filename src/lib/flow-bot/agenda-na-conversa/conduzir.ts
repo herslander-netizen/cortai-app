@@ -29,6 +29,7 @@ import {
   semHorarioProximo,
   type Opcao,
 } from "./textos";
+import { listaDeHorarios, resumoDoAgendamento } from "@/lib/whatsapp/formatacao";
 
 export type Servico = { id: string; nome: string; duracao_min: number; preco_centavos: number };
 export type Profissional = { id: string; nome: string };
@@ -395,11 +396,18 @@ async function avancar(e: EstadoDaAgenda, portas: Portas): Promise<Resultado> {
   const equipe = await portas.profissionais(servico.id);
   const quem = equipe.find((p) => p.id === (e.profissionalDoHorario ?? e.profissionalId))?.nome;
   const quando = quandoPorExtenso(e.inicio, portas.fuso);
-  const resumo =
-    e.objetivo === "remarcar"
-      ? `Remarcar *${servico.nome}*${quem ? ` com ${quem}` : ""} para ${quando}?`
-      : `Confirmando: *${servico.nome}*${quem ? ` com ${quem}` : ""}, ${quando} — ${reais(servico.preco_centavos)}.\nPosso marcar?`;
-  return { textos: [`${resumo}\n${TEXTOS.responderSimOuNao}`], estado: e };
+  const dados = resumoDoAgendamento({
+    servico: servico.nome,
+    profissional: quem ?? null,
+    quando,
+    valor: e.objetivo === "remarcar" ? null : reais(servico.preco_centavos),
+  });
+  const titulo = e.objetivo === "remarcar" ? "Confira a remarcação:" : "Confira seu agendamento:";
+  const pergunta = e.objetivo === "remarcar" ? "Posso remarcar?" : "Posso marcar?";
+  return {
+    textos: [`${titulo}\n\n${dados}\n\n${pergunta}\n${TEXTOS.responderSimOuNao}`],
+    estado: e,
+  };
 }
 
 /** Até 3 horários livres de verdade, espalhados no dia (ou na faixa pedida); sem dia, o primeiro dia com vaga. */
@@ -447,11 +455,17 @@ async function oferecerHorarios(
       extra: l.profissionalId,
     }));
     textos.push(
-      menu(
-        `Tenho estes horários ${diaPorExtenso(e.opcoes[0]!.valor, portas.fuso)}:`,
-        e.opcoes,
+      [
+        "Tenho estes horários livres:",
+        "",
+        listaDeHorarios({
+          dia: diaPorExtenso(e.opcoes[0]!.valor, portas.fuso),
+          horarios: e.opcoes.map((o) => o.rotulo),
+        }),
+        "",
+        "Qual prefere? Responda com o número.",
         TEXTOS.outroDia,
-      ),
+      ].join("\n"),
     );
     return { textos, estado: e };
   }
