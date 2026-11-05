@@ -42,7 +42,9 @@
         {
           "say": "vocês estão abertos?",
           "expect": {
-            "replies": ["Estamos abertos: hoje das 9h às 19h."]
+            "replies": [
+              "Estamos abertos: hoje das 9h às 19h."
+            ]
           }
         }
       ]
@@ -59,7 +61,9 @@
         {
           "say": "que horas abre?",
           "expect": {
-            "replies": ["No momento estamos fechados. Abrimos amanhã às 9h."]
+            "replies": [
+              "No momento estamos fechados. Abrimos amanhã às 9h."
+            ]
           }
         }
       ]
@@ -73,7 +77,9 @@
         {
           "say": "Onde fica?",
           "expect": {
-            "replies": ["Estamos em Rua das Flores, 120 — Centro."]
+            "replies": [
+              "Estamos em Rua das Flores, 120 — Centro."
+            ]
           }
         }
       ]
@@ -87,7 +93,9 @@
         {
           "say": "aceita pix?",
           "expect": {
-            "replies": ["Aceitamos Pix, cartão e dinheiro."]
+            "replies": [
+              "Aceitamos Pix, cartão e dinheiro."
+            ]
           }
         }
       ]
@@ -101,7 +109,9 @@
         {
           "say": "quero falar com um atendente",
           "expect": {
-            "contains": ["Vou chamar alguém da equipe"],
+            "contains": [
+              "Vou chamar alguém da equipe"
+            ],
             "handoff": true,
             "status": "handed_off"
           }
@@ -120,7 +130,9 @@
         {
           "say": "quero falar com um atendente",
           "expect": {
-            "contains": ["A equipe não está disponível agora"],
+            "contains": [
+              "A equipe não está disponível agora"
+            ],
             "handoff": true
           }
         }
@@ -135,7 +147,9 @@
         {
           "say": "quero agendar e saber o preço",
           "expect": {
-            "contains": ["Para agendar em Studio Exemplo"]
+            "contains": [
+              "Para agendar em Studio Exemplo"
+            ]
           }
         }
       ]
@@ -149,7 +163,10 @@
         {
           "say": "preciso cancelar",
           "expect": {
-            "contains": ["Olá, Ana! Aqui é Studio Exemplo.", "Como posso ajudar?"],
+            "contains": [
+              "Olá, Ana! Aqui é Studio Exemplo.",
+              "Como posso ajudar?"
+            ],
             "status": "waiting_input"
           }
         }
@@ -164,7 +181,10 @@
         {
           "say": "bom dia",
           "expect": {
-            "contains": ["Olá, Ana! Aqui é Studio Exemplo.", "[2] Serviços e preços"],
+            "contains": [
+              "Olá, Ana! Aqui é Studio Exemplo.",
+              "[2] Serviços e preços"
+            ],
             "cursor": "espera-menu"
           }
         },
@@ -194,7 +214,9 @@
         {
           "say": "3",
           "expect": {
-            "replies": ["Horário: hoje das 9h às 19h.\nEndereço: Rua das Flores, 120 — Centro."]
+            "replies": [
+              "Horário: hoje das 9h às 19h.\nEndereço: Rua das Flores, 120 — Centro."
+            ]
           }
         }
       ]
@@ -211,7 +233,9 @@
         {
           "say": "1",
           "expect": {
-            "contains": ["Para agendar em Studio Exemplo"]
+            "contains": [
+              "Para agendar em Studio Exemplo"
+            ]
           }
         },
         {
@@ -256,14 +280,20 @@
         {
           "say": "talvez",
           "expect": {
-            "contains": ["Não entendi.", "Como posso ajudar?"],
+            "contains": [
+              "Não entendi.",
+              "Como posso ajudar?"
+            ],
             "status": "waiting_input"
           }
         },
         {
           "say": "sei la",
           "expect": {
-            "contains": ["Não entendi.", "Vou chamar alguém da equipe"],
+            "contains": [
+              "Não entendi.",
+              "Vou chamar alguém da equipe"
+            ],
             "handoff": true
           }
         }
@@ -293,7 +323,9 @@
         {
           "say": "oi",
           "expect": {
-            "contains": ["Olá! Aqui é Studio Exemplo."]
+            "contains": [
+              "Olá! Aqui é Studio Exemplo."
+            ]
           }
         }
       ]
@@ -307,7 +339,9 @@
         {
           "say": "que horas abre?",
           "expect": {
-            "replies": ["Estamos abertos: hoje das 9h às 19h."]
+            "replies": [
+              "Estamos abertos: hoje das 9h às 19h."
+            ]
           }
         },
         {
@@ -316,7 +350,9 @@
             "reality.isOpen": false
           },
           "expect": {
-            "replies": ["No momento estamos fechados. Abrimos amanhã às 9h."]
+            "replies": [
+              "No momento estamos fechados. Abrimos amanhã às 9h."
+            ]
           }
         }
       ]
@@ -333,7 +369,9 @@
         {
           "say": "Onde fica?",
           "expect": {
-            "replies": ["Vou confirmar com a equipe o endereço certinho e já te passo por aqui."],
+            "replies": [
+              "Vou confirmar com a equipe o endereço certinho e já te passo por aqui."
+            ],
             "status": "completed"
           }
         }
@@ -375,6 +413,57 @@
               "Para agendar em Studio Exemplo, escolha o horário por aqui: https://flow.exemplo/b/studio-exemplo"
             ],
             "status": "completed"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Remarcar não é interpretado como um novo agendamento",
+      "contact": {
+        "firstName": "Ana"
+      },
+      "steps": [
+        {
+          "say": "Quero remarcar meu horário",
+          "expect": {
+            "contains": [
+              "Olá, Ana! Aqui é Studio Exemplo.",
+              "Como posso ajudar?"
+            ],
+            "status": "waiting_input"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Pedido por horário livre encaminha para o agendamento",
+      "contact": {
+        "firstName": "Ana"
+      },
+      "steps": [
+        {
+          "say": "Tem horário livre amanhã?",
+          "expect": {
+            "contains": [
+              "Para agendar em Studio Exemplo"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Pergunta de preço com acentos e serviço específico usa o catálogo",
+      "contact": {
+        "firstName": "Ana"
+      },
+      "steps": [
+        {
+          "say": "Quanto custa a escova?",
+          "expect": {
+            "contains": [
+              "Serviços de Studio Exemplo",
+              "Escova — R$ 60,00"
+            ]
           }
         }
       ]
