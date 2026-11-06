@@ -62,6 +62,15 @@ export async function avisarClienteDoAtraso(input: {
   const { decisaoDeEnvio } = await import("./porteiro.server");
   const porteiro = await decisaoDeEnvio((ag as { cliente_id?: string | null }).cliente_id);
   if (!porteiro.pode) return { enviado: false, motivo: porteiro.motivo, cliente };
+  const { verificarConsentimentoWhatsapp } = await import("./consentimento.server");
+  const autorizacaoInicial = await verificarConsentimentoWhatsapp({
+    tenantId: input.tenantId,
+    telefone,
+    finalidade: "avisos_agendamento",
+  });
+  if (!autorizacaoInicial.pode) {
+    return { enviado: false, motivo: autorizacaoInicial.motivo, cliente };
+  }
   try {
     const { conexaoDeEnvio } = await import("./conexao-envio.server");
     const conexao = await conexaoDeEnvio(input.tenantId, "notificacoes");
@@ -74,6 +83,14 @@ export async function avisarClienteDoAtraso(input: {
       nomeContato: cliente,
     });
     const primeiro = (cliente ?? "").split(" ")[0] || "Olá";
+    const autorizacaoFinal = await verificarConsentimentoWhatsapp({
+      tenantId: input.tenantId,
+      telefone,
+      finalidade: "avisos_agendamento",
+    });
+    if (!autorizacaoFinal.pode) {
+      return { enviado: false, motivo: autorizacaoFinal.motivo, cliente };
+    }
     await enviarPelaBarbearia({
       tenantId: input.tenantId,
       conversaId: conversa.id,
