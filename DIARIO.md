@@ -962,6 +962,7 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 ### 2026-11-06 UTC — Claude — Agenda (lista): horários agrupados, trilho e ondas separadoras
+- **Deslize (registrado):** o commit `bea06fa9` (tom sobre tom) foi enviado no mesmo comando dos testes e levou um teste quebrado (`ListaPeriodo.test.ts` recortava o CSS a partir da regra errada). Corrigido no commit seguinte, depois de rodar a suíte completa à parte — a armadilha "envio encadeado ao teste".
 - **Pedido específico do dono para a Agenda** (mockup + ideia de onda com a hora no meio). Só o modo lista (`ListaPeriodo`); Timeline, cartões, ficha e gavetas intocados.
 - `agenda/lista-horarios.ts` (puro, com teste): `agruparPorHorario`, `posicaoDoAgora`, `legendaDoHorario` ("45 min" quando é um; "3 atend." quando são vários — "3 atendimentos" invadia o trilho). `agenda/HorarioDaLista.tsx`: bloco de horário com trilho e o mesmo cartão de antes (movido do `ListaPeriodo`, que caiu de 356 para ~330 linhas) e `OndaDaLista`. `ListaPeriodo.tsx`: onda entre os dias, marcador da hora atual em hoje (sem busca), "Ver mais dias" como texto na onda (com `loading`). `styles.css`: `.agenda-lista-horario/-trilho/-no/-onda*`, onda por máscara SVG pintada com `--figaro-outline-variant` (só tokens, claro e escuro iguais).
 - **Atenção:** a regra da pasta diz que "a faixa Agora/Próximo pertence à Timeline"; o marcador aqui é só a hora na onda (sem ações nem cápsula), como o dono mostrou na referência.

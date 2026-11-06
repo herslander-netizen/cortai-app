@@ -147,7 +147,7 @@ describe("dias da lista (Figaro: todos os dias de hoje até o último com atendi
     expect(lista).toContain("posicaoDoAgora(horarios");
     const css = readFileSync("src/styles.css", "utf8");
     const bloco = css.slice(
-      css.indexOf(".agenda-lista-horario {"),
+      css.indexOf(".agenda-lista-periodo {"),
       css.indexOf(".agenda-lista-onda-acao svg"),
     );
     // Só tokens: a onda é uma máscara pintada com o contorno do tema (claro e escuro iguais na estrutura).
