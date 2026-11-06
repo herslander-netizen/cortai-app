@@ -982,6 +982,9 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+### 2026-11-06 UTC — Claude — Entrada: capítulo Site sem o recorte na base da capa
+- A capa (360 px) coincidia com a altura da tela e o corte em V da Equipe aparecia na base dela, parecendo erro. Capa agora com 24 px a mais (o corte fica abaixo da área visível até a página rolar) e as posições da rolagem somaram os mesmos 24 px; lista de espera do exemplo com prazo de 15 min.
+
 ### 2026-11-06 UTC — Claude — Lista de espera explicada nas duas visões (cliente e equipe)
 - Dono (06/11): explicar como a fila funciona para o profissional e para o cliente, na animação e no texto, e deixar na página de login. `HistoriaFila` agora tem 8 passos e três telas com etiqueta de quem olha: **Cliente** (dia cheio → período preferido → "Entrar na lista de espera" → "Sua posição 1º", regra de uma pessoa por vez e prazo de 30 min — textos da tela real `/app/espera`), **Equipe** (lista por dia → vaga abre → oferta a um por vez com barra do prazo → "Agendada") e **WhatsApp do cliente** (texto real "Boa notícia… Abriu uma vaga…" e "Aceitar a vaga"). Legenda: "Cliente entra na fila e é avisado; a equipe só acompanha." Página pública: texto e quatro itens (cliente escolhe o período e vê a posição; recebe a vaga no WhatsApp; equipe vê quem espera; sem resposta no prazo passa para o próximo — regra real de `fila-ofertas.server.ts`). O capítulo já aparece na entrada em `/login`. Alvo de duração 10,5 s (mais conteúdo).
 

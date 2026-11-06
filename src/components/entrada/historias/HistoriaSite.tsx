@@ -14,7 +14,9 @@ import { TelaDaHistoria, Toque, usePassos, ritmo } from "./base";
 export const PASSOS_SITE = ritmo([1300, 1500, 1200, 1300, 1300, 1200, 1100, 900]);
 
 /** Onde a página está em cada passo (px da tela de 360). */
-const ROLAGEM = [0, 0, 0, -330, -545, -600, -545, -545];
+// A capa tem 24 px a mais que a tela: o corte em V da Equipe fica abaixo da área visível até a página rolar
+// (antes ele aparecia na base da capa e parecia um erro da animação).
+const ROLAGEM = [0, 0, 0, -354, -569, -624, -569, -569];
 const TOQUES = [
   { x: 50, y: 50, visivel: false },
   { x: 30, y: 58, apertando: true },
@@ -43,7 +45,7 @@ function Capa({ tema }: { tema: "escuro" | "novo" }) {
   const novo = tema === "novo";
   return (
     <div
-      className={`relative flex h-[360px] flex-col px-4 pb-9 pt-3 ${
+      className={`relative flex h-[384px] flex-col px-4 pb-9 pt-3 ${
         novo
           ? "bg-[var(--figaro-tertiary-container)] text-[var(--figaro-on-tertiary-container)]"
           : "text-[var(--figaro-inverse-on-surface)]"
@@ -104,7 +106,7 @@ export function HistoriaSite() {
         animate={{ y: ROLAGEM[passo] ?? 0 }}
         transition={{ duration: 1.05, ease: [0.2, 0, 0, 1] }}
       >
-        <div className="relative h-[360px] overflow-hidden">
+        <div className="relative h-[384px] overflow-hidden">
           <Capa tema="escuro" />
           {/* Tema novo: o círculo cresce a partir do toque e a capa nova aparece por cima dele. */}
           <motion.span
