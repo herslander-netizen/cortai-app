@@ -1,5 +1,10 @@
 import { normalizarTelefone, variantesDoTelefone } from "@/lib/telefone";
 import { avisoDePedidoDeAtendimento } from "@/lib/whatsapp/pedido-de-atendimento";
+import {
+  INTERVALO_DA_CONTINGENCIA_MS,
+  textoDeAudioIndisponivel,
+  textoDeContingencia,
+} from "@/lib/whatsapp/contingencia";
 /**
  * Fluxo de uma mensagem de WhatsApp dentro do Flow.
  *
@@ -801,15 +806,26 @@ export async function processarMensagemRecebida(input: {
       return { tratada: true, motivo: "canal_de_notificacoes" };
     }
   }
-  // Áudio que não deu para transcrever: pede para repetir, sem pedir texto.
+  // Áudio que não deu para transcrever. Áudio ruim: pede para repetir. Transcrição fora do ar ou sem configuração
+  // (repetir não adianta): pede para escrever e manda o link do agendamento (dono, 06/11/2026).
   if (input.tipo === "audio") {
+    const servicoFora =
+      motivoDoAudio !== null &&
+      (motivoDoAudio.includes("não configurada") || motivoDoAudio.includes("recusada"));
+    let textoDoAudio = TEXTO_AUDIO_NAO_ENTENDIDO;
+    if (servicoFora) {
+      const { data: t } = await db.from("tenants").select("slug").eq("id", tenantId).maybeSingle();
+      textoDoAudio = textoDeAudioIndisponivel(
+        t?.slug ? urlPublica(`/agendar/${t.slug}`) : urlPublica(""),
+      );
+    }
     await enviarPelaBarbearia({
       tenantId,
       conversaId: conversa.id,
       conexaoId: conexao.id,
       sessaoId: conexao.sessao_id,
       telefone,
-      texto: TEXTO_AUDIO_NAO_ENTENDIDO,
+      texto: textoDoAudio,
       porIa: false,
     }).catch(() => undefined);
     return { tratada: true, motivo: "audio_nao_entendido" };
@@ -916,9 +932,12 @@ export async function processarMensagemRecebida(input: {
   }
   const { data: tenant } = await db.from("tenants").select("slug").eq("id", tenantId).maybeSingle();
   const link = tenant?.slug ? urlPublica(`/agendar/${tenant.slug}`) : urlPublica("");
-  // Sem resposta automática para esta mensagem: diz a verdade (a equipe responde por aqui), nunca "instabilidade".
-  const fallback = `Recebi sua mensagem! Alguém da equipe vai te responder por aqui. Se preferir, já dá para agendar pelo link: ${link}`;
-  const desde = new Date(Date.now() - 24 * 60 * 60_000).toISOString();
+  // Contingência (dono, 06/11/2026: "em caso de desconexão, mandar uma mensagem dizendo que não está conseguindo
+  // conversar e o link do agendamento"): nem o Flow Bot nem a Flow IA responderam. Diz a verdade, manda o link e
+  // avisa que a equipe responde. No máximo uma vez a cada 30 min por conversa — antes era uma vez por dia e o
+  // cliente que voltava no dia seguinte ("Bom dia") ficava sem resposta.
+  const fallback = textoDeContingencia(link);
+  const desde = new Date(Date.now() - INTERVALO_DA_CONTINGENCIA_MS).toISOString();
   const { data: jaOrientado } = await db
     .from("mensagens_whatsapp")
     .select("id")

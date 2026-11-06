@@ -14,6 +14,22 @@ export type Notificacao = {
 
 export type GrupoDeAvisos = { rotulo: string; itens: Notificacao[] };
 
+/**
+ * Avisos de configuração do sistema (dono, 06/11/2026: "notificações de configurações de sistema no menu lateral e
+ * as demais no sininho"): conexão do WhatsApp, alerta da plataforma e mensagens do período de teste. O sininho fica só
+ * com o que acontece na operação (agendamentos, clientes, pagamentos, lista de espera, falhas de aviso a cliente).
+ */
+export const TIPOS_DE_SISTEMA: ReadonlySet<string> = new Set([
+  "whatsapp_conexao",
+  "whatsapp_do_negocio_caiu",
+  "alerta_admin",
+  "teste",
+]);
+
+export function ehAvisoDeSistema(aviso: Pick<Notificacao, "tipo">): boolean {
+  return TIPOS_DE_SISTEMA.has(aviso.tipo);
+}
+
 export async function listarNotificacoes(tenantId: string): Promise<Notificacao[]> {
   const { data, error } = await supabase
     .from("notificacoes")
@@ -38,7 +54,9 @@ export async function marcarTodasComoLidas(tenantId: string) {
     .from("notificacoes")
     .update({ lida_em: new Date().toISOString() })
     .eq("tenant_id", tenantId)
-    .is("lida_em", null);
+    .is("lida_em", null)
+    // "Ler todos" no sininho não apaga os avisos de configuração do menu lateral.
+    .not("tipo", "in", `(${[...TIPOS_DE_SISTEMA].join(",")})`);
   if (error) throw new Error(error.message);
 }
 

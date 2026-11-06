@@ -1,5 +1,8 @@
 export type PassoGuia = {
-  /** valor do atributo data-guia no elemento destacado */
+  /**
+   * Valor do atributo data-guia no elemento destacado, ou `css:<seletor>` para apontar um elemento que já existe sem
+   * marcá-lo (a Agenda é protegida: o guia não muda nada nela). Sem elemento na tela, a dica aparece no centro.
+   */
   alvo: string;
   titulo: string;
   texto: string;
@@ -12,6 +15,39 @@ export type Guia = {
   nome: string;
   passos: PassoGuia[];
 };
+
+/** Agenda (tela inicial do painel). Aponta elementos que já existem, sem marcar nada na Agenda. */
+const PASSOS_DA_AGENDA: PassoGuia[] = [
+  {
+    alvo: 'css:[aria-label="Abrir navegação"]',
+    titulo: "Menu do negócio",
+    texto:
+      "Sua Página, desempenho da semana, clientes, financeiro, equipe, WhatsApp e ajustes ficam aqui.",
+  },
+  {
+    alvo: 'css:[aria-label="Agora e visualização da agenda"]',
+    titulo: "Agora e visualização",
+    texto:
+      "Volte para o horário de agora, troque entre lista e linha do tempo e escolha de quem ver a agenda.",
+  },
+  {
+    alvo: "css:.agenda-fab-toggle",
+    titulo: "Novo atendimento",
+    texto: "No + você agenda um cliente, faz um encaixe ou bloqueia um horário.",
+  },
+  {
+    alvo: "css:.agenda-lista-periodo",
+    titulo: "Toque no atendimento",
+    texto:
+      "Abre a ficha: confirmar, remarcar, cobrar e ver a comanda na mesma tela. Cancelados ficam escondidos.",
+  },
+  {
+    alvo: "css:.sino-de-avisos",
+    titulo: "Avisos",
+    texto:
+      "Novos agendamentos, confirmações, cancelamentos e vagas da lista de espera chegam no sininho.",
+  },
+];
 
 export const GUIAS: Guia[] = [
   {
@@ -55,71 +91,57 @@ export const GUIAS: Guia[] = [
       {
         alvo: "historico-acoes",
         titulo: "Remarcar ou cancelar",
-        texto: "Cancelando até 4 horas antes, o crédito volta para a sua carteira.",
-      },
-    ],
-  },
-  {
-    id: "gestao-dashboard",
-    rota: "/barbeiro",
-    nome: "Dashboard",
-    passos: [
-      {
-        alvo: "dash-faturamento",
-        titulo: "O dia em um olhar",
-        texto: "Faturamento de hoje e quanto da sua agenda já está ocupada.",
-      },
-      {
-        alvo: "dash-indicadores",
-        titulo: "Indicadores",
-        texto: "Atendimentos, horários livres, valores a receber e clientes ativos.",
-      },
-      {
-        alvo: "dash-oportunidades",
-        titulo: "Oportunidades de hoje",
-        texto:
-          "Aqui o Flow diz o que fazer agora, não só o que aconteceu. Toque em um item para agir.",
-      },
-      {
-        alvo: "dash-primeiros-passos",
-        titulo: "Primeiros passos",
-        texto:
-          "Este cartão mostra o que falta para seu negócio ficar pronto. Ele guarda o progresso.",
-      },
-      {
-        alvo: "dash-assistente",
-        titulo: "Perguntar ao Flow",
-        texto:
-          "Escreva como você fala: cadastre serviços, ajuste horários ou pergunte onde fica cada coisa.",
-      },
-      {
-        alvo: "dash-acoes-rapidas",
-        titulo: "Ações rápidas",
-        texto:
-          "A tesoura dourada abre as ações do dia: colocar cliente na fila, chamar o próximo e agendar.",
+        texto: "Remarque ou cancele por aqui, dentro do prazo que o negócio definiu.",
       },
     ],
   },
   {
     id: "gestao-agenda",
+    rota: "/barbeiro",
+    nome: "Agenda",
+    passos: PASSOS_DA_AGENDA,
+  },
+  {
+    id: "gestao-agenda-rota",
     rota: "/barbeiro/agenda",
     nome: "Agenda",
+    passos: PASSOS_DA_AGENDA,
+  },
+  {
+    id: "gestao-espera",
+    rota: "/barbeiro/fila",
+    nome: "Lista de espera",
     passos: [
       {
-        alvo: "agenda-lista",
-        titulo: "Hora a hora",
-        texto: "Cada faixa é um horário do dia. Os ocupados mostram cliente, serviço e pagamento.",
-      },
-      {
-        alvo: "agenda-vazio",
-        titulo: "Horário vago",
-        texto: "Em horários livres você pode oferecer a vaga para quem está na lista de espera.",
-      },
-      {
-        alvo: "agenda-repetir",
-        titulo: "Repetir agendamento",
+        alvo: "espera-interruptor",
+        titulo: "Recuperar vagas sozinho",
         texto:
-          "Transforme um bom cliente em rotina: repita o mesmo horário por semana, quinzena ou mês.",
+          "Ligado, a vaga que abrir é oferecida pelo WhatsApp a quem está esperando e combina com ela.",
+      },
+      {
+        alvo: "espera-regras",
+        titulo: "Regras da lista",
+        texto:
+          "Escolha o prazo para responder, a antecedência mínima e se vale qualquer profissional.",
+      },
+      {
+        alvo: "espera-resumo",
+        titulo: "Quem está esperando",
+        texto:
+          "As pessoas ficam agrupadas pelo dia pedido. No ⋯ de cada uma: agendar, editar, mudar a ordem ou tirar.",
+      },
+    ],
+  },
+  {
+    id: "gestao-horarios",
+    rota: "/barbeiro/horarios",
+    nome: "Horários",
+    passos: [
+      {
+        alvo: "horarios-editor",
+        titulo: "Semana de atendimento",
+        texto:
+          "Cada dia tem o interruptor de aberto. Toque no horário para ajustar no relógio; o intervalo entra e sai com um toque.",
       },
     ],
   },
@@ -216,11 +238,16 @@ export const GUIAS: Guia[] = [
         alvo: "mais-lista",
         titulo: "Recursos avançados",
         texto:
-          "Crescimento, indicações, avaliações, produtos, fidelidade e sua página pública ficam aqui.",
+          "Dados do negócio, equipe, horários, WhatsApp, sua página, plano e ajuda ficam reunidos aqui.",
       },
     ],
   },
 ];
+
+/** Seletor do elemento de um passo: `css:` usa o seletor como está; o resto é `data-guia`. */
+export function seletorDoPasso(alvo: string): string {
+  return alvo.startsWith("css:") ? alvo.slice(4) : `[data-guia="${alvo}"]`;
+}
 
 export function guiaDaRota(pathname: string): Guia | undefined {
   const limpo = pathname.length > 1 ? pathname.replace(/\/$/, "") : pathname;

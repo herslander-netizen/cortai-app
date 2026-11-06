@@ -12,7 +12,7 @@ import { useRouterState } from "@tanstack/react-router";
 import { Lightbulb } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { guiaDaRota, type Guia } from "@/lib/guia/tours";
+import { guiaDaRota, seletorDoPasso, type Guia } from "@/lib/guia/tours";
 import { supabase } from "@/integrations/supabase/client";
 import { useModoFoco } from "@/lib/modo-foco";
 
@@ -120,7 +120,7 @@ export function GuiaProvider({ children }: { children: ReactNode }) {
     const id = window.setInterval(() => {
       tentativas += 1;
       const existe = guiaDisponivel.passos.some((p) =>
-        document.querySelector(`[data-guia="${p.alvo}"]`),
+        document.querySelector(seletorDoPasso(p.alvo)),
       );
       if (existe && !cancelado) {
         tentado.current = guiaDisponivel.id + pathname;
@@ -216,7 +216,7 @@ function GuiaOverlay({
   useEffect(() => {
     let raf = 0;
     const medir = () => {
-      const el = document.querySelector(`[data-guia="${atual.alvo}"]`) as HTMLElement | null;
+      const el = document.querySelector(seletorDoPasso(atual.alvo)) as HTMLElement | null;
       if (!el) {
         setAlvo(null);
         return;
@@ -224,7 +224,7 @@ function GuiaOverlay({
       const r = el.getBoundingClientRect();
       setAlvo({ top: r.top, left: r.left, width: r.width, height: r.height });
     };
-    const el = document.querySelector(`[data-guia="${atual.alvo}"]`) as HTMLElement | null;
+    const el = document.querySelector(seletorDoPasso(atual.alvo)) as HTMLElement | null;
     el?.scrollIntoView({ block: "center", behavior: "smooth" });
     const loop = () => {
       medir();

@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { getSessao } from "@/lib/sessao.functions";
 import {
   agrupar,
+  ehAvisoDeSistema,
   listarNotificacoes,
   marcarComoLida,
   marcarTodasComoLidas,
@@ -135,6 +136,7 @@ export function SinoDeAvisos() {
             guardarAvisoDoFoco();
             return;
           }
+          if (novo?.tipo && ehAvisoDeSistema({ tipo: novo.tipo })) return;
           if (novo?.titulo) mostrarAviso(novo.titulo, novo.corpo ?? null, novo.link ?? null);
           tocarRef.current();
         },
@@ -190,7 +192,8 @@ export function SinoDeAvisos() {
   }
   fecharRef.current = fecharCentral;
 
-  const lista = avisos ?? [];
+  // Avisos de configuração ficam no menu lateral (`AvisosDoSistemaNoMenu`); o sininho mostra a operação.
+  const lista = (avisos ?? []).filter((a) => !ehAvisoDeSistema(a));
   const naoLidas = lista.filter((a) => !a.lida_em).length;
   const naoVistos = contarNaoVistos(lista, ultimoVistoEm);
 

@@ -4,6 +4,7 @@ import {
   CartaoDeEmailNoMenu,
   CartaoDeWhatsappNoMenu,
 } from "@/components/layout/CartoesDeConfiguracaoDoMenu";
+import { AvisosDoSistemaNoMenu } from "@/components/layout/AvisosDoSistemaNoMenu";
 import { CartaoAvisosDoMenu, FaixaDesempenho } from "@/components/layout/DrawerMenuExtras";
 
 import { Button } from "@/components/ui/button";
@@ -130,6 +131,8 @@ export function DrawerDestaques({
         </div>
       ) : null}
 
+      {/* Avisos de configuração do sistema (conexão do WhatsApp, plataforma, teste) ficam aqui, fora do sininho. */}
+      <AvisosDoSistemaNoMenu tenantId={tenantId} fechar={fechar} />
       {/* Ordem do Figaro: e-mail, notificações do aparelho e alerta de WhatsApp (some quando os dois primeiros aparecem juntos). */}
       <CartaoDeEmailNoMenu />
       <CartaoAvisosDoMenu tenantId={tenantId} />

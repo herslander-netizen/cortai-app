@@ -27,6 +27,10 @@ e o que fez. O diário até 17/10/2026 está guardado, sem alterações, em
 7. **Sem segredos:** nunca escreva chaves, senhas ou tokens aqui. Cite só o nome da variável.
 
 ## Decisões do dono
+- 2026-11-06: **Entrada: "celular" escuro** (moldura e a parte que explica cada tópico), letras claras; o fundo da página continua branco e as telas do sistema continuam claras.
+- 2026-11-06: **Contingência do atendimento:** quando o automático não consegue conversar, mandar mensagem dizendo isso e o link do agendamento.
+- 2026-11-06: **Notificações de configuração do sistema no menu lateral; as demais no sininho.**
+- 2026-11-06: **Passo a passo do sistema atualizado.**
 - 2026-11-06: **WhatsApp: escolhas destacadas em caixa alta** ("Responda *SIM* … ou *NÃO*"); saudações, desistência por frase solta ("deixe, depois falo") e "não deu pra ir" precisam de resposta; voz precisa funcionar.
 - 2026-11-06: **Onboarding com uma geral visual** ("algumas coisas estão feias") e **entrada com telas brancas e letras escuras**, frases organizadas em duas linhas e símbolo do WhatsApp com telefone.
 - 2026-11-06: **Entrada: cartão e ícones como no vídeo de referência** ("manter o celular todo como o vídeo e os ícones com o mesmo efeito"): tela do sistema sem moldura de aparelho, linha da marca e legenda dentro do mesmo cartão; ícone ativo aceso com brilho e barrinha que enche durante o capítulo.
@@ -969,6 +973,14 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+### 2026-11-06 UTC — Claude — Cartão escuro, contingência, voz (404), guias e avisos de sistema no menu
+- **Entrada:** `historias/Celular.tsx` com corpo grafite (`--figaro-inverse-surface`), borda de 6 px, tela clara arredondada, traço curto da marca e legenda em `--figaro-inverse-on-surface`; rótulo em `--entrada-rosa`.
+- **Contingência (`whatsapp/contingencia.ts`):** quando nem o Flow Bot nem a Flow IA respondem: "No momento não estou conseguindo conversar por aqui. Para agendar, use o link: …" — no máximo a cada 30 min (antes 1x/24h, por isso o "Bom dia" do dia seguinte ficava sem resposta).
+- **Voz — causa achada:** os áudios de 12:09 gravaram `erro = "audio: transcrição recusada (404)"`: o provedor da Flow IA da prévia não tem `/audio/transcriptions`. Correções: `endpointDeTranscricao` completa o caminho quando `CORTAI_STT_BASE_URL` vem como base (como no `.env.example`); os dois workflows (prévia e Lançar versão) passam `CORTAI_STT_BASE_URL/MODEL/API_KEY` (segredos `PREVIEW_CORTAI_STT_*` e `CORTAI_STT_*`, vazios são ignorados). Enquanto não houver chave, o áudio responde "No momento não consigo ouvir áudios por aqui. Pode escrever?… link". **Pendente do dono:** criar os segredos de voz (ex.: Groq, `whisper-large-v3-turbo`).
+- **Passo a passo (`lib/guia/tours.ts`):** saiu o "Dashboard" (com "tesoura dourada" e alvos inexistentes); `/barbeiro` e `/barbeiro/agenda` ganham o guia da Agenda apontando elementos existentes por seletor (`css:` — menu, pílula Agora, +, lista, sininho; nada mudou na Agenda); novos guias de Lista de espera (`data-guia` em `barbeiro.fila.tsx`/`RegrasDaLista`) e Horários; textos de "Mais" e do histórico do cliente atualizados. `GuiaProvider` usa `seletorDoPasso`. Teste `tours.test.ts` confere que todo alvo existe no código.
+- **Avisos:** `TIPOS_DE_SISTEMA` (whatsapp_conexao, whatsapp_do_negocio_caiu, alerta_admin, teste) saem do sininho (lista, contagem, popup e "ler todos") e aparecem não lidos no menu lateral (`layout/AvisosDoSistemaNoMenu.tsx`, cartão padrão com Resolver/Entendi).
+- Gates: tsc 0; vitest 317 / 2547 ok; eslint sem erro novo; build ok; protocolo OK. Visual da entrada conferido a 390 px; o cartão do menu lateral não foi visto em tela (precisa de login).
+
 ### 2026-11-06 UTC — Claude — WhatsApp: saudação, desistência, "não deu pra ir", SIM/NÃO e diagnóstico da voz
 - **Achado na prévia (banco):** "Bom dia" (06:44, 10:32) e "Olá?" (10:34) ficaram sem resposta — o Flow Bot marcou `sem_regra` e a Flow IA não respondeu; "Deixe, depois falo com você" caiu em "Não entendi"; dois áudios de 05/11 21:22 chegaram sem texto.
 - **Saudação:** `decisao.ts` `ehSaudacao` (cumprimento curto); com ela o bot responde com o próprio "Olá" + menu em vez de passar para a IA (`bot.server.ts`). Regra de 04/11 mantida para o resto ("Obrigado", "quero remarcar" continuam com a IA).

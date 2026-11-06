@@ -16,15 +16,28 @@ type ConfiguracaoTranscricao = {
   modelo: string;
 };
 
+/**
+ * Endereço da transcrição. `CORTAI_STT_BASE_URL` pode vir como base ("https://api.groq.com/openai/v1", como no
+ * `.env.example`) ou já com `/audio/transcriptions`; sem ela, usa a base da Flow IA. Antes, a base sem o caminho
+ * dava 404 (prévia, 06/11/2026: "transcrição recusada (404)").
+ */
+export function endpointDeTranscricao(stt: string | undefined, baseDaIa: string): string {
+  const base = (stt?.trim() || baseDaIa).replace(/\/+$/, "");
+  return /\/audio\/transcriptions$/.test(base) ? base : `${base}/audio/transcriptions`;
+}
+
 /** Resolve o mesmo provedor escolhido para o cérebro; nunca troca silenciosamente de fornecedor. */
 function configuracaoTranscricao(): ConfiguracaoTranscricao | null {
   const leitura = lerConfigDoProvedor();
   if (!leitura.ok) return null;
   if (leitura.config.tipo !== "compativel") return null;
   return {
-    endpoint: (process.env["CORTAI_STT_BASE_URL"]?.trim().replace(/\/+$/, "") || `${leitura.config.baseUrl}/audio/transcriptions`),
+    endpoint: endpointDeTranscricao(process.env["CORTAI_STT_BASE_URL"], leitura.config.baseUrl),
     chave: process.env["CORTAI_STT_API_KEY"]?.trim() || leitura.config.chave,
-    modelo: process.env["CORTAI_STT_MODEL"]?.trim() || process.env["CORTAI_AI_TRANSCRIPTION_MODEL"]?.trim() || "whisper-1",
+    modelo:
+      process.env["CORTAI_STT_MODEL"]?.trim() ||
+      process.env["CORTAI_AI_TRANSCRIPTION_MODEL"]?.trim() ||
+      "whisper-1",
   };
 }
 const TAMANHO_MAXIMO = 24 * 1024 * 1024;
@@ -56,10 +69,9 @@ export async function buscarBase64NaEvolution(
   sessaoId: string,
   mensagem: Record<string, unknown>,
 ): Promise<string | null> {
-  const baseUrl = (process.env["EVOLUTION_API_URL"] ?? process.env["WHATSAPP_GATEWAY_URL"])?.replace(
-    /\/+$/,
-    "",
-  );
+  const baseUrl = (
+    process.env["EVOLUTION_API_URL"] ?? process.env["WHATSAPP_GATEWAY_URL"]
+  )?.replace(/\/+$/, "");
   const apiKey = process.env["EVOLUTION_API_KEY"] ?? process.env["WHATSAPP_GATEWAY_API_KEY"];
   if (!baseUrl || !apiKey) return null;
   const controle = new AbortController();
@@ -130,10 +142,10 @@ async function chamarTranscricao(
     const texto = typeof corpo?.["text"] === "string" ? corpo["text"].trim() : "";
     return texto.length >= 2 ? texto : null;
   } catch {
-    console.error(
-      "[whatsapp/audio] falha na transcrição",
-      { modelo, motivo: controle.signal.aborted ? "tempo esgotado" : "erro" },
-    );
+    console.error("[whatsapp/audio] falha na transcrição", {
+      modelo,
+      motivo: controle.signal.aborted ? "tempo esgotado" : "erro",
+    });
     return null;
   } finally {
     clearTimeout(relogio);

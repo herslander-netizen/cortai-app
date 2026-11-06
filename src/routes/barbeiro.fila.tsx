@@ -122,13 +122,18 @@ function FilaPage() {
       title="Lista de espera"
       subtitle="Vaga liberada é oferecida automaticamente a quem combina."
     >
-      <InterruptorListaDeEspera />
+      <div data-guia="espera-interruptor">
+        <InterruptorListaDeEspera />
+      </div>
       <RegrasDaLista />
 
       {isLoading ? <EsqueletoLista linhas={4} onTentarDeNovo={() => void refetch()} /> : null}
 
       {data ? (
-        <section className="mt-3 rounded-[20px] bg-[var(--figaro-surface-container,var(--ink2))] p-4">
+        <section
+          data-guia="espera-resumo"
+          className="mt-3 rounded-[20px] bg-[var(--figaro-surface-container,var(--ink2))] p-4"
+        >
           <p className="text-paper">
             <b className="text-[26px] leading-none">{total}</b>
             <span className="ml-2 text-sm text-mute">

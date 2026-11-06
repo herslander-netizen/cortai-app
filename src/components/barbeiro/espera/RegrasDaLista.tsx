@@ -68,6 +68,7 @@ export function RegrasDaLista() {
         type="button"
         variant="ghost"
         onClick={() => setAberta(true)}
+        data-guia="espera-regras"
         className="mt-3 flex h-auto min-h-14 w-full justify-start gap-3 rounded-[20px] font-normal bg-[var(--figaro-surface-container,var(--ink2))] px-4 text-left"
       >
         <SlidersHorizontal aria-hidden className="size-5 shrink-0 text-mute" />

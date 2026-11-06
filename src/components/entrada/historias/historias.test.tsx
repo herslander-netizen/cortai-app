@@ -72,7 +72,7 @@ describe("mini-histórias da entrada (vídeo de referência do dono, 06/11)", ()
   it("cartão como no vídeo (tela + linha da marca + legenda); texto sobre foto usa tokens inversos", () => {
     const celular = readFileSync(`${PASTA}/Celular.tsx`, "utf8");
     const base = readFileSync(`${PASTA}/base.tsx`, "utf8");
-    expect(celular).toContain("rounded-[28px] border");
+    expect(celular).toContain("bg-[var(--figaro-inverse-surface)]");
     expect(celular).toContain("{legenda}");
     expect(celular).not.toContain("14:31");
     const icones = readFileSync("src/components/entrada/IconesDosCapitulos.tsx", "utf8");
