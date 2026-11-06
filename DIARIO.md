@@ -982,6 +982,11 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+### 2026-11-06 UTC — Claude — Áudio: transcrição mais fiel e atendimento que segue por texto
+- Causa real do "áudio com erro" (banco da prévia): a transcrição **funcionava**, mas errava ("Número 1, na empresa de pele" no lugar de "limpeza de pele"), o bot respondia "Não entendi" e, na segunda, devolvia a conversa (contingência). Agora: modelo `whisper-large-v3` (não o turbo), `temperature 0` e dica de vocabulário (serviços do negócio + "opção número 1, 2, 3…") em `transcricao.server.ts`; "número 1, …"/"opção dois" valem como escolha no menu (`selecaoNumerica`).
+- Áudio que não entendeu no meio do atendimento: 1ª vez "Não consegui entender direito esse áudio. Pode escrever o número da opção, ou mandar o áudio de novo?"; 2ª vez "No momento não estamos conseguindo ouvir bem os áudios, mas dá para continuar por aqui escrevendo… basta dizer o que você quer e o horário…" e a conversa **não é devolvida** (por texto segue normal). Áudio sem transcrição (serviço fora) usa o mesmo convite (`textoDeAudioIndisponivel`) + aviso à equipe + link. Teste em `conduzir.test.ts` e `contingencia.test.ts`.
+- Entrada: ícones dos capítulos mais abaixo do celular; símbolo do WhatsApp voltou a ser só o balão. Página pública: rodapé padrão (`Signature`: Flow | Alvo Digital, Privacidade, © 2026 Herslander).
+
 ### 2026-11-06 UTC — Claude — Barrinha dos capítulos da entrada enchendo de verdade
 - A barrinha ficava cheia o tempo todo no celular (medido: largura sempre 100 %). Agora é CSS puro (`@keyframes entrada-encher` em `styles.css`, duração = tempo do capítulo), enche, passa ao próximo capítulo e volta ao primeiro (medido: 0,01 → 0,95 e o próximo começa em 0,15). Celular da entrada desceu um pouco (mais respiro sob o logo e a frase). Teste de `historias.test.tsx` atualizado.
 

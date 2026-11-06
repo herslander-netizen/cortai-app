@@ -27,7 +27,7 @@ export function IconesDosCapitulos({
   return (
     <nav
       aria-label="Selecionar recurso"
-      className="mx-auto flex w-full max-w-[320px] shrink-0 items-center justify-between pb-3 pt-3 [@media(max-height:720px)]:pb-1 [@media(max-height:720px)]:pt-1.5"
+      className="mx-auto flex w-full max-w-[320px] shrink-0 items-center justify-between pb-3 pt-6 [@media(max-height:720px)]:pb-1 [@media(max-height:720px)]:pt-3"
     >
       {capitulos.map((item, indice) => {
         const Icone = item.icone;

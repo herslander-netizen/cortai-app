@@ -168,6 +168,27 @@ describe("agendar na conversa", () => {
     expect(estado).toBeNull();
   });
 
+  it("áudio transcrito: 'número 1, ...' escolhe a opção e áudio ruim orienta a seguir por texto", async () => {
+    const { portas } = portasFalsas({ livres: { "2026-11-07": LIVRES_SABADO } });
+    const viaAudio = { ...portas, viaAudio: true };
+    const ok = await conduzir(
+      "Número 1, na empresa de pele.",
+      (await conduzir("quero marcar", null, viaAudio))!.estado,
+      viaAudio,
+    );
+    expect(ok!.textos[0]).toContain("Com quem");
+
+    let r = await conduzir("quero marcar", null, viaAudio);
+    r = await conduzir("A gente tá exa deputado, hein?", r!.estado, viaAudio);
+    expect(r!.textos[0]).toContain("Não consegui entender direito esse áudio");
+    r = await conduzir("blá blá blá", r!.estado, viaAudio);
+    expect(r!.textos[0]).toContain("dá para continuar por aqui escrevendo");
+    expect(r!.estado).not.toBeNull();
+    // Depois, por texto, o atendimento continua normalmente.
+    r = await conduzir("1", r!.estado, portas);
+    expect(r!.textos[0]).toContain("Com quem");
+  });
+
   it("pedido de atendente no meio do fluxo sai sem responder (o bot chama a equipe)", async () => {
     const { portas } = portasFalsas({ livres: { "2026-11-07": LIVRES_SABADO } });
     const { respostas, estado } = await conversar(

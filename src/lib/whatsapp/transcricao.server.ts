@@ -17,7 +17,9 @@ type ConfiguracaoTranscricao = {
 };
 
 const BASE_DA_GROQ = "https://api.groq.com/openai/v1";
-const MODELO_DA_GROQ = "whisper-large-v3-turbo";
+// Modelo completo (não o "turbo"): entende melhor português falado no celular (06/11/2026: "Número 1, limpeza de pele"
+// saía como "na empresa de pele").
+const MODELO_DA_GROQ = "whisper-large-v3";
 /** Chave da Groq sempre começa com "gsk_": serve para achar o provedor quando só a chave foi configurada. */
 const ehChaveDaGroq = (chave: string | undefined) => Boolean(chave?.trim().startsWith("gsk_"));
 
@@ -141,6 +143,7 @@ async function chamarTranscricao(
   modelo: string,
   configuracao: ConfiguracaoTranscricao,
   aoRecusar?: (status: number) => void,
+  dica?: string,
 ): Promise<string | null> {
   const formulario = new FormData();
   formulario.append(
@@ -150,6 +153,9 @@ async function chamarTranscricao(
   );
   formulario.append("model", modelo);
   formulario.append("language", "pt");
+  formulario.append("temperature", "0");
+  // Dica de vocabulário (nomes dos serviços do negócio e palavras do atendimento): ajuda o modelo a acertar.
+  if (dica) formulario.append("prompt", dica.slice(0, 600));
 
   const controle = new AbortController();
   const relogio = setTimeout(() => controle.abort(), TEMPO_LIMITE_MS);
@@ -181,6 +187,17 @@ async function chamarTranscricao(
   }
 }
 
+/** Frase de apoio para o modelo: o cliente fala as opções do menu e os serviços do negócio. */
+export function dicaDeVocabulario(servicos: readonly string[]): string {
+  const nomes = servicos
+    .map((n) => n.trim())
+    .filter(Boolean)
+    .slice(0, 25);
+  const base =
+    "Agendamento por WhatsApp. Opção número 1, 2, 3. Quero marcar horário amanhã, hoje, sim, não.";
+  return nomes.length ? `${base} Serviços: ${nomes.join(", ")}.` : base;
+}
+
 /**
  * Transcreve o áudio em Base64 por inteiro (sem cortar o final). Se o modelo
  * principal falhar ou não entender, tenta o modelo reserva em pt-BR.
@@ -193,6 +210,8 @@ export async function transcreverAudioBase64(
     duracaoS?: number | null;
     /** Recebe o status HTTP quando o serviço recusa (ex.: 402 sem crédito). */
     aoRecusar?: (status: number) => void;
+    /** Nomes dos serviços do negócio: viram a dica de vocabulário da transcrição. */
+    servicos?: readonly string[];
   } = {},
 ): Promise<string | null> {
   const configuracao = configuracaoTranscricao();
@@ -212,6 +231,7 @@ export async function transcreverAudioBase64(
     configuracao.modelo,
     configuracao,
     opcoes.aoRecusar,
+    dicaDeVocabulario(opcoes.servicos ?? []),
   );
   return principal;
 }

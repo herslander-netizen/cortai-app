@@ -63,6 +63,11 @@ export const TEXTOS = {
   mantido: "Tudo bem, mantive seu horário.",
   naoMarcou: "Sem problema, não marquei. Me diga outro dia ou horário, ou *menu* para recomeçar.",
   naoEntendiHorario: "Não entendi. Responda com o número do horário ou me diga outro dia.",
+  // Áudio que não deu para entender no meio do atendimento (dono, 06/11/2026): segue pelo texto, sem travar.
+  audioNaoEntendido:
+    "Não consegui entender direito esse áudio. Pode escrever o número da opção, ou mandar o áudio de novo?",
+  audioSigaPorTexto:
+    "No momento não estamos conseguindo ouvir bem os áudios, mas dá para continuar por aqui escrevendo. Basta dizer o que você quer e o horário que prefere, que a gente vai ajustando. Assim que for possível ouvir seu áudio, a conversa continua por voz também.",
   naoEntendiOpcao: "Não entendi. Responda com o número de uma das opções.",
   ocupado: "Esse horário acabou de ser ocupado. Veja os que ainda estão livres:",
   semHorarioAgendado:

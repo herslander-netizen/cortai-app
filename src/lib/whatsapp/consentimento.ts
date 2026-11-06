@@ -13,10 +13,7 @@ export const FINALIDADES_WHATSAPP = [
 ] as const;
 
 export type FinalidadeWhatsapp = (typeof FINALIDADES_WHATSAPP)[number];
-export type AcaoConsentimentoWhatsapp =
-  | "concedido"
-  | "revogado"
-  | "reconsentimento_solicitado";
+export type AcaoConsentimentoWhatsapp = "concedido" | "revogado" | "reconsentimento_solicitado";
 
 export const FINALIDADES_DE_SERVICO: readonly FinalidadeWhatsapp[] = [
   "avisos_agendamento",
@@ -29,9 +26,7 @@ export type EventoConsentimentoWhatsapp = {
   finalidade: FinalidadeWhatsapp;
 };
 
-export type DecisaoConsentimentoWhatsapp =
-  | { pode: true }
-  | { pode: false; motivo: string };
+export type DecisaoConsentimentoWhatsapp = { pode: true } | { pode: false; motivo: string };
 
 /** Normaliza o telefone para E.164. O banco guarda o sinal + e não pontuação. */
 export function telefoneEmE164(telefone: string | null | undefined): string | null {
@@ -49,7 +44,10 @@ export function decidirConsentimentoWhatsapp(input: {
   ultimaAcao: AcaoConsentimentoWhatsapp | null;
 }): DecisaoConsentimentoWhatsapp {
   if (input.suprimido) {
-    return { pode: false, motivo: "Este telefone pediu para interromper as mensagens automáticas." };
+    return {
+      pode: false,
+      motivo: "Este telefone pediu para interromper as mensagens automáticas.",
+    };
   }
   if (input.ultimaAcao !== "concedido") {
     return { pode: false, motivo: "Não existe consentimento válido para esta finalidade." };

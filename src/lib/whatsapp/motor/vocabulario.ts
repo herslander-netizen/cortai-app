@@ -361,6 +361,15 @@ export function escolherServicoPorCanonico<T extends { nome: string }>(
   return { tipo: "nenhum" };
 }
 
+const CARDINAIS: Record<string, number> = {
+  um: 1,
+  uma: 1,
+  dois: 2,
+  duas: 2,
+  tres: 3,
+  quatro: 4,
+  cinco: 5,
+};
 const NUMEROS_ESCRITOS: Record<string, number> = {
   primeiro: 1,
   primeira: 1,
@@ -383,6 +392,15 @@ export function selecaoNumerica(textoNormalizado: string, totalDeOpcoes: number)
   );
   if (comIndicador) {
     const n = Number(comIndicador[1]);
+    return n >= 1 && n <= totalDeOpcoes ? n : null;
+  }
+  // Áudio transcrito: "número 1, limpeza de pele", "opção dois por favor" (o número vem logo depois da palavra-guia).
+  const aposIndicador = textoNormalizado.match(
+    /^(?:eu\s+quero\s+)?(?:a\s+|o\s+)?(?:opcao|numero|item)\s*(\d{1,2}|um|uma|dois|duas|tres|quatro|cinco)\b/,
+  );
+  if (aposIndicador) {
+    const bruto = aposIndicador[1] ?? "";
+    const n = /^\d/.test(bruto) ? Number(bruto) : (CARDINAIS[bruto] ?? 0);
     return n >= 1 && n <= totalDeOpcoes ? n : null;
   }
   const selecaoPorExtenso = textoNormalizado.match(

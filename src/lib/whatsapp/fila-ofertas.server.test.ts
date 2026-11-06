@@ -171,7 +171,6 @@ describe("recuperação automática de vagas", () => {
     expect(st.inserts).toHaveLength(0);
   });
 
-
   it("recusa passa ao próximo quando ligada", async () => {
     st.recusada = { fila_id: "primeiro", agendamento_liberado_id: "ag1" };
     const { recusarOferta } = await import("./fila-ofertas.server");

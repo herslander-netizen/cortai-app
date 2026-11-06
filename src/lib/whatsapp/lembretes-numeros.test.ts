@@ -150,9 +150,7 @@ describe("bug do '1' — dois avisos abertos", () => {
   });
 
   it("número aceito mesmo se outra mensagem saiu depois do aviso (dentro do prazo)", async () => {
-    banco.tabelas["envios_de_whatsapp"] = [
-      aviso("e1", "ag1", ["CORTAI_CONFIRMAR"], hora(-30)),
-    ];
+    banco.tabelas["envios_de_whatsapp"] = [aviso("e1", "ag1", ["CORTAI_CONFIRMAR"], hora(-30))];
     const r = await responder("1");
     expect(r?.texto).toMatch(/^Confirmado ✅/);
   });

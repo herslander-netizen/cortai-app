@@ -115,14 +115,15 @@ export async function verificarConsentimentoWhatsapp(input: {
     }
 
     const suprimido = supressao.data !== null;
-    const acao = ultimoEvento.data &&
+    const acao =
+      ultimoEvento.data &&
       typeof ultimoEvento.data === "object" &&
       "action" in ultimoEvento.data &&
       (ultimoEvento.data.action === "concedido" ||
         ultimoEvento.data.action === "revogado" ||
         ultimoEvento.data.action === "reconsentimento_solicitado")
-      ? ultimoEvento.data.action
-      : null;
+        ? ultimoEvento.data.action
+        : null;
 
     return decidirConsentimentoWhatsapp({ suprimido, ultimaAcao: acao });
   } catch {
@@ -190,7 +191,9 @@ export async function registrarConsentimentoWhatsapp(input: {
     .is("released_at", null)
     .select("id");
   if (erroLiberacao) {
-    throw new Error("Consentimento salvo, mas não foi possível atualizar a supressão: " + erroLiberacao.message);
+    throw new Error(
+      "Consentimento salvo, mas não foi possível atualizar a supressão: " + erroLiberacao.message,
+    );
   }
 
   if (input.clienteId) {
@@ -295,11 +298,7 @@ export async function suprimirWhatsapp(input: {
   };
   const { error: erroEventos } = await db
     .from("whatsapp_consent_events")
-    .insert(
-      FINALIDADES_WHATSAPP.map((finalidade) =>
-        evento(dadosEvento, finalidade, "revogado"),
-      ),
-    );
+    .insert(FINALIDADES_WHATSAPP.map((finalidade) => evento(dadosEvento, finalidade, "revogado")));
   if (erroEventos) {
     // A trava ativa já existe, então a falha de auditoria não libera mensagens.
     throw new Error("Bloqueio aplicado; não foi possível completar o histórico de consentimento.");

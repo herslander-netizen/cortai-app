@@ -32,7 +32,8 @@ export async function avisarEquipePorWhatsapp(input: {
     const { conexaoDeEnvio } = await import("./conexao-envio.server");
     const conexao = await conexaoDeEnvio(input.tenantId, "notificacoes");
     if (!conexao) {
-      for (const d of input.destinatarios) resultado[d.userId] = { enviar: false, motivo: "sem_conexao" };
+      for (const d of input.destinatarios)
+        resultado[d.userId] = { enviar: false, motivo: "sem_conexao" };
       return resultado;
     }
     const { conversaDoTelefone, enviarPelaBarbearia } = await import("./fluxo.server");
@@ -48,7 +49,11 @@ export async function avisarEquipePorWhatsapp(input: {
         continue;
       }
       // Trava por pessoa: um aviso não crítico por janela de cooldown.
-      const bloqueio = chaveDeBloqueio({ canal: "whatsapp", evento: input.evento, userId: alvo.userId });
+      const bloqueio = chaveDeBloqueio({
+        canal: "whatsapp",
+        evento: input.evento,
+        userId: alvo.userId,
+      });
       if (bloqueio) {
         const { error: travado } = await db.from("push_entregas").insert({ chave: bloqueio });
         if (travado) {

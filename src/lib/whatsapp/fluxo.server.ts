@@ -529,11 +529,24 @@ export async function processarMensagemRecebida(input: {
     let b64 = input.audio.base64;
     if (!b64) b64 = await t.buscarBase64NaEvolution(input.sessaoId, input.audio.mensagemBruta);
     let recusa: number | null = null;
+    // Nomes dos serviços do negócio como dica de vocabulário (acerta "limpeza de pele", "design de sobrancelha"...).
+    const donoDoAudio = b64 ? await conexaoPorSessao(input.sessaoId).catch(() => null) : null;
+    const { data: servicosDoNegocio } = donoDoAudio?.tenant_id
+      ? await db
+          .from("servicos")
+          .select("nome")
+          .eq("tenant_id", donoDoAudio.tenant_id)
+          .eq("ativo", true)
+          .limit(25)
+      : { data: null };
     const texto = b64
       ? await t.transcreverAudioBase64(b64, {
           mimetype: input.audio.mimetype ?? null,
           duracaoS: input.audio.duracaoS ?? null,
           aoRecusar: (status) => (recusa = status),
+          servicos: (servicosDoNegocio ?? []).map((x) =>
+            String((x as { nome?: string }).nome ?? ""),
+          ),
         })
       : null;
     if (!texto) {
@@ -897,6 +910,7 @@ export async function processarMensagemRecebida(input: {
       texto: textoDoTurno,
       mensagemExternaId: input.mensagemExternaId ?? null,
       nomeContato: input.nomeContato ?? null,
+      viaAudio: tipoGravado === "audio",
     }).catch((e: unknown) => {
       console.error("[flow-bot] whatsapp", e);
       return false;

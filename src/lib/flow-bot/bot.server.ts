@@ -60,6 +60,8 @@ export type EntradaDoBot = {
   texto: string;
   mensagemExternaId: string | null;
   nomeContato: string | null;
+  /** O texto veio de um áudio transcrito. */
+  viaAudio?: boolean;
 };
 
 export async function responderComFlowBot(input: EntradaDoBot): Promise<boolean> {

@@ -35,7 +35,8 @@ export const registrarPreferenciaWhatsappDoCliente = createServerFn({ method: "P
       .eq("id", data.clienteId)
       .eq("tenant_id", tenantId)
       .maybeSingle();
-    if (error || !cliente?.telefone) throw new Error("Cliente não encontrado ou sem telefone válido.");
+    if (error || !cliente?.telefone)
+      throw new Error("Cliente não encontrado ou sem telefone válido.");
 
     if (data.autorizado) {
       await registrarConsentimentoWhatsapp({

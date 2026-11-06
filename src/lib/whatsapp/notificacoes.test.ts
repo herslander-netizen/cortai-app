@@ -81,9 +81,9 @@ describe("matriz transacional do Flow Chat", () => {
     expect(montarMensagem("lembrete_2h", comCreditos)).toContain(
       "Créditos de atendimento disponíveis: 3",
     );
-    expect(
-      montarMensagem("lembrete_24h", { ...dados, creditosDisponiveis: 0 }),
-    ).not.toContain("Créditos de atendimento");
+    expect(montarMensagem("lembrete_24h", { ...dados, creditosDisponiveis: 0 })).not.toContain(
+      "Créditos de atendimento",
+    );
   });
 
   it("mantém o fallback curto, neutro e convidando a conversar", () => {

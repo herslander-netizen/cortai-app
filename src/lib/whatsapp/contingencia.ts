@@ -34,13 +34,17 @@ export function textoDeContingencia(link: string, responsavel?: string | null): 
   ].join("\n");
 }
 
-/** Áudio sem transcrição (serviço fora do ar ou sem configuração): repetir não adianta. */
+/**
+ * Áudio sem transcrição (serviço fora do ar ou sem configuração): repetir não adianta, então o atendimento segue por
+ * texto (dono, 06/11/2026: "no momento não estamos conseguindo ouvir áudio, mas dá pra continuar aqui").
+ */
 export function textoDeAudioIndisponivel(link: string, responsavel?: string | null): string {
   const r = quemResponde(responsavel);
   return [
-    "Oi! No momento não consigo ouvir áudios por aqui.",
-    `${r.nome === "a equipe" ? "A equipe já foi avisada" : `${r.nome} já foi avisado`} de que você quer falar e responde assim que possível. Se puder, escreva sua mensagem.`,
+    "Oi! No momento não estamos conseguindo ouvir áudios, mas dá para continuar por aqui escrevendo.",
+    "Basta dizer o que você quer e o horário que prefere, que a gente vai ajustando. Assim que for possível ouvir seu áudio, a conversa segue por voz também.",
+    `${r.nome === "a equipe" ? "A equipe já foi avisada" : `${r.nome} já foi avisado`} e responde assim que possível.`,
     "",
-    `Para agendar, veja um horário disponível na agenda: ${link}`,
+    `Se preferir, veja um horário disponível na agenda: ${link}`,
   ].join("\n");
 }

@@ -16,6 +16,8 @@ export type EntradaDaAgenda = {
   telefone: string;
   texto: string;
   mensagemExternaId: string | null;
+  /** O texto veio de um áudio transcrito. */
+  viaAudio?: boolean;
   conversa: Record<string, unknown> | null;
   agora: number;
 };
@@ -38,7 +40,7 @@ export async function atenderAgendaNaConversa(e: EntradaDaAgenda): Promise<boole
     slug: (tenant as { slug?: string } | null)?.slug ?? null,
     agora,
   });
-  const r = await conduzir(e.texto, anterior, portas);
+  const r = await conduzir(e.texto, anterior, { ...portas, viaAudio: e.viaAudio === true });
 
   const gravarEstado = (agenda: unknown, limparCerebro: boolean) =>
     db

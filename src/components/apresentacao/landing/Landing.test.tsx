@@ -1,10 +1,15 @@
 // @vitest-environment jsdom
 import { act, createElement } from "react";
 import { createRoot } from "react-dom/client";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { describe, expect, it, vi } from "vitest";
 
 import { APRESENTACAO_PADRAO } from "@/lib/apresentacao-conteudo";
 import { PLANOS_COMERCIAIS } from "@/lib/planos-comerciais";
+
+vi.mock("@/lib/institucional.functions", () => ({
+  getContatoDaPlataforma: async () => ({ whatsapp: null }),
+}));
 
 vi.mock("@tanstack/react-router", () => ({
   Link: ({ children, to }: { children: React.ReactNode; to: string }) =>
@@ -33,7 +38,15 @@ function desenhar(conteudo = APRESENTACAO_PADRAO) {
   const div = document.createElement("div");
   document.body.append(div);
   const raiz = createRoot(div);
-  act(() => raiz.render(createElement(Landing, { conteudo })));
+  act(() =>
+    raiz.render(
+      createElement(
+        QueryClientProvider,
+        { client: new QueryClient() },
+        createElement(Landing, { conteudo }),
+      ),
+    ),
+  );
   return { div, fechar: () => act(() => raiz.unmount()) };
 }
 
@@ -56,6 +69,14 @@ describe("página pública promocional", () => {
     const titulos = [...div.querySelectorAll("h3")].map((h) => h.textContent);
     for (const plano of PLANOS_COMERCIAIS) expect(titulos).toContain(plano.nome);
     expect(div.textContent).toContain("Pergunta de teste");
+    fechar();
+  });
+
+  it("termina com o rodapé padrão (Alvo Digital, privacidade e direitos)", () => {
+    const { div, fechar } = desenhar();
+    expect(div.textContent).toContain("Alvo Digital");
+    expect(div.textContent).toContain("Privacidade");
+    expect(div.textContent).toContain("© 2026 Herslander");
     fechar();
   });
 

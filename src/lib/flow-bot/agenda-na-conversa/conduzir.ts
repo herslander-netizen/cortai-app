@@ -45,6 +45,8 @@ export type AgendamentoDoCliente = {
 };
 
 export type Portas = {
+  /** A mensagem veio de um áudio transcrito: erro de entendimento vira orientação para seguir por texto. */
+  viaAudio?: boolean;
   fuso: string;
   agora: Date;
   link: string | null;
@@ -316,7 +318,7 @@ async function continuar(
           classificar(texto, { fuso: portas.fuso }).entidades.servico,
           portas,
         );
-      if (!e.servicoId) return naoEntendeu(e, TEXTOS.naoEntendiOpcao);
+      if (!e.servicoId) return naoEntendeu(e, TEXTOS.naoEntendiOpcao, portas.viaAudio);
       if (dia) e.dia = dia;
       if (periodo) e.periodo = periodo;
       return avancar(e, portas);
@@ -331,7 +333,7 @@ async function continuar(
         e.profissionalDefinido = true;
       } else {
         await preencherDoTexto(e, texto, null, portas);
-        if (!e.profissionalDefinido) return naoEntendeu(e, TEXTOS.naoEntendiOpcao);
+        if (!e.profissionalDefinido) return naoEntendeu(e, TEXTOS.naoEntendiOpcao, portas.viaAudio);
       }
       if (dia) e.dia = dia;
       if (periodo) e.periodo = periodo;
@@ -351,11 +353,12 @@ async function continuar(
         e.opcoes = [];
         return avancar(e, portas);
       }
-      return naoEntendeu(e, TEXTOS.naoEntendiHorario);
+      return naoEntendeu(e, TEXTOS.naoEntendiHorario, portas.viaAudio);
     }
     case "nome": {
       const nome = texto.trim().replace(/\s+/g, " ");
-      if (!/^[\p{L}][\p{L}' .-]{1,59}$/u.test(nome)) return naoEntendeu(e, TEXTOS.nomeInvalido);
+      if (!/^[\p{L}][\p{L}' .-]{1,59}$/u.test(nome))
+        return naoEntendeu(e, TEXTOS.nomeInvalido, portas.viaAudio);
       e.nome = nome;
       return avancar(e, portas);
     }
@@ -375,11 +378,11 @@ async function continuar(
         e.etapa = "horario";
         return { textos: [TEXTOS.naoMarcou], estado: e };
       }
-      return naoEntendeu(e, TEXTOS.responderSimOuNao);
+      return naoEntendeu(e, TEXTOS.responderSimOuNao, portas.viaAudio);
     }
     case "escolher_agendamento": {
       const escolhida = opcaoEscolhida(t, e.opcoes);
-      if (!escolhida) return naoEntendeu(e, TEXTOS.naoEntendiOpcao);
+      if (!escolhida) return naoEntendeu(e, TEXTOS.naoEntendiOpcao, portas.viaAudio);
       const lista = await portas.agendamentos();
       const a = lista.find((x) => x.id === escolhida.valor);
       if (!a) return { textos: [TEXTOS.semHorarioAgendado], estado: null };
@@ -388,7 +391,14 @@ async function continuar(
   }
 }
 
-function naoEntendeu(e: EstadoDaAgenda, texto: string): Resultado {
+function naoEntendeu(e: EstadoDaAgenda, texto: string, viaAudio = false): Resultado {
+  if (viaAudio) {
+    // Áudio: primeiro pede de novo ou por escrito; na segunda, convida a seguir por texto e dá nova chance
+    // (nunca devolve a conversa só porque o áudio veio ruim).
+    if (e.semEntender >= 1)
+      return { textos: [TEXTOS.audioSigaPorTexto], estado: { ...e, semEntender: 0 } };
+    return { textos: [TEXTOS.audioNaoEntendido], estado: { ...e, semEntender: e.semEntender + 1 } };
+  }
   // Duas vezes sem entender: devolve a conversa (Flow Bot e Flow IA) em vez de insistir.
   if (e.semEntender >= 1) return { textos: [], estado: null };
   return { textos: [texto], estado: { ...e, semEntender: e.semEntender + 1 } };

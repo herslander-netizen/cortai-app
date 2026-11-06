@@ -3,7 +3,7 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { ArrowRight, Check, ChevronDown } from "lucide-react";
 
-import { MarcaFlow } from "@/components/marca/MarcaFlow";
+import { Signature } from "@/components/layout/Signature";
 import { Button } from "@/components/ui/button";
 import type { ConteudoApresentacao } from "@/lib/apresentacao-conteudo";
 import { PLANOS_COMERCIAIS, precoComercial } from "@/lib/planos-comerciais";
@@ -187,13 +187,9 @@ export function ChamadaFinal({ conteudo }: { conteudo: ConteudoApresentacao["fin
           </Link>
         </Button>
       </Revelar>
-      <footer className="relative mx-auto mt-16 flex max-w-5xl flex-col items-center justify-between gap-4 border-t border-[var(--linha)] pt-6 sm:flex-row">
-        <MarcaFlow variante="escura" className="h-auto w-20" />
-        <p className="text-[12px] text-[var(--texto-suave)]">Flow — seu negócio no ritmo certo.</p>
-        <Link to="/login" className="text-[13px] font-semibold text-[var(--figaro-primary)]">
-          Entrar
-        </Link>
-      </footer>
+      <div className="relative mt-12 [&_.brand-logo-on-dark]:!hidden [&_.brand-logo-on-light]:!block">
+        <Signature />
+      </div>
     </section>
   );
 }

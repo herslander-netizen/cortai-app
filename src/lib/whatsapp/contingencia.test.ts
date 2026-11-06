@@ -35,10 +35,11 @@ describe("contingência do atendimento automático", () => {
     expect(fluxo).toContain("Date.now() - INTERVALO_DA_CONTINGENCIA_MS");
   });
 
-  it("áudio com transcrição fora do ar pede para escrever e manda o link", () => {
+  it("áudio com transcrição fora do ar convida a continuar por texto e manda o link", () => {
     const t = textoDeAudioIndisponivel("https://x/agendar/demo", "Ricardo");
     expect(t).toContain("Ricardo já foi avisado");
-    expect(t).toContain("escreva sua mensagem");
+    expect(t).toContain("dá para continuar por aqui escrevendo");
+    expect(t).toContain("o horário que prefere");
     expect(t).toContain("https://x/agendar/demo");
   });
   it("nome com cara de usuário vira 'a equipe'; nome de pessoa ganha maiúscula", async () => {

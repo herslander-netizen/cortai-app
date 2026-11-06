@@ -8,7 +8,7 @@ import { Cabecalho, Heroi } from "./Topo";
 /** Página pública promocional do Flow (antes do login): claro, escuro, claro… com telas animadas do produto. */
 export function Landing({ conteudo }: { conteudo: ConteudoApresentacao }) {
   return (
-    <div style={TEMA_CLARO} className="min-h-dvh bg-[var(--fundo)] text-[var(--texto)]">
+    <div style={TEMA_CLARO} className="light min-h-dvh bg-[var(--fundo)] text-[var(--texto)]">
       <Cabecalho />
       <main>
         <Heroi conteudo={conteudo.hero} />
