@@ -52,6 +52,30 @@ function FotosFlutuantes() {
   );
 }
 
+/** No celular as fotos entram em um mosaico abaixo do texto, sem competir com o título. */
+function MosaicoMobile() {
+  const reduzir = useReducedMotion();
+  const itens = [
+    { src: "/exemplos/profissional-1.webp", c: "mt-6", d: 0 },
+    { src: "/exemplos/galeria-3.webp", c: "-mt-2", d: 0.8 },
+    { src: "/exemplos/profissional-3.webp", c: "mt-10", d: 1.6 },
+  ];
+  return (
+    <div className="mt-10 grid w-full grid-cols-3 gap-3 sm:hidden" aria-hidden>
+      {itens.map((f) => (
+        <motion.img
+          key={f.src}
+          src={f.src}
+          alt=""
+          className={`aspect-[3/4] w-full rounded-[22px] object-cover shadow-[0_18px_36px_-18px_rgba(40,40,120,0.5)] ring-4 ring-white/80 ${f.c}`}
+          animate={reduzir ? { y: 0 } : { y: [0, -8, 0] }}
+          transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: f.d }}
+        />
+      ))}
+    </div>
+  );
+}
+
 export function Heroi({ conteudo }: { conteudo: ConteudoApresentacao["hero"] }) {
   const reduzir = useReducedMotion();
   return (
@@ -71,7 +95,7 @@ export function Heroi({ conteudo }: { conteudo: ConteudoApresentacao["hero"] }) 
         ))}
       </div>
       <FotosFlutuantes />
-      <div className="relative mx-auto flex max-w-3xl flex-col items-center px-5 pb-16 pt-14 text-center sm:pt-20">
+      <div className="relative mx-auto flex max-w-3xl flex-col items-center px-5 pb-14 pt-10 text-center sm:pt-20">
         <motion.span
           className="inline-flex items-center gap-1.5 rounded-full bg-[var(--figaro-tertiary-container)] px-3.5 py-1.5 text-[12px] font-bold tracking-wide text-[var(--figaro-on-tertiary-container)]"
           initial={{ opacity: 0, y: 12 }}
@@ -111,6 +135,7 @@ export function Heroi({ conteudo }: { conteudo: ConteudoApresentacao["hero"] }) 
             <Link to="/login">Já tenho conta</Link>
           </Button>
         </motion.div>
+        <MosaicoMobile />
         <ul className="mt-8 flex flex-wrap justify-center gap-x-5 gap-y-2 text-[13px] text-[var(--texto-suave)]">
           <li className="flex items-center gap-1.5">
             <CalendarCheck size={15} /> Agenda e clientes

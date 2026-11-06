@@ -1,6 +1,6 @@
 import type { ConteudoApresentacao } from "@/lib/apresentacao-conteudo";
 import { Capitulos } from "./Capitulos";
-import { ChamadaFinal, FaixaDeFotos, Perguntas, Planos } from "./Fechamento";
+import { BarraDoCelular, ChamadaFinal, FaixaDeFotos, Perguntas, Planos } from "./Fechamento";
 import { OfertaGratis } from "./OfertaGratis";
 import { TEMA_CLARO } from "./tema";
 import { Cabecalho, Heroi } from "./Topo";
@@ -19,6 +19,7 @@ export function Landing({ conteudo }: { conteudo: ConteudoApresentacao }) {
         <Perguntas bloco={conteudo.duvidas} perguntas={conteudo.perguntas} />
         <ChamadaFinal conteudo={conteudo.final} />
       </main>
+      <BarraDoCelular />
     </div>
   );
 }

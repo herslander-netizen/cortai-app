@@ -986,6 +986,7 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - Nova página em `src/components/apresentacao/landing/` (Topo, OfertaGratis, Capitulos, Fechamento, Landing, tema, Revelar), ligada em `src/routes/apresentacao.tsx`. Reaproveita as telas animadas dos 5 capítulos da entrada dentro do celular escuro; fotos de `public/exemplos`; planos vêm de `PLANOS_COMERCIAIS`.
 - Textos padrão de `apresentacao-conteudo.ts` atualizados (sem "Conecta", sem "40 agendamentos", sem "45 dias" como oferta); `/admin/home` continua editando hero, planos, dúvidas, perguntas e final. Os blocos de capítulos são texto fixo no código.
 - `ShowroomCortai.tsx` e `NarrativaApresentacao.tsx` ficaram sem uso (não apagados: precisa de autorização).
+- Mobile primeiro (dono, 06/11): mosaico de fotos na abertura, botão fixo "Começar grátis · sem cartão" ao rolar, espaçamentos enxutos; desktop é adaptação.
 - Testes: `landing/Landing.test.tsx`. tsc, vitest (2569), eslint, build e protocolo OK. Visual conferido a 390 e 1280 px (só tema claro/escuro por seção; não conferi 360 nem a prévia no ar).
 
 ### 2026-11-06 UTC — Claude — Voz (causa do 404) e fluidez da troca de dia na Agenda

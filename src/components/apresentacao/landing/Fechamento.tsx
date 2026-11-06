@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
-import { motion, useReducedMotion } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { useEffect, useState } from "react";
 import { ArrowRight, Check, ChevronDown } from "lucide-react";
 
 import { MarcaFlow } from "@/components/marca/MarcaFlow";
@@ -179,5 +180,33 @@ export function ChamadaFinal({ conteudo }: { conteudo: ConteudoApresentacao["fin
         </Link>
       </footer>
     </section>
+  );
+}
+
+/** Botão fixo no celular: aparece depois da abertura e acompanha a rolagem (só transform/opacity). */
+export function BarraDoCelular() {
+  const [visivel, setVisivel] = useState(false);
+  useEffect(() => {
+    const ver = () => setVisivel(window.scrollY > 520);
+    ver();
+    window.addEventListener("scroll", ver, { passive: true });
+    return () => window.removeEventListener("scroll", ver);
+  }, []);
+  return (
+    <AnimatePresence>
+      {visivel ? (
+        <motion.div
+          className="fixed inset-x-0 bottom-0 z-30 border-t border-[var(--linha)] bg-[var(--fundo)]/92 px-4 pb-[max(12px,env(safe-area-inset-bottom))] pt-3 backdrop-blur sm:hidden"
+          initial={{ y: 80, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          exit={{ y: 80, opacity: 0 }}
+          transition={{ duration: 0.2 }}
+        >
+          <Button asChild size="lg" className="w-full">
+            <Link to="/comecar">Começar grátis · sem cartão</Link>
+          </Button>
+        </motion.div>
+      ) : null}
+    </AnimatePresence>
   );
 }
