@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { MarcaFlow } from "@/components/marca/MarcaFlow";
 import { CAPITULOS } from "@/components/entrada/historias/capitulos";
 import { Celular } from "@/components/entrada/historias/Celular";
+import { IconesDosCapitulos } from "@/components/entrada/IconesDosCapitulos";
 import { OndasDaEntrada } from "@/components/entrada/OndasDaEntrada";
 import { MOLA } from "@/lib/movimento-figaro";
 
@@ -59,7 +60,7 @@ export function FlowWelcome({ onCreateAccount, onSignIn, onCustomerBooking }: Fl
         aria-label="Conheça os recursos do Flow"
         className="relative z-10 flex min-h-0 flex-1 flex-col pt-4 [@media(max-height:720px)]:pt-2"
       >
-        {/* Celular parado; só a tela muda. Arrastar para os lados troca de capítulo. */}
+        {/* Cartão como no vídeo: só a tela e a legenda mudam. Arrastar para os lados troca de capítulo. */}
         <motion.div
           className="relative min-h-0 flex-1"
           drag={reduceMotion ? false : "x"}
@@ -78,7 +79,26 @@ export function FlowWelcome({ onCreateAccount, onSignIn, onCustomerBooking }: Fl
           }}
           style={{ touchAction: "pan-y" }}
         >
-          <Celular>
+          <Celular
+            legenda={
+              <AnimatePresence mode="wait" initial={false}>
+                <motion.div
+                  key={activeIndex + "-caption"}
+                  initial={{ opacity: 0, y: reduceMotion ? 0 : 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: reduceMotion ? 0 : -6 }}
+                  transition={MOLA.padraoEspacial}
+                >
+                  <p className="mb-1.5 text-[12px] font-bold uppercase tracking-[0.3em] text-[var(--figaro-tertiary)]">
+                    {capitulo.rotulo}
+                  </p>
+                  <h1 className="whitespace-pre-line text-[clamp(13px,3.8vw,17px)] font-medium leading-snug tracking-[-0.01em] text-paper">
+                    {capitulo.frase}
+                  </h1>
+                </motion.div>
+              </AnimatePresence>
+            }
+          >
             <AnimatePresence mode="wait" initial={false}>
               <motion.div
                 key={activeIndex}
@@ -94,71 +114,13 @@ export function FlowWelcome({ onCreateAccount, onSignIn, onCustomerBooking }: Fl
           </Celular>
         </motion.div>
 
-        {/* Linha fina nas cores da marca onde o celular "pousa". */}
-        <div
-          aria-hidden="true"
-          className="relative mx-auto h-px w-[86%] shrink-0 bg-[linear-gradient(90deg,transparent,var(--entrada-ciano)_25%,var(--entrada-lilas)_50%,var(--entrada-rosa)_75%,transparent)] opacity-70"
+        <IconesDosCapitulos
+          capitulos={CAPITULOS}
+          ativo={activeIndex}
+          duracaoMs={Math.max(0, pausedUntil - Date.now()) + capitulo.duracao}
+          reinicio={`${activeIndex}-${pausedUntil}`}
+          onEscolher={interact}
         />
-
-        <div className="flex min-h-[96px] shrink-0 flex-col items-center justify-center px-2 pt-4 pb-2 text-center [@media(max-height:720px)]:min-h-[76px] [@media(max-height:720px)]:pt-2.5 [@media(max-height:720px)]:pb-1">
-          <AnimatePresence mode="wait" initial={false}>
-            <motion.div
-              key={activeIndex + "-caption"}
-              initial={{ opacity: 0, y: reduceMotion ? 0 : 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: reduceMotion ? 0 : -6 }}
-              transition={MOLA.padraoEspacial}
-            >
-              <p className="mb-2 text-[12px] font-bold uppercase tracking-[0.3em] text-[var(--figaro-tertiary)] [@media(max-height:720px)]:mb-1">
-                {capitulo.rotulo}
-              </p>
-              <h1 className="whitespace-pre-line text-[clamp(17px,4.9vw,20px)] font-medium leading-snug tracking-[-0.01em] text-paper [@media(max-height:720px)]:text-[15px]">
-                {capitulo.frase}
-              </h1>
-            </motion.div>
-          </AnimatePresence>
-        </div>
-
-        <nav
-          aria-label="Selecionar recurso"
-          className="mx-auto flex w-full max-w-[340px] shrink-0 items-center justify-between pb-3 [@media(max-height:720px)]:pb-1"
-        >
-          {CAPITULOS.map((item, index) => {
-            const Icon = item.icone;
-            const active = index === activeIndex;
-
-            return (
-              <div key={item.id} className="flex flex-col items-center gap-1">
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  aria-label={"Mostrar recurso: " + item.rotulo}
-                  aria-pressed={active}
-                  onClick={() => interact(index)}
-                  className={`rounded-[14px] ${
-                    active
-                      ? "bg-[var(--figaro-tertiary)]/15 text-[var(--figaro-tertiary)] hover:bg-[var(--figaro-tertiary)]/20"
-                      : "text-paper/80"
-                  }`}
-                >
-                  <Icon size={24} strokeWidth={active ? 2.2 : 1.8} />
-                </Button>
-                <motion.span
-                  aria-hidden="true"
-                  className="h-[3px] rounded-full"
-                  animate={{
-                    width: active ? 22 : 14,
-                    backgroundColor: active
-                      ? "var(--figaro-tertiary)"
-                      : "var(--figaro-outline-variant)",
-                  }}
-                  transition={{ duration: 0.2 }}
-                />
-              </div>
-            );
-          })}
-        </nav>
       </section>
 
       <footer className="relative z-10 flex shrink-0 flex-col items-center gap-2.5 [@media(max-height:720px)]:gap-0">

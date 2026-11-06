@@ -31,7 +31,8 @@ describe("entrada pública do Flow", () => {
     expect(tela).toContain("capitulo.historia()");
     expect(tela).toContain("Começar agora");
     expect(tela).toContain("Seu negócio no ritmo certo.");
-    expect(tela).toContain("<Celular>");
+    expect(tela).toContain("<Celular");
+    expect(tela).toContain("<IconesDosCapitulos");
   });
 
   it("identifica os mockups como exemplos e não como estado real da conta", () => {

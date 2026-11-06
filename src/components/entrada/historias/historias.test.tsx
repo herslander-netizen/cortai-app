@@ -69,10 +69,15 @@ describe("mini-histórias da entrada (vídeo de referência do dono, 06/11)", ()
     }
   });
 
-  it("o celular fica parado e só a tela muda; texto sobre foto usa tokens inversos", () => {
+  it("cartão como no vídeo (tela + linha da marca + legenda); texto sobre foto usa tokens inversos", () => {
     const celular = readFileSync(`${PASTA}/Celular.tsx`, "utf8");
     const base = readFileSync(`${PASTA}/base.tsx`, "utf8");
-    expect(celular).toContain("14:31");
+    expect(celular).toContain("rounded-[28px] border");
+    expect(celular).toContain("{legenda}");
+    expect(celular).not.toContain("14:31");
+    const icones = readFileSync("src/components/entrada/IconesDosCapitulos.tsx", "utf8");
+    expect(icones).toContain("animate={{ opacity: aceso ? 0.75 : 0 }}");
+    expect(icones).toContain('ease: "linear"');
     expect(base).not.toMatch(/className="light /);
     // Texto sobre foto ou gradiente usa os tokens inversos (escuro/branco garantidos), nunca tinta/papel do palco.
     for (const f of arquivos) {
