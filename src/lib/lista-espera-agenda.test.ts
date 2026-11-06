@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  agruparPorDiaDesejado,
   esperaDoDia,
   linhaDaOferta,
   minutosParaExpirar,
@@ -39,5 +40,19 @@ describe("lista de espera na Agenda", () => {
     expect(minutosParaExpirar("2026-11-06T13:30:00Z", agora)).toBe(18);
     expect(minutosParaExpirar("2026-11-06T13:00:00Z", agora)).toBe(0);
     expect(linhaDaOferta("Carla Souza", "10:30")).toBe("Oferecida a Carla · responde até 10:30");
+  });
+
+  it("a tela da lista agrupa pelo dia pedido, com 'qualquer dia' no fim", () => {
+    const grupos = agruparPorDiaDesejado([
+      pessoa("a", null),
+      pessoa("b", "2026-11-08"),
+      pessoa("c", "2026-11-07"),
+      pessoa("d", "2026-11-08"),
+    ]);
+    expect(grupos.map((g) => [g.dia, g.itens.map((p) => p.id).join("")])).toEqual([
+      ["2026-11-07", "c"],
+      ["2026-11-08", "bd"],
+      [null, "a"],
+    ]);
   });
 });

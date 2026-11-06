@@ -9,6 +9,7 @@ import { Chip } from "@/components/ui/chip";
 import { useAcao } from "@/hooks/useAcao";
 import { entrarNaFila } from "@/lib/fila-cliente.functions";
 import { useContextoCliente } from "@/lib/contexto-cliente";
+import { PRAZO_DA_OFERTA_MIN } from "@/lib/fila-compatibilidade";
 
 export const Route = createFileRoute("/app/espera")({
   validateSearch: (
@@ -56,6 +57,7 @@ function EsperaPage() {
   const [janela, setJanela] = useState(0);
   const [status, setStatus] = useState<string | null>(null);
   const [pronto, setPronto] = useState(false);
+  const [posicao, setPosicao] = useState<number | null>(null);
   const acao = useAcao();
 
   const escolhida = JANELAS[janela] ?? JANELAS[0];
@@ -70,10 +72,20 @@ function EsperaPage() {
       }
     >
       {pronto ? (
-        <div className="rounded-[28px] bg-[var(--figaro-surface-container,var(--ink2))] px-5 py-6">
-          <p className="text-sm text-paper">Você está na lista.</p>
-          <p className="mt-1 text-xs text-mute">{status}</p>
-        </div>
+        // O cliente sabe a posição e a regra de verdade (dono, 06/11/2026): a vaga é oferecida a uma pessoa por vez,
+        // em ordem, com prazo para confirmar — antes a tela dizia "quem responder primeiro fica com a vaga".
+        <section className="rounded-[28px] bg-[var(--figaro-surface-container,var(--ink2))] p-5">
+          <p className="text-lg font-bold text-paper">Você está na lista</p>
+          <div className="mt-4 flex items-center justify-between border-b border-line pb-3">
+            <span className="text-sm text-mute">Sua posição</span>
+            <b className="text-lg text-paper">{posicao}º</b>
+          </div>
+          <p className="mt-3 text-sm leading-relaxed text-mute">
+            Se vagar um horário que combina, avisamos no seu WhatsApp. Você terá{" "}
+            <b className="text-paper">{PRAZO_DA_OFERTA_MIN} minutos</b> para confirmar; depois a
+            vaga vai para a próxima pessoa. Nada fica reservado antes.
+          </p>
+        </section>
       ) : (
         <>
           <label className="block">
@@ -117,6 +129,7 @@ function EsperaPage() {
             variant="primary"
             size="lg"
             className="mt-7 w-full"
+            loading={acao.estaEm("fila")}
             disabled={acao.ocupado || nome.trim().length < 2 || telefone.trim().length < 8}
             onClick={() => {
               setStatus(null);
@@ -139,9 +152,7 @@ function EsperaPage() {
                   {
                     erro: "Confira o nome e o WhatsApp e tente de novo.",
                     aoConcluir: (r) => {
-                      setStatus(
-                        `Você é o número ${r.posicao} da fila. Quem responder primeiro fica com a vaga.`,
-                      );
+                      setPosicao(r.posicao);
                       setPronto(true);
                     },
                   },
@@ -149,7 +160,7 @@ function EsperaPage() {
                 .catch(() => setStatus("Confira o nome e o WhatsApp e tente de novo."));
             }}
           >
-            {acao.estaEm("fila") ? "Entrando na lista…" : "Entrar na lista de espera"}
+            Entrar na lista de espera
           </Button>
           {status && !pronto ? (
             <p className="mt-3 text-sm text-brick" role="alert">

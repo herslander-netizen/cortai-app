@@ -43,3 +43,19 @@ export function linhaDaOferta(cliente: string, expiraEmHora: string) {
   const primeiro = cliente.trim().split(/\s+/)[0] || "cliente";
   return `Oferecida a ${primeiro} · responde até ${expiraEmHora}`;
 }
+
+/**
+ * Agrupa a lista pelo dia que cada pessoa pediu: dias marcados em ordem e, por último, "qualquer dia" (`null`). A
+ * posição na lista continua a mesma (é ela que decide a ordem das ofertas).
+ */
+export function agruparPorDiaDesejado<T extends { dia: string | null }>(itens: readonly T[]) {
+  const grupos = new Map<string | null, T[]>();
+  for (const item of itens) {
+    const lista = grupos.get(item.dia);
+    if (lista) lista.push(item);
+    else grupos.set(item.dia, [item]);
+  }
+  return [...grupos.entries()]
+    .sort(([a], [b]) => (a === null ? 1 : b === null ? -1 : a.localeCompare(b)))
+    .map(([dia, doDia]) => ({ dia, itens: doDia }));
+}
