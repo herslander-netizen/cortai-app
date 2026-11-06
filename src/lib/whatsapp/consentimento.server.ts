@@ -221,7 +221,8 @@ export async function revogarConsentimentoWhatsapp(input: {
 }): Promise<void> {
   const telefoneE164 = exigirTelefoneE164(input.telefone);
   const fonte = exigirFonte(input.fonte);
-  const finalidades = [...new Set(input.finalidades ?? FINALIDADES_DE_SERVICO)];
+  // A desativação geral da ficha revoga todas as finalidades, inclusive marketing.
+  const finalidades = [...new Set(input.finalidades ?? FINALIDADES_WHATSAPP)];
   const db = bancoDeConsentimento(await admin());
   const dados = {
     tenantId: input.tenantId,
