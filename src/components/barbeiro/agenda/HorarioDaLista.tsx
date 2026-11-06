@@ -12,8 +12,13 @@ import { termos } from "@/lib/segmentos";
 import { corDaCategoria, glifoDoEstado } from "./cartao-figaro";
 import { IconeDoEstado } from "./IconeDoEstado";
 import { ProgressoDoAtendimento } from "./ListaAgenda";
+import { linhaDaOferta } from "@/lib/lista-espera-agenda";
+
 import { legendaDoHorario } from "./lista-horarios";
 import { estaAtrasado, hora, nomeDaAgenda, ROTULO_ESTADO } from "./tempo";
+
+/** Estados em que o horário ficou livre e pode estar sendo oferecido à lista de espera. */
+const LIBERADOS = new Set(["cancelado", "nao_compareceu", "remarcado"]);
 
 /**
  * Linha ondulada fina. Com `rotulo` (hora atual) ou `children` (ação discreta, como "Ver mais dias"), a onda se divide
@@ -59,6 +64,7 @@ export function HorarioDaLista({
   selecionado,
   tituloCurto,
   cascataDesde,
+  ofertas,
   onAbrir,
 }: {
   itens: AgendaItem[];
@@ -73,6 +79,8 @@ export function HorarioDaLista({
   tituloCurto: string;
   /** Índice do primeiro cartão na cascata de entrada (só no primeiro dia); `null` sem cascata. */
   cascataDesde: number | null;
+  /** Oferta da lista de espera em andamento para o horário liberado (cancelou, faltou ou remarcou). */
+  ofertas?: Readonly<Record<string, { cliente: string; expiraEm: string }>> | undefined;
   onAbrir: (item: AgendaItem) => void;
 }) {
   const primeiro = itens[0]!;
@@ -132,6 +140,14 @@ export function HorarioDaLista({
                       </Fragment>
                     ))}
                 </span>
+                {ofertas?.[item.id] && LIBERADOS.has(item.status) ? (
+                  <span className="agenda-lista-oferta">
+                    {linhaDaOferta(
+                      ofertas[item.id]!.cliente,
+                      hora(ofertas[item.id]!.expiraEm, fuso),
+                    )}
+                  </span>
+                ) : null}
                 {ehHoje && item.status === "na_cadeira" ? (
                   <ProgressoDoAtendimento item={item} agora={agora} />
                 ) : null}

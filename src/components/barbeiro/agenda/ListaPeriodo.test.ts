@@ -61,7 +61,13 @@ describe("lista de vários dias", () => {
 describe("modo lista no celular", () => {
   const ler = (p: string) => require("node:fs").readFileSync(p, "utf8") as string;
   const operacional = ler("src/components/barbeiro/AgendaOperacional.tsx");
-  const lista = ler("src/components/barbeiro/agenda/ListaPeriodo.tsx");
+  // A lista foi dividida (dono, 06/11): o dia mora em DiaDaLista.tsx e as regras puras em lista-periodo-regras.ts.
+  const lista = [
+    "src/components/barbeiro/agenda/ListaPeriodo.tsx",
+    "src/components/barbeiro/agenda/DiaDaLista.tsx",
+  ]
+    .map(ler)
+    .join("\n");
 
   it("o celular usa a lista de vários dias; o computador mantém a lista do dia", () => {
     expect(operacional).toMatch(/\) : celular \? \(\s*<ListaPeriodo/);
@@ -140,7 +146,12 @@ describe("dias da lista (Figaro: todos os dias de hoje até o último com atendi
   });
 
   it("organiza por horário com trilho e separa os dias e a hora atual com a onda (dono, 06/11)", () => {
-    const lista = readFileSync("src/components/barbeiro/agenda/ListaPeriodo.tsx", "utf8");
+    const lista = [
+      "src/components/barbeiro/agenda/ListaPeriodo.tsx",
+      "src/components/barbeiro/agenda/DiaDaLista.tsx",
+    ]
+      .map((f) => readFileSync(f, "utf8"))
+      .join("\n");
     expect(lista).toContain("agruparPorHorario(itens");
     expect(lista).toContain("<HorarioDaLista");
     expect(lista).toContain("{g > 0 ? <OndaDaLista /> : null}");
