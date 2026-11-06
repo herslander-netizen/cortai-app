@@ -206,6 +206,12 @@ export function PersonalizacaoCliente({
             if (whats && !c.telefone?.trim()) {
               throw new Error("Cadastre um telefone válido antes de registrar o consentimento.");
             }
+            // Revogar primeiro: se o restante do formulário falhar, a permissão já estará bloqueada.
+            if (!whats && c.telefone?.trim()) {
+              await salvarConsentimentoWhatsapp({
+                data: { clienteId: c.id, autorizado: false },
+              });
+            }
             await salvar({
               data: {
                 clienteId: c.id,
@@ -216,9 +222,10 @@ export function PersonalizacaoCliente({
                 optInWhatsapp: whats,
               },
             });
-            if (c.telefone?.trim() && (whats || c.opt_in_whatsapp)) {
+            // Conceder por último: nenhuma outra falha deve antecipar a autorização.
+            if (whats && c.telefone?.trim()) {
               await salvarConsentimentoWhatsapp({
-                data: { clienteId: c.id, autorizado: whats },
+                data: { clienteId: c.id, autorizado: true },
               });
             }
             setConfirmouConsentimentoWhatsapp(false);
