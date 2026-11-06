@@ -27,6 +27,7 @@ e o que fez. O diário até 17/10/2026 está guardado, sem alterações, em
 7. **Sem segredos:** nunca escreva chaves, senhas ou tokens aqui. Cite só o nome da variável.
 
 ## Decisões do dono
+- 2026-11-06: **Entrada aproveita tudo o que der do vídeo de referência**, trocando a marca pelo Flow; as fotos podem aparecer (sem nome nem marca do Figaro); avaliações continuam fora.
 - 2026-11-06: **Lembrete de véspera às 15h** (como o AgendaClick) pedindo confirmação, aviso no dia e fila; **sistema de notificações pelo WhatsApp com o máximo de proteção contra banimento** (`docs/notificacoes-whatsapp.md`).
 - 2026-11-06: **Entrada com o fluxo do vídeo de referência:** Site primeiro (troca de tema pelo toque, Equipe, Serviços, Galeria) e depois Agenda (gaveta sobe, dia, horário, profissional, dados, verificação pelo WhatsApp, confirmado).
 - 2026-11-06: **Tela inicial é o cartão de visita** — polir fluxos e animações ao máximo; refinar a gaveta de login; **busca por CEP** na localização.
@@ -976,6 +977,13 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+### 2026-11-06 UTC — Claude — Entrada: Lembretes e Desempenho do vídeo, fotos aproveitadas
+- Imagens recortadas do vídeo de referência, sem nome nem marca: `public/entrada/historias/` (equipe-1..3, galeria-1..3, paisagem). Capa do site continua a neutra da marca (as do vídeo têm o nome do negócio escrito).
+- **Site:** fotos reais da equipe (Lucas M., Rafael C., Diego A., "Profissional") e da galeria. **Agenda:** mesmos nomes do vídeo.
+- **Lembretes (`HistoriasDoNegocio.tsx`):** tela de bloqueio com a paisagem, relógio grande, visto que some e avisos em "Para você" com o ícone do Flow (WhatsApp com o balão-telefone).
+- **Gestão (`HistoriaGestao.tsx` + `PainelDeDesempenho.tsx`):** depois do menu, toque na faixa de desempenho e o painel escuro sobe com Sua Página (7 dias), o serviço do mês (30 dias) e Fidelidade (30 dias), com "Ver fidelidade" — no lugar da "campanha" do vídeo, que o Flow não tem.
+- Gates: tsc 0; vitest 319 / 2555 ok; eslint sem erro; build ok; protocolo OK. Visual: quadros de 0,65 s dos três capítulos a 390 px.
+
 ### 2026-11-06 UTC — Claude — Véspera às 15h com proteção do número; Site e Agenda do vídeo na entrada
 - **Lembretes (`whatsapp/calendario-de-lembretes.ts`):** o `lembrete_24h` deixou de ser "24h antes" e virou **véspera**: atendimentos de amanhã (fuso do negócio) recebem das 15:00 às 20:00, espalhados nas varreduras, em ordem sorteada, no máximo 12 por negócio por varredura; quem marcou há menos de 3h não recebe; abertura com variação estável por agendamento. Silêncio 21:00–08:00 para véspera e "está chegando". `notificacoes.server.ts`: `candidatosDaVespera` substitui `janela("lembrete_24h", 24, 30)`; a checagem dentro de `notificarAgendamento` também vale para retentativas. Rótulos: "Véspera, 15h" (Avisos para clientes) e contrato. Documento `docs/notificacoes-whatsapp.md` com o calendário e as 8 proteções.
 - **Entrada:** ordem Site → Agenda → WhatsApp → Lembretes → Gestão. `HistoriaSite` segue o vídeo (capa escura; toque abre o tema novo com círculo a partir do dedo e volta; rola por Equipe com faixa diagonal, Serviços "Mais procurados", categorias e Galeria; toque em Agendar). `HistoriaAgenda` + `PartesDaAgenda` (agenda sobe como gaveta; dia, horário com profissionais, "Selecionado", Continuar, "Seus dados" com "Verificar pelo WhatsApp", código de 4 dígitos, "Agendamento confirmado" em tela cheia). Conteúdo do Flow: nomes neutros, iniciais no lugar de rostos.

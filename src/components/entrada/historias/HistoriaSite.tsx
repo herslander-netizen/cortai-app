@@ -1,9 +1,9 @@
 /**
  * Capítulo "Seu site" no roteiro do vídeo de referência do dono (06/11/2026: "trazer exatamente o fluxo de site do
- * vídeo e colocar o site no início"): capa escura; um toque troca o tema da página com um círculo que se abre a partir
+ * vídeo e colocar o site no início"; fotos da equipe e da galeria aproveitadas do vídeo, sem nome nem marca): capa escura; um toque troca o tema da página com um círculo que se abre a partir
  * do dedo, outro toque volta; a página rola por Equipe (faixa diagonal), Serviços ("Mais procurados" aberto),
  * categorias e Galeria, volta aos serviços e o toque cai em "Agendar". Conteúdo do Flow: nomes neutros, iniciais no
- * lugar de rostos, imagem neutra da marca. Só transform/opacity.
+ * imagem neutra da marca na capa. Só transform/opacity.
  */
 import { motion } from "framer-motion";
 import { CalendarDays, ChevronDown, ChevronUp, Clock3, Flame, Menu } from "lucide-react";
@@ -27,9 +27,9 @@ const TOQUES = [
 ];
 
 const EQUIPE = [
-  { nome: "Ana S.", papel: "Profissional" },
-  { nome: "Rafa L.", papel: "Profissional" },
-  { nome: "Bia C.", papel: "Profissional" },
+  { nome: "Lucas M.", papel: "Profissional", foto: "/entrada/historias/equipe-1.webp" },
+  { nome: "Rafael C.", papel: "Profissional", foto: "/entrada/historias/equipe-2.webp" },
+  { nome: "Diego A.", papel: "Profissional", foto: "/entrada/historias/equipe-3.webp" },
 ];
 const SERVICOS = [
   { nome: "Corte e finalização", preco: "R$ 85,00", min: 45 },
@@ -137,12 +137,11 @@ export function HistoriaSite() {
                 animate={{ opacity: passo >= 3 ? 1 : 0, y: passo >= 3 ? 0 : 10 }}
                 transition={{ ...MOLA.padraoEspacial, delay: 0.25 + i * 0.08 }}
               >
-                <span className="grid h-[74px] w-full place-items-center rounded-[6px] bg-[linear-gradient(160deg,var(--figaro-secondary-container),var(--figaro-tertiary-container))] text-[18px] font-bold text-[var(--figaro-on-secondary-container)]">
-                  {p.nome
-                    .split(" ")
-                    .map((x) => x[0])
-                    .join("")}
-                </span>
+                <img
+                  src={p.foto}
+                  alt=""
+                  className="h-[78px] w-full rounded-[4px] object-cover shadow-[var(--elevacao-1)]"
+                />
                 <b className="mt-1 text-[9px]">{p.nome}</b>
                 <span className="text-[8px] text-[var(--figaro-on-surface-variant)]">
                   {p.papel}
@@ -198,13 +197,12 @@ export function HistoriaSite() {
           ))}
           <b className="mt-4 block font-serif text-[16px]">Galeria de fotos</b>
           <div className="mt-2 grid grid-cols-3 gap-1.5">
-            {["20% 30%", "60% 50%", "85% 70%"].map((posicao) => (
+            {[1, 2, 3].map((n) => (
               <img
-                key={posicao}
-                src={CAPA}
+                key={n}
+                src={`/entrada/historias/galeria-${n}.webp`}
                 alt=""
-                className="h-[64px] w-full rounded-[4px] object-cover"
-                style={{ objectPosition: posicao }}
+                className="h-[78px] w-full rounded-[4px] object-cover"
               />
             ))}
           </div>

@@ -33,7 +33,7 @@ export const CONVERSA: readonly Mensagem[] = [
     de: "negocio",
     hora: "14:29",
     texto:
-      "Confira seu agendamento:\n\n*Serviço:* Corte e finalização\n*Profissional:* Ana Souza\n*Quando:* Sexta-feira, 14/11, às 15:00\n*Valor:* R$ 85,00\n\nPosso marcar?\nResponda *SIM* para confirmar ou *NÃO* para mudar.",
+      "Confira seu agendamento:\n\n*Serviço:* Corte e finalização\n*Profissional:* Lucas Martins\n*Quando:* Sexta-feira, 14/11, às 15:00\n*Valor:* R$ 85,00\n\nPosso marcar?\nResponda *SIM* para confirmar ou *NÃO* para mudar.",
   },
   { de: "cliente", hora: "14:30", texto: "sim" },
   {

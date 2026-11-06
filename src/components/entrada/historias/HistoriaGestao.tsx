@@ -21,8 +21,9 @@ import {
 import { IconeFlow } from "@/components/marca/MarcaFlow";
 import { MOLA } from "@/lib/movimento-figaro";
 import { Contador, TelaDaHistoria, Toque, usePassos } from "./base";
+import { PainelDeDesempenho } from "./PainelDeDesempenho";
 
-export const PASSOS_GESTAO = [1300, 1100, 1900, 1300] as const;
+export const PASSOS_GESTAO = [1200, 1100, 1500, 700, 2700, 900] as const;
 
 const DIA_A_DIA = [
   { icone: Gauge, nome: "Hoje" },
@@ -41,11 +42,14 @@ function forma(i: number, total: number) {
 export function HistoriaGestao() {
   const passo = usePassos(PASSOS_GESTAO);
   const aberta = passo >= 2;
+  // Como no vídeo: abre a faixa de desempenho, toca nos números e o painel escuro sobe com os cartões.
   const toque = [
     { x: 50, y: 40, visivel: false },
     { x: 40, y: 34, apertando: true },
     { x: 40, y: 34, visivel: false },
-    { x: 50, y: aberta ? 60 : 47, apertando: true },
+    { x: 50, y: 36, apertando: true },
+    { x: 50, y: 82, visivel: false },
+    { x: 50, y: 82, apertando: true },
   ][passo]!;
 
   return (
@@ -116,8 +120,6 @@ export function HistoriaGestao() {
         <motion.div
           layout="position"
           className="mt-2.5 flex items-center gap-2.5 rounded-[18px] bg-[var(--figaro-surface-container)] px-3 py-2.5"
-          animate={{ scale: passo === 3 ? 0.97 : 1 }}
-          transition={MOLA.padraoEspacial}
         >
           <CalendarDays size={16} className="text-[var(--figaro-primary)]" />
           <span className="flex-1 leading-tight">
@@ -149,6 +151,7 @@ export function HistoriaGestao() {
           </div>
         </motion.div>
       </div>
+      {passo >= 4 ? <PainelDeDesempenho apertando={passo === 5} /> : null}
       <Toque {...toque} />
     </TelaDaHistoria>
   );

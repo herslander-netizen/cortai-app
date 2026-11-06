@@ -17,13 +17,13 @@ const DIAS = [
   { n: 17, d: "Seg" },
 ];
 const HORAS = [
-  { h: "09:00", quem: "Ana +2" },
-  { h: "09:15", quem: "Ana +2" },
-  { h: "09:30", quem: "Ana +1" },
-  { h: "09:45", quem: "Rafa +1" },
-  { h: "10:00", quem: "Ana +2" },
+  { h: "09:00", quem: "Lucas +2" },
+  { h: "09:15", quem: "Lucas +2" },
+  { h: "09:30", quem: "Lucas +1" },
+  { h: "09:45", quem: "Rafael +1" },
+  { h: "10:00", quem: "Lucas +2" },
 ];
-const EQUIPE = ["Ana Souza", "Rafa Lima", "Bia Costa"];
+const EQUIPE = ["Lucas Martins", "Rafael Costa", "Diego Alves"];
 
 export function HorariosDoDia({
   diaEscolhido,
@@ -144,7 +144,9 @@ export function BarraDoHorario({ apertando }: { apertando: boolean }) {
           14 de Novembro · 09:15{" "}
           <span className="font-normal text-[var(--figaro-on-surface-variant)]">às 10:00</span>
         </b>
-        <span className="text-[8px] text-[var(--figaro-on-surface-variant)]">com Ana Souza</span>
+        <span className="text-[8px] text-[var(--figaro-on-surface-variant)]">
+          com Lucas Martins
+        </span>
       </span>
       <motion.span
         className="shrink-0 rounded-[6px] bg-[var(--figaro-inverse-surface)] px-3.5 py-2 text-[10px] font-semibold text-[var(--figaro-inverse-on-surface)]"
@@ -277,7 +279,7 @@ export function ReservaConfirmada() {
       >
         <b className="mt-3 block text-[14px]">Agendamento confirmado</b>
         <p className="mt-1 text-[9px] opacity-90">Sex, 14 de Novembro · 09:15 às 10:00</p>
-        <p className="text-[9px] opacity-90">com Ana Souza</p>
+        <p className="text-[9px] opacity-90">com Lucas Martins</p>
       </motion.div>
     </motion.div>
   );
