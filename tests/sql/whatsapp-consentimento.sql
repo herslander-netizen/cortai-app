@@ -4,6 +4,7 @@
 DO $consentimento$
 DECLARE
   t uuid := gen_random_uuid();
+  t2 uuid := gen_random_uuid();
   evento_id uuid := gen_random_uuid();
   supressao_id uuid := gen_random_uuid();
   falhas text[] := '{}';
@@ -13,7 +14,9 @@ DECLARE
   habilitada boolean;
 BEGIN
   INSERT INTO public.tenants (id, nome, slug)
-  VALUES (t, 'Consentimento Teste', 'consentimento-' || substr(t::text, 1, 8));
+  VALUES
+    (t, 'Consentimento Teste', 'consentimento-' || substr(t::text, 1, 8)),
+    (t2, 'Consentimento Teste 2', 'consentimento-' || substr(t2::text, 1, 8));
 
   -- Consentimento válido guarda finalidade, ação, origem, texto e evidência.
   INSERT INTO public.whatsapp_consent_events (
@@ -112,6 +115,31 @@ BEGIN
     WHERE tenant_id = t AND phone_e164 = '+5579991234567' AND released_at IS NULL;
   total := total + 1;
   IF n <> 1 THEN falhas := falhas || 'não permitiu nova supressão após liberação auditada'::text; END IF;
+
+  -- A supressão é por estabelecimento: o mesmo telefone pode ter estado diferente em outro tenant.
+  INSERT INTO public.whatsapp_suppressions (
+    tenant_id, phone_e164, reason, source, evidence
+  ) VALUES (
+    t2, '+5579991234567', 'opt_out', 'ensaio_sql', '{"tenant":"outro"}'::jsonb
+  );
+  SELECT count(*) INTO n
+    FROM public.whatsapp_suppressions
+    WHERE tenant_id = t2 AND phone_e164 = '+5579991234567' AND released_at IS NULL;
+  total := total + 1;
+  IF n <> 1 THEN falhas := falhas || 'supressão vazou ou colidiu entre tenants'::text; END IF;
+
+  -- Número fora do padrão E.164 é rejeitado.
+  BEGIN
+    INSERT INTO public.whatsapp_suppressions (
+      tenant_id, phone_e164, reason, source, evidence
+    ) VALUES (
+      t, '79991234567', 'opt_out', 'ensaio_sql', '{}'::jsonb
+    );
+    ok := true;
+  EXCEPTION WHEN check_violation THEN ok := false;
+  END;
+  total := total + 1;
+  IF ok THEN falhas := falhas || 'aceitou telefone sem E.164'::text; END IF;
 
   -- Segurança: RLS ligado, escrita/leitura do cliente autenticado revogada e servidor autorizado.
   SELECT c.relrowsecurity INTO habilitada
