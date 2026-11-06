@@ -982,6 +982,9 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+### 2026-11-06 UTC — Claude — Página pública: balões do WhatsApp padronizados e barra fixa sem piscar
+- Balões da abertura: mesmo tamanho (largura 86 %, altura 62 px), título e data em uma linha, visto verde à direita, flutuação leve. Barra fixa "Começar grátis · sem cartão" (celular): antes observava as seções e aparecia/sumia no meio do botão da oferta; agora observa os próprios botões (`data-cta-propria` na abertura, oferta, planos e chamada final) e só aparece quando nenhum está na tela. Verificado percorrendo a página em 360 px: 0 incoerências.
+
 ### 2026-11-06 UTC — Claude — Entrada: ritmo único dos capítulos (mais curtos e iguais)
 - Dono (06/11): tempo das animações estranho e demorado; sem cortar nada. `ritmo()` em `historias/base.tsx` ajusta o tempo de cada passo para o capítulo durar ~8,5 s (limite: no máximo 30 % mais rápido e 15 % mais lento; nenhum passo abaixo de 250 ms) — **todos os passos e telas continuam**. Antes: 7,6 a 13,7 s por capítulo (volta de ~54 s); agora ~8,2 a 9,5 s (~45 s). Respiro entre capítulos 900 → 500 ms; espera depois de um toque/arrasto 8 s → 3 s (a barrinha enche nesse tempo).
 

@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { motion, useReducedMotion } from "framer-motion";
-import { ArrowRight, Sparkles } from "lucide-react";
+import { ArrowRight, Check, Sparkles } from "lucide-react";
 
 import { IconeWhatsapp } from "@/components/entrada/historias/IconeWhatsapp";
 import { MarcaFlow } from "@/components/marca/MarcaFlow";
@@ -70,7 +70,10 @@ function FotosFlutuantes() {
   );
 }
 
-/** Avisos de confirmação do WhatsApp sobre as fotos, cada um de um ramo diferente. */
+/**
+ * Aviso de confirmação do WhatsApp sobre as fotos (cada um de um ramo). Tamanho único (largura e altura fixas),
+ * título em uma linha, "agora" à direita e o visto verde de confirmado.
+ */
 function Balao({
   titulo,
   detalhe,
@@ -82,19 +85,31 @@ function Balao({
   className: string;
   atraso: number;
 }) {
+  const reduzir = useReducedMotion();
   return (
     <motion.span
-      className={`absolute z-10 flex items-center gap-2 rounded-[18px] bg-white px-3 py-2.5 text-left shadow-[0_16px_32px_-14px_rgba(20,60,40,0.55)] ring-1 ring-black/5 ${className}`}
-      initial={{ opacity: 0, y: 14 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ ...MOLA.padraoEspacial, delay: atraso }}
+      className={`absolute z-10 flex h-[62px] w-[86%] items-center gap-2.5 rounded-[22px] bg-white/95 px-3 text-left shadow-[0_18px_36px_-16px_rgba(0,0,0,0.65),0_2px_6px_-2px_rgba(0,0,0,0.25)] ring-1 ring-black/5 backdrop-blur ${className}`}
+      initial={{ opacity: 0, y: 16, scale: 0.96 }}
+      animate={reduzir ? { opacity: 1, y: 0, scale: 1 } : { opacity: 1, y: [0, -3, 0], scale: 1 }}
+      transition={
+        reduzir
+          ? { duration: 0 }
+          : {
+              opacity: { duration: 0.3, delay: atraso },
+              scale: { ...MOLA.padraoEspacial, delay: atraso },
+              y: { duration: 5, repeat: Infinity, ease: "easeInOut", delay: atraso },
+            }
+      }
     >
-      <span className="grid size-8 shrink-0 place-items-center rounded-full bg-[var(--sage)] text-white">
-        <IconeWhatsapp size={16} />
+      <span className="grid size-9 shrink-0 place-items-center rounded-full bg-[var(--sage)] text-white shadow-[0_6px_12px_-6px_rgba(47,138,90,0.8)]">
+        <IconeWhatsapp size={18} />
       </span>
-      <span className="min-w-0 text-[12px] leading-tight text-[#12131c]">
-        <b className="block">{titulo}</b>
-        <span className="text-[#5b5f75]">{detalhe}</span>
+      <span className="min-w-0 flex-1 leading-tight text-[#12131c]">
+        <b className="block truncate text-[13px]">{titulo}</b>
+        <span className="block truncate text-[11.5px] text-[#5b5f75]">{detalhe}</span>
+      </span>
+      <span className="grid size-[18px] shrink-0 place-items-center rounded-full bg-[var(--sage)] text-white">
+        <Check size={11} strokeWidth={3.2} />
       </span>
     </motion.span>
   );
@@ -121,15 +136,15 @@ function MosaicoMobile() {
         />
       ))}
       <Balao
-        titulo="Corte e barba confirmado ✓"
-        detalhe="Sex, 14/11 às 15:00 · SIM"
-        className="-bottom-3 left-0 w-[70%]"
+        titulo="Corte e barba confirmado"
+        detalhe="Sex, 14/11 às 15:00"
+        className="-bottom-3 left-0"
         atraso={0.5}
       />
       <Balao
-        titulo="Sobrancelha confirmada ✓"
-        detalhe="Sáb, 15/11 às 10:30 · SIM"
-        className="-bottom-[76px] right-0 w-[70%]"
+        titulo="Sobrancelha confirmada"
+        detalhe="Sáb, 15/11 às 10:30"
+        className="-bottom-[78px] right-0"
         atraso={0.9}
       />
     </div>
@@ -193,6 +208,7 @@ export function Heroi({ conteudo }: { conteudo: ConteudoApresentacao["hero"] }) 
         >
           <Button
             asChild
+            data-cta-propria
             size="lg"
             className="w-full shadow-[0_16px_30px_-14px_rgba(49,85,237,0.7)] sm:w-auto"
           >

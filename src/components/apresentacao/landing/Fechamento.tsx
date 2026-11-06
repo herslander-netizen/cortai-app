@@ -46,7 +46,6 @@ export function FaixaDeFotos() {
 export function Planos({ conteudo }: { conteudo: ConteudoApresentacao["planos"] }) {
   return (
     <section
-      data-cta-propria
       style={TEMA_CLARO}
       className="relative bg-[var(--painel)] px-4 py-16 text-[var(--texto)] sm:py-24"
     >
@@ -106,6 +105,7 @@ export function Planos({ conteudo }: { conteudo: ConteudoApresentacao["planos"] 
                 </ul>
                 <Button
                   asChild
+                  data-cta-propria
                   variant={gratis ? "secondary" : "outline"}
                   className={`mt-6 w-full ${gratis ? "bg-white text-[#1b2687] hover:bg-white/90" : ""}`}
                 >
@@ -166,7 +166,6 @@ export function Perguntas({
 export function ChamadaFinal({ conteudo }: { conteudo: ConteudoApresentacao["final"] }) {
   return (
     <section
-      data-cta-propria
       style={TEMA_CLARO}
       className="relative bg-[var(--fundo)] px-4 pb-28 pt-14 text-[var(--texto)] sm:pb-10 sm:pt-24"
     >
@@ -179,6 +178,7 @@ export function ChamadaFinal({ conteudo }: { conteudo: ConteudoApresentacao["fin
         <p className="mt-3 text-[16px] text-[var(--texto-suave)]">{conteudo.texto}</p>
         <Button
           asChild
+          data-cta-propria
           size="lg"
           className="mt-7 w-full shadow-[0_16px_30px_-14px_rgba(49,85,237,0.7)] sm:w-auto"
         >
@@ -194,14 +194,13 @@ export function ChamadaFinal({ conteudo }: { conteudo: ConteudoApresentacao["fin
   );
 }
 
-/** Botão fixo no celular: aparece depois da abertura e some quando a seção já tem o seu próprio botão. */
+/**
+ * Botão fixo no celular: só aparece quando nenhum outro botão de "começar" está na tela (abertura, oferta, planos e
+ * chamada final têm o seu). Observa os próprios botões, não as seções: sem piscar e sem cobrir o botão da seção.
+ */
 export function BarraDoCelular() {
-  const [rolou, setRolou] = useState(false);
-  const [comBotaoProprio, setComBotaoProprio] = useState(false);
+  const [comBotaoNaTela, setComBotaoNaTela] = useState(true);
   useEffect(() => {
-    const ver = () => setRolou(window.scrollY > 520);
-    ver();
-    window.addEventListener("scroll", ver, { passive: true });
     const alvos = [...document.querySelectorAll("[data-cta-propria]")];
     const visiveis = new Set<Element>();
     const obs = new IntersectionObserver(
@@ -210,20 +209,16 @@ export function BarraDoCelular() {
           if (e.isIntersecting) visiveis.add(e.target);
           else visiveis.delete(e.target);
         }
-        setComBotaoProprio(visiveis.size > 0);
+        setComBotaoNaTela(visiveis.size > 0);
       },
-      { threshold: 0.35 },
+      { threshold: 0 },
     );
     alvos.forEach((a) => obs.observe(a));
-    return () => {
-      window.removeEventListener("scroll", ver);
-      obs.disconnect();
-    };
+    return () => obs.disconnect();
   }, []);
-  const visivel = rolou && !comBotaoProprio;
   return (
     <AnimatePresence>
-      {visivel ? (
+      {!comBotaoNaTela ? (
         <motion.div
           className="fixed inset-x-0 bottom-0 z-30 bg-[var(--fundo)] px-4 pb-[max(12px,env(safe-area-inset-bottom))] pt-3 shadow-[0_-1px_0_var(--linha),0_-14px_28px_-16px_rgba(40,40,120,0.4)] sm:hidden"
           initial={{ y: 80, opacity: 0 }}
