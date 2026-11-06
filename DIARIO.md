@@ -27,6 +27,7 @@ e o que fez. O diário até 17/10/2026 está guardado, sem alterações, em
 7. **Sem segredos:** nunca escreva chaves, senhas ou tokens aqui. Cite só o nome da variável.
 
 ## Decisões do dono
+- 2026-11-06: **WhatsApp: escolhas destacadas em caixa alta** ("Responda *SIM* … ou *NÃO*"); saudações, desistência por frase solta ("deixe, depois falo") e "não deu pra ir" precisam de resposta; voz precisa funcionar.
 - 2026-11-06: **Onboarding com uma geral visual** ("algumas coisas estão feias") e **entrada com telas brancas e letras escuras**, frases organizadas em duas linhas e símbolo do WhatsApp com telefone.
 - 2026-11-06: **Entrada: cartão e ícones como no vídeo de referência** ("manter o celular todo como o vídeo e os ícones com o mesmo efeito"): tela do sistema sem moldura de aparelho, linha da marca e legenda dentro do mesmo cartão; ícone ativo aceso com brilho e barrinha que enche durante o capítulo.
 - 2026-11-06: **Aviso "Cliente pediu atendimento" abre o WhatsApp do cliente** (toque no sininho, no aviso do navegador e no push).
@@ -968,6 +969,13 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+### 2026-11-06 UTC — Claude — WhatsApp: saudação, desistência, "não deu pra ir", SIM/NÃO e diagnóstico da voz
+- **Achado na prévia (banco):** "Bom dia" (06:44, 10:32) e "Olá?" (10:34) ficaram sem resposta — o Flow Bot marcou `sem_regra` e a Flow IA não respondeu; "Deixe, depois falo com você" caiu em "Não entendi"; dois áudios de 05/11 21:22 chegaram sem texto.
+- **Saudação:** `decisao.ts` `ehSaudacao` (cumprimento curto); com ela o bot responde com o próprio "Olá" + menu em vez de passar para a IA (`bot.server.ts`). Regra de 04/11 mantida para o resto ("Obrigado", "quero remarcar" continuam com a IA).
+- **Agenda na conversa (`conduzir.ts`):** desistência por expressão dentro da frase (`DESISTIR`, ignorada quando a frase traz dia/período — "deixa pra segunda"); saudação no meio repete a pergunta em aberto ("Oi! Vamos continuar de onde paramos."); "não deu pra ir/faltei/perdi o horário" abre o agendamento ("Sem problema, acontece!…"). `TEXTOS.responderSimOuNao` = "Responda *SIM* … ou *NÃO* …" (também na história da entrada).
+- **Voz:** o caminho está certo no código; para achar a causa, cada áudio sem texto grava o motivo em `mensagens_whatsapp.erro` ("transcrição não configurada", "Evolution não entregou a mídia", "transcrição recusada (status)", "não entendido ou tempo esgotado"). A transcrição usa o provedor da Flow IA (`CORTAI_AI_*`/`CORTAI_STT_*` da prévia) e precisa de um endpoint `/audio/transcriptions`.
+- Testes: `conduzir.test.ts` (4 casos da conversa real), `decisao.test.ts` (saudação). Gates: tsc 0; vitest 313 / 2537 ok; eslint sem erro novo; build ok; protocolo OK.
+
 ### 2026-11-06 UTC — Claude — Onboarding no padrão Figaro; entrada refinada
 - **Onboarding (`/barbeiro/configurar`, de 935 para 122 linhas):** estado e ações em `onboarding/useConfiguracaoInicial.ts` + `useLogoELink.ts` (logo, link, equipe); passos em `onboarding/passos/*` (`MolduraDoPasso` com barra de progresso e rodapé de voltar redondo + pílula, sem linha; `PassoDoNegocio` com logo inteira em cartão; `PassoDaEquipe` com função em `OpcoesConectadas` e ícone neutro — saiu a tesoura; `PassoDasRegras` com `Chip` e `Switch`; `PassoDoModo` com Conversa/Tradicional conectados e prévia que muda com a escolha — antes era sempre a conversa e sem balões; `PassoDoLink` com domínio discreto e nome em destaque). Título do topo passa a ser o nome do passo. `EditorDeHorarios` (também usado em `/barbeiro/horarios` e `configurar-minha-barbearia`) agora em linhas de grupo com interruptor, chips de horário e `SeletorDeHorario` (`DiaDoHorario.tsx`), sem `input type=time`. Tela final: o link quebra só depois da barra. Boas-vindas: tesoura → `HandHelping`.
 - **`OpcoesConectadas`:** com 3+ opções o respiro lateral cai para `px-1.5` ("10 min", "Profissional" sem reticências). Não é usado na Agenda.

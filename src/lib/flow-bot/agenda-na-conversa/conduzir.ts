@@ -7,6 +7,7 @@
  *
  * Devolve `null` quando a mensagem não é deste assunto: o Flow Bot (regras) e depois a Flow IA seguem.
  */
+import { ehSaudacao } from "@/lib/flow-bot/decisao";
 import { classificar } from "@/lib/whatsapp/motor/intencoes";
 import {
   contem,
@@ -99,6 +100,43 @@ const SAIR = [
   "desisto",
   "nao quero mais",
 ];
+/**
+ * Desistir no meio da conversa por frase solta (dono, 06/11/2026: "Deixe, depois falo com você" virou "Não
+ * entendi"). Palavra inteira dentro da frase; "não" sozinho continua sendo resposta à confirmação.
+ */
+const DESISTIR = [
+  "deixa",
+  "deixe",
+  "deixa pra la",
+  "deixa quieto",
+  "depois falo",
+  "depois eu falo",
+  "depois te falo",
+  "depois vejo",
+  "depois eu vejo",
+  "outra hora",
+  "outro dia eu",
+  "mais tarde eu",
+  "esquece",
+  "esqueca",
+  "desisto",
+  "nao quero mais",
+  "nao precisa mais",
+];
+/** "Não deu pra ir": o cliente perdeu o horário; oferece marcar de novo. */
+const PERDEU_O_HORARIO = [
+  "nao deu pra ir",
+  "nao deu para ir",
+  "nao consegui ir",
+  "nao pude ir",
+  "nao fui",
+  "faltei",
+  "perdi o horario",
+  "perdi meu horario",
+  "nao deu pra chegar",
+  "nao consegui chegar",
+];
+
 const TANTO_FAZ = [
   "tanto faz",
   "qualquer",
@@ -163,6 +201,14 @@ function novo(objetivo: Objetivo, agora: Date): EstadoDaAgenda {
 
 const iguais = (t: string, lista: readonly string[]) =>
   lista.includes(t.replace(/[!.]+$/g, "").trim());
+/** Alguma expressão da lista aparece como palavras inteiras na frase. */
+const temExpressao = (t: string, lista: readonly string[]) => {
+  const frase = ` ${t
+    .replace(/[^\p{L}\p{N}\s]/gu, " ")
+    .replace(/\s+/g, " ")
+    .trim()} `;
+  return lista.some((x) => frase.includes(` ${x} `));
+};
 
 /** Escolha numérica ou pelo rótulo exato de uma das opções mostradas. */
 function opcaoEscolhida(t: string, opcoes: readonly Opcao[]): Opcao | null {
@@ -189,12 +235,24 @@ export async function conduzir(
   if (anterior) {
     if (
       iguais(t, SAIR) ||
+      // "Deixa pra segunda" é escolha de dia, não desistência.
+      (temExpressao(t, DESISTIR) && !c.entidades.dia && !c.entidades.periodo) ||
       (anterior.objetivo === "agendar" && iguais(t, ["cancelar", "cancela"]))
     ) {
       return { textos: [TEXTOS.desistiu], estado: null };
     }
     const e = { ...anterior, atualizadoEm: portas.agora.toISOString() };
+    // "Olá" / "Bom dia" no meio da conversa: cumprimenta e repete a pergunta em aberto, sem "Não entendi".
+    if (ehSaudacao(texto)) {
+      const r = await avancar({ ...e, opcoes: [] }, portas);
+      return { ...r, textos: [TEXTOS.continuando, ...r.textos] };
+    }
     return continuar(e, texto, t, c.entidades.dia, c.entidades.periodo, portas);
+  }
+
+  if (temExpressao(t, PERDEU_O_HORARIO)) {
+    const r = await avancar(novo("agendar", portas.agora), portas);
+    return { ...r, textos: [TEXTOS.perdeuHorario, ...r.textos] };
   }
 
   if (c.intencao === "CANCELAR") return escolherAgendamento(novo("cancelar", portas.agora), portas);

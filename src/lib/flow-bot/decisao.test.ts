@@ -147,3 +147,13 @@ describe("ehEnvioDoFlow", () => {
     expect(ehEnvioDoFlow({ id: null, texto: "" }, enviados)).toBe(false);
   });
 });
+
+describe("saudação sem regra", () => {
+  it("reconhece só cumprimentos curtos", async () => {
+    const { ehSaudacao } = await import("./decisao");
+    for (const t of ["Olá?", "Bom dia", "boa noite!", "Oi, tudo bem?", "oiee", "E aí"])
+      expect(ehSaudacao(t), t).toBe(true);
+    for (const t of ["Bom dia, quero marcar", "Obrigado", "oito horas", "Quero remarcar"])
+      expect(ehSaudacao(t), t).toBe(false);
+  });
+});

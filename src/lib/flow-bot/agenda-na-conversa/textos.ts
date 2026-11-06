@@ -55,7 +55,10 @@ export const TEXTOS = {
   qualNome: "Para concluir, qual é o seu nome?",
   nomeInvalido: "Não entendi o nome. Pode me dizer só o seu nome?",
   outroDia: "Se preferir outro dia ou horário, é só me dizer (ex.: amanhã à tarde).",
-  responderSimOuNao: "Responda *sim* para confirmar ou *não* para mudar.",
+  // Escolhas destacadas em caixa alta e negrito (dono, 06/11/2026: "Sim ou não em caixa alta").
+  responderSimOuNao: "Responda *SIM* para confirmar ou *NÃO* para mudar.",
+  continuando: "Oi! Vamos continuar de onde paramos.",
+  perdeuHorario: "Sem problema, acontece! Vamos marcar um novo horário.",
   desistiu: "Tudo bem, não marquei nada. Se precisar, é só chamar.",
   mantido: "Tudo bem, mantive seu horário.",
   naoMarcou: "Sem problema, não marquei. Me diga outro dia ou horário, ou *menu* para recomeçar.",

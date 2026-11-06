@@ -507,6 +507,8 @@ export async function processarMensagemRecebida(input: {
   // Áudio → texto: depois disso segue exatamente o caminho do texto digitado.
   // `tipoGravado` mantém o marcador interno de origem ("audio") no histórico.
   let tipoGravado = input.tipo;
+  /** Por que o áudio ficou sem texto (gravado em `mensagens_whatsapp.erro` para diagnóstico; dono, 06/11/2026). */
+  let motivoDoAudio: string | null = null;
   if (input.tipo === "audio" && input.audio) {
     if (input.mensagemExternaId) {
       const { data: ja } = await db
@@ -521,12 +523,23 @@ export async function processarMensagemRecebida(input: {
     const t = await import("./transcricao.server");
     let b64 = input.audio.base64;
     if (!b64) b64 = await t.buscarBase64NaEvolution(input.sessaoId, input.audio.mensagemBruta);
+    let recusa: number | null = null;
     const texto = b64
       ? await t.transcreverAudioBase64(b64, {
           mimetype: input.audio.mimetype ?? null,
           duracaoS: input.audio.duracaoS ?? null,
+          aoRecusar: (status) => (recusa = status),
         })
       : null;
+    if (!texto) {
+      motivoDoAudio = !t.transcricaoConfigurada()
+        ? "audio: transcrição não configurada"
+        : !b64
+          ? "audio: Evolution não entregou a mídia"
+          : recusa
+            ? `audio: transcrição recusada (${recusa})`
+            : "audio: não entendido ou tempo esgotado";
+    }
     b64 = null;
     input = { ...input, audio: null };
     if (texto) {
@@ -536,6 +549,7 @@ export async function processarMensagemRecebida(input: {
       console.error("[whatsapp/audio] áudio sem transcrição", {
         sessao: input.sessaoId,
         mensagem: input.mensagemExternaId,
+        motivo: motivoDoAudio,
       });
     }
   }
@@ -626,6 +640,7 @@ export async function processarMensagemRecebida(input: {
         conteudo: input.conteudo,
         midia_url: input.midiaUrl ?? null,
         status: "recebida",
+        ...(motivoDoAudio ? { erro: motivoDoAudio } : {}),
       });
       // A restrição única é a última barreira contra entregas concorrentes.
       // Se outra execução gravou a mensagem primeiro, não envie o menu de novo.
@@ -675,6 +690,7 @@ export async function processarMensagemRecebida(input: {
     conteudo: input.conteudo,
     midia_url: input.midiaUrl ?? null,
     status: "recebida",
+    ...(motivoDoAudio ? { erro: motivoDoAudio } : {}),
   });
   // 23505 = entrega repetida; nada é reprocessado.
   if (erroInsercao) {

@@ -277,6 +277,38 @@ describe("remarcar, cancelar e consultar", () => {
   });
 });
 
+describe("conversa real da prévia (dono, 06/11/2026)", () => {
+  it("'Deixe, depois falo com você' encerra sem 'Não entendi'; 'deixa pra segunda' continua sendo dia", async () => {
+    const { portas } = portasFalsas({ livres: { "2026-11-07": LIVRES_SABADO } });
+    const sai = await conversar(["quero marcar", "1", "1", "Deixe, depois falo com você"], portas);
+    expect(sai.respostas[3]![0]).toBe("Tudo bem, não marquei nada. Se precisar, é só chamar.");
+    expect(sai.estado).toBeNull();
+  });
+
+  it("'Olá' no meio da conversa cumprimenta e repete a pergunta em aberto", async () => {
+    const { portas } = portasFalsas({ livres: { "2026-11-07": LIVRES_SABADO } });
+    const { respostas, estado } = await conversar(["quero marcar", "Bom dia!"], portas);
+    expect(respostas[1]![0]).toBe("Oi! Vamos continuar de onde paramos.");
+    expect(respostas[1]![1]).toContain("Qual serviço");
+    expect(estado?.etapa).toBe("servico");
+  });
+
+  it("'não deu pra ir' oferece marcar de novo", async () => {
+    const { portas } = portasFalsas({ livres: { "2026-11-07": LIVRES_SABADO } });
+    const { respostas } = await conversar(["Não deu pra ir ontem"], portas);
+    expect(respostas[0]![0]).toBe("Sem problema, acontece! Vamos marcar um novo horário.");
+    expect(respostas[0]![1]).toContain("Qual serviço");
+  });
+
+  it("SIM e NÃO em caixa alta e negrito na confirmação", async () => {
+    const { portas } = portasFalsas({ livres: { "2026-11-07": LIVRES_SABADO } });
+    const { respostas } = await conversar(["quero marcar", "1", "1", "2"], portas);
+    expect(respostas[3]!.join("\n")).toContain(
+      "Responda *SIM* para confirmar ou *NÃO* para mudar.",
+    );
+  });
+});
+
 describe("espalhar", () => {
   it("pega início, meio e fim do dia", () => {
     expect(espalhar([1, 2, 3, 4, 5, 6, 7], 3)).toEqual([1, 4, 7]);

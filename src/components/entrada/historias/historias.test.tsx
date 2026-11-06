@@ -94,7 +94,7 @@ describe("mini-histórias da entrada (vídeo de referência do dono, 06/11)", ()
     expect(zap).toContain("Qual serviço você quer?");
     expect(zap).toContain("Tenho estes horários livres:");
     expect(zap).toContain("Confira seu agendamento:");
-    expect(zap).toContain("Responda *sim* para confirmar ou *não* para mudar.");
+    expect(zap).toContain("Responda *SIM* para confirmar ou *NÃO* para mudar.");
   });
 
   it("se identifica como exemplo para leitores de tela", () => {

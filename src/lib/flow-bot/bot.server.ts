@@ -13,6 +13,7 @@ import {
   humanoNoControle,
   motivoParaNaoAtender,
   prazoDoHumano,
+  ehSaudacao,
   semRegraReconhecida,
   textosDasAcoes,
 } from "./decisao";
@@ -171,7 +172,7 @@ export async function responderComFlowBot(input: EntradaDoBot): Promise<boolean>
   passos.push(...r.passos);
   // Sem regra para a mensagem (remarcar, cancelar, agradecimento…): a Flow IA assume e o bot não guarda o menu
   // como pergunta em aberto. O rastro registra o caminho percorrido, sem resposta prevista.
-  const semRegra = semRegraReconhecida(r.passos);
+  const semRegra = semRegraReconhecida(r.passos) && !ehSaudacao(input.texto);
   const textos = semRegra ? [] : textosDasAcoes(r.acoes);
   const handoff = !semRegra && r.acoes.some((a: Acao) => a.type === "handoff");
 

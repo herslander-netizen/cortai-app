@@ -76,6 +76,23 @@ export function semRegraReconhecida(passos: readonly { type: string }[]): boolea
   return passos[0]?.type === "trigger.message_received";
 }
 
+/**
+ * Só uma saudação ("Olá?", "Bom dia", "Oi, tudo bem?"): o bot responde com o próprio "Olá" e o menu, sem esperar a
+ * Flow IA (dono, 06/11/2026: "Olá" e "Bom dia" ficaram sem resposta quando a IA não respondeu).
+ */
+export function ehSaudacao(texto: string): boolean {
+  const t = texto
+    .normalize("NFD")
+    .replace(/\p{Diacritic}/gu, "")
+    .toLowerCase()
+    .replace(/[^a-z\s]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+  return /^(oi+e*|ola+|opa|eai|e ai|salve|bom dia|boa tarde|boa noite)( (tudo bem|tudo bom|td bem|blz|beleza|como vai))?$/.test(
+    t,
+  );
+}
+
 /** Ações do motor que viram mensagem, na ordem, com o menu numerado em texto (a Evolution não tem botões). */
 export function textosDasAcoes(acoes: readonly Acao[]): string[] {
   const textos: string[] = [];
