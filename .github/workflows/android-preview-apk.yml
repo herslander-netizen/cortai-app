@@ -1,4 +1,5 @@
 name: Gerar APK Android de homologação
+# Disparo pontual para gerar a prévia instalável solicitada em 06/11/2026.
 
 on:
   workflow_dispatch:
