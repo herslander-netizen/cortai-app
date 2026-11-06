@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { motion, useReducedMotion } from "framer-motion";
 import { ArrowRight, Sparkles } from "lucide-react";
 
+import { IconeWhatsapp } from "@/components/entrada/historias/IconeWhatsapp";
 import { MarcaFlow } from "@/components/marca/MarcaFlow";
 import { Button } from "@/components/ui/button";
 import { OndasDaEntrada } from "@/components/entrada/OndasDaEntrada";
@@ -64,6 +65,36 @@ function FotosFlutuantes() {
   );
 }
 
+/** Avisos de confirmação do WhatsApp sobre as fotos, cada um de um ramo diferente. */
+function Balao({
+  titulo,
+  detalhe,
+  className,
+  atraso,
+}: {
+  titulo: string;
+  detalhe: string;
+  className: string;
+  atraso: number;
+}) {
+  return (
+    <motion.span
+      className={`absolute z-10 flex items-center gap-2 rounded-[18px] bg-white px-3 py-2.5 text-left shadow-[0_16px_32px_-14px_rgba(20,60,40,0.55)] ring-1 ring-black/5 ${className}`}
+      initial={{ opacity: 0, y: 14 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ ...MOLA.padraoEspacial, delay: atraso }}
+    >
+      <span className="grid size-8 shrink-0 place-items-center rounded-full bg-[var(--sage)] text-white">
+        <IconeWhatsapp size={16} />
+      </span>
+      <span className="min-w-0 text-[12px] leading-tight text-[#12131c]">
+        <b className="block">{titulo}</b>
+        <span className="text-[#5b5f75]">{detalhe}</span>
+      </span>
+    </motion.span>
+  );
+}
+
 /** No celular as fotos entram em um mosaico abaixo do texto, sem competir com o título. */
 function MosaicoMobile() {
   const reduzir = useReducedMotion();
@@ -73,7 +104,7 @@ function MosaicoMobile() {
     { src: "/exemplos/profissional-1.webp", c: "mt-10", d: 1.6 },
   ];
   return (
-    <div className="mt-8 grid w-full grid-cols-3 gap-3 sm:hidden" aria-hidden>
+    <div className="relative mb-28 mt-8 grid w-full grid-cols-3 gap-3 sm:hidden" aria-hidden>
       {itens.map((f) => (
         <motion.img
           key={f.src}
@@ -84,6 +115,18 @@ function MosaicoMobile() {
           transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: f.d }}
         />
       ))}
+      <Balao
+        titulo="Corte e barba confirmado ✓"
+        detalhe="Sex, 14/11 às 15:00 · SIM"
+        className="-bottom-3 left-0 w-[70%]"
+        atraso={0.5}
+      />
+      <Balao
+        titulo="Sobrancelha confirmada ✓"
+        detalhe="Sáb, 15/11 às 10:30 · SIM"
+        className="-bottom-[76px] right-0 w-[70%]"
+        atraso={0.9}
+      />
     </div>
   );
 }

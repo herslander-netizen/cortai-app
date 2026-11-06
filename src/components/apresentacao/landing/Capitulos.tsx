@@ -1,10 +1,12 @@
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useInView } from "framer-motion";
 
 import { Celular } from "@/components/entrada/historias/Celular";
+import { HistoriaWhatsapp } from "@/components/entrada/historias/HistoriaWhatsapp";
 import { CAPITULOS, type Capitulo } from "@/components/entrada/historias/capitulos";
 import { TEMA_CLARO, TEMA_ESCURO } from "./tema";
 import { OndasDaEntrada } from "@/components/entrada/OndasDaEntrada";
+import { CENARIOS_DA_PAGINA } from "./cenarios";
 import { DivisorDeOndas, LinhasDeOnda } from "./Ondas";
 import { Revelar } from "./Revelar";
 
@@ -63,6 +65,19 @@ const TEXTOS: Record<string, { etiqueta: string; titulo: string; texto: string; 
     },
   };
 
+/** O bate-papo do WhatsApp troca de ramo a cada volta (salão, barbearia, estética) para mostrar que serve a todos. */
+function ConversaVariada({ duracao }: { duracao: number }) {
+  const [indice, setIndice] = useState(0);
+  useEffect(() => {
+    const t = window.setInterval(
+      () => setIndice((i) => (i + 1) % CENARIOS_DA_PAGINA.length),
+      duracao,
+    );
+    return () => window.clearInterval(t);
+  }, [duracao]);
+  return <HistoriaWhatsapp key={indice} cenario={CENARIOS_DA_PAGINA[indice]!} />;
+}
+
 /** Remonta a história quando a seção entra na tela, para o cliente ver o passo a passo desde o começo. */
 function CelularDoCapitulo({ capitulo, escuro }: { capitulo: Capitulo; escuro: boolean }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -94,7 +109,11 @@ function CelularDoCapitulo({ capitulo, escuro }: { capitulo: Capitulo; escuro: b
             </>
           }
         >
-          {capitulo.historia()}
+          {capitulo.id === "whatsapp" ? (
+            <ConversaVariada duracao={capitulo.duracao + 1500} />
+          ) : (
+            capitulo.historia()
+          )}
         </Celular>
       ) : null}
     </div>

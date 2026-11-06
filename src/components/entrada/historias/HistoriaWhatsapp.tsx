@@ -13,36 +13,57 @@ import { TelaDaHistoria, usePassos } from "./base";
 
 type Mensagem = { de: "cliente" | "negocio"; texto: string; hora: string };
 
-export const CONVERSA: readonly Mensagem[] = [
-  { de: "cliente", hora: "14:28", texto: "Oi, quero marcar um horário" },
-  {
-    de: "negocio",
-    hora: "14:28",
-    texto:
-      "Qual serviço você quer?\n\n*1)* Corte e finalização\n*2)* Escova modeladora\n*3)* Hidratação profunda",
-  },
-  { de: "cliente", hora: "14:29", texto: "1" },
-  {
-    de: "negocio",
-    hora: "14:29",
-    texto:
-      "Tenho estes horários livres:\n\n*Sexta-feira, 14/11*\n*1)* 09:15\n*2)* 13:00\n*3)* 15:00\n\nQual prefere? Responda com o *número* da opção.",
-  },
-  { de: "cliente", hora: "14:29", texto: "3" },
-  {
-    de: "negocio",
-    hora: "14:29",
-    texto:
-      "Confira seu agendamento:\n\n*Serviço:* Corte e finalização\n*Profissional:* Lucas Martins\n*Quando:* Sexta-feira, 14/11, às 15:00\n*Valor:* R$ 85,00\n\nPosso marcar?\nResponda *SIM* para confirmar ou *NÃO* para mudar.",
-  },
-  { de: "cliente", hora: "14:30", texto: "sim" },
-  {
-    de: "negocio",
-    hora: "14:30",
-    texto:
-      "Pronto, Carla! Marquei *Corte e finalização* para sexta-feira, 14/11, às 15:00. Até lá!",
-  },
-];
+/** Dados do negócio de exemplo: a conversa é a mesma do atendimento real (a página pública troca o ramo). */
+export type Cenario = {
+  negocio: string;
+  servicos: readonly [string, string, string];
+  profissional: string;
+  cliente: string;
+  valor: string;
+  horarios: readonly [string, string, string];
+};
+
+export const CENARIO_PADRAO: Cenario = {
+  negocio: "Studio Aurora",
+  servicos: ["Corte e finalização", "Escova modeladora", "Hidratação profunda"],
+  profissional: "Lucas Martins",
+  cliente: "Carla",
+  valor: "R$ 85,00",
+  horarios: ["09:15", "13:00", "15:00"],
+};
+
+export function conversaDe(c: Cenario): readonly Mensagem[] {
+  const [s1, s2, s3] = c.servicos;
+  const [h1, h2, h3] = c.horarios;
+  return [
+    { de: "cliente", hora: "14:28", texto: "Oi, quero marcar um horário" },
+    {
+      de: "negocio",
+      hora: "14:28",
+      texto: `Qual serviço você quer?\n\n*1)* ${s1}\n*2)* ${s2}\n*3)* ${s3}`,
+    },
+    { de: "cliente", hora: "14:29", texto: "1" },
+    {
+      de: "negocio",
+      hora: "14:29",
+      texto: `Tenho estes horários livres:\n\n*Sexta-feira, 14/11*\n*1)* ${h1}\n*2)* ${h2}\n*3)* ${h3}\n\nQual prefere? Responda com o *número* da opção.`,
+    },
+    { de: "cliente", hora: "14:29", texto: "3" },
+    {
+      de: "negocio",
+      hora: "14:29",
+      texto: `Confira seu agendamento:\n\n*Serviço:* ${s1}\n*Profissional:* ${c.profissional}\n*Quando:* Sexta-feira, 14/11, às ${h3}\n*Valor:* ${c.valor}\n\nPosso marcar?\nResponda *SIM* para confirmar ou *NÃO* para mudar.`,
+    },
+    { de: "cliente", hora: "14:30", texto: "sim" },
+    {
+      de: "negocio",
+      hora: "14:30",
+      texto: `Pronto, ${c.cliente}! Marquei *${s1}* para sexta-feira, 14/11, às ${h3}. Até lá!`,
+    },
+  ];
+}
+
+export const CONVERSA: readonly Mensagem[] = conversaDe(CENARIO_PADRAO);
 
 /** Um passo por mensagem: a resposta do negócio chega depois do "digitando…". */
 export const PASSOS_WHATSAPP = CONVERSA.map((m) => (m.de === "cliente" ? 1300 : 1900));
@@ -58,9 +79,10 @@ function ComNegrito({ texto }: { texto: string }) {
   );
 }
 
-export function HistoriaWhatsapp() {
+export function HistoriaWhatsapp({ cenario = CENARIO_PADRAO }: { cenario?: Cenario } = {}) {
   const passo = usePassos(PASSOS_WHATSAPP);
-  const proxima = CONVERSA[passo + 1];
+  const conversa = conversaDe(cenario);
+  const proxima = conversa[passo + 1];
   const digitando = proxima?.de === "negocio";
 
   return (
@@ -72,7 +94,7 @@ export function HistoriaWhatsapp() {
             <Sparkles size={13} />
           </span>
           <span className="min-w-0 flex-1 leading-tight">
-            <b className="block text-[11px]">Studio Aurora</b>
+            <b className="block text-[11px]">{cenario.negocio}</b>
             <span className="block text-[8px] text-[var(--figaro-on-surface-variant)]">
               {digitando ? "digitando…" : "online"}
             </span>
@@ -80,7 +102,7 @@ export function HistoriaWhatsapp() {
         </div>
 
         <div className="flex min-h-0 flex-1 flex-col justify-end gap-1 overflow-hidden px-2 pb-1.5">
-          {CONVERSA.slice(0, passo + 1).map((m, i) => {
+          {conversa.slice(0, passo + 1).map((m, i) => {
             const cliente = m.de === "cliente";
             return (
               <motion.div
