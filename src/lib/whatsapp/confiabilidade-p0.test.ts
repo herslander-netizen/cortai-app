@@ -5,6 +5,22 @@
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+const consentimento = vi.hoisted(() => ({
+  supressoes: [] as Record<string, unknown>[],
+  pedidos: [] as Record<string, unknown>[],
+  falhar: false,
+}));
+vi.mock("./consentimento.server", () => ({
+  suprimirWhatsapp: async (input: Record<string, unknown>) => {
+    if (consentimento.falhar) throw new Error("falha simulada ao persistir supressão");
+    consentimento.supressoes.push(input);
+  },
+  solicitarReconsentimentoWhatsapp: async (input: Record<string, unknown>) => {
+    if (consentimento.falhar) throw new Error("falha simulada ao registrar reconsentimento");
+    consentimento.pedidos.push(input);
+  },
+}));
+
 /* Banco falso: cada cadeia resolve com o próximo resultado da fila. */
 const fila: { data: unknown; error: unknown }[] = [];
 const atualizacoes: Record<string, unknown>[] = [];
@@ -35,6 +51,9 @@ vi.mock("@/lib/fuso.server", () => ({ fusoDoTenant: async () => "America/Sao_Pau
 beforeEach(() => {
   fila.length = 0;
   atualizacoes.length = 0;
+  consentimento.supressoes.length = 0;
+  consentimento.pedidos.length = 0;
+  consentimento.falhar = false;
 });
 
 describe("webhook da Evolution fail-closed", () => {
@@ -155,23 +174,8 @@ describe("timeout do gateway", () => {
 });
 
 describe("SAIR sem cadastro", () => {
-  it("nenhuma linha afetada não responde 'Pronto' e encaminha para a equipe", async () => {
-    const { tratarRespostaDeLembrete, TEXTO_SAIR_SEM_CADASTRO } =
-      await import("./lembretes.server");
-    fila.push({ data: [], error: null });
-    const r = await tratarRespostaDeLembrete({
-      tenantId: "t",
-      conversaId: "c",
-      telefone: "5511999990000",
-      texto: "SAIR",
-    });
-    expect(r?.texto).toBe(TEXTO_SAIR_SEM_CADASTRO);
-    expect(r?.texto).not.toMatch(/^Pronto/);
-    expect(r?.encaminharHumano).toBe(true);
-  });
-  it("SAIR para todas as automáticas (não só as de relacionamento)", async () => {
+  it("registra a supressão mesmo quando não existe ficha de cliente", async () => {
     const { tratarRespostaDeLembrete } = await import("./lembretes.server");
-    fila.push({ data: [{ id: "cli" }], error: null });
     const r = await tratarRespostaDeLembrete({
       tenantId: "t",
       conversaId: "c",
@@ -179,24 +183,64 @@ describe("SAIR sem cadastro", () => {
       texto: "SAIR",
     });
     expect(r?.texto).toContain("mensagens automáticas");
-    expect(atualizacoes).toContainEqual(
-      expect.objectContaining({ whatsapp_parado_motivo: "sair" }),
-    );
+    expect(r?.encaminharHumano).not.toBe(true);
+    expect(consentimento.supressoes).toHaveLength(1);
+    expect(consentimento.supressoes[0]).toMatchObject({
+      tenantId: "t",
+      telefone: "5511999990000",
+      motivo: "opt_out",
+      fonte: "whatsapp_inbound",
+    });
   });
-  it("VOLTAR limpa a parada", async () => {
+
+  it("falha ao persistir SAIR não responde sucesso e encaminha para a equipe", async () => {
+    consentimento.falhar = true;
+    const { tratarRespostaDeLembrete, TEXTO_FALHA_TRANSITORIA } =
+      await import("./lembretes.server");
+    const r = await tratarRespostaDeLembrete({
+      tenantId: "t",
+      conversaId: "c",
+      telefone: "5511999990000",
+      texto: "SAIR",
+    });
+    expect(r?.texto).toBe(TEXTO_FALHA_TRANSITORIA);
+    expect(r?.encaminharHumano).toBe(true);
+  });
+
+  it("SAIR registra interrupção de todas as mensagens automáticas do tenant", async () => {
     const { tratarRespostaDeLembrete } = await import("./lembretes.server");
     const r = await tratarRespostaDeLembrete({
       tenantId: "t",
       conversaId: "c",
       telefone: "5511999990000",
-      texto: "voltar",
+      texto: "SAIR",
     });
-    expect(r?.texto).toMatch(/^Pronto/);
-    expect(atualizacoes).toContainEqual({ whatsapp_parado_em: null, whatsapp_parado_motivo: null });
+    expect(r?.texto).toContain("mensagens automáticas");
+    expect(consentimento.supressoes[0]?.["evidencia"]).toMatchObject({ comando: "SAIR" });
   });
-  it("'número errado' para tudo e avisa a equipe", async () => {
+
+  it("VOLTAR solicita reconsentimento e não reativa mensagens automaticamente", async () => {
     const { tratarRespostaDeLembrete } = await import("./lembretes.server");
+    const r = await tratarRespostaDeLembrete({
+      tenantId: "t",
+      conversaId: "c",
+      telefone: "5511999990000",
+      texto: "VOLTAR",
+    });
+    expect(r?.texto).toContain("não serão reativadas automaticamente");
+    expect(r?.encaminharHumano).toBe(true);
+    expect(consentimento.pedidos).toHaveLength(1);
+    expect(consentimento.pedidos[0]).toMatchObject({
+      tenantId: "t",
+      telefone: "5511999990000",
+      fonte: "whatsapp_inbound",
+    });
+    expect(atualizacoes).toHaveLength(0);
+  });
+
+  it("'número errado' cria supressão permanente para esse tenant e avisa a equipe", async () => {
     fila.push({ data: [{ id: "cli", nome: "Ana" }], error: null });
+    const { tratarRespostaDeLembrete } = await import("./lembretes.server");
     const r = await tratarRespostaDeLembrete({
       tenantId: "t",
       conversaId: "c",
@@ -204,13 +248,14 @@ describe("SAIR sem cadastro", () => {
       texto: "Número errado",
     });
     expect(r?.texto).toContain("Desculpe pelo engano");
-    expect(atualizacoes).toContainEqual(
-      expect.objectContaining({ whatsapp_parado_motivo: "numero_errado" }),
-    );
+    expect(consentimento.supressoes[0]).toMatchObject({
+      motivo: "wrong_number",
+      tenantId: "t",
+    });
   });
-  it("com linha afetada confirma a saída", async () => {
+
+  it("SAIR tem o mesmo resultado com ou sem ficha cadastrada", async () => {
     const { tratarRespostaDeLembrete } = await import("./lembretes.server");
-    fila.push({ data: [{ id: "cli" }], error: null });
     const r = await tratarRespostaDeLembrete({
       tenantId: "t",
       conversaId: "c",
@@ -218,6 +263,7 @@ describe("SAIR sem cadastro", () => {
       texto: "sair",
     });
     expect(r?.texto).toMatch(/^Pronto/);
+    expect(consentimento.supressoes).toHaveLength(1);
   });
 });
 
