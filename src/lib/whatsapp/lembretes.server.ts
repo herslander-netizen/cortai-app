@@ -71,55 +71,80 @@ export async function tratarRespostaDeLembrete(input: {
   const { avisaNumeroErrado, pedeParaSair, pedeParaVoltar } = await import("./porteiro");
   const { variantesDoTelefone } = await import("@/lib/telefone");
   const variantes = variantesDoTelefone(input.telefone);
-  /** Marca de parada (migração 0033): falhar aqui nunca desfaz o opt-out já gravado. */
-  const marcarParada = async (motivo: "sair" | "numero_errado" | null) => {
-    await db
-      .from("clientes")
-      .update({
-        whatsapp_parado_em: motivo ? new Date().toISOString() : null,
-        whatsapp_parado_motivo: motivo,
-      })
-      .eq("tenant_id", input.tenantId)
-      .in("telefone", variantes)
-      .then(
-        () => undefined,
-        () => undefined,
-      );
-  };
-
-  // Pedido de saída vale sempre, com ou sem lembrete recente, e para TODAS as automáticas.
+  // SAIR é persistido por tenant+telefone mesmo quando ainda não existe ficha de cliente.
   if (SAIR.has(t) || pedeParaSair(bruto)) {
-    const { data: alterados, error } = await db
-      .from("clientes")
-      .update({ opt_in_whatsapp: false })
-      .eq("tenant_id", input.tenantId)
-      .in("telefone", variantes)
-      .select("id");
-    if (error || !alterados || alterados.length === 0) {
-      if (error) console.error("[lembretes] SAIR falhou:", error.message);
-      return { texto: TEXTO_SAIR_SEM_CADASTRO, encaminharHumano: true };
+    try {
+      const { suprimirWhatsapp } = await import("./consentimento.server");
+      await suprimirWhatsapp({
+        tenantId: input.tenantId,
+        telefone: input.telefone,
+        motivo: "opt_out",
+        fonte: "whatsapp_inbound",
+        evidencia: {
+          comando: "SAIR",
+          conversaId: input.conversaId,
+          mensagemCitadaId: input.citadaId ?? null,
+        },
+      });
+      return {
+        texto:
+          "Pronto, você não receberá mais mensagens automáticas deste estabelecimento. Se mudar de ideia, envie VOLTAR; a equipe confirmará sua autorização antes de reativar.",
+      };
+    } catch (erro) {
+      console.error("[lembretes] não foi possível persistir SAIR:", erro);
+      return { texto: TEXTO_FALHA_TRANSITORIA, encaminharHumano: true };
     }
-    await marcarParada("sair");
-    return {
-      texto:
-        "Pronto, você não receberá mais mensagens automáticas deste número. Se mudar de ideia, envie VOLTAR.",
-    };
   }
 
+  // VOLTAR registra o pedido, mas não reativa categorias sem uma nova autorização explícita.
   if (pedeParaVoltar(bruto)) {
-    await marcarParada(null);
-    return { texto: "Pronto, os avisos dos seus horários voltam a chegar por aqui." };
+    try {
+      const { solicitarReconsentimentoWhatsapp } = await import("./consentimento.server");
+      await solicitarReconsentimentoWhatsapp({
+        tenantId: input.tenantId,
+        telefone: input.telefone,
+        fonte: "whatsapp_inbound",
+        evidencia: {
+          comando: "VOLTAR",
+          conversaId: input.conversaId,
+          mensagemCitadaId: input.citadaId ?? null,
+        },
+      });
+      return {
+        texto:
+          "Recebemos seu pedido. As mensagens não serão reativadas automaticamente. A equipe precisa confirmar com você quais avisos deseja receber.",
+        encaminharHumano: true,
+      };
+    } catch (erro) {
+      console.error("[lembretes] não foi possível registrar VOLTAR:", erro);
+      return { texto: TEXTO_FALHA_TRANSITORIA, encaminharHumano: true };
+    }
   }
 
-  // Quem recebeu por engano para tudo na hora, e a equipe é avisada para corrigir a ficha.
+  // Número errado também vira supressão persistente, independentemente do cadastro.
   if (avisaNumeroErrado(bruto)) {
+    try {
+      const { suprimirWhatsapp } = await import("./consentimento.server");
+      await suprimirWhatsapp({
+        tenantId: input.tenantId,
+        telefone: input.telefone,
+        motivo: "wrong_number",
+        fonte: "whatsapp_inbound",
+        evidencia: {
+          manifestacao: bruto.slice(0, 300),
+          conversaId: input.conversaId,
+          mensagemCitadaId: input.citadaId ?? null,
+        },
+      });
+    } catch (erro) {
+      console.error("[lembretes] não foi possível suprimir número errado:", erro);
+      return { texto: TEXTO_FALHA_TRANSITORIA, encaminharHumano: true };
+    }
     const { data: fichas } = await db
       .from("clientes")
-      .update({ opt_in_whatsapp: false })
+      .select("id, nome")
       .eq("tenant_id", input.tenantId)
-      .in("telefone", variantes)
-      .select("id, nome");
-    await marcarParada("numero_errado");
+      .in("telefone", variantes);
     const ficha = fichas?.[0];
     if (ficha) {
       await db
