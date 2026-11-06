@@ -46,13 +46,13 @@ const PASTA = "src/components/entrada/historias";
 const arquivos = readdirSync(PASTA).filter((f) => f.endsWith(".tsx") && !f.endsWith(".test.tsx"));
 
 describe("mini-histórias da entrada (vídeo de referência do dono, 06/11)", () => {
-  it("tem os cinco capítulos na ordem da referência, cada um com frase de duas linhas", () => {
+  it("tem os cinco capítulos na ordem da inspiração, cada um com frase de duas linhas", () => {
     expect(CAPITULOS.map((c) => c.id)).toEqual([
-      "site",
+      "gestao",
       "agenda",
       "lembretes",
       "avaliacoes",
-      "desempenho",
+      "site",
     ]);
     for (const c of CAPITULOS) {
       expect(c.frase.split("\n"), c.id).toHaveLength(2);
@@ -66,6 +66,16 @@ describe("mini-histórias da entrada (vídeo de referência do dono, 06/11)", ()
       expect(t, f).not.toMatch(/#[0-9a-f]{3,8}\b/i);
       expect(t, f).not.toMatch(/barbearia|barbeiro|tesoura|pente/i);
       expect(t.split("\n").length, f).toBeLessThanOrEqual(300);
+    }
+  });
+
+  it("o celular fica parado e só a tela muda; a tela não força tema claro", () => {
+    const celular = readFileSync(`${PASTA}/Celular.tsx`, "utf8");
+    const base = readFileSync(`${PASTA}/base.tsx`, "utf8");
+    expect(celular).toContain("14:31");
+    expect(base).not.toMatch(/className="light /);
+    for (const f of arquivos) {
+      expect(readFileSync(`${PASTA}/${f}`, "utf8"), f).not.toContain("figaro-inverse");
     }
   });
 

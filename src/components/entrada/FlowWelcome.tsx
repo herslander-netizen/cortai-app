@@ -4,6 +4,7 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { MarcaFlow } from "@/components/marca/MarcaFlow";
 import { CAPITULOS } from "@/components/entrada/historias/capitulos";
+import { Celular } from "@/components/entrada/historias/Celular";
 import { OndasDaEntrada } from "@/components/entrada/OndasDaEntrada";
 import { MOLA } from "@/lib/movimento-figaro";
 
@@ -49,19 +50,22 @@ export function FlowWelcome({ onCreateAccount, onSignIn, onCustomerBooking }: Fl
           className="h-auto w-[min(42vw,160px)] [@media(max-height:720px)]:w-[min(30vw,112px)]"
           prioridade
         />
-        <p className="sr-only">Seu negócio no ritmo certo.</p>
+        <p className="mt-1.5 text-center text-[14px] font-medium tracking-[0.01em] text-mute [@media(max-height:720px)]:mt-0.5 [@media(max-height:720px)]:text-[12px]">
+          Seu negócio no ritmo certo.
+        </p>
       </header>
 
       <section
         aria-label="Conheça os recursos do Flow"
-        className="relative z-10 flex min-h-0 flex-1 flex-col justify-center gap-4 py-4 [@media(max-height:720px)]:gap-2 [@media(max-height:720px)]:py-2"
+        className="relative z-10 flex min-h-0 flex-1 flex-col pt-4 [@media(max-height:720px)]:pt-2"
       >
+        {/* Celular parado; só a tela muda. Arrastar para os lados troca de capítulo. */}
         <motion.div
-          className="mx-auto flex h-full min-h-0 w-full max-w-[390px] flex-col overflow-hidden rounded-[28px] border border-line bg-ink2 shadow-[var(--elevacao-2)]"
+          className="relative min-h-0 flex-1"
           drag={reduceMotion ? false : "x"}
           dragDirectionLock
           dragConstraints={{ left: 0, right: 0 }}
-          dragElastic={0.16}
+          dragElastic={0.12}
           onDragStart={() => {
             setPausedUntil(Date.now() + RESUME_AFTER_INTERACTION_MS);
           }}
@@ -74,53 +78,57 @@ export function FlowWelcome({ onCreateAccount, onSignIn, onCustomerBooking }: Fl
           }}
           style={{ touchAction: "pan-y" }}
         >
-          <div className="min-h-0 flex-1 overflow-hidden bg-ink3 p-2">
+          <Celular>
             <AnimatePresence mode="wait" initial={false}>
               <motion.div
                 key={activeIndex}
                 className="h-full w-full"
-                initial={{ opacity: 0, x: reduceMotion ? 0 : 40 }}
+                initial={{ opacity: 0, x: reduceMotion ? 0 : 18 }}
                 animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: reduceMotion ? 0 : -40 }}
+                exit={{ opacity: 0, x: reduceMotion ? 0 : -18 }}
                 transition={MOLA.padraoEspacial}
               >
                 {capitulo.historia()}
               </motion.div>
             </AnimatePresence>
-          </div>
-
-          <div aria-hidden="true" className="h-[3px] w-full shrink-0 bg-[var(--figaro-tertiary)]" />
-
-          <div className="flex min-h-[84px] shrink-0 flex-col items-center justify-center px-5 py-3 text-center [@media(max-height:720px)]:min-h-[72px] [@media(max-height:720px)]:py-2">
-            <AnimatePresence mode="wait" initial={false}>
-              <motion.div
-                key={activeIndex + "-caption"}
-                initial={{ opacity: 0, y: reduceMotion ? 0 : 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: reduceMotion ? 0 : -6 }}
-                transition={MOLA.padraoEspacial}
-              >
-                <p className="mb-1.5 text-[10px] font-extrabold uppercase tracking-[0.26em] text-[var(--figaro-tertiary)]">
-                  {capitulo.rotulo}
-                </p>
-                <h1 className="whitespace-pre-line text-[clamp(15px,4.3vw,18px)] font-bold leading-snug tracking-[-0.02em] text-paper">
-                  {capitulo.frase}
-                </h1>
-              </motion.div>
-            </AnimatePresence>
-          </div>
+          </Celular>
         </motion.div>
+
+        {/* Linha de luz onde o celular "afunda". */}
+        <div
+          aria-hidden="true"
+          className="relative -mx-5 h-px shrink-0 bg-[linear-gradient(90deg,transparent,var(--figaro-primary)_30%,var(--figaro-tertiary)_70%,transparent)] shadow-[0_0_18px_2px_var(--figaro-primary)]"
+        />
+
+        <div className="flex min-h-[96px] shrink-0 flex-col items-center justify-center px-2 pt-4 pb-2 text-center [@media(max-height:720px)]:min-h-[76px] [@media(max-height:720px)]:pt-2.5 [@media(max-height:720px)]:pb-1">
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.div
+              key={activeIndex + "-caption"}
+              initial={{ opacity: 0, y: reduceMotion ? 0 : 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: reduceMotion ? 0 : -6 }}
+              transition={MOLA.padraoEspacial}
+            >
+              <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.3em] text-[var(--figaro-tertiary)] [@media(max-height:720px)]:mb-1">
+                {capitulo.rotulo}
+              </p>
+              <h1 className="whitespace-pre-line text-[clamp(17px,4.9vw,20px)] font-medium leading-snug tracking-[-0.01em] text-paper [@media(max-height:720px)]:text-[15px]">
+                {capitulo.frase}
+              </h1>
+            </motion.div>
+          </AnimatePresence>
+        </div>
 
         <nav
           aria-label="Selecionar recurso"
-          className="mx-auto flex w-[90%] max-w-[360px] shrink-0 items-center justify-between px-1"
+          className="mx-auto flex w-full max-w-[340px] shrink-0 items-center justify-between pb-3 [@media(max-height:720px)]:pb-1"
         >
           {CAPITULOS.map((item, index) => {
             const Icon = item.icone;
             const active = index === activeIndex;
 
             return (
-              <div key={item.id} className="flex flex-col items-center gap-1.5">
+              <div key={item.id} className="flex flex-col items-center gap-1">
                 <Button
                   type="button"
                   variant="ghost"
@@ -128,22 +136,19 @@ export function FlowWelcome({ onCreateAccount, onSignIn, onCustomerBooking }: Fl
                   aria-label={"Mostrar recurso: " + item.rotulo}
                   aria-pressed={active}
                   onClick={() => interact(index)}
-                  className={active ? "text-[var(--figaro-tertiary)]" : "text-mute"}
+                  className={`rounded-[14px] ${
+                    active
+                      ? "bg-[var(--figaro-tertiary)]/15 text-[var(--figaro-tertiary)] hover:bg-[var(--figaro-tertiary)]/20"
+                      : "text-paper/80"
+                  }`}
                 >
-                  <motion.span
-                    animate={{ scale: active ? 1.1 : 1 }}
-                    transition={MOLA.rapidaEspacial}
-                    className="flex items-center justify-center"
-                  >
-                    <Icon size={25} strokeWidth={active ? 2.4 : 1.8} />
-                  </motion.span>
+                  <Icon size={24} strokeWidth={active ? 2.2 : 1.8} />
                 </Button>
                 <motion.span
                   aria-hidden="true"
                   className="h-[3px] rounded-full"
                   animate={{
-                    width: active ? 24 : 16,
-                    opacity: active ? 1 : 0.6,
+                    width: active ? 22 : 14,
                     backgroundColor: active
                       ? "var(--figaro-tertiary)"
                       : "var(--figaro-outline-variant)",
@@ -170,7 +175,7 @@ export function FlowWelcome({ onCreateAccount, onSignIn, onCustomerBooking }: Fl
         </Button>
 
         <p className="text-center text-[13px] text-mute">
-          Já tem conta?{" "}
+          Já possui conta?{" "}
           <Button
             type="button"
             variant="link"
@@ -179,7 +184,7 @@ export function FlowWelcome({ onCreateAccount, onSignIn, onCustomerBooking }: Fl
             disabled={!onSignIn}
             className="h-auto min-h-12 px-1 font-bold text-[var(--figaro-primary)]"
           >
-            Entrar
+            Faça login
           </Button>
         </p>
 

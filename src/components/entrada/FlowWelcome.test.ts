@@ -25,12 +25,13 @@ describe("entrada pública do Flow", () => {
     expect(tela).toContain('variant="link"');
   });
 
-  it("segue a referência do dono de 06/11: só a marca no topo, mini-histórias e Começar agora", () => {
+  it("segue a referência do dono de 06/11: celular com mini-histórias, assinatura e Começar agora", () => {
     const tela = readFileSync("src/components/entrada/FlowWelcome.tsx", "utf8");
     expect(tela).toContain("CAPITULOS");
     expect(tela).toContain("capitulo.historia()");
     expect(tela).toContain("Começar agora");
-    expect(tela).toContain('<p className="sr-only">Seu negócio no ritmo certo.</p>');
+    expect(tela).toContain("Seu negócio no ritmo certo.");
+    expect(tela).toContain("<Celular>");
   });
 
   it("identifica os mockups como exemplos e não como estado real da conta", () => {

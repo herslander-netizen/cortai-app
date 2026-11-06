@@ -42,7 +42,7 @@ export function HistoriaSite() {
             alt=""
             className="absolute inset-0 h-full w-full object-cover"
           />
-          <div className="absolute inset-0 bg-[var(--figaro-inverse-surface)]/40" />
+          <div className="absolute inset-0 bg-[var(--ink)]/40" />
           {/* Tema novo cresce a partir do toque, como na personalização da página. */}
           <motion.span
             className="absolute right-[16%] top-[8%] block size-[60px] rounded-full bg-[var(--figaro-tertiary)]"
@@ -51,7 +51,7 @@ export function HistoriaSite() {
             animate={{ scale: temaNovo ? 22 : 0, opacity: temaNovo ? 0.92 : 0 }}
             transition={{ duration: 0.7, ease: [0.2, 0, 0, 1] }}
           />
-          <div className="relative flex h-full flex-col px-4 pb-4 pt-3 text-[var(--figaro-inverse-on-surface)]">
+          <div className="relative flex h-full flex-col px-4 pb-4 pt-3 text-[var(--paper)]">
             <div className="flex items-center justify-between">
               <b className="text-[12px] leading-tight tracking-tight">
                 Studio
@@ -59,7 +59,7 @@ export function HistoriaSite() {
                 Aurora
               </b>
               <span className="flex items-center gap-2">
-                <span className="grid size-6 place-items-center rounded-full bg-[var(--figaro-inverse-on-surface)]/20">
+                <span className="grid size-6 place-items-center rounded-full bg-[var(--paper)]/20">
                   <Palette size={12} />
                 </span>
                 <Menu size={14} />
@@ -74,7 +74,7 @@ export function HistoriaSite() {
               <p className="mt-2 max-w-[210px] text-[10px] leading-snug opacity-85">
                 Atendimento com hora marcada, equipe dedicada e um espaço pensado para você.
               </p>
-              <span className="mt-3 rounded-full bg-[var(--figaro-inverse-on-surface)] px-4 py-2 text-[10px] font-bold text-[var(--figaro-inverse-surface)]">
+              <span className="mt-3 rounded-full bg-[var(--paper)] px-4 py-2 text-[10px] font-bold text-[var(--ink)]">
                 Agendar agora
               </span>
             </div>

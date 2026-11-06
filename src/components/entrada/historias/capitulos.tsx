@@ -1,16 +1,18 @@
-/** Os cinco capítulos da entrada, na ordem do vídeo de referência do dono (06/11/2026), com textos próprios do Flow. */
+/**
+ * Os cinco capítulos da entrada (vídeo de referência e inspiração do dono, 06/11/2026), na ordem da inspiração:
+ * gestão, agenda, lembretes, avaliações e site.
+ */
 import type { ReactNode } from "react";
 import { BarChart3, BellRing, CalendarDays, Globe, Star, type LucideIcon } from "lucide-react";
 
 import { duracaoTotal } from "./base";
 import { HistoriaAgenda, PASSOS_AGENDA } from "./HistoriaAgenda";
 import { HistoriaSite, PASSOS_SITE } from "./HistoriaSite";
+import { HistoriaGestao, PASSOS_GESTAO } from "./HistoriaGestao";
 import {
   HistoriaAvaliacoes,
-  HistoriaDesempenho,
   HistoriaLembretes,
   PASSOS_AVALIACOES,
-  PASSOS_DESEMPENHO,
   PASSOS_LEMBRETES,
 } from "./HistoriasDoNegocio";
 
@@ -26,12 +28,12 @@ export type Capitulo = {
 
 export const CAPITULOS: readonly Capitulo[] = [
   {
-    id: "site",
-    icone: Globe,
-    rotulo: "Seu site",
-    frase: "Sua página mostra serviços,\nequipe e preços com a sua cara.",
-    duracao: duracaoTotal(PASSOS_SITE),
-    historia: () => <HistoriaSite />,
+    id: "gestao",
+    icone: BarChart3,
+    rotulo: "Gestão completa",
+    frase: "Tudo o que o seu negócio precisa\nem um só lugar.",
+    duracao: duracaoTotal(PASSOS_GESTAO),
+    historia: () => <HistoriaGestao />,
   },
   {
     id: "agenda",
@@ -58,11 +60,11 @@ export const CAPITULOS: readonly Capitulo[] = [
     historia: () => <HistoriaAvaliacoes />,
   },
   {
-    id: "desempenho",
-    icone: BarChart3,
-    rotulo: "Desempenho",
-    frase: "Números claros para decidir\nos próximos passos do negócio.",
-    duracao: duracaoTotal(PASSOS_DESEMPENHO),
-    historia: () => <HistoriaDesempenho />,
+    id: "site",
+    icone: Globe,
+    rotulo: "Seu site",
+    frase: "Sua página mostra serviços,\nequipe e preços com a sua cara.",
+    duracao: duracaoTotal(PASSOS_SITE),
+    historia: () => <HistoriaSite />,
   },
 ];

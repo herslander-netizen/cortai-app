@@ -3,7 +3,7 @@
  * escuro, o círculo de toque simulado, o relógio dos passos e o contador de números. Só transform/opacity; com
  * "reduzir movimento" a história fica parada no passo final.
  */
-import { useEffect, useRef, useState, type ReactNode, type RefObject } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 
 import { MOLA } from "@/lib/movimento-figaro";
@@ -28,49 +28,19 @@ export function duracaoTotal(duracoes: readonly number[], respiro = 900): number
   return duracoes.reduce((s, d) => s + d, 0) + respiro;
 }
 
-/** Tamanho de desenho da "tela" (px). A tela é escalada para caber no cartão: o toque simulado sempre cai no alvo. */
+/** Tamanho de desenho da tela do celular (px). O celular é escalado para caber: o toque simulado sempre cai no alvo. */
 export const TELA_LARGURA = 320;
 export const TELA_ALTURA = 360;
 
-/** Escala que faz a tela de desenho caber na área disponível, sem distorcer. */
-function useEscalaParaCaber(ref: RefObject<HTMLDivElement | null>): number | null {
-  const [escala, setEscala] = useState<number | null>(null);
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const medir = () => {
-      const { width, height } = el.getBoundingClientRect();
-      if (width && height) setEscala(Math.min(width / TELA_LARGURA, height / TELA_ALTURA));
-    };
-    medir();
-    const obs = new ResizeObserver(medir);
-    obs.observe(el);
-    return () => obs.disconnect();
-  }, [ref]);
-  return escala;
-}
-
-/** A "tela" clara: tema claro aplicado só aqui dentro, cantos de celular, nada vaza. */
+/** Conteúdo da tela do celular (tema escuro do palco). A moldura e a escala ficam em `Celular.tsx`. */
 export function TelaDaHistoria({ rotulo, children }: { rotulo: string; children: ReactNode }) {
-  const area = useRef<HTMLDivElement>(null);
-  const escala = useEscalaParaCaber(area);
   return (
     <div
-      ref={area}
       role="img"
       aria-label={`Exemplo visual: ${rotulo}. Nomes e números ilustrativos.`}
-      className="relative h-full w-full overflow-hidden select-none"
+      className="relative h-full w-full overflow-hidden bg-[var(--figaro-surface)] text-[var(--figaro-on-surface)] select-none"
     >
-      <div
-        aria-hidden
-        className="light absolute left-1/2 top-1/2 overflow-hidden rounded-[20px] bg-[var(--figaro-surface)] text-[var(--figaro-on-surface)]"
-        style={{
-          width: TELA_LARGURA,
-          height: TELA_ALTURA,
-          transform: `translate(-50%, -50%) scale(${escala ?? 1})`,
-          opacity: escala === null ? 0 : 1,
-        }}
-      >
+      <div aria-hidden className="h-full w-full">
         {children}
       </div>
     </div>

@@ -1,6 +1,6 @@
 /**
- * Capítulos "Lembretes", "Avaliações" e "Desempenho" da entrada. Mostram só o que o Flow faz: aviso no WhatsApp para o
- * cliente, push para a equipe, avaliação depois do atendimento e relatórios do período. Dados ilustrativos.
+ * Capítulos "Lembretes" e "Avaliações" da entrada. Mostram só o que o Flow faz: aviso no WhatsApp para o
+ * cliente, push para a equipe e avaliação depois do atendimento. Dados ilustrativos.
  */
 import { motion } from "framer-motion";
 import { Bell, MessageCircle, Star } from "lucide-react";
@@ -10,7 +10,6 @@ import { Contador, Estrelas, TelaDaHistoria, usePassos } from "./base";
 
 export const PASSOS_LEMBRETES = [900, 1300, 1300, 1900] as const;
 export const PASSOS_AVALIACOES = [1300, 1700, 2100] as const;
-export const PASSOS_DESEMPENHO = [1700, 1700, 1900] as const;
 
 const AVISOS = [
   {
@@ -40,8 +39,8 @@ export function HistoriaLembretes() {
       <div className="relative h-full">
         {/* Papel de parede da tela de bloqueio: gradiente de tokens, sem foto nem logo. */}
         <div className="absolute inset-0 bg-[linear-gradient(165deg,var(--figaro-primary)_0%,var(--figaro-tertiary)_100%)]" />
-        <div className="absolute inset-0 bg-[var(--figaro-inverse-surface)]/20" />
-        <div className="relative px-3 pt-4 text-[var(--figaro-inverse-on-surface)]">
+        <div className="absolute inset-0 bg-[var(--ink)]/20" />
+        <div className="relative px-3 pt-4 text-[var(--paper)]">
           <p className="text-[38px] font-semibold leading-none tracking-[-0.04em]">08:00</p>
           <p className="mt-1 text-[10px] opacity-90">quinta-feira, 13 de novembro</p>
           <div className="mt-4 space-y-1.5">
@@ -150,69 +149,6 @@ export function HistoriaAvaliacoes() {
             ))}
           </motion.div>
         </div>
-      </div>
-    </TelaDaHistoria>
-  );
-}
-
-const COLUNAS = [42, 58, 51, 66, 74, 88, 63];
-const mil = (n: number) => `R$ ${(n / 1000).toFixed(1).replace(".", ",")} mil`;
-
-export function HistoriaDesempenho() {
-  const passo = usePassos(PASSOS_DESEMPENHO);
-  return (
-    <TelaDaHistoria rotulo="resultados do negócio no período">
-      <div className="flex h-full flex-col px-3 pt-3">
-        <div className="flex items-center justify-between">
-          <b className="text-[13px]">Desempenho</b>
-          <span className="rounded-full bg-[var(--figaro-surface-container)] px-2 py-0.5 text-[8px] text-[var(--figaro-on-surface-variant)]">
-            Últimos 7 dias
-          </span>
-        </div>
-        <div className="mt-2 grid grid-cols-3 gap-1.5">
-          {[
-            { r: "Agendamentos", v: <Contador ate={186} /> },
-            { r: "Faturamento", v: <Contador ate={10800} formatar={mil} /> },
-            { r: "Voltaram", v: <Contador ate={72} formatar={(n) => `${Math.round(n)}%`} /> },
-          ].map((c) => (
-            <div key={c.r} className="rounded-[14px] bg-[var(--figaro-surface-container)] p-2">
-              <p className="truncate text-[12px] font-extrabold leading-tight">{c.v}</p>
-              <p className="truncate text-[8px] text-[var(--figaro-on-surface-variant)]">{c.r}</p>
-            </div>
-          ))}
-        </div>
-        <div className="mt-2 rounded-[16px] bg-[var(--figaro-surface-container)] p-2.5">
-          <p className="text-[10px] font-bold">Agendamentos por dia</p>
-          <div className="mt-2 flex h-[64px] items-end gap-1.5">
-            {COLUNAS.map((v, i) => (
-              <motion.span
-                key={i}
-                className={`block flex-1 origin-bottom rounded-t-[5px] ${
-                  i === 5 ? "bg-[var(--figaro-primary)]" : "bg-[var(--figaro-primary)]/35"
-                }`}
-                style={{ height: `${v}%` }}
-                initial={{ scaleY: 0 }}
-                animate={{ scaleY: passo >= 1 ? 1 : 0.08 }}
-                transition={{ ...MOLA.padraoEspacial, delay: i * 0.05 }}
-              />
-            ))}
-          </div>
-        </div>
-        <motion.div
-          className="mt-2 grid grid-cols-2 gap-1.5"
-          initial={false}
-          animate={{ opacity: passo >= 2 ? 1 : 0, y: passo >= 2 ? 0 : 10 }}
-          transition={MOLA.padraoEspacial}
-        >
-          <div className="rounded-[14px] bg-[var(--figaro-surface-container)] p-2">
-            <p className="text-[12px] font-extrabold">58%</p>
-            <p className="text-[8px] text-[var(--figaro-on-surface-variant)]">pela sua página</p>
-          </div>
-          <div className="rounded-[14px] bg-[var(--figaro-surface-container)] p-2">
-            <p className="text-[12px] font-extrabold">31%</p>
-            <p className="text-[8px] text-[var(--figaro-on-surface-variant)]">pelo WhatsApp</p>
-          </div>
-        </motion.div>
       </div>
     </TelaDaHistoria>
   );
