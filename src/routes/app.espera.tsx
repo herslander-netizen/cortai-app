@@ -58,6 +58,7 @@ function EsperaPage() {
   const [status, setStatus] = useState<string | null>(null);
   const [pronto, setPronto] = useState(false);
   const [posicao, setPosicao] = useState<number | null>(null);
+  const [prazoMin, setPrazoMin] = useState<number>(PRAZO_DA_OFERTA_MIN);
   const acao = useAcao();
 
   const escolhida = JANELAS[janela] ?? JANELAS[0];
@@ -82,8 +83,10 @@ function EsperaPage() {
           </div>
           <p className="mt-3 text-sm leading-relaxed text-mute">
             Se vagar um horário que combina, avisamos no seu WhatsApp. Você terá{" "}
-            <b className="text-paper">{PRAZO_DA_OFERTA_MIN} minutos</b> para confirmar; depois a
-            vaga vai para a próxima pessoa. Nada fica reservado antes.
+            <b className="text-paper">
+              {prazoMin >= 60 ? `${prazoMin / 60} hora` : `${prazoMin} minutos`}
+            </b>{" "}
+            para confirmar; depois a vaga vai para a próxima pessoa. Nada fica reservado antes.
           </p>
         </section>
       ) : (
@@ -153,6 +156,7 @@ function EsperaPage() {
                     erro: "Confira o nome e o WhatsApp e tente de novo.",
                     aoConcluir: (r) => {
                       setPosicao(r.posicao);
+                      setPrazoMin(r.prazoMin ?? PRAZO_DA_OFERTA_MIN);
                       setPronto(true);
                     },
                   },

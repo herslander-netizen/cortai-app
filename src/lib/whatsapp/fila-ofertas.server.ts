@@ -15,6 +15,7 @@ import {
   candidatosDaVaga,
   ofertaViavel,
   prazoDaOferta,
+  regrasDaEsperaDoTenant,
   servicoDaEntrada,
   type PreferenciaDaFila,
   type ServicoDaVaga,
@@ -87,7 +88,15 @@ export async function ofertarVaga(
   if (!profissionalId || !servicoLiberadoId) return { ofertaId: null, motivo: "sem_vaga" };
   const agora = Date.now();
   const inicioMs = new Date(ag.inicio).getTime();
-  if (!ofertaViavel(agora, inicioMs)) return { ofertaId: null, motivo: "muito_perto" };
+  // Regras do negócio (migração 0060). Sem as colunas (migração ainda não aplicada) vale o padrão de antes.
+  const { data: regrasTenant } = await db
+    .from("tenants")
+    .select("espera_prazo_min, espera_antecedencia_min, espera_qualquer_profissional")
+    .eq("id", ag.tenant_id)
+    .maybeSingle();
+  const regrasEspera = regrasDaEsperaDoTenant(regrasTenant);
+  if (!ofertaViavel(agora, inicioMs, regrasEspera))
+    return { ofertaId: null, motivo: "muito_perto" };
 
   const { data: ativo } = await db.rpc("recurso_do_tenant_ativo", {
     _tenant_id: ag.tenant_id,
@@ -160,8 +169,11 @@ export async function ofertarVaga(
         .select("id, posicao, criado_em, profissional_id, servico_id, janela_preferida, cliente_id")
         .eq("tenant_id", ag.tenant_id)
         .eq("status", "aguardando")
-        .not("janela_preferida", "is", null)
-        .or(`profissional_id.is.null,profissional_id.eq.${profissionalId}`)
+        .not("janela_preferida", "is", null);
+      // "Só o profissional pedido" (padrão): quem pediu outro profissional nem entra no lote.
+      if (!regrasEspera.qualquerProfissional)
+        consulta = consulta.or(`profissional_id.is.null,profissional_id.eq.${profissionalId}`);
+      consulta = consulta
         .order("posicao", { ascending: true, nullsFirst: false })
         .order("criado_em", { ascending: true })
         .order("id", { ascending: true })
@@ -180,7 +192,7 @@ export async function ofertarVaga(
         janela: (f.janela_preferida ?? null) as PreferenciaDaFila["janela"],
         clienteId: f.cliente_id,
       }));
-      for (const c of candidatosDaVaga(prefs, vaga, mapa, jaOfertados)) {
+      for (const c of candidatosDaVaga(prefs, vaga, mapa, jaOfertados, regrasEspera)) {
         if (tentativas++ >= TENTATIVAS_POR_VAGA) break;
         jaOfertados.add(c.id); // não reavaliar na segunda passada
         const cand = prefs.find((x) => x.id === c.id)!;
@@ -199,7 +211,8 @@ export async function ofertarVaga(
           continue;
         }
         const agoraOferta = Date.now();
-        if (!ofertaViavel(agoraOferta, inicioMs)) return { ofertaId: null, motivo: "muito_perto" };
+        if (!ofertaViavel(agoraOferta, inicioMs, regrasEspera))
+          return { ofertaId: null, motivo: "muito_perto" };
 
         // Reserva compare-and-set: duas vagas concorrentes não podem oferecer ao mesmo cliente.
         // Só a execução que ainda encontra a entrada como "aguardando" pode prosseguir.
@@ -224,7 +237,7 @@ export async function ofertarVaga(
             servico_id: servico.id,
             inicio: ag.inicio,
             fim: new Date(inicioMs + servico.duracao_min * 60_000).toISOString(),
-            expira_em: new Date(prazoDaOferta(agoraOferta, inicioMs)).toISOString(),
+            expira_em: new Date(prazoDaOferta(agoraOferta, inicioMs, regrasEspera)).toISOString(),
           })
           .select("id, token")
           .maybeSingle();

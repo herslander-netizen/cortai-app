@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { regrasDaEsperaDoTenant } from "@/lib/fila-compatibilidade";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { clienteDoUsuario } from "@/lib/cliente";
@@ -98,5 +99,11 @@ export const entrarNaFila = createServerFn({ method: "POST" })
       console.error("[fila] entrarNaFila falhou:", error.message);
       throw new Error("Não foi possível entrar na lista de espera agora. Tente novamente.");
     }
-    return { posicao };
+    // Prazo do próprio negócio para a tela do cliente (migração 0060); sem a coluna, o padrão de 30 min.
+    const { data: regras } = await db
+      .from("tenants")
+      .select("espera_prazo_min")
+      .eq("id", tenant.id)
+      .maybeSingle();
+    return { posicao, prazoMin: regrasDaEsperaDoTenant(regras).prazoMin };
   });

@@ -4903,6 +4903,9 @@ export type Database = {
           janela_agendamento_dias: number
           link_avaliacao_publica: string | null
           lista_espera_automatica: boolean
+          espera_antecedencia_min: number
+          espera_prazo_min: number
+          espera_qualquer_profissional: boolean
           listada: boolean
           logo_url: string | null
           loja_ativa: boolean
@@ -4959,6 +4962,9 @@ export type Database = {
           janela_agendamento_dias?: number
           link_avaliacao_publica?: string | null
           lista_espera_automatica?: boolean
+          espera_antecedencia_min?: number
+          espera_prazo_min?: number
+          espera_qualquer_profissional?: boolean
           listada?: boolean
           logo_url?: string | null
           loja_ativa?: boolean
@@ -5015,6 +5021,9 @@ export type Database = {
           janela_agendamento_dias?: number
           link_avaliacao_publica?: string | null
           lista_espera_automatica?: boolean
+          espera_antecedencia_min?: number
+          espera_prazo_min?: number
+          espera_qualquer_profissional?: boolean
           listada?: boolean
           logo_url?: string | null
           loja_ativa?: boolean
@@ -5590,6 +5599,15 @@ export type Database = {
       }
       definir_barbeiro_recebe: {
         Args: { _tenant: string; _valor: boolean }
+        Returns: undefined
+      }
+      definir_regras_lista_espera: {
+        Args: {
+          _antecedencia_min: number
+          _prazo_min: number
+          _qualquer_profissional: boolean
+          _tenant_id: string
+        }
         Returns: undefined
       }
       definir_lista_espera_automatica: {

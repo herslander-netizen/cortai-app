@@ -38,7 +38,19 @@ describe("lista de espera da equipe", () => {
     const cliente = readFileSync("src/routes/app.espera.tsx", "utf8");
     expect(cliente).not.toContain("Quem responder primeiro");
     expect(cliente).toContain("Sua posição");
-    expect(cliente).toContain("{PRAZO_DA_OFERTA_MIN} minutos");
+    expect(cliente).toContain("setPrazoMin(r.prazoMin ?? PRAZO_DA_OFERTA_MIN)");
     expect(cliente).toContain('loading={acao.estaEm("fila")}');
+  });
+
+  it("as regras da lista ficam numa gaveta padrão na própria tela e gravam pelo banco", () => {
+    const regras = readFileSync("src/components/barbeiro/espera/RegrasDaLista.tsx", "utf8");
+    const servidor = readFileSync("src/lib/regras-espera.functions.ts", "utf8");
+    expect(rota).toContain("<RegrasDaLista />");
+    expect(regras).toContain("<FolhaPadrao");
+    for (const texto of ["Prazo para responder", "Não oferecer com menos de", "Profissional"])
+      expect(regras).toContain(texto);
+    expect(servidor).toContain('rpc("definir_regras_lista_espera"');
+    expect(servidor).toContain("PRAZOS_DA_ESPERA = [10, 15, 30, 60]");
+    expect(servidor).not.toContain("as never");
   });
 });

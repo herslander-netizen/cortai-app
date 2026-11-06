@@ -379,6 +379,13 @@
       "when": 1794014754725,
       "tag": "0059_atendimento_ocorrencias",
       "breakpoints": true
+    },
+    {
+      "idx": 54,
+      "version": "7",
+      "when": 1794014814725,
+      "tag": "0060_regras_lista_espera",
+      "breakpoints": true
     }
   ]
 }

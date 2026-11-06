@@ -23,6 +23,7 @@ import { isoNoFusoDaBarbearia } from "@/lib/horarios";
 import { agruparPorDiaDesejado } from "@/lib/lista-espera-agenda";
 import { FormularioFila } from "@/components/barbeiro/espera/FormularioDaEspera";
 import { PessoaDaEspera } from "@/components/barbeiro/espera/PessoaDaEspera";
+import { RegrasDaLista } from "@/components/barbeiro/espera/RegrasDaLista";
 import { tituloDoDia } from "@/components/barbeiro/agenda/lista-periodo-regras";
 
 export const Route = createFileRoute("/barbeiro/fila")({
@@ -122,6 +123,7 @@ function FilaPage() {
       subtitle="Vaga liberada é oferecida automaticamente a quem combina."
     >
       <InterruptorListaDeEspera />
+      <RegrasDaLista />
 
       {isLoading ? <EsqueletoLista linhas={4} onTentarDeNovo={() => void refetch()} /> : null}
 

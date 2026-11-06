@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   candidatosDaVaga,
+  regrasDaEsperaDoTenant,
   type PreferenciaDaFila,
   type ServicoDaVaga,
 } from "./fila-compatibilidade";
@@ -100,5 +101,38 @@ describe("ordem real da fila e prazo da oferta", () => {
     expect(prazoDaOferta(inicio - 25 * 60_000, inicio)).toBe(inicio - 10 * 60_000);
     expect(ofertaViavel(inicio - 25 * 60_000, inicio)).toBe(true);
     expect(ofertaViavel(inicio - 14 * 60_000, inicio)).toBe(false);
+  });
+});
+
+describe("regras escolhidas pelo negócio (dono, 06/11/2026)", () => {
+  it("sem configuração, vale o comportamento de antes (30 min, 10 min, só o profissional pedido)", () => {
+    expect(regrasDaEsperaDoTenant(null)).toEqual({
+      prazoMin: 30,
+      antecedenciaMin: 10,
+      qualquerProfissional: false,
+    });
+  });
+
+  it("'qualquer profissional' oferece a quem pediu outro, se o da vaga faz o serviço", () => {
+    const quemPediuPedro = p({ id: "a", profissionalId: "pedro", servicoId: "corte" });
+    expect(candidatosDaVaga([quemPediuPedro], vaga, servicos)).toEqual([]);
+    const regras = { qualquerProfissional: true };
+    expect(
+      candidatosDaVaga([quemPediuPedro], vaga, servicos, new Set(), regras).map((x) => x.id),
+    ).toEqual(["a"]);
+    // A barba só é feita pelo Pedro: mesmo com a regra, o João (da vaga) não recebe.
+    const barba = p({ id: "b", profissionalId: "pedro", servicoId: "barba" });
+    expect(candidatosDaVaga([barba], vaga, servicos, new Set(), regras)).toEqual([]);
+  });
+
+  it("prazo e antecedência do negócio mudam a validade da oferta", () => {
+    const agora = inicio - 3 * H;
+    expect(prazoDaOferta(agora, inicio, { prazoMin: 15, antecedenciaMin: 10 }) - agora).toBe(
+      15 * 60_000,
+    );
+    // Faltando 50 min: com antecedência de 10 min dá para oferecer; com 1 h, não.
+    const perto = inicio - 50 * 60_000;
+    expect(ofertaViavel(perto, inicio, { prazoMin: 30, antecedenciaMin: 10 })).toBe(true);
+    expect(ofertaViavel(perto, inicio, { prazoMin: 30, antecedenciaMin: 60 })).toBe(false);
   });
 });
