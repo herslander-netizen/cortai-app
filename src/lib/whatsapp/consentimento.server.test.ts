@@ -11,29 +11,39 @@ vi.mock("@/integrations/supabase/client.server", () => ({
   supabaseAdmin: {
     from: (tabela: string) => {
       const filtros: Record<string, unknown> = {};
-      const builder = {
-        select: () => builder,
-        eq: (coluna: string, valor: unknown) => {
-          filtros[coluna] = valor;
-          return builder;
-        },
-        is: (coluna: string, valor: null) => {
-          filtros[coluna] = valor;
-          return builder;
-        },
-        order: () => builder,
-        limit: () => builder,
-        maybeSingle: async () => {
-          memoria.consultas.push({ tabela, filtros: { ...filtros } });
-          if (memoria.falhar) return { data: null, error: { message: "falha simulada" } };
-          if (tabela === "whatsapp_suppressions") {
-            return { data: memoria.supressao, error: null };
-          }
-          return {
-            data: memoria.acao ? { action: memoria.acao } : null,
-            error: null,
-          };
-        },
+      type Builder = {
+        select: () => Builder;
+        eq: (coluna: string, valor: unknown) => Builder;
+        is: (coluna: string, valor: null) => Builder;
+        order: () => Builder;
+        limit: () => Builder;
+        maybeSingle: () => Promise<{
+          data: Record<string, unknown> | null;
+          error: { message: string } | null;
+        }>;
+      };
+      const builder = {} as Builder;
+      builder.select = () => builder;
+      builder.eq = (coluna, valor) => {
+        filtros[coluna] = valor;
+        return builder;
+      };
+      builder.is = (coluna, valor) => {
+        filtros[coluna] = valor;
+        return builder;
+      };
+      builder.order = () => builder;
+      builder.limit = () => builder;
+      builder.maybeSingle = async () => {
+        memoria.consultas.push({ tabela, filtros: { ...filtros } });
+        if (memoria.falhar) return { data: null, error: { message: "falha simulada" } };
+        if (tabela === "whatsapp_suppressions") {
+          return { data: memoria.supressao, error: null };
+        }
+        return {
+          data: memoria.acao ? { action: memoria.acao } : null,
+          error: null,
+        };
       };
       return builder;
     },
