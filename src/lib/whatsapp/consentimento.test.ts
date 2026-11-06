@@ -53,7 +53,9 @@ describe("governança de consentimento WhatsApp", () => {
 
   it("classifica notificações por finalidade, sem confundir fila e relacionamento", () => {
     expect(finalidadeDaNotificacao("vaga_lista_espera")).toBe("lista_espera");
-    expect(finalidadeDaNotificacao("retorno")).toBe("relacionamento");
+    expect(finalidadeDaNotificacao("retorno")).toBe("marketing");
+    expect(finalidadeDaNotificacao("pos_atendimento")).toBe("marketing");
+    expect(finalidadeDaNotificacao("convite_avaliacao")).toBe("relacionamento");
     expect(finalidadeDaNotificacao("lembrete_24h")).toBe("avisos_agendamento");
     expect(finalidadeDaNotificacao("cancelamento")).toBe("avisos_agendamento");
   });
