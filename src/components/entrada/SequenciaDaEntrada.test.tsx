@@ -12,7 +12,8 @@ vi.mock("framer-motion", async (importOriginal) => {
   return { ...original, useReducedMotion: () => movimento.reduzido };
 });
 
-(globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
+(globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT: boolean }).IS_REACT_ACT_ENVIRONMENT =
+  true;
 
 let host: HTMLDivElement | null = null;
 let root: ReturnType<typeof createRoot> | null = null;
@@ -43,7 +44,11 @@ describe("SequenciaDaEntrada", () => {
 
     expect(botoes).toHaveLength(5);
     expect(botoes.map((botao) => botao.getAttribute("aria-label"))).toEqual([
-      "Site", "Agenda", "Atendimento Automatizado", "Financeiro", "Fila de espera",
+      "Site",
+      "Agenda",
+      "Atendimento Automatizado",
+      "Financeiro",
+      "Fila de espera",
     ]);
     expect(botoes[0]?.getAttribute("aria-current")).toBe("page");
     expect(painel?.getAttribute("aria-label")).toBe("Seu site próprio e marca");
@@ -52,7 +57,9 @@ describe("SequenciaDaEntrada", () => {
     await act(async () => botoes[2]?.click());
     expect(botoes[2]?.getAttribute("aria-current")).toBe("page");
     expect(botoes[0]?.hasAttribute("aria-current")).toBe(false);
-    expect(alvo.querySelector('[role="tabpanel"]')?.getAttribute("aria-label")).toBe("Atendimento e lembretes via WhatsApp");
+    expect(alvo.querySelector('[role="tabpanel"]')?.getAttribute("aria-label")).toBe(
+      "Atendimento e lembretes via WhatsApp",
+    );
     expect(alvo.querySelector("h2")?.textContent).toBe("Atendimento e lembretes via WhatsApp");
 
     await act(async () => botoes[4]?.click());
@@ -62,7 +69,7 @@ describe("SequenciaDaEntrada", () => {
   it("pausa o avanço automático enquanto a pessoa navega com foco", async () => {
     vi.useFakeTimers();
     const alvo = await montar();
-    const botoes = [...alvo.querySelectorAll<HTMLButtonElement>('nav button')];
+    const botoes = [...alvo.querySelectorAll<HTMLButtonElement>("nav button")];
     const fora = document.createElement("button");
     host?.appendChild(fora);
 
@@ -79,7 +86,7 @@ describe("SequenciaDaEntrada", () => {
     vi.useFakeTimers();
     movimento.reduzido = true;
     const alvo = await montar();
-    const botoes = [...alvo.querySelectorAll<HTMLButtonElement>('nav button')];
+    const botoes = [...alvo.querySelectorAll<HTMLButtonElement>("nav button")];
 
     await act(async () => vi.advanceTimersByTime(DURACAO_DO_PASSO_MS * 3));
     expect(botoes[0]?.getAttribute("aria-current")).toBe("page");
@@ -102,8 +109,10 @@ describe("SequenciaDaEntrada", () => {
     expect(cartao?.style.display).toBe("flex");
     expect(cartao?.style.flexDirection).toBe("column");
     expect(alvo.querySelector(".entrada-sequencia")?.getAttribute("style")).toContain("flex: 1");
-    expect(alvo.querySelectorAll('nav button')).toHaveLength(5);
-    expect(alvo.querySelector(".entrada-cartao")?.textContent).toContain("Seu site próprio e marca");
+    expect(alvo.querySelectorAll("nav button")).toHaveLength(5);
+    expect(alvo.querySelector(".entrada-cartao")?.textContent).toContain(
+      "Seu site próprio e marca",
+    );
     expect(cartao?.getAttribute("style")).toContain("var(--elevacao-2)");
   });
 });

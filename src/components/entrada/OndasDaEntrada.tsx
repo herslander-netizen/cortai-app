@@ -9,7 +9,12 @@ export const DURACAO_ONDAS_SEGUNDOS = { superior: 7, inferior: 8.5 } as const;
  * identidade do Flow"): faixas em azul, lilás e rosa, como nas capas claras da marca. Decorativas; param com a
  * preferência de movimento reduzido.
  */
-export function OndasDaEntrada() {
+/** `className` troca o posicionamento (padrão: tela inteira fixa); a página pública usa `absolute` dentro de cada seção. */
+export function OndasDaEntrada({
+  className = "fixed inset-0 z-0 h-full w-full",
+}: {
+  className?: string;
+}) {
   const id = useId().replace(/:/g, "");
   const reduzirMovimento = useReducedMotion();
   const transicaoSuperior = {
@@ -29,7 +34,7 @@ export function OndasDaEntrada() {
       focusable="false"
       viewBox="0 0 390 844"
       preserveAspectRatio="none"
-      className="pointer-events-none fixed inset-0 z-0 h-full w-full"
+      className={`pointer-events-none ${className}`}
     >
       <defs>
         <linearGradient id={`${id}-superior`} x1="0%" y1="0%" x2="100%" y2="100%">

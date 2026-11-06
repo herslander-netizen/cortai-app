@@ -4,6 +4,7 @@ import { useInView } from "framer-motion";
 import { Celular } from "@/components/entrada/historias/Celular";
 import { CAPITULOS, type Capitulo } from "@/components/entrada/historias/capitulos";
 import { TEMA_CLARO, TEMA_ESCURO } from "./tema";
+import { OndasDaEntrada } from "@/components/entrada/OndasDaEntrada";
 import { DivisorDeOndas, LinhasDeOnda } from "./Ondas";
 import { Revelar } from "./Revelar";
 
@@ -58,7 +59,7 @@ const TEXTOS: Record<string, { etiqueta: string; titulo: string; texto: string; 
   };
 
 /** Remonta a história quando a seção entra na tela, para o cliente ver o passo a passo desde o começo. */
-function CelularDoCapitulo({ capitulo }: { capitulo: Capitulo }) {
+function CelularDoCapitulo({ capitulo, escuro }: { capitulo: Capitulo; escuro: boolean }) {
   const ref = useRef<HTMLDivElement>(null);
   const visivel = useInView(ref, { once: true, margin: "0px 0px -20% 0px" });
   const [l1, l2] = capitulo.frase.split("\n");
@@ -66,7 +67,14 @@ function CelularDoCapitulo({ capitulo }: { capitulo: Capitulo }) {
     <div
       ref={ref}
       className="mx-auto h-[420px] w-full max-w-[360px]"
-      style={{ ...TEMA_CLARO, background: "transparent" }}
+      style={{
+        ...TEMA_CLARO,
+        background: "transparent",
+        // Em seção escura o corpo do celular sobe um tom para não sumir no fundo.
+        ...(escuro
+          ? { "--figaro-inverse-surface": "#252944", "--figaro-inverse-on-surface": "#f4f5fb" }
+          : {}),
+      }}
     >
       {visivel ? (
         <Celular
@@ -101,6 +109,7 @@ export function Capitulos() {
             className="relative bg-[var(--fundo)] px-4 py-12 text-[var(--texto)] sm:py-24"
           >
             <DivisorDeOndas />
+            <OndasDaEntrada className="absolute inset-0 z-0 h-full w-full opacity-70" />
             <LinhasDeOnda />
             <div
               className={`relative mx-auto grid max-w-5xl items-center gap-8 md:grid-cols-2 md:gap-16 ${
@@ -126,7 +135,7 @@ export function Capitulos() {
                 </ul>
               </Revelar>
               <Revelar atraso={0.1}>
-                <CelularDoCapitulo capitulo={capitulo} />
+                <CelularDoCapitulo capitulo={capitulo} escuro={escuro} />
               </Revelar>
             </div>
           </section>

@@ -35,7 +35,7 @@ export function Celular({ children, legenda }: { children: ReactNode; legenda: R
   return (
     <div ref={area} className="relative flex h-full w-full items-start justify-center">
       <div
-        className="flex flex-col overflow-hidden rounded-[30px] bg-[var(--figaro-inverse-surface)] p-[6px] text-[var(--figaro-inverse-on-surface)] shadow-[0_24px_48px_-20px_color-mix(in_oklab,var(--figaro-inverse-surface)_70%,transparent)]"
+        className="flex flex-col overflow-hidden rounded-[30px] bg-[var(--figaro-inverse-surface)] p-[6px] text-[var(--figaro-inverse-on-surface)] ring-1 ring-white/15 shadow-[0_24px_48px_-20px_color-mix(in_oklab,var(--figaro-inverse-surface)_70%,transparent)]"
         style={{ width: TELA_LARGURA * e + 12, opacity: escala === null ? 0 : 1 }}
       >
         <div

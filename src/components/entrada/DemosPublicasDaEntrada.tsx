@@ -5,7 +5,11 @@ export function DemoSite() {
   return (
     <Aparelho nome="Exemplo visual de página pública, serviços e agendamento do negócio">
       <div className="w-full max-w-[280px] space-y-3">
-        <CabecalhoDemo icone={Globe} titulo="Studio Flow Concept" detalhe="Página pública do negócio" />
+        <CabecalhoDemo
+          icone={Globe}
+          titulo="Studio Flow Concept"
+          detalhe="Página pública do negócio"
+        />
         <div
           className="rounded-xl p-3"
           style={{ background: "color-mix(in oklab, var(--figaro-on-primary) 11%, transparent)" }}
@@ -85,8 +89,10 @@ export function DemoAgendamento() {
               <span
                 className="grid size-6 place-items-center rounded-full text-[10px] font-bold"
                 style={{
-                  background: i === 2 ? "var(--figaro-tertiary)" : "var(--figaro-primary-container)",
-                  color: i === 2 ? "var(--figaro-on-tertiary)" : "var(--figaro-on-primary-container)",
+                  background:
+                    i === 2 ? "var(--figaro-tertiary)" : "var(--figaro-primary-container)",
+                  color:
+                    i === 2 ? "var(--figaro-on-tertiary)" : "var(--figaro-on-primary-container)",
                 }}
               >
                 {i < 2 ? <Check size={12} /> : "3"}
@@ -146,7 +152,10 @@ export function DemoAgenda() {
               className="grid size-9 place-items-center rounded-full text-xs font-bold"
               style={
                 i === 2
-                  ? { background: "var(--figaro-primary-container)", color: "var(--figaro-on-primary-container)" }
+                  ? {
+                      background: "var(--figaro-primary-container)",
+                      color: "var(--figaro-on-primary-container)",
+                    }
                   : {
                       background: "color-mix(in oklab, var(--figaro-on-primary) 12%, transparent)",
                       color: "var(--figaro-on-primary)",
@@ -173,7 +182,8 @@ export function DemoAgenda() {
                         textDecoration: "line-through",
                       }
                     : {
-                        background: "color-mix(in oklab, var(--figaro-on-primary) 12%, transparent)",
+                        background:
+                          "color-mix(in oklab, var(--figaro-on-primary) 12%, transparent)",
                         color: "var(--figaro-on-primary)",
                       }
               }

@@ -7,6 +7,7 @@ import { MarcaFlow } from "@/components/marca/MarcaFlow";
 import { Button } from "@/components/ui/button";
 import type { ConteudoApresentacao } from "@/lib/apresentacao-conteudo";
 import { PLANOS_COMERCIAIS, precoComercial } from "@/lib/planos-comerciais";
+import { OndasDaEntrada } from "@/components/entrada/OndasDaEntrada";
 import { DivisorDeOndas, LinhasDeOnda } from "./Ondas";
 import { Revelar } from "./Revelar";
 import { TEMA_CLARO, TEMA_ESCURO } from "./tema";
@@ -130,6 +131,7 @@ export function Perguntas({
       className="relative bg-[var(--fundo)] px-4 py-16 text-[var(--texto)] sm:py-24"
     >
       <DivisorDeOndas />
+      <OndasDaEntrada className="absolute inset-0 z-0 h-full w-full opacity-70" />
       <LinhasDeOnda />
       <div className="relative mx-auto max-w-2xl">
         <Revelar>
@@ -166,7 +168,8 @@ export function ChamadaFinal({ conteudo }: { conteudo: ConteudoApresentacao["fin
       className="relative bg-[var(--fundo)] px-4 pb-28 pt-14 text-[var(--texto)] sm:pb-10 sm:pt-24"
     >
       <DivisorDeOndas />
-      <Revelar className="mx-auto flex max-w-2xl flex-col items-center text-center">
+      <OndasDaEntrada className="absolute inset-0 z-0 h-full w-full" />
+      <Revelar className="relative mx-auto flex max-w-2xl flex-col items-center text-center">
         <h2 className="font-serif text-[34px] font-bold leading-[1.05] sm:text-[48px]">
           {conteudo.titulo}
         </h2>
@@ -177,7 +180,7 @@ export function ChamadaFinal({ conteudo }: { conteudo: ConteudoApresentacao["fin
           </Link>
         </Button>
       </Revelar>
-      <footer className="mx-auto mt-16 flex max-w-5xl flex-col items-center justify-between gap-4 border-t border-[var(--linha)] pt-6 sm:flex-row">
+      <footer className="relative mx-auto mt-16 flex max-w-5xl flex-col items-center justify-between gap-4 border-t border-[var(--linha)] pt-6 sm:flex-row">
         <MarcaFlow variante="escura" className="h-auto w-20" />
         <p className="text-[12px] text-[var(--texto-suave)]">Flow — seu negócio no ritmo certo.</p>
         <Link to="/login" className="text-[13px] font-semibold text-[var(--figaro-primary)]">
@@ -201,7 +204,7 @@ export function BarraDoCelular() {
     <AnimatePresence>
       {visivel ? (
         <motion.div
-          className="fixed inset-x-0 bottom-0 z-30 border-t border-[var(--linha)] bg-[var(--fundo)]/92 px-4 pb-[max(12px,env(safe-area-inset-bottom))] pt-3 backdrop-blur sm:hidden"
+          className="fixed inset-x-0 bottom-0 z-30 border-t border-[var(--linha)] bg-[var(--fundo)] px-4 pb-[max(12px,env(safe-area-inset-bottom))] pt-3 shadow-[0_-8px_24px_-12px_rgba(40,40,120,0.35)] sm:hidden"
           initial={{ y: 80, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: 80, opacity: 0 }}

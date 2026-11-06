@@ -4,6 +4,7 @@ import { ArrowRight, CalendarCheck, MessageCircle, Sparkles } from "lucide-react
 
 import { MarcaFlow } from "@/components/marca/MarcaFlow";
 import { Button } from "@/components/ui/button";
+import { OndasDaEntrada } from "@/components/entrada/OndasDaEntrada";
 import { LinhasDeOnda } from "./Ondas";
 import { MOLA } from "@/lib/movimento-figaro";
 import type { ConteudoApresentacao } from "@/lib/apresentacao-conteudo";
@@ -17,7 +18,7 @@ const FOTOS = [
 
 export function Cabecalho() {
   return (
-    <header className="sticky top-0 z-30 border-b border-[var(--linha)]/70 bg-[var(--fundo)]/85 backdrop-blur">
+    <header className="sticky top-0 z-30 border-b border-[var(--linha)]/70 bg-[var(--fundo)]">
       <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4">
         <MarcaFlow variante="escura" className="h-auto w-24" />
         <nav className="flex items-center gap-1" aria-label="Acesso">
@@ -95,6 +96,7 @@ export function Heroi({ conteudo }: { conteudo: ConteudoApresentacao["hero"] }) 
           />
         ))}
       </div>
+      <OndasDaEntrada className="absolute inset-0 z-0 h-full w-full" />
       <LinhasDeOnda />
       <FotosFlutuantes />
       <div className="relative mx-auto flex max-w-3xl flex-col items-center px-5 pb-14 pt-10 text-center sm:pt-20">

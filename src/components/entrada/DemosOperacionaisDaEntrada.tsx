@@ -5,7 +5,11 @@ export function DemoWhatsApp() {
   return (
     <Aparelho nome="Exemplo visual de mensagem e confirmação via WhatsApp">
       <div className="w-full max-w-[280px] space-y-4">
-        <CabecalhoDemo icone={Clock3} titulo="Mensagem de atendimento" detalhe="Prévia ilustrativa" />
+        <CabecalhoDemo
+          icone={Clock3}
+          titulo="Mensagem de atendimento"
+          detalhe="Prévia ilustrativa"
+        />
         <div
           className="max-w-[92%] rounded-2xl rounded-bl-md px-4 py-3 text-sm leading-snug"
           style={{
@@ -58,9 +62,14 @@ export function DemoAvaliacoes() {
                 </span>
                 <div
                   className="h-1.5 flex-1 overflow-hidden rounded-full"
-                  style={{ background: "color-mix(in oklab, var(--figaro-on-primary) 12%, transparent)" }}
+                  style={{
+                    background: "color-mix(in oklab, var(--figaro-on-primary) 12%, transparent)",
+                  }}
                 >
-                  <div className="h-full rounded-full" style={{ width: value, background: "var(--figaro-tertiary)" }} />
+                  <div
+                    className="h-full rounded-full"
+                    style={{ width: value, background: "var(--figaro-tertiary)" }}
+                  />
                 </div>
                 <b className="w-7 text-right">{value}</b>
               </div>
@@ -92,7 +101,11 @@ export function DemoDesempenho() {
   return (
     <Aparelho nome="Exemplo visual de indicadores do negócio">
       <div className="w-full max-w-[280px] space-y-3">
-        <CabecalhoDemo icone={ChartNoAxesCombined} titulo="Seu negócio" detalhe="Visão geral · Exemplo" />
+        <CabecalhoDemo
+          icone={ChartNoAxesCombined}
+          titulo="Seu negócio"
+          detalhe="Visão geral · Exemplo"
+        />
         <div className="grid grid-cols-2 gap-2">
           {[
             ["1.240", "Visitas na página"],
@@ -117,7 +130,9 @@ export function DemoDesempenho() {
             <div
               key={item}
               className="flex items-center justify-between border-t py-2 text-[10px]"
-              style={{ borderColor: "color-mix(in oklab, var(--figaro-on-primary) 12%, transparent)" }}
+              style={{
+                borderColor: "color-mix(in oklab, var(--figaro-on-primary) 12%, transparent)",
+              }}
             >
               <span>{item}</span>
               <b>{[76, 48, 32][i]}</b>
@@ -126,7 +141,10 @@ export function DemoDesempenho() {
         </div>
         <div
           className="flex items-center gap-2 rounded-xl p-2.5 text-[10px]"
-          style={{ background: "var(--figaro-primary-container)", color: "var(--figaro-on-primary-container)" }}
+          style={{
+            background: "var(--figaro-primary-container)",
+            color: "var(--figaro-on-primary-container)",
+          }}
         >
           <Check size={13} /> Acompanhe e ajuste seu negócio
         </div>
@@ -148,7 +166,9 @@ export function DemoFila() {
           ].map(([valor, rotulo]) => (
             <div key={rotulo} className="rounded-xl p-2 text-center" style={cartao}>
               <b className="block text-sm tabular-nums">{valor}</b>
-              <span className="text-[9px]" style={suave}>{rotulo}</span>
+              <span className="text-[9px]" style={suave}>
+                {rotulo}
+              </span>
             </div>
           ))}
         </div>
@@ -161,7 +181,10 @@ export function DemoFila() {
             <div key={ordem} className="flex items-center gap-2 text-[11px]">
               <span
                 className="grid size-7 shrink-0 place-items-center rounded-full font-bold"
-                style={{ background: "var(--figaro-primary-container)", color: "var(--figaro-on-primary-container)" }}
+                style={{
+                  background: "var(--figaro-primary-container)",
+                  color: "var(--figaro-on-primary-container)",
+                }}
               >
                 {ordem}
               </span>

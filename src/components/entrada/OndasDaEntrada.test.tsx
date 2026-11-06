@@ -10,7 +10,8 @@ vi.mock("framer-motion", async (importOriginal) => {
   return { ...actual, useReducedMotion: () => true };
 });
 
-(globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
+(globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT: boolean }).IS_REACT_ACT_ENVIRONMENT =
+  true;
 
 let host: HTMLDivElement | null = null;
 let root: ReturnType<typeof createRoot> | null = null;
