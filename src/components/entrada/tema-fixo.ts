@@ -38,6 +38,8 @@ export const TEMA_FIXO_ENTRADA = {
   "--popover": "var(--cartao)",
   "--popover-foreground": "var(--texto)",
   "--primary": "#3155ed",
+  // Foco dos campos (`field-control`) no azul da marca; sem isto herdava o vinho do tema e parecia erro.
+  "--gold": "#3d4fe0",
   "--primary-foreground": "#ffffff",
   "--secondary": "var(--painel)",
   "--secondary-foreground": "var(--texto)",

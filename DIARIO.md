@@ -27,6 +27,7 @@ e o que fez. O diário até 17/10/2026 está guardado, sem alterações, em
 7. **Sem segredos:** nunca escreva chaves, senhas ou tokens aqui. Cite só o nome da variável.
 
 ## Decisões do dono
+- 2026-11-06: **Tela inicial é o cartão de visita** — polir fluxos e animações ao máximo; refinar a gaveta de login; **busca por CEP** na localização.
 - 2026-11-06: **Entrada: "celular" escuro** (moldura e a parte que explica cada tópico), letras claras; o fundo da página continua branco e as telas do sistema continuam claras.
 - 2026-11-06: **Contingência do atendimento:** quando o automático não consegue conversar, mandar mensagem dizendo isso e o link do agendamento.
 - 2026-11-06: **Notificações de configuração do sistema no menu lateral; as demais no sininho.**
@@ -973,6 +974,12 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+### 2026-11-06 UTC — Claude — Entrada polida, gaveta de login e CEP
+- **Entrada (`FlowWelcome`):** chegada em cascata na abertura (logo → celular → ícones → botões, mola lenta, só transform/opacity, desligada com "reduzir movimento"); troca de capítulo com direção (avança pela direita, volta pela esquerda, leve escala de 0,985) e legenda em dois tempos (rótulo, depois a frase). Toque simulado (`historias/base.tsx`) solta uma onda ao apertar.
+- **Gaveta de login (`routes/login.tsx`):** ícone do Flow ao lado do título; título e campos deslizam na troca de etapa (e-mail → senha → volta); senha com foco automático; foco dos campos no azul da marca na entrada (`tema-fixo.ts` `--gold`; antes herdava o vinho e parecia erro).
+- **CEP (`lib/cep.ts`, `onboarding/passos/CampoDoCep.tsx`):** em "Dados e localização" (passo Negócio), CEP + Número antes do endereço; ViaCEP público (sem chave, 6 s de limite) preenche "Rua, nº — Bairro, Cidade/UF"; CEP não achado ou serviço fora orienta digitar à mão; endereço segue editável.
+- Gates: tsc 0; vitest 318 / 2549 ok; eslint sem erro; build ok; protocolo OK. Visual: quadros da abertura, troca de capítulo e etapas da gaveta a 390 px; CEP numa página local temporária (removida) com a resposta do ViaCEP simulada.
+
 ### 2026-11-06 UTC — Claude — Cartão escuro, contingência, voz (404), guias e avisos de sistema no menu
 - **Entrada:** `historias/Celular.tsx` com corpo grafite (`--figaro-inverse-surface`), borda de 6 px, tela clara arredondada, traço curto da marca e legenda em `--figaro-inverse-on-surface`; rótulo em `--entrada-rosa`.
 - **Contingência (`whatsapp/contingencia.ts`):** quando nem o Flow Bot nem a Flow IA respondem: "No momento não estou conseguindo conversar por aqui. Para agendar, use o link: …" — no máximo a cada 30 min (antes 1x/24h, por isso o "Bom dia" do dia seguinte ficava sem resposta).

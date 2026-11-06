@@ -49,7 +49,8 @@ export function TelaDaHistoria({ rotulo, children }: { rotulo: string; children:
 
 /**
  * Círculo de toque. `x`/`y` em % da tela: a camada ocupa a tela inteira, então translate em % da própria camada é % da
- * tela (só transform). `apertando` afunda o círculo como um dedo.
+ * tela (só transform). `apertando` afunda o círculo como um dedo e solta uma onda que se abre e some (só
+ * transform/opacity), para o toque ficar claro mesmo em tela pequena.
  */
 export function Toque({
   x,
@@ -71,8 +72,17 @@ export function Toque({
       animate={{ x: `${x}%`, y: `${y}%` }}
       transition={MOLA.padraoEspacial}
     >
+      {apertando && visivel ? (
+        <motion.span
+          key={`${x}-${y}`}
+          className="absolute -left-[17px] -top-[17px] block size-[34px] rounded-full border-2 border-[var(--figaro-primary)]"
+          initial={{ opacity: 0.55, scale: 0.7 }}
+          animate={{ opacity: 0, scale: 2.1 }}
+          transition={{ duration: 0.6, ease: [0.2, 0, 0, 1], delay: 0.12 }}
+        />
+      ) : null}
       <motion.span
-        className="absolute -left-[17px] -top-[17px] block size-[34px] rounded-full border-2 border-[var(--figaro-on-surface)]/35 bg-[var(--figaro-on-surface)]/20"
+        className="absolute -left-[17px] -top-[17px] block size-[34px] rounded-full border-2 border-[var(--figaro-on-surface)]/35 bg-[var(--figaro-on-surface)]/20 shadow-[0_2px_10px_color-mix(in_oklab,var(--figaro-on-surface)_25%,transparent)]"
         initial={{ opacity: 0, scale: 0.6 }}
         animate={{ opacity: visivel ? 1 : 0, scale: apertando ? 0.78 : 1 }}
         transition={MOLA.rapidaEspacial}

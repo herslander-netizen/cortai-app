@@ -7,6 +7,7 @@ import { useRef, type ChangeEvent } from "react";
 
 import { Button } from "@/components/ui/button";
 import { mascaraTelefone } from "@/lib/previa";
+import { CampoDoCep } from "./CampoDoCep";
 
 export function PassoDoNegocio({
   logoUrl,
@@ -89,13 +90,14 @@ export function PassoDoNegocio({
           className="field-control mt-2 w-full"
         />
       </label>
+      <CampoDoCep onEndereco={onEndereco} />
       <label className={rotulo}>
         Endereço
         <input
           value={endereco}
           onChange={(e) => onEndereco(e.target.value)}
           autoComplete="street-address"
-          placeholder="Rua, número, bairro"
+          placeholder="Rua, número — bairro, cidade"
           className="field-control mt-2 w-full"
         />
       </label>

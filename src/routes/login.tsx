@@ -20,7 +20,7 @@ import { sincronizarCorDoNavegador } from "@/lib/aparencia";
 import { mensagemDeErroDeAuth } from "@/lib/auth-flow";
 import { FlowWelcome } from "@/components/entrada/FlowWelcome";
 import { OndasDaEntrada } from "@/components/entrada/OndasDaEntrada";
-import { MarcaFlow } from "@/components/marca/MarcaFlow";
+import { IconeFlow, MarcaFlow } from "@/components/marca/MarcaFlow";
 import { CLASSE_TELA_ENTRADA, TEMA_FIXO_ENTRADA } from "@/components/entrada/tema-fixo";
 import { CURVA, TEMPO } from "@/lib/movimento-figaro";
 import { ForgotPasswordSheet } from "@/components/auth/ForgotPasswordSheet";
@@ -425,7 +425,20 @@ function LoginPage() {
                 <div aria-hidden className="mx-auto mb-3 h-1 w-10 rounded-full bg-line2" />
 
                 <section className="flex items-start justify-between gap-3 rounded-[20px] bg-[var(--cartao)] p-4">
-                  <div className="min-w-0">
+                  <span
+                    aria-hidden
+                    className="grid size-11 shrink-0 place-items-center overflow-hidden rounded-[14px] bg-[var(--figaro-inverse-surface)]"
+                  >
+                    <IconeFlow className="size-11" />
+                  </span>
+                  {/* Título e descrição trocam com um esmaecer curto quando a etapa muda (e-mail → senha). */}
+                  <motion.div
+                    key={`${modo}-${faseLogin}`}
+                    className="min-w-0 flex-1"
+                    initial={reduzirMovimento ? false : { opacity: 0, y: 4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.2 }}
+                  >
                     <h1 id="flow-login-title" className="text-xl font-bold text-paper">
                       {modo === "entrar"
                         ? faseLogin === "identificar"
@@ -443,7 +456,7 @@ function LoginPage() {
                           : email
                         : "Comece a organizar seu negócio com o Flow"}
                     </p>
-                  </div>
+                  </motion.div>
                   <Button
                     type="button"
                     variant="icon"
@@ -502,7 +515,18 @@ function LoginPage() {
                     }
                   }}
                 >
-                  <section className="space-y-3 rounded-[20px] bg-[var(--cartao)] p-4">
+                  {/* A etapa nova desliza de lado (e-mail → senha → volta), sem pular a altura de uma vez. */}
+                  <motion.section
+                    key={`${modo}-${faseLogin}`}
+                    className="space-y-3 rounded-[20px] bg-[var(--cartao)] p-4"
+                    initial={
+                      reduzirMovimento
+                        ? false
+                        : { opacity: 0, x: faseLogin === "credencial" ? 18 : -18 }
+                    }
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={transicaoEntrada}
+                  >
                     {(modo === "criar" || faseLogin === "identificar") && (
                       <Field label={modo === "entrar" ? "E-mail ou telefone" : "E-mail"}>
                         <Input
@@ -531,6 +555,8 @@ function LoginPage() {
                           autoComplete={modo === "entrar" ? "current-password" : "new-password"}
                           required
                           minLength={modo === "criar" ? 8 : 1}
+                          // Na etapa da senha, o teclado já abre nela.
+                          autoFocus={modo === "entrar" && faseLogin === "credencial"}
                           placeholder={modo === "criar" ? "Mínimo de 8 caracteres" : "Sua senha"}
                           className="mt-1.5"
                         />
@@ -562,7 +588,7 @@ function LoginPage() {
                         </Button>
                       </div>
                     ) : null}
-                  </section>
+                  </motion.section>
 
                   {erro ? (
                     <p className="mt-3 px-1 text-sm text-brick" role="alert" aria-live="assertive">
