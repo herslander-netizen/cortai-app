@@ -43,7 +43,7 @@ function Capa({ tema }: { tema: "escuro" | "novo" }) {
   const novo = tema === "novo";
   return (
     <div
-      className={`relative flex h-[360px] flex-col px-4 pb-4 pt-3 ${
+      className={`relative flex h-[360px] flex-col px-4 pb-9 pt-3 ${
         novo
           ? "bg-[var(--figaro-tertiary-container)] text-[var(--figaro-on-tertiary-container)]"
           : "text-[var(--figaro-inverse-on-surface)]"
@@ -124,9 +124,23 @@ export function HistoriaSite() {
           </motion.div>
         </div>
 
-        {/* Equipe com a faixa diagonal do topo. */}
-        <section className="relative h-[200px] bg-[var(--figaro-surface)] px-4 pt-9">
-          <span className="absolute -top-5 left-0 right-0 block h-9 origin-left -skew-y-6 bg-[var(--figaro-surface)] shadow-[0_-3px_0_var(--figaro-tertiary)]" />
+        {/* Equipe com o corte em V do vídeo: a parte clara sobe sobre a capa e uma linha na cor da marca marca a borda. */}
+        <section className="relative h-[200px] bg-[var(--figaro-surface)] px-4 pt-7">
+          <svg
+            aria-hidden
+            viewBox="0 0 100 12"
+            preserveAspectRatio="none"
+            className="absolute -top-[22px] left-0 block h-[23px] w-full"
+          >
+            <polygon points="0,5 24,12 100,0 100,12 0,12" fill="var(--figaro-surface)" />
+            <polyline
+              points="0,5 24,12 100,0"
+              fill="none"
+              stroke="var(--figaro-tertiary)"
+              strokeWidth="1.4"
+              vectorEffect="non-scaling-stroke"
+            />
+          </svg>
           <b className="relative font-serif text-[18px]">Equipe</b>
           <div className="relative mt-3 grid grid-cols-3 gap-2">
             {EQUIPE.map((p, i) => (
@@ -134,7 +148,7 @@ export function HistoriaSite() {
                 key={p.nome}
                 className="flex flex-col items-center"
                 initial={false}
-                animate={{ opacity: passo >= 3 ? 1 : 0, y: passo >= 3 ? 0 : 10 }}
+                animate={{ opacity: passo >= 2 ? 1 : 0, y: passo >= 2 ? 0 : 10 }}
                 transition={{ ...MOLA.padraoEspacial, delay: 0.25 + i * 0.08 }}
               >
                 <img

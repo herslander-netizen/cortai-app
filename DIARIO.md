@@ -977,6 +977,9 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+### 2026-11-06 UTC — Claude — Entrada: corte entre capa e Equipe corrigido
+- `HistoriaSite.tsx`: a faixa diagonal (bloco inclinado com `skew`) deixava uma cunha preta à direita e cortava "Saiba mais" (captura do dono). Virou um SVG em V com a linha na cor da marca, como no vídeo; capa com mais respiro embaixo; fotos da equipe aparecem antes da rolagem (não chegam vazias). Gates: tsc 0; vitest ok; build ok; protocolo OK. Visual: quadros de 170 ms da rolagem a 390 px.
+
 ### 2026-11-06 UTC — Claude — Entrada: Lembretes e Desempenho do vídeo, fotos aproveitadas
 - Imagens recortadas do vídeo de referência, sem nome nem marca: `public/entrada/historias/` (equipe-1..3, galeria-1..3, paisagem). Capa do site continua a neutra da marca (as do vídeo têm o nome do negócio escrito).
 - **Site:** fotos reais da equipe (Lucas M., Rafael C., Diego A., "Profissional") e da galeria. **Agenda:** mesmos nomes do vídeo.
