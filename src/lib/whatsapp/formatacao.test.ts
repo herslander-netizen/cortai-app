@@ -69,7 +69,21 @@ describe("blocos de apresentação", () => {
 
   it("horários na vertical, numerados, com o dia em negrito", () => {
     expect(listaDeHorarios({ dia: "quinta-feira, 12/11", horarios: ["09:00", "10:30"] })).toBe(
-      "*Quinta-feira, 12/11*\n1. 09:00\n2. 10:30",
+      "*Quinta-feira, 12/11*\n*1)* 09:00\n*2)* 10:30",
     );
+  });
+
+  it("linha com recuo perde o espaço no começo (WhatsApp não tem recuo)", () => {
+    expect(paraWhatsApp("Escolha:\n   1. 22:30\n\t2. 23:00")).toBe("Escolha:\n1. 22:30\n2. 23:00");
+  });
+});
+
+describe("listaDeHorarios", () => {
+  it("cada opção numerada sem recuo e sem começar com 'N.' no texto enviado", () => {
+    const t = paraWhatsApp(
+      listaDeHorarios({ dia: "quinta-feira, 05/11", horarios: ["22:30", "23:00"] }),
+    );
+    expect(t).toBe("*Quinta-feira, 05/11*\n*1)* 22:30\n*2)* 23:00");
+    expect(t.split("\n").some((l) => /^\s|^\d+\./.test(l.replace(/^\*/, "")))).toBe(false);
   });
 });

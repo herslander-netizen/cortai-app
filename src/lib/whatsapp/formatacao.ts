@@ -21,7 +21,8 @@ function converterTrecho(t: string): string {
   return t
     .split("\n")
     .map((linha) => {
-      let l = linha.replace(/[ \t]+$/, "");
+      // O WhatsApp não tem recuo: espaço no começo da linha vira um bloco torto (ex.: "   1. 22:30").
+      let l = linha.replace(/^[ \t]+/, "").replace(/[ \t]+$/, "");
       // "# Título" / "### Título" → título em negrito.
       const titulo = l.match(/^\s{0,3}#{1,6}\s+(.+?)\s*#*$/);
       if (titulo) return `*${limparNegrito(titulo[1] ?? "")}*`;
@@ -66,7 +67,10 @@ export function resumoDoAgendamento(p: {
     .join("\n");
 }
 
-/** Horários de um dia: o dia em negrito e um horário por linha, numerados para a escolha. */
+/**
+ * Horários de um dia: o dia em negrito e uma opção por linha. A numeração começa com "*1)*" (negrito, sem recuo) para
+ * não ser lida pelo WhatsApp como lista "1. " com recuo, que quebrava o horário na tela do cliente.
+ */
 export function listaDeHorarios(p: { dia: string; horarios: readonly string[] }): string {
-  return [`*${comMaiuscula(p.dia)}*`, ...p.horarios.map((h, i) => `${i + 1}. ${h}`)].join("\n");
+  return [`*${comMaiuscula(p.dia)}*`, ...p.horarios.map((h, i) => `*${i + 1})* ${h}`)].join("\n");
 }

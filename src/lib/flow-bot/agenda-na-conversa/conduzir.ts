@@ -463,7 +463,7 @@ async function oferecerHorarios(
           horarios: e.opcoes.map((o) => o.rotulo),
         }),
         "",
-        "Qual prefere? Responda com o número.",
+        "Qual prefere? Responda com o *número* da opção.",
         TEXTOS.outroDia,
       ].join("\n"),
     );

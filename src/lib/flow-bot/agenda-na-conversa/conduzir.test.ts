@@ -82,7 +82,7 @@ describe("agendar na conversa", () => {
     expect(respostas[1]![0]).toContain("Com quem");
     expect(respostas[1]![0]).toContain("3. Tanto faz");
     expect(respostas[2]![0]).toMatch(/Tenho estes horários livres:\n\n\*Sábado, 07\/11\*/);
-    expect(respostas[2]![0]).toContain("1. 09:00");
+    expect(respostas[2]![0]).toContain("*1)* 09:00");
     expect(respostas[3]![0]).toMatch(
       /Confira seu agendamento:\n\n\*Serviço:\* Corte\n\*Profissional:\* Zé\n\*Quando:\* Sábado, 07\/11, às \d\d:00\n\*Valor:\* R\$ 40,00/,
     );
