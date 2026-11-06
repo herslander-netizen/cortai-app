@@ -71,14 +71,14 @@ export function IconesDosCapitulos({
               className="relative h-[3px] w-[18px] overflow-hidden rounded-full bg-[var(--figaro-outline-variant)]/70"
             >
               {aceso ? (
-                <motion.span
+                <span
                   key={reinicio}
                   className="absolute inset-0 origin-left rounded-full bg-[var(--figaro-tertiary)]"
-                  initial={{ scaleX: reduzir ? 1 : 0 }}
-                  animate={{ scaleX: 1 }}
-                  transition={
-                    reduzir ? { duration: 0 } : { duration: duracaoMs / 1000, ease: "linear" }
-                  }
+                  style={{
+                    animation: reduzir
+                      ? undefined
+                      : `entrada-encher ${Math.round(duracaoMs)}ms linear forwards`,
+                  }}
                 />
               ) : null}
             </span>

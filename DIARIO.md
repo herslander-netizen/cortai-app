@@ -982,6 +982,9 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+### 2026-11-06 UTC — Claude — Barrinha dos capítulos da entrada enchendo de verdade
+- A barrinha ficava cheia o tempo todo no celular (medido: largura sempre 100 %). Agora é CSS puro (`@keyframes entrada-encher` em `styles.css`, duração = tempo do capítulo), enche, passa ao próximo capítulo e volta ao primeiro (medido: 0,01 → 0,95 e o próximo começa em 0,15). Celular da entrada desceu um pouco (mais respiro sob o logo e a frase). Teste de `historias.test.tsx` atualizado.
+
 ### 2026-11-06 UTC — Claude — Página pública de divulgação (/apresentacao)
 - Nova página em `src/components/apresentacao/landing/` (Topo, OfertaGratis, Capitulos, Fechamento, Landing, tema, Revelar), ligada em `src/routes/apresentacao.tsx`. Reaproveita as telas animadas dos 5 capítulos da entrada dentro do celular escuro; fotos de `public/exemplos`; planos vêm de `PLANOS_COMERCIAIS`.
 - Textos padrão de `apresentacao-conteudo.ts` atualizados (sem "Conecta", sem "40 agendamentos", sem "45 dias" como oferta); `/admin/home` continua editando hero, planos, dúvidas, perguntas e final. Os blocos de capítulos são texto fixo no código.

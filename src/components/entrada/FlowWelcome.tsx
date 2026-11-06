@@ -74,7 +74,7 @@ export function FlowWelcome({ onCreateAccount, onSignIn, onCustomerBooking }: Fl
 
       <section
         aria-label="Conheça os recursos do Flow"
-        className="relative z-10 flex min-h-0 flex-1 flex-col pt-4 [@media(max-height:720px)]:pt-2"
+        className="relative z-10 flex min-h-0 flex-1 flex-col pt-7 [@media(max-height:720px)]:pt-3"
       >
         {/* Cartão como no vídeo: só a tela e a legenda mudam. Arrastar para os lados troca de capítulo. */}
         <motion.div

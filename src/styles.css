@@ -11569,6 +11569,16 @@ html:not([data-tela-agenda]) [data-figaro-empty-state]:not(:first-child) {
 
 /* Toque dos ícones do topo da Agenda (dono, 31/10: "tem efeito de um quadrado"): sem fundo nem destaque do sistema;
    o ícone afunda (86 % e 1 px para baixo) e volta com a mola de toque do app. Sem movimento reduzido, fica parado. */
+/* Barrinha dos capítulos da entrada: enche em linha reta durante o capítulo (CSS puro, não depende da hidratação). */
+@keyframes entrada-encher {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
 .toque-afunda {
   -webkit-tap-highlight-color: transparent;
   transition: transform var(--mola-toque-duracao) var(--mola-toque);

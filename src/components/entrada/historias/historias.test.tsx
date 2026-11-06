@@ -77,7 +77,10 @@ describe("mini-histórias da entrada (vídeo de referência do dono, 06/11)", ()
     expect(celular).not.toContain("14:31");
     const icones = readFileSync("src/components/entrada/IconesDosCapitulos.tsx", "utf8");
     expect(icones).toContain("animate={{ opacity: aceso ? 0.75 : 0 }}");
-    expect(icones).toContain('ease: "linear"');
+    // A barrinha enche em CSS puro (o framer-motion a deixava cheia o tempo todo no celular).
+    expect(icones).toContain("entrada-encher");
+    expect(icones).toContain("linear forwards");
+    expect(readFileSync("src/styles.css", "utf8")).toContain("@keyframes entrada-encher");
     expect(base).not.toMatch(/className="light /);
     // Texto sobre foto ou gradiente usa os tokens inversos (escuro/branco garantidos), nunca tinta/papel do palco.
     for (const f of arquivos) {
