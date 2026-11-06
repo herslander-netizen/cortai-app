@@ -6,6 +6,7 @@
  * a ação pendente da Flow IA é descartada para um "sim" antigo nunca executar outra coisa.
  */
 import { conduzir, estadoValido } from "./conduzir";
+import { TEXTOS } from "./textos";
 
 export type EntradaDaAgenda = {
   tenantId: string;
@@ -52,11 +53,37 @@ export async function atenderAgendaNaConversa(e: EntradaDaAgenda): Promise<boole
       .eq("id", e.conversaId);
 
   if (!r) return null;
+  const { registrarOcorrencia } = await import("@/lib/whatsapp/aprendizado.server");
+  const ocorrencia = (motivo: "fora_da_etapa" | "erro", detalhe: string) =>
+    registrarOcorrencia({
+      tenantId: e.tenantId,
+      conversaId: e.conversaId,
+      mensagemExternaId: e.mensagemExternaId,
+      motivo,
+      origem: "bot",
+      texto: e.texto,
+      etapa: anterior?.etapa ?? null,
+      detalhe,
+    });
   if (!r.textos.length) {
     // Saiu do fluxo (pediu pessoa, ou não deu para entender duas vezes): limpa e devolve a conversa.
-    if (anterior) await gravarEstado(null, false);
+    if (anterior) {
+      await gravarEstado(null, false);
+      await ocorrencia("fora_da_etapa", "Conversa devolvida no meio do agendamento.");
+    }
     return null;
   }
+  // Aprendizado: o Bot precisou repetir que não entendeu, ou não conseguiu gravar.
+  if (r.textos.includes(TEXTOS.falhaGravar)) await ocorrencia("erro", "Não conseguiu gravar.");
+  else if (
+    anterior &&
+    r.textos.some((t) =>
+      [TEXTOS.naoEntendiHorario, TEXTOS.naoEntendiOpcao, TEXTOS.nomeInvalido].includes(
+        t as (typeof TEXTOS)["naoEntendiOpcao"],
+      ),
+    )
+  )
+    await ocorrencia("fora_da_etapa", "O Bot não entendeu a resposta nesta etapa.");
 
   const { data: rastro, error: erroRastro } = await db
     .from("flow_bot_rastro")

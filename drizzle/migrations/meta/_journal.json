@@ -372,6 +372,13 @@
       "when": 1793928354725,
       "tag": "0058_whatsapp_governanca_consentimento",
       "breakpoints": true
+    },
+    {
+      "idx": 53,
+      "version": "7",
+      "when": 1794014754725,
+      "tag": "0059_atendimento_ocorrencias",
+      "breakpoints": true
     }
   ]
 }

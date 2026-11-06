@@ -12,11 +12,10 @@ import { HistoricoDeEnvios } from "@/components/whatsapp/HistoricoDeEnvios";
 import {
   getAtividadeDoCortai,
   getMetricasDoCortai,
-  getTermosNaoEntendidos,
   type AtividadeDoCortai,
   type MetricasDoCortai,
-  type TermoNaoEntendido,
 } from "@/lib/whatsapp.functions";
+import { ParaMelhorar } from "@/components/whatsapp/ParaMelhorar";
 import { Chip } from "@/components/ui/chip";
 
 export const Route = createFileRoute("/barbeiro/cortai-atividade")({
@@ -149,10 +148,6 @@ function AtividadeDaIa() {
     queryKey: ["cortai-atividade", apenasFalhas],
     queryFn: () => getAtividadeDoCortai({ data: { apenasFalhas } }) as Promise<AtividadeDoCortai>,
   });
-  const termos = useQuery({
-    queryKey: ["cortai-termos"],
-    queryFn: () => getTermosNaoEntendidos() as Promise<TermoNaoEntendido[]>,
-  });
 
   return (
     <>
@@ -210,25 +205,7 @@ function AtividadeDaIa() {
         </section>
       ) : null}
 
-      {termos.data && termos.data.length > 0 ? (
-        <section className="mt-5" aria-label="Palavras que a Flow IA não entendeu">
-          <h2 className="text-sm text-paper">
-            Palavras que os clientes usam e a Flow IA não entendeu
-          </h2>
-          <p className="mt-1 text-xs text-mute2">
-            Cadastre estes pedidos como serviço ou pergunta frequente para a Flow IA passar a
-            responder sozinho.
-          </p>
-          <ul className="mt-2 space-y-2">
-            {termos.data.map((t) => (
-              <li key={t.texto} className="flex items-center justify-between gap-3 rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))] px-4 py-3">
-                <span className="min-w-0 truncate text-xs text-paper">“{t.texto}”</span>
-                <span className="shrink-0 text-xs text-mute">{t.total}x</span>
-              </li>
-            ))}
-          </ul>
-        </section>
-      ) : null}
+      <ParaMelhorar />
 
       <section className="mt-5" aria-label="Registro das ações">
         <div className="flex items-center justify-between gap-3">

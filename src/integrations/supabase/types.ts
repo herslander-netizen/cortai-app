@@ -403,6 +403,60 @@ export type Database = {
           },
         ]
       }
+      atendimento_ocorrencias: {
+        Row: {
+          conversa_id: string | null
+          criado_em: string
+          detalhe: string | null
+          etapa: string | null
+          id: string
+          intencao: string | null
+          mensagem_externa_id: string | null
+          motivo: string
+          origem: string
+          resolvido_em: string | null
+          resolvido_por: string | null
+          status: string
+          tenant_id: string
+          texto: string
+          texto_normalizado: string
+        }
+        Insert: {
+          conversa_id?: string | null
+          criado_em?: string
+          detalhe?: string | null
+          etapa?: string | null
+          id?: string
+          intencao?: string | null
+          mensagem_externa_id?: string | null
+          motivo: string
+          origem: string
+          resolvido_em?: string | null
+          resolvido_por?: string | null
+          status?: string
+          tenant_id: string
+          texto?: string
+          texto_normalizado?: string
+        }
+        Update: {
+          conversa_id?: string | null
+          criado_em?: string
+          detalhe?: string | null
+          etapa?: string | null
+          id?: string
+          intencao?: string | null
+          mensagem_externa_id?: string | null
+          motivo?: string
+          origem?: string
+          resolvido_em?: string | null
+          resolvido_por?: string | null
+          status?: string
+          tenant_id?: string
+          texto?: string
+          texto_normalizado?: string
+        }
+        Relationships: []
+      }
       auditoria_da_barbearia: {
         Row: {
           acao: string
@@ -5255,6 +5309,90 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      whatsapp_consent_events: {
+        Row: {
+          action: string
+          consent_text: string | null
+          created_at: string
+          created_by: string | null
+          customer_id: string | null
+          evidence: Json
+          id: string
+          phone_e164: string
+          policy_version: string
+          purpose: string
+          source: string
+          tenant_id: string
+        }
+        Insert: {
+          action: string
+          consent_text?: string | null
+          created_at?: string
+          created_by?: string | null
+          customer_id?: string | null
+          evidence?: Json
+          id?: string
+          phone_e164: string
+          policy_version?: string
+          purpose: string
+          source: string
+          tenant_id: string
+        }
+        Update: {
+          action?: string
+          consent_text?: string | null
+          created_at?: string
+          created_by?: string | null
+          customer_id?: string | null
+          evidence?: Json
+          id?: string
+          phone_e164?: string
+          policy_version?: string
+          purpose?: string
+          source?: string
+          tenant_id?: string
+        }
+        Relationships: []
+      }
+      whatsapp_suppressions: {
+        Row: {
+          created_at: string
+          evidence: Json
+          id: string
+          phone_e164: string
+          reason: string
+          release_evidence: Json | null
+          released_at: string | null
+          released_by: string | null
+          source: string
+          tenant_id: string
+        }
+        Insert: {
+          created_at?: string
+          evidence?: Json
+          id?: string
+          phone_e164: string
+          reason: string
+          release_evidence?: Json | null
+          released_at?: string | null
+          released_by?: string | null
+          source: string
+          tenant_id: string
+        }
+        Update: {
+          created_at?: string
+          evidence?: Json
+          id?: string
+          phone_e164?: string
+          reason?: string
+          release_evidence?: Json | null
+          released_at?: string | null
+          released_by?: string | null
+          source?: string
+          tenant_id?: string
+        }
+        Relationships: []
       }
       whatsapp_webhook_events: {
         Row: {

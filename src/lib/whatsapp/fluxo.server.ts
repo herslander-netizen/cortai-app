@@ -809,6 +809,33 @@ export async function processarMensagemRecebida(input: {
     );
     if (juntado === null) return { tratada: true, motivo: "respondida_com_a_seguinte" };
     textoDoTurno = juntado;
+    // Aprendizado: o cliente corrigiu a resposta automática que acabou de receber ("não é isso").
+    const { pareceCorrecao } = await import("./aprendizado");
+    if (pareceCorrecao(textoDoTurno)) {
+      const { data: ultimaSaida } = await db
+        .from("mensagens_whatsapp")
+        .select("criado_em, autor_user_id")
+        .eq("conversa_id", conversa.id)
+        .eq("direcao", "saida")
+        .order("criado_em", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      const recente =
+        ultimaSaida &&
+        !ultimaSaida.autor_user_id &&
+        Date.now() - new Date(ultimaSaida.criado_em).getTime() <= 10 * 60_000;
+      if (recente) {
+        const { registrarOcorrencia } = await import("./aprendizado.server");
+        await registrarOcorrencia({
+          tenantId,
+          conversaId: conversa.id,
+          mensagemExternaId: input.mensagemExternaId ?? null,
+          motivo: "correcao",
+          origem: "fluxo",
+          texto: textoDoTurno,
+        });
+      }
+    }
   }
   // Flow Bot (regras e conhecimento do negócio, sem IA): depois das respostas a avisos e antes da Flow IA.
   // Desligado por padrão; em modo sombra só registra o que responderia. Falha nunca trava: segue adiante.
@@ -839,11 +866,37 @@ export async function processarMensagemRecebida(input: {
       telefone,
       // Mesmo texto que o Flow Bot viu: as mensagens picadas já juntadas, não só a última.
       texto: textoDoTurno,
-    }).catch((e: unknown) => {
+      mensagemExternaId: input.mensagemExternaId ?? null,
+    }).catch(async (e: unknown) => {
       console.error("[cerebro] whatsapp", e);
+      const { registrarOcorrencia } = await import("./aprendizado.server");
+      await registrarOcorrencia({
+        tenantId,
+        conversaId: conversa.id,
+        mensagemExternaId: input.mensagemExternaId ?? null,
+        motivo: "erro",
+        origem: "ia",
+        texto: textoDoTurno,
+        detalhe: e instanceof Error ? e.message : "Falha da Flow IA.",
+      });
       return false;
     });
     if (respondida) return { tratada: true, motivo: "secretaria_cortai" };
+  }
+  // Aprendizado: com o atendimento automático ligado, ninguém (Bot nem Flow IA) conseguiu responder.
+  if (input.tipo === "text" && textoDoTurno.trim()) {
+    const config = await configuracaoDoTenant(tenantId).catch(() => null);
+    if (config?.atendimentoAutomatico) {
+      const { registrarOcorrencia } = await import("./aprendizado.server");
+      await registrarOcorrencia({
+        tenantId,
+        conversaId: conversa.id,
+        mensagemExternaId: input.mensagemExternaId ?? null,
+        motivo: "nao_entendida",
+        origem: "fluxo",
+        texto: textoDoTurno,
+      });
+    }
   }
   const { data: tenant } = await db.from("tenants").select("slug").eq("id", tenantId).maybeSingle();
   const link = tenant?.slug ? urlPublica(`/agendar/${tenant.slug}`) : urlPublica("");
@@ -1011,6 +1064,7 @@ async function responderComCerebro(input: {
   sessaoId: string;
   telefone: string;
   texto: string;
+  mensagemExternaId?: string | null;
 }): Promise<boolean> {
   const db = await admin();
   const { iaDisponivel } = await import("@/lib/brain/gateway.server");
@@ -1102,6 +1156,15 @@ async function responderComCerebro(input: {
     })
     .eq("id", input.conversaId);
   if (r.pedirHumano && !equipe) {
+    const { registrarOcorrencia } = await import("./aprendizado.server");
+    await registrarOcorrencia({
+      tenantId: input.tenantId,
+      conversaId: input.conversaId,
+      mensagemExternaId: input.mensagemExternaId ?? null,
+      motivo: "atendente",
+      origem: "ia",
+      texto: input.texto,
+    });
     await db
       .rpc("criar_notificacao", {
         _tenant: input.tenantId,
