@@ -961,6 +961,12 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+### 2026-11-06 UTC — Claude — Agenda (lista): "Ver mais" só quando há atendimento à frente
+- Dono: "o Ver mais aparece sem ser necessário". Antes aparecia sempre que a lista não chegava a um ano, mesmo sem nada marcado depois.
+- `src/lib/agenda-proximo.functions.ts` (novo, porque `barbeiro.functions.ts` está reservado pelo GPT): `getProximoDiaDaAgenda({ depoisDe, profissionalId })` — mesmo acesso de `getAgendaPeriodo` (membro do negócio, banco privilegiado com filtro de negócio à mão), só estados que a lista mostra, devolve o dia no fuso do negócio ou `null`.
+- `ListaPeriodo.tsx`: "Ver mais" (e o carregamento ao rolar) só quando há atendimento depois do que já foi carregado; o texto diz o próximo dia ("Ver mais · 20 dez."). Enquanto confere, fica escondido; se a conferência falhar, aparece (nunca esconde dados). Respeita o filtro de profissional.
+- Testes: `ListaPeriodo.carregamento.test.tsx` (sem nada à frente → sem botão; com → mostra o dia; lista curta não encadeia blocos). Gates rodados à parte antes do envio: tsc 0; vitest 306 / 2502 ok; eslint sem erro; build ok; protocolo OK.
+
 ### 2026-11-06 UTC — Claude — Agenda (lista): horários agrupados, trilho e ondas separadoras
 - **Deslize (registrado):** o commit `bea06fa9` (tom sobre tom) foi enviado no mesmo comando dos testes e levou um teste quebrado (`ListaPeriodo.test.ts` recortava o CSS a partir da regra errada). Corrigido no commit seguinte, depois de rodar a suíte completa à parte — a armadilha "envio encadeado ao teste".
 - **Pedido específico do dono para a Agenda** (mockup + ideia de onda com a hora no meio). Só o modo lista (`ListaPeriodo`); Timeline, cartões, ficha e gavetas intocados.

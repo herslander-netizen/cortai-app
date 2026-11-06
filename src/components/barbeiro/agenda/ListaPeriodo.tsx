@@ -1,11 +1,12 @@
 import { useBuscaDaLista } from "./busca-da-lista";
-import { infiniteQueryOptions, useInfiniteQuery } from "@tanstack/react-query";
+import { infiniteQueryOptions, useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { CalendarX, ChevronDown, Eye, EyeOff, Hand } from "lucide-react";
 import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Chip } from "@/components/ui/chip";
 import { useAgora } from "@/hooks/useAgora";
+import { getProximoDiaDaAgenda } from "@/lib/agenda-proximo.functions";
 import { getAgendaPeriodo, type AgendaItem } from "@/lib/barbeiro.functions";
 import { brl } from "@/lib/format";
 import { useSegmentoDoPainel } from "@/lib/segmento-contexto";
@@ -144,6 +145,18 @@ export function ListaPeriodo({
   const [comCancelados, setComCancelados] = useState(false);
 
   const periodo = useInfiniteQuery({ ...opcoesAgendaPeriodo(hoje), refetchInterval: 60_000 });
+  // "Ver mais dias" só quando há atendimento depois do que já foi carregado (dono, 06/11: "aparece sem ser
+  // necessário"). Enquanto confere, fica escondido; se a conferência falhar, aparece (nunca esconde dados).
+  const ateCarregado = periodo.data?.pages.at(-1)?.ate ?? null;
+  const proximo = useQuery({
+    queryKey: ["agenda-proximo-dia", ateCarregado, profissionalId],
+    queryFn: () => getProximoDiaDaAgenda({ data: { depoisDe: ateCarregado!, profissionalId } }),
+    enabled: Boolean(periodo.hasNextPage && ateCarregado),
+    staleTime: 60_000,
+    refetchInterval: 60_000,
+  });
+  const proximoDia = proximo.data?.dia ?? null;
+  const haMais = Boolean(periodo.hasNextPage) && (proximo.isError || proximoDia !== null);
 
   const todos = useMemo(
     () =>
@@ -173,7 +186,7 @@ export function ListaPeriodo({
   buscarMais.current = fetchNextPage;
   useEffect(() => {
     const el = fim.current;
-    if (!el || !hasNextPage || typeof IntersectionObserver === "undefined") return;
+    if (!el || !haMais || typeof IntersectionObserver === "undefined") return;
     const observador = new IntersectionObserver(
       (entradas) => {
         if (!entradas.some((e) => e.isIntersecting) || carregando.current) return;
@@ -184,7 +197,7 @@ export function ListaPeriodo({
     );
     observador.observe(el);
     return () => observador.disconnect();
-  }, [hasNextPage]);
+  }, [haMais]);
 
   return (
     <div className="agenda-lista-periodo" data-sem-gesto-dia>
@@ -285,7 +298,7 @@ export function ListaPeriodo({
 
       {/* Fim da lista (dono, 31/10 e 06/11): "Ver mais dias" discreto na onda, o filtro de cancelados como chip e a
           dica como legenda. */}
-      {hasNextPage ? (
+      {haMais ? (
         // Discreto, na mesma onda que separa os dias (dono, 06/11: "esse botão azul é feio").
         <OndaDaLista>
           <Button
@@ -295,7 +308,7 @@ export function ListaPeriodo({
             loading={isFetchingNextPage}
             onClick={() => void buscarMais.current()}
           >
-            Ver mais dias
+            {proximoDia ? `Ver mais · ${tituloDoDia(proximoDia).abreviado}` : "Ver mais dias"}
             <ChevronDown aria-hidden />
           </Button>
         </OndaDaLista>
