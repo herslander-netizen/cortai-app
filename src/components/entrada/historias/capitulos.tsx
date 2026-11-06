@@ -64,7 +64,7 @@ export const CAPITULOS: readonly Capitulo[] = [
     id: "fila",
     icone: Hourglass,
     rotulo: "Lista de espera",
-    frase: "Horário vagou?\nQuem espera é avisado.",
+    frase: "Cliente entra na fila e é avisado;\na equipe só acompanha.",
     duracao: duracaoTotal(PASSOS_FILA),
     historia: () => <HistoriaFila />,
   },

@@ -61,11 +61,12 @@ const TEXTOS: Record<string, { etiqueta: string; titulo: string; texto: string; 
       etiqueta: "Lista de espera",
       titulo: "Horário que cancela não fica vazio.",
       texto:
-        "Quando um horário vaga, o Flow oferece para quem está na fila, um cliente por vez, pelo WhatsApp. Quem aceita já fica agendado.",
+        "Dia cheio? O cliente entra na lista pelo link do seu negócio. Quando um horário vaga, o Flow oferece a vaga a uma pessoa por vez pelo WhatsApp, e a equipe só acompanha.",
       itens: [
-        "Uma oferta por vez, com prazo",
-        "Aceite com um toque",
-        "Agenda preenchida sem você mexer",
+        "Cliente: escolhe o período e vê a posição na fila",
+        "Cliente: recebe a vaga no WhatsApp e aceita com um toque",
+        "Equipe: vê quem espera, por dia e por vaga",
+        "Sem resposta no prazo, a vaga passa para o próximo",
       ],
     },
     gestao: {
