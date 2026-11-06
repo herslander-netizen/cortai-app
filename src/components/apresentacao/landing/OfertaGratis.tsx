@@ -17,7 +17,7 @@ export function OfertaGratis() {
     <section data-cta-propria className="relative bg-[var(--painel)] px-4 py-14 sm:py-20">
       <DivisorDeOndas />
       <Revelar className="mx-auto max-w-5xl">
-        <div className="relative overflow-hidden rounded-[32px] bg-[linear-gradient(135deg,var(--figaro-primary),#7a6cf0_55%,var(--figaro-tertiary))] p-6 text-white shadow-[0_30px_60px_-30px_rgba(61,79,224,0.7)] sm:p-12">
+        <div className="relative overflow-hidden rounded-[32px] bg-[linear-gradient(135deg,var(--figaro-primary),#5b55f0_55%,#1b2687)] p-6 text-white shadow-[0_30px_60px_-30px_rgba(61,79,224,0.7)] sm:p-12">
           <div
             aria-hidden
             className="absolute -right-16 -top-16 size-64 rounded-full bg-white/15 blur-2xl"

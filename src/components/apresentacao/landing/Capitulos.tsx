@@ -125,7 +125,7 @@ export function Capitulos() {
     <>
       {ORDEM.map((capitulo, i) => {
         const t = TEXTOS[capitulo.id]!;
-        const escuro = i % 2 === 1;
+        const escuro = i % 2 === 0;
         return (
           <section
             key={capitulo.id}
@@ -141,7 +141,7 @@ export function Capitulos() {
               }`}
             >
               <Revelar>
-                <p className="text-[12px] font-bold uppercase tracking-[0.14em] text-[var(--figaro-tertiary)]">
+                <p className="text-[12px] font-bold uppercase tracking-[0.14em] text-[var(--figaro-primary)]">
                   {t.etiqueta}
                 </p>
                 <h2 className="mt-3 font-serif text-[30px] font-bold leading-[1.08] sm:text-[40px]">
@@ -153,7 +153,7 @@ export function Capitulos() {
                 <ul className="mt-6 space-y-2.5">
                   {t.itens.map((item) => (
                     <li key={item} className="flex items-center gap-2.5 text-[15px]">
-                      <span className="size-2 rounded-full bg-[var(--figaro-tertiary)]" /> {item}
+                      <span className="size-2 rounded-full bg-[var(--figaro-primary)]" /> {item}
                     </li>
                   ))}
                 </ul>

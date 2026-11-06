@@ -6,6 +6,7 @@ import { IconeWhatsapp } from "@/components/entrada/historias/IconeWhatsapp";
 import { MarcaFlow } from "@/components/marca/MarcaFlow";
 import { Button } from "@/components/ui/button";
 import { OndasDaEntrada } from "@/components/entrada/OndasDaEntrada";
+import { TEMA_ESCURO } from "./tema";
 import { LinhasDeOnda } from "./Ondas";
 import { MOLA } from "@/lib/movimento-figaro";
 import type { ConteudoApresentacao } from "@/lib/apresentacao-conteudo";
@@ -29,9 +30,12 @@ const FOTOS = [
 
 export function Cabecalho() {
   return (
-    <header className="sticky top-0 z-30 bg-[var(--fundo)] shadow-[0_1px_0_var(--linha),0_10px_24px_-18px_rgba(40,40,120,0.35)]">
+    <header
+      style={TEMA_ESCURO}
+      className="sticky top-0 z-30 bg-[var(--fundo)] text-[var(--texto)] shadow-[0_1px_0_var(--linha),0_10px_24px_-14px_rgba(0,0,0,0.6)]"
+    >
       <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4">
-        <MarcaFlow variante="escura" className="h-auto w-24" />
+        <MarcaFlow variante="clara" className="h-auto w-24" />
         <nav className="flex items-center gap-2" aria-label="Acesso">
           <Button asChild variant="outline" size="sm">
             <Link to="/login">Entrar</Link>
@@ -57,7 +61,7 @@ function FotosFlutuantes() {
           src={f.src}
           alt=""
           loading="lazy"
-          className={`absolute hidden size-32 rounded-[28px] object-cover shadow-[0_18px_40px_-18px_rgba(40,40,120,0.45)] ring-4 ring-white/80 lg:block xl:size-40 ${f.x}`}
+          className={`absolute hidden size-32 rounded-[28px] object-cover shadow-[0_18px_40px_-18px_rgba(40,40,120,0.45)] ring-4 ring-white/15 lg:block xl:size-40 ${f.x}`}
           animate={reduzir ? { y: 0 } : { y: [0, -14, 0] }}
           transition={{ duration: f.t, repeat: Infinity, ease: "easeInOut", delay: f.d }}
         />
@@ -111,7 +115,7 @@ function MosaicoMobile() {
           key={f.src}
           src={f.src}
           alt=""
-          className={`aspect-[3/4] w-full rounded-[22px] object-cover shadow-[0_18px_36px_-18px_rgba(40,40,120,0.5)] ring-4 ring-white/80 ${f.c}`}
+          className={`aspect-[3/4] w-full rounded-[22px] object-cover shadow-[0_18px_36px_-18px_rgba(40,40,120,0.5)] ring-4 ring-white/15 ${f.c}`}
           animate={reduzir ? { y: 0 } : { y: [0, -8, 0] }}
           transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: f.d }}
         />
@@ -135,16 +139,19 @@ function MosaicoMobile() {
 export function Heroi({ conteudo }: { conteudo: ConteudoApresentacao["hero"] }) {
   const reduzir = useReducedMotion();
   return (
-    <section className="relative overflow-hidden bg-[var(--fundo)]">
+    <section
+      style={TEMA_ESCURO}
+      className="relative overflow-hidden bg-[var(--fundo)] text-[var(--texto)]"
+    >
       <div aria-hidden className="pointer-events-none absolute inset-0">
         {[
           "left-[-20%] top-[-25%] bg-[var(--entrada-ciano)]",
-          "right-[-25%] top-[10%] bg-[var(--entrada-rosa)]",
+          "right-[-25%] top-[10%] bg-[var(--figaro-primary)]",
           "left-[20%] bottom-[-45%] bg-[var(--entrada-lilas)]",
         ].map((c, i) => (
           <motion.span
             key={c}
-            className={`absolute block size-[480px] rounded-full opacity-25 blur-[90px] ${c}`}
+            className={`absolute block size-[480px] rounded-full opacity-30 blur-[90px] ${c}`}
             animate={reduzir ? { x: 0, y: 0 } : { x: [0, 40, 0], y: [0, 24, 0] }}
             transition={{ duration: 9 + i * 2, repeat: Infinity, ease: "easeInOut" }}
           />
@@ -155,7 +162,7 @@ export function Heroi({ conteudo }: { conteudo: ConteudoApresentacao["hero"] }) 
       <FotosFlutuantes />
       <div className="relative mx-auto flex max-w-3xl flex-col items-center px-5 pb-14 pt-10 text-center sm:pt-20">
         <motion.span
-          className="inline-flex items-center gap-1.5 rounded-full bg-[var(--figaro-tertiary-container)] px-3.5 py-1.5 text-[12px] font-bold tracking-wide text-[var(--figaro-on-tertiary-container)]"
+          className="inline-flex items-center gap-1.5 rounded-full bg-[var(--figaro-primary-container)] px-3.5 py-1.5 text-[12px] font-bold tracking-wide text-[var(--figaro-on-primary-container)]"
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={MOLA.padraoEspacial}

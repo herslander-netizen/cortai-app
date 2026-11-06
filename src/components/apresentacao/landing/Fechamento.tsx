@@ -52,7 +52,7 @@ export function Planos({ conteudo }: { conteudo: ConteudoApresentacao["planos"] 
     >
       <DivisorDeOndas />
       <Revelar className="mx-auto max-w-4xl text-center">
-        <p className="text-[12px] font-bold uppercase tracking-[0.14em] text-[var(--figaro-tertiary)]">
+        <p className="text-[12px] font-bold uppercase tracking-[0.14em] text-[var(--figaro-primary)]">
           {conteudo.etiqueta}
         </p>
         <h2 className="mt-3 font-serif text-[30px] font-bold leading-[1.08] sm:text-[40px]">
@@ -137,7 +137,7 @@ export function Perguntas({
       <LinhasDeOnda />
       <div className="relative mx-auto max-w-2xl">
         <Revelar>
-          <p className="text-[12px] font-bold uppercase tracking-[0.14em] text-[var(--figaro-tertiary)]">
+          <p className="text-[12px] font-bold uppercase tracking-[0.14em] text-[var(--figaro-primary)]">
             {bloco.etiqueta}
           </p>
           <h2 className="mt-3 font-serif text-[30px] font-bold sm:text-[40px]">{bloco.titulo}</h2>
