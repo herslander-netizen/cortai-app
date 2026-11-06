@@ -815,9 +815,24 @@ export async function processarMensagemRecebida(input: {
     let textoDoAudio = TEXTO_AUDIO_NAO_ENTENDIDO;
     if (servicoFora) {
       const { data: t } = await db.from("tenants").select("slug").eq("id", tenantId).maybeSingle();
+      const { responsavelDoNegocio, avisarEquipeDaContingencia } =
+        await import("./contingencia.server");
       textoDoAudio = textoDeAudioIndisponivel(
         t?.slug ? urlPublica(`/agendar/${t.slug}`) : urlPublica(""),
+        await responsavelDoNegocio(tenantId),
       );
+      // Mesmo texto há pouco: o cliente já foi orientado e o dono já foi avisado; não repete nem o aviso.
+      const { data: jaAvisado } = await db
+        .from("mensagens_whatsapp")
+        .select("id")
+        .eq("conversa_id", conversa.id)
+        .eq("direcao", "saida")
+        .eq("conteudo", textoDoAudio)
+        .gte("criado_em", new Date(Date.now() - INTERVALO_DA_CONTINGENCIA_MS).toISOString())
+        .limit(1)
+        .maybeSingle();
+      if (jaAvisado) return { tratada: true, motivo: "audio_indisponivel_ja_avisado" };
+      await avisarEquipeDaContingencia({ tenantId, telefone, texto: "Mandou um áudio" });
     }
     await enviarPelaBarbearia({
       tenantId,
@@ -936,7 +951,9 @@ export async function processarMensagemRecebida(input: {
   // conversar e o link do agendamento"): nem o Flow Bot nem a Flow IA responderam. Diz a verdade, manda o link e
   // avisa que a equipe responde. No máximo uma vez a cada 30 min por conversa — antes era uma vez por dia e o
   // cliente que voltava no dia seguinte ("Bom dia") ficava sem resposta.
-  const fallback = textoDeContingencia(link);
+  const { responsavelDoNegocio, avisarEquipeDaContingencia } =
+    await import("./contingencia.server");
+  const fallback = textoDeContingencia(link, await responsavelDoNegocio(tenantId));
   const desde = new Date(Date.now() - INTERVALO_DA_CONTINGENCIA_MS).toISOString();
   const { data: jaOrientado } = await db
     .from("mensagens_whatsapp")
@@ -948,6 +965,8 @@ export async function processarMensagemRecebida(input: {
     .limit(1)
     .maybeSingle();
   if (!jaOrientado && (await whatsappLiberadoNoPlano(tenantId))) {
+    // "Já avisamos que você quer falar": o aviso vai de verdade (sininho/push com a conversa do cliente).
+    await avisarEquipeDaContingencia({ tenantId, telefone, texto: textoDoTurno });
     await enviarPelaBarbearia({
       tenantId,
       conversaId: conversa.id,

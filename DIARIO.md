@@ -27,6 +27,7 @@ e o que fez. O diário até 17/10/2026 está guardado, sem alterações, em
 7. **Sem segredos:** nunca escreva chaves, senhas ou tokens aqui. Cite só o nome da variável.
 
 ## Decisões do dono
+- 2026-11-06: **Contingência fala o nome de quem responde pelo negócio** ("Ricardo não está conseguindo responder no momento… já avisamos… veja um horário na agenda") e o aviso ao dono vai de verdade.
 - 2026-11-06: **Barrinha de progresso dos capítulos da entrada em cor uniforme** (enche como contador até trocar de tela).
 - 2026-11-06: **Entrada aproveita tudo o que der do vídeo de referência**, trocando a marca pelo Flow; as fotos podem aparecer (sem nome nem marca do Figaro); avaliações continuam fora.
 - 2026-11-06: **Lembrete de véspera às 15h** (como o AgendaClick) pedindo confirmação, aviso no dia e fila; **sistema de notificações pelo WhatsApp com o máximo de proteção contra banimento** (`docs/notificacoes-whatsapp.md`).
@@ -978,6 +979,11 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+### 2026-11-06 UTC — Claude — Contingência com o nome do dono e aviso real
+- `whatsapp/contingencia.ts`: textos novos — "Oi! {Nome} não está conseguindo responder no momento. Já avisamos que você quer falar e, assim que possível, {Nome} entra em contato por aqui. Se preferir, veja um horário disponível na agenda: {link}" (e a versão do áudio). `quemResponde`: primeiro nome com maiúscula; nome com cara de usuário (ex.: "falecomaalvo") ou ausente vira "a equipe".
+- `contingencia.server.ts`: `responsavelDoNegocio` (nome do dono no cadastro de profissional, depois no perfil) e `avisarEquipeDaContingencia` (mesmo aviso "Cliente pediu atendimento", que abre o WhatsApp do cliente). `fluxo.server.ts`: o aviso sai junto com a mensagem (texto e áudio), respeitando os 30 min; áudios seguidos não repetem nem mensagem nem aviso.
+- Gates: tsc 0; vitest 319 / 2556 ok; eslint sem erro novo; build ok; protocolo OK.
+
 ### 2026-11-06 UTC — Claude — Entrada: barrinha de progresso em cor única
 - `IconesDosCapitulos.tsx`: o preenchimento da barrinha passou do degradê ciano→lilás→rosa para `--figaro-tertiary` (a mesma cor do ícone aceso); continua enchendo do zero ao cheio na duração do capítulo. Gates: tsc 0; testes da entrada ok; build ok; protocolo OK.
 
