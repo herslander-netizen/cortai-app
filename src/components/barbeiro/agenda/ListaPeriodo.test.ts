@@ -76,11 +76,13 @@ describe("modo lista no celular", () => {
   });
 
   it("cancelados continuam recolhidos e os cartões não mostram ações inline", () => {
-    // Fim da lista no padrão Figaro (31/10): filtro de cancelados como chip, "Ver mais dias" em pílula tonal.
+    // Fim da lista (31/10 e 06/11): filtro de cancelados como chip; "Ver mais dias" discreto na onda (o dono achou a
+    // pílula azul feia em 06/11).
     expect(lista).toContain("<Chip");
     expect(lista).toContain("Cancelados · {cancelados}");
     expect(lista).toContain("Esconder cancelados");
-    expect(lista).toMatch(/rounded-full bg-\[var\(--figaro-primary-container/);
+    expect(lista).not.toMatch(/rounded-full bg-\[var\(--figaro-primary-container/);
+    expect(lista).toMatch(/<OndaDaLista>\s*<Button[\s\S]*?Ver mais dias/);
     expect(lista).not.toContain("<AcoesDoItem");
     expect(lista).toContain("Toque no cartão para remarcar ou cancelar");
   });
@@ -135,5 +137,22 @@ describe("dias da lista (Figaro: todos os dias de hoje até o último com atendi
     // A busca da lista começa no domingo da semana (31/10/2026 é sábado).
     expect(inicioDaSemana("2026-10-31")).toBe("2026-10-25");
     expect(inicioDaSemana("2026-10-25")).toBe("2026-10-25");
+  });
+
+  it("organiza por horário com trilho e separa os dias e a hora atual com a onda (dono, 06/11)", () => {
+    const lista = readFileSync("src/components/barbeiro/agenda/ListaPeriodo.tsx", "utf8");
+    expect(lista).toContain("agruparPorHorario(itens");
+    expect(lista).toContain("<HorarioDaLista");
+    expect(lista).toContain("{g > 0 ? <OndaDaLista /> : null}");
+    expect(lista).toContain("posicaoDoAgora(horarios");
+    const css = readFileSync("src/styles.css", "utf8");
+    const bloco = css.slice(
+      css.indexOf(".agenda-lista-horario {"),
+      css.indexOf(".agenda-lista-onda-acao svg"),
+    );
+    // Só tokens: a onda é uma máscara pintada com o contorno do tema (claro e escuro iguais na estrutura).
+    expect(bloco).toContain("mask:");
+    expect(bloco).toContain("var(--figaro-outline-variant");
+    expect(bloco.replace(/url\("data:[^"]*"\)/g, "")).not.toMatch(/#[0-9a-f]{3,8}\b/i);
   });
 });

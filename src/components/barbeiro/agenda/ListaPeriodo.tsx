@@ -9,12 +9,10 @@ import { useAgora } from "@/hooks/useAgora";
 import { getAgendaPeriodo, type AgendaItem } from "@/lib/barbeiro.functions";
 import { brl } from "@/lib/format";
 import { useSegmentoDoPainel } from "@/lib/segmento-contexto";
-import { termos } from "@/lib/segmentos";
 
-import { corDaCategoria, glifoDoEstado } from "./cartao-figaro";
-import { IconeDoEstado } from "./IconeDoEstado";
-import { ProgressoDoAtendimento } from "./ListaAgenda";
-import { diaNoFuso, estaAtrasado, hora, nomeDaAgenda, ROTULO_ESTADO } from "./tempo";
+import { HorarioDaLista, OndaDaLista } from "./HorarioDaLista";
+import { agruparPorHorario, posicaoDoAgora } from "./lista-horarios";
+import { diaNoFuso, hora } from "./tempo";
 
 /** Dias por leitura: a lista abre com 60 dias e carrega mais ao chegar no fim. */
 const DIAS_POR_BLOCO = 60;
@@ -216,112 +214,91 @@ export function ListaPeriodo({
           const total = contam.reduce((soma, item) => soma + (item.valor_centavos ?? 0), 0);
           const ehHoje = dia === hoje;
           return (
-            <section
-              key={dia}
-              className="agenda-lista-dia"
-              aria-label={`${titulo.curto} ${titulo.semana}`}
-            >
-              <header className="agenda-lista-dia-titulo" data-hoje-dia={ehHoje || undefined}>
-                <h3>
-                  <strong>{titulo.abreviado}</strong>
-                  <span>{titulo.semana}</span>
-                  {ehHoje ? <span data-hoje>Hoje</span> : null}
-                </h3>
-                <span className="agenda-lista-dia-resumo">
-                  {contam.length
-                    ? `${contam.length} ${contam.length === 1 ? "atendimento" : "atendimentos"} · ${valorCurto(total)}`
-                    : "Livre"}
-                </span>
-              </header>
-              {itens.length === 0 ? (
-                <div className="agenda-lista-linha">
-                  <span aria-hidden />
-                  <p className="agenda-lista-vazio">
-                    <CalendarX aria-hidden />
-                    Nada marcado
-                  </p>
-                </div>
-              ) : null}
-              <ul>
-                {itens.map((item, i) => {
-                  const nome = nomeDaAgenda(item.cliente, discreto);
-                  const atrasado = ehHoje && estaAtrasado(item, agora);
-                  const estado =
-                    item.status === "na_cadeira"
-                      ? termos(segmento).statusAtendimento
-                      : (ROTULO_ESTADO[item.status] ?? item.status);
-                  const cascata = g === 0 && i < 6;
-                  return (
-                    <li
-                      key={item.id}
-                      className={`agenda-lista-linha ${cascata ? "mov-item-cascata" : ""}`}
-                      style={cascata ? { animationDelay: `${i * 30}ms` } : undefined}
-                    >
-                      <span className="agenda-lista-hora" aria-hidden>
-                        <strong>{hora(item.inicio, fuso)}</strong>
-                        <span>{item.duracaoMin} min</span>
-                      </span>
-                      <div className="min-w-0">
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          aria-label={`${titulo.curto} ${hora(item.inicio, fuso)}, ${nome}, ${item.servico}, ${estado}`}
-                          aria-pressed={selecionado === item.id}
-                          className={`agenda-lista-cartao agenda-timeline-${item.status} ${item.confirmadoEm && item.status === "agendado" ? "agenda-timeline-confirmado" : ""} ${item.encaixe && item.status === "agendado" ? "agenda-timeline-encaixe" : ""} ${selecionado === item.id ? "agenda-lista-cartao-selecionado" : ""}`}
-                          style={{
-                            ["--cor-categoria" as string]: corDaCategoria(item.categoriaIndice),
-                          }}
-                          onClick={() => onAbrir(item)}
-                        >
-                          {/* Figaro (`AgendaListRow`): serviço em destaque, cliente embaixo e a linha de
-                              detalhes (categoria, profissional, valor) separada por bolinhas. */}
-                          <span className="agenda-lista-cartao-topo">
-                            <strong className={item.status === "cancelado" ? "line-through" : ""}>
-                              {item.servico}
-                            </strong>
-                            <IconeDoEstado glifo={glifoDoEstado(item, atrasado)} />
-                          </span>
-                          <span className="agenda-lista-servico">{nome}</span>
-                          <span className="agenda-lista-detalhe">
-                            {[
-                              item.categoria?.trim() || null,
-                              mostrarProfissional ? item.profissional : null,
-                              item.valor_centavos ? brl(item.valor_centavos) : null,
-                              atrasado ? "Atrasado" : null,
-                            ]
-                              .filter((parte): parte is string => Boolean(parte))
-                              .map((parte, k) => (
-                                <Fragment key={k}>
-                                  {k > 0 ? <i aria-hidden className="agenda-lista-ponto" /> : null}
-                                  {parte}
-                                </Fragment>
-                              ))}
-                          </span>
-                          {ehHoje && item.status === "na_cadeira" ? (
-                            <ProgressoDoAtendimento item={item} agora={agora} />
-                          ) : null}
-                        </Button>
-                      </div>
-                    </li>
+            <Fragment key={dia}>
+              {g > 0 ? <OndaDaLista /> : null}
+              <section className="agenda-lista-dia" aria-label={`${titulo.curto} ${titulo.semana}`}>
+                <header className="agenda-lista-dia-titulo" data-hoje-dia={ehHoje || undefined}>
+                  <h3>
+                    <strong>{titulo.abreviado}</strong>
+                    <span>{titulo.semana}</span>
+                    {ehHoje ? <span data-hoje>Hoje</span> : null}
+                  </h3>
+                  <span className="agenda-lista-dia-resumo">
+                    {contam.length
+                      ? `${contam.length} ${contam.length === 1 ? "atendimento" : "atendimentos"} · ${valorCurto(total)}`
+                      : "Livre"}
+                  </span>
+                </header>
+                {itens.length === 0 ? (
+                  <div className="agenda-lista-linha">
+                    <span aria-hidden />
+                    <p className="agenda-lista-vazio">
+                      <CalendarX aria-hidden />
+                      Nada marcado
+                    </p>
+                  </div>
+                ) : null}
+                {(() => {
+                  // Atendimentos do mesmo horário juntos, ligados por um trilho fino (dono, 06/11).
+                  const horarios = agruparPorHorario(itens, (inicio) => hora(inicio, fuso));
+                  const posAgora =
+                    ehHoje && !busca.trim() ? posicaoDoAgora(horarios, new Date(agora)) : -1;
+                  const marcadorAgora = (
+                    <OndaDaLista
+                      key="agora"
+                      rotulo={hora(new Date(agora).toISOString(), fuso)}
+                      rotuloAcessivel={`Agora, ${hora(new Date(agora).toISOString(), fuso)}`}
+                    />
                   );
-                })}
-              </ul>
-            </section>
+                  let antes = 0;
+                  return horarios.map((grupo, h) => {
+                    const desde = antes;
+                    antes += grupo.itens.length;
+                    return (
+                      <Fragment key={grupo.inicio}>
+                        {h === posAgora ? marcadorAgora : null}
+                        <HorarioDaLista
+                          itens={grupo.itens}
+                          fuso={fuso}
+                          ehHoje={ehHoje}
+                          agora={agora}
+                          segmento={segmento}
+                          discreto={discreto}
+                          mostrarProfissional={mostrarProfissional}
+                          selecionado={selecionado}
+                          tituloCurto={titulo.curto}
+                          cascataDesde={g === 0 ? desde : null}
+                          onAbrir={onAbrir}
+                        />
+                        {h === horarios.length - 1 && posAgora === horarios.length
+                          ? marcadorAgora
+                          : null}
+                      </Fragment>
+                    );
+                  });
+                })()}
+              </section>
+            </Fragment>
           );
         })
       )}
 
-      {/* Fim da lista no padrão Figaro (dono, 31/10: os três textos soltos ficavam feios): a ação principal em pílula
-          tonal, o filtro de cancelados como chip e a dica como legenda discreta. */}
+      {/* Fim da lista (dono, 31/10 e 06/11): "Ver mais dias" discreto na onda, o filtro de cancelados como chip e a
+          dica como legenda. */}
       {hasNextPage ? (
-        <Button
-          className="mt-6 min-h-12 w-full rounded-full bg-[var(--figaro-primary-container,var(--ink3))] text-[var(--figaro-on-primary-container,var(--paper))] hover:brightness-110"
-          loading={isFetchingNextPage}
-          onClick={() => void buscarMais.current()}
-        >
-          <ChevronDown aria-hidden />
-          Ver mais dias
-        </Button>
+        // Discreto, na mesma onda que separa os dias (dono, 06/11: "esse botão azul é feio").
+        <OndaDaLista>
+          <Button
+            variant="text"
+            size="sm"
+            className="agenda-lista-onda-acao"
+            loading={isFetchingNextPage}
+            onClick={() => void buscarMais.current()}
+          >
+            Ver mais dias
+            <ChevronDown aria-hidden />
+          </Button>
+        </OndaDaLista>
       ) : null}
       <div ref={fim} aria-hidden />
       {cancelados > 0 || grupos.length > 0 ? (

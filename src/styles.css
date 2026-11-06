@@ -11325,6 +11325,82 @@ html[data-teclado-aberto] .agenda-acao-fixa {
   flex: none;
 }
 
+/* Lista da Agenda organizada por horário (pedido do dono para a Agenda, 06/11/2026: "separadores… discreto,
+   minimalista, organizado"). Atendimentos do mesmo horário sob uma hora só, ligados por um trilho fino com bolinhas
+   vazadas; uma onda fina separa os dias, marca a hora atual em hoje e leva o "Ver mais dias". Só tokens: claro e
+   escuro com a mesma estrutura. */
+.agenda-lista-horario {
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr);
+  gap: 8px;
+  align-items: start;
+}
+.agenda-lista-horario + .agenda-lista-horario {
+  margin-top: 14px;
+}
+.agenda-lista-trilho > .agenda-lista-linha {
+  position: relative;
+  display: block;
+  padding-left: 18px;
+}
+.agenda-lista-no {
+  position: absolute;
+  top: 22px;
+  left: 0;
+  width: 9px;
+  height: 9px;
+  border: 1.5px solid var(--figaro-outline, var(--line2));
+  border-radius: 999px;
+  background: var(--background);
+}
+/* Trecho do trilho até a bolinha do próximo cartão do mesmo horário (10 px de vão + 22 px até a bolinha). */
+.agenda-lista-trilho > .agenda-lista-linha:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  top: 31px;
+  bottom: -32px;
+  left: 4px;
+  width: 1px;
+  background: var(--figaro-outline-variant, var(--line));
+}
+.agenda-lista-onda {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 22px 0 4px;
+  color: var(--figaro-outline-variant, var(--line));
+}
+.agenda-lista-dia .agenda-lista-onda {
+  margin: 14px 0;
+}
+.agenda-lista-onda-traco {
+  height: 8px;
+  flex: 1;
+  background: currentColor;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='8' viewBox='0 0 16 8'%3E%3Cpath d='M0 4 Q4 1 8 4 T16 4' fill='none' stroke='black' stroke-width='1.2'/%3E%3C/svg%3E") repeat-x center / 16px 8px;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='8' viewBox='0 0 16 8'%3E%3Cpath d='M0 4 Q4 1 8 4 T16 4' fill='none' stroke='black' stroke-width='1.2'/%3E%3C/svg%3E") repeat-x center / 16px 8px;
+}
+.agenda-lista-onda-rotulo {
+  flex: none;
+  color: var(--figaro-on-surface-variant, var(--mute));
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+}
+.agenda-lista-onda-acao.agenda-lista-onda-acao {
+  min-height: 48px;
+  flex: none;
+  gap: 4px;
+  padding: 0 4px;
+  color: var(--figaro-primary, var(--primary));
+  font-size: 13px;
+  font-weight: 600;
+}
+.agenda-lista-onda-acao svg {
+  width: 16px;
+  height: 16px;
+}
+
 /* Carregamento do Flow (dono, 30/10): F se desenhando (traço de baixo, traço de cima) e o ponto pingando; 2,4 s. */
 .carregamento-flow-baixo,
 .carregamento-flow-cima {
