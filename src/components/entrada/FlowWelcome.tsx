@@ -9,7 +9,8 @@ import { IconesDosCapitulos } from "@/components/entrada/IconesDosCapitulos";
 import { OndasDaEntrada } from "@/components/entrada/OndasDaEntrada";
 import { MOLA } from "@/lib/movimento-figaro";
 
-const RESUME_AFTER_INTERACTION_MS = 8000;
+// Depois de um toque ou arrasto o capítulo espera um pouco antes de voltar ao automático (a barrinha mostra o tempo).
+const RESUME_AFTER_INTERACTION_MS = 3000;
 
 export type FlowWelcomeProps = {
   onCreateAccount?: () => void;

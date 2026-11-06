@@ -982,6 +982,9 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+### 2026-11-06 UTC — Claude — Entrada: ritmo único dos capítulos (mais curtos e iguais)
+- Dono (06/11): tempo das animações estranho e demorado; sem cortar nada. `ritmo()` em `historias/base.tsx` ajusta o tempo de cada passo para o capítulo durar ~8,5 s (limite: no máximo 30 % mais rápido e 15 % mais lento; nenhum passo abaixo de 250 ms) — **todos os passos e telas continuam**. Antes: 7,6 a 13,7 s por capítulo (volta de ~54 s); agora ~8,2 a 9,5 s (~45 s). Respiro entre capítulos 900 → 500 ms; espera depois de um toque/arrasto 8 s → 3 s (a barrinha enche nesse tempo).
+
 ### 2026-11-06 UTC — Claude — Página pública menos "feminina": começa escura, azul e índigo
 - Pedido do dono (06/11): conferir se as páginas de apresentação têm aspecto muito feminino e, se tiverem, começar na cor escura e reorganizar. Achado: abertura pastel rosa/lilás, destaque da oferta com degradê até o rosa e etiquetas/pontos em rosa. Agora: cabeçalho e abertura escuros (logo claro), degradê da oferta azul→índigo, etiquetas e pontos em azul, rosa só como um toque das ondas da marca; alternância recomeça escura (WhatsApp escuro, lembretes claro, agenda escuro, site claro, gestão escuro, planos claro, perguntas escuro, final claro); fotos misturam barbeiro e profissionais.
 - Entrada do app (cartão de visita) **não mexida**: o dono pediu fundo branco com ondas Flow em 06/11; se quiser a entrada mais neutra também, dizer.

@@ -7,10 +7,10 @@
 import { AnimatePresence, motion } from "framer-motion";
 
 import { MOLA } from "@/lib/movimento-figaro";
-import { TelaDaHistoria, Toque, usePassos } from "./base";
+import { TelaDaHistoria, Toque, usePassos, ritmo } from "./base";
 import { BarraDoHorario, HorariosDoDia, ReservaConfirmada, SeusDados } from "./PartesDaAgenda";
 
-export const PASSOS_AGENDA = [1100, 1100, 1300, 1200, 1000, 1700, 350, 1700, 350, 2300] as const;
+export const PASSOS_AGENDA = ritmo([1100, 1100, 1300, 1200, 1000, 1700, 350, 1700, 350, 2300]);
 
 const TOQUES = [
   { x: 50, y: 60, visivel: false },

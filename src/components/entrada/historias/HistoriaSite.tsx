@@ -9,9 +9,9 @@ import { motion } from "framer-motion";
 import { CalendarDays, ChevronDown, ChevronUp, Clock3, Flame, Menu } from "lucide-react";
 
 import { MOLA } from "@/lib/movimento-figaro";
-import { TelaDaHistoria, Toque, usePassos } from "./base";
+import { TelaDaHistoria, Toque, usePassos, ritmo } from "./base";
 
-export const PASSOS_SITE = [1300, 1500, 1200, 1300, 1300, 1200, 1100, 900] as const;
+export const PASSOS_SITE = ritmo([1300, 1500, 1200, 1300, 1300, 1200, 1100, 900]);
 
 /** Onde a página está em cada passo (px da tela de 360). */
 const ROLAGEM = [0, 0, 0, -330, -545, -600, -545, -545];

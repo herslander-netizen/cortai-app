@@ -10,9 +10,9 @@ import { Check } from "lucide-react";
 import { IconeFlow } from "@/components/marca/MarcaFlow";
 import { MOLA } from "@/lib/movimento-figaro";
 import { IconeWhatsapp } from "./IconeWhatsapp";
-import { TelaDaHistoria, usePassos } from "./base";
+import { TelaDaHistoria, usePassos, ritmo } from "./base";
 
-export const PASSOS_LEMBRETES = [1100, 1300, 1300, 1300, 1700] as const;
+export const PASSOS_LEMBRETES = ritmo([1100, 1300, 1300, 1300, 1700]);
 
 const AVISOS = [
   {

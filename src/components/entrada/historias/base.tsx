@@ -23,8 +23,23 @@ export function usePassos(duracoes: readonly number[]): number {
   return reduzir ? duracoes.length - 1 : passo;
 }
 
-/** Duração total de uma história, para o pai saber quando trocar de capítulo. */
-export function duracaoTotal(duracoes: readonly number[], respiro = 900): number {
+/**
+ * Ritmo único dos capítulos (dono, 06/11/2026: "padronizar o tempo das animações, está estranho e demorado, sem cortar
+ * nada"): todos os passos continuam, só o tempo de cada um é ajustado para o capítulo durar perto de `alvoMs`
+ * (sem acelerar mais de 30 % nem desacelerar mais de 15 %, e nenhum passo abaixo de 250 ms).
+ */
+export const DURACAO_ALVO_DO_CAPITULO_MS = 8500;
+export function ritmo(
+  passos: readonly number[],
+  alvoMs: number = DURACAO_ALVO_DO_CAPITULO_MS,
+): number[] {
+  const soma = passos.reduce((a, b) => a + b, 0);
+  const fator = Math.min(1.15, Math.max(0.7, alvoMs / soma));
+  return passos.map((d) => Math.max(250, Math.round(d * fator)));
+}
+
+/** Duração total de uma história, para o pai saber quando trocar de capítulo (respiro curto entre capítulos). */
+export function duracaoTotal(duracoes: readonly number[], respiro = 500): number {
   return duracoes.reduce((s, d) => s + d, 0) + respiro;
 }
 

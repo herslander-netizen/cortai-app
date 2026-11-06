@@ -9,7 +9,7 @@ import { ChevronLeft, Mic, Sparkles } from "lucide-react";
 import { Fragment } from "react";
 
 import { MOLA } from "@/lib/movimento-figaro";
-import { TelaDaHistoria, usePassos } from "./base";
+import { TelaDaHistoria, usePassos, ritmo } from "./base";
 
 type Mensagem = { de: "cliente" | "negocio"; texto: string; hora: string };
 
@@ -66,7 +66,7 @@ export function conversaDe(c: Cenario): readonly Mensagem[] {
 export const CONVERSA: readonly Mensagem[] = conversaDe(CENARIO_PADRAO);
 
 /** Um passo por mensagem: a resposta do negócio chega depois do "digitando…". */
-export const PASSOS_WHATSAPP = CONVERSA.map((m) => (m.de === "cliente" ? 1300 : 1900));
+export const PASSOS_WHATSAPP = ritmo(CONVERSA.map((m) => (m.de === "cliente" ? 1300 : 1900)));
 
 /** Negrito do WhatsApp (`*texto*`), como o aparelho mostra. */
 function ComNegrito({ texto }: { texto: string }) {

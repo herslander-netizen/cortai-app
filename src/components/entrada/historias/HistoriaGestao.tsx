@@ -20,10 +20,10 @@ import {
 
 import { IconeFlow } from "@/components/marca/MarcaFlow";
 import { MOLA } from "@/lib/movimento-figaro";
-import { Contador, TelaDaHistoria, Toque, usePassos } from "./base";
+import { Contador, TelaDaHistoria, Toque, usePassos, ritmo } from "./base";
 import { PainelDeDesempenho } from "./PainelDeDesempenho";
 
-export const PASSOS_GESTAO = [1200, 1100, 1500, 700, 2700, 900] as const;
+export const PASSOS_GESTAO = ritmo([1200, 1100, 1500, 700, 2700, 900]);
 
 const DIA_A_DIA = [
   { icone: Gauge, nome: "Hoje" },
