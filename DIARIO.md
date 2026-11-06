@@ -253,6 +253,7 @@ Tudo o que o dono decidir com qualquer IA entra aqui, com a data. Vale para toda
 ## Próximas tarefas (ordem combinada)
 - **Auditoria de sessão (separada do redesign de entrada):** revisar a espera sem prazo de `getSessao()` na guarda de rotas protegidas (`src/lib/guarda.ts`) e concluir o teste manual autenticado em Android a 390 px. A reserva ampla de 20/10 foi repartida após as correções de autenticação de 20–26/10; não bloquear o trabalho visual de `/login`.
 - **Claude (31/10), depois do bot:** redesenhar as mensagens de sistema (avisos de sucesso, erro e mensagens com botão "apertar e voltar") no padrão visual do sistema. Só começar com a orientação do dono sobre a solução escolhida.
+- **Em andamento — Claude (06/11): Onboarding (`/barbeiro/configurar`, `components/onboarding/*`) — geral visual a pedido do dono; e cortes de texto em `OpcoesConectadas` (Regras da lista).** Sem banco.
 - **Em andamento — GPT: Flow Bot dentro do Flow, Fase A.** Concluir testes do orquestrador e validação estática do fluxo cooperativo documentado em `docs/fluxo-cooperativo-flow-bot-flow-ia.md`; sem telas da Fase B e sem aplicar migração 0055 sem autorização.
 - **Claude (30/10):** Avisos e Lembretes no padrão do Figaro — item 4 (saldo mensal do WhatsApp por plano, aviso na Agenda e pausa) aguardando decisões do dono ("depois resolvemos isso"). Itens 1, 2 e 3 feitos.
 
