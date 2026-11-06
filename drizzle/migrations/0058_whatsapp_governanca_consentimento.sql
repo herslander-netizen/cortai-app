@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS public.whatsapp_consent_events (
   created_at timestamptz NOT NULL DEFAULT now(),
   created_by uuid REFERENCES auth.users(id) ON DELETE SET NULL,
   CONSTRAINT whatsapp_consent_events_phone_e164_chk
-    CHECK (phone_e164 ~ '^\\+[1-9][0-9]{7,14}$'),
+    CHECK (phone_e164 ~ '^\+[1-9][0-9]{7,14}$'),
   CONSTRAINT whatsapp_consent_events_purpose_chk
     CHECK (purpose IN ('avisos_agendamento', 'lista_espera', 'relacionamento', 'marketing')),
   CONSTRAINT whatsapp_consent_events_action_chk
@@ -26,7 +26,10 @@ CREATE TABLE IF NOT EXISTS public.whatsapp_consent_events (
   CONSTRAINT whatsapp_consent_events_evidence_object_chk
     CHECK (jsonb_typeof(evidence) = 'object'),
   CONSTRAINT whatsapp_consent_events_consent_text_chk
-    CHECK (consent_text IS NULL OR length(consent_text) <= 2000)
+    CHECK (consent_text IS NULL OR length(consent_text) <= 2000),
+  CONSTRAINT whatsapp_consent_events_grant_evidence_chk
+    CHECK (action <> 'concedido' OR
+      (consent_text IS NOT NULL AND length(trim(consent_text)) >= 12))
 );
 
 COMMENT ON TABLE public.whatsapp_consent_events IS
@@ -49,7 +52,7 @@ CREATE TABLE IF NOT EXISTS public.whatsapp_suppressions (
   released_by uuid REFERENCES auth.users(id) ON DELETE SET NULL,
   release_evidence jsonb,
   CONSTRAINT whatsapp_suppressions_phone_e164_chk
-    CHECK (phone_e164 ~ '^\\+[1-9][0-9]{7,14}$'),
+    CHECK (phone_e164 ~ '^\+[1-9][0-9]{7,14}$'),
   CONSTRAINT whatsapp_suppressions_reason_chk
     CHECK (reason IN ('opt_out', 'wrong_number', 'staff_block')),
   CONSTRAINT whatsapp_suppressions_source_chk
@@ -79,3 +82,19 @@ REVOKE ALL ON TABLE public.whatsapp_consent_events FROM PUBLIC, anon, authentica
 REVOKE ALL ON TABLE public.whatsapp_suppressions FROM PUBLIC, anon, authenticated;
 GRANT ALL ON TABLE public.whatsapp_consent_events TO service_role;
 GRANT ALL ON TABLE public.whatsapp_suppressions TO service_role;
+
+
+-- O histórico de consentimento é append-only: correções geram novo evento, nunca edição retroativa.
+CREATE OR REPLACE FUNCTION public.proteger_historico_consentimento_whatsapp()
+RETURNS trigger
+LANGUAGE plpgsql
+SET search_path TO 'public'
+AS $function$
+BEGIN
+  RAISE EXCEPTION 'O histórico de consentimento é imutável; registre um novo evento.';
+END
+$function$;
+REVOKE ALL ON FUNCTION public.proteger_historico_consentimento_whatsapp() FROM PUBLIC, anon, authenticated;
+CREATE TRIGGER whatsapp_consent_events_immutable
+  BEFORE UPDATE OR DELETE ON public.whatsapp_consent_events
+  FOR EACH ROW EXECUTE FUNCTION public.proteger_historico_consentimento_whatsapp();
