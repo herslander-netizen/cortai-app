@@ -961,6 +961,13 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+### 2026-11-06 UTC — Claude — Agenda: fluidez na troca lista ↔ linha do tempo
+- Vídeo do dono (06/11) e pedido "dê uma geral na Agenda… desempenho; fique à vontade". Causas e correções:
+  - `TrocaDeVisualizacao`: `mode="popLayout"` deixava as duas visualizações na tela ao mesmo tempo (lista transparente sobre a linha do tempo, quadro vazio) → `mode="wait"`, a que sai some na hora e a nova entra com esmaecer de 200 ms (opacidade 0,35→1 e deslize de 10 px).
+  - `RecolheNaLista`: animava altura (regra de movimento; recalculava a linha do tempo a cada quadro) → só transform/opacity.
+  - `AgendaOperacional.alterarVisualizacao`: o calendário do mês ficava aberto entre visualizações e "abria sozinho" → fecha ao trocar.
+- Teste: `agenda/TrocaDeVisualizacao.test.ts`. Gates: tsc 0; vitest 307 / 2505 ok; eslint sem erro; build ok; protocolo OK.
+
 ### 2026-11-06 UTC — Claude — Agenda (lista): "Ver mais" só quando há atendimento à frente
 - Dono: "o Ver mais aparece sem ser necessário". Antes aparecia sempre que a lista não chegava a um ano, mesmo sem nada marcado depois.
 - `src/lib/agenda-proximo.functions.ts` (novo, porque `barbeiro.functions.ts` está reservado pelo GPT): `getProximoDiaDaAgenda({ depoisDe, profissionalId })` — mesmo acesso de `getAgendaPeriodo` (membro do negócio, banco privilegiado com filtro de negócio à mão), só estados que a lista mostra, devolve o dia no fuso do negócio ou `null`.

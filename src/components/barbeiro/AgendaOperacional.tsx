@@ -394,6 +394,9 @@ export function AgendaOperacional() {
     const segura = celular && proxima === "semana" ? "lista" : proxima;
     // Celular: a lista começa em hoje, no topo (como no vídeo do dono).
     if (celular && segura === "lista" && visualizacao !== "lista") window.scrollTo({ top: 0 });
+    // O calendário do mês não fica aberto de uma visualização para outra (vídeo do dono, 06/11: ele "abria
+    // sozinho" ao voltar para a linha do tempo).
+    if (segura !== visualizacao) setCalAberto(false);
     setVisualizacao(segura);
     salvarPreferenciaAgenda(segura);
   }
