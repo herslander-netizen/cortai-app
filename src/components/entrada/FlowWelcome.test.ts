@@ -5,7 +5,9 @@ import { describe, expect, it } from "vitest";
 describe("entrada pública do Flow", () => {
   it("mantém o palco no Navy por tokens locais, sem depender do tema do sistema", () => {
     const tela = readFileSync("src/components/entrada/FlowWelcome.tsx", "utf8");
-    expect(tela).toContain('className="relative mx-auto flex h-full min-h-0 w-full max-w-[430px] flex-col overflow-hidden bg-ink');
+    expect(tela).toContain(
+      'className="relative mx-auto flex h-full min-h-0 w-full max-w-[430px] flex-col overflow-hidden bg-ink',
+    );
     expect(tela).toContain("<OndasDaEntrada />");
     expect(tela).toContain('variante="clara"');
     expect(tela).not.toMatch(/#[0-9a-f]{3,8}\b/i);
@@ -23,9 +25,20 @@ describe("entrada pública do Flow", () => {
     expect(tela).toContain('variant="link"');
   });
 
+  it("segue a referência do dono de 06/11: só a marca no topo, mini-histórias e Começar agora", () => {
+    const tela = readFileSync("src/components/entrada/FlowWelcome.tsx", "utf8");
+    expect(tela).toContain("CAPITULOS");
+    expect(tela).toContain("capitulo.historia()");
+    expect(tela).toContain("Começar agora");
+    expect(tela).toContain('<p className="sr-only">Seu negócio no ritmo certo.</p>');
+  });
+
   it("identifica os mockups como exemplos e não como estado real da conta", () => {
     const frame = readFileSync("src/components/entrada/DemoFrame.tsx", "utf8");
-    const operacionais = readFileSync("src/components/entrada/DemosOperacionaisDaEntrada.tsx", "utf8");
+    const operacionais = readFileSync(
+      "src/components/entrada/DemosOperacionaisDaEntrada.tsx",
+      "utf8",
+    );
     expect(frame).toContain("Exemplo visual");
     expect(operacionais).toContain("export function DemoFila()");
     expect(operacionais).toContain("Dados ilustrativos");
