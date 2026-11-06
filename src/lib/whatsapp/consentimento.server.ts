@@ -1,4 +1,4 @@
-import { normalizarTelefone, variantesDoTelefone } from "@/lib/telefone";
+import { variantesDoTelefone } from "@/lib/telefone";
 
 import {
   decidirConsentimentoWhatsapp,
@@ -305,7 +305,6 @@ export async function suprimirWhatsapp(input: {
   }
 
   const dbAdmin = await admin();
-  const { variantesDoTelefone } = await import("@/lib/telefone");
   const { error: erroClientes } = await dbAdmin
     .from("clientes")
     .update({
