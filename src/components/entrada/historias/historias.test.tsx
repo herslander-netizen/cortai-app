@@ -48,11 +48,11 @@ const arquivos = readdirSync(PASTA).filter((f) => f.endsWith(".tsx") && !f.endsW
 describe("mini-histórias da entrada (vídeo de referência do dono, 06/11)", () => {
   it("tem os cinco capítulos na ordem da inspiração, cada um com frase de duas linhas", () => {
     expect(CAPITULOS.map((c) => c.id)).toEqual([
-      "gestao",
+      "site",
       "agenda",
       "whatsapp",
       "lembretes",
-      "site",
+      "gestao",
     ]);
     for (const c of CAPITULOS) {
       expect(c.frase.split("\n"), c.id).toHaveLength(2);
@@ -107,7 +107,8 @@ describe("mini-histórias da entrada (vídeo de referência do dono, 06/11)", ()
     vi.useFakeTimers();
     const alvo = await montarAgenda();
     expect(alvo.textContent).toContain("Novembro, 2026");
-    expect(alvo.textContent).not.toContain("Horário garantido");
+    expect(alvo.textContent).not.toContain("Agendamento confirmado");
+    expect(alvo.textContent).not.toContain("Agendamento confirmado");
     for (const d of PASSOS_AGENDA.slice(0, -1)) {
       await act(async () => {
         vi.advanceTimersByTime(d);
@@ -116,12 +117,12 @@ describe("mini-histórias da entrada (vídeo de referência do dono, 06/11)", ()
     await act(async () => {
       vi.advanceTimersByTime(800);
     });
-    expect(alvo.textContent).toContain("Horário garantido");
+    expect(alvo.textContent).toContain("Agendamento confirmado");
   });
 
   it("com movimento reduzido fica parada no passo final", async () => {
     movimento.reduzido = true;
     const alvo = await montarAgenda();
-    expect(alvo.textContent).toContain("Horário garantido");
+    expect(alvo.textContent).toContain("Agendamento confirmado");
   });
 });

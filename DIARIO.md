@@ -27,6 +27,8 @@ e o que fez. O diário até 17/10/2026 está guardado, sem alterações, em
 7. **Sem segredos:** nunca escreva chaves, senhas ou tokens aqui. Cite só o nome da variável.
 
 ## Decisões do dono
+- 2026-11-06: **Lembrete de véspera às 15h** (como o AgendaClick) pedindo confirmação, aviso no dia e fila; **sistema de notificações pelo WhatsApp com o máximo de proteção contra banimento** (`docs/notificacoes-whatsapp.md`).
+- 2026-11-06: **Entrada com o fluxo do vídeo de referência:** Site primeiro (troca de tema pelo toque, Equipe, Serviços, Galeria) e depois Agenda (gaveta sobe, dia, horário, profissional, dados, verificação pelo WhatsApp, confirmado).
 - 2026-11-06: **Tela inicial é o cartão de visita** — polir fluxos e animações ao máximo; refinar a gaveta de login; **busca por CEP** na localização.
 - 2026-11-06: **Entrada: "celular" escuro** (moldura e a parte que explica cada tópico), letras claras; o fundo da página continua branco e as telas do sistema continuam claras.
 - 2026-11-06: **Contingência do atendimento:** quando o automático não consegue conversar, mandar mensagem dizendo isso e o link do agendamento.
@@ -974,6 +976,11 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+### 2026-11-06 UTC — Claude — Véspera às 15h com proteção do número; Site e Agenda do vídeo na entrada
+- **Lembretes (`whatsapp/calendario-de-lembretes.ts`):** o `lembrete_24h` deixou de ser "24h antes" e virou **véspera**: atendimentos de amanhã (fuso do negócio) recebem das 15:00 às 20:00, espalhados nas varreduras, em ordem sorteada, no máximo 12 por negócio por varredura; quem marcou há menos de 3h não recebe; abertura com variação estável por agendamento. Silêncio 21:00–08:00 para véspera e "está chegando". `notificacoes.server.ts`: `candidatosDaVespera` substitui `janela("lembrete_24h", 24, 30)`; a checagem dentro de `notificarAgendamento` também vale para retentativas. Rótulos: "Véspera, 15h" (Avisos para clientes) e contrato. Documento `docs/notificacoes-whatsapp.md` com o calendário e as 8 proteções.
+- **Entrada:** ordem Site → Agenda → WhatsApp → Lembretes → Gestão. `HistoriaSite` segue o vídeo (capa escura; toque abre o tema novo com círculo a partir do dedo e volta; rola por Equipe com faixa diagonal, Serviços "Mais procurados", categorias e Galeria; toque em Agendar). `HistoriaAgenda` + `PartesDaAgenda` (agenda sobe como gaveta; dia, horário com profissionais, "Selecionado", Continuar, "Seus dados" com "Verificar pelo WhatsApp", código de 4 dígitos, "Agendamento confirmado" em tela cheia). Conteúdo do Flow: nomes neutros, iniciais no lugar de rostos.
+- Gates: tsc 0; vitest 319 / 2555 ok; eslint sem erro novo; build ok; protocolo OK. Visual: quadros de 0,5 s dos dois capítulos a 390 px (toques conferidos).
+
 ### 2026-11-06 UTC — Claude — Entrada polida, gaveta de login e CEP
 - **Entrada (`FlowWelcome`):** chegada em cascata na abertura (logo → celular → ícones → botões, mola lenta, só transform/opacity, desligada com "reduzir movimento"); troca de capítulo com direção (avança pela direita, volta pela esquerda, leve escala de 0,985) e legenda em dois tempos (rótulo, depois a frase). Toque simulado (`historias/base.tsx`) solta uma onda ao apertar.
 - **Gaveta de login (`routes/login.tsx`):** ícone do Flow ao lado do título; título e campos deslizam na troca de etapa (e-mail → senha → volta); senha com foco automático; foco dos campos no azul da marca na entrada (`tema-fixo.ts` `--gold`; antes herdava o vinho e parecia erro).

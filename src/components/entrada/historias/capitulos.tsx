@@ -1,6 +1,7 @@
 /**
  * Os cinco capítulos da entrada (vídeo de referência e inspiração do dono, 06/11/2026), na ordem da inspiração:
- * gestão, agenda, atendimento no WhatsApp, lembretes e site. Avaliações saiu e o atendimento automático no WhatsApp
+ * site, agenda, atendimento no WhatsApp, lembretes e gestão (dono, 06/11/2026: "colocar o site no início, depois
+ * agenda", como no vídeo). Avaliações saiu e o atendimento automático no WhatsApp
  * entrou (dono, 06/11/2026).
  */
 import type { ComponentType, ReactNode } from "react";
@@ -27,12 +28,12 @@ export type Capitulo = {
 
 export const CAPITULOS: readonly Capitulo[] = [
   {
-    id: "gestao",
-    icone: BarChart3,
-    rotulo: "Gestão completa",
-    frase: "Tudo do seu negócio\nem um só lugar.",
-    duracao: duracaoTotal(PASSOS_GESTAO),
-    historia: () => <HistoriaGestao />,
+    id: "site",
+    icone: Globe,
+    rotulo: "Seu site",
+    frase: "Serviços, equipe e preços\ncom a sua cara.",
+    duracao: duracaoTotal(PASSOS_SITE),
+    historia: () => <HistoriaSite />,
   },
   {
     id: "agenda",
@@ -59,11 +60,11 @@ export const CAPITULOS: readonly Capitulo[] = [
     historia: () => <HistoriaLembretes />,
   },
   {
-    id: "site",
-    icone: Globe,
-    rotulo: "Seu site",
-    frase: "Serviços, equipe e preços\ncom a sua cara.",
-    duracao: duracaoTotal(PASSOS_SITE),
-    historia: () => <HistoriaSite />,
+    id: "gestao",
+    icone: BarChart3,
+    rotulo: "Gestão completa",
+    frase: "Tudo do seu negócio\nem um só lugar.",
+    duracao: duracaoTotal(PASSOS_GESTAO),
+    historia: () => <HistoriaGestao />,
   },
 ];

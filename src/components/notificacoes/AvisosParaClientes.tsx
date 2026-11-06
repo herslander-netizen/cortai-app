@@ -67,7 +67,7 @@ type Evento = (typeof EVENTOS)[number];
 
 /** Antecedências que os modelos aprovados suportam (véspera e no dia), como os chips do Figaro (`LeadTimesSection`). */
 const ANTECEDENCIAS = [
-  { chave: "lembrete_24h", rotulo: "24 h antes", detalhe: "Véspera" },
+  { chave: "lembrete_24h", rotulo: "Véspera, 15h", detalhe: "Pede para confirmar" },
   { chave: "lembrete_2h", rotulo: "2 h antes", detalhe: "No dia" },
 ] as const;
 

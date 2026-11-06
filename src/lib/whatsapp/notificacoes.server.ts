@@ -13,6 +13,7 @@
  * - isolamento por negócio: a conexão usada é sempre a do tenant do
  *   agendamento, nunca outra.
  */
+import { aberturaDaVespera } from "./calendario-de-lembretes";
 import { linhasNumeradas } from "./opcoes-numeradas";
 import { fusoDoTenant } from "@/lib/fuso.server";
 import { segmentoParaApresentacao } from "@/lib/segmentos";
@@ -184,6 +185,8 @@ export type DadosDaMensagem = {
   linkAvaliacao?: string | null;
   /** Créditos pré-pagos restantes após a reserva; omitido quando não há carteira. */
   creditosDisponiveis?: number | null;
+  /** Escolhe, de forma estável, a variação da abertura do lembrete de véspera. */
+  agendamentoId?: string | null;
 };
 
 /**
@@ -200,7 +203,10 @@ export function montarMensagem(
   const linha = (texto: string | null | undefined, prefixo: string) =>
     texto && String(texto).trim() ? `${prefixo}${String(texto).trim()}` : null;
 
-  const creditos = (d.creditosDisponiveis ?? 0) > 0 ? `Créditos de atendimento disponíveis: ${d.creditosDisponiveis}` : null;
+  const creditos =
+    (d.creditosDisponiveis ?? 0) > 0
+      ? `Créditos de atendimento disponíveis: ${d.creditosDisponiveis}`
+      : null;
   const blocos: (string | null)[] = [];
   const barbearia = d.segmento === "barbearia";
   const em = barbearia ? `na ${d.barbearia}` : `em ${d.barbearia}`;
@@ -222,7 +228,8 @@ export function montarMensagem(
     blocos.push("", "Até lá!");
   } else if (tipo === "lembrete_24h") {
     blocos.push(
-      `Olá, ${nome}!`,
+      // Véspera às 15h: a abertura varia um pouco entre clientes (textos idênticos em série parecem envio em massa).
+      aberturaDaVespera(nome, d.agendamentoId ?? d.inicio),
       `Passando para lembrar do seu horário ${em}.`,
       "",
       linha(d.servico, "Serviço: "),
@@ -540,9 +547,22 @@ async function executar(agendamentoId: string, tipo: TipoDeNotificacao): Promise
     };
   }
   if (tipo === "lembrete_24h" || tipo === "lembrete_2h") {
-    const { lembretePerdeuOMomento } = await import("./erros-meta");
-    if (lembretePerdeuOMomento(ag.inicio, tipo === "lembrete_24h" ? 24 : 2)) {
-      return { enviado: false, motivo: "Lembrete perdeu o momento." };
+    // Véspera: só das 15:00 às 20:00 do dia anterior; no dia: nunca no horário de silêncio (21:00–08:00).
+    const { horaDoLembreteDeVespera, dentroDoHorarioDeEnvio } =
+      await import("./calendario-de-lembretes");
+    const fusoDoLembrete = await fusoDoTenant(ag.tenant_id);
+    const agoraDoLembrete = new Date();
+    if (
+      tipo === "lembrete_24h" &&
+      !horaDoLembreteDeVespera({ inicio: ag.inicio, agora: agoraDoLembrete, fuso: fusoDoLembrete })
+    )
+      return { enviado: false, motivo: "Fora da janela do lembrete de véspera (15h–20h)." };
+    if (!dentroDoHorarioDeEnvio(agoraDoLembrete, fusoDoLembrete))
+      return { enviado: false, motivo: "Horário de silêncio (21h–8h)." };
+    if (tipo === "lembrete_2h") {
+      const { lembretePerdeuOMomento } = await import("./erros-meta");
+      if (lembretePerdeuOMomento(ag.inicio, 2))
+        return { enviado: false, motivo: "Lembrete perdeu o momento." };
     }
   }
   // Retorno é lembrete de relacionamento: só com consentimento e respeitando o SAIR.
@@ -762,10 +782,7 @@ async function executar(agendamentoId: string, tipo: TipoDeNotificacao): Promise
   const oficial = gatewayDoProvedor(conexao?.provedor ?? null).capacidades().botoes;
   const fusoModelo = await fusoDoTenant(ag.tenant_id);
   let creditosDisponiveis: number | null = null;
-  if (
-    ag.cliente_id &&
-    ["confirmacao_agendamento", "lembrete_24h", "lembrete_2h"].includes(tipo)
-  ) {
+  if (ag.cliente_id && ["confirmacao_agendamento", "lembrete_24h", "lembrete_2h"].includes(tipo)) {
     const { data: carteira } = await db
       .from("carteiras")
       .select("saldo_creditos")
@@ -789,6 +806,7 @@ async function executar(agendamentoId: string, tipo: TipoDeNotificacao): Promise
       textoRetorno,
       linkAvaliacao,
       creditosDisponiveis,
+      agendamentoId: ag.id,
       linkAgendamento: tenant?.slug ? urlPublica(`/agendar/${tenant.slug}`) : null,
       linkPagamento:
         tipo === "confirmacao_agendamento" &&
@@ -995,6 +1013,45 @@ export async function processarAutomacoesDeWhatsapp(agora = new Date()) {
     return ids.filter((id) => !feitos.has(id));
   };
 
+  /** Atendimentos de amanhã (no fuso de cada negócio) cujo lembrete de véspera pode sair nesta varredura. */
+  const candidatosDaVespera = async () => {
+    const { data } = await db
+      .from("agendamentos")
+      .select("id, tenant_id, inicio, criado_em")
+      .gte("inicio", new Date(agora.getTime() + 3 * 3600_000).toISOString())
+      .lte("inicio", new Date(agora.getTime() + 34 * 3600_000).toISOString())
+      .eq("status", "agendado")
+      .limit(1000);
+    const linhas = data ?? [];
+    if (!linhas.length) return [];
+    const { data: jaEnviados } = await db
+      .from("envios_de_whatsapp")
+      .select("agendamento_id")
+      .eq("tipo", "lembrete_24h")
+      .in(
+        "agendamento_id",
+        linhas.map((l) => l.id),
+      );
+    const feitos = new Set((jaEnviados ?? []).map((e) => e.agendamento_id));
+    const { horaDoLembreteDeVespera, filaDaVespera } = await import("./calendario-de-lembretes");
+    const fusos = new Map<string, string>();
+    const prontos = [];
+    for (const l of linhas) {
+      if (feitos.has(l.id)) continue;
+      if (!fusos.has(l.tenant_id)) fusos.set(l.tenant_id, await fusoDoTenant(l.tenant_id));
+      if (
+        horaDoLembreteDeVespera({
+          inicio: l.inicio,
+          criadoEm: l.criado_em,
+          agora,
+          fuso: fusos.get(l.tenant_id)!,
+        })
+      )
+        prontos.push(l);
+    }
+    return filaDaVespera(prontos).map((l) => l.id);
+  };
+
   // Ritmo (`ritmo.ts`): pausa curta e variável entre envios, nada de rajada pelo mesmo
   // número. O lembrete de 2h vem primeiro e não tem teto (a janela dele é curta); o de 24h
   // e o retorno respeitam o teto da rodada e o que sobrar sai na próxima varredura.
@@ -1012,7 +1069,9 @@ export async function processarAutomacoesDeWhatsapp(agora = new Date()) {
     if (r.enviado) resumo.lembrete2h += 1;
     await depoisDoEnvio(r);
   }
-  for (const id of await janela("lembrete_24h", 24, 30)) {
+  // Véspera às 15h (dono, 06/11/2026, como no AgendaClick): atendimentos de amanhã no fuso de cada negócio, das 15:00
+  // às 20:00, em ordem sorteada e com teto por negócio a cada varredura — a tarde inteira, nunca uma rajada.
+  for (const id of await candidatosDaVespera()) {
     if (enviadosNaRodada >= TETO_DA_RODADA) break;
     const r = await notificarAgendamento(id, "lembrete_24h");
     if (r.enviado) resumo.lembrete24h += 1;

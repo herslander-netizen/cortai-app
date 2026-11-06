@@ -29,7 +29,7 @@ export type TomDoAtendimento = keyof typeof TONS;
 
 export const AUTOMACOES = {
   confirmacao_agendamento: "Confirmação de agendamento",
-  lembrete_24h: "Lembrete 24 horas antes",
+  lembrete_24h: "Lembrete na véspera (a partir das 15h)",
   lembrete_2h: "Lembrete 2 horas antes",
   alteracao_agendamento: "Alteração de agendamento",
   cancelamento_agendamento: "Cancelamento de agendamento",
