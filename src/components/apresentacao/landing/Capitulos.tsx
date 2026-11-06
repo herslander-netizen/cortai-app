@@ -11,7 +11,7 @@ import { DivisorDeOndas, LinhasDeOnda } from "./Ondas";
 import { Revelar } from "./Revelar";
 
 /** O WhatsApp abre a sequência (é o foco do produto); depois lembretes, agenda, site e gestão. */
-const ORDEM = (["whatsapp", "lembretes", "agenda", "site", "gestao"] as const).map((id) =>
+const ORDEM = (["whatsapp", "lembretes", "fila", "agenda", "site", "gestao"] as const).map((id) =>
   CAPITULOS.find((c) => c.id === id)!,
 );
 
@@ -55,6 +55,17 @@ const TEXTOS: Record<string, { etiqueta: string; titulo: string; texto: string; 
         "Lembrete automático",
         "Confirmação do cliente",
         "Fila de espera para os horários vagos",
+      ],
+    },
+    fila: {
+      etiqueta: "Lista de espera",
+      titulo: "Horário que cancela não fica vazio.",
+      texto:
+        "Quando um horário vaga, o Flow oferece para quem está na fila, um cliente por vez, pelo WhatsApp. Quem aceita já fica agendado.",
+      itens: [
+        "Uma oferta por vez, com prazo",
+        "Aceite com um toque",
+        "Agenda preenchida sem você mexer",
       ],
     },
     gestao: {

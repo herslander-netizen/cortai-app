@@ -46,12 +46,13 @@ const PASTA = "src/components/entrada/historias";
 const arquivos = readdirSync(PASTA).filter((f) => f.endsWith(".tsx") && !f.endsWith(".test.tsx"));
 
 describe("mini-histórias da entrada (vídeo de referência do dono, 06/11)", () => {
-  it("tem os cinco capítulos na ordem da inspiração, cada um com frase de duas linhas", () => {
+  it("tem os capítulos na ordem da inspiração, cada um com frase de duas linhas", () => {
     expect(CAPITULOS.map((c) => c.id)).toEqual([
       "site",
       "agenda",
       "whatsapp",
       "lembretes",
+      "fila",
       "gestao",
     ]);
     for (const c of CAPITULOS) {

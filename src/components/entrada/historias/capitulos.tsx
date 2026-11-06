@@ -1,17 +1,18 @@
 /**
- * Os cinco capítulos da entrada (vídeo de referência e inspiração do dono, 06/11/2026), na ordem da inspiração:
+ * Os capítulos da entrada (vídeo de referência e inspiração do dono, 06/11/2026), na ordem da inspiração:
  * site, agenda, atendimento no WhatsApp, lembretes e gestão (dono, 06/11/2026: "colocar o site no início, depois
  * agenda", como no vídeo). Avaliações saiu e o atendimento automático no WhatsApp
  * entrou (dono, 06/11/2026).
  */
 import type { ComponentType, ReactNode } from "react";
-import { BarChart3, BellRing, CalendarDays, Globe } from "lucide-react";
+import { BarChart3, BellRing, CalendarDays, Globe, Hourglass } from "lucide-react";
 
 import { IconeWhatsapp } from "./IconeWhatsapp";
 
 import { duracaoTotal } from "./base";
 import { HistoriaAgenda, PASSOS_AGENDA } from "./HistoriaAgenda";
 import { HistoriaSite, PASSOS_SITE } from "./HistoriaSite";
+import { HistoriaFila, PASSOS_FILA } from "./HistoriaFila";
 import { HistoriaGestao, PASSOS_GESTAO } from "./HistoriaGestao";
 import { HistoriaLembretes, PASSOS_LEMBRETES } from "./HistoriasDoNegocio";
 import { HistoriaWhatsapp, PASSOS_WHATSAPP } from "./HistoriaWhatsapp";
@@ -58,6 +59,14 @@ export const CAPITULOS: readonly Capitulo[] = [
     frase: "Lembrete no WhatsApp\nna hora certa.",
     duracao: duracaoTotal(PASSOS_LEMBRETES),
     historia: () => <HistoriaLembretes />,
+  },
+  {
+    id: "fila",
+    icone: Hourglass,
+    rotulo: "Lista de espera",
+    frase: "Horário vagou?\nQuem espera é avisado.",
+    duracao: duracaoTotal(PASSOS_FILA),
+    historia: () => <HistoriaFila />,
   },
   {
     id: "gestao",

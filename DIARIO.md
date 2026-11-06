@@ -982,6 +982,10 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+### 2026-11-06 UTC — Claude — Novo capítulo "Lista de espera" (entrada e página pública)
+- Pedido do dono (06/11): mais uma tela de fila de espera no mesmo padrão das mini-histórias. `historias/HistoriaFila.tsx` (6 passos, ritmo padrão): lista da equipe por dia → vaga abre (cancelamento) → oferta a **uma pessoa por vez** com prazo `PRAZO_DA_OFERTA_MIN` (30 min) → aviso real de WhatsApp ("Boa notícia, … Abriu uma vaga …", `notificacoes.server.ts`) → "Aceitar a vaga" → vaga preenchida. Sexto capítulo da entrada (entre Lembretes e Gestão; ícone ampulheta, igual ao item do menu do painel) e da página pública (depois de Lembretes). Teste de ordem atualizado em `historias.test.tsx`; 6 ícones cabem na barra.
+- Interpretei "tela" como capítulo animado (padrão das telas da entrada). Se era outra tela real do painel (rota nova), dizer.
+
 ### 2026-11-06 UTC — Claude — Página pública: balões do WhatsApp padronizados e barra fixa sem piscar
 - Balões da abertura: mesmo tamanho (largura 86 %, altura 62 px), título e data em uma linha, visto verde à direita, flutuação leve. Barra fixa "Começar grátis · sem cartão" (celular): antes observava as seções e aparecia/sumia no meio do botão da oferta; agora observa os próprios botões (`data-cta-propria` na abertura, oferta, planos e chamada final) e só aparece quando nenhum está na tela. Verificado percorrendo a página em 360 px: 0 incoerências.
 
