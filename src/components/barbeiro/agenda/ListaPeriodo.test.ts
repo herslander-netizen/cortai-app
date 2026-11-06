@@ -152,7 +152,7 @@ describe("dias da lista (Figaro: todos os dias de hoje até o último com atendi
     );
     // Só tokens: a onda é uma máscara pintada com o contorno do tema (claro e escuro iguais na estrutura).
     expect(bloco).toContain("mask:");
-    expect(bloco).toContain("var(--figaro-outline-variant");
+    expect(bloco).toContain("--lista-separador: color-mix(in oklab, var(--figaro-on-surface");
     expect(bloco.replace(/url\("data:[^"]*"\)/g, "")).not.toMatch(/#[0-9a-f]{3,8}\b/i);
   });
 });
