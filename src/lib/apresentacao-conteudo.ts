@@ -42,11 +42,11 @@ export type ChaveBloco = Exclude<keyof ConteudoApresentacao, "hero" | "perguntas
 
 export const APRESENTACAO_PADRAO: ConteudoApresentacao = {
   hero: {
-    etiqueta: "45 DIAS GRÁTIS · SEM CARTÃO",
+    etiqueta: "GRÁTIS ATÉ 50 AGENDAMENTOS POR MÊS",
     titulo: "Menos faltas na agenda.\nMais tempo para atender bem.",
     texto:
-      "Lembrete automático por WhatsApp para cada cliente, agenda, clientes e caixa em um só lugar. Teste 45 dias com tudo liberado.",
-    cta: "Começar agora",
+      "Agenda, clientes, caixa e lembretes automáticos no WhatsApp em um só lugar. Comece grátis, sem cartão, com tudo liberado.",
+    cta: "Começar grátis",
   },
   agenda: {
     etiqueta: "MENOS FALTAS",
@@ -89,8 +89,9 @@ export const APRESENTACAO_PADRAO: ConteudoApresentacao = {
   },
   planos: {
     etiqueta: "PLANOS",
-    titulo: "45 dias grátis com tudo liberado. Sem cartão. Depois, escolha o plano.",
-    texto: "Preço fixo por plano, sem cobrança por profissional. Pague por Pix, boleto ou cartão.",
+    titulo: "Comece grátis. Cresça quando precisar.",
+    texto:
+      "O Essencial é grátis para sempre, com tudo liberado. O Studio tira o limite de agendamentos e aceita até 10 profissionais. Pague por Pix, boleto ou cartão.",
   },
   duvidas: { etiqueta: "DÚVIDAS", titulo: "Antes de começar.", texto: "" },
   perguntas: [
@@ -102,22 +103,22 @@ export const APRESENTACAO_PADRAO: ConteudoApresentacao = {
     {
       pergunta: "Meus clientes podem agendar sozinhos?",
       resposta:
-        "Sim. Pela página do seu negócio, no Essencial, com até 40 agendamentos por mês. No Conecta, os agendamentos são ilimitados.",
+        "Sim. Pela página do seu negócio. No Essencial grátis cabem até 50 agendamentos por mês; no Studio, sem limite.",
     },
     {
       pergunta: "O WhatsApp está em todos os planos?",
       resposta:
-        "Durante o teste, sim. Depois, WhatsApp e lembretes automáticos ficam no Conecta e no Studio.",
+        "Sim. Lembretes e atendimento no WhatsApp estão liberados no Essencial grátis e no Studio.",
     },
     {
       pergunta: "Preciso de cartão?",
       resposta:
-        "Não. O teste de 45 dias não pede cartão e vale para negócios que ainda não usaram o teste com o mesmo CPF/CNPJ ou telefone. Se decidir assinar, você paga por Pix, boleto ou cartão.",
+        "Não. O Essencial é grátis e não pede cartão. Se um dia assinar o Studio, você paga por Pix, boleto ou cartão.",
     },
     {
-      pergunta: "O que acontece quando o teste acaba?",
+      pergunta: "O que acontece se eu passar de 50 agendamentos?",
       resposta:
-        "Se você não assinar, a conta vira o plano Essencial gratuito. Nada é bloqueado e nenhum dado é apagado.",
+        "Nenhum dado é apagado. Para continuar recebendo agendamentos no mês, é só assinar o Studio.",
     },
     {
       pergunta: "Posso cancelar?",
@@ -132,14 +133,14 @@ export const APRESENTACAO_PADRAO: ConteudoApresentacao = {
   final: {
     etiqueta: "",
     titulo: "Seu negócio pode ser mais simples.",
-    texto: "45 dias grátis com tudo liberado. Sem cartão.",
+    texto: "Grátis até 50 agendamentos por mês, com tudo liberado. Sem cartão.",
   },
 };
 
 export const SEO_APRESENTACAO_PADRAO = {
-  titulo: "Flow — 45 dias grátis, sem cartão",
+  titulo: "Flow — agenda e WhatsApp grátis para o seu negócio",
   descricao:
-    "Gestão de agenda, clientes, atendimentos e caixa para negócios de serviços, com lembretes automáticos por WhatsApp conforme o plano.",
+    "Agenda, clientes, caixa e lembretes por WhatsApp para negócios de serviços. Grátis até 50 agendamentos por mês, sem cartão.",
 };
 
 /** Campos ausentes ou inválidos caem no texto aprovado. */

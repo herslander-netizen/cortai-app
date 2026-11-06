@@ -18,7 +18,7 @@ export function Cabecalho() {
   return (
     <header className="sticky top-0 z-30 border-b border-[var(--linha)]/70 bg-[var(--fundo)]/85 backdrop-blur">
       <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4">
-        <MarcaFlow className="h-auto w-24" />
+        <MarcaFlow variante="escura" className="h-auto w-24" />
         <nav className="flex items-center gap-1" aria-label="Acesso">
           <Button asChild variant="ghost" size="sm">
             <Link to="/login">Entrar</Link>

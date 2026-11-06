@@ -1,9 +1,8 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { z } from "zod";
 
-import { ShowroomCortai, type EtapaShowroom } from "@/components/apresentacao/ShowroomCortai";
-import { segmentoParaApresentacao } from "@/lib/segmentos";
-import { SEO_APRESENTACAO_PADRAO } from "@/lib/apresentacao-conteudo";
+import { Landing } from "@/components/apresentacao/landing/Landing";
+import { APRESENTACAO_PADRAO, SEO_APRESENTACAO_PADRAO } from "@/lib/apresentacao-conteudo";
 import { getApresentacaoPublicada } from "@/lib/home.functions";
 
 const busca = z.object({
@@ -39,13 +38,6 @@ export const Route = createFileRoute("/apresentacao")({
 });
 
 function ApresentacaoPage() {
-  const { etapa, segmento } = Route.useSearch();
   const dados = Route.useLoaderData();
-  return (
-    <ShowroomCortai
-      etapa={etapa as EtapaShowroom}
-      segmento={segmento ? segmentoParaApresentacao(segmento) : "outro"}
-      conteudo={dados?.conteudo}
-    />
-  );
+  return <Landing conteudo={dados?.conteudo ?? APRESENTACAO_PADRAO} />;
 }
