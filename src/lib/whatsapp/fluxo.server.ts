@@ -542,7 +542,7 @@ export async function processarMensagemRecebida(input: {
         : !b64
           ? "audio: Evolution não entregou a mídia"
           : recusa
-            ? `audio: transcrição recusada (${recusa})`
+            ? `audio: transcrição recusada (${recusa}) em ${t.servidorDaTranscricao() ?? "?"}`
             : "audio: não entendido ou tempo esgotado";
     }
     b64 = null;

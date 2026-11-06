@@ -16,13 +16,26 @@ type ConfiguracaoTranscricao = {
   modelo: string;
 };
 
+const BASE_DA_GROQ = "https://api.groq.com/openai/v1";
+const MODELO_DA_GROQ = "whisper-large-v3-turbo";
+/** Chave da Groq sempre começa com "gsk_": serve para achar o provedor quando só a chave foi configurada. */
+const ehChaveDaGroq = (chave: string | undefined) => Boolean(chave?.trim().startsWith("gsk_"));
+
 /**
  * Endereço da transcrição. `CORTAI_STT_BASE_URL` pode vir como base ("https://api.groq.com/openai/v1", como no
- * `.env.example`) ou já com `/audio/transcriptions`; sem ela, usa a base da Flow IA. Antes, a base sem o caminho
- * dava 404 (prévia, 06/11/2026: "transcrição recusada (404)").
+ * `.env.example`) ou já com `/audio/transcriptions`. Sem ela: chave da Groq (`gsk_…`) usa o endereço da Groq; senão,
+ * a base da Flow IA. Antes, a base sem o caminho dava 404 e, na prévia de 06/11/2026, a chave da Groq chegou sem o
+ * endereço e foi mandada ao provedor da IA ("transcrição recusada (404)").
  */
-export function endpointDeTranscricao(stt: string | undefined, baseDaIa: string): string {
-  const base = (stt?.trim() || baseDaIa).replace(/\/+$/, "");
+export function endpointDeTranscricao(
+  stt: string | undefined,
+  baseDaIa: string,
+  chaveStt?: string,
+): string {
+  const base = (stt?.trim() || (ehChaveDaGroq(chaveStt) ? BASE_DA_GROQ : baseDaIa)).replace(
+    /\/+$/,
+    "",
+  );
   return /\/audio\/transcriptions$/.test(base) ? base : `${base}/audio/transcriptions`;
 }
 
@@ -31,14 +44,30 @@ function configuracaoTranscricao(): ConfiguracaoTranscricao | null {
   const leitura = lerConfigDoProvedor();
   if (!leitura.ok) return null;
   if (leitura.config.tipo !== "compativel") return null;
+  const chaveStt = process.env["CORTAI_STT_API_KEY"]?.trim();
   return {
-    endpoint: endpointDeTranscricao(process.env["CORTAI_STT_BASE_URL"], leitura.config.baseUrl),
-    chave: process.env["CORTAI_STT_API_KEY"]?.trim() || leitura.config.chave,
+    endpoint: endpointDeTranscricao(
+      process.env["CORTAI_STT_BASE_URL"],
+      leitura.config.baseUrl,
+      chaveStt,
+    ),
+    chave: chaveStt || leitura.config.chave,
     modelo:
       process.env["CORTAI_STT_MODEL"]?.trim() ||
       process.env["CORTAI_AI_TRANSCRIPTION_MODEL"]?.trim() ||
-      "whisper-1",
+      (ehChaveDaGroq(chaveStt) ? MODELO_DA_GROQ : "whisper-1"),
   };
+}
+
+/** Só o servidor consultado (sem caminho nem chave), para o motivo gravado na mensagem dizer onde falhou. */
+export function servidorDaTranscricao(): string | null {
+  const c = configuracaoTranscricao();
+  if (!c) return null;
+  try {
+    return new URL(c.endpoint).host;
+  } catch {
+    return null;
+  }
 }
 const TAMANHO_MAXIMO = 24 * 1024 * 1024;
 

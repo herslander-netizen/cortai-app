@@ -17,4 +17,16 @@ describe("endereço da transcrição", () => {
       "https://ia.exemplo/v1/audio/transcriptions",
     );
   });
+  it("chave da Groq sem endereço usa o endereço da Groq; chave de outro provedor, a base da IA", () => {
+    expect(endpointDeTranscricao(undefined, "https://ia.exemplo/v1", "gsk_abc")).toBe(
+      "https://api.groq.com/openai/v1/audio/transcriptions",
+    );
+    expect(endpointDeTranscricao(undefined, "https://ia.exemplo/v1", "sk-abc")).toBe(
+      "https://ia.exemplo/v1/audio/transcriptions",
+    );
+    // O endereço configurado sempre vence a dedução pela chave.
+    expect(
+      endpointDeTranscricao("https://outro.exemplo/v1", "https://ia.exemplo/v1", "gsk_abc"),
+    ).toBe("https://outro.exemplo/v1/audio/transcriptions");
+  });
 });
