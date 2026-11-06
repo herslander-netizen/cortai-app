@@ -7,6 +7,7 @@ import { MarcaFlow } from "@/components/marca/MarcaFlow";
 import { Button } from "@/components/ui/button";
 import type { ConteudoApresentacao } from "@/lib/apresentacao-conteudo";
 import { PLANOS_COMERCIAIS, precoComercial } from "@/lib/planos-comerciais";
+import { DivisorDeOndas, LinhasDeOnda } from "./Ondas";
 import { Revelar } from "./Revelar";
 import { TEMA_CLARO, TEMA_ESCURO } from "./tema";
 
@@ -44,8 +45,9 @@ export function Planos({ conteudo }: { conteudo: ConteudoApresentacao["planos"] 
   return (
     <section
       style={TEMA_CLARO}
-      className="bg-[var(--painel)] px-4 py-16 text-[var(--texto)] sm:py-24"
+      className="relative bg-[var(--painel)] px-4 py-16 text-[var(--texto)] sm:py-24"
     >
+      <DivisorDeOndas />
       <Revelar className="mx-auto max-w-4xl text-center">
         <p className="text-[12px] font-bold uppercase tracking-[0.14em] text-[var(--figaro-tertiary)]">
           {conteudo.etiqueta}
@@ -125,9 +127,11 @@ export function Perguntas({
   return (
     <section
       style={TEMA_ESCURO}
-      className="bg-[var(--fundo)] px-4 py-16 text-[var(--texto)] sm:py-24"
+      className="relative bg-[var(--fundo)] px-4 py-16 text-[var(--texto)] sm:py-24"
     >
-      <div className="mx-auto max-w-2xl">
+      <DivisorDeOndas />
+      <LinhasDeOnda />
+      <div className="relative mx-auto max-w-2xl">
         <Revelar>
           <p className="text-[12px] font-bold uppercase tracking-[0.14em] text-[var(--figaro-tertiary)]">
             {bloco.etiqueta}
@@ -159,8 +163,9 @@ export function ChamadaFinal({ conteudo }: { conteudo: ConteudoApresentacao["fin
   return (
     <section
       style={TEMA_CLARO}
-      className="bg-[var(--fundo)] px-4 pb-10 pt-16 text-[var(--texto)] sm:pt-24"
+      className="relative bg-[var(--fundo)] px-4 pb-28 pt-14 text-[var(--texto)] sm:pb-10 sm:pt-24"
     >
+      <DivisorDeOndas />
       <Revelar className="mx-auto flex max-w-2xl flex-col items-center text-center">
         <h2 className="font-serif text-[34px] font-bold leading-[1.05] sm:text-[48px]">
           {conteudo.titulo}

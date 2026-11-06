@@ -4,6 +4,7 @@ import { ArrowRight, CalendarCheck, MessageCircle, Sparkles } from "lucide-react
 
 import { MarcaFlow } from "@/components/marca/MarcaFlow";
 import { Button } from "@/components/ui/button";
+import { LinhasDeOnda } from "./Ondas";
 import { MOLA } from "@/lib/movimento-figaro";
 import type { ConteudoApresentacao } from "@/lib/apresentacao-conteudo";
 
@@ -94,6 +95,7 @@ export function Heroi({ conteudo }: { conteudo: ConteudoApresentacao["hero"] }) 
           />
         ))}
       </div>
+      <LinhasDeOnda />
       <FotosFlutuantes />
       <div className="relative mx-auto flex max-w-3xl flex-col items-center px-5 pb-14 pt-10 text-center sm:pt-20">
         <motion.span

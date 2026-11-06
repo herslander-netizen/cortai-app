@@ -4,6 +4,7 @@ import { ArrowRight, Check } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { PLANOS_COMERCIAIS } from "@/lib/planos-comerciais";
+import { DivisorDeOndas } from "./Ondas";
 import { Revelar } from "./Revelar";
 
 const essencial = PLANOS_COMERCIAIS.find((p) => p.chave === "essencial")!;
@@ -13,7 +14,8 @@ const LIMITE = essencial.agendamentosMes ?? 50;
 export function OfertaGratis() {
   const reduzir = useReducedMotion();
   return (
-    <section className="bg-[var(--painel)] px-4 py-14 sm:py-20">
+    <section className="relative bg-[var(--painel)] px-4 py-14 sm:py-20">
+      <DivisorDeOndas />
       <Revelar className="mx-auto max-w-5xl">
         <div className="relative overflow-hidden rounded-[32px] bg-[linear-gradient(135deg,var(--figaro-primary),#7a6cf0_55%,var(--figaro-tertiary))] p-6 text-white shadow-[0_30px_60px_-30px_rgba(61,79,224,0.7)] sm:p-12">
           <div

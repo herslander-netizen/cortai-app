@@ -4,6 +4,7 @@ import { useInView } from "framer-motion";
 import { Celular } from "@/components/entrada/historias/Celular";
 import { CAPITULOS, type Capitulo } from "@/components/entrada/historias/capitulos";
 import { TEMA_CLARO, TEMA_ESCURO } from "./tema";
+import { DivisorDeOndas, LinhasDeOnda } from "./Ondas";
 import { Revelar } from "./Revelar";
 
 /** Texto de venda de cada capítulo (a tela animada vem do mesmo roteiro da entrada do app). */
@@ -97,10 +98,12 @@ export function Capitulos() {
           <section
             key={capitulo.id}
             style={escuro ? TEMA_ESCURO : TEMA_CLARO}
-            className="bg-[var(--fundo)] px-4 py-12 text-[var(--texto)] sm:py-24"
+            className="relative bg-[var(--fundo)] px-4 py-12 text-[var(--texto)] sm:py-24"
           >
+            <DivisorDeOndas />
+            <LinhasDeOnda />
             <div
-              className={`mx-auto grid max-w-5xl items-center gap-8 md:grid-cols-2 md:gap-16 ${
+              className={`relative mx-auto grid max-w-5xl items-center gap-8 md:grid-cols-2 md:gap-16 ${
                 i % 2 === 1 ? "md:[&>*:first-child]:order-2" : ""
               }`}
             >
