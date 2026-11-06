@@ -365,6 +365,13 @@
       "when": 1793484000000,
       "tag": "0057_plano_gratis_ate_50",
       "breakpoints": true
+    },
+    {
+      "idx": 52,
+      "version": "7",
+      "when": 1793928354725,
+      "tag": "0058_whatsapp_governanca_consentimento",
+      "breakpoints": true
     }
   ]
 }
