@@ -19,6 +19,8 @@ import { segmentoParaApresentacao } from "@/lib/segmentos";
 
 import { conversaDoTelefone, configuracaoDoTenant, enviarPelaBarbearia } from "./fluxo.server";
 import { urlPublica } from "@/lib/origem-publica";
+import { finalidadeDaNotificacao } from "./consentimento";
+import { verificarConsentimentoWhatsapp } from "./consentimento.server";
 
 export type TipoDeNotificacao =
   | "confirmacao_agendamento"
@@ -519,6 +521,15 @@ async function executar(agendamentoId: string, tipo: TipoDeNotificacao): Promise
   const cliente = relacoes.clientes;
   const telefone = digitos(String(cliente?.telefone ?? ""));
   if (telefone.length < 10) return { enviado: false, motivo: "Cliente sem WhatsApp válido." };
+  const finalidade = finalidadeDaNotificacao(tipo);
+  const autorizacaoInicial = await verificarConsentimentoWhatsapp({
+    tenantId: ag.tenant_id,
+    telefone,
+    finalidade,
+  });
+  if (!autorizacaoInicial.pode) {
+    return { enviado: false, motivo: autorizacaoInicial.motivo };
+  }
   // A Meta já disse que este número não recebe WhatsApp: não repete.
   if (cliente?.sem_whatsapp_em)
     return { enviado: false, motivo: "Telefone do cliente sem WhatsApp." };
@@ -842,6 +853,27 @@ async function executar(agendamentoId: string, tipo: TipoDeNotificacao): Promise
     telefone,
     nomeContato: cliente?.nome ?? null,
   });
+
+  // Revalidação após preparar mensagem/modelo: uma revogação durante a preparação vence.
+  const autorizacaoFinal = await verificarConsentimentoWhatsapp({
+    tenantId: ag.tenant_id,
+    telefone,
+    finalidade,
+  });
+  if (!autorizacaoFinal.pode) {
+    if (registroId) {
+      await db
+        .from("envios_de_whatsapp")
+        .update({
+          status: "falhou",
+          erro: autorizacaoFinal.motivo.slice(0, 500),
+          falhou_em: new Date().toISOString(),
+          proxima_tentativa_em: null,
+        })
+        .eq("id", registroId);
+    }
+    return { enviado: false, motivo: autorizacaoFinal.motivo };
+  }
 
   let externoId: string | null = null;
   try {
