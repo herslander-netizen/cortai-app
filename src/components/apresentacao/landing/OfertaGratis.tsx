@@ -4,6 +4,7 @@ import { ArrowRight, Check } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { PLANOS_COMERCIAIS } from "@/lib/planos-comerciais";
+import { useAcesso } from "./acesso";
 import { DivisorDeOndas } from "./Ondas";
 import { Revelar } from "./Revelar";
 
@@ -13,6 +14,7 @@ const LIMITE = essencial.agendamentosMes ?? 50;
 /** Faixa em destaque com a oferta: o plano Essencial grátis, com a barra dos agendamentos do mês enchendo. */
 export function OfertaGratis() {
   const reduzir = useReducedMotion();
+  const { comecar } = useAcesso();
   return (
     <section className="relative bg-[var(--painel)] px-4 py-14 sm:py-20">
       <DivisorDeOndas />
@@ -55,8 +57,8 @@ export function OfertaGratis() {
                 variant="secondary"
                 className="mt-7 w-full bg-white text-[#1b2687] hover:bg-white/90 sm:w-auto"
               >
-                <Link to="/comecar">
-                  Quero começar grátis <ArrowRight className="ml-2 size-4" />
+                <Link to={comecar.to}>
+                  {comecar.texto ?? "Quero começar grátis"} <ArrowRight className="ml-2 size-4" />
                 </Link>
               </Button>
             </div>

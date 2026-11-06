@@ -7,6 +7,14 @@ import { describe, expect, it, vi } from "vitest";
 import { APRESENTACAO_PADRAO } from "@/lib/apresentacao-conteudo";
 import { PLANOS_COMERCIAIS } from "@/lib/planos-comerciais";
 
+const sessao = vi.hoisted(() => ({ ativa: false }));
+
+vi.mock("@/integrations/supabase/client", () => ({
+  supabase: {
+    auth: { getSession: async () => ({ data: { session: sessao.ativa ? { user: {} } : null } }) },
+  },
+}));
+
 vi.mock("@/lib/institucional.functions", () => ({
   getContatoDaPlataforma: async () => ({ whatsapp: null }),
 }));
@@ -78,6 +86,23 @@ describe("página pública promocional", () => {
     expect(div.textContent).toContain("Privacidade");
     expect(div.textContent).toContain("© 2026 Herslander");
     fechar();
+  });
+
+  it("sem sessão: Entrar e Começar grátis; com sessão: só Abrir meu painel (sem login automático)", async () => {
+    const sem = desenhar();
+    await act(async () => undefined);
+    expect(sem.div.querySelector('a[href="/login"]')).not.toBeNull();
+    expect(sem.div.textContent).not.toContain("Abrir meu painel");
+    sem.fechar();
+
+    sessao.ativa = true;
+    const com = desenhar();
+    await act(async () => undefined);
+    expect(com.div.textContent).toContain("Abrir meu painel");
+    expect(com.div.querySelector('a[href="/login"]')).toBeNull();
+    expect(com.div.querySelector('a[href="/comecar"]')).toBeNull();
+    com.fechar();
+    sessao.ativa = false;
   });
 
   it("não cita plano nem limite antigos nos textos padrão", () => {

@@ -6,6 +6,7 @@ import { IconeWhatsapp } from "@/components/entrada/historias/IconeWhatsapp";
 import { MarcaFlow } from "@/components/marca/MarcaFlow";
 import { Button } from "@/components/ui/button";
 import { OndasDaEntrada } from "@/components/entrada/OndasDaEntrada";
+import { useAcesso } from "./acesso";
 import { TEMA_ESCURO } from "./tema";
 import { LinhasDeOnda } from "./Ondas";
 import { MOLA } from "@/lib/movimento-figaro";
@@ -29,6 +30,7 @@ const FOTOS = [
 ] as const;
 
 export function Cabecalho() {
+  const { logado, entrar } = useAcesso();
   return (
     <header
       style={TEMA_ESCURO}
@@ -38,12 +40,14 @@ export function Cabecalho() {
         <MarcaFlow variante="clara" className="h-auto w-24" />
         <nav className="flex items-center gap-2" aria-label="Acesso">
           <Button asChild variant="outline" size="sm">
-            <Link to="/login">Entrar</Link>
+            <Link to={entrar.to}>{entrar.texto}</Link>
           </Button>
           {/* No celular a ação principal é a barra de baixo; aqui só em tela larga. */}
-          <Button asChild size="sm" className="hidden sm:inline-flex">
-            <Link to="/comecar">Começar grátis</Link>
-          </Button>
+          {logado ? null : (
+            <Button asChild size="sm" className="hidden sm:inline-flex">
+              <Link to="/comecar">Começar grátis</Link>
+            </Button>
+          )}
         </nav>
       </div>
     </header>
@@ -153,6 +157,7 @@ function MosaicoMobile() {
 
 export function Heroi({ conteudo }: { conteudo: ConteudoApresentacao["hero"] }) {
   const reduzir = useReducedMotion();
+  const { logado, comecar } = useAcesso();
   return (
     <section
       style={TEMA_ESCURO}
@@ -212,16 +217,18 @@ export function Heroi({ conteudo }: { conteudo: ConteudoApresentacao["hero"] }) 
             size="lg"
             className="w-full shadow-[0_16px_30px_-14px_rgba(49,85,237,0.7)] sm:w-auto"
           >
-            <Link to="/comecar">
-              {conteudo.cta} <ArrowRight className="ml-2 size-4" />
+            <Link to={comecar.to}>
+              {comecar.texto ?? conteudo.cta} <ArrowRight className="ml-2 size-4" />
             </Link>
           </Button>
-          <Link
-            to="/login"
-            className="text-[14px] font-semibold text-[var(--texto-suave)] underline-offset-4 hover:underline"
-          >
-            Já tenho conta
-          </Link>
+          {logado ? null : (
+            <Link
+              to="/login"
+              className="text-[14px] font-semibold text-[var(--texto-suave)] underline-offset-4 hover:underline"
+            >
+              Já tenho conta
+            </Link>
+          )}
         </motion.div>
         <MosaicoMobile />
         <ul

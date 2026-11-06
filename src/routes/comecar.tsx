@@ -1,3 +1,4 @@
+import { EsqueletoDaEntrada } from "@/components/layout/EsqueletosPublicos";
 import { createFileRoute, redirect, useNavigate, Link } from "@tanstack/react-router";
 import { ArrowLeft, BriefcaseBusiness, CalendarDays, ChevronRight } from "lucide-react";
 import { useState } from "react";
@@ -79,6 +80,7 @@ export const Route = createFileRoute("/comecar")({
     }
     return { sessao };
   },
+  pendingComponent: EsqueletoDaEntrada,
   component: ComecarPage,
 });
 
@@ -108,8 +110,8 @@ function ComecarPage() {
         </h1>
         <p className="mt-4 text-base leading-relaxed text-mute">
           Quem gerencia a equipe do negócio desativou seu acesso ao painel. Se você acha que isso é
-          um engano, fale com a pessoa responsável para reativar. Você pode continuar usando o
-          Flow para agendar como cliente.
+          um engano, fale com a pessoa responsável para reativar. Você pode continuar usando o Flow
+          para agendar como cliente.
         </p>
         <Button
           size="lg"
@@ -212,7 +214,9 @@ function ComecarPage() {
             <BriefcaseBusiness size={20} className="text-gold" aria-hidden />
             <span>
               <span className="block text-sm font-semibold text-paper">Tenho um negócio</span>
-              <span className="mt-1 block text-xs text-mute">Escolha o tipo de serviço do seu negócio.</span>
+              <span className="mt-1 block text-xs text-mute">
+                Escolha o tipo de serviço do seu negócio.
+              </span>
             </span>
           </Button>
         </div>
@@ -370,7 +374,9 @@ function InicioPublico() {
           <CalendarDays size={22} className="text-gold" aria-hidden />
           <span>
             <span className="block text-base font-semibold text-paper">Quero agendar</span>
-            <span className="mt-1 block text-sm text-mute">Marcar horários em diferentes tipos de serviço.</span>
+            <span className="mt-1 block text-sm text-mute">
+              Marcar horários em diferentes tipos de serviço.
+            </span>
           </span>
           <ChevronRight size={19} className="text-mute2" aria-hidden />
         </Button>
@@ -384,7 +390,9 @@ function InicioPublico() {
           <BriefcaseBusiness size={22} className="text-gold" aria-hidden />
           <span>
             <span className="block text-base font-semibold text-paper">Tenho um negócio</span>
-            <span className="mt-1 block text-sm text-mute">Escolha o tipo de serviço do seu negócio.</span>
+            <span className="mt-1 block text-sm text-mute">
+              Escolha o tipo de serviço do seu negócio.
+            </span>
           </span>
           <ChevronRight size={19} className="text-mute2" aria-hidden />
         </Button>

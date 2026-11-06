@@ -982,6 +982,10 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+### 2026-11-06 UTC — Claude — Esqueletos das telas públicas e botões sem login automático
+- Esqueletos: `layout/EsqueletosPublicos.tsx` — `EsqueletoDaEntrada` (claro, mesmo desenho da entrada: logo, cartão do celular, 5 ícones, botões) em `/login`, `/comecar` e `/`; `EsqueletoDaApresentacao` (cabeçalho e abertura escuros, faixa da oferta clara) em `/apresentacao`. Antes caía o esqueleto escuro genérico antes da tela clara.
+- Login automático: `/login` e `/comecar` redirecionam direto ao painel quem já tem sessão (regra mantida). A página pública agora sabe se há sessão (`landing/acesso.tsx`): com sessão, os botões viram "Abrir meu painel" (vai para `/`, escolha explícita) e somem "Começar grátis"/"Já tenho conta"; sem sessão continuam "Entrar" (→ `/login`) e "Começar grátis" (→ `/comecar`) e só abrem as telas de entrada. Verificado sem sessão no navegador; com sessão só por teste (mock).
+
 ### 2026-11-06 UTC — Claude — Entrada: capítulo Site sem o recorte na base da capa
 - A capa (360 px) coincidia com a altura da tela e o corte em V da Equipe aparecia na base dela, parecendo erro. Capa agora com 24 px a mais (o corte fica abaixo da área visível até a página rolar) e as posições da rolagem somaram os mesmos 24 px; lista de espera do exemplo com prazo de 15 min.
 

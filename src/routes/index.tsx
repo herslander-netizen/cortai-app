@@ -1,3 +1,4 @@
+import { EsqueletoDaEntrada } from "@/components/layout/EsqueletosPublicos";
 import { createFileRoute, redirect } from "@tanstack/react-router";
 
 import { supabase } from "@/integrations/supabase/client";
@@ -9,6 +10,7 @@ import { destinoDoPapel, sessaoCompartilhada } from "@/lib/guarda";
  */
 export const Route = createFileRoute("/")({
   ssr: false,
+  pendingComponent: EsqueletoDaEntrada,
   beforeLoad: async () => {
     const { data } = await supabase.auth.getUser();
     if (!data.user) throw redirect({ to: "/login", replace: true });

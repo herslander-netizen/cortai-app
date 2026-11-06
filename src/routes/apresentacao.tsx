@@ -1,3 +1,4 @@
+import { EsqueletoDaApresentacao } from "@/components/layout/EsqueletosPublicos";
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { z } from "zod";
 
@@ -34,6 +35,7 @@ export const Route = createFileRoute("/apresentacao")({
       links: [{ rel: "canonical", href: "https://cortaiapp.pages.dev/apresentacao" }],
     };
   },
+  pendingComponent: EsqueletoDaApresentacao,
   component: ApresentacaoPage,
 });
 

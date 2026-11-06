@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import type { ConteudoApresentacao } from "@/lib/apresentacao-conteudo";
 import { PLANOS_COMERCIAIS, precoComercial } from "@/lib/planos-comerciais";
 import { OndasDaEntrada } from "@/components/entrada/OndasDaEntrada";
+import { useAcesso } from "./acesso";
 import { DivisorDeOndas, LinhasDeOnda } from "./Ondas";
 import { Revelar } from "./Revelar";
 import { TEMA_CLARO, TEMA_ESCURO } from "./tema";
@@ -44,6 +45,7 @@ export function FaixaDeFotos() {
 }
 
 export function Planos({ conteudo }: { conteudo: ConteudoApresentacao["planos"] }) {
+  const { comecar } = useAcesso();
   return (
     <section
       style={TEMA_CLARO}
@@ -109,7 +111,9 @@ export function Planos({ conteudo }: { conteudo: ConteudoApresentacao["planos"] 
                   variant={gratis ? "secondary" : "outline"}
                   className={`mt-6 w-full ${gratis ? "bg-white text-[#1b2687] hover:bg-white/90" : ""}`}
                 >
-                  <Link to="/comecar">{gratis ? "Começar grátis" : "Testar o Studio"}</Link>
+                  <Link to={comecar.to}>
+                    {comecar.texto ?? (gratis ? "Começar grátis" : "Testar o Studio")}
+                  </Link>
                 </Button>
               </div>
             </Revelar>
@@ -164,6 +168,7 @@ export function Perguntas({
 }
 
 export function ChamadaFinal({ conteudo }: { conteudo: ConteudoApresentacao["final"] }) {
+  const { comecar } = useAcesso();
   return (
     <section
       style={TEMA_CLARO}
@@ -182,8 +187,8 @@ export function ChamadaFinal({ conteudo }: { conteudo: ConteudoApresentacao["fin
           size="lg"
           className="mt-7 w-full shadow-[0_16px_30px_-14px_rgba(49,85,237,0.7)] sm:w-auto"
         >
-          <Link to="/comecar">
-            Criar minha conta grátis <ArrowRight className="ml-2 size-4" />
+          <Link to={comecar.to}>
+            {comecar.texto ?? "Criar minha conta grátis"} <ArrowRight className="ml-2 size-4" />
           </Link>
         </Button>
       </Revelar>
@@ -199,6 +204,7 @@ export function ChamadaFinal({ conteudo }: { conteudo: ConteudoApresentacao["fin
  * chamada final têm o seu). Observa os próprios botões, não as seções: sem piscar e sem cobrir o botão da seção.
  */
 export function BarraDoCelular() {
+  const { comecar } = useAcesso();
   const [comBotaoNaTela, setComBotaoNaTela] = useState(true);
   useEffect(() => {
     const alvos = [...document.querySelectorAll("[data-cta-propria]")];
@@ -231,7 +237,7 @@ export function BarraDoCelular() {
             size="lg"
             className="w-full shadow-[0_14px_26px_-12px_rgba(49,85,237,0.7)]"
           >
-            <Link to="/comecar">Começar grátis · sem cartão</Link>
+            <Link to={comecar.to}>{comecar.texto ?? "Começar grátis · sem cartão"}</Link>
           </Button>
         </motion.div>
       ) : null}

@@ -1,3 +1,4 @@
+import { EsqueletoDaEntrada } from "@/components/layout/EsqueletosPublicos";
 import { createFileRoute, useNavigate, redirect } from "@tanstack/react-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
@@ -74,6 +75,7 @@ export const Route = createFileRoute("/login")({
       throw redirect({ to: destinoDoPapel(sessao) });
     }
   },
+  pendingComponent: EsqueletoDaEntrada,
   component: LoginPage,
 });
 
