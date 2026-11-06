@@ -4,12 +4,24 @@ import { motion, useReducedMotion } from "framer-motion";
 /** Ciclos mais curtos deixam o movimento das ondas mais perceptível sem acelerar demais a composição. */
 export const DURACAO_ONDAS_SEGUNDOS = { superior: 7, inferior: 8.5 } as const;
 
-/** Ondas leves da identidade Flow. O movimento é decorativo e para com a preferência do aparelho. */
+/**
+ * Ondas da identidade Flow sobre o fundo branco (dono, 06/11/2026: "tema claro de fundo, ondas se movendo na
+ * identidade do Flow"): faixas em azul, lilás e rosa, como nas capas claras da marca. Decorativas; param com a
+ * preferência de movimento reduzido.
+ */
 export function OndasDaEntrada() {
   const id = useId().replace(/:/g, "");
   const reduzirMovimento = useReducedMotion();
-  const transicaoSuperior = { duration: DURACAO_ONDAS_SEGUNDOS.superior, ease: "easeInOut" as const, repeat: Infinity };
-  const transicaoInferior = { duration: DURACAO_ONDAS_SEGUNDOS.inferior, ease: "easeInOut" as const, repeat: Infinity };
+  const transicaoSuperior = {
+    duration: DURACAO_ONDAS_SEGUNDOS.superior,
+    ease: "easeInOut" as const,
+    repeat: Infinity,
+  };
+  const transicaoInferior = {
+    duration: DURACAO_ONDAS_SEGUNDOS.inferior,
+    ease: "easeInOut" as const,
+    repeat: Infinity,
+  };
 
   return (
     <motion.svg
@@ -21,51 +33,62 @@ export function OndasDaEntrada() {
     >
       <defs>
         <linearGradient id={`${id}-superior`} x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="var(--figaro-secondary)" stopOpacity="0.6" />
-          <stop offset="52%" stopColor="var(--figaro-primary)" stopOpacity="0.42" />
-          <stop offset="100%" stopColor="var(--figaro-tertiary)" stopOpacity="0.3" />
+          <stop offset="0%" stopColor="var(--entrada-ciano)" stopOpacity="0.55" />
+          <stop offset="50%" stopColor="var(--entrada-lilas)" stopOpacity="0.45" />
+          <stop offset="100%" stopColor="var(--entrada-rosa)" stopOpacity="0.4" />
         </linearGradient>
         <linearGradient id={`${id}-inferior`} x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" stopColor="var(--figaro-primary)" stopOpacity="0.32" />
-          <stop offset="55%" stopColor="var(--figaro-secondary)" stopOpacity="0.42" />
-          <stop offset="100%" stopColor="var(--figaro-tertiary)" stopOpacity="0.34" />
+          <stop offset="0%" stopColor="var(--entrada-rosa)" stopOpacity="0.38" />
+          <stop offset="55%" stopColor="var(--entrada-lilas)" stopOpacity="0.42" />
+          <stop offset="100%" stopColor="var(--entrada-ciano)" stopOpacity="0.5" />
         </linearGradient>
+        <filter id={`${id}-suave`} x="-10%" y="-10%" width="120%" height="120%">
+          <feGaussianBlur stdDeviation="6" />
+        </filter>
       </defs>
 
       <motion.g
         {...(!reduzirMovimento
-          ? { animate: { x: [0, 10, 0], y: [0, -5, 0] }, transition: transicaoSuperior }
+          ? {
+              animate: { x: [0, 14, 0], y: [0, -7, 0], rotate: [0, 1.2, 0] },
+              transition: transicaoSuperior,
+            }
           : {})}
       >
         <path
-          d="M-36 112 C35 52 93 133 169 119 C257 104 302 34 430 -18 L430 119 C334 161 282 222 183 205 C96 190 34 133 -36 228 Z"
+          d="M-40 96 C40 30 104 130 182 112 C268 92 308 20 432 -26 L432 132 C334 178 280 236 180 218 C92 202 30 140 -40 236 Z"
           fill={`url(#${id}-superior)`}
-          opacity="0.55"
+          filter={`url(#${id}-suave)`}
+          opacity="0.6"
         />
         <path
-          d="M-30 178 C44 97 113 158 198 139 C284 119 333 53 426 27"
+          d="M-30 176 C44 92 116 160 200 138 C286 116 336 50 428 24"
           fill="none"
           stroke={`url(#${id}-superior)`}
-          strokeWidth="1.5"
-          opacity="0.82"
+          strokeWidth="2"
+          opacity="0.9"
         />
       </motion.g>
 
       <motion.g
         {...(!reduzirMovimento
-          ? { animate: { x: [0, -8, 0], y: [0, 5, 0] }, transition: transicaoInferior }
+          ? {
+              animate: { x: [0, -12, 0], y: [0, 7, 0], rotate: [0, -1, 0] },
+              transition: transicaoInferior,
+            }
           : {})}
       >
         <path
-          d="M-34 700 C48 635 102 711 182 696 C275 678 324 604 428 628 L428 866 L-34 866 Z"
+          d="M-36 690 C50 620 106 704 186 688 C280 668 328 594 430 616 L430 870 L-36 870 Z"
           fill={`url(#${id}-inferior)`}
-          opacity="0.58"
+          filter={`url(#${id}-suave)`}
+          opacity="0.55"
         />
         <path
-          d="M-28 745 C64 671 119 774 211 748 C303 722 346 658 427 677"
+          d="M-28 742 C66 664 122 772 214 744 C306 716 348 652 428 670"
           fill="none"
           stroke={`url(#${id}-inferior)`}
-          strokeWidth="1.6"
+          strokeWidth="2"
           opacity="0.9"
         />
       </motion.g>

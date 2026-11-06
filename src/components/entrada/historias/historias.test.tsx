@@ -69,13 +69,14 @@ describe("mini-histórias da entrada (vídeo de referência do dono, 06/11)", ()
     }
   });
 
-  it("o celular fica parado e só a tela muda; a tela não força tema claro", () => {
+  it("o celular fica parado e só a tela muda; texto sobre foto usa tokens inversos", () => {
     const celular = readFileSync(`${PASTA}/Celular.tsx`, "utf8");
     const base = readFileSync(`${PASTA}/base.tsx`, "utf8");
     expect(celular).toContain("14:31");
     expect(base).not.toMatch(/className="light /);
+    // Texto sobre foto ou gradiente usa os tokens inversos (escuro/branco garantidos), nunca tinta/papel do palco.
     for (const f of arquivos) {
-      expect(readFileSync(`${PASTA}/${f}`, "utf8"), f).not.toContain("figaro-inverse");
+      expect(readFileSync(`${PASTA}/${f}`, "utf8"), f).not.toMatch(/var\(--(ink|paper)\)/);
     }
   });
 

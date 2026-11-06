@@ -39,8 +39,8 @@ export function HistoriaLembretes() {
       <div className="relative h-full">
         {/* Papel de parede da tela de bloqueio: gradiente de tokens, sem foto nem logo. */}
         <div className="absolute inset-0 bg-[linear-gradient(165deg,var(--figaro-primary)_0%,var(--figaro-tertiary)_100%)]" />
-        <div className="absolute inset-0 bg-[var(--ink)]/20" />
-        <div className="relative px-3 pt-4 text-[var(--paper)]">
+        <div className="absolute inset-0 bg-[var(--figaro-inverse-surface)]/15" />
+        <div className="relative px-3 pt-4 text-[var(--figaro-inverse-on-surface)]">
           <p className="text-[38px] font-semibold leading-none tracking-[-0.04em]">08:00</p>
           <p className="mt-1 text-[10px] opacity-90">quinta-feira, 13 de novembro</p>
           <div className="mt-4 space-y-1.5">

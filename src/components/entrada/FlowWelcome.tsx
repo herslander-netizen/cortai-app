@@ -46,7 +46,7 @@ export function FlowWelcome({ onCreateAccount, onSignIn, onCustomerBooking }: Fl
 
       <header className="relative z-10 flex shrink-0 flex-col items-center">
         <MarcaFlow
-          variante="clara"
+          variante="escura"
           className="h-auto w-[min(42vw,160px)] [@media(max-height:720px)]:w-[min(30vw,112px)]"
           prioridade
         />
@@ -94,10 +94,10 @@ export function FlowWelcome({ onCreateAccount, onSignIn, onCustomerBooking }: Fl
           </Celular>
         </motion.div>
 
-        {/* Linha de luz onde o celular "afunda". */}
+        {/* Linha fina nas cores da marca onde o celular "pousa". */}
         <div
           aria-hidden="true"
-          className="relative -mx-5 h-px shrink-0 bg-[linear-gradient(90deg,transparent,var(--figaro-primary)_30%,var(--figaro-tertiary)_70%,transparent)] shadow-[0_0_18px_2px_var(--figaro-primary)]"
+          className="relative mx-auto h-px w-[86%] shrink-0 bg-[linear-gradient(90deg,transparent,var(--entrada-ciano)_25%,var(--entrada-lilas)_50%,var(--entrada-rosa)_75%,transparent)] opacity-70"
         />
 
         <div className="flex min-h-[96px] shrink-0 flex-col items-center justify-center px-2 pt-4 pb-2 text-center [@media(max-height:720px)]:min-h-[76px] [@media(max-height:720px)]:pt-2.5 [@media(max-height:720px)]:pb-1">
@@ -109,7 +109,7 @@ export function FlowWelcome({ onCreateAccount, onSignIn, onCustomerBooking }: Fl
               exit={{ opacity: 0, y: reduceMotion ? 0 : -6 }}
               transition={MOLA.padraoEspacial}
             >
-              <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.3em] text-[var(--figaro-tertiary)] [@media(max-height:720px)]:mb-1">
+              <p className="mb-2 text-[12px] font-bold uppercase tracking-[0.3em] text-[var(--figaro-tertiary)] [@media(max-height:720px)]:mb-1">
                 {capitulo.rotulo}
               </p>
               <h1 className="whitespace-pre-line text-[clamp(17px,4.9vw,20px)] font-medium leading-snug tracking-[-0.01em] text-paper [@media(max-height:720px)]:text-[15px]">
@@ -194,7 +194,7 @@ export function FlowWelcome({ onCreateAccount, onSignIn, onCustomerBooking }: Fl
           aria-label="Sou cliente e quero só agendar"
           onClick={onCustomerBooking}
           disabled={!onCustomerBooking}
-          className="mt-1 h-auto min-h-12 text-center text-[12px] font-medium text-mute [@media(max-height:720px)]:mt-0 [@media(max-height:720px)]:min-h-11"
+          className="mt-1 h-auto min-h-12 text-center text-[12px] font-medium text-mute [@media(max-height:720px)]:mt-0"
         >
           Sou cliente e quero só agendar
         </Button>

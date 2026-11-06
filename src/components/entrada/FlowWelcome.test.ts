@@ -3,13 +3,13 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
 describe("entrada pública do Flow", () => {
-  it("mantém o palco no Navy por tokens locais, sem depender do tema do sistema", () => {
+  it("mantém o palco claro por tokens locais, sem depender do tema do sistema", () => {
     const tela = readFileSync("src/components/entrada/FlowWelcome.tsx", "utf8");
     expect(tela).toContain(
       'className="relative mx-auto flex h-full min-h-0 w-full max-w-[430px] flex-col overflow-hidden bg-ink',
     );
     expect(tela).toContain("<OndasDaEntrada />");
-    expect(tela).toContain('variante="clara"');
+    expect(tela).toContain('variante="escura"');
     expect(tela).not.toMatch(/#[0-9a-f]{3,8}\b/i);
     expect(tela).not.toContain("bg-white");
     expect(tela).not.toContain("<button");

@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate, redirect } from "@tanstack/react-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
@@ -18,6 +19,8 @@ import { Aviso } from "@/components/ui/aviso";
 import { sincronizarCorDoNavegador } from "@/lib/aparencia";
 import { mensagemDeErroDeAuth } from "@/lib/auth-flow";
 import { FlowWelcome } from "@/components/entrada/FlowWelcome";
+import { OndasDaEntrada } from "@/components/entrada/OndasDaEntrada";
+import { MarcaFlow } from "@/components/marca/MarcaFlow";
 import { CLASSE_TELA_ENTRADA, TEMA_FIXO_ENTRADA } from "@/components/entrada/tema-fixo";
 import { CURVA, TEMPO } from "@/lib/movimento-figaro";
 import { ForgotPasswordSheet } from "@/components/auth/ForgotPasswordSheet";
@@ -97,7 +100,6 @@ function MarcaGoogle() {
   );
 }
 
-
 function LoginPage() {
   const navigate = useNavigate();
   const { proximo, aba, erro: erroNaSessao } = Route.useSearch();
@@ -136,7 +138,10 @@ function LoginPage() {
     }
   }
 
-  async function verificarCodigoRecuperacao(emailRecuperacao: string, codigo: string): Promise<boolean> {
+  async function verificarCodigoRecuperacao(
+    emailRecuperacao: string,
+    codigo: string,
+  ): Promise<boolean> {
     const { error } = await supabase.auth.verifyOtp({
       email: emailRecuperacao,
       token: codigo,
@@ -170,7 +175,7 @@ function LoginPage() {
 
     const focoInicial = window.requestAnimationFrame(() => {
       const alvo = painelLoginRef.current?.querySelector<HTMLElement>(
-        'input:not([disabled]), button:not([disabled]), a[href]',
+        "input:not([disabled]), button:not([disabled]), a[href]",
       );
       alvo?.focus();
     });
@@ -202,10 +207,16 @@ function LoginPage() {
 
       const primeiro = elementos[0];
       const ultimo = elementos[elementos.length - 1];
-      if (event.shiftKey && (document.activeElement === primeiro || !painel.contains(document.activeElement))) {
+      if (
+        event.shiftKey &&
+        (document.activeElement === primeiro || !painel.contains(document.activeElement))
+      ) {
         event.preventDefault();
         ultimo?.focus();
-      } else if (!event.shiftKey && (document.activeElement === ultimo || !painel.contains(document.activeElement))) {
+      } else if (
+        !event.shiftKey &&
+        (document.activeElement === ultimo || !painel.contains(document.activeElement))
+      ) {
         event.preventDefault();
         primeiro?.focus();
       }
@@ -223,9 +234,7 @@ function LoginPage() {
   useEffect(() => {
     const meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
     const tela = document.querySelector<HTMLElement>(".auth-screen.entrada");
-    const fundo = tela
-      ? getComputedStyle(tela).getPropertyValue("--fundo").trim()
-      : "";
+    const fundo = tela ? getComputedStyle(tela).getPropertyValue("--fundo").trim() : "";
     if (meta && fundo) meta.content = fundo;
     return () => sincronizarCorDoNavegador();
   }, []);
@@ -298,13 +307,10 @@ function LoginPage() {
   };
 
   const botaoSocial =
-    "h-12 w-full justify-center gap-2 rounded-full border-line2 bg-ink2 text-sm font-semibold text-paper";
+    "h-12 w-full justify-center gap-2 rounded-full border-line2 bg-[var(--cartao)] text-sm font-semibold text-paper";
 
   return (
-    <main
-      className={CLASSE_TELA_ENTRADA}
-      style={TEMA_FIXO_ENTRADA}
-    >
+    <main className={CLASSE_TELA_ENTRADA} style={TEMA_FIXO_ENTRADA}>
       <div
         className="entrada-conteudo relative z-10"
         style={{
@@ -371,6 +377,17 @@ function LoginPage() {
                 width: "100%",
               }}
             >
+              {/* Atrás da gaveta: as mesmas ondas e a marca da entrada, em vez de um cinza vazio. */}
+              <OndasDaEntrada />
+              <div
+                aria-hidden
+                className="pointer-events-none fixed inset-x-0 top-[calc(36px+env(safe-area-inset-top))] z-10 flex flex-col items-center"
+              >
+                <MarcaFlow variante="escura" className="h-auto w-[min(36vw,136px)]" />
+                <p className="mt-1.5 text-[13px] font-medium text-mute">
+                  Seu negócio no ritmo certo.
+                </p>
+              </div>
               <motion.button
                 type="button"
                 aria-label="Fechar acesso"
@@ -378,190 +395,244 @@ function LoginPage() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="fixed inset-0 z-20 bg-black/70 backdrop-blur-md"
+                className="fixed inset-0 z-20 bg-[var(--figaro-inverse-surface)]/[0.04]"
               />
+              {/*
+                Gaveta de acesso no modelo de folha do Flow (dono, 06/11/2026: "organize a segunda seção do login"):
+                fundo da tela com o conteúdo em cartões, título no primeiro cartão, caminho principal primeiro (campo e
+                pílula), alternativa do Google depois e a troca entre entrar e criar conta no fim. Fecha pelo X, tocando
+                fora ou com Esc. Autenticação e regras iguais.
+              */}
               <div
                 ref={painelLoginRef}
                 tabIndex={-1}
-                className="entrada-painel fixed bottom-0 left-1/2 z-30 w-full max-w-[430px] rounded-t-[30px] px-6 pb-[calc(24px+env(safe-area-inset-bottom))] pt-5 outline-none"
+                className="entrada-painel fixed bottom-0 left-1/2 z-30 w-full max-w-[430px] rounded-t-[28px] px-4 pb-[calc(20px+env(safe-area-inset-bottom))] pt-3 outline-none"
                 role="dialog"
                 aria-modal="true"
                 aria-labelledby="flow-login-title"
                 aria-describedby="flow-login-description"
                 style={{
                   transform: "translateX(-50%)",
-                  background: "linear-gradient(155deg, #1a1b2d, #10111d)",
-                  border: "1px solid rgba(182,177,255,.28)",
-                  boxShadow: "0 12px 34px rgba(0,0,0,.45)",
-                  maxHeight: "min(82dvh, 720px)",
-                  borderTop: "1px solid rgba(182,177,255,.45)",
+                  // Inline: a regra antiga `.entrada-painel` (fora de camada) venceria uma classe do Tailwind.
+                  background: "var(--painel)",
+                  boxShadow: "var(--elevacao-3)",
+                  maxHeight: "min(88dvh, 720px)",
                   overflowY: "auto",
                   overscrollBehavior: "contain",
                   animation: "none",
                 }}
               >
-                <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-line2" />
-            <div className="mb-5 flex items-start justify-between gap-3">
-              <div className="min-w-0">
-                <h1 id="flow-login-title" className="text-left text-xl font-bold text-paper">
-                  {modo === "entrar" ? (faseLogin === "identificar" ? "Acessar sua conta" : "Digite sua senha") : "Criar conta"}
-                </h1>
-                <p id="flow-login-description" className="mt-1 text-left text-xs text-mute">
-                  {modo === "entrar"
-                    ? (faseLogin === "identificar" ? "Digite seu e-mail ou telefone para continuar" : `Bem-vindo de volta, ${email}`)
-                    : "Comece a organizar seu negócio com o Flow"}
-                </p>
-              </div>
-              <button
-                type="button"
-                aria-label="Fechar painel de acesso"
-                onClick={fecharPainelLogin}
-                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-line2 bg-ink3 text-mute transition-colors hover:bg-ink hover:text-paper focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
-              >
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
-                  <path d="m18 6-12 12M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-            {modo === "criar" || faseLogin === "identificar" ? (
-              <div className="space-y-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  className={botaoSocial}
-                  disabled={enviandoGoogle || enviando}
-                  onClick={() => void entrarCom("google")}
-                >
-                  <MarcaGoogle /> Continuar com o Google
-                </Button>
-              </div>
-            ) : null}
+                <div aria-hidden className="mx-auto mb-3 h-1 w-10 rounded-full bg-line2" />
 
-            <div className="my-5 flex items-center gap-3 text-xs font-medium uppercase tracking-wide text-mute" aria-hidden>
-              <span className="h-px flex-1 bg-line" />
-              ou
-              <span className="h-px flex-1 bg-line" />
-            </div>
+                <section className="flex items-start justify-between gap-3 rounded-[20px] bg-[var(--cartao)] p-4">
+                  <div className="min-w-0">
+                    <h1 id="flow-login-title" className="text-xl font-bold text-paper">
+                      {modo === "entrar"
+                        ? faseLogin === "identificar"
+                          ? "Acessar sua conta"
+                          : "Digite sua senha"
+                        : "Criar conta"}
+                    </h1>
+                    <p
+                      id="flow-login-description"
+                      className={`mt-1 text-sm text-mute ${modo === "entrar" && faseLogin === "credencial" ? "truncate" : ""}`}
+                    >
+                      {modo === "entrar"
+                        ? faseLogin === "identificar"
+                          ? "Use seu e-mail ou telefone"
+                          : email
+                        : "Comece a organizar seu negócio com o Flow"}
+                    </p>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="icon"
+                    size="icon"
+                    aria-label="Fechar painel de acesso"
+                    onClick={fecharPainelLogin}
+                    className="toque-afunda -mr-2 -mt-2 shrink-0 text-mute"
+                  >
+                    <X aria-hidden />
+                  </Button>
+                </section>
 
-            <form
-              className="space-y-3"
-              onSubmit={async (event) => {
-                event.preventDefault();
-                if (enviando) return;
-                setErro(null);
-                setAviso(null);
+                <form
+                  className="mt-3"
+                  onSubmit={async (event) => {
+                    event.preventDefault();
+                    if (enviando) return;
+                    setErro(null);
+                    setAviso(null);
 
-                if (modo === "entrar" && faseLogin === "identificar") {
-                  if (!email.trim()) return;
-                  setFaseLogin("credencial");
-                  return;
-                }
-
-                setEnviando(true);
-                try {
-                  if (modo === "entrar") {
-                    const identificador = email.trim();
-                    const credencial = identificador.includes("@")
-                      ? { email: identificador.toLowerCase(), password: senha }
-                      : { phone: identificador.replace(/[\\s().-]/g, ""), password: senha };
-                    const { error } = await supabase.auth.signInWithPassword(credencial);
-                    if (error) {
-                      setErro(mensagemDeErroDeAuth(error, "entrar"));
+                    if (modo === "entrar" && faseLogin === "identificar") {
+                      if (!email.trim()) return;
+                      setFaseLogin("credencial");
                       return;
                     }
-                    await seguirParaMinhaArea();
-                    return;
-                  }
 
-                  const { error } = await supabase.auth.signUp({
-                    email: email.trim().toLowerCase(),
-                    password: senha,
-                  });
-                  if (error) {
-                    setErro(mensagemDeErroDeAuth(error, "criar"));
-                    return;
-                  }
-                  setAviso("Conta criada. Confira seu e-mail para confirmar o cadastro.");
-                } catch {
-                  setErro("Não foi possível concluir agora. Tente novamente.");
-                } finally {
-                  setEnviando(false);
-                }
-              }}
-            >
-              {(modo === "criar" || faseLogin === "identificar") && (
-                <Field label={modo === "entrar" ? "E-mail ou telefone" : "E-mail"}>
-                  <Input
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    type={modo === "entrar" ? "text" : "email"}
-                    autoComplete={modo === "entrar" ? "username" : "email"}
-                    inputMode="email"
-                    required
-                    placeholder={modo === "entrar" ? "voce@exemplo.com ou +55 79 99999-9999" : "voce@exemplo.com"}
-                    className="mt-1.5"
-                  />
-                </Field>
-              )}
-              {(modo === "criar" || faseLogin === "credencial") && (
-                <Field label="Senha">
-                  <Input
-                    value={senha}
-                    onChange={(e) => setSenha(e.target.value)}
-                    type="password"
-                    autoComplete={modo === "entrar" ? "current-password" : "new-password"}
-                    required
-                    minLength={modo === "criar" ? 8 : 1}
-                    placeholder="Sua senha"
-                    className="mt-1.5"
-                  />
-                </Field>
-              )}
-              {modo === "entrar" && faseLogin === "credencial" ? (
-                <div className="flex items-center justify-between gap-2">
-                  <button type="button" onClick={() => { setFaseLogin("identificar"); setSenha(""); setErro(null); }} className="min-h-11 text-xs font-medium text-primary">
-                    Trocar e-mail ou telefone
-                  </button>
-                  <button type="button" onClick={() => setMostrarRecuperacao(true)} className="flex min-h-11 items-center text-xs font-medium text-mute hover:text-paper">
-                    Esqueceu a senha?
-                  </button>
-                </div>
-              ) : null}
-              {erro ? <p className="text-sm text-brick" role="alert" aria-live="assertive">{erro}</p> : null}
-              {aviso ? <Aviso tom="info">{aviso}</Aviso> : null}
-              <Button className="h-12 w-full rounded-full font-bold" disabled={enviando || (modo === "entrar" && faseLogin === "identificar" ? !email.trim() : !senha.trim() || (modo === "criar" && !email.trim()))}>
-                {enviando ? "Aguarde…" : modo === "entrar" ? (faseLogin === "identificar" ? "Continuar" : "Entrar no Flow") : "Criar conta"}
-              </Button>
-            </form>
+                    setEnviando(true);
+                    try {
+                      if (modo === "entrar") {
+                        const identificador = email.trim();
+                        const credencial = identificador.includes("@")
+                          ? { email: identificador.toLowerCase(), password: senha }
+                          : { phone: identificador.replace(/[\s().-]/g, ""), password: senha };
+                        const { error } = await supabase.auth.signInWithPassword(credencial);
+                        if (error) {
+                          setErro(mensagemDeErroDeAuth(error, "entrar"));
+                          return;
+                        }
+                        await seguirParaMinhaArea();
+                        return;
+                      }
 
-            <p className="mt-4 text-center text-sm text-mute">
-              {modo === "entrar" ? "Ainda não tem conta?" : "Já tem conta?"}{" "}
-              <Button
-                type="button"
-                variant="link"
-                className="h-auto min-h-12 px-1"
-                onClick={() => {
-                  setModo(modo === "entrar" ? "criar" : "entrar");
-                  setFaseLogin("identificar");
-                  setSenha("");
-                  setErro(null);
-                  setAviso(null);
-                }}
-              >
-                {modo === "entrar" ? "Criar conta" : "Entrar"}
-              </Button>
-            </p>
+                      const { error } = await supabase.auth.signUp({
+                        email: email.trim().toLowerCase(),
+                        password: senha,
+                      });
+                      if (error) {
+                        setErro(mensagemDeErroDeAuth(error, "criar"));
+                        return;
+                      }
+                      setAviso("Conta criada. Confira seu e-mail para confirmar o cadastro.");
+                    } catch {
+                      setErro("Não foi possível concluir agora. Tente novamente.");
+                    } finally {
+                      setEnviando(false);
+                    }
+                  }}
+                >
+                  <section className="space-y-3 rounded-[20px] bg-[var(--cartao)] p-4">
+                    {(modo === "criar" || faseLogin === "identificar") && (
+                      <Field label={modo === "entrar" ? "E-mail ou telefone" : "E-mail"}>
+                        <Input
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          type={modo === "entrar" ? "text" : "email"}
+                          autoComplete={modo === "entrar" ? "username" : "email"}
+                          inputMode="email"
+                          required
+                          placeholder="voce@exemplo.com"
+                          aria-label={
+                            modo === "entrar"
+                              ? "E-mail ou telefone, por exemplo voce@exemplo.com ou +55 79 99999-9999"
+                              : "E-mail"
+                          }
+                          className="mt-1.5"
+                        />
+                      </Field>
+                    )}
+                    {(modo === "criar" || faseLogin === "credencial") && (
+                      <Field label="Senha">
+                        <Input
+                          value={senha}
+                          onChange={(e) => setSenha(e.target.value)}
+                          type="password"
+                          autoComplete={modo === "entrar" ? "current-password" : "new-password"}
+                          required
+                          minLength={modo === "criar" ? 8 : 1}
+                          placeholder={modo === "criar" ? "Mínimo de 8 caracteres" : "Sua senha"}
+                          className="mt-1.5"
+                        />
+                      </Field>
+                    )}
+                    {modo === "entrar" && faseLogin === "credencial" ? (
+                      <div className="flex items-center justify-between gap-2">
+                        <Button
+                          type="button"
+                          variant="link"
+                          size="sm"
+                          className="h-auto min-h-12"
+                          onClick={() => {
+                            setFaseLogin("identificar");
+                            setSenha("");
+                            setErro(null);
+                          }}
+                        >
+                          Trocar e-mail
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="link"
+                          size="sm"
+                          className="h-auto min-h-12 text-mute"
+                          onClick={() => setMostrarRecuperacao(true)}
+                        >
+                          Esqueceu a senha?
+                        </Button>
+                      </div>
+                    ) : null}
+                  </section>
 
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              className="entrada-entrar mt-2 min-h-12 w-full"
-              style={{ minHeight: 48 }}
-              onClick={fecharPainelLogin}
-            >
-              Ver como o Flow funciona
-            </Button>
+                  {erro ? (
+                    <p className="mt-3 px-1 text-sm text-brick" role="alert" aria-live="assertive">
+                      {erro}
+                    </p>
+                  ) : null}
+                  {aviso ? (
+                    <div className="mt-3">
+                      <Aviso tom="info">{aviso}</Aviso>
+                    </div>
+                  ) : null}
+
+                  <Button
+                    size="lg"
+                    className="mt-4 h-14 w-full rounded-full text-base font-bold"
+                    loading={enviando}
+                    disabled={
+                      enviando ||
+                      (modo === "entrar" && faseLogin === "identificar"
+                        ? !email.trim()
+                        : !senha.trim() || (modo === "criar" && !email.trim()))
+                    }
+                  >
+                    {modo === "entrar"
+                      ? faseLogin === "identificar"
+                        ? "Continuar"
+                        : "Entrar no Flow"
+                      : "Criar conta"}
+                  </Button>
+                </form>
+
+                {modo === "criar" || faseLogin === "identificar" ? (
+                  <>
+                    <div
+                      className="my-4 flex items-center gap-3 text-xs font-medium uppercase tracking-wide text-mute"
+                      aria-hidden
+                    >
+                      <span className="h-px flex-1 bg-line" />
+                      ou
+                      <span className="h-px flex-1 bg-line" />
+                    </div>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className={botaoSocial}
+                      disabled={enviandoGoogle || enviando}
+                      onClick={() => void entrarCom("google")}
+                    >
+                      <MarcaGoogle /> Continuar com o Google
+                    </Button>
+                  </>
+                ) : null}
+
+                <p className="mt-3 text-center text-sm text-mute">
+                  {modo === "entrar" ? "Ainda não tem conta?" : "Já tem conta?"}{" "}
+                  <Button
+                    type="button"
+                    variant="link"
+                    className="h-auto min-h-12 px-1 font-bold"
+                    onClick={() => {
+                      setModo(modo === "entrar" ? "criar" : "entrar");
+                      setFaseLogin("identificar");
+                      setSenha("");
+                      setErro(null);
+                      setAviso(null);
+                    }}
+                  >
+                    {modo === "entrar" ? "Criar conta" : "Entrar"}
+                  </Button>
+                </p>
               </div>
             </motion.div>
           )}
@@ -575,7 +646,6 @@ function LoginPage() {
           onVerifyCode={verificarCodigoRecuperacao}
           onContinue={continuarRedefinicao}
         />
-
       </div>
     </main>
   );
