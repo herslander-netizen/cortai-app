@@ -7,8 +7,10 @@
  *   (a pessoa escreveu para o negócio ou mandou o código);
  * - SAIR e "número errado" param tudo, inclusive os avisos essenciais;
  * - número que o WhatsApp recusou não recebe de novo;
- * - mensagens de relacionamento seguem exigindo consentimento.
- * Fichas criadas pela equipe (balcão, manual...) já contam com o número dado em pessoa.
+ * - confirmar o telefone NÃO é consentimento para mensagens futuras; todo envio proativo
+ *   também precisa passar por src/lib/whatsapp/consentimento.server.ts, por finalidade.
+ * Fichas criadas pela equipe (balcão, manual...) dispensam só a confirmação de titularidade
+ * do número. Nunca dispensam opt-in explícito, revogação ou supressão.
  */
 
 /** Origens em que qualquer pessoa digita o telefone, sem prova de que é dela. */
