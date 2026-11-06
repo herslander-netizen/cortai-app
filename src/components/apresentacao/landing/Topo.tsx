@@ -29,14 +29,15 @@ const FOTOS = [
 
 export function Cabecalho() {
   return (
-    <header className="sticky top-0 z-30 border-b border-[var(--linha)]/70 bg-[var(--fundo)]">
+    <header className="sticky top-0 z-30 bg-[var(--fundo)] shadow-[0_1px_0_var(--linha),0_10px_24px_-18px_rgba(40,40,120,0.35)]">
       <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4">
         <MarcaFlow variante="escura" className="h-auto w-24" />
-        <nav className="flex items-center gap-1" aria-label="Acesso">
-          <Button asChild variant="ghost" size="sm">
+        <nav className="flex items-center gap-2" aria-label="Acesso">
+          <Button asChild variant="outline" size="sm">
             <Link to="/login">Entrar</Link>
           </Button>
-          <Button asChild size="sm">
+          {/* No celular a ação principal é a barra de baixo; aqui só em tela larga. */}
+          <Button asChild size="sm" className="hidden sm:inline-flex">
             <Link to="/comecar">Começar grátis</Link>
           </Button>
         </nav>
@@ -183,14 +184,21 @@ export function Heroi({ conteudo }: { conteudo: ConteudoApresentacao["hero"] }) 
           animate={{ opacity: 1, y: 0 }}
           transition={{ ...MOLA.padraoEspacial, delay: 0.24 }}
         >
-          <Button asChild size="lg" className="w-full sm:w-auto">
+          <Button
+            asChild
+            size="lg"
+            className="w-full shadow-[0_16px_30px_-14px_rgba(49,85,237,0.7)] sm:w-auto"
+          >
             <Link to="/comecar">
               {conteudo.cta} <ArrowRight className="ml-2 size-4" />
             </Link>
           </Button>
-          <Button asChild size="lg" variant="outline" className="w-full sm:w-auto">
-            <Link to="/login">Já tenho conta</Link>
-          </Button>
+          <Link
+            to="/login"
+            className="text-[14px] font-semibold text-[var(--texto-suave)] underline-offset-4 hover:underline"
+          >
+            Já tenho conta
+          </Link>
         </motion.div>
         <MosaicoMobile />
         <ul

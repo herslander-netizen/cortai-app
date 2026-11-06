@@ -35,7 +35,7 @@ export function FaixaDeFotos() {
             src={src}
             alt=""
             loading="lazy"
-            className="size-44 shrink-0 rounded-[28px] object-cover sm:size-56"
+            className="size-44 shrink-0 rounded-[28px] object-cover shadow-[0_18px_34px_-20px_rgba(40,40,120,0.5)] sm:size-56"
           />
         ))}
       </motion.div>
@@ -46,6 +46,7 @@ export function FaixaDeFotos() {
 export function Planos({ conteudo }: { conteudo: ConteudoApresentacao["planos"] }) {
   return (
     <section
+      data-cta-propria
       style={TEMA_CLARO}
       className="relative bg-[var(--painel)] px-4 py-16 text-[var(--texto)] sm:py-24"
     >
@@ -70,7 +71,7 @@ export function Planos({ conteudo }: { conteudo: ConteudoApresentacao["planos"] 
                 className={`h-full rounded-[28px] p-6 ${
                   gratis
                     ? "bg-[var(--figaro-primary)] text-[var(--figaro-on-primary)] shadow-[0_24px_50px_-28px_rgba(61,79,224,0.8)]"
-                    : "bg-[var(--cartao)] ring-1 ring-[var(--linha)]"
+                    : "bg-[var(--cartao)] shadow-[0_22px_44px_-28px_rgba(40,40,120,0.45)] ring-1 ring-[var(--linha)]"
                 }`}
               >
                 <div className="flex items-center justify-between">
@@ -105,7 +106,7 @@ export function Planos({ conteudo }: { conteudo: ConteudoApresentacao["planos"] 
                 </ul>
                 <Button
                   asChild
-                  variant={gratis ? "secondary" : "default"}
+                  variant={gratis ? "secondary" : "outline"}
                   className={`mt-6 w-full ${gratis ? "bg-white text-[#1b2687] hover:bg-white/90" : ""}`}
                 >
                   <Link to="/comecar">{gratis ? "Começar grátis" : "Testar o Studio"}</Link>
@@ -141,7 +142,7 @@ export function Perguntas({
           </p>
           <h2 className="mt-3 font-serif text-[30px] font-bold sm:text-[40px]">{bloco.titulo}</h2>
         </Revelar>
-        <div className="mt-8 divide-y divide-[var(--linha)] rounded-[24px] bg-[var(--cartao)] px-5">
+        <div className="mt-8 divide-y divide-[var(--linha)] rounded-[24px] bg-[var(--cartao)] px-5 shadow-[0_28px_56px_-32px_rgba(0,0,0,0.7)] ring-1 ring-white/5">
           {perguntas.map((q) => (
             <details key={q.pergunta} className="group py-4">
               <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-[15px] font-semibold">
@@ -165,6 +166,7 @@ export function Perguntas({
 export function ChamadaFinal({ conteudo }: { conteudo: ConteudoApresentacao["final"] }) {
   return (
     <section
+      data-cta-propria
       style={TEMA_CLARO}
       className="relative bg-[var(--fundo)] px-4 pb-28 pt-14 text-[var(--texto)] sm:pb-10 sm:pt-24"
     >
@@ -175,7 +177,11 @@ export function ChamadaFinal({ conteudo }: { conteudo: ConteudoApresentacao["fin
           {conteudo.titulo}
         </h2>
         <p className="mt-3 text-[16px] text-[var(--texto-suave)]">{conteudo.texto}</p>
-        <Button asChild size="lg" className="mt-7 w-full sm:w-auto">
+        <Button
+          asChild
+          size="lg"
+          className="mt-7 w-full shadow-[0_16px_30px_-14px_rgba(49,85,237,0.7)] sm:w-auto"
+        >
           <Link to="/comecar">
             Criar minha conta grátis <ArrowRight className="ml-2 size-4" />
           </Link>
@@ -192,26 +198,48 @@ export function ChamadaFinal({ conteudo }: { conteudo: ConteudoApresentacao["fin
   );
 }
 
-/** Botão fixo no celular: aparece depois da abertura e acompanha a rolagem (só transform/opacity). */
+/** Botão fixo no celular: aparece depois da abertura e some quando a seção já tem o seu próprio botão. */
 export function BarraDoCelular() {
-  const [visivel, setVisivel] = useState(false);
+  const [rolou, setRolou] = useState(false);
+  const [comBotaoProprio, setComBotaoProprio] = useState(false);
   useEffect(() => {
-    const ver = () => setVisivel(window.scrollY > 520);
+    const ver = () => setRolou(window.scrollY > 520);
     ver();
     window.addEventListener("scroll", ver, { passive: true });
-    return () => window.removeEventListener("scroll", ver);
+    const alvos = [...document.querySelectorAll("[data-cta-propria]")];
+    const visiveis = new Set<Element>();
+    const obs = new IntersectionObserver(
+      (entradas) => {
+        for (const e of entradas) {
+          if (e.isIntersecting) visiveis.add(e.target);
+          else visiveis.delete(e.target);
+        }
+        setComBotaoProprio(visiveis.size > 0);
+      },
+      { threshold: 0.35 },
+    );
+    alvos.forEach((a) => obs.observe(a));
+    return () => {
+      window.removeEventListener("scroll", ver);
+      obs.disconnect();
+    };
   }, []);
+  const visivel = rolou && !comBotaoProprio;
   return (
     <AnimatePresence>
       {visivel ? (
         <motion.div
-          className="fixed inset-x-0 bottom-0 z-30 border-t border-[var(--linha)] bg-[var(--fundo)] px-4 pb-[max(12px,env(safe-area-inset-bottom))] pt-3 shadow-[0_-8px_24px_-12px_rgba(40,40,120,0.35)] sm:hidden"
+          className="fixed inset-x-0 bottom-0 z-30 bg-[var(--fundo)] px-4 pb-[max(12px,env(safe-area-inset-bottom))] pt-3 shadow-[0_-1px_0_var(--linha),0_-14px_28px_-16px_rgba(40,40,120,0.4)] sm:hidden"
           initial={{ y: 80, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: 80, opacity: 0 }}
           transition={{ duration: 0.2 }}
         >
-          <Button asChild size="lg" className="w-full">
+          <Button
+            asChild
+            size="lg"
+            className="w-full shadow-[0_14px_26px_-12px_rgba(49,85,237,0.7)]"
+          >
             <Link to="/comecar">Começar grátis · sem cartão</Link>
           </Button>
         </motion.div>
