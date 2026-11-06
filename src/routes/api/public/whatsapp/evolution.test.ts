@@ -293,6 +293,31 @@ describe("webhook da Evolution", () => {
     expect(r.status).toBe(404);
   });
 
+  it("no Worker, texto é processado depois da resposta (a Evolution não corta o atendimento no meio)", async () => {
+    const { comContextoDaRequisicao } = await import("@/lib/segundo-plano.server");
+    const adiados: Promise<unknown>[] = [];
+    let terminar: (v: { tratada: boolean; motivo: string }) => void = () => undefined;
+    processar.mockImplementationOnce(() => new Promise((resolver) => (terminar = resolver)));
+    const r = await comContextoDaRequisicao(
+      { waitUntil: (p: Promise<unknown>) => adiados.push(p) },
+      () =>
+        chamar(
+          mensagem({
+            key: { remoteJid: "5579999990000@s.whatsapp.net", id: "ABC" },
+            message: { conversation: "Bom dia" },
+          }),
+          comSegredo,
+        ),
+    );
+    // Respondeu antes de o atendimento terminar, e o trabalho ficou com o Worker.
+    expect(r.status).toBe(200);
+    expect(await r.json()).toMatchObject({ ok: true, motivo: "recebida" });
+    expect(processar).toHaveBeenCalledTimes(1);
+    expect(adiados).toHaveLength(1);
+    terminar({ tratada: true, motivo: "flow_bot" });
+    await Promise.all(adiados);
+  });
+
   it("corpo inválido: 400", async () => {
     const r = await post({
       request: new Request("https://previa.exemplo/api/public/whatsapp/evolution", {

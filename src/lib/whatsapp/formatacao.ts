@@ -28,6 +28,9 @@ function converterTrecho(t: string): string {
       if (titulo) return `*${limparNegrito(titulo[1] ?? "")}*`;
       // "- item" / "* item" / "+ item" → "• item" (o "*" no começo da linha seria lido como negrito aberto).
       l = l.replace(/^(\s*)[-*+]\s+/, "$1• ");
+      // "1. opção" / "1) opção" → "*1)* opção": o WhatsApp lê "1. " como lista e recua e quebra a linha (prints do
+      // dono, 05 e 06/11). Número em negrito, sem recuo, vale para Bot, Flow IA e avisos.
+      l = l.replace(/^(\d{1,2})[.)]\s+(?=\S)/, "*$1)* ");
       return l;
     })
     .join("\n")

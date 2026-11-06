@@ -43,8 +43,9 @@ export function reais(centavos: number | null | undefined): string {
 
 /** Pergunta com opções numeradas (a Evolution não tem botões confiáveis; números funcionam em todo canal). */
 export function menu(pergunta: string, opcoes: readonly Opcao[], rodape?: string): string {
-  const linhas = opcoes.map((o, i) => `${i + 1}. ${o.rotulo}`);
-  return [pergunta, ...linhas, ...(rodape ? ["", rodape] : [])].join("\n");
+  // Mesmo padrão do envio (`paraWhatsApp`): número em negrito sem recuo e uma linha em branco depois da pergunta.
+  const linhas = opcoes.map((o, i) => `*${i + 1})* ${o.rotulo}`);
+  return [pergunta, "", ...linhas, ...(rodape ? ["", rodape] : [])].join("\n");
 }
 
 export const TEXTOS = {

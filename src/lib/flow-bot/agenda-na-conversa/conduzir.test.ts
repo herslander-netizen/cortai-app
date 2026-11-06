@@ -78,9 +78,9 @@ describe("agendar na conversa", () => {
     const { portas, gravados } = portasFalsas({ livres: { "2026-11-07": LIVRES_SABADO } });
     const { respostas, estado } = await conversar(["quero marcar", "1", "1", "2", "sim"], portas);
     expect(respostas[0]![0]).toContain("Qual serviço");
-    expect(respostas[0]![0]).toContain("1. Corte — R$ 40,00");
+    expect(respostas[0]![0]).toContain("*1)* Corte — R$ 40,00");
     expect(respostas[1]![0]).toContain("Com quem");
-    expect(respostas[1]![0]).toContain("3. Tanto faz");
+    expect(respostas[1]![0]).toContain("*3)* Tanto faz");
     expect(respostas[2]![0]).toMatch(/Tenho estes horários livres:\n\n\*Sábado, 07\/11\*/);
     expect(respostas[2]![0]).toContain("*1)* 09:00");
     expect(respostas[3]![0]).toMatch(
@@ -249,7 +249,7 @@ describe("remarcar, cancelar e consultar", () => {
     const { portas } = portasFalsas({ agendamentos: [MARCADO, outro] });
     const r = await conduzir("quero cancelar", null, portas);
     expect(r?.textos[0]).toContain("Qual horário você quer cancelar?");
-    expect(r?.textos[0]).toContain("2. Barba — terça-feira, 10/11, às 09:00");
+    expect(r?.textos[0]).toContain("*2)* Barba — terça-feira, 10/11, às 09:00");
   });
 
   it("sem horário marcado: diz a verdade", async () => {

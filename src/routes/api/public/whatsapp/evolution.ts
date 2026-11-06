@@ -55,10 +55,9 @@ export const Route = createFileRoute("/api/public/whatsapp/evolution")({
         const { lerCorpoLimitado } = await import("@/lib/webhooks/read-limited-body.server");
         const lido = await lerCorpoLimitado(request, 4 * 1024 * 1024);
         if ("status" in lido) {
-          return new Response(
-            lido.status === 413 ? "Payload too large" : "Invalid payload",
-            { status: lido.status },
-          );
+          return new Response(lido.status === 413 ? "Payload too large" : "Invalid payload", {
+            status: lido.status,
+          });
         }
         let corpo: Record<string, unknown>;
         try {
@@ -209,7 +208,12 @@ export const Route = createFileRoute("/api/public/whatsapp/evolution")({
             if (!emSegundoPlano(trabalho)) await trabalho;
             return Response.json({ ok: true, motivo: "audio_recebido" });
           }
-          const r = await fluxo.processarMensagemRecebida({
+          // Texto também em segundo plano (06/11/2026): o atendimento espera o cliente terminar de digitar (3 s),
+          // roda o Flow Bot, grava e simula "digitando". Dentro da requisição, a Evolution desistia de esperar e o
+          // Cloudflare cortava o trabalho no meio — agendamento gravado e confirmação nunca enviada (prévia, 05/11
+          // 21:36; "Bom dia" sem resposta em 06/11). Responde 200 na hora; a deduplicação por mensagem continua no
+          // fluxo. Sem `waitUntil` (testes, servidor local), segue como antes, esperando e devolvendo 404.
+          const trabalho = fluxo.processarMensagemRecebida({
             sessaoId,
             mensagemExternaId: (chave["id"] as string) ?? null,
             telefone,
@@ -218,6 +222,17 @@ export const Route = createFileRoute("/api/public/whatsapp/evolution")({
             conteudo: texto,
             midiaUrl: null,
           });
+          const { emSegundoPlano } = await import("@/lib/segundo-plano.server");
+          const agendado = emSegundoPlano(
+            trabalho.catch((e: unknown) =>
+              console.error(
+                "[evolution] falha ao processar mensagem",
+                e instanceof Error ? e.message : e,
+              ),
+            ),
+          );
+          if (agendado) return Response.json({ ok: true, motivo: "recebida" });
+          const r = await trabalho;
           if (!r.tratada) return new Response("Unknown session", { status: 404 });
           return Response.json({ ok: true, motivo: r.motivo ?? null });
         }

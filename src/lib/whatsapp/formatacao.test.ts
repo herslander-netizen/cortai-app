@@ -20,8 +20,17 @@ describe("paraWhatsApp", () => {
     );
   });
 
-  it("lista numerada e texto sem formatação ficam como estão", () => {
-    const t = "Qual horário prefere?\n1. 09:00\n2. 10:30";
+  it("lista numerada vira número em negrito sem recuo (o WhatsApp recuava e quebrava '1. ')", () => {
+    expect(paraWhatsApp("Qual horário prefere?\n1. 09:00\n2) 10:30")).toBe(
+      "Qual horário prefere?\n*1)* 09:00\n*2)* 10:30",
+    );
+    expect(paraWhatsApp("Qual serviço você quer?\n  1. Limpeza de pele — R$ 120,00")).toBe(
+      "Qual serviço você quer?\n*1)* Limpeza de pele — R$ 120,00",
+    );
+  });
+
+  it("número no meio da frase e horário não viram lista", () => {
+    const t = "Seu horário é às 15. Chegue 10 min antes.\n2026 foi um ótimo ano";
     expect(paraWhatsApp(t)).toBe(t);
   });
 
@@ -74,7 +83,7 @@ describe("blocos de apresentação", () => {
   });
 
   it("linha com recuo perde o espaço no começo (WhatsApp não tem recuo)", () => {
-    expect(paraWhatsApp("Escolha:\n   1. 22:30\n\t2. 23:00")).toBe("Escolha:\n1. 22:30\n2. 23:00");
+    expect(paraWhatsApp("Escolha:\n   • 22:30\n\t• 23:00")).toBe("Escolha:\n• 22:30\n• 23:00");
   });
 });
 
