@@ -1,4 +1,4 @@
-import { Clock3, Scissors, UserRound } from "lucide-react";
+import { Clock3, HandHelping, UserRound } from "lucide-react";
 
 import { CabecalhoDaAgendaDireta } from "@/components/agendamento/CabecalhoDaAgendaDireta";
 import { StatusFuncionamento } from "@/components/agendamento/StatusFuncionamento";
@@ -85,7 +85,7 @@ export function PreviaDireta({ data, config }: { data: PaginaPublica; config: Pa
                   i === 0 ? "is-ativo border-gold bg-ink2" : "border-line bg-ink2/60"
                 }`}
               >
-                <Scissors size={16} className="text-gold" aria-hidden />
+                <HandHelping size={16} className="text-gold" aria-hidden />
                 <span className="min-w-0">
                   <span className="block truncate text-sm font-semibold text-paper">{s.nome}</span>
                   <span className="mt-0.5 flex items-center gap-1 text-xs text-mute">

@@ -62,7 +62,7 @@ export const Route = createFileRoute("/barbeiro/marca/")({
     meta: [
       { title: "Personalizar Página — Flow" },
       { name: "description", content: "Personalize e publique a página pública do seu negócio." },
-      { property: "og:title", content: "Personalizar página — Flow" },
+      { property: "og:title", content: "Personalizar Página — Flow" },
       {
         property: "og:description",
         content: "Escolha o layout, tema e seções que aparecem na página pública do seu negócio.",
@@ -78,7 +78,7 @@ export const Route = createFileRoute("/barbeiro/marca/")({
 /** Evita o outlet vazio enquanto o bundle da tela ou os dados do negócio chegam no celular. */
 function MarcaPendente() {
   return (
-    <Screen voltarPara="/barbeiro" title="Personalizar página">
+    <Screen voltarPara="/barbeiro" title="Personalizar Página">
       <EsqueletoFormulario campos={6} />
     </Screen>
   );
@@ -148,7 +148,7 @@ function MarcaPage() {
           exit={{ opacity: 0, transition: transicaoSaida }}
           transition={transicaoEntrada}
         >
-          <Screen title="Personalizar página">
+          <Screen title="Personalizar Página">
             <p className="text-sm text-brick">
               Entre como responsável pelo negócio para personalizar a página.
             </p>
@@ -375,22 +375,22 @@ function Editor({
       <h2 className="mb-3 px-4 text-sm font-semibold text-[var(--figaro-on-surface-variant,var(--mute))]">
         Layout e tema
       </h2>
-      <section className="mb-6 overflow-hidden rounded-[28px] border border-[#e8edf2] bg-white shadow-[var(--elevacao-2)]">
+      <section className="mb-6 overflow-hidden rounded-[28px] bg-[var(--figaro-surface-container-low,var(--ink2))] shadow-[var(--elevacao-2)]">
         <div className="aspect-video overflow-hidden bg-background">
           <CapaDoTema tema={visual.tema} />
         </div>
         <div className="p-5 pt-6">
-          <div className="grid grid-cols-2 divide-x divide-line">
+          <div className="grid grid-cols-2 divide-x divide-[var(--figaro-outline-variant,var(--line))]">
             <div className="min-w-0 pr-4">
               <LayoutTemplate
                 size={24}
-                className="text-[#27569a]"
+                className="text-[var(--figaro-primary,var(--primary))]"
                 aria-label="Layout"
               />
-              <p className="mt-3 truncate text-lg font-semibold leading-7 text-[#202833]">
+              <p className="mt-3 truncate text-lg font-semibold leading-7 text-[var(--figaro-on-surface,var(--paper))]">
                 {LAYOUTS[visual.layout]}
               </p>
-              <p className="text-sm leading-5 text-[#687385]">
+              <p className="text-sm leading-5 text-[var(--figaro-on-surface-variant,var(--mute))]">
                 {visual.layout === "cortai-chat"
                   ? "Atendimento em conversa"
                   : `${totalDeSecoesAtivas(e.config)} seções ativas`}
@@ -402,7 +402,7 @@ function Editor({
                 className="text-[var(--figaro-primary,var(--primary))]"
                 aria-label="Tema"
               />
-              <p className="mt-3 truncate text-lg font-semibold leading-7 text-paper">
+              <p className="mt-3 truncate text-lg font-semibold leading-7 text-[var(--figaro-on-surface,var(--paper))]">
                 {TEMAS[visual.tema].nome}
               </p>
             </div>
@@ -480,9 +480,14 @@ function Editor({
                 <Save />
                 Salvar rascunho
               </Button>
-              <Button className="h-12" disabled={e.busy} onClick={() => void publicar()}>
+              <Button
+                className="h-12"
+                loading={e.busy}
+                disabled={e.busy}
+                onClick={() => void publicar()}
+              >
                 <Send />
-                {e.busy ? "Publicando…" : "Publicar"}
+                Publicar
               </Button>
             </div>
           </div>

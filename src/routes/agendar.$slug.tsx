@@ -21,8 +21,8 @@ import {
   ArrowRight,
   Check,
   Clock3,
+  HandHelping,
   MessageCircle,
-  Scissors,
   UserRound,
 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -758,7 +758,7 @@ function AgendamentoPublico() {
                 servicoId === s.id ? "is-ativo border-gold bg-ink2" : "border-line bg-ink2/60"
               }`}
             >
-              <Scissors size={16} className="text-gold" aria-hidden />
+              <HandHelping size={16} className="text-gold" aria-hidden />
               <span className="min-w-0">
                 <span className="block truncate text-sm font-semibold text-paper">{s.nome}</span>
                 <span className="mt-0.5 flex items-center gap-1 text-xs text-mute">

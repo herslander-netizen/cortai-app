@@ -4,7 +4,7 @@ import {
   CircleSlash,
   DoorOpen,
   RefreshCw,
-  Scissors,
+  HandHelping,
   XCircle,
   type LucideIcon,
 } from "lucide-react";
@@ -23,8 +23,9 @@ const MAPA: Record<string, Visual> = {
     classe: "border-sage/40 text-sage",
   },
   na_cadeira: {
-    rotulo: "Na cadeira",
-    Icone: Scissors,
+    // Linguagem neutra para o cliente (vale para todos os segmentos).
+    rotulo: "Em atendimento",
+    Icone: HandHelping,
     classe: "border-sage/40 text-sage",
   },
   finalizado: {

@@ -1,6 +1,6 @@
 import { createFileRoute, Outlet } from "@tanstack/react-router";
 import { exigirPapel } from "@/lib/guarda";
-import { CalendarDays, Clock, Scissors, UserRound } from "lucide-react";
+import { CalendarDays, Clock, House, UserRound } from "lucide-react";
 import { TabBar, type TabItem } from "@/components/layout/TabBar";
 import { ClientBrand } from "@/components/layout/ClientBrand";
 import { ConviteDeInstalacao } from "@/components/pwa/ConviteDeInstalacao";
@@ -14,7 +14,7 @@ import { salvarContextoCliente, useContextoCliente } from "@/lib/contexto-client
 import { EsqueletoCascoCliente } from "@/components/layout/Esqueleto";
 
 const tabsBase: TabItem[] = [
-  { to: "/app", label: "Início", icon: Scissors },
+  { to: "/app", label: "Início", icon: House },
   { to: "/app/agendar", label: "Agendar", icon: CalendarDays },
   { to: "/app/historico", label: "Meus horários", icon: Clock },
   { to: "/app/perfil", label: "Perfil", icon: UserRound },

@@ -6,6 +6,7 @@ import { numeroParaWhatsApp } from "@/lib/comanda-ticket";
 import { FontesDaMarca } from "@/components/marca/FontesDaMarca";
 import {
   CalendarDays,
+  ChevronRight,
   Clock3,
   Instagram,
   MapPin,
@@ -162,18 +163,41 @@ export function PaginaPublicaConteudo({
     );
   const definicao = SEGMENTOS_CONFIG[tenant.segmento];
   const vocabulario = termos(tenant.segmento);
-  const cartaoDeServico = (servico: PaginaPublica["servicos"][number]) => (
-    <article key={servico.id} className="brand-service">
-      <div>
-        <h2>{servico.nome}</h2>
-        <p>
-          <Clock3 size={13} />
-          {servico.duracao_min} min
-        </p>
-      </div>
-      <strong>{brl(servico.preco_centavos)}</strong>
-    </article>
-  );
+  // Tocar no serviço já abre o agendamento com ele escolhido (como os modelos Site completo e Raízes fazem com
+  // "Agendar"). Sem agenda online, o cartão fica só informativo.
+  const cartaoDeServico = (servico: PaginaPublica["servicos"][number]) => {
+    const conteudo = (
+      <>
+        <div>
+          <h2>{servico.nome}</h2>
+          <p>
+            <Clock3 size={13} />
+            {servico.duracao_min} min
+          </p>
+        </div>
+        <span className="brand-service-preco">
+          <strong>{brl(servico.preco_centavos)}</strong>
+          {!limiteAtingido ? <ChevronRight size={16} aria-hidden /> : null}
+        </span>
+      </>
+    );
+    return !limiteAtingido ? (
+      <Link
+        key={servico.id}
+        to="/agendar/$slug"
+        params={{ slug: tenant.slug }}
+        search={{ ...buscaParaAgendar(origem), servico: servico.id }}
+        className="brand-service brand-service-link"
+        aria-label={`Agendar ${servico.nome}, ${servico.duracao_min} minutos, ${brl(servico.preco_centavos)}`}
+      >
+        {conteudo}
+      </Link>
+    ) : (
+      <article key={servico.id} className="brand-service">
+        {conteudo}
+      </article>
+    );
+  };
   // Serviços populares (Figaro `popularServicesType`): os 3 mais atendidos em 90 dias, se houver o que comparar.
   const destaques = config.secoes.servicos.populares
     ? [...data.servicos]
