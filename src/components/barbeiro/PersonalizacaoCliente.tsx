@@ -9,6 +9,8 @@ import { Field, Textarea } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Chip } from "@/components/ui/chip";
 import { Switch } from "@/components/ui/switch";
+import { Checkbox } from "@/components/ui/checkbox";
+import { registrarPreferenciaWhatsappDoCliente } from "@/lib/whatsapp/consentimento.functions";
 
 type Participa = "padrao" | "sim" | "nao";
 
@@ -41,6 +43,7 @@ export function PersonalizacaoCliente({
   onSalvo: () => void;
 }) {
   const salvar = useServerFn(salvarPersonalizacaoCliente);
+  const salvarConsentimentoWhatsapp = useServerFn(registrarPreferenciaWhatsappDoCliente);
   const c = ficha.cliente;
 
   const [participa, setParticipa] = useState<Participa>("padrao");
@@ -48,6 +51,7 @@ export function PersonalizacaoCliente({
   const [condicoes, setCondicoes] = useState("");
   const [observacoes, setObservacoes] = useState("");
   const [whats, setWhats] = useState(true);
+  const [confirmouConsentimentoWhatsapp, setConfirmouConsentimentoWhatsapp] = useState(false);
   const [salvando, setSalvando] = useState(false);
   const salvou = useSucessoDoBotao();
   const [aviso, setAviso] = useState<string | null>(null);
@@ -61,6 +65,7 @@ export function PersonalizacaoCliente({
     setCondicoes(c.condicoes_especiais ?? "");
     setObservacoes(c.observacoes_internas ?? "");
     setWhats(c.opt_in_whatsapp);
+    setConfirmouConsentimentoWhatsapp(false);
   }, [c]);
 
   const padraoTexto = ficha.padrao.fidelidadeAtiva
@@ -148,16 +153,30 @@ export function PersonalizacaoCliente({
 
       <div className="mt-6 flex min-h-12 items-center gap-4 border-t border-line pt-5">
         <div className="min-w-0 flex-1">
-          <p className="text-sm text-paper">Pode receber mensagens no WhatsApp</p>
-          <p className="mt-0.5 text-xs text-mute2">Avisos de horário, fila e retorno.</p>
+          <p className="text-sm text-paper">Autorização para mensagens no WhatsApp</p>
+          <p className="mt-0.5 text-xs text-mute2">Ative somente depois de confirmar que o cliente autorizou avisos de agendamento, fila e relacionamento.</p>
         </div>
         <Switch
           checked={whats}
           onCheckedChange={setWhats}
           aria-label="Pode receber mensagens no WhatsApp"
+          onCheckedChange={(valor) => {
+            setWhats(valor);
+            setConfirmouConsentimentoWhatsapp(false);
+          }}
           className="h-7 w-12 shrink-0 data-[state=checked]:bg-[var(--figaro-primary)] data-[state=unchecked]:bg-[var(--figaro-surface-container-highest)]"
         />
       </div>
+      {whats ? (
+        <label className="mt-3 flex items-start gap-3 text-xs text-mute2">
+          <Checkbox
+            checked={confirmouConsentimentoWhatsapp}
+            onCheckedChange={(valor) => setConfirmouConsentimentoWhatsapp(valor === true)}
+            className="mt-0.5"
+          />
+          <span>Confirmo que o cliente autorizou explicitamente receber neste número avisos de agendamento, fila de espera e relacionamento.</span>
+        </label>
+      ) : null}
 
       {erro ? (
         <Aviso tom="acao" className="mt-4">
@@ -182,6 +201,12 @@ export function PersonalizacaoCliente({
           setErro(null);
           setAviso(null);
           try {
+            if (whats && !confirmouConsentimentoWhatsapp) {
+              throw new Error("Confirme que o cliente autorizou o recebimento dessas mensagens.");
+            }
+            if (whats && !c.telefone?.trim()) {
+              throw new Error("Cadastre um telefone válido antes de registrar o consentimento.");
+            }
             await salvar({
               data: {
                 clienteId: c.id,
@@ -192,6 +217,12 @@ export function PersonalizacaoCliente({
                 optInWhatsapp: whats,
               },
             });
+            if (c.telefone?.trim()) {
+              await salvarConsentimentoWhatsapp({
+                data: { clienteId: c.id, autorizado: whats },
+              });
+            }
+            setConfirmouConsentimentoWhatsapp(false);
             setAviso("Personalização salva para este cliente.");
             salvou.confirmar();
             onSalvo();
