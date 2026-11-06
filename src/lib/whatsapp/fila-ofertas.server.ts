@@ -277,9 +277,16 @@ async function enviarOferta(ofertaId: string) {
   const telefone = String(cli?.telefone ?? "").replace(/\D/g, "");
   if (telefone.length < 10) return;
   const clienteId = (o.fila_de_espera as { cliente_id?: string | null } | null)?.cliente_id ?? null;
-  // Porteiro único: só quem confirmou o telefone e não pediu para parar recebe a oferta.
+  // Porteiro do telefone + autorização específica para receber ofertas da lista.
   const { decisaoDeEnvio } = await import("./porteiro.server");
   if (!(await decisaoDeEnvio(clienteId)).pode) return;
+  const { verificarConsentimentoWhatsapp } = await import("./consentimento.server");
+  const autorizacaoInicial = await verificarConsentimentoWhatsapp({
+    tenantId: o.tenant_id,
+    telefone,
+    finalidade: "lista_espera",
+  });
+  if (!autorizacaoInicial.pode) return;
 
   // Toda oferta vira um envio: entra nas entregas, falhas e métricas.
   const { data: envio, error: erroEnvio } = await db
@@ -370,6 +377,25 @@ async function enviarOferta(ofertaId: string) {
     telefone,
     nomeContato: cli?.nome ?? null,
   });
+  // Revalida no último instante para honrar SAIR mesmo após a oferta ser preparada.
+  const autorizacaoFinal = await verificarConsentimentoWhatsapp({
+    tenantId: o.tenant_id,
+    telefone,
+    finalidade: "lista_espera",
+  });
+  if (!autorizacaoFinal.pode) {
+    await db
+      .from("envios_de_whatsapp")
+      .update({
+        status: "falhou",
+        erro: autorizacaoFinal.motivo.slice(0, 500),
+        falhou_em: new Date().toISOString(),
+        proxima_tentativa_em: null,
+      })
+      .eq("id", envioId);
+    return;
+  }
+
   try {
     const r = await enviarPelaBarbearia({
       tenantId: o.tenant_id,
