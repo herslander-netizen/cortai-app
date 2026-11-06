@@ -24,3 +24,28 @@ describe("atendimento pelo WhatsApp", () => {
     ).toBeLessThan(depoisDoBot.indexOf("responderComCerebro({"));
   });
 });
+
+describe("barreira final de consentimento", () => {
+  it("o ponto único de envio confere o consentimento de todo aviso iniciado pelo negócio", () => {
+    const envio = fluxo.slice(fluxo.indexOf("export async function enviarPelaBarbearia"));
+    const corpo = envio.slice(0, 3000);
+    expect(corpo).toContain("if (input.iniciadaPelaBarbearia)");
+    expect(corpo).toContain("Aviso sem finalidade de consentimento declarada.");
+    expect(corpo).toContain("verificarConsentimentoWhatsapp");
+  });
+
+  it("todo remetente de aviso declara a finalidade (ou 'equipe') junto de iniciadaPelaBarbearia", () => {
+    const arquivos = [
+      "src/lib/whatsapp/aviso-atraso.server.ts",
+      "src/lib/whatsapp/notificacoes.server.ts",
+      "src/lib/whatsapp/fila-ofertas.server.ts",
+      "src/lib/whatsapp/aviso-equipe-whatsapp.server.ts",
+    ];
+    for (const caminho of arquivos) {
+      const texto = readFileSync(caminho, "utf8");
+      const usos = texto.split("iniciadaPelaBarbearia: true,").slice(1);
+      expect(usos.length, caminho).toBeGreaterThan(0);
+      for (const depois of usos) expect(depois.slice(0, 120), caminho).toContain("consentimento:");
+    }
+  });
+});

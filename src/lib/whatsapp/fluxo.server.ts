@@ -289,6 +289,11 @@ export async function enviarPelaBarbearia(input: {
   /** Lembrete, pós-atendimento, reativação: sujeito à janela de 24h no canal oficial. */
   iniciadaPelaBarbearia?: boolean;
   /**
+   * Obrigatório quando `iniciadaPelaBarbearia`: a finalidade do aviso ao cliente (conferida de novo aqui, na barreira
+   * final) ou "equipe" para aviso a profissional/dono, que tem opt-in próprio. Resposta a mensagem do cliente não usa.
+   */
+  consentimento?: import("./consentimento").FinalidadeWhatsapp | "equipe";
+  /**
    * Resposta automática: marca a mensagem do cliente como lida e mostra "digitando…" antes (só na Evolution).
    * Padrão: ligado para resposta automática; desligado para aviso iniciado pelo negócio e para quem digita no painel.
    */
@@ -297,6 +302,20 @@ export async function enviarPelaBarbearia(input: {
   // Padrão único de apresentação (formatação do WhatsApp) para toda mensagem livre que sai daqui.
   const { paraWhatsApp } = await import("./formatacao");
   input = { ...input, texto: paraWhatsApp(input.texto) };
+  // Barreira final de consentimento (governança 0058): aviso iniciado pelo negócio nunca sai sem finalidade declarada
+  // e autorizada. Falha de leitura bloqueia (fail-closed). Resposta ao cliente segue a janela do provedor.
+  if (input.iniciadaPelaBarbearia) {
+    if (!input.consentimento) throw new Error("Aviso sem finalidade de consentimento declarada.");
+    if (input.consentimento !== "equipe") {
+      const { verificarConsentimentoWhatsapp } = await import("./consentimento.server");
+      const decisao = await verificarConsentimentoWhatsapp({
+        tenantId: input.tenantId,
+        telefone: input.telefone,
+        finalidade: input.consentimento,
+      });
+      if (!decisao.pode) throw new Error(decisao.motivo);
+    }
+  }
   const db = await admin();
   // Provedor da própria conexão (Evolution/Meta) + trava de isolamento por negócio.
   const { gatewayDaSessao } = await import("./conexao-envio.server");

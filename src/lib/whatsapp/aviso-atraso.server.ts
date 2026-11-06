@@ -100,6 +100,7 @@ export async function avisarClienteDoAtraso(input: {
       texto: `${primeiro}, seu atendimento das ${hora} em ${rel.tenants?.nome ?? "nosso negócio"} vai atrasar cerca de ${input.minutos} min. Se precisar remarcar, responda aqui.`,
       porIa: true,
       iniciadaPelaBarbearia: true,
+      consentimento: "avisos_agendamento",
     });
     return { enviado: true, motivo: null, cliente };
   } catch (e) {

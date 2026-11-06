@@ -408,6 +408,7 @@ async function enviarOferta(ofertaId: string) {
       modelo,
       interativo: botoesInterativos(botoes, envioId),
       iniciadaPelaBarbearia: true,
+      consentimento: "lista_espera",
     });
     await db
       .from("envios_de_whatsapp")

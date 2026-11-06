@@ -888,6 +888,7 @@ async function executar(agendamentoId: string, tipo: TipoDeNotificacao): Promise
       modelo,
       interativo,
       iniciadaPelaBarbearia: true,
+      consentimento: finalidade,
     });
     externoId = r.externoId;
   } catch (e) {

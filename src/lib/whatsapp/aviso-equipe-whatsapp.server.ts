@@ -72,6 +72,7 @@ export async function avisarEquipePorWhatsapp(input: {
           texto: input.texto,
           porIa: false,
           iniciadaPelaBarbearia: true,
+          consentimento: "equipe",
         });
         resultado[alvo.userId] = { enviar: true, motivo: "enviado" };
       } catch {
