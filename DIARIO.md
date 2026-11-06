@@ -27,6 +27,7 @@ e o que fez. O diário até 17/10/2026 está guardado, sem alterações, em
 7. **Sem segredos:** nunca escreva chaves, senhas ou tokens aqui. Cite só o nome da variável.
 
 ## Decisões do dono
+- 2026-11-06: **Onboarding com uma geral visual** ("algumas coisas estão feias") e **entrada com telas brancas e letras escuras**, frases organizadas em duas linhas e símbolo do WhatsApp com telefone.
 - 2026-11-06: **Entrada: cartão e ícones como no vídeo de referência** ("manter o celular todo como o vídeo e os ícones com o mesmo efeito"): tela do sistema sem moldura de aparelho, linha da marca e legenda dentro do mesmo cartão; ícone ativo aceso com brilho e barrinha que enche durante o capítulo.
 - 2026-11-06: **Aviso "Cliente pediu atendimento" abre o WhatsApp do cliente** (toque no sininho, no aviso do navegador e no push).
 - 2026-11-06: **Entrada sem avaliações/estrelas e com o atendimento automático no WhatsApp**; as mini-histórias usam as telas reais do sistema (adaptadas), "algo que o cliente não diga que é diferente do sistema"; vídeo de referência como acréscimo.
@@ -253,7 +254,6 @@ Tudo o que o dono decidir com qualquer IA entra aqui, com a data. Vale para toda
 ## Próximas tarefas (ordem combinada)
 - **Auditoria de sessão (separada do redesign de entrada):** revisar a espera sem prazo de `getSessao()` na guarda de rotas protegidas (`src/lib/guarda.ts`) e concluir o teste manual autenticado em Android a 390 px. A reserva ampla de 20/10 foi repartida após as correções de autenticação de 20–26/10; não bloquear o trabalho visual de `/login`.
 - **Claude (31/10), depois do bot:** redesenhar as mensagens de sistema (avisos de sucesso, erro e mensagens com botão "apertar e voltar") no padrão visual do sistema. Só começar com a orientação do dono sobre a solução escolhida.
-- **Em andamento — Claude (06/11): Onboarding (`/barbeiro/configurar`, `components/onboarding/*`) — geral visual a pedido do dono; e cortes de texto em `OpcoesConectadas` (Regras da lista).** Sem banco.
 - **Em andamento — GPT: Flow Bot dentro do Flow, Fase A.** Concluir testes do orquestrador e validação estática do fluxo cooperativo documentado em `docs/fluxo-cooperativo-flow-bot-flow-ia.md`; sem telas da Fase B e sem aplicar migração 0055 sem autorização.
 - **Claude (30/10):** Avisos e Lembretes no padrão do Figaro — item 4 (saldo mensal do WhatsApp por plano, aviso na Agenda e pausa) aguardando decisões do dono ("depois resolvemos isso"). Itens 1, 2 e 3 feitos.
 
@@ -968,6 +968,13 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+### 2026-11-06 UTC — Claude — Onboarding no padrão Figaro; entrada refinada
+- **Onboarding (`/barbeiro/configurar`, de 935 para 122 linhas):** estado e ações em `onboarding/useConfiguracaoInicial.ts` + `useLogoELink.ts` (logo, link, equipe); passos em `onboarding/passos/*` (`MolduraDoPasso` com barra de progresso e rodapé de voltar redondo + pílula, sem linha; `PassoDoNegocio` com logo inteira em cartão; `PassoDaEquipe` com função em `OpcoesConectadas` e ícone neutro — saiu a tesoura; `PassoDasRegras` com `Chip` e `Switch`; `PassoDoModo` com Conversa/Tradicional conectados e prévia que muda com a escolha — antes era sempre a conversa e sem balões; `PassoDoLink` com domínio discreto e nome em destaque). Título do topo passa a ser o nome do passo. `EditorDeHorarios` (também usado em `/barbeiro/horarios` e `configurar-minha-barbearia`) agora em linhas de grupo com interruptor, chips de horário e `SeletorDeHorario` (`DiaDoHorario.tsx`), sem `input type=time`. Tela final: o link quebra só depois da barra. Boas-vindas: tesoura → `HandHelping`.
+- **`OpcoesConectadas`:** com 3+ opções o respiro lateral cai para `px-1.5` ("10 min", "Profissional" sem reticências). Não é usado na Agenda.
+- **Entrada:** telas do cartão brancas e letras escuras dos tokens (Agenda, WhatsApp, Gestão, Lembretes; a capa do Site segue a página real); frases mais curtas em duas linhas; rótulo com espaçamento menor; `IconeWhatsapp` (balão com telefone) no ícone do capítulo e no lembrete.
+- Testes: `onboarding/passos/passos.test.ts` (novo), `EditorDeHorarios.test.tsx`, `ConclusaoDoOnboarding.test.tsx`. Gates: tsc 0; vitest 313 / 2532 ok; eslint sem erro nos arquivos tocados; build ok; protocolo OK. Visual: passos conferidos numa página local temporária (removida) a 390 px no tema escuro; entrada a 390 px.
+- Pendente: a gaveta "Regras da lista" segue avisando "atualização do banco pendente" na prévia até a migração 0060 ser aplicada (autorização do dono).
+
 ### 2026-11-06 UTC — Claude — Entrada: cartão e ícones como no vídeo
 - `historias/Celular.tsx` virou o cartão do vídeo: sem corpo, ilha e barra de status; tela escalada em cima, linha fina ciano→lilás→rosa e a legenda do capítulo dentro do cartão (contorno fino, cantos de 28, até 80 % da largura, alinhado ao topo). `FlowWelcome` passa a legenda por `legenda`.
 - Novo `entrada/IconesDosCapitulos.tsx`: ícone ativo na cor da marca, levemente maior, com brilho (cópia desfocada que só muda de opacidade) e barrinha de progresso que enche (scaleX linear) até o próximo capítulo, recomeçando no toque; com "reduzir movimento" fica cheia e parada. `toque-afunda` nos botões.

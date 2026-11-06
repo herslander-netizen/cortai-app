@@ -83,7 +83,7 @@ export function HistoriaSite() {
           </div>
         </section>
 
-        <section className="h-1/2 bg-[var(--figaro-surface-container-low)] px-3 pt-2.5">
+        <section className="h-1/2 bg-[var(--figaro-surface)] px-3 pt-2.5">
           <b className="font-serif text-[17px] leading-none">Equipe</b>
           <div className="mt-2 flex gap-2">
             {EQUIPE.map((p, i) => (
@@ -143,7 +143,7 @@ export function HistoriaSite() {
       </motion.div>
 
       <motion.div
-        className="absolute inset-x-0 bottom-0 flex gap-1.5 border-t border-[var(--figaro-outline-variant)]/50 bg-[var(--figaro-surface-container-low)] px-2 py-1.5"
+        className="absolute inset-x-0 bottom-0 flex gap-1.5 border-t border-[var(--figaro-outline-variant)]/50 bg-[var(--figaro-surface)] px-2 py-1.5"
         initial={false}
         animate={{ y: rolou ? "0%" : "110%" }}
         transition={MOLA.padraoEspacial}

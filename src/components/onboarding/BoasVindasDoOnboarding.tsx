@@ -1,5 +1,13 @@
 import { useReducedMotion, motion } from "framer-motion";
-import { Check, ChevronRight, Circle, MapPin, Scissors, UsersRound, type LucideIcon } from "lucide-react";
+import {
+  Check,
+  ChevronRight,
+  Circle,
+  HandHelping,
+  MapPin,
+  UsersRound,
+  type LucideIcon,
+} from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -32,7 +40,7 @@ const PASSOS_INICIAIS: PassoInicial[] = [
     etapa: "servicos",
     titulo: "Configurar serviços",
     descricao: "O que você oferece de melhor.",
-    icone: Scissors,
+    icone: HandHelping,
   },
 ];
 
@@ -62,11 +70,7 @@ export function BoasVindasDoOnboarding({
       transition={reduzirMovimento ? { duration: 0 } : MOLA.rapidaEfeito}
       className="mx-auto flex min-h-[calc(100dvh-8rem)] w-full max-w-[520px] flex-col gap-4 py-4"
     >
-      <Card
-        variant="surface"
-        density="none"
-        className="rounded-[28px] px-5 py-6 text-center"
-      >
+      <Card variant="surface" density="none" className="rounded-[28px] px-5 py-6 text-center">
         <h1 className="mb-3 text-sm font-semibold text-paper">Bem-vindo ao</h1>
         <MarcaFlow variante="automatica" className="mx-auto h-9 w-auto" />
         <p className="mt-4 text-sm leading-relaxed text-mute">
@@ -142,13 +146,7 @@ export function BoasVindasDoOnboarding({
       </Card>
 
       <div className="sticky bottom-0 z-10 -mx-5 mt-auto border-t border-line bg-ink px-5 pb-[max(12px,env(safe-area-inset-bottom))] pt-3">
-        <Button
-          variant="primary"
-          size="lg"
-          type="button"
-          className="w-full"
-          onClick={onContinuar}
-        >
+        <Button variant="primary" size="lg" type="button" className="w-full" onClick={onContinuar}>
           {continuarLabel}
           <ChevronRight size={18} aria-hidden />
         </Button>

@@ -30,7 +30,7 @@ afterEach(async () => {
 });
 
 describe("EditorDeHorarios", () => {
-  it("recolhe e reabre a disponibilidade semanal sem remover os valores", async () => {
+  it("mostra o dia em linha de grupo: interruptor, chips de horário e intervalo por chip (sem input de hora)", async () => {
     const onChange = vi.fn();
     const host = await montar(
       createElement(EditorDeHorarios, {
@@ -49,17 +49,24 @@ describe("EditorDeHorarios", () => {
         segmento: "barbearia",
       }),
     );
-    const toggle = host.querySelector('button[aria-expanded="true"]') as HTMLButtonElement;
-    expect(toggle.textContent).toContain("Disponibilidade semanal");
-    expect(host.querySelector('input[type="time"]')).not.toBeNull();
+    expect(host.textContent).toContain("Disponibilidade semanal");
+    expect(host.querySelector('input[type="time"]')).toBeNull();
+    expect(host.querySelector('[role="switch"]')?.getAttribute("aria-checked")).toBe("true");
+    const chips = [...host.querySelectorAll('[data-slot="chip"]')].map((c) =>
+      c.textContent?.trim(),
+    );
+    expect(chips).toEqual(["09:00", "17:00", "Intervalo"]);
 
-    await act(async () => toggle.click());
-    expect(toggle.getAttribute("aria-expanded")).toBe("false");
-    expect(host.querySelector('[aria-hidden="true"][inert]')).not.toBeNull();
+    const intervalo = [...host.querySelectorAll("button")].find(
+      (b) => b.textContent?.trim() === "Intervalo",
+    )!;
+    await act(async () => intervalo.click());
+    expect(onChange).toHaveBeenCalledWith([
+      expect.objectContaining({ diaSemana: 1, intervaloInicio: "12:00", intervaloFim: "13:00" }),
+    ]);
 
-    await act(async () => toggle.click());
-    expect(toggle.getAttribute("aria-expanded")).toBe("true");
-    expect(host.querySelector('input[type="time"]')).not.toBeNull();
-    expect(onChange).not.toHaveBeenCalled();
+    const interruptor = host.querySelector('[role="switch"]') as HTMLButtonElement;
+    await act(async () => interruptor.click());
+    expect(onChange).toHaveBeenLastCalledWith([expect.objectContaining({ fechado: true })]);
   });
 });

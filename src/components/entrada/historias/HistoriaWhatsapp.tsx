@@ -65,8 +65,8 @@ export function HistoriaWhatsapp() {
 
   return (
     <TelaDaHistoria rotulo="cliente marcando horário sozinho numa conversa de WhatsApp com o negócio">
-      <div className="flex h-full flex-col bg-[var(--figaro-surface-container-low)]">
-        <div className="flex items-center gap-2 bg-[var(--figaro-surface)] px-2 py-2 shadow-[var(--elevacao-1)]">
+      <div className="flex h-full flex-col bg-[var(--figaro-surface)]">
+        <div className="flex items-center gap-2 border-b border-[var(--figaro-outline-variant)]/60 bg-[var(--figaro-surface)] px-2 py-2">
           <ChevronLeft size={14} className="text-[var(--figaro-on-surface-variant)]" />
           <span className="grid size-7 place-items-center rounded-full bg-[var(--figaro-primary)] text-[var(--figaro-on-primary)]">
             <Sparkles size={13} />
@@ -89,10 +89,10 @@ export function HistoriaWhatsapp() {
                 initial={{ opacity: 0, y: 10, scale: 0.97 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 transition={MOLA.padraoEspacial}
-                className={`max-w-[82%] shrink-0 whitespace-pre-line rounded-[12px] px-2 py-1 text-[9px] leading-[1.35] shadow-[var(--elevacao-1)] ${
+                className={`max-w-[82%] shrink-0 whitespace-pre-line rounded-[12px] px-2 py-1 text-[9px] leading-[1.35] ${
                   cliente
                     ? "self-end rounded-tr-[4px] bg-[color-mix(in_oklab,var(--sage)_24%,var(--figaro-surface))]"
-                    : "self-start rounded-tl-[4px] bg-[var(--figaro-surface)]"
+                    : "self-start rounded-tl-[4px] bg-[var(--figaro-surface-container-high)]"
                 }`}
               >
                 <ComNegrito texto={m.texto} />
@@ -111,7 +111,7 @@ export function HistoriaWhatsapp() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.2 }}
-                className="flex shrink-0 gap-[3px] self-start rounded-[12px] rounded-tl-[4px] bg-[var(--figaro-surface)] px-2.5 py-2"
+                className="flex shrink-0 gap-[3px] self-start rounded-[12px] rounded-tl-[4px] bg-[var(--figaro-surface-container-high)] px-2.5 py-2"
               >
                 {[0, 1, 2].map((p) => (
                   <motion.span
@@ -127,7 +127,7 @@ export function HistoriaWhatsapp() {
         </div>
 
         <div className="flex items-center gap-1.5 px-2 pb-2">
-          <span className="flex-1 rounded-full bg-[var(--figaro-surface)] px-3 py-1.5 text-[9px] text-[var(--figaro-on-surface-variant)]">
+          <span className="flex-1 rounded-full bg-[var(--figaro-surface-container-high)] px-3 py-1.5 text-[9px] text-[var(--figaro-on-surface-variant)]">
             Mensagem
           </span>
           <span className="grid size-7 place-items-center rounded-full bg-[var(--sage)] text-[var(--figaro-on-primary)]">

@@ -1,7 +1,6 @@
 import { useState } from "react";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useServerFn } from "@tanstack/react-start";
-import { ChevronDown, Sparkles } from "lucide-react";
+import { Sparkles } from "lucide-react";
 
 import { Aviso } from "@/components/ui/aviso";
 import { Button } from "@/components/ui/button";
@@ -9,7 +8,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { DIAS_DA_SEMANA, type HorarioSugerido } from "@/lib/ia/assistente";
 import { interpretarHorarios } from "@/lib/assistente.functions";
 import { SEGMENTOS_CONFIG, segmentoValido, type Segmento } from "@/lib/segmentos";
-import { MOLA } from "@/lib/movimento-figaro";
+import { SeletorDeHorario } from "@/components/ui/seletor-de-horario";
+import { DiaDoHorario, formaDaLinha, TITULO_DO_CAMPO, type CampoDoHorario } from "./DiaDoHorario";
 
 export function EditorDeHorarios({
   horarios,
@@ -22,8 +22,7 @@ export function EditorDeHorarios({
   semIA?: boolean;
   segmento?: Segmento;
 }) {
-  const reduzirMovimento = useReducedMotion();
-  const [horariosAbertos, setHorariosAbertos] = useState(true);
+  const [relogio, setRelogio] = useState<{ dia: number; campo: CampoDoHorario } | null>(null);
   const interpretar = useServerFn(interpretarHorarios);
   const [texto, setTexto] = useState("");
   const [pensando, setPensando] = useState(false);
@@ -39,169 +38,47 @@ export function EditorDeHorarios({
   function atualizar(dia: number, campos: Partial<HorarioSugerido>) {
     onChange(horarios.map((h) => (h.diaSemana === dia ? { ...h, ...campos } : h)));
   }
+  const ordenados = horarios.slice().sort((a, b) => a.diaSemana - b.diaSemana);
+  const doRelogio = relogio ? horarios.find((h) => h.diaSemana === relogio.dia) : undefined;
+  const valorDoRelogio = (relogio && doRelogio?.[relogio.campo]) || "09:00";
 
   return (
     <div>
-      <section className="overflow-hidden rounded-[28px] border border-line bg-ink2">
+      <div className="flex items-center justify-between gap-3 px-1">
+        <p className="text-sm font-semibold text-mute">Disponibilidade semanal</p>
         <Button
           type="button"
           variant="ghost"
-          aria-expanded={horariosAbertos}
-          onClick={() => setHorariosAbertos((aberto) => !aberto)}
-          className="h-auto min-h-14 w-full justify-between rounded-none px-4 py-3 text-left"
+          className="h-auto min-h-12 px-2 text-[13px] font-semibold text-primary"
+          onClick={() => onChange(padrao.map((horario) => ({ ...horario })))}
         >
-          <span className="text-sm font-semibold text-paper">Disponibilidade semanal</span>
-          <motion.span
-            aria-hidden
-            animate={{ rotate: horariosAbertos ? 180 : 0 }}
-            transition={reduzirMovimento ? { duration: 0 } : MOLA.padraoEspacial}
-            className="shrink-0 text-mute"
-          >
-            <ChevronDown size={22} />
-          </motion.span>
+          {rotuloPadrao}
         </Button>
-        <motion.div
-          initial={false}
-          animate={{ height: horariosAbertos ? "auto" : 0, opacity: horariosAbertos ? 1 : 0 }}
-          transition={
-            reduzirMovimento
-              ? { duration: 0 }
-              : { height: MOLA.tamanho, opacity: MOLA.padraoEfeito }
-          }
-          style={{ overflow: "hidden" }}
-          aria-hidden={!horariosAbertos}
-          inert={!horariosAbertos}
-        >
-          <div className="p-4">
-            <Button
-              type="button"
-              variant="outline"
-              className="w-full text-sm"
-              onClick={() => onChange(padrao.map((horario) => ({ ...horario })))}
-            >
-              {rotuloPadrao}
-            </Button>
-
-            <ul className="mt-4 divide-y divide-line border-y border-line">
-              {horarios
-                .slice()
-                .sort((a, b) => a.diaSemana - b.diaSemana)
-                .map((h) => (
-                  <li key={h.diaSemana} className="flex flex-wrap items-center gap-3 py-3">
-                    <span className="w-20 shrink-0 text-sm text-paper">
-                      {DIAS_DA_SEMANA[h.diaSemana]}
-                    </span>
-                    <label className="flex items-center gap-2 text-xs text-mute">
-                      <input
-                        type="checkbox"
-                        checked={!h.fechado}
-                        aria-label={`${DIAS_DA_SEMANA[h.diaSemana]} aberto`}
-                        onChange={(e) => atualizar(h.diaSemana, { fechado: !e.target.checked })}
-                      />
-                      Aberto
-                    </label>
-                    <AnimatePresence initial={false} mode="wait">
-                      {h.fechado ? (
-                        <motion.div
-                          key="fechado"
-                          initial={reduzirMovimento ? false : { opacity: 0, height: 0 }}
-                          animate={{ opacity: 1, height: "auto" }}
-                          exit={{ opacity: 0, height: 0 }}
-                          transition={
-                            reduzirMovimento
-                              ? { duration: 0 }
-                              : { height: MOLA.tamanho, opacity: MOLA.padraoEfeito }
-                          }
-                          className="overflow-hidden text-xs text-mute2"
-                        >
-                          Fechado
-                        </motion.div>
-                      ) : (
-                        <motion.div
-                          key="aberto"
-                          initial={reduzirMovimento ? false : { opacity: 0, height: 0 }}
-                          animate={{ opacity: 1, height: "auto" }}
-                          exit={{ opacity: 0, height: 0 }}
-                          transition={
-                            reduzirMovimento
-                              ? { duration: 0 }
-                              : { height: MOLA.tamanho, opacity: MOLA.padraoEfeito }
-                          }
-                          className="flex items-center gap-2 overflow-hidden"
-                        >
-                          <input
-                            type="time"
-                            aria-label={`${DIAS_DA_SEMANA[h.diaSemana]} abre`}
-                            value={h.abre}
-                            onChange={(e) => atualizar(h.diaSemana, { abre: e.target.value })}
-                            className="field-control w-auto px-2 text-sm"
-                          />
-                          <span className="text-xs text-mute2">às</span>
-                          <input
-                            type="time"
-                            aria-label={`${DIAS_DA_SEMANA[h.diaSemana]} fecha`}
-                            value={h.fecha}
-                            onChange={(e) => atualizar(h.diaSemana, { fecha: e.target.value })}
-                            className="field-control w-auto px-2 text-sm"
-                          />
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                    {!h.fechado ? (
-                      h.intervaloInicio && h.intervaloFim ? (
-                        <span className="flex w-full flex-wrap items-center gap-2 pl-0 text-xs text-mute sm:flex-nowrap sm:pl-20">
-                          Intervalo
-                          <input
-                            type="time"
-                            aria-label={`${DIAS_DA_SEMANA[h.diaSemana]} início do intervalo`}
-                            value={h.intervaloInicio}
-                            onChange={(e) => atualizar(h.diaSemana, { intervaloInicio: e.target.value })}
-                            className="field-control w-auto px-2 text-sm"
-                          />
-                          <span className="text-mute2">às</span>
-                          <input
-                            type="time"
-                            aria-label={`${DIAS_DA_SEMANA[h.diaSemana]} fim do intervalo`}
-                            value={h.intervaloFim}
-                            onChange={(e) => atualizar(h.diaSemana, { intervaloFim: e.target.value })}
-                            className="field-control w-auto px-2 text-sm"
-                          />
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            className="h-auto min-h-12 px-2 text-mute underline"
-                            onClick={() =>
-                              atualizar(h.diaSemana, { intervaloInicio: null, intervaloFim: null })
-                            }
-                          >
-                            Tirar
-                          </Button>
-                        </span>
-                      ) : (
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          className="ml-20 h-auto min-h-12 text-xs text-mute underline"
-                          onClick={() =>
-                            atualizar(h.diaSemana, { intervaloInicio: "12:00", intervaloFim: "13:00" })
-                          }
-                        >
-                          + Intervalo
-                        </Button>
-                      )
-                    ) : null}
-                  </li>
-                ))}
-            </ul>
-          </div>
-        </motion.div>
-      </section>
+      </div>
+      <ul className="mt-1 flex flex-col gap-[3px]">
+        {ordenados.map((h, i) => (
+          <DiaDoHorario
+            key={h.diaSemana}
+            horario={h}
+            forma={formaDaLinha(i, ordenados.length)}
+            onMudar={(campos) => atualizar(h.diaSemana, campos)}
+            onEscolherHora={(campo) => setRelogio({ dia: h.diaSemana, campo })}
+          />
+        ))}
+      </ul>
+      <SeletorDeHorario
+        aberto={relogio !== null}
+        titulo={relogio ? `${DIAS_DA_SEMANA[relogio.dia]} · ${TITULO_DO_CAMPO[relogio.campo]}` : ""}
+        valor={valorDoRelogio}
+        onAberto={(v) => !v && setRelogio(null)}
+        onEscolher={(v) => relogio && atualizar(relogio.dia, { [relogio.campo]: v })}
+      />
 
       {semIA ? null : (
         <div className="mt-5 rounded-xl border border-gold/40 bg-ink2 px-4 py-4">
           <p className="flex items-center gap-2 text-sm font-semibold text-paper">
-            <Sparkles size={16} className="text-gold" aria-hidden /> Quer que o Flow configure
-            isso para você?
+            <Sparkles size={16} className="text-gold" aria-hidden /> Quer que o Flow configure isso
+            para você?
           </p>
           <Textarea
             value={texto}

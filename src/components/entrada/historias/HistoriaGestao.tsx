@@ -50,9 +50,9 @@ export function HistoriaGestao() {
 
   return (
     <TelaDaHistoria rotulo="menu do painel com sua página, desempenho da semana e agenda do dia">
-      <div className="flex h-full flex-col gap-[3px] bg-[var(--drawer-surface)] px-2.5 pt-2">
+      <div className="flex h-full flex-col gap-[3px] bg-[var(--figaro-surface)] px-2.5 pt-2">
         <div className="mb-3 flex items-center gap-2">
-          <span className="grid size-8 place-items-center overflow-hidden rounded-full bg-[var(--drawer-card)]">
+          <span className="grid size-8 place-items-center overflow-hidden rounded-full bg-[var(--figaro-surface-container)]">
             <IconeFlow className="size-8" />
           </span>
           <span className="min-w-0 flex-1 leading-tight">
@@ -62,7 +62,7 @@ export function HistoriaGestao() {
           <Settings size={14} className="text-[var(--figaro-on-surface-variant)]" />
         </div>
 
-        <div className="flex items-center gap-2 rounded-t-[18px] rounded-b-[4px] bg-[var(--drawer-card)] px-2.5 py-2">
+        <div className="flex items-center gap-2 rounded-t-[18px] rounded-b-[4px] bg-[var(--figaro-surface-container)] px-2.5 py-2">
           <Link2 size={15} className="text-[var(--sage)]" />
           <span className="flex-1 leading-tight">
             <b className="block text-[11px]">Sua Página</b>
@@ -75,7 +75,7 @@ export function HistoriaGestao() {
         <motion.div
           layout="position"
           transition={MOLA.padraoEspacial}
-          className="rounded-b-[18px] rounded-t-[4px] bg-[var(--drawer-band)] pb-1"
+          className="rounded-b-[18px] rounded-t-[4px] bg-[var(--figaro-surface-container-high)] pb-1"
         >
           <AnimatePresence initial={false}>
             {aberta ? (
@@ -94,7 +94,7 @@ export function HistoriaGestao() {
                     v: <Contador ate={29} formatar={(n) => `${Math.round(n)}%`} />,
                   },
                 ].map((b) => (
-                  <div key={b.r} className="rounded-[12px] bg-[var(--drawer-card)] px-2 py-1.5">
+                  <div key={b.r} className="rounded-[12px] bg-[var(--figaro-surface)] px-2 py-1.5">
                     <p className="text-[15px] font-semibold leading-tight tabular-nums">{b.v}</p>
                     <p className="text-[8px] text-[var(--figaro-on-surface-variant)]">{b.r}</p>
                   </div>
@@ -115,7 +115,7 @@ export function HistoriaGestao() {
 
         <motion.div
           layout="position"
-          className="mt-2.5 flex items-center gap-2.5 rounded-[18px] bg-[var(--drawer-card)] px-3 py-2.5"
+          className="mt-2.5 flex items-center gap-2.5 rounded-[18px] bg-[var(--figaro-surface-container)] px-3 py-2.5"
           animate={{ scale: passo === 3 ? 0.97 : 1 }}
           transition={MOLA.padraoEspacial}
         >
@@ -139,7 +139,7 @@ export function HistoriaGestao() {
               return (
                 <div
                   key={item.nome}
-                  className={`flex items-center gap-2.5 bg-[var(--drawer-card)] px-3 py-2 text-[11px] ${forma(i, DIA_A_DIA.length)}`}
+                  className={`flex items-center gap-2.5 bg-[var(--figaro-surface-container)] px-3 py-2 text-[11px] ${forma(i, DIA_A_DIA.length)}`}
                 >
                   <Icone size={14} strokeWidth={1.75} className="text-[var(--figaro-primary)]" />
                   {item.nome}

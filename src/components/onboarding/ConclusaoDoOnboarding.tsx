@@ -10,7 +10,9 @@ import { fonteDoLink, trechoDigitado } from "@/lib/conclusao-do-onboarding";
 import { CONCLUSAO, CURVA, MOLA } from "@/lib/movimento-figaro";
 
 /** Link que aparece letra a letra, com cursor. Quem usa leitor de tela lê o link inteiro de uma vez. */
-function LinkDigitado({ texto, parado }: { texto: string; parado: boolean }) {
+function LinkDigitado({ texto: link, parado }: { texto: string; parado: boolean }) {
+  // Quebra só depois da barra (nunca no meio do nome): "previa…/bella-rosa-demo" vira domínio + endereço.
+  const texto = link.replace("/", "/\u200B");
   const [n, setN] = useState(parado ? texto.length : 0);
   const [cursor, setCursor] = useState(true);
   const digitando = n < texto.length;
@@ -38,9 +40,9 @@ function LinkDigitado({ texto, parado }: { texto: string; parado: boolean }) {
 
   return (
     <p
-      aria-label={texto}
-      className="mt-2 break-all font-semibold text-paper"
-      style={{ fontSize: fonteDoLink(texto, 342) }}
+      aria-label={link}
+      className="mt-2 break-words font-semibold text-paper"
+      style={{ fontSize: fonteDoLink(link, 290) }}
     >
       <span aria-hidden>
         {trechoDigitado(texto, n)}

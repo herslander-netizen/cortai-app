@@ -4,7 +4,9 @@
  * O capítulo de avaliações saiu a pedido do dono (06/11/2026).
  */
 import { motion } from "framer-motion";
-import { Bell, CalendarPlus, MessageCircle } from "lucide-react";
+import { Bell, CalendarPlus } from "lucide-react";
+
+import { IconeWhatsapp } from "./IconeWhatsapp";
 
 import { MOLA } from "@/lib/movimento-figaro";
 import { TelaDaHistoria, usePassos } from "./base";
@@ -13,7 +15,7 @@ export const PASSOS_LEMBRETES = [900, 1300, 1300, 1900] as const;
 
 const AVISOS = [
   {
-    icone: MessageCircle,
+    icone: IconeWhatsapp,
     de: "Studio Aurora · WhatsApp",
     titulo: "Lembrete do horário",
     texto: "Oi, Carla! Amanhã às 09:15 você tem Corte e finalização com Ana. Confirma?",
@@ -37,19 +39,19 @@ export function HistoriaLembretes() {
   return (
     <TelaDaHistoria rotulo="lembretes no WhatsApp do cliente e avisos para a equipe">
       <div className="relative h-full">
-        {/* Papel de parede da tela de bloqueio: gradiente de tokens, sem foto nem logo. */}
-        <div className="absolute inset-0 bg-[linear-gradient(165deg,var(--figaro-primary)_0%,var(--figaro-tertiary)_100%)]" />
-        <div className="absolute inset-0 bg-[var(--figaro-inverse-surface)]/15" />
-        <div className="relative px-3 pt-4 text-[var(--figaro-inverse-on-surface)]">
+        {/* Tela de bloqueio clara (dono, 06/11: fundo branco e letras escuras para contraste). */}
+        <div className="relative px-3 pt-4 text-[var(--figaro-on-surface)]">
           <p className="text-[38px] font-semibold leading-none tracking-[-0.04em]">08:00</p>
-          <p className="mt-1 text-[10px] opacity-90">quinta-feira, 13 de novembro</p>
+          <p className="mt-1 text-[10px] text-[var(--figaro-on-surface-variant)]">
+            quinta-feira, 13 de novembro
+          </p>
           <div className="mt-4 space-y-1.5">
             {AVISOS.map((a, i) => {
               const Icone = a.icone;
               return (
                 <motion.div
                   key={a.titulo}
-                  className="flex gap-2 rounded-[14px] bg-[var(--figaro-surface)]/92 p-2 text-[var(--figaro-on-surface)] shadow-[var(--elevacao-1)]"
+                  className="flex gap-2 rounded-[14px] bg-[var(--figaro-surface-container)] p-2 text-[var(--figaro-on-surface)]"
                   initial={false}
                   animate={{
                     opacity: passo > i ? 1 : 0,

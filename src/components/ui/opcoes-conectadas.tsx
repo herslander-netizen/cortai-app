@@ -39,8 +39,10 @@ export function OpcoesConectadas<T extends string>({
             aria-pressed={marcada}
             onClick={() => onChange(o.valor)}
             className={cn(
-              "inline-flex min-h-12 min-w-0 flex-1 items-center justify-center gap-2 px-4 text-sm font-medium transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring motion-reduce:transition-none",
+              "inline-flex min-h-12 min-w-0 flex-1 items-center justify-center gap-2 text-sm font-medium transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring motion-reduce:transition-none",
               raio,
+              // Três ou mais opções: menos respiro lateral para "10 min" e "Profissional" caberem sem reticências.
+              opcoes.length >= 3 ? "px-1.5" : "px-4",
               marcada
                 ? "bg-[var(--figaro-primary-container,var(--gold))] text-[var(--figaro-on-primary-container,var(--ink))]"
                 : "bg-[var(--figaro-surface-container-highest,var(--ink3))] text-paper",

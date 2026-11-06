@@ -89,10 +89,10 @@ export function FlowWelcome({ onCreateAccount, onSignIn, onCustomerBooking }: Fl
                   exit={{ opacity: 0, y: reduceMotion ? 0 : -6 }}
                   transition={MOLA.padraoEspacial}
                 >
-                  <p className="mb-1.5 text-[12px] font-bold uppercase tracking-[0.3em] text-[var(--figaro-tertiary)]">
+                  <p className="mb-1.5 text-[12px] font-bold uppercase tracking-[0.18em] text-[var(--figaro-tertiary)]">
                     {capitulo.rotulo}
                   </p>
-                  <h1 className="whitespace-pre-line text-[clamp(13px,3.8vw,17px)] font-medium leading-snug tracking-[-0.01em] text-paper">
+                  <h1 className="whitespace-pre-line text-[15px] font-medium leading-snug tracking-[-0.01em] text-paper [@media(max-width:370px)]:text-[14px]">
                     {capitulo.frase}
                   </h1>
                 </motion.div>

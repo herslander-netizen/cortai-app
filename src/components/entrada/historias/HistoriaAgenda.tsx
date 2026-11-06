@@ -18,7 +18,7 @@ const DIAS = [
   { n: 15, d: "Sáb" },
   { n: 16, d: "Dom", fechado: true },
 ];
-const HORAS = ["13:00", "15:00", "16:30"];
+const HORAS = ["13:00", "15:00", "16:30", "17:30", "18:00"];
 const EQUIPE = ["Ana Souza", "Bia Costa"];
 const TOQUES = [
   { x: 50, y: 20, apertando: true },
@@ -89,7 +89,7 @@ export function HistoriaAgenda() {
         {passo <= 2 ? (
           <motion.div
             key="horarios"
-            className="relative h-full bg-[var(--figaro-surface-container-low)]"
+            className="relative h-full bg-[var(--figaro-surface)]"
             exit={{ opacity: 0 }}
           >
             <Cabecalho titulo="Corte e finalização" />
@@ -175,7 +175,7 @@ export function HistoriaAgenda() {
         ) : passo === 3 ? (
           <motion.div
             key="dados"
-            className="relative h-full bg-[var(--figaro-surface-container-low)]"
+            className="relative h-full bg-[var(--figaro-surface)]"
             initial={{ opacity: 0, x: 24 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0 }}

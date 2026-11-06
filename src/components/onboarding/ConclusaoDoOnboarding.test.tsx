@@ -48,7 +48,11 @@ describe("ConclusaoDoOnboarding", () => {
     vi.useFakeTimers();
     montar(false);
     const link = () => host!.querySelector<HTMLElement>("[aria-label='cortai.dev/loja']")!;
-    const visivel = () => link().querySelector("span[aria-hidden]")!.firstChild!.textContent;
+    // A quebra só depois da barra é um espaço de largura zero; o texto lido continua o link.
+    const visivel = () =>
+      link()
+        .querySelector("span[aria-hidden]")!
+        .firstChild!.textContent!.replace(/\u200B/g, "");
     expect(visivel()).toBe("");
     await act(async () => {
       await vi.advanceTimersByTimeAsync(32 * 6 + 5);
@@ -63,9 +67,9 @@ describe("ConclusaoDoOnboarding", () => {
   it("com menos movimento mostra o link inteiro de uma vez", () => {
     montar(true);
     const link = host!.querySelector<HTMLElement>("[aria-label='cortai.dev/loja']")!;
-    expect(link.querySelector("span[aria-hidden]")!.firstChild!.textContent).toBe(
-      "cortai.dev/loja",
-    );
+    expect(
+      link.querySelector("span[aria-hidden]")!.firstChild!.textContent!.replace(/\u200B/g, ""),
+    ).toBe("cortai.dev/loja");
   });
 
   it("liga os botões às ações", () => {
