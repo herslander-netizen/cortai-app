@@ -1,41 +1,57 @@
 /**
- * Capítulo "Seu site": capa do negócio, troca de tema revelada a partir do toque (personalização), rolagem até equipe
- * e serviços e toque em "Agendar". Dados ilustrativos, linguagem neutra.
+ * Capítulo "Seu site": a página pública de verdade (`/$slug`, capturas de 06/11/2026; vídeo de referência do dono) em
+ * miniatura. Capa com o nome do negócio e a frase em serifa; a página rola até "Equipe" e "Serviços" ("Mais procurados"
+ * aberto, categorias recolhidas) e o toque cai em "Agendar". A barra fixa de baixo (WhatsApp + "Agendar horário")
+ * aparece depois da capa, como no site. Dados ilustrativos, linguagem neutra.
  */
 import { motion } from "framer-motion";
-import { ChevronDown, Clock3, Menu, Palette } from "lucide-react";
+import {
+  CalendarDays,
+  ChevronDown,
+  ChevronUp,
+  Clock3,
+  Flame,
+  Menu,
+  MessageCircle,
+} from "lucide-react";
 
 import { MOLA } from "@/lib/movimento-figaro";
 import { Iniciais, TelaDaHistoria, Toque, usePassos } from "./base";
 
-export const PASSOS_SITE = [1500, 1000, 1500, 1500, 1200] as const;
+export const PASSOS_SITE = [1700, 1900, 1400, 1300] as const;
 
-const SERVICOS = [
-  { nome: "Design de sobrancelha", preco: "R$ 45", min: 40 },
-  { nome: "Corte e finalização", preco: "R$ 70", min: 50 },
-  { nome: "Manicure", preco: "R$ 35", min: 45 },
+const EQUIPE = [
+  { nome: "Ana S.", faz: "Cortes e finalização" },
+  { nome: "Bia C.", faz: "Coloração" },
+  { nome: "Rafa L.", faz: "Unhas" },
+];
+const MAIS_PROCURADOS = [
+  { nome: "Corte e finalização", preco: "R$ 85,00", min: 45 },
+  { nome: "Hidratação profunda", preco: "R$ 95,00", min: 50 },
+];
+const CATEGORIAS = [
+  { nome: "Cabelo", n: 3 },
+  { nome: "Unhas", n: 2 },
 ];
 
 export function HistoriaSite() {
   const passo = usePassos(PASSOS_SITE);
-  const temaNovo = passo >= 2;
-  const rolou = passo >= 3;
-  const toque =
-    passo === 1 || passo === 2
-      ? { x: 84, y: 8, apertando: passo === 2 }
-      : passo >= 3
-        ? { x: 82, y: 51, apertando: passo === 4 }
-        : { x: 60, y: 40, visivel: false };
+  const rolou = passo >= 1;
+  const toque = [
+    { x: 50, y: 50, visivel: false },
+    { x: 50, y: 50, visivel: false },
+    { x: 82, y: 52, apertando: false },
+    { x: 82, y: 52, apertando: true },
+  ][passo]!;
 
   return (
-    <TelaDaHistoria rotulo="página pública do negócio com serviços e agendamento">
+    <TelaDaHistoria rotulo="página pública do negócio com equipe, serviços e agendamento">
       <motion.div
         className="flex h-[200%] flex-col"
         initial={false}
         animate={{ y: rolou ? "-50%" : "0%" }}
-        transition={MOLA.padraoEspacial}
+        transition={{ duration: 1.1, ease: [0.2, 0, 0, 1] }}
       >
-        {/* Página 1: capa */}
         <section className="relative h-1/2 overflow-hidden">
           <img
             src="/marca/flow/flow-capa-neutra.png"
@@ -43,87 +59,101 @@ export function HistoriaSite() {
             className="absolute inset-0 h-full w-full object-cover"
           />
           <div className="absolute inset-0 bg-[var(--figaro-inverse-surface)]/45" />
-          {/* Tema novo cresce a partir do toque, como na personalização da página. */}
-          <motion.span
-            className="absolute right-[16%] top-[8%] block size-[60px] rounded-full bg-[var(--figaro-tertiary)]"
-            style={{ x: "50%", y: "-50%" }}
-            initial={false}
-            animate={{ scale: temaNovo ? 22 : 0, opacity: temaNovo ? 0.92 : 0 }}
-            transition={{ duration: 0.7, ease: [0.2, 0, 0, 1] }}
-          />
           <div className="relative flex h-full flex-col px-4 pb-4 pt-3 text-[var(--figaro-inverse-on-surface)]">
-            <div className="flex items-center justify-between">
-              <b className="text-[12px] leading-tight tracking-tight">
+            <div className="flex items-start justify-between">
+              <b className="font-serif text-[14px] leading-tight">
                 Studio
                 <br />
                 Aurora
               </b>
-              <span className="flex items-center gap-2">
-                <span className="grid size-6 place-items-center rounded-full bg-[var(--figaro-inverse-on-surface)]/20">
-                  <Palette size={12} />
-                </span>
-                <Menu size={14} />
-              </span>
+              <Menu size={16} />
             </div>
             <div className="flex flex-1 flex-col items-center justify-center text-center">
-              <p className="text-[25px] font-extrabold leading-[1.05] tracking-[-0.03em]">
-                Seu momento,
-                <br />
-                do seu jeito
+              <p className="font-serif text-[26px] leading-[1.08]">
+                Seu tempo de se cuidar, do seu jeito.
               </p>
-              <p className="mt-2 max-w-[210px] text-[10px] leading-snug opacity-85">
-                Atendimento com hora marcada, equipe dedicada e um espaço pensado para você.
+              <p className="mt-2 max-w-[230px] text-[9px] leading-snug opacity-90">
+                Cabelo, unhas e olhar com atendimento acolhedor e hora marcada.
               </p>
-              <span className="mt-3 rounded-full bg-[var(--figaro-inverse-on-surface)] px-4 py-2 text-[10px] font-bold text-[var(--figaro-inverse-surface)]">
-                Agendar agora
+              <span className="mt-4 rounded-[4px] bg-[var(--figaro-inverse-on-surface)] px-5 py-2.5 text-[10px] font-semibold text-[var(--figaro-inverse-surface)]">
+                Agendar horário
               </span>
             </div>
-            <p className="flex flex-col items-center text-[9px] opacity-80">
-              Conheça o espaço
-              <ChevronDown size={12} />
-            </p>
+            <ChevronDown size={14} className="mx-auto opacity-80" />
           </div>
         </section>
 
-        {/* Página 2: equipe e serviços */}
-        <section className="h-1/2 space-y-2.5 px-3 pt-3">
-          <div className="rounded-[16px] bg-[var(--figaro-surface-container)] p-2.5">
-            <b className="text-[11px]">Equipe</b>
-            <div className="mt-2 flex justify-between">
-              {["Ana Souza", "Rafa Lima", "Bia Costa"].map((n, i) => (
-                <span key={n} className="flex flex-1 flex-col items-center gap-1">
-                  <Iniciais nome={n} destaque={i === 0} />
-                  <span className="text-[9px] text-[var(--figaro-on-surface-variant)]">
-                    {n.split(" ")[0]}
-                  </span>
-                </span>
-              ))}
-            </div>
-          </div>
-          <div className="overflow-hidden rounded-[16px] bg-[var(--figaro-surface-container)]">
-            <p className="px-2.5 pt-2.5 text-[11px] font-bold">Mais procurados</p>
-            {SERVICOS.map((s, i) => (
-              <div
-                key={s.nome}
-                className="mx-1 my-1 flex items-center justify-between gap-2 rounded-[10px] bg-[var(--figaro-surface)] px-2 py-1.5"
-              >
-                <span className="min-w-0">
-                  <b className="block truncate text-[10px]">{s.nome}</b>
-                  <span className="flex items-center gap-1 text-[9px] text-[var(--figaro-on-surface-variant)]">
-                    {s.preco} · <Clock3 size={9} /> {s.min} min
-                  </span>
-                </span>
-                <motion.span
-                  className="shrink-0 rounded-full bg-[var(--figaro-primary)] px-2.5 py-1 text-[9px] font-bold text-[var(--figaro-on-primary)]"
-                  animate={{ scale: i === 0 && passo === 4 ? 0.92 : 1 }}
-                  transition={MOLA.rapidaEspacial}
-                >
-                  Agendar
-                </motion.span>
-              </div>
+        <section className="h-1/2 bg-[var(--figaro-surface-container-low)] px-3 pt-2.5">
+          <b className="font-serif text-[17px] leading-none">Equipe</b>
+          <div className="mt-2 flex gap-2">
+            {EQUIPE.map((p, i) => (
+              <span key={p.nome} className="flex flex-1 flex-col items-center text-center">
+                <Iniciais nome={p.nome} destaque={i === 0} />
+                <b className="mt-1 text-[9px]">{p.nome}</b>
+                <span className="text-[7px] text-[var(--figaro-on-surface-variant)]">{p.faz}</span>
+              </span>
             ))}
           </div>
+          <b className="mt-3 block font-serif text-[17px] leading-none">Serviços</b>
+          <p className="mt-1.5 flex items-center justify-between border-t border-[var(--figaro-outline-variant)]/50 pt-1.5 text-[10px] font-semibold">
+            <span className="flex items-center gap-1">
+              Mais procurados <Flame size={10} className="text-[var(--figaro-tertiary)]" />
+            </span>
+            <ChevronUp size={11} />
+          </p>
+          {MAIS_PROCURADOS.map((s, i) => (
+            <div
+              key={s.nome}
+              className="flex items-center justify-between gap-2 border-t border-[var(--figaro-outline-variant)]/50 py-1.5"
+            >
+              <span className="min-w-0">
+                <b className="block truncate font-serif text-[11px]">{s.nome}</b>
+                <span className="flex items-center gap-1.5 text-[8px] text-[var(--figaro-on-surface-variant)]">
+                  {s.preco}
+                  <span className="flex items-center gap-0.5">
+                    <Clock3 size={8} /> {s.min} min
+                  </span>
+                </span>
+              </span>
+              <motion.span
+                className="shrink-0 rounded-[6px] bg-[var(--figaro-inverse-surface)] px-3 py-1.5 text-[9px] font-medium text-[var(--figaro-inverse-on-surface)]"
+                animate={{ scale: i === 0 && passo === 3 ? 0.92 : 1 }}
+                transition={MOLA.rapidaEspacial}
+              >
+                Agendar
+              </motion.span>
+            </div>
+          ))}
+          {CATEGORIAS.map((c) => (
+            <p
+              key={c.nome}
+              className="flex items-center justify-between border-t border-[var(--figaro-outline-variant)]/50 py-1.5 text-[10px] font-semibold"
+            >
+              <span>
+                {c.nome}
+                <span className="font-normal text-[var(--figaro-on-surface-variant)]">
+                  {" "}
+                  · {c.n}
+                </span>
+              </span>
+              <ChevronDown size={11} />
+            </p>
+          ))}
         </section>
+      </motion.div>
+
+      <motion.div
+        className="absolute inset-x-0 bottom-0 flex gap-1.5 border-t border-[var(--figaro-outline-variant)]/50 bg-[var(--figaro-surface-container-low)] px-2 py-1.5"
+        initial={false}
+        animate={{ y: rolou ? "0%" : "110%" }}
+        transition={MOLA.padraoEspacial}
+      >
+        <span className="grid size-7 place-items-center rounded-[6px] border border-[var(--figaro-outline-variant)]">
+          <MessageCircle size={12} />
+        </span>
+        <span className="flex flex-1 items-center justify-center gap-1 rounded-[6px] bg-[var(--figaro-surface-container-high)] text-[9px] font-semibold">
+          <CalendarDays size={10} /> Agendar horário
+        </span>
       </motion.div>
       <Toque {...toque} />
     </TelaDaHistoria>

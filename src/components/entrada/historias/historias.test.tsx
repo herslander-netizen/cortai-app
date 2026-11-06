@@ -50,8 +50,8 @@ describe("mini-histórias da entrada (vídeo de referência do dono, 06/11)", ()
     expect(CAPITULOS.map((c) => c.id)).toEqual([
       "gestao",
       "agenda",
+      "whatsapp",
       "lembretes",
-      "avaliacoes",
       "site",
     ]);
     for (const c of CAPITULOS) {
@@ -80,6 +80,18 @@ describe("mini-histórias da entrada (vídeo de referência do dono, 06/11)", ()
     }
   });
 
+  it("sem avaliações nem estrelas; o WhatsApp usa os textos reais do atendimento", () => {
+    for (const f of arquivos) {
+      const t = readFileSync(`${PASTA}/${f}`, "utf8");
+      expect(t, f).not.toMatch(/★|Estrelas|HistoriaAvaliacoes|Nova avaliação/);
+    }
+    const zap = readFileSync(`${PASTA}/HistoriaWhatsapp.tsx`, "utf8");
+    expect(zap).toContain("Qual serviço você quer?");
+    expect(zap).toContain("Tenho estes horários livres:");
+    expect(zap).toContain("Confira seu agendamento:");
+    expect(zap).toContain("Responda *sim* para confirmar ou *não* para mudar.");
+  });
+
   it("se identifica como exemplo para leitores de tela", () => {
     const base = readFileSync(`${PASTA}/base.tsx`, "utf8");
     expect(base).toContain("Exemplo visual:");
@@ -90,7 +102,7 @@ describe("mini-histórias da entrada (vídeo de referência do dono, 06/11)", ()
     vi.useFakeTimers();
     const alvo = await montarAgenda();
     expect(alvo.textContent).toContain("Novembro, 2026");
-    expect(alvo.textContent).not.toContain("Agendamento confirmado");
+    expect(alvo.textContent).not.toContain("Horário garantido");
     for (const d of PASSOS_AGENDA.slice(0, -1)) {
       await act(async () => {
         vi.advanceTimersByTime(d);
@@ -99,12 +111,12 @@ describe("mini-histórias da entrada (vídeo de referência do dono, 06/11)", ()
     await act(async () => {
       vi.advanceTimersByTime(800);
     });
-    expect(alvo.textContent).toContain("Agendamento confirmado");
+    expect(alvo.textContent).toContain("Horário garantido");
   });
 
   it("com movimento reduzido fica parada no passo final", async () => {
     movimento.reduzido = true;
     const alvo = await montarAgenda();
-    expect(alvo.textContent).toContain("Agendamento confirmado");
+    expect(alvo.textContent).toContain("Horário garantido");
   });
 });

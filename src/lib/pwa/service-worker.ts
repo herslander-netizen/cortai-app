@@ -86,6 +86,8 @@ self.addEventListener("notificationclick", (e) => {
   e.notification.close();
   const link = (e.notification.data && e.notification.data.link) || "/barbeiro/agenda";
   e.waitUntil((async () => {
+    /* WhatsApp do cliente abre fora do app: nunca troca a tela do painel por wa.me. */
+    if (link.indexOf("https://wa.me/") === 0) return self.clients.openWindow(link);
     const janelas = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
     const janela = janelas[0];
     if (janela) {

@@ -15,6 +15,7 @@ import {
   type Notificacao,
 } from "@/lib/notificacoes";
 import { mostrarAviso } from "@/lib/avisos-do-navegador";
+import { ehLinkDoWhatsApp } from "@/lib/whatsapp/pedido-de-atendimento";
 import { molaFolha, transicaoBase, transicaoRapida } from "@/lib/motion";
 import { useMenosMovimento } from "@/hooks/useMovimento";
 import { Button } from "@/components/ui/button";
@@ -230,7 +231,7 @@ export function SinoDeAvisos() {
         /* silencioso: navegar é mais importante que marcar */
       }
     }
-    if (aviso.link?.startsWith("https://wa.me/")) {
+    if (ehLinkDoWhatsApp(aviso.link)) {
       window.open(aviso.link, "_blank", "noopener,noreferrer");
     } else if (aviso.link) void navigate({ to: aviso.link as never });
   }

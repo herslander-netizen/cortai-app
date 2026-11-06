@@ -71,12 +71,16 @@ describe("destinos padrão dos avisos", () => {
   it("usam rotas reais do painel, nunca /painel", () => {
     for (const arquivo of [
       "src/lib/push/aviso-sininho.server.ts",
-      "src/lib/whatsapp/fluxo.server.ts",
+      // O aviso "Cliente pediu atendimento" abre o WhatsApp do cliente; sem telefone usável, volta ao início do painel.
+      "src/lib/whatsapp/pedido-de-atendimento.ts",
     ]) {
       const fonte = readFileSync(arquivo, "utf8");
       expect(fonte).not.toMatch(/["']\/painel["']/);
       expect(fonte).toContain("LINKS_DE_TELA.inicio");
     }
+    expect(readFileSync("src/lib/whatsapp/fluxo.server.ts", "utf8")).not.toMatch(
+      /["']\/painel["']/,
+    );
     expect(LINKS_DE_TELA.inicio).toBe("/barbeiro");
   });
 });

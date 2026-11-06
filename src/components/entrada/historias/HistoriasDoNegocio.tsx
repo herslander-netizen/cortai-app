@@ -1,34 +1,34 @@
 /**
- * Capítulos "Lembretes" e "Avaliações" da entrada. Mostram só o que o Flow faz: aviso no WhatsApp para o
- * cliente, push para a equipe e avaliação depois do atendimento. Dados ilustrativos.
+ * Capítulo "Lembretes" da entrada. Mostra só o que o Flow faz, com os textos reais: lembrete no WhatsApp do cliente
+ * (`conversa-padrao.ts`) e os avisos da equipe com os títulos do catálogo (`avisos/catalogo.ts`). Dados ilustrativos.
+ * O capítulo de avaliações saiu a pedido do dono (06/11/2026).
  */
 import { motion } from "framer-motion";
-import { Bell, MessageCircle, Star } from "lucide-react";
+import { Bell, CalendarPlus, MessageCircle } from "lucide-react";
 
 import { MOLA } from "@/lib/movimento-figaro";
-import { Contador, Estrelas, TelaDaHistoria, usePassos } from "./base";
+import { TelaDaHistoria, usePassos } from "./base";
 
 export const PASSOS_LEMBRETES = [900, 1300, 1300, 1900] as const;
-export const PASSOS_AVALIACOES = [1300, 1700, 2100] as const;
 
 const AVISOS = [
   {
     icone: MessageCircle,
     de: "Studio Aurora · WhatsApp",
-    titulo: "Lembrete do seu horário",
-    texto: "Amanhã, 09:15, com Ana. Responda 1 para confirmar.",
+    titulo: "Lembrete do horário",
+    texto: "Oi, Carla! Amanhã às 09:15 você tem Corte e finalização com Ana. Confirma?",
   },
   {
     icone: Bell,
     de: "Flow",
-    titulo: "Horário confirmado",
-    texto: "Carla confirmou sexta, 09:15.",
+    titulo: "Horário confirmado pelo cliente",
+    texto: "Carla confirmou sexta, 14/11, às 09:15.",
   },
   {
-    icone: Star,
+    icone: CalendarPlus,
     de: "Flow",
-    titulo: "Nova avaliação ★★★★★",
-    texto: "“Atendimento impecável, voltarei com certeza.”",
+    titulo: "Novo agendamento",
+    texto: "Paula marcou Escova modeladora pelo WhatsApp, sábado às 10:00.",
   },
 ];
 
@@ -74,80 +74,6 @@ export function HistoriaLembretes() {
               );
             })}
           </div>
-        </div>
-      </div>
-    </TelaDaHistoria>
-  );
-}
-
-const BARRAS = [78, 14, 5, 2, 1];
-const COMENTARIOS = [
-  {
-    nome: "Carla S.",
-    servico: "Design de sobrancelha",
-    texto: "Atendimento impecável, voltarei com certeza.",
-  },
-  {
-    nome: "Júlia M.",
-    servico: "Corte e finalização",
-    texto: "Pontual, caprichosa e um espaço lindo.",
-  },
-  { nome: "Paula R.", servico: "Manicure", texto: "Marquei pelo WhatsApp em um minuto." },
-  { nome: "Marina T.", servico: "Design de sobrancelha", texto: "Saí exatamente como queria." },
-];
-
-export function HistoriaAvaliacoes() {
-  const passo = usePassos(PASSOS_AVALIACOES);
-  return (
-    <TelaDaHistoria rotulo="avaliações dos clientes depois do atendimento">
-      <div className="flex h-full flex-col px-3 pt-3">
-        <b className="text-[13px]">Avaliações</b>
-        <div className="mt-2 flex items-center gap-3 rounded-[16px] bg-[var(--figaro-surface-container)] p-2.5">
-          <div className="text-center">
-            <p className="text-[26px] font-extrabold leading-none">
-              <Contador ate={4.8} formatar={(n) => n.toFixed(1).replace(".", ",")} />
-            </p>
-            <Estrelas n={5} />
-            <p className="text-[8px] text-[var(--figaro-on-surface-variant)]">126 avaliações</p>
-          </div>
-          <div className="flex-1 space-y-[3px]">
-            {BARRAS.map((v, i) => (
-              <div
-                key={i}
-                className="flex items-center gap-1 text-[8px] text-[var(--figaro-on-surface-variant)]"
-              >
-                <span className="w-2">{5 - i}</span>
-                <span className="h-[5px] flex-1 overflow-hidden rounded-full bg-[var(--figaro-surface-container-highest)]">
-                  <motion.span
-                    className="block h-full origin-left rounded-full bg-[var(--figaro-tertiary)]"
-                    style={{ width: `${v}%` }}
-                    initial={{ scaleX: 0 }}
-                    animate={{ scaleX: passo >= 1 ? 1 : 0 }}
-                    transition={{ ...MOLA.padraoEspacial, delay: i * 0.06 }}
-                  />
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-        <div className="relative mt-2 min-h-0 flex-1 overflow-hidden">
-          <motion.div
-            className="space-y-1.5"
-            initial={false}
-            animate={{ y: passo >= 2 ? "-34%" : "0%" }}
-            transition={{ duration: 1.4, ease: [0.2, 0, 0, 1] }}
-          >
-            {COMENTARIOS.map((c) => (
-              <div key={c.nome} className="rounded-[12px] bg-[var(--figaro-surface-container)] p-2">
-                <div className="flex items-center justify-between">
-                  <b className="text-[10px]">{c.nome}</b>
-                  <Estrelas n={5} tamanho={8} />
-                </div>
-                <p className="text-[8px] text-[var(--figaro-on-surface-variant)]">{c.servico}</p>
-                <p className="mt-0.5 text-[9px] leading-snug">{c.texto}</p>
-              </div>
-            ))}
-          </motion.div>
         </div>
       </div>
     </TelaDaHistoria>

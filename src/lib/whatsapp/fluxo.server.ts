@@ -1,5 +1,5 @@
 import { normalizarTelefone, variantesDoTelefone } from "@/lib/telefone";
-import { LINKS_DE_TELA } from "@/lib/links-de-tela";
+import { avisoDePedidoDeAtendimento } from "@/lib/whatsapp/pedido-de-atendimento";
 /**
  * Fluxo de uma mensagem de WhatsApp dentro do Flow.
  *
@@ -1168,10 +1168,7 @@ async function responderComCerebro(input: {
     await db
       .rpc("criar_notificacao", {
         _tenant: input.tenantId,
-        _tipo: "whatsapp_humano",
-        _titulo: "Cliente pediu atendimento",
-        _corpo: `${input.telefone}: "${input.texto.slice(0, 100)}"`,
-        _link: LINKS_DE_TELA.inicio,
+        ...avisoDePedidoDeAtendimento(input.telefone, input.texto),
       })
       .then(
         () => undefined,

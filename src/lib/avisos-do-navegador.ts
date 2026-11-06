@@ -41,7 +41,9 @@ export function mostrarAviso(titulo: string, corpo?: string | null, link?: strin
     const n = new Notification(titulo, opcoes);
     n.onclick = () => {
       window.focus();
-      if (link) window.location.assign(link);
+      // WhatsApp do cliente abre fora do app; o painel continua onde estava.
+      if (link?.startsWith("https://wa.me/")) window.open(link, "_blank", "noopener,noreferrer");
+      else if (link) window.location.assign(link);
       n.close();
     };
   } catch {

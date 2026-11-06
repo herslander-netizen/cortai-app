@@ -235,14 +235,11 @@ export async function responderComFlowBot(input: EntradaDoBot): Promise<boolean>
       .from("conversas_whatsapp")
       .update({ modo_humano_ate: prazoDoHumano(agora, config.pausaHumanoMin) })
       .eq("id", input.conversaId);
-    const { LINKS_DE_TELA } = await import("@/lib/links-de-tela");
+    const { avisoDePedidoDeAtendimento } = await import("@/lib/whatsapp/pedido-de-atendimento");
     await db
       .rpc("criar_notificacao", {
         _tenant: input.tenantId,
-        _tipo: "whatsapp_humano",
-        _titulo: "Cliente pediu atendimento",
-        _corpo: `${input.telefone}: "${input.texto.slice(0, 100)}"`,
-        _link: LINKS_DE_TELA.inicio,
+        ...avisoDePedidoDeAtendimento(input.telefone, input.texto),
       })
       .then(
         () => undefined,

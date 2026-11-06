@@ -127,19 +127,3 @@ export function Iniciais({ nome, destaque = false }: { nome: string; destaque?: 
     </span>
   );
 }
-
-/** Estrelas cheias (exemplo). */
-export function Estrelas({ n = 5, tamanho = 10 }: { n?: number; tamanho?: number }) {
-  return (
-    <span
-      className="inline-flex gap-[1px] text-[var(--figaro-tertiary)]"
-      style={{ fontSize: tamanho }}
-    >
-      {Array.from({ length: 5 }, (_, i) => (
-        <span key={i} className={i < n ? "" : "opacity-30"}>
-          ★
-        </span>
-      ))}
-    </span>
-  );
-}

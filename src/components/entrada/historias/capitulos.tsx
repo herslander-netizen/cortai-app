@@ -1,20 +1,24 @@
 /**
  * Os cinco capítulos da entrada (vídeo de referência e inspiração do dono, 06/11/2026), na ordem da inspiração:
- * gestão, agenda, lembretes, avaliações e site.
+ * gestão, agenda, atendimento no WhatsApp, lembretes e site. Avaliações saiu e o atendimento automático no WhatsApp
+ * entrou (dono, 06/11/2026).
  */
 import type { ReactNode } from "react";
-import { BarChart3, BellRing, CalendarDays, Globe, Star, type LucideIcon } from "lucide-react";
+import {
+  BarChart3,
+  BellRing,
+  CalendarDays,
+  Globe,
+  MessageCircle,
+  type LucideIcon,
+} from "lucide-react";
 
 import { duracaoTotal } from "./base";
 import { HistoriaAgenda, PASSOS_AGENDA } from "./HistoriaAgenda";
 import { HistoriaSite, PASSOS_SITE } from "./HistoriaSite";
 import { HistoriaGestao, PASSOS_GESTAO } from "./HistoriaGestao";
-import {
-  HistoriaAvaliacoes,
-  HistoriaLembretes,
-  PASSOS_AVALIACOES,
-  PASSOS_LEMBRETES,
-} from "./HistoriasDoNegocio";
+import { HistoriaLembretes, PASSOS_LEMBRETES } from "./HistoriasDoNegocio";
+import { HistoriaWhatsapp, PASSOS_WHATSAPP } from "./HistoriaWhatsapp";
 
 export type Capitulo = {
   id: string;
@@ -44,20 +48,20 @@ export const CAPITULOS: readonly Capitulo[] = [
     historia: () => <HistoriaAgenda />,
   },
   {
+    id: "whatsapp",
+    icone: MessageCircle,
+    rotulo: "WhatsApp",
+    frase: "O cliente marca pelo WhatsApp,\nsozinho, a qualquer hora.",
+    duracao: duracaoTotal(PASSOS_WHATSAPP),
+    historia: () => <HistoriaWhatsapp />,
+  },
+  {
     id: "lembretes",
     icone: BellRing,
     rotulo: "Lembretes",
     frase: "Avisos no WhatsApp lembram\ncada cliente na hora certa.",
     duracao: duracaoTotal(PASSOS_LEMBRETES),
     historia: () => <HistoriaLembretes />,
-  },
-  {
-    id: "avaliacoes",
-    icone: Star,
-    rotulo: "Avaliações",
-    frase: "Depois do atendimento,\nas avaliações chegam sozinhas.",
-    duracao: duracaoTotal(PASSOS_AVALIACOES),
-    historia: () => <HistoriaAvaliacoes />,
   },
   {
     id: "site",
