@@ -56,12 +56,12 @@ function exigirFonte(fonte: string): string {
 function evento(
   input: {
     tenantId: string;
-    clienteId?: string | null;
+    clienteId?: string | null | undefined;
     telefoneE164: string;
     fonte: string;
     evidencia: Evidencia;
-    textoConsentimento?: string | null;
-    criadoPor?: string | null;
+    textoConsentimento?: string | null | undefined;
+    criadoPor?: string | null | undefined;
   },
   finalidade: FinalidadeWhatsapp,
   acao: AcaoConsentimentoWhatsapp,
