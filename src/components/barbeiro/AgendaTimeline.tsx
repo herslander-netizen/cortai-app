@@ -233,6 +233,10 @@ function AgendaTimelineBase({
     timer?: number;
     arrastou: boolean;
     longo?: boolean;
+    /** Segurar abriu a edição e soltou o cartão no mesmo gesto (sem precisar de um segundo toque). */
+    primeiroGesto?: boolean;
+    /** Quando o cartão foi solto: o zoom da edição ainda ancora o cartão nos primeiros 300 ms. */
+    ativadoEm?: number;
     rolagem0: number;
     dy: number;
     deslocamentoMin: number;
@@ -644,8 +648,9 @@ function AgendaTimelineBase({
     gesto.current = g;
 
     if (cartaoArmado) {
-      // Só o segundo gesto captura o ponteiro e bloqueia a rolagem: o primeiro toque
-      // longo apenas arma a edição e mantém a rolagem nativa disponível.
+      // Cartão que já estava em edição (gesto seguinte, ou segurar que não conseguiu capturar o ponteiro):
+      // captura o ponteiro e bloqueia a rolagem desde o toque. Quando segurar abre a edição, o timer acima faz
+      // o mesmo no momento em que o cartão sai da mão do dedo.
       try {
         alvo.setPointerCapture(pid);
       } catch {
@@ -658,11 +663,24 @@ function AgendaTimelineBase({
 
     if (toque) {
       g.timer = window.setTimeout(() => {
-        if (gesto.current !== g) return;
+        if (gesto.current !== g || multitoque.current) return;
         g.longo = true;
-        // O toque longo só arma a edição; ela abre ao soltar, sem capturar o ponteiro.
-        // A rolagem nativa continua disponível durante todo este primeiro gesto.
         vibrar("pressao");
+        // Segurar já abre a edição de horário e solta o cartão para arrastar no mesmo gesto (dono, 06/11/2026:
+        // "assim que clicar e segurar … já pode ser reorganizado na primeira vez"). Sem captura do ponteiro o
+        // arrasto não seria confiável: cai no jeito antigo (arma e abre ao soltar).
+        try {
+          alvo.setPointerCapture(pid);
+        } catch {
+          return;
+        }
+        g.ativo = true;
+        g.primeiroGesto = true;
+        g.ativadoEm = performance.now();
+        // Marca o cartão como "na mão": a troca de dia por deslize e a rolagem da página ficam de fora.
+        alvo.setAttribute("data-segurando-cartao", "");
+        travarRolagemDoToque();
+        onEditar?.(item, g.pointerY);
       }, 300);
     }
   }
@@ -725,7 +743,10 @@ function AgendaTimelineBase({
     const g = gesto.current;
     if (!g) return;
     g.pointerY = e.clientY;
-    if (g.longo && g.ativo) onAtualizarYDoToque?.(g.id, e.clientY);
+    // No gesto que acabou de abrir a edição, o zoom (300 ms) fixa o cartão onde o dedo apertou: seguir o dedo
+    // agora o deslocaria duas vezes (pelo zoom e pelo arrasto).
+    const zoomAncorando = g.primeiroGesto && performance.now() - (g.ativadoEm ?? 0) < 320;
+    if (g.longo && g.ativo && !zoomAncorando) onAtualizarYDoToque?.(g.id, e.clientY);
 
     const celular = celularAgora();
     const area = rolagemRef.current;
@@ -778,6 +799,7 @@ function AgendaTimelineBase({
     gesto.current = null;
     soltarRolagemDoToque();
     if (!g) return;
+    g.alvo.removeAttribute("data-segurando-cartao");
     window.clearTimeout(g.timer);
     const dy = g.id === item.id ? g.dy : 0;
     ultimoPassoDoArrasto.current = null;
@@ -785,8 +807,8 @@ function AgendaTimelineBase({
     if (!g.arrastou) {
       if (g.longo) {
         ignorarClique.current = true;
-        // Primeiro gesto: abre a edição somente no pointerup. O cartão armado
-        // usa o gesto seguinte para mover, sem confundir rolagem com arrasto.
+        // Se segurar não conseguiu capturar o ponteiro, a edição abre só ao soltar (e o arrasto fica para o
+        // gesto seguinte). Com o cartão já solto (`ativo`), a edição abriu no momento de segurar.
         if (!g.ativo) onEditar?.(item, ySolto ?? g.y0);
       }
       return;
@@ -1304,7 +1326,10 @@ function AgendaTimelineBase({
                         onPointerCancel: () => {
                           pararRolagemAutomatica();
                           const cancelado = gesto.current;
-                          if (cancelado) window.clearTimeout(cancelado.timer);
+                          if (cancelado) {
+                            window.clearTimeout(cancelado.timer);
+                            cancelado.alvo.removeAttribute("data-segurando-cartao");
+                          }
                           gesto.current = null;
                           soltarRolagemDoToque();
                           ultimoPassoDoArrasto.current = null;

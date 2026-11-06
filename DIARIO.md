@@ -27,6 +27,7 @@ e o que fez. O diário até 17/10/2026 está guardado, sem alterações, em
 7. **Sem segredos:** nunca escreva chaves, senhas ou tokens aqui. Cite só o nome da variável.
 
 ## Decisões do dono
+- 2026-11-06: **Agenda, cartões da Timeline: segurar já abre a edição de horário e o cartão já pode ser arrastado no mesmo gesto** ("assim que clicar e segurar… já pode ser reorganizado na primeira vez"). Substitui a regra de 29/10 (primeiro toque só arma; arrasto só no segundo toque).
 - 2026-11-06: **Contingência fala o nome de quem responde pelo negócio** ("Ricardo não está conseguindo responder no momento… já avisamos… veja um horário na agenda") e o aviso ao dono vai de verdade.
 - 2026-11-06: **Barrinha de progresso dos capítulos da entrada em cor uniforme** (enche como contador até trocar de tela).
 - 2026-11-06: **Entrada aproveita tudo o que der do vídeo de referência**, trocando a marca pelo Flow; as fotos podem aparecer (sem nome nem marca do Figaro); avaliações continuam fora.
@@ -979,6 +980,13 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+### 2026-11-06 UTC — Claude — Agenda: segurar o cartão abre a edição e já arrasta (pedido específico do dono para a Agenda)
+- `AgendaTimeline.tsx` (`inicioGesto`): aos 300 ms de pressão (toque) o cartão captura o ponteiro, trava a rolagem do toque, abre a edição (`onEditar`) e já fica solto para arrastar no mesmo gesto; `moverGesto`/`fimGesto` seguem o caminho do arrasto de sempre (o resultado é o rascunho com "Salvar"). Soltar sem arrastar não abre a edição de novo. Sem captura do ponteiro: jeito antigo (abre ao soltar). Segundo dedo (pinça) durante a espera cancela. O zoom da edição ancora o cartão onde o dedo apertou; a posição do dedo só reancora após 320 ms.
+- `useGestoDia.ts`: o cartão segurado (`data-segurando-cartao`) conta como arrasto, então o deslize de troca de dia não começa.
+- **Conflito com a decisão de 29/10 (GPT):** ela passou a abrir só no `pointerup` porque a edição abria no meio do gesto sem capturar o ponteiro nem travar a rolagem. Agora captura e trava no mesmo instante. **Não validado em celular real, no app de verdade** (sem login aqui): o zoom e a troca do cabeçalho da edição acontecem com o dedo ainda na tela; se o cartão "pular" sob o dedo, voltar ao jeito antigo é trocar o `try/catch` do timer por `return`.
+- Testes: `arrasto-timeline.test.ts` reescrito (segurar abre na hora; arrasta no mesmo gesto e bloqueia a rolagem só nele; mexer antes dos 300 ms é rolagem; sem captura volta ao antigo; cartão já em edição arrasta direto). Verificado no Chromium com toques reais (protocolo de depuração) numa página temporária com a Timeline: segurar 450 ms abriu a edição, arrastar 70 px não rolou a página, sem cancelamento do toque, 35 min propostos; deslize rápido rola a página e não abre edição.
+- Gates: tsc 0; vitest 319 / 2559 ok; eslint sem erro novo; build ok; protocolo OK.
+
 ### 2026-11-06 UTC — Claude — Contingência com o nome do dono e aviso real
 - `whatsapp/contingencia.ts`: textos novos — "Oi! {Nome} não está conseguindo responder no momento. Já avisamos que você quer falar e, assim que possível, {Nome} entra em contato por aqui. Se preferir, veja um horário disponível na agenda: {link}" (e a versão do áudio). `quemResponde`: primeiro nome com maiúscula; nome com cara de usuário (ex.: "falecomaalvo") ou ausente vira "a equipe".
 - `contingencia.server.ts`: `responsavelDoNegocio` (nome do dono no cadastro de profissional, depois no perfil) e `avisarEquipeDaContingencia` (mesmo aviso "Cliente pediu atendimento", que abre o WhatsApp do cliente). `fluxo.server.ts`: o aviso sai junto com a mensagem (texto e áudio), respeitando os 30 min; áudios seguidos não repetem nem mensagem nem aviso.

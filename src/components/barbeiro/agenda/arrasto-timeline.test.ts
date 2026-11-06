@@ -139,13 +139,14 @@ describe("alça de duração na Timeline", () => {
     const alvo = montar({ onMover: vi.fn(), onRedimensionar: vi.fn() });
     expect(alvo.querySelector("[role=separator]")).toBeNull();
   });
-  it("toque longo sem arrastar entra no modo de edição e não abre a ficha", () => {
+  it("segurar abre a edição na hora (sem esperar soltar) e não abre a ficha", () => {
     vi.useFakeTimers();
     const onEditar = vi.fn();
     const onSelecionar = vi.fn();
     const alvo = montar({ onMover: vi.fn(), onEditar, onSelecionar });
     const bloco = alvo.querySelector<HTMLElement>("[aria-pressed]")!;
-    bloco.setPointerCapture = () => {};
+    const capturar = vi.fn();
+    bloco.setPointerCapture = capturar;
     act(() => {
       bloco.dispatchEvent(evento("pointerdown", 200, { pointerType: "touch" }));
       vi.advanceTimersByTime(299);
@@ -153,81 +154,123 @@ describe("alça de duração na Timeline", () => {
     expect(onEditar).not.toHaveBeenCalled();
     act(() => {
       vi.advanceTimersByTime(1);
+    });
+    // Aos 300 ms, ainda com o dedo no cartão: a edição abre e o cartão já está solto (ponteiro capturado).
+    expect(onEditar).toHaveBeenCalledTimes(1);
+    expect(onEditar).toHaveBeenCalledWith(item, 200);
+    expect(capturar).toHaveBeenCalledTimes(1);
+    expect(bloco.hasAttribute("data-segurando-cartao")).toBe(true);
+    act(() => {
       bloco.dispatchEvent(evento("pointerup", 200, { pointerType: "touch" }));
       bloco.click();
     });
     vi.useRealTimers();
+    // Soltar sem arrastar não abre de novo nem seleciona o cartão.
     expect(onEditar).toHaveBeenCalledTimes(1);
     expect(onSelecionar).not.toHaveBeenCalled();
+    expect(bloco.hasAttribute("data-segurando-cartao")).toBe(false);
   });
-  it("o primeiro toque longo só arma; o segundo gesto arrasta o cartão no celular", () => {
+  it("segurar e arrastar no mesmo gesto reorganiza o cartão já na primeira vez", () => {
     vi.useFakeTimers();
     const onEditar = vi.fn();
     const onMover = vi.fn();
     const onSelecionar = vi.fn();
-    const alvo = document.createElement("div");
-    document.body.appendChild(alvo);
-    const raiz = createRoot(alvo);
-    limpar.push(() => act(() => raiz.unmount()));
-
-    const render = (armado: boolean) =>
-      raiz.render(
-        createElement(AgendaTimeline, {
-          dia: "2099-10-09",
-          fuso: "America/Sao_Paulo",
-          itens: [item],
-          horarios: [],
-          selecionado: null,
-          onSelecionar,
-          onMover,
-          onEditar,
-          ...(armado
-            ? { edicaoDoCartao: { id: "a1", original: { inicio: item.inicio, fim: item.fim } } }
-            : {}),
-        }),
-      );
-
-    act(() => render(false));
-    const primeiro = alvo.querySelector<HTMLElement>("[aria-pressed]")!;
-    const capturarPrimeiro = vi.fn();
-    primeiro.setPointerCapture = capturarPrimeiro;
+    const alvo = montar({ onMover, onEditar, onSelecionar });
+    const bloco = alvo.querySelector<HTMLElement>("[aria-pressed]")!;
+    bloco.setPointerCapture = () => {};
     act(() => {
-      primeiro.dispatchEvent(evento("pointerdown", 200, { pointerType: "touch" }));
+      bloco.dispatchEvent(evento("pointerdown", 200, { pointerType: "touch" }));
       vi.advanceTimersByTime(300);
     });
-    // O toque longo confirma a pressão, mas não abre a edição com o dedo ainda pressionado.
-    expect(onEditar).not.toHaveBeenCalled();
-    expect(capturarPrimeiro).not.toHaveBeenCalled();
-
-    const movimentoPrimeiro = evento("pointermove", 250, { pointerType: "touch" });
-    act(() => {
-      primeiro.dispatchEvent(movimentoPrimeiro);
-      primeiro.dispatchEvent(evento("pointerup", 250, { pointerType: "touch" }));
-      primeiro.click();
-    });
-    // O primeiro gesto não captura o ponteiro nem bloqueia a rolagem nativa.
-    expect(movimentoPrimeiro.defaultPrevented).toBe(false);
     expect(onEditar).toHaveBeenCalledTimes(1);
-    expect(onEditar).toHaveBeenCalledWith(item, 250);
-    expect(capturarPrimeiro).not.toHaveBeenCalled();
-    expect(onMover).not.toHaveBeenCalled();
-    expect(onSelecionar).not.toHaveBeenCalled();
 
-    act(() => render(true));
-    const segundo = alvo.querySelector<HTMLElement>("[aria-pressed]")!;
-    const capturarSegundo = vi.fn();
-    segundo.setPointerCapture = capturarSegundo;
-    expect(segundo.hasAttribute("data-sem-gesto-dia")).toBe(true);
+    // Com o cartão na mão, a rolagem da página não anda (o bloqueio é do toque, só nesse gesto).
+    const rolagem = new Event("touchmove", { bubbles: true, cancelable: true });
     act(() => {
-      segundo.dispatchEvent(evento("pointerdown", 200, { pointerType: "touch" }));
-      segundo.dispatchEvent(evento("pointermove", 260, { pointerType: "touch" }));
-      segundo.dispatchEvent(evento("pointerup", 260, { pointerType: "touch" }));
+      document.dispatchEvent(rolagem);
     });
+    expect(rolagem.defaultPrevented).toBe(true);
 
-    expect(capturarSegundo).toHaveBeenCalledTimes(1);
-    expect(onMover).toHaveBeenCalledTimes(1);
-    expect(onMover.mock.calls[0]?.[1]).toBeGreaterThan(0);
+    const mover = evento("pointermove", 260, { pointerType: "touch" });
+    act(() => {
+      bloco.dispatchEvent(mover);
+      bloco.dispatchEvent(evento("pointerup", 260, { pointerType: "touch" }));
+      bloco.click();
+    });
     vi.useRealTimers();
+    expect(mover.defaultPrevented).toBe(true);
+    expect(onMover).toHaveBeenCalledTimes(1);
+    const delta = onMover.mock.calls[0]?.[1] as number;
+    expect(delta).toBeGreaterThan(0);
+    expect(delta % 5).toBe(0);
+    // A edição abriu uma vez só (ao segurar) e soltar depois de arrastar não abre a ficha.
+    expect(onEditar).toHaveBeenCalledTimes(1);
+    expect(onSelecionar).not.toHaveBeenCalled();
+    // Passou o gesto: a rolagem volta a funcionar.
+    const depois = new Event("touchmove", { bubbles: true, cancelable: true });
+    act(() => {
+      document.dispatchEvent(depois);
+    });
+    expect(depois.defaultPrevented).toBe(false);
+  });
+  it("mexer o dedo antes dos 300 ms é rolagem: não abre a edição nem segura o cartão", () => {
+    vi.useFakeTimers();
+    const onEditar = vi.fn();
+    const alvo = montar({ onMover: vi.fn(), onEditar });
+    const bloco = alvo.querySelector<HTMLElement>("[aria-pressed]")!;
+    bloco.setPointerCapture = () => {};
+    act(() => {
+      bloco.dispatchEvent(evento("pointerdown", 200, { pointerType: "touch" }));
+      vi.advanceTimersByTime(120);
+      bloco.dispatchEvent(evento("pointermove", 240, { pointerType: "touch" }));
+      vi.advanceTimersByTime(400);
+      bloco.dispatchEvent(evento("pointerup", 240, { pointerType: "touch" }));
+    });
+    vi.useRealTimers();
+    expect(onEditar).not.toHaveBeenCalled();
+    expect(bloco.hasAttribute("data-segurando-cartao")).toBe(false);
+  });
+  it("sem conseguir capturar o ponteiro, segurar volta ao jeito antigo: abre só ao soltar", () => {
+    vi.useFakeTimers();
+    const onEditar = vi.fn();
+    const alvo = montar({ onMover: vi.fn(), onEditar });
+    const bloco = alvo.querySelector<HTMLElement>("[aria-pressed]")!;
+    bloco.setPointerCapture = () => {
+      throw new Error("sem captura");
+    };
+    act(() => {
+      bloco.dispatchEvent(evento("pointerdown", 200, { pointerType: "touch" }));
+      vi.advanceTimersByTime(300);
+    });
+    expect(onEditar).not.toHaveBeenCalled();
+    act(() => {
+      bloco.dispatchEvent(evento("pointerup", 200, { pointerType: "touch" }));
+    });
+    vi.useRealTimers();
+    expect(onEditar).toHaveBeenCalledTimes(1);
+  });
+  it("com a edição já aberta, o gesto seguinte no cartão arrasta direto (como antes)", () => {
+    vi.useFakeTimers();
+    const onEditar = vi.fn();
+    const onMover = vi.fn();
+    const alvo = montar({
+      onMover,
+      onEditar,
+      edicaoDoCartao: { id: "a1", original: { inicio: item.inicio, fim: item.fim } },
+    });
+    const bloco = alvo.querySelector<HTMLElement>("[aria-pressed]")!;
+    const capturar = vi.fn();
+    bloco.setPointerCapture = capturar;
+    expect(bloco.hasAttribute("data-sem-gesto-dia")).toBe(true);
+    act(() => {
+      bloco.dispatchEvent(evento("pointerdown", 200, { pointerType: "touch" }));
+      bloco.dispatchEvent(evento("pointermove", 260, { pointerType: "touch" }));
+      bloco.dispatchEvent(evento("pointerup", 260, { pointerType: "touch" }));
+    });
+    vi.useRealTimers();
+    expect(capturar).toHaveBeenCalledTimes(1);
+    expect(onMover).toHaveBeenCalledTimes(1);
+    expect(onEditar).not.toHaveBeenCalled();
   });
 
   it("sem onRedimensionar não há alça (atendimento só leitura)", () => {

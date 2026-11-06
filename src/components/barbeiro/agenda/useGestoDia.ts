@@ -21,7 +21,9 @@ import { somarDias } from "./tempo";
 
 const IGNORAR =
   "[data-gesto-dia-ignore], [data-sem-gesto-dia], .agenda-chips, input, select, textarea, [role=dialog]";
-const arrastando = () => document.querySelector(".agenda-arrastando") !== null;
+// Cartão arrastando ou segurado (já com a edição aberta, antes de sair do lugar): o dia não troca por deslize.
+const arrastando = () =>
+  document.querySelector(".agenda-arrastando, [data-segurando-cartao]") !== null;
 
 type Estado = {
   inicio: InicioDoGesto;
