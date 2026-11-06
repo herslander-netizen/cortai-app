@@ -1,14 +1,23 @@
 import { Link } from "@tanstack/react-router";
 import { motion, useReducedMotion } from "framer-motion";
-import { ArrowRight, CalendarCheck, MessageCircle, Sparkles } from "lucide-react";
+import { ArrowRight, Sparkles } from "lucide-react";
 
-import { IconeWhatsapp } from "@/components/entrada/historias/IconeWhatsapp";
 import { MarcaFlow } from "@/components/marca/MarcaFlow";
 import { Button } from "@/components/ui/button";
 import { OndasDaEntrada } from "@/components/entrada/OndasDaEntrada";
 import { LinhasDeOnda } from "./Ondas";
 import { MOLA } from "@/lib/movimento-figaro";
 import type { ConteudoApresentacao } from "@/lib/apresentacao-conteudo";
+
+const SEGMENTOS = [
+  "Barbearia",
+  "Salão",
+  "Estética",
+  "Unhas",
+  "Clínicas",
+  "Estúdios",
+  "e mais",
+] as const;
 
 const FOTOS = [
   { src: "/exemplos/profissional-2.webp", x: "left-[2%] top-[8%]", t: 12, d: 0 },
@@ -64,7 +73,7 @@ function MosaicoMobile() {
     { src: "/exemplos/profissional-1.webp", c: "mt-10", d: 1.6 },
   ];
   return (
-    <div className="relative mt-10 grid w-full grid-cols-3 gap-3 sm:hidden" aria-hidden>
+    <div className="mt-8 grid w-full grid-cols-3 gap-3 sm:hidden" aria-hidden>
       {itens.map((f) => (
         <motion.img
           key={f.src}
@@ -75,20 +84,6 @@ function MosaicoMobile() {
           transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: f.d }}
         />
       ))}
-      <motion.span
-        className="absolute inset-x-6 -bottom-5 z-10 flex items-center gap-2 rounded-[18px] bg-white px-3 py-2.5 text-left shadow-[0_16px_32px_-14px_rgba(20,60,40,0.55)] ring-1 ring-black/5"
-        initial={{ opacity: 0, y: 14 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ ...MOLA.padraoEspacial, delay: 0.6 }}
-      >
-        <span className="grid size-8 shrink-0 place-items-center rounded-full bg-[var(--sage)] text-white">
-          <IconeWhatsapp size={16} />
-        </span>
-        <span className="min-w-0 text-[12px] leading-tight text-[#12131c]">
-          <b className="block">Corte confirmado ✓</b>
-          <span className="text-[#5b5f75]">Sex, 14/11 às 15:00 · respondeu SIM</span>
-        </span>
-      </motion.span>
     </div>
   );
 }
@@ -155,16 +150,18 @@ export function Heroi({ conteudo }: { conteudo: ConteudoApresentacao["hero"] }) 
           </Button>
         </motion.div>
         <MosaicoMobile />
-        <ul className="mt-10 flex flex-wrap justify-center gap-x-5 gap-y-2 text-[13px] text-[var(--texto-suave)]">
-          <li className="flex items-center gap-1.5">
-            <CalendarCheck size={15} /> Agenda e clientes
-          </li>
-          <li className="flex items-center gap-1.5 font-semibold text-[var(--sage)]">
-            <IconeWhatsapp size={15} /> Tudo pelo WhatsApp
-          </li>
-          <li className="flex items-center gap-1.5">
-            <Sparkles size={15} /> Sem cartão para começar
-          </li>
+        <ul
+          className="mt-8 flex flex-wrap justify-center gap-2"
+          aria-label="Para qualquer negócio de serviços"
+        >
+          {SEGMENTOS.map((nome) => (
+            <li
+              key={nome}
+              className="rounded-full bg-[var(--cartao)]/80 px-3.5 py-1.5 text-[13px] font-semibold text-[var(--texto)] ring-1 ring-[var(--linha)]"
+            >
+              {nome}
+            </li>
+          ))}
         </ul>
       </div>
     </section>

@@ -990,6 +990,7 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - Ondas da marca (dono, 06/11): `landing/Ondas.tsx` — divisor animado (azul, lilás, rosa) no topo das seções e fios de onda de fundo no topo e nas seções escuras; só transform, paradas com movimento reduzido.
 - Ondas do login na página (dono, 06/11): `OndasDaEntrada` ganhou `className` (posição) e entra na abertura, nas seções e na chamada final; celular das seções escuras sobe um tom (`#252944`) com aro fino, e cabeçalho/botão fixo ficam opacos.
 - Ajustes do dono (06/11): ondas sem bico (curva contínua nas emendas); fotos para homens e mulheres (barbeiro e profissional na abertura e na faixa); ênfase no WhatsApp (título da abertura, balão "Corte confirmado" e WhatsApp como primeiro capítulo, depois lembretes, agenda, site e gestão).
+- Correção (dono, 06/11): a abertura é a porta de entrada e foca no **sistema para vários tipos de negócio** ("Um só sistema para qualquer negócio de serviços", chips Barbearia · Salão · Estética · Unhas · Clínicas · Estúdios); o WhatsApp fica no primeiro capítulo, não na abertura.
 - Testes: `landing/Landing.test.tsx`. tsc, vitest (2569), eslint, build e protocolo OK. Visual conferido a 390 e 1280 px (só tema claro/escuro por seção; não conferi 360 nem a prévia no ar).
 
 ### 2026-11-06 UTC — Claude — Voz (causa do 404) e fluidez da troca de dia na Agenda
