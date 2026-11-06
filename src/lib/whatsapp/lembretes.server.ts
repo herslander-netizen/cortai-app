@@ -48,7 +48,7 @@ export type RespostaDeLembrete = {
 };
 
 export const TEXTO_SAIR_SEM_CADASTRO =
-  "Não consegui localizar seu cadastro para parar os lembretes. Vou passar seu pedido para a equipe do estabelecimento.";
+  "Não consegui confirmar o registro do seu pedido agora. Vou encaminhá-lo para a equipe do estabelecimento.";
 export const TEXTO_FALHA_TRANSITORIA =
   "Não consegui processar agora. Tente novamente em instantes.";
 
