@@ -4,6 +4,9 @@ export type VisaoCompletaAgenda = Exclude<PreferenciaAgenda, "foco" | "semana">;
 const CHAVE_VISAO = "cortai-agenda-visualizacao";
 const CHAVE_VISAO_COMPLETA = "cortai-agenda-visualizacao-completa";
 const CHAVE_DISCRETO = "cortai-agenda-modo-discreto";
+const CHAVE_CANCELADOS = "cortai-agenda-mostrar-cancelados";
+/** Avisa as duas visões (lista e linha do tempo) quando a preferência de cancelados muda. */
+export const EVENTO_CANCELADOS = "cortai-agenda-cancelados";
 export const EVENTO_DISCRETO = "cortai-modo-discreto";
 
 type Armazenamento = Pick<Storage, "getItem" | "setItem">;
@@ -141,4 +144,17 @@ export function dicaDaAgendaVista(armazenamento?: Armazenamento) {
 
 export function marcarDicaDaAgendaVista(armazenamento?: Armazenamento) {
   salvar(CHAVE_DICA, "1", armazenamento);
+}
+
+/**
+ * Cancelados, faltas e remarcados (dono, 06/11/2026: "ocultar cancelados nos dois modos para uma limpeza visual"):
+ * escondidos por padrão na lista e na linha do tempo; uma preferência só, lembrada no aparelho.
+ */
+export function mostrarCanceladosInicial(armazenamento?: Armazenamento) {
+  return ler(CHAVE_CANCELADOS, armazenamento) === "1";
+}
+
+export function salvarMostrarCancelados(ativo: boolean, armazenamento?: Armazenamento) {
+  salvar(CHAVE_CANCELADOS, ativo ? "1" : "0", armazenamento);
+  if (typeof window !== "undefined") window.dispatchEvent(new Event(EVENTO_CANCELADOS));
 }

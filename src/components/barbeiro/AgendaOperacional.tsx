@@ -51,6 +51,7 @@ import { SeletorProfissionais } from "@/components/barbeiro/agenda/SeletorProfis
 import { FiltroDaAgenda } from "@/components/barbeiro/agenda/FiltroDaAgenda";
 import { useZoomDaEdicao } from "@/components/barbeiro/agenda/zoom-agenda";
 import {
+  INATIVOS,
   ROTULO_ESTADO,
   hora,
   minutosDecorridos,
@@ -80,6 +81,7 @@ import { BarraDeEdicaoDeHorario } from "@/components/barbeiro/agenda/BarraDeEdic
 import { CabecalhoDeEdicao } from "@/components/barbeiro/agenda/CabecalhoDeEdicao";
 import { MarcaDoLimiteDoDia, SemanaDoTopo } from "@/components/barbeiro/agenda/SemanaDoTopo";
 import { ListaPeriodo, opcoesAgendaPeriodo } from "@/components/barbeiro/agenda/ListaPeriodo";
+import { useMostrarCancelados } from "@/components/barbeiro/agenda/useMostrarCancelados";
 import {
   RecolheNaLista,
   TrocaDeVisualizacao,
@@ -626,6 +628,17 @@ export function AgendaOperacional() {
   const itens = useMemo(
     () => todosItens.filter((item) => !profFiltro || item.profissionalId === profFiltro),
     [todosItens, profFiltro],
+  );
+  // Limpeza visual (dono, 06/11): cancelados, faltas e remarcados saem da grade, a menos que a preferência única
+  // ("Cancelados" na lista) peça para mostrar. O que está aberto na ficha continua visível. Resumo e contagens não
+  // mudam: só o desenho da grade.
+  const [mostrarCancelados] = useMostrarCancelados();
+  const itensDaGrade = useMemo(
+    () =>
+      mostrarCancelados
+        ? itens
+        : itens.filter((item) => !INATIVOS.has(item.status) || item.id === selecionado),
+    [itens, mostrarCancelados, selecionado],
   );
   /** Bloqueios cadastrados do dia; os da equipe toda (sem profissional) valem para qualquer coluna. */
   const bloqueiosDoDia = (profissional: string | null) =>
@@ -1611,7 +1624,7 @@ export function AgendaOperacional() {
                     <AgendaTimeline
                       dia={dia}
                       fuso={fuso}
-                      itens={itens.filter((item) => item.profissionalId === p.id)}
+                      itens={itensDaGrade.filter((item) => item.profissionalId === p.id)}
                       itensEscala={itens}
                       bloqueiosDoDia={bloqueiosDoDia(p.id)}
                       alinhado
@@ -1655,7 +1668,7 @@ export function AgendaOperacional() {
                 <AgendaTimeline
                   dia={dia}
                   fuso={fuso}
-                  itens={itens}
+                  itens={itensDaGrade}
                   itensEscala={todosItens}
                   bloqueiosDoDia={bloqueiosDoDiaGeral}
                   horarios={agenda.data?.horarios ?? []}
@@ -1702,7 +1715,7 @@ export function AgendaOperacional() {
               />
             ) : (
               <ListaAgenda
-                itens={itens}
+                itens={itensDaGrade}
                 fuso={fuso}
                 ehHoje={ehHoje}
                 selecionado={selecionado}

@@ -22,6 +22,7 @@ import { useSegmentoDoPainel } from "@/lib/segmento-contexto";
 
 import { FolhaDaEspera } from "./EsperaNaLista";
 import { DiaDaLista } from "./DiaDaLista";
+import { useMostrarCancelados } from "./useMostrarCancelados";
 import {
   agruparPorDia,
   correspondeABusca,
@@ -78,7 +79,8 @@ export function ListaPeriodo({
   const agora = useAgora();
   const segmento = useSegmentoDoPainel();
   const { texto: busca } = useBuscaDaLista();
-  const [comCancelados, setComCancelados] = useState(false);
+  // Preferência compartilhada com a linha do tempo (dono, 06/11): escondidos por padrão nos dois modos.
+  const [comCancelados, setComCancelados] = useMostrarCancelados();
 
   const periodo = useInfiniteQuery({ ...opcoesAgendaPeriodo(hoje), refetchInterval: 60_000 });
   // "Ver mais dias" só quando há atendimento depois do que já foi carregado (dono, 06/11: "aparece sem ser
@@ -240,7 +242,7 @@ export function ListaPeriodo({
                   ? "Esconder cancelados"
                   : `Mostrar ${cancelados} ${cancelados === 1 ? "cancelado" : "cancelados"}`
               }
-              onClick={() => setComCancelados((v) => !v)}
+              onClick={() => setComCancelados(!comCancelados)}
             >
               {comCancelados ? <EyeOff aria-hidden /> : <Eye aria-hidden />}
               Cancelados · {cancelados}
