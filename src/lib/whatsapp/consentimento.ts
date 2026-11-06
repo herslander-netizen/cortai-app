@@ -36,7 +36,7 @@ export type DecisaoConsentimentoWhatsapp =
 /** Normaliza o telefone para E.164. O banco guarda o sinal + e não pontuação. */
 export function telefoneEmE164(telefone: string | null | undefined): string | null {
   const digitos = normalizarTelefone(telefone);
-  if (!/^[1-9]\\d{7,14}$/.test(digitos)) return null;
+  if (!/^[1-9]\d{7,14}$/.test(digitos)) return null;
   return `+${digitos}`;
 }
 
@@ -60,9 +60,10 @@ export function decidirConsentimentoWhatsapp(input: {
 /** Mapeia o tipo já existente de notificação para uma finalidade de consentimento. */
 export function finalidadeDaNotificacao(tipo: string): FinalidadeWhatsapp {
   if (tipo === "vaga_lista_espera") return "lista_espera";
+  if (tipo === "retorno" || tipo === "pos_atendimento" || tipo === "aniversario") {
+    return "marketing";
+  }
   if (
-    tipo === "retorno" ||
-    tipo === "pos_atendimento" ||
     tipo === "convite_avaliacao" ||
     tipo === "recuperacao_experiencia" ||
     tipo === "fallback_informativo_whatsapp"
