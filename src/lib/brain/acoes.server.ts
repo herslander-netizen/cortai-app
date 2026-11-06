@@ -802,7 +802,8 @@ export const ACOES: Record<string, Definicao> = {
         telefone: normalizarTelefone(
           ehCliente(ctx) ? ctx.telefoneCliente : String(d.telefone ?? ""),
         ),
-        optInWhatsapp: ehCliente(ctx),
+        // Uma conversa iniciada pelo cliente autoriza a resposta da conversa, não mensagens futuras.
+        optInWhatsapp: false,
       }),
   },
   atualizar_dados_cliente: {
@@ -899,7 +900,8 @@ export const ACOES: Record<string, Definicao> = {
           const novo = (await dominio.registrarCliente(agenteDe(ctx), {
             nome,
             telefone: normalizarTelefone(ctx.telefoneCliente),
-            optInWhatsapp: true,
+            // Agendar pelo WhatsApp não é consentimento para futuras mensagens proativas.
+            optInWhatsapp: false,
           })) as { id: string };
           clienteId = novo.id;
         }
