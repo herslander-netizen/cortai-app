@@ -10,10 +10,12 @@ import { motion } from "framer-motion";
 import { Check, ChevronLeft, Hourglass, Sparkles } from "lucide-react";
 
 import { MOLA } from "@/lib/movimento-figaro";
-import { PRAZO_DA_OFERTA_MIN } from "@/lib/fila-compatibilidade";
 import { TelaDaHistoria, Toque, usePassos, ritmo } from "./base";
 
 // Mais conteúdo que os outros capítulos (duas visões): alvo maior para dar tempo de ler cada tela.
+/** Prazo do exemplo (o negócio escolhe o prazo nas regras da lista; o padrão do sistema é 30 min). */
+const PRAZO_DO_EXEMPLO_MIN = 15;
+
 export const PASSOS_FILA = ritmo([1400, 1900, 1400, 1300, 1500, 1600, 1100, 1800], 10500);
 
 const FILA = [
@@ -118,7 +120,7 @@ export function HistoriaFila() {
               <p className="font-serif text-[26px] font-bold leading-none">1º</p>
               <p className="mt-2 text-[8.5px] leading-snug">
                 Avisamos pelo WhatsApp quando abrir uma vaga. A vaga é oferecida a uma pessoa por
-                vez, e você tem {PRAZO_DA_OFERTA_MIN} minutos para aceitar.
+                vez, e você tem {PRAZO_DO_EXEMPLO_MIN} minutos para aceitar.
               </p>
             </motion.div>
           )}
@@ -206,7 +208,7 @@ export function HistoriaFila() {
                       {marcada
                         ? "Agendada"
                         : i === 0 && passo >= 4
-                          ? `Oferta · ${PRAZO_DA_OFERTA_MIN} min`
+                          ? `Oferta · ${PRAZO_DO_EXEMPLO_MIN} min`
                           : i === 0
                             ? "1º da fila"
                             : `${i + 1}º da fila`}
@@ -251,7 +253,7 @@ export function HistoriaFila() {
               </p>
               <p className="mt-1">Sexta-feira, 14/11, às 15:00.</p>
               <p className="mt-1 text-[8px] text-[var(--figaro-on-surface-variant)]">
-                A vaga fica reservada para você por {PRAZO_DA_OFERTA_MIN} minutos.
+                A vaga fica reservada para você por {PRAZO_DO_EXEMPLO_MIN} minutos.
               </p>
             </div>
             <div className="flex gap-1.5 self-start">
