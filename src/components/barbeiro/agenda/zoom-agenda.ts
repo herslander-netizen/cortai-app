@@ -18,7 +18,6 @@ export function limitarPx(valor: number) {
   return Math.min(PX_MAX, Math.max(PX_MIN, Math.round(valor * 100) / 100));
 }
 
-
 /** Curva FastOutSlowIn do Figaro: entrada e saída do modo de edição em 300ms. */
 export function fastOutSlowInProgresso(progresso: number) {
   const x = Math.max(0, Math.min(1, progresso));
@@ -232,9 +231,7 @@ export function useZoomDaEdicao(
     let cancelado = false;
     const cartao = (id: string | null) =>
       id
-        ? document.querySelector<HTMLElement>(
-            "[data-agendamento=\"" + CSS.escape(id) + "\"]",
-          )
+        ? document.querySelector<HTMLElement>('[data-agendamento="' + CSS.escape(id) + '"]')
         : null;
 
     const aplicarEscala = (
@@ -262,8 +259,7 @@ export function useZoomDaEdicao(
         const antes = area.scrollTop;
         area.scrollTop += delta;
         const aplicado = area.scrollTop - antes;
-        if (aplicado !== 0)
-          for (const ouvinte of ouvintesDeCorrecaoDeZoom) ouvinte(area, aplicado);
+        if (aplicado !== 0) for (const ouvinte of ouvintesDeCorrecaoDeZoom) ouvinte(area, aplicado);
       }
     };
 
@@ -315,7 +311,8 @@ export function useZoomDaEdicao(
           ? Math.max(0, (yInicial - topo) / escalaInicial)
           : 0;
       ultimo.current = { id: idEmEdicao, minutoDoCartao };
-      const yAlvoInicial = topo === null ? null : (yInicial ?? topo + minutoDoCartao * escalaInicial);
+      const yAlvoInicial =
+        topo === null ? null : (yInicial ?? topo + minutoDoCartao * escalaInicial);
       const lerYAlvo = () => {
         const atual = ancoraDoToque?.current;
         return atual?.id === idEmEdicao ? atual.y : yAlvoInicial;
@@ -340,9 +337,10 @@ export function useZoomDaEdicao(
       // acima da barra inferior. Usa o centro do cartão como âncora, não o ponto do toque,
       // para que ele fique fácil de inspecionar depois de restaurar a escala.
       const minutoDoCentro =
-        ancora && escalaInicial > 0 ? (ancora.getBoundingClientRect().height / escalaInicial) / 2 : 0;
+        ancora && escalaInicial > 0 ? ancora.getBoundingClientRect().height / escalaInicial / 2 : 0;
       const alturaVisivel = typeof window === "undefined" ? 700 : window.innerHeight;
-      const yAlvo = topo === null ? null : Math.max(96, Math.min(alturaVisivel * 0.34, alturaVisivel - 220));
+      const yAlvo =
+        topo === null ? null : Math.max(96, Math.min(alturaVisivel * 0.34, alturaVisivel - 220));
 
       animar(
         escalaInicial,

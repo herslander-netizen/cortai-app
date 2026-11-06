@@ -1,7 +1,15 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
-import { fastOutSlowInProgresso, limitarPx, PX_MAX, PX_MIN, PX_PADRAO, pxDaEdicao, pxDaPinca } from "./zoom-agenda";
+import {
+  fastOutSlowInProgresso,
+  limitarPx,
+  PX_MAX,
+  PX_MIN,
+  PX_PADRAO,
+  pxDaEdicao,
+  pxDaPinca,
+} from "./zoom-agenda";
 
 describe("zoom da timeline com dois dedos", () => {
   it("afastar os dedos aproxima as horas e juntar afasta, dentro dos limites", () => {
@@ -15,7 +23,9 @@ describe("zoom da timeline com dois dedos", () => {
   it("aplica a última escala da pinça antes de finalizar e cancela RAF pendente ao desmontar", () => {
     const zoom = readFileSync("src/components/barbeiro/agenda/zoom-agenda.ts", "utf8");
     expect(zoom).toContain("pxProposto: number");
-    expect(zoom).toContain("p.pxProposto = pxDaPinca(p.px, p.distancia, distanciaEntre(e.touches));");
+    expect(zoom).toContain(
+      "p.pxProposto = pxDaPinca(p.px, p.distancia, distanciaEntre(e.touches));",
+    );
     expect(zoom).toContain("flushSync(() => definirPxPorMinuto(p.pxProposto, false));");
     expect(zoom).toMatch(
       /if \(final\.quadro !== null\) \{[\s\S]*?cancelAnimationFrame\(final\.quadro\);[\s\S]*?aplicarPinca\(final\);/,
@@ -65,7 +75,9 @@ describe("zoom da timeline com dois dedos", () => {
     expect(pxDaEdicao(PX_MAX)).toBe(PX_MAX);
     const operacional = readFileSync("src/components/barbeiro/AgendaOperacional.tsx", "utf8");
     const timeline = readFileSync("src/components/barbeiro/AgendaTimeline.tsx", "utf8");
-    expect(operacional).toContain("useZoomDaEdicao(edicao.rascunho?.id ?? null, ancoraZoomEdicao);");
+    expect(operacional).toContain(
+      "useZoomDaEdicao(edicao.rascunho?.id ?? null, ancoraZoomEdicao);",
+    );
     expect(timeline).toContain("if (!g.ativo) onEditar?.(item, ySolto ?? g.y0);");
     expect(timeline).toContain("onAtualizarYDoToque?.(g.id, e.clientY);");
     expect(timeline).toContain("aoCorrigirRolagemDoZoom");

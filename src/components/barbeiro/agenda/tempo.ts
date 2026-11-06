@@ -3,6 +3,26 @@ import type { KeyboardEvent } from "react";
 import type { AgendaDia, AgendaItem } from "@/lib/barbeiro.functions";
 import { horarioDoDia, type IntervalosPorData } from "@/lib/horarios";
 
+/**
+ * Criar um `Intl.DateTimeFormat` é caro (centenas de microssegundos) e o resultado é sempre igual para o mesmo fuso.
+ * Na troca de dia, cada cartão pedia o horário várias vezes e a linha do tempo gastava um quarto do tempo só criando
+ * formatadores (perfil de 06/11/2026). Um por combinação, reaproveitado.
+ */
+const formatadores = new Map<string, Intl.DateTimeFormat>();
+export function formatadorDe(
+  locale: string,
+  fuso: string | undefined,
+  opcoes: Intl.DateTimeFormatOptions,
+): Intl.DateTimeFormat {
+  const chave = `${locale}|${fuso ?? ""}|${JSON.stringify(opcoes)}`;
+  let f = formatadores.get(chave);
+  if (!f) {
+    f = new Intl.DateTimeFormat(locale, fuso ? { ...opcoes, timeZone: fuso } : opcoes);
+    formatadores.set(chave, f);
+  }
+  return f;
+}
+
 export const TOLERANCIA_MIN = 15;
 export const TERMINAIS = new Set(["finalizado", "cancelado", "remarcado", "nao_compareceu"]);
 export const INATIVOS = new Set(["cancelado", "remarcado", "nao_compareceu"]);
@@ -39,15 +59,11 @@ export function dataEditorial(dia: string) {
 }
 
 export function hora(iso: string, fuso?: string) {
-  return new Date(iso).toLocaleTimeString("pt-BR", {
-    hour: "2-digit",
-    minute: "2-digit",
-    timeZone: fuso,
-  });
+  return formatadorDe("pt-BR", fuso, { hour: "2-digit", minute: "2-digit" }).format(new Date(iso));
 }
 
 export function diaNoFuso(iso: string | number, fuso?: string) {
-  return new Intl.DateTimeFormat("en-CA", { timeZone: fuso }).format(new Date(iso));
+  return formatadorDe("en-CA", fuso, {}).format(new Date(iso));
 }
 
 export function minutosDecorridos(inicio: string | null, agora: number) {
@@ -86,11 +102,10 @@ export function minutosDoHorario(valor: string) {
 }
 
 export function minutosNoFuso(valor: string | number, fuso?: string) {
-  const partes = new Intl.DateTimeFormat("pt-BR", {
+  const partes = formatadorDe("pt-BR", fuso, {
     hour: "2-digit",
     minute: "2-digit",
     hourCycle: "h23",
-    timeZone: fuso,
   }).formatToParts(new Date(valor));
   return (
     Number(partes.find((p) => p.type === "hour")?.value ?? 0) * 60 +

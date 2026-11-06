@@ -33,7 +33,9 @@ describe("cores da tela da Agenda iguais às do Figaro (capturas do dono, 29/10)
     expect(semana).toContain("text-[var(--figaro-hint,var(--mute))]");
   });
   it("linha da hora, tracejado e pontinhos no mesmo tom discreto", () => {
-    expect(css).toContain("--agenda-traco: color-mix(in oklab, var(--figaro-hint, var(--mute2)) 20%, transparent);");
+    expect(css).toContain(
+      "--agenda-traco: color-mix(in oklab, var(--figaro-hint, var(--mute2)) 20%, transparent);",
+    );
     expect(css).toMatch(/\.agenda-ponto-limite \{\s*background: var\(--agenda-traco/);
   });
 });

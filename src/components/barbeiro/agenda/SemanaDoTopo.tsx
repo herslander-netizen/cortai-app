@@ -495,9 +495,17 @@ export function SemanaDoTopo({
     if (lista && mes) lista.scrollTop = mes.offsetTop;
   }, [expandido, mesDoDiaEscolhido, raioDosMeses]);
   return (
-    <div data-sem-gesto-dia data-calendario-aberto={expandido || painelVisivel || undefined} style={{ fontFamily: "var(--figaro-font-body)" }}>
+    <div
+      data-sem-gesto-dia
+      data-semana-do-dia
+      data-calendario-aberto={expandido || painelVisivel || undefined}
+      style={{ fontFamily: "var(--figaro-font-body)" }}
+    >
       <div className="px-2 pb-[13px] rounded-b-xl">
-        <div className="grid grid-cols-7 text-center text-[11.5px] leading-4 font-medium text-[var(--figaro-hint,var(--mute))]" aria-hidden>
+        <div
+          className="grid grid-cols-7 text-center text-[11.5px] leading-4 font-medium text-[var(--figaro-hint,var(--mute))]"
+          aria-hidden
+        >
           {LETRAS_SEMANA.map((letra, i) => (
             <span key={i} className="pb-1 pt-2">
               {letra}

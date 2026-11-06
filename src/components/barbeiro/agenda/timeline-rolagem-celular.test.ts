@@ -113,10 +113,21 @@ describe("bolinha da semana ao terminar o gesto", () => {
 
   it("o deslocamento do dedo sai antes da troca do dia (sem voltar animando)", () => {
     const fim = gesto.slice(gesto.indexOf("assentar(s.dx, alvo"));
-    const tira = fim.indexOf('removeProperty("--dia-progresso")');
+    const tira = fim.indexOf("escreverProgresso(null)");
     const troca = fim.indexOf("flushSync(");
     expect(tira).toBeGreaterThan(-1);
     expect(tira).toBeLessThan(troca);
+  });
+});
+
+describe("progresso do dia só na faixa da semana (fluidez do deslize)", () => {
+  const gesto = readFileSync("src/components/barbeiro/agenda/useGestoDia.ts", "utf8");
+  const semana = readFileSync("src/components/barbeiro/agenda/SemanaDoTopo.tsx", "utf8");
+
+  it("nunca escreve --dia-progresso na raiz do documento (revalidava o estilo da página a cada quadro)", () => {
+    expect(gesto).not.toMatch(/documentElement\.style\.(set|remove)Property\("--dia-progresso"/);
+    expect(gesto).toContain('document.querySelector<HTMLElement>("[data-semana-do-dia]")');
+    expect(semana).toContain("data-semana-do-dia");
   });
 });
 

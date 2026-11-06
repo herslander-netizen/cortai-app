@@ -22,6 +22,8 @@ import {
   faixasForaDoExpediente,
   intervaloDoDia,
   nomeDaAgenda,
+  formatadorDe,
+  minutosNoFuso,
 } from "@/components/barbeiro/agenda/tempo";
 import { ladoDoAgora, publicarAgora } from "@/components/barbeiro/agenda/pilula-agora";
 import { criarBloqueioDeRolagem } from "@/components/barbeiro/agenda/bloqueio-rolagem";
@@ -143,18 +145,6 @@ const RESPIRO_DO_CARTAO = 1;
 
 function minutosDoHorario(valor: string) {
   const [hora = 0, minuto = 0] = valor.split(":").map(Number);
-  return hora * 60 + minuto;
-}
-
-function minutosNoFuso(valor: string | number, fuso?: string) {
-  const partes = new Intl.DateTimeFormat("pt-BR", {
-    hour: "2-digit",
-    minute: "2-digit",
-    hourCycle: "h23",
-    timeZone: fuso,
-  }).formatToParts(new Date(valor));
-  const hora = Number(partes.find((parte) => parte.type === "hour")?.value ?? 0);
-  const minuto = Number(partes.find((parte) => parte.type === "minute")?.value ?? 0);
   return hora * 60 + minuto;
 }
 
@@ -334,8 +324,7 @@ function AgendaTimelineBase({
       document.removeEventListener("pointercancel", fimDoPonteiro, { capture: true });
     };
   }, []);
-  const hoje = new Intl.DateTimeFormat("en-CA", {
-    timeZone: fuso,
+  const hoje = formatadorDe("en-CA", fuso, {
     year: "numeric",
     month: "2-digit",
     day: "2-digit",
