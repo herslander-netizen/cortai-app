@@ -12,7 +12,8 @@ import { DivisorDeOndas, LinhasDeOnda } from "./Ondas";
 import { Revelar } from "./Revelar";
 import { TEMA_CLARO, TEMA_ESCURO } from "./tema";
 
-const GALERIA = [1, 2, 3, 4, 5, 6].map((n) => `/exemplos/galeria-${n}.webp`);
+// Alterna rostos e ambientes (barbearia, unhas, estética) para falar com homens e mulheres.
+const GALERIA = [2, 1, 5, 6, 4, 3].map((n) => `/exemplos/galeria-${n}.webp`);
 
 /** Faixa de fotos que desliza devagar: mostra que o Flow serve a vários tipos de negócio de serviços. */
 export function FaixaDeFotos() {

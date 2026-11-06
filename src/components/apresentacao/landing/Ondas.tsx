@@ -5,10 +5,9 @@ import { motion, useReducedMotion } from "framer-motion";
  * Ondas da identidade Flow (azul, lilás e rosa) para a página pública (dono, 06/11/2026: "senti falta das ondas se
  * movimentando… aproveitar o tema e os elementos da marca"). `DivisorDeOndas` fica no topo de uma seção e a "puxa" para
  * cima com a cor do próprio fundo; `LinhasDeOnda` são fios finos de fundo. Só transform; paradas com "reduzir movimento".
- * O desenho tem dois períodos e anda exatamente um período, então o laço não dá salto.
+ * A curva é contínua nas emendas (sem bico) e anda exatamente um período, então o laço não dá salto.
  */
-const PERIODO =
-  "M0 34 C 120 6, 240 62, 360 34 S 600 6, 720 34 C 840 6, 960 62, 1080 34 S 1320 6, 1440 34";
+const PERIODO = "M0 34 C 90 6, 270 6, 360 34 S 630 62, 720 34 S 990 6, 1080 34 S 1350 62, 1440 34";
 const CORTE = " V70 H0 Z";
 
 function Gradiente({ id, opacidade = 1 }: { id: string; opacidade?: number }) {

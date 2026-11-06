@@ -8,6 +8,11 @@ import { OndasDaEntrada } from "@/components/entrada/OndasDaEntrada";
 import { DivisorDeOndas, LinhasDeOnda } from "./Ondas";
 import { Revelar } from "./Revelar";
 
+/** O WhatsApp abre a sequência (é o foco do produto); depois lembretes, agenda, site e gestão. */
+const ORDEM = (["whatsapp", "lembretes", "agenda", "site", "gestao"] as const).map((id) =>
+  CAPITULOS.find((c) => c.id === id)!,
+);
+
 /** Texto de venda de cada capítulo (a tela animada vem do mesmo roteiro da entrada do app). */
 const TEXTOS: Record<string, { etiqueta: string; titulo: string; texto: string; itens: string[] }> =
   {
@@ -99,7 +104,7 @@ function CelularDoCapitulo({ capitulo, escuro }: { capitulo: Capitulo; escuro: b
 export function Capitulos() {
   return (
     <>
-      {CAPITULOS.map((capitulo, i) => {
+      {ORDEM.map((capitulo, i) => {
         const t = TEXTOS[capitulo.id]!;
         const escuro = i % 2 === 1;
         return (

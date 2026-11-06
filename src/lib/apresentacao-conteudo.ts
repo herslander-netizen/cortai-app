@@ -43,9 +43,9 @@ export type ChaveBloco = Exclude<keyof ConteudoApresentacao, "hero" | "perguntas
 export const APRESENTACAO_PADRAO: ConteudoApresentacao = {
   hero: {
     etiqueta: "GRÁTIS ATÉ 50 AGENDAMENTOS POR MÊS",
-    titulo: "Menos faltas na agenda.\nMais tempo para atender bem.",
+    titulo: "Seu WhatsApp agenda, confirma e lembra.\nVocê só atende.",
     texto:
-      "Agenda, clientes, caixa e lembretes automáticos no WhatsApp em um só lugar. Comece grátis, sem cartão, com tudo liberado.",
+      "O cliente marca sozinho pelo WhatsApp, recebe o lembrete e confirma com um toque. Agenda, clientes e caixa no mesmo lugar. Comece grátis, sem cartão.",
     cta: "Começar grátis",
   },
   agenda: {
