@@ -158,7 +158,6 @@ export function PersonalizacaoCliente({
         </div>
         <Switch
           checked={whats}
-          onCheckedChange={setWhats}
           aria-label="Pode receber mensagens no WhatsApp"
           onCheckedChange={(valor) => {
             setWhats(valor);
@@ -217,7 +216,7 @@ export function PersonalizacaoCliente({
                 optInWhatsapp: whats,
               },
             });
-            if (c.telefone?.trim()) {
+            if (c.telefone?.trim() && (whats || c.opt_in_whatsapp)) {
               await salvarConsentimentoWhatsapp({
                 data: { clienteId: c.id, autorizado: whats },
               });
