@@ -73,7 +73,7 @@ export function IconesDosCapitulos({
               {aceso ? (
                 <motion.span
                   key={reinicio}
-                  className="absolute inset-0 origin-left rounded-full bg-[linear-gradient(90deg,var(--entrada-ciano),var(--entrada-lilas),var(--entrada-rosa))]"
+                  className="absolute inset-0 origin-left rounded-full bg-[var(--figaro-tertiary)]"
                   initial={{ scaleX: reduzir ? 1 : 0 }}
                   animate={{ scaleX: 1 }}
                   transition={

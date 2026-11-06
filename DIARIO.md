@@ -27,6 +27,7 @@ e o que fez. O diário até 17/10/2026 está guardado, sem alterações, em
 7. **Sem segredos:** nunca escreva chaves, senhas ou tokens aqui. Cite só o nome da variável.
 
 ## Decisões do dono
+- 2026-11-06: **Barrinha de progresso dos capítulos da entrada em cor uniforme** (enche como contador até trocar de tela).
 - 2026-11-06: **Entrada aproveita tudo o que der do vídeo de referência**, trocando a marca pelo Flow; as fotos podem aparecer (sem nome nem marca do Figaro); avaliações continuam fora.
 - 2026-11-06: **Lembrete de véspera às 15h** (como o AgendaClick) pedindo confirmação, aviso no dia e fila; **sistema de notificações pelo WhatsApp com o máximo de proteção contra banimento** (`docs/notificacoes-whatsapp.md`).
 - 2026-11-06: **Entrada com o fluxo do vídeo de referência:** Site primeiro (troca de tema pelo toque, Equipe, Serviços, Galeria) e depois Agenda (gaveta sobe, dia, horário, profissional, dados, verificação pelo WhatsApp, confirmado).
@@ -977,6 +978,9 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+### 2026-11-06 UTC — Claude — Entrada: barrinha de progresso em cor única
+- `IconesDosCapitulos.tsx`: o preenchimento da barrinha passou do degradê ciano→lilás→rosa para `--figaro-tertiary` (a mesma cor do ícone aceso); continua enchendo do zero ao cheio na duração do capítulo. Gates: tsc 0; testes da entrada ok; build ok; protocolo OK.
+
 ### 2026-11-06 UTC — Claude — Entrada: corte entre capa e Equipe corrigido
 - `HistoriaSite.tsx`: a faixa diagonal (bloco inclinado com `skew`) deixava uma cunha preta à direita e cortava "Saiba mais" (captura do dono). Virou um SVG em V com a linha na cor da marca, como no vídeo; capa com mais respiro embaixo; fotos da equipe aparecem antes da rolagem (não chegam vazias). Gates: tsc 0; vitest ok; build ok; protocolo OK. Visual: quadros de 170 ms da rolagem a 390 px.
 
