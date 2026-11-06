@@ -339,7 +339,7 @@ export async function solicitarReconsentimentoWhatsapp(input: {
   const { error } = await db
     .from("whatsapp_consent_events")
     .insert(
-      FINALIDADES_DE_SERVICO.map((finalidade) =>
+      FINALIDADES_WHATSAPP.map((finalidade) =>
         evento(dados, finalidade, "reconsentimento_solicitado"),
       ),
     );
