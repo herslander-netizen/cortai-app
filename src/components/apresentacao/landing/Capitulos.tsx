@@ -9,73 +9,12 @@ import { OndasDaEntrada } from "@/components/entrada/OndasDaEntrada";
 import { CENARIOS_DA_PAGINA } from "./cenarios";
 import { DivisorDeOndas, LinhasDeOnda } from "./Ondas";
 import { Revelar } from "./Revelar";
+import { TEXTOS_DOS_CAPITULOS } from "./textos-dos-capitulos";
 
 /** O WhatsApp abre a sequência (é o foco do produto); depois lembretes, agenda, site e gestão. */
 const ORDEM = (["whatsapp", "lembretes", "fila", "agenda", "site", "gestao"] as const).map((id) =>
   CAPITULOS.find((c) => c.id === id)!,
 );
-
-/** Texto de venda de cada capítulo (a tela animada vem do mesmo roteiro da entrada do app). */
-const TEXTOS: Record<string, { etiqueta: string; titulo: string; texto: string; itens: string[] }> =
-  {
-    site: {
-      etiqueta: "Seu site",
-      titulo: "Uma página do seu negócio, pronta para receber clientes.",
-      texto:
-        "Serviços, equipe, preços e galeria com a sua cara — e o botão de agendar sempre à mão.",
-      itens: [
-        "Tema e cores do seu jeito",
-        "Fotos da equipe e do espaço",
-        "Link para colocar no Instagram",
-      ],
-    },
-    agenda: {
-      etiqueta: "Agenda",
-      titulo: "O cliente escolhe o horário em poucos toques.",
-      texto: "Dia, horário e profissional num fluxo simples, com confirmação pelo WhatsApp.",
-      itens: [
-        "Horários livres sempre atualizados",
-        "Sem conflito entre atendimentos",
-        "Confirmação na hora",
-      ],
-    },
-    whatsapp: {
-      etiqueta: "Atendimento no WhatsApp",
-      titulo: "O cliente marca sozinho, a qualquer hora.",
-      texto:
-        "Enquanto você atende, o WhatsApp mostra os serviços, os horários livres e confirma o agendamento.",
-      itens: ["Sem decorar menus", "Confirma só com um SIM", "Você é avisado de tudo"],
-    },
-    lembretes: {
-      etiqueta: "Lembretes",
-      titulo: "Menos faltas, sem você mandar mensagem.",
-      texto:
-        "O cliente recebe o lembrete no dia anterior e confirma com um toque. Você vê tudo no aviso.",
-      itens: [
-        "Lembrete automático",
-        "Confirmação do cliente",
-        "Fila de espera para os horários vagos",
-      ],
-    },
-    fila: {
-      etiqueta: "Lista de espera",
-      titulo: "Horário que cancela não fica vazio.",
-      texto:
-        "Dia cheio? O cliente entra na lista pelo link do seu negócio. Quando um horário vaga, o Flow oferece a vaga a uma pessoa por vez pelo WhatsApp, e a equipe só acompanha.",
-      itens: [
-        "Cliente: escolhe o período e vê a posição na fila",
-        "Cliente: recebe a vaga no WhatsApp e aceita com um toque",
-        "Equipe: vê quem espera, por dia e por vaga",
-        "Sem resposta no prazo, a vaga passa para o próximo",
-      ],
-    },
-    gestao: {
-      etiqueta: "Gestão completa",
-      titulo: "Agenda, clientes e caixa em um só lugar.",
-      texto: "Acompanhe o desempenho do mês, a comanda de cada atendimento e quem volta sempre.",
-      itens: ["Comanda e caixa", "Histórico de cada cliente", "Números do mês num relance"],
-    },
-  };
 
 /** O bate-papo do WhatsApp troca de ramo a cada volta (salão, barbearia, estética) para mostrar que serve a todos. */
 function ConversaVariada({ duracao }: { duracao: number }) {
@@ -136,7 +75,7 @@ export function Capitulos() {
   return (
     <>
       {ORDEM.map((capitulo, i) => {
-        const t = TEXTOS[capitulo.id]!;
+        const t = TEXTOS_DOS_CAPITULOS[capitulo.id]!;
         const escuro = i % 2 === 0;
         return (
           <section

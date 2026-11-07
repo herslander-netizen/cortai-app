@@ -1,12 +1,12 @@
 import { Link } from "@tanstack/react-router";
 import { motion, useReducedMotion } from "framer-motion";
-import { ArrowRight, Check, Sparkles } from "lucide-react";
+import { ArrowRight, Sparkles } from "lucide-react";
 
-import { IconeWhatsapp } from "@/components/entrada/historias/IconeWhatsapp";
 import { MarcaFlow } from "@/components/marca/MarcaFlow";
 import { Button } from "@/components/ui/button";
 import { OndasDaEntrada } from "@/components/entrada/OndasDaEntrada";
 import { useAcesso } from "./acesso";
+import { BaloesDeConfirmacao } from "./BaloesDeConfirmacao";
 import { TEMA_ESCURO } from "./tema";
 import { LinhasDeOnda } from "./Ondas";
 import { MOLA } from "@/lib/movimento-figaro";
@@ -74,44 +74,6 @@ function FotosFlutuantes() {
   );
 }
 
-/**
- * Aviso de confirmação do WhatsApp, pequeno e abaixo das fotos (dono, 06/11/2026: "diminua bastante e tire o exagero de
- * ficar na frente das fotos"). Tamanho único, título em uma linha, visto verde de confirmado. Cada um de um serviço
- * diferente do de barbearia.
- */
-function Balao({
-  titulo,
-  detalhe,
-  className,
-  atraso,
-}: {
-  titulo: string;
-  detalhe: string;
-  className: string;
-  atraso: number;
-}) {
-  const reduzir = useReducedMotion();
-  return (
-    <motion.span
-      className={`relative z-10 flex h-[46px] w-[74%] items-center gap-2 rounded-[16px] bg-white/95 px-2.5 text-left shadow-[0_10px_22px_-12px_rgba(0,0,0,0.6)] ring-1 ring-black/5 ${className}`}
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={reduzir ? { duration: 0 } : { ...MOLA.padraoEspacial, delay: atraso }}
-    >
-      <span className="grid size-7 shrink-0 place-items-center rounded-full bg-[var(--sage)] text-white">
-        <IconeWhatsapp size={14} />
-      </span>
-      <span className="min-w-0 flex-1 leading-tight text-[#12131c]">
-        <b className="block truncate text-[11.5px]">{titulo}</b>
-        <span className="block truncate text-[10px] text-[#5b5f75]">{detalhe}</span>
-      </span>
-      <span className="grid size-4 shrink-0 place-items-center rounded-full bg-[var(--sage)] text-white">
-        <Check size={10} strokeWidth={3.4} />
-      </span>
-    </motion.span>
-  );
-}
-
 /** No celular as fotos entram em um mosaico abaixo do texto, sem competir com o título. */
 function MosaicoMobile() {
   const reduzir = useReducedMotion();
@@ -136,20 +98,7 @@ function MosaicoMobile() {
           />
         ))}
       </div>
-      <div className="mt-3 flex flex-col gap-1.5">
-        <Balao
-          titulo="Massagem confirmada"
-          detalhe="Sex, 14/11 às 15:00"
-          className="self-start"
-          atraso={0.4}
-        />
-        <Balao
-          titulo="Manicure confirmada"
-          detalhe="Sáb, 15/11 às 10:30"
-          className="self-end"
-          atraso={0.7}
-        />
-      </div>
+      <BaloesDeConfirmacao />
     </div>
   );
 }
@@ -181,7 +130,7 @@ export function Heroi({ conteudo }: { conteudo: ConteudoApresentacao["hero"] }) 
       <FotosFlutuantes />
       <div className="relative mx-auto flex max-w-3xl flex-col items-center px-5 pb-14 pt-10 text-center sm:pt-20">
         <motion.span
-          className="inline-flex items-center gap-1.5 rounded-full bg-[var(--figaro-primary-container)] px-3.5 py-1.5 text-[12px] font-bold tracking-wide text-[var(--figaro-on-primary-container)]"
+          className="inline-flex items-center gap-1.5 rounded-full bg-[#ffd44d] px-3.5 py-1.5 text-[12px] font-extrabold tracking-wide text-[#1d1500] shadow-[0_10px_26px_-10px_rgba(255,212,77,0.7)]"
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={MOLA.padraoEspacial}

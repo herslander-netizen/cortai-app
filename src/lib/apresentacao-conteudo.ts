@@ -43,9 +43,9 @@ export type ChaveBloco = Exclude<keyof ConteudoApresentacao, "hero" | "perguntas
 export const APRESENTACAO_PADRAO: ConteudoApresentacao = {
   hero: {
     etiqueta: "GRÁTIS ATÉ 50 AGENDAMENTOS POR MÊS",
-    titulo: "Um só sistema para\nqualquer negócio de serviços.",
+    titulo: "Sua agenda cheia.\nSeu negócio crescendo.",
     texto:
-      "Beleza, bem-estar, saúde, estúdios e muito mais. O Flow organiza agenda, clientes, caixa e equipe num só lugar. Comece grátis, sem cartão.",
+      "Seus clientes marcam sozinhos, recebem lembrete no WhatsApp e voltam sempre, enquanto você cuida do que importa. Para beleza, saúde, bem-estar, estúdios e qualquer negócio de serviços.",
     cta: "Começar grátis",
   },
   agenda: {
@@ -138,9 +138,9 @@ export const APRESENTACAO_PADRAO: ConteudoApresentacao = {
 };
 
 export const SEO_APRESENTACAO_PADRAO = {
-  titulo: "Flow — agenda e WhatsApp grátis para o seu negócio",
+  titulo: "Flow — sua agenda cheia e seu negócio crescendo, grátis",
   descricao:
-    "Agenda, clientes, caixa e lembretes por WhatsApp para negócios de serviços. Grátis até 50 agendamentos por mês, sem cartão.",
+    "Agenda online, lembretes no WhatsApp, clientes e caixa para qualquer negócio de serviços crescer. Grátis até 50 agendamentos por mês, sem cartão.",
 };
 
 /** Campos ausentes ou inválidos caem no texto aprovado. */

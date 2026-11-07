@@ -982,6 +982,11 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+### 2026-11-07 UTC — Claude — Página pública: nova frase de abertura, destaque do "Grátis", balões ao vivo e textos no mesmo molde
+- Frase de abertura (dono: "uma frase melhor, que mostre que veio para alavancar qualquer negócio"): "Sua agenda cheia. Seu negócio crescendo." + "Seus clientes marcam sozinhos, recebem lembrete no WhatsApp e voltam sempre, enquanto você cuida do que importa. Para beleza, saúde, bem-estar, estúdios e qualquer negócio de serviços." (pesquisa: concorrentes usam "agenda cheia… menos faltas"; mantive o tom, mas com crescimento). Título e descrição de SEO atualizados. Chip "Grátis até 50 agendamentos por mês" em amarelo de destaque com brilho.
+- Balões ao vivo (`BaloesDeConfirmacao.tsx`): confirmações de 7 negócios (barbearia, salão, estética, unhas, clínica, estúdio, pet) chegam uma por vez, em ordem aleatória, alternando esquerda/direita, sem repetir em seguida; parados com movimento reduzido.
+- Textos das seções no mesmo molde (`textos-dos-capitulos.ts` + teste): título ≤ 52, frase única ≤ 70, três tópicos ≤ 30 caracteres.
+
 ### 2026-11-07 UTC — Claude — Abertura da página pública: balões pequenos, mais fotos e bordas brancas
 - Dono (07/11): balões menores e fora de cima das fotos, outra mulher de outro serviço, bordas brancas nos cartões de foto e confirmações de serviços sem relação com barbearia. Balões agora em fluxo, abaixo do mosaico (46 px de altura, "Massagem confirmada" e "Manicure confirmada"); mosaico com quatro fotos (profissional de barbearia, barbeiro cortando, profissional de avental e outra mulher de salão/estética) com borda branca; desktop idem.
 
