@@ -30,8 +30,29 @@ describe("paraWhatsApp", () => {
   });
 
   it("número no meio da frase e horário não viram lista", () => {
-    const t = "Seu horário é às 15. Chegue 10 min antes.\n2026 foi um ótimo ano";
+    const t = "Seu horário é às 15.\n\nChegue 10 min antes.\n2026 foi um ótimo ano";
     expect(paraWhatsApp(t)).toBe(t);
+  });
+
+  it("espaço entre as frases: depois de ponto, ! ou ? a frase seguinte vai para outro bloco (07/11/2026)", () => {
+    expect(paraWhatsApp("Sem problema, não marquei. Me diga outro dia ou horário.")).toBe(
+      "Sem problema, não marquei.\n\nMe diga outro dia ou horário.",
+    );
+    expect(paraWhatsApp("Oi! Você está falando com o Studio. Como posso ajudar?")).toBe(
+      "Oi!\nVocê está falando com o Studio.\n\nComo posso ajudar?",
+    );
+  });
+
+  it("espaço entre frases não mexe em abreviação, inicial, lista, resumo nem link", () => {
+    expect(paraWhatsApp("Fale com o Dr. Silva hoje.")).toBe("Fale com o Dr. Silva hoje.");
+    expect(paraWhatsApp("Carla S. Souza confirmou. Até lá!")).toBe(
+      "Carla S. Souza confirmou.\n\nAté lá!",
+    );
+    expect(paraWhatsApp("*Serviço:* Corte. Barba")).toBe("*Serviço:* Corte. Barba");
+    expect(paraWhatsApp("Veja em https://flow.app/x.html Obrigado")).toBe(
+      "Veja em https://flow.app/x.html Obrigado",
+    );
+    expect(paraWhatsApp("1. Agendar. Rápido")).toBe("*1)* Agendar. Rápido");
   });
 
   it("link em markdown vira texto e link visível", () => {

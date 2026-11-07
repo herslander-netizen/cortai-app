@@ -17,6 +17,40 @@ export function paraWhatsApp(texto: string): string {
     .trim();
 }
 
+/** Abreviações e iniciais que terminam em ponto sem acabar a frase ("Dr. Silva", "ex. amanhã", "Carla S. Souza"). */
+const ABREVIACOES = /^(?:sr|sra|srta|dr|dra|prof|profa|ex|etc|obs|tel|av|r|n|nº|ltda|sto|sta)$/i;
+
+/**
+ * Espaço entre as frases (dono, 07/11/2026: "quando precisar usar ponto, espaços"): depois de ponto final, "!" ou "?"
+ * a próxima frase vai para um bloco novo, com uma linha em branco. Só em linha de texto corrido (não mexe em lista,
+ * resumo "*Rótulo:* valor", link nem abreviação). Fragmento curtinho ("Oi!") fica junto, só com quebra de linha.
+ */
+export function espacarFrases(linha: string): string {
+  if (/^(?:\*\d{1,2}\)\*|•|\*[^*]+:\*)/.test(linha)) return linha;
+  let saida = "";
+  let resto = linha;
+  const fim = /([.!?]+)\s+(?=[A-ZÁÉÍÓÚÂÊÔÃÕÇ¿*_"“(])/u;
+  for (let m = resto.match(fim); m && m.index !== undefined; m = resto.match(fim)) {
+    const ate = resto.slice(0, m.index + m[1]!.length);
+    const palavra =
+      ate
+        .replace(/[.!?]+$/, "")
+        .split(/\s+/)
+        .pop() ?? "";
+    const apenasPonto = m[1] === "." || m[1] === "..";
+    const inicial = /^[A-ZÁÉÍÓÚÂÊÔÃÕÇ]$/.test(palavra);
+    if (apenasPonto && (ABREVIACOES.test(palavra) || inicial || (/\d$/.test(palavra) && false))) {
+      saida += resto.slice(0, m.index + m[0].length);
+      resto = resto.slice(m.index + m[0].length);
+      continue;
+    }
+    const curto = ate.replace(/[*_]/g, "").length <= 6;
+    saida += ate + (curto ? "\n" : "\n\n");
+    resto = resto.slice(m.index + m[0].length);
+  }
+  return saida + resto;
+}
+
 function converterTrecho(t: string): string {
   return t
     .split("\n")
@@ -31,7 +65,7 @@ function converterTrecho(t: string): string {
       // "1. opção" / "1) opção" → "*1)* opção": o WhatsApp lê "1. " como lista e recua e quebra a linha (prints do
       // dono, 05 e 06/11). Número em negrito, sem recuo, vale para Bot, Flow IA e avisos.
       l = l.replace(/^(\d{1,2})[.)]\s+(?=\S)/, "*$1)* ");
-      return l;
+      return espacarFrases(l);
     })
     .join("\n")
     .replace(/\*\*(.+?)\*\*/g, "*$1*")

@@ -67,7 +67,7 @@ export const TEXTOS = {
   // desorganizado"): uma mensagem só, linhas curtas, com o que foi ouvido e uma dica do que fazer agora.
   audioNaoEntendido: "Não entendi esse áudio.",
   audioSigaPorTexto:
-    "Vamos por escrito?\n\nMe diga o *serviço* e o *horário* que prefere.\nQuando der, volto a ouvir seus áudios.",
+    "Vamos por escrito?\n\nMe diga o *serviço* e o *horário* que prefere.\n\nQuando der, volto a ouvir seus áudios.",
   naoEntendiOpcao: "Não entendi. Responda com o número de uma das opções.",
   ocupado: "Esse horário acabou de ser ocupado. Veja os que ainda estão livres:",
   semHorarioAgendado:

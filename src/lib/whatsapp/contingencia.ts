@@ -46,6 +46,7 @@ export function textoDeAudioIndisponivel(link: string, responsavel?: string | nu
     "Me diga o *serviço* e o *horário* que prefere, que eu ajusto.",
     "",
     `${r.nome === "a equipe" ? "A equipe já foi avisada" : `${r.nome} já foi avisado`}.`,
+    "",
     `Ou veja a agenda: ${link}`,
   ].join("\n");
 }
