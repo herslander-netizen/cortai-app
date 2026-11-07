@@ -21,6 +21,21 @@ const SINONIMOS: Readonly<Record<string, readonly string[]>> = {
   Crescimento: ["crescimento", "divulgacao", "marketing", "retorno dos clientes"],
 };
 
+export type ResultadoAjudaOperacional =
+  | {
+      encontrado: true;
+      titulo: string;
+      caminho: string;
+      descricao: string;
+      passos: { titulo: string; texto: string }[];
+      aviso: string;
+    }
+  | {
+      encontrado: false;
+      motivo: "canal_nao_autorizado" | "assunto_ausente" | "assunto_sem_guia_verificado";
+      areasDisponiveis?: string[];
+    };
+
 function normalizar(texto: string): string {
   return texto
     .normalize("NFD")
@@ -33,7 +48,7 @@ function normalizar(texto: string): string {
 export function consultarAjudaOperacional(
   assunto: string,
   contexto: Pick<ContextoDoCerebro, "canal" | "papel" | "permissoes">,
-) {
+): ResultadoAjudaOperacional {
   // Não deve ser uma API pública: ferramenta disponível apenas à equipe autenticada.
   const equipe =
     contexto.canal === "painel" ||
