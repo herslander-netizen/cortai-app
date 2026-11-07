@@ -27,6 +27,7 @@ e o que fez. O diário até 17/10/2026 está guardado, sem alterações, em
 7. **Sem segredos:** nunca escreva chaves, senhas ou tokens aqui. Cite só o nome da variável.
 
 ## Decisões do dono
+- 2026-11-07: **Flow IA será evoluída para Flow Core** como cérebro único do Flow: esclarecer dúvidas de estabelecimentos, operar por texto e voz, coordenar automações e, em um modo técnico separado e autenticado, ajudar o dono da plataforma no desenvolvimento. Não criar segundo cérebro; preservar as 24 ações existentes e o catálogo único, permissões, consentimento e confirmações, com modos técnicos isolados de clientes. Implantação em fases, sem instalar OpenClaw/OpenCode/LangGraph automaticamente, e sem custo, segredo, produção ou mudanças de banco sem autorização própria.
 - 2026-11-06: **Página pública antes do login (`/apresentacao`) vira página de divulgação**: oferta grátis em destaque (Essencial, até 50 agendamentos por mês), fotos do banco, seções claras alternando com escuras no tema Flow, animada; fotos que faltarem entram depois. **Pendente do dono:** confirmar o texto da oferta e se `/` deve levar quem não está logado para ela.
 - 2026-11-06: **Agenda: a troca de dia por deslize precisa ser fluida** ("engasgando… diferente de descer e subir"); achar o que pesa e resolver.
 - 2026-11-06: **Agenda, cartões da Timeline: segurar já abre a edição de horário e o cartão já pode ser arrastado no mesmo gesto** ("assim que clicar e segurar… já pode ser reorganizado na primeira vez"). Substitui a regra de 29/10 (primeiro toque só arma; arrasto só no segundo toque).
@@ -578,7 +579,6 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - 2026-10-26: **Cabeçalho do menu mobile mais compacto** (dono aprovou a reformulação após captura: logo menor, nome do negócio com hierarquia discreta, papel secundário, ajustes alinhados e menos espaço vazio; manter nome em até duas linhas quando necessário, sem afetar a Agenda).
 
 ## Em andamento
-- GPT | 2026-11-07 UTC | **Flow Core — fase 1 (pedido do dono):** adicionar suporte operacional somente leitura no cérebro oficial da Flow IA, acessível no painel por texto/voz e à equipe verificada, com testes; sem novo motor, sem alterar WhatsApp/Flow Bot, agenda, banco, secrets, infraestrutura, main ou produção | `src/lib/brain/acoes.server.ts`, `src/lib/brain/agente.server.ts`, novos `src/lib/brain/ajuda-operacional.ts` e teste, `docs/flow-inteligencia/14-flow-core-suporte.md`; sem migração
 
 
 
@@ -670,6 +670,7 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 
 ## Recados
+- **Para Claude e demais IAs — GPT, 07/11/2026 UTC — Flow Core fase 1 concluída:** adicionei `brain/ajuda-operacional.ts` (consulta pura dos `MODULOS_DE_NAVEGACAO` e `GUIAS` oficiais), teste, ferramenta `consultar_ajuda_flow` no catálogo ÚNICO `brain/acoes.server.ts` e orientação no prompt do agente para dúvidas de equipe por texto/voz. A ação é somente leitura e permitida à equipe autenticada, não a clientes/visitantes; nenhum webhook/Flow Bot/WhatsApp foi alterado. Inventário anterior 24, agora 25 ações. CI `42406110349` passou TypeScript, build e 331 arquivos/2.684 testes (1 pulado), com deploy isolado e smoke concluídos. Consultar `docs/flow-inteligencia/14-flow-core-suporte.md`. Nenhum framework externo, banco, Oracle, segredo, produção ou `main` modificado. Reserva encerrada. Atenção: como a equipe verificada pelo WhatsApp reaproveita as ações de leitura do painel, manter as guardas de telefone/tenant ao continuar sua reserva.
 
 - **Para Claude e demais IAs — GPT, 07/11/2026 UTC — Agente Flow v0 isolado:** a pedido do dono, comparei LangGraph.js, Cloudflare Agents SDK, Mastra e OpenCode e compilei as funções do Flow em `docs/flow-inteligencia/13-compilacao-open-source-agente-flow.md`. Foram identificadas 24 ações reais em `brain/acoes.server.ts` (14 leituras, 9 escritas, 1 controle). Criei somente `src/lib/agente-flow/planejador.ts` (puro, **sombra: true**, sem rota, estado próprio, DB, LLM, WhatsApp ou execução) e 20 testes em `planejador.test.ts`. **Não conectar ao webhook/Flow Bot nem ativar envio** antes de alinhar reservas e fechar P1/P2/P8/P10. Não instalar framework nem criar novo catálogo paralelo de ações. CI completo `42403269534` passou (2.675 testes, 1 pulado, TypeScript, build, deploy isolado e smoke). Nenhum banco, produção, main, Oracle, infraestrutura ou segredo alterado.
 
@@ -990,6 +991,13 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+### 2026-11-07 UTC — GPT — Flow Core fase 1: suporte seguro no cérebro da Flow IA
+- Pedido do dono: iniciar a conversão da Flow IA em Flow Core (suporte a estabelecimentos, voz, automação e futura administração técnica). Primeira etapa **executada no núcleo oficial**, sem UI, rota nova, banco ou acesso de infraestrutura.
+- Adicionados `src/lib/brain/ajuda-operacional.ts` e `ajuda-operacional.test.ts`: perguntas em português direcionadas ao guia e menu reais; respostas com `encontrado=false` em caso de dúvida sem fonte. Reutiliza `src/lib/guia/tours.ts` e `src/lib/navegacao-barbeiro.ts`.
+- `src/lib/brain/acoes.server.ts` recebe `consultar_ajuda_flow` como 25ª ação oficial, somente leitura; `agente.server.ts` instrui sobre respostas de suporte sem inventar. A voz do painel já passava pelo mesmo cérebro — nenhuma captura/transcrição foi alterada. Não conectar a OpenClaw/OpenCode nem alterar o WhatsApp real.
+- Primeiro CI `42405954607` encontrou retorno síncrono em contrato assíncrono; corrigido no commit `1a34df0`. **CI final `42406110349`: validate-build success, TypeScript success, build success, 331 arquivos / 2.684 testes passaram, 1 pulado; deploy isolado success, smoke success.** Prévia oficial: https://previa.cortaiapp.pages.dev . Não foi feito teste conversacional com LLM real nem auditoria de custo. ESLint específico não foi executado localmente por falta do ambiente completo.
+- Documentação: `docs/flow-inteligencia/14-flow-core-suporte.md`. Reserva retirada. 
+
 ### 2026-11-07 UTC — GPT — Agente Flow v0 e compilação dos frameworks open source
 - Pedido: construir nosso agente próprio com funções precisas e analisar os repositórios sugeridos para compilação, sem gastar, preservando o cérebro, o Flow Bot e a prévia.
 - Pesquisa de código e docs oficiais de **LangGraph.js** (MIT: checkpoint/interrupt), **Cloudflare Agents SDK** (MIT: Durable Objects, filas, jobs), **Mastra** (núcleo Apache-2.0 e área `ee/` com licença empresarial) e **OpenCode** (MIT: agente de programação, não atendimento); padrões documentados sem copiar código nem instalar dependência.
