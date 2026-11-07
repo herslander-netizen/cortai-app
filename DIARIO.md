@@ -579,6 +579,8 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Em andamento
 
+- GPT | 2026-11-07 UTC | **Agente Flow — compilação dos frameworks e simulador seguro isolado**: estudar LangGraph.js, Cloudflare Agents SDK, Mastra, OpenCode; inventariar ações oficiais; criar módulo de planejamento somente leitura/sem conexão ao WhatsApp com testes, e documentação de arquitetura. Não instalar dependências, não mudar comportamento do Flow Bot/IA, não tocar arquivos reservados pela Claude, banco, Agenda, produção, segredos, main ou infraestrutura | `src/lib/agente-flow/*`, `docs/flow-inteligencia/13-compilacao-open-source-agente-flow.md`; sem migração
+
 
 
 - Claude | 2026-11-06 04:10 UTC | **WhatsApp — finalização das funções (pedido do dono):** (1) barreira de consentimento no `enviarPelaBarbearia` (recado do GPT); (2) captura das conversas que saíram do fluxo + painel "Para melhorar" em WhatsApp → Atividade; (3) aviso de falta com oferta de remarcar; (4) orientações por serviço na confirmação e no lembrete; (5) áudio pela Meta; (6) avisos de créditos acabando e de "falta 1 para o brinde". Só prévia; migração só de acréscimo, sem aplicar em `cortai-prod` | `src/lib/whatsapp/fluxo.server.ts`, `src/lib/whatsapp/*`, `src/routes/api/public/whatsapp/*`, `src/integrations/supabase/types.ts`, `src/routes/barbeiro.cortai-atividade.tsx`, `drizzle/migrations` (0059+)
