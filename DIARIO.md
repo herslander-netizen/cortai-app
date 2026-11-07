@@ -982,6 +982,9 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+### 2026-11-07 UTC — Claude — Segmentos em faixa contínua (direita → esquerda)
+- Dono (07/11): os nomes dos segmentos passam da direita para a esquerda, saem por um lado e voltam pelo outro, na velocidade das ondas. `FaixaDeSegmentos` em `landing/Topo.tsx`: lista repetida 4×, anda uma cópia (−25 %) em 19 s linear (≈31 px/s medido, ondas ≈35 px/s), tela inteira com bordas esmaecidas; medido a 390 e 1280 px: sem buracos. Movimento reduzido: chips parados com quebra de linha.
+
 ### 2026-11-07 UTC — Claude — Página pública: três cartões maiores e capítulos em laço
 - Dono (07/11): manter 3 cartões e maiores, na ordem mulher → homem cortando cabelo → outra mulher, com os balões de confirmação aparecendo na frente (`MosaicoMobile`, ring branco 4, rounded 22). Os pequenos vídeos (capítulos) agora repetem enquanto a seção está na tela: remonta a cada `duracao` do capítulo, para ao sair e recomeça ao voltar; o WhatsApp troca de ramo a cada volta; movimento reduzido fica parado. Medido: a sequência dos avisos de Lembretes repete (0→3) a cada ~8 s.
 

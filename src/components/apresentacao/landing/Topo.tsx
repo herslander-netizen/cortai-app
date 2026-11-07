@@ -102,6 +102,50 @@ function MosaicoMobile() {
   );
 }
 
+/**
+ * Segmentos passando da direita para a esquerda, sem parar (dono, 07/11/2026): saem por um lado e voltam pelo outro,
+ * na velocidade das ondas (uma largura de tela a cada ~11 s). A lista é repetida 4 vezes (cobre telas largas) e a faixa anda uma cópia (-25 %),
+ * então o laço não dá salto. Com "reduzir movimento" fica parada, com quebra de linha.
+ */
+function FaixaDeSegmentos() {
+  const reduzir = useReducedMotion();
+  const chip =
+    "shrink-0 whitespace-nowrap rounded-full bg-[var(--cartao)]/80 px-3.5 py-1.5 text-[13px] font-semibold text-[var(--texto)] ring-1 ring-[var(--linha)]";
+  if (reduzir) {
+    return (
+      <ul
+        className="mt-8 flex flex-wrap justify-center gap-2"
+        aria-label="Para qualquer negócio de serviços"
+      >
+        {SEGMENTOS.map((nome) => (
+          <li key={nome} className={chip}>
+            {nome}
+          </li>
+        ))}
+      </ul>
+    );
+  }
+  return (
+    <div
+      className="relative left-1/2 mt-8 w-screen -translate-x-1/2 overflow-hidden [mask-image:linear-gradient(90deg,transparent,#000_8%,#000_92%,transparent)]"
+      role="group"
+      aria-label="Para qualquer negócio de serviços"
+    >
+      <motion.ul
+        className="flex w-max gap-2 pr-2"
+        animate={{ x: ["0%", "-25%"] }}
+        transition={{ duration: 19, repeat: Infinity, ease: "linear" }}
+      >
+        {[...SEGMENTOS, ...SEGMENTOS, ...SEGMENTOS, ...SEGMENTOS].map((nome, i) => (
+          <li key={`${nome}-${i}`} className={chip} aria-hidden={i >= SEGMENTOS.length}>
+            {nome}
+          </li>
+        ))}
+      </motion.ul>
+    </div>
+  );
+}
+
 export function Heroi({ conteudo }: { conteudo: ConteudoApresentacao["hero"] }) {
   const reduzir = useReducedMotion();
   const { logado, comecar } = useAcesso();
@@ -178,19 +222,7 @@ export function Heroi({ conteudo }: { conteudo: ConteudoApresentacao["hero"] }) 
           )}
         </motion.div>
         <MosaicoMobile />
-        <ul
-          className="mt-8 flex flex-wrap justify-center gap-2"
-          aria-label="Para qualquer negócio de serviços"
-        >
-          {SEGMENTOS.map((nome) => (
-            <li
-              key={nome}
-              className="rounded-full bg-[var(--cartao)]/80 px-3.5 py-1.5 text-[13px] font-semibold text-[var(--texto)] ring-1 ring-[var(--linha)]"
-            >
-              {nome}
-            </li>
-          ))}
-        </ul>
+        <FaixaDeSegmentos />
       </div>
     </section>
   );
