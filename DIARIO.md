@@ -982,6 +982,9 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+### 2026-11-07 UTC — Claude — Auditoria de texto da página pública (474 → 363 palavras)
+- Dono: "quanto texto é esse, faça uma auditoria". Medido no navegador: 474 palavras visíveis (abertura 99, Planos 97, Oferta 74, perguntas 166 fechadas). Cortes: abertura só "Clientes marcam sozinhos e recebem lembrete no WhatsApp." (a faixa de segmentos já diz para quem é); oferta sem parágrafo (os 3 tópicos bastam) e nota curta; Planos com uma linha ("Pix, boleto ou cartão. Cancele quando quiser.") e cartão Essencial com 3 tópicos (limite e "tudo liberado" já estão na oferta; dados de `PLANOS_COMERCIAIS` intactos); chamada final "Grátis, sem cartão."; legenda da faixa de fotos removida; perguntas 7 → 5 com respostas de uma linha (a de "quais tipos de negócio" fica como o teste exige). Quem editou o conteúdo em `/admin/home` mantém o próprio texto.
+
 ### 2026-11-07 UTC — Claude — Revisão sênior (UI/UX e conversão) da página pública
 - Revisão completa a 390 e 1280 px. Corrigido: capítulo Agenda começava com um quadrado cinza vazio (agora mostra a página do negócio por baixo da gaveta, também na entrada); no desktop duas fotos da abertura passavam por cima da faixa de segmentos. Sugestões não implementadas (precisam de decisão ou conteúdo real) estão na resposta ao dono: prova social, "como funciona em 3 passos", selo de confiança, bullets do Essencial repetem a oferta, link âncora na abertura, métricas/eventos, imagem de compartilhamento.
 

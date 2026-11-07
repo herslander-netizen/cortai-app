@@ -32,10 +32,6 @@ export function OfertaGratis() {
               <h2 className="mt-3 font-serif text-[34px] font-bold leading-[1.05] sm:text-[48px]">
                 Grátis até {LIMITE} agendamentos por mês.
               </h2>
-              <p className="mt-4 max-w-md text-[15px] leading-relaxed opacity-95">
-                Comece sem cartão e sem prazo. Agenda, clientes, comanda, página do negócio e
-                lembretes no WhatsApp — tudo liberado no plano Essencial.
-              </p>
               <ul className="mt-5 space-y-2 text-[14px]">
                 {[
                   "1 profissional",
@@ -82,8 +78,7 @@ export function OfertaGratis() {
                 <span>ainda sobra espaço</span>
               </p>
               <p className="mt-4 text-[12px] leading-snug opacity-85">
-                Precisa de mais profissionais ou agendamentos sem limite? O plano Studio libera até
-                10 profissionais.
+                Precisa de mais? O Studio libera até 10 profissionais.
               </p>
             </div>
           </div>

@@ -22,9 +22,6 @@ export function FaixaDeFotos() {
   const fotos = [...GALERIA, ...GALERIA];
   return (
     <section style={TEMA_CLARO} className="overflow-hidden bg-[var(--fundo)] py-12">
-      <p className="mb-6 px-4 text-center text-[13px] font-semibold text-[var(--texto-suave)]">
-        Beleza, barbearia, estética e outros negócios de serviços
-      </p>
       <motion.div
         className="flex w-max gap-4"
         animate={reduzir ? { x: 0 } : { x: ["0%", "-50%"] }}
@@ -99,7 +96,7 @@ export function Planos({ conteudo }: { conteudo: ConteudoApresentacao["planos"] 
                     : "agendamentos sem limite"}
                 </p>
                 <ul className="mt-5 space-y-2 text-[14px]">
-                  {[...(p.herda ? [p.herda] : []), ...p.itens].map((item) => (
+                  {[...(p.herda ? [p.herda] : []), ...p.itens].slice(0, 3).map((item) => (
                     <li key={item} className="flex items-start gap-2">
                       <Check size={16} className="mt-0.5 shrink-0" /> {item}
                     </li>

@@ -44,8 +44,7 @@ export const APRESENTACAO_PADRAO: ConteudoApresentacao = {
   hero: {
     etiqueta: "GRÁTIS ATÉ 50 AGENDAMENTOS POR MÊS",
     titulo: "Sua agenda cheia.\nSeu negócio crescendo.",
-    texto:
-      "Seus clientes marcam sozinhos, recebem lembrete no WhatsApp e voltam sempre, enquanto você cuida do que importa. Para beleza, saúde, bem-estar, estúdios e qualquer negócio de serviços.",
+    texto: "Clientes marcam sozinhos e recebem lembrete no WhatsApp.",
     cta: "Começar grátis",
   },
   agenda: {
@@ -90,39 +89,26 @@ export const APRESENTACAO_PADRAO: ConteudoApresentacao = {
   planos: {
     etiqueta: "PLANOS",
     titulo: "Comece grátis. Cresça quando precisar.",
-    texto:
-      "O Essencial é grátis para sempre, com tudo liberado. O Studio tira o limite de agendamentos e aceita até 10 profissionais. Pague por Pix, boleto ou cartão.",
+    texto: "Pix, boleto ou cartão. Cancele quando quiser.",
   },
   duvidas: { etiqueta: "DÚVIDAS", titulo: "Antes de começar.", texto: "" },
   perguntas: [
     {
       pergunta: "O Flow funciona no celular?",
-      resposta:
-        "Sim. A experiência é pensada para acompanhar a rotina do negócio no celular e também funciona no computador.",
-    },
-    {
-      pergunta: "Meus clientes podem agendar sozinhos?",
-      resposta:
-        "Sim. Pela página do seu negócio. No Essencial grátis cabem até 50 agendamentos por mês; no Studio, sem limite.",
+      resposta: "Sim, no celular e no computador.",
     },
     {
       pergunta: "O WhatsApp está em todos os planos?",
-      resposta:
-        "Sim. Lembretes e atendimento no WhatsApp estão liberados no Essencial grátis e no Studio.",
+      resposta: "Sim, no Essencial grátis e no Studio.",
     },
     {
       pergunta: "Preciso de cartão?",
       resposta:
-        "Não. O Essencial é grátis e não pede cartão. Se um dia assinar o Studio, você paga por Pix, boleto ou cartão.",
+        "Não. O Essencial é grátis. No Studio você paga por Pix, boleto ou cartão e cancela quando quiser.",
     },
     {
       pergunta: "O que acontece se eu passar de 50 agendamentos?",
-      resposta:
-        "Nenhum dado é apagado. Para continuar recebendo agendamentos no mês, é só assinar o Studio.",
-    },
-    {
-      pergunta: "Posso cancelar?",
-      resposta: "Sim, a qualquer momento, sem multa.",
+      resposta: "Nada é apagado. Para seguir recebendo no mês, assine o Studio.",
     },
     {
       pergunta: "Quais tipos de negócio podem usar o Flow?",
@@ -133,7 +119,7 @@ export const APRESENTACAO_PADRAO: ConteudoApresentacao = {
   final: {
     etiqueta: "",
     titulo: "Seu negócio pode ser mais simples.",
-    texto: "Grátis até 50 agendamentos por mês, com tudo liberado. Sem cartão.",
+    texto: "Grátis, sem cartão.",
   },
 };
 
