@@ -83,3 +83,53 @@ describe("entender (casos da conversa padrão)", () => {
     ]);
   });
 });
+
+describe("entender: desambiguacao segura sem custo de IA", () => {
+  it("nao confunde nome curto de profissional com pedacos de outras palavras", () => {
+    const profissionais = [
+      { id: "ana", nome: "Ana" },
+      { id: "lia", nome: "Lia" },
+    ];
+    expect(entender("semana que vem", { ...contexto, profissionais }).profissionalId).toBeUndefined();
+    expect(entender("minha familia vai junto", { ...contexto, profissionais }).profissionalId).toBeUndefined();
+    expect(entender("quero com a Ana", { ...contexto, profissionais }).profissionalId).toBe("ana");
+    expect(entender("quero com a Lia", { ...contexto, profissionais }).profissionalId).toBe("lia");
+  });
+
+  it("prefere a correspondencia especifica ao primeiro servico da lista", () => {
+    const servicos = [
+      { id: "corte", nome: "Corte" },
+      { id: "combo", nome: "Corte e barba" },
+    ];
+    expect(entender("quero corte e barba", { ...contexto, servicos }).servicoId).toBe("combo");
+    expect(entender("quero corte", { ...contexto, servicos }).servicoId).toBe("corte");
+  });
+
+  it("nao escolhe sozinho entre profissionais com o mesmo apelido", () => {
+    const profissionais = [
+      { id: "ana-1", nome: "Ana Lima", apelidos: ["Ana"] },
+      { id: "ana-2", nome: "Ana Souza", apelidos: ["Ana"] },
+    ];
+    expect(entender("pode ser a Ana", { ...contexto, profissionais }).profissionalId).toBeUndefined();
+    expect(entender("pode ser Ana Souza", { ...contexto, profissionais }).profissionalId).toBe("ana-2");
+  });
+
+  it("nao converte um minuto especifico em outro horario", () => {
+    expect(entender("as 18h30", contexto).horario).toBeUndefined();
+    expect(entender("as 18h40", contexto).horario).toBe("18:40");
+    expect(entender("as 18", contexto).horario).toBe("18:40");
+  });
+
+  it("pede esclarecimento se houver varios horarios na mesma hora", () => {
+    const horariosOferecidos = ["15:20", "15:40"];
+    expect(entender("as 15", { ...contexto, horariosOferecidos }).horario).toBeUndefined();
+    expect(entender("as 15h40", { ...contexto, horariosOferecidos }).horario).toBe("15:40");
+  });
+
+  it("recusa horas e minutos impossiveis em vez de devolve-los como validos", () => {
+    const horariosOferecidos: string[] = [];
+    for (const frase of ["as 25h", "as 15h75", "as 29"]) {
+      expect(entender(frase, { ...contexto, horariosOferecidos }).horario, frase).toBeUndefined();
+    }
+  });
+});

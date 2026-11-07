@@ -65,12 +65,32 @@ function diaDoMes(hoje: string, numero: number) {
 }
 
 function acharItem(texto: string, itens: ItemReconhecivel[] = []) {
-  return itens.find((item) =>
-    [item.nome, ...(item.apelidos ?? [])]
+  // Correspondencia por palavras inteiras: "Ana" nao e parte de "semana".
+  const frase = ` ${texto} `;
+  let melhor: ItemReconhecivel | undefined;
+  let maiorCorrespondencia = 0;
+  let ambiguo = false;
+
+  for (const item of itens) {
+    const comprimento = [item.nome, ...(item.apelidos ?? [])]
       .map(normalizarTexto)
-      .filter((nome) => nome.length > 1)
-      .some((nome) => texto.includes(nome)),
-  );
+      .filter((nome) => nome.length > 1 && frase.includes(` ${nome} `))
+      .reduce((maior, nome) => Math.max(maior, nome.length), 0);
+
+    if (comprimento > maiorCorrespondencia) {
+      melhor = item;
+      maiorCorrespondencia = comprimento;
+      ambiguo = false;
+    } else if (
+      comprimento > 0 &&
+      comprimento === maiorCorrespondencia &&
+      melhor?.id !== item.id
+    ) {
+      // Dois itens igualmente reconhecidos: deixar o dialogo pedir esclarecimento.
+      ambiguo = true;
+    }
+  }
+  return ambiguo ? undefined : melhor;
 }
 
 export function entender(frase: string, contexto: ContextoEntendimento): Entendimento {
@@ -197,13 +217,22 @@ export function entender(frase: string, contexto: ContextoEntendimento): Entendi
   if (explicito && !(texto.match(/\bdia\s+\d/) && !/h|:|\bas\b/.test(texto))) {
     let hora = Number(explicito[1]);
     const minuto = Number(explicito[2] ?? 0);
+    const informouMinutos = explicito[2] !== undefined;
     if (hora <= 7 && resultado.periodo !== "manha") hora += 12;
-    const candidato = `${String(hora).padStart(2, "0")}:${String(minuto).padStart(2, "0")}`;
-    const opcoes = contexto.horariosOferecidos ?? [];
-    const equivalente = opcoes.find(
-      (opcao) => opcao === candidato || Number(opcao.slice(0, 2)) === hora,
-    );
-    if (!opcoes.length || equivalente) resultado.horario = equivalente ?? candidato;
+    // Nunca sugerir hora impossivel nem trocar silenciosamente 18h30 por 18h40.
+    if (hora >= 0 && hora < 24 && minuto >= 0 && minuto < 60) {
+      const candidato = `${String(hora).padStart(2, "0")}:${String(minuto).padStart(2, "0")}`;
+      const opcoes = contexto.horariosOferecidos ?? [];
+      const mesmaHora = informouMinutos
+        ? []
+        : opcoes.filter((opcao) => Number(opcao.slice(0, 2)) === hora);
+      const equivalente = opcoes.includes(candidato)
+        ? candidato
+        : mesmaHora.length === 1
+          ? mesmaHora[0]
+          : undefined;
+      if (!opcoes.length || equivalente) resultado.horario = equivalente ?? candidato;
+    }
   }
   return resultado;
 }
