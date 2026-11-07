@@ -506,7 +506,7 @@ export const ACOES: Record<string, Definicao> = {
     parametros: obj({ assunto: { type: "string" } }, ["assunto"]),
     risco: "leitura",
     canais: ["painel"],
-    executar: (ctx, d) => consultarAjudaOperacional(String(d.assunto ?? ""), ctx),
+    executar: async (ctx, d) => consultarAjudaOperacional(String(d.assunto ?? ""), ctx),
   },
   listar_servicos: {
     descricao: "Lista os serviços ativos com id, nome, duração (min) e preço (centavos).",
