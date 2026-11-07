@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from "react";
-import { useInView } from "framer-motion";
+import { Fragment, useEffect, useRef, useState } from "react";
+import { useInView, useReducedMotion } from "framer-motion";
 
 import { Celular } from "@/components/entrada/historias/Celular";
 import { HistoriaWhatsapp } from "@/components/entrada/historias/HistoriaWhatsapp";
@@ -16,23 +16,30 @@ const ORDEM = (["whatsapp", "lembretes", "fila", "agenda", "site", "gestao"] as 
   CAPITULOS.find((c) => c.id === id)!,
 );
 
-/** O bate-papo do WhatsApp troca de ramo a cada volta (salão, barbearia, estética) para mostrar que serve a todos. */
-function ConversaVariada({ duracao }: { duracao: number }) {
-  const [indice, setIndice] = useState(0);
-  useEffect(() => {
-    const t = window.setInterval(
-      () => setIndice((i) => (i + 1) % CENARIOS_DA_PAGINA.length),
-      duracao,
-    );
-    return () => window.clearInterval(t);
-  }, [duracao]);
-  return <HistoriaWhatsapp key={indice} cenario={CENARIOS_DA_PAGINA[indice]!} />;
-}
-
-/** Remonta a história quando a seção entra na tela, para o cliente ver o passo a passo desde o começo. */
+/**
+ * Cada capítulo toca em laço enquanto está na tela (dono, 07/11/2026: "os pequenos vídeos ficarem repetindo"): a cada
+ * `duracao` a história é remontada do começo; ao sair da tela para e, ao voltar, recomeça. O bate-papo do WhatsApp
+ * troca de ramo a cada volta (salão, barbearia, estética). Com "reduzir movimento" fica parada no resultado.
+ */
 function CelularDoCapitulo({ capitulo, escuro }: { capitulo: Capitulo; escuro: boolean }) {
   const ref = useRef<HTMLDivElement>(null);
-  const visivel = useInView(ref, { once: true, margin: "0px 0px -20% 0px" });
+  const reduzir = useReducedMotion();
+  const naTela = useInView(ref, { margin: "0px 0px -20% 0px" });
+  const [jaViu, setJaViu] = useState(false);
+  const [ciclo, setCiclo] = useState(0);
+
+  useEffect(() => {
+    if (!naTela) return;
+    // Voltou para a tela depois de sair: recomeça do início.
+    if (jaViu) setCiclo((c) => c + 1);
+    setJaViu(true);
+    if (reduzir) return;
+    const t = window.setInterval(() => setCiclo((c) => c + 1), capitulo.duracao);
+    return () => window.clearInterval(t);
+    // `jaViu` só decide se é a primeira vez; não deve reiniciar o intervalo.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [naTela, reduzir, capitulo.duracao]);
+
   const [l1, l2] = capitulo.frase.split("\n");
   return (
     <div
@@ -47,7 +54,7 @@ function CelularDoCapitulo({ capitulo, escuro }: { capitulo: Capitulo; escuro: b
           : {}),
       }}
     >
-      {visivel ? (
+      {jaViu ? (
         <Celular
           legenda={
             <>
@@ -60,11 +67,13 @@ function CelularDoCapitulo({ capitulo, escuro }: { capitulo: Capitulo; escuro: b
             </>
           }
         >
-          {capitulo.id === "whatsapp" ? (
-            <ConversaVariada duracao={capitulo.duracao + 1500} />
-          ) : (
-            capitulo.historia()
-          )}
+          <Fragment key={ciclo}>
+            {capitulo.id === "whatsapp" ? (
+              <HistoriaWhatsapp cenario={CENARIOS_DA_PAGINA[ciclo % CENARIOS_DA_PAGINA.length]!} />
+            ) : (
+              capitulo.historia()
+            )}
+          </Fragment>
         </Celular>
       ) : null}
     </div>

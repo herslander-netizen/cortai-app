@@ -77,23 +77,22 @@ function FotosFlutuantes() {
 /** No celular as fotos entram em um mosaico abaixo do texto, sem competir com o título. */
 function MosaicoMobile() {
   const reduzir = useReducedMotion();
-  // Homens e mulheres de serviços diferentes (barbearia, cabelo e estética).
+  // Dono (07/11): três cartões maiores, na ordem mulher, homem cortando cabelo e outra mulher.
   const itens = [
-    { src: "/exemplos/profissional-2.webp", c: "mt-4", d: 0 },
-    { src: "/exemplos/galeria-2.webp", c: "-mt-1", d: 0.6 },
-    { src: "/exemplos/profissional-1.webp", c: "mt-4", d: 1.2 },
-    { src: "/exemplos/profissional-3.webp", c: "-mt-1", d: 1.8 },
+    { src: "/exemplos/profissional-1.webp", c: "mt-5", d: 0 },
+    { src: "/exemplos/galeria-2.webp", c: "-mt-1", d: 0.7 },
+    { src: "/exemplos/profissional-3.webp", c: "mt-5", d: 1.4 },
   ];
   return (
     <div className="mt-8 w-full sm:hidden" aria-hidden>
-      <div className="grid grid-cols-4 gap-2">
+      <div className="grid grid-cols-3 gap-3">
         {itens.map((f) => (
           <motion.img
             key={f.src}
             src={f.src}
             alt=""
-            className={`aspect-[3/4] w-full rounded-[16px] object-cover shadow-[0_14px_28px_-16px_rgba(0,0,0,0.7)] ring-[3px] ring-white ${f.c}`}
-            animate={reduzir ? { y: 0 } : { y: [0, -6, 0] }}
+            className={`aspect-[3/4] w-full rounded-[22px] object-cover shadow-[0_18px_36px_-18px_rgba(0,0,0,0.7)] ring-4 ring-white ${f.c}`}
+            animate={reduzir ? { y: 0 } : { y: [0, -7, 0] }}
             transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: f.d }}
           />
         ))}
