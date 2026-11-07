@@ -549,6 +549,14 @@ export const gerarCodigoPorTelefone = createServerFn({ method: "POST" })
         return { codigo: null, expiraEm: null, aviso: SERVICO_INSTAVEL };
       const sessao = await sessaoDoTenant(tenantId, tipoValido(data.tipo));
       const db = await admin();
+      const { liberarNumeroParaPareamento } = await import("@/lib/whatsapp/numero-em-uso.server");
+      const bloqueio = await liberarNumeroParaPareamento(
+        db,
+        sessao.id,
+        numero,
+        "a linha da plataforma ou outro negócio",
+      );
+      if (bloqueio) return { codigo: null, expiraEm: null, aviso: bloqueio };
       try {
         let pareamento;
         try {
@@ -731,7 +739,8 @@ export const sincronizarConexao = createServerFn({ method: "POST" })
           .select("*")
           .single();
         if (conectou) {
-          const { alinharNumeroDoNegocio } = await import("@/lib/whatsapp/numero-do-negocio.server");
+          const { alinharNumeroDoNegocio } =
+            await import("@/lib/whatsapp/numero-do-negocio.server");
           await alinharNumeroDoNegocio({
             tenantId,
             tipo,

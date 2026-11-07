@@ -215,6 +215,14 @@ export const codigoDaLinhaDaPlataforma = createServerFn({ method: "POST" })
           expiraEm: null,
           aviso: "Toque em Conectar antes de pedir o código.",
         };
+      const { liberarNumeroParaPareamento } = await import("@/lib/whatsapp/numero-em-uso.server");
+      const bloqueio = await liberarNumeroParaPareamento(
+        db,
+        linha.id,
+        numero,
+        "um negócio do Flow",
+      );
+      if (bloqueio) return { codigo: null, expiraEm: null, aviso: bloqueio };
       try {
         const gw = await gatewayDaLinha();
         const r = await gw.obterCodigoDePareamento(linha.sessao_id, numero);
