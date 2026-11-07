@@ -13,13 +13,17 @@
 
 /** Minúsculas, sem acento, sem pontuação e sem espaço sobrando. */
 export function normalizar(texto: string): string {
-  return texto
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^a-z0-9:\/\s-]/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
+  return (
+    texto
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      // A transcrição de áudio escreve "segunda-feira" com hífen; o vocabulário de dias usa "segunda feira".
+      .replace(/\b(segunda|terca|quarta|quinta|sexta)\s*-\s*feira\b/g, "$1 feira")
+      .replace(/[^a-z0-9:\/\s-]/g, " ")
+      .replace(/\s+/g, " ")
+      .trim()
+  );
 }
 
 /** Sinônimos de linguagem → termos canônicos de serviço; o contexto do negócio resolve ambiguidades. */

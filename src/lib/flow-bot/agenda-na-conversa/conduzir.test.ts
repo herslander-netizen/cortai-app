@@ -189,6 +189,25 @@ describe("agendar na conversa", () => {
     expect(r!.textos[0]).toContain("Com quem");
   });
 
+  it("no passo do horário, 'segunda-feira' (áudio) oferece os horários desse dia", async () => {
+    const { portas } = portasFalsas({
+      livres: {
+        "2026-11-07": LIVRES_SABADO,
+        "2026-11-09": ["09:00", "10:00", "14:00"].map((h) => ({
+          inicio: iso("2026-11-09", h),
+          profissionalId: "p-ze",
+        })),
+      },
+    });
+    const viaAudio = { ...portas, viaAudio: true };
+    let r = await conduzir("quero marcar", null, viaAudio);
+    r = await conduzir("1", r!.estado, viaAudio);
+    r = await conduzir("1", r!.estado, viaAudio);
+    expect(r!.textos[0]).toContain("Tenho estes horários livres");
+    r = await conduzir("Tem como remarcar para segunda-feira?", r!.estado, viaAudio);
+    expect(r!.textos[0]).toMatch(/Segunda-feira, 09\/11/);
+  });
+
   it("pedido de atendente no meio do fluxo sai sem responder (o bot chama a equipe)", async () => {
     const { portas } = portasFalsas({ livres: { "2026-11-07": LIVRES_SABADO } });
     const { respostas, estado } = await conversar(

@@ -10,6 +10,17 @@ describe("intencoes deterministicas do WhatsApp", () => {
     expect(classificar("Quais os horários disponíveis?", opcoes).intencao).toBe("DISPONIBILIDADE");
   });
 
+  it("áudio transcrito: 'segunda-feira' com hífen vale como o dia (06/11/2026)", () => {
+    const opcoes = { fuso: "America/Sao_Paulo", agora: new Date("2026-11-07T00:40:00Z") };
+    for (const frase of [
+      "Tem como remarcar para segunda-feira?",
+      "Tem como marcar um agendamento para segunda-feira?",
+      "terça-feira de manhã",
+    ]) {
+      expect(classificar(frase, opcoes).entidades.dia, frase).not.toBeNull();
+    }
+    expect(classificar("segunda-feira", opcoes).entidades.dia).toBe("2026-11-09");
+  });
   it("reconhece pergunta simples sobre o nome da barbearia", () => {
     expect(classificar("Qual o nome da barbearia?", opcoes).intencao).toBe("BARBEARIA");
   });
