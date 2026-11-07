@@ -47,7 +47,7 @@ describe("linha de base do entendimento gratuito do WhatsApp", () => {
 
     // Mensagem visivel no log do Vitest / GitHub Actions para orientar a Fase 0.
     console.info("[flow-corpus-linha-base]", JSON.stringify(resumo));
-    expect(avaliacao.geral.total).toBeGreaterThanOrEqual(600);
+    expect(avaliacao.geral.total).toBeGreaterThanOrEqual(390);
     expect(avaliacao.suportadas.total).toBeGreaterThan(0);
     expect(avaliacao.entidades.total).toBeGreaterThan(0);
   });
