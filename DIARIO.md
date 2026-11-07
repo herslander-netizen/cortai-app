@@ -578,6 +578,7 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - 2026-10-26: **Cabeçalho do menu mobile mais compacto** (dono aprovou a reformulação após captura: logo menor, nome do negócio com hierarquia discreta, papel secundário, ajustes alinhados e menos espaço vazio; manter nome em até duas linhas quando necessário, sem afetar a Agenda).
 
 ## Em andamento
+- GPT | 2026-11-07 UTC | **Flow Core — fase 1 (pedido do dono):** adicionar suporte operacional somente leitura no cérebro oficial da Flow IA, acessível no painel por texto/voz e à equipe verificada, com testes; sem novo motor, sem alterar WhatsApp/Flow Bot, agenda, banco, secrets, infraestrutura, main ou produção | `src/lib/brain/acoes.server.ts`, `src/lib/brain/agente.server.ts`, novos `src/lib/brain/ajuda-operacional.ts` e teste, `docs/flow-inteligencia/14-flow-core-suporte.md`; sem migração
 
 
 
