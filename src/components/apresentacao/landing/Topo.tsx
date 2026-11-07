@@ -25,8 +25,8 @@ const SEGMENTOS = [
 const FOTOS = [
   { src: "/exemplos/profissional-2.webp", x: "left-[2%] top-[8%]", t: 12, d: 0 },
   { src: "/exemplos/galeria-2.webp", x: "right-[3%] top-[2%]", t: 14, d: 1.2 },
-  { src: "/exemplos/profissional-1.webp", x: "left-[6%] bottom-[6%]", t: 13, d: 2.1 },
-  { src: "/exemplos/profissional-3.webp", x: "right-[5%] bottom-[10%]", t: 11, d: 0.6 },
+  { src: "/exemplos/profissional-1.webp", x: "left-[6%] bottom-[20%]", t: 13, d: 2.1 },
+  { src: "/exemplos/profissional-3.webp", x: "right-[5%] bottom-[22%]", t: 11, d: 0.6 },
 ] as const;
 
 export function Cabecalho() {

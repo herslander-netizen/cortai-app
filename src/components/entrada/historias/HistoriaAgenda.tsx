@@ -32,6 +32,14 @@ export function HistoriaAgenda() {
 
   return (
     <TelaDaHistoria rotulo="agendamento pelo cliente com dia, horário, profissional e verificação pelo WhatsApp">
+      {/* Página do negócio por baixo da gaveta (antes era só um quadrado cinza vazio no começo do capítulo). */}
+      <div className="absolute inset-0 flex flex-col items-center justify-center bg-[var(--figaro-primary-container)] px-6 text-center text-[var(--figaro-on-primary-container)]">
+        <b className="font-serif text-[22px] leading-tight">Studio Aurora</b>
+        <p className="mt-1 text-[10px] opacity-80">Seu tempo, seu jeito</p>
+        <span className="mt-4 rounded-full bg-[var(--figaro-primary)] px-5 py-2 text-[10px] font-semibold text-[var(--figaro-on-primary)]">
+          Agendar agora
+        </span>
+      </div>
       <div className="absolute inset-0 bg-[var(--figaro-inverse-surface)]/40" />
       <AnimatePresence mode="wait" initial={false}>
         {tela === "horarios" ? (
