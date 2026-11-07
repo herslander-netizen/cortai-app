@@ -14,6 +14,7 @@ import { origemDoCortai } from "@/lib/origem-agendamento";
 import { normalizarTelefone, variantesDoTelefone } from "@/lib/telefone";
 import { filtrarCandidatos, padraoDoBanco, termosDaBusca } from "./busca-cliente";
 import type { ItemDeConferencia } from "./conferencia";
+import { consultarAjudaOperacional } from "./ajuda-operacional";
 import { execucaoDiretaLigada, POLITICA_DE_CONFIRMACAO } from "./execucao-direta";
 import type { FerramentaDoModelo } from "./gateway.server";
 
@@ -499,6 +500,14 @@ export async function conferirAgendamento(
 
 export const ACOES: Record<string, Definicao> = {
   /* ------------------------------ Leitura ------------------------------ */
+  consultar_ajuda_flow: {
+    descricao:
+      "Suporte para DÚVIDAS DA EQUIPE sobre COMO USAR o Flow (Agenda, WhatsApp, clientes, equipe, horários, caixa, página e configurações). Consulte antes de ensinar caminhos. Retorna a tela e passos do guia oficial quando existirem. É somente leitura; não altera configurações. Não use para dúvidas de clientes sobre o próprio agendamento.",
+    parametros: obj({ assunto: { type: "string" } }, ["assunto"]),
+    risco: "leitura",
+    canais: ["painel"],
+    executar: (ctx, d) => consultarAjudaOperacional(String(d.assunto ?? ""), ctx),
+  },
   listar_servicos: {
     descricao: "Lista os serviços ativos com id, nome, duração (min) e preço (centavos).",
     parametros: obj({}),
