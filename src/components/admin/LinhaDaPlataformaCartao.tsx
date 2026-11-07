@@ -151,9 +151,9 @@ export function LinhaDaPlataformaCartao() {
             Conectar
           </Button>
         )}
-        {!conectada && linha?.qrCode ? (
+        {!conectada && (linha?.qrCode || linha?.status === "conectando") ? (
           <Button variant="outline" onClick={() => setGaveta(true)}>
-            Mostrar QR Code
+            {linha?.qrCode ? "Mostrar QR Code" : "Continuar conexão"}
           </Button>
         ) : null}
       </div>
@@ -179,9 +179,11 @@ export function LinhaDaPlataformaCartao() {
         </details>
       ) : null}
 
-      {gaveta && linha?.qrCode ? (
+      {/* Fica aberta mesmo sem QR: pedir o código por número zera o QR no servidor, e a gaveta não pode sumir junto
+          (dono, 07/11/2026: "erro wpp do adm" — o código nunca aparecia). Fecha ao conectar (efeito acima). */}
+      {gaveta && !conectada ? (
         <FolhaQrWhatsapp
-          valor={linha.qrCode}
+          valor={linha?.qrCode ?? null}
           restante={restante}
           aoFechar={() => setGaveta(false)}
           aoGerarNovo={() => acao.mutate("conectar")}
