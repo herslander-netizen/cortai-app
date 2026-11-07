@@ -24,22 +24,35 @@ export function usePassos(duracoes: readonly number[]): number {
 }
 
 /**
- * Ritmo único dos capítulos (dono, 06/11/2026: "padronizar o tempo das animações, está estranho e demorado, sem cortar
- * nada"): todos os passos continuam, só o tempo de cada um é ajustado para o capítulo durar perto de `alvoMs`
- * (sem acelerar mais de 30 % nem desacelerar mais de 15 %, e nenhum passo abaixo de 250 ms).
+ * Ritmo único dos capítulos (dono, 06/11/2026: "padronizar o tempo das animações, sem cortar nada"): todos os passos
+ * continuam, e só os passos **anteriores ao último** têm o tempo ajustado para o capítulo durar perto de `alvoMs`
+ * (no máximo 30 % mais rápido e 15 % mais lento; nenhum abaixo de 250 ms). O **último passo é o resultado** (ex.:
+ * "Agendamento confirmado") e mantém o tempo original: encurtá-lo fazia o capítulo trocar antes de o resultado
+ * aparecer por inteiro, e às vezes sim e às vezes não (dono, 06/11: "o slide 2 não mostra a confirmação direito").
  */
 export const DURACAO_ALVO_DO_CAPITULO_MS = 8500;
 export function ritmo(
   passos: readonly number[],
   alvoMs: number = DURACAO_ALVO_DO_CAPITULO_MS,
 ): number[] {
-  const soma = passos.reduce((a, b) => a + b, 0);
-  const fator = Math.min(1.15, Math.max(0.7, alvoMs / soma));
-  return passos.map((d) => Math.max(250, Math.round(d * fator)));
+  const ultimo = passos[passos.length - 1] ?? 0;
+  const anteriores = passos.slice(0, -1);
+  const soma = anteriores.reduce((a, b) => a + b, 0);
+  const fator = soma ? Math.min(1.15, Math.max(0.7, (alvoMs - ultimo) / soma)) : 1;
+  return [...anteriores.map((d) => Math.max(250, Math.round(d * fator))), ultimo];
 }
 
+/**
+ * Folga entre o fim da história e a troca de capítulo: o relógio do capítulo começa na troca, mas a tela só monta
+ * depois da saída da anterior (~350 ms); sem essa folga o último passo era cortado.
+ */
+export const LATENCIA_DA_TROCA_MS = 350;
+
 /** Duração total de uma história, para o pai saber quando trocar de capítulo (respiro curto entre capítulos). */
-export function duracaoTotal(duracoes: readonly number[], respiro = 500): number {
+export function duracaoTotal(
+  duracoes: readonly number[],
+  respiro = 500 + LATENCIA_DA_TROCA_MS,
+): number {
   return duracoes.reduce((s, d) => s + d, 0) + respiro;
 }
 

@@ -10,7 +10,8 @@ import { MOLA } from "@/lib/movimento-figaro";
 import { TelaDaHistoria, Toque, usePassos, ritmo } from "./base";
 import { BarraDoHorario, HorariosDoDia, ReservaConfirmada, SeusDados } from "./PartesDaAgenda";
 
-export const PASSOS_AGENDA = ritmo([1100, 1100, 1300, 1200, 1000, 1700, 350, 1700, 350, 2300]);
+// Último passo longo: a confirmação só aparece inteira depois da saída da tela anterior e do giro (≈1,3 s) e precisa ficar na tela.
+export const PASSOS_AGENDA = ritmo([1100, 1100, 1300, 1200, 1000, 1700, 350, 1700, 350, 3400]);
 
 const TOQUES = [
   { x: 50, y: 60, visivel: false },
