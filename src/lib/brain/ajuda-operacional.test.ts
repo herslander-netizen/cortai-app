@@ -1,5 +1,8 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+
+vi.mock("@/lib/ia/acoes.server", () => ({ ACOES_DO_AGENTE: {} }));
 import { consultarAjudaOperacional } from "./ajuda-operacional";
+import { ACOES, acaoPermitida } from "./acoes.server";
 
 const dono = { canal: "painel" as const, papel: "dono" as const, permissoes: [] as string[] };
 const profissional = {
@@ -9,6 +12,34 @@ const profissional = {
 };
 
 describe("Flow Core — ajuda operacional com fontes oficiais", () => {
+  it("integra a consulta ao cérebro oficial sem escrita ou exposição a clientes", async () => {
+    const ctx = { tenantId: "t1", ator: "usuario-1", ...dono };
+    expect(ACOES["consultar_ajuda_flow"]?.risco).toBe("leitura");
+    expect(acaoPermitida("consultar_ajuda_flow", ctx)).toBe(true);
+    expect(
+      acaoPermitida("consultar_ajuda_flow", {
+        tenantId: "t1",
+        ator: "cliente-1",
+        canal: "whatsapp",
+        papel: "cliente",
+      }),
+    ).toBe(false);
+    expect(
+      acaoPermitida("consultar_ajuda_flow", {
+        tenantId: "t1",
+        ator: "visitante",
+        canal: "site",
+      }),
+    ).toBe(false);
+    const resultado = await ACOES["consultar_ajuda_flow"]?.executar(ctx, {
+      assunto: "Como conectar o WhatsApp?",
+    });
+    expect(resultado).toMatchObject({
+      encontrado: true,
+      caminho: "/barbeiro/cortai",
+    });
+  });
+
   it("localiza a Agenda e reutiliza as etapas do guia existente", () => {
     const resposta = consultarAjudaOperacional("Flow, como faço para agendar?", dono);
     expect(resposta).toMatchObject({ encontrado: true, titulo: "Agenda", caminho: "/barbeiro" });
