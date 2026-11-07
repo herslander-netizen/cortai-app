@@ -40,11 +40,10 @@ function CelularDoCapitulo({ capitulo, escuro }: { capitulo: Capitulo; escuro: b
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [naTela, reduzir, capitulo.duracao]);
 
-  const [l1, l2] = capitulo.frase.split("\n");
   return (
     <div
       ref={ref}
-      className="mx-auto h-[420px] w-full max-w-[360px]"
+      className="mx-auto h-[350px] w-full max-w-[360px]"
       style={{
         ...TEMA_CLARO,
         background: "transparent",
@@ -55,18 +54,7 @@ function CelularDoCapitulo({ capitulo, escuro }: { capitulo: Capitulo; escuro: b
       }}
     >
       {jaViu ? (
-        <Celular
-          legenda={
-            <>
-              <b className="text-[13px]">{capitulo.rotulo}</b>
-              <p className="mt-1 text-[12px] leading-snug opacity-85">
-                {l1}
-                <br />
-                {l2}
-              </p>
-            </>
-          }
-        >
+        <Celular semLegenda legenda={null}>
           <Fragment key={ciclo}>
             {capitulo.id === "whatsapp" ? (
               <HistoriaWhatsapp cenario={CENARIOS_DA_PAGINA[ciclo % CENARIOS_DA_PAGINA.length]!} />
@@ -107,9 +95,6 @@ export function Capitulos() {
                 <h2 className="mt-3 font-serif text-[30px] font-bold leading-[1.08] sm:text-[40px]">
                   {t.titulo}
                 </h2>
-                <p className="mt-4 text-[16px] leading-relaxed text-[var(--texto-suave)]">
-                  {t.texto}
-                </p>
                 <ul className="mt-6 space-y-2.5">
                   {t.itens.map((item) => (
                     <li key={item} className="flex items-center gap-2.5 text-[15px]">

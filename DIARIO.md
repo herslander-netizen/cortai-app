@@ -982,6 +982,9 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+### 2026-11-07 UTC — Claude — Página pública sem textos redundantes
+- Dono (07/11): "textos redundantes". Cada seção repetia o mesmo em três lugares (título, frase e legenda do celular, mais o título dentro da tela). Agora: etiqueta + título + 3 tópicos curtos; a frase solta saiu (`textos-dos-capitulos.ts`, teste exige só etiqueta/título/itens) e o celular da página pública vai sem legenda (`Celular` ganhou `semLegenda`; a entrada do app continua com a legenda). Celular da seção 350 px de altura.
+
 ### 2026-11-07 UTC — Claude — Segmentos em faixa contínua (direita → esquerda)
 - Dono (07/11): os nomes dos segmentos passam da direita para a esquerda, saem por um lado e voltam pelo outro, na velocidade das ondas. `FaixaDeSegmentos` em `landing/Topo.tsx`: lista repetida 4×, anda uma cópia (−25 %) em 19 s linear (≈31 px/s medido, ondas ≈35 px/s), tela inteira com bordas esmaecidas; medido a 390 e 1280 px: sem buracos. Movimento reduzido: chips parados com quebra de linha.
 

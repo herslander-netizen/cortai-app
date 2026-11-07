@@ -8,12 +8,15 @@ describe("textos dos capítulos da página pública", () => {
     for (const c of CAPITULOS) expect(TEXTOS_DOS_CAPITULOS[c.id], c.id).toBeDefined();
   });
 
-  it("seguem o mesmo molde: título curto, uma frase curta e três tópicos curtos", () => {
+  it("seguem o mesmo molde: título curto e três tópicos curtos, sem frase solta", () => {
     for (const [id, t] of Object.entries(TEXTOS_DOS_CAPITULOS)) {
       expect(t.etiqueta.length, `${id} etiqueta`).toBeLessThanOrEqual(18);
       expect(t.titulo.length, `${id} título`).toBeLessThanOrEqual(52);
-      expect(t.texto.length, `${id} frase`).toBeLessThanOrEqual(70);
-      expect(t.texto.split(/[.!?]\s/).length, `${id} é uma frase só`).toBe(1);
+      expect(Object.keys(t).sort(), `${id} sem frase solta`).toEqual([
+        "etiqueta",
+        "itens",
+        "titulo",
+      ]);
       expect(t.itens, id).toHaveLength(3);
       for (const item of t.itens) expect(item.length, `${id}: ${item}`).toBeLessThanOrEqual(30);
     }

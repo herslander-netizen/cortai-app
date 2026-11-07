@@ -10,9 +10,19 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import { TELA_ALTURA, TELA_LARGURA } from "./base";
 
 /** Altura reservada à legenda (rótulo + frase de duas linhas). */
-const LEGENDA = 96;
+const LEGENDA_PADRAO = 96;
 
-export function Celular({ children, legenda }: { children: ReactNode; legenda: ReactNode }) {
+export function Celular({
+  children,
+  legenda,
+  semLegenda = false,
+}: {
+  children: ReactNode;
+  legenda: ReactNode;
+  /** Sem a linha da marca e a legenda (a página pública já escreve o texto ao lado, sem repetir). */
+  semLegenda?: boolean;
+}) {
+  const LEGENDA = semLegenda ? 0 : LEGENDA_PADRAO;
   const area = useRef<HTMLDivElement>(null);
   const [escala, setEscala] = useState<number | null>(null);
 
@@ -29,7 +39,7 @@ export function Celular({ children, legenda }: { children: ReactNode; legenda: R
     const obs = new ResizeObserver(medir);
     obs.observe(el);
     return () => obs.disconnect();
-  }, []);
+  }, [LEGENDA]);
 
   const e = escala ?? 1;
   return (
@@ -49,17 +59,21 @@ export function Celular({ children, legenda }: { children: ReactNode; legenda: R
             {children}
           </div>
         </div>
-        {/* Linha fina nas cores da marca entre a tela e a legenda. */}
-        <div
-          aria-hidden="true"
-          className="mx-auto mt-2.5 h-[3px] w-1/3 shrink-0 rounded-full bg-[linear-gradient(90deg,var(--entrada-ciano),var(--entrada-lilas)_50%,var(--entrada-rosa))]"
-        />
-        <div
-          className="flex shrink-0 flex-col items-center justify-center px-3 text-center"
-          style={{ height: LEGENDA }}
-        >
-          {legenda}
-        </div>
+        {semLegenda ? null : (
+          <>
+            {/* Linha fina nas cores da marca entre a tela e a legenda. */}
+            <div
+              aria-hidden="true"
+              className="mx-auto mt-2.5 h-[3px] w-1/3 shrink-0 rounded-full bg-[linear-gradient(90deg,var(--entrada-ciano),var(--entrada-lilas)_50%,var(--entrada-rosa))]"
+            />
+            <div
+              className="flex shrink-0 flex-col items-center justify-center px-3 text-center"
+              style={{ height: LEGENDA }}
+            >
+              {legenda}
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
