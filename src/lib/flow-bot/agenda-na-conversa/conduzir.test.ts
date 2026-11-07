@@ -209,6 +209,27 @@ describe("agendar na conversa", () => {
     expect(r!.textos[0]).toMatch(/Segunda-feira, 09\/11/);
   });
 
+  it("depois da confirmação, 'REMARCAR' (texto ou áudio) abre a escolha do horário a mudar", async () => {
+    const { portas } = portasFalsas({
+      agendamentos: [
+        {
+          id: "a1",
+          inicio: iso("2026-11-07", "15:00"),
+          servicoId: "s-corte",
+          servico: "Corte",
+          profissionalId: "p-ze",
+          profissional: "Zé",
+        },
+      ] as never,
+      livres: { "2026-11-07": LIVRES_SABADO },
+    });
+    for (const fala of ["REMARCAR", "Remarcar.", "Quero remarcar o meu horário."]) {
+      const r = await conduzir(fala, null, { ...portas, viaAudio: fala.endsWith(".") });
+      expect(r, fala).not.toBeNull();
+      expect(r!.estado?.objetivo, fala).toBe("remarcar");
+    }
+  });
+
   it("pedido de atendente no meio do fluxo sai sem responder (o bot chama a equipe)", async () => {
     const { portas } = portasFalsas({ livres: { "2026-11-07": LIVRES_SABADO } });
     const { respostas, estado } = await conversar(

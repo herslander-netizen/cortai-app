@@ -225,7 +225,8 @@ export function montarMensagem(
       creditos,
     );
     if (d.linkPagamento) blocos.push("", "💳 Pagar agora", d.linkPagamento);
-    blocos.push("", "Até lá!");
+    // Mudar o horário sem ligar (dono, 07/11/2026): o fluxo de remarcar já entende texto e áudio.
+    blocos.push("", "Precisa mudar o horário?", "Responda *REMARCAR* por aqui.", "", "Até lá!");
   } else if (tipo === "lembrete_24h") {
     blocos.push(
       // Véspera às 15h: a abertura varia um pouco entre clientes (textos idênticos em série parecem envio em massa).
