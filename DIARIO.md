@@ -579,7 +579,6 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Em andamento
 
-- GPT | 2026-11-07 UTC | **Agente Flow — compilação dos frameworks e simulador seguro isolado**: estudar LangGraph.js, Cloudflare Agents SDK, Mastra, OpenCode; inventariar ações oficiais; criar módulo de planejamento somente leitura/sem conexão ao WhatsApp com testes, e documentação de arquitetura. Não instalar dependências, não mudar comportamento do Flow Bot/IA, não tocar arquivos reservados pela Claude, banco, Agenda, produção, segredos, main ou infraestrutura | `src/lib/agente-flow/*`, `docs/flow-inteligencia/13-compilacao-open-source-agente-flow.md`; sem migração
 
 
 
@@ -670,6 +669,8 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 
 ## Recados
+
+- **Para Claude e demais IAs — GPT, 07/11/2026 UTC — Agente Flow v0 isolado:** a pedido do dono, comparei LangGraph.js, Cloudflare Agents SDK, Mastra e OpenCode e compilei as funções do Flow em `docs/flow-inteligencia/13-compilacao-open-source-agente-flow.md`. Foram identificadas 24 ações reais em `brain/acoes.server.ts` (14 leituras, 9 escritas, 1 controle). Criei somente `src/lib/agente-flow/planejador.ts` (puro, **sombra: true**, sem rota, estado próprio, DB, LLM, WhatsApp ou execução) e 20 testes em `planejador.test.ts`. **Não conectar ao webhook/Flow Bot nem ativar envio** antes de alinhar reservas e fechar P1/P2/P8/P10. Não instalar framework nem criar novo catálogo paralelo de ações. CI completo `42403269534` passou (2.675 testes, 1 pulado, TypeScript, build, deploy isolado e smoke). Nenhum banco, produção, main, Oracle, infraestrutura ou segredo alterado.
 
 - **Para Claude — GPT, 07/11/2026 UTC — defeito P2 reproduzido sem alterar sua reserva:** a medição determinística do corpus na branch oficial (teste em `src/lib/conversa/linha-base-whatsapp.test.ts`) confirmou que `avisaNumeroErrado` em `src/lib/whatsapp/porteiro.ts` devolve true indevidamente para as frases de clientes legítimos "Nao agendei ainda, quero marcar um corte", "Eu nao marquei nada, queria agendar amanha" e "Nao agendei para sexta, queria perguntar os horarios" (3 de 3). Não alterar/usar o porteiro em paralelo enquanto sua reserva WhatsApp estiver ativa. Ao liberar os arquivos, priorizar corrigir P2 com contexto do aviso e uma manifestação inequívoca de número errado, sem criar segunda política de supressão; escrever teste que falha antes e passa depois. P1 (modo_humano sem prazo no caminho da IA) permanece outra prioridade e depende de conferir a 0055 em cada ambiente. Linha de base no CI: 396 frases no corpus (a documentação menciona 658, desatualizado), 250/359 intenções suportadas (69,64%), 38 disparos indevidos, 38/50 entidades (76%). Teste CI e deploy isolado passaram no run `42400318778`. Nenhum WhatsApp real, banco ou produção alterado.
 
@@ -988,6 +989,14 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+### 2026-11-07 UTC — GPT — Agente Flow v0 e compilação dos frameworks open source
+- Pedido: construir nosso agente próprio com funções precisas e analisar os repositórios sugeridos para compilação, sem gastar, preservando o cérebro, o Flow Bot e a prévia.
+- Pesquisa de código e docs oficiais de **LangGraph.js** (MIT: checkpoint/interrupt), **Cloudflare Agents SDK** (MIT: Durable Objects, filas, jobs), **Mastra** (núcleo Apache-2.0 e área `ee/` com licença empresarial) e **OpenCode** (MIT: agente de programação, não atendimento); padrões documentados sem copiar código nem instalar dependência.
+- Arquivos novos: `docs/flow-inteligencia/13-compilacao-open-source-agente-flow.md` (24 ações oficiais: 14 leitura, 9 escrita, 1 controle, 22 capacidades, riscos de runtime/licença/custo), `src/lib/agente-flow/planejador.ts` (simulação só leitura), `src/lib/agente-flow/planejador.test.ts` (20 testes).
+- Commits da implementação: `636c17a` (módulo), `b146213` (testes), `361e610` (documentação). Nenhuma integração com webhooks, nenhum disparo, nenhuma migração ou alterações nos arquivos reservados pela Claude. O módulo usa `brain/guardas.ts` e a intenção recebida do classificador oficial, sem criar outra regra de autorização; saída sempre `sombra: true`.
+- GitHub Actions `42403269534` do commit `361e6100dce901541bbfc765bd9fdae78728f3d0`: `validate-build` sucesso (TypeScript, build, **330 arquivos, 2.675 testes passaram, 1 pulado; 20 testes novos do agente**); `deploy-isolated-preview` sucesso com smoke. Link: https://github.com/herslander-netizen/cortai-app/actions/runs/42403269534 .
+- Reserva encerrada. **Não é agente autônomo conectado**: antes de habilitar, coordenar reserva de WhatsApp, corrigir P1/P2/P8/P10, testar isolamento e outbox com banco de prévia, e respeitar custos. Não tocar `main`, `cortai-prod` ou Oracle.
+
 ### 2026-11-07 UTC — GPT — Linha de base real do Flow Chat e teste da supressão P2
 - Pedido do dono: continuar melhorando o WhatsApp sem gastar; a Claude continua com a reserva de `src/lib/whatsapp/*` e `fluxo.server.ts`; não alterei arquivos reservados.
 - Novo `src/lib/conversa/linha-base-whatsapp.test.ts`: usa o corpus PT-BR já existente e imprime no log de CI métricas de entendimento e três casos de falso positivo de "número errado". Nenhuma IA externa, dependência, chamada WhatsApp, banco, migração ou deploy em produção.
