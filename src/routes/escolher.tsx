@@ -38,7 +38,7 @@ export const Route = createFileRoute("/escolher")({
 });
 
 const CARTAO =
-  "grid min-h-[76px] w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center justify-start gap-4 rounded-[12px] border-0 bg-[var(--figaro-surface-container,var(--ink2))] px-4 py-4 text-left transition-colors hover:bg-[var(--figaro-surface-container-high,var(--ink3))] disabled:opacity-60";
+  "grid h-auto min-h-[76px] w-full whitespace-normal grid-cols-[auto_minmax(0,1fr)_auto] items-center justify-start gap-4 rounded-[12px] border-0 bg-[var(--figaro-surface-container,var(--ink2))] px-4 py-4 text-left transition-colors hover:bg-[var(--figaro-surface-container-high,var(--ink3))] disabled:opacity-60";
 
 function chaveDaOpcao(o: OpcaoDeEntrada) {
   return o.tipo === "negocio" ? o.tenantId : o.tipo;
@@ -124,7 +124,7 @@ function EscolherContexto() {
     return {
       icone: <Icone className="size-6 text-gold" aria-hidden />,
       titulo: o.nome,
-      detalhe: `${segmento.rotulo} · agenda, clientes e administração`,
+      detalhe: `${segmento.rotulo} · agenda e gestão`,
     };
   }
 
@@ -152,9 +152,9 @@ function EscolherContexto() {
               onClick={() => void entrar(o)}
             >
               {icone}
-              <span className="min-w-0">
+              <span className="min-w-0 flex-1 text-left">
                 <span className="block truncate text-base font-semibold text-paper">{titulo}</span>
-                <span className="mt-0.5 block text-xs text-mute">
+                <span className="mt-0.5 block text-xs leading-snug text-mute [overflow-wrap:anywhere]">
                   {enviando === chave ? "Entrando…" : detalhe}
                 </span>
               </span>
