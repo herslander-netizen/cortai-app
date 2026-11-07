@@ -26,7 +26,7 @@ const FOTOS = [
   { src: "/exemplos/profissional-2.webp", x: "left-[2%] top-[8%]", t: 12, d: 0 },
   { src: "/exemplos/galeria-2.webp", x: "right-[3%] top-[2%]", t: 14, d: 1.2 },
   { src: "/exemplos/profissional-1.webp", x: "left-[6%] bottom-[6%]", t: 13, d: 2.1 },
-  { src: "/exemplos/galeria-5.webp", x: "right-[5%] bottom-[10%]", t: 11, d: 0.6 },
+  { src: "/exemplos/profissional-3.webp", x: "right-[5%] bottom-[10%]", t: 11, d: 0.6 },
 ] as const;
 
 export function Cabecalho() {
@@ -65,7 +65,7 @@ function FotosFlutuantes() {
           src={f.src}
           alt=""
           loading="lazy"
-          className={`absolute hidden size-32 rounded-[28px] object-cover shadow-[0_18px_40px_-18px_rgba(40,40,120,0.45)] ring-4 ring-white/15 lg:block xl:size-40 ${f.x}`}
+          className={`absolute hidden size-32 rounded-[28px] object-cover shadow-[0_18px_40px_-18px_rgba(40,40,120,0.45)] ring-4 ring-white lg:block xl:size-40 ${f.x}`}
           animate={reduzir ? { y: 0 } : { y: [0, -14, 0] }}
           transition={{ duration: f.t, repeat: Infinity, ease: "easeInOut", delay: f.d }}
         />
@@ -75,8 +75,9 @@ function FotosFlutuantes() {
 }
 
 /**
- * Aviso de confirmação do WhatsApp sobre as fotos (cada um de um ramo). Tamanho único (largura e altura fixas),
- * título em uma linha, "agora" à direita e o visto verde de confirmado.
+ * Aviso de confirmação do WhatsApp, pequeno e abaixo das fotos (dono, 06/11/2026: "diminua bastante e tire o exagero de
+ * ficar na frente das fotos"). Tamanho único, título em uma linha, visto verde de confirmado. Cada um de um serviço
+ * diferente do de barbearia.
  */
 function Balao({
   titulo,
@@ -92,28 +93,20 @@ function Balao({
   const reduzir = useReducedMotion();
   return (
     <motion.span
-      className={`absolute z-10 flex h-[62px] w-[86%] items-center gap-2.5 rounded-[22px] bg-white/95 px-3 text-left shadow-[0_18px_36px_-16px_rgba(0,0,0,0.65),0_2px_6px_-2px_rgba(0,0,0,0.25)] ring-1 ring-black/5 backdrop-blur ${className}`}
-      initial={{ opacity: 0, y: 16, scale: 0.96 }}
-      animate={reduzir ? { opacity: 1, y: 0, scale: 1 } : { opacity: 1, y: [0, -3, 0], scale: 1 }}
-      transition={
-        reduzir
-          ? { duration: 0 }
-          : {
-              opacity: { duration: 0.3, delay: atraso },
-              scale: { ...MOLA.padraoEspacial, delay: atraso },
-              y: { duration: 5, repeat: Infinity, ease: "easeInOut", delay: atraso },
-            }
-      }
+      className={`relative z-10 flex h-[46px] w-[74%] items-center gap-2 rounded-[16px] bg-white/95 px-2.5 text-left shadow-[0_10px_22px_-12px_rgba(0,0,0,0.6)] ring-1 ring-black/5 ${className}`}
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={reduzir ? { duration: 0 } : { ...MOLA.padraoEspacial, delay: atraso }}
     >
-      <span className="grid size-9 shrink-0 place-items-center rounded-full bg-[var(--sage)] text-white shadow-[0_6px_12px_-6px_rgba(47,138,90,0.8)]">
-        <IconeWhatsapp size={18} />
+      <span className="grid size-7 shrink-0 place-items-center rounded-full bg-[var(--sage)] text-white">
+        <IconeWhatsapp size={14} />
       </span>
       <span className="min-w-0 flex-1 leading-tight text-[#12131c]">
-        <b className="block truncate text-[13px]">{titulo}</b>
-        <span className="block truncate text-[11.5px] text-[#5b5f75]">{detalhe}</span>
+        <b className="block truncate text-[11.5px]">{titulo}</b>
+        <span className="block truncate text-[10px] text-[#5b5f75]">{detalhe}</span>
       </span>
-      <span className="grid size-[18px] shrink-0 place-items-center rounded-full bg-[var(--sage)] text-white">
-        <Check size={11} strokeWidth={3.2} />
+      <span className="grid size-4 shrink-0 place-items-center rounded-full bg-[var(--sage)] text-white">
+        <Check size={10} strokeWidth={3.4} />
       </span>
     </motion.span>
   );
@@ -122,35 +115,41 @@ function Balao({
 /** No celular as fotos entram em um mosaico abaixo do texto, sem competir com o título. */
 function MosaicoMobile() {
   const reduzir = useReducedMotion();
+  // Homens e mulheres de serviços diferentes (barbearia, cabelo e estética).
   const itens = [
-    { src: "/exemplos/profissional-2.webp", c: "mt-6", d: 0 },
-    { src: "/exemplos/galeria-2.webp", c: "-mt-2", d: 0.8 },
-    { src: "/exemplos/profissional-1.webp", c: "mt-10", d: 1.6 },
+    { src: "/exemplos/profissional-2.webp", c: "mt-4", d: 0 },
+    { src: "/exemplos/galeria-2.webp", c: "-mt-1", d: 0.6 },
+    { src: "/exemplos/profissional-1.webp", c: "mt-4", d: 1.2 },
+    { src: "/exemplos/profissional-3.webp", c: "-mt-1", d: 1.8 },
   ];
   return (
-    <div className="relative mb-28 mt-8 grid w-full grid-cols-3 gap-3 sm:hidden" aria-hidden>
-      {itens.map((f) => (
-        <motion.img
-          key={f.src}
-          src={f.src}
-          alt=""
-          className={`aspect-[3/4] w-full rounded-[22px] object-cover shadow-[0_18px_36px_-18px_rgba(40,40,120,0.5)] ring-4 ring-white/15 ${f.c}`}
-          animate={reduzir ? { y: 0 } : { y: [0, -8, 0] }}
-          transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: f.d }}
+    <div className="mt-8 w-full sm:hidden" aria-hidden>
+      <div className="grid grid-cols-4 gap-2">
+        {itens.map((f) => (
+          <motion.img
+            key={f.src}
+            src={f.src}
+            alt=""
+            className={`aspect-[3/4] w-full rounded-[16px] object-cover shadow-[0_14px_28px_-16px_rgba(0,0,0,0.7)] ring-[3px] ring-white ${f.c}`}
+            animate={reduzir ? { y: 0 } : { y: [0, -6, 0] }}
+            transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: f.d }}
+          />
+        ))}
+      </div>
+      <div className="mt-3 flex flex-col gap-1.5">
+        <Balao
+          titulo="Massagem confirmada"
+          detalhe="Sex, 14/11 às 15:00"
+          className="self-start"
+          atraso={0.4}
         />
-      ))}
-      <Balao
-        titulo="Corte e barba confirmado"
-        detalhe="Sex, 14/11 às 15:00"
-        className="-bottom-3 left-0"
-        atraso={0.5}
-      />
-      <Balao
-        titulo="Sobrancelha confirmada"
-        detalhe="Sáb, 15/11 às 10:30"
-        className="-bottom-[78px] right-0"
-        atraso={0.9}
-      />
+        <Balao
+          titulo="Manicure confirmada"
+          detalhe="Sáb, 15/11 às 10:30"
+          className="self-end"
+          atraso={0.7}
+        />
+      </div>
     </div>
   );
 }

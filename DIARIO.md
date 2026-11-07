@@ -982,6 +982,9 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+### 2026-11-07 UTC — Claude — Abertura da página pública: balões pequenos, mais fotos e bordas brancas
+- Dono (07/11): balões menores e fora de cima das fotos, outra mulher de outro serviço, bordas brancas nos cartões de foto e confirmações de serviços sem relação com barbearia. Balões agora em fluxo, abaixo do mosaico (46 px de altura, "Massagem confirmada" e "Manicure confirmada"); mosaico com quatro fotos (profissional de barbearia, barbeiro cortando, profissional de avental e outra mulher de salão/estética) com borda branca; desktop idem.
+
 ### 2026-11-07 UTC — Claude — Entrada: tempos dos capítulos organizados (confirmação da Agenda sempre inteira)
 - Dono: "o slide 2 às vezes não mostra a confirmação direito". Causa: o ritmo único encurtava também o último passo (o resultado) e o relógio do capítulo começa antes de a tela montar (saída da anterior ~350 ms), então a confirmação (que só aparece inteira ~1,3 s depois de montar) era cortada de forma irregular. Agora `ritmo()` ajusta só os passos anteriores ao último (o último mantém o tempo), `duracaoTotal` soma a latência da troca (350 ms) e a Agenda tem último passo de 3,4 s. Medido no navegador em 3 voltas: confirmação visível por 2,0 s, capítulo de 11,1 s, resultado idêntico nas voltas.
 
