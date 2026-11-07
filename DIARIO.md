@@ -982,6 +982,9 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+### 2026-11-07 UTC — Claude — Capítulos da página pública em velocidade de atendimento ao vivo
+- Dono (07/11): desacelerar só os vídeos da home. `EscalaDoTempo` (contexto em `historias/base.tsx`, padrão 1) multiplica o tempo de cada passo; a página pública fornece 1,6 (`ESCALA_AO_VIVO` em `landing/Capitulos.tsx`, também no intervalo do laço). A entrada do app (`/login`) continua no ritmo curto. Medido: o laço de Lembretes foi de ~8 s para ~13 s.
+
 ### 2026-11-07 UTC — Claude — Áudio: transcrição ok; faltava entender "segunda-feira" com hífen
 - Dono: "os áudios estão bem configurados?". No banco da prévia a transcrição está **correta** com `whisper-large-v3` + dica de vocabulário ("Tem como remarcar para segunda-feira?", "Eu queria fazer um agendamento amanhã às três horas."). O que falhava era o entendimento: o Whisper escreve "segunda-feira" com hífen e o vocabulário de dias só reconhecia "segunda feira" — o dia sumia e o bot respondia "não consegui entender o áudio". `normalizar` (`motor/vocabulario.ts`) agora troca "segunda-feira…sexta-feira" por "segunda feira…"; testes em `intencoes.test.ts` e `conduzir.test.ts` (no passo do horário, "segunda-feira" por áudio oferece os horários de segunda).
 

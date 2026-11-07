@@ -3,10 +3,16 @@
  * escuro, o círculo de toque simulado, o relógio dos passos e o contador de números. Só transform/opacity; com
  * "reduzir movimento" a história fica parada no passo final.
  */
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 
 import { MOLA } from "@/lib/movimento-figaro";
+
+/**
+ * Escala do tempo das histórias (1 = ritmo curto da entrada do app). A página pública fornece um valor maior para
+ * mostrar cada passo em velocidade de atendimento ao vivo (dono, 07/11/2026), sem mexer na entrada.
+ */
+export const EscalaDoTempo = createContext(1);
 
 /**
  * Passo atual de uma história. `duracoes` em ms, um item por passo. Recomeça quando o capítulo é montado de novo
@@ -14,12 +20,13 @@ import { MOLA } from "@/lib/movimento-figaro";
  */
 export function usePassos(duracoes: readonly number[]): number {
   const reduzir = useReducedMotion();
+  const escala = useContext(EscalaDoTempo);
   const [passo, setPasso] = useState(0);
   useEffect(() => {
     if (reduzir || passo >= duracoes.length - 1) return;
-    const t = window.setTimeout(() => setPasso((p) => p + 1), duracoes[passo]);
+    const t = window.setTimeout(() => setPasso((p) => p + 1), (duracoes[passo] ?? 0) * escala);
     return () => window.clearTimeout(t);
-  }, [passo, duracoes, reduzir]);
+  }, [passo, duracoes, reduzir, escala]);
   return reduzir ? duracoes.length - 1 : passo;
 }
 

@@ -1,6 +1,7 @@
 import { Fragment, useEffect, useRef, useState } from "react";
 import { useInView, useReducedMotion } from "framer-motion";
 
+import { EscalaDoTempo } from "@/components/entrada/historias/base";
 import { Celular } from "@/components/entrada/historias/Celular";
 import { HistoriaWhatsapp } from "@/components/entrada/historias/HistoriaWhatsapp";
 import { CAPITULOS, type Capitulo } from "@/components/entrada/historias/capitulos";
@@ -15,6 +16,12 @@ import { TEXTOS_DOS_CAPITULOS } from "./textos-dos-capitulos";
 const ORDEM = (["whatsapp", "lembretes", "fila", "agenda", "site", "gestao"] as const).map((id) =>
   CAPITULOS.find((c) => c.id === id)!,
 );
+
+/**
+ * Velocidade de atendimento ao vivo na página pública (dono, 07/11/2026): os passos da entrada são curtos de propósito;
+ * aqui cada um dura 1,6x mais (a conversa do WhatsApp, por exemplo, ganha o tempo de quem digita).
+ */
+const ESCALA_AO_VIVO = 1.6;
 
 /**
  * Cada capítulo toca em laço enquanto está na tela (dono, 07/11/2026: "os pequenos vídeos ficarem repetindo"): a cada
@@ -34,7 +41,7 @@ function CelularDoCapitulo({ capitulo, escuro }: { capitulo: Capitulo; escuro: b
     if (jaViu) setCiclo((c) => c + 1);
     setJaViu(true);
     if (reduzir) return;
-    const t = window.setInterval(() => setCiclo((c) => c + 1), capitulo.duracao);
+    const t = window.setInterval(() => setCiclo((c) => c + 1), capitulo.duracao * ESCALA_AO_VIVO);
     return () => window.clearInterval(t);
     // `jaViu` só decide se é a primeira vez; não deve reiniciar o intervalo.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -55,13 +62,17 @@ function CelularDoCapitulo({ capitulo, escuro }: { capitulo: Capitulo; escuro: b
     >
       {jaViu ? (
         <Celular semLegenda legenda={null}>
-          <Fragment key={ciclo}>
-            {capitulo.id === "whatsapp" ? (
-              <HistoriaWhatsapp cenario={CENARIOS_DA_PAGINA[ciclo % CENARIOS_DA_PAGINA.length]!} />
-            ) : (
-              capitulo.historia()
-            )}
-          </Fragment>
+          <EscalaDoTempo.Provider value={ESCALA_AO_VIVO}>
+            <Fragment key={ciclo}>
+              {capitulo.id === "whatsapp" ? (
+                <HistoriaWhatsapp
+                  cenario={CENARIOS_DA_PAGINA[ciclo % CENARIOS_DA_PAGINA.length]!}
+                />
+              ) : (
+                capitulo.historia()
+              )}
+            </Fragment>
+          </EscalaDoTempo.Provider>
         </Celular>
       ) : null}
     </div>
