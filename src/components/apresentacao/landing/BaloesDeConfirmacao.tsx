@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Check } from "lucide-react";
 
@@ -59,8 +59,6 @@ export function embaralhar<T>(lista: readonly T[], evitarNoInicio?: T): T[] {
   return copia;
 }
 
-const INTERVALO_MS = 3200;
-
 function Balao({ c, lado }: { c: Confirmacao; lado: "esquerda" | "direita" }) {
   const reduzir = useReducedMotion();
   return (
@@ -91,36 +89,21 @@ function Balao({ c, lado }: { c: Confirmacao; lado: "esquerda" | "direita" }) {
 }
 
 /**
- * Dois lugares (esquerda e direita) que se alternam: a cada ~3 s chega a confirmação de outro negócio, em ordem
- * aleatória, sem repetir em seguida; a anterior sai do lugar dela. Com "reduzir movimento" ficam duas paradas.
+ * Dois lugares (esquerda e direita): chegam duas confirmações de negócios diferentes, em ordem aleatória, uma de cada
+ * vez, e ficam (dono, 07/11/2026: "esse não precisa ficar repetindo, para de piscar"). Sem laço, sem troca.
  */
 export function BaloesDeConfirmacao() {
   const reduzir = useReducedMotion();
   const [lugares, setLugares] = useState<[Confirmacao | null, Confirmacao | null]>([null, null]);
-  const fila = useRef<Confirmacao[]>([]);
-  const ultimo = useRef<Confirmacao | undefined>(undefined);
-  const tique = useRef(0);
 
   useEffect(() => {
-    const proxima = (): Confirmacao => {
-      if (fila.current.length === 0) fila.current = embaralhar(CONFIRMACOES, ultimo.current);
-      const c = fila.current.shift()!;
-      ultimo.current = c;
-      return c;
-    };
-    const colocar = () => {
-      const lado = tique.current++ % 2;
-      const c = proxima();
-      setLugares((atual) => (lado === 0 ? [c, atual[1]] : [atual[0], c]));
-    };
-    colocar();
-    const segundo = window.setTimeout(colocar, reduzir ? 0 : 1100);
-    if (reduzir) return () => window.clearTimeout(segundo);
-    const ciclo = window.setInterval(colocar, INTERVALO_MS);
-    return () => {
-      window.clearTimeout(segundo);
-      window.clearInterval(ciclo);
-    };
+    const [primeira, segunda] = embaralhar(CONFIRMACOES);
+    setLugares([primeira ?? null, null]);
+    const t = window.setTimeout(
+      () => setLugares([primeira ?? null, segunda ?? null]),
+      reduzir ? 0 : 1100,
+    );
+    return () => window.clearTimeout(t);
   }, [reduzir]);
 
   return (

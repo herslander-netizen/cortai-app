@@ -10,6 +10,13 @@
 import { ehSaudacao } from "@/lib/flow-bot/decisao";
 import { classificar } from "@/lib/whatsapp/motor/intencoes";
 import {
+  ehNaoFalado,
+  ehSimFalado,
+  horaFalada,
+  nomeFalado,
+  opcaoFalada,
+} from "@/lib/whatsapp/motor/fala";
+import {
   contem,
   escolherServicoPorCanonico,
   normalizar,
@@ -26,6 +33,7 @@ import {
   minutosNoFuso,
   quandoPorExtenso,
   reais,
+  respostaDeAudioNaoEntendido,
   semHorarioNoDia,
   semHorarioProximo,
   type Opcao,
@@ -147,6 +155,18 @@ const TANTO_FAZ = [
   "nenhuma preferencia",
   "sem preferencia",
   "pode ser qualquer",
+  "nao tenho preferencia",
+  "nao tenho nenhuma preferencia",
+  "qualquer pessoa",
+  "qualquer profissional",
+  "qualquer uma das duas",
+  "indiferente",
+  "me e indiferente",
+  "quem estiver livre",
+  "quem tiver livre",
+  "o que tiver livre",
+  "pode ser qualquer pessoa",
+  "pode ser qualquer um",
 ];
 const SIM = [
   "sim",
@@ -214,7 +234,7 @@ const temExpressao = (t: string, lista: readonly string[]) => {
 
 /** Escolha numérica ou pelo rótulo exato de uma das opções mostradas. */
 function opcaoEscolhida(t: string, opcoes: readonly Opcao[]): Opcao | null {
-  const n = selecaoNumerica(t, opcoes.length);
+  const n = selecaoNumerica(t, opcoes.length) ?? opcaoFalada(t, opcoes.length);
   if (n !== null) return opcoes[n - 1] ?? null;
   return opcoes.find((o) => normalizar(o.rotulo.split(" — ")[0] ?? o.rotulo) === t) ?? null;
 }
@@ -232,7 +252,10 @@ export async function conduzir(
     totalDeOpcoes: anterior?.opcoes.length ?? 0,
   });
   // Pedido de pessoa sai do fluxo: o Flow Bot chama a equipe.
-  if (c.intencao === "HUMANO") return anterior ? { textos: [], estado: null } : null;
+  // "Qualquer pessoa" no passo do profissional é "tanto faz", não pedido de atendente.
+  const ehTantoFazDoProfissional = anterior?.etapa === "profissional" && contem(t, TANTO_FAZ);
+  if (c.intencao === "HUMANO" && !ehTantoFazDoProfissional)
+    return anterior ? { textos: [], estado: null } : null;
 
   if (anterior) {
     if (
@@ -318,7 +341,7 @@ async function continuar(
           classificar(texto, { fuso: portas.fuso }).entidades.servico,
           portas,
         );
-      if (!e.servicoId) return naoEntendeu(e, TEXTOS.naoEntendiOpcao, portas.viaAudio);
+      if (!e.servicoId) return naoEntendeu(e, TEXTOS.naoEntendiOpcao, portas.viaAudio, texto);
       if (dia) e.dia = dia;
       if (periodo) e.periodo = periodo;
       return avancar(e, portas);
@@ -333,7 +356,8 @@ async function continuar(
         e.profissionalDefinido = true;
       } else {
         await preencherDoTexto(e, texto, null, portas);
-        if (!e.profissionalDefinido) return naoEntendeu(e, TEXTOS.naoEntendiOpcao, portas.viaAudio);
+        if (!e.profissionalDefinido)
+          return naoEntendeu(e, TEXTOS.naoEntendiOpcao, portas.viaAudio, texto);
       }
       if (dia) e.dia = dia;
       if (periodo) e.periodo = periodo;
@@ -347,26 +371,44 @@ async function continuar(
         e.profissionalDoHorario = escolhida.extra ?? null;
         return avancar(e, portas);
       }
+      // Hora falada que não está entre as três opções mostradas ("às três da tarde"): procura no dia inteiro.
+      const falada = horaFalada(t);
+      if (falada && e.servicoId) {
+        const diaDaBusca = dia ?? e.dia ?? hojeNoFuso(portas.fuso, portas.agora);
+        const livres = await portas.livres(diaDaBusca, e.servicoId, e.profissionalId);
+        const candidatas = falada.ambigua
+          ? [falada.minutos, falada.minutos + 12 * 60]
+          : [falada.minutos];
+        const alvo = candidatas.find((a) =>
+          livres.some((l) => minutosNoFuso(l.inicio, portas.fuso) === a),
+        );
+        if (alvo !== undefined) {
+          e.dia = diaDaBusca;
+          e.periodo = { deMinutos: alvo, ateMinutos: alvo + 1 };
+          e.opcoes = [];
+          return avancar(e, portas);
+        }
+      }
       if (dia || periodo) {
         e.dia = dia ?? e.dia;
         e.periodo = periodo;
         e.opcoes = [];
         return avancar(e, portas);
       }
-      return naoEntendeu(e, TEXTOS.naoEntendiHorario, portas.viaAudio);
+      return naoEntendeu(e, TEXTOS.naoEntendiHorario, portas.viaAudio, texto);
     }
     case "nome": {
-      const nome = texto.trim().replace(/\s+/g, " ");
+      const nome = nomeFalado(texto);
       if (!/^[\p{L}][\p{L}' .-]{1,59}$/u.test(nome))
-        return naoEntendeu(e, TEXTOS.nomeInvalido, portas.viaAudio);
+        return naoEntendeu(e, TEXTOS.nomeInvalido, portas.viaAudio, texto);
       e.nome = nome;
       return avancar(e, portas);
     }
     case "confirmar": {
-      if (iguais(t, SIM)) return executar(e, portas);
-      if (e.objetivo === "cancelar" && iguais(t, NAO))
+      if (iguais(t, SIM) || ehSimFalado(t)) return executar(e, portas);
+      if (e.objetivo === "cancelar" && (iguais(t, NAO) || ehNaoFalado(t)))
         return { textos: [TEXTOS.mantido], estado: null };
-      if (e.objetivo !== "cancelar" && (iguais(t, NAO) || dia || periodo)) {
+      if (e.objetivo !== "cancelar" && (iguais(t, NAO) || ehNaoFalado(t) || dia || periodo)) {
         e.inicio = null;
         e.profissionalDoHorario = null;
         e.opcoes = [];
@@ -378,11 +420,11 @@ async function continuar(
         e.etapa = "horario";
         return { textos: [TEXTOS.naoMarcou], estado: e };
       }
-      return naoEntendeu(e, TEXTOS.responderSimOuNao, portas.viaAudio);
+      return naoEntendeu(e, TEXTOS.responderSimOuNao, portas.viaAudio, texto);
     }
     case "escolher_agendamento": {
       const escolhida = opcaoEscolhida(t, e.opcoes);
-      if (!escolhida) return naoEntendeu(e, TEXTOS.naoEntendiOpcao, portas.viaAudio);
+      if (!escolhida) return naoEntendeu(e, TEXTOS.naoEntendiOpcao, portas.viaAudio, texto);
       const lista = await portas.agendamentos();
       const a = lista.find((x) => x.id === escolhida.valor);
       if (!a) return { textos: [TEXTOS.semHorarioAgendado], estado: null };
@@ -391,13 +433,21 @@ async function continuar(
   }
 }
 
-function naoEntendeu(e: EstadoDaAgenda, texto: string, viaAudio = false): Resultado {
+function naoEntendeu(
+  e: EstadoDaAgenda,
+  texto: string,
+  viaAudio = false,
+  ouvido?: string,
+): Resultado {
   if (viaAudio) {
     // Áudio: primeiro pede de novo ou por escrito; na segunda, convida a seguir por texto e dá nova chance
     // (nunca devolve a conversa só porque o áudio veio ruim).
     if (e.semEntender >= 1)
       return { textos: [TEXTOS.audioSigaPorTexto], estado: { ...e, semEntender: 0 } };
-    return { textos: [TEXTOS.audioNaoEntendido], estado: { ...e, semEntender: e.semEntender + 1 } };
+    return {
+      textos: [respostaDeAudioNaoEntendido(e.etapa, ouvido)],
+      estado: { ...e, semEntender: e.semEntender + 1 },
+    };
   }
   // Duas vezes sem entender: devolve a conversa (Flow Bot e Flow IA) em vez de insistir.
   if (e.semEntender >= 1) return { textos: [], estado: null };
@@ -411,12 +461,18 @@ function horarioCitadoNasOpcoes(
   periodo: PeriodoDoDia,
   fuso: string,
 ): Opcao | null {
-  const direto = t.match(/^(?:as\s*)?(\d{1,2})(?:[:h](\d{2}))?\s*h?(?:oras?)?$/);
-  const alvo = direto
-    ? Number(direto[1]) * 60 + Number(direto[2] ?? 0)
-    : periodo && periodo.ateMinutos - periodo.deMinutos <= 59
-      ? periodo.deMinutos
-      : null;
+  // Hora falada ("às nove horas", "três da tarde", "quinze horas", "9h30"): sem manhã/tarde/noite tenta também +12 h.
+  const falada = horaFalada(t);
+  if (falada) {
+    const candidatas = falada.ambigua
+      ? [falada.minutos, falada.minutos + 12 * 60]
+      : [falada.minutos];
+    for (const alvo of candidatas) {
+      const achada = opcoes.find((o) => minutosNoFuso(o.valor, fuso) === alvo);
+      if (achada) return achada;
+    }
+  }
+  const alvo = periodo && periodo.ateMinutos - periodo.deMinutos <= 59 ? periodo.deMinutos : null;
   if (alvo === null) return null;
   return opcoes.find((o) => minutosNoFuso(o.valor, fuso) === alvo) ?? null;
 }

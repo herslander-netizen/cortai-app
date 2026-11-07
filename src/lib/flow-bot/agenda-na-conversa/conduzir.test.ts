@@ -180,9 +180,10 @@ describe("agendar na conversa", () => {
 
     let r = await conduzir("quero marcar", null, viaAudio);
     r = await conduzir("A gente tá exa deputado, hein?", r!.estado, viaAudio);
-    expect(r!.textos[0]).toContain("Não consegui entender direito esse áudio");
+    expect(r!.textos[0]).toContain("Não entendi esse áudio.");
+    expect(r!.textos[0]).toContain("Ouvi: “A gente tá exa deputado, hein?”");
     r = await conduzir("blá blá blá", r!.estado, viaAudio);
-    expect(r!.textos[0]).toContain("dá para continuar por aqui escrevendo");
+    expect(r!.textos[0]).toContain("Vamos por escrito?");
     expect(r!.estado).not.toBeNull();
     // Depois, por texto, o atendimento continua normalmente.
     r = await conduzir("1", r!.estado, portas);

@@ -53,7 +53,7 @@ export const TEXTOS = {
   comQuem: "Com quem você prefere?",
   tantoFaz: "Tanto faz",
   qualNome: "Para concluir, qual é o seu nome?",
-  nomeInvalido: "Não entendi o nome. Pode me dizer só o seu nome?",
+  nomeInvalido: "Não entendi o nome.\nPode me dizer só o seu nome?",
   outroDia: "Se preferir outro dia ou horário, é só me dizer (ex.: amanhã à tarde).",
   // Escolhas destacadas em caixa alta e negrito (dono, 06/11/2026: "Sim ou não em caixa alta").
   responderSimOuNao: "Responda *SIM* para confirmar ou *NÃO* para mudar.",
@@ -63,11 +63,11 @@ export const TEXTOS = {
   mantido: "Tudo bem, mantive seu horário.",
   naoMarcou: "Sem problema, não marquei. Me diga outro dia ou horário, ou *menu* para recomeçar.",
   naoEntendiHorario: "Não entendi. Responda com o número do horário ou me diga outro dia.",
-  // Áudio que não deu para entender no meio do atendimento (dono, 06/11/2026): segue pelo texto, sem travar.
-  audioNaoEntendido:
-    "Não consegui entender direito esse áudio. Pode escrever o número da opção, ou mandar o áudio de novo?",
+  // Áudio que não deu para entender no meio do atendimento (dono, 07/11/2026: "nunca algo cansativo nem
+  // desorganizado"): uma mensagem só, linhas curtas, com o que foi ouvido e uma dica do que fazer agora.
+  audioNaoEntendido: "Não entendi esse áudio.",
   audioSigaPorTexto:
-    "No momento não estamos conseguindo ouvir bem os áudios, mas dá para continuar por aqui escrevendo. Basta dizer o que você quer e o horário que prefere, que a gente vai ajustando. Assim que for possível ouvir seu áudio, a conversa continua por voz também.",
+    "Vamos por escrito?\n\nMe diga o *serviço* e o *horário* que prefere.\nQuando der, volto a ouvir seus áudios.",
   naoEntendiOpcao: "Não entendi. Responda com o número de uma das opções.",
   ocupado: "Esse horário acabou de ser ocupado. Veja os que ainda estão livres:",
   semHorarioAgendado:
@@ -84,4 +84,27 @@ export function semHorarioNoDia(dia: string, fuso: string): string {
 
 export function semHorarioProximo(dias: number, link: string | null): string {
   return `Não encontrei horário livre nos próximos ${dias} dias.${link ? ` Você também pode ver pelo link: ${link}` : ""}`;
+}
+
+/** O que fazer agora, por etapa, quando o áudio não encaixou (uma linha curta). */
+export const DICA_DO_AUDIO: Record<string, string> = {
+  servico: "Escreva o *número* do serviço ou mande outro áudio.",
+  profissional: "Escreva o *número* da pessoa ou diga *tanto faz*.",
+  horario: "Escreva o *número* do horário ou diga outro dia.",
+  nome: "Escreva só o seu *nome*.",
+  confirmar: "Responda *SIM* ou *NÃO*.",
+  escolher_agendamento: "Escreva o *número* do horário ou mande outro áudio.",
+};
+
+/** "Não entendi esse áudio.\n_Ouvi: “…”_\n\n<dica>" — o eco ajuda o cliente a ver o que o sistema ouviu. */
+export function respostaDeAudioNaoEntendido(etapa: string, ouvido?: string | null): string {
+  const eco = ouvido?.trim()
+    ? `_Ouvi: “${ouvido.trim().replace(/\s+/g, " ").slice(0, 60)}”_`
+    : null;
+  return [
+    TEXTOS.audioNaoEntendido,
+    ...(eco ? [eco] : []),
+    "",
+    DICA_DO_AUDIO[etapa] ?? "Mande outro áudio ou escreva.",
+  ].join("\n");
 }

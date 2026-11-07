@@ -488,7 +488,8 @@ async function vincularCliente(
 export const TEXTO_PEDIR_ESCRITA =
   "Ainda não consigo ouvir áudios por aqui. Pode me escrever sua mensagem, por favor?";
 /** Áudio que não deu para entender: tom natural, sem pedir para digitar. */
-export const TEXTO_AUDIO_NAO_ENTENDIDO = "Não consegui ouvir direito esse áudio, pode repetir?";
+export const TEXTO_AUDIO_NAO_ENTENDIDO =
+  "Não consegui ouvir esse áudio.\n\nPode mandar de novo, falando mais perto do microfone?";
 
 export async function processarMensagemRecebida(input: {
   sessaoId: string;
@@ -846,6 +847,21 @@ export async function processarMensagemRecebida(input: {
         .maybeSingle();
       if (jaAvisado) return { tratada: true, motivo: "audio_indisponivel_ja_avisado" };
       await avisarEquipeDaContingencia({ tenantId, telefone, texto: "Mandou um áudio" });
+    } else {
+      // Segundo áudio seguido sem dar para ouvir: em vez de pedir de novo, convida a seguir por escrito.
+      const { data: anterior } = await db
+        .from("mensagens_whatsapp")
+        .select("conteudo, criado_em")
+        .eq("conversa_id", conversa.id)
+        .eq("direcao", "saida")
+        .order("criado_em", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      const recente = anterior && Date.now() - Date.parse(anterior.criado_em) < 15 * 60_000;
+      if (recente && anterior.conteudo === TEXTO_AUDIO_NAO_ENTENDIDO) {
+        textoDoAudio = (await import("@/lib/flow-bot/agenda-na-conversa/textos")).TEXTOS
+          .audioSigaPorTexto;
+      }
     }
     await enviarPelaBarbearia({
       tenantId,

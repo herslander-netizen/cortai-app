@@ -127,7 +127,7 @@ function FaixaDeSegmentos() {
   }
   return (
     <div
-      className="relative left-1/2 mt-8 w-screen -translate-x-1/2 overflow-hidden [mask-image:linear-gradient(90deg,transparent,#000_8%,#000_92%,transparent)]"
+      className="relative left-1/2 mt-8 w-screen -translate-x-1/2 overflow-hidden [-webkit-mask-image:linear-gradient(90deg,transparent,#000_14%,#000_86%,transparent)] [mask-image:linear-gradient(90deg,transparent,#000_14%,#000_86%,transparent)]"
       role="group"
       aria-label="Para qualquer negócio de serviços"
     >

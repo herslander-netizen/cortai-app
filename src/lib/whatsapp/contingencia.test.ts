@@ -39,7 +39,11 @@ describe("contingência do atendimento automático", () => {
     const t = textoDeAudioIndisponivel("https://x/agendar/demo", "Ricardo");
     expect(t).toContain("Ricardo já foi avisado");
     expect(t).toContain("dá para continuar por aqui escrevendo");
-    expect(t).toContain("o horário que prefere");
+    expect(t).toContain("*serviço* e o *horário*");
+    // Organizado: nenhuma linha longa (dono, 07/11/2026).
+    expect(
+      Math.max(...t.split("\n").map((l) => l.replace(/https?:\/\/\S+/, "").length)),
+    ).toBeLessThanOrEqual(80);
     expect(t).toContain("https://x/agendar/demo");
   });
   it("nome com cara de usuário vira 'a equipe'; nome de pessoa ganha maiúscula", async () => {

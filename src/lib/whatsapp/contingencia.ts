@@ -41,10 +41,11 @@ export function textoDeContingencia(link: string, responsavel?: string | null): 
 export function textoDeAudioIndisponivel(link: string, responsavel?: string | null): string {
   const r = quemResponde(responsavel);
   return [
-    "Oi! No momento não estamos conseguindo ouvir áudios, mas dá para continuar por aqui escrevendo.",
-    "Basta dizer o que você quer e o horário que prefere, que a gente vai ajustando. Assim que for possível ouvir seu áudio, a conversa segue por voz também.",
-    `${r.nome === "a equipe" ? "A equipe já foi avisada" : `${r.nome} já foi avisado`} e responde assim que possível.`,
+    "No momento não consigo ouvir áudios, mas dá para continuar por aqui escrevendo.",
     "",
-    `Se preferir, veja um horário disponível na agenda: ${link}`,
+    "Me diga o *serviço* e o *horário* que prefere, que eu ajusto.",
+    "",
+    `${r.nome === "a equipe" ? "A equipe já foi avisada" : `${r.nome} já foi avisado`}.`,
+    `Ou veja a agenda: ${link}`,
   ].join("\n");
 }
