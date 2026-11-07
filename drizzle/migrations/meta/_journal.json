@@ -386,6 +386,13 @@
       "when": 1794014814725,
       "tag": "0060_regras_lista_espera",
       "breakpoints": true
+    },
+    {
+      "idx": 55,
+      "version": "7",
+      "when": 1794100000000,
+      "tag": "0061_mensagem_pos_agendamento",
+      "breakpoints": true
     }
   ]
 }

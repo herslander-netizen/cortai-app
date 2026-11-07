@@ -960,6 +960,11 @@ export const ACOES: Record<string, Definicao> = {
     },
     executar: async (ctx, d) => {
       await exigirAgendamentoPermitido(ctx, String(d.agendamentoId));
+      // O cliente muda o horário dentro do mesmo prazo do cancelamento; a equipe remarca a qualquer hora.
+      if (ctx.papel === "cliente") {
+        const { exigirPrazoDeCancelamento } = await import("@/lib/prazo-cancelamento.server");
+        await exigirPrazoDeCancelamento(await admin(), String(d.agendamentoId));
+      }
       return dominio.remarcarAgendamento(agenteDe(ctx), {
         agendamentoId: String(d.agendamentoId),
         novoInicio: String(d.novoInicio),

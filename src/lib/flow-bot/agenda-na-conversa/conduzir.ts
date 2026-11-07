@@ -10,6 +10,7 @@
 import { ehSaudacao } from "@/lib/flow-bot/decisao";
 import { classificar } from "@/lib/whatsapp/motor/intencoes";
 import {
+  minutosFalados,
   ehNaoFalado,
   ehSimFalado,
   horaFalada,
@@ -71,10 +72,19 @@ export type Portas = {
   }): Promise<void>;
   remarcar(d: { agendamentoId: string; inicio: string; profissionalId: string }): Promise<void>;
   cancelar(agendamentoId: string): Promise<void>;
+  /** O cliente avisa que vai chegar mais tarde: a equipe é avisada no sininho (dono, 07/11/2026). */
+  avisarAtraso(d: { agendamentoId: string; minutos: number }): Promise<void>;
 };
 
-type Objetivo = "agendar" | "remarcar" | "cancelar";
-type Etapa = "servico" | "profissional" | "horario" | "nome" | "confirmar" | "escolher_agendamento";
+type Objetivo = "agendar" | "remarcar" | "cancelar" | "atrasar";
+type Etapa =
+  | "servico"
+  | "profissional"
+  | "horario"
+  | "nome"
+  | "confirmar"
+  | "escolher_agendamento"
+  | "minutos";
 
 export type EstadoDaAgenda = {
   objetivo: Objetivo;
@@ -89,6 +99,8 @@ export type EstadoDaAgenda = {
   profissionalDoHorario: string | null;
   agendamentoId: string | null;
   nome: string | null;
+  /** Quantos minutos o cliente disse que vai atrasar (objetivo "atrasar"). */
+  minutosAtraso?: number;
   opcoes: Opcao[];
   semEntender: number;
   atualizadoEm: string;
@@ -280,6 +292,12 @@ export async function conduzir(
     return { ...r, textos: [TEXTOS.perdeuHorario, ...r.textos] };
   }
 
+  if (c.intencao === "ATRASO") {
+    const e = novo("atrasar", portas.agora);
+    const ja = minutosFalados(t);
+    if (ja) e.minutosAtraso = ja;
+    return escolherAgendamento(e, portas);
+  }
   if (c.intencao === "CANCELAR") return escolherAgendamento(novo("cancelar", portas.agora), portas);
   if (c.intencao === "REMARCAR") return escolherAgendamento(novo("remarcar", portas.agora), portas);
   if (c.intencao === "MEUS_AGENDAMENTOS") return listarAgendamentos(portas);
@@ -422,6 +440,13 @@ async function continuar(
       }
       return naoEntendeu(e, TEXTOS.responderSimOuNao, portas.viaAudio, texto);
     }
+    case "minutos": {
+      const escolhida = opcaoEscolhida(t, e.opcoes);
+      const minutos = escolhida ? Number(escolhida.valor) : minutosFalados(t);
+      if (!minutos) return naoEntendeu(e, TEXTOS.quantosMinutos, portas.viaAudio, texto);
+      e.minutosAtraso = minutos;
+      return avisarAtraso(e, portas);
+    }
     case "escolher_agendamento": {
       const escolhida = opcaoEscolhida(t, e.opcoes);
       if (!escolhida) return naoEntendeu(e, TEXTOS.naoEntendiOpcao, portas.viaAudio, texto);
@@ -431,6 +456,17 @@ async function continuar(
       return comAgendamento(e, a, portas);
     }
   }
+}
+
+async function avisarAtraso(e: EstadoDaAgenda, portas: Portas): Promise<Resultado> {
+  const minutos = e.minutosAtraso ?? 0;
+  try {
+    await portas.avisarAtraso({ agendamentoId: e.agendamentoId!, minutos });
+  } catch {
+    return { textos: [TEXTOS.falhaGravar], estado: null };
+  }
+  const longo = minutos >= 45 ? [TEXTOS.atrasoLongo] : [];
+  return { textos: [TEXTOS.atrasoAvisado(minutos), ...longo], estado: null };
 }
 
 function naoEntendeu(
@@ -629,7 +665,9 @@ async function escolherAgendamento(e: EstadoDaAgenda, portas: Portas): Promise<R
   const pergunta =
     e.objetivo === "cancelar"
       ? "Qual horário você quer cancelar?"
-      : "Qual horário você quer remarcar?";
+      : e.objetivo === "atrasar"
+        ? "Qual horário vai atrasar?"
+        : "Qual horário você quer remarcar?";
   return { textos: [menu(pergunta, e.opcoes)], estado: e };
 }
 
@@ -640,6 +678,12 @@ async function comAgendamento(
 ): Promise<Resultado> {
   e.agendamentoId = a.id;
   e.servicoId = a.servicoId;
+  if (e.objetivo === "atrasar") {
+    if (e.minutosAtraso) return avisarAtraso(e, portas);
+    e.etapa = "minutos";
+    e.opcoes = [10, 15, 30].map((m) => ({ valor: String(m), rotulo: `${m} minutos` }));
+    return { textos: [menu(TEXTOS.quantosMinutos, e.opcoes, TEXTOS.outroTempo)], estado: e };
+  }
   if (e.objetivo === "cancelar") {
     e.etapa = "confirmar";
     e.opcoes = [];
@@ -733,6 +777,18 @@ async function executar(e: EstadoDaAgenda, portas: Portas): Promise<Resultado> {
       };
     }
     const msg = erro instanceof Error ? erro.message : "";
+    // Prazo para mudar o horário: diz a regra do negócio (em vez de oferecer outro horário sem sentido).
+    if (e.objetivo === "remarcar" && /cancelado ou alterado até/.test(msg)) {
+      return {
+        textos: [
+          msg.replace(
+            " Fale com o negócio para combinar.",
+            "\n\nFale com o negócio para combinar.",
+          ),
+        ],
+        estado: null,
+      };
+    }
     // Regra do negócio que o cliente precisa saber (já tem horário no dia): diz qual, sem oferecer de novo.
     if (/^O cliente já tem um horário/.test(msg)) {
       return { textos: [msg.replace(/^O cliente já tem/, "Você já tem")], estado: null };

@@ -117,6 +117,11 @@ export function ConfirmacaoAgendamento({
             {confirmacao.endereco}
           </p>
         ) : null}
+        {ativo && confirmacao.mensagemDoNegocio ? (
+          <p className="mt-3 whitespace-pre-line rounded-[20px] bg-[var(--figaro-surface-container,var(--ink2))] px-4 py-3 text-left text-sm leading-relaxed text-paper">
+            {confirmacao.mensagemDoNegocio}
+          </p>
+        ) : null}
         {ativo ? (
           <div className="mt-4">
             <IngressoAgendamento
@@ -138,7 +143,12 @@ export function ConfirmacaoAgendamento({
         ) : null}
         {ativo ? (
           <div className="mt-4 grid gap-2 sm:gap-3">
-            <Button asChild size="lg" variant="primary" className="min-h-12 rounded-full sm:min-h-14">
+            <Button
+              asChild
+              size="lg"
+              variant="primary"
+              className="min-h-12 rounded-full sm:min-h-14"
+            >
               <a href={linkGoogleAgenda(confirmacao)} target="_blank" rel="noopener noreferrer">
                 <CalendarPlus />
                 Adicionar à agenda
@@ -211,7 +221,10 @@ export function ConfirmacaoAgendamento({
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                       <AlertDialogCancel>Manter</AlertDialogCancel>
-                      <AlertDialogAction className="bg-destructive text-destructive-foreground" onClick={onCancelar}>
+                      <AlertDialogAction
+                        className="bg-destructive text-destructive-foreground"
+                        onClick={onCancelar}
+                      >
                         Cancelar horário
                       </AlertDialogAction>
                     </AlertDialogFooter>

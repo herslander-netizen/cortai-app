@@ -11613,3 +11613,13 @@ html:not([data-tela-agenda]) [data-figaro-empty-state]:not(:first-child) {
 html.light {
   --qr-dark: var(--qr-modulo);
 }
+
+/* Gaveta aberta por cima da Agenda: o botão "+" sai de cena (dono, 07/11/2026: "botão brigando com a gaveta da lista de
+   espera"). Só opacidade; volta quando a gaveta fecha. */
+.agenda-acao-fixa {
+  transition: opacity 120ms ease;
+}
+body:has([role="dialog"][data-state="open"]) .agenda-acao-fixa {
+  opacity: 0;
+  pointer-events: none;
+}

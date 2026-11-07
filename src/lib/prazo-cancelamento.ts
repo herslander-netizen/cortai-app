@@ -13,5 +13,5 @@ export function prazoDeCancelamentoVencido(
 
 export function mensagemDoPrazoDeCancelamento(minHoras: number): string {
   const unidade = minHoras === 1 ? "hora" : "horas";
-  return `Este horário só pode ser cancelado até ${minHoras} ${unidade} antes. Fale com o negócio para combinar.`;
+  return `Este horário só pode ser cancelado ou alterado até ${minHoras} ${unidade} antes. Fale com o negócio para combinar.`;
 }

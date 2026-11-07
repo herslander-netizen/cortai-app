@@ -33,6 +33,31 @@ export async function portasDoNegocio(p: {
   const lerEquipe = async () => (equipe ??= (await acao("listar_profissionais")) as Profissional[]);
   const quemFaz = new Map<string, Profissional[]>();
 
+  const lerAgendamentosDoCliente = async (): Promise<AgendamentoDoCliente[]> => {
+    const c = await acao("buscar_cliente", { telefone: null });
+    if (!c) return [];
+    const [lista, todosServicos, todos] = await Promise.all([
+      acao("consultar_agendamentos_cliente", { clienteId: null }) as Promise<
+        {
+          id: string;
+          inicio: string;
+          servico_id: string | null;
+          profissional_id: string | null;
+        }[]
+      >,
+      lerServicos(),
+      lerEquipe(),
+    ]);
+    return lista.map((a): AgendamentoDoCliente => ({
+      id: a.id,
+      inicio: a.inicio,
+      servicoId: a.servico_id,
+      servicoNome: todosServicos.find((s) => s.id === a.servico_id)?.nome ?? "Atendimento",
+      profissionalId: a.profissional_id,
+      profissionalNome: todos.find((x) => x.id === a.profissional_id)?.nome ?? "",
+    }));
+  };
+
   return {
     fuso,
     agora: p.agora,
@@ -67,30 +92,7 @@ export async function portasDoNegocio(p: {
       const c = (await acao("buscar_cliente", { telefone: null })) as { nome?: string } | null;
       return c?.nome ? { nome: c.nome } : null;
     },
-    async agendamentos() {
-      const c = await acao("buscar_cliente", { telefone: null });
-      if (!c) return [];
-      const [lista, todosServicos, todos] = await Promise.all([
-        acao("consultar_agendamentos_cliente", { clienteId: null }) as Promise<
-          {
-            id: string;
-            inicio: string;
-            servico_id: string | null;
-            profissional_id: string | null;
-          }[]
-        >,
-        lerServicos(),
-        lerEquipe(),
-      ]);
-      return lista.map((a): AgendamentoDoCliente => ({
-        id: a.id,
-        inicio: a.inicio,
-        servicoId: a.servico_id,
-        servicoNome: todosServicos.find((s) => s.id === a.servico_id)?.nome ?? "Atendimento",
-        profissionalId: a.profissional_id,
-        profissionalNome: todos.find((x) => x.id === a.profissional_id)?.nome ?? "",
-      }));
-    },
+    agendamentos: lerAgendamentosDoCliente,
     async criar(d) {
       await acao("criar_agendamento", {
         clienteId: null,
@@ -109,6 +111,28 @@ export async function portasDoNegocio(p: {
     },
     async cancelar(agendamentoId) {
       await acao("cancelar_agendamento", { agendamentoId });
+    },
+    async avisarAtraso({ agendamentoId, minutos }) {
+      // Só avisa sobre agendamento do próprio cliente deste telefone (a lista já vem filtrada por ele).
+      const meus = await lerAgendamentosDoCliente();
+      const a = meus.find((x) => x.id === agendamentoId);
+      if (!a) throw new Error("Agendamento não é deste cliente.");
+      const { linkDoAgendamento } = await import("@/lib/links-de-tela");
+      const { linkDoWhatsApp } = await import("@/lib/whatsapp/link-whatsapp");
+      const hora = new Intl.DateTimeFormat("pt-BR", {
+        timeZone: fuso,
+        hour: "2-digit",
+        minute: "2-digit",
+        hourCycle: "h23",
+      }).format(new Date(a.inicio));
+      const { error } = await db.rpc("criar_notificacao", {
+        _tenant: p.tenantId,
+        _tipo: "cliente_atrasou",
+        _titulo: "Cliente vai atrasar",
+        _corpo: `${a.servicoNome} das ${hora}: chega com ${minutos} min de atraso.`,
+        _link: linkDoWhatsApp(p.telefone) ?? linkDoAgendamento(agendamentoId),
+      });
+      if (error) throw new Error(error.message);
     },
   };
 }

@@ -40,3 +40,13 @@ describe("lista de espera na Agenda", () => {
     expect(lista).toContain("getEsperaDaAgenda()");
   });
 });
+
+describe("gaveta da lista de espera x botão +", () => {
+  it("o botão + da Agenda some enquanto qualquer gaveta está aberta (07/11/2026)", async () => {
+    const { readFileSync } = await import("node:fs");
+    const css = readFileSync("src/styles.css", "utf8");
+    expect(css).toMatch(
+      /body:has\(\[role="dialog"\]\[data-state="open"\]\) \.agenda-acao-fixa \{\s*opacity: 0;\s*pointer-events: none;/,
+    );
+  });
+});

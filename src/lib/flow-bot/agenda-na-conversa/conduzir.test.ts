@@ -50,6 +50,7 @@ function portasFalsas(
     },
     remarcar: async (d) => void gravados.push({ tipo: "remarcar", dados: d }),
     cancelar: async (id) => void gravados.push({ tipo: "cancelar", dados: id }),
+    avisarAtraso: async (d) => void gravados.push({ tipo: "atraso", dados: d }),
   };
   return { portas, gravados };
 }
@@ -228,6 +229,43 @@ describe("agendar na conversa", () => {
       expect(r, fala).not.toBeNull();
       expect(r!.estado?.objetivo, fala).toBe("remarcar");
     }
+  });
+
+  it("cliente avisa que vai atrasar: pergunta os minutos (ou já entende) e avisa a equipe", async () => {
+    const ag = [
+      {
+        id: "a1",
+        inicio: iso("2026-11-07", "15:00"),
+        servicoId: "s-corte",
+        servicoNome: "Corte",
+        profissionalId: "p-ze",
+        profissionalNome: "Zé",
+      },
+    ];
+    const { portas, gravados } = portasFalsas({ agendamentos: ag });
+    // 1) pergunta e responde por áudio
+    let r = await conduzir("Vou me atrasar.", null, portas);
+    expect(r!.textos[0]).toContain("Quantos minutos você vai atrasar?");
+    r = await conduzir("Uns vinte minutos.", r!.estado, { ...portas, viaAudio: true });
+    expect(r!.textos[0]).toContain("Avisei a equipe.");
+    expect(r!.textos[0]).toContain("20 minutos");
+    expect(gravados).toEqual([{ tipo: "atraso", dados: { agendamentoId: "a1", minutos: 20 } }]);
+    // 2) já diz os minutos
+    gravados.length = 0;
+    r = await conduzir("Vou atrasar 15 min", null, portas);
+    expect(r!.textos[0]).toContain("15 minutos");
+    expect(gravados).toHaveLength(1);
+    // 3) opção do menu e atraso longo oferece remarcar
+    r = await conduzir("vou chegar atrasado", null, portas);
+    r = await conduzir("Meia hora.", r!.estado, portas);
+    expect(r!.textos[0]).toContain("30 minutos");
+    r = await conduzir("estou atrasada", null, portas);
+    r = await conduzir("uma hora", r!.estado, portas);
+    expect(r!.textos.join("\n")).toContain("REMARCAR");
+    // sem agendamento: não inventa
+    const vazio = portasFalsas({ agendamentos: [] }).portas;
+    r = await conduzir("vou atrasar", null, vazio);
+    expect(r!.textos[0]).toContain("Não encontrei horário marcado");
   });
 
   it("pedido de atendente no meio do fluxo sai sem responder (o bot chama a equipe)", async () => {

@@ -61,6 +61,7 @@ import { FotoDoProfissional } from "./FotoDoProfissional";
 import { TelaReagendar } from "./TelaReagendar";
 import { TrocarCliente, type ClienteEscolhido } from "./TrocarCliente";
 import { diaNoFuso, hora, linkWhatsApp } from "./tempo";
+import { textoDoLembrete } from "./lembrete-manual";
 
 export type PedidoRemarcar = { dia: string; hora: string; profissionalId: string | null };
 
@@ -185,6 +186,12 @@ export function PainelAtendimento(props: Props) {
   const bloqueado = !props.online || props.ocupado;
   const whatsapp = item ? linkWhatsApp(item.telefone) : null;
   const telefone = item?.telefone?.replace(/\D/g, "") ?? "";
+  // "Enviar lembrete" (dono, 07/11/2026): abre o WhatsApp do cliente já com o lembrete escrito; quem envia é a equipe,
+  // do próprio aparelho. Só para horário que ainda vai acontecer.
+  const lembrete =
+    item && new Date(item.fim).getTime() > Date.now()
+      ? linkWhatsApp(item.telefone, textoDoLembrete(item, props.fuso))
+      : null;
   const executar = (f: (i: AgendaItem) => void) => () => {
     if (!item) return;
     props.onFechar();
@@ -357,6 +364,19 @@ export function PainelAtendimento(props: Props) {
                     ) : null}
                   </div>
                 </section>
+
+                {lembrete ? (
+                  <Button
+                    asChild
+                    type="button"
+                    variant="outline"
+                    className="agenda-ficha-lembrete w-full"
+                  >
+                    <a href={lembrete} target="_blank" rel="noopener noreferrer">
+                      <MessageCircle aria-hidden className="size-4" /> Enviar lembrete
+                    </a>
+                  </Button>
+                ) : null}
 
                 {podeTrocarCliente(item) ? (
                   <Button

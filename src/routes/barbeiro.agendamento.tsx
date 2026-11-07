@@ -6,7 +6,14 @@ import { useState } from "react";
 
 import { Screen } from "@/components/layout/Screen";
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
+import { MensagemAposAgendar } from "@/components/barbeiro/MensagemAposAgendar";
 import { LinhaDeOpcoes } from "@/components/ui/formulario/LinhaDeOpcoes";
 import {
   GrupoDeLinhas,
@@ -129,7 +136,10 @@ function OpcoesDeAgendamentoPage() {
       <div className="pb-8">
         {isLoading ? <p className="mt-8 text-sm text-mute">Carregando…</p> : null}
         {isError && !data ? (
-          <div role="alert" className="mt-8 rounded-[28px] bg-[var(--figaro-surface-container,var(--ink2))] p-5">
+          <div
+            role="alert"
+            className="mt-8 rounded-[28px] bg-[var(--figaro-surface-container,var(--ink2))] p-5"
+          >
             <p className="text-sm text-paper">
               Não foi possível carregar as opções de agendamento. Verifique sua conexão e tente de
               novo.
@@ -192,7 +202,7 @@ function OpcoesDeAgendamentoPage() {
                 />
                 <LinhaDeOpcoes
                   icone={CalendarClock}
-                  titulo="Cliente pode cancelar até"
+                  titulo="Cliente pode cancelar ou alterar até"
                   opcoes={CANCELAMENTOS}
                   valor={regras.cancelamentoMinHoras}
                   desabilitada={!podeEditar || salvando}
@@ -215,6 +225,7 @@ function OpcoesDeAgendamentoPage() {
                   aoMudar={(v) => void mudar({ aceitaEncaixe: v })}
                 />
               </GrupoDeLinhas>
+              <MensagemAposAgendar podeEditar={podeEditar} />
             </SecaoDeConfiguracao>
 
             {!podeEditar ? (
@@ -228,8 +239,8 @@ function OpcoesDeAgendamentoPage() {
                 <SheetHeader className="text-left">
                   <SheetTitle>Intervalo personalizado</SheetTitle>
                   <SheetDescription>
-                    Escolha de quanto em quanto tempo os horários livres serão exibidos, de 5 a
-                    120 minutos.
+                    Escolha de quanto em quanto tempo os horários livres serão exibidos, de 5 a 120
+                    minutos.
                   </SheetDescription>
                 </SheetHeader>
                 <form
@@ -246,7 +257,10 @@ function OpcoesDeAgendamentoPage() {
                     if (salvo) setFolhaPersonalizadoAberta(false);
                   }}
                 >
-                  <label htmlFor="intervalo-personalizado" className="block text-sm font-semibold text-paper">
+                  <label
+                    htmlFor="intervalo-personalizado"
+                    className="block text-sm font-semibold text-paper"
+                  >
                     Intervalo em minutos
                   </label>
                   <input
@@ -263,15 +277,23 @@ function OpcoesDeAgendamentoPage() {
                       setErroPersonalizado(null);
                     }}
                     aria-invalid={Boolean(erroPersonalizado)}
-                    aria-describedby={erroPersonalizado ? "intervalo-personalizado-erro" : "intervalo-personalizado-ajuda"}
+                    aria-describedby={
+                      erroPersonalizado
+                        ? "intervalo-personalizado-erro"
+                        : "intervalo-personalizado-ajuda"
+                    }
                     className="field-control w-full"
                   />
                   <p id="intervalo-personalizado-ajuda" className="text-xs leading-5 text-mute">
-                    Isso altera somente a frequência dos horários oferecidos. A duração dos
-                    serviços e as regras de disponibilidade continuam iguais.
+                    Isso altera somente a frequência dos horários oferecidos. A duração dos serviços
+                    e as regras de disponibilidade continuam iguais.
                   </p>
                   {erroPersonalizado ? (
-                    <p id="intervalo-personalizado-erro" role="alert" className="text-sm text-brick">
+                    <p
+                      id="intervalo-personalizado-erro"
+                      role="alert"
+                      className="text-sm text-brick"
+                    >
                       {erroPersonalizado}
                     </p>
                   ) : null}
@@ -284,12 +306,7 @@ function OpcoesDeAgendamentoPage() {
                     >
                       Cancelar
                     </Button>
-                    <Button
-                      type="submit"
-                      variant="primary"
-                      className="w-full"
-                      disabled={salvando}
-                    >
+                    <Button type="submit" variant="primary" className="w-full" disabled={salvando}>
                       {salvando ? "Salvando…" : "Salvar intervalo"}
                     </Button>
                   </div>

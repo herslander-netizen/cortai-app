@@ -324,6 +324,8 @@ export type ConfirmacaoPublica = {
   endereco: string | null;
   whatsapp: string | null;
   valor_centavos: number;
+  /** Mensagem do negócio depois de agendar (opcional). */
+  mensagemDoNegocio?: string | null;
   /**
    * WhatsApp deste horário: "ativos" (telefone confirmado), "confirmar" (número novo:
    * a pessoa pode ativar mandando o código) ou "sem_whatsapp" (negócio sem WhatsApp).
@@ -440,6 +442,9 @@ export const agendarComoConvidado = createServerFn({ method: "POST" })
         throw new Error(
           "Não encontramos o horário que você quer alterar. Confira o WhatsApp informado.",
         );
+      // Mesmo prazo do cancelamento vale para o cliente mudar o horário (dono, 07/11/2026).
+      const { exigirPrazoDeCancelamento } = await import("@/lib/prazo-cancelamento.server");
+      await exigirPrazoDeCancelamento(db, antigo.id as string);
       substituiId = antigo.id as string;
       origemHerdada = (antigo as { origem?: string | null }).origem ?? null;
     }
@@ -601,6 +606,7 @@ export const agendarComoConvidado = createServerFn({ method: "POST" })
         endereco: tenant.endereco,
         whatsapp: tenant.whatsapp,
         valor_centavos: servico.preco_centavos,
+        mensagemDoNegocio: await mensagemPosDoNegocio(db, tenant.id),
         avisosWhatsapp,
       },
     };
@@ -859,3 +865,20 @@ export const vincularFichaDoConvidado = createServerFn({ method: "POST" })
       .is("user_id", null);
     return { vinculado: !error, slug };
   });
+
+/** Mensagem do negócio depois de agendar; sem a migração 0061 ou sem texto, a confirmação segue igual. */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- cliente do banco já usado como `any` neste arquivo
+async function mensagemPosDoNegocio(db: any, tenantId: string): Promise<string | null> {
+  try {
+    const { data, error } = await db
+      .from("tenants")
+      .select("mensagem_pos_agendamento")
+      .eq("id", tenantId)
+      .maybeSingle();
+    if (error) return null;
+    const { limparMensagemPos } = await import("@/lib/mensagem-pos-agendamento");
+    return limparMensagemPos(data?.mensagem_pos_agendamento);
+  } catch {
+    return null;
+  }
+}

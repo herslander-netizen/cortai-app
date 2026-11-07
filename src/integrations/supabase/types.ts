@@ -4877,6 +4877,7 @@ export type Database = {
           ativo: boolean
           avisos_teste_enviados: number[]
           cancelamento_min_horas: number
+          mensagem_pos_agendamento: string | null
           capa_url: string | null
           chips_ficha: string[]
           ciclo: string
@@ -4936,6 +4937,7 @@ export type Database = {
           ativo?: boolean
           avisos_teste_enviados?: number[]
           cancelamento_min_horas?: number
+          mensagem_pos_agendamento?: string | null
           capa_url?: string | null
           chips_ficha?: string[]
           ciclo?: string
@@ -4995,6 +4997,7 @@ export type Database = {
           ativo?: boolean
           avisos_teste_enviados?: number[]
           cancelamento_min_horas?: number
+          mensagem_pos_agendamento?: string | null
           capa_url?: string | null
           chips_ficha?: string[]
           ciclo?: string

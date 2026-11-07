@@ -68,6 +68,11 @@ export const TEXTOS = {
   audioNaoEntendido: "Não entendi esse áudio.",
   audioSigaPorTexto:
     "Vamos por escrito?\n\nMe diga o *serviço* e o *horário* que prefere.\n\nQuando der, volto a ouvir seus áudios.",
+  quantosMinutos: "Quantos minutos você vai atrasar?",
+  outroTempo: "Ou me diga outro tempo (ex.: *20 minutos*).",
+  atrasoLongo: "Se preferir, responda *REMARCAR* para escolher outro horário.",
+  atrasoAvisado: (minutos: number) =>
+    `Avisei a equipe.\n\nTe esperamos com ${minutos} minutos de atraso.`,
   naoEntendiOpcao: "Não entendi. Responda com o número de uma das opções.",
   ocupado: "Esse horário acabou de ser ocupado. Veja os que ainda estão livres:",
   semHorarioAgendado:
@@ -94,6 +99,7 @@ export const DICA_DO_AUDIO: Record<string, string> = {
   nome: "Escreva só o seu *nome*.",
   confirmar: "Responda *SIM* ou *NÃO*.",
   escolher_agendamento: "Escreva o *número* do horário ou mande outro áudio.",
+  minutos: "Escreva os *minutos* (ex.: 20) ou mande outro áudio.",
 };
 
 /** "Não entendi esse áudio.\n_Ouvi: “…”_\n\n<dica>" — o eco ajuda o cliente a ver o que o sistema ouviu. */

@@ -39,6 +39,7 @@ function portas(viaAudio = true) {
     criar: async (d) => void gravados.push({ tipo: "criar", dados: d }),
     remarcar: async (d) => void gravados.push({ tipo: "remarcar", dados: d }),
     cancelar: async (id) => void gravados.push({ tipo: "cancelar", dados: id }),
+    avisarAtraso: async (d) => void gravados.push({ tipo: "atraso", dados: d }),
   };
   return { p, gravados };
 }

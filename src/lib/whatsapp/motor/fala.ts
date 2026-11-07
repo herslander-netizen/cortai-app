@@ -211,3 +211,20 @@ export function ehNaoFalado(t: string): boolean {
     .trim();
   return /^(?:nao|n|negativo|errado|incorreto|agora nao|nunca)(?:\s|$)/.test(s);
 }
+
+/** Minutos falados ("vinte minutos", "meia hora", "uns 15", "uma hora e meia", "20 min"); 0 < n ≤ 180 ou null. */
+export function minutosFalados(t: string): number | null {
+  const s = paraAlgarismos(t.replace(/[.!?,]+/g, " ")).replace(/\s+/g, " ");
+  if (/\bmeia hora\b/.test(s)) return 30;
+  let m =
+    s.match(/\b(\d{1,3})\s*(?:h|horas?)\s*e\s*meia\b/) ?? s.match(/\b(1)\s+hora\s+e\s+meia\b/);
+  if (m) return Number(m[1]) * 60 + 30;
+  m = s.match(/\b(\d{1,2})\s*(?:h|horas?)\b(?!\s*\d)/);
+  if (m && !/min/.test(s)) return Number(m[1]) * 60 <= 180 ? Number(m[1]) * 60 : null;
+  m = s.match(/\b(\d{1,3})\s*(?:min|minutos?|m)\b/) ?? s.match(/^(?:\w+\s+){0,3}?(\d{1,3})$/);
+  if (m) {
+    const n = Number(m[1]);
+    return n > 0 && n <= 180 ? n : null;
+  }
+  return null;
+}

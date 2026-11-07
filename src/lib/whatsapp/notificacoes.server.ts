@@ -174,6 +174,8 @@ export type DadosDaMensagem = {
   inicio: string;
   valorCentavos: number;
   endereco: string | null;
+  /** Texto do negócio depois de agendar (`tenants.mensagem_pos_agendamento`). */
+  mensagemDoNegocio?: string | null;
   linkAgendamento: string | null;
   linkPagamento: string | null;
   /** Fuso da barbearia; garante data e hora corretas para o cliente. */
@@ -224,9 +226,19 @@ export function montarMensagem(
       linha(d.endereco, "📍 "),
       creditos,
     );
+    if (d.mensagemDoNegocio) blocos.push("", d.mensagemDoNegocio);
     if (d.linkPagamento) blocos.push("", "💳 Pagar agora", d.linkPagamento);
     // Mudar o horário sem ligar (dono, 07/11/2026): o fluxo de remarcar já entende texto e áudio.
-    blocos.push("", "Precisa mudar o horário?", "Responda *REMARCAR* por aqui.", "", "Até lá!");
+    blocos.push(
+      "",
+      "Precisa mudar o horário?",
+      "Responda *REMARCAR* por aqui.",
+      "",
+      "Vai chegar mais tarde?",
+      "Responda *ATRASO*.",
+      "",
+      "Até lá!",
+    );
   } else if (tipo === "lembrete_24h") {
     blocos.push(
       // Véspera às 15h: a abertura varia um pouco entre clientes (textos idênticos em série parecem envio em massa).
@@ -802,6 +814,8 @@ async function executar(agendamentoId: string, tipo: TipoDeNotificacao): Promise
       inicio: ag.inicio,
       valorCentavos: ag.valor_centavos ?? 0,
       endereco: tenant?.endereco ?? null,
+      mensagemDoNegocio:
+        tipo === "confirmacao_agendamento" ? await mensagemDoNegocio(db, ag.tenant_id) : null,
       fuso: fusoModelo,
       segmento: tenant?.segmento ?? null,
       textoRetorno,
@@ -1152,4 +1166,21 @@ export async function recuperarEnviosPresos(agora = new Date()): Promise<number>
     }
   }
   return tratados;
+}
+
+/** Mensagem que o negócio escreveu para depois de agendar; sem a migração 0061 ou sem texto, nada é acrescentado. */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- cliente do banco já usado como `any` neste arquivo
+async function mensagemDoNegocio(db: any, tenantId: string): Promise<string | null> {
+  try {
+    const { data, error } = await db
+      .from("tenants")
+      .select("mensagem_pos_agendamento")
+      .eq("id", tenantId)
+      .maybeSingle();
+    if (error) return null;
+    const { limparMensagemPos } = await import("@/lib/mensagem-pos-agendamento");
+    return limparMensagemPos(data?.mensagem_pos_agendamento);
+  } catch {
+    return null;
+  }
 }
