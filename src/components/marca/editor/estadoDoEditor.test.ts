@@ -32,4 +32,13 @@ describe("estadoDoEditor", () => {
   it("sucesso só aparece sem pendências", () => {
     expect(estadoDoEditor({ ...base, status: "Página publicada com sucesso." })?.tom).toBe("ok");
   });
+  it("não mostra sucesso enquanto há um rascunho diferente da versão publicada", () => {
+    const e = estadoDoEditor({
+      ...base,
+      status: "Página publicada com sucesso.",
+      pendente: true,
+    });
+    expect(e?.tom).toBe("pendente");
+    expect(e?.texto).toMatch(/não mudou/);
+  });
 });
