@@ -93,16 +93,18 @@ function Numero({
 }) {
   return (
     <div
-      className={`flex items-baseline justify-between border-b border-line py-4 ${destaque ? "" : ""}`}
+      className={`flex min-h-24 flex-col justify-between gap-3 rounded-2xl border p-4 ${destaque ? "border-gold/40 bg-ink2 md:min-h-32 md:p-5" : "border-line bg-ink2"}`}
     >
-      <span className="text-sm text-mute">{rotulo}</span>
-      <span className="flex items-center gap-2">
+      <span className="flex items-center justify-between gap-2 text-sm font-medium text-mute">
+        {rotulo}
+        <Seta atual={atual} antes={antes} />
+      </span>
+      <span className="flex items-end justify-between gap-2">
         <span
-          className={`money-value ${destaque ? "text-[28px] leading-none" : "text-xl"} text-paper`}
+          className={`money-value ${destaque ? "text-[28px] leading-none md:text-3xl" : "text-xl"} text-paper`}
         >
           {valor}
         </span>
-        <Seta atual={atual} antes={antes} />
       </span>
     </div>
   );
@@ -212,16 +214,19 @@ function HojePage() {
         {q.isLoading ? (
           <EsqueletoMetricas colunas={2} onTentarDeNovo={() => void q.refetch()} />
         ) : (
-          numeros.map((n) => (
-            <Numero
-              key={n.rotulo}
-              rotulo={n.rotulo}
-              valor={n.valor}
-              atual={n.a}
-              antes={n.b}
-              destaque={Boolean(n.destaque)}
-            />
-          ))
+          <div className="grid grid-cols-2 gap-3">
+            {numeros.map((n) => (
+              <div key={n.rotulo} className={n.destaque ? "col-span-2" : ""}>
+                <Numero
+                  rotulo={n.rotulo}
+                  valor={n.valor}
+                  atual={n.a}
+                  antes={n.b}
+                  destaque={Boolean(n.destaque)}
+                />
+              </div>
+            ))}
+          </div>
         )}
       </section>
 

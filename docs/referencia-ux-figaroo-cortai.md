@@ -10,6 +10,17 @@ O Figaroo é a base visual e comportamental de referência, não apenas inspira�
 
 A experiência observável usa superfícies claras e neutras, títulos pesados, cartões e folhas arredondadas, ações principais evidentes, formulários em etapas e áreas de ação persistentes quando necessário. A marca/logomarca deve ser a atual do Flow. Não introduzir uma nova direção visual nem misturar camadas visuais posteriores sem evidência de que pertencem ao Figaro.
 
+### Versões dos APKs conferidas em 07/11/2026
+
+O arquivo menor é o mais recente: o manifesto informa `version_code` 168, contra 136 no arquivo maior. O arquivo maior foi usado como comparação histórica, não como referência atual.
+
+| Papel | Artefato | Tamanho | Versão / código | SDK mínimo / alvo | Classes / recursos | SHA-256 |
+|---|---|---:|---|---|---:|---|
+| Atual | `Figaroo(20261107-202238).apk` | 21.362.399 bytes | 1.0.0 / 168 | 26 / 36 | 10.388 / 537 | `3636b8b15e98a4a99ae00a85d74e9493b432c4a8a7ab39f612a59accb4071991` |
+| Anterior | `Figaroo-versao-anterior.apk` | 88.853.086 bytes | 1.0.0 / 136 | 26 / 36 | 30.631 / 593 | `9fd5763de71cedf734f7565fb3f868dbb776a254a941eebad3a23dac1cc98528` |
+
+As contagens menores do build 168 não foram interpretadas como perda funcional: o tamanho e a contagem podem variar por encolhimento/obfuscação do build. Ambos foram inspecionados estaticamente; nenhum APK foi instalado ou executado.
+
 ## O que foi observado na gravação
 
 Os tempos são aproximados e servem para localizar as partes do vídeo.
