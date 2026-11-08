@@ -107,9 +107,9 @@ describe("página pública promocional", () => {
     const geral = new URL(linkDeInteresseFlow());
     expect(geral.hostname).toBe("wa.me");
     expect(geral.pathname).toBe("/5579998181983");
-    expect(geral.searchParams.get("text")).toContain("tenho interesse em conhecer a plataforma");
+    expect(geral.searchParams.get("text")).toContain("Tenho interesse no Flow");
     const studio = new URL(linkDeInteresseFlow("Studio"));
-    expect(studio.searchParams.get("text")).toContain("tenho interesse no plano Studio");
+    expect(studio.searchParams.get("text")).toContain("Tenho interesse no plano Studio");
   });
 
   it("não cita plano nem limite antigos nos textos padrão", () => {
