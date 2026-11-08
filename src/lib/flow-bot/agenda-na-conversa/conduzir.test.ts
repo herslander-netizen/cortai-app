@@ -392,6 +392,7 @@ describe("remarcar, cancelar e consultar", () => {
       /🗓️ \*Confira a remarcação:\*\n\n\*Serviço:\* Corte\n\*Profissional:\* Zé\n\*Quando:\* Sábado, 07\/11, às 09:00\n\nPosso remarcar\?/,
     );
     expect(respostas[2]![0]).toMatch(/^✅ \*Horário remarcado com sucesso!\*/);
+    expect(respostas[2]![0]).toContain("~sábado, 07/11, às 15:00~");
     expect(gravados[0]).toMatchObject({
       tipo: "remarcar",
       dados: { agendamentoId: "a-1", profissionalId: "p-ze" },
