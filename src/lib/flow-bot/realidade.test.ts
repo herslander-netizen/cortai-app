@@ -100,7 +100,7 @@ describe("realidade no perfil flow/v1 com o modelo padrão", () => {
     expect(servicoEmTexto({ nome: "Corte", preco_centavos: 4500 })).toBe("Corte — R$ 45,00");
     expect(responder("quanto custa?")[0]).toContain("• Corte — R$ 45,00");
   });
-  it("sem endereço, sem pagamento e sem próximo horário: promete a equipe ou manda só o link, sem frase vazia", () => {
+  it("sem endereço ou pagamento não inventa dados; agendamento sem condutor encaminha à equipe", () => {
     expect(responder("onde fica?")).toEqual([
       "Vou confirmar com a equipe o endereço certinho e já te passo por aqui.",
     ]);
@@ -108,13 +108,13 @@ describe("realidade no perfil flow/v1 com o modelo padrão", () => {
       "Vou confirmar com a equipe as formas de pagamento e já te passo por aqui.",
     ]);
     expect(responder("quero agendar")).toEqual([
-      "Para agendar em Studio Teste, escolha o horário por aqui: https://flow.exemplo/agendar/studio",
+      "👤 Certo! Vou chamar alguém da equipe para falar com você por aqui.",
     ]);
   });
   it("fechado: diz a próxima abertura", () => {
     const fechado = montarRealidade({ ...base, minuto: min("19:00") });
     expect(responder("vocês estão abertos?", fechado)).toEqual([
-      "No momento estamos fechados. Abrimos amanhã às 09:00.",
+      "🕒 No momento estamos fechados. Abrimos amanhã às 09:00.",
     ]);
   });
 });
