@@ -138,13 +138,33 @@ describe("textosDasAcoes", () => {
 
 describe("ehEnvioDoFlow", () => {
   const enviados = [{ mensagem_externa_id: "ABC", conteudo: "Olá! Aqui é o Studio." }];
-  it("mesmo identificador ou o mesmo texto enviado há pouco = foi o Flow", () => {
+  it("identificador do provedor igual = envio do Flow, mesmo com outro texto no eco", () => {
     expect(ehEnvioDoFlow({ id: "ABC", texto: "qualquer" }, enviados)).toBe(true);
-    expect(ehEnvioDoFlow({ id: "OUTRO", texto: " Olá! Aqui é o Studio. " }, enviados)).toBe(true);
   });
-  it("texto diferente e identificador desconhecido = alguém digitou no celular", () => {
+  it("ID diferente não é envio do Flow, ainda que o profissional repita texto idêntico", () => {
+    expect(ehEnvioDoFlow({ id: "OUTRO", texto: " Olá! Aqui é o Studio. " }, enviados)).toBe(false);
     expect(ehEnvioDoFlow({ id: "XYZ", texto: "Oi, já te atendo" }, enviados)).toBe(false);
+  });
+  it("sem ID no eco ou no envio, aceita texto igual como contingência legada", () => {
+    expect(ehEnvioDoFlow({ id: null, texto: " Olá! Aqui é o Studio. " }, enviados)).toBe(true);
+    expect(
+      ehEnvioDoFlow(
+        { id: "OUTRO", texto: "Olá! Aqui é o Studio." },
+        [{ mensagem_externa_id: null, conteudo: "Olá! Aqui é o Studio." }],
+      ),
+    ).toBe(true);
     expect(ehEnvioDoFlow({ id: null, texto: "" }, enviados)).toBe(false);
+  });
+  it("dois IDs presentes têm prioridade sobre igualdade com outras mensagens", () => {
+    expect(
+      ehEnvioDoFlow(
+        { id: "HUMANO", texto: "Tudo bem" },
+        [
+          { mensagem_externa_id: "IA", conteudo: "Tudo bem" },
+          { mensagem_externa_id: "AUTOMACAO", conteudo: "Oi" },
+        ],
+      ),
+    ).toBe(false);
   });
 });
 
