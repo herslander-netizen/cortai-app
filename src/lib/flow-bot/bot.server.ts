@@ -98,13 +98,15 @@ export async function responderComFlowBot(input: EntradaDoBot): Promise<boolean>
   });
   if (naoAtende) return false;
 
-  // Ligado: agendar, remarcar, cancelar e "meus horários" dentro da conversa, sem IA (dono, 05/11). Em sombra não roda:
-  // ele grava agendamentos, e o modo sombra nunca muda nada.
+  // Ligado: a agenda conversacional usa as ações oficiais do sistema, sem mandar o cliente ao site.
+  // A opção 1 só é interceptada quando o menu PADRÃO está realmente esperando uma escolha.
   if (config.modo === "ligado") {
-    // Ao receber "1" enquanto o menu padrão espera a escolha, iniciar a agenda conversacional.
-    // Não interceptar números soltos nem menus personalizados: opções de avisos já foram tratadas no webhook.
+    const { estadoValido } = await import("./agenda-na-conversa/conduzir");
+    const contexto = ((conversa as { contexto?: Record<string, unknown> } | null)?.contexto ??
+      {}) as Record<string, unknown>;
+    const agendaAtiva = estadoValido(contexto["agenda"], new Date(agora)) !== null;
     const { data: escolhaDoMenu, error: erroMenu } =
-      config.versaoPublicada === null && input.texto.trim() === "1"
+      !agendaAtiva && config.versaoPublicada === null && input.texto.trim() === "1"
         ? await db
             .from("flow_bot_sessoes")
             .select("fluxo_ref, sessao, atualizado_em")
@@ -115,13 +117,14 @@ export async function responderComFlowBot(input: EntradaDoBot): Promise<boolean>
     if (erroMenu) console.error("[flow-bot] não leu escolha do menu", erroMenu.message);
     const sessaoDoMenu = escolhaDoMenu?.sessao as Sessao | null | undefined;
     const iniciarPeloMenu =
+      !agendaAtiva &&
       escolhaDoMenu?.fluxo_ref === `padrao@${VERSAO_DO_NUCLEO}` &&
       opcaoDeAgendarNoMenuPadrao(input.texto, sessaoDoMenu, agora);
 
     const { atenderAgendaNaConversa } = await import("./agenda-na-conversa/atender.server");
     const pelaAgenda = await atenderAgendaNaConversa({
       ...input,
-      // O condutor usa a intenção "AGENDAR"; "1" só é opção dentro do menu do Flow Bot.
+      // O condutor entende AGENDAR; a opção numérica só tem sentido dentro do menu do bot.
       texto: iniciarPeloMenu ? "quero agendar" : input.texto,
       conversa: conversa as Record<string, unknown> | null,
       agora,
@@ -130,21 +133,39 @@ export async function responderComFlowBot(input: EntradaDoBot): Promise<boolean>
       return null;
     });
     if (pelaAgenda !== null) {
-      if (iniciarPeloMenu && escolhaDoMenu && sessaoDoMenu) {
-        // A agenda agora é a única responsável pelo turno: não deixar o menu antigo aguardando "1".
-        // Compare-and-set protege uma nova sessão criada por outra mensagem simultânea.
-        const { error: erroEncerrarMenu } = await db
-          .from("flow_bot_sessoes")
-          .update({
-            sessao: { ...sessaoDoMenu, status: "completed", cursor: null, prazo: null },
-            atualizado_em: new Date(agora).toISOString(),
-          })
-          .eq("conversa_id", input.conversaId)
-          .eq("tenant_id", input.tenantId)
-          .eq("fluxo_ref", escolhaDoMenu.fluxo_ref)
-          .eq("atualizado_em", escolhaDoMenu.atualizado_em);
-        if (erroEncerrarMenu)
-          console.error("[flow-bot] não encerrou menu ao iniciar agenda", erroEncerrarMenu.message);
+      // Se uma solicitação direta "quero marcar" substituiu o menu, ele também deve ser encerrado.
+      // Enquanto a agenda estiver em progresso, respostas como "1" escolhem serviço/horário, não novo menu.
+      if (!agendaAtiva && config.versaoPublicada === null) {
+        const menuPendente =
+          escolhaDoMenu ??
+          (
+            await db
+              .from("flow_bot_sessoes")
+              .select("fluxo_ref, sessao, atualizado_em")
+              .eq("conversa_id", input.conversaId)
+              .eq("tenant_id", input.tenantId)
+              .maybeSingle()
+          ).data;
+        const sessaoPendente = menuPendente?.sessao as Sessao | null | undefined;
+        if (
+          menuPendente?.fluxo_ref === `padrao@${VERSAO_DO_NUCLEO}` &&
+          sessaoPendente?.status === "waiting_input" &&
+          sessaoPendente.cursor === "espera-menu"
+        ) {
+          // Compare-and-set evita sobrescrever resposta simultânea que tenha avançado o bot.
+          const { error: erroEncerrarMenu } = await db
+            .from("flow_bot_sessoes")
+            .update({
+              sessao: { ...sessaoPendente, status: "completed", cursor: null, prazo: null },
+              atualizado_em: new Date(agora).toISOString(),
+            })
+            .eq("conversa_id", input.conversaId)
+            .eq("tenant_id", input.tenantId)
+            .eq("fluxo_ref", menuPendente.fluxo_ref)
+            .eq("atualizado_em", menuPendente.atualizado_em);
+          if (erroEncerrarMenu)
+            console.error("[flow-bot] não encerrou menu ao iniciar agenda", erroEncerrarMenu.message);
+        }
       }
       return pelaAgenda;
     }
