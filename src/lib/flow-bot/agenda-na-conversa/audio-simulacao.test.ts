@@ -22,7 +22,6 @@ function portas(viaAudio = true) {
     viaAudio,
     fuso: FUSO,
     agora: AGORA,
-    link: "https://previa.cortaiapp.pages.dev/agendar/demo",
     servicos: async () => [
       { id: "s-corte", nome: "Corte de cabelo", duracao_min: 30, preco_centavos: 4000 },
       { id: "s-barba", nome: "Barba", duracao_min: 20, preco_centavos: 3000 },
@@ -119,25 +118,25 @@ const PASSOS: Record<string, { antes: string[]; casos: Caso[] }> = {
   nome: {
     antes: ["quero marcar", "1", "tanto faz", "1"],
     casos: [
-      ["Carla.", (_, e) => e?.nome === "Carla"],
+      ["Carla.", (r, e) => e?.etapa === "nome" && textoDe(r).includes("nome e sobrenome")],
       ["Carla Souza.", (_, e) => e?.nome === "Carla Souza"],
-      ["Meu nome é Carla.", (_, e) => e?.nome === "Carla"],
+      ["Meu nome é Carla.", (r, e) => e?.etapa === "nome" && textoDe(r).includes("nome e sobrenome")],
       ["Me chamo Carla Souza.", (_, e) => e?.nome === "Carla Souza"],
-      ["É a Carla.", (_, e) => e?.nome === "Carla"],
+      ["É a Carla.", (r, e) => e?.etapa === "nome" && textoDe(r).includes("nome e sobrenome")],
       ["Aqui é o João Pedro.", (_, e) => e?.nome === "João Pedro"],
     ],
   },
   confirmação: {
-    antes: ["quero marcar", "1", "tanto faz", "1", "Carla"],
+    antes: ["quero marcar", "1", "tanto faz", "1", "Carla Souza"],
     casos: [
-      ["Sim.", (r, e) => e === null && /Marquei/.test(textoDe(r))],
-      ["Sim, pode marcar.", (r, e) => e === null && /Marquei/.test(textoDe(r))],
-      ["Pode ser.", (r, e) => e === null && /Marquei/.test(textoDe(r))],
-      ["Isso mesmo.", (r, e) => e === null && /Marquei/.test(textoDe(r))],
-      ["Confirmo.", (r, e) => e === null && /Marquei/.test(textoDe(r))],
-      ["Claro!", (r, e) => e === null && /Marquei/.test(textoDe(r))],
-      ["Fechado.", (r, e) => e === null && /Marquei/.test(textoDe(r))],
-      ["Pode confirmar.", (r, e) => e === null && /Marquei/.test(textoDe(r))],
+      ["Sim.", (r, e) => e === null && /Agendamento confirmado/.test(textoDe(r))],
+      ["Sim, pode marcar.", (r, e) => e === null && /Agendamento confirmado/.test(textoDe(r))],
+      ["Pode ser.", (r, e) => e === null && /Agendamento confirmado/.test(textoDe(r))],
+      ["Isso mesmo.", (r, e) => e === null && /Agendamento confirmado/.test(textoDe(r))],
+      ["Confirmo.", (r, e) => e === null && /Agendamento confirmado/.test(textoDe(r))],
+      ["Claro!", (r, e) => e === null && /Agendamento confirmado/.test(textoDe(r))],
+      ["Fechado.", (r, e) => e === null && /Agendamento confirmado/.test(textoDe(r))],
+      ["Pode confirmar.", (r, e) => e === null && /Agendamento confirmado/.test(textoDe(r))],
       ["Não.", (r) => /não marquei/i.test(textoDe(r))],
       ["Não, quero mudar o horário.", (r) => /não marquei|Tenho estes|outro dia/i.test(textoDe(r))],
     ],
@@ -167,7 +166,7 @@ describe("simulação: respostas de erro de áudio (curtas, organizadas, sem par
     ["profissional", ["quero marcar", "1"]],
     ["horario", ["quero marcar", "1", "tanto faz"]],
     ["nome", ["quero marcar", "1", "tanto faz", "1"]],
-    ["confirmar", ["quero marcar", "1", "tanto faz", "1", "Carla"]],
+    ["confirmar", ["quero marcar", "1", "tanto faz", "1", "Carla Souza"]],
   ];
   for (const [etapa, antes] of etapas) {
     it(`etapa ${etapa}: 1º erro com eco e dica; 2º convida a seguir por escrito; texto retoma`, async () => {
