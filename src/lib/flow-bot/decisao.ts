@@ -97,7 +97,11 @@ export function ehSaudacao(texto: string): boolean {
     .filter(Boolean);
   const cumprimento =
     /^(oi+e*|ola+|opa|eai|e ai|salve|bom dia|boa tarde|boa noite)( (tudo bem|tudo bom|td bem|blz|beleza|como vai))?$/;
-  return linhas.length > 0 && linhas.length <= 5 && linhas.every((linha) => cumprimento.test(linha));
+  return (
+    linhas.length > 0 &&
+    linhas.length <= 5 &&
+    linhas.every((linha) => cumprimento.test(linha))
+  );
 }
 
 /** Ações do motor que viram mensagem, na ordem, com o menu numerado em texto (a Evolution não tem botões). */
