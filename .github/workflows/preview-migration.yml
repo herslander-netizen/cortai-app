@@ -41,6 +41,17 @@ jobs:
       # nunca implanta nem cria recursos remotos por push automático.
       - name: Validate quota Durable Object Worker (dry run, no deployment)
         run: bunx wrangler deploy --dry-run --config infra/flow-ai-quota/wrangler.jsonc --outdir /tmp/flow-ai-quota-dryrun
+      - name: Lint editor da página (correções UX)
+        run: >
+          bunx eslint
+          src/routes/barbeiro.marca.index.tsx
+          src/components/marca/editor/PaineisDoEditor.tsx
+          src/components/marca/editor/PaineisDoEditor.test.tsx
+          src/components/marca/editor/useEditorDaPagina.ts
+          src/components/marca/editor/estadoDoEditor.ts
+          src/components/marca/editor/estadoDoEditor.test.ts
+          src/lib/marca.functions.ts
+          src/lib/navegacao-movel.test.ts
       - name: Build migration preview
         run: bunx vite build --outDir /tmp/cortai-preview-build
       - name: TypeScript
