@@ -250,13 +250,19 @@ export function useEditorDaPagina(initial: MarcaData, reload: () => Promise<unkn
     setStatus(null);
     try {
       // Sem rascunho no servidor, o descarte é estritamente local.
-      if (initial.alteracoes_pendentes) await discard();
-      setForm(initial);
-      setConfig(initial.pagina);
-      setLogoPreview(initial.logo_signed_url);
-      setCoverPreview(initial.capa_signed_url);
-      setAvatarPreview(initial.avatar_signed_url);
-      await reload();
+      if (initial.alteracoes_pendentes) {
+        // A confirmação no servidor vem antes da atualização visual.
+        // Não repor o rascunho antigo enquanto os novos dados estão carregando.
+        await discard();
+        await reload();
+      } else {
+        setForm(initial);
+        setConfig(initial.pagina);
+        setSlug(initial.slug);
+        setLogoPreview(initial.logo_signed_url);
+        setCoverPreview(initial.capa_signed_url);
+        setAvatarPreview(initial.avatar_signed_url);
+      }
       setStatus(initial.alteracoes_pendentes
         ? "Rascunho descartado. A página publicada foi preservada."
         : "Alterações locais descartadas. A página publicada foi preservada.");

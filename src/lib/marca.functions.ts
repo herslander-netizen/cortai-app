@@ -592,15 +592,16 @@ export const restaurarMarca = createServerFn({ method: "POST" })
       pagina?: unknown;
       marca?: unknown;
     } | null;
+    const paginaAnterior = normalizarPagina(conteudoAtual?.pagina, {
+      frase: atual.texto_boas_vindas ?? "Cuidado, estilo e horário reservado para você.",
+      sobre: atual.descricao ?? "",
+    });
     const paginaRestaurada = composta.success && composta.data.pagina
       ? composta.data.pagina
-      : normalizarPagina(conteudoAtual?.pagina, {
-          frase: atual.texto_boas_vindas ?? "Cuidado, estilo e horário reservado para você.",
-          sobre: atual.descricao ?? "",
-        });
+      : paginaAnterior;
 
     const rascunhoAnterior = paginaAtual?.draft_config ?? {
-      pagina: paginaRestaurada,
+      pagina: paginaAnterior,
       marca: snapshot(atual),
     };
 
