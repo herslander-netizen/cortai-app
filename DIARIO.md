@@ -579,6 +579,7 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - 2026-10-26: **Cabeçalho do menu mobile mais compacto** (dono aprovou a reformulação após captura: logo menor, nome do negócio com hierarquia discreta, papel secundário, ajustes alinhados e menos espaço vazio; manter nome em até duas linhas quando necessário, sem afetar a Agenda).
 
 ## Em andamento
+- GPT | 2026-11-08 UTC | **Flow Core + CRM analítico (etapa isolada solicitada pelo dono):** adicionar página independente `/barbeiro/crm`, cálculo auditável de novos/recorrentes/atendimentos finalizados e gráficos no padrão Figaro; criar catálogo declarativo de agentes especialistas em modo sombra; testes e documentação. Não mexer na Agenda, WhatsApp, cadastro existente ou cérebro oficial sem coordenar; nenhuma migração, banco real, segredo, custo ou produção. | `src/lib/crm/*`, `src/routes/barbeiro.crm.tsx`, `src/lib/agente-flow/especialistas.ts`, `src/lib/agente-flow/especialistas.test.ts`, `docs/flow-inteligencia/17-helpin-flow-crm.md`; sem migração
 
 
 
