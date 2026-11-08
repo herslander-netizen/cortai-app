@@ -579,6 +579,7 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - 2026-10-26: **Cabeçalho do menu mobile mais compacto** (dono aprovou a reformulação após captura: logo menor, nome do negócio com hierarquia discreta, papel secundário, ajustes alinhados e menos espaço vazio; manter nome em até duas linhas quando necessário, sem afetar a Agenda).
 
 ## Em andamento
+- GPT | 2026-11-08 UTC | **Preparo visual na Agenda inspirado no Figaro (fase compatível):** exibir como faixa pontilhada o intervalo entre atendimentos já imposto por `intervalo_entre_min`, por profissional, sem bloquear gestos ou recriar regra de disponibilidade. Sem mudar banco, produção, tipos Supabase, motor de validação ou arquivos reservados à Claude; configuração específica por serviço e preparo antes ficam pendentes de migração combinada. Arquivos: `src/lib/barbeiro.functions.ts`, `src/components/barbeiro/{AgendaOperacional,AgendaTimeline}.tsx`, novo helper/testes `src/components/barbeiro/agenda/preparo-*`, `DIARIO.md`.
 
 
 
