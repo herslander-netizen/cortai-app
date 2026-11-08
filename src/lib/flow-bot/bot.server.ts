@@ -69,6 +69,20 @@ export async function responderComFlowBot(input: EntradaDoBot): Promise<boolean>
   const db = await admin();
   const agora = Date.now();
 
+  // A posse humana se aplica MESMO com Flow Bot desligado: sem ela, o webhook segue
+  // até a contingência automática quando a IA também está pausada.
+  const [{ data: conversa, error: erroConversa }, equipe] = await Promise.all([
+    db.from("conversas_whatsapp").select("*").eq("id", input.conversaId).eq("tenant_id", input.tenantId).maybeSingle(),
+    import("@/lib/whatsapp/identidade.server").then((m) =>
+      m.identificarEquipe(input.tenantId, input.telefone).catch(() => null),
+    ),
+  ]);
+  if (erroConversa || !conversa) {
+    console.error("[flow-bot] não confirmou posse da conversa", erroConversa?.message ?? "sem conversa");
+    return true; // Estado incerto: nunca enviar resposta automática em paralelo a um possível humano.
+  }
+  if (!equipe && humanoNoControle(conversa, agora)) return true;
+
   const { data: linhaConfig, error: erroConfig } = await db
     .from("flow_bot_config")
     .select("modo, horario, pausa_humano_min, versao_publicada")
@@ -83,13 +97,7 @@ export async function responderComFlowBot(input: EntradaDoBot): Promise<boolean>
   const config = configDoBot(linhaConfig as Record<string, unknown> | null);
   if (!config || config.modo === "desligado") return false;
 
-  const [{ data: conversa }, equipe, realidade] = await Promise.all([
-    db.from("conversas_whatsapp").select("*").eq("id", input.conversaId).maybeSingle(),
-    import("@/lib/whatsapp/identidade.server").then((m) =>
-      m.identificarEquipe(input.tenantId, input.telefone).catch(() => null),
-    ),
-    realidadeDoNegocio(db, input.tenantId, agora),
-  ]);
+  const realidade = await realidadeDoNegocio(db, input.tenantId, agora);
   const naoAtende = motivoParaNaoAtender({
     config,
     equipe: Boolean(equipe),
@@ -271,6 +279,16 @@ export async function responderComFlowBot(input: EntradaDoBot): Promise<boolean>
   let enviou = 0;
   for (const texto of textos) {
     try {
+      const { data: posseAtual, error: erroPosse } = await db
+        .from("conversas_whatsapp")
+        .select("modo_humano, modo_humano_ate")
+        .eq("id", input.conversaId)
+        .eq("tenant_id", input.tenantId)
+        .maybeSingle();
+      if (erroPosse || !posseAtual || (!equipe && humanoNoControle(posseAtual, Date.now()))) {
+        console.info("[flow-bot] envio suspenso por posse humana ou leitura indisponível");
+        break;
+      }
       await enviarPelaBarbearia({
         tenantId: input.tenantId,
         conversaId: input.conversaId,
