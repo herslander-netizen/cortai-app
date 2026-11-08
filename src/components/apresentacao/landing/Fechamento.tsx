@@ -1,6 +1,4 @@
-import { Link } from "@tanstack/react-router";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { useEffect, useState } from "react";
+import { motion, useReducedMotion } from "framer-motion";
 import { ArrowRight, Check, ChevronDown } from "lucide-react";
 
 import { Signature } from "@/components/layout/Signature";
@@ -8,7 +6,8 @@ import { Button } from "@/components/ui/button";
 import type { ConteudoApresentacao } from "@/lib/apresentacao-conteudo";
 import { PLANOS_COMERCIAIS, precoComercial } from "@/lib/planos-comerciais";
 import { OndasDaEntrada } from "@/components/entrada/OndasDaEntrada";
-import { useAcesso } from "./acesso";
+import { linkDeInteresseFlow } from "./whatsapp";
+import { IconeWhatsapp } from "@/components/entrada/historias/IconeWhatsapp";
 import { DivisorDeOndas, LinhasDeOnda } from "./Ondas";
 import { Revelar } from "./Revelar";
 import { TEMA_CLARO, TEMA_ESCURO } from "./tema";
@@ -42,7 +41,6 @@ export function FaixaDeFotos() {
 }
 
 export function Planos({ conteudo }: { conteudo: ConteudoApresentacao["planos"] }) {
-  const { comecar } = useAcesso();
   return (
     <section
       style={TEMA_CLARO}
@@ -108,9 +106,9 @@ export function Planos({ conteudo }: { conteudo: ConteudoApresentacao["planos"] 
                   variant={gratis ? "secondary" : "outline"}
                   className={`mt-6 w-full ${gratis ? "bg-white text-[#1b2687] hover:bg-white/90" : ""}`}
                 >
-                  <Link to={comecar.to}>
-                    {comecar.texto ?? (gratis ? "Começar grátis" : "Testar o Studio")}
-                  </Link>
+                  <a href={linkDeInteresseFlow(p.nome)} target="_blank" rel="noopener noreferrer">
+                    Conhecer o plano {p.nome}
+                  </a>
                 </Button>
               </div>
             </Revelar>
@@ -165,7 +163,6 @@ export function Perguntas({
 }
 
 export function ChamadaFinal({ conteudo }: { conteudo: ConteudoApresentacao["final"] }) {
-  const { comecar } = useAcesso();
   return (
     <section
       style={TEMA_CLARO}
@@ -184,9 +181,9 @@ export function ChamadaFinal({ conteudo }: { conteudo: ConteudoApresentacao["fin
           size="lg"
           className="mt-7 w-full shadow-[0_16px_30px_-14px_rgba(49,85,237,0.7)] sm:w-auto"
         >
-          <Link to={comecar.to}>
-            {comecar.texto ?? "Criar minha conta grátis"} <ArrowRight className="ml-2 size-4" />
-          </Link>
+          <a href={linkDeInteresseFlow()} target="_blank" rel="noopener noreferrer">
+            Quero conhecer o Flow <ArrowRight className="ml-2 size-4" />
+          </a>
         </Button>
       </Revelar>
       <div className="relative mt-12 [&_.brand-logo-on-dark]:!hidden [&_.brand-logo-on-light]:!block">
@@ -196,48 +193,18 @@ export function ChamadaFinal({ conteudo }: { conteudo: ConteudoApresentacao["fin
   );
 }
 
-/**
- * Botão fixo no celular: só aparece quando nenhum outro botão de "começar" está na tela (abertura, oferta, planos e
- * chamada final têm o seu). Observa os próprios botões, não as seções: sem piscar e sem cobrir o botão da seção.
- */
-export function BarraDoCelular() {
-  const { comecar } = useAcesso();
-  const [comBotaoNaTela, setComBotaoNaTela] = useState(true);
-  useEffect(() => {
-    const alvos = [...document.querySelectorAll("[data-cta-propria]")];
-    const visiveis = new Set<Element>();
-    const obs = new IntersectionObserver(
-      (entradas) => {
-        for (const e of entradas) {
-          if (e.isIntersecting) visiveis.add(e.target);
-          else visiveis.delete(e.target);
-        }
-        setComBotaoNaTela(visiveis.size > 0);
-      },
-      { threshold: 0 },
-    );
-    alvos.forEach((a) => obs.observe(a));
-    return () => obs.disconnect();
-  }, []);
+/** Contato flutuante sempre visível, no celular e no computador; não abre login nem cadastro. */
+export function BotaoFlutuanteWhatsApp() {
   return (
-    <AnimatePresence>
-      {!comBotaoNaTela ? (
-        <motion.div
-          className="fixed inset-x-0 bottom-0 z-30 bg-[var(--fundo)] px-4 pb-[max(12px,env(safe-area-inset-bottom))] pt-3 shadow-[0_-1px_0_var(--linha),0_-14px_28px_-16px_rgba(40,40,120,0.4)] sm:hidden"
-          initial={{ y: 80, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          exit={{ y: 80, opacity: 0 }}
-          transition={{ duration: 0.2 }}
-        >
-          <Button
-            asChild
-            size="lg"
-            className="w-full shadow-[0_14px_26px_-12px_rgba(49,85,237,0.7)]"
-          >
-            <Link to={comecar.to}>{comecar.texto ?? "Começar grátis · sem cartão"}</Link>
-          </Button>
-        </motion.div>
-      ) : null}
-    </AnimatePresence>
+    <a
+      href={linkDeInteresseFlow()}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label="Conversar sobre o Flow no WhatsApp"
+      className="fixed bottom-[max(16px,env(safe-area-inset-bottom))] right-4 z-40 inline-flex min-h-14 items-center gap-2.5 rounded-full bg-[var(--figaro-primary)] px-5 py-3 text-sm font-bold text-[var(--figaro-on-primary)] shadow-[0_16px_32px_-10px_rgba(49,85,237,0.65)] ring-1 ring-white/25 transition-transform hover:scale-[1.03] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--figaro-primary)] sm:bottom-6 sm:right-6"
+    >
+      <IconeWhatsapp size={22} strokeWidth={2.4} />
+      <span>Falar no WhatsApp</span>
+    </a>
   );
 }
