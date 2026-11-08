@@ -1,5 +1,6 @@
 /** Oportunidades determinísticas, usando apenas visitas finalizadas e o prazo oficial de retorno. */
 import { dataDeRetorno, estaNaHoraDeVoltar, DIA_MS, PRAZO_GERAL_DIAS } from "@/lib/retorno";
+import { STATUS_QUE_OCUPAM } from "@/lib/disponibilidade";
 
 export type ClienteDoCRM = { id: string; nome: string };
 export type AtendimentoConcluidoCRM = {
@@ -32,7 +33,7 @@ export type ResultadoOportunidadesCRM = {
   criterio: string;
 };
 
-const ATIVOS = new Set(["agendado", "chegou", "na_cadeira"]);
+const ATIVOS = new Set<string>(STATUS_QUE_OCUPAM.filter((status) => status !== "finalizado"));
 
 /**
  * A fila é só uma sugestão de acompanhamento, sem mensagens automáticas.

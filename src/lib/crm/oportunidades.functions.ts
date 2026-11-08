@@ -3,6 +3,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { tenantIdDoMembro, exigirPermissao } from "@/lib/tenant";
 import { exigirRecurso } from "@/lib/planos";
+import { STATUS_QUE_OCUPAM } from "@/lib/disponibilidade";
 import { calcularOportunidadesCRM, type ClienteDoCRM, type AtendimentoConcluidoCRM, type HorarioFuturoCRM } from "./oportunidades";
 
 const LOTE = 500;
@@ -65,7 +66,7 @@ export const getOportunidadesCRM = createServerFn({ method: "GET" })
         const { data, error } = await db.from("agendamentos")
           .select("id, cliente_id, inicio, status")
           .eq("tenant_id", tenantId)
-          .in("status", ["agendado", "chegou", "na_cadeira"])
+          .in("status", STATUS_QUE_OCUPAM.filter((status) => status !== "finalizado"))
           .gt("inicio", agora.toISOString())
           .order("id")
           .range(pagina * LOTE, (pagina + 1) * LOTE - 1);
