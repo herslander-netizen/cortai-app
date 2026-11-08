@@ -584,6 +584,7 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - 2026-10-26: **Cabeçalho do menu mobile mais compacto** (dono aprovou a reformulação após captura: logo menor, nome do negócio com hierarquia discreta, papel secundário, ajustes alinhados e menos espaço vazio; manter nome em até duas linhas quando necessário, sem afetar a Agenda).
 
 ## Em andamento
+- GPT | 2026-11-08 09:28 BRT | **Corrigir saudação fragmentada no WhatsApp (imagem teste01):** erro real `Oi` + `Bom dia` juntados em um turno produziu `flow_bot_rastro.motivo=sem_regra`, depois contingência. Corrigir apenas o reconhecimento puro em `src/lib/flow-bot/decisao.ts`, teste em `src/lib/flow-bot/decisao.test.ts` e DIARIO.md. Não tocar em `src/lib/whatsapp/*`, que segue reservado pela Claude, nem em banco/produção/main.
 
 
 
