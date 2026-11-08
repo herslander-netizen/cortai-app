@@ -579,6 +579,7 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - 2026-10-26: **Cabeçalho do menu mobile mais compacto** (dono aprovou a reformulação após captura: logo menor, nome do negócio com hierarquia discreta, papel secundário, ajustes alinhados e menos espaço vazio; manter nome em até duas linhas quando necessário, sem afetar a Agenda).
 
 ## Em andamento
+- GPT | 2026-11-08 UTC | **PR 32 — adaptar correções UX ao editor oficial:** preservar rota Figaro e funções atuais; avisos de edição, descarte local/salvo com confirmação, restauração segura como rascunho, testes e mobile. Apenas branch `cloudflare-workers-migration-2026-10-13`; sem merge na `main`, sem banco/segredos/produção. Arquivos: `src/routes/barbeiro.marca.index.tsx`, `src/components/marca/editor/{PaineisDoEditor,useEditorDaPagina,estadoDoEditor}*`, `src/lib/marca.functions.ts` e testes pertinentes; `DIARIO.md`.
 - GPT | 2026-11-08 UTC | **Personalizar Página — correções adaptadas do PR 32 à prévia oficial:** faixa de estado visível, descarte de edição local/rascunho salvo com confirmação, restauração segura e erro, prévia única em mobile, testes de estados e comportamento. Só branch `cloudflare-workers-migration-2026-10-13` (não editar PR32/main), sem banco, migração ou publicação principal | `src/routes/barbeiro.marca.index.tsx`, `src/components/marca/editor/{PaineisDoEditor,useEditorDaPagina,estadoDoEditor}*`, `src/lib/marca.functions.ts` e testes direcionados.
 
 
