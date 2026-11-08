@@ -68,6 +68,25 @@ export function motivoParaNaoAtender(p: {
 }
 
 /**
+ * O botão 1 do menu padrão da Evolution é "agendar aqui" e não "enviar link".
+ * Só vale quando o próprio Flow Bot está esperando uma escolha no menu atual:
+ * um "1" solto, vindo de outro contexto ou depois do timeout, não inicia reserva.
+ */
+export function opcaoDeAgendarNoMenuPadrao(
+  texto: string,
+  sessao: { status?: unknown; cursor?: unknown; prazo?: unknown } | null | undefined,
+  agora: number,
+): boolean {
+  return (
+    texto.trim() === "1" &&
+    sessao?.status === "waiting_input" &&
+    sessao.cursor === "espera-menu" &&
+    typeof sessao.prazo === "number" &&
+    sessao.prazo > agora
+  );
+}
+
+/**
  * Nenhum assunto do fluxo reconheceu a mensagem: o motor só entrou pela entrada genérica (`trigger.message_received`,
  * a saudação com menu). Regra 7 do fluxo cooperativo (dono, 04/11): sem regra não é erro, a Flow IA assume o turno e
  * nenhum menu genérico vai antes dela. Ex.: "Quero remarcar meu horário", "Quero cancelar", "Obrigado".
