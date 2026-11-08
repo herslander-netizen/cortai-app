@@ -143,10 +143,30 @@ describe("agendar na conversa", () => {
       ["agendar corte amanhã às 10h", "Maria Souza", "sim"],
       portas,
     );
-    expect(respostas[0]![0]).toBe("Para concluir, qual é o seu nome?");
+    expect(respostas[0]![0]).toContain("nome e sobrenome");
     expect(respostas[1]![0]).toContain("Confira seu agendamento");
     expect(respostas[2]![0]).toMatch(/^✅ \*Agendamento confirmado, Maria!\*/);
     expect(gravados[0]?.dados).toMatchObject({ nomeCliente: "Maria Souza" });
+  });
+
+  it("cliente novo não segue com primeiro nome isolado nem grava antes da confirmação", async () => {
+    const { portas, gravados } = portasFalsas({
+      cliente: null,
+      equipe: [{ id: "p-ze", nome: "Zé" }],
+      livres: { "2026-11-07": LIVRES_SABADO },
+    });
+    const inicio = await conduzir("agendar corte amanhã às 10h", null, portas);
+    expect(inicio?.estado?.etapa).toBe("nome");
+    const incompleto = await conduzir("Ana", inicio!.estado, portas);
+    expect(incompleto?.estado?.etapa).toBe("nome");
+    expect(incompleto?.textos[0]).toContain("nome e sobrenome");
+    expect(gravados).toHaveLength(0);
+    const completo = await conduzir("Meu nome é Ana de Souza", incompleto!.estado, portas);
+    expect(completo?.estado?.etapa).toBe("confirmar");
+    expect(gravados).toHaveLength(0);
+    const confirmado = await conduzir("sim", completo!.estado, portas);
+    expect(confirmado?.textos[0]).toContain("Agendamento confirmado");
+    expect(gravados).toEqual([{ tipo: "criar", dados: expect.objectContaining({ nomeCliente: "Ana de Souza" }) }]);
   });
 
   it("SIM repetido após reserva existente não cria agendamento duplicado", async () => {
