@@ -1,6 +1,8 @@
 /** Gateway interno de IA do Flow. Só usa provedor compatível configurado no servidor. */
 
 import type { Canal } from "./acoes.server";
+import { chamarRoteadorHibrido, FalhaHibrida, roteadorHibridoLigado } from "./gateway-hibrido.server";
+import type { ClasseDeDados, LimitadorHibridoDistribuido, TarefaFlow } from "./roteador-hibrido";
 import { modoBasicoLigado, planejarModoBasico } from "./modo-basico";
 import {
   chamarCompativel,
@@ -173,6 +175,13 @@ export function criarSessaoDoGateway(opcoes?: {
   /** Capacidades especializadas podem exigir o provedor real, sem resposta por regras. */
   usarModoBasico?: boolean;
   aoChamar?: (e: EventoDeChamada) => void;
+  /** Fase 2: injetar SOMENTE um limitador distribuído real. Sem ele o modo híbrido não faz chamadas. */
+  limitadorHibrido?: LimitadorHibridoDistribuido;
+  /** Fail-closed: sem classificação explícita, toda mensagem contém dados pessoais. */
+  dadosHibridos?: ClasseDeDados;
+  tarefaHibrida?: TarefaFlow;
+  idempotenciaHibrida?: string;
+  anonimizadoVerificado?: boolean;
 }) {
   const avisar = (e: EventoDeChamada) => {
     try {
@@ -216,6 +225,34 @@ export function criarSessaoDoGateway(opcoes?: {
   };
 
   const pelaIA = async (input: EntradaDoPasso): Promise<ItemDeEntrada[]> => {
+    if (roteadorHibridoLigado()) {
+      try {
+        const r = await chamarRoteadorHibrido(input, {
+          canal: opcoes?.canal ?? "painel",
+          dados: opcoes?.dadosHibridos ?? "pessoal",
+          tarefa: opcoes?.tarefaHibrida ?? "conversa",
+          anonimizadoDeFormaVerificada: opcoes?.anonimizadoVerificado === true,
+          idempotencia: opcoes?.idempotenciaHibrida ?? "",
+          limitador: opcoes?.limitadorHibrido ?? null,
+          aoChamar: (e) => avisar({
+            provedor: e.provedor,
+            modelo: e.modelo,
+            latenciaMs: e.latenciaMs,
+            ok: e.ok,
+            ...(e.status !== undefined ? { httpStatus: e.status } : {}),
+            ...(e.uso ? { uso: e.uso } : {}),
+            ferramentas: e.itens ? resumo(e.itens).ferramentas : [],
+            geroutexto: e.itens ? resumo(e.itens).geroutexto : false,
+          }),
+        });
+        return r.itens;
+      } catch (erro) {
+        const status = erro instanceof FalhaHibrida ? erro.status : 502;
+        const provedor = erro instanceof FalhaHibrida ? erro.provedor : "hibrido";
+        throw new ErroDoGateway(status, mensagemSegura(status), provedor);
+      }
+    }
+
     const inicio = Date.now();
     const leitura = resolverProvedor(opcoes?.canal);
     if (!leitura.ok) {
