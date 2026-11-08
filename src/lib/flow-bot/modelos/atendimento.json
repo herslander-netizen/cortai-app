@@ -29,7 +29,7 @@
       "id": "servicos",
       "type": "message.text",
       "config": {
-        "text": "📋 *Serviços de {{reality.businessName}}:*\n{{reality.services}}\n\n_Para agendar por aqui, escreva *AGENDAR*._"
+        "text": "📋 *Serviços de {{reality.businessName}}:*\n{{reality.services}}\n\nPara agendar por aqui, escreva *AGENDAR*."
       }
     },
     {
