@@ -2,6 +2,7 @@ import { motion, useReducedMotion } from "framer-motion";
 import { ArrowRight, Sparkles } from "lucide-react";
 
 import { MarcaFlow } from "@/components/marca/MarcaFlow";
+import { MenuDeFuncionalidades } from "./MenuDeFuncionalidades";
 import { Button } from "@/components/ui/button";
 import { OndasDaEntrada } from "@/components/entrada/OndasDaEntrada";
 import { linkDeInteresseFlow } from "./whatsapp";
@@ -32,17 +33,11 @@ export function Cabecalho() {
   return (
     <header
       style={TEMA_ESCURO}
-      className="sticky top-0 z-30 bg-[var(--fundo)] text-[var(--texto)] shadow-[0_1px_0_var(--linha),0_10px_24px_-14px_rgba(0,0,0,0.6)]"
+      className="sticky top-0 z-50 bg-[var(--fundo)] text-[var(--texto)] shadow-[0_1px_0_var(--linha),0_10px_24px_-14px_rgba(0,0,0,0.6)]"
     >
       <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4">
         <MarcaFlow variante="clara" className="h-auto w-24" />
-        <nav className="flex items-center gap-2" aria-label="Contato">
-          <Button asChild variant="outline" size="sm">
-            <a href={linkDeInteresseFlow()} target="_blank" rel="noopener noreferrer">
-              Falar no WhatsApp
-            </a>
-          </Button>
-        </nav>
+        <MenuDeFuncionalidades />
       </div>
     </header>
   );
