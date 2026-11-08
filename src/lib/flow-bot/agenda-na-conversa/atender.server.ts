@@ -52,7 +52,9 @@ export async function atenderAgendaNaConversa(e: EntradaDaAgenda): Promise<boole
           ...(limparCerebro ? { cerebro: { pendente: null } } : {}),
         } as never,
       })
-      .eq("id", e.conversaId);
+      .eq("id", e.conversaId)
+      .eq("tenant_id", e.tenantId)
+      .select("id");
 
   if (!r) return null;
   const { registrarOcorrencia } = await import("@/lib/whatsapp/aprendizado.server");
@@ -107,7 +109,17 @@ export async function atenderAgendaNaConversa(e: EntradaDaAgenda): Promise<boole
   if (erroRastro?.code === "23505") return true;
   if (erroRastro) console.error("[agenda-na-conversa] rastro", erroRastro.message);
 
-  await gravarEstado(r.estado, true);
+  const { data: estadoGravado, error: erroEstado } = await gravarEstado(r.estado, true);
+  if (erroEstado || !estadoGravado?.length) {
+    // A conversa não pode avançar sem salvar a pergunta/etapa que o cliente responderá em seguida.
+    // Nunca devolver este turno ao menu antigo ou à IA: geraria duas respostas incoerentes.
+    console.error(
+      "[agenda-na-conversa] não persistiu etapa",
+      erroEstado?.message ?? "conversa não encontrada",
+    );
+    await ocorrencia("erro", "Não foi possível guardar a etapa do agendamento.");
+    return true;
+  }
 
   const { enviarPelaBarbearia } = await import("@/lib/whatsapp/fluxo.server");
   let enviou = 0;
@@ -131,5 +143,7 @@ export async function atenderAgendaNaConversa(e: EntradaDaAgenda): Promise<boole
   if (rastro && enviou === r.textos.length) {
     await db.from("flow_bot_rastro").update({ enviado: true }).eq("id", rastro.id);
   }
-  return enviou > 0;
+  // Uma vez que a agenda assumiu o turno, nenhuma outra automação deve responder por cima.
+  // Falha parcial/total de envio é registrada no rastro, mas não aciona o menu legado nem a IA.
+  return true;
 }
