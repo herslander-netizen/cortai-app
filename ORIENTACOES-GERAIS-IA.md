@@ -106,6 +106,7 @@ decisão do dono ou de um defeito real já corrigido.
       foto salva tem "Ajustar". Upload via `imagem.ts`/`enviar-foto.ts`.
 
 ### 4.4 Dados e estados
+- [ ] **Identidade sem homônimos:** em cadastro conversacional novo, pedir nome e sobrenome; nome parcial só busca, nunca identifica; com múltiplas fichas no mesmo telefone, não escolher uma automaticamente nem liberar consulta/escrita privada. Seleção final por ID validado e tenant, com verificação assistida quando necessário. Contrato: `docs/regra-identificacao-pessoas.md`.
 - [ ] Carregando: `Esqueleto*` com o formato da tela. Vazio: `EmptyState`. Erro: mensagem + tentar de novo.
 - [ ] **Nada aparece do nada:** enquanto um contexto novo carrega (outro dia, outra comanda), não mostrar dados do
       anterior; prévias e "vizinhos" usam **os mesmos dados e regras** da tela real.
