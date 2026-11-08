@@ -629,7 +629,7 @@ async function oferecerHorarios(
     );
     return { textos, estado: e };
   }
-  textos.push(semHorarioProximo(DIAS_DE_BUSCA, portas.link));
+  textos.push(semHorarioProximo(DIAS_DE_BUSCA));
   return { textos, estado: null };
 }
 
