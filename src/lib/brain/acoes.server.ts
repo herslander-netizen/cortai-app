@@ -13,6 +13,7 @@ import * as dominio from "@/lib/ia/acoes.server";
 import { origemDoCortai } from "@/lib/origem-agendamento";
 import { normalizarTelefone, variantesDoTelefone } from "@/lib/telefone";
 import { filtrarCandidatos, padraoDoBanco, termosDaBusca } from "./busca-cliente";
+import { clienteUnicoDoTelefone, nomeESobrenome } from "@/lib/nomes-pessoas";
 import type { ItemDeConferencia } from "./conferencia";
 import { consultarAjudaOperacional } from "./ajuda-operacional";
 import { execucaoDiretaLigada, POLITICA_DE_CONFIRMACAO } from "./execucao-direta";
@@ -96,15 +97,15 @@ const ATENDIMENTO: Canal[] = ["painel", "whatsapp"];
 async function clienteDoTelefone(ctx: ContextoDoCerebro) {
   if (!ctx.telefoneCliente) return null;
   const db = await admin();
-  const { data } = await db
+  const { data, error } = await db
     .from("clientes")
     .select("id, nome, telefone")
     .eq("tenant_id", ctx.tenantId)
     .in("telefone", variantesDoTelefone(ctx.telefoneCliente))
     .is("arquivado_em", null)
-    .limit(1)
-    .maybeSingle();
-  return data ?? null;
+    .limit(2);
+  if (error) throw new Error("Não foi possível verificar o cadastro deste telefone.");
+  return clienteUnicoDoTelefone(data ?? []);
 }
 
 async function clienteAlvo(ctx: ContextoDoCerebro, clienteId?: string | null) {
@@ -576,20 +577,20 @@ export const ACOES: Record<string, Definicao> = {
     executar: async (ctx, d) => {
       if (ehCliente(ctx)) return clienteDoTelefone(ctx);
       const db = await admin();
-      const { data } = await db
+      const { data, error } = await db
         .from("clientes")
         .select("id, nome, telefone")
         .eq("tenant_id", ctx.tenantId)
         .in("telefone", variantesDoTelefone(String(d.telefone ?? "")))
         .is("arquivado_em", null)
-        .limit(1)
-        .maybeSingle();
-      return data ?? null;
+        .limit(2);
+      if (error) throw new Error("Não foi possível verificar o cadastro deste telefone.");
+      return clienteUnicoDoTelefone(data ?? []);
     },
   },
   buscar_cliente_por_nome: {
     descricao:
-      "Procura clientes do negócio pelo NOME (como a pessoa falou). Devolve até 6 candidatos com id, nome e final do telefone. Se vier mais de um, pergunte qual; se nenhum, pergunte se deve cadastrar.",
+      "Procura clientes do negócio pelo nome e sobrenome. Devolve até 6 candidatos com id, nome e final do telefone. Só o primeiro nome não confirma identidade; se houver mais de um, peça escolha explícita por ID e detalhe; nunca escolha pelo primeiro nome.",
     parametros: obj({ nome: { type: "string" } }, ["nome"]),
     risco: "leitura",
     // Só painel; a equipe no WhatsApp entra por `papeis`. Cliente e site nunca (listaria outros clientes).
@@ -922,8 +923,8 @@ export const ACOES: Record<string, Definicao> = {
         const proprio = await clienteDoTelefone(ctx);
         if (proprio) clienteId = proprio.id;
         else {
-          const nome = String(d.nomeCliente ?? "").trim();
-          if (nome.length < 2) throw new Error("Preciso do nome do cliente para agendar.");
+          const nome = nomeESobrenome(String(d.nomeCliente ?? ""));
+          if (!nome) throw new Error("Para cadastrar e agendar, informe nome e sobrenome do cliente.");
           const novo = (await dominio.registrarCliente(agenteDe(ctx), {
             nome,
             telefone: normalizarTelefone(ctx.telefoneCliente),
