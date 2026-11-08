@@ -28,16 +28,10 @@ export async function atenderAgendaNaConversa(e: EntradaDaAgenda): Promise<boole
   const agora = new Date(e.agora);
   const anterior = estadoValido(contexto["agenda"], agora);
 
-  const { data: tenant } = await db
-    .from("tenants")
-    .select("slug")
-    .eq("id", e.tenantId)
-    .maybeSingle();
   const { portasDoNegocio } = await import("./portas.server");
   const portas = await portasDoNegocio({
     tenantId: e.tenantId,
     telefone: e.telefone,
-    slug: (tenant as { slug?: string } | null)?.slug ?? null,
     agora,
   });
   const r = await conduzir(e.texto, anterior, { ...portas, viaAudio: e.viaAudio === true });
