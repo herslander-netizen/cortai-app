@@ -102,8 +102,7 @@ export async function responderComFlowBot(input: EntradaDoBot): Promise<boolean>
   // A opção 1 só é interceptada quando o menu PADRÃO está realmente esperando uma escolha.
   if (config.modo === "ligado") {
     const { estadoValido } = await import("./agenda-na-conversa/conduzir");
-    const contexto = ((conversa as { contexto?: Record<string, unknown> } | null)?.contexto ??
-      {}) as Record<string, unknown>;
+    const contexto = (conversa?.contexto ?? {}) as Record<string, unknown>;
     const agendaAtiva = estadoValido(contexto["agenda"], new Date(agora)) !== null;
     const { data: escolhaDoMenu, error: erroMenu } =
       !agendaAtiva && config.versaoPublicada === null && input.texto.trim() === "1"
