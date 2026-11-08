@@ -1,7 +1,6 @@
 import type { ConteudoApresentacao } from "@/lib/apresentacao-conteudo";
-import { AcessoDaPagina } from "./acesso";
 import { Capitulos } from "./Capitulos";
-import { BarraDoCelular, ChamadaFinal, FaixaDeFotos, Perguntas, Planos } from "./Fechamento";
+import { BotaoFlutuanteWhatsApp, ChamadaFinal, FaixaDeFotos, Perguntas, Planos } from "./Fechamento";
 import { OfertaGratis } from "./OfertaGratis";
 import { TEMA_CLARO } from "./tema";
 import { Cabecalho, Heroi } from "./Topo";
@@ -9,8 +8,7 @@ import { Cabecalho, Heroi } from "./Topo";
 /** Página pública promocional do Flow (antes do login): claro, escuro, claro… com telas animadas do produto. */
 export function Landing({ conteudo }: { conteudo: ConteudoApresentacao }) {
   return (
-    <AcessoDaPagina>
-      <div style={TEMA_CLARO} className="light min-h-dvh bg-[var(--fundo)] text-[var(--texto)]">
+    <div style={TEMA_CLARO} className="light min-h-dvh bg-[var(--fundo)] text-[var(--texto)]">
         <Cabecalho />
         <main>
           <Heroi conteudo={conteudo.hero} />
@@ -21,8 +19,7 @@ export function Landing({ conteudo }: { conteudo: ConteudoApresentacao }) {
           <Perguntas bloco={conteudo.duvidas} perguntas={conteudo.perguntas} />
           <ChamadaFinal conteudo={conteudo.final} />
         </main>
-        <BarraDoCelular />
-      </div>
-    </AcessoDaPagina>
+        <BotaoFlutuanteWhatsApp />
+    </div>
   );
 }
