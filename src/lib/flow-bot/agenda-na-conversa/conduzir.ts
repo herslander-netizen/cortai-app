@@ -58,7 +58,6 @@ export type Portas = {
   viaAudio?: boolean;
   fuso: string;
   agora: Date;
-  link: string | null;
   servicos(): Promise<Servico[]>;
   profissionais(servicoId: string): Promise<Profissional[]>;
   livres(dia: string, servicoId: string, profissionalId: string | null): Promise<Livre[]>;
