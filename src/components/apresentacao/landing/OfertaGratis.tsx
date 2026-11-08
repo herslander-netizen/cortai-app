@@ -1,10 +1,9 @@
-import { Link } from "@tanstack/react-router";
 import { motion, useReducedMotion } from "framer-motion";
 import { ArrowRight, Check } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { PLANOS_COMERCIAIS } from "@/lib/planos-comerciais";
-import { useAcesso } from "./acesso";
+import { linkDeInteresseFlow } from "./whatsapp";
 import { DivisorDeOndas } from "./Ondas";
 import { Revelar } from "./Revelar";
 
@@ -14,7 +13,6 @@ const LIMITE = essencial.agendamentosMes ?? 50;
 /** Faixa em destaque com a oferta: o plano Essencial grátis, com a barra dos agendamentos do mês enchendo. */
 export function OfertaGratis() {
   const reduzir = useReducedMotion();
-  const { comecar } = useAcesso();
   return (
     <section className="relative bg-[var(--painel)] px-4 py-14 sm:py-20">
       <DivisorDeOndas />
@@ -53,9 +51,9 @@ export function OfertaGratis() {
                 variant="secondary"
                 className="mt-7 w-full bg-white text-[#1b2687] hover:bg-white/90 sm:w-auto"
               >
-                <Link to={comecar.to}>
-                  {comecar.texto ?? "Quero começar grátis"} <ArrowRight className="ml-2 size-4" />
-                </Link>
+                <a href={linkDeInteresseFlow("Essencial")} target="_blank" rel="noopener noreferrer">
+                  Quero saber mais <ArrowRight className="ml-2 size-4" />
+                </a>
               </Button>
             </div>
             <div className="rounded-[24px] bg-white/14 p-5 backdrop-blur-sm ring-1 ring-white/25">
