@@ -43,8 +43,9 @@ export function FaixaDeFotos() {
 export function Planos({ conteudo }: { conteudo: ConteudoApresentacao["planos"] }) {
   return (
     <section
+      id="planos"
       style={TEMA_CLARO}
-      className="relative bg-[var(--painel)] px-4 py-16 text-[var(--texto)] sm:py-24"
+      className="relative scroll-mt-20 bg-[var(--painel)] px-4 py-16 text-[var(--texto)] sm:py-24"
     >
       <DivisorDeOndas />
       <Revelar className="mx-auto max-w-4xl text-center">
@@ -128,8 +129,9 @@ export function Perguntas({
 }) {
   return (
     <section
+      id="perguntas"
       style={TEMA_ESCURO}
-      className="relative bg-[var(--fundo)] px-4 py-16 text-[var(--texto)] sm:py-24"
+      className="relative scroll-mt-20 bg-[var(--fundo)] px-4 py-16 text-[var(--texto)] sm:py-24"
     >
       <DivisorDeOndas />
       <OndasDaEntrada className="absolute inset-0 z-0 h-full w-full opacity-70" />
