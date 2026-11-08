@@ -27,6 +27,7 @@ e o que fez. O diário até 17/10/2026 está guardado, sem alterações, em
 7. **Sem segredos:** nunca escreva chaves, senhas ou tokens aqui. Cite só o nome da variável.
 
 ## Decisões do dono
+- 2026-11-08: **Compartilhamento do Flow (título/descrição SEO):** o cartão deve comunicar primeiro valor, sem travessão depois de Flow, sem repetir “agenda online” depois de “agenda cheia” e sem usar “grátis” no título ou na descrição. Texto aprovado: “Flow. Sua agenda cheia, seu negócio crescendo.” Descrição: “Organize seus clientes, serviços e finanças em um só lugar. Automatize lembretes pelo WhatsApp e tenha mais tempo para cuidar do seu negócio.” Preservar `capa-social-flow-v3.jpg`; preço e gratuidade podem continuar nas áreas comerciais próprias, não na prévia. Metatags de rede social sem Markdown/emojis.
 - 2026-11-08: **Padrão de mensagens WhatsApp do Flow:** comunicação objetiva e humanizada, uso seletivo de negrito/itálico/emojis/listas e tachado apenas após mudança efetiva. Cada ação de agenda deve encerrar com comprovante de resultado, sem reabrir menu ou criar duplicidades; mídias como stickers não são enviadas automaticamente. Canon: `docs/padrao-atendimento-whatsapp.md`.
 - 2026-11-08: **Agendamento integral pelo WhatsApp:** ao entrar em contato e escolher a opção 1, o cliente deve selecionar serviço, profissional, data/horário e confirmar a reserva na conversa; site é alternativa opcional, nunca etapa obrigatória. Reutilizar agenda-na-conversa e disponibilidade/ações oficiais. Este ajuste do fluxo é só da prévia até lançamento autorizado.
 - 2026-11-08: **Posse humana por conversa no WhatsApp:** se profissional envia mensagem manualmente pelo celular, o Flow deve silenciar bot e IA para aquele cliente sem desligar as demais conversas; padrão de pausa 2 horas, renovado por intervenção humana, com retomada controlada e proteção contra respostas simultâneas. Implementar respeitando reservas do sender/webhook e sem publicar produção.
@@ -586,7 +587,6 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - 2026-10-26: **Cabeçalho do menu mobile mais compacto** (dono aprovou a reformulação após captura: logo menor, nome do negócio com hierarquia discreta, papel secundário, ajustes alinhados e menos espaço vazio; manter nome em até duas linhas quando necessário, sem afetar a Agenda).
 
 ## Em andamento
-- GPT | 2026-11-08 BRT | **SEO da apresentação do Flow:** atualizar exclusivamente título e descrição de compartilhamento da apresentação, sem travessão, redundância ou preço no destaque; manter imagem oficial e sem alterar banco, Agenda ou site principal | `src/lib/apresentacao-conteudo.ts`, `src/lib/apresentacao-conteudo.test.ts`; sem migração
 - GPT | 2026-11-08 11:50 BRT | **Nome e sobrenome nos fluxos:** corrigir identificação ambígua no WhatsApp, Flow Bot e consultas do painel; adicionar regra pura e testes, documentar limitações; somente branch oficial, sem sender/webhook reservado pela Claude, Agenda visual, banco, main ou produção | `src/lib/nomes-pessoas.ts`, `src/lib/flow-bot/agenda-na-conversa/*`, `src/lib/brain/busca-cliente.ts`, testes, documentação; sem migração
 
 
@@ -1022,6 +1022,13 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+### 2026-11-08 UTC — GPT — Prévia social do Flow sem redundância nem promoção no título
+- Pedido expresso do dono: retirar travessão após “Flow”, evitar o par “agenda cheia / agenda online” e não colocar “grátis” como destaque do cartão compartilhado no WhatsApp/Instagram.
+- Alterado exclusivamente o padrão SEO em `src/lib/apresentacao-conteudo.ts` e teste em `src/lib/apresentacao-conteudo.test.ts` (commit `1ff32b5`); preservada a imagem `capa-social-flow-v3.jpg`. Novo título 46 caracteres e descrição 141, ambos abaixo dos limites de validação.
+- Conferência somente leitura: no Supabase `cortai-preview`, a Home publicada não tem apresentação/SEO personalizado que sobrescreva o padrão. Nenhuma escrita em banco.
+- CI `42494940140` concluído com sucesso: build, TypeScript, testes, deploy e smoke test. Cloudflare Pages confirmou deploy de `1ff32b5` no ambiente preview. Revisão visual do cartão em Instagram/WhatsApp ainda depende do cache de cada plataforma; não afirmar atualização imediata de cache.
+- Sem alteração da Agenda, WhatsApp, site principal ou `main`; reserva desta tarefa encerrada.
+
 ### 2026-11-08 UTC — GPT — Reaproveitamento do AutoResponder WA como referência de regras do Flow Bot
 - O dono lembrou do AutoResponder usado antes. Recuperei o dossiê de engenharia reversa estática AutoResponder WA 5.3.2 do material previamente enviado e comparei com contratos/runtime atuais do Flow Bot.
 - Resultado: grande parte já existe; não instalar APK, não criar bot paralelo. Mapa de recursos e lacunas registrado em `docs/flow-bot/referencia-autoresponder-wa.md` (commit `58ff3e7`). Riscos prioritários continuam o claim transacional antes de agendar/cancelar, reconciliação da mensagem final e sender sob posse humana.
