@@ -586,6 +586,7 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - 2026-10-26: **Cabeçalho do menu mobile mais compacto** (dono aprovou a reformulação após captura: logo menor, nome do negócio com hierarquia discreta, papel secundário, ajustes alinhados e menos espaço vazio; manter nome em até duas linhas quando necessário, sem afetar a Agenda).
 
 ## Em andamento
+- GPT | 2026-11-08 11:27 BRT | **Comparar AutoResponder WA ao Flow Bot para resolver pendências críticas sem criar motor paralelo:** ler dossiê anterior de engenharia reversa, mapear regras já suportadas vs faltantes, criar somente `docs/flow-bot/referencia-autoresponder-wa.md`, deixar recado à Claude com integração segura. Não alterar código, sender, bancos, main ou produção enquanto a reserva do WhatsApp continua ativa; testes/deploy ainda bloqueados.
 
 
 
