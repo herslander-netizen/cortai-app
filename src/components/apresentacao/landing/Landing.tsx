@@ -1,5 +1,6 @@
 import type { ConteudoApresentacao } from "@/lib/apresentacao-conteudo";
 import { Capitulos } from "./Capitulos";
+import { CatalogoPublico } from "./CatalogoPublico";
 import { BotaoFlutuanteWhatsApp, ChamadaFinal, FaixaDeFotos, Perguntas, Planos } from "./Fechamento";
 import { OfertaGratis } from "./OfertaGratis";
 import { TEMA_CLARO } from "./tema";
@@ -14,7 +15,10 @@ export function Landing({ conteudo }: { conteudo: ConteudoApresentacao }) {
         <Heroi conteudo={conteudo.hero} />
         <OfertaGratis />
         <FaixaDeFotos />
-        <Capitulos />
+        <div id="como-funciona" className="scroll-mt-20">
+          <Capitulos />
+        </div>
+        <CatalogoPublico />
         <Planos conteudo={conteudo.planos} />
         <Perguntas bloco={conteudo.duvidas} perguntas={conteudo.perguntas} />
         <ChamadaFinal conteudo={conteudo.final} />
