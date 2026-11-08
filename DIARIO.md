@@ -579,6 +579,7 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - 2026-10-26: **Cabeçalho do menu mobile mais compacto** (dono aprovou a reformulação após captura: logo menor, nome do negócio com hierarquia discreta, papel secundário, ajustes alinhados e menos espaço vazio; manter nome em até duas linhas quando necessário, sem afetar a Agenda).
 
 ## Em andamento
+- GPT | 2026-11-08 UTC | **Flow Core Fase 2 — roteamento híbrido gratuito, DESLIGADO por padrão:** política de privacidade e elegibilidade, seleção com reserva obrigatória de cota distribuída e testes; integração mínima ao gateway oficial sem configurar provedor real ou tocar banco/segredos/produção. Arquivos: `src/lib/brain/roteador-hibrido.ts`, `roteador-hibrido.test.ts`, `gateway.server.ts`, `gateway-despacho.test.ts`, documentação técnica. Sem migração.
 
 
 
