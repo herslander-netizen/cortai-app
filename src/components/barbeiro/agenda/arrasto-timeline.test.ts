@@ -249,14 +249,13 @@ describe("alça de duração na Timeline", () => {
     vi.useRealTimers();
     expect(onEditar).toHaveBeenCalledTimes(1);
   });
-  it("com a edição aberta, deslizar sem segurar ajusta só a duração", () => {
+  it("deslizar no CORPO do cartão em edição não altera nem início nem duração", () => {
     vi.useFakeTimers();
     const onEditar = vi.fn();
     const onMover = vi.fn();
     const onRedimensionar = vi.fn();
-    const onSelecionar = vi.fn();
     const alvo = montar({
-      onMover, onRedimensionar, onEditar, onSelecionar,
+      onMover, onRedimensionar, onEditar,
       edicaoDoCartao: { id: "a1", original: { inicio: item.inicio, fim: item.fim } },
     });
     const bloco = alvo.querySelector<HTMLElement>("[aria-pressed]")!;
@@ -267,24 +266,56 @@ describe("alça de duração na Timeline", () => {
       vi.advanceTimersByTime(100);
       bloco.dispatchEvent(evento("pointermove", 260, { pointerType: "touch" }));
       bloco.dispatchEvent(evento("pointerup", 260, { pointerType: "touch" }));
-      bloco.click();
       vi.advanceTimersByTime(400);
     });
     vi.useRealTimers();
-    expect(capturar).toHaveBeenCalledTimes(1);
+    // O deslize cancelou a pressão longa: nada captura ou move o cartão.
+    expect(capturar).not.toHaveBeenCalled();
     expect(onMover).not.toHaveBeenCalled();
+    expect(onRedimensionar).not.toHaveBeenCalled();
     expect(onEditar).not.toHaveBeenCalled();
-    expect(onSelecionar).not.toHaveBeenCalled();
-    expect(onRedimensionar).toHaveBeenCalledTimes(1);
-    const delta = onRedimensionar.mock.calls[0]?.[1] as number;
-    expect(delta).toBeGreaterThan(0);
-    expect(delta % 5).toBe(0);
     expect(bloco.hasAttribute("data-segurando-cartao")).toBe(false);
-    // A liberação do dedo encerra inteiramente o gesto: um move isolado não age.
     act(() => bloco.dispatchEvent(evento("pointermove", 310, { pointerType: "touch" })));
     expect(onMover).not.toHaveBeenCalled();
-    expect(onRedimensionar).toHaveBeenCalledTimes(1);
+    expect(onRedimensionar).not.toHaveBeenCalled();
   });
+
+  it("somente a ALÇA na borda inferior redimensiona sem pressão longa", () => {
+    const onMover = vi.fn();
+    const onRedimensionar = vi.fn();
+    const alvo = montar({
+      onMover, onRedimensionar,
+      edicaoDoCartao: { id: "a1", original: { inicio: item.inicio, fim: item.fim } },
+    });
+    const corpo = alvo.querySelector<HTMLElement>("[aria-pressed]")!;
+    const borda = alvo.querySelector<HTMLElement>('[role="separator"]')!;
+    expect(borda).not.toBeNull();
+    expect(borda.getAttribute("aria-label")).toMatch(/Esticar a duração/);
+    act(() => {
+      corpo.dispatchEvent(evento("pointerdown", 200, { pointerType: "touch" }));
+      corpo.dispatchEvent(evento("pointermove", 255, { pointerType: "touch" }));
+      corpo.dispatchEvent(evento("pointerup", 255, { pointerType: "touch" }));
+    });
+    expect(onMover).not.toHaveBeenCalled();
+    expect(onRedimensionar).not.toHaveBeenCalled();
+    act(() => {
+      borda.dispatchEvent(evento("pointerdown", 200, { pointerType: "touch" }));
+    });
+    const durante = new Event("touchmove", { bubbles: true, cancelable: true });
+    act(() => document.dispatchEvent(durante));
+    expect(durante.defaultPrevented).toBe(true);
+    act(() => {
+      borda.dispatchEvent(evento("pointermove", 255, { pointerType: "touch" }));
+      borda.dispatchEvent(evento("pointerup", 255, { pointerType: "touch" }));
+    });
+    const depois = new Event("touchmove", { bubbles: true, cancelable: true });
+    act(() => document.dispatchEvent(depois));
+    expect(depois.defaultPrevented).toBe(false);
+    expect(onMover).not.toHaveBeenCalled();
+    expect(onRedimensionar).toHaveBeenCalledTimes(1);
+    expect(onRedimensionar.mock.calls[0]?.[1] as number).toBeGreaterThan(0);
+  });
+
   it("em edição, segurar novamente por 300 ms e manter o dedo permite mover", () => {
     vi.useFakeTimers();
     const onMover = vi.fn();
@@ -311,7 +342,7 @@ describe("alça de duração na Timeline", () => {
     expect(onRedimensionar).not.toHaveBeenCalled();
     expect(bloco.hasAttribute("data-segurando-cartao")).toBe(false);
   });
-  it("segurar e soltar NÃO deixa arrasto armado no deslize seguinte", () => {
+  it("soltar encerra o arrasto e o swipe seguinte no corpo NÃO redimensiona", () => {
     vi.useFakeTimers();
     const onMover = vi.fn();
     const onRedimensionar = vi.fn();
@@ -334,9 +365,9 @@ describe("alça de duração na Timeline", () => {
     });
     vi.useRealTimers();
     expect(onMover).not.toHaveBeenCalled();
-    expect(onRedimensionar).toHaveBeenCalledTimes(1);
+    expect(onRedimensionar).not.toHaveBeenCalled();
   });
-  it("cancelar um redimensionamento descarta a mudança", () => {
+  it("cancelar gesto pelo corpo não move nem redimensiona", () => {
     const onMover = vi.fn();
     const onRedimensionar = vi.fn();
     const alvo = montar({

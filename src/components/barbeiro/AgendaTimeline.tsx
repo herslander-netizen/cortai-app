@@ -225,9 +225,6 @@ function AgendaTimelineBase({
     pointerY: number;
     alvo: HTMLElement;
     ativo: boolean;
-    /** Ao editar: deslize muda duração; segurar novamente permite mover. */
-    redimensionando?: boolean;
-    redimensionou?: boolean;
     timer?: number;
     arrastou: boolean;
     longo?: boolean;
@@ -244,6 +241,8 @@ function AgendaTimelineBase({
   const pxPorMinutoRef = useRef(PX_POR_MINUTO);
   pxPorMinutoRef.current = PX_POR_MINUTO;
   const bloqueio = useRef<ReturnType<typeof criarBloqueioDeRolagem> | null>(null);
+  /** O gesto da borda possui um ponteiro próprio e precisa travar a rolagem enquanto ativo. */
+  const alcaAtiva = useRef(false);
   useEffect(
     () =>
       aoCorrigirRolagemDoZoom((destino, delta) => {
@@ -258,7 +257,7 @@ function AgendaTimelineBase({
   );
   function travarRolagemDoToque() {
     bloqueio.current ??= criarBloqueioDeRolagem(
-      () => Boolean(gesto.current?.ativo || gesto.current?.redimensionando) ||
+      () => Boolean(gesto.current?.ativo || alcaAtiva.current) ||
         document.querySelector(".agenda-arrastando") !== null,
     );
     bloqueio.current.travar();
@@ -638,7 +637,6 @@ function AgendaTimelineBase({
       pointerY: e.clientY,
       alvo,
       ativo: e.pointerType === "mouse",
-      redimensionando: Boolean(cartaoArmado && onRedimensionar),
       arrastou: false,
       rolagem0: celularAgora() ? window.scrollY : (rolagemRef.current?.scrollTop ?? 0),
       dy: 0,
@@ -647,18 +645,15 @@ function AgendaTimelineBase({
     gesto.current = g;
 
     if (cartaoArmado) {
-      // Edição aberta não mantém o cartão solto para mover:
-      // deslizar ajusta a duração, segurar de novo por 300 ms move o início.
-      try {
-        alvo.setPointerCapture(pid);
-      } catch {
-        gesto.current = null;
-        return;
-      }
-      if (g.redimensionando) travarRolagemDoToque();
+      // Somente a alça da BORDA INFERIOR altera a duração. No corpo, deslizar
+      // não redimensiona e não move; a pressão longa contínua move o início.
       g.timer = window.setTimeout(() => {
-        if (gesto.current !== g || multitoque.current || g.redimensionou) return;
-        g.redimensionando = false;
+        if (gesto.current !== g || multitoque.current) return;
+        try {
+          alvo.setPointerCapture(pid);
+        } catch {
+          return;
+        }
         g.longo = true;
         g.ativo = true;
         g.ativadoEm = performance.now();
@@ -761,33 +756,9 @@ function AgendaTimelineBase({
     const rolagemAtual = celular ? window.scrollY : (area?.scrollTop ?? 0);
     const dy = e.clientY - g.y0 + (g.longo && !g.arrastou ? 0 : rolagemAtual - g.rolagem0);
 
-    if (g.redimensionando) {
-      // Ao deslizar, cancelar a chance de converter a ação em arrasto.
-      if (!g.redimensionou && Math.abs(dy) < 5) {
-        if (Math.abs(e.clientX - g.x0) > 10) window.clearTimeout(g.timer);
-        return;
-      }
-      g.redimensionou = true;
-      window.clearTimeout(g.timer);
-      const limites = limitesDaAlca(
-        minutosNoFuso(item.inicio, fuso), minutosNoFuso(item.fim, fuso), passo,
-      );
-      g.dy = Math.max(
-        limites.min * pxPorMinutoRef.current,
-        Math.min(limites.max * pxPorMinutoRef.current, dy),
-      );
-      e.preventDefault();
-      const passoAtual = Math.round(g.dy / pxPorMinutoRef.current / passo);
-      if (ultimoPassoDaAlca.current !== passoAtual) {
-        ultimoPassoDaAlca.current = passoAtual;
-        setRedim({ id: g.id, dy: g.dy });
-      }
-      return;
-    }
-
     if (!g.ativo) {
-      // Antes de confirmar o toque longo, deslocamento cancela o gesto.
-      // Depois de confirmado, el usuario puede continuar rolando; a edição arma ao soltar.
+      // Antes de confirmar o toque longo, deslizar apenas cancela a tentativa
+      // de mover; não ajusta a duração (isso é exclusivo da alça inferior).
       if (!g.longo && (Math.abs(e.clientY - g.y0) > 10 || Math.abs(e.clientX - g.x0) > 10)) {
         window.clearTimeout(g.timer);
         gesto.current = null;
@@ -837,24 +808,6 @@ function AgendaTimelineBase({
     const dy = g.id === item.id ? g.dy : 0;
     ultimoPassoDoArrasto.current = null;
     setArrasto(null);
-    if (g.redimensionando) {
-      ultimoPassoDaAlca.current = null;
-      setRedim(null);
-      if (!g.redimensionou) return;
-      ignorarClique.current = true;
-      const limites = limitesDaAlca(
-        minutosNoFuso(item.inicio, fuso), minutosNoFuso(item.fim, fuso), passo,
-      );
-      const delta = Math.max(
-        limites.min,
-        Math.min(limites.max, Math.round(g.dy / pxPorMinutoRef.current / passo) * passo),
-      );
-      if (delta !== 0) {
-        navigator.vibrate?.(18);
-        onRedimensionar?.(item, delta);
-      }
-      return;
-    }
     if (!g.arrastou) {
       if (g.longo) {
         ignorarClique.current = true;
@@ -1511,8 +1464,14 @@ function AgendaTimelineBase({
                     lerRolagem={() =>
                       celularAgora() ? window.scrollY : (rolagemRef.current?.scrollTop ?? 0)
                     }
-                    onTravar={travarRolagemDoToque}
-                    onSoltar={soltarRolagemDoToque}
+                    onTravar={() => {
+                      alcaAtiva.current = true;
+                      travarRolagemDoToque();
+                    }}
+                    onSoltar={() => {
+                      alcaAtiva.current = false;
+                      soltarRolagemDoToque();
+                    }}
                     onArrastar={(dy) => {
                       if (dy === null) {
                         ultimoPassoDaAlca.current = null;
