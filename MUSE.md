@@ -17,6 +17,7 @@ A estrutura foi pensada para só gerar custo quando houver clientes.
 | Banco de produção | Supabase `cortai-prod` (`ibsberidejlbczxrweqg`); teste de permissões `supabase/tests/rbac.sql` |
 | Banco da prévia | Supabase de teste `cortai-preview` (projeto `pfkxvindedkuktogbcsv`, região São Paulo); secrets `PREVIEW_SUPABASE_URL`, `PREVIEW_SUPABASE_PUBLISHABLE_KEY` e `PREVIEW_SUPABASE_SERVICE_ROLE_KEY` cadastrados e validados pelo workflow em 2026-10-19 |
 | IA | Gateway próprio: provedor compatível primário (`CORTAI_AI_*`) e fallback técnico opcional (`CORTAI_AI_FALLBACK_*`); sem configuração, fica indisponível |
+| Flow Core Fase 3 | Limitador global de cotas em `infra/flow-ai-quota/` com Durable Object SQLite; **código validado, Worker remoto NÃO implantado e binding `FLOW_AI_COTAS` NÃO configurado; `CORTAI_AI_HIBRIDO` desligado**. Ver `docs/flow-inteligencia/16-limitador-global-duravel.md` |
 | Voz | Navegador (grátis) ou provedor de transcrição (`CORTAI_STT_*`) |
 | WhatsApp | Cloud API da Meta direto (`META_WHATSAPP_*`) ou Evolution API (`EVOLUTION_*`) |
 | Domínio `cortai.dev` | Reservado; ainda não aponta para o site principal |
