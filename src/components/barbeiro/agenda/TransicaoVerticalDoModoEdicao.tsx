@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 
 import { CURVA, TEMPO } from "@/lib/movimento-figaro";
 
@@ -14,21 +14,25 @@ export function TransicaoVerticalDoModoEdicao({
   children,
   direcao,
   className,
+  marcarEdicao = true,
 }: {
   children: ReactNode;
   direcao: Direcao;
   className?: string;
+  /** O cabeçalho normal compartilha a transição, mas não é uma área de edição. */
+  marcarEdicao?: boolean;
 }) {
+  const reduzirMovimento = useReducedMotion();
   // Topo sobe e base desce, cada um a própria altura (`slideVertically(±altura)`).
   const deslocamento = direcao === "topo" ? "-100%" : "100%";
   return (
     <motion.div
       className={className}
-      data-edicao-ui=""
+      data-edicao-ui={marcarEdicao ? "" : undefined}
       initial={{ opacity: 0, y: deslocamento }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: deslocamento }}
-      transition={{ duration: TEMPO.etapaDeFluxo, ease: CURVA.rapidaParaLenta }}
+      transition={reduzirMovimento ? { duration: 0 } : { duration: TEMPO.etapaDeFluxo, ease: CURVA.rapidaParaLenta }}
     >
       {children}
     </motion.div>
