@@ -81,16 +81,23 @@ export function semRegraReconhecida(passos: readonly { type: string }[]): boolea
  * Flow IA (dono, 06/11/2026: "Olá" e "Bom dia" ficaram sem resposta quando a IA não respondeu).
  */
 export function ehSaudacao(texto: string): boolean {
-  const t = texto
-    .normalize("NFD")
-    .replace(/\p{Diacritic}/gu, "")
-    .toLowerCase()
-    .replace(/[^a-z\s]/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
-  return /^(oi+e*|ola+|opa|eai|e ai|salve|bom dia|boa tarde|boa noite)( (tudo bem|tudo bom|td bem|blz|beleza|como vai))?$/.test(
-    t,
-  );
+  // O WhatsApp junta mensagens picadas com "\n": "Oi" e "Bom dia" continuam sendo só uma saudação.
+  // Nunca confundir "Oi\nQuero agendar" com saudação: pedidos reais seguem ao motor de intenção.
+  const linhas = texto
+    .split(/\r?\n/)
+    .map((linha) =>
+      linha
+        .normalize("NFD")
+        .replace(/\p{Diacritic}/gu, "")
+        .toLowerCase()
+        .replace(/[^a-z\s]/g, " ")
+        .replace(/\s+/g, " ")
+        .trim(),
+    )
+    .filter(Boolean);
+  const cumprimento =
+    /^(oi+e*|ola+|opa|eai|e ai|salve|bom dia|boa tarde|boa noite)( (tudo bem|tudo bom|td bem|blz|beleza|como vai))?$/;
+  return linhas.length > 0 && linhas.length <= 5 && linhas.every((linha) => cumprimento.test(linha));
 }
 
 /** Ações do motor que viram mensagem, na ordem, com o menu numerado em texto (a Evolution não tem botões). */
