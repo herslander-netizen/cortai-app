@@ -137,10 +137,11 @@ export function confirmacaoDeReserva(p: {
   ].join("\n");
 }
 
-export function confirmacaoDeRemarcacao(quando: string): string {
+export function confirmacaoDeRemarcacao(quando: string, anterior?: string | null): string {
   return [
     "✅ *Horário remarcado com sucesso!*",
     "",
+    ...(anterior ? [`*Horário anterior:* ~${anterior}~`] : []),
     `*Novo horário:* ${quando.charAt(0).toLocaleUpperCase("pt-BR") + quando.slice(1)}`,
     "",
     "Obrigado por avisar. Até lá! ✨",
