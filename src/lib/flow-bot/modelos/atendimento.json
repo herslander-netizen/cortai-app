@@ -26,17 +26,10 @@
   ],
   "nodes": [
     {
-      "id": "agendar",
-      "type": "message.text",
-      "config": {
-        "text": "Para agendar em {{reality.businessName}}, escolha o horário por aqui: {{reality.bookingLink}}\nPróximo horário livre: {{reality.nextAvailableSlot}}."
-      }
-    },
-    {
       "id": "servicos",
       "type": "message.text",
       "config": {
-        "text": "Serviços de {{reality.businessName}}:{{reality.services}}\nPara agendar: {{reality.bookingLink}}"
+        "text": "Serviços de {{reality.businessName}}:\n{{reality.services}}\n\nPara agendar por este WhatsApp, escreva *AGENDAR*."
       }
     },
     {
@@ -123,8 +116,18 @@
         "priority": 10,
         "match": {
           "mode": "contains",
-          "values": ["agendar", "marcar", "agendamento", "horario livre", "vaga"],
-          "exclude": ["cancelar", "desmarcar", "remarcar"]
+          "values": [
+            "agendar",
+            "marcar",
+            "agendamento",
+            "horario livre",
+            "vaga"
+          ],
+          "exclude": [
+            "cancelar",
+            "desmarcar",
+            "remarcar"
+          ]
         }
       }
     },
@@ -135,7 +138,15 @@
         "priority": 20,
         "match": {
           "mode": "contains",
-          "values": ["preco", "precos", "valor", "valores", "quanto custa", "servicos", "tabela"]
+          "values": [
+            "preco",
+            "precos",
+            "valor",
+            "valores",
+            "quanto custa",
+            "servicos",
+            "tabela"
+          ]
         }
       }
     },
@@ -160,7 +171,10 @@
             "abre",
             "fecha"
           ],
-          "exclude": ["cancelar", "remarcar"]
+          "exclude": [
+            "cancelar",
+            "remarcar"
+          ]
         }
       }
     },
@@ -189,7 +203,12 @@
         "priority": 50,
         "match": {
           "mode": "contains",
-          "values": ["pagamento", "pix", "cartao", "dinheiro"]
+          "values": [
+            "pagamento",
+            "pix",
+            "cartao",
+            "dinheiro"
+          ]
         }
       }
     },
@@ -200,7 +219,13 @@
         "priority": 60,
         "match": {
           "mode": "contains",
-          "values": ["atendente", "humano", "falar com alguem", "equipe", "pessoa"]
+          "values": [
+            "atendente",
+            "humano",
+            "falar com alguem",
+            "equipe",
+            "pessoa"
+          ]
         }
       }
     },
@@ -269,7 +294,12 @@
       "type": "logic.switch",
       "config": {
         "variable": "session.opcao",
-        "cases": ["1", "2", "3", "4"]
+        "cases": [
+          "1",
+          "2",
+          "3",
+          "4"
+        ]
       }
     },
     {
@@ -331,28 +361,13 @@
       "config": {
         "text": "Horário: {{reality.todayHours}}."
       }
-    },
-    {
-      "id": "tem-proximo-horario",
-      "type": "logic.condition",
-      "config": {
-        "variable": "reality.nextAvailableSlot",
-        "operator": "is_set"
-      }
-    },
-    {
-      "id": "agendar-sem-proximo",
-      "type": "message.text",
-      "config": {
-        "text": "Para agendar em {{reality.businessName}}, escolha o horário por aqui: {{reality.bookingLink}}"
-      }
     }
   ],
   "edges": [
     {
       "id": "e1",
       "from": "quer-agendar",
-      "to": "tem-proximo-horario",
+      "to": "equipe-disponivel",
       "port": "next"
     },
     {
@@ -383,12 +398,6 @@
       "id": "e6",
       "from": "quer-equipe",
       "to": "equipe-disponivel",
-      "port": "next"
-    },
-    {
-      "id": "e7",
-      "from": "agendar",
-      "to": "fim",
       "port": "next"
     },
     {
@@ -512,12 +521,6 @@
       "port": "timeout"
     },
     {
-      "id": "e28",
-      "from": "rota-menu",
-      "to": "tem-proximo-horario",
-      "port": "case:1"
-    },
-    {
       "id": "e29",
       "from": "rota-menu",
       "to": "servicos",
@@ -608,22 +611,10 @@
       "port": "next"
     },
     {
-      "id": "e44",
-      "from": "tem-proximo-horario",
-      "to": "agendar",
-      "port": "true"
-    },
-    {
-      "id": "e45",
-      "from": "tem-proximo-horario",
-      "to": "agendar-sem-proximo",
-      "port": "false"
-    },
-    {
-      "id": "e46",
-      "from": "agendar-sem-proximo",
-      "to": "fim",
-      "port": "next"
+      "id": "e28",
+      "from": "rota-menu",
+      "to": "equipe-disponivel",
+      "port": "case:1"
     }
   ]
 }
