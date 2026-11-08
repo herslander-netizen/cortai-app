@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Aviso } from "@/components/ui/aviso";
 import { exigirCapacidade } from "@/lib/guarda-capacidade";
 import { getIndicadoresCRM } from "@/lib/crm/indicadores.functions";
+import { OportunidadesCRM } from "@/components/crm/OportunidadesCRM";
 
 export const Route = createFileRoute("/barbeiro/crm")({
   beforeLoad: ({ context }) => exigirCapacidade(context.queryClient, "crescimento"),
@@ -42,6 +43,7 @@ function CRMPage() {
   const maximo = Math.max(1, ...serie.flatMap((p) => [
     p.novosClientes,
     p.clientesQueRetornaram,
+    p.atendimentosConcluidos,
   ]));
   const metricas = dados ? [
     { rotulo: "Clientes cadastrados", valor: dados.clientesCadastrados.toLocaleString("pt-BR") },
@@ -84,7 +86,7 @@ function CRMPage() {
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
                 <h2 className="text-base font-semibold text-paper">Evolução dos clientes</h2>
-                <p className="mt-1 text-xs text-mute">Novos cadastros e clientes que voltaram</p>
+                <p className="mt-1 text-xs text-mute">Novos cadastros, retornos e atendimentos finalizados</p>
               </div>
               <div className="flex gap-2" role="group" aria-label="Período do gráfico">
                 {([3, 6] as const).map((periodo) => (
@@ -99,10 +101,11 @@ function CRMPage() {
             <div className="mt-4 flex flex-wrap gap-x-4 gap-y-2 text-xs text-mute">
               <span className="inline-flex items-center gap-2"><span className="h-2.5 w-2.5 rounded-full bg-[var(--figaro-primary)]" />Novos</span>
               <span className="inline-flex items-center gap-2"><span className="h-2.5 w-2.5 rounded-full bg-[var(--figaro-success)]" />Voltaram</span>
+              <span className="inline-flex items-center gap-2"><span className="h-2.5 w-2.5 rounded-full bg-[var(--figaro-tertiary)]" />Atendimentos</span>
             </div>
 
             <div className="mt-5 grid h-44 grid-cols-6 items-end gap-2 border-b border-line pb-2" role="img"
-              aria-label="Comparação mensal de novos clientes e de clientes que voltaram. Os valores detalhados estão na tabela abaixo.">
+              aria-label="Comparação mensal de novos clientes, clientes que voltaram e atendimentos finalizados. Os valores detalhados estão na tabela abaixo.">
               {serie.map((p) => (
                 <div key={p.mes} className="flex h-full items-end justify-center gap-1">
                   <div title={String(p.novosClientes) + " novos clientes em " + p.mes}
@@ -111,6 +114,9 @@ function CRMPage() {
                   <div title={String(p.clientesQueRetornaram) + " clientes que voltaram em " + p.mes}
                     className="w-3 max-w-[40%] rounded-t-md bg-[var(--figaro-success)]"
                     style={{ height: p.clientesQueRetornaram ? String(Math.max(4, Math.round(100 * p.clientesQueRetornaram / maximo))) + "%" : "0%" }} />
+                  <div title={String(p.atendimentosConcluidos) + " atendimentos finalizados em " + p.mes}
+                    className="w-3 max-w-[40%] rounded-t-md bg-[var(--figaro-tertiary)]"
+                    style={{ height: p.atendimentosConcluidos ? String(Math.max(4, Math.round(100 * p.atendimentosConcluidos / maximo))) + "%" : "0%" }} />
                 </div>
               ))}
             </div>
@@ -140,6 +146,8 @@ function CRMPage() {
               </div>
             </details>
           </section>
+
+          <OportunidadesCRM />
 
           <section className="mt-4 rounded-[28px] bg-[var(--figaro-surface-container)] p-4 md:p-5">
             <div className="flex items-center gap-2 text-paper">
