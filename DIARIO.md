@@ -581,6 +581,7 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - 2026-10-26: **Cabeçalho do menu mobile mais compacto** (dono aprovou a reformulação após captura: logo menor, nome do negócio com hierarquia discreta, papel secundário, ajustes alinhados e menos espaço vazio; manter nome em até duas linhas quando necessário, sem afetar a Agenda).
 
 ## Em andamento
+- GPT | 2026-11-08 UTC | **Agenda: transição exclusiva dos cabeçalhos superiores ao editar cartão (vídeos do dono)**; corrigir portais concorrentes no topo, animar saída/entrada com uma única presença, assegurar busca/calendário/semana e retorno sem sobreposição; adicionar teste de regressão. Somente prévia, sem backend, DB, main ou produção | `src/components/barbeiro/AgendaOperacional.tsx`, `src/components/barbeiro/agenda/CabecalhoAgenda.tsx`, `src/components/barbeiro/agenda/TransicaoVerticalDoModoEdicao.tsx`, testes novos do cabeçalho e `DIARIO.md`
 
 
 
