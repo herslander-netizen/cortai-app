@@ -184,7 +184,7 @@ function snapshot(row: Database["public"]["Tables"]["tenants"]["Row"]): MarcaFor
   });
 }
 
-async function signedLogo(supabase: any, path: string | null) {
+async function signedLogo(supabase: SupabaseClient<Database>, path: string | null) {
   if (!path) return null;
   const { data } = await supabase.storage.from("tenant-logos").createSignedUrl(path, 60 * 60);
   return data?.signedUrl ?? null;
