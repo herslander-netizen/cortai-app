@@ -582,6 +582,7 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - 2026-10-26: **Cabeçalho do menu mobile mais compacto** (dono aprovou a reformulação após captura: logo menor, nome do negócio com hierarquia discreta, papel secundário, ajustes alinhados e menos espaço vazio; manter nome em até duas linhas quando necessário, sem afetar a Agenda).
 
 ## Em andamento
+- GPT | 2026-11-08 UTC | **Refino estritamente visual da transição Timeline ↔ Lista e faixa semanal da Agenda**, mantendo a estrutura atual, animações Figaroo oficiais, sem sobreposição nem piscadas, com movimento reduzido e teste de regressão. Sem alterar layout, regras, gestos ou outras áreas. | `src/components/barbeiro/agenda/TrocaDeVisualizacao.tsx`, teste adjacente e `DIARIO.md`
 
 
 
