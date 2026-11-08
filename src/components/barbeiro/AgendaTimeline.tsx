@@ -219,11 +219,15 @@ function AgendaTimelineBase({
   const passo = passoDoGesto(passoMin);
   const gesto = useRef<{
     id: string;
+    pointerId: number;
     y0: number;
     x0: number;
     pointerY: number;
     alvo: HTMLElement;
     ativo: boolean;
+    /** Ao editar: deslize muda duração; segurar novamente permite mover. */
+    redimensionando?: boolean;
+    redimensionou?: boolean;
     timer?: number;
     arrastou: boolean;
     longo?: boolean;
@@ -254,7 +258,8 @@ function AgendaTimelineBase({
   );
   function travarRolagemDoToque() {
     bloqueio.current ??= criarBloqueioDeRolagem(
-      () => Boolean(gesto.current?.ativo) || document.querySelector(".agenda-arrastando") !== null,
+      () => Boolean(gesto.current?.ativo || gesto.current?.redimensionando) ||
+        document.querySelector(".agenda-arrastando") !== null,
     );
     bloqueio.current.travar();
   }
@@ -627,12 +632,13 @@ function AgendaTimelineBase({
     const pid = e.pointerId;
     const g = {
       id: item.id,
+      pointerId: pid,
       y0: e.clientY,
       x0: e.clientX,
       pointerY: e.clientY,
       alvo,
-      ativo: e.pointerType === "mouse" || cartaoArmado,
-      ...(cartaoArmado ? { longo: true } : {}),
+      ativo: e.pointerType === "mouse",
+      redimensionando: Boolean(cartaoArmado && onRedimensionar),
       arrastou: false,
       rolagem0: celularAgora() ? window.scrollY : (rolagemRef.current?.scrollTop ?? 0),
       dy: 0,
@@ -641,16 +647,25 @@ function AgendaTimelineBase({
     gesto.current = g;
 
     if (cartaoArmado) {
-      // Cartão que já estava em edição (gesto seguinte, ou segurar que não conseguiu capturar o ponteiro):
-      // captura o ponteiro e bloqueia a rolagem desde o toque. Quando segurar abre a edição, o timer acima faz
-      // o mesmo no momento em que o cartão sai da mão do dedo.
+      // Edição aberta não mantém o cartão solto para mover:
+      // deslizar ajusta a duração, segurar de novo por 300 ms move o início.
       try {
         alvo.setPointerCapture(pid);
       } catch {
         gesto.current = null;
         return;
       }
-      travarRolagemDoToque();
+      if (g.redimensionando) travarRolagemDoToque();
+      g.timer = window.setTimeout(() => {
+        if (gesto.current !== g || multitoque.current || g.redimensionou) return;
+        g.redimensionando = false;
+        g.longo = true;
+        g.ativo = true;
+        g.ativadoEm = performance.now();
+        vibrar("pressao");
+        alvo.setAttribute("data-segurando-cartao", "");
+        travarRolagemDoToque();
+      }, 300);
       return;
     }
 
@@ -732,9 +747,9 @@ function AgendaTimelineBase({
     quadroRolagemAutomatica.current = window.requestAnimationFrame(quadroDeRolagemAutomatica);
   }
 
-  function moverGesto(e: React.PointerEvent) {
+  function moverGesto(e: React.PointerEvent, item: AgendaItem) {
     const g = gesto.current;
-    if (!g) return;
+    if (!g || g.pointerId !== e.pointerId || g.id !== item.id) return;
     g.pointerY = e.clientY;
     // No gesto que acabou de abrir a edição, o zoom (300 ms) fixa o cartão onde o dedo apertou: seguir o dedo
     // agora o deslocaria duas vezes (pelo zoom e pelo arrasto).
@@ -745,6 +760,30 @@ function AgendaTimelineBase({
     const area = rolagemRef.current;
     const rolagemAtual = celular ? window.scrollY : (area?.scrollTop ?? 0);
     const dy = e.clientY - g.y0 + (g.longo && !g.arrastou ? 0 : rolagemAtual - g.rolagem0);
+
+    if (g.redimensionando) {
+      // Ao deslizar, cancelar a chance de converter a ação em arrasto.
+      if (!g.redimensionou && Math.abs(dy) < 5) {
+        if (Math.abs(e.clientX - g.x0) > 10) window.clearTimeout(g.timer);
+        return;
+      }
+      g.redimensionou = true;
+      window.clearTimeout(g.timer);
+      const limites = limitesDaAlca(
+        minutosNoFuso(item.inicio, fuso), minutosNoFuso(item.fim, fuso), passo,
+      );
+      g.dy = Math.max(
+        limites.min * pxPorMinutoRef.current,
+        Math.min(limites.max * pxPorMinutoRef.current, dy),
+      );
+      e.preventDefault();
+      const passoAtual = Math.round(g.dy / pxPorMinutoRef.current / passo);
+      if (ultimoPassoDaAlca.current !== passoAtual) {
+        ultimoPassoDaAlca.current = passoAtual;
+        setRedim({ id: g.id, dy: g.dy });
+      }
+      return;
+    }
 
     if (!g.ativo) {
       // Antes de confirmar o toque longo, deslocamento cancela o gesto.
@@ -785,8 +824,9 @@ function AgendaTimelineBase({
     iniciarRolagemAutomatica();
   }
 
-  function fimGesto(item: AgendaItem, ySolto?: number) {
+  function fimGesto(item: AgendaItem, ySolto?: number, pointerId?: number) {
     const g = gesto.current;
+    if (g && pointerId !== undefined && g.pointerId !== pointerId) return;
     pararRolagemAutomatica();
     if (g?.longo && g.ativo && ySolto !== undefined) onAtualizarYDoToque?.(g.id, ySolto);
     gesto.current = null;
@@ -797,6 +837,24 @@ function AgendaTimelineBase({
     const dy = g.id === item.id ? g.dy : 0;
     ultimoPassoDoArrasto.current = null;
     setArrasto(null);
+    if (g.redimensionando) {
+      ultimoPassoDaAlca.current = null;
+      setRedim(null);
+      if (!g.redimensionou) return;
+      ignorarClique.current = true;
+      const limites = limitesDaAlca(
+        minutosNoFuso(item.inicio, fuso), minutosNoFuso(item.fim, fuso), passo,
+      );
+      const delta = Math.max(
+        limites.min,
+        Math.min(limites.max, Math.round(g.dy / pxPorMinutoRef.current / passo) * passo),
+      );
+      if (delta !== 0) {
+        navigator.vibrate?.(18);
+        onRedimensionar?.(item, delta);
+      }
+      return;
+    }
     if (!g.arrastou) {
       if (g.longo) {
         ignorarClique.current = true;
@@ -1355,11 +1413,12 @@ function AgendaTimelineBase({
                     ? {}
                     : {
                         onPointerDown: (e: React.PointerEvent) => inicioGesto(e, item),
-                        onPointerMove: moverGesto,
-                        onPointerUp: (e: React.PointerEvent) => fimGesto(item, e.clientY),
-                        onPointerCancel: () => {
+                        onPointerMove: (e: React.PointerEvent) => moverGesto(e, item),
+                        onPointerUp: (e: React.PointerEvent) => fimGesto(item, e.clientY, e.pointerId),
+                        onPointerCancel: (e: React.PointerEvent) => {
                           pararRolagemAutomatica();
                           const cancelado = gesto.current;
+                          if (cancelado && cancelado.pointerId !== e.pointerId) return;
                           if (cancelado) {
                             window.clearTimeout(cancelado.timer);
                             cancelado.alvo.removeAttribute("data-segurando-cartao");
@@ -1367,7 +1426,9 @@ function AgendaTimelineBase({
                           gesto.current = null;
                           soltarRolagemDoToque();
                           ultimoPassoDoArrasto.current = null;
+                          ultimoPassoDaAlca.current = null;
                           setArrasto(null);
+                          setRedim(null);
                         },
                         onContextMenu: (e: React.MouseEvent) => {
                           if (podeMover(item)) e.preventDefault();
