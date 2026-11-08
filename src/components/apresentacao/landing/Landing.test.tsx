@@ -6,6 +6,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import { APRESENTACAO_PADRAO } from "@/lib/apresentacao-conteudo";
 import { PLANOS_COMERCIAIS } from "@/lib/planos-comerciais";
+import { GRUPOS_DE_FUNCIONALIDADES } from "@/lib/funcionalidades";
 import { linkDeInteresseFlow } from "./whatsapp";
 
 vi.mock("@/lib/institucional.functions", () => ({
@@ -98,8 +99,50 @@ describe("página pública promocional", () => {
     expect(div.textContent).not.toContain("Abrir meu painel");
     const flutuante = div.querySelector('a[aria-label="Conversar sobre o Flow no WhatsApp"]');
     expect(flutuante?.getAttribute("href")).toBe(linkDeInteresseFlow());
-    expect(div.querySelector("header a")?.getAttribute("href")).toBe(linkDeInteresseFlow());
+    expect(div.querySelector('header a[href^="https://wa.me/"]')).toBeNull();
+    expect(div.querySelector('header button[aria-label="Abrir menu de funcionalidades"]')).not.toBeNull();
     expect(div.querySelector('a[href="/privacidade"]')).not.toBeNull();
+    fechar();
+  });
+
+
+  it("oferece todos os recursos reais no menu e no catálogo, sem inventar rotas", () => {
+    const { div, fechar } = desenhar();
+    const botao = div.querySelector<HTMLButtonElement>(
+      'header button[aria-label="Abrir menu de funcionalidades"]',
+    );
+    expect(botao?.getAttribute("aria-expanded")).toBe("false");
+    act(() => botao?.click());
+    expect(div.querySelector('header button[aria-expanded="true"]')).not.toBeNull();
+
+    const menu = div.querySelector("#menu-completo-flow");
+    const recursos = GRUPOS_DE_FUNCIONALIDADES.flatMap((grupo) => grupo.itens);
+    const links = [...(menu?.querySelectorAll('a[href^="#recurso-"]') ?? [])];
+    expect(links).toHaveLength(recursos.length);
+    for (const item of recursos) {
+      expect(menu?.querySelector(`a[href="#recurso-${item.chave}"]`)).not.toBeNull();
+      expect(div.querySelector(`#recurso-${item.chave}`)?.textContent).toContain(item.rotulo);
+    }
+    for (const id of ["como-funciona", "funcionalidades", "planos", "perguntas"]) {
+      expect(menu?.querySelector(`a[href="#${id}"]`)).not.toBeNull();
+      expect(div.querySelector(`#${id}`)).not.toBeNull();
+    }
+    for (const grupo of GRUPOS_DE_FUNCIONALIDADES) {
+      expect(menu?.textContent).toContain(grupo.titulo);
+    }
+
+    act(() => links[0]?.dispatchEvent(new MouseEvent("click", { bubbles: true })));
+    expect(div.querySelector("#menu-completo-flow")).toBeNull();
+    expect(div.querySelector('header button[aria-expanded="false"]')).not.toBeNull();
+    fechar();
+  });
+
+  it("permite fechar o menu ao pressionar Escape", () => {
+    const { div, fechar } = desenhar();
+    act(() => div.querySelector<HTMLButtonElement>('header button[aria-expanded="false"]')?.click());
+    expect(div.querySelector("#menu-completo-flow")).not.toBeNull();
+    act(() => document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true })));
+    expect(div.querySelector("#menu-completo-flow")).toBeNull();
     fechar();
   });
 
