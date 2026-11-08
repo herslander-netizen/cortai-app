@@ -10,7 +10,7 @@
           "say": "Quanto custa?",
           "expect": {
             "replies": [
-              "Serviços de Studio Exemplo:\n• Corte — R$ 45,00\n• Escova — R$ 60,00\n• Manicure — R$ 35,00\nPara agendar: https://flow.exemplo/b/studio-exemplo"
+              "📋 *Serviços de Studio Exemplo:*\n\n• Corte — R$ 45,00\n• Escova — R$ 60,00\n• Manicure — R$ 35,00\n\nPara agendar por aqui, escreva *AGENDAR*."
             ],
             "status": "completed"
           }
@@ -18,7 +18,7 @@
       ]
     },
     {
-      "name": "Pedido de agendamento manda o link e o próximo horário livre",
+      "name": "Sem agenda conversacional: fallback seguro entrega à equipe",
       "contact": {
         "firstName": "Ana"
       },
@@ -26,9 +26,11 @@
         {
           "say": "quero agendar um horário",
           "expect": {
-            "replies": [
-              "Para agendar em Studio Exemplo, escolha o horário por aqui: https://flow.exemplo/b/studio-exemplo\nPróximo horário livre: hoje às 15:30."
-            ]
+            "contains": [
+              "Vou chamar alguém da equipe"
+            ],
+            "handoff": true,
+            "status": "handed_off"
           }
         }
       ]
@@ -43,7 +45,7 @@
           "say": "vocês estão abertos?",
           "expect": {
             "replies": [
-              "Estamos abertos: hoje das 9h às 19h."
+              "🕒 Estamos abertos: hoje das 9h às 19h."
             ]
           }
         }
@@ -62,7 +64,7 @@
           "say": "que horas abre?",
           "expect": {
             "replies": [
-              "No momento estamos fechados. Abrimos amanhã às 9h."
+              "🕒 No momento estamos fechados. Abrimos amanhã às 9h."
             ]
           }
         }
@@ -78,7 +80,7 @@
           "say": "Onde fica?",
           "expect": {
             "replies": [
-              "Estamos em Rua das Flores, 120 — Centro."
+              "📍 Estamos em Rua das Flores, 120 — Centro."
             ]
           }
         }
@@ -94,7 +96,7 @@
           "say": "aceita pix?",
           "expect": {
             "replies": [
-              "Aceitamos Pix, cartão e dinheiro."
+              "💳 Aceitamos Pix, cartão e dinheiro."
             ]
           }
         }
@@ -148,8 +150,10 @@
           "say": "quero agendar e saber o preço",
           "expect": {
             "contains": [
-              "Para agendar em Studio Exemplo"
-            ]
+              "Vou chamar alguém da equipe"
+            ],
+            "handoff": true,
+            "status": "handed_off"
           }
         }
       ]
@@ -192,7 +196,7 @@
           "say": "2",
           "expect": {
             "replies": [
-              "Serviços de Studio Exemplo:\n• Corte — R$ 45,00\n• Escova — R$ 60,00\n• Manicure — R$ 35,00\nPara agendar: https://flow.exemplo/b/studio-exemplo"
+              "📋 *Serviços de Studio Exemplo:*\n\n• Corte — R$ 45,00\n• Escova — R$ 60,00\n• Manicure — R$ 35,00\n\nPara agendar por aqui, escreva *AGENDAR*."
             ],
             "status": "completed",
             "variables": {
@@ -215,7 +219,7 @@
           "say": "3",
           "expect": {
             "replies": [
-              "Horário: hoje das 9h às 19h.\nEndereço: Rua das Flores, 120 — Centro."
+              "🕒 Horário: hoje das 9h às 19h.\n📍 Endereço: Rua das Flores, 120 — Centro."
             ]
           }
         }
@@ -234,8 +238,9 @@
           "say": "1",
           "expect": {
             "contains": [
-              "Para agendar em Studio Exemplo"
-            ]
+              "Vou chamar alguém da equipe"
+            ],
+            "handoff": true
           }
         },
         {
@@ -340,7 +345,7 @@
           "say": "que horas abre?",
           "expect": {
             "replies": [
-              "Estamos abertos: hoje das 9h às 19h."
+              "🕒 Estamos abertos: hoje das 9h às 19h."
             ]
           }
         },
@@ -351,7 +356,7 @@
           },
           "expect": {
             "replies": [
-              "No momento estamos fechados. Abrimos amanhã às 9h."
+              "🕒 No momento estamos fechados. Abrimos amanhã às 9h."
             ]
           }
         }
@@ -398,7 +403,7 @@
       ]
     },
     {
-      "name": "Sem próximo horário calculado: manda o link sem frase vazia",
+      "name": "Sem disponibilidade calculada: fallback não inventa horário",
       "contact": {
         "firstName": "Ana"
       },
@@ -409,10 +414,11 @@
         {
           "say": "Quero agendar",
           "expect": {
-            "replies": [
-              "Para agendar em Studio Exemplo, escolha o horário por aqui: https://flow.exemplo/b/studio-exemplo"
+            "status": "handed_off",
+            "contains": [
+              "Vou chamar alguém da equipe"
             ],
-            "status": "completed"
+            "handoff": true
           }
         }
       ]
@@ -445,8 +451,10 @@
           "say": "Tem horário livre amanhã?",
           "expect": {
             "contains": [
-              "Para agendar em Studio Exemplo"
-            ]
+              "Vou chamar alguém da equipe"
+            ],
+            "handoff": true,
+            "status": "handed_off"
           }
         }
       ]
