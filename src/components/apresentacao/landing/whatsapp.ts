@@ -3,7 +3,9 @@ export const WHATSAPP_COMERCIAL_FLOW = "5579998181983";
 
 /** Abre a conversa com interesse já preenchido, sem enviar mensagem automaticamente. */
 export function linkDeInteresseFlow(plano?: string): string {
-  const assunto = plano?.trim() ? `no plano ${plano.trim()}` : "em conhecer a plataforma";
-  const mensagem = `Olá! Conheci o Flow e tenho interesse ${assunto} para o meu negócio. Gostaria de saber mais.`;
+  const nomeDoPlano = plano?.trim();
+  const mensagem = nomeDoPlano
+    ? `Olá! Tenho interesse no plano ${nomeDoPlano} do Flow e gostaria de saber mais.`
+    : "Olá! Tenho interesse no Flow e gostaria de saber como ele pode ajudar meu negócio.";
   return `https://wa.me/${WHATSAPP_COMERCIAL_FLOW}?text=${encodeURIComponent(mensagem)}`;
 }
