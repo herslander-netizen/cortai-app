@@ -584,7 +584,6 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - 2026-10-26: **Cabeçalho do menu mobile mais compacto** (dono aprovou a reformulação após captura: logo menor, nome do negócio com hierarquia discreta, papel secundário, ajustes alinhados e menos espaço vazio; manter nome em até duas linhas quando necessário, sem afetar a Agenda).
 
 ## Em andamento
-- GPT | 2026-11-08 09:28 BRT | **Corrigir saudação fragmentada no WhatsApp (imagem teste01):** erro real `Oi` + `Bom dia` juntados em um turno produziu `flow_bot_rastro.motivo=sem_regra`, depois contingência. Corrigir apenas o reconhecimento puro em `src/lib/flow-bot/decisao.ts`, teste em `src/lib/flow-bot/decisao.test.ts` e DIARIO.md. Não tocar em `src/lib/whatsapp/*`, que segue reservado pela Claude, nem em banco/produção/main.
 
 
 
@@ -677,6 +676,7 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 
 ## Recados
+- **Para Claude/Muse — GPT, 08/11/2026 — erro confirmado pela captura do dono Teste01:** 09:25 "Oi" + "Bom dia" foram unidos por `juntarMensagensPicadas`; `flow_bot_rastro` da última mensagem marcou `sem_regra` sem texto, então Flow IA não respondeu e `fluxo.server.ts` disparou a contingência "Ana não está conseguindo responder" às 09:25:21. Corrigi apenas `flow-bot/decisao.ts` e teste para aceitar cumprimentos separados por quebra de linha, **sem tocar sua reserva** de `whatsapp/*`. Ainda é importante distinguir ausência do cérebro, pausa humana e falha técnica no fallback; não enviar contingência quando conversa está sob humano. Consultar entrada do Diário para evidência.
 - **Para Claude/Muse — GPT, 08/11/2026 — fase isolada da intervenção humana concluída em código, ainda sem validação CI:** alterei apenas `src/lib/flow-bot/decisao.ts`, `humano.server.ts`, `decisao.test.ts`; nenhum arquivo da sua reserva WhatsApp foi tocado. Ao liberar `fluxo.server.ts`/webhook, integrar a trava única antes de todos os envios automáticos e rechecagem imediatamente antes de enviar, incluindo fallback e respostas de avisos; preservar exceções transacionais. Novo histórico das mensagens humanas no DB de prévia está preparado, sem escrita real feita nesta tarefa. Consultar entrada no topo do Diário. 
 - **Para Claude — GPT, 08/11/2026 09:00 BRT — Trava de intervenção humana no WhatsApp (pedido expresso do dono):** sua reserva cobre `src/lib/whatsapp/fluxo.server.ts` e webhooks. Vou limitar meu trabalho aos arquivos `src/lib/flow-bot/decisao.ts`, `humano.server.ts`, `decisao.test.ts`: correção de `fromMe`, histórico e pausa humana. **Não editarei os arquivos reservados por você.** Para completar a segurança, ainda precisaremos da sua liberação/integração no sender e fluxo de entrada: (1) não enviar fallback, áudio automático ou resposta de aviso quando `humanoNoControle` (salvo ações transacionais com política própria), (2) revalidar posse humana imediatamente antes de cada envio automático, (3) interoperar `modo_humano=true` sem prazo, (4) considerar Echo oficial `smb_message_echoes` em coexistência. Por favor avise quando liberar o sender/webhook, sem tocar em produção. Regra do dono: atendimento humano por cliente, padrão 2h renováveis; outra conversa segue com IA.
 - **Para Claude/Muse — GPT, 08/11/2026 UTC — rolabilidade restaurada no cartão em edição:** a regra CSS `[data-sem-gesto-dia] { touch-action: none }` desativava até o scroll vertical sobre o cartão, mesmo sem arrasto; removida, mantendo `touch-action: none` só em `.agenda-timeline-bloco.agenda-arrastando`. Perda de `pointercapture` cancela e libera a trava, tanto no cartão quanto na alça, sem confirmar horário. Testes de regressão e CI `42461847318`: 342 arquivos/2.768 testes passaram (1 ignorado), TypeScript/build, deploy isolado e smoke confirmaram SHA `84dab995` em `https://previa.cortaiapp.pages.dev`. Não alterar main/produção/banco; validação visual Android 360/390 claro/escuro ainda pendente.
@@ -1014,6 +1014,15 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+
+### 2026-11-08 UTC — GPT — Correção de "Oi" e "Bom dia" enviados em sequência no WhatsApp
+- Evidência reproduzida na PRÉVIA somente por consultas de leitura: Teste01 tinha `flow_bot_config.modo=ligado`, `config_atendimento_ia.responder_whatsapp=true`, Evolution conectada e conversa sem posse humana. Entradas às 09:25:00 ("Oi") e 09:25:04 ("Bom dia"); rastro do bot na última entrada `motivo=sem_regra`, nenhuma resposta; saída de contingência às 09:25:21. `atendimento_ocorrencias` marcou `nao_entendida` às 09:25:14; não confirma a razão da indisponibilidade da Flow IA.
+- Causa no código: `juntarMensagensPicadas` forma `Oi\\nBom dia`; `ehSaudacao` normalizava quebras de linha em espaços, não reconhecendo duas saudações consecutivas e deixando o bot ceder para a IA/contingência.
+- Alterado **somente** `src/lib/flow-bot/decisao.ts` para reconhecer até 5 linhas de cumprimentos puros e `src/lib/flow-bot/decisao.test.ts` para regressão positiva ("Oi"+"Bom dia") e negativa ("Oi"+"Quero agendar" etc.). Commits `7b2c75a`, `6556938`, `66d5b0d`, com ajustes de teste intermediários `ef9d864`.
+- Validação disponível: 19 cenários da regra executados em Node isolado, todos passaram; não é a suíte Vitest nem o build. CI e publicação final devem ser conferidos antes de dizer "no ar".
+- Não alterados: `src/lib/whatsapp/*` ou webhook (reserva ativa da Claude), dados de clientes, banco, main, produção, DNS, segredos. A questão geral da posse humana e da contingência ao falhar IA continua pendente de integração no sender reservado pela Claude.
+- Reserva temporária do GPT encerrada e recado de diagnóstico incluído em Recados.
+
 
 ### 2026-11-08 UTC — GPT — Intervenção humana pelo celular: melhoria isolada
 - Pedido do dono: manter uma única conversa sob controle do profissional ou do Flow, sem a IA responder sobre a pessoa; janela humana separada da janela oficial de 24 horas.
