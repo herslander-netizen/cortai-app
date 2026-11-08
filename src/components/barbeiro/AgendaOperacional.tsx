@@ -6,7 +6,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { Clock3, HandCoins, Lock, Plus, UserRoundPlus } from "lucide-react";
 import type React from "react";
-import { AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import {
   Suspense,
   useCallback,
@@ -40,6 +40,7 @@ import { ListaAgenda } from "@/components/barbeiro/agenda/ListaAgenda";
 import { MenuAcoesAgenda } from "@/components/barbeiro/agenda/MenuAcoesAgenda";
 import { comandoDeVozSuportado } from "@/components/ia/useGravadorDeVoz";
 import { prefereMenosMovimento } from "@/lib/motion";
+import { CURVA, TEMPO } from "@/lib/movimento-figaro";
 import { segmentoParaApresentacao } from "@/lib/segmentos";
 import { BotaoAgoraPrincipal } from "@/components/barbeiro/agenda/BotaoAgoraPrincipal";
 import {
@@ -355,6 +356,7 @@ export function AgendaOperacional() {
   const [visualizacao, setVisualizacao] = useState<Visualizacao>(() =>
     preferenciaInicial === "foco" ? ultimaVisaoCompleta() : preferenciaInicial,
   );
+  const reduzirMovimentoNoTopo = useReducedMotion();
   const celular = useIsMobile();
   const faixaCelular = useMediaQuery("(max-width: 600px)");
   const ehDesktop = useEhDesktop();
@@ -681,6 +683,10 @@ export function AgendaOperacional() {
   }, [dia]);
 
   const [calAberto, setCalAberto] = useState(false);
+  // Edição substitui o calendário expandido; ele não pode reaparecer ao descartar.
+  useEffect(() => {
+    if (edicao.rascunho) setCalAberto(false);
+  }, [edicao.rascunho]);
   const [mesCal, setMesCal] = useState(() => mesDoDia(dia));
   const [mostrarDica, setMostrarDica] = useState(false);
   useEffect(() => {
@@ -1419,33 +1425,20 @@ export function AgendaOperacional() {
         ref={refDoPalco}
       >
         {celular ? (
-          <>
-            {/* O painel de edição fica sempre no centro do topo, com a própria entrada e saída (desce e sobe como
-                as gavetas, levando o fundo junto); a faixa da semana fica no lugar dela, como antes, sem animar. */}
-            <NaBarraDoTopo alvoId="topo-centro">
-              <AnimatePresence initial={false}>
-                {edicao.rascunho ? (
-                  <TransicaoVerticalDoModoEdicao
-                    key="edicao-topo-mobile"
-                    className="w-full"
-                    direcao="topo"
-                  >
-                    <CabecalhoDeEdicao
-                      dia={dia}
-                      naBarra
-                      onReagendar={() => {
-                        const original = edicao.original;
-                        edicao.descartar();
-                        if (original) abrirAcao(original, "remarcar");
-                      }}
-                    />
-                  </TransicaoVerticalDoModoEdicao>
-                ) : null}
-              </AnimatePresence>
-            </NaBarraDoTopo>
-            <NaBarraDoTopo alvoId="topo-baixo">
-              {edicao.rascunho ? null : (
-                <div className="w-full">
+          <NaBarraDoTopo alvoId="topo-baixo">
+            {/* A semana recolhe com altura/opacity; o centro do topo é controlado
+                exclusivamente por CabecalhoAgenda, sem portais concorrentes. */}
+            <AnimatePresence initial={false}>
+              {!edicao.rascunho ? (
+                <motion.div
+                  key="semana-topo"
+                  className="w-full"
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={reduzirMovimentoNoTopo ? { duration: 0 } : { duration: TEMPO.etapaDeFluxo, ease: CURVA.rapidaParaLenta }}
+                  style={{ overflow: calAberto ? "visible" : "hidden" }}
+                >
                   <RecolheNaLista visivel={visualizacao !== "lista"}>
                     <SemanaDoTopo
                       dia={dia}
@@ -1456,10 +1449,10 @@ export function AgendaOperacional() {
                       onExpandido={setCalAberto}
                     />
                   </RecolheNaLista>
-                </div>
-              )}
-            </NaBarraDoTopo>
-          </>
+                </motion.div>
+              ) : null}
+            </AnimatePresence>
+          </NaBarraDoTopo>
         ) : null}
         <CabecalhoAgenda
           dia={dia}
@@ -1481,6 +1474,11 @@ export function AgendaOperacional() {
           onDiscreto={alternarModoDiscreto}
           tituloCelular={tituloDoMes(dia)}
           emEdicao={Boolean(edicao.rascunho)}
+          onReagendar={() => {
+            const original = edicao.original;
+            edicao.descartar();
+            if (original) abrirAcao(original, "remarcar");
+          }}
           calendarioAberto={calAberto}
           onCalendario={() => {
             setMesCal(mesDoDia(dia));
