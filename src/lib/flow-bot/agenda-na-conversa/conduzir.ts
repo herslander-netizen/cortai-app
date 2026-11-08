@@ -8,6 +8,7 @@
  * Devolve `null` quando a mensagem não é deste assunto: o Flow Bot (regras) e depois a Flow IA seguem.
  */
 import { ehSaudacao } from "@/lib/flow-bot/decisao";
+import { nomeESobrenome } from "@/lib/nomes-pessoas";
 import { classificar } from "@/lib/whatsapp/motor/intencoes";
 import {
   minutosFalados,
@@ -418,9 +419,8 @@ async function continuar(
       return naoEntendeu(e, TEXTOS.naoEntendiHorario, portas.viaAudio, texto);
     }
     case "nome": {
-      const nome = nomeFalado(texto);
-      if (!/^[\p{L}][\p{L}' .-]{1,59}$/u.test(nome))
-        return naoEntendeu(e, TEXTOS.nomeInvalido, portas.viaAudio, texto);
+      const nome = nomeESobrenome(nomeFalado(texto));
+      if (!nome) return naoEntendeu(e, TEXTOS.nomeInvalido, portas.viaAudio, texto);
       e.nome = nome;
       return avancar(e, portas);
     }
