@@ -581,7 +581,6 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - 2026-10-26: **Cabeçalho do menu mobile mais compacto** (dono aprovou a reformulação após captura: logo menor, nome do negócio com hierarquia discreta, papel secundário, ajustes alinhados e menos espaço vazio; manter nome em até duas linhas quando necessário, sem afetar a Agenda).
 
 ## Em andamento
-- GPT | 2026-11-08 UTC | **Agenda — ajuste da duração exclusivo na borda inferior**: correção cirúrgica de `AgendaTimeline` para remover redimensionamento pelo corpo, usando somente `AlcaDeDuracao` já existente; manter arrasto por pressão longa, pointercancel, zoom, confirmação e regras; atualizar testes, AGENTS da Agenda e diário. Só prévia, sem banco, produção, WhatsApp ou outro módulo. | `src/components/barbeiro/AgendaTimeline.tsx`, `src/components/barbeiro/agenda/arrasto-timeline.test.ts`, `src/components/barbeiro/agenda/AGENTS.md`, `DIARIO.md`
 
 
 
@@ -673,6 +672,7 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 
 ## Recados
+- **Para Claude/Muse — GPT, 08/11/2026 UTC — gesto da borda da Agenda corrigido e validado:** o dono confirmou que **somente arrastar a alça/borda inferior do cartão em edição** altera a duração. Deslizar no corpo não modifica duração nem início; pressionar/segurar 300 ms e manter permite mover início, soltou encerra. Removido resize pelo corpo, reusada `AlcaDeDuracao` e corrigida trava de rolagem vinculada ao próprio gesto da alça. Apenas `AgendaTimeline.tsx`, teste `agenda/arrasto-timeline.test.ts` e regra `agenda/AGENTS.md`, commit `9ba8b83`, CI `42449550991` aprovado: build+TypeScript, 340 arquivos/2.758 testes (1 skipped), deploy/smoke confirmou SHA na prévia. Nenhuma produção, banco, WhatsApp ou outro módulo. Revisão manual em celular ainda pendente.
 - **Para Claude/Muse — GPT, 08/11/2026 UTC — nova correção de gesto da Agenda:** dono especificou com capturas que somente **borda inferior/alça** ajusta a duração em edição. Vou remover o resize acionado pelo corpo do cartão em `AgendaTimeline.tsx` e manter o arrasto de início exclusivamente por pressão longa; testes em `agenda/arrasto-timeline.test.ts` e regra em `agenda/AGENTS.md`. Não alterarão Agenda backend, banco, outras telas ou produção.
 - **Para Claude/Muse — GPT, 08/11/2026 UTC — CRM fase 3 concluída em prévia, sem IA externa:** `/barbeiro/crm` recebeu gráfico de 3 séries (novos, retornos, atendimentos finalizados) e oportunidades de retorno por prazo oficial do serviço; ativos futuros não aparecem como oportunidade; nenhuma mensagem enviada. Cálculo em `src/lib/crm/oportunidades.ts`, leitura paginada com `relatorios` + `visualizar_clientes`, `tenant_id` e plano `crescimento` em `oportunidades.functions.ts`, UI `src/components/crm/OportunidadesCRM.tsx`. Commits `14e3d80` e `cda63e4`. CI `42448739227` PASSOU: TypeScript, build, 340 arquivos/2.757 testes (1 skipped), deploy e smoke da prévia confirmando SHA `cda63e4`. Nada foi alterado na Agenda, banco, produção, WhatsApp ou Helpin Runtime. Conferência visual autenticada 360/390 px/temas e testes de alto volume pendentes.
 - **Para Claude/Muse — GPT, 08/11/2026 UTC — correção dos gestos da Agenda concluída:** após pressão longa de 300 ms, mover só enquanto dedo fica pressionado; ao soltar, não sobra arrasto armado. Deslize no cartão que já está em edição altera apenas duração, reaproveitando os limites da alça; outra pressão longa permite mover. Arquivos: `AgendaTimeline.tsx`, `agenda/arrasto-timeline.test.ts`, `agenda/AGENTS.md`. Commit `5ede926`, CI 42448158199 verde: 339 arquivos/2.751 testes, 1 skipped; build e deploy/smoke confirmaram commit exato na prévia. Nenhuma alteração de banco/produção/WhatsApp. Ajustes de CRM fase 3 retomados em arquivos independentes.
@@ -1004,6 +1004,13 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+
+### 2026-11-08 UTC — GPT — correção da Agenda: duração somente pela borda inferior
+- Pedido do dono complementado por capturas: ao editar, arrastar o **corpo** não altera duração. Somente arrastar a **borda inferior/alça** ajusta o fim do atendimento. Segurar por 300 ms e manter o dedo no corpo permite mover o cartão, e soltar encerra o arrasto. Correção substitui somente a parte anterior da regra de 08/11 que permitia duração por swipe no corpo.
+- Commit `9ba8b83b5e81c206b8cec77609a6347ce50f94a7`: removido o caminho `redimensionando` de `AgendaTimeline.tsx`, mantida a `AlcaDeDuracao` existente, corrigida trava de rolagem para permanecer ativa enquanto a alça está arrastando; testes atualizados para corpo inerte sem long-press, borda exclusivamente funcional e liberação de rolagem. Regra documentada em `src/components/barbeiro/agenda/AGENTS.md`.
+- CI `42449550991`: validate-build sucesso, build e TypeScript passaram, Vitest **340 arquivos, 2.758 testes aprovados, 1 skipped**; deploy-isolated-preview e smoke sucesso, `https://previa.cortaiapp.pages.dev` confirmou SHA `9ba8b83`.
+- Escopo exclusivamente branch autorizada, sem migração, escrita em Supabase, segredo, produção ou mudanças no motor oficial da Agenda. Validação visual autenticada no aparelho 360/390px e temas ainda pendente.
+
 
 ### 2026-11-08 UTC — GPT — CRM fase 3: retornos verificáveis e gráfico ampliado
 - Após atender à correção prioritária dos gestos da Agenda (`5ede926`), retomei o CRM sem alterar arquivos de Agenda.
