@@ -9,12 +9,10 @@ import type { ContextoDoCerebro } from "@/lib/brain/acoes.server";
 export async function portasDoNegocio(p: {
   tenantId: string;
   telefone: string;
-  slug: string | null;
   agora: Date;
 }): Promise<Portas> {
   const { ACOES } = await import("@/lib/brain/acoes.server");
   const { fusoDoTenant } = await import("@/lib/fuso.server");
-  const { urlPublica } = await import("@/lib/origem-publica");
   const { supabaseAdmin: db } = await import("@/integrations/supabase/client.server");
   const ctx: ContextoDoCerebro = {
     tenantId: p.tenantId,
@@ -61,7 +59,6 @@ export async function portasDoNegocio(p: {
   return {
     fuso,
     agora: p.agora,
-    link: p.slug ? urlPublica(`/agendar/${p.slug}`) : null,
     servicos: lerServicos,
     async profissionais(servicoId) {
       const pronto = quemFaz.get(servicoId);
