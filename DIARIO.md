@@ -585,6 +585,7 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - 2026-10-26: **Cabeçalho do menu mobile mais compacto** (dono aprovou a reformulação após captura: logo menor, nome do negócio com hierarquia discreta, papel secundário, ajustes alinhados e menos espaço vazio; manter nome em até duas linhas quando necessário, sem afetar a Agenda).
 
 ## Em andamento
+- GPT | 2026-11-08 10:13 BRT | **Auditoria e unificação do atendimento WhatsApp (pedido do dono):** remover textos legados de agendamento por link e caminhos duplicados do Flow Bot, endurecer posse da conversa/erros de persistência/envio, cobrir saudação, opções 1–4, agendar, remarcar, cancelar, reagendar, atraso, disponibilidade, humano, erros e duplicidades com testes. Editar exclusivamente `src/lib/flow-bot/*` e `DIARIO.md`, documentos específicos se necessário; não tocar `src/lib/whatsapp/*` e webhooks reservados pela Claude, nem main/produção/banco. CI e deploy só após validação, sem enviar mensagens reais.
 
 
 
