@@ -52,8 +52,8 @@ export const TEXTOS = {
   qualServico: "Qual serviço você quer?",
   comQuem: "Com quem você prefere?",
   tantoFaz: "Tanto faz",
-  qualNome: "Para concluir, qual é o seu nome?",
-  nomeInvalido: "Não entendi o nome.\nPode me dizer só o seu nome?",
+  qualNome: "Para evitar confusão no cadastro, qual é seu *nome e sobrenome*?",
+  nomeInvalido: "Preciso do *nome e sobrenome* para identificar o cadastro corretamente.\nExemplo: Maria Souza."
   outroDia: "Se preferir outro dia ou horário, é só me dizer (ex.: amanhã à tarde).",
   // Escolhas destacadas em caixa alta e negrito (dono, 06/11/2026: "Sim ou não em caixa alta").
   responderSimOuNao: "Responda *SIM* para confirmar ou *NÃO* para mudar.",
@@ -96,7 +96,7 @@ export const DICA_DO_AUDIO: Record<string, string> = {
   servico: "Escreva o *número* do serviço ou mande outro áudio.",
   profissional: "Escreva o *número* da pessoa ou diga *tanto faz*.",
   horario: "Escreva o *número* do horário ou diga outro dia.",
-  nome: "Escreva só o seu *nome*.",
+  nome: "Escreva seu *nome e sobrenome* (ex.: Maria Souza).",
   confirmar: "Responda *SIM* ou *NÃO*.",
   escolher_agendamento: "Escreva o *número* do horário ou mande outro áudio.",
   minutos: "Escreva os *minutos* (ex.: 20) ou mande outro áudio.",
