@@ -33,7 +33,6 @@ function portasFalsas(
   const portas: Portas = {
     fuso: FUSO,
     agora: AGORA,
-    link: "https://previa.cortaiapp.pages.dev/agendar/demo",
     servicos: async () => servicos,
     profissionais: async () => equipe,
     livres: async (dia, _s, prof) =>
