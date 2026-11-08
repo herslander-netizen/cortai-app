@@ -37,6 +37,10 @@ jobs:
         run: bun install --frozen-lockfile
       # Vite/TanStack Router gera src/routeTree.gen.ts; isso precisa ocorrer antes do tsc
       # quando a branch adiciona uma rota nova. O build continua sendo validado antes dos testes.
+      # O Worker de cotas é independente do Pages: apenas empacota e verifica,
+      # nunca implanta nem cria recursos remotos por push automático.
+      - name: Validate quota Durable Object Worker (dry run, no deployment)
+        run: bunx wrangler deploy --dry-run --config infra/flow-ai-quota/wrangler.jsonc --outdir /tmp/flow-ai-quota-dryrun
       - name: Build migration preview
         run: bunx vite build --outDir /tmp/cortai-preview-build
       - name: TypeScript
