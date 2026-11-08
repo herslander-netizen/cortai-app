@@ -400,7 +400,7 @@ export function CabecalhoAgenda({
                   direcao="topo"
                   className="w-full"
                 >
-                  <CabecalhoDeEdicao dia={dia} naBarra onReagendar={onReagendar} />
+                  <CabecalhoDeEdicao dia={dia} naBarra {...(onReagendar ? { onReagendar } : {})} />
                 </TransicaoVerticalDoModoEdicao>
               ) : (
                 <TransicaoVerticalDoModoEdicao
