@@ -14,7 +14,7 @@ describe("topo exclusivo da Agenda", () => {
     expect(cabecalho).toContain('<AnimatePresence initial={false} mode="wait">');
     expect(cabecalho).toContain('key="topo-edicao"');
     expect(cabecalho).toContain('key="topo-normal"');
-    expect(cabecalho).toContain('<CabecalhoDeEdicao dia={dia} naBarra onReagendar={onReagendar} />');
+    expect(cabecalho).toContain('<CabecalhoDeEdicao dia={dia} naBarra {...(onReagendar ? { onReagendar } : {})} />');
   });
 
   it("recolhe a semana e limpa busca/calendário durante edição", () => {
