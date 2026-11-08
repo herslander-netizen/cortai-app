@@ -124,9 +124,9 @@ export const APRESENTACAO_PADRAO: ConteudoApresentacao = {
 };
 
 export const SEO_APRESENTACAO_PADRAO = {
-  titulo: "Flow — sua agenda cheia e seu negócio crescendo, grátis",
+  titulo: "Flow. Sua agenda cheia, seu negócio crescendo.",
   descricao:
-    "Agenda online, lembretes no WhatsApp, clientes e caixa para qualquer negócio de serviços crescer. Grátis até 50 agendamentos por mês, sem cartão.",
+    "Organize seus clientes, serviços e finanças em um só lugar. Automatize lembretes pelo WhatsApp e tenha mais tempo para cuidar do seu negócio.",
 };
 
 /** Campos ausentes ou inválidos caem no texto aprovado. */
