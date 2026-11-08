@@ -24,12 +24,13 @@ export async function registrarRespostaDoNegocio(input: {
   const { conexaoPorSessao, conversaDoTelefone } = await import("@/lib/whatsapp/fluxo.server");
   const conexao = await conexaoPorSessao(input.sessaoId);
   if (!conexao?.tenant_id) return "sem_conversa";
+  const tenantId = conexao.tenant_id;
 
   const buscarConversa = async () => {
     const { data, error } = await db
       .from("conversas_whatsapp")
       .select("id")
-      .eq("tenant_id", conexao.tenant_id)
+      .eq("tenant_id", tenantId)
       .in("telefone", variantesDoTelefone(input.telefone))
       .limit(1)
       .maybeSingle();
@@ -48,17 +49,18 @@ export async function registrarRespostaDoNegocio(input: {
   }
   // Se a primeira mensagem do negócio foi digitada no celular, ela também precisa assumir o atendimento.
   conversa ??= await conversaDoTelefone({
-    tenantId: conexao.tenant_id,
+    tenantId: tenantId,
     conexaoId: conexao.id,
     telefone: input.telefone,
     nomeContato: null,
   });
+  const conversaId = conversa.id;
 
   const recentes = async () => {
     const { data, error } = await db
       .from("mensagens_whatsapp")
       .select("mensagem_externa_id, conteudo")
-      .eq("conversa_id", conversa.id)
+      .eq("conversa_id", conversaId)
       .eq("direcao", "saida")
       .gte("criado_em", new Date(Date.now() - JANELA_DO_ENVIO_PROPRIO_MS).toISOString())
       .order("criado_em", { ascending: false })
@@ -77,10 +79,10 @@ export async function registrarRespostaDoNegocio(input: {
   const { data: linha, error: erroConfig } = await db
     .from("flow_bot_config")
     .select("modo, horario, pausa_humano_min, versao_publicada")
-    .eq("tenant_id", conexao.tenant_id)
+    .eq("tenant_id", tenantId)
     .maybeSingle();
   // Na ausência de configuração (Flow Bot desligado), a Flow IA ainda deve respeitar a pausa de 2h.
-  if (erroConfig && erroConfig.code !== "42P01") throw new Error(erroConfig.message);
+  if (erroConfig) console.warn("[flow-bot] configuração de pausa indisponível; usando 120 min");
   const pausa = configDoBot(linha as Record<string, unknown> | null)?.pausaHumanoMin ?? 120;
   const agora = Date.now();
   const { error: erroPausa } = await db
@@ -89,15 +91,15 @@ export async function registrarRespostaDoNegocio(input: {
       modo_humano_ate: prazoDoHumano(agora, pausa),
       ultima_mensagem_em: new Date(agora).toISOString(),
     })
-    .eq("id", conversa.id)
-    .eq("tenant_id", conexao.tenant_id);
+    .eq("id", conversaId)
+    .eq("tenant_id", tenantId);
   if (erroPausa) throw new Error(erroPausa.message);
 
   // A resposta humana precisa aparecer no histórico para o próximo turno da IA entender o contexto.
   // O mesmo ID de webhook nunca gera duas mensagens; não confundir com envio automático do Flow.
   const { error: erroMensagem } = await db.from("mensagens_whatsapp").insert({
-    tenant_id: conexao.tenant_id,
-    conversa_id: conversa.id,
+    tenant_id: tenantId,
+    conversa_id: conversaId,
     conexao_id: conexao.id,
     mensagem_externa_id: input.mensagemExternaId,
     direcao: "saida",
