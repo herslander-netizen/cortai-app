@@ -114,17 +114,18 @@ export function textosDasAcoes(acoes: readonly Acao[]): string[] {
 }
 
 /**
- * A mensagem `fromMe` que a Evolution devolveu foi enviada pelo próprio Flow (mesmo identificador, ou o mesmo
- * texto enviado há pouco)? Se não foi, alguém da equipe digitou no celular.
+ * A mensagem `fromMe` que a Evolution devolveu foi enviada pelo Flow?
+ * O ID do provedor prevalece: dois IDs diferentes são mensagens diferentes, mesmo com texto idêntico.
+ * Só usa o texto como contingência quando um dos lados não informou ID (Evolution legado).
  */
 export function ehEnvioDoFlow(
   mensagem: { id: string | null; texto: string },
   enviadosRecentes: readonly { mensagem_externa_id?: string | null; conteudo?: string | null }[],
 ): boolean {
   const texto = mensagem.texto.trim();
-  return enviadosRecentes.some(
-    (e) =>
-      (mensagem.id !== null && e.mensagem_externa_id === mensagem.id) ||
-      (texto !== "" && (e.conteudo ?? "").trim() === texto),
-  );
+  return enviadosRecentes.some((e) => {
+    const idEnviado = e.mensagem_externa_id ?? null;
+    if (mensagem.id && idEnviado) return mensagem.id === idEnviado;
+    return texto !== "" && (e.conteudo ?? "").trim() === texto;
+  });
 }
