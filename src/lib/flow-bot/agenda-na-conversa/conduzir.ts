@@ -632,7 +632,14 @@ async function oferecerHorarios(
     return { textos, estado: e };
   }
   textos.push(semHorarioProximo(DIAS_DE_BUSCA));
-  return { textos, estado: null };
+  // Se não há vaga, conservar a seleção de serviço/profissional para o cliente dizer
+  // outra data pelo WhatsApp, sem retornar ao menu inicial nem obrigá-lo a repetir tudo.
+  e.etapa = "horario";
+  e.inicio = null;
+  e.profissionalDoHorario = null;
+  e.opcoes = [];
+  e.periodo = null;
+  return { textos, estado: e };
 }
 
 function filtrarPeriodo(livres: readonly Livre[], periodo: PeriodoDoDia, fuso: string): Livre[] {
