@@ -20,7 +20,7 @@ import { getPaginaPublica } from "@/lib/publico.functions";
 import { termos } from "@/lib/segmentos";
 
 /** Estado e ações da tela "Personalizar página". */
-export function useEditorDaPagina(initial: MarcaData, reload: () => void) {
+export function useEditorDaPagina(initial: MarcaData, reload: () => Promise<unknown> | void) {
   const queryClient = useQueryClient();
   const saveDraft = useServerFn(salvarRascunhoPagina);
   const publish = useServerFn(publicarPagina);
@@ -245,9 +245,11 @@ export function useEditorDaPagina(initial: MarcaData, reload: () => void) {
 
   /** Volta ao que está publicado. O rascunho descartado fica nas versões anteriores. */
   const descartar = async () => {
+    if (busy) return;
     setBusy(true);
     setStatus(null);
     try {
+      // Sem rascunho no servidor, o descarte é estritamente local.
       if (initial.alteracoes_pendentes) await discard();
       setForm(initial);
       setConfig(initial.pagina);
@@ -255,9 +257,16 @@ export function useEditorDaPagina(initial: MarcaData, reload: () => void) {
       setCoverPreview(initial.capa_signed_url);
       setAvatarPreview(initial.avatar_signed_url);
       await reload();
-      setStatus("Alterações descartadas. A página voltou ao que está publicada.");
+      setStatus(initial.alteracoes_pendentes
+        ? "Rascunho descartado. A página publicada foi preservada."
+        : "Alterações locais descartadas. A página publicada foi preservada.");
     } catch (error) {
-      setStatus(error instanceof Error ? error.message : "Não foi possível descartar.", true);
+      setStatus(
+        error instanceof Error
+          ? error.message
+          : "Não foi possível confirmar o descarte. Atualize a página antes de repetir.",
+        true,
+      );
     } finally {
       setBusy(false);
     }
@@ -279,11 +288,21 @@ export function useEditorDaPagina(initial: MarcaData, reload: () => void) {
     : null;
 
   const restaurar = async (versaoId: string) => {
+    if (busy) return;
     setBusy(true);
+    setStatus(null);
     try {
       await restore({ data: { versaoId } });
+      // Sem releitura confirmada, não afirmar que a restauração foi concluída.
       await reload();
-      setStatus("Versão restaurada como rascunho.");
+      setStatus("Versão restaurada como rascunho. A página pública não mudou.");
+    } catch (error) {
+      // Pode haver falha depois de o servidor salvar: sincronizar antes de permitir repetir.
+      try { await reload(); } catch { /* manter mensagem segura ao usuário */ }
+      setStatus(
+        error instanceof Error ? error.message : "Não foi possível restaurar a versão.",
+        true,
+      );
     } finally {
       setBusy(false);
     }

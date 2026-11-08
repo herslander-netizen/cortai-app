@@ -60,7 +60,7 @@ describe("PaineisDoEditor", () => {
     const root = createRoot(alvo);
 
     await act(async () =>
-      root.render(createElement(PaineisDoEditor, { e, initial, versions: [] })),
+      root.render(createElement(PaineisDoEditor, { e, initial, versions: [], onRestaurarVersao: vi.fn() })),
     );
 
     expect(alvo.querySelector('[role="tablist"]')).not.toBeNull();

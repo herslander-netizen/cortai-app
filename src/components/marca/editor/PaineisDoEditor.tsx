@@ -1,4 +1,3 @@
-import { FaixaDeEstado } from "@/components/marca/editor/FaixaDeEstado";
 import { SecaoAjustesFinos } from "@/components/marca/editor/SecaoAjustesFinos";
 import { SecaoImagens } from "@/components/marca/editor/SecaoImagens";
 import { SecaoRecepcao } from "@/components/marca/editor/SecaoRecepcao";
@@ -53,12 +52,15 @@ export function PaineisDoEditor({
   versions,
   abaAtiva,
   onAbaChange,
+  onRestaurarVersao,
 }: {
   e: ReturnType<typeof useEditorDaPagina>;
   initial: MarcaData;
   versions: NonNullable<Awaited<ReturnType<typeof getMarca>>>["versoes"];
   abaAtiva?: AbaPainelDoEditor;
   onAbaChange?: (aba: AbaPainelDoEditor) => void;
+  /** Restauração sempre passa pela confirmação da tela principal. */
+  onRestaurarVersao: (id: string) => Promise<void> | void;
 }) {
   const [abaLocal, setAbaLocal] = useState<AbaPainelDoEditor>("detalhes");
   const aba = abaAtiva ?? abaLocal;
@@ -174,7 +176,7 @@ export function PaineisDoEditor({
                 titulo="Versões anteriores"
                 descricao="Consulte e restaure uma versão salva como rascunho."
               >
-                <SecaoVersoes versions={versions} busy={e.busy} restaurar={e.restaurar} />
+                <SecaoVersoes versions={versions} busy={e.busy} restaurar={onRestaurarVersao} />
               </Item>
             </Accordion>
           </motion.div>
@@ -201,13 +203,6 @@ export function PaineisDoEditor({
         />
       ) : null}
 
-      <FaixaDeEstado
-        fase={e.fase}
-        erro={e.erro}
-        status={e.status}
-        naoSalvo={e.naoSalvo}
-        pendente={e.pendente}
-      />
     </>
   );
 }

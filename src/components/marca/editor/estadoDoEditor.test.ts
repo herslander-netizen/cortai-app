@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { estadoDoEditor } from "./estadoDoEditor";
+import { estadoDoEditor, tipoDeDescarte } from "./estadoDoEditor";
 
 const base = {
   fase: "ocioso",
@@ -31,5 +31,25 @@ describe("estadoDoEditor", () => {
   });
   it("sucesso só aparece sem pendências", () => {
     expect(estadoDoEditor({ ...base, status: "Página publicada com sucesso." })?.tom).toBe("ok");
+  });
+  it("o aviso de sucesso não esconde rascunho ainda pendente", () => {
+    const e = estadoDoEditor({
+      ...base, status: "Página publicada com sucesso.", pendente: true,
+    });
+    expect(e?.tom).toBe("pendente");
+    expect(e?.texto).toMatch(/não mudou/);
+  });
+  it("o aviso de sucesso não esconde alterações locais não salvas", () => {
+    const e = estadoDoEditor({
+      ...base, status: "Página publicada com sucesso.", naoSalvo: true,
+    });
+    expect(e?.tom).toBe("pendente");
+    expect(e?.texto).toMatch(/não foram salvas/);
+  });
+  it("descarte diferencia edição local, rascunho salvo e ausência de mudanças", () => {
+    expect(tipoDeDescarte({ naoSalvo: false, pendente: false })).toBe("nenhum");
+    expect(tipoDeDescarte({ naoSalvo: true, pendente: false })).toBe("edicao_local");
+    expect(tipoDeDescarte({ naoSalvo: false, pendente: true })).toBe("rascunho_salvo");
+    expect(tipoDeDescarte({ naoSalvo: true, pendente: true })).toBe("rascunho_salvo");
   });
 });

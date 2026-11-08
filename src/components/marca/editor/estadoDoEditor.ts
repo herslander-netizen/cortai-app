@@ -34,3 +34,16 @@ export function estadoDoEditor({
   if (status) return { tom: "ok", texto: status, ocupado: false } as const;
   return null;
 }
+
+// O descarte só aparece quando existe conteúdo reversível: edição local OU rascunho salvo.
+export function tipoDeDescarte({
+  naoSalvo,
+  pendente,
+}: {
+  naoSalvo: boolean;
+  pendente: boolean;
+}): "rascunho_salvo" | "edicao_local" | "nenhum" {
+  if (pendente) return "rascunho_salvo";
+  if (naoSalvo) return "edicao_local";
+  return "nenhum";
+}

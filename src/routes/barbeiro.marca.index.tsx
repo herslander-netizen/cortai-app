@@ -19,6 +19,8 @@ import { useEffect, useState } from "react";
 import { EsqueletoFormulario } from "@/components/layout/Esqueleto";
 import { RouteError } from "@/components/layout/RouteError";
 import { LacunasDaPagina } from "@/components/marca/editor/LacunasDaPagina";
+import { FaixaDeEstado } from "@/components/marca/editor/FaixaDeEstado";
+import { tipoDeDescarte } from "@/components/marca/editor/estadoDoEditor";
 import { SecaoConteudo } from "@/components/marca/editor/SecaoConteudo";
 import { Screen } from "@/components/layout/Screen";
 import {
@@ -165,7 +167,10 @@ function MarcaPage() {
           <Editor
             initial={query.data.marca}
             versions={query.data.versoes}
-            reload={() => query.refetch()}
+            reload={async () => {
+              const resultado = await query.refetch({ throwOnError: true });
+              if (!resultado.data) throw new Error("Não foi possível atualizar a página. Tente novamente.");
+            }}
           />
         </motion.div>
       )}
@@ -239,14 +244,32 @@ function Editor({
     await e.executar("publish");
   };
   const descartarAlteracoes = async () => {
+    const tipo = tipoDeDescarte(e);
+    if (tipo === "nenhum" || e.busy) return;
     const aceitou = await confirmar({
-      titulo: "Descartar alterações?",
-      descricao: "As alterações não publicadas serão perdidas. Esta ação não pode ser desfeita.",
-      confirmar: "Descartar",
-      cancelar: "Cancelar",
+      titulo: tipo === "rascunho_salvo" ? "Descartar rascunho?" : "Descartar alterações locais?",
+      descricao: tipo === "rascunho_salvo"
+        ? "As alterações não publicadas, inclusive as desta edição, serão descartadas. A página pública será mantida e o rascunho salvo ficará no histórico."
+        : "As alterações desta edição ainda não foram salvas e serão perdidas. A página pública e os rascunhos já salvos serão mantidos.",
+      confirmar: tipo === "rascunho_salvo" ? "Descartar rascunho" : "Descartar alterações",
+      cancelar: "Continuar editando",
       destrutivo: true,
     });
     if (aceitou) await e.descartar();
+  };
+  const restaurarVersao = async (versaoId: string) => {
+    if (e.busy) return;
+    const possuiPendencias = e.naoSalvo || e.pendente;
+    const aceitou = await confirmar({
+      titulo: "Restaurar esta versão?",
+      descricao: possuiPendencias
+        ? "A versão escolhida substituirá seu rascunho atual. Alterações locais ainda não salvas serão perdidas; o rascunho salvo poderá ser recuperado no histórico. A página publicada será mantida."
+        : "A versão escolhida será carregada como rascunho. A página publicada só muda se você publicar novamente.",
+      confirmar: "Restaurar versão",
+      cancelar: "Cancelar",
+      destrutivo: possuiPendencias,
+    });
+    if (aceitou) await e.restaurar(versaoId);
   };
   const previa = (altura?: string) => (
     <PreviaDaExperiencia
@@ -334,47 +357,29 @@ function Editor({
         </section>
       )}
 
-      <AnimatePresence>
-        {e.pendente ? (
-          <motion.section
-            key="rascunho-banner"
-            layout
-            initial={
-              reduzirMovimento
-                ? { opacity: 0 }
-                : { opacity: 0, height: 0, paddingTop: 0, paddingBottom: 0, marginBottom: 0 }
-            }
-            animate={
-              reduzirMovimento
-                ? { opacity: 1 }
-                : {
-                    opacity: 1,
-                    height: "auto",
-                    paddingTop: 16,
-                    paddingBottom: 16,
-                    marginBottom: 16,
-                  }
-            }
-            exit={
-              reduzirMovimento
-                ? { opacity: 0 }
-                : { opacity: 0, height: 0, paddingTop: 0, paddingBottom: 0, marginBottom: 0 }
-            }
-            transition={{ duration: reduzirMovimento ? 0.15 : 0.22 }}
-            className="overflow-hidden rounded-xl border border-gold/40 bg-gold/5 p-4 sm:p-5"
-          >
-            <h2 className="text-sm font-semibold text-paper">Alterações não publicadas</h2>
-            <p className="mt-1 text-sm leading-relaxed text-mute">
-              Há um rascunho que ainda não aparece na sua página pública.
-            </p>
-          </motion.section>
-        ) : null}
-      </AnimatePresence>
+      <FaixaDeEstado
+        fase={e.fase}
+        erro={e.erro}
+        status={e.status}
+        naoSalvo={e.naoSalvo}
+        pendente={e.pendente}
+      />
 
       {/* Figaro (capturas do dono, 30/10): rótulo da seção, capa de borda a borda, duas colunas e a pílula. */}
-      <h2 className="mb-3 px-4 text-sm font-semibold text-[var(--figaro-on-surface-variant,var(--mute))]">
-        Layout e tema
-      </h2>
+      <div className="mb-3 flex items-center justify-between gap-2">
+        <h2 className="px-4 text-sm font-semibold text-[var(--figaro-on-surface-variant,var(--mute))]">
+          Layout e tema
+        </h2>
+        <Button
+          type="button"
+          variant="outline"
+          className="min-h-11 shrink-0 xl:hidden"
+          onClick={() => setPreviaAberta(true)}
+        >
+          <Eye aria-hidden />
+          Ver prévia
+        </Button>
+      </div>
       <section className="mb-6 overflow-hidden rounded-[28px] bg-[var(--figaro-surface-container-low,var(--ink2))] shadow-[var(--elevacao-2)]">
         <div className="aspect-video overflow-hidden bg-background">
           <CapaDoTema tema={visual.tema} />
@@ -442,6 +447,7 @@ function Editor({
               versions={versions}
               abaAtiva={abaAtiva}
               onAbaChange={setAbaAtiva}
+              onRestaurarVersao={restaurarVersao}
             />
           </AccordionContent>
         </AccordionItem>
@@ -450,15 +456,7 @@ function Editor({
       <div className="grid gap-6 xl:grid-cols-[minmax(0,520px)_minmax(420px,1fr)]">
         <div>
           <div className="sticky bottom-20 z-20 mt-6 rounded-xl border-0 bg-[var(--agenda-cartao,var(--ink2))] p-2 shadow-[var(--elevacao-3)] xl:bottom-4">
-            <Button
-              variant="ghost"
-              className="mb-2 h-12 w-full xl:hidden"
-              onClick={() => setPreviaAberta(true)}
-            >
-              <Eye />
-              Ver prévia
-            </Button>
-            {e.pendente ? (
+            {tipoDeDescarte(e) !== "nenhum" ? (
               <Button
                 variant="ghost"
                 className="mb-2 h-12 w-full text-brick"
@@ -466,7 +464,7 @@ function Editor({
                 onClick={() => void descartarAlteracoes()}
               >
                 <Undo2 />
-                Descartar alterações
+                {e.pendente ? "Descartar rascunho" : "Descartar alterações"}
               </Button>
             ) : null}
             <div className="grid grid-cols-2 gap-2">
@@ -510,7 +508,7 @@ function Editor({
           <SheetHeader>
             <SheetTitle>Prévia da página</SheetTitle>
           </SheetHeader>
-          <div className="mt-2">{previa("h-[calc(100dvh-140px)]")}</div>
+          <div className="mt-2">{previaAberta ? previa("h-[calc(100dvh-140px)]") : null}</div>
         </SheetContent>
       </Sheet>
     </Screen>

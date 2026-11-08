@@ -280,7 +280,10 @@ export const getMarca = createServerFn({ method: "GET" })
         context.supabase,
         marcaRascunho.success ? marcaRascunho.data.logo_url : atual.logo_url,
       ),
-      signedLogo(context.supabase, atual.capa_url),
+      signedLogo(
+        context.supabase,
+        marcaRascunho.success ? marcaRascunho.data.capa_url : atual.capa_url,
+      ),
       signedLogo(context.supabase, paginaRascunho.chat.avatarUrl),
     ]), "preparar imagens da página");
     return {
@@ -560,9 +563,8 @@ export const restaurarMarca = createServerFn({ method: "POST" })
   .validator((input: unknown) => z.object({ versaoId: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }) => {
     const tenantId = await tenantDoDono(context.supabase, context.userId);
-    // Restaurar uma versão também grava a marca avançada: mesma checagem de plano.
     await exigirRecurso(context.supabase, tenantId, "branding_avancado");
-    const [{ data: atual }, { data: versao }] = await Promise.all([
+    const [{ data: atual, error: erroAtual }, { data: versao, error: erroVersao }, { data: paginaAtual, error: erroPagina }] = await Promise.all([
       context.supabase.from("tenants").select("*").eq("id", tenantId).single(),
       context.supabase
         .from("tenant_branding_versions")
@@ -570,54 +572,77 @@ export const restaurarMarca = createServerFn({ method: "POST" })
         .eq("id", data.versaoId)
         .eq("tenant_id", tenantId)
         .single(),
+      context.supabase
+        .from("tenant_page_configs")
+        .select("draft_config, published_config")
+        .eq("tenant_id", tenantId)
+        .maybeSingle(),
     ]);
-    if (!atual || !versao) throw new Error("Versão não encontrada.");
+    if (erroAtual || erroVersao || erroPagina || !atual || !versao)
+      throw new Error("Não foi possível carregar a versão. Tente novamente.");
 
-    const { data: ultima } = await context.supabase
+    // Validar o snapshot ANTES de qualquer escrita. Versões antigas só incluem a marca.
+    const composta = z
+      .object({ marca: marcaSchema, pagina: paginaConfigSchema.optional() })
+      .safeParse(versao.snapshot);
+    const marcaRestaurada = composta.success
+      ? composta.data.marca
+      : marcaSchema.parse(versao.snapshot);
+    const conteudoAtual = (paginaAtual?.draft_config ?? paginaAtual?.published_config) as {
+      pagina?: unknown;
+      marca?: unknown;
+    } | null;
+    const paginaRestaurada = composta.success && composta.data.pagina
+      ? composta.data.pagina
+      : normalizarPagina(conteudoAtual?.pagina, {
+          frase: atual.texto_boas_vindas ?? "Cuidado, estilo e horário reservado para você.",
+          sobre: atual.descricao ?? "",
+        });
+
+    const rascunhoAnterior = paginaAtual?.draft_config ?? {
+      pagina: paginaRestaurada,
+      marca: snapshot(atual),
+    };
+
+    const { data: ultima, error: erroUltima } = await context.supabase
       .from("tenant_branding_versions")
       .select("versao")
       .eq("tenant_id", tenantId)
       .order("versao", { ascending: false })
       .limit(1)
       .maybeSingle();
+    if (erroUltima) throw new Error(erroUltima.message);
+
+    // Guardar o rascunho anterior como versão recuperável ANTES de substituí-lo.
     const { error: historyError } = await context.supabase.from("tenant_branding_versions").insert({
       tenant_id: tenantId,
       versao: (ultima?.versao ?? 0) + 1,
-      snapshot: snapshot(atual) as unknown as Json,
-      restaurado_de: versao.id,
+      snapshot: rascunhoAnterior as Json,
       criado_por: context.userId,
     });
     if (historyError) throw new Error(historyError.message);
 
-    const composta = z
-      .object({ marca: marcaSchema, pagina: paginaConfigSchema.optional() })
-      .safeParse(versao.snapshot);
-    const restaurada = composta.success ? composta.data.marca : marcaSchema.parse(versao.snapshot);
-    const { error } = await context.supabase
-      .from("tenants")
-      .update({
-        ...restaurada,
-        assinatura_visivel: atual.plano === "essencial" ? true : restaurada.assinatura_visivel,
-      })
-      .eq("id", tenantId);
+    // Restauração é APENAS rascunho. Não alterar tenants nem published_config:
+    // a marca pública só pode mudar via publicarPagina.
+    const { error } = await context.supabase.from("tenant_page_configs").upsert(
+      {
+        tenant_id: tenantId,
+        draft_config: {
+          pagina: preservarFilaDeChegada(
+            paginaRestaurada,
+            paginaAtual?.published_config ?? paginaAtual?.draft_config ?? null,
+          ),
+          marca: {
+            ...marcaRestaurada,
+            assinatura_visivel:
+              atual.plano === "essencial" ? true : marcaRestaurada.assinatura_visivel,
+          },
+        } as unknown as Json,
+        draft_by: context.userId,
+      },
+      { onConflict: "tenant_id" },
+    );
     if (error) throw new Error(error.message);
-    if (composta.success && composta.data.pagina) {
-      const { error: pageError } = await context.supabase.from("tenant_page_configs").upsert(
-        {
-          tenant_id: tenantId,
-          draft_config: {
-            pagina: preservarFilaDeChegada(
-              composta.data.pagina,
-              await containerSalvo(context.supabase, tenantId),
-            ),
-            marca: restaurada,
-          } as unknown as Json,
-          draft_by: context.userId,
-        },
-        { onConflict: "tenant_id" },
-      );
-      if (pageError) throw new Error(pageError.message);
-    }
     return { ok: true };
   });
 
