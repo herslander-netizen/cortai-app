@@ -19,6 +19,16 @@ describe("posicionamento multi-serviços do Flow", () => {
     expect(SEO_APRESENTACAO_PADRAO.descricao.toLowerCase()).not.toContain("barbearia");
   });
 
+  it("apresenta o Flow com valor antes de preço, sem redundância nem travessão", () => {
+    expect(SEO_APRESENTACAO_PADRAO.titulo).toBe("Flow. Sua agenda cheia, seu negócio crescendo.");
+    expect(SEO_APRESENTACAO_PADRAO.titulo.length).toBeLessThanOrEqual(70);
+    expect(SEO_APRESENTACAO_PADRAO.descricao.length).toBeLessThanOrEqual(180);
+    expect(SEO_APRESENTACAO_PADRAO.descricao).toContain("WhatsApp");
+    expect(SEO_APRESENTACAO_PADRAO.descricao).toContain("finanças");
+    expect(SEO_APRESENTACAO_PADRAO.titulo).not.toMatch(/[—–]|grátis/i);
+    expect(SEO_APRESENTACAO_PADRAO.descricao).not.toMatch(/agenda online|grátis/i);
+  });
+
   it("usa posicionamento de serviços no conteúdo padrão da Home", () => {
     expect(HOME_PADRAO.hero.etiqueta.toLowerCase()).toContain("negócios de serviços");
     expect(HOME_PADRAO.hero.texto.toLowerCase()).not.toContain("beleza");
