@@ -74,7 +74,13 @@ describe("troca de dia sem piscar nem puxar a página", () => {
 
   it("nenhuma animação de troca de dia começa invisível", () => {
     expect(css).not.toMatch(/@keyframes agenda-troca/);
-    expect(operacional).not.toMatch(/opacity:\s*0[,\s}]/);
+    // A transição dos cabeçalhos pode usar fade. O dia, não: iniciar invisível
+    // gerava um piscar durante o gesto horizontal da Timeline.
+    const inicio = operacional.indexOf("// A Agenda não é desmontada ao trocar de dia");
+    const fim = operacional.indexOf("const { aplicar: aplicarRascunho } = edicao;", inicio);
+    expect(inicio).toBeGreaterThan(-1);
+    expect(fim).toBeGreaterThan(inicio);
+    expect(operacional.slice(inicio, fim)).not.toMatch(/opacity:\s*0[,\s}]/);
   });
 
   it("cartões do dia anterior nunca aparecem debaixo da data nova", () => {
