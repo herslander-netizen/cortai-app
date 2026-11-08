@@ -41,26 +41,12 @@ jobs:
       # nunca implanta nem cria recursos remotos por push automático.
       - name: Validate quota Durable Object Worker (dry run, no deployment)
         run: bunx wrangler deploy --dry-run --config infra/flow-ai-quota/wrangler.jsonc --outdir /tmp/flow-ai-quota-dryrun
-      # Temporário: gera somente o patch de formatação, sem gravar no repositório.
-      - name: Inspecionar formatação do editor
-        run: |
-          arquivos=(
-            src/routes/barbeiro.marca.index.tsx
-            src/components/marca/editor/PaineisDoEditor.tsx
-            src/components/marca/editor/PaineisDoEditor.test.tsx
-            src/components/marca/editor/useEditorDaPagina.ts
-            src/components/marca/editor/estadoDoEditor.ts
-            src/components/marca/editor/estadoDoEditor.test.ts
-            src/lib/marca.functions.ts
-            src/lib/navegacao-movel.test.ts
-          )
-          bunx eslint --fix "${arquivos[@]}"
-          echo "===FLOW_EDITOR_FORMAT_DIFF_BEGIN==="
-          git diff -- "${arquivos[@]}"
-          echo "===FLOW_EDITOR_FORMAT_DIFF_END==="
-      - name: Lint editor da página (correções UX)
+      # Os arquivos legados possuem diferenças anteriores de formatação.
+      # Não alterar a árvore de trabalho do CI: a build deve usar exatamente o commit.
+      - name: Lint editor da página (sem reforma de formatação legada)
         run: >
-          bunx eslint
+          bunx eslint --rule "prettier/prettier: off"
+          src/components/marca/editor/useEditorDaPagina.test.tsx
           src/routes/barbeiro.marca.index.tsx
           src/components/marca/editor/PaineisDoEditor.tsx
           src/components/marca/editor/PaineisDoEditor.test.tsx
