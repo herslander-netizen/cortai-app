@@ -38,6 +38,8 @@ import { dataEditorial, somarDias } from "./tempo";
 import { tituloDoMes } from "./calendario";
 import { buscaDaLista, useBuscaDaLista } from "./busca-da-lista";
 import { MOLA } from "@/lib/movimento-figaro";
+import { CabecalhoDeEdicao } from "./CabecalhoDeEdicao";
+import { TransicaoVerticalDoModoEdicao } from "./TransicaoVerticalDoModoEdicao";
 
 export type VisualizacaoAgenda = "lista" | "timeline" | "semana";
 
@@ -117,6 +119,7 @@ export function CabecalhoAgenda({
   calendarioAberto = false,
   onCalendario,
   emEdicao = false,
+  onReagendar,
   children,
 }: {
   dia: string;
@@ -144,6 +147,8 @@ export function CabecalhoAgenda({
   onCalendario?: () => void;
   /** Celular, modo de editar horário: a barra do topo mostra só a data (some título e ações). */
   emEdicao?: boolean;
+  /** Reagendar continua abrindo o fluxo oficial; o topo não guarda estado próprio. */
+  onReagendar?: () => void;
   children?: ReactNode;
 }) {
   const [calendario, setCalendario] = useState(false);
@@ -151,8 +156,14 @@ export function CabecalhoAgenda({
   const modoBusca = celular && visualizacao === "lista";
   const busca = useBuscaDaLista();
   useEffect(() => {
-    if (!modoBusca) buscaDaLista.fechar();
-  }, [modoBusca]);
+    // A busca/calendário não podem ressurgir ao descartar ou salvar uma edição.
+    if (emEdicao) {
+      buscaDaLista.fechar();
+      setCalendario(false);
+    } else if (!modoBusca) {
+      buscaDaLista.fechar();
+    }
+  }, [emEdicao, modoBusca]);
   const { guiaDisponivel, abrirGuia } = useGuia();
   const opcoes = [
     { id: "timeline" as const, rotulo: "Timeline", Icone: CalendarClock },
@@ -378,21 +389,42 @@ export function CabecalhoAgenda({
   const parar = (e: { stopPropagation: () => void }) => e.stopPropagation();
   return (
     <>
-      {topo && !emEdicao
+      {topo
         ? createPortal(
-            // Toques na barra do topo não sobem até o deslize de dia.
-            <div
-              className="agenda-topo-data relative w-full"
-              onTouchStart={parar}
-              onTouchMove={parar}
-              onTouchEnd={parar}
-              onTouchCancel={parar}
-            >
-              {topoCelular}
-              <AnimatePresence initial={false}>
-                {modoBusca && busca.aberta ? <PainelDeBusca /> : null}
-              </AnimatePresence>
-            </div>,
+            // Um único dono do slot do topo. `mode="wait"` impede que os dois cabeçalhos
+            // convivam no mesmo quadro durante Salvar, Descartar, Reagendar e toque fora.
+            <AnimatePresence initial={false} mode="wait">
+              {emEdicao ? (
+                <TransicaoVerticalDoModoEdicao
+                  key="topo-edicao"
+                  direcao="topo"
+                  className="w-full"
+                >
+                  <CabecalhoDeEdicao dia={dia} naBarra onReagendar={onReagendar} />
+                </TransicaoVerticalDoModoEdicao>
+              ) : (
+                <TransicaoVerticalDoModoEdicao
+                  key="topo-normal"
+                  direcao="topo"
+                  className="w-full"
+                  marcarEdicao={false}
+                >
+                  {/* Toques na barra não devem acionar o gesto de troca de dia. */}
+                  <div
+                    className="agenda-topo-data relative w-full"
+                    onTouchStart={parar}
+                    onTouchMove={parar}
+                    onTouchEnd={parar}
+                    onTouchCancel={parar}
+                  >
+                    {topoCelular}
+                    <AnimatePresence initial={false}>
+                      {modoBusca && busca.aberta ? <PainelDeBusca /> : null}
+                    </AnimatePresence>
+                  </div>
+                </TransicaoVerticalDoModoEdicao>
+              )}
+            </AnimatePresence>,
             topo,
           )
         : null}
