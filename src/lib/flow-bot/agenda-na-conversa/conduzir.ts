@@ -783,7 +783,7 @@ async function executar(e: EstadoDaAgenda, portas: Portas): Promise<Resultado> {
     const servico = servicos.find((s) => s.id === e.servicoId);
     const profissional = equipe.find((p) => p.id === profissionalId);
     const textoFinal = confirmacaoDeReserva({
-      nome: e.nome ?? cliente?.nome,
+      nome: e.nome ?? cliente?.nome ?? null,
       servico: servico?.nome ?? "seu atendimento",
       profissional: profissional?.nome ?? null,
       quando: quandoPorExtenso(e.inicio, portas.fuso),
