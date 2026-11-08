@@ -125,12 +125,12 @@ export function confirmacaoDeReserva(p: {
 }): string {
   const nome = p.nome?.trim().split(/\s+/)[0];
   return [
-    \`✅ *Agendamento confirmado\${nome ? \`, \${nome}\` : ""}!*\`,
+    `✅ *Agendamento confirmado${nome ? `, ${nome}` : ""}!*`,
     "",
-    \`*Serviço:* \${p.servico}\`,
-    ...(p.profissional ? [\`*Profissional:* \${p.profissional}\`] : []),
-    \`*Data e horário:* \${p.quando.charAt(0).toLocaleUpperCase("pt-BR") + p.quando.slice(1)}\`,
-    ...(p.valor ? [\`*Valor do serviço:* \${p.valor}\`] : []),
+    `*Serviço:* ${p.servico}`,
+    ...(p.profissional ? [`*Profissional:* ${p.profissional}`] : []),
+    `*Data e horário:* ${p.quando.charAt(0).toLocaleUpperCase("pt-BR") + p.quando.slice(1)}`,
+    ...(p.valor ? [`*Valor do serviço:* ${p.valor}`] : []),
     "",
     "Obrigado por escolher a gente! ✨",
     "Se precisar *remarcar* ou *cancelar*, é só avisar por aqui.",
@@ -141,7 +141,7 @@ export function confirmacaoDeRemarcacao(quando: string): string {
   return [
     "✅ *Horário remarcado com sucesso!*",
     "",
-    \`*Novo horário:* \${quando.charAt(0).toLocaleUpperCase("pt-BR") + quando.slice(1)}\`,
+    `*Novo horário:* ${quando.charAt(0).toLocaleUpperCase("pt-BR") + quando.slice(1)}`,
     "",
     "Obrigado por avisar. Até lá! ✨",
   ].join("\n");
@@ -150,7 +150,7 @@ export function confirmacaoDeRemarcacao(quando: string): string {
 export function confirmacaoDeCancelamento(servico: string | null, quando: string | null): string {
   return [
     "✅ *Cancelamento realizado.*",
-    ...(servico && quando ? ["", \`*Serviço:* \${servico}\`, \`*Horário cancelado:* \${quando}\`] : []),
+    ...(servico && quando ? ["", `*Serviço:* ${servico}`, `*Horário cancelado:* ${quando}`] : []),
     "",
     "Obrigado por avisar. Quando precisar, é só chamar por aqui. ✨",
   ].join("\n");
