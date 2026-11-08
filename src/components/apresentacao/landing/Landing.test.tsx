@@ -6,14 +6,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import { APRESENTACAO_PADRAO } from "@/lib/apresentacao-conteudo";
 import { PLANOS_COMERCIAIS } from "@/lib/planos-comerciais";
-
-const sessao = vi.hoisted(() => ({ ativa: false }));
-
-vi.mock("@/integrations/supabase/client", () => ({
-  supabase: {
-    auth: { getSession: async () => ({ data: { session: sessao.ativa ? { user: {} } : null } }) },
-  },
-}));
+import { linkDeInteresseFlow } from "./whatsapp";
 
 vi.mock("@/lib/institucional.functions", () => ({
   getContatoDaPlataforma: async () => ({ whatsapp: null }),
@@ -65,7 +58,7 @@ describe("página pública promocional", () => {
     expect(div.textContent).toContain(
       `Grátis até ${essencial.agendamentosMes} agendamentos por mês.`,
     );
-    expect(div.querySelectorAll('a[href="/comecar"]').length).toBeGreaterThan(2);
+    expect(div.querySelectorAll('a[href^="https://wa.me/5579998181983?text="]').length).toBeGreaterThan(4);
     fechar();
   });
 
@@ -88,21 +81,35 @@ describe("página pública promocional", () => {
     fechar();
   });
 
-  it("sem sessão: Entrar e Começar grátis; com sessão: só Abrir meu painel (sem login automático)", async () => {
-    const sem = desenhar();
-    await act(async () => undefined);
-    expect(sem.div.querySelector('a[href="/login"]')).not.toBeNull();
-    expect(sem.div.textContent).not.toContain("Abrir meu painel");
-    sem.fechar();
+  it("direciona todas as chamadas comerciais ao WhatsApp e não exibe login ou cadastro", () => {
+    const { div, fechar } = desenhar();
+    const linksComerciais = [...div.querySelectorAll("a[data-cta-propria]")];
+    expect(linksComerciais).toHaveLength(PLANOS_COMERCIAIS.length + 3);
+    for (const link of linksComerciais) {
+      const destino = new URL(link.getAttribute("href") ?? "");
+      expect(destino.hostname).toBe("wa.me");
+      expect(destino.pathname).toBe("/5579998181983");
+      expect(destino.searchParams.get("text")).toMatch(/interesse.*Flow|Flow.*interesse/i);
+      expect(link.getAttribute("target")).toBe("_blank");
+    }
 
-    sessao.ativa = true;
-    const com = desenhar();
-    await act(async () => undefined);
-    expect(com.div.textContent).toContain("Abrir meu painel");
-    expect(com.div.querySelector('a[href="/login"]')).toBeNull();
-    expect(com.div.querySelector('a[href="/comecar"]')).toBeNull();
-    com.fechar();
-    sessao.ativa = false;
+    expect(div.querySelector('a[href="/login"], a[href="/comecar"], a[href="/"]')).toBeNull();
+    expect(div.textContent).not.toContain("Já tenho conta");
+    expect(div.textContent).not.toContain("Abrir meu painel");
+    const flutuante = div.querySelector('a[aria-label="Conversar sobre o Flow no WhatsApp"]');
+    expect(flutuante?.getAttribute("href")).toBe(linkDeInteresseFlow());
+    expect(div.querySelector("header a")?.getAttribute("href")).toBe(linkDeInteresseFlow());
+    expect(div.querySelector('a[href="/privacidade"]')).not.toBeNull();
+    fechar();
+  });
+
+  it("preenche o interesse geral ou no plano sem enviar mensagens automaticamente", () => {
+    const geral = new URL(linkDeInteresseFlow());
+    expect(geral.hostname).toBe("wa.me");
+    expect(geral.pathname).toBe("/5579998181983");
+    expect(geral.searchParams.get("text")).toContain("tenho interesse em conhecer a plataforma");
+    const studio = new URL(linkDeInteresseFlow("Studio"));
+    expect(studio.searchParams.get("text")).toContain("tenho interesse no plano Studio");
   });
 
   it("não cita plano nem limite antigos nos textos padrão", () => {
