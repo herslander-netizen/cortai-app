@@ -584,6 +584,7 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - 2026-10-26: **Cabeçalho do menu mobile mais compacto** (dono aprovou a reformulação após captura: logo menor, nome do negócio com hierarquia discreta, papel secundário, ajustes alinhados e menos espaço vazio; manter nome em até duas linhas quando necessário, sem afetar a Agenda).
 
 ## Em andamento
+- GPT | 2026-11-08 — **Opção 1 do menu WhatsApp deve iniciar reserva NA CONVERSA (pedido do dono, captura Teste01)**: ligar opção `1` do menu-padrão com `agenda-na-conversa`, guardar contexto e liberar sessão de menu para não competir com a agenda; testes para opção válida, menu expirado, opção sem menu e demais opções; texto do menu-padrão pode indicar “pelo WhatsApp”. Editar somente `src/lib/flow-bot/bot.server.ts`, `src/lib/flow-bot/decisao.ts`, `src/lib/flow-bot/decisao.test.ts`, `src/lib/flow-bot/modelos/atendimento.json` e `DIARIO.md`. Sem escrita em bancos, sem tocar `src/lib/whatsapp/*` e webhook reservados pela Claude, sem main/produção.
 
 
 
