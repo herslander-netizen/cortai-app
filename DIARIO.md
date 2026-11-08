@@ -579,6 +579,7 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - 2026-10-26: **Cabeçalho do menu mobile mais compacto** (dono aprovou a reformulação após captura: logo menor, nome do negócio com hierarquia discreta, papel secundário, ajustes alinhados e menos espaço vazio; manter nome em até duas linhas quando necessário, sem afetar a Agenda).
 
 ## Em andamento
+- GPT | 2026-11-08 UTC | **Flow Core + CRM fase 2 (solicitação: pode seguir):** integrar `consultar_indicadores_crm` ao catálogo oficial da IA no painel com permissão `relatorios` e capacidade `crescimento`; extrair leitura dos indicadores em serviço autorizado por tenant; preparar adaptador Helpin Agent Runtime com autenticação, bloqueio por padrão e testes de contrato; manter especialista CRM/Insights atualizado. Nenhum backend externo ativado, produção, banco/migração, WhatsApp, Agenda, arquivos de navegação/UI reservados, segredo/custo. | `src/lib/crm/indicadores.functions.ts`, `src/lib/crm/indicadores.server.ts`, `src/lib/crm/indicadores.server.test.ts`, `src/lib/brain/acoes.server.ts`, `src/lib/agente-flow/especialistas.ts`, `src/lib/agente-flow/helpin-runtime.server.ts`, `src/lib/agente-flow/helpin-runtime.test.ts`, `docs/flow-inteligencia/18-ponte-helpin-crm.md`; sem migração
 
 
 
