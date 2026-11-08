@@ -87,8 +87,8 @@ export function semHorarioNoDia(dia: string, fuso: string): string {
   return `Não tenho horário livre ${diaPorExtenso(`${dia}T15:00:00Z`, fuso)}.`;
 }
 
-export function semHorarioProximo(dias: number, link: string | null): string {
-  return `Não encontrei horário livre nos próximos ${dias} dias.${link ? ` Você também pode ver pelo link: ${link}` : ""}`;
+export function semHorarioProximo(dias: number): string {
+  return `Não encontrei horário livre nos próximos ${dias} dias. Diga outra data para eu consultar por aqui, ou peça um atendente.`;
 }
 
 /** O que fazer agora, por etapa, quando o áudio não encaixou (uma linha curta). */
