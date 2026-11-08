@@ -53,6 +53,8 @@ export function ehEquipeNoWhatsapp(ctx: ContextoDoCerebro) {
 type Risco = "leitura" | "escrita" | "controle";
 
 type Definicao = {
+  /** Mantém a ferramenta fora de todos os canais de WhatsApp, inclusive equipe. */
+  restritoAoPainel?: boolean;
   descricao: string;
   parametros: Record<string, unknown>;
   risco: Risco;
@@ -631,6 +633,22 @@ export const ACOES: Record<string, Definicao> = {
     canais: ATENDIMENTO,
     executar: (ctx, d) => exigirAgendamentoPermitido(ctx, String(d.agendamentoId)),
   },
+  consultar_indicadores_crm: {
+    descricao: "Consulta os indicadores oficiais do CRM: atendimentos FINALIZADOS, cadastros, recorrência e retornos mensais. Não são pagamentos nem faturamento. Somente painel com relatórios.",
+    parametros: obj({}),
+    risco: "leitura",
+    canais: ["painel"],
+    restritoAoPainel: true,
+    permissoes: ["relatorios"],
+    executar: async (ctx) => {
+      if (ctx.canal !== "painel" || ctx.papel === "profissional" ||
+          !ctx.permissoes?.includes("relatorios")) {
+        throw new Error("Sem permissão para consultar indicadores do CRM.");
+      }
+      const { consultarIndicadoresCRMDoTenant } = await import("@/lib/crm/indicadores.server");
+      return consultarIndicadoresCRMDoTenant(ctx.tenantId);
+    },
+  },
   consultar_movimento: {
     descricao: "Indicadores do dia de hoje: agendamentos por situação. Só para a equipe.",
     parametros: obj({}),
@@ -1097,11 +1115,12 @@ export const ACOES: Record<string, Definicao> = {
 };
 
 /** Equipe no WhatsApp: ações do painel + as dela; profissional sem indicadores do negócio. */
-const SO_DONO = new Set(["consultar_movimento", "consultar_caixa_hoje"]);
+const SO_DONO = new Set(["consultar_movimento", "consultar_caixa_hoje", "consultar_indicadores_crm"]);
 
 export function acaoPermitida(nome: string, ctx: ContextoDoCerebro): boolean {
   const a = ACOES[nome];
   if (!a) return false;
+  if (a.restritoAoPainel && ctx.canal !== "painel") return false;
   if (ehEquipeNoWhatsapp(ctx)) {
     const papel = ctx.papel as Papel;
     // Ações exclusivas de papel (agenda da equipe/atraso) usam a própria guarda
