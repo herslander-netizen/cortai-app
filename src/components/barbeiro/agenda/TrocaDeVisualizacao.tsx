@@ -1,23 +1,35 @@
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import type { ReactNode } from "react";
 
-const SUAVE = [0.22, 1, 0.36, 1] as const;
+import { CURVA, TEMPO } from "@/lib/movimento-figaro";
 
 /**
- * Troca timeline ↔ lista no celular. Antes as duas visualizações ficavam na tela ao mesmo tempo, esmaecendo uma por
- * cima da outra (vídeo do dono, 06/11: a lista aparecia transparente sobre a linha do tempo e havia um quadro vazio).
- * Agora a que sai some na hora e a nova entra com um esmaecer curto, só opacidade e um deslize mínimo — nunca as
- * duas juntas. A chave muda só com a visualização — trocar de dia não passa por aqui (nada pisca).
+ * Timeline ↔ Lista: as duas visualizações nunca se sobrepõem (regressão filmada em 06/11).
+ * A anterior recua e esmaece brevemente; só depois a próxima sobe e se revela.
+ * A chave depende apenas do modo de visualização — mudar de dia não remonta a Timeline.
  */
 export function TrocaDeVisualizacao({ chave, children }: { chave: string; children: ReactNode }) {
+  const reduzirMovimento = useReducedMotion();
   return (
     <AnimatePresence initial={false} mode="wait">
       <motion.div
         key={chave}
-        initial={{ opacity: 0.35, y: 10 }}
+        initial={reduzirMovimento ? false : { opacity: 0.65, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 1, transition: { duration: 0 } }}
-        transition={{ duration: 0.2, ease: SUAVE }}
+        exit={
+          reduzirMovimento
+            ? { opacity: 1, y: 0, transition: { duration: 0 } }
+            : {
+                opacity: 0,
+                y: -8,
+                transition: { duration: TEMPO.botaoSai, ease: CURVA.rapidaParaLinear },
+              }
+        }
+        transition={
+          reduzirMovimento
+            ? { duration: 0 }
+            : { duration: TEMPO.conteudoEntra, ease: CURVA.linearParaLenta }
+        }
       >
         {children}
       </motion.div>
@@ -26,19 +38,33 @@ export function TrocaDeVisualizacao({ chave, children }: { chave: string; childr
 }
 
 /**
- * A faixa da semana recolhe para cima no modo lista (a lista já vai separada por dias). Só transform/opacity (regra de
- * movimento): animar a altura recalculava a posição da linha do tempo inteira a cada quadro e engasgava a troca.
+ * Semana ↔ Lista: o seletor da semana acompanha o mesmo sentido da troca de conteúdo,
+ * sem animação de altura (que reprocessava a grade e causava engasgos na Timeline).
+ * O calendário mensal conserva sua mola e sua mecânica próprias.
  */
 export function RecolheNaLista({ visivel, children }: { visivel: boolean; children: ReactNode }) {
+  const reduzirMovimento = useReducedMotion();
   return (
     <AnimatePresence initial={false}>
       {visivel ? (
         <motion.div
           key="semana"
-          initial={{ opacity: 0, y: -12 }}
+          initial={reduzirMovimento ? false : { opacity: 0, y: -8 }}
           animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -12, transition: { duration: 0.12 } }}
-          transition={{ duration: 0.2, ease: SUAVE }}
+          exit={
+            reduzirMovimento
+              ? { opacity: 1, y: 0, transition: { duration: 0 } }
+              : {
+                  opacity: 0,
+                  y: -8,
+                  transition: { duration: TEMPO.botaoSai, ease: CURVA.rapidaParaLinear },
+                }
+          }
+          transition={
+            reduzirMovimento
+              ? { duration: 0 }
+              : { duration: TEMPO.conteudoEntra, ease: CURVA.linearParaLenta }
+          }
         >
           {children}
         </motion.div>
