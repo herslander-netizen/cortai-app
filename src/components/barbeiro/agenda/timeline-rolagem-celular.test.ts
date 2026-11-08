@@ -28,6 +28,13 @@ describe("rolagem da Timeline no celular", () => {
     expect(regra).toContain("overscroll-behavior: auto;");
   });
 
+  it("cartão em edição permite rolagem vertical sem precisar sair da edição", () => {
+    expect(css).toMatch(/\.agenda-timeline-bloco \{\s*touch-action: pan-y;/);
+    expect(css).not.toMatch(/\.agenda-timeline-bloco\[data-sem-gesto-dia\] \{\s*touch-action: none;/);
+    expect(css).toMatch(/\.agenda-timeline-bloco\.agenda-arrastando \{\s*touch-action: none;/);
+    expect(timeline).toContain('data-sem-gesto-dia={edicaoDoCartao?.id === item.id ? "" : undefined}');
+  });
+
   it("indicador do vazio só aparece quando o toque longo é confirmado", () => {
     const pointerDown = timeline.slice(
       timeline.indexOf("onPointerDown: (e: React.PointerEvent<HTMLDivElement>)"),

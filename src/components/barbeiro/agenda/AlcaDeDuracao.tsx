@@ -35,7 +35,7 @@ export function AlcaDeDuracao({
   onArrastar: (dy: number | null) => void;
   onConfirmar: (deltaMin: number) => void;
 }) {
-  const gesto = useRef<{ y0: number; rolagem0: number; dy: number } | null>(null);
+  const gesto = useRef<{ pointerId: number; y0: number; rolagem0: number; dy: number } | null>(null);
 
   function iniciar(e: PointerEvent<HTMLDivElement>) {
     e.stopPropagation();
@@ -44,24 +44,26 @@ export function AlcaDeDuracao({
     } catch {
       return;
     }
-    gesto.current = { y0: e.clientY, rolagem0: lerRolagem(), dy: 0 };
+    gesto.current = { pointerId: e.pointerId, y0: e.clientY, rolagem0: lerRolagem(), dy: 0 };
     onTravar();
     onArrastar(0);
   }
   function mover(e: PointerEvent<HTMLDivElement>) {
     const g = gesto.current;
-    if (!g) return;
+    if (!g || g.pointerId !== e.pointerId) return;
     e.preventDefault();
     const dy = e.clientY - g.y0 + (lerRolagem() - g.rolagem0);
     g.dy = Math.min(limites.max * pxPorMinuto, Math.max(limites.min * pxPorMinuto, dy));
     onArrastar(g.dy);
   }
-  function encerrar(confirmar: boolean) {
+  function encerrar(confirmar: boolean, pointerId: number) {
     const g = gesto.current;
+    if (!g || g.pointerId !== pointerId) return;
     gesto.current = null;
     onSoltar();
     onArrastar(null);
-    if (!confirmar || !g) return;
+    // Captura perdida e cancelamento não confirmam alteração.
+    if (!confirmar) return;
     const delta = travar(Math.round(g.dy / pxPorMinuto / passoMin) * passoMin);
     if (delta !== 0) {
       navigator.vibrate?.(18);
@@ -88,8 +90,19 @@ export function AlcaDeDuracao({
       style={estilo}
       onPointerDown={iniciar}
       onPointerMove={mover}
-      onPointerUp={() => encerrar(true)}
-      onPointerCancel={() => encerrar(false)}
+      onPointerUp={(e) => {
+        e.stopPropagation();
+        encerrar(true, e.pointerId);
+      }}
+      onPointerCancel={(e) => {
+        e.stopPropagation();
+        encerrar(false, e.pointerId);
+      }}
+      onLostPointerCapture={(e) => {
+        // Evita que uma captura interrompida no Android deixe a agenda sem rolagem.
+        e.stopPropagation();
+        encerrar(false, e.pointerId);
+      }}
       onKeyDown={teclas}
     >
       {etiqueta ? (

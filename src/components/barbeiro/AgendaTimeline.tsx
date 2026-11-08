@@ -265,7 +265,16 @@ function AgendaTimelineBase({
   function soltarRolagemDoToque() {
     bloqueio.current?.soltar();
   }
-  useEffect(() => soltarRolagemDoToque, []);
+  useEffect(() => () => {
+    const pendente = gesto.current;
+    if (pendente) {
+      window.clearTimeout(pendente.timer);
+      pendente.alvo.removeAttribute("data-segurando-cartao");
+      gesto.current = null;
+    }
+    alcaAtiva.current = false;
+    soltarRolagemDoToque();
+  }, []);
   useEffect(
     () => () => {
       if (quadroRolagemAutomatica.current !== null) {
@@ -824,6 +833,22 @@ function AgendaTimelineBase({
       onMover?.(item, delta);
     }
   }
+  /** A captura pode ser perdida antes do pointerup (troca de camada/aba no Android).
+   * Nesse caso, cancelar sem propor horário nem reter a trava de rolagem. */
+  function cancelarGestoCapturado(pointerId: number) {
+    const cancelado = gesto.current;
+    if (!cancelado || cancelado.pointerId !== pointerId) return;
+    pararRolagemAutomatica();
+    window.clearTimeout(cancelado.timer);
+    cancelado.alvo.removeAttribute("data-segurando-cartao");
+    cancelado.alvo.style.removeProperty("transform");
+    gesto.current = null;
+    soltarRolagemDoToque();
+    ultimoPassoDoArrasto.current = null;
+    ultimoPassoDaAlca.current = null;
+    setArrasto(null);
+    setRedim(null);
+  }
   function minutoNoVazio(e: { clientY: number; currentTarget: HTMLDivElement }) {
     const y = e.clientY - e.currentTarget.getBoundingClientRect().top;
     let minuto = escala.inicio + y / PX_POR_MINUTO;
@@ -1368,21 +1393,8 @@ function AgendaTimelineBase({
                         onPointerDown: (e: React.PointerEvent) => inicioGesto(e, item),
                         onPointerMove: (e: React.PointerEvent) => moverGesto(e, item),
                         onPointerUp: (e: React.PointerEvent) => fimGesto(item, e.clientY, e.pointerId),
-                        onPointerCancel: (e: React.PointerEvent) => {
-                          pararRolagemAutomatica();
-                          const cancelado = gesto.current;
-                          if (cancelado && cancelado.pointerId !== e.pointerId) return;
-                          if (cancelado) {
-                            window.clearTimeout(cancelado.timer);
-                            cancelado.alvo.removeAttribute("data-segurando-cartao");
-                          }
-                          gesto.current = null;
-                          soltarRolagemDoToque();
-                          ultimoPassoDoArrasto.current = null;
-                          ultimoPassoDaAlca.current = null;
-                          setArrasto(null);
-                          setRedim(null);
-                        },
+                        onPointerCancel: (e: React.PointerEvent) => cancelarGestoCapturado(e.pointerId),
+                        onLostPointerCapture: (e: React.PointerEvent) => cancelarGestoCapturado(e.pointerId),
                         onContextMenu: (e: React.MouseEvent) => {
                           if (podeMover(item)) e.preventDefault();
                         },

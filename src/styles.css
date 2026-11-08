@@ -3162,7 +3162,9 @@ body:has(.auth-screen--claro) {
   touch-action: pan-y;
   cursor: grab;
 }
-.agenda-timeline-bloco[data-sem-gesto-dia] {
+/* O marcador de edição impede a troca de dia no JS, mas não a rolagem vertical.
+   Somente o arrasto ativo toma o gesto; a alça inferior tem captura própria. */
+.agenda-timeline-bloco.agenda-arrastando {
   touch-action: none;
 }
 .agenda-timeline-bloco::after {

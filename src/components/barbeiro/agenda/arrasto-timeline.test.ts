@@ -72,6 +72,24 @@ function montar(extra: Record<string, unknown>) {
 }
 
 describe("alça de duração na Timeline", () => {
+  it("ao perder captura da alça, cancela a proposta e libera a rolagem da página", () => {
+    const onRedimensionar = vi.fn();
+    const alvo = montar({ onMover: vi.fn(), onRedimensionar, edicaoDoCartao: { id: "a1", motivo: null } });
+    const alca = alvo.querySelector<HTMLElement>("[role=separator]")!;
+    alca.setPointerCapture = () => {};
+    act(() => {
+      alca.dispatchEvent(evento("pointerdown", 300, { pointerType: "touch" }));
+      alca.dispatchEvent(evento("pointermove", 340, { pointerType: "touch" }));
+    });
+    const durante = new Event("touchmove", { bubbles: true, cancelable: true });
+    act(() => { document.dispatchEvent(durante); });
+    expect(durante.defaultPrevented).toBe(true);
+    act(() => { alca.dispatchEvent(evento("lostpointercapture", 340, { pointerType: "touch" })); });
+    const depois = new Event("touchmove", { bubbles: true, cancelable: true });
+    act(() => { document.dispatchEvent(depois); });
+    expect(depois.defaultPrevented).toBe(false);
+    expect(onRedimensionar).not.toHaveBeenCalled();
+  });
   it("arrastar a alça para baixo propõe aumentar a duração, sem mover o início", () => {
     const onMover = vi.fn();
     const onRedimensionar = vi.fn();
@@ -212,6 +230,31 @@ describe("alça de duração na Timeline", () => {
       document.dispatchEvent(depois);
     });
     expect(depois.defaultPrevented).toBe(false);
+  });
+  it("perder captura após segurar libera a rolagem e não move o cartão", () => {
+    vi.useFakeTimers();
+    const onEditar = vi.fn();
+    const onMover = vi.fn();
+    const alvo = montar({ onMover, onEditar });
+    const bloco = alvo.querySelector<HTMLElement>("[aria-pressed]")!;
+    bloco.setPointerCapture = () => {};
+    act(() => {
+      bloco.dispatchEvent(evento("pointerdown", 200, { pointerType: "touch" }));
+      vi.advanceTimersByTime(300);
+    });
+    expect(bloco.hasAttribute("data-segurando-cartao")).toBe(true);
+    act(() => { bloco.dispatchEvent(evento("lostpointercapture", 200, { pointerType: "touch" })); });
+    expect(bloco.hasAttribute("data-segurando-cartao")).toBe(false);
+    const depois = new Event("touchmove", { bubbles: true, cancelable: true });
+    act(() => { document.dispatchEvent(depois); });
+    expect(depois.defaultPrevented).toBe(false);
+    act(() => {
+      bloco.dispatchEvent(evento("pointermove", 270, { pointerType: "touch" }));
+      bloco.dispatchEvent(evento("pointerup", 270, { pointerType: "touch" }));
+    });
+    expect(onEditar).toHaveBeenCalledTimes(1);
+    expect(onMover).not.toHaveBeenCalled();
+    vi.useRealTimers();
   });
   it("mexer o dedo antes dos 300 ms é rolagem: não abre a edição nem segura o cartão", () => {
     vi.useFakeTimers();
