@@ -53,7 +53,7 @@ export const TEXTOS = {
   comQuem: "Com quem você prefere?",
   tantoFaz: "Tanto faz",
   qualNome: "Para evitar confusão no cadastro, qual é seu *nome e sobrenome*?",
-  nomeInvalido: "Preciso do *nome e sobrenome* para identificar o cadastro corretamente.\nExemplo: Maria Souza."
+  nomeInvalido: "Preciso do *nome e sobrenome* para identificar o cadastro corretamente.\nExemplo: Maria Souza.",
   outroDia: "Se preferir outro dia ou horário, é só me dizer (ex.: amanhã à tarde).",
   // Escolhas destacadas em caixa alta e negrito (dono, 06/11/2026: "Sim ou não em caixa alta").
   responderSimOuNao: "Responda *SIM* para confirmar ou *NÃO* para mudar.",
