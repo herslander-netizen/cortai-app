@@ -142,6 +142,8 @@ export type AgendaDia = {
   }[];
   /** Ajuste de intervalo específico desta data; ausente significa seguir o horário semanal. */
   intervaloPersonalizado?: { inicio: string; fim: string } | null;
+  /** Folga geral entre atendimentos (cache antigo pode não conter este campo). */
+  intervaloEntreMin?: number;
   fila: FilaJanela[];
   horarios: {
     diaSemana: number;
@@ -257,7 +259,7 @@ export const getAgendaDia = createServerFn({ method: "GET" })
         .eq("tenant_id", tenant.id)
         .eq("ativo", true)
         .order("nome"),
-      db.from("tenants").select("passo_horarios_min").eq("id", tenant.id).maybeSingle(),
+      db.from("tenants").select("passo_horarios_min, intervalo_entre_min").eq("id", tenant.id).maybeSingle(),
     ]);
 
     const fila = (filaRes.data ?? []).map((f) => {
@@ -348,6 +350,7 @@ export const getAgendaDia = createServerFn({ method: "GET" })
       horarios,
       fuso,
       passoMin,
+      intervaloEntreMin: Math.max(0, Number(tenantRes.data?.intervalo_entre_min ?? 0)),
       profissionais,
     };
   });

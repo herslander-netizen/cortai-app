@@ -1630,6 +1630,7 @@ export function AgendaOperacional() {
                       alinhado
                       horarios={agenda.data?.horarios ?? []}
                       intervaloPersonalizado={intervaloDoDia}
+                       intervaloEntreMin={agenda.isPlaceholderData ? 0 : (agenda.data?.intervaloEntreMin ?? 0)}
                       onAbrirIntervalo={
                         dia >= hojeNoFuso(fuso) ? () => setIntervaloAberto(true) : undefined
                       }
@@ -1673,6 +1674,7 @@ export function AgendaOperacional() {
                   bloqueiosDoDia={bloqueiosDoDiaGeral}
                   horarios={agenda.data?.horarios ?? []}
                   intervaloPersonalizado={intervaloDoDia}
+                       intervaloEntreMin={agenda.isPlaceholderData ? 0 : (agenda.data?.intervaloEntreMin ?? 0)}
                   onAbrirIntervalo={
                     dia >= hojeNoFuso(fuso) ? () => setIntervaloAberto(true) : undefined
                   }

@@ -28,6 +28,7 @@ import {
 import { ladoDoAgora, publicarAgora } from "@/components/barbeiro/agenda/pilula-agora";
 import { criarBloqueioDeRolagem } from "@/components/barbeiro/agenda/bloqueio-rolagem";
 import { AlcaDeDuracao } from "@/components/barbeiro/agenda/AlcaDeDuracao";
+import { calcularPreparoVisual } from "@/components/barbeiro/agenda/preparo-visual";
 import { PASSO_DO_AJUSTE_MIN, limitesDaAlca, passoDoGesto } from "@/lib/remarcacao-regras";
 import {
   aoCorrigirRolagemDoZoom,
@@ -126,6 +127,8 @@ type AgendaTimelineProps = {
   }[];
   /** Intervalo alterado apenas para a data selecionada. */
   intervaloPersonalizado?: { inicio: string; fim: string } | null;
+  /** Tempo de folga do negócio, somente para visualização. */
+  intervaloEntreMin?: number;
   /** Abre os ajustes rápidos do intervalo da data selecionada. */
   onAbrirIntervalo?: (() => void) | undefined;
   /** Tocar no bloqueio abre os detalhes e permite liberar o horário com confirmação. */
@@ -189,6 +192,7 @@ function AgendaTimelineBase({
   emCamada = false,
   bloqueiosDoDia = [],
   intervaloPersonalizado,
+  intervaloEntreMin = 0,
   onAbrirIntervalo,
   onAbrirBloqueio,
 }: AgendaTimelineProps) {
@@ -837,6 +841,26 @@ function AgendaTimelineBase({
     : undefined;
   const intervalo = intervaloDoDia(horarios, dia, intervalosPorData);
   const faixasFora = faixasForaDoExpediente(horarios, dia, escala);
+  // Na visão combinada de vários profissionais as faixas se sobreporiam.
+  // Por coluna ou profissional único, ficam no trilho correto.
+  const preparos = mostrarProfissional ? [] : calcularPreparoVisual({
+    itens: itens.map((item) => ({
+      id: item.id,
+      inicio: minutosNoFuso(item.inicio, fuso),
+      fim: minutosNoFuso(item.fim, fuso),
+      profissionalId: item.profissionalId ?? null,
+      status: item.status,
+    })),
+    intervaloMin: intervaloEntreMin,
+    escala,
+    indisponiveis: [
+      ...(intervalo ? [{ inicio: intervalo[0], fim: intervalo[1] }] : []),
+      ...bloqueiosDoDia.map((item) => ({
+        inicio: minutosNoFuso(item.inicio, fuso),
+        fim: minutosNoFuso(item.fim, fuso),
+      })),
+    ],
+  });
 
   // Prévia: posição em que o dia vai assentar (hoje no agora; senão topo do expediente).
   const funcionamentoDoDia = horarios.find((h) => h.diaSemana === diaDaSemana(dia) && !h.fechado);
@@ -1099,6 +1123,27 @@ function AgendaTimelineBase({
               </div>
             )
           ) : null}
+          {preparos.map((preparo) => {
+            const alturaDoPreparo = (preparo.fim - preparo.inicio) * PX_POR_MINUTO
+              + deslocamentoAte(preparo.fim) - deslocamentoAte(preparo.inicio);
+            return (
+              <div
+                key={`preparo-${preparo.id}`}
+                className="pointer-events-none absolute left-11 right-3 z-[2] flex items-center gap-2 overflow-hidden text-[11px] text-mute"
+                style={{
+                  top: `${(preparo.inicio - escala.inicio) * PX_POR_MINUTO + deslocamentoAte(preparo.inicio)}px`,
+                  height: `${alturaDoPreparo}px`,
+                }}
+                role="note"
+                aria-label={`Preparo entre atendimentos, ${preparo.minutos} minutos`}
+              >
+                <span className="h-full shrink-0 border-l-2 border-dashed border-current opacity-70" aria-hidden />
+                {alturaDoPreparo >= 14 ? (
+                  <span className="min-w-0 truncate">Preparo {preparo.minutos} min</span>
+                ) : null}
+              </div>
+            );
+          })}
           {toqueVazio !== null ? (
             <div
               className="agenda-timeline-toque"
