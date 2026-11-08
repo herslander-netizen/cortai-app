@@ -1,0 +1,15 @@
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "flow-core-quota-preview",
+  "main": "./worker.ts",
+  "compatibility_date": "2026-10-13",
+  "workers_dev": false,
+  "durable_objects": {
+    "bindings": [
+      { "name": "FLOW_AI_COTAS", "class_name": "CotaGlobalDuravel" }
+    ]
+  },
+  "migrations": [
+    { "tag": "v1", "new_sqlite_classes": ["CotaGlobalDuravel"] }
+  ]
+}

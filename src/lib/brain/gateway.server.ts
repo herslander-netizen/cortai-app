@@ -2,6 +2,7 @@
 
 import type { Canal } from "./acoes.server";
 import { chamarRoteadorHibrido, FalhaHibrida, roteadorHibridoLigado } from "./gateway-hibrido.server";
+import { obterLimitadorCloudflare } from "./cotas-cloudflare.server";
 import type { ClasseDeDados, LimitadorHibridoDistribuido, TarefaFlow } from "./roteador-hibrido";
 import { modoBasicoLigado, planejarModoBasico } from "./modo-basico";
 import {
@@ -227,6 +228,7 @@ export function criarSessaoDoGateway(opcoes?: {
   let passoHibrido = 0;
   const pelaIA = async (input: EntradaDoPasso): Promise<ItemDeEntrada[]> => {
     if (roteadorHibridoLigado()) {
+      const idDoTurno = opcoes?.idempotenciaHibrida || crypto.randomUUID();
       try {
         const r = await chamarRoteadorHibrido(input, {
           canal: opcoes?.canal ?? "painel",
@@ -234,10 +236,9 @@ export function criarSessaoDoGateway(opcoes?: {
           tarefa: opcoes?.tarefaHibrida ?? "conversa",
           anonimizadoDeFormaVerificada: opcoes?.anonimizadoVerificado === true,
           // Cada rodada (inclusive após ferramentas) consome sua própria reserva.
-          idempotencia: opcoes?.idempotenciaHibrida
-            ? `${opcoes.idempotenciaHibrida}:passo-${++passoHibrido}`
-            : "",
-          limitador: opcoes?.limitadorHibrido ?? null,
+          // Turno sintético e sem PII. Cada rodada usa reserva independente.
+          idempotencia: `${idDoTurno}:passo-${++passoHibrido}`,
+          limitador: opcoes?.limitadorHibrido ?? await obterLimitadorCloudflare(),
           aoChamar: (e) => avisar({
             provedor: e.provedor,
             modelo: e.modelo,
