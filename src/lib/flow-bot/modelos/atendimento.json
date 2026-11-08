@@ -29,7 +29,7 @@
       "id": "servicos",
       "type": "message.text",
       "config": {
-        "text": "Serviços de {{reality.businessName}}:\n{{reality.services}}\n\nPara agendar por este WhatsApp, escreva *AGENDAR*."
+        "text": "📋 *Serviços de {{reality.businessName}}:*\n{{reality.services}}\n\n_Para agendar por aqui, escreva *AGENDAR*._"
       }
     },
     {
@@ -44,35 +44,35 @@
       "id": "horario-aberto",
       "type": "message.text",
       "config": {
-        "text": "Estamos abertos: {{reality.todayHours}}."
+        "text": "🕒 Estamos abertos: {{reality.todayHours}}."
       }
     },
     {
       "id": "horario-fechado",
       "type": "message.text",
       "config": {
-        "text": "No momento estamos fechados. {{reality.nextOpening}}"
+        "text": "🕒 No momento estamos fechados. {{reality.nextOpening}}"
       }
     },
     {
       "id": "endereco",
       "type": "message.text",
       "config": {
-        "text": "Estamos em {{reality.address}}."
+        "text": "📍 Estamos em {{reality.address}}."
       }
     },
     {
       "id": "horario-e-endereco",
       "type": "message.text",
       "config": {
-        "text": "Horário: {{reality.todayHours}}.\nEndereço: {{reality.address}}."
+        "text": "🕒 Horário: {{reality.todayHours}}.\n📍 Endereço: {{reality.address}}."
       }
     },
     {
       "id": "pagamento",
       "type": "message.text",
       "config": {
-        "text": "Aceitamos {{reality.paymentMethods}}."
+        "text": "💳 Aceitamos {{reality.paymentMethods}}."
       }
     },
     {
@@ -87,7 +87,7 @@
       "id": "chamando-equipe",
       "type": "message.text",
       "config": {
-        "text": "Certo! Vou chamar alguém da equipe para falar com você por aqui."
+        "text": "👤 Certo! Vou chamar alguém da equipe para falar com você por aqui."
       }
     },
     {
@@ -246,14 +246,14 @@
       "id": "ola",
       "type": "message.text",
       "config": {
-        "text": "Olá, {{contact.firstName}}! Aqui é {{reality.businessName}}."
+        "text": "👋 Olá, {{contact.firstName}}! Aqui é {{reality.businessName}}."
       }
     },
     {
       "id": "ola-fechado",
       "type": "message.text",
       "config": {
-        "text": "Olá, {{contact.firstName}}! Aqui é {{reality.businessName}}. No momento estamos fechados ({{reality.nextOpening}}), mas posso ajudar por aqui."
+        "text": "👋 Olá, {{contact.firstName}}! Aqui é {{reality.businessName}}. No momento estamos fechados ({{reality.nextOpening}}), mas posso ajudar por aqui."
       }
     },
     {
@@ -359,7 +359,7 @@
       "id": "horario-sem-endereco",
       "type": "message.text",
       "config": {
-        "text": "Horário: {{reality.todayHours}}."
+        "text": "🕒 Horário: {{reality.todayHours}}."
       }
     }
   ],
