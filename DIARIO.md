@@ -579,6 +579,7 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - 2026-10-26: **Cabeçalho do menu mobile mais compacto** (dono aprovou a reformulação após captura: logo menor, nome do negócio com hierarquia discreta, papel secundário, ajustes alinhados e menos espaço vazio; manter nome em até duas linhas quando necessário, sem afetar a Agenda).
 
 ## Em andamento
+- GPT | 2026-11-08 UTC | **Flow CRM fase 3 — oportunidades reais de retorno**: implementar lista sob demanda de clientes com retorno vencido usando regra oficial `src/lib/retorno.ts`, somente visitas finalizadas e ausência de agenda futura; exigir `relatorios` + `visualizar_clientes` + plano `crescimento`, usar tenant resolvido no servidor; refinar gráfico 3/6 meses do CRM, testar regras, permissões e estados na UI. Somente prévia; sem disparos WhatsApp/IA, banco/migração, produção, Agenda ou menu reservado | `src/lib/crm/oportunidades.ts`, `src/lib/crm/oportunidades.test.ts`, `src/lib/crm/oportunidades.functions.ts`, `src/components/crm/OportunidadesCRM.tsx`, `src/routes/barbeiro.crm.tsx`, `docs/flow-inteligencia/19-oportunidades-crm.md`
 
 
 
