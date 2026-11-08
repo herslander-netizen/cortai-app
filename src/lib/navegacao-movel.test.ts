@@ -89,13 +89,17 @@ describe("navegação móvel", () => {
     expect(paginaPrincipal).toContain('aria-label="Seções da página pública"');
     expect(paginaPrincipal).toContain("<SecaoConteudo config={e.config} />");
     expect(paginaPrincipal).toContain("Outras configurações");
-    expect(paginaPrincipal).toContain("<AnimatePresence>");
-    expect(paginaPrincipal).toContain('height: "auto"');
+    // A barra de estado é sempre visível; não fica escondida num banner animado.
+    expect(paginaPrincipal).toContain("<FaixaDeEstado");
+    expect(paginaPrincipal).toContain("tipoDeDescarte(e)");
+    expect(paginaPrincipal).not.toContain('height: "auto"');
+    expect(paginaPrincipal.match(/Ver prévia/g)).toHaveLength(1);
     const conteudoSecoes = readFileSync("src/components/marca/editor/SecaoConteudo.tsx", "utf8");
     expect(conteudoSecoes).toContain("useReducedMotion");
     expect(conteudoSecoes).toContain("<AnimatePresence initial={false}>");
     const paineis = readFileSync("src/components/marca/editor/PaineisDoEditor.tsx", "utf8");
     expect(paineis).not.toContain('TabsTrigger value="conteudo"');
+    expect(paineis).not.toContain("<FaixaDeEstado");
     expect(paginaPrincipal).toContain("Sua página ficará inacessível para visitantes.");
     expect(pagina).toContain('validateSearch: z.object({ qr: z.string().optional() })');
     expect(ajustes).not.toContain('hash={item.label === "Notificações" ? "avisos" : undefined}');
