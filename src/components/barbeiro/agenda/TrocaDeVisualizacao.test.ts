@@ -10,7 +10,9 @@ describe("troca de visualização da Agenda", () => {
   it("nunca deixa as duas visualizações na tela ao mesmo tempo", () => {
     expect(troca).not.toContain('mode="popLayout"');
     expect(troca).toContain('mode="wait"');
-    expect(troca).toContain("exit={{ opacity: 1, transition: { duration: 0 } }}");
+    // Não precisa sair instantaneamente: mode="wait" continua garantindo exclusividade.
+    expect(troca).toContain("duration: TEMPO.botaoSai");
+    expect(troca).toContain("duration: TEMPO.conteudoEntra");
   });
 
   it("a faixa da semana abre e fecha só com transform/opacity (sem animar altura)", () => {
