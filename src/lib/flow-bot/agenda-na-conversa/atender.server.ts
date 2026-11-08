@@ -122,9 +122,20 @@ export async function atenderAgendaNaConversa(e: EntradaDaAgenda): Promise<boole
   }
 
   const { enviarPelaBarbearia } = await import("@/lib/whatsapp/fluxo.server");
+  const { humanoNoControle } = await import("../decisao");
   let enviou = 0;
   for (const texto of r.textos) {
     try {
+      const { data: posse, error: erroPosse } = await db
+        .from("conversas_whatsapp")
+        .select("modo_humano, modo_humano_ate")
+        .eq("id", e.conversaId)
+        .eq("tenant_id", e.tenantId)
+        .maybeSingle();
+      if (erroPosse || !posse || humanoNoControle(posse, Date.now())) {
+        console.info("[agenda-na-conversa] envio suspenso por posse humana ou leitura indisponível");
+        break;
+      }
       await enviarPelaBarbearia({
         tenantId: e.tenantId,
         conversaId: e.conversaId,
