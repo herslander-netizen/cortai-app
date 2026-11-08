@@ -1,11 +1,10 @@
-import { Link } from "@tanstack/react-router";
 import { motion, useReducedMotion } from "framer-motion";
 import { ArrowRight, Sparkles } from "lucide-react";
 
 import { MarcaFlow } from "@/components/marca/MarcaFlow";
 import { Button } from "@/components/ui/button";
 import { OndasDaEntrada } from "@/components/entrada/OndasDaEntrada";
-import { useAcesso } from "./acesso";
+import { linkDeInteresseFlow } from "./whatsapp";
 import { BaloesDeConfirmacao } from "./BaloesDeConfirmacao";
 import { TEMA_ESCURO } from "./tema";
 import { LinhasDeOnda } from "./Ondas";
@@ -30,7 +29,6 @@ const FOTOS = [
 ] as const;
 
 export function Cabecalho() {
-  const { logado, entrar } = useAcesso();
   return (
     <header
       style={TEMA_ESCURO}
@@ -38,16 +36,12 @@ export function Cabecalho() {
     >
       <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4">
         <MarcaFlow variante="clara" className="h-auto w-24" />
-        <nav className="flex items-center gap-2" aria-label="Acesso">
+        <nav className="flex items-center gap-2" aria-label="Contato">
           <Button asChild variant="outline" size="sm">
-            <Link to={entrar.to}>{entrar.texto}</Link>
+            <a href={linkDeInteresseFlow()} target="_blank" rel="noopener noreferrer">
+              Falar no WhatsApp
+            </a>
           </Button>
-          {/* No celular a ação principal é a barra de baixo; aqui só em tela larga. */}
-          {logado ? null : (
-            <Button asChild size="sm" className="hidden sm:inline-flex">
-              <Link to="/comecar">Começar grátis</Link>
-            </Button>
-          )}
         </nav>
       </div>
     </header>
@@ -148,7 +142,6 @@ function FaixaDeSegmentos() {
 
 export function Heroi({ conteudo }: { conteudo: ConteudoApresentacao["hero"] }) {
   const reduzir = useReducedMotion();
-  const { logado, comecar } = useAcesso();
   return (
     <section
       style={TEMA_ESCURO}
@@ -208,18 +201,10 @@ export function Heroi({ conteudo }: { conteudo: ConteudoApresentacao["hero"] }) 
             size="lg"
             className="w-full shadow-[0_16px_30px_-14px_rgba(49,85,237,0.7)] sm:w-auto"
           >
-            <Link to={comecar.to}>
-              {comecar.texto ?? conteudo.cta} <ArrowRight className="ml-2 size-4" />
-            </Link>
+            <a href={linkDeInteresseFlow()} target="_blank" rel="noopener noreferrer">
+              Quero conhecer o Flow <ArrowRight className="ml-2 size-4" />
+            </a>
           </Button>
-          {logado ? null : (
-            <Link
-              to="/login"
-              className="text-[14px] font-semibold text-[var(--texto-suave)] underline-offset-4 hover:underline"
-            >
-              Já tenho conta
-            </Link>
-          )}
         </motion.div>
         <MosaicoMobile />
         <FaixaDeSegmentos />
