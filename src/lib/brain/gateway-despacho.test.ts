@@ -246,3 +246,68 @@ describe("gateway central — escolha do provedor", () => {
     expect(urls).toEqual(["https://api.exemplo.test/v1/chat/completions"]);
   });
 });
+
+describe("gateway oficial — fase híbrida opt-in", () => {
+  const config = JSON.stringify([{
+    id: "groq", modelo: "modelo-gratuito-teste", habilitado: true,
+    modalidadeGratuitaVerificada: true, suportaFerramentas: true,
+    canais: ["painel"], tarefas: ["conversa"],
+    baseUrl: "https://api.groq.com/openai/v1", minuto: 5, dia: 20, tempoLimiteMs: 1000,
+  }]);
+  function configurar() {
+    vi.stubEnv("CORTAI_AI_HIBRIDO", "true");
+    vi.stubEnv("CORTAI_AI_HIBRIDO_CONFIG", config);
+    vi.stubEnv("CORTAI_AI_HIBRIDO_GROQ_API_KEY", "chave-ficticia");
+    vi.stubEnv("CORTAI_AI_PROVIDER", "");
+    vi.stubEnv("CORTAI_MODO_BASICO", "false");
+  }
+  it("sem limitador distribuído nunca chama IA", async () => {
+    configurar();
+    const req = vi.fn();
+    vi.stubGlobal("fetch", req);
+    const g = await import("./gateway.server");
+    await expect(g.criarSessaoDoGateway({
+      canal: "painel", usarModoBasico: false,
+      dadosHibridos: "publico", idempotenciaHibrida: "turno",
+    }).responder({ instrucoes: "i", entrada: [], ferramentas })).rejects.toMatchObject({
+      status: 429,
+    });
+    expect(req).not.toHaveBeenCalled();
+  });
+  it("reserva a cota em cada rodada e preserva as chamadas de ferramenta do Flow", async () => {
+    configurar();
+    const reservas: string[] = [];
+    const ordem: string[] = [];
+    const req = vi.fn(async () => {
+      ordem.push("api");
+      return new Response(JSON.stringify({
+        choices: [{ message: {
+          content: null,
+          tool_calls: [{ id: "c1", function: { name: "listar_servicos", arguments: "{}" } }],
+        } }],
+      }), { status: 200 });
+    });
+    vi.stubGlobal("fetch", req);
+    const g = await import("./gateway.server");
+    const sessao = g.criarSessaoDoGateway({
+      canal: "painel",
+      usarModoBasico: false,
+      dadosHibridos: "publico",
+      idempotenciaHibrida: "turno",
+      limitadorHibrido: {
+        reservar: async ({ idempotencia }: { idempotencia: string }) => {
+          reservas.push(idempotencia);
+          ordem.push("reserva");
+          return true;
+        },
+      },
+    });
+    const itens = await sessao.responder({ instrucoes: "i", entrada: [], ferramentas });
+    expect(itens).toMatchObject([{
+      type: "function_call", name: "listar_servicos", arguments: "{}", call_id: "c1",
+    }]);
+    await sessao.responder({ instrucoes: "i", entrada: [], ferramentas });
+    expect(reservas).toEqual(["turno:passo-1:groq", "turno:passo-2:groq"]);
+    expect(ordem).toEqual(["reserva", "api", "reserva", "api"]);
+  });
+});

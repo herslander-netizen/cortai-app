@@ -69,6 +69,17 @@ export function lerProvedoresHibridos(
       openrouter: "openrouter.ai",
     };
     if (hosts[p.id] && url.hostname !== hosts[p.id]) return [];
+    // "ollama" precisa apontar para a ORIGEM privada fixada pelo administrador:
+    // jamais aceitar por engano Ollama Cloud ou um endpoint arbitrário.
+    if (p.id === "ollama") {
+      const origemPrivada = env["CORTAI_AI_HIBRIDO_OLLAMA_ORIGIN"]?.trim();
+      let origem: URL;
+      try { origem = new URL(origemPrivada ?? ""); } catch { return []; }
+      if (origem.protocol !== "https:" || origem.pathname !== "/" ||
+        origem.search || origem.hash || origem.username || origem.password ||
+        origem.origin !== url.origin ||
+        url.hostname === "ollama.com" || url.hostname.endsWith(".ollama.com")) return [];
+    }
     if (p.id === "openrouter" && !p.modelo.endsWith(":free")) return [];
     const chave = env[`CORTAI_AI_HIBRIDO_${p.id.toUpperCase()}_API_KEY`]?.trim();
     if (!chave) return [];
@@ -90,7 +101,7 @@ export function lerProvedoresHibridos(
         baseUrl: p.baseUrl.replace(/\/+$/, ""),
         modelo: p.modelo,
         chave,
-        tempoLimiteMs: p.tempoLimiteMs,
+        tempoLimiteMs: p.tempoLimiteMs!,
         esforcoDeRaciocinio: null,
         canais: p.canais,
       },

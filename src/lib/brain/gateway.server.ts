@@ -224,6 +224,7 @@ export function criarSessaoDoGateway(opcoes?: {
     return itens;
   };
 
+  let passoHibrido = 0;
   const pelaIA = async (input: EntradaDoPasso): Promise<ItemDeEntrada[]> => {
     if (roteadorHibridoLigado()) {
       try {
@@ -232,7 +233,10 @@ export function criarSessaoDoGateway(opcoes?: {
           dados: opcoes?.dadosHibridos ?? "pessoal",
           tarefa: opcoes?.tarefaHibrida ?? "conversa",
           anonimizadoDeFormaVerificada: opcoes?.anonimizadoVerificado === true,
-          idempotencia: opcoes?.idempotenciaHibrida ?? "",
+          // Cada rodada (inclusive após ferramentas) consome sua própria reserva.
+          idempotencia: opcoes?.idempotenciaHibrida
+            ? `${opcoes.idempotenciaHibrida}:passo-${++passoHibrido}`
+            : "",
           limitador: opcoes?.limitadorHibrido ?? null,
           aoChamar: (e) => avisar({
             provedor: e.provedor,

@@ -8,3 +8,7 @@ A chamada híbrida exige um `LimitadorHibridoDistribuido` real que reserve quota
 Por padrão, o gateway trata os dados como pessoais: somente Ollama auto-hospedado é candidato. Não promover automaticamente uma mensagem para pública ou anonimizável. Uso de ferramentas fica restrito a modelos comprovadamente capazes; a execução e a confirmação continuam no motor oficial.
 
 Para um teste em ambiente isolado, executar TypeScript, Vitest, ESLint, build e `scripts/verificar-protocolo.sh`. Não habilitar WhatsApp real, produção ou provedor externo sem revisar LGPD, gratuidade, segredos e cotas reais.
+
+## Barreiras adicionais
+- `ollama` só é elegível em HTTPS na origem fixada em `CORTAI_AI_HIBRIDO_OLLAMA_ORIGIN`. Rejeita explicitamente `ollama.com` e seus subdomínios; a origem deve ser controlada pelo dono e protegida com autenticação.
+- Cada rodada do agente possui idempotência distinta (`turno:passo-N:provedor`) para que múltiplas chamadas no mesmo turno não compartilhem uma única reserva de cota.

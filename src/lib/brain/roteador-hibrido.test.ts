@@ -125,6 +125,20 @@ describe("Flow Core — integração opcional do gateway", () => {
     vi.stubEnv("CORTAI_AI_HIBRIDO_GROQ_API_KEY", "teste");
     expect(lerProvedoresHibridos()).toEqual([]);
   });
+  it("Ollama sem origem privada fixada não recebe dados de clientes", () => {
+    vi.stubEnv("CORTAI_AI_HIBRIDO", "true");
+    vi.stubEnv("CORTAI_AI_HIBRIDO_CONFIG", JSON.stringify([{ ...cfg[0],
+      id: "ollama", baseUrl: "https://ollama.com/v1" }]));
+    vi.stubEnv("CORTAI_AI_HIBRIDO_OLLAMA_API_KEY", "teste");
+    vi.stubEnv("CORTAI_AI_HIBRIDO_OLLAMA_ORIGIN", "https://ollama.com");
+    expect(lerProvedoresHibridos()).toEqual([]);
+    vi.stubEnv("CORTAI_AI_HIBRIDO_CONFIG", JSON.stringify([{ ...cfg[0],
+      id: "ollama", baseUrl: "https://privado.exemplo.test/v1" }]));
+    vi.stubEnv("CORTAI_AI_HIBRIDO_OLLAMA_ORIGIN", "");
+    expect(lerProvedoresHibridos()).toEqual([]);
+    vi.stubEnv("CORTAI_AI_HIBRIDO_OLLAMA_ORIGIN", "https://privado.exemplo.test");
+    expect(lerProvedoresHibridos()).toHaveLength(1);
+  });
   it("sem reserva global não faz chamada, mesmo com credenciais", async () => {
     vi.stubEnv("CORTAI_AI_HIBRIDO", "true");
     vi.stubEnv("CORTAI_AI_HIBRIDO_CONFIG", JSON.stringify(cfg));
