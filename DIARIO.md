@@ -584,6 +584,8 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Em andamento
 
+- GPT | 2026-11-08 09:00 BRT | **Intervenção humana no WhatsApp — fase isolada por reserva:** corrigir classificação de `fromMe`, registrar respostas humanas e impedir que mensagens iguais às do Flow mas com ID diferente sejam descartadas; testes puros. Só `src/lib/flow-bot/decisao.ts`, `src/lib/flow-bot/humano.server.ts`, `src/lib/flow-bot/decisao.test.ts` e `DIARIO.md`. **Não tocar `src/lib/whatsapp/*`, webhook Evolution, banco, main ou produção**: arquivos do envio central reservados pela Claude; integração da trava final exige coordenação.
+
 
 
 
