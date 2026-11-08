@@ -28,6 +28,28 @@ export async function atenderAgendaNaConversa(e: EntradaDaAgenda): Promise<boole
   const agora = new Date(e.agora);
   const anterior = estadoValido(contexto["agenda"], agora);
 
+  // Webhooks podem repetir o MESMO "SIM". Conferir o rastro antes de conduzir:
+  // conduzir pode criar/cancelar/remarcar no banco, portanto a deduplicação após ele seria tarde.
+  if (e.mensagemExternaId) {
+    const { data: jaProcessado, error: erroConsultaRastro } = await db
+      .from("flow_bot_rastro")
+      .select("fluxo_ref, enviado")
+      .eq("tenant_id", e.tenantId)
+      .eq("conversa_id", e.conversaId)
+      .eq("mensagem_externa_id", e.mensagemExternaId)
+      .maybeSingle();
+    if (erroConsultaRastro) {
+      console.error("[agenda-na-conversa] não verificou idempotência", erroConsultaRastro.message);
+      return true; // Falha fechada: não executar outra reserva quando não sabemos se já foi executada.
+    }
+    if (jaProcessado?.fluxo_ref === "agenda-na-conversa") {
+      if (!jaProcessado.enviado) {
+        console.warn("[agenda-na-conversa] mensagem repetida com resposta pendente; exige recuperação de entrega");
+      }
+      return true;
+    }
+  }
+
   const { portasDoNegocio } = await import("./portas.server");
   const portas = await portasDoNegocio({
     tenantId: e.tenantId,
@@ -146,7 +168,16 @@ export async function atenderAgendaNaConversa(e: EntradaDaAgenda): Promise<boole
     }
   }
   if (rastro && enviou === r.textos.length) {
-    await db.from("flow_bot_rastro").update({ enviado: true }).eq("id", rastro.id);
+    const { error: erroMarcarEnviado } = await db
+      .from("flow_bot_rastro")
+      .update({ enviado: true })
+      .eq("id", rastro.id);
+    if (erroMarcarEnviado)
+      console.error("[agenda-na-conversa] não marcou entrega no rastro", erroMarcarEnviado.message);
+  } else if (enviou !== r.textos.length) {
+    // Registrar como pendente sem recriar reserva nem liberar fallback. A equipe pode auditar
+    // o rastro de saída; recuperação automática requer idempotência do provedor.
+    await ocorrencia("erro", "Resposta da agenda pendente de entrega após execução.").catch(() => undefined);
   }
   // Uma vez que a agenda assumiu o turno, nenhuma outra automação deve responder por cima.
   // Falha parcial/total de envio é registrada no rastro, mas não aciona o menu legado nem a IA.
