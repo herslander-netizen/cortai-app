@@ -115,6 +115,24 @@ describe("agendar na conversa", () => {
     expect(r?.textos[1]).toMatch(/\*Segunda-feira, 09\/11\*/);
   });
 
+  it("sem vagas, mantém o atendimento aberto e aceita outra data sem repetir serviço", async () => {
+    const { portas } = portasFalsas({
+      equipe: [{ id: "p-ze", nome: "Zé" }],
+      livres: {},
+    });
+    const esgotado = await conduzir("agendar corte amanhã", null, portas);
+    expect(esgotado?.textos.join("\n")).toContain("Não encontrei horário livre nos próximos");
+    expect(esgotado?.estado?.etapa).toBe("horario");
+    expect(esgotado?.estado?.servicoId).toBe("s-corte");
+    portas.livres = async (dia) =>
+      dia === "2026-11-10"
+        ? [{ inicio: iso("2026-11-10", "14:00"), profissionalId: "p-ze" }]
+        : [];
+    const outraData = await conduzir("terça-feira, 10/11", esgotado!.estado, portas);
+    expect(outraData?.textos.join("\n")).toContain("Terça-feira, 10/11");
+    expect(outraData?.estado?.servicoId).toBe("s-corte");
+  });
+
   it("cliente sem cadastro: pede o nome antes de confirmar", async () => {
     const { portas, gravados } = portasFalsas({
       cliente: null,
