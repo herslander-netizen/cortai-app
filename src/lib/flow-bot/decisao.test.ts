@@ -5,6 +5,7 @@ import {
   ehEnvioDoFlow,
   humanoNoControle,
   motivoParaNaoAtender,
+  opcaoDeAgendarNoMenuPadrao,
   prazoDoHumano,
   textosDasAcoes,
   type ConfigDoBot,
@@ -16,6 +17,38 @@ const ligado: ConfigDoBot = {
   pausaHumanoMin: 120,
   versaoPublicada: null,
 };
+
+describe("opção 1 do menu-padrão encaminha para agenda no WhatsApp", () => {
+  const agora = Date.parse("2026-11-08T13:00:00Z");
+  const aguardando = {
+    status: "waiting_input",
+    cursor: "espera-menu",
+    prazo: agora + 10 * 60_000,
+  };
+
+  it("somente o número 1 enquanto o menu ainda espera o cliente inicia agendamento", () => {
+    expect(opcaoDeAgendarNoMenuPadrao("1", aguardando, agora)).toBe(true);
+    expect(opcaoDeAgendarNoMenuPadrao(" 1 ", aguardando, agora)).toBe(true);
+  });
+
+  it("não intercepta menus expirados, conversa sem menu nem escolhas de outras etapas", () => {
+    expect(opcaoDeAgendarNoMenuPadrao("1", null, agora)).toBe(false);
+    expect(opcaoDeAgendarNoMenuPadrao("1", { ...aguardando, prazo: agora }, agora)).toBe(false);
+    expect(
+      opcaoDeAgendarNoMenuPadrao("1", { ...aguardando, status: "completed" }, agora),
+    ).toBe(false);
+    expect(
+      opcaoDeAgendarNoMenuPadrao("1", { ...aguardando, cursor: "espera-outra" }, agora),
+    ).toBe(false);
+    expect(opcaoDeAgendarNoMenuPadrao("1", { ...aguardando, prazo: null }, agora)).toBe(false);
+  });
+
+  it("respeita as outras opções do menu e não confunde solicitação em texto com número", () => {
+    for (const texto of ["2", "3", "4", "11", "quero agendar", "1\nquero remarcar"]) {
+      expect(opcaoDeAgendarNoMenuPadrao(texto, aguardando, agora), texto).toBe(false);
+    }
+  });
+});
 
 describe("configDoBot", () => {
   it("sem linha não existe bot; valores fora da lista caem no padrão seguro", () => {
