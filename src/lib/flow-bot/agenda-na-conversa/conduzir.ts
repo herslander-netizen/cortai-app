@@ -714,7 +714,7 @@ async function comAgendamento(
   return {
     ...r,
     textos: [
-      `Vamos remarcar *${a.servicoNome}* do horário ~${quandoPorExtenso(a.inicio, portas.fuso)}~.`,
+      `Vamos remarcar *${a.servicoNome}* do horário ${quandoPorExtenso(a.inicio, portas.fuso)}.`,
       ...r.textos,
     ],
   };
@@ -759,9 +759,16 @@ async function executar(e: EstadoDaAgenda, portas: Portas): Promise<Resultado> {
     if (!e.servicoId || !e.inicio || !profissionalId)
       return { textos: [TEXTOS.falhaGravar], estado: null };
     if (e.objetivo === "remarcar" && e.agendamentoId) {
+      // O horário anterior só é tachado depois da remarcação concluída no banco.
+      const antigo = (await portas.agendamentos()).find((a) => a.id === e.agendamentoId);
       await portas.remarcar({ agendamentoId: e.agendamentoId, inicio: e.inicio, profissionalId });
       return {
-        textos: [confirmacaoDeRemarcacao(quandoPorExtenso(e.inicio, portas.fuso))],
+        textos: [
+          confirmacaoDeRemarcacao(
+            quandoPorExtenso(e.inicio, portas.fuso),
+            antigo ? quandoPorExtenso(antigo.inicio, portas.fuso) : null,
+          ),
+        ],
         estado: null,
       };
     }
