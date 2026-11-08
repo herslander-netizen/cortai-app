@@ -124,9 +124,9 @@ beforeEach(() => {
 
 describe("Flow Bot em sombra — oito pedidos do dono (05/11)", () => {
   const casos: [string, string, RegExp | null][] = [
-    ["Olá, gostaria de agendar.", "concluida", /escolha o horário por aqui/],
+    ["Olá, gostaria de agendar.", "encaminhada", /chamar alguém da equipe/],
     ["Quero remarcar meu horário.", "sem_regra", null],
-    ["Tem horário livre amanhã?", "concluida", /escolha o horário por aqui/],
+    ["Tem horário livre amanhã?", "encaminhada", /chamar alguém da equipe/],
     ["Quanto custa a escova?", "concluida", /Escova — R\$/],
     ["Quero cancelar meu horário.", "sem_regra", null],
     ["Quais serviços vocês oferecem?", "concluida", /Serviços de /],
@@ -178,10 +178,10 @@ describe("Flow Bot — convivência com a Flow IA e com a equipe", () => {
     expect(estado.inseridos).toEqual([]);
   });
 
-  it("pessoa da equipe no controle: bot em silêncio, sem rastro", async () => {
+  it("pessoa da equipe no controle: bloqueia fallback automático e não grava rastro", async () => {
     estado.config = { modo: "ligado", horario: "sempre", pausa_humano_min: 120 };
     estado.conversa = { id: "c1", modo_humano_ate: new Date(Date.now() + 60_000).toISOString() };
-    expect(await responderComFlowBot(entrada("quero agendar"))).toBe(false);
+    expect(await responderComFlowBot(entrada("quero agendar"))).toBe(true);
     expect(enviar).not.toHaveBeenCalled();
     expect(rastros()).toEqual([]);
   });
