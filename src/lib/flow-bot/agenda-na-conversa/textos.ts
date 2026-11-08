@@ -43,9 +43,9 @@ export function reais(centavos: number | null | undefined): string {
 
 /** Pergunta com opções numeradas (a Evolution não tem botões confiáveis; números funcionam em todo canal). */
 export function menu(pergunta: string, opcoes: readonly Opcao[], rodape?: string): string {
-  // Mesmo padrão do envio (`paraWhatsApp`): número em negrito sem recuo e uma linha em branco depois da pergunta.
+  // Um título claro e opções numeradas. O emissor preserva *1)* para não recuar no WhatsApp.
   const linhas = opcoes.map((o, i) => `*${i + 1})* ${o.rotulo}`);
-  return [pergunta, "", ...linhas, ...(rodape ? ["", rodape] : [])].join("\n");
+  return [`📋 *${pergunta}*`, "", ...linhas, ...(rodape ? ["", `_${rodape}_`] : [])].join("\n");
 }
 
 export const TEXTOS = {
@@ -57,7 +57,7 @@ export const TEXTOS = {
   outroDia: "Se preferir outro dia ou horário, é só me dizer (ex.: amanhã à tarde).",
   // Escolhas destacadas em caixa alta e negrito (dono, 06/11/2026: "Sim ou não em caixa alta").
   responderSimOuNao: "Responda *SIM* para confirmar ou *NÃO* para mudar.",
-  continuando: "Oi! Vamos continuar de onde paramos.",
+  continuando: "👋 Oi! Vamos continuar de onde paramos.",
   perdeuHorario: "Sem problema, acontece! Vamos marcar um novo horário.",
   desistiu: "Tudo bem, não marquei nada. Se precisar, é só chamar.",
   mantido: "Tudo bem, mantive seu horário.",
@@ -112,5 +112,46 @@ export function respostaDeAudioNaoEntendido(etapa: string, ouvido?: string | nul
     ...(eco ? [eco] : []),
     "",
     DICA_DO_AUDIO[etapa] ?? "Mande outro áudio ou escreva.",
+  ].join("\n");
+}
+
+/** Confirmações só podem ser usadas depois de a ação oficial da Agenda terminar com sucesso. */
+export function confirmacaoDeReserva(p: {
+  nome?: string | null;
+  servico: string;
+  profissional?: string | null;
+  quando: string;
+  valor?: string | null;
+}): string {
+  const nome = p.nome?.trim().split(/\s+/)[0];
+  return [
+    \`✅ *Agendamento confirmado\${nome ? \`, \${nome}\` : ""}!*\`,
+    "",
+    \`*Serviço:* \${p.servico}\`,
+    ...(p.profissional ? [\`*Profissional:* \${p.profissional}\`] : []),
+    \`*Data e horário:* \${p.quando.charAt(0).toLocaleUpperCase("pt-BR") + p.quando.slice(1)}\`,
+    ...(p.valor ? [\`*Valor do serviço:* \${p.valor}\`] : []),
+    "",
+    "Obrigado por escolher a gente! ✨",
+    "Se precisar *remarcar* ou *cancelar*, é só avisar por aqui.",
+  ].join("\n");
+}
+
+export function confirmacaoDeRemarcacao(quando: string): string {
+  return [
+    "✅ *Horário remarcado com sucesso!*",
+    "",
+    \`*Novo horário:* \${quando.charAt(0).toLocaleUpperCase("pt-BR") + quando.slice(1)}\`,
+    "",
+    "Obrigado por avisar. Até lá! ✨",
+  ].join("\n");
+}
+
+export function confirmacaoDeCancelamento(servico: string | null, quando: string | null): string {
+  return [
+    "✅ *Cancelamento realizado.*",
+    ...(servico && quando ? ["", \`*Serviço:* \${servico}\`, \`*Horário cancelado:* \${quando}\`] : []),
+    "",
+    "Obrigado por avisar. Quando precisar, é só chamar por aqui. ✨",
   ].join("\n");
 }
