@@ -583,6 +583,7 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - 2026-10-26: **Cabeçalho do menu mobile mais compacto** (dono aprovou a reformulação após captura: logo menor, nome do negócio com hierarquia discreta, papel secundário, ajustes alinhados e menos espaço vazio; manter nome em até duas linhas quando necessário, sem afetar a Agenda).
 
 ## Em andamento
+- GPT | 2026-11-08 UTC | **Agenda: corrigir bloqueio do deslize em modo edição (vídeos 1 e 2):** rolagem vertical do cartão livre sem arrasto, limpeza de captura de ponteiro perdida e testes de regressão. Somente branch de prévia | `src/styles.css`, `src/components/barbeiro/AgendaTimeline.tsx`, `src/components/barbeiro/agenda/AlcaDeDuracao.tsx`, `src/components/barbeiro/agenda/arrasto-timeline.test.ts`, `src/components/barbeiro/agenda/timeline-rolagem-celular.test.ts`; sem migração, banco, main ou produção
 
 
 
