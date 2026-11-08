@@ -579,6 +579,7 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - 2026-10-26: **Cabeçalho do menu mobile mais compacto** (dono aprovou a reformulação após captura: logo menor, nome do negócio com hierarquia discreta, papel secundário, ajustes alinhados e menos espaço vazio; manter nome em até duas linhas quando necessário, sem afetar a Agenda).
 
 ## Em andamento
+- GPT | 2026-11-08 UTC | **Flow Core fase 3 — limitador atômico global de cotas:** implementar Durable Object SQLite separado para todas as contas/tenants e adaptador fail-closed para gateway híbrido; testes de concorrência, idempotência e janelas; documentação e configuração de Worker sem deploy/ativação automática, sem novas chaves, sem banco, produção ou mudanças no WhatsApp | `infra/flow-ai-quota/*`, `src/lib/brain/cotas-*.ts`, `src/lib/brain/gateway.server.ts`, testes, `docs/flow-inteligencia/16-*.md`.
 
 
 
