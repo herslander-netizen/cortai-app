@@ -218,6 +218,63 @@ describe("cadastro de serviços e horários pelo cérebro único", () => {
   });
 });
 
+describe("identidade do cliente no WhatsApp", () => {
+  const ctxCliente: ContextoDoCerebro = {
+    tenantId: "t1",
+    canal: "whatsapp",
+    ator: "5511988884321",
+    telefoneCliente: "5511988884321",
+    papel: "cliente",
+  };
+
+  it("telefone compartilhado por duas fichas nunca escolhe a primeira", async () => {
+    estado.banco.tabelas.clientes.push(
+      { id: "c1", tenant_id: "t1", nome: "Maria Souza", telefone: "5511988884321", arquivado_em: null },
+      { id: "c2", tenant_id: "t1", nome: "Ana Souza", telefone: "5511988884321", arquivado_em: null },
+    );
+    await expect(ACOES["buscar_cliente"]!.executar(ctxCliente, { telefone: null })).rejects.toThrow(
+      /mais de um cliente.*nome e sobrenome/i,
+    );
+    await expect(
+      ACOES["consultar_agendamentos_cliente"]!.executar(ctxCliente, { clienteId: null }),
+    ).rejects.toThrow(/mais de um cliente/i);
+    await expect(
+      ACOES["criar_agendamento"]!.executar(ctxCliente, {
+        clienteId: null, nomeCliente: null, servicoId: "srv-1", profissionalId: "pro-1", inicio: INICIO,
+      }),
+    ).rejects.toThrow(/mais de um cliente/i);
+    expect(estado.domínio).not.toHaveBeenCalled();
+  });
+
+  it("cadastro novo não aceita apenas primeiro nome antes de gravar", async () => {
+    await expect(
+      ACOES["criar_agendamento"]!.executar(ctxCliente, {
+        clienteId: null, nomeCliente: "Ana", servicoId: "srv-1", profissionalId: "pro-1", inicio: INICIO,
+      }),
+    ).rejects.toThrow(/nome e sobrenome/i);
+    expect(estado.domínio).not.toHaveBeenCalled();
+    expect(estado.banco.tabelas.clientes).toHaveLength(0);
+  });
+
+  it("registro único no próprio telefone segue reconhecido pelo ID", async () => {
+    estado.banco.tabelas.clientes.push({
+      id: "c1", tenant_id: "t1", nome: "Maria Souza", telefone: "5511988884321", arquivado_em: null,
+    });
+    await expect(ACOES["buscar_cliente"]!.executar(ctxCliente, { telefone: null })).resolves.toMatchObject({
+      id: "c1", nome: "Maria Souza",
+    });
+  });
+
+  it("cadastro de outro negócio não entra nem na contagem de homônimos", async () => {
+    estado.banco.tabelas.clientes.push(
+      { id: "c1", tenant_id: "t1", nome: "Maria Souza", telefone: "5511988884321", arquivado_em: null },
+      { id: "c2", tenant_id: "outro", nome: "Ana Souza", telefone: "5511988884321", arquivado_em: null },
+    );
+    const resultado = await ACOES["buscar_cliente"]!.executar(ctxCliente, { telefone: null });
+    expect(resultado).toMatchObject({ id: "c1", nome: "Maria Souza" });
+  });
+});
+
 describe("buscar_cliente_por_nome", () => {
   const clientes = [
     {
