@@ -28,6 +28,9 @@ import { extrasDoPedido } from "@/lib/whatsapp/motor/entendimento-whatsapp";
 import { hojeNoFuso, somarDias } from "@/lib/horarios";
 import {
   TEXTOS,
+  confirmacaoDeReserva,
+  confirmacaoDeRemarcacao,
+  confirmacaoDeCancelamento,
   diaPorExtenso,
   horaDe,
   menu,
@@ -561,7 +564,7 @@ async function avancar(e: EstadoDaAgenda, portas: Portas): Promise<Resultado> {
     quando,
     valor: e.objetivo === "remarcar" ? null : reais(servico.preco_centavos),
   });
-  const titulo = e.objetivo === "remarcar" ? "Confira a remarcação:" : "Confira seu agendamento:";
+  const titulo = e.objetivo === "remarcar" ? "🗓️ *Confira a remarcação:*" : "🗓️ *Confira seu agendamento:*";
   const pergunta = e.objetivo === "remarcar" ? "Posso remarcar?" : "Posso marcar?";
   return {
     textos: [`${titulo}\n\n${dados}\n\n${pergunta}\n${TEXTOS.responderSimOuNao}`],
@@ -615,7 +618,7 @@ async function oferecerHorarios(
     }));
     textos.push(
       [
-        "Tenho estes horários livres:",
+        "🕒 Tenho estes horários livres:",
         "",
         listaDeHorarios({
           dia: diaPorExtenso(e.opcoes[0]!.valor, portas.fuso),
@@ -704,7 +707,7 @@ async function comAgendamento(
   return {
     ...r,
     textos: [
-      `Vamos remarcar *${a.servicoNome}* de ${quandoPorExtenso(a.inicio, portas.fuso)}.`,
+      `Vamos remarcar *${a.servicoNome}* do horário ~${quandoPorExtenso(a.inicio, portas.fuso)}~.`,
       ...r.textos,
     ],
   };
@@ -737,7 +740,10 @@ async function executar(e: EstadoDaAgenda, portas: Portas): Promise<Resultado> {
       await portas.cancelar(e.agendamentoId);
       return {
         textos: [
-          `Pronto, cancelei${a ? ` *${a.servicoNome}* de ${quandoPorExtenso(a.inicio, portas.fuso)}` : " o horário"}. Quando quiser marcar de novo, é só chamar.`,
+          confirmacaoDeCancelamento(
+            a?.servicoNome ?? null,
+            a ? quandoPorExtenso(a.inicio, portas.fuso) : null,
+          ),
         ],
         estado: null,
       };
@@ -748,24 +754,42 @@ async function executar(e: EstadoDaAgenda, portas: Portas): Promise<Resultado> {
     if (e.objetivo === "remarcar" && e.agendamentoId) {
       await portas.remarcar({ agendamentoId: e.agendamentoId, inicio: e.inicio, profissionalId });
       return {
-        textos: [`Pronto, remarquei para ${quandoPorExtenso(e.inicio, portas.fuso)}. Até lá!`],
+        textos: [confirmacaoDeRemarcacao(quandoPorExtenso(e.inicio, portas.fuso))],
         estado: null,
       };
     }
-    await portas.criar({
-      servicoId: e.servicoId,
-      profissionalId,
-      inicio: e.inicio,
-      nomeCliente: e.nome,
+    // Todos os dados de apresentação são lidos ANTES de gravar. Depois do commit da Agenda,
+    // uma falha secundária de leitura não deve impedir o comprovante nem simular que o horário ficou ocupado.
+    const [servicos, equipe, cliente, anteriores] = await Promise.all([
+      portas.servicos(),
+      portas.profissionais(e.servicoId),
+      portas.cliente(),
+      portas.agendamentos(),
+    ]);
+    const servico = servicos.find((s) => s.id === e.servicoId);
+    const profissional = equipe.find((p) => p.id === profissionalId);
+    const textoFinal = confirmacaoDeReserva({
+      nome: e.nome ?? cliente?.nome,
+      servico: servico?.nome ?? "seu atendimento",
+      profissional: profissional?.nome ?? null,
+      quando: quandoPorExtenso(e.inicio, portas.fuso),
+      valor: servico ? reais(servico.preco_centavos) : null,
     });
-    const servico = (await portas.servicos()).find((s) => s.id === e.servicoId);
-    const nome = (e.nome ?? (await portas.cliente())?.nome ?? "").split(" ")[0];
-    return {
-      textos: [
-        `Pronto${nome ? `, ${nome}` : ""}! Marquei *${servico?.nome ?? "seu horário"}* para ${quandoPorExtenso(e.inicio, portas.fuso)}. Até lá!`,
-      ],
-      estado: null,
-    };
+    // Um webhook repetido ou o contexto antigo ainda em "confirmar" não pode criar a mesma reserva duas vezes.
+    const jaExiste = anteriores.some((a) =>
+      a.inicio === e.inicio &&
+      a.servicoId === e.servicoId &&
+      a.profissionalId === profissionalId,
+    );
+    if (!jaExiste) {
+      await portas.criar({
+        servicoId: e.servicoId,
+        profissionalId,
+        inicio: e.inicio,
+        nomeCliente: e.nome,
+      });
+    }
+    return { textos: [textoFinal], estado: null };
   } catch (erro) {
     if (e.objetivo === "cancelar") {
       const msg = erro instanceof Error ? erro.message : "";
