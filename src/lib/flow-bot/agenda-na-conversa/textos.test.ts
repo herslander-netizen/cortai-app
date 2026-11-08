@@ -53,8 +53,11 @@ describe("identidade WhatsApp da agenda", () => {
   });
 
   it("remarcação distingue horário novo de agendamento novo", () => {
-    const msg = paraWhatsApp(confirmacaoDeRemarcacao("quarta-feira, 11/11, às 16:30"));
+    const msg = paraWhatsApp(
+      confirmacaoDeRemarcacao("quarta-feira, 11/11, às 16:30", "terça-feira, 10/11, às 15:00"),
+    );
     expect(msg).toContain("✅ *Horário remarcado com sucesso!*");
+    expect(msg).toContain("*Horário anterior:* ~terça-feira, 10/11, às 15:00~");
     expect(msg).toContain("*Novo horário:* Quarta-feira, 11/11, às 16:30");
     expect(msg).not.toContain("Agendamento confirmado");
   });
