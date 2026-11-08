@@ -169,11 +169,30 @@ describe("ehEnvioDoFlow", () => {
 });
 
 describe("saudação sem regra", () => {
-  it("reconhece só cumprimentos curtos", async () => {
+  it("reconhece só cumprimentos curtos, mesmo enviados em mensagens picadas", async () => {
     const { ehSaudacao } = await import("./decisao");
-    for (const t of ["Olá?", "Bom dia", "boa noite!", "Oi, tudo bem?", "oiee", "E aí"])
-      expect(ehSaudacao(t), t).toBe(true);
-    for (const t of ["Bom dia, quero marcar", "Obrigado", "oito horas", "Quero remarcar"])
-      expect(ehSaudacao(t), t).toBe(false);
+    for (const t of [
+      "Olá?",
+      "Bom dia",
+      "boa noite!",
+      "Oi, tudo bem?",
+      "oiee",
+      "E aí",
+      "Oi\nBom dia",
+      "Oi!\nBom dia!",
+      "Olá?\nBoa tarde\nOi, tudo bem?",
+      "Oi!\r\nBom dia!",
+    ]) expect(ehSaudacao(t.replaceAll("\\\n", "\n").replaceAll("\\\r", "\r")), t).toBe(true);
+    for (const t of [
+      "Bom dia, quero marcar",
+      "Obrigado",
+      "oito horas",
+      "Quero remarcar",
+      "Oi\nQuero agendar",
+      "Bom dia\nMe diz o preço?",
+      "Oi\nQuero cancelar",
+      "Oi\nBom dia\nPreciso remarcar",
+      "",
+    ]) expect(ehSaudacao(t.replaceAll("\\\n", "\n")), t).toBe(false);
   });
 });
