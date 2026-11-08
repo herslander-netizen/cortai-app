@@ -131,6 +131,48 @@ describe("agendar na conversa", () => {
     expect(gravados[0]?.dados).toMatchObject({ nomeCliente: "Maria Souza" });
   });
 
+  it("SIM repetido após reserva existente não cria agendamento duplicado", async () => {
+    const { portas, gravados } = portasFalsas({
+      equipe: [{ id: "p-ze", nome: "Zé" }],
+      livres: { "2026-11-07": LIVRES_SABADO },
+      agendamentos: [{
+        id: "ja-criado",
+        inicio: iso("2026-11-07", "10:00"),
+        servicoId: "s-corte",
+        servicoNome: "Corte",
+        profissionalId: "p-ze",
+        profissionalNome: "Zé",
+      }],
+    });
+    const etapa = await conduzir("agendar corte amanhã às 10h", null, portas);
+    expect(etapa?.estado?.etapa).toBe("confirmar");
+    const primeiro = await conduzir("sim", etapa!.estado, portas);
+    const repetido = await conduzir("sim", etapa!.estado, portas);
+    expect(primeiro?.textos[0]).toContain("Agendamento confirmado");
+    expect(repetido?.textos[0]).toContain("Agendamento confirmado");
+    expect(gravados).toHaveLength(0);
+  });
+
+  it("não faz consultas pós-gravação que possam esconder o comprovante", async () => {
+    const { portas, gravados } = portasFalsas({
+      equipe: [{ id: "p-ze", nome: "Zé" }],
+      livres: { "2026-11-07": LIVRES_SABADO },
+    });
+    const agendar = await conduzir("agendar corte amanhã às 10h", null, portas);
+    expect(agendar?.estado?.etapa).toBe("confirmar");
+    const criar = portas.criar;
+    portas.criar = async (dados) => {
+      await criar(dados);
+      portas.servicos = async () => { throw new Error("Falha de consulta após gravar"); };
+      portas.profissionais = async () => { throw new Error("Falha de consulta após gravar"); };
+      portas.cliente = async () => { throw new Error("Falha de consulta após gravar"); };
+    };
+    const concluido = await conduzir("sim", agendar!.estado, portas);
+    expect(gravados).toHaveLength(1);
+    expect(concluido?.estado).toBeNull();
+    expect(concluido?.textos[0]).toContain("✅ *Agendamento confirmado");
+  });
+
   it("horário tomado entre a oferta e o sim: avisa e mostra os livres", async () => {
     const { portas } = portasFalsas({
       equipe: [{ id: "p-ze", nome: "Zé" }],
