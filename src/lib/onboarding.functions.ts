@@ -16,6 +16,7 @@ import {
   type Segmento,
 } from "@/lib/segmentos";
 import { normalizarPagina } from "@/lib/pagina-config";
+import { paginaInicialDoSegmento } from "@/lib/flow-visual-presets";
 import type { Json } from "@/integrations/supabase/types";
 
 /** Primeiros passos depois do onboarding. Cada item é detectado de verdade no banco. */
@@ -624,8 +625,24 @@ export const salvarModoAgendamento = createServerFn({ method: "POST" })
       pagina?: unknown;
       marca?: unknown;
     } | null;
-    const draftPagina = normalizarPagina(draftContainer?.pagina);
-    const publishedPagina = normalizarPagina(publishedContainer?.pagina);
+    // O primeiro modo do onboarding é a chance de preparar o visual do segmento,
+    // mas só quando não existe página salva, nem rascunho, nem versão publicada.
+    // Mudanças posteriores de modo NÃO reaplicam temas nem textos.
+    let inicial = null as ReturnType<typeof paginaInicialDoSegmento> | null;
+    if (draftContainer?.pagina == null && publishedContainer?.pagina == null) {
+      const { data: negocio, error: erroNegocio } = await context.supabase
+        .from("tenants")
+        .select("segmento, texto_boas_vindas, descricao")
+        .eq("id", tenantId)
+        .single();
+      if (erroNegocio || !negocio) throw new Error("Não foi possível identificar o segmento do negócio.");
+      inicial = paginaInicialDoSegmento(segmentoParaApresentacao(negocio.segmento), {
+        ...(negocio.texto_boas_vindas ? { frase: negocio.texto_boas_vindas } : {}),
+        sobre: negocio.descricao ?? "",
+      });
+    }
+    const draftPagina = inicial ?? normalizarPagina(draftContainer?.pagina);
+    const publishedPagina = inicial ?? normalizarPagina(publishedContainer?.pagina);
     const draftConfig = {
       ...(draftContainer ?? {}),
       pagina: { ...draftPagina, chat: { ...draftPagina.chat, modo: data.modo } },
