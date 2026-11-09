@@ -31,12 +31,15 @@ export function BannerDeCookies() {
         className="pointer-events-auto max-h-[70dvh] w-full max-w-[440px] overflow-y-auto rounded-3xl border border-line bg-card px-5 py-4 text-center text-card-foreground shadow-[var(--elevacao-8)] md:max-w-[400px]"
       >
         <p className="text-[13px] leading-relaxed text-muted-foreground">
-          Usamos cookies para o Flow funcionar e, se você permitir, melhorar sua experiência.{" "}
+          Usamos cookies e armazenamento local para o Flow funcionar. Recursos opcionais dependem da sua escolha.{" "}
           <Link
             to="/privacidade"
             className="font-medium text-foreground underline underline-offset-2"
           >
             Política de Privacidade
+          </Link>{" · "}
+          <Link to="/cookies" className="font-medium text-foreground underline underline-offset-2">
+            Política de Cookies
           </Link>
         </p>
 
@@ -102,7 +105,7 @@ export function BannerDeCookies() {
             onClick={() => registrar(SOMENTE_NECESSARIAS)}
             className="h-auto min-h-12 px-2 text-sm font-medium text-foreground"
           >
-            Rejeitar todos
+            Rejeitar opcionais
           </Button>
         </div>
       </div>

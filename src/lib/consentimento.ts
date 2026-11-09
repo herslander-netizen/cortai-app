@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 
-export const VERSAO_DA_POLITICA = "2026-09-14";
+export const VERSAO_DA_POLITICA = "2026-11-08";
 const CHAVE = "cortai:consentimento";
 const EVENTO = "cortai:consentimento-alterado";
 
@@ -40,23 +40,23 @@ export const DESCRICAO_DAS_CATEGORIAS: {
   {
     chave: "necessarios",
     titulo: "Necessários",
-    detalhe: "Mantêm o login, a segurança e as telas do Flow funcionando. Sempre ativos.",
+    detalhe: "Mantêm autenticação, segurança e funções essenciais do aplicativo. Não podem ser desligados pelo painel.",
     fixa: true,
   },
   {
     chave: "preferencias",
     titulo: "Preferências",
-    detalhe: "Lembram escolhas como tema e dicas para você não repetir ajustes.",
+    detalhe: "Personalização adicional quando houver recurso facultativo. O tema básico da interface é essencial.",
   },
   {
     chave: "analises",
     titulo: "Análises e estatísticas",
-    detalhe: "Ajudam a entender como o Flow é usado, de forma agregada.",
+    detalhe: "Medições opcionais de uso, quando habilitadas. Registros de operação e segurança são tratados separadamente.",
   },
   {
     chave: "marketing",
     titulo: "Marketing",
-    detalhe: "Permitem medir campanhas e comunicações sobre o Flow.",
+    detalhe: "Rastreadores opcionais de campanhas quando habilitados. Esta escolha não autoriza mensagens comerciais por WhatsApp.",
   },
 ];
 
@@ -66,7 +66,15 @@ export function lerConsentimento(): Consentimento | null {
     const bruto = localStorage.getItem(CHAVE);
     if (!bruto) return null;
     const dado = JSON.parse(bruto) as Consentimento;
-    if (!dado?.categorias || dado.versao !== VERSAO_DA_POLITICA) return null;
+    if (
+      dado?.versao !== VERSAO_DA_POLITICA ||
+      dado?.categorias?.necessarios !== true ||
+      typeof dado.categorias.preferencias !== "boolean" ||
+      typeof dado.categorias.analises !== "boolean" ||
+      typeof dado.categorias.marketing !== "boolean" ||
+      typeof dado.registradoEm !== "string"
+    )
+      return null;
     return dado;
   } catch {
     return null;

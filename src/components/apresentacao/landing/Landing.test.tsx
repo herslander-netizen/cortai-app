@@ -78,6 +78,8 @@ describe("página pública promocional", () => {
     const { div, fechar } = desenhar();
     expect(div.textContent).toContain("Alvo Digital");
     expect(div.textContent).toContain("Privacidade");
+    expect(div.querySelector('a[href="/termos"]')).not.toBeNull();
+    expect(div.querySelector('a[href="/cookies"]')).not.toBeNull();
     expect(div.textContent).toContain("© 2026 Herslander");
     fechar();
   });

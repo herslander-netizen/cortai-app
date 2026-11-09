@@ -33,8 +33,10 @@ export function PreferenciasDePrivacidade() {
         quiser. Leia a{" "}
         <Link to="/privacidade" className="text-gold underline">
           Política de Privacidade
-        </Link>
-        .
+        </Link>{" "}e a{" "}
+        <Link to="/cookies" className="text-gold underline">
+          Política de Cookies
+        </Link>.
       </p>
       <ul className="mt-4 space-y-3">
         {DESCRICAO_DAS_CATEGORIAS.map((categoria) => (

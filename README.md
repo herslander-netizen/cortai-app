@@ -43,3 +43,18 @@ Os comandos exatos de validação automatizada estão definidos em `.github/work
 ## MCP
 
 A rota `/mcp` oferece ferramentas de leitura para listar serviços e agendamentos do negócio autenticado. O consentimento OAuth fica em `/oauth/consentimento`. A compatibilidade ponta a ponta com um cliente MCP real ainda precisa ser verificada antes de uso externo.
+
+## Documentos institucionais e dados pessoais
+
+- Política de Privacidade: `/privacidade` (`src/routes/privacidade.tsx`).
+- Termos de Uso: `/termos` (`src/routes/termos.tsx`).
+- Política de Cookies e gestão de preferências: `/cookies` (`src/routes/cookies.tsx`).
+- Registro de consentimento: `src/lib/consentimento.ts`.
+- Inventário e pontos de revisão jurídica: `docs/governanca-dados-flow.md`.
+
+As informações publicadas precisam corresponder às funcionalidades em operação. A
+contratação, a política de retenção e os fluxos de aceite devem passar por revisão
+jurídica e técnica antes de publicação no ambiente principal.
+
+A branch Git `main` é arquivo histórico do período Lovable, não a versão
+atual do Flow. Não é mesclada nem editada sem autorização específica.

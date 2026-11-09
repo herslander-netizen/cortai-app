@@ -47,6 +47,12 @@ export function Signature({ variant = "default" }: { variant?: "default" | "app"
           >
             Privacidade
           </Link>
+          <Link to="/termos" className="inline-flex min-h-12 items-center transition-colors hover:text-[var(--figaro-primary,var(--primary))]">
+            Termos
+          </Link>
+          <Link to="/cookies" className="inline-flex min-h-12 items-center transition-colors hover:text-[var(--figaro-primary,var(--primary))]">
+            Cookies
+          </Link>
         </div>
       </footer>
     );
@@ -84,9 +90,15 @@ export function Signature({ variant = "default" }: { variant?: "default" | "app"
           >
             Privacidade
           </Link>
-          <span className="text-mute2" aria-hidden>
-            •
-          </span>
+          <span className="text-mute2" aria-hidden>•</span>
+          <Link to="/termos" className="inline-flex min-h-12 items-center transition-colors hover:text-gold">
+            Termos de Uso
+          </Link>
+          <span className="text-mute2" aria-hidden>•</span>
+          <Link to="/cookies" className="inline-flex min-h-12 items-center transition-colors hover:text-gold">
+            Cookies
+          </Link>
+          <span className="text-mute2" aria-hidden>•</span>
           <span className="text-mute2">© 2026 Herslander</span>
         </div>
       </div>
