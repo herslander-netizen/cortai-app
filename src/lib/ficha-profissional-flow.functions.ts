@@ -58,7 +58,7 @@ export const getFichaProfissionalFlow = createServerFn({ method: "GET" })
     const desde = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
     const [fichaRes, horariosRes, escalaRes, excecoesRes] = await Promise.all([
       profissional
-        ? context.supabase.from("profissionais_ficha")
+        ? (context.supabase as any).from("profissionais_ficha")
             .select("atividade, telefone_contato")
             .eq("tenant_id", tenantId)
             .eq("profissional_id", profissional.id)
@@ -74,7 +74,7 @@ export const getFichaProfissionalFlow = createServerFn({ method: "GET" })
             .eq("profissional_id", profissional.id)
         : Promise.resolve({ data: [], error: null }),
       profissional
-        ? context.supabase.from("excecoes_disponibilidade_profissional")
+        ? (context.supabase as any).from("excecoes_disponibilidade_profissional")
             .select("id, dia, trabalha, abre, fecha")
             .eq("tenant_id", tenantId)
             .eq("profissional_id", profissional.id)
@@ -192,7 +192,7 @@ export const salvarDadosProfissionalFlow = createServerFn({ method: "POST" })
   .validator((d: unknown) => DADOS.parse(d))
   .handler(async ({ data, context }) => {
     const { tenantId, profissional } = await profissionalParaEditar(context, data.userId);
-    const { error } = await context.supabase.rpc("salvar_dados_profissional_flow", {
+    const { error } = await (context.supabase as any).rpc("salvar_dados_profissional_flow", {
       _tenant_id: tenantId,
       _profissional_id: profissional.id,
       _nome: data.nome,
@@ -337,7 +337,7 @@ export const salvarDisponibilidadePorDataFlow = createServerFn({ method: "POST" 
       }
     }
 
-    const { error } = await context.supabase.from("excecoes_disponibilidade_profissional").upsert({
+    const { error } = await (context.supabase as any).from("excecoes_disponibilidade_profissional").upsert({
       tenant_id: tenantId,
       profissional_id: profissional.id,
       dia: data.dia,
@@ -367,7 +367,7 @@ export const removerDisponibilidadePorDataFlow = createServerFn({ method: "POST"
       .lt("inicio", fim);
     if (erroAgenda) throw new Error("Não foi possível conferir os agendamentos da data.");
     if ((count ?? 0) > 0) throw new Error("Há agendamentos nesta data. Remarque-os antes de remover a exceção.");
-    const { error } = await context.supabase.from("excecoes_disponibilidade_profissional")
+    const { error } = await (context.supabase as any).from("excecoes_disponibilidade_profissional")
       .delete()
       .eq("tenant_id", tenantId)
       .eq("profissional_id", profissional.id)
@@ -388,7 +388,7 @@ export const desativarProfissionalFlow = createServerFn({ method: "POST" })
     if (data.userId === context.userId) {
       throw new Error("Você não pode desativar o seu próprio acesso.");
     }
-    const { error } = await context.supabase.rpc("desativar_profissional_flow", {
+    const { error } = await (context.supabase as any).rpc("desativar_profissional_flow", {
       _tenant_id: tenantId,
       _user_id: data.userId,
     });
