@@ -40,7 +40,7 @@ export function ChatBackground({
 }: {
   capaUrl?: string | null | undefined;
   modo?: ChatConfig["fundo"];
-  segmento?: Segmento;
+  segmento?: Segmento | undefined;
 }) {
   // capa = foto do negócio (ou o fundo do Flow); padrao = sempre o fundo do Flow; liso = só a cor.
   const imagem = modo === "liso" ? null : modo === "padrao" ? fundo.url :

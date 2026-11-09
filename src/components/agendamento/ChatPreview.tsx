@@ -21,7 +21,7 @@ export function ChatPreview({
   nome?: string;
   logoUrl?: string | null;
   capaUrl?: string | null;
-  segmento?: Segmento;
+  segmento?: Segmento | undefined;
 }) {
   const estilo = config ? agendamentoStyle(config) : undefined;
   const capaRecomendada = segmento ? capaPublicaRecomendada(segmento, capaUrl ?? null) : capaUrl;
