@@ -426,19 +426,10 @@ export const desativarPerfilAgendaFlow = createServerFn({ method: "POST" })
     if (profissional.user_id) {
       throw new Error("Este profissional tem login. Desative-o pela tela Equipe e permissões.");
     }
-    const { data: atualizado, error } = await context.supabase.from("profissionais")
-      .update({ ativo: false })
-      .eq("tenant_id", tenantId)
-      .eq("id", profissional.id)
-      .is("user_id", null)
-      .select("id")
-      .maybeSingle();
-    if (error || !atualizado) throw new Error("Não foi possível desativar este profissional.");
-    await context.supabase.rpc("registrar_auditoria_barbearia", {
-      _tenant_id: tenantId,
-      _acao: "profissional.desativado",
-      _alvo: profissional.id,
-      _detalhes: { origem: "ficha_flow" },
-    });
+    const { error } = await (context.supabase as any).rpc(
+      "desativar_profissional_sem_acesso_flow",
+      { _tenant_id: tenantId, _profissional_id: profissional.id },
+    );
+    if (error) throw new Error("Não foi possível desativar este profissional.");
     return { ok: true };
   });
