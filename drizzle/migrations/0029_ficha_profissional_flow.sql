@@ -175,3 +175,26 @@ revoke all on table public.profissionais_ficha from public, anon;
 revoke all on table public.excecoes_disponibilidade_profissional from public, anon;
 grant select, insert, update, delete on table public.profissionais_ficha to authenticated;
 grant select, insert, update, delete on table public.excecoes_disponibilidade_profissional to authenticated;
+
+-- Desativar um profissional sem usuário exige gravação e auditoria atômicas.
+create or replace function public.desativar_profissional_sem_acesso_flow(
+  _tenant_id uuid, _profissional_id uuid
+) returns void language plpgsql security invoker set search_path = public as $$
+begin
+  if not public.has_tenant_permission(_tenant_id, 'gerenciar_profissionais') then
+    raise exception 'sem permissao para desativar profissional';
+  end if;
+  update public.profissionais set ativo = false
+  where tenant_id = _tenant_id
+    and id = _profissional_id
+    and user_id is null;
+  if not found then
+    raise exception 'profissional sem acesso nao encontrado';
+  end if;
+  perform public.registrar_auditoria_barbearia(
+    _tenant_id, 'profissional.desativado', _profissional_id::text,
+    '{"origem":"ficha_flow"}'::jsonb
+  );
+end $$;
+revoke all on function public.desativar_profissional_sem_acesso_flow(uuid,uuid) from public, anon;
+grant execute on function public.desativar_profissional_sem_acesso_flow(uuid,uuid) to authenticated;
