@@ -593,6 +593,7 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - 2026-10-26: **Cabeçalho do menu mobile mais compacto** (dono aprovou a reformulação após captura: logo menor, nome do negócio com hierarquia discreta, papel secundário, ajustes alinhados e menos espaço vazio; manter nome em até duas linhas quando necessário, sem afetar a Agenda).
 
 ## Em andamento
+- GPT | 2026-11-08 23:35 BRT | **Paridade completa Figaroo → Flow, início pela ficha individual da Equipe:** inventário transversal com todos os módulos e estados; criar ficha de acesso com vínculo real ao profissional (sem confundir registros de autenticação e atendimento), usando dados existentes, sem inventar resultados, respeitando RBAC e sem ações destrutivas novas. Arquivos: `src/routes/barbeiro.equipe.tsx`, novo `src/routes/barbeiro.equipe.$userId.tsx`, novo `src/lib/painel-membro.functions.ts`, testes, `docs/paridade-figaroo-flow-inventario-2026-11-08.md`, `DIARIO.md`. Fora: arquivos reservados por outras IAs, Agenda, banco real, main e produção.
 - GPT | 2026-11-08 11:50 BRT | **Nome e sobrenome nos fluxos:** corrigir identificação ambígua no WhatsApp, Flow Bot e consultas do painel; adicionar regra pura e testes, documentar limitações; somente branch oficial, sem sender/webhook reservado pela Claude, Agenda visual, banco, main ou produção | `src/lib/nomes-pessoas.ts`, `src/lib/flow-bot/agenda-na-conversa/*`, `src/lib/brain/busca-cliente.ts`, testes, documentação; sem migração
 
 
