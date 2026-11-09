@@ -594,7 +594,6 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - 2026-10-26: **Cabeçalho do menu mobile mais compacto** (dono aprovou a reformulação após captura: logo menor, nome do negócio com hierarquia discreta, papel secundário, ajustes alinhados e menos espaço vazio; manter nome em até duas linhas quando necessário, sem afetar a Agenda).
 
 ## Em andamento
-- GPT | 2026-11-09 | **Figaroo → Flow, Equipe: editor individual de dados** — criar tela separada para editar nome e descrição do profissional com vínculo seguro por `user_id`; usar `salvarPerfilProfissional` já existente, sem segunda gravação nem alterar avatar/portfólio. Arquivos `src/lib/painel-membro.functions.ts`, `src/lib/crescimento.functions.ts`, nova rota `src/routes/barbeiro.equipe-dados.$userId.tsx`, `src/routes/barbeiro.equipe_.$userId.tsx`, testes de paridade, `DIARIO.md` e inventário. Sem Agenda, banco, main ou produção; validar GitHub Actions e prévia.
 - GPT | 2026-11-08 11:50 BRT | **Nome e sobrenome nos fluxos:** corrigir identificação ambígua no WhatsApp, Flow Bot e consultas do painel; adicionar regra pura e testes, documentar limitações; somente branch oficial, sem sender/webhook reservado pela Claude, Agenda visual, banco, main ou produção | `src/lib/nomes-pessoas.ts`, `src/lib/flow-bot/agenda-na-conversa/*`, `src/lib/brain/busca-cliente.ts`, testes, documentação; sem migração
 
 
@@ -1031,6 +1030,12 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+### 2026-11-09 — GPT — Figaroo Equipe: editor de dados individuais
+- Implementado editor próprio `/barbeiro/equipe-dados/$userId` com `TelaDeFormulario` (nome de atendimento, descrição, rascunho e confirmação de saída). Link direto na ficha `barbeiro.equipe_.$userId.tsx`. Não confunde nome da conta com nome do perfil de atendimento.
+- Fonte única de gravação preservada: `salvarPerfilProfissional` em `src/lib/crescimento.functions.ts` recebe `nome` e `userId` opcionais, preservando o comportamento dos formulários anteriores e foto/portfólio. Com `userId` faz filtro explícito por tenant, id e conta e verifica retorno de update. `getPerfilDoMembroParaEdicao` faz consulta mínima com permissão e rejeita vínculo ausente/duplicado.
+- Testes em `src/routes/barbeiro.equipe-figaro.test.ts`. `1a05c086` identificou TS18048 em perfil indexado; corrigido em `14892a78`. CI `42556538018` passou build, TypeScript, testes, deploy e smoke da prévia. Visual 360/390px autenticado pendente.
+- Escopo limitado; sem mudanças de banco, Agenda, main, produção e segredos. Editores de horário por data, serviços e ações de desativação/exclusão profissional permanecem pendentes.
+
 ### 2026-11-08 23:35 BRT — GPT — Início real da paridade completa Figaroo → Flow: ficha individual da equipe
 - Decisão do dono: replicar **o sistema Figaroo inteiro**, incluindo páginas ausentes do Flow; não somente ajustes visuais. Referência build 168. Inventário de 23 áreas em `docs/paridade-figaroo-flow-inventario-2026-11-08.md`, com estados explicitamente pendentes.
 - Primeira correção funcional: `src/routes/barbeiro.equipe.tsx` ganha acesso individual `Ver ficha do membro`. Nova rota independente `src/routes/barbeiro.equipe_.$userId.tsx` com identificação, vínculo real à conta, indicadores, escala individual editável, serviços e atalhos de gerenciamento. Consulta em `src/lib/painel-membro.functions.ts` usa `tenant_id` e `profissionais.user_id` + checagem `gerenciar_permissoes`, com guarda em vínculos ausentes/duplicados; não escolhe homônimo. Escala reutiliza `EscalaDaEquipe` com `profissionalFixo`; sem nova regra de agendamento.
