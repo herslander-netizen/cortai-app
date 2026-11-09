@@ -44,3 +44,6 @@
 ## Catálogo de prompts para a próxima fase
 
 O arquivo src/lib/flow-visual-prompts.ts prepara 14 especificações distintas para cada um dos sete segmentos oficiais (98 especificações no total): 2 hero, 6 galeria, 3 serviço, 2 apoio e 1 fundo, com composição, proporção, instruções positivas e negativas. São **prompts e slots, não imagens geradas, hospedadas ou disponíveis para seleção**. A importação de futuras imagens exige revisão humana de licenças, conteúdo e direitos e cadastro no catálogo, sem publicação automática. A correspondência a subsegmentos futuros deve reutilizar o segmento oficial até existir identificador reconhecido na plataforma.
+
+
+**Revisão de tema claro:** como o `:root.light` redefine as variáveis de cor, o Chat com superfície Padrão usa localmente os valores equivalentes aos papéis escuros oficiais do Figaro (background, onSurface, containers, ação azul), para manter o Chat realmente escuro em aparelhos com modo claro. Essa regra não altera `src/styles.css` e não afeta superfícies personalizadas.

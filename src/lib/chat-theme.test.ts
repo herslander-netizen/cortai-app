@@ -12,9 +12,9 @@ describe("Chat Flow: tema escuro e padrões", () => {
   it("mantém o tema escuro como padrão por token, sem cores novas", () => {
     const tokens = tokensEscurosDaAgendaParaChat({ superficie: "padrao", corDestaque: "azul" });
     expect(tokens).toMatchObject({
-      "--chat-page": "var(--identity-deep)",
-      "--chat-page-text": "var(--identity-off-white)",
-      "--chat-primary": "var(--figaro-action-blue)",
+      "--chat-page": "#1b1f1c",
+      "--chat-page-text": "#dee8e1",
+      "--chat-primary": "#9fbef6",
     });
   });
   it("não se sobrepõe às superfícies ou cores que o negócio personalizou", () => {

@@ -27,7 +27,7 @@ export function PadraoChatSegmento({ segmento }: { segmento: Segmento }) {
       aria-hidden="true"
       data-padrao-segmento={segmento}
       className="pointer-events-none absolute inset-0 grid grid-cols-3 grid-rows-8 place-items-center gap-3 overflow-hidden opacity-[0.10] sm:grid-cols-4 sm:grid-rows-6"
-      style={{ color: "var(--identity-muted)", maskImage: "linear-gradient(180deg, transparent 0%, black 10%, black 94%, transparent 100%)" }}
+      style={{ color: "var(--chat-content, var(--paper))", maskImage: "linear-gradient(180deg, transparent 0%, black 10%, black 94%, transparent 100%)" }}
     >
       {Array.from({ length: 24 }, (_, indice) => {
         const Icone = icones[(indice * 5 + Math.floor(indice / 4)) % icones.length]!;
