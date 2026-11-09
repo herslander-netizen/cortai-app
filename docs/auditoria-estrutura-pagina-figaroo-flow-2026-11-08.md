@@ -77,12 +77,14 @@ Ordem **comprovada na spec 4 §4** de Layout & Tema:
   `SiteCompleto.tsx` já possui herói, menu, equipe, seção de serviços
   com categorias e galeria, e deve preservar essas peças antes
   de se ajustar espaçamento por captura.
-- **Avaliações** (`landing_peek_reviews.mp4`): título, descrição,
-  cartão de nota média, distribuição por estrelas e cartões com comentários,
-  autor, nota e data. No `SiteCompleto.tsx` atual, a seção de
-  Avaliações oferece apenas a nota média e a contagem.
-  **Lacuna real de estrutura:** não desenhar barras ou comentários
-  fictícios; antes conferir dados disponíveis, contratos e permissão.
+- **Avaliações** (`landing_peek_reviews.mp4`): o vídeo mostra uma
+  **tela própria de avaliações**, com botão voltar, cartão de nota média,
+  distribuição por estrelas e lista de comentários. **Não prova** que a
+  página pública utilize essa mesma composição. No Flow,
+  `SiteCompleto.tsx` mostra somente nota média e quantidade, enquanto
+  `/barbeiro/avaliacoes` é módulo separado. Comparar a tela de avaliações
+  com seu equivalente; **não transplantar automaticamente** o painel para
+  a página pública e não criar avaliações fictícias.
 - **Agendamento** (`landing_peek_booking.mp4`): grupos de serviço,
   calendário em faixa, horários, profissional e verificação do telefone
   antes de concluir. Esse fluxo não deve ser refeito dentro da página
