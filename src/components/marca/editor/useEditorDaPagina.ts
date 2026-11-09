@@ -315,6 +315,7 @@ export function useEditorDaPagina(initial: MarcaData, reload: () => Promise<unkn
   };
 
   return {
+    segmento: initial.segmento,
     form,
     setMarca,
     config,

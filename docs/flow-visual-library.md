@@ -25,3 +25,12 @@
 - Integração automática de onboarding **somente para novas páginas** e confirmação antes da troca de segmento.
 - Galeria temática de apoio com aviso de conteúdo ilustrativo sem fingir portfólio; imagens de serviços por seção.
 - Testes autenticados de rascunho, descarte, restauração, publicação, contato, navegação e agendamento.
+
+
+## Integração no cliente e no editor
+
+- Site Completo, Raízes e página tradicional usam imagem ilustrativa por segmento apenas quando não existe capa própria; erro cai no fallback neutro.
+- Imagens padrão usam alt vazio, sem afirmar que são fotos do ambiente do estabelecimento. Não há portfólios ou avaliações sintéticos.
+- Hero do Site e Raízes recebe fade-up de 8px/220ms; página tradicional recebe reveal das seções. Todos os efeitos respeitam movimento reduzido.
+- Biblioteca Flow aparece dentro do editor real de Hero e Galeria, com filtro, busca e prévia. Aplicar copia ao Storage do próprio negócio via enviarFoto; salvar rascunho e publicar continuam funções oficiais.
+- A escolha no editor não é automática, não sobrescreve fotos próprias, e os presets não são impostos a contas existentes.

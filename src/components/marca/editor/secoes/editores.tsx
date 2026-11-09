@@ -3,6 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { ListaDeFotos } from "@/components/fotos/SeletorDeFoto";
+import { BibliotecaFlow } from "@/components/marca/editor/BibliotecaFlow";
 import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -244,6 +245,12 @@ export function EditorDeGaleria({ e, reportarErro }: PropsDoEditor) {
           prefixo="foto"
           titulo="Fotos da galeria da página"
           onChange={(fotos) => e.definirFotos(fotos.map((f) => f.valor))}
+        />
+        <BibliotecaFlow
+          segmentoInicial={e.segmento}
+          tipo="galeria"
+          disabled={e.form.fotos.length >= 8}
+          onAplicar={(foto) => e.definirFotos([...e.form.fotos, foto.path].slice(0, 8))}
         />
       </GrupoDeCampos>
       <GrupoDeCampos titulo="Título">
