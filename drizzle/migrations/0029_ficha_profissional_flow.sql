@@ -168,3 +168,10 @@ end $$;
 
 revoke all on function public.desativar_profissional_flow(uuid,uuid) from public, anon;
 grant execute on function public.desativar_profissional_flow(uuid,uuid) to authenticated;
+
+-- PostgREST pode conceder privilégio padrão a anon mesmo com RLS;
+-- garantir que nenhuma tabela interna de ficha/escala seja lida diretamente.
+revoke all on table public.profissionais_ficha from public, anon;
+revoke all on table public.excecoes_disponibilidade_profissional from public, anon;
+grant select, insert, update, delete on table public.profissionais_ficha to authenticated;
+grant select, insert, update, delete on table public.excecoes_disponibilidade_profissional to authenticated;
