@@ -15,11 +15,15 @@
   `SecaoLayoutsETemas.tsx`, `CartoesDeLayoutTema.tsx`,
   `PaginaPublica.tsx`, `modelos/SiteCompleto.tsx`,
   `modelos/Raizes.tsx`, `PreviaDaExperiencia.tsx`.
-- O APK mais novo registrado no projeto é o build 168, mas o detalhamento
-  de `PageSettingsScreen` na spec 4 foi extraído de versões anteriores;
-  é preciso confirmar as mudanças estruturais diretamente no build mais novo.
-  Não declarar que o código do build 168 foi integralmente comparado ou
-  que houve inspeção visual com navegador nesta auditoria.
+- APK de referência mais recente: `Figaroo(20261107-202238).apk`,
+  build 168, 21.362.399 bytes. Recursos multimídia foram inspecionados
+  diretamente nesta auditoria, mas a `spec 4` da tela `PageSettingsScreen`
+  ainda se baseia em decompilação anterior. Não tratar os vídeos de divulgação
+  como prova de todas as rotas internas do editor.
+- Vídeos de demonstração extraídos e conferidos do build 168:
+  `res/raw/landing_peek_site.mp4`, `landing_peek_booking.mp4`
+  e `landing_peek_reviews.mp4`. Não houve instalação nem execução do APK,
+  nem navegação visual autenticada do Flow.
 
 ## Estrutura de referência da tela Personalizar Página
 
@@ -60,6 +64,33 @@ Ordem **comprovada na spec 4 §4** de Layout & Tema:
 | Editores de seção | Uma tela por seção; ativar/ocultar e salvar | Rotas `marca/secao/$secao` e mecanismos correspondentes | Comparar formulário por seção e estados de erro |
 | Site público | Capa, equipe, serviços, galeria, avaliações, localização e contato conforme layout | `PaginaPublica`, `SiteCompleto` e `Raizes` oferecem composições próprias | Conferir cada variante no celular; não presumir paridade pixel a pixel |
 | Dados e temas | Catálogo dinâmico do servidor no Figaroo | Catálogo estático com layouts próprios no Flow | Não fingir integração com o servidor Figaroo ou inventar dados |
+
+## Evidências visuais extraídas do build 168
+
+- **Página pública / site** (`landing_peek_site.mp4`): herói com
+  foto de fundo, nome do negócio no topo e menu à direita, chamada
+  central com título/descrição/CTA, seta para avançar; variação de
+  imagem/tema escuro e amarelo. Na continuação aparecem profissionais,
+  seção de serviços com "Mais procurados", categorias recolhíveis
+  e linhas de serviço com valor, duração e botão "Agendar".
+  O vídeo também apresenta o início da galeria. No código do Flow,
+  `SiteCompleto.tsx` já possui herói, menu, equipe, seção de serviços
+  com categorias e galeria, e deve preservar essas peças antes
+  de se ajustar espaçamento por captura.
+- **Avaliações** (`landing_peek_reviews.mp4`): título, descrição,
+  cartão de nota média, distribuição por estrelas e cartões com comentários,
+  autor, nota e data. No `SiteCompleto.tsx` atual, a seção de
+  Avaliações oferece apenas a nota média e a contagem.
+  **Lacuna real de estrutura:** não desenhar barras ou comentários
+  fictícios; antes conferir dados disponíveis, contratos e permissão.
+- **Agendamento** (`landing_peek_booking.mp4`): grupos de serviço,
+  calendário em faixa, horários, profissional e verificação do telefone
+  antes de concluir. Esse fluxo não deve ser refeito dentro da página
+  pública; deve continuar utilizando as ações oficiais de reserva.
+
+As capturas evidenciam hierarquia, seções e relações visuais, mas
+não estabelecem valores exatos de CSS, comportamento de todas as telas,
+nem o resultado no navegador do Flow.
 
 ## Correção deste lote
 
