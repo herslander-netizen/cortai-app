@@ -9,35 +9,52 @@ import { diaDaSemanaDoDia, hojeNoFuso, isoNoFusoDaBarbearia, somarDias } from "@
 const UUID = z.string().uuid();
 const HORA = /^([01]\d|2[0-3]):[0-5]\d$/;
 const DIA = /^\d{4}-\d{2}-\d{2}$/;
-const USER = z.object({ userId: UUID });
+const ALVO = z.object({ userId: UUID.optional(), profissionalId: UUID.optional() });
+const VALIDAR_ALVO = ALVO.refine((x) => Boolean(x.userId) !== Boolean(x.profissionalId), "Informe um único profissional.");
+type Alvo = z.infer<typeof ALVO>;
 
 type Contexto = { supabase: any; userId: string };
 
-async function profissionalDaEquipe(context: Contexto, userId: string) {
+async function profissionalDaEquipe(context: Contexto, alvo: Alvo) {
   const tenantId = await tenantIdDoMembro(context);
+  if (alvo.profissionalId) {
+    // Profissionais sem login também existem; nunca usar um user_id inventado.
+    await exigirPermissao(context, tenantId, "gerenciar_profissionais");
+    const { data: profissional, error } = await context.supabase
+      .from("profissionais")
+      .select("id, nome, avatar_url, ativo, user_id")
+      .eq("tenant_id", tenantId)
+      .eq("id", alvo.profissionalId)
+      .maybeSingle();
+    if (error || !profissional) throw new Error("Profissional não encontrado neste negócio.");
+    return { tenantId, membro: { nome: profissional.nome }, profissional };
+  }
+  if (!alvo.userId) throw new Error("Membro inválido.");
   const { data: equipe, error: erroEquipe } = await context.supabase.rpc("equipe_do_tenant", {
     _tenant_id: tenantId,
   });
   if (erroEquipe) throw new Error("Você não tem permissão para consultar a equipe.");
-  const membro = (equipe ?? []).find((p: Record<string, unknown>) => p["user_id"] === userId);
+  const membro = (equipe ?? []).find((p: Record<string, unknown>) => p["user_id"] === alvo.userId);
   if (!membro) throw new Error("Membro não encontrado neste negócio.");
   const { data: profissional, error } = await context.supabase
     .from("profissionais")
-    .select("id, nome, avatar_url, ativo")
+    .select("id, nome, avatar_url, ativo, user_id")
     .eq("tenant_id", tenantId)
-    .eq("user_id", userId)
+    .eq("user_id", alvo.userId)
     .maybeSingle();
   if (error) throw new Error("Não foi possível consultar o profissional.");
   return { tenantId, membro, profissional };
 }
 
-async function profissionalParaEditar(context: Contexto, userId: string) {
-  const encontrado = await profissionalDaEquipe(context, userId);
+async function profissionalParaEditar(context: Contexto, alvo: Alvo) {
+  const encontrado = await profissionalDaEquipe(context, alvo);
   await exigirPermissao(context, encontrado.tenantId, "gerenciar_profissionais");
   if (!encontrado.profissional) {
     throw new Error("Este integrante ainda não está vinculado a um profissional da agenda.");
   }
-  return { ...encontrado, profissional: encontrado.profissional as { id: string; nome: string; avatar_url: string | null } };
+  return { ...encontrado, profissional: encontrado.profissional as {
+    id: string; nome: string; avatar_url: string | null; user_id: string | null;
+  } };
 }
 
 function horarioCurto(hora: unknown): string | null {
@@ -50,9 +67,9 @@ function horarioCurto(hora: unknown): string | null {
  */
 export const getFichaProfissionalFlow = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .validator((d: unknown) => USER.parse(d))
+  .validator((d: unknown) => VALIDAR_ALVO.parse(d))
   .handler(async ({ data, context }) => {
-    const { tenantId, membro, profissional } = await profissionalDaEquipe(context, data.userId);
+    const { tenantId, membro, profissional } = await profissionalDaEquipe(context, data);
     const fuso = await fusoDoTenant(tenantId);
     const hoje = hojeNoFuso(fuso);
     const desde = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
@@ -149,6 +166,7 @@ export const getFichaProfissionalFlow = createServerFn({ method: "GET" })
 
     return {
       profissionalId: profissional?.id ?? null,
+      vinculadoAConta: Boolean(profissional?.user_id),
       nome: profissional?.nome ?? (membro["nome"] as string | null) ?? "Profissional",
       atividade: (fichaRes.data?.atividade as string | null) ?? null,
       telefone: (fichaRes.data?.telefone_contato as string | null) ?? null,
@@ -178,7 +196,7 @@ export const getFichaProfissionalFlow = createServerFn({ method: "GET" })
     };
   });
 
-const DADOS = USER.extend({
+const DADOS = ALVO.extend({
   nome: z.string().trim().min(2).max(100),
   atividade: z.string().trim().max(100),
   telefone: z.string().trim().max(22).refine(
@@ -191,7 +209,7 @@ export const salvarDadosProfissionalFlow = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((d: unknown) => DADOS.parse(d))
   .handler(async ({ data, context }) => {
-    const { tenantId, profissional } = await profissionalParaEditar(context, data.userId);
+    const { tenantId, profissional } = await profissionalParaEditar(context, data);
     const { error } = await (context.supabase as any).rpc("salvar_dados_profissional_flow", {
       _tenant_id: tenantId,
       _profissional_id: profissional.id,
@@ -211,7 +229,7 @@ function fotoCompativel(bytes: Uint8Array, tipo: "image/jpeg" | "image/png" | "i
     [87,69,66,80].every((v,i) => bytes[i+8] === v);
 }
 
-const FOTO = USER.extend({
+const FOTO = ALVO.extend({
   tipo: z.enum(["image/jpeg", "image/png", "image/webp"]),
   base64: z.string().min(12).max(2_800_000).regex(/^[A-Za-z0-9+/]+={0,2}$/),
 });
@@ -220,7 +238,7 @@ export const salvarFotoProfissionalFlow = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((d: unknown) => FOTO.parse(d))
   .handler(async ({ data, context }) => {
-    const { tenantId, profissional } = await profissionalParaEditar(context, data.userId);
+    const { tenantId, profissional } = await profissionalParaEditar(context, data);
     let bytes: Uint8Array;
     try {
       bytes = Uint8Array.from(atob(data.base64), (c) => c.charCodeAt(0));
@@ -267,7 +285,7 @@ export const salvarFotoProfissionalFlow = createServerFn({ method: "POST" })
     return { ok: true, fotoUrl: url };
   });
 
-const EXCECAO = USER.extend({
+const EXCECAO = ALVO.extend({
   dia: z.string().regex(DIA),
   trabalha: z.boolean(),
   abre: z.string().regex(HORA).nullable(),
@@ -290,7 +308,7 @@ export const salvarDisponibilidadePorDataFlow = createServerFn({ method: "POST" 
   .middleware([requireSupabaseAuth])
   .validator((d: unknown) => EXCECAO.parse(d))
   .handler(async ({ data, context }) => {
-    const { tenantId, profissional } = await profissionalParaEditar(context, data.userId);
+    const { tenantId, profissional } = await profissionalParaEditar(context, data);
     const fuso = await confirmarDia(context, tenantId, data.dia);
     const diaSemana = diaDaSemanaDoDia(data.dia);
     if (data.trabalha) {
@@ -352,9 +370,9 @@ export const salvarDisponibilidadePorDataFlow = createServerFn({ method: "POST" 
 
 export const removerDisponibilidadePorDataFlow = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((d: unknown) => USER.extend({ dia: z.string().regex(DIA) }).parse(d))
+  .validator((d: unknown) => ALVO.extend({ dia: z.string().regex(DIA) }).refine((x) => Boolean(x.userId) !== Boolean(x.profissionalId)).parse(d))
   .handler(async ({ data, context }) => {
-    const { tenantId, profissional } = await profissionalParaEditar(context, data.userId);
+    const { tenantId, profissional } = await profissionalParaEditar(context, data);
     const fuso = await confirmarDia(context, tenantId, data.dia);
     const inicio = isoNoFusoDaBarbearia(data.dia, "00:00", fuso);
     const fim = isoNoFusoDaBarbearia(somarDias(data.dia, 1), "00:00", fuso);
@@ -380,9 +398,9 @@ export const removerDisponibilidadePorDataFlow = createServerFn({ method: "POST"
 /** Suspende o acesso e a oferta de horários sem apagar agendamentos anteriores. */
 export const desativarProfissionalFlow = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((d: unknown) => USER.parse(d))
+  .validator((d: unknown) => z.object({ userId: UUID }).parse(d))
   .handler(async ({ data, context }) => {
-    const { tenantId, profissional } = await profissionalDaEquipe(context, data.userId);
+    const { tenantId, profissional } = await profissionalDaEquipe(context, data);
     await exigirPermissao(context, tenantId, "gerenciar_permissoes");
     await exigirPermissao(context, tenantId, "gerenciar_profissionais");
     if (data.userId === context.userId) {
@@ -394,4 +412,33 @@ export const desativarProfissionalFlow = createServerFn({ method: "POST" })
     });
     if (error) throw new Error("Não foi possível desativar o profissional.");
     return { ok: true, tinhaPerfilAgenda: Boolean(profissional) };
+  });
+
+/**
+ * Suspende somente a agenda de um profissional sem login.
+ * Profissionais com usuário vinculado são desativados no fluxo de Equipe.
+ */
+export const desativarPerfilAgendaFlow = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((d: unknown) => z.object({ profissionalId: UUID }).parse(d))
+  .handler(async ({ data, context }) => {
+    const { tenantId, profissional } = await profissionalParaEditar(context, data);
+    if (profissional.user_id) {
+      throw new Error("Este profissional tem login. Desative-o pela tela Equipe e permissões.");
+    }
+    const { data: atualizado, error } = await context.supabase.from("profissionais")
+      .update({ ativo: false })
+      .eq("tenant_id", tenantId)
+      .eq("id", profissional.id)
+      .is("user_id", null)
+      .select("id")
+      .maybeSingle();
+    if (error || !atualizado) throw new Error("Não foi possível desativar este profissional.");
+    await context.supabase.rpc("registrar_auditoria_barbearia", {
+      _tenant_id: tenantId,
+      _acao: "profissional.desativado",
+      _alvo: profissional.id,
+      _detalhes: { origem: "ficha_flow" },
+    });
+    return { ok: true };
   });
