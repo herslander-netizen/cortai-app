@@ -24,6 +24,8 @@ import { estruturaDoTema, type PaginaConfig } from "@/lib/pagina-config";
 import type { PaginaPublica } from "@/lib/publico.functions";
 import { linkDaRede } from "@/lib/redes-do-negocio";
 import { termos } from "@/lib/segmentos";
+import { capaPublicaRecomendada } from "@/lib/flow-visual-presets";
+import { CURVA, TEMPO } from "@/lib/movimento-figaro";
 
 export type PropsDoModelo = {
   data: PaginaPublica;
@@ -128,7 +130,7 @@ export function SiteCompleto({
   const sec = config.secoes;
   const instagram = tenant.instagram?.replace(/^@/, "") || null;
   const capa =
-    tenant.capa_signed_url ??
+    capaPublicaRecomendada(tenant.segmento, tenant.capa_signed_url) ??
     (tenant.segmento === "barbearia" ? coverBarbearia.url : coverNeutra.url);
   const extras = (["tiktok", "youtube", "site"] as const)
     .map((r) => ({ r, href: linkDaRede(r, config.redes?.[r]) }))
@@ -205,7 +207,8 @@ export function SiteCompleto({
           src={capa}
           alt=""
           className="fg-capa"
-          width={1200}
+           onError={(evento) => { const img = evento.currentTarget; if (!img.src.endsWith(coverNeutra.url)) img.src = coverNeutra.url; }}
+           width={1200}
           height={1500}
           fetchPriority="high"
           decoding="async"
@@ -231,7 +234,11 @@ export function SiteCompleto({
             <Menu size={30} strokeWidth={1.5} aria-hidden />
           </button>
         </div>
-        <div className="fg-centro">
+        <motion.div className="fg-centro"
+           initial={reduzir ? false : { opacity: 0, y: 8 }}
+           animate={{ opacity: 1, y: 0 }}
+           transition={reduzir ? { duration: 0 } : { duration: TEMPO.conteudoEntra, ease: CURVA.rapidaParaLenta }}
+         >
           {estrutura === "arco" ? (
             <img src={capa} alt="" className="fg-arco" width={600} height={760} decoding="async" />
           ) : null}
@@ -240,7 +247,7 @@ export function SiteCompleto({
             <p>{tenant.descricao || tenant.texto_boas_vindas || config.sobre}</p>
           ) : null}
           <div ref={acoesRef}>{renderAgendar("fg-cta", config.cta)}</div>
-        </div>
+         </motion.div>
         {rapido ? null : (
           <button type="button" className="fg-saiba" onClick={() => ir(ancoras[0]?.id ?? "fg-fim")}>
             Saiba mais sobre {vocabulario.comArtigo.startsWith("a ") ? "nossa" : "nosso"}{" "}
