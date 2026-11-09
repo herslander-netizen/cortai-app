@@ -1031,6 +1031,14 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+### 2026-11-09 — GPT — continuação Flow Visual Library: inicialização segura e prévias de segmento (PR #39)
+- Branch de trabalho `feat/flow-visual-library-public-20261109` atualizada com merge normal da branch oficial `cloudflare-workers-migration-2026-10-13` (sem rebase/force). Nenhuma modificação nos módulos de IA que avançaram em paralelo; o histórico do diário foi preservado.
+- `src/lib/flow-visual-presets.ts`: quando a página não possui configuração gravada, produz tema, paleta e frase inicial do segmento. Configuração antiga — inclusive parcial — é sempre normalizada sem reaplicar presets. Compatibilidade com os temas do layout Raízes.
+- As leituras do editor, página pública e agendamento usam o mesmo fallback, sem escrita no banco. Na primeira escolha de modo do onboarding, `salvarModoAgendamento` grava preset somente se nem draft nem published possuem página; mudanças posteriores preservam tudo.
+- `PreviaPresetVisualFlow` expõe sugestão com imagem ilustrativa, paleta e slogan em Layout & Tema e em Tipo de negócio; clicar abre a comparação, e aplicar no editor muda só o estado local. Fotos, publicação, layout e textos próprios seguem intactos.
+- Testes adicionais: configuração nova x existente, tema compatível de Raízes, não aplicar sem clique e presença física dos 16 WebP catalogados. Nenhuma imagem nova foi produzida.
+- CI do commit `ae409870` **aprovado** (Validate Flow `42702271543`), CI final com a checagem física do catálogo ainda em execução. **Pendente:** homologação visual e de agendamento 320/360/390/430/desktop antes de declarar missão concluída. Somente prévia após gates; banco, segredos e produção não foram alterados.
+
 ### 2026-11-09 — GPT — Flow Visual Library e Chat escuro por segmento (PR #39)
 - **Branch isolada:** `feat/flow-visual-library-public-20261109` sobre `cloudflare-workers-migration-2026-10-13`; **PR #39 em draft**, sem merge, publicação, alterações em segredos ou migração de banco.
 - **Auditoria:** documentação Figaroo (incluindo a página pública e movimento) e APK da Biblioteca; os três modelos públicos, editor, galeria, registro de segmentos, Storage e snapshots da página já existiam. Não usar ativos/código protegidos do Figaroo.
