@@ -2,13 +2,12 @@ import { z } from "zod";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { ArrowLeft, Eye, ListChecks, MessageCircle, Save, Send } from "lucide-react";
+import { Eye, ListChecks, MessageCircle, Save, Send } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { EsqueletoFormulario } from "@/components/layout/Esqueleto";
 import { Screen } from "@/components/layout/Screen";
 import { SecaoLayoutsETemas } from "@/components/marca/editor/SecaoLayoutsETemas";
-import { PreviaDaExperiencia } from "@/components/marca/editor/PreviaDaExperiencia";
 import { useEditorDaPagina } from "@/components/marca/editor/useEditorDaPagina";
 import { Button } from "@/components/ui/button";
 import { useConfirmar } from "@/components/ui/useConfirmar";
@@ -124,7 +123,7 @@ function EditorLayoutTema({
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [],
   );
-  const [previaAberta, setPreviaAberta] = useState(false);
+  const navegar = useNavigate();
   const [salvando, setSalvando] = useState(false);
   const [confirmar, dialogo] = useConfirmar();
 
@@ -225,10 +224,15 @@ function EditorLayoutTema({
           <Button
             variant="ghost"
             className="mb-2 h-12 w-full rounded-full text-base font-semibold"
-            onClick={() => setPreviaAberta(true)}
+            onClick={() =>
+              void navegar({
+                to: "/barbeiro/marca/layout-tema_/preview",
+                search: { layout: e.config.layout, tema: e.config.tema },
+              })
+            }
           >
             <Eye size={20} aria-hidden />
-            Prévia ao vivo
+            Ver Exemplo
           </Button>
           <div className="grid grid-cols-2 gap-2">
             <Button
@@ -253,19 +257,6 @@ function EditorLayoutTema({
         </div>
       </div>
 
-      {previaAberta ? (
-        <div className="fixed inset-0 z-[70] flex h-[100dvh] flex-col overflow-hidden bg-background" role="dialog" aria-modal="true" aria-label="Prévia ao vivo da página pública">
-          <div className="relative z-10 flex h-12 shrink-0 items-center gap-3 border-b border-line bg-background/95 px-3 pt-[env(safe-area-inset-top)] backdrop-blur">
-            <Button variant="ghost" size="icon" aria-label="Voltar ao editor" onClick={() => setPreviaAberta(false)}>
-              <ArrowLeft size={21} aria-hidden />
-            </Button>
-            <p className="text-sm font-semibold">Prévia ao vivo</p>
-          </div>
-          <div className="min-h-0 flex-1 overflow-hidden">
-            <PreviaDaExperiencia data={e.previewData} config={e.config} device={e.device} setDevice={e.setDevice} nome={e.form.nome} avatarUrl={e.avatarPreview || e.logoPreview} capaUrl={e.coverPreview} altura="h-full" telaCheia />
-          </div>
-        </div>
-      ) : null}
       {dialogo}
     </Screen>
   );
