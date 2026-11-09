@@ -66,7 +66,7 @@ Ordem **comprovada na spec 4 §4** de Layout & Tema:
 Em `src/routes/barbeiro.marca.layout-tema.tsx`, o botão inferior que
 abria `Prévia ao vivo` como uma sobreposição agora abre **Ver Exemplo**
 pela rota que já existia:
-`/barbeiro/marca/layout-tema_/preview?layout=…&tema=…`.
+`/barbeiro/marca/layout-tema/preview?layout=…&tema=…` (rota gerada pelo TanStack; arquivo com sufixo `_`).
 Essa página reutiliza `PaginaPublicaConteudo`, `PreviaDireta` e
 `ChatPreview` para apresentar o exemplo correspondente, com título
 `Layout · Tema` e retorno à seleção sem gravar dados.
