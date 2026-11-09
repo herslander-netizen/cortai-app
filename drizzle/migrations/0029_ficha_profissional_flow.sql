@@ -136,3 +136,35 @@ end $$;
 
 revoke all on function public.salvar_dados_profissional_flow(uuid,uuid,text,text,text) from public, anon;
 grant execute on function public.salvar_dados_profissional_flow(uuid,uuid,text,text,text) to authenticated;
+
+-- Suspender acesso e novas reservas na mesma transação, mantendo histórico.
+-- Reusa a rotina auditada e as regras existentes de permissão de equipe.
+create or replace function public.desativar_profissional_flow(
+  _tenant_id uuid, _user_id uuid
+) returns void language plpgsql security invoker set search_path = public as $$
+declare
+  membro record;
+begin
+  if _user_id = auth.uid() then
+    raise exception 'voce nao pode desativar o proprio acesso';
+  end if;
+  if not public.has_tenant_permission(_tenant_id, 'gerenciar_permissoes') or
+     not public.has_tenant_permission(_tenant_id, 'gerenciar_profissionais') then
+    raise exception 'sem permissao para desativar profissional';
+  end if;
+  select papel, permissoes into membro
+  from public.tenant_usuarios
+  where tenant_id = _tenant_id and user_id = _user_id
+  for update;
+  if not found then raise exception 'membro nao encontrado'; end if;
+  if membro.papel = 'dono' then raise exception 'nao e possivel desativar o proprietario'; end if;
+  perform public.definir_acesso_membro(
+    _tenant_id, _user_id, membro.papel, membro.permissoes, false
+  );
+  update public.profissionais
+     set ativo = false
+   where tenant_id = _tenant_id and user_id = _user_id;
+end $$;
+
+revoke all on function public.desativar_profissional_flow(uuid,uuid) from public, anon;
+grant execute on function public.desativar_profissional_flow(uuid,uuid) to authenticated;
