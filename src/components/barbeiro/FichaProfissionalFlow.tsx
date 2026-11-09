@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import { AnimatePresence, motion } from "framer-motion";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import {
@@ -9,6 +10,9 @@ import {
   Check,
   ChevronDown,
   Clock3,
+  Camera,
+  Plus,
+  Trash2,
   DollarSign,
   Pencil,
   ShieldCheck,
@@ -20,7 +24,12 @@ import {
 
 import {
   getFichaProfissionalFlow,
+  salvarDadosProfissionalFlow,
+  salvarFotoProfissionalFlow,
+  salvarDisponibilidadePorDataFlow,
+  removerDisponibilidadePorDataFlow,
 } from "@/lib/ficha-profissional-flow.functions";
+import { useMenosMovimento } from "@/hooks/useMovimento";
 import {
   salvarEscalaDoProfissional,
   type DiaDaEscala,
@@ -88,7 +97,13 @@ export function FichaProfissionalFlow({
     queryKey: ["ficha-profissional-flow", membro.userId],
     queryFn: () => getFichaProfissionalFlow({ data: { userId: membro.userId } }),
   });
-  const [tela, setTela] = useState<"perfil" | "horarios">("perfil");
+  const [tela, setTela] = useState<"perfil" | "horarios" | "dados" | "data">("perfil");
+  const menosMovimento = useMenosMovimento();
+  const [dadosForm, setDadosForm] = useState({ nome: "", atividade: "", telefone: "" });
+  const [dataForm, setDataForm] = useState({ dia: "", trabalha: true, abre: "09:00", fecha: "18:00" });
+  const [erroLocal, setErroLocal] = useState<string | null>(null);
+  const [diaExpandido, setDiaExpandido] = useState<number | null>(null);
+  const fotoInput = useRef<HTMLInputElement>(null);
   const [compacto, setCompacto] = useState(false);
   const [verMais, setVerMais] = useState(false);
   const [confirmarDesativacao, setConfirmarDesativacao] = useState(false);
@@ -121,6 +136,95 @@ export function FichaProfissionalFlow({
   const funcao = membro.papel === "barbeiro"
     ? "Profissional"
     : PAPEIS[membro.papel as PapelDeEquipe] ?? membro.papel;
+  const atividade = dados?.atividade || funcao;
+  const hojeDoAparelho = new Date(Date.now() - new Date().getTimezoneOffset() * 60_000).toISOString().slice(0, 10);
+  const limiteData = new Date(Date.now() + 365 * 86_400_000 - new Date().getTimezoneOffset() * 60_000).toISOString().slice(0, 10);
+
+  const atualizarDados = useMutation({
+    mutationFn: () => salvarDadosProfissionalFlow({ data: { userId: membro.userId, ...dadosForm } }),
+    onSuccess: async () => {
+      await Promise.all([
+        qc.invalidateQueries({ queryKey: ["ficha-profissional-flow", membro.userId] }),
+        qc.invalidateQueries({ queryKey: ["equipe"] }),
+        qc.invalidateQueries({ queryKey: ["equipe-escala"] }),
+      ]);
+      setTela("perfil");
+      setErroLocal(null);
+    },
+    onError: (e) => setErroLocal(e instanceof Error ? e.message : "Não foi possível salvar os dados."),
+  });
+  const atualizarFoto = useMutation({
+    mutationFn: (arquivo: { tipo: "image/jpeg" | "image/png" | "image/webp"; base64: string }) =>
+      salvarFotoProfissionalFlow({ data: { userId: membro.userId, ...arquivo } }),
+    onSuccess: async () => {
+      await qc.invalidateQueries({ queryKey: ["ficha-profissional-flow", membro.userId] });
+      setErroLocal(null);
+    },
+    onError: (e) => setErroLocal(e instanceof Error ? e.message : "Não foi possível atualizar a foto."),
+  });
+  const atualizarData = useMutation({
+    mutationFn: () => salvarDisponibilidadePorDataFlow({
+      data: { userId: membro.userId, dia: dataForm.dia, trabalha: dataForm.trabalha,
+        abre: dataForm.trabalha ? dataForm.abre : null,
+        fecha: dataForm.trabalha ? dataForm.fecha : null },
+    }),
+    onSuccess: async () => {
+      await Promise.all([
+        qc.invalidateQueries({ queryKey: ["ficha-profissional-flow", membro.userId] }),
+        qc.invalidateQueries({ queryKey: ["agenda-dia"] }),
+        qc.invalidateQueries({ queryKey: ["agenda-publica"] }),
+      ]);
+      setErroLocal(null);
+      setTela("perfil");
+    },
+    onError: (e) => setErroLocal(e instanceof Error ? e.message : "Não foi possível salvar esta data."),
+  });
+  const removerData = useMutation({
+    mutationFn: (dia: string) => removerDisponibilidadePorDataFlow({ data: { userId: membro.userId, dia } }),
+    onSuccess: async () => {
+      await Promise.all([
+        qc.invalidateQueries({ queryKey: ["ficha-profissional-flow", membro.userId] }),
+        qc.invalidateQueries({ queryKey: ["agenda-dia"] }),
+        qc.invalidateQueries({ queryKey: ["agenda-publica"] }),
+      ]);
+      setErroLocal(null);
+    },
+    onError: (e) => setErroLocal(e instanceof Error ? e.message : "Não foi possível remover esta data."),
+  });
+
+  const abrirEdicao = () => {
+    setDadosForm({ nome: dados?.nome ?? nome, atividade: dados?.atividade ?? "", telefone: dados?.telefone ?? "" });
+    setTela("dados");
+    setErroLocal(null);
+    scrollRef.current?.scrollTo({ top: 0 });
+  };
+  const abrirData = (excecao?: { dia: string; trabalha: boolean; abre: string | null; fecha: string | null }) => {
+    setDataForm({ dia: excecao?.dia ?? "", trabalha: excecao?.trabalha ?? true,
+      abre: excecao?.abre ?? "09:00", fecha: excecao?.fecha ?? "18:00" });
+    setErroLocal(null);
+    setTela("data");
+    scrollRef.current?.scrollTo({ top: 0 });
+  };
+  const enviarFoto = async (arquivo: File | undefined) => {
+    if (!arquivo) return;
+    if (!["image/jpeg", "image/png", "image/webp"].includes(arquivo.type) || arquivo.size > 2_097_152) {
+      setErroLocal("Escolha uma foto JPG, PNG ou WebP de até 2 MB.");
+      return;
+    }
+    try {
+      const endereco = await new Promise<string>((resolve, reject) => {
+        const leitor = new FileReader();
+        leitor.onload = () => resolve(String(leitor.result));
+        leitor.onerror = () => reject(new Error("Não foi possível ler a foto."));
+        leitor.readAsDataURL(arquivo);
+      });
+      const base64 = endereco.split(",")[1];
+      if (!base64) throw new Error("A foto selecionada está vazia.");
+      atualizarFoto.mutate({ tipo: arquivo.type as "image/jpeg" | "image/png" | "image/webp", base64 });
+    } catch (e) {
+      setErroLocal(e instanceof Error ? e.message : "Não foi possível ler a foto.");
+    }
+  };
 
   const salvarEscala = useMutation({
     mutationFn: async () => {
