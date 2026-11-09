@@ -25,14 +25,16 @@ jobs:
           bun-version: latest
       - name: Install dependencies
         run: bun install --frozen-lockfile
+      # TanStack Router gera src/routeTree.gen.ts no build. Sem isso o tsc
+      # acusa falsos erros em rotas novas que já funcionam na prévia oficial.
+      - name: Production build
+        run: bunx vite build --outDir /tmp/cortai-build
       - name: TypeScript
         env:
           NODE_OPTIONS: --max-old-space-size=4096
         run: bunx tsc --noEmit -p .
       - name: Tests
         run: bunx vitest run
-      - name: Production build
-        run: bunx vite build --outDir /tmp/cortai-build
 
       - name: Save validated build artifact
         uses: actions/upload-artifact@v4

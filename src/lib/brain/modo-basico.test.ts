@@ -36,6 +36,7 @@ function rodar(
       "consultar_horarios_funcionamento",
       "consultar_caixa_hoje",
       "consultar_movimento",
+      "minha_agenda",
     ]
   ).map((name) => ({ name }));
   const entrada: Item[] = mensagens.map((m) => ({
@@ -65,6 +66,16 @@ function rodar(
       let resultado: unknown;
       if (name === "listar_servicos") resultado = SERVICOS;
       else if (name === "listar_profissionais") resultado = EQUIPE;
+      else if (name === "minha_agenda") resultado = {
+        dia: args["dia"],
+        total: 1,
+        itens: [{
+          inicio: "2026-10-12T13:00:00.000Z",
+          cliente: "Maria",
+          servico: "Corte",
+          status: "agendado",
+        }],
+      };
       else if (name === "buscar_cliente_por_nome") {
         const n = String(args["nome"]).toLowerCase();
         const achados = mundo.clientes.filter((c) => c.nome.toLowerCase().includes(n));
@@ -191,6 +202,30 @@ describe("modo básico — agendar", () => {
 });
 
 describe("modo básico — consultas e ajuda", () => {
+  it("responde agenda do profissional a partir de dados reais da ferramenta", () => {
+    const r = rodar([{ role: "user", text: "quais meus agendamentos hoje?" }], UM, {
+      papel: "profissional", profissionalId: "p-ana",
+    });
+    expect(r.chamadas).toContainEqual({ name: "minha_agenda", args: { dia: "2026-10-12" } });
+    expect(r.texto).toContain("Maria");
+    expect(r.texto).toContain("10:00");
+    expect(r.chamadas.some((c) => c.name === "criar_agendamento")).toBe(false);
+  });
+
+  it("consulta amanhã sem confundir agendamentos com criação", () => {
+    const r = rodar([{ role: "user", text: "mostre minha agenda amanhã" }], UM);
+    expect(r.chamadas).toContainEqual({ name: "minha_agenda", args: { dia: "2026-10-13" } });
+    expect(r.chamadas.some((c) => c.name === "criar_agendamento")).toBe(false);
+  });
+
+  it("sem ferramenta de agenda avisa, não inventa horários", () => {
+    const r = rodar([{ role: "user", text: "minha agenda hoje" }], UM, {
+      ferramentas: [],
+    });
+    expect(r.chamadas).toHaveLength(0);
+    expect(r.texto).toContain("Não consigo consultar sua agenda");
+  });
+
   it("lista serviços com preço", () => {
     const r = rodar([{ role: "user", text: "quais serviços vocês têm?" }], UM);
     expect(r.texto).toContain("Corte");

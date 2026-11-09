@@ -383,6 +383,26 @@ export function planejarModoBasico(e: EntradaDoModoBasico): Item[] {
     const pedirUma = (nome: string, args: Record<string, unknown> = {}): Item[] | null =>
       saidas.has(nome) ? null : [chamada(nome, args)];
 
+    if (i === "minha_agenda") {
+      if (!oferecida("minha_agenda"))
+        return texto("Não consigo consultar sua agenda por aqui. Confira seu vínculo profissional e as permissões.");
+      const dia = lerDia(ultima, hoje) ?? hoje;
+      const pedir = pedirUma("minha_agenda", { dia });
+      if (pedir) return pedir;
+      const consulta = saidas.get("minha_agenda")?.saida["resultado"] as {
+        aviso?: string;
+        itens?: { inicio: string; cliente: string | null; servico: string | null; status: string }[];
+      } | undefined;
+      if (!consulta) return texto("A agenda não respondeu. Nenhum horário foi confirmado.");
+      if (consulta.aviso) return texto(consulta.aviso);
+      const itens = consulta.itens ?? [];
+      if (!itens.length) return texto(`Não há atendimentos na sua agenda em ${rotuloDoDia(dia)}.`);
+      const resumo = itens.slice(0, 12).map((a) =>
+        `${horaLocal(a.inicio, fuso)} — ${a.cliente ?? "Cliente não informado"} (${a.servico ?? "serviço"}; ${a.status})`
+      );
+      return texto(`Agenda de ${rotuloDoDia(dia)} (${itens.length}):\n${resumo.join("\n")}${itens.length > 12 ? `\nMais ${itens.length - 12} atendimento(s) na Agenda.` : ""}`);
+    }
+
     if (i === "caixa") {
       if (!oferecida("consultar_caixa_hoje"))
         return texto("Você não tem acesso ao caixa financeiro deste negócio.");

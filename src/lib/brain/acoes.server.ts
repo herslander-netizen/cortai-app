@@ -1009,7 +1009,7 @@ export const ACOES: Record<string, Definicao> = {
       "Agenda de um dia (AAAA-MM-DD; padrão hoje) com horário, cliente, serviço e situação. Profissional vê só a própria; dono vê a do negócio.",
     parametros: obj({ dia: { type: ["string", "null"] } }, ["dia"]),
     risco: "leitura",
-    canais: [],
+    canais: ["painel"],
     papeis: ["profissional", "dono"],
     executar: async (ctx, d) => {
       const { fusoDoTenant } = await import("@/lib/fuso.server");
@@ -1034,7 +1034,8 @@ export const ACOES: Record<string, Definicao> = {
           return { dia, aviso: "Seu usuário não está ligado a um profissional.", itens: [] };
         q = q.eq("profissional_id", ctx.profissionalId);
       }
-      const { data } = await q;
+      const { data, error } = await q;
+      if (error) throw new Error("Não consegui consultar a agenda agora. Tente novamente.");
       const agora = Date.now();
       const itens = (data ?? []).map((a: any) => ({
         id: a.id,
@@ -1062,8 +1063,11 @@ export const ACOES: Record<string, Definicao> = {
         .eq("tenant_id", ctx.tenantId)
         .in("status", ["aguardando", "avisado"])
         .order("posicao");
-      if (ctx.papel === "profissional" && ctx.profissionalId)
+      if (ctx.papel === "profissional") {
+        // Profissional sem vínculo real não pode visualizar a fila de outros.
+        if (!ctx.profissionalId) return [];
         q = q.or(`profissional_id.is.null,profissional_id.eq.${ctx.profissionalId}`);
+      }
       const { data } = await q;
       return (data ?? []).map((f: any) => ({
         posicao: f.posicao,
