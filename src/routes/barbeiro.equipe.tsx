@@ -19,6 +19,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { EquipeWhatsapp } from "@/components/barbeiro/EquipeWhatsapp";
 import { FichaProfissionalFlow } from "@/components/barbeiro/FichaProfissionalFlow";
+import { desativarProfissionalFlow } from "@/lib/ficha-profissional-flow.functions";
 import { EsqueletoLista } from "@/components/layout/Esqueleto";
 import {
   ACOES,
@@ -99,6 +100,20 @@ function EquipePage() {
       setMensagem({ tom: "sucesso", texto: "Acesso atualizado." });
       setEditando(null);
       await recarregar();
+    },
+    onError: falhar,
+  });
+
+  const desativar = useMutation({
+    mutationFn: (userId: string) => desativarProfissionalFlow({ data: { userId } }),
+    onSuccess: async () => {
+      setFichaAberta(null);
+      setMensagem({ tom: "sucesso", texto: "Profissional desativado. Novos horários não serão oferecidos." });
+      await Promise.all([
+        recarregar(),
+        queryClient.invalidateQueries({ queryKey: ["agenda-dia"] }),
+        queryClient.invalidateQueries({ queryKey: ["equipe-escala"] }),
+      ]);
     },
     onError: falhar,
   });
@@ -230,17 +245,10 @@ function EquipePage() {
                           setEditando(membro.userId);
                         }}
                         aoDesativar={() => {
-                          salvar.mutate(
-                            {
-                              userId: membro.userId,
-                              papel: membro.papel as PapelDeEquipe,
-                              permissoes: membro.permissoes,
-                              ativo: false,
-                            },
-                            { onSuccess: () => setFichaAberta(null) },
-                          );
+                          setMensagem(null);
+                          desativar.mutate(membro.userId);
                         }}
-                        ocupado={salvar.isPending || remover.isPending || recuperar.isPending}
+                        ocupado={salvar.isPending || remover.isPending || recuperar.isPending || desativar.isPending}
                       />
                     ) : null}
                   </li>
