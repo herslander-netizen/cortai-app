@@ -594,8 +594,6 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - 2026-10-26: **Cabeçalho do menu mobile mais compacto** (dono aprovou a reformulação após captura: logo menor, nome do negócio com hierarquia discreta, papel secundário, ajustes alinhados e menos espaço vazio; manter nome em até duas linhas quando necessário, sem afetar a Agenda).
 
 ## Em andamento
-- GPT | 2026-11-09 19:45 BRT | **Flow QA público — movimento reduzido e contrato dos 3 estilos:** corrigir parallax do fundo Chat para acessibilidade, adicionar testes puros de navegação Vitrine/Direta/Conversa e verificações de fallback sem tocar lógica de reservas. Branch `fix/flow-public-qa-reduced-motion-20261109`; sem Agenda, banco, migrações, segredos ou produção | `src/components/chat/ChatShell.tsx`, `src/components/chat/ChatBackground.motion.test.tsx`, `src/lib/experiencia-link.test.ts`, `DIARIO.md`.
-- GPT | 2026-11-09 15:15 BRT | **Flow Visual Library — lote isolado:** catálogo licenciado de imagens já existentes, presets derivados de `SEGMENTOS`, contrato de importação, testes e integração controlada no seletor do editor sem alterar imagens próprias. Branch isolada `feat/flow-visual-library-public-20261109`; sem banco/migração, Agenda, produção ou arquivos com reserva ativa | `src/lib/flow-visual-library*`, `src/components/marca/editor/BibliotecaFlow*`, `src/components/marca/editor/secoes/EditorDeHero.tsx`, `docs/flow-visual-library.md`, `DIARIO.md`.
 - GPT | 2026-11-08 11:50 BRT | **Nome e sobrenome nos fluxos:** corrigir identificação ambígua no WhatsApp, Flow Bot e consultas do painel; adicionar regra pura e testes, documentar limitações; somente branch oficial, sem sender/webhook reservado pela Claude, Agenda visual, banco, main ou produção | `src/lib/nomes-pessoas.ts`, `src/lib/flow-bot/agenda-na-conversa/*`, `src/lib/brain/busca-cliente.ts`, testes, documentação; sem migração
 
 
@@ -1032,6 +1030,14 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+### 2026-11-09 — GPT — QA público Flow: movimento reduzido e contrato dos três estilos (PR #40)
+- Localizado parallax CSS contínuo em `src/styles.css` (classe `chat-fundo-img`) sem desativação de animação na preferência **reduzir movimento**. `ChatBackground` agora usa `useReducedMotion` e aplica `animation: none` somente quando solicitado; nenhuma classe/arquivo da Agenda foi tocado e imagens próprias seguem prioritárias.
+- `src/components/chat/ChatBackground.motion.test.tsx`: verifica SSR do fundo com foto própria em reduzir movimento, modo normal e padrão vetorial por segmento sem interceptação de toque.
+- `src/lib/experiencia-link.test.ts`: garante as rotas e a seleção de modo para Vitrine, agendamento direto e Chat, inclusive transição entre layouts, `?ver=pagina` e preservação de configuração publicada.
+- Branch isolada `fix/flow-public-qa-reduced-motion-20261109`, PR **#40**. GitHub Actions `42715498400` **sucesso** para build, TypeScript e Vitest. **Não houve** teste de agendamento contra banco, captura em navegador autenticado ou conferência visual de 320–430 px; isso permanece pendente.
+- Revisão do catálogo: há 16 fotografias catalogadas em `public/temas` e `public/exemplos`; outras capas em `public/marca/flow/capas` são peças de identidade da marca, não fotos de serviços para adicionar automaticamente. Meta de 98 imagens permanece em aberto, sem inventar material.
+- A reserva anterior da Biblioteca (PR #39) foi retirada por estar integrada e publicada na prévia com smoke aprovado no run `42703459473`. A reserva deste lote também foi encerrada; somente ambiente de prévia, sem banco, segredos, migrações, main ou produção.
+
 ### 2026-11-09 — GPT — continuação Flow Visual Library: inicialização segura e prévias de segmento (PR #39)
 - Branch de trabalho `feat/flow-visual-library-public-20261109` atualizada com merge normal da branch oficial `cloudflare-workers-migration-2026-10-13` (sem rebase/force). Nenhuma modificação nos módulos de IA que avançaram em paralelo; o histórico do diário foi preservado.
 - `src/lib/flow-visual-presets.ts`: quando a página não possui configuração gravada, produz tema, paleta e frase inicial do segmento. Configuração antiga — inclusive parcial — é sempre normalizada sem reaplicar presets. Compatibilidade com os temas do layout Raízes.
