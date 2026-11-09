@@ -594,6 +594,7 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - 2026-10-26: **Cabeçalho do menu mobile mais compacto** (dono aprovou a reformulação após captura: logo menor, nome do negócio com hierarquia discreta, papel secundário, ajustes alinhados e menos espaço vazio; manter nome em até duas linhas quando necessário, sem afetar a Agenda).
 
 ## Em andamento
+- GPT | 2026-11-09 | **Homologação Flow Core do profissional**: corrigir confirmação fail-closed, consulta de agenda por texto/IA no painel, papéis sem privilégio implícito, teste do modo básico e provedor, sem WhatsApp reservado pela Claude, Agenda visual, banco, secrets ou produção | `src/lib/assistente.functions.ts`, `src/lib/brain/{acoes.server,modo-basico,modo-basico-nlu,papel-do-painel,reivindicacao-painel}*`, testes e documentação; sem migração
 - GPT | 2026-11-08 11:50 BRT | **Nome e sobrenome nos fluxos:** corrigir identificação ambígua no WhatsApp, Flow Bot e consultas do painel; adicionar regra pura e testes, documentar limitações; somente branch oficial, sem sender/webhook reservado pela Claude, Agenda visual, banco, main ou produção | `src/lib/nomes-pessoas.ts`, `src/lib/flow-bot/agenda-na-conversa/*`, `src/lib/brain/busca-cliente.ts`, testes, documentação; sem migração
 
 
