@@ -23,6 +23,7 @@ export function normalizar(texto: string): string {
 
 export type Intencao =
   | "agendar"
+  | "minha_agenda"
   | "caixa"
   | "movimento"
   | "servicos"
@@ -33,13 +34,21 @@ export type Intencao =
   | "ajuda";
 
 const VERBO_DE_AGENDAR = /\b(agend\w*|marc(?:ar|a|ando)|marqu\w*|reserv\w*|encaix\w*)\b/;
+const CONSULTA_AGENDA =
+  /\b(?:minha agenda|meus agendamentos?|meus atendimentos?|agenda (?:hoje|amanha|de hoje|de amanha|do dia)|(?:quais|quantos|mostra|mostre|ver|listar|consultar|como esta|como ta)\b.{0,60}\b(?:agendamentos?|atendimentos?|agenda))\b/;
+
+export function ehConsultaDaAgenda(texto: string): boolean {
+  return CONSULTA_AGENDA.test(normalizar(texto));
+}
 
 export function ehPedidoDeAgendar(texto: string): boolean {
-  return VERBO_DE_AGENDAR.test(normalizar(texto));
+  return !ehConsultaDaAgenda(texto) && VERBO_DE_AGENDAR.test(normalizar(texto));
 }
 
 export function intencaoDe(texto: string): Intencao {
   const t = normalizar(texto);
+  // Uma consulta de agendamentos não pode virar pedido de criação.
+  if (CONSULTA_AGENDA.test(t)) return "minha_agenda";
   if (VERBO_DE_AGENDAR.test(t)) return "agendar";
   // Valor recebido e saldo do caixa precisam consultar lançamentos financeiros reais.
   // Não misturar esses pedidos com "consultar_movimento", que só conta agendamentos.
