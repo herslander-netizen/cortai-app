@@ -1,4 +1,4 @@
-import { aplicarTema, type PaginaConfig, type TemaId } from "@/lib/pagina-config";
+import { aplicarTema, configPadrao, normalizarPagina, type PaginaConfig, type TemaId } from "@/lib/pagina-config";
 import { type Segmento, SEGMENTOS } from "@/lib/segmentos";
 import { visualRecomendado } from "@/lib/flow-visual-library";
 
@@ -40,3 +40,26 @@ export function capaPublicaRecomendada(segmento: Segmento, capaDoNegocio: string
 }
 
 export function segmentosCobertosPorPreset(): Segmento[] { return SEGMENTOS.filter(s => Boolean(presets[s])); }
+
+/**
+ * Monta a página de um estabelecimento sem configuração. Um objeto legado
+ * (mesmo vazio) é configuração existente e NÃO recebe o preset automaticamente.
+ */
+export function paginaInicialDoSegmento(
+  segmento: Segmento,
+  fallback?: Partial<PaginaConfig>,
+): PaginaConfig {
+  const preset = presetDoSegmento(segmento);
+  const base = configPadrao({ frase: preset.fraseExemplo, ...fallback });
+  return aplicarTema(base, preset.tema);
+}
+
+export function normalizarPaginaComPreset(
+  existente: unknown,
+  segmento: Segmento,
+  fallback?: Partial<PaginaConfig>,
+): PaginaConfig {
+  return existente === null || existente === undefined
+    ? paginaInicialDoSegmento(segmento, fallback)
+    : normalizarPagina(existente, fallback);
+}

@@ -1,7 +1,8 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { montarPacotes, type PacoteDoNegocio } from "@/lib/pacotes";
-import { normalizarPagina, type PaginaConfig } from "@/lib/pagina-config";
+import { type PaginaConfig } from "@/lib/pagina-config";
+import { normalizarPaginaComPreset } from "@/lib/flow-visual-presets";
 import { paginaPublicaDisponivel } from "@/lib/pagina-publica-status";
 import { segmentoParaApresentacao, type Segmento } from "@/lib/segmentos";
 
@@ -248,10 +249,11 @@ export const getPaginaPublica = createServerFn({ method: "GET" })
         .usoDaAgendaOnline(supabaseAdmin, tenant.id)
         .then((r) => r.estado)
         .catch(() => "aberta" as const),
-      pagina: normalizarPagina(
+      pagina: normalizarPaginaComPreset(
         (pageConfig?.published_config as { pagina?: unknown } | null)?.pagina,
+        segmentoParaApresentacao(tenant.segmento),
         {
-          frase: tenant.texto_boas_vindas ?? "Cuidado, estilo e horário reservado para você.",
+          ...(tenant.texto_boas_vindas ? { frase: tenant.texto_boas_vindas } : {}),
           sobre: tenant.descricao ?? "",
         },
       ),

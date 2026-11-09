@@ -47,3 +47,8 @@ O arquivo src/lib/flow-visual-prompts.ts prepara 14 especificações distintas p
 
 
 **Revisão de tema claro:** como o `:root.light` redefine as variáveis de cor, o Chat com superfície Padrão usa localmente os valores equivalentes aos papéis escuros oficiais do Figaro (background, onSurface, containers, ação azul), para manter o Chat realmente escuro em aparelhos com modo claro. Essa regra não altera `src/styles.css` e não afeta superfícies personalizadas.
+
+
+## Inicialização sem migração
+
+Uma página ainda sem configuração (nula/ausente) recebe o preset oficial do seu segmento no editor e nas leituras públicas. Uma configuração gravada, mesmo parcial ou legada, mantém a normalização anterior e nunca sofre substituição automática de tema, texto, layout ou chat. As fotos do negócio mantêm prioridade. Nada é escrito no banco por esse resolvedor; publicação e rascunhos permanecem nas ações existentes.

@@ -21,7 +21,8 @@ import {
 import { normalizarTelefone, variantesDoTelefone } from "@/lib/telefone";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { normalizarPagina, type PaginaConfig } from "@/lib/pagina-config";
+import { type PaginaConfig } from "@/lib/pagina-config";
+import { normalizarPaginaComPreset } from "@/lib/flow-visual-presets";
 import { paginaPublicaDisponivel } from "@/lib/pagina-publica-status";
 import { segmentoParaApresentacao, type Segmento } from "@/lib/segmentos";
 import { validarPreferenciasCliente, type PreferenciasCliente } from "@/lib/preferencias-cliente";
@@ -250,7 +251,10 @@ export const getAgendaPublica = createServerFn({ method: "GET" })
       })),
     );
     const container = paginaRes.data?.published_config as { pagina?: unknown } | null;
-    const pagina = normalizarPagina(container?.pagina);
+    const pagina = normalizarPaginaComPreset(
+      container?.pagina,
+      segmentoParaApresentacao((tenant as Record<string, unknown>)["segmento"]),
+    );
     const avatarUrl = await assinar(pagina.chat.avatarUrl);
 
     return {
@@ -743,8 +747,9 @@ export const getPreviaDaBarbearia = createServerFn({ method: "GET" })
           .maybeSingle(),
       ]);
       const paginaOnline = paginaPublicaDisponivel(cfg?.is_online);
-      const publicada = normalizarPagina(
+      const publicada = normalizarPaginaComPreset(
         (cfg?.published_config as { pagina?: unknown } | null)?.pagina,
+        segmentoParaApresentacao(t.segmento),
       );
       const slugAtual = (t.slug as string) || data.slug;
       const temImagem = Boolean(t.capa_url || t.logo_url);
