@@ -203,11 +203,19 @@ function FichaMembroPage() {
                   O perfil está desativado. Reative antes de configurar novos horários de atendimento.
                 </Aviso>
               )}
-              <AcaoDeSecao
-                titulo="Disponibilidade por data"
-                detalhe="Horários especiais e exceções no gerenciamento de horários"
-                destino="/barbeiro/horarios"
-              />
+              {profissional.ativo ? (
+                <Link
+                  to="/barbeiro/equipe-data/$userId"
+                  params={{ userId }}
+                  className="flex min-h-14 items-center justify-between gap-3 rounded-2xl bg-[var(--figaro-surface-container-high,var(--ink2))] px-4 py-3 transition-opacity hover:opacity-80"
+                >
+                  <span className="min-w-0">
+                    <strong className="block text-sm font-semibold text-paper">Disponibilidade por data</strong>
+                    <span className="mt-1 block text-xs text-mute">Adicionar ou editar um horário individual para uma data</span>
+                  </span>
+                  <ChevronRight aria-hidden className="size-5 shrink-0 text-mute" />
+                </Link>
+              ) : null}
             </section>
 
             <section aria-labelledby="dados-membro" className="space-y-3">

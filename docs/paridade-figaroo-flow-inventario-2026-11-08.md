@@ -84,11 +84,20 @@ No Flow foram identificados:
   foto ou portfólio. A tela detecta alterações não salvas e usa a confirmação
   de saída do `TelaDeFormulario`. O servidor recusa vínculos ausentes ou
   duplicados, confere `tenant_id` e exige permissões reais.
-- **Atenção:** mesmo com esse editor, a paridade do módulo ainda não está
-  concluída: editores de serviços/horário especial, criação em duas etapas,
-  exclusão/desativação do perfil profissional independente do login e validação
-  visual autenticada continuam pendentes. Não apagar dados ou profissionais
-  sem autorização e avaliação de agendamentos futuros.
+- **Lote de disponibilidade por data (09/11/2026):** nova tela exclusiva
+  `/barbeiro/equipe-data/$userId` ligada à ficha. Reutiliza as funções
+  oficiais `listarHorariosEspeciaisDoDia`, `salvarHorarioEspecial`,
+  `removerHorarioEspecial` e o seletor de horário do Figaroo; fixa
+  o alvo ao profissional vinculado, respeita data atual no fuso do negócio,
+  exige salvar e confirma remoções com diálogo.
+  Isto implementa janelas excepcionais, **não uma folga integral por data**
+  (o motor de horários especiais atual não representa um dia inteiramente
+  fechado). Não confundir o recurso com o calendário de bloqueios.
+- **Atenção:** ainda não é paridade completa: folgas/exceções de fechamento
+  por data, editor de serviços atribuído ao profissional, criação em duas
+  etapas, exclusão/desativação independente do login e validação visual
+  autenticada continuam pendentes. Não apagar dados/profissionais sem
+  autorização e avaliação dos agendamentos futuros.
 
 ## Contratos a preservar na reconstrução
 
