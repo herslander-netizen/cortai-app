@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import {
@@ -96,6 +97,12 @@ export function FichaProfissionalFlow({
   const scrollRef = useRef<HTMLDivElement>(null);
   const voltarRef = useRef<HTMLButtonElement>(null);
   const refFocoAnterior = useRef<HTMLElement | null>(null);
+  const fecharAtual = useRef(aoFechar);
+  const telaAtual = useRef(tela);
+  const confirmarAtual = useRef(confirmarDesativacao);
+  fecharAtual.current = aoFechar;
+  telaAtual.current = tela;
+  confirmarAtual.current = confirmarDesativacao;
 
   const dados = ficha.data;
   const dias = useMemo(
@@ -159,12 +166,12 @@ export function FichaProfissionalFlow({
     voltarRef.current?.focus();
     const aoTeclar = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
-        if (tela === "horarios") {
+        if (telaAtual.current === "horarios") {
           setTela("perfil");
-        } else if (confirmarDesativacao) {
+        } else if (confirmarAtual.current) {
           setConfirmarDesativacao(false);
         } else {
-          aoFechar();
+          fecharAtual.current();
         }
         return;
       }
@@ -190,7 +197,7 @@ export function FichaProfissionalFlow({
       document.removeEventListener("keydown", aoTeclar);
       refFocoAnterior.current?.focus();
     };
-  }, [aoFechar, tela, confirmarDesativacao]);
+  }, []);
 
   const fecharOuVoltar = () => {
     if (tela === "horarios") {
@@ -202,7 +209,7 @@ export function FichaProfissionalFlow({
     aoFechar();
   };
 
-  return (
+  return createPortal(
     <div
       ref={scrollRef}
       role="dialog"
@@ -459,5 +466,5 @@ export function FichaProfissionalFlow({
         </div>
       </div>
     </div>
-  );
+  , document.body);
 }
