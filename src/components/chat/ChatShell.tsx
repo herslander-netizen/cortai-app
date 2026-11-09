@@ -13,6 +13,7 @@ import avatarPadrao from "@/assets/flow-avatar-padrao.png.asset.json";
 import type { PaginaConfig } from "@/lib/pagina-config";
 import { PadraoChatSegmento } from "@/components/chat/PadraoChatSegmento";
 import { tokensEscurosDaAgendaParaChat } from "@/lib/chat-theme";
+import { resolverFundoDoChat } from "@/lib/fundo-chat";
 import type { Segmento } from "@/lib/segmentos";
 
 type ChatConfig = PaginaConfig["chat"];
@@ -43,11 +44,7 @@ export function ChatBackground({
   modo?: ChatConfig["fundo"];
   segmento?: Segmento | undefined;
 }) {
-  // Foto própria prevalece. Sem foto no modo Capa, usa pattern leve por segmento.
-  // Padrão/Liso são opções explícitas do negócio e não mudam.
-  const ilustrado = modo === "capa" && !capaUrl && Boolean(segmento);
-  const imagem = modo === "liso" ? null : modo === "padrao" ? fundo.url :
-    capaUrl || (ilustrado ? null : fundo.url);
+  const { imagem, padraoSegmento } = resolverFundoDoChat({ modo, capaUrl, segmento, fundoFlow: fundo.url });
   return (
     <div aria-hidden className="chat-fundo">
       {imagem ? (
@@ -59,7 +56,7 @@ export function ChatBackground({
         />
       ) : null}
       <div className="chat-fundo-veu" />
-      {ilustrado && segmento ? <PadraoChatSegmento segmento={segmento} /> : null}
+      {padraoSegmento ? <PadraoChatSegmento segmento={padraoSegmento} /> : null}
     </div>
   );
 }
