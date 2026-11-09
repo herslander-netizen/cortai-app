@@ -204,6 +204,13 @@
       "when": 1793252707000,
       "tag": "0028_intervalo_excepcional_agenda",
       "breakpoints": true
+    },
+    {
+      "idx": 29,
+      "version": "7",
+      "when": 1794225600000,
+      "tag": "0029_ficha_profissional_flow",
+      "breakpoints": true
     }
   ]
 }

@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
 
@@ -8,6 +8,8 @@ import { getProfissionaisPerfil, salvarPerfilProfissional } from "@/lib/crescime
 import { useAcao } from "@/hooks/useAcao";
 import { EsqueletoFormulario } from "@/components/layout/Esqueleto";
 import { Button } from "@/components/ui/button";
+import { FichaProfissionalFlow } from "@/components/barbeiro/FichaProfissionalFlow";
+import { desativarPerfilAgendaFlow } from "@/lib/ficha-profissional-flow.functions";
 
 export const Route = createFileRoute("/barbeiro/profissionais")({
   head: () => ({
@@ -29,6 +31,18 @@ export const Route = createFileRoute("/barbeiro/profissionais")({
 
 function ProfissionaisPage() {
   const salvar = useServerFn(salvarPerfilProfissional);
+  const qc = useQueryClient();
+  const [fichaProfissionalId, setFichaProfissionalId] = useState<string | null>(null);
+  const [erroFicha, setErroFicha] = useState<string | null>(null);
+  const desativar = useMutation({
+    mutationFn: (profissionalId: string) => desativarPerfilAgendaFlow({ data: { profissionalId } }),
+    onSuccess: async () => {
+      setFichaProfissionalId(null);
+      setErroFicha(null);
+      await Promise.all([refetch(), qc.invalidateQueries({ queryKey: ["agenda-dia"] })]);
+    },
+    onError: (e) => setErroFicha(e instanceof Error ? e.message : "Não foi possível desativar este profissional."),
+  });
   const { data, isLoading, refetch } = useQuery({
     queryKey: ["profissionais-perfil"],
     queryFn: () => getProfissionaisPerfil(),
@@ -54,13 +68,19 @@ function ProfissionaisPage() {
     >
       {isLoading ? <EsqueletoFormulario campos={3} onTentarDeNovo={() => void refetch()} /> : null}
       {data && data.length === 0 ? <EmptyState text="Nenhum profissional cadastrado." /> : null}
+      {erroFicha ? <p className="my-3 text-sm text-brick" role="alert">{erroFicha}</p> : null}
 
       <ul className="space-y-6">
         {(data ?? []).map((p) => {
           const atual = form[p.id] ?? { descricao: "", fotos: "" };
           return (
             <li key={p.id} className="border-b border-line bg-ink2 px-1 py-5">
-              <p className="text-sm font-semibold text-paper">{p.nome}</p>
+              <div className="flex items-center justify-between gap-3">
+                <p className="min-w-0 truncate text-sm font-semibold text-paper">{p.nome}</p>
+                <button type="button" onClick={() => { setErroFicha(null); setFichaProfissionalId(p.id); }} className="min-h-11 shrink-0 rounded-full bg-[#A8C7FA] px-4 text-xs font-bold text-[#172638] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#A8C7FA]">
+                  Ver ficha
+                </button>
+              </div>
               <label className="mt-4 block">
                 <span className="text-xs text-mute2">Descrição curta</span>
                 <textarea
@@ -119,6 +139,16 @@ function ProfissionaisPage() {
               >
                 {acao.estaEm(p.id) ? "Salvando…" : "Salvar perfil"}
               </Button>
+              {fichaProfissionalId === p.id && (
+                <FichaProfissionalFlow
+                  profissionalId={p.id}
+                  membro={{ userId: p.id, nome: p.nome, email: null, papel: "barbeiro", permissoes: [], ativo: p.ativo, criadoEm: "", aceitoEm: null }}
+                  aoFechar={() => { setFichaProfissionalId(null); void refetch(); }}
+                  aoAjustarAcesso={() => setFichaProfissionalId(null)}
+                  aoDesativar={() => desativar.mutate(p.id)}
+                  ocupado={desativar.isPending}
+                />
+              )}
             </li>
           );
         })}

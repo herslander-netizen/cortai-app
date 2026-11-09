@@ -18,6 +18,8 @@ import {
 } from "@/lib/equipe.functions";
 import { Button } from "@/components/ui/button";
 import { EquipeWhatsapp } from "@/components/barbeiro/EquipeWhatsapp";
+import { FichaProfissionalFlow } from "@/components/barbeiro/FichaProfissionalFlow";
+import { desativarProfissionalFlow } from "@/lib/ficha-profissional-flow.functions";
 import { EsqueletoLista } from "@/components/layout/Esqueleto";
 import {
   ACOES,
@@ -56,6 +58,7 @@ function EquipePage() {
   const [papelConvite, setPapelConvite] = useState<PapelDeEquipe>("barbeiro");
   const [mensagem, setMensagem] = useState<{ tom: "sucesso" | "acao"; texto: string } | null>(null);
   const [editando, setEditando] = useState<string | null>(null);
+  const [fichaAberta, setFichaAberta] = useState<string | null>(null);
 
   const recarregar = () => queryClient.invalidateQueries({ queryKey: ["equipe"] });
   const falhar = (e: unknown) =>
@@ -97,6 +100,20 @@ function EquipePage() {
       setMensagem({ tom: "sucesso", texto: "Acesso atualizado." });
       setEditando(null);
       await recarregar();
+    },
+    onError: falhar,
+  });
+
+  const desativar = useMutation({
+    mutationFn: (userId: string) => desativarProfissionalFlow({ data: { userId } }),
+    onSuccess: async () => {
+      setFichaAberta(null);
+      setMensagem({ tom: "sucesso", texto: "Profissional desativado. Novos horários não serão oferecidos." });
+      await Promise.all([
+        recarregar(),
+        queryClient.invalidateQueries({ queryKey: ["agenda-dia"] }),
+        queryClient.invalidateQueries({ queryKey: ["equipe-escala"] }),
+      ]);
     },
     onError: falhar,
   });
@@ -203,6 +220,7 @@ function EquipePage() {
                     <CartaoMembro
                       membro={membro}
                       aberto={editando === membro.userId}
+                      onVerFicha={() => setFichaAberta(membro.userId)}
                       onAbrir={() => setEditando(editando === membro.userId ? null : membro.userId)}
                       onSalvar={(dados) => {
                         setMensagem(null);
@@ -218,6 +236,21 @@ function EquipePage() {
                       }}
                       ocupado={salvar.isPending || remover.isPending || recuperar.isPending}
                     />
+                    {fichaAberta === membro.userId ? (
+                      <FichaProfissionalFlow
+                        membro={membro}
+                        aoFechar={() => setFichaAberta(null)}
+                        aoAjustarAcesso={() => {
+                          setFichaAberta(null);
+                          setEditando(membro.userId);
+                        }}
+                        aoDesativar={() => {
+                          setMensagem(null);
+                          desativar.mutate(membro.userId);
+                        }}
+                        ocupado={salvar.isPending || remover.isPending || recuperar.isPending || desativar.isPending}
+                      />
+                    ) : null}
                   </li>
                 ))}
               </ul>
@@ -242,6 +275,7 @@ function CartaoMembro({
   membro,
   aberto,
   onAbrir,
+  onVerFicha,
   onSalvar,
   onRemover,
   onRecuperar,
@@ -250,6 +284,7 @@ function CartaoMembro({
   membro: MembroDaEquipe;
   aberto: boolean;
   onAbrir: () => void;
+  onVerFicha: () => void;
   onSalvar: (dados: { papel: PapelDeEquipe; permissoes: string[]; ativo: boolean }) => void;
   onRemover: () => void;
   onRecuperar: () => void;
@@ -273,6 +308,9 @@ function CartaoMembro({
           <p className="truncate text-sm font-semibold text-paper">
             {membro.nome ?? membro.email ?? "Conta"}
           </p>
+          <button type="button" onClick={onVerFicha} className="mt-1 flex min-h-10 items-center text-xs font-semibold text-[#A8C7FA] underline underline-offset-4">
+            Ver ficha completa
+          </button>
           <p className="mt-0.5 truncate text-xs text-mute">{membro.email ?? "sem e-mail"}</p>
           <p className="mt-1.5 flex items-center gap-2 text-xs">
             <span className="rounded-full bg-gold-soft px-2 py-0.5 font-semibold text-gold">
