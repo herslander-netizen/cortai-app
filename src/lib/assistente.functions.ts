@@ -170,10 +170,6 @@ export const perguntarAoCortai = createServerFn({ method: "POST" })
           idDaMensagem: data.idDaMensagem,
           origem: data.origem,
           mensagem: data.mensagem,
-        }).catch((erro: unknown) => {
-          // Sem a checagem, segue como antes: a idempotência do agendamento continua valendo.
-          console.error("[cortai] idempotência do pedido indisponível:", (erro as Error).message);
-          return null;
         });
         if (pedido?.tipo === "repetido")
           return { conversaId, resposta: pedido.resposta as unknown as RespostaDoAssistente };
@@ -262,23 +258,13 @@ export const perguntarAoCortai = createServerFn({ method: "POST" })
               ...(clienteEscolhido ? { clienteEscolhidoId: clienteEscolhido.id } : {}),
               // Dois "sim" simultâneos leem a mesma pendente: só quem a zera primeiro executa.
               consumirPendente: async (pendenteId) => {
-                const idDaMensagem = ultima?.["id"] as string | undefined;
-                if (!idDaMensagem) return true;
-                const { data: zerada, error } = await db
-                  .from("mensagens_de_ia")
-                  .update({ acao: { ...(ultima?.["acao"] as object), pendente: null } as never })
-                  .eq("id", idDaMensagem)
-                  .eq("tenant_id", tenantId)
-                  .eq("acao->pendente->>id", pendenteId)
-                  .select("id");
-                if (error) {
-                  console.error(
-                    "[cerebro] não consegui reivindicar a ação pendente:",
-                    error.message,
-                  );
-                  return true;
-                }
-                return (zerada?.length ?? 0) === 1;
+                const { reivindicarPendentePainel } = await import("@/lib/brain/reivindicacao-painel");
+                return reivindicarPendentePainel(db as never, {
+                  mensagemId: ultima?.["id"] as string | undefined,
+                  tenantId,
+                  pendenteId,
+                  acaoDaMensagem: ultima?.["acao"],
+                });
               },
             });
             pendenteNova = r.pendente;
