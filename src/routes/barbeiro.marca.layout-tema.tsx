@@ -226,7 +226,7 @@ function EditorLayoutTema({
             className="mb-2 h-12 w-full rounded-full text-base font-semibold"
             onClick={() =>
               void navegar({
-                to: "/barbeiro/marca/layout-tema_/preview",
+                to: "/barbeiro/marca/layout-tema/preview",
                 search: { layout: e.config.layout, tema: e.config.tema },
               })
             }
