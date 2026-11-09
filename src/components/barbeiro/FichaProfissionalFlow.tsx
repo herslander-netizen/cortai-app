@@ -613,7 +613,7 @@ export function FichaProfissionalFlow({
                 </button>
                 {(dados?.excecoesPorData?.length ?? 0) > 0 && (
                   <div className="mt-3 space-y-2" aria-label="Disponibilidades especiais cadastradas">
-                    {dados?.excecoesPorData.map((excecao) => (
+                    {dados?.excecoesPorData.map((excecao: { id: string; dia: string; trabalha: boolean; abre: string | null; fecha: string | null }) => (
                       <div key={excecao.id} className="flex items-center gap-2 rounded-2xl bg-[#3A403D] px-3 py-2">
                         <button type="button" onClick={() => abrirData(excecao)} className="min-h-11 min-w-0 flex-1 text-left text-sm">
                           <span className="block font-semibold">{excecao.dia.split("-").reverse().join("/")}</span>
