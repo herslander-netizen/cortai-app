@@ -594,6 +594,7 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - 2026-10-26: **Cabeçalho do menu mobile mais compacto** (dono aprovou a reformulação após captura: logo menor, nome do negócio com hierarquia discreta, papel secundário, ajustes alinhados e menos espaço vazio; manter nome em até duas linhas quando necessário, sem afetar a Agenda).
 
 ## Em andamento
+- GPT | 2026-11-09 | **Figaroo → Flow, Equipe: editor individual de dados** — criar tela separada para editar nome e descrição do profissional com vínculo seguro por `user_id`; usar `salvarPerfilProfissional` já existente, sem segunda gravação nem alterar avatar/portfólio. Arquivos `src/lib/painel-membro.functions.ts`, `src/lib/crescimento.functions.ts`, nova rota `src/routes/barbeiro.equipe-dados.$userId.tsx`, `src/routes/barbeiro.equipe_.$userId.tsx`, testes de paridade, `DIARIO.md` e inventário. Sem Agenda, banco, main ou produção; validar GitHub Actions e prévia.
 - GPT | 2026-11-08 11:50 BRT | **Nome e sobrenome nos fluxos:** corrigir identificação ambígua no WhatsApp, Flow Bot e consultas do painel; adicionar regra pura e testes, documentar limitações; somente branch oficial, sem sender/webhook reservado pela Claude, Agenda visual, banco, main ou produção | `src/lib/nomes-pessoas.ts`, `src/lib/flow-bot/agenda-na-conversa/*`, `src/lib/brain/busca-cliente.ts`, testes, documentação; sem migração
 
 
