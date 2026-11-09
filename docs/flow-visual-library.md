@@ -52,3 +52,8 @@ O arquivo src/lib/flow-visual-prompts.ts prepara 14 especificações distintas p
 ## Inicialização sem migração
 
 Uma página ainda sem configuração (nula/ausente) recebe o preset oficial do seu segmento no editor e nas leituras públicas. Uma configuração gravada, mesmo parcial ou legada, mantém a normalização anterior e nunca sofre substituição automática de tema, texto, layout ou chat. As fotos do negócio mantêm prioridade. Nada é escrito no banco por esse resolvedor; publicação e rascunhos permanecem nas ações existentes.
+
+
+## Prévia antes de personalizar ou trocar segmento
+
+A escolha do tipo de negócio em Opções da Conta mostra a paleta e a imagem indicativa antes da confirmação; não altera rascunhos ou fotos. No editor já existente de Layout & Tema, o cartão Visual recomendado permite aplicar apenas cores e fontes **no estado local do rascunho**, por clique explícito. A imagem apresentada não é inserida automaticamente como foto real e o fluxo de salvar/publicar permanece separado.

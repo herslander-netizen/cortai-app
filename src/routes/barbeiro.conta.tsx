@@ -29,6 +29,7 @@ import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { Button } from "@/components/ui/button";
 import { alterarSegmento, trocarAtalhosDaFicha } from "@/lib/onboarding.functions";
 import { LISTA_DE_SEGMENTOS, termos } from "@/lib/segmentos";
+import { PreviaPresetVisualFlow } from "@/components/marca/editor/PreviaPresetVisualFlow";
 import { aplicarIdentidade, aplicarModo } from "@/lib/aparencia";
 import { aviso } from "@/lib/avisos";
 
@@ -225,6 +226,9 @@ function ContaPage() {
           <p className="mt-2 text-xs text-mute">
             Ajusta sugestões e palavras. Seus serviços, clientes e horários não mudam.
           </p>
+          <div className="mt-3">
+            <PreviaPresetVisualFlow segmento={segmento} />
+          </div>
           <Button
             variant="outline"
             type="button"

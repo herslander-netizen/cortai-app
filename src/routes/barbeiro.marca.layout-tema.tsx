@@ -167,6 +167,7 @@ function EditorLayoutTema({
     >
       <div className="space-y-4 pb-48">
         <SecaoLayoutsETemas
+          segmento={initial.segmento}
           config={e.config}
           setLayout={(layout: LayoutId) =>
             e.setConfig((old) => trocarLayoutNoCatalogo(old, layout))

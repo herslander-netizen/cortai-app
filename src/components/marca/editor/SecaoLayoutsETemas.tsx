@@ -18,6 +18,8 @@ import { CartaoDeEstiloDoChat, CartaoDeLayout, CartaoDeTema } from "./CartoesDeL
 import { MiniaturaDoChat } from "./chat/MiniaturaDoChat";
 import { CapaDoTema } from "./CapaDoTema";
 import { Button } from "@/components/ui/button";
+import type { Segmento } from "@/lib/segmentos";
+import { PreviaPresetVisualFlow } from "./PreviaPresetVisualFlow";
 
 type Painel = "layout" | "tema" | "chat" | "";
 
@@ -102,8 +104,10 @@ export function SecaoLayoutsETemas({
   setLayout,
   escolherTema,
   atualizar,
+  segmento,
 }: {
   config: PaginaConfig;
+  segmento?: Segmento;
   setLayout: (layout: LayoutId) => void;
   escolherTema: (tema: TemaId) => void;
   /** Troca a configuração inteira (usado pelos estilos prontos do chat). */
@@ -169,6 +173,10 @@ export function SecaoLayoutsETemas({
           </div>
         </Painel>
       </section>
+
+      {segmento ? (
+        <PreviaPresetVisualFlow segmento={segmento} config={config} onAplicar={atualizar} />
+      ) : null}
 
       {ehChat ? (
         <section className="overflow-hidden rounded-[28px] bg-ink2" aria-label="Estilo do chat">
