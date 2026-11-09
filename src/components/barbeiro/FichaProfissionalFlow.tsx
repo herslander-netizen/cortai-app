@@ -103,6 +103,7 @@ export function FichaProfissionalFlow({
   const [dataForm, setDataForm] = useState({ dia: "", trabalha: true, abre: "09:00", fecha: "18:00" });
   const [erroLocal, setErroLocal] = useState<string | null>(null);
   const [diaExpandido, setDiaExpandido] = useState<number | null>(null);
+  const [excecaoParaRemover, setExcecaoParaRemover] = useState<string | null>(null);
   const fotoInput = useRef<HTMLInputElement>(null);
   const [compacto, setCompacto] = useState(false);
   const [verMais, setVerMais] = useState(false);
@@ -188,6 +189,7 @@ export function FichaProfissionalFlow({
         qc.invalidateQueries({ queryKey: ["agenda-publica"] }),
       ]);
       setErroLocal(null);
+      setExcecaoParaRemover(null);
     },
     onError: (e) => setErroLocal(e instanceof Error ? e.message : "Não foi possível remover esta data."),
   });
@@ -656,10 +658,17 @@ export function FichaProfissionalFlow({
                           <span className="block font-semibold">{excecao.dia.split("-").reverse().join("/")}</span>
                           <span className="block text-xs text-white/65">{excecao.trabalha ? `${excecao.abre} - ${excecao.fecha}` : "Indisponível"}</span>
                         </button>
-                        <button type="button" disabled={removerData.isPending} onClick={() => removerData.mutate(excecao.dia)}
-                          aria-label={"Remover exceção de " + excecao.dia} className="flex h-11 w-11 items-center justify-center rounded-full text-[#A8C7FA] disabled:opacity-50">
-                          <Trash2 size={18} aria-hidden />
-                        </button>
+                        {excecaoParaRemover === excecao.dia ? (
+                          <div className="flex shrink-0 flex-col gap-1 text-xs" role="group" aria-label="Confirmar remoção da data">
+                            <button type="button" disabled={removerData.isPending} onClick={() => removerData.mutate(excecao.dia)} className="min-h-8 rounded-lg bg-[#0752A9] px-2 font-semibold">Confirmar</button>
+                            <button type="button" onClick={() => setExcecaoParaRemover(null)} className="min-h-8 rounded-lg border border-white/20 px-2">Cancelar</button>
+                          </div>
+                        ) : (
+                          <button type="button" onClick={() => setExcecaoParaRemover(excecao.dia)}
+                            aria-label={"Remover exceção de " + excecao.dia} className="flex h-11 w-11 items-center justify-center rounded-full text-[#A8C7FA]">
+                            <Trash2 size={18} aria-hidden />
+                          </button>
+                        )}
                       </div>
                     ))}
                   </div>
