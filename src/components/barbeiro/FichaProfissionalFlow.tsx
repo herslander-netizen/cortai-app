@@ -207,20 +207,47 @@ export function FichaProfissionalFlow({
   };
   const enviarFoto = async (arquivo: File | undefined) => {
     if (!arquivo) return;
-    if (!["image/jpeg", "image/png", "image/webp"].includes(arquivo.type) || arquivo.size > 2_097_152) {
-      setErroLocal("Escolha uma foto JPG, PNG ou WebP de até 2 MB.");
+    if (!["image/jpeg", "image/png", "image/webp"].includes(arquivo.type) || arquivo.size > 12_582_912) {
+      setErroLocal("Escolha uma foto JPG, PNG ou WebP de até 12 MB. O Flow reduzirá a imagem automaticamente.");
       return;
     }
+    setErroLocal(null);
     try {
+      // Fotos de câmera normalmente ultrapassam 2 MB. Normaliza um recorte
+      // quadrado no próprio aparelho, sem enviar o original ao servidor.
+      let imagem: Blob = arquivo;
+      if (typeof createImageBitmap === "function") {
+        const bitmap = await createImageBitmap(arquivo);
+        try {
+          const lado = Math.min(bitmap.width, bitmap.height);
+          const canvas = document.createElement("canvas");
+          canvas.width = 768;
+          canvas.height = 768;
+          const ctx = canvas.getContext("2d");
+          if (!ctx) throw new Error("Não foi possível processar a foto.");
+          ctx.drawImage(bitmap, (bitmap.width - lado) / 2, (bitmap.height - lado) / 2, lado, lado, 0, 0, 768, 768);
+          const comprimida = await new Promise<Blob | null>((resolve) =>
+            canvas.toBlob(resolve, "image/webp", 0.82));
+          if (comprimida?.type === "image/webp") imagem = comprimida;
+        } finally {
+          bitmap.close();
+        }
+      }
+      if (imagem.size > 2_097_152) {
+        throw new Error("Não foi possível reduzir a foto para até 2 MB. Escolha uma imagem menor.");
+      }
       const endereco = await new Promise<string>((resolve, reject) => {
         const leitor = new FileReader();
         leitor.onload = () => resolve(String(leitor.result));
         leitor.onerror = () => reject(new Error("Não foi possível ler a foto."));
-        leitor.readAsDataURL(arquivo);
+        leitor.readAsDataURL(imagem);
       });
       const base64 = endereco.split(",")[1];
       if (!base64) throw new Error("A foto selecionada está vazia.");
-      atualizarFoto.mutate({ tipo: arquivo.type as "image/jpeg" | "image/png" | "image/webp", base64 });
+      atualizarFoto.mutate({
+        tipo: imagem.type as "image/jpeg" | "image/png" | "image/webp",
+        base64,
+      });
     } catch (e) {
       setErroLocal(e instanceof Error ? e.message : "Não foi possível ler a foto.");
     }
