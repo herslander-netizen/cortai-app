@@ -440,6 +440,90 @@ export function FichaProfissionalFlow({
                 <Check size={18} /> {salvarEscala.isPending ? "Salvando…" : "Salvar alterações"}
               </button>
             </section>
+          ) : tela === "dados" ? (
+            <form
+              aria-label="Editar dados do profissional"
+              className="pb-10"
+              onSubmit={(e) => { e.preventDefault(); setErroLocal(null); atualizarDados.mutate(); }}
+            >
+              <p className="mb-5 text-sm leading-relaxed text-[#B8C0BA]">
+                Atualize as informações exibidas neste estabelecimento. O nível de acesso é gerenciado separadamente.
+              </p>
+              <div className={painel + " space-y-5 p-4"}>
+                {([
+                  { chave: "nome", titulo: "Nome", tipo: "text", dica: "Nome exibido na agenda" },
+                  { chave: "atividade", titulo: "Atividade", tipo: "text", dica: "Ex.: barbeiro, manicure, terapeuta" },
+                  { chave: "telefone", titulo: "Telefone", tipo: "tel", dica: "Contato com DDD (não é público)" },
+                ] as const).map((campo) => (
+                  <label key={campo.chave} className="block">
+                    <span className="mb-2 block text-sm font-semibold">{campo.titulo}</span>
+                    <input
+                      required={campo.chave === "nome"}
+                      type={campo.tipo}
+                      autoComplete={campo.chave === "telefone" ? "off" : "name"}
+                      maxLength={campo.chave === "nome" || campo.chave === "atividade" ? 100 : 22}
+                      value={dadosForm[campo.chave]}
+                      onChange={(e) => setDadosForm((atual) => ({ ...atual, [campo.chave]: e.target.value }))}
+                      className="min-h-12 w-full rounded-xl border border-white/15 bg-[#252C28] px-4 text-base text-white focus-visible:outline-2 focus-visible:outline-[#A8C7FA]"
+                    />
+                    <span className="mt-1 block text-xs text-white/55">{campo.dica}</span>
+                  </label>
+                ))}
+              </div>
+              {erroLocal && <p role="alert" className="mt-4 text-sm text-red-300">{erroLocal}</p>}
+              <button disabled={atualizarDados.isPending} type="submit" className="mt-6 flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-[#A8C7FA] px-5 font-semibold text-[#172638] disabled:opacity-50">
+                <Check size={18} aria-hidden /> {atualizarDados.isPending ? "Salvando…" : "Salvar alterações"}
+              </button>
+            </form>
+          ) : tela === "data" ? (
+            <form
+              aria-label="Disponibilidade especial por data"
+              className="pb-10"
+              onSubmit={(e) => { e.preventDefault(); setErroLocal(null); atualizarData.mutate(); }}
+            >
+              <p className="mb-5 text-sm leading-relaxed text-[#B8C0BA]">
+                Defina uma exceção para uma data específica. Ela substitui a escala semanal do profissional,
+                mas respeita o expediente e os intervalos do estabelecimento.
+              </p>
+              <div className={painel + " space-y-5 p-4"}>
+                <label className="block">
+                  <span className="mb-2 block text-sm font-semibold">Data</span>
+                  <input type="date" required min={hojeDoAparelho} max={limiteData}
+                    value={dataForm.dia}
+                    onChange={(e) => setDataForm((atual) => ({ ...atual, dia: e.target.value }))}
+                    className="min-h-12 w-full rounded-xl border border-white/15 bg-[#252C28] px-4 text-base text-white focus-visible:outline-2 focus-visible:outline-[#A8C7FA]" />
+                </label>
+                <label className="flex min-h-12 items-center justify-between gap-4">
+                  <span className="text-sm font-semibold">Disponível para atender</span>
+                  <input type="checkbox" checked={dataForm.trabalha}
+                    onChange={(e) => setDataForm((atual) => ({ ...atual, trabalha: e.target.checked }))}
+                    className="h-6 w-6 accent-[#18843D]" />
+                </label>
+                {dataForm.trabalha && (
+                  <div className="grid grid-cols-2 gap-3">
+                    <label className="block text-sm">
+                      <span className="mb-2 block">Início</span>
+                      <input type="time" required value={dataForm.abre}
+                        onChange={(e) => setDataForm((atual) => ({ ...atual, abre: e.target.value }))}
+                        className="min-h-12 w-full min-w-0 rounded-xl border border-white/15 bg-[#252C28] px-2 text-base text-white" />
+                    </label>
+                    <label className="block text-sm">
+                      <span className="mb-2 block">Fim</span>
+                      <input type="time" required value={dataForm.fecha}
+                        onChange={(e) => setDataForm((atual) => ({ ...atual, fecha: e.target.value }))}
+                        className="min-h-12 w-full min-w-0 rounded-xl border border-white/15 bg-[#252C28] px-2 text-base text-white" />
+                    </label>
+                  </div>
+                )}
+              </div>
+              <p className="mt-3 text-xs leading-relaxed text-white/60">
+                A agenda não muda agendamentos já existentes. Caso o ajuste entre em conflito com eles, o Flow pedirá para remarcá-los antes.
+              </p>
+              {erroLocal && <p role="alert" className="mt-4 text-sm text-red-300">{erroLocal}</p>}
+              <button disabled={atualizarData.isPending || !dataForm.dia} type="submit" className="mt-6 flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-[#A8C7FA] px-5 font-semibold text-[#172638] disabled:opacity-50">
+                <Check size={18} aria-hidden /> {atualizarData.isPending ? "Salvando…" : "Salvar disponibilidade"}
+              </button>
+            </form>
           ) : (
             <>
               <section aria-label="Resumo do profissional" className="overflow-hidden rounded-[28px] bg-[#2C332F]">
@@ -451,15 +535,17 @@ export function FichaProfissionalFlow({
                       <UserRound size={37} className="text-[#D3DAD5]" aria-hidden />
                     </span>
                   )}
-                  <span className="min-w-0 flex-1 truncate text-xl font-semibold">{funcao}</span>
-                  <Link to="/barbeiro/profissionais" onClick={aoFechar} className={botaoAzul + " shrink-0 px-3"}>
-                    Editar perfil
-                  </Link>
+                  <span className="min-w-0 flex-1 truncate text-xl font-semibold">{atividade}</span>
+                  <input ref={fotoInput} type="file" accept="image/jpeg,image/png,image/webp" aria-label="Escolher foto do profissional" className="sr-only"
+                    onChange={(e) => { void enviarFoto(e.currentTarget.files?.[0]); e.currentTarget.value = ""; }} />
+                  <button type="button" disabled={!dados?.profissionalId || atualizarFoto.isPending} onClick={() => fotoInput.current?.click()} className={botaoAzul + " shrink-0 px-3 disabled:opacity-50"}>
+                    <Camera size={16} aria-hidden /> {atualizarFoto.isPending ? "Enviando…" : "Adicionar foto"}
+                  </button>
                 </div>
                 <div className="grid grid-cols-3 gap-1.5 p-2">
                   {[
                     { label: "Agend.", valor: dados?.agendamentos?.toString() ?? "—", icone: CalendarCheck2 },
-                    { label: "Receita", valor: "—", icone: DollarSign },
+                    { label: "Receita", valor: dados?.receitaCentavos == null ? "—" : new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 }).format(dados.receitaCentavos / 100), icone: DollarSign },
                     { label: "Aval.", valor: dados?.avaliacao == null ? "—" : dados.avaliacao.toFixed(1), icone: Star },
                   ].map((item) => {
                     const Icone = item.icone;
@@ -477,6 +563,7 @@ export function FichaProfissionalFlow({
                 </p>
               </section>
 
+              {erroLocal && <p role="alert" className="mt-4 text-sm text-red-300">{erroLocal}</p>}
               {ficha.isLoading && <p role="status" className="mt-5 text-sm text-white/70">Carregando ficha…</p>}
               {ficha.isError && <p role="alert" className="mt-5 text-sm text-red-300">Não foi possível carregar as informações do profissional.</p>}
 
@@ -516,12 +603,32 @@ export function FichaProfissionalFlow({
                     </div>
                   )}
                 </div>
-                <Link
-                  to="/barbeiro/agenda"
-                  onClick={aoFechar}
-                  className={botaoAzul + " mt-4 w-full"}
+                <button
+                  type="button"
+                  disabled={!dados?.profissionalId}
+                  onClick={() => abrirData()}
+                  className={botaoAzul + " mt-4 w-full disabled:opacity-50"}
                 >
-                  <CalendarDays size={17} /> Gerenciar datas na agenda
+                  <Plus size={17} aria-hidden /> Adicionar disponibilidade por data
+                </button>
+                {(dados?.excecoesPorData?.length ?? 0) > 0 && (
+                  <div className="mt-3 space-y-2" aria-label="Disponibilidades especiais cadastradas">
+                    {dados?.excecoesPorData.map((excecao) => (
+                      <div key={excecao.id} className="flex items-center gap-2 rounded-2xl bg-[#3A403D] px-3 py-2">
+                        <button type="button" onClick={() => abrirData(excecao)} className="min-h-11 min-w-0 flex-1 text-left text-sm">
+                          <span className="block font-semibold">{excecao.dia.split("-").reverse().join("/")}</span>
+                          <span className="block text-xs text-white/65">{excecao.trabalha ? `${excecao.abre} - ${excecao.fecha}` : "Indisponível"}</span>
+                        </button>
+                        <button type="button" disabled={removerData.isPending} onClick={() => removerData.mutate(excecao.dia)}
+                          aria-label={"Remover exceção de " + excecao.dia} className="flex h-11 w-11 items-center justify-center rounded-full text-[#A8C7FA] disabled:opacity-50">
+                          <Trash2 size={18} aria-hidden />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <Link to="/barbeiro/agenda" onClick={aoFechar} className="mt-3 inline-flex min-h-11 w-full items-center justify-center gap-2 text-sm font-medium text-[#A8C7FA]">
+                  <CalendarDays size={17} aria-hidden /> Ver agenda completa
                 </Link>
                 {!dados?.profissionalId && (
                   <p className="mt-2 text-xs text-white/60">Este membro ainda não está vinculado a um profissional da agenda.</p>
@@ -531,14 +638,14 @@ export function FichaProfissionalFlow({
               <section aria-labelledby="ficha-dados" className="mt-10">
                 <div className="mb-4 flex items-center justify-between">
                   <h2 id="ficha-dados" className="text-xl font-semibold">Dados Pessoais</h2>
-                  <Link to="/barbeiro/profissionais" onClick={aoFechar} className="flex min-h-11 items-center gap-2 text-sm font-semibold text-[#A8C7FA]">
-                    <Pencil size={17} aria-hidden /> Editar perfil
-                  </Link>
+                  <button type="button" onClick={abrirEdicao} disabled={!dados?.profissionalId} className="flex min-h-11 items-center gap-2 text-sm font-semibold text-[#A8C7FA] disabled:opacity-50">
+                    <Pencil size={17} aria-hidden /> Editar
+                  </button>
                 </div>
                 <dl className={painel + " divide-y divide-[#19201D] overflow-hidden"}>
                   {[
                     ["Nome", nome],
-                    ["Atividade", funcao],
+                    ["Atividade", atividade],
                     ["Telefone", dados?.telefone ?? "Não informado"],
                   ].map(([rotulo, valor]) => (
                     <div key={rotulo} className="px-4 py-3">
@@ -581,14 +688,14 @@ export function FichaProfissionalFlow({
                     </button>
                   ) : (
                     <div role="group" aria-label="Confirmar desativação" className={painel + " p-4"}>
-                      <p className="text-sm">Desativar o acesso de {nome}? Os agendamentos existentes não serão apagados.</p>
+                      <p className="text-sm">Desativar {nome}? O acesso e a oferta de novos horários serão suspensos. Os agendamentos existentes não serão apagados.</p>
                       <div className="mt-4 flex gap-3">
                         <button type="button" onClick={() => setConfirmarDesativacao(false)} className="min-h-11 rounded-full border border-white/30 px-4 text-sm">Cancelar</button>
                         <button type="button" disabled={ocupado} onClick={aoDesativar} className="min-h-11 rounded-full bg-[#0752A9] px-4 text-sm font-semibold disabled:opacity-50">Confirmar</button>
                       </div>
                     </div>
                   )}
-                  <p className="mt-2 text-xs leading-relaxed text-white/60">O acesso ao negócio será bloqueado; os agendamentos existentes permanecem registrados.</p>
+                  <p className="mt-2 text-xs leading-relaxed text-white/60">Agendamentos existentes permanecem registrados; novos horários não serão oferecidos.</p>
                 </section>
               )}
             </>
