@@ -99,3 +99,40 @@ insert into storage.buckets(id, name, public, file_size_limit, allowed_mime_type
 values ('profissionais-flow', 'profissionais-flow', true, 2097152,
         array['image/jpeg','image/png','image/webp']::text[])
 on conflict (id) do nothing;
+
+-- Salvar os dois registros em UMA transação: nenhum dado fica pela metade.
+create or replace function public.salvar_dados_profissional_flow(
+  _tenant_id uuid,
+  _profissional_id uuid,
+  _nome text,
+  _atividade text,
+  _telefone text
+) returns void language plpgsql security invoker set search_path = public as $$
+begin
+  if not tem_alguma_permissao(_tenant_id, array['gerenciar_profissionais','alterar_dados_barbearia']::text[]) then
+    raise exception 'sem permissao para editar profissional';
+  end if;
+  if length(btrim(_nome)) < 2 or length(btrim(_nome)) > 100 then
+    raise exception 'nome invalido';
+  end if;
+  update public.profissionais
+    set nome = btrim(_nome)
+    where tenant_id = _tenant_id and id = _profissional_id;
+  if not found then
+    raise exception 'profissional nao encontrado';
+  end if;
+  insert into public.profissionais_ficha
+    (tenant_id, profissional_id, atividade, telefone_contato, atualizado_em)
+  values (_tenant_id, _profissional_id,
+    nullif(btrim(coalesce(_atividade, '')), ''),
+    nullif(btrim(coalesce(_telefone, '')), ''),
+    now())
+  on conflict (profissional_id) do update
+    set atividade = excluded.atividade,
+        telefone_contato = excluded.telefone_contato,
+        atualizado_em = now()
+    where profissionais_ficha.tenant_id = _tenant_id;
+end $$;
+
+revoke all on function public.salvar_dados_profissional_flow(uuid,uuid,text,text,text) from public, anon;
+grant execute on function public.salvar_dados_profissional_flow(uuid,uuid,text,text,text) to authenticated;
