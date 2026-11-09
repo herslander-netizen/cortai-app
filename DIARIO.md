@@ -594,7 +594,6 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - 2026-10-26: **Cabeçalho do menu mobile mais compacto** (dono aprovou a reformulação após captura: logo menor, nome do negócio com hierarquia discreta, papel secundário, ajustes alinhados e menos espaço vazio; manter nome em até duas linhas quando necessário, sem afetar a Agenda).
 
 ## Em andamento
-- GPT | 2026-11-09 BRT | **Flow Core — ativação assistida dos seis especialistas no painel:** implementar roteamento determinístico leve reutilizando `brain/agente.server.ts`, sem workers externos, sem escrita autônoma, preservando permissões e confirmações; testes e documentação; publicar somente após gates da prévia | `src/lib/agente-flow/especialistas.ts`, `src/lib/agente-flow/roteador.ts`, `src/lib/agente-flow/*.test.ts`, `src/lib/brain/agente.server.ts`, `docs/flow-inteligencia/*`; sem banco, migrations, WhatsApp reservado, main ou produção
 - GPT | 2026-11-08 11:50 BRT | **Nome e sobrenome nos fluxos:** corrigir identificação ambígua no WhatsApp, Flow Bot e consultas do painel; adicionar regra pura e testes, documentar limitações; somente branch oficial, sem sender/webhook reservado pela Claude, Agenda visual, banco, main ou produção | `src/lib/nomes-pessoas.ts`, `src/lib/flow-bot/agenda-na-conversa/*`, `src/lib/brain/busca-cliente.ts`, testes, documentação; sem migração
 
 
@@ -1031,6 +1030,12 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+### 2026-11-09 — GPT — especialistas assistidos no Flow Core
+- Seis especialistas já declarados deixaram o modo exclusivamente sombra e passaram ao modo assistido no único cérebro Flow IA. Roteador determinístico `src/lib/agente-flow/roteador.ts` escolhe foco por turno, recomenda somente consultas já autorizadas e inclui contexto no prompt existente, sem LLM extra ou executor paralelo.
+- Testes novos de seleção em painel/cliente/visitante e de permissões, mais ajustes dos testes existentes e documentação `docs/flow-inteligencia/19-especialistas-assistidos.md`; alterações em `src/lib/brain/agente.server.ts` somente no contexto de prompt. Ações, banco, webhooks e integrações externas não foram modificados.
+- **Situação real de validação:** arquivos enviados ao GitHub; sem terminal Bun disponível nesta sessão para executar tsc, Vitest, lint e build. GitHub Actions/deploy do commit final ainda a confirmar; sem QA autenticado, não afirmar funcionamento em tempo real. Sem produção, novos custos ou secrets.
+- Prévia deve ser liberada apenas após gates e teste das funções do profissional. Não publicar em produção pelo CI sozinho.
+
 ### 2026-11-09 — GPT — Flow IA do profissional: homologação de consultas, segurança e CI (PR 38)
 - Correções do PR 37 histórico adaptadas **somente à branch oficial** `cloudflare-workers-migration-2026-10-13`, sem mesclar a `main` antiga nem reverter funções do Flow Core atual.
 - A ferramenta oficial `minha_agenda` passa a funcionar no painel para profissional autenticado; respeita filtro tenant/profissional e falha explicitamente se a consulta ao banco falhar. O modo básico gratuito interpreta "meus agendamentos hoje" e "minha agenda amanhã" como consultas, sem criar agendamentos nem inventar horários.
