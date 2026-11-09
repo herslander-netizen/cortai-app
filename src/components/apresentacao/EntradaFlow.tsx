@@ -195,7 +195,7 @@ export function EntradaFlow() {
                 aria-label={`Ver recurso: ${c.tag}`}
                 aria-current={ehAtivo ? "step" : undefined}
                 onClick={() => irPara(i)}
-                whileTap={menosMovimento ? undefined : { scale: 0.9 }}
+                whileTap={menosMovimento ? { scale: 1 } : { scale: 0.9 }}
                 className="flex h-14 w-14 flex-col items-center justify-center gap-1.5"
               >
                 <motion.span
@@ -220,7 +220,7 @@ export function EntradaFlow() {
         </nav>
 
         <div className="mt-3 flex flex-col gap-2.5">
-          <motion.div whileTap={menosMovimento ? undefined : { scale: 0.98 }}>
+          <motion.div whileTap={menosMovimento ? { scale: 1 } : { scale: 0.98 }}>
             <Link
               to="/login"
               search={{ aba: "criar", proximo: "/comecar" }}
@@ -436,7 +436,7 @@ function BottomSheetLogin({
       initial={reduzirMovimento ? false : { opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      transition={reduzirMovimento ? { duration: 0 } : undefined}
+      transition={{ duration: reduzirMovimento ? 0 : 0.2 }}
       className="fixed inset-0 z-50 flex items-end justify-center bg-black/75 backdrop-blur-sm"
       onClick={aoFechar}
     >
