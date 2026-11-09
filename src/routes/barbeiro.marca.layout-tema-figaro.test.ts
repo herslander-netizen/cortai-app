@@ -6,7 +6,7 @@ describe("fidelidade do Ver Exemplo em Layout & Tema ao Figaroo", () => {
   const exemplo = readFileSync("src/routes/barbeiro.marca.layout-tema_.preview.tsx", "utf8");
 
   it("abre a rota própria com layout e tema selecionados, em vez de desenhar uma sobreposição", () => {
-    expect(codigo).toContain('to: "/barbeiro/marca/layout-tema_/preview"');
+    expect(codigo).toContain('to: "/barbeiro/marca/layout-tema/preview"');
     expect(codigo).toContain("search: { layout: e.config.layout, tema: e.config.tema }");
     expect(codigo).toContain("Ver Exemplo");
     expect(codigo).not.toContain("previaAberta");
