@@ -4,6 +4,8 @@ import { describe, expect, it } from "vitest";
 const rotaEquipe = readFileSync("src/routes/barbeiro.equipe.tsx", "utf8");
 const rotaFicha = readFileSync("src/routes/barbeiro.equipe_.$userId.tsx", "utf8");
 const servidor = readFileSync("src/lib/painel-membro.functions.ts", "utf8");
+const editarDados = readFileSync("src/routes/barbeiro.equipe-dados.$userId.tsx", "utf8");
+const salvarPerfil = readFileSync("src/lib/crescimento.functions.ts", "utf8");
 const escala = readFileSync("src/components/barbeiro/EscalaDaEquipe.tsx", "utf8");
 
 describe("Ficha individual de equipe — paridade estrutural Figaroo", () => {
@@ -30,6 +32,25 @@ describe("Ficha individual de equipe — paridade estrutural Figaroo", () => {
     expect(servidor).toContain('.not("pagamento_confirmado_em", "is", null)');
     expect(servidor).toContain(".range(de, de + PAGINA - 1)");
     expect(rotaFicha).toContain("Histórico total.");
+  });
+
+  it("possui editor separado de dados com confirmação de alterações não salvas", () => {
+    expect(rotaFicha).toContain('to="/barbeiro/equipe-dados/$userId"');
+    expect(editarDados).toContain('createFileRoute("/barbeiro/equipe-dados/$userId")');
+    expect(editarDados).toContain("sujo={sujo}");
+    expect(editarDados).toContain("Salvar alterações");
+    expect(editarDados).toContain("getPerfilDoMembroParaEdicao");
+    expect(editarDados).toContain("salvarPerfilProfissional");
+    expect(editarDados).toContain("portfolio: perfil.portfolio");
+  });
+
+  it("valida vínculo/tenant e atualiza somente os campos autorizados do profissional", () => {
+    expect(servidor).toContain('exigirPermissao(context, tenantId, "gerenciar_profissionais")');
+    expect(servidor).toContain('exigirPermissao(context, tenantId, "gerenciar_permissoes")');
+    expect(servidor).toContain('.eq("user_id", data.userId)');
+    expect(servidor).toContain('.eq("tenant_id", tenantId)');
+    expect(salvarPerfil).toContain('if (data.userId) gravacao = gravacao.eq("user_id", data.userId)');
+    expect(salvarPerfil).toContain('if (!atualizado) throw new Error("Profissional não encontrado');
   });
 
   it("reaproveita edição de escala do Flow em vez de inventar segundo mecanismo", () => {

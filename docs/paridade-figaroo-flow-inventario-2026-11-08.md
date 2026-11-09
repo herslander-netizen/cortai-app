@@ -78,11 +78,17 @@ No Flow foram identificados:
   automaticamente; conta sem profissional não inventa números.
 - Edição de escala reutiliza \`EscalaDaEquipe\` e a função de gravação
   autorizada do Flow (não cria um segundo motor de disponibilidade).
-- **Atenção:** ficha unificada inicial não conclui a paridade do módulo:
-  ainda faltam os editores dedicados de dados/serviços/horário especial,
-  fluxo de criação em duas etapas e ações de desativar/excluir o perfil
-  profissional independentes do acesso da conta. Não apagar o membro nem
-  profissionais sem autorização e avaliação de agendamentos futuros.
+- **Lote seguinte (09/11/2026):** tela separada `/barbeiro/equipe-dados/$userId`
+  para editar nome público e descrição do profissional. Usa a função de perfil
+  existente, com `userId` opcional verificável, sem alterar conta de login,
+  foto ou portfólio. A tela detecta alterações não salvas e usa a confirmação
+  de saída do `TelaDeFormulario`. O servidor recusa vínculos ausentes ou
+  duplicados, confere `tenant_id` e exige permissões reais.
+- **Atenção:** mesmo com esse editor, a paridade do módulo ainda não está
+  concluída: editores de serviços/horário especial, criação em duas etapas,
+  exclusão/desativação do perfil profissional independente do login e validação
+  visual autenticada continuam pendentes. Não apagar dados ou profissionais
+  sem autorização e avaliação de agendamentos futuros.
 
 ## Contratos a preservar na reconstrução
 

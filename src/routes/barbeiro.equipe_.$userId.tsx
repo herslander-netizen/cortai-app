@@ -220,9 +220,20 @@ function FichaMembroPage() {
                   {profissional.descricao?.trim() || "Nenhuma descrição cadastrada."}
                 </p>
               </div>
+              <Link
+                to="/barbeiro/equipe-dados/$userId"
+                params={{ userId }}
+                className="flex min-h-14 items-center justify-between gap-3 rounded-2xl bg-[var(--figaro-surface-container-high,var(--ink2))] px-4 py-3 transition-opacity hover:opacity-80"
+              >
+                <span className="min-w-0">
+                  <strong className="block text-sm font-semibold text-paper">Editar dados pessoais</strong>
+                  <span className="mt-1 block text-xs text-mute">Nome de atendimento e descrição pública</span>
+                </span>
+                <ChevronRight aria-hidden className="size-5 shrink-0 text-mute" />
+              </Link>
               <AcaoDeSecao
-                titulo="Editar foto, descrição e portfólio"
-                detalhe="Gerenciar apresentação pública desse profissional"
+                titulo="Editar foto e portfólio"
+                detalhe="Gerenciar as imagens da apresentação pública"
                 destino="/barbeiro/profissionais"
               />
             </section>

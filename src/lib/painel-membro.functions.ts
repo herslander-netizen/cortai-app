@@ -192,3 +192,51 @@ export const getFichaCompletaDoMembro = createServerFn({ method: "GET" })
       disponibilidade,
     };
   });
+
+
+/**
+ * Leitura leve para a tela Editar dados.
+ * Resolve exatamente um profissional pelo vínculo formal à conta e ao tenant.
+ * Nome e descrição são dados da apresentação profissional, não do login.
+ */
+export const getPerfilDoMembroParaEdicao = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .validator((entrada: unknown) => z.object({ userId: UUID }).parse(entrada))
+  .handler(async ({ data, context }) => {
+    const tenantId = await tenantIdDoMembro(context);
+    await exigirPermissao(context, tenantId, "gerenciar_permissoes");
+    await exigirPermissao(context, tenantId, "gerenciar_profissionais");
+
+    const { data: membros, error: erroMembros } = await context.supabase.rpc(
+      "equipe_do_tenant",
+      { _tenant_id: tenantId },
+    );
+    if (erroMembros) throw new Error("Não foi possível validar o membro da equipe.");
+    if (!(membros ?? []).some((membro: Record<string, unknown>) => membro["user_id"] === data.userId))
+      throw new Error("Esta conta não pertence à equipe do negócio.");
+
+    const { supabaseAdmin: db } = await import("@/integrations/supabase/client.server");
+    const { data: perfis, error } = await db
+      .from("profissionais")
+      .select("id, nome, descricao, portfolio")
+      .eq("tenant_id", tenantId)
+      .eq("user_id", data.userId)
+      .order("criado_em")
+      .limit(2);
+
+    if (error) throw new Error("Não foi possível carregar os dados do profissional.");
+    if ((perfis ?? []).length !== 1)
+      throw new Error(
+        perfis?.length ? "Esta conta possui perfis duplicados. Corrija o vínculo antes de editar." :
+          "Esta conta ainda não possui um perfil profissional vinculado.",
+      );
+    const perfil = perfis![0];
+    return {
+      id: perfil.id,
+      nome: perfil.nome,
+      descricao: perfil.descricao ?? "",
+      portfolio: Array.isArray(perfil.portfolio)
+        ? perfil.portfolio.filter((item): item is string => typeof item === "string")
+        : [],
+    };
+  });

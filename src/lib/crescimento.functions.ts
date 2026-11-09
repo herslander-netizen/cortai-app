@@ -601,6 +601,9 @@ export const salvarPerfilProfissional = createServerFn({ method: "POST" })
     z
       .object({
         id: z.string().uuid(),
+        // Nome do perfil de atendimento, sem alterar os dados da conta.
+        nome: z.string().trim().min(2).max(120).optional(),
+        userId: z.string().uuid().optional(),
         descricao: z.string().trim().max(2000),
         portfolio: z.array(z.string().trim().min(1).max(400)).max(MAX_FOTOS_DO_PORTFOLIO),
         avatarUrl: z.string().trim().max(500).nullable().optional(),
@@ -614,16 +617,21 @@ export const salvarPerfilProfissional = createServerFn({ method: "POST" })
       throw new Error("Escolha uma foto de perfil válida.");
     if (!data.portfolio.every((f) => fotoValida(f, tenant.id)))
       throw new Error("Escolha as fotos pela galeria de fotos.");
-    const { error } = await db
+    let gravacao = db
       .from("profissionais")
       .update({
+        ...(data.nome !== undefined ? { nome: data.nome } : {}),
         descricao: data.descricao || null,
         portfolio: data.portfolio,
         ...(data.avatarUrl !== undefined ? { avatar_url: data.avatarUrl } : {}),
       })
       .eq("id", data.id)
       .eq("tenant_id", tenant.id);
+    // A ficha individual nunca altera o profissional de outra conta.
+    if (data.userId) gravacao = gravacao.eq("user_id", data.userId);
+    const { data: atualizado, error } = await gravacao.select("id").maybeSingle();
     if (error) throw new Error(error.message);
+    if (!atualizado) throw new Error("Profissional não encontrado ou vínculo de equipe inválido.");
     return { ok: true };
   });
 
