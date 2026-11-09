@@ -450,10 +450,14 @@ export function AssistenteCortai({
                 </button>
               ))}
             </div>
-            {data && !data.disponivel ? (
-              <p className="mt-4 rounded-xl border border-dashed border-line px-4 py-3 text-xs text-mute2">
-                O assistente ainda não está ligado neste ambiente. As respostas vão indicar isso com
-                clareza.
+            {data?.modo === "basico" ? (
+              <p className="mt-4 rounded-xl border border-dashed border-line px-4 py-3 text-xs text-mute2" role="status">
+                Modo básico ativo: você pode consultar sua agenda, serviços e horários livres ou preparar agendamentos.
+                Conversas abertas e respostas avançadas dependem do provedor de IA.
+              </p>
+            ) : data && !data.disponivel ? (
+              <p className="mt-4 rounded-xl border border-dashed border-line px-4 py-3 text-xs text-mute2" role="status">
+                O assistente não está disponível neste ambiente. Nenhuma ação será executada sem confirmação.
               </p>
             ) : null}
           </div>

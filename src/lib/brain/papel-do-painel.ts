@@ -8,5 +8,6 @@ export type PapelDoPainel = "profissional" | "dono";
 
 export function papelDoPainel(papelNaEquipe: string | null | undefined): PapelDoPainel {
   const p = (papelNaEquipe ?? "").toLowerCase();
-  return p === "barbeiro" || p === "profissional" ? "profissional" : "dono";
+  // Papel desconhecido nunca ganha acesso de proprietário por padrão.
+  return p === "dono" || p === "gerente" || p === "recepcao" ? "dono" : "profissional";
 }

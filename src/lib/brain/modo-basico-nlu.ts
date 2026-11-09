@@ -25,6 +25,7 @@ import { ehPerguntaDeAjuda } from "./ajuda-do-painel";
 
 export type Intencao =
   | "agendar"
+  | "minha_agenda"
   | "movimento"
   | "servicos"
   | "profissionais"
@@ -35,9 +36,14 @@ export type Intencao =
   | "como_fazer";
 
 const VERBO_DE_AGENDAR = /\b(agend\w*|marc(?:ar|a|ando)|marqu\w*|reserv\w*|encaix\w*)\b/;
+const CONSULTA_AGENDA = /\b(?:minha agenda|meus agendamentos?|meus atendimentos?|agenda (?:de|do|para) (?:hoje|amanha|dia)|(?:quais|quantos|mostra|mostre|ver|listar|consultar|como esta|como ta)\b.{0,60}\b(?:agendamentos?|atendimentos?|agenda))\b/;
+
+export function ehConsultaDaAgenda(texto: string): boolean {
+  return CONSULTA_AGENDA.test(normalizar(texto));
+}
 
 export function ehPedidoDeAgendar(texto: string): boolean {
-  if (ehPerguntaDeAjuda(texto)) return false;
+  if (ehPerguntaDeAjuda(texto) || ehConsultaDaAgenda(texto)) return false;
   return VERBO_DE_AGENDAR.test(normalizar(texto));
 }
 
@@ -45,6 +51,8 @@ export function intencaoDe(texto: string): Intencao {
   const t = normalizar(texto);
   // "Como coloco um cliente na fila?" é pedido de instrução, não busca nem comando.
   if (ehPerguntaDeAjuda(texto)) return "como_fazer";
+  // Consultar agendamentos existentes NÃO é pedido para criar outro agendamento.
+  if (CONSULTA_AGENDA.test(t)) return "minha_agenda";
   if (VERBO_DE_AGENDAR.test(t)) return "agendar";
   if (
     /\b(quanto entrou|faturamento|faturei|movimento|indicadores?|caixa de hoje|quanto (?:ja )?(?:ganhei|fiz))\b/.test(
