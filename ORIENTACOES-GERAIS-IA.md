@@ -157,3 +157,13 @@ enquanto o novo carrega · prévia desenhada com regra diferente da tela real.
   Release, publica em `https://cortaiapp.pages.dev`). Antes de lançar: confirmar que o código novo não depende de
   migração ainda não aplicada no `cortai-prod`. "Voltar versão" desfaz. Banco não volta junto com a versão.
 - Sempre dizer ao dono o número lançado e o que testar.
+
+## 8. Paridade integral Figaroo → Flow (decisão do dono em 08/11/2026)
+
+O **sistema inteiro** do Figaroo é referência de paridade funcional, e não apenas visual. Sem exceção de escopo: reproduzir, por implementação própria, todas as páginas, fichas, detalhes de membros, editores, formulários, fluxos de criação, ações, estados e animações comprovados no APK de referência, inclusive o que ainda não existe no Flow. O rastreamento por módulo e critério está em `docs/paridade-figaroo-flow-inventario-2026-11-08.md`.
+
+- Não marcar uma tela como concluída apenas porque possui nome/cores semelhantes: conferir lista → ficha → edição → salvar → desativar/excluir → erro/vazio → retorno, além de dados, permissões, 360/390px e temas.
+- Manter os recursos adicionais que já funcionam no Flow; não inventar dados, integrações, métricas ou resultados; não fundir perfis e contas sem vínculo real.
+- Recriar a experiência de forma independente, respeitando licenças e direitos de terceiros, fontes únicas e isolamento multi-tenant.
+- Fazer em mudanças verificáveis e reversíveis na branch oficial. Toda escrita no banco real, publicação principal, exclusão de dados ou custo continua sujeita às autorizações do protocolo; mudança visual de Agenda continua protegida.
+- Uma lacuna identificada é pendência obrigatória de produto, não uma decisão de ignorá-la. Qualquer relatório deve distinguir implementado, em teste e não feito.
