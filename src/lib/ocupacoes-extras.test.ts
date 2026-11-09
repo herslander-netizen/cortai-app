@@ -61,7 +61,7 @@ describe("exceções de disponibilidade do profissional", () => {
     const ocupacoes = await ocupacoesExtras(db, intervalo);
     expect(ocupacoes).toHaveLength(2);
     expect(ocupacoes.every((o) => o.bloqueio === true)).toBe(true);
-    expect(ocupacoes.some((o) => o.inicio.includes("T00:00") || o.fim.includes("T00:00"))).toBe(true);
+    expect(ocupacoes.every((o) => { const duracao = Date.parse(o.fim) - Date.parse(o.inicio); return duracao > 0 && duracao < 86_400_000; })).toBe(true);
   });
 
   it("marca o dia inteiro indisponível quando a exceção for folga", async () => {
