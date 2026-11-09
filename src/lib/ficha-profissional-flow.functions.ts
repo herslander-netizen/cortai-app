@@ -375,3 +375,23 @@ export const removerDisponibilidadePorDataFlow = createServerFn({ method: "POST"
     if (error) throw new Error("Não foi possível remover a disponibilidade especial.");
     return { ok: true };
   });
+
+
+/** Suspende o acesso e a oferta de horários sem apagar agendamentos anteriores. */
+export const desativarProfissionalFlow = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((d: unknown) => USER.parse(d))
+  .handler(async ({ data, context }) => {
+    const { tenantId, profissional } = await profissionalDaEquipe(context, data.userId);
+    await exigirPermissao(context, tenantId, "gerenciar_permissoes");
+    await exigirPermissao(context, tenantId, "gerenciar_profissionais");
+    if (data.userId === context.userId) {
+      throw new Error("Você não pode desativar o seu próprio acesso.");
+    }
+    const { error } = await context.supabase.rpc("desativar_profissional_flow", {
+      _tenant_id: tenantId,
+      _user_id: data.userId,
+    });
+    if (error) throw new Error("Não foi possível desativar o profissional.");
+    return { ok: true, tinhaPerfilAgenda: Boolean(profissional) };
+  });
