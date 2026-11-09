@@ -49,7 +49,7 @@ export const AVISO_DO_MODO_BASICO =
   "Modo básico: a IA está sem créditos ou indisponível, então só entendo comandos simples.";
 
 const AJUDA =
-  'Estou no modo básico. Entendo: "agendar Leandro Silva amanhã às 15h corte", "quais clientes chamam Leandro", "quais serviços", "horários livres amanhã", "horário de funcionamento" e "resumo de hoje".';
+  'Estou no modo básico. Entendo: "minha agenda de hoje", "agendar Leandro Silva amanhã às 15h corte", "quais clientes chamam Leandro", "quais serviços", "horários livres amanhã", "horário de funcionamento" e "resumo de hoje".';
 
 /** Perguntas que EU faço: servem para reconhecer a resposta curta que vem depois. */
 const PERGUNTAS = {
@@ -383,6 +383,25 @@ export function planejarModoBasico(e: EntradaDoModoBasico): Item[] {
   function planejarConsulta(i: Intencao): Item[] {
     const pedirUma = (nome: string, args: Record<string, unknown> = {}): Item[] | null =>
       saidas.has(nome) ? null : [chamada(nome, args)];
+
+    if (i === "minha_agenda") {
+      if (!oferecida("minha_agenda"))
+        return texto("Não consigo consultar sua agenda por aqui. Verifique seu vínculo profissional e suas permissões.");
+      const dia = lerDia(ultima, hoje) ?? hoje;
+      const pedir = pedirUma("minha_agenda", { dia });
+      if (pedir) return pedir;
+      const consulta = saidas.get("minha_agenda")?.saida["resultado"] as {
+        aviso?: string;
+        itens?: { inicio: string; cliente: string | null; servico: string | null; status: string }[];
+      } | undefined;
+      if (consulta?.aviso) return texto(consulta.aviso);
+      const itens = consulta?.itens ?? [];
+      if (!itens.length) return texto(`Não há atendimentos na sua agenda em ${rotuloDoDia(dia)}.`);
+      const resumo = itens.slice(0, 12).map((a) =>
+        `${horaLocal(a.inicio, fuso)} — ${a.cliente ?? "Cliente não informado"} (${a.servico ?? "serviço"}; ${a.status})`
+      );
+      return texto(`Agenda de ${rotuloDoDia(dia)} (${itens.length}):\n${resumo.join("\n")}${itens.length > 12 ? `\nMais ${itens.length - 12} atendimento(s) na Agenda.` : ""}`);
+    }
 
     if (i === "movimento") {
       if (!oferecida("consultar_movimento"))
