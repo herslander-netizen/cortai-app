@@ -39,3 +39,8 @@
 ## Experiência de atendimento Chat para o cliente
 - O plano de fundo no modo Capa utiliza imagem do próprio negócio quando existe; sem ela, usa sugestão do segmento e cai no fundo Flow em erro. Os modos Padrão e Liso mantêm seu comportamento anterior.
 - A prévia Chat do editor recebe o mesmo segmento da página, preservando compatibilidade visual. Passos, mensagens, confirmação, agenda e informações de cliente não foram alterados.
+
+
+## Catálogo de prompts para a próxima fase
+
+O arquivo src/lib/flow-visual-prompts.ts prepara 14 especificações distintas para cada um dos sete segmentos oficiais (98 especificações no total): 2 hero, 6 galeria, 3 serviço, 2 apoio e 1 fundo, com composição, proporção, instruções positivas e negativas. São **prompts e slots, não imagens geradas, hospedadas ou disponíveis para seleção**. A importação de futuras imagens exige revisão humana de licenças, conteúdo e direitos e cadastro no catálogo, sem publicação automática. A correspondência a subsegmentos futuros deve reutilizar o segmento oficial até existir identificador reconhecido na plataforma.
