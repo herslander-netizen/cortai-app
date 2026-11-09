@@ -4,6 +4,8 @@ import { atributosDoChat, ChatHeader } from "@/components/chat/ChatShell";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { agendamentoStyle, type PaginaConfig } from "@/lib/pagina-config";
+import { capaPublicaRecomendada } from "@/lib/flow-visual-presets";
+import type { Segmento } from "@/lib/segmentos";
 
 export function ChatPreview({
   ativo = false,
@@ -11,6 +13,7 @@ export function ChatPreview({
   config,
   logoUrl,
   capaUrl,
+  segmento,
 }: {
   ativo?: boolean;
   onExperimentar?: () => void;
@@ -18,8 +21,10 @@ export function ChatPreview({
   nome?: string;
   logoUrl?: string | null;
   capaUrl?: string | null;
+  segmento?: Segmento;
 }) {
   const estilo = config ? agendamentoStyle(config) : undefined;
+  const capaRecomendada = segmento ? capaPublicaRecomendada(segmento, capaUrl ?? null) : capaUrl;
   return (
     <div
       className={cn(
@@ -29,8 +34,8 @@ export function ChatPreview({
       style={estilo}
       {...atributosDoChat(config?.chat)}
     >
-      {capaUrl && config?.chat.fundo !== "liso" ? (
-        <img src={capaUrl} alt="" className="absolute inset-0 h-full w-full object-cover" />
+      {capaRecomendada && config?.chat.fundo !== "liso" ? (
+        <img src={capaRecomendada} alt="" className="absolute inset-0 h-full w-full object-cover" />
       ) : null}
       <div className="chat-preview-veil absolute inset-0" />
       <div className="relative">

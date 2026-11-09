@@ -34,3 +34,8 @@
 - Hero do Site e Raízes recebe fade-up de 8px/220ms; página tradicional recebe reveal das seções. Todos os efeitos respeitam movimento reduzido.
 - Biblioteca Flow aparece dentro do editor real de Hero e Galeria, com filtro, busca e prévia. Aplicar copia ao Storage do próprio negócio via enviarFoto; salvar rascunho e publicar continuam funções oficiais.
 - A escolha no editor não é automática, não sobrescreve fotos próprias, e os presets não são impostos a contas existentes.
+
+
+## Experiência de atendimento Chat para o cliente
+- O plano de fundo no modo Capa utiliza imagem do próprio negócio quando existe; sem ela, usa sugestão do segmento e cai no fundo Flow em erro. Os modos Padrão e Liso mantêm seu comportamento anterior.
+- A prévia Chat do editor recebe o mesmo segmento da página, preservando compatibilidade visual. Passos, mensagens, confirmação, agenda e informações de cliente não foram alterados.

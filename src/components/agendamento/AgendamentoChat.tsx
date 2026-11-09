@@ -163,6 +163,7 @@ export function AgendamentoChat({
       <FontesDaMarca config={data.pagina} />
       <ChatShell
         capaUrl={data.tenant.capaUrl}
+        segmento={data.tenant.segmento}
         style={agendamentoStyle(data.pagina)}
         estilo={data.pagina.chat}
         header={
