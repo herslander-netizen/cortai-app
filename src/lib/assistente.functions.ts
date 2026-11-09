@@ -63,6 +63,7 @@ export const getConversaDoAssistente = createServerFn({ method: "GET" })
       conversaId: string | null;
       mensagens: TurnoDaConversa[];
       disponivel: boolean;
+      modo: "ia" | "basico" | "indisponivel";
     }> => {
       const tenantId = await tenantIdDoMembro(context);
       const db = context.supabase;
@@ -76,8 +77,15 @@ export const getConversaDoAssistente = createServerFn({ method: "GET" })
         .maybeSingle();
 
       const { assistenteConfigurado } = await import("@/lib/ia/assistente.server");
+      const { iaDisponivel, identidadeDoModelo } = await import("@/lib/brain/gateway.server");
+      const disponivel = iaDisponivel("painel");
+      const modo =
+        !disponivel ? "indisponivel" as const
+        : identidadeDoModelo("painel").provedor === "modo-basico" || !assistenteConfigurado()
+          ? "basico" as const
+          : "ia" as const;
       if (!conversa)
-        return { conversaId: null, mensagens: [], disponivel: assistenteConfigurado() };
+        return { conversaId: null, mensagens: [], disponivel, modo };
 
       const { data: mensagens } = await db
         .from("mensagens_de_ia")
@@ -94,7 +102,8 @@ export const getConversaDoAssistente = createServerFn({ method: "GET" })
           conteudo: m["conteudo"] as string,
           acao: (m["acao"] as RespostaDoAssistente | null) ?? null,
         })),
-        disponivel: assistenteConfigurado(),
+        disponivel,
+        modo,
       };
     },
   );
