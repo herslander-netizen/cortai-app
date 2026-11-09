@@ -266,11 +266,18 @@ export function FichaProfissionalFlow({
   useEffect(() => {
     refFocoAnterior.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     const anterior = document.body.style.overflow;
+    const vizinhos = Array.from(document.body.children)
+      .filter((el) => el !== scrollRef.current)
+      .map((el) => ({ el: el as HTMLElement, aria: el.getAttribute("aria-hidden"), inert: (el as HTMLElement).inert }));
+    for (const item of vizinhos) {
+      item.el.inert = true;
+      item.el.setAttribute("aria-hidden", "true");
+    }
     document.body.style.overflow = "hidden";
     voltarRef.current?.focus();
     const aoTeclar = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
-        if (telaAtual.current === "horarios") {
+        if (telaAtual.current !== "perfil") {
           setTela("perfil");
         } else if (confirmarAtual.current) {
           setConfirmarDesativacao(false);
@@ -298,13 +305,22 @@ export function FichaProfissionalFlow({
     document.addEventListener("keydown", aoTeclar);
     return () => {
       document.body.style.overflow = anterior;
+      for (const item of vizinhos) {
+        item.el.inert = item.inert;
+        if (item.aria === null) item.el.removeAttribute("aria-hidden");
+        else item.el.setAttribute("aria-hidden", item.aria);
+      }
       document.removeEventListener("keydown", aoTeclar);
       refFocoAnterior.current?.focus();
     };
   }, []);
 
+  useEffect(() => {
+    voltarRef.current?.focus();
+  }, [tela]);
+
   const fecharOuVoltar = () => {
-    if (tela === "horarios") {
+    if (tela !== "perfil") {
       setTela("perfil");
       setErroSalvar(null);
       scrollRef.current?.scrollTo({ top: 0 });
@@ -313,12 +329,14 @@ export function FichaProfissionalFlow({
     aoFechar();
   };
 
+  const titulo = tela === "perfil" ? nome : tela === "horarios" ? "Seus Horários" : tela === "dados" ? "Editar dados" : "Disponibilidade por data";
+
   return createPortal(
     <div
       ref={scrollRef}
       role="dialog"
       aria-modal="true"
-      aria-label={tela === "perfil" ? "Ficha do profissional: " + nome : "Seus horários: " + nome}
+      aria-label={titulo + ": " + nome}
       onScroll={(e) => setCompacto(e.currentTarget.scrollTop > 74)}
       className="fixed inset-0 z-[110] overflow-y-auto overscroll-contain bg-[#19201D] text-[#F4F6F2]"
     >
@@ -334,7 +352,7 @@ export function FichaProfissionalFlow({
             <ArrowLeft size={25} aria-hidden />
           </button>
           <span className={"truncate text-base font-medium transition-opacity " + (compacto ? "opacity-100" : "opacity-0")}>
-            {tela === "perfil" ? nome : "Seus Horários"}
+            {titulo}
           </span>
           {tela === "perfil" && (
             <button type="button" aria-label="Fechar ficha" onClick={aoFechar} className="ml-auto flex h-11 w-11 items-center justify-center rounded-full text-white/65">
@@ -343,9 +361,17 @@ export function FichaProfissionalFlow({
           )}
         </header>
 
-        <div className="px-4 pt-4">
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.div
+            key={tela}
+            initial={menosMovimento ? false : { opacity: 0, x: 18 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={menosMovimento ? { opacity: 1 } : { opacity: 0, x: -14 }}
+            transition={{ duration: menosMovimento ? 0 : 0.19, ease: "easeOut" }}
+            className="px-4 pt-4"
+          >
           <h1 className="mb-6 text-[38px] font-bold leading-tight tracking-tight">
-            {tela === "perfil" ? nome : "Seus Horários"}
+            {titulo}
           </h1>
 
           {tela === "horarios" ? (
@@ -567,7 +593,8 @@ export function FichaProfissionalFlow({
               )}
             </>
           )}
-        </div>
+          </motion.div>
+        </AnimatePresence>
       </div>
     </div>
   , document.body);
