@@ -594,7 +594,6 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - 2026-10-26: **Cabeçalho do menu mobile mais compacto** (dono aprovou a reformulação após captura: logo menor, nome do negócio com hierarquia discreta, papel secundário, ajustes alinhados e menos espaço vazio; manter nome em até duas linhas quando necessário, sem afetar a Agenda).
 
 ## Em andamento
-- GPT | 2026-11-09 | **Homologação Flow Core do profissional**: corrigir confirmação fail-closed, consulta de agenda por texto/IA no painel, papéis sem privilégio implícito, teste do modo básico e provedor, sem WhatsApp reservado pela Claude, Agenda visual, banco, secrets ou produção | `src/lib/assistente.functions.ts`, `src/lib/brain/{acoes.server,modo-basico,modo-basico-nlu,papel-do-painel,reivindicacao-painel}*`, testes e documentação; sem migração
 - GPT | 2026-11-08 11:50 BRT | **Nome e sobrenome nos fluxos:** corrigir identificação ambígua no WhatsApp, Flow Bot e consultas do painel; adicionar regra pura e testes, documentar limitações; somente branch oficial, sem sender/webhook reservado pela Claude, Agenda visual, banco, main ou produção | `src/lib/nomes-pessoas.ts`, `src/lib/flow-bot/agenda-na-conversa/*`, `src/lib/brain/busca-cliente.ts`, testes, documentação; sem migração
 
 
@@ -1031,6 +1030,13 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+### 2026-11-09 — GPT — Flow IA do profissional: homologação de consultas, segurança e CI (PR 38)
+- Correções do PR 37 histórico adaptadas **somente à branch oficial** `cloudflare-workers-migration-2026-10-13`, sem mesclar a `main` antiga nem reverter funções do Flow Core atual.
+- A ferramenta oficial `minha_agenda` passa a funcionar no painel para profissional autenticado; respeita filtro tenant/profissional e falha explicitamente se a consulta ao banco falhar. O modo básico gratuito interpreta "meus agendamentos hoje" e "minha agenda amanhã" como consultas, sem criar agendamentos nem inventar horários.
+- Correção crítica: confirmação de uma ação pendente no painel só executa quando a atualização condicional do registro foi comprovada; banco indisponível, ausência de id e disputa concorrente bloqueiam a execução. Idempotência de pedidos não ignora indisponibilidade do banco. Papel desconhecido falha como profissional, e profissional sem vínculo não consulta fila de colegas.
+- Novos testes de permissões, modo básico, busca por agenda e reivindicação exclusiva; no PR 38, GitHub Actions `42637237708` aprovou **Production build, TypeScript e Tests** após ajuste de ordem de geração de rotas no `validate.yml`.
+- Resultado técnico: PR **#38** aprovado nos gates do CI, a ser integrado somente na branch de prévia e publicado pelo workflow `preview-migration.yml`. **Não confundir CI com teste autenticado em navegador**: conversa real com provedor remoto, voz e ação de agendamento completa dependem de homologação. Não foram alterados banco, secrets, principal, arquivos reservados do WhatsApp nem Agenda visual.
+
 ### 2026-11-09 — GPT — Figaroo Equipe: disponibilidade excepcional por data
 - Nova rota individual `/barbeiro/equipe-data/$userId`, acessível na ficha `barbeiro.equipe_.$userId.tsx`; seleção de data (fuso do negócio), hora de abertura/fechamento no seletor Figaroo, consulta prévia, salvar alterações e remover com confirmação. Não altera Agenda visual.
 - Reutilizadas as funções e regras `listarHorariosEspeciaisDoDia`, `salvarHorarioEspecial`, `removerHorarioEspecial`, `horarioEspecialValido`; alvo fixo ao `profissional.id` resolvido por vínculo de usuário e tenant. Somente data atual/futura. Remover restaura a regra da escala semanal, sem excluir agendamentos.
