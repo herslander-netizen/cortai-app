@@ -57,3 +57,8 @@ Uma página ainda sem configuração (nula/ausente) recebe o preset oficial do s
 ## Prévia antes de personalizar ou trocar segmento
 
 A escolha do tipo de negócio em Opções da Conta mostra a paleta e a imagem indicativa antes da confirmação; não altera rascunhos ou fotos. No editor já existente de Layout & Tema, o cartão Visual recomendado permite aplicar apenas cores e fontes **no estado local do rascunho**, por clique explícito. A imagem apresentada não é inserida automaticamente como foto real e o fluxo de salvar/publicar permanece separado.
+
+## QA de movimento reduzido do Chat (PR #40)
+- `ChatBackground` desativa a animação CSS contínua da foto quando a preferência do sistema é `prefers-reduced-motion: reduce`. Não modifica o fluxo, o modo de fundo escolhido, os gestos ou a prévia do editor, que utiliza esse componente.
+- Testes verificam foto própria, pattern decorativo, redução de movimento e contrato das experiências Vitrine, Direta e Chat.
+- A validação automatizada **não substitui** o teste manual do cliente em telas reais nem o fluxo completo de agendamento autenticado/visitante.
