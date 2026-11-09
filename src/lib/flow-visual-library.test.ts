@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { SEGMENTOS } from "@/lib/segmentos";
 import { CATALOGO_VISUAL_FLOW, buscarVisualFlow, visualRecomendado } from "./flow-visual-library";
 import { capaPublicaRecomendada, permitirPresetNovo, presetDoSegmento, preverPresetVisual, segmentosCobertosPorPreset, paginaInicialDoSegmento, normalizarPaginaComPreset } from "./flow-visual-presets";
-import { configPadrao, TEMAS } from "./pagina-config";
+import { configPadrao, TEMAS, temasDoLayout } from "./pagina-config";
 
 describe("Flow Visual Library — integridade e prioridades", () => {
   it("aproveita apenas ativos internos e impede duplicação", () => {
@@ -37,6 +37,15 @@ describe("Flow Visual Library — integridade e prioridades", () => {
     expect(normalizarPaginaComPreset({}, "salao").tema).toBe("cortai");
     expect(normalizarPaginaComPreset(null, "salao", { frase: "Meu slogan" }).frase).toBe("Meu slogan");
     expect(normalizarPaginaComPreset(undefined, "outro").tema).toBe("cortai-creme");
+  });
+
+  it("sugere apenas temas realmente disponíveis no layout atual", () => {
+    const original = configPadrao({ layout: "figaro-raizes", frase: "Minha história", experiencia: "vitrine" });
+    const resultado = preverPresetVisual(original, "salao");
+    expect(resultado.layout).toBe("figaro-raizes");
+    expect(resultado.frase).toBe("Minha história");
+    expect(temasDoLayout(resultado.layout)).toContain(resultado.tema);
+    expect(original.tema).toBe("cortai");
   });
 
   it("respeita a ordem de prioridade e não modifica fotos próprias", () => {

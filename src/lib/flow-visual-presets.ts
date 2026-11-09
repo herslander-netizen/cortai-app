@@ -1,4 +1,4 @@
-import { aplicarTema, configPadrao, normalizarPagina, type PaginaConfig, type TemaId } from "@/lib/pagina-config";
+import { aplicarTema, configPadrao, normalizarPagina, temasDoLayout, type PaginaConfig, type TemaId } from "@/lib/pagina-config";
 import { type Segmento, SEGMENTOS } from "@/lib/segmentos";
 import { visualRecomendado } from "@/lib/flow-visual-library";
 
@@ -26,7 +26,15 @@ export function presetDoSegmento(segmento: Segmento): PresetVisualFlow { return 
 
 /** Não altera dados nem aplica tema: prévia pura, sempre sujeita a confirmação do usuário. */
 export function preverPresetVisual(config: PaginaConfig, segmento: Segmento): PaginaConfig {
-  return aplicarTema(config, presetDoSegmento(segmento).tema);
+  const recomendado = presetDoSegmento(segmento).tema;
+  const temasDisponiveis = temasDoLayout(config.layout);
+  // Raízes tem seu próprio catálogo. Preservar o layout e escolher variação compatível.
+  const tema = temasDisponiveis.includes(recomendado)
+    ? recomendado
+    : temasDisponiveis.includes("nude")
+      ? "nude"
+      : temasDisponiveis[0]!;
+  return aplicarTema(config, tema);
 }
 
 /** Nunca migrar uma página antiga nem substituir foto, tema ou rascunho manual. */
