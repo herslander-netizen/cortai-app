@@ -1,8 +1,8 @@
 import { exigirCapacidade } from "@/lib/guarda-capacidade";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { ChevronDown, KeyRound, Mail, ShieldCheck, Trash2, UserPlus } from "lucide-react";
+import { ChevronDown, ChevronRight, KeyRound, Mail, ShieldCheck, Trash2, UserPlus } from "lucide-react";
 import { useState } from "react";
 
 import { EmptyState, Screen } from "@/components/layout/Screen";
@@ -225,6 +225,14 @@ function EquipePage() {
                         }}
                         ocupado={salvar.isPending || remover.isPending || recuperar.isPending}
                       />
+                      <Link
+                        to="/barbeiro/equipe/$userId"
+                        params={{ userId: membro.userId }}
+                        className="mt-1 flex min-h-11 items-center justify-between rounded-xl px-3 text-sm font-semibold text-[var(--figaro-primary,var(--primary))] hover:bg-[var(--figaro-surface-container-highest,var(--ink3))]"
+                      >
+                        Ver ficha do membro
+                        <ChevronRight aria-hidden className="size-4" />
+                      </Link>
                     </li>
                   ))}
                 </motion.ul>

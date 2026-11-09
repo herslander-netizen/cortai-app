@@ -16,17 +16,17 @@ const DIAS = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
 type Modo = "negocio" | "folga" | "proprio";
 
 /** Escala individual: cada dia segue o expediente do negócio, folga ou horário próprio. */
-export function EscalaDaEquipe() {
+export function EscalaDaEquipe({ profissionalFixo }: { profissionalFixo?: string } = {}) {
   const equipeFn = useServerFn(listarEquipeDaEscala);
   const getFn = useServerFn(getEscalaDoProfissional);
   const salvarFn = useServerFn(salvarEscalaDoProfissional);
   const qc = useQueryClient();
-  const equipe = useQuery({ queryKey: ["equipe-escala"], queryFn: () => equipeFn() });
+  const equipe = useQuery({ queryKey: ["equipe-escala"], queryFn: () => equipeFn(), enabled: !profissionalFixo });
   const [prof, setProf] = useState("");
   const [dias, setDias] = useState<{ modo: Modo; abre: string; fecha: string }[]>([]);
   const [salvando, setSalvando] = useState(false);
   const salvou = useSucessoDoBotao();
-  const id = prof || equipe.data?.[0]?.id || "";
+  const id = profissionalFixo || prof || equipe.data?.[0]?.id || "";
   const escala = useQuery({
     queryKey: ["escala", id],
     queryFn: () => getFn({ data: { profissionalId: id } }),
@@ -46,7 +46,7 @@ export function EscalaDaEquipe() {
     );
   }, [escala.data]);
 
-  if (!equipe.data?.length) return null;
+  if (!profissionalFixo && !equipe.data?.length) return null;
 
   const salvar = async () => {
     setSalvando(true);
@@ -76,14 +76,14 @@ export function EscalaDaEquipe() {
       <p className="mt-1 text-sm text-mute">
         Sem ajuste, o profissional segue o expediente do negócio.
       </p>
-      {equipe.data.length > 1 ? (
+      {!profissionalFixo && (equipe.data?.length ?? 0) > 1 ? (
         <select
           aria-label="Profissional"
           value={id}
           onChange={(e) => setProf(e.target.value)}
           className="field-control mt-3 min-h-11 w-full"
         >
-          {equipe.data.map((p) => (
+          {(equipe.data ?? []).map((p) => (
             <option key={p.id} value={p.id}>
               {p.nome}
             </option>
