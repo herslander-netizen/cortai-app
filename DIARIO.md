@@ -594,7 +594,6 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - 2026-10-26: **Cabeçalho do menu mobile mais compacto** (dono aprovou a reformulação após captura: logo menor, nome do negócio com hierarquia discreta, papel secundário, ajustes alinhados e menos espaço vazio; manter nome em até duas linhas quando necessário, sem afetar a Agenda).
 
 ## Em andamento
-- GPT | 2026-11-09 | **Figaroo → Flow, Equipe: disponibilidade por data** — criar tela individual com horário especial para uma data (consulta, criar/editar e remoção com confirmação), reutilizar `horarios-especiais.functions.ts` e `seletor-de-horario`, sem alterar regras, Agenda visual, migrações ou banco. Arquivos novo `src/routes/barbeiro.equipe-data.$userId.tsx`, `src/routes/barbeiro.equipe_.$userId.tsx`, teste focal, `DIARIO.md` e inventário; somente prévia.
 - GPT | 2026-11-08 11:50 BRT | **Nome e sobrenome nos fluxos:** corrigir identificação ambígua no WhatsApp, Flow Bot e consultas do painel; adicionar regra pura e testes, documentar limitações; somente branch oficial, sem sender/webhook reservado pela Claude, Agenda visual, banco, main ou produção | `src/lib/nomes-pessoas.ts`, `src/lib/flow-bot/agenda-na-conversa/*`, `src/lib/brain/busca-cliente.ts`, testes, documentação; sem migração
 
 
@@ -1031,6 +1030,12 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+### 2026-11-09 — GPT — Figaroo Equipe: disponibilidade excepcional por data
+- Nova rota individual `/barbeiro/equipe-data/$userId`, acessível na ficha `barbeiro.equipe_.$userId.tsx`; seleção de data (fuso do negócio), hora de abertura/fechamento no seletor Figaroo, consulta prévia, salvar alterações e remover com confirmação. Não altera Agenda visual.
+- Reutilizadas as funções e regras `listarHorariosEspeciaisDoDia`, `salvarHorarioEspecial`, `removerHorarioEspecial`, `horarioEspecialValido`; alvo fixo ao `profissional.id` resolvido por vínculo de usuário e tenant. Somente data atual/futura. Remover restaura a regra da escala semanal, sem excluir agendamentos.
+- Código `a02a486db0a04f1beae1f74ce40371de6fe20fd7`, teste `barbeiro.equipe-data-figaro.test.ts`, inventário atualizado. GitHub Actions `42557244434`: protocolo, build, TypeScript, testes, deploy isolado e smoke concluídos com sucesso.
+- Limites: a atual API de `horarios_especiais` permite janela de atendimento, não uma folga integral; paridade dessa função do Figaroo ainda incompleta. Não houve conferência visual autenticada 360/390 px. Sem dados em banco, migrações, produção, main ou DNS. Reserva encerrada.
+
 ### 2026-11-09 — GPT — Figaroo Equipe: editor de dados individuais
 - Implementado editor próprio `/barbeiro/equipe-dados/$userId` com `TelaDeFormulario` (nome de atendimento, descrição, rascunho e confirmação de saída). Link direto na ficha `barbeiro.equipe_.$userId.tsx`. Não confunde nome da conta com nome do perfil de atendimento.
 - Fonte única de gravação preservada: `salvarPerfilProfissional` em `src/lib/crescimento.functions.ts` recebe `nome` e `userId` opcionais, preservando o comportamento dos formulários anteriores e foto/portfólio. Com `userId` faz filtro explícito por tenant, id e conta e verifica retorno de update. `getPerfilDoMembroParaEdicao` faz consulta mínima com permissão e rejeita vínculo ausente/duplicado.
