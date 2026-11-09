@@ -370,7 +370,7 @@ export function FichaProfissionalFlow({
             transition={{ duration: menosMovimento ? 0 : 0.19, ease: "easeOut" }}
             className="px-4 pt-4"
           >
-          <h1 className="mb-6 text-[38px] font-bold leading-tight tracking-tight">
+          <h1 className="mb-6 break-words text-[clamp(28px,8vw,38px)] font-bold leading-tight tracking-tight">
             {titulo}
           </h1>
 
@@ -383,44 +383,54 @@ export function FichaProfissionalFlow({
                 {diasEdit.map((dia) => {
                   const sem = SEMANA.find((s) => s.id === dia.id);
                   const horario = disponibilidade(dia, dados?.expediente ?? []);
+                  const expandido = diaExpandido === dia.id;
                   return (
-                    <div key={dia.id} className="border-b border-white/10 px-4 py-4 last:border-0">
-                      <div className="flex min-h-10 items-center justify-between gap-2">
-                        <label className="flex min-h-11 items-center gap-3">
-                          <input
-                            type="checkbox"
-                            checked={horario.trabalha}
-                            onChange={(e) => setDiasEdit((atuais) => atuais.map((x) => x.id !== dia.id ? x : {
-                              ...x,
-                              modo: e.target.checked ? "proprio" : "folga",
-                            }))}
-                            className="h-4 w-4 accent-[#18843D]"
-                          />
-                          <span className="text-sm font-semibold">{sem?.nome}</span>
-                        </label>
-                        {horario.trabalha ? (
-                          <span className="text-xs font-semibold text-[#A8C7FA]">{horario.abre} - {horario.fecha}</span>
-                        ) : (
-                          <span className="text-xs text-[#B9BFBA]">Indisponível</span>
-                        )}
-                      </div>
-                      {horario.trabalha && (
-                        <div className="mt-2 flex items-center gap-2 pl-7">
-                          <input
-                            type="time"
-                            aria-label={(sem?.nome ?? "") + ": início"}
-                            value={horario.abre}
-                            onChange={(e) => setDiasEdit((atuais) => atuais.map((x) => x.id === dia.id ? { ...x, modo: "proprio", abre: e.target.value } : x))}
-                            className="min-w-0 flex-1 rounded-xl border border-white/10 bg-[#252C28] px-2 py-2.5 text-sm text-white"
-                          />
-                          <span className="text-white/60">—</span>
-                          <input
-                            type="time"
-                            aria-label={(sem?.nome ?? "") + ": fim"}
-                            value={horario.fecha}
-                            onChange={(e) => setDiasEdit((atuais) => atuais.map((x) => x.id === dia.id ? { ...x, modo: "proprio", fecha: e.target.value } : x))}
-                            className="min-w-0 flex-1 rounded-xl border border-white/10 bg-[#252C28] px-2 py-2.5 text-sm text-white"
-                          />
+                    <div key={dia.id} className="border-b border-[#19201D] last:border-0">
+                      <button
+                        type="button"
+                        aria-expanded={expandido}
+                        aria-label={(sem?.nome ?? "Dia") + ": " + (horario.trabalha ? horario.abre + " às " + horario.fecha : "indisponível") + ". Editar horário"}
+                        onClick={() => setDiaExpandido((v) => v === dia.id ? null : dia.id)}
+                        className="flex min-h-[64px] w-full items-center gap-3 px-4 text-left focus-visible:outline-2 focus-visible:outline-[#A8C7FA]"
+                      >
+                        <span aria-hidden className={"h-2 w-2 shrink-0 rounded-full " + (horario.trabalha ? "bg-[#2BC958]" : "border border-white/50")} />
+                        <span className="min-w-0 flex-1 text-sm font-semibold">{sem?.nome}</span>
+                        <span className="text-xs font-medium text-[#A8C7FA]">
+                          {horario.trabalha ? horario.abre + " - " + horario.fecha : "Indisponível"}
+                        </span>
+                        <ChevronDown size={16} aria-hidden className={"shrink-0 text-white/60 transition-transform " + (expandido ? "rotate-180" : "")} />
+                      </button>
+                      {expandido && (
+                        <div className="space-y-3 border-t border-white/10 px-4 pb-4 pt-3">
+                          <label className="block text-xs text-white/70">
+                            Regra do dia
+                            <select
+                              aria-label={(sem?.nome ?? "Dia") + ": regra"}
+                              value={dia.modo}
+                              onChange={(e) => setDiasEdit((atuais) => atuais.map((x) =>
+                                x.id === dia.id ? { ...x, modo: e.target.value as DiaForm["modo"] } : x))}
+                              className="mt-1 min-h-11 w-full rounded-xl border border-white/15 bg-[#252C28] px-3 text-sm text-white"
+                            >
+                              <option value="negocio">Seguir expediente do negócio</option>
+                              <option value="proprio">Horário próprio</option>
+                              <option value="folga">Folga / indisponível</option>
+                            </select>
+                          </label>
+                          {dia.modo === "proprio" && (
+                            <div className="flex items-center gap-2">
+                              <input type="time" aria-label={(sem?.nome ?? "Dia") + ": início"}
+                                value={dia.abre}
+                                onChange={(e) => setDiasEdit((atuais) => atuais.map((x) =>
+                                  x.id === dia.id ? { ...x, abre: e.target.value } : x))}
+                                className="min-h-11 min-w-0 flex-1 rounded-xl border border-white/10 bg-[#252C28] px-2 text-sm text-white" />
+                              <span className="text-white/60">até</span>
+                              <input type="time" aria-label={(sem?.nome ?? "Dia") + ": fim"}
+                                value={dia.fecha}
+                                onChange={(e) => setDiasEdit((atuais) => atuais.map((x) =>
+                                  x.id === dia.id ? { ...x, fecha: e.target.value } : x))}
+                                className="min-h-11 min-w-0 flex-1 rounded-xl border border-white/10 bg-[#252C28] px-2 text-sm text-white" />
+                            </div>
+                          )}
                         </div>
                       )}
                     </div>
@@ -428,14 +438,14 @@ export function FichaProfissionalFlow({
                 })}
               </div>
               <p className="mt-3 text-xs text-[#B8C0BA]">
-                Os ajustes desta tela são individuais; o expediente geral do negócio permanece inalterado.
+                Os ajustes desta tela são individuais. O expediente geral e os intervalos do negócio continuam valendo.
               </p>
               {erroSalvar && <p role="alert" className="mt-3 text-sm text-red-300">{erroSalvar}</p>}
               <button
                 type="button"
                 disabled={salvarEscala.isPending || !dados?.profissionalId}
                 onClick={() => salvarEscala.mutate()}
-                className="mt-7 flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-[#A8C7FA] px-5 font-semibold text-[#172638] disabled:opacity-50"
+                className="sticky bottom-[max(env(safe-area-inset-bottom),8px)] z-10 mt-7 flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-[#A8C7FA] px-5 font-semibold text-[#172638] shadow-[0_12px_30px_rgba(0,0,0,0.45)] disabled:opacity-50"
               >
                 <Check size={18} /> {salvarEscala.isPending ? "Salvando…" : "Salvar alterações"}
               </button>
@@ -552,7 +562,7 @@ export function FichaProfissionalFlow({
                     return (
                       <div key={item.label} className="flex min-h-28 flex-col justify-between rounded-[20px] bg-[#3A403D] p-3">
                         <Icone size={20} className="text-[#A8C7FA]" aria-hidden />
-                        <strong className="mt-2 text-[27px] leading-none">{item.valor}</strong>
+                        <strong className="mt-2 break-words text-[clamp(14px,4.5vw,26px)] leading-none">{item.valor}</strong>
                         <span className="mt-1 text-sm text-white/55">{item.label}</span>
                       </div>
                     );
