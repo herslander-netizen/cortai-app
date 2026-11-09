@@ -1041,6 +1041,12 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - **Verificação até esta atualização:** CI `42676265683` aprovou build, TypeScript e Vitest da integração inicial; CI da revisão final do Chat `42676886347` em execução. Nenhuma homologação visual autenticada foi alegada.
 - **Pendências:** CI do commit final, capturas em 320/360/390/430 e desktop, testes reais do percurso de agendamento e Chat, revisão comercial individual de direitos/conteúdo, completar acervo de 14 por segmento, integração automática segura do onboarding e eventual migração aditiva aprovada. Manter PR em draft e a reserva desta tarefa enquanto tais itens estiverem pendentes.
 
+### 2026-11-09 — GPT — especialistas assistidos no Flow Core
+- Seis especialistas já declarados deixaram o modo exclusivamente sombra e passaram ao modo assistido no único cérebro Flow IA. Roteador determinístico `src/lib/agente-flow/roteador.ts` escolhe foco por turno, recomenda somente consultas já autorizadas e inclui contexto no prompt existente, sem LLM extra ou executor paralelo.
+- Testes novos de seleção em painel/cliente/visitante e de permissões, mais ajustes dos testes existentes e documentação `docs/flow-inteligencia/19-especialistas-assistidos.md`; alterações em `src/lib/brain/agente.server.ts` somente no contexto de prompt. Ações, banco, webhooks e integrações externas não foram modificados.
+- **Situação real de validação:** arquivos enviados ao GitHub; sem terminal Bun disponível nesta sessão para executar tsc, Vitest, lint e build. GitHub Actions/deploy do commit final ainda a confirmar; sem QA autenticado, não afirmar funcionamento em tempo real. Sem produção, novos custos ou secrets.
+- Prévia deve ser liberada apenas após gates e teste das funções do profissional. Não publicar em produção pelo CI sozinho.
+
 ### 2026-11-09 — GPT — Flow IA do profissional: homologação de consultas, segurança e CI (PR 38)
 - Correções do PR 37 histórico adaptadas **somente à branch oficial** `cloudflare-workers-migration-2026-10-13`, sem mesclar a `main` antiga nem reverter funções do Flow Core atual.
 - A ferramenta oficial `minha_agenda` passa a funcionar no painel para profissional autenticado; respeita filtro tenant/profissional e falha explicitamente se a consulta ao banco falhar. O modo básico gratuito interpreta "meus agendamentos hoje" e "minha agenda amanhã" como consultas, sem criar agendamentos nem inventar horários.

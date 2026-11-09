@@ -5,7 +5,7 @@ describe("especialistas do Flow Core", () => {
   it("mantém seis perfis sem permissão própria de escrita", () => {
     expect(ESPECIALISTAS_FLOW).toHaveLength(6);
     for (const agente of ESPECIALISTAS_FLOW) {
-      expect(agente.modo).toBe("sombra");
+      expect(agente.modo).toBe("assistido");
       expect(agente.permiteEscrita).toBe(false);
       expect(agente.ferramentas.length).toBeGreaterThan(0);
     }

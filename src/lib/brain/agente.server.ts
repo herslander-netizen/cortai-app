@@ -49,6 +49,7 @@ import {
   type ItemDeConferencia,
 } from "./conferencia";
 import { opcoesDeClientes, type OpcaoDeEscolha } from "./escolha-de-cliente";
+import { instrucaoDoEspecialista } from "@/lib/agente-flow/roteador";
 import {
   decidirExecucao,
   execucaoDiretaLigada,
@@ -381,14 +382,23 @@ async function pensarCortaiComTurno(
   });
   const ferramentas = ferramentasDoContexto(ctx);
   const textoBase = await instrucoes(ctx, input.persona);
+  // Um especialista por turno, apenas como foco consultivo: ações continuam
+  // sendo autorizadas e executadas pelo catálogo oficial do Flow Core.
+  const orientacaoEspecialista = instrucaoDoEspecialista({
+    mensagem: input.mensagem,
+    canal: ctx.canal,
+    papel: ctx.papel ?? null,
+    ferramentasAutorizadas: ferramentas.map((f) => f.name),
+  });
+  const textoComEspecialista = `${textoBase}\n\n${orientacaoEspecialista}`;
   const texto0 = anterior
-    ? `${textoBase}
+    ? `${textoComEspecialista}
 
 Pedido pendente do turno anterior: ${anterior.resumo}. Ele AINDA NÃO foi executado.
 ${pedidoDeAjustePendente
   ? "A mensagem parece corrigir o pedido. Não interprete como confirmação do pedido antigo. Consulte os dados novamente e prepare uma nova proposta para confirmação; não execute diretamente."
   : "A mensagem não confirmou nem recusou esse pedido. Pode responder dúvidas e fazer leituras, mas não prepare outra escrita. Preserve o pedido pendente; se a pessoa quiser mudar, peça que explicite a alteração."}`
-    : textoBase;
+    : textoComEspecialista;
 
   try {
     for (let passo = 0; passo < MAX_PASSOS; passo += 1) {

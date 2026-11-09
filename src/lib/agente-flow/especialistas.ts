@@ -1,6 +1,6 @@
 /**
  * Perfis declarativos inspirados na separação host/runtime do Helpin.
- * Ainda NÃO iniciam runs, executam ferramentas ou enviam mensagens.
+ * Em modo assistido orientam o cérebro existente, sem iniciar runs, executar\n * ferramentas diretamente ou enviar mensagens.
  * O executor e a autorização continuam pertencendo ao cérebro oficial.
  */
 export type IdEspecialistaFlow =
@@ -11,7 +11,7 @@ export type EspecialistaFlow = {
   nome: string;
   objetivo: string;
   ferramentas: readonly string[];
-  modo: "sombra";
+  modo: "assistido";
   permiteEscrita: false;
 };
 
@@ -21,7 +21,7 @@ export const ESPECIALISTAS_FLOW: readonly EspecialistaFlow[] = [
     nome: "Atendimento",
     objetivo: "Explicar serviços e dados públicos sem assumir controle da conversa.",
     ferramentas: ["listar_servicos", "consultar_servico", "consultar_informacoes"],
-    modo: "sombra",
+    modo: "assistido",
     permiteEscrita: false,
   },
   {
@@ -29,7 +29,7 @@ export const ESPECIALISTAS_FLOW: readonly EspecialistaFlow[] = [
     nome: "Agenda",
     objetivo: "Consultar horários e agendamentos; nunca reservar sem confirmação oficial.",
     ferramentas: ["consultar_disponibilidade", "consultar_agendamento", "consultar_horarios_funcionamento"],
-    modo: "sombra",
+    modo: "assistido",
     permiteEscrita: false,
   },
   {
@@ -37,7 +37,7 @@ export const ESPECIALISTAS_FLOW: readonly EspecialistaFlow[] = [
     nome: "CRM",
     objetivo: "Ajudar a equipe a entender relacionamentos e histórico permitido.",
     ferramentas: ["buscar_cliente", "buscar_cliente_por_nome", "consultar_agendamentos_cliente", "consultar_indicadores_crm"],
-    modo: "sombra",
+    modo: "assistido",
     permiteEscrita: false,
   },
   {
@@ -45,7 +45,7 @@ export const ESPECIALISTAS_FLOW: readonly EspecialistaFlow[] = [
     nome: "Insights",
     objetivo: "Explicar indicadores oficiais sem confundir agenda com dinheiro recebido.",
     ferramentas: ["consultar_indicadores_crm", "consultar_movimento", "consultar_caixa_hoje"],
-    modo: "sombra",
+    modo: "assistido",
     permiteEscrita: false,
   },
   {
@@ -53,7 +53,7 @@ export const ESPECIALISTAS_FLOW: readonly EspecialistaFlow[] = [
     nome: "Conhecimento",
     objetivo: "Responder com documentação oficial do Flow, sem inventar funções.",
     ferramentas: ["consultar_ajuda_flow"],
-    modo: "sombra",
+    modo: "assistido",
     permiteEscrita: false,
   },
   {
@@ -61,7 +61,7 @@ export const ESPECIALISTAS_FLOW: readonly EspecialistaFlow[] = [
     nome: "Operações",
     objetivo: "Investigar agenda e fila sem modificar dados nem iniciar avisos.",
     ferramentas: ["minha_agenda", "consultar_fila"],
-    modo: "sombra",
+    modo: "assistido",
     permiteEscrita: false,
   },
 ];
