@@ -11,7 +11,8 @@ import {
 import fundo from "@/assets/flow-chat-fundo.png.asset.json";
 import avatarPadrao from "@/assets/flow-avatar-padrao.png.asset.json";
 import type { PaginaConfig } from "@/lib/pagina-config";
-import { capaPublicaRecomendada } from "@/lib/flow-visual-presets";
+import { PadraoChatSegmento } from "@/components/chat/PadraoChatSegmento";
+import { tokensEscurosDaAgendaParaChat } from "@/lib/chat-theme";
 import type { Segmento } from "@/lib/segmentos";
 
 type ChatConfig = PaginaConfig["chat"];
@@ -42,9 +43,11 @@ export function ChatBackground({
   modo?: ChatConfig["fundo"];
   segmento?: Segmento | undefined;
 }) {
-  // capa = foto do negócio (ou o fundo do Flow); padrao = sempre o fundo do Flow; liso = só a cor.
+  // Foto própria prevalece. Sem foto no modo Capa, usa pattern leve por segmento.
+  // Padrão/Liso são opções explícitas do negócio e não mudam.
+  const ilustrado = modo === "capa" && !capaUrl && Boolean(segmento);
   const imagem = modo === "liso" ? null : modo === "padrao" ? fundo.url :
-    (segmento ? capaPublicaRecomendada(segmento, capaUrl ?? null) : capaUrl) || fundo.url;
+    capaUrl || (ilustrado ? null : fundo.url);
   return (
     <div aria-hidden className="chat-fundo">
       {imagem ? (
@@ -56,6 +59,7 @@ export function ChatBackground({
         />
       ) : null}
       <div className="chat-fundo-veu" />
+      {ilustrado && segmento ? <PadraoChatSegmento segmento={segmento} /> : null}
     </div>
   );
 }
@@ -219,7 +223,7 @@ export function ChatShell({
   return (
     <main
       className="chat-sistema"
-      style={style}
+      style={{ ...style, ...tokensEscurosDaAgendaParaChat(estilo) }}
       data-personalizado={capaUrl ? "true" : "false"}
       {...atributosDoChat(estilo)}
     >

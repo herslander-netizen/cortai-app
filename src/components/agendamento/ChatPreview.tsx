@@ -1,10 +1,10 @@
 import { CalendarDays, Check, Clock3 } from "lucide-react";
 
-import { atributosDoChat, ChatHeader } from "@/components/chat/ChatShell";
+import { atributosDoChat, ChatHeader, ChatBackground } from "@/components/chat/ChatShell";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { agendamentoStyle, type PaginaConfig } from "@/lib/pagina-config";
-import { capaPublicaRecomendada } from "@/lib/flow-visual-presets";
+import { tokensEscurosDaAgendaParaChat } from "@/lib/chat-theme";
 import type { Segmento } from "@/lib/segmentos";
 
 export function ChatPreview({
@@ -23,8 +23,9 @@ export function ChatPreview({
   capaUrl?: string | null;
   segmento?: Segmento | undefined;
 }) {
-  const estilo = config ? agendamentoStyle(config) : undefined;
-  const capaRecomendada = segmento ? capaPublicaRecomendada(segmento, capaUrl ?? null) : capaUrl;
+  const estilo = config
+    ? { ...agendamentoStyle(config), ...tokensEscurosDaAgendaParaChat(config.chat) }
+    : tokensEscurosDaAgendaParaChat();
   return (
     <div
       className={cn(
@@ -34,10 +35,7 @@ export function ChatPreview({
       style={estilo}
       {...atributosDoChat(config?.chat)}
     >
-      {capaRecomendada && config?.chat.fundo !== "liso" ? (
-        <img src={capaRecomendada} alt="" className="absolute inset-0 h-full w-full object-cover" />
-      ) : null}
-      <div className="chat-preview-veil absolute inset-0" />
+      <ChatBackground capaUrl={capaUrl} segmento={segmento} modo={config?.chat.fundo ?? "capa"} />
       <div className="relative">
         <ChatHeader
           nome={/^\s*(recep(ç|c)[aã]o)?\s*$/i.test(config?.chat.nomeRecepcao ?? "") ? "Lisa" : config!.chat.nomeRecepcao}
