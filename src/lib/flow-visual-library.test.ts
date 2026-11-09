@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { existsSync, statSync } from "node:fs";
 import { SEGMENTOS } from "@/lib/segmentos";
 import { CATALOGO_VISUAL_FLOW, buscarVisualFlow, visualRecomendado } from "./flow-visual-library";
 import { capaPublicaRecomendada, permitirPresetNovo, presetDoSegmento, preverPresetVisual, segmentosCobertosPorPreset, paginaInicialDoSegmento, normalizarPaginaComPreset } from "./flow-visual-presets";
@@ -10,6 +11,9 @@ describe("Flow Visual Library — integridade e prioridades", () => {
     expect(CATALOGO_VISUAL_FLOW).toHaveLength(16);
     for(const item of CATALOGO_VISUAL_FLOW) {
       expect(item.src).toMatch(/^\/(temas|exemplos)\/[\w-]+\.webp$/);
+      const arquivo = "public" + item.src;
+      expect(existsSync(arquivo), "Imagem catalogada inexistente: " + arquivo).toBe(true);
+      expect(statSync(arquivo).size).toBeGreaterThan(0);
       expect(item.segmentos.every(s => SEGMENTOS.includes(s))).toBe(true);
       expect(item.origem).toContain("IA");
       expect(item.licenca).toBeTruthy();
