@@ -591,6 +591,7 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - 2026-10-26: **Cabeçalho do menu mobile mais compacto** (dono aprovou a reformulação após captura: logo menor, nome do negócio com hierarquia discreta, papel secundário, ajustes alinhados e menos espaço vazio; manter nome em até duas linhas quando necessário, sem afetar a Agenda).
 
 ## Em andamento
+- GPT | 2026-11-08 | **Revisão jurídico-institucional do Flow**: atualizar política de privacidade, termos de uso, transparência de cookies/consentimento e links institucionais sem tocar no banco, WhatsApp, Agenda, main ou produção. Escopo: `src/routes/privacidade.tsx`, nova rota de termos, `src/lib/consentimento.ts` e testes, `src/components/privacidade/*`, `src/components/layout/Signature.tsx`, `src/routeTree.gen.ts` (rota gerada), `README.md`, docs de governança, DIARIO.md; somente prévia.
 - GPT | 2026-11-08 11:50 BRT | **Nome e sobrenome nos fluxos:** corrigir identificação ambígua no WhatsApp, Flow Bot e consultas do painel; adicionar regra pura e testes, documentar limitações; somente branch oficial, sem sender/webhook reservado pela Claude, Agenda visual, banco, main ou produção | `src/lib/nomes-pessoas.ts`, `src/lib/flow-bot/agenda-na-conversa/*`, `src/lib/brain/busca-cliente.ts`, testes, documentação; sem migração
 
 
