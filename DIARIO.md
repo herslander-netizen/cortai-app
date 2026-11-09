@@ -592,6 +592,7 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - 2026-10-26: **Cabeçalho do menu mobile mais compacto** (dono aprovou a reformulação após captura: logo menor, nome do negócio com hierarquia discreta, papel secundário, ajustes alinhados e menos espaço vazio; manter nome em até duas linhas quando necessário, sem afetar a Agenda).
 
 ## Em andamento
+- GPT | 2026-11-08 | **Paridade estrutural da Página Figaroo → Flow (lote focal):** auditar com base em `docs/referencia-figaro/apk/4-pagina-publica.md`, corrigir exclusivamente navegação de “Ver Exemplo” em Layout & Tema, preservar publicação e demais funcionalidades, documentar matriz de divergências e evidências. Arquivos `src/routes/barbeiro.marca.layout-tema.tsx`, teste focal novo e `docs/auditoria-estrutura-pagina-figaroo-flow-2026-11-08.md`. Não tocar em `barbeiro.marca.index.tsx`/Agenda ou reservas antigas, banco, main ou produção.
 - GPT | 2026-11-08 11:50 BRT | **Nome e sobrenome nos fluxos:** corrigir identificação ambígua no WhatsApp, Flow Bot e consultas do painel; adicionar regra pura e testes, documentar limitações; somente branch oficial, sem sender/webhook reservado pela Claude, Agenda visual, banco, main ou produção | `src/lib/nomes-pessoas.ts`, `src/lib/flow-bot/agenda-na-conversa/*`, `src/lib/brain/busca-cliente.ts`, testes, documentação; sem migração
 
 
