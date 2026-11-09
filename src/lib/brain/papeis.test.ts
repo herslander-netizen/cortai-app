@@ -32,8 +32,10 @@ describe("permissões por papel no WhatsApp", () => {
     expect(acaoPermitida("minha_agenda", dono)).toBe(true);
     expect(acaoPermitida("avisar_atraso", dono)).toBe(false);
   });
-  it("ações da equipe no WhatsApp não vazam para painel nem site", () => {
-    for (const a of ["minha_agenda", "consultar_fila", "avisar_atraso"]) {
+  it("agenda própria funciona no painel; fila e avisos de atraso continuam restritos", () => {
+    expect(acaoPermitida("minha_agenda", { ...painel, papel: "profissional", profissionalId: "p1" })).toBe(true);
+    expect(acaoPermitida("minha_agenda", site)).toBe(false);
+    for (const a of ["consultar_fila", "avisar_atraso"]) {
       expect(acaoPermitida(a, painel)).toBe(false);
       expect(acaoPermitida(a, site)).toBe(false);
     }
@@ -137,8 +139,9 @@ describe("papel do painel", () => {
     expect(papelDoPainel("barbeiro")).toBe("profissional");
     for (const p of ["dono", "gerente", "recepcao"]) expect(papelDoPainel(p)).toBe("dono");
   });
-  it("papel desconhecido ou vazio não ganha visão de dono por engano de profissional", () => {
-    expect(papelDoPainel(null)).toBe("dono");
-    expect(papelDoPainel("")).toBe("dono");
+  it("papel desconhecido ou vazio NÃO recebe privilégios de proprietário", () => {
+    expect(papelDoPainel(null)).toBe("profissional");
+    expect(papelDoPainel("")).toBe("profissional");
+    expect(papelDoPainel("novo_papel")).toBe("profissional");
   });
 });
