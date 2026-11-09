@@ -23,6 +23,7 @@ import {
   secoesObrigatoriasAusentes,
 } from "@/lib/pagina-config";
 import { SEGMENTOS_CONFIG, segmentoValido, type Segmento } from "@/lib/segmentos";
+import { normalizarPaginaComPreset } from "@/lib/flow-visual-presets";
 
 const hex = z.string().regex(/^#[0-9A-Fa-f]{6}$/);
 const nullableText = z.string().trim().max(500).nullable();
@@ -269,10 +270,15 @@ export const getMarca = createServerFn({ method: "GET" })
       marca?: unknown;
     } | null;
     const marcaRascunho = marcaSchema.safeParse(draftContainer?.marca);
-    const paginaRascunho = normalizarPagina(draftContainer?.pagina, {
-      frase: tenant.texto_boas_vindas ?? "Cuidado, estilo e horário reservado para você.",
+    const fallbackDaMarca = {
+      ...(tenant.texto_boas_vindas ? { frase: tenant.texto_boas_vindas } : {}),
       sobre: tenant.descricao ?? "",
-    });
+    };
+    const paginaRascunho = normalizarPaginaComPreset(
+      draftContainer?.pagina ?? publishedContainer?.pagina,
+      segmentoValido(tenant.segmento),
+      fallbackDaMarca,
+    );
     // As três URLs não dependem uma da outra. Gerá-las em paralelo evita
     // somar três viagens ao Storage antes de liberar a tela de personalização.
     const [logoSignedUrl, capaSignedUrl, avatarSignedUrl] = await comPrazoRestante(Promise.all([
@@ -296,10 +302,11 @@ export const getMarca = createServerFn({ method: "GET" })
         avatar_signed_url: avatarSignedUrl,
         slug: tenant.slug,
         pagina: paginaRascunho,
-        publicada: normalizarPagina(publishedContainer?.pagina, {
-          frase: tenant.texto_boas_vindas ?? "Cuidado, estilo e horário reservado para você.",
-          sobre: tenant.descricao ?? "",
-        }),
+        publicada: normalizarPaginaComPreset(
+          publishedContainer?.pagina,
+          segmentoValido(tenant.segmento),
+          fallbackDaMarca,
+        ),
         alteracoes_pendentes: haAlteracoesPendentes(pagina),
         pagina_online: pagina?.is_online ?? true,
         lacunas: lacunasDaPagina({

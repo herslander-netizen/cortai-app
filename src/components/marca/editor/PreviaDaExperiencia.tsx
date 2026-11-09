@@ -65,7 +65,7 @@ export function PreviaDaExperiencia({
       </div>
       ) : null}
       {conversa ? (
-        <ChatPreview ativo config={config} nome={nome} logoUrl={avatarUrl} capaUrl={capaUrl} />
+        <ChatPreview ativo config={config} nome={nome} logoUrl={avatarUrl} capaUrl={capaUrl} segmento={data?.tenant.segmento} />
       ) : (
         <motion.div
           layout

@@ -7,7 +7,8 @@ import coverNeutra from "@/assets/flow-capa-neutra.png.asset.json";
 import type { PropsDoModelo } from "@/components/marca/modelos/SiteCompleto";
 import { LogoBarbearia } from "@/components/marca/LogoBarbearia";
 import { brl } from "@/lib/format";
-import { MOLA } from "@/lib/movimento-figaro";
+import { MOLA, CURVA, TEMPO } from "@/lib/movimento-figaro";
+import { capaPublicaRecomendada } from "@/lib/flow-visual-presets";
 import {
   duracaoEmTexto,
   economiaDoPacote,
@@ -101,7 +102,7 @@ export function Raizes({
   const botao = nomeParaBotao(tenant.nome);
   const instagram = tenant.instagram?.replace(/^@/, "") || null;
   const capa =
-    tenant.capa_signed_url ??
+    capaPublicaRecomendada(tenant.segmento, tenant.capa_signed_url) ??
     (tenant.segmento === "barbearia" ? coverBarbearia.url : coverNeutra.url);
   const bio = (config.sobre || tenant.descricao || "").trim();
   const equipe = on.profissionais ? data.profissionais.filter((p) => p.avatar_url).slice(0, 2) : [];
@@ -164,8 +165,9 @@ export function Raizes({
       <header className="rz-hero" id="rz-topo">
         <img
           src={capa}
-          alt={`Ambiente de ${tenant.nome}`}
-          className="rz-hero-foto"
+          alt={tenant.capa_signed_url ? `Ambiente de ${tenant.nome}` : ""}
+           onError={(evento) => { const img = evento.currentTarget; if (!img.src.endsWith(coverNeutra.url)) img.src = coverNeutra.url; }}
+           className="rz-hero-foto"
           fetchPriority="high"
           decoding="async"
         />
@@ -186,7 +188,11 @@ export function Raizes({
             Menu <Menu size={18} aria-hidden />
           </button>
         </div>
-        <div className="rz-hero-texto">
+        <motion.div className="rz-hero-texto"
+           initial={reduzir ? false : { opacity: 0, y: 8 }}
+           animate={{ opacity: 1, y: 0 }}
+           transition={reduzir ? { duration: 0 } : { duration: TEMPO.conteudoEntra, ease: CURVA.rapidaParaLenta }}
+         >
           <h1 className="rz-nome">{tenant.nome}</h1>
           {on.apresentacao && config.frase ? <p className="rz-frase">{config.frase}</p> : null}
           <div ref={acoesRef} className="rz-hero-acoes">
@@ -202,8 +208,8 @@ export function Raizes({
               </button>
             ) : null}
             {renderAgendar("rz-botao rz-botao-cheio rz-hero-agendar")}
-          </div>
-        </div>
+           </div>
+         </motion.div>
       </header>
 
       <AnimatePresence>

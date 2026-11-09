@@ -11,6 +11,10 @@ import {
 import fundo from "@/assets/flow-chat-fundo.png.asset.json";
 import avatarPadrao from "@/assets/flow-avatar-padrao.png.asset.json";
 import type { PaginaConfig } from "@/lib/pagina-config";
+import { PadraoChatSegmento } from "@/components/chat/PadraoChatSegmento";
+import { tokensEscurosDaAgendaParaChat } from "@/lib/chat-theme";
+import { resolverFundoDoChat } from "@/lib/fundo-chat";
+import type { Segmento } from "@/lib/segmentos";
 
 type ChatConfig = PaginaConfig["chat"];
 
@@ -34,16 +38,25 @@ export function atributosDoChat(chat?: Partial<ChatConfig> | undefined) {
 export function ChatBackground({
   capaUrl,
   modo = "capa",
+  segmento,
 }: {
   capaUrl?: string | null | undefined;
   modo?: ChatConfig["fundo"];
+  segmento?: Segmento | undefined;
 }) {
-  // capa = foto do negócio (ou o fundo do Flow); padrao = sempre o fundo do Flow; liso = só a cor.
-  const imagem = modo === "liso" ? null : modo === "padrao" ? fundo.url : capaUrl || fundo.url;
+  const { imagem, padraoSegmento } = resolverFundoDoChat({ modo, capaUrl, segmento, fundoFlow: fundo.url });
   return (
     <div aria-hidden className="chat-fundo">
-      {imagem ? <img src={imagem} alt="" className="chat-fundo-img" decoding="async" /> : null}
+      {imagem ? (
+        <img src={imagem} alt="" className="chat-fundo-img" decoding="async"
+          onError={(evento) => {
+            const img = evento.currentTarget;
+            if (!img.src.endsWith(fundo.url)) img.src = fundo.url;
+          }}
+        />
+      ) : null}
       <div className="chat-fundo-veu" />
+      {padraoSegmento ? <PadraoChatSegmento segmento={padraoSegmento} /> : null}
     </div>
   );
 }
@@ -193,23 +206,25 @@ export function ChatShell({
   header,
   children,
   capaUrl,
+  segmento,
   style,
   estilo,
 }: {
   header: ReactNode;
   children: ReactNode;
   capaUrl?: string | null;
+  segmento?: Segmento;
   style?: CSSProperties;
   estilo?: Partial<ChatConfig> | undefined;
 }) {
   return (
     <main
       className="chat-sistema"
-      style={style}
+      style={{ ...style, ...tokensEscurosDaAgendaParaChat(estilo) }}
       data-personalizado={capaUrl ? "true" : "false"}
       {...atributosDoChat(estilo)}
     >
-      <ChatBackground capaUrl={capaUrl} modo={estilo?.fundo ?? "capa"} />
+      <ChatBackground capaUrl={capaUrl} segmento={segmento} modo={estilo?.fundo ?? "capa"} />
       <div className="relative z-10 mx-auto flex h-full w-full max-w-[760px] flex-col overflow-hidden">
         {header}
         {children}

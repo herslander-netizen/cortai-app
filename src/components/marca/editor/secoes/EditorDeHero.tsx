@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 
 import { SeletorDeFoto } from "@/components/fotos/SeletorDeFoto";
+import { BibliotecaFlow } from "@/components/marca/editor/BibliotecaFlow";
 import { Campo } from "@/components/marca/editor/campos";
 import { textoMinimo } from "./validacao";
 import type { PropsDoEditor } from "./editores";
@@ -34,6 +35,11 @@ export function EditorDeHero({ e, reportarErro }: PropsDoEditor) {
           previewUrl={e.coverPreview}
           onEscolher={(foto) => e.escolherCapa(foto.path, foto.url)}
           onRemover={e.removerCapa}
+        />
+        <BibliotecaFlow
+          segmentoInicial={e.segmento}
+          tipo="hero"
+          onAplicar={(foto) => e.escolherCapa(foto.path, foto.url)}
         />
       </GrupoDeCampos>
       <GrupoDeCampos titulo="Textos">

@@ -21,7 +21,7 @@ export const ESTILOS_DO_CHAT: readonly EstiloDoChat[] = [
   {
     id: "cortai",
     nome: "Flow",
-    descricao: "Balões de vidro sobre a foto do negócio, o visual de sempre.",
+    descricao: "Agenda escura com desenhos discretos do segmento; a foto do negócio tem prioridade.",
     valores: {
       estilo: "vidro",
       fundo: "capa",

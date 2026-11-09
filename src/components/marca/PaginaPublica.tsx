@@ -1,4 +1,7 @@
 import { Link } from "@tanstack/react-router";
+import { motion, useReducedMotion } from "framer-motion";
+import { CURVA, TEMPO } from "@/lib/movimento-figaro";
+import { capaPublicaRecomendada } from "@/lib/flow-visual-presets";
 import { IconeDaRede } from "@/components/marca/editor/IconesDasRedes";
 import { linkDaRede } from "@/lib/redes-do-negocio";
 import { linkDoWhatsApp } from "@/lib/whatsapp/link-whatsapp";
@@ -34,11 +37,17 @@ import { SEGMENTOS_CONFIG, termos } from "@/lib/segmentos";
 const dias = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
 
 function Secao({ titulo, children, id }: { titulo: string; children: ReactNode; id?: string }) {
+  const reduzir = useReducedMotion();
   return (
-    <section id={id} className="brand-section scroll-mt-20">
+    <motion.section id={id} className="brand-section scroll-mt-20"
+      initial={reduzir ? false : { opacity: 0, y: 8 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.15 }}
+      transition={reduzir ? { duration: 0 } : { duration: TEMPO.conteudoEntra, ease: CURVA.rapidaParaLenta }}
+    >
       <p className="brand-kicker">{titulo}</p>
       <div className="brand-section-content">{children}</div>
-    </section>
+    </motion.section>
   );
 }
 
@@ -162,6 +171,7 @@ export function PaginaPublicaConteudo({
       </span>
     );
   const definicao = SEGMENTOS_CONFIG[tenant.segmento];
+  const capaRecomendada = capaPublicaRecomendada(tenant.segmento, tenant.capa_signed_url);
   const vocabulario = termos(tenant.segmento);
   // Tocar no serviço já abre o agendamento com ele escolhido (como os modelos Site completo e Raízes fazem com
   // "Agendar"). Sem agenda online, o cartão fica só informativo.
@@ -242,11 +252,12 @@ export function PaginaPublicaConteudo({
           <header className="brand-hero">
             <img
               src={
-                tenant.capa_signed_url ??
-                (tenant.segmento === "barbearia" ? coverBarbearia.url : coverNeutra.url)
+                capaRecomendada ??
+                 (tenant.segmento === "barbearia" ? coverBarbearia.url : coverNeutra.url)
               }
-              alt={`Ambiente de ${tenant.nome}`}
-              width={1200}
+              alt={tenant.capa_signed_url ? `Ambiente de ${tenant.nome}` : ""}
+               onError={(evento) => { const img = evento.currentTarget; if (!img.src.endsWith(coverNeutra.url)) img.src = coverNeutra.url; }}
+               width={1200}
               height={1500}
               fetchPriority="high"
               decoding="async"
