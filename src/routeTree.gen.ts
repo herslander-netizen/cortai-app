@@ -20,6 +20,7 @@ import { Route as ComecarRouteImport } from './routes/comecar'
 import { Route as ConfigurarMinhaBarbeariaRouteImport } from './routes/configurar-minha-barbearia'
 import { Route as ConviteRouteImport } from './routes/convite'
 import { Route as EscolherRouteImport } from './routes/escolher'
+import { Route as EntradaRouteImport } from './routes/entrada'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as McpRouteImport } from './routes/mcp'
 import { Route as PrivacidadeRouteImport } from './routes/privacidade'
@@ -160,6 +161,11 @@ const ConviteRoute = ConviteRouteImport.update({
 const EscolherRoute = EscolherRouteImport.update({
   id: '/escolher',
   path: '/escolher',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EntradaRoute = EntradaRouteImport.update({
+  id: '/entrada',
+  path: '/entrada',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -606,6 +612,7 @@ export interface FileRoutesByFullPath {
   '/configurar-minha-barbearia': typeof ConfigurarMinhaBarbeariaRoute
   '/convite': typeof ConviteRoute
   '/escolher': typeof EscolherRoute
+  '/entrada': typeof EntradaRoute
   '/login': typeof LoginRoute
   '/mcp': typeof McpRoute
   '/privacidade': typeof PrivacidadeRoute
@@ -701,6 +708,7 @@ export interface FileRoutesByTo {
   '/configurar-minha-barbearia': typeof ConfigurarMinhaBarbeariaRoute
   '/convite': typeof ConviteRoute
   '/escolher': typeof EscolherRoute
+  '/entrada': typeof EntradaRoute
   '/login': typeof LoginRoute
   '/mcp': typeof McpRoute
   '/privacidade': typeof PrivacidadeRoute
@@ -799,6 +807,7 @@ export interface FileRoutesById {
   '/configurar-minha-barbearia': typeof ConfigurarMinhaBarbeariaRoute
   '/convite': typeof ConviteRoute
   '/escolher': typeof EscolherRoute
+  '/entrada': typeof EntradaRoute
   '/login': typeof LoginRoute
   '/mcp': typeof McpRoute
   '/privacidade': typeof PrivacidadeRoute
@@ -899,6 +908,7 @@ export interface FileRouteTypes {
     | '/configurar-minha-barbearia'
     | '/convite'
     | '/escolher'
+    | '/entrada'
     | '/login'
     | '/mcp'
     | '/privacidade'
@@ -994,6 +1004,7 @@ export interface FileRouteTypes {
     | '/configurar-minha-barbearia'
     | '/convite'
     | '/escolher'
+    | '/entrada'
     | '/login'
     | '/mcp'
     | '/privacidade'
@@ -1091,6 +1102,7 @@ export interface FileRouteTypes {
     | '/configurar-minha-barbearia'
     | '/convite'
     | '/escolher'
+    | '/entrada'
     | '/login'
     | '/mcp'
     | '/privacidade'
@@ -1190,6 +1202,7 @@ export interface RootRouteChildren {
   ConfigurarMinhaBarbeariaRoute: typeof ConfigurarMinhaBarbeariaRoute
   ConviteRoute: typeof ConviteRoute
   EscolherRoute: typeof EscolherRoute
+  EntradaRoute: typeof EntradaRoute
   LoginRoute: typeof LoginRoute
   McpRoute: typeof McpRoute
   PrivacidadeRoute: typeof PrivacidadeRoute
@@ -1300,6 +1313,13 @@ declare module '@tanstack/react-router' {
       path: '/escolher'
       fullPath: '/escolher'
       preLoaderRoute: typeof EscolherRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/entrada': {
+      id: '/entrada'
+      path: '/entrada'
+      fullPath: '/entrada'
+      preLoaderRoute: typeof EntradaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -2055,6 +2075,7 @@ const rootRouteChildren: RootRouteChildren = {
   ConfigurarMinhaBarbeariaRoute: ConfigurarMinhaBarbeariaRoute,
   ConviteRoute: ConviteRoute,
   EscolherRoute: EscolherRoute,
+  EntradaRoute: EntradaRoute,
   LoginRoute: LoginRoute,
   McpRoute: McpRoute,
   PrivacidadeRoute: PrivacidadeRoute,
