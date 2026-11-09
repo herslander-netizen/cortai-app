@@ -1,6 +1,7 @@
 import type { CSSProperties, ReactNode } from "react";
 
 import { ArrowLeft, MoreVertical } from "lucide-react";
+import { useReducedMotion } from "framer-motion";
 
 import {
   DropdownMenu,
@@ -44,11 +45,14 @@ export function ChatBackground({
   modo?: ChatConfig["fundo"];
   segmento?: Segmento | undefined;
 }) {
+  const movimentoReduzido = useReducedMotion();
   const { imagem, padraoSegmento } = resolverFundoDoChat({ modo, capaUrl, segmento, fundoFlow: fundo.url });
   return (
     <div aria-hidden className="chat-fundo">
       {imagem ? (
         <img src={imagem} alt="" className="chat-fundo-img" decoding="async"
+          // A classe tem um parallax CSS contínuo: desative-o quando o sistema pedir movimento reduzido.
+          style={movimentoReduzido ? { animation: "none" } : undefined}
           onError={(evento) => {
             const img = evento.currentTarget;
             if (!img.src.endsWith(fundo.url)) img.src = fundo.url;
