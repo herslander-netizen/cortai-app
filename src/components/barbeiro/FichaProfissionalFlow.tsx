@@ -81,21 +81,25 @@ function disponibilidade(
 /** Ficha de equipe no padrão visual do vídeo, sem substituir os controles existentes. */
 export function FichaProfissionalFlow({
   membro,
+  profissionalId,
   aoFechar,
   aoAjustarAcesso,
   aoDesativar,
   ocupado,
 }: {
   membro: MembroDaEquipe;
+  profissionalId?: string;
   aoFechar: () => void;
   aoAjustarAcesso: () => void;
   aoDesativar: () => void;
   ocupado: boolean;
 }) {
   const qc = useQueryClient();
+  const alvo = profissionalId ? { profissionalId } : { userId: membro.userId };
+  const chaveFicha = profissionalId ?? membro.userId;
   const ficha = useQuery({
-    queryKey: ["ficha-profissional-flow", membro.userId],
-    queryFn: () => getFichaProfissionalFlow({ data: { userId: membro.userId } }),
+    queryKey: ["ficha-profissional-flow", chaveFicha],
+    queryFn: () => getFichaProfissionalFlow({ data: alvo }),
   });
   const [tela, setTela] = useState<"perfil" | "horarios" | "dados" | "data">("perfil");
   const menosMovimento = useMenosMovimento();
@@ -142,10 +146,10 @@ export function FichaProfissionalFlow({
   const limiteData = new Date(Date.now() + 365 * 86_400_000 - new Date().getTimezoneOffset() * 60_000).toISOString().slice(0, 10);
 
   const atualizarDados = useMutation({
-    mutationFn: () => salvarDadosProfissionalFlow({ data: { userId: membro.userId, ...dadosForm } }),
+    mutationFn: () => salvarDadosProfissionalFlow({ data: { ...alvo, ...dadosForm } }),
     onSuccess: async () => {
       await Promise.all([
-        qc.invalidateQueries({ queryKey: ["ficha-profissional-flow", membro.userId] }),
+        qc.invalidateQueries({ queryKey: ["ficha-profissional-flow", chaveFicha] }),
         qc.invalidateQueries({ queryKey: ["equipe"] }),
         qc.invalidateQueries({ queryKey: ["equipe-escala"] }),
       ]);
@@ -156,22 +160,22 @@ export function FichaProfissionalFlow({
   });
   const atualizarFoto = useMutation({
     mutationFn: (arquivo: { tipo: "image/jpeg" | "image/png" | "image/webp"; base64: string }) =>
-      salvarFotoProfissionalFlow({ data: { userId: membro.userId, ...arquivo } }),
+      salvarFotoProfissionalFlow({ data: { ...alvo, ...arquivo } }),
     onSuccess: async () => {
-      await qc.invalidateQueries({ queryKey: ["ficha-profissional-flow", membro.userId] });
+      await qc.invalidateQueries({ queryKey: ["ficha-profissional-flow", chaveFicha] });
       setErroLocal(null);
     },
     onError: (e) => setErroLocal(e instanceof Error ? e.message : "Não foi possível atualizar a foto."),
   });
   const atualizarData = useMutation({
     mutationFn: () => salvarDisponibilidadePorDataFlow({
-      data: { userId: membro.userId, dia: dataForm.dia, trabalha: dataForm.trabalha,
+      data: { ...alvo, dia: dataForm.dia, trabalha: dataForm.trabalha,
         abre: dataForm.trabalha ? dataForm.abre : null,
         fecha: dataForm.trabalha ? dataForm.fecha : null },
     }),
     onSuccess: async () => {
       await Promise.all([
-        qc.invalidateQueries({ queryKey: ["ficha-profissional-flow", membro.userId] }),
+        qc.invalidateQueries({ queryKey: ["ficha-profissional-flow", chaveFicha] }),
         qc.invalidateQueries({ queryKey: ["agenda-dia"] }),
         qc.invalidateQueries({ queryKey: ["agenda-publica"] }),
       ]);
@@ -181,10 +185,10 @@ export function FichaProfissionalFlow({
     onError: (e) => setErroLocal(e instanceof Error ? e.message : "Não foi possível salvar esta data."),
   });
   const removerData = useMutation({
-    mutationFn: (dia: string) => removerDisponibilidadePorDataFlow({ data: { userId: membro.userId, dia } }),
+    mutationFn: (dia: string) => removerDisponibilidadePorDataFlow({ data: { ...alvo, dia } }),
     onSuccess: async () => {
       await Promise.all([
-        qc.invalidateQueries({ queryKey: ["ficha-profissional-flow", membro.userId] }),
+        qc.invalidateQueries({ queryKey: ["ficha-profissional-flow", chaveFicha] }),
         qc.invalidateQueries({ queryKey: ["agenda-dia"] }),
         qc.invalidateQueries({ queryKey: ["agenda-publica"] }),
       ]);
@@ -274,7 +278,7 @@ export function FichaProfissionalFlow({
     },
     onSuccess: async () => {
       await Promise.all([
-        qc.invalidateQueries({ queryKey: ["ficha-profissional-flow", membro.userId] }),
+        qc.invalidateQueries({ queryKey: ["ficha-profissional-flow", chaveFicha] }),
         qc.invalidateQueries({ queryKey: ["escala"] }),
         qc.invalidateQueries({ queryKey: ["agenda-dia"] }),
       ]);
@@ -702,7 +706,7 @@ export function FichaProfissionalFlow({
                 </dl>
               </section>
 
-              <section aria-labelledby="ficha-acesso" className="mt-10">
+              {!profissionalId && <section aria-labelledby="ficha-acesso" className="mt-10">
                 <div className="mb-4 flex items-center justify-between">
                   <h2 id="ficha-acesso" className="text-xl font-semibold">Acesso ao Flow</h2>
                   {membro.papel !== "dono" && (
@@ -724,12 +728,12 @@ export function FichaProfissionalFlow({
                     </dd>
                   </div>
                 </dl>
-              </section>
+              </section>}
 
               {membro.papel !== "dono" && (
                 <section className="mt-10 pb-6">
                   {!confirmarDesativacao ? (
-                    <button type="button" disabled={ocupado || !membro.ativo} onClick={() => setConfirmarDesativacao(true)} className={botaoAzul + " disabled:opacity-50"}>
+                    <button type="button" disabled={ocupado || !membro.ativo || Boolean(profissionalId && dados?.vinculadoAConta)} onClick={() => setConfirmarDesativacao(true)} className={botaoAzul + " disabled:opacity-50"}>
                       {membro.ativo ? "Desativar profissional" : "Profissional desativado"}
                     </button>
                   ) : (
@@ -741,7 +745,11 @@ export function FichaProfissionalFlow({
                       </div>
                     </div>
                   )}
-                  <p className="mt-2 text-xs leading-relaxed text-white/60">Agendamentos existentes permanecem registrados; novos horários não serão oferecidos.</p>
+                  {profissionalId && dados?.vinculadoAConta ? (
+                    <p className="mt-2 text-xs leading-relaxed text-white/60">Este profissional tem acesso ao Flow. Desative-o pela tela Equipe e permissões.</p>
+                  ) : (
+                    <p className="mt-2 text-xs leading-relaxed text-white/60">Agendamentos existentes permanecem registrados; novos horários não serão oferecidos.</p>
+                  )}
                 </section>
               )}
             </>
