@@ -225,12 +225,12 @@ export const getPerfilDoMembroParaEdicao = createServerFn({ method: "GET" })
       .limit(2);
 
     if (error) throw new Error("Não foi possível carregar os dados do profissional.");
-    if ((perfis ?? []).length !== 1)
+    const perfil = perfis?.[0];
+    if (!perfil || (perfis ?? []).length !== 1)
       throw new Error(
         perfis?.length ? "Esta conta possui perfis duplicados. Corrija o vínculo antes de editar." :
           "Esta conta ainda não possui um perfil profissional vinculado.",
       );
-    const perfil = perfis![0];
     return {
       id: perfil.id,
       nome: perfil.nome,
