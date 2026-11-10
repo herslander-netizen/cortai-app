@@ -402,7 +402,7 @@ export function AgendaOperacional() {
     const diaDaNovaVisao = diaAoAlternarParaLista(
       dia, hojeNoFuso(fuso), visualizacao, segura, celular,
     );
-    if (diaDaNovaVisao !== dia) setDia(diaDaNovaVisao);
+    if (diaDaNovaVisao !== dia) mudarDia(diaDaNovaVisao);
     if (celular && segura === "lista" && visualizacao !== "lista") window.scrollTo({ top: 0 });
     // O calendário do mês não fica aberto de uma visualização para outra (vídeo do dono, 06/11: ele "abria
     // sozinho" ao voltar para a linha do tempo).
