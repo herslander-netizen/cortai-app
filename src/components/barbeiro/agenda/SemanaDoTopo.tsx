@@ -29,6 +29,7 @@ import {
   tituloDoMes,
 } from "./calendario";
 import { somarDias } from "./tempo";
+import { mesesParaContagem } from "./meses-para-contagem";
 
 /** Meses mostrados antes e depois do mês do dia quando o calendário está aberto. */
 const MESES_EM_VOLTA = 12;
@@ -239,7 +240,6 @@ export function SemanaDoTopo({
   // assentam (`layoutAberto`): montar 24 meses no meio da animação travava o quadro. A lista continua
   // parada no mês do dia escolhido.
   const [raioDosMeses, setRaioDosMeses] = useState(0);
-  const mesesProntos = raioDosMeses > 0;
   const mesesMontados = useMemo(
     () => meses.filter((_, i) => Math.abs(i - MESES_EM_VOLTA) <= raioDosMeses),
     [meses, raioDosMeses],
@@ -248,12 +248,17 @@ export function SemanaDoTopo({
     () => (raioDosMeses > 0 ? mesesMontados : [mesDoDiaEscolhido]),
     [raioDosMeses, mesesMontados, mesDoDiaEscolhido],
   );
-  const mesesComContagem = [
-    ...new Set([
-      ...tresSemanas.flat().map(mesDoDia),
-      ...(mesesProntos ? mesesMontados : expandido ? [mesDoDiaEscolhido] : []),
-    ]),
-  ];
+  const mesesDaSemana = useMemo(
+    () => [...new Set(tresSemanas.flat().map(mesDoDia))],
+    // O mês da semana só muda quando seu primeiro dia muda.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [inicioDaSemana],
+  );
+  const [mesesVisitados, setMesesVisitados] = useState<ReadonlySet<string>>(() => new Set());
+  const mesesComContagem = useMemo(
+    () => mesesParaContagem(mesesDaSemana, mesDoDiaEscolhido, expandido, mesesVisitados),
+    [mesesDaSemana, mesDoDiaEscolhido, expandido, mesesVisitados],
+  );
   const contar = useServerFn(getContagemDoMes);
   const contagens = useQueries({
     queries: mesesComContagem.map((mes) => ({
@@ -422,6 +427,7 @@ export function SemanaDoTopo({
       if (!expandido) {
         setPainelVisivel(false);
         setRaioDosMeses(0);
+        setMesesVisitados(new Set());
       }
       return;
     }
@@ -445,6 +451,7 @@ export function SemanaDoTopo({
         if (expandidoRef.current) return;
         setPainelVisivel(false);
         setRaioDosMeses(0);
+        setMesesVisitados(new Set());
       }),
     [alturaDoPainel],
   );
@@ -476,6 +483,43 @@ export function SemanaDoTopo({
     proxima();
     return () => window.clearTimeout(espera);
   }, [expandido, layoutAberto]);
+  // Evita 25 requisições simultâneas ao expandir o mês. A semana e o
+  // mês selecionado já têm seus pontinhos; os meses próximos começam a
+  // carregar ao alcançar a área visível, preservando a rolagem de 12+12 meses.
+  useEffect(() => {
+    if (!expandido || !painelVisivel) return;
+    const lista = listaRef.current;
+    if (!lista) return;
+
+    let quadro = 0;
+    const observarRegiao = () => {
+      quadro = 0;
+      const superior = lista.scrollTop - lista.clientHeight;
+      const inferior = lista.scrollTop + lista.clientHeight * 2;
+      const visiveis = Array.from(lista.querySelectorAll<HTMLElement>("[data-mes]"))
+        .filter((el) => el.offsetTop < inferior && el.offsetTop + el.offsetHeight > superior)
+        .map((el) => el.dataset["mes"])
+        .filter((mes): mes is string => Boolean(mes));
+
+      if (!visiveis.length) return;
+      setMesesVisitados((anteriores) =>
+        visiveis.every((mes) => anteriores.has(mes))
+          ? anteriores
+          : new Set([...anteriores, ...visiveis]),
+      );
+    };
+    const aoRolar = () => {
+      if (!quadro) quadro = window.requestAnimationFrame(observarRegiao);
+    };
+    // Os meses são montados em fases: observar novamente a cada fase.
+    observarRegiao();
+    lista.addEventListener("scroll", aoRolar, { passive: true });
+    return () => {
+      lista.removeEventListener("scroll", aoRolar);
+      if (quadro) window.cancelAnimationFrame(quadro);
+    };
+  }, [expandido, painelVisivel, mesesDaLista]);
+
   // Se a tela sair com o mês aberto, a Agenda não pode ficar deslocada.
   useEffect(
     () => () => {
