@@ -136,9 +136,9 @@ export function TransicaoDePagina({ children }: { children: ReactNode }) {
         initial={false}
         animate={controles}
         // Contêiner estável: a transição anima sem reinicializar páginas e contextos.
-        style={estado.current && estado.current.tipo !== "esmaecer"
-          ? { backgroundColor: "var(--color-background)" }
-          : undefined}
+        {...(estado.current && estado.current.tipo !== "esmaecer"
+          ? { style: { backgroundColor: "var(--color-background)" } }
+          : {})}
       >
         {children}
       </motion.div>
