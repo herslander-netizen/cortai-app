@@ -82,6 +82,7 @@ import { BarraDeEdicaoDeHorario } from "@/components/barbeiro/agenda/BarraDeEdic
 import { CabecalhoDeEdicao } from "@/components/barbeiro/agenda/CabecalhoDeEdicao";
 import { MarcaDoLimiteDoDia, SemanaDoTopo } from "@/components/barbeiro/agenda/SemanaDoTopo";
 import { ListaPeriodo, opcoesAgendaPeriodo } from "@/components/barbeiro/agenda/ListaPeriodo";
+import { diaAoAlternarParaLista } from "@/components/barbeiro/agenda/lista-periodo-regras";
 import { useMostrarCancelados } from "@/components/barbeiro/agenda/useMostrarCancelados";
 import {
   RecolheNaLista,
@@ -396,7 +397,12 @@ export function AgendaOperacional() {
 
   function alterarVisualizacao(proxima: Visualizacao) {
     const segura = celular && proxima === "semana" ? "lista" : proxima;
-    // Celular: a lista começa em hoje, no topo (como no vídeo do dono).
+    // A Lista começa nesta semana; sincronizar também o mês no cabeçalho.
+    // Sem isso a Timeline de novembro podia abrir a Lista com título de outubro.
+    const diaDaNovaVisao = diaAoAlternarParaLista(
+      dia, hojeNoFuso(fuso), visualizacao, segura, celular,
+    );
+    if (diaDaNovaVisao !== dia) setDia(diaDaNovaVisao);
     if (celular && segura === "lista" && visualizacao !== "lista") window.scrollTo({ top: 0 });
     // O calendário do mês não fica aberto de uma visualização para outra (vídeo do dono, 06/11: ele "abria
     // sozinho" ao voltar para a linha do tempo).
@@ -614,7 +620,9 @@ export function AgendaOperacional() {
     if (diaAnterior.current === dia) return;
     diaAnterior.current = dia;
     const el = palcoDoDia.current;
-    if (!el || entradaPeloGesto || prefereMenosMovimento() || typeof el.animate !== "function")
+    // A Lista tem seu próprio movimento: não animar o palco inteiro de novo
+    // quando a data e a visualização mudam no mesmo toque.
+    if (!el || visualizacao === "lista" || entradaPeloGesto || prefereMenosMovimento() || typeof el.animate !== "function")
       return;
     const lado = direcaoDia === "anterior" ? -1 : 1;
     el.animate(
@@ -624,7 +632,7 @@ export function AgendaOperacional() {
       ],
       { duration: 200, easing: "cubic-bezier(0.2, 0, 0, 1)" },
     );
-  }, [dia, direcaoDia, entradaPeloGesto]);
+  }, [dia, direcaoDia, entradaPeloGesto, visualizacao]);
   const { aplicar: aplicarRascunho } = edicao;
   const todosItens = useMemo(() => aplicarRascunho(itensBase), [aplicarRascunho, itensBase]);
   const itens = useMemo(
