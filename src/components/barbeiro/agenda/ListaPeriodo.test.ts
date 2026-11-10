@@ -128,7 +128,7 @@ describe("coerência entre título do mês e visualização da Agenda", () => {
   it("liga o controle real de troca ao ajuste do título, sem outro estado de mês", () => {
     const codigo = readFileSync("src/components/barbeiro/AgendaOperacional.tsx", "utf8");
     expect(codigo).toContain("diaAoAlternarParaLista(");
-    expect(codigo).toContain("if (diaDaNovaVisao !== dia) setDia(diaDaNovaVisao)");
+    expect(codigo).toContain("if (diaDaNovaVisao !== dia) mudarDia(diaDaNovaVisao)");
     expect(codigo).toContain('visualizacao === "lista" || entradaPeloGesto');
   });
 });
