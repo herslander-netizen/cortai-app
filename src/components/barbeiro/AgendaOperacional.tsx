@@ -1401,7 +1401,7 @@ export function AgendaOperacional() {
         ) : null}
         <AnimatePresence initial={false} mode="wait">
           <motion.div
-            key={celular ? visualizacao : "desktop"}
+            key={visualizacao}
             id="agenda-painel-visualizacao"
             aria-label={`Visualização ${visualizacao}`}
             initial={celular && !menosMovimento ? { opacity: 0, y: 10 } : false}
