@@ -2982,7 +2982,7 @@ body:has(.auth-screen--claro) {
 }
 /* Celular: a Timeline não é contêiner de rolagem; quem rola é a página.
    Uma sobra de 1px prendia o gesto na caixa (overscroll contain). */
-@media (max-width: 600px) {
+@media (max-width: 767px) {
   .agenda-timeline-wrap {
     overflow: visible;
     overflow-x: clip;

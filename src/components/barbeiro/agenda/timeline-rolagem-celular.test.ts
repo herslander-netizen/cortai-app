@@ -7,7 +7,7 @@ const operacional = readFileSync("src/components/barbeiro/AgendaOperacional.tsx"
 
 function blocosCelular() {
   const blocos: string[] = [];
-  const re = /@media \(max-width: 600px\) \{/g;
+  const re = /@media \(max-width: 767px\) \{/g;
   let m: RegExpExecArray | null;
   while ((m = re.exec(css))) {
     let nivel = 1;
@@ -23,7 +23,11 @@ describe("rolagem da Timeline no celular", () => {
   it("a Timeline não é contêiner de rolagem no celular", () => {
     const regra = blocosCelular()
       .map((b) => b.match(/\.agenda-timeline-scroll \{([^}]*)\}/)?.[1])
-      .find(Boolean);
+      .find((trecho) =>
+        trecho?.includes("overflow: visible;") &&
+        trecho.includes("overflow-x: clip;") &&
+        trecho.includes("overscroll-behavior: auto;"),
+      );
     expect(regra).toContain("overflow: visible;");
     expect(regra).toContain("overflow-x: clip;");
     expect(regra).toContain("overscroll-behavior: auto;");
