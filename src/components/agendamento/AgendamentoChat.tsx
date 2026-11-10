@@ -180,7 +180,7 @@ export function AgendamentoChat({
           />
         }
       >
-        <Conversation className="min-h-0">
+        <Conversation className="min-h-0" initial="instant" resize="instant">
           <ConversationContent
             className="mx-auto w-full max-w-[620px] gap-5 px-4 py-6 sm:px-6"
             role="log"
