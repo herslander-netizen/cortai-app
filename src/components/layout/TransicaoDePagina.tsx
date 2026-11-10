@@ -1,11 +1,12 @@
-import { useEffect, useRef, useState, type ReactNode } from "react";
-import { motion } from "framer-motion";
+import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
+import { motion, useAnimationControls } from "framer-motion";
 import { useRouterState } from "@tanstack/react-router";
 
 import { useMenosMovimento } from "@/hooks/useMovimento";
 import { registrar } from "@/lib/diagnostico/telemetria";
 import {
   copiaDaTela,
+  podeCopiarTela,
   entradaDaTela,
   saidaDaTela,
   sentidoDaNavegacao,
@@ -37,6 +38,7 @@ export function TransicaoDePagina({ children }: { children: ReactNode }) {
   const menosMovimento = useMenosMovimento();
 
   const tela = useRef<HTMLDivElement>(null);
+  const controles = useAnimationControls();
   const anterior = useRef({ caminho, indice });
   const estado = useRef<EstadoDaTransicao | null>(null);
   const saindo = useRef<TelaSaindo | null>(null);
@@ -52,7 +54,9 @@ export function TransicaoDePagina({ children }: { children: ReactNode }) {
       sentido: sentidoDaNavegacao(de.caminho, caminho, de.indice, indice),
       menosMovimento,
     };
-    saindo.current = tela.current
+    // Um clone grande bloqueia o thread principal justamente durante a navegação.
+    // Em telas complexas animamos a entrada sem replicar toda a árvore de DOM.
+    saindo.current = tela.current && !menosMovimento && podeCopiarTela(tela.current)
       ? {
           id: ++contador.current,
           copia: copiaDaTela(tela.current),
@@ -63,12 +67,26 @@ export function TransicaoDePagina({ children }: { children: ReactNode }) {
     anterior.current = { caminho, indice };
   }
 
-  // Rede de segurança: se a animação demorar a começar (aparelho ocupado carregando a tela), a tela nova
-  // fica fora do lugar, invisível, e a cópia antiga continua por cima: parece tela em branco. Passado o
-  // prazo, a tela nova vai direto ao lugar e a cópia sai.
-  const [forcadoEm, forcar] = useState<string | null>(null);
+  // A entrada começa no mesmo contêiner: uma mudança de rota não pode desmontar
+  // <Outlet /> e o casco compartilhado (sessão, menu e consultas da equipe).
+  // useLayoutEffect posiciona a tela antes do próximo paint, preservando as
+  // curvas e os sentidos definidos pelo contrato de navegação do Figaroo.
+  useLayoutEffect(() => {
+    controles.stop();
+    controles.set({ opacity: 1, x: "0%", y: "0vh" });
+    if (!estado.current) return;
+    const atual = { ...estado.current, menosMovimento };
+    controles.set(entradaDaTela(atual));
+    void controles.start(telaNoLugar(atual));
+  }, [caminho, controles, menosMovimento]);
+
+  // Segurança: mesmo que o navegador interrompa a animação, ela nunca
+  // deixa a nova tela invisível. A cópia antiga sempre é descartada.
   useEffect(() => {
-    const prazoDaTela = window.setTimeout(() => forcar(caminho), PRAZO_DA_TELA_MS);
+    const prazoDaTela = window.setTimeout(() => {
+      controles.stop();
+      controles.set({ opacity: 1, x: "0%", y: "0vh" });
+    }, PRAZO_DA_TELA_MS);
     const prazoDaCopia = window.setTimeout(() => {
       if (!saindo.current) return;
       saindo.current = null;
@@ -78,15 +96,9 @@ export function TransicaoDePagina({ children }: { children: ReactNode }) {
       window.clearTimeout(prazoDaTela);
       window.clearTimeout(prazoDaCopia);
     };
-  }, [caminho]);
+  }, [caminho, controles]);
 
-  const atual = estado.current ? { ...estado.current, menosMovimento } : null;
   const fantasma = saindo.current;
-  const noLugar = atual
-    ? forcadoEm === caminho
-      ? { ...telaNoLugar(atual), transition: { duration: 0 } }
-      : telaNoLugar(atual)
-    : undefined;
 
   return (
     <div style={{ overflowX: "clip" }}>
@@ -113,15 +125,13 @@ export function TransicaoDePagina({ children }: { children: ReactNode }) {
         </motion.div>
       ) : null}
       <motion.div
-        key={caminho}
         ref={tela}
-        // Opaca como as telas do Figaro: a cópia que sai, atrás, não aparece através da nova.
-        {...(atual && atual.tipo !== "esmaecer"
-          ? { style: { backgroundColor: "var(--color-background)" } }
-          : {})}
-        {...(atual && noLugar
-          ? { initial: entradaDaTela(atual), animate: noLugar }
-          : { initial: false })}
+        initial={false}
+        animate={controles}
+        // Contêiner estável: a transição anima sem reinicializar páginas e contextos.
+        style={estado.current?.tipo !== "esmaecer"
+          ? { backgroundColor: "var(--color-background)" }
+          : undefined}
       >
         {children}
       </motion.div>
