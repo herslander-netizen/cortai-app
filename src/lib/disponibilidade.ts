@@ -63,14 +63,22 @@ function min(hhmm: string) {
 }
 
 /** Dia (AAAA-MM-DD) e minuto do dia de um instante, no fuso da barbearia. */
+const formatadoresHora = new Map<string, Intl.DateTimeFormat>();
+
 export function diaEMinutoNoFuso(instante: number, fuso: string): { dia: string; minuto: number } {
-  const dia = hojeNoFuso(fuso, new Date(instante));
-  const hm = new Intl.DateTimeFormat("en-GB", {
-    timeZone: fuso,
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-  }).format(new Date(instante));
+  const data = new Date(instante);
+  const dia = hojeNoFuso(fuso, data);
+  let formatador = formatadoresHora.get(fuso);
+  if (!formatador) {
+    formatador = new Intl.DateTimeFormat("en-GB", {
+      timeZone: fuso,
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    });
+    formatadoresHora.set(fuso, formatador);
+  }
+  const hm = formatador.format(data);
   return { dia, minuto: min(hm) % (24 * 60) };
 }
 
@@ -153,11 +161,12 @@ export function escolherProfissional(
   dia: string,
   ocupados: Ocupado[],
   fuso: string,
+  contagensDoDia?: ReadonlyMap<string, number>,
 ): string | null {
   let melhor: string | null = null;
   let menor = Infinity;
   for (const id of livres) {
-    const n = contagemNoDia(id, dia, ocupados, fuso);
+    const n = contagensDoDia ? (contagensDoDia.get(id) ?? 0) : contagemNoDia(id, dia, ocupados, fuso);
     if (n < menor) {
       menor = n;
       melhor = id;
@@ -186,6 +195,15 @@ export function horariosDisponiveis(p: {
   const passo = p.passoMin ?? 30;
   const aptos = profissionaisDoServico(p.servico, p.profissionais).map((x) => x.id);
   const candidatos = p.escolhido === "qualquer" ? aptos : aptos.filter((id) => id === p.escolhido);
+  // O total de atendimentos em cada dia não muda entre os horários testados.
+  // Calculá-lo uma vez preserva a distribuição com menor carga de CPU.
+  const contagensDoDia = new Map<string, number>();
+  for (const ocupacao of p.ocupados) {
+    const id = ocupacao.profissional_id;
+    if (!id || ocupacao.bloqueio || !candidatos.includes(id)) continue;
+    if (hojeNoFuso(p.fuso, new Date(ocupacao.inicio)) !== p.dia) continue;
+    contagensDoDia.set(id, (contagensDoDia.get(id) ?? 0) + 1);
+  }
   const opcoes: Opcao[] = [];
   for (
     let t = min(info.abre);
@@ -210,7 +228,7 @@ export function horariosDisponiveis(p: {
     const livres = candidatos.filter((id) =>
       profissionalLivre(id, inicio, fim, p.ocupados, p.regras.intervaloEntreMin),
     );
-    const prof = escolherProfissional(livres, p.dia, p.ocupados, p.fuso);
+    const prof = escolherProfissional(livres, p.dia, p.ocupados, p.fuso, contagensDoDia);
     if (prof) opcoes.push({ iso, label, profId: prof });
   }
   return { fechado: false, opcoes };
