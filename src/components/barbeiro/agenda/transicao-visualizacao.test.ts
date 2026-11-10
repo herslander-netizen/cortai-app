@@ -6,7 +6,7 @@ const agenda = readFileSync("src/components/barbeiro/AgendaOperacional.tsx", "ut
 describe("troca de visualização da Agenda no celular", () => {
   it("anima apenas a área de conteúdo, sem remontar os controles flutuantes", () => {
     expect(agenda).toContain('<AnimatePresence initial={false} mode="wait">');
-    expect(agenda).toContain('key={celular ? visualizacao : "desktop"}');
+    expect(agenda).toContain('key={visualizacao}');
     expect(agenda).toContain('id="agenda-painel-visualizacao"');
     expect(agenda.indexOf("</AnimatePresence>")).toBeLessThan(
       agenda.lastIndexOf("<BotaoAgoraPrincipal"),
