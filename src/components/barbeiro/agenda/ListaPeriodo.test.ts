@@ -108,6 +108,31 @@ describe("modo lista no celular", () => {
   });
 });
 
+describe("coerência entre título do mês e visualização da Agenda", () => {
+  it("ao entrar na Lista do celular, ancora o título no mês de hoje", async () => {
+    const { diaAoAlternarParaLista } = await import("./lista-periodo-regras");
+    expect(diaAoAlternarParaLista("2026-10-03", "2026-11-09", "timeline", "lista", true))
+      .toBe("2026-11-09");
+    expect(diaAoAlternarParaLista("2026-11-12", "2026-11-09", "semana", "lista", true))
+      .toBe("2026-11-09");
+  });
+
+  it("preserva o dia ao voltar para Timeline ou ao alternar no computador", async () => {
+    const { diaAoAlternarParaLista } = await import("./lista-periodo-regras");
+    expect(diaAoAlternarParaLista("2026-10-03", "2026-11-09", "lista", "timeline", true))
+      .toBe("2026-10-03");
+    expect(diaAoAlternarParaLista("2026-10-03", "2026-11-09", "timeline", "lista", false))
+      .toBe("2026-10-03");
+  });
+
+  it("liga o controle real de troca ao ajuste do título, sem outro estado de mês", () => {
+    const codigo = readFileSync("src/components/barbeiro/AgendaOperacional.tsx", "utf8");
+    expect(codigo).toContain("diaAoAlternarParaLista(");
+    expect(codigo).toContain("if (diaDaNovaVisao !== dia) setDia(diaDaNovaVisao)");
+    expect(codigo).toContain('visualizacao === "lista" || entradaPeloGesto');
+  });
+});
+
 describe("dias da lista (Figaro: todos os dias de hoje até o último com atendimento)", () => {
   it("não volta para outubro ao abrir a Lista em novembro mesmo com um item antigo", async () => {
     const { diasDaLista } = await import("./ListaPeriodo");
