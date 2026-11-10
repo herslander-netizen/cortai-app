@@ -163,6 +163,21 @@ export function saidaDaTela({ tipo, sentido, menosMovimento }: EstadoDaTransicao
 }
 
 /**
+ * Evita cloneNode(true) da Agenda e das listagens extensas: esse trabalho
+ * síncrono ocorre durante a troca de rotas e bloquearia o toque no celular.
+ * A contagem termina assim que ultrapassa o orçamento; nunca percorre toda
+ * uma tela excessivamente grande.
+ */
+export function podeCopiarTela(origem: HTMLElement, limite = 800): boolean {
+  const elementos = origem.ownerDocument.createTreeWalker(origem, 1);
+  let contagem = 0;
+  while (elementos.nextNode()) {
+    if (++contagem > limite) return false;
+  }
+  return true;
+}
+
+/**
  * Cópia visual da tela que está saindo. O `<Outlet />` da tela antiga já desenharia a rota nova,
  * então a saída anima uma cópia estática do DOM, tirada antes da troca. A cópia não tem `id`
  * (para não duplicar alvos de foco e rótulos) e troca iframe, vídeo e canvas por blocos vazios do
