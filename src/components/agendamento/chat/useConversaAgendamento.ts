@@ -13,6 +13,7 @@ import {
 import type { PassoEditavel } from "@/lib/conversa/memoria-cliente";
 import { TEXTOS_CONVERSA } from "@/lib/conversa/respostas";
 import { hojeNoFuso } from "@/lib/horarios";
+import { respostaComPrazo } from "@/lib/conversa/resposta-com-prazo";
 import { useMemoriaDaConversa } from "./useMemoriaDaConversa";
 import { respostaNaoEntendi, respostaRapida } from "./respostasRapidas";
 import type { Chip, Etapa, MensagemExtra, Selecao } from "./tipos";
@@ -48,6 +49,9 @@ export function useConversaAgendamento({
   const [mostrar, setMostrar] = useState(3);
   const [pendente, setPendente] = useState<Pendente>({});
   const contador = useRef(0);
+  const geracaoIa = useRef(0);
+  const emCursoIa = useRef(false);
+  const [consultaIa, setConsultaIa] = useState<{ id: number; etapa: Etapa } | null>(null);
 
   const etapa: Etapa = !s.servico
     ? "servico"
@@ -58,6 +62,13 @@ export function useConversaAgendamento({
         : !s.escolhido
           ? "horario"
           : "dados";
+
+  const respondendoIa = consultaIa?.etapa === etapa && consultaIa.id === geracaoIa.current;
+  useEffect(() => () => {
+    // Descarta respostas atrasadas quando o cliente muda de etapa ou sai do chat.
+    geracaoIa.current += 1;
+    emCursoIa.current = false;
+  }, [etapa, slug]);
 
   const { memoria, rascunho, abertura, setAbertura } = useMemoriaDaConversa({
     slug,
@@ -111,7 +122,7 @@ export function useConversaAgendamento({
   function falar(texto: string, chips?: Chip[], autor: MensagemExtra["autor"] = "recepcao") {
     contador.current += 1;
     const id = contador.current;
-    setExtras((atual) => [...atual, { id, autor, texto, ...(chips ? { chips } : {}) }]);
+    setExtras((atual) => [...atual.slice(-23), { id, autor, texto, ...(chips ? { chips } : {}) }]);
   }
 
   function escolherProfissional(id: string) {
@@ -270,28 +281,43 @@ export function useConversaAgendamento({
     }
     // Dúvida fora do roteiro: a Secretária CortAI responde com os dados reais
     // (só leitura). Sem IA disponível, segue a resposta fixa de sempre.
+    // Não empilha chamadas à IA quando o provedor está lento ou indisponível.
+    if (emCursoIa.current) {
+      const resposta = respostaNaoEntendi(data, falhas, agendar, () => enviarTexto("serviços"));
+      falar(resposta.texto, resposta.chips);
+      return;
+    }
     const historico = extras
       .slice(-8)
       .map((m) => ({
         autor: m.autor === "cliente" ? ("usuario" as const) : ("assistente" as const),
         texto: m.texto.slice(0, 600),
       }));
-    void perguntarIa({ data: { slug, mensagem: texto, historico } })
-      .then((r) => r.texto)
-      .catch(() => null)
+    const id = ++geracaoIa.current;
+    emCursoIa.current = true;
+    setConsultaIa({ id, etapa });
+    void respostaComPrazo(perguntarIa({ data: { slug, mensagem: texto, historico } }).then((r) => r.texto))
       .then((textoIa) => {
+        if (id !== geracaoIa.current) return;
         if (textoIa) {
           setFalhas(0);
-          return falar(textoIa, [agendar]);
+          falar(textoIa, [agendar]);
+        } else {
+          const resposta = respostaNaoEntendi(data, falhas, agendar, () => enviarTexto("serviços"));
+          falar(resposta.texto, resposta.chips);
+          setFalhas((f) => f + 1);
         }
-        const resposta = respostaNaoEntendi(data, falhas, agendar, () => enviarTexto("serviços"));
-        falar(resposta.texto, resposta.chips);
-        setFalhas((f) => f + 1);
+      })
+      .finally(() => {
+        if (id !== geracaoIa.current) return;
+        emCursoIa.current = false;
+        setConsultaIa(null);
       });
   }
 
   return {
     etapa,
+    respondendoIa,
     extras,
     abertura,
     setAbertura,
