@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useRouterState } from "@tanstack/react-router";
 
-import { transicaoBase } from "@/lib/motion";
+import { transicaoBase, transicaoReduzida } from "@/lib/motion";
 import { useMenosMovimento } from "@/hooks/useMovimento";
 
 /** Troca de página: esmaece e sobe levemente. */
@@ -17,7 +17,7 @@ export function TransicaoDePagina({ children }: { children: ReactNode }) {
         initial={menosMovimento ? { opacity: 0 } : { opacity: 0, y: 3 }}
         animate={menosMovimento ? { opacity: 1 } : { opacity: 1, y: 0 }}
         exit={{ opacity: 0 }}
-        transition={transicaoBase}
+        transition={menosMovimento ? transicaoReduzida : transicaoBase}
       >
         {children}
       </motion.div>
