@@ -84,7 +84,7 @@ export function AgendamentoChat({
   const nomeRef = useRef<HTMLInputElement>(null);
   const campoRef = useRef<HTMLInputElement>(null);
   const usouTeclado = useRef(false);
-  const digitando = etapaPronta !== etapa;
+  const digitando = etapaPronta !== etapa || conversa.respondendoIa;
   const funcionamento = statusDeFuncionamento(data.horarios, data.tenant.fuso, undefined, data.excecoesIntervalo);
   const equipe = linkDaEquipe(data);
   const paginaDoNegocio = `/b/${data.tenant.slug}`;
