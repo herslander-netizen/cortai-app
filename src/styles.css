@@ -529,6 +529,12 @@
     transform: scale(1.03) translateY(-6px);
   }
 }
+/* Evita animação infinita de uma imagem grande enquanto o teclado móvel redimensiona o chat. */
+@media (hover: none) and (pointer: coarse) {
+  .chat-sistema .chat-fundo-img {
+    animation: none;
+  }
+}
 .chat-header {
   position: sticky;
   top: 0;
