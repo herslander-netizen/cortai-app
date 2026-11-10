@@ -21,7 +21,9 @@ describe("troca de visualização da Agenda", () => {
   });
 
   it("o calendário do mês fecha ao trocar de visualização", () => {
-    const funcao = operacional.slice(operacional.indexOf("function alterarVisualizacao"));
-    expect(funcao.slice(0, 700)).toContain("if (segura !== visualizacao) setCalAberto(false);");
+    const inicio = operacional.indexOf("function alterarVisualizacao");
+    const fim = operacional.indexOf("function alternarModoDiscreto", inicio);
+    const funcao = operacional.slice(inicio, fim);
+    expect(funcao).toContain("if (segura !== visualizacao) setCalAberto(false);");
   });
 });

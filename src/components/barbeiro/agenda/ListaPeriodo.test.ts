@@ -108,7 +108,70 @@ describe("modo lista no celular", () => {
   });
 });
 
+describe("coerência entre título do mês e visualização da Agenda", () => {
+  it("ao entrar na Lista do celular, ancora o título no mês de hoje", async () => {
+    const { diaAoAlternarParaLista } = await import("./lista-periodo-regras");
+    expect(diaAoAlternarParaLista("2026-10-03", "2026-11-09", "timeline", "lista", true))
+      .toBe("2026-11-09");
+    expect(diaAoAlternarParaLista("2026-11-12", "2026-11-09", "semana", "lista", true))
+      .toBe("2026-11-09");
+  });
+
+  it("preserva o dia ao voltar para Timeline ou ao alternar no computador", async () => {
+    const { diaAoAlternarParaLista } = await import("./lista-periodo-regras");
+    expect(diaAoAlternarParaLista("2026-10-03", "2026-11-09", "lista", "timeline", true))
+      .toBe("2026-10-03");
+    expect(diaAoAlternarParaLista("2026-10-03", "2026-11-09", "timeline", "lista", false))
+      .toBe("2026-10-03");
+  });
+
+  it("liga o controle real de troca ao ajuste do título, sem outro estado de mês", () => {
+    const codigo = readFileSync("src/components/barbeiro/AgendaOperacional.tsx", "utf8");
+    expect(codigo).toContain("diaAoAlternarParaLista(");
+    expect(codigo).toContain("if (diaDaNovaVisao !== dia) mudarDia(diaDaNovaVisao)");
+    expect(codigo).toContain('visualizacao === "lista" || entradaPeloGesto');
+  });
+});
+
 describe("dias da lista (Figaro: todos os dias de hoje até o último com atendimento)", () => {
+  it("não volta para outubro ao abrir a Lista em novembro mesmo com um item antigo", async () => {
+    const { diasDaLista } = await import("./ListaPeriodo");
+    const antigo = item("antigo", "2026-10-03T15:00:00Z");
+    const futuro = item("futuro", "2026-11-12T15:00:00Z");
+    const dias = diasDaLista(
+      [
+        { dia: "2026-10-03", itens: [antigo] },
+        { dia: "2026-11-12", itens: [futuro] },
+      ],
+      "2026-11-09",
+      false,
+    );
+    expect(dias.map((d) => d.dia)).toEqual([
+      "2026-11-09",
+      "2026-11-10",
+      "2026-11-11",
+      "2026-11-12",
+    ]);
+    expect(dias.at(-1)?.itens.map((i) => i.id)).toEqual(["futuro"]);
+  });
+
+  it("conserva os agendamentos anteriores de dentro da semana e exclui históricos na busca", async () => {
+    const { diasDaLista } = await import("./ListaPeriodo");
+    const antigo = item("antigo", "2026-10-03T15:00:00Z");
+    const nestaSemana = item("domingo", "2026-11-08T15:00:00Z");
+    const grupos = [
+      { dia: "2026-10-03", itens: [antigo] },
+      { dia: "2026-11-08", itens: [nestaSemana] },
+    ];
+    expect(diasDaLista(grupos, "2026-11-09", false).map((d) => d.dia)).toEqual([
+      "2026-11-08",
+      "2026-11-09",
+    ]);
+    expect(diasDaLista(grupos, "2026-11-09", true).map((d) => d.dia)).toEqual([
+      "2026-11-08",
+    ]);
+  });
+
   it("preenche os dias vazios do meio e não inventa dias depois do último", async () => {
     const { diasDaLista } = await import("./ListaPeriodo");
     const a = item("a", "2026-10-30T13:00:00.000Z");
