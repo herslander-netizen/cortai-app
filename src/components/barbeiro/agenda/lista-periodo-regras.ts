@@ -65,10 +65,18 @@ export function diasDaLista(
   hoje: string,
   comBusca: boolean,
 ) {
-  if (comBusca || grupos.length === 0) return grupos;
-  const porDia = new Map(grupos.map((g) => [g.dia, g.itens]));
-  const primeiro = grupos[0]!.dia < hoje ? grupos[0]!.dia : hoje;
-  const ultimo = grupos[grupos.length - 1]!.dia > hoje ? grupos[grupos.length - 1]!.dia : hoje;
+  // A lista começa no primeiro atendimento desta semana (ou hoje).
+  // Um registro antigo vindo de uma página de cache nunca pode fazer a
+  // alternância Timeline → Lista saltar para o mês anterior (vídeo 09/11).
+  // O histórico continua no perfil do cliente; não apagamos nem reescrevemos dados.
+  const comecaNestaSemana = inicioDaSemana(hoje);
+  const gruposAtuais = grupos.filter((grupo) => grupo.dia >= comecaNestaSemana);
+  if (comBusca || gruposAtuais.length === 0) return gruposAtuais;
+  const porDia = new Map(gruposAtuais.map((g) => [g.dia, g.itens]));
+  const primeiro = gruposAtuais[0]!.dia < hoje ? gruposAtuais[0]!.dia : hoje;
+  const ultimo = gruposAtuais[gruposAtuais.length - 1]!.dia > hoje
+    ? gruposAtuais[gruposAtuais.length - 1]!.dia
+    : hoje;
   const dias: { dia: string; itens: AgendaItem[] }[] = [];
   for (let n = 0; n <= Math.min(diasEntre(primeiro, ultimo), DIAS_NO_MAXIMO); n += 1) {
     const dia = new Date(Date.parse(`${primeiro}T12:00:00Z`) + n * 86_400_000)
