@@ -15,8 +15,10 @@ export const getRouter = () => {
     defaultPreloadDelay: 30,
     defaultPreloadStaleTime: 0,
     defaultPendingComponent: EsqueletoDaRota,
-    defaultPendingMs: 100,
-    defaultPendingMinMs: 250,
+    // Não mostrar esqueleto nas trocas rápidas nem reter artificialmente
+    // a rota pronta por mais 250 ms depois de a resposta chegar.
+    defaultPendingMs: 240,
+    defaultPendingMinMs: 0,
   });
 
   return router;

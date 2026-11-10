@@ -1,4 +1,4 @@
-import { createFileRoute, Outlet } from "@tanstack/react-router";
+import { createFileRoute, Outlet, useRouterState } from "@tanstack/react-router";
 import { exigirPapel } from "@/lib/guarda";
 import { CalendarDays, Clock, House, UserRound } from "lucide-react";
 import { TabBar, type TabItem } from "@/components/layout/TabBar";
@@ -34,6 +34,7 @@ export const Route = createFileRoute("/app")({
 });
 
 function ClientLayout() {
+  const caminho = useRouterState({ select: (s) => s.location.pathname });
   const vincular = useServerFn(vincularFichaDoConvidado);
   const qc = useQueryClient();
   const slug = useContextoCliente();
@@ -57,7 +58,8 @@ function ClientLayout() {
   }, [vincular, qc]);
   return (
     <ClientBrand>
-      <Outlet />
+      {/* Reinicia somente a página ao mudar o endereço, sem reiniciar o contexto do cliente. */}
+      <Outlet key={caminho} />
       <TabBar items={tabs} />
       <ConviteDeInstalacao />
       <AtivarAvisosNoAparelho texto="Avise-me sobre meus horários e quando chegar a minha vez." />

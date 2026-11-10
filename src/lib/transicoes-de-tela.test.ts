@@ -6,6 +6,7 @@ import {
   nivelDaRota,
   saidaDaTela,
   copiaDaTela,
+  podeCopiarTela,
   sentidoDaNavegacao,
   telaNoLugar,
   tipoDaTransicao,
@@ -157,4 +158,15 @@ describe("copiaDaTela", () => {
     expect(tela.querySelector("iframe")).not.toBeNull();
     expect(tela.querySelector("#titulo")).not.toBeNull();
   });
+  it("não clona árvores grandes a cada navegação", () => {
+    const grande = document.createElement("main");
+    for (let i = 0; i < 805; i++) grande.appendChild(document.createElement("span"));
+    expect(podeCopiarTela(grande)).toBe(false);
+    const pequena = document.createElement("main");
+    for (let i = 0; i < 10; i++) pequena.appendChild(document.createElement("span"));
+    expect(podeCopiarTela(pequena)).toBe(true);
+    // O DOM original nunca é removido nem modificado pela triagem.
+    expect(grande.children).toHaveLength(805);
+  });
+
 });
