@@ -594,7 +594,6 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - 2026-10-26: **Cabeçalho do menu mobile mais compacto** (dono aprovou a reformulação após captura: logo menor, nome do negócio com hierarquia discreta, papel secundário, ajustes alinhados e menos espaço vazio; manter nome em até duas linhas quando necessário, sem afetar a Agenda).
 
 ## Em andamento
-- GPT | 2026-11-10 | **Agenda Lista/Timeline — referência Figaroo (vídeos 09/11):** reproduzir a lista iniciando em outubro com o cabeçalho em novembro; corrigir apenas a janela de dias da Lista e testar regressão do período da semana, preservar gestos, calendário mensal e outras rotas. Validar CI e prévia, sem banco ou produção. | `src/components/barbeiro/agenda/lista-periodo-regras.ts`, `src/components/barbeiro/agenda/ListaPeriodo.test.ts`, `DIARIO.md`; sem migração
 - GPT | 2026-11-08 11:50 BRT | **Nome e sobrenome nos fluxos:** corrigir identificação ambígua no WhatsApp, Flow Bot e consultas do painel; adicionar regra pura e testes, documentar limitações; somente branch oficial, sem sender/webhook reservado pela Claude, Agenda visual, banco, main ou produção | `src/lib/nomes-pessoas.ts`, `src/lib/flow-bot/agenda-na-conversa/*`, `src/lib/brain/busca-cliente.ts`, testes, documentação; sem migração
 
 
@@ -1031,6 +1030,13 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+### 2026-11-10 — GPT — Lista/Timeline: correção do salto de mês observada nos vídeos Figaroo × Flow (PR #46)
+- Vídeo Flow 09/11: alternância entre Timeline em novembro e Lista exibindo 03/10 com título de outubro. O helper `diasDaLista` incluía registros anteriores à semana atual, produzindo mais de 40 dias indevidos. Dois testes de reprodução falharam no CI `42769237347` como esperado.
+- `src/components/barbeiro/agenda/lista-periodo-regras.ts`: restringe os dias da Lista à semana vigente em diante, preserva atendimentos anteriores dentro da mesma semana e impede que buscas mostrem registros fora desse período. Adicionado `diaAoAlternarParaLista` para alinhar mês do cabeçalho à âncora do modo Lista apenas no celular.
+- `src/components/barbeiro/AgendaOperacional.tsx`: alternar para Lista reutiliza `mudarDia` e evita animação redundante do palco; conserva `TrocaDeVisualizacao`, o calendário mensal, as molas do Figaroo, os gestos e o desktop.
+- Testes: `ListaPeriodo.test.ts` ampliado com cinco cenários; `TrocaDeVisualizacao.test.ts` deixou de cortar a função em 700 caracteres, mas continua exigindo fechamento do calendário. CI `42770109312`: build e TypeScript aprovados; **362 arquivos / 2.876 testes aprovados, 1 ignorado**. Revisão de diff restrita à Agenda e ao diário.
+- Sem banco, backend, produção, segredos nem alteração do funcionamento dos cartões. Pendente: homologação manual no Android 360/390 px, temas claro/escuro, comparando expansão do mês, Lista↔Timeline e cabeçalho com os vídeos de referência; sem reivindicar paridade completa.
+
 ### 2026-11-09 — GPT — QA público Flow: movimento reduzido e contrato dos três estilos (PR #40)
 - Localizado parallax CSS contínuo em `src/styles.css` (classe `chat-fundo-img`) sem desativação de animação na preferência **reduzir movimento**. `ChatBackground` agora usa `useReducedMotion` e aplica `animation: none` somente quando solicitado; nenhuma classe/arquivo da Agenda foi tocado e imagens próprias seguem prioritárias.
 - `src/components/chat/ChatBackground.motion.test.tsx`: verifica SSR do fundo com foto própria em reduzir movimento, modo normal e padrão vetorial por segmento sem interceptação de toque.
