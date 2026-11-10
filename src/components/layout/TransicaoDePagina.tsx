@@ -76,6 +76,13 @@ export function TransicaoDePagina({ children }: { children: ReactNode }) {
     controles.set({ opacity: 1, x: "0%", y: "0vh" });
     if (!estado.current) return;
     const atual = { ...estado.current, menosMovimento };
+    if (!saindo.current) {
+      // Sem snapshot (tela densa ou redução de movimento), mostrar conteúdo
+      // imediatamente em vez de deixar um vão vazio durante o slide completo.
+      controles.set({ opacity: menosMovimento ? 0 : 0.96, x: "0%", y: "0vh" });
+      void controles.start({ opacity: 1, transition: { duration: menosMovimento ? 0.15 : 0.12 } });
+      return;
+    }
     controles.set(entradaDaTela(atual));
     void controles.start(telaNoLugar(atual));
   }, [caminho, controles, menosMovimento]);
@@ -129,7 +136,7 @@ export function TransicaoDePagina({ children }: { children: ReactNode }) {
         initial={false}
         animate={controles}
         // Contêiner estável: a transição anima sem reinicializar páginas e contextos.
-        style={estado.current?.tipo !== "esmaecer"
+        style={estado.current && estado.current.tipo !== "esmaecer"
           ? { backgroundColor: "var(--color-background)" }
           : undefined}
       >
