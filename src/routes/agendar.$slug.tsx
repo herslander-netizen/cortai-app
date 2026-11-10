@@ -202,7 +202,7 @@ function AgendamentoPublico() {
     } else if (destino === "horario") {
       setHorario(null);
     }
-  });
+  }, fluxo !== "conversa");
 
   useEffect(() => {
     try {
