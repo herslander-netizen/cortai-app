@@ -1,4 +1,4 @@
-import { createFileRoute, Outlet } from "@tanstack/react-router";
+import { createFileRoute, Outlet, useRouterState } from "@tanstack/react-router";
 import { exigirPapel } from "@/lib/guarda";
 import { Building2, CreditCard, LineChart, Menu, MessageCircle } from "lucide-react";
 import { Link } from "@tanstack/react-router";
@@ -37,6 +37,7 @@ export const Route = createFileRoute("/admin")({
 });
 
 function AdminLayout() {
+  const caminho = useRouterState({ select: (s) => s.location.pathname });
   return (
     <div className="admin-shell min-h-screen bg-ink md:grid md:grid-cols-[220px_1fr]">
       <aside className="hidden border-r border-line px-5 py-8 md:block">
@@ -70,7 +71,8 @@ function AdminLayout() {
           ))}
         </nav>
       </aside>
-      <Outlet />
+      {/* Reinicia a folha sem reconstruir a navegação da administração. */}
+      <Outlet key={caminho} />
       <ConviteDeInstalacao />
       <div className="md:hidden">
         <TabBar items={tabs} ariaLabel="Painel da plataforma" />
