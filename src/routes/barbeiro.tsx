@@ -59,6 +59,7 @@ function useMarcaDaTelaDaAgenda() {
 
 function BarberLayout() {
   const { userId } = Route.useRouteContext();
+  const caminho = useRouterState({ select: (s) => s.location.pathname });
   useMarcaDaTelaDaAgenda();
   // Barra do sistema na cor do topo da tela (dono, 26/10): continuidade entre os ícones do aparelho e o app.
   useCorDoTopoNaBarraDoSistema();
@@ -81,7 +82,8 @@ function BarberLayout() {
           ) : null}
           <NavegacaoEquipe />
           <div className="equipe-conteudo">
-            <Outlet />
+            {/* Só a folha muda; topo, menu, sessão e realtime permanecem montados. */}
+            <Outlet key={caminho} />
           </div>
           {/* No topo: embaixo ficam o "+" da agenda e o rodapé do cockpit. */}
         </div>
