@@ -47,22 +47,32 @@ describe("transição entre páginas sem remontar o casco", () => {
   it("mantém os componentes compartilhados montados após navegar e voltar", async () => {
     let montagens = 0;
     let desmontagens = 0;
+    let folhasMontadas = 0;
     function Casco({ children }: { children: ReactNode }) {
       useEffect(() => {
         montagens += 1;
-        return () => { desmontagens += 1; };
+        return () => {
+          desmontagens += 1;
+        };
       }, []);
       return createElement("div", null, "Menu persistente", children);
+    }
+    function Folha({ caminho }: { caminho: string }) {
+      useEffect(() => {
+        folhasMontadas += 1;
+      }, []);
+      return createElement("main", null, caminho);
     }
     function tela() {
       return createElement(
         TransicaoDePagina,
         null,
-        createElement(Casco, null, createElement("main", null, rota.caminho)),
+        createElement(Casco, null, createElement(Folha, { key: rota.caminho, caminho: rota.caminho })),
       );
     }
     await act(async () => root.render(tela()));
     expect(montagens).toBe(1);
+    expect(folhasMontadas).toBe(1);
 
     rota.caminho = "/barbeiro/clientes";
     rota.indice += 1;
@@ -70,11 +80,13 @@ describe("transição entre páginas sem remontar o casco", () => {
     expect(host.textContent).toContain("/barbeiro/clientes");
     expect(montagens).toBe(1);
     expect(desmontagens).toBe(0);
+    expect(folhasMontadas).toBe(2);
 
     rota.caminho = "/barbeiro";
     rota.indice += 1;
     await act(async () => root.render(tela()));
     expect(montagens).toBe(1);
     expect(desmontagens).toBe(0);
+    expect(folhasMontadas).toBe(3);
   });
 });
