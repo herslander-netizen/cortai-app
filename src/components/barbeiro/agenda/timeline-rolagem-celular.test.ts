@@ -7,7 +7,7 @@ const operacional = readFileSync("src/components/barbeiro/AgendaOperacional.tsx"
 
 function blocosCelular() {
   const blocos: string[] = [];
-  const re = /@media \(max-width: 600px\) \{/g;
+  const re = /@media \(max-width: 767px\) \{/g;
   let m: RegExpExecArray | null;
   while ((m = re.exec(css))) {
     let nivel = 1;
