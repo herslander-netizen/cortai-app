@@ -53,17 +53,26 @@ export type SlotDaAgenda = { iso: string; label: string; minutos: number; hora: 
 const ABERTURA_PADRAO = "09:00";
 const FECHAMENTO_PADRAO = "19:00";
 
+// Reutilizar formatadores por fuso evita milhares de alocações síncronas ao selecionar serviço.
+const formatadoresDeslocamento = new Map<string, Intl.DateTimeFormat>();
+const formatadoresHoje = new Map<string, Intl.DateTimeFormat>();
+
 function deslocamento(instante: Date, fuso: string): number {
-  const partes = new Intl.DateTimeFormat("en-US", {
-    timeZone: fuso,
-    hour12: false,
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-  }).formatToParts(instante);
+  let formatador = formatadoresDeslocamento.get(fuso);
+  if (!formatador) {
+    formatador = new Intl.DateTimeFormat("en-US", {
+      timeZone: fuso,
+      hour12: false,
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+    });
+    formatadoresDeslocamento.set(fuso, formatador);
+  }
+  const partes = formatador.formatToParts(instante);
   const v: Record<string, number> = {};
   for (const p of partes) if (p.type !== "literal") v[p.type] = Number(p.value);
   const comoUtc = Date.UTC(
@@ -217,12 +226,18 @@ export function slotsDoDia(
 
 /** "Hoje" (AAAA-MM-DD) no fuso da barbearia, nunca no relógio do aparelho. */
 export function hojeNoFuso(fuso: string = FUSO_BARBEARIA, instante: Date = new Date()): string {
-  return new Intl.DateTimeFormat("en-CA", {
-    timeZone: normalizarFuso(fuso),
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  }).format(instante);
+  const zona = normalizarFuso(fuso);
+  let formatador = formatadoresHoje.get(zona);
+  if (!formatador) {
+    formatador = new Intl.DateTimeFormat("en-CA", {
+      timeZone: zona,
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    });
+    formatadoresHoje.set(zona, formatador);
+  }
+  return formatador.format(instante);
 }
 
 /** Meia-noite (início do dia) da barbearia para o instante dado, como Date UTC. */
