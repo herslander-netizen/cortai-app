@@ -2,10 +2,12 @@
 import { readFileSync, readdirSync } from "node:fs";
 import { act, createElement } from "react";
 import { createRoot } from "react-dom/client";
+import { renderToStaticMarkup } from "react-dom/server";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { CAPITULOS } from "./capitulos";
 import { HistoriaAgenda, PASSOS_AGENDA } from "./HistoriaAgenda";
+import { Celular } from "./Celular";
 
 const movimento = vi.hoisted(() => ({ reduzido: false }));
 
@@ -46,6 +48,20 @@ const PASTA = "src/components/entrada/historias";
 const arquivos = readdirSync(PASTA).filter((f) => f.endsWith(".tsx") && !f.endsWith(".test.tsx"));
 
 describe("mini-histórias da entrada (vídeo de referência do dono, 06/11)", () => {
+  it("desenha a primeira história antes de existir uma medida do ResizeObserver", () => {
+    const html = renderToStaticMarkup(
+      createElement(
+        Celular,
+        { legenda: createElement("span", null, "Seu site") },
+        createElement("span", null, "Primeira cena visível"),
+      ),
+    );
+    expect(html).toContain("Primeira cena visível");
+    expect(html).toContain("Seu site");
+    expect(html).not.toContain("opacity:0");
+    expect(html).toContain("width:188px");
+  });
+
   it("tem os capítulos na ordem da inspiração, cada um com frase de duas linhas", () => {
     expect(CAPITULOS.map((c) => c.id)).toEqual([
       "site",
