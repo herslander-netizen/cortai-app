@@ -39,6 +39,13 @@ function confirmadoRecentemente(iso: string | null, agora: Date): boolean {
 }
 
 export function saudeParaAdmin(n: EntradaSaudeAdmin, agora: Date): SaudeAdmin {
+  if (n.incidenteAberto || n.status === "erro") {
+    return {
+      categoria: "critico", titulo: "Incidente ativo",
+      descricao: "A conexão apresentou falha. Consulte o diagnóstico antes de intervir.",
+      tom: "erro", prioridade: 0,
+    };
+  }
   if (n.status === "sem_conexao") {
     return {
       categoria: "nao_configurado", titulo: "Não configurado",
@@ -51,13 +58,6 @@ export function saudeParaAdmin(n: EntradaSaudeAdmin, agora: Date): SaudeAdmin {
       categoria: "nao_confirmado", titulo: "Canal compartilhado",
       descricao: "Não há sessão própria deste estabelecimento para verificar.",
       tom: "neutro", prioridade: 4,
-    };
-  }
-  if (n.incidenteAberto || n.status === "erro") {
-    return {
-      categoria: "critico", titulo: "Incidente ativo",
-      descricao: "A conexão apresentou falha. Consulte o diagnóstico antes de intervir.",
-      tom: "erro", prioridade: 0,
     };
   }
   if (n.status === "qr_pronto") {
