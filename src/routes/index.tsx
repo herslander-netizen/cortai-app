@@ -3,12 +3,9 @@ import { createFileRoute, redirect } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { destinoDoPapel } from "@/lib/guarda";
 import { getSessao } from "@/lib/sessao.functions";
-import { destinoDaApresentacao } from "@/lib/apresentacao-ativa";
-import { getApresentacaoPublicada } from "@/lib/home.functions";
 import { SEO_APRESENTACAO_PADRAO } from "@/lib/apresentacao-conteudo";
-import { ShowroomCortai } from "@/components/apresentacao/ShowroomCortai";
 
-/** "/": com sessão, vai para a área do papel; sem sessão, mostra a apresentação. */
+/** "/": quem já entrou segue para seu painel; visitantes sempre começam na primeira cena do Flow. */
 export const Route = createFileRoute("/")({
   ssr: false,
   head: () => ({
@@ -27,20 +24,9 @@ export const Route = createFileRoute("/")({
   }),
   beforeLoad: async () => {
     const { data } = await supabase.auth.getUser();
-    if (!data.user) {
-      const { ativa } = await getApresentacaoPublicada();
-      const destino = destinoDaApresentacao(ativa, false);
-      if (destino) throw redirect({ to: destino });
-      return;
-    }
+    if (!data.user) throw redirect({ to: "/entrada" });
     const sessao = await getSessao();
     throw redirect({ to: destinoDoPapel(sessao) });
   },
-  loader: () => getApresentacaoPublicada(),
-  component: Inicio,
+  component: () => null,
 });
-
-function Inicio() {
-  const dados = Route.useLoaderData();
-  return <ShowroomCortai segmento="barbearia" conteudo={dados?.conteudo} />;
-}
