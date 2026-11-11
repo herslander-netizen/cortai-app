@@ -158,22 +158,24 @@ export function EntradaFlow() {
             toqueInicial.current = null;
           }}
         >
-          <div aria-hidden="true" className="relative mx-auto h-[clamp(195px,37dvh,320px)] w-full overflow-hidden rounded-[26px] border border-white/10 bg-[#121824]/90 p-4 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.8)] backdrop-blur-md">
-            <AnimatePresence mode="wait" initial={!menosMovimento}>
+          <div aria-hidden="true" className="relative mx-auto h-[clamp(195px,37dvh,320px)] w-full overflow-hidden rounded-[26px] border border-white/10 bg-[radial-gradient(ellipse_at_20%_0%,rgba(107,95,143,0.28),transparent_65%),#121824] p-4 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.8)] backdrop-blur-md">
+            <AnimatePresence mode="sync" initial={false}>
               <motion.div
                 key={cenaAtual.id}
-                initial={menosMovimento ? false : { opacity: 0, x: 20 }}
+                initial={menosMovimento ? false : { opacity: 0.94, x: 12 }}
                 animate={{ opacity: 1, x: 0 }}
-                exit={menosMovimento ? { opacity: 1 } : { opacity: 0, x: -20 }}
-                transition={menosMovimento ? { duration: 0 } : { duration: 0.26, ease: "easeOut" }}
-                className="h-full w-full"
+                exit={menosMovimento ? { opacity: 1 } : { opacity: 0.94, x: -12 }}
+                transition={menosMovimento ? { duration: 0 } : { duration: 0.22, ease: "easeOut" }}
+                className="absolute inset-4"
               >
                 <MockupCena id={cenaAtual.id} />
               </motion.div>
             </AnimatePresence>
           </div>
 
-          <div className="mt-3 flex min-h-[86px] flex-col items-center justify-center text-center">
+          <div aria-live="polite"
+            aria-atomic="true"
+            className="mt-3 flex min-h-[86px] flex-col items-center justify-center text-center">
             <span className="text-[11px] font-extrabold tracking-widest text-[#00B4FF]">
               {cenaAtual.tag}
             </span>
@@ -196,7 +198,7 @@ export function EntradaFlow() {
                 aria-current={ehAtivo ? "step" : undefined}
                 onClick={() => irPara(i)}
                 whileTap={menosMovimento ? { scale: 1 } : { scale: 0.9 }}
-                className="flex h-14 w-14 flex-col items-center justify-center gap-1.5"
+                className={`flex h-14 w-14 flex-col items-center justify-center gap-1.5 rounded-2xl border transition-[background-color,border-color] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A8C7FA] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0A0D14] ${ehAtivo ? "border-[#BB86FC]/40 bg-[#6B5F8F]/20" : "border-transparent hover:bg-white/5"}`}
               >
                 <motion.span
                   animate={{ scale: menosMovimento ? 1 : ehAtivo ? 1.18 : 1 }}
