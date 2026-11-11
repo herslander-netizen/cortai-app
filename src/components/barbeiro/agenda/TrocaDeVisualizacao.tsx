@@ -8,10 +8,18 @@ import { CURVA, TEMPO } from "@/lib/movimento-figaro";
  * A anterior recua visível; em seguida a nova sobe já totalmente opaca, nos dois sentidos.
  * A chave depende apenas do modo de visualização — mudar de dia não remonta a Timeline.
  */
-export function TrocaDeVisualizacao({ chave, children }: { chave: string; children: ReactNode }) {
+export function TrocaDeVisualizacao({
+  chave,
+  aoConcluirSaida,
+  children,
+}: {
+  chave: string;
+  aoConcluirSaida?: () => void;
+  children: ReactNode;
+}) {
   const reduzirMovimento = useReducedMotion();
   return (
-    <AnimatePresence initial={false} mode="wait">
+    <AnimatePresence initial={false} mode="wait" onExitComplete={aoConcluirSaida}>
       <motion.div
         key={chave}
         initial={reduzirMovimento ? false : { opacity: 1, y: 8 }}

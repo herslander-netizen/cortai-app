@@ -6,7 +6,7 @@ const agenda = readFileSync("src/components/barbeiro/AgendaOperacional.tsx", "ut
 
 describe("animações da troca Timeline e Lista", () => {
   it("usa apenas a chave do modo e espera a saída antes de montar outra visualização", () => {
-    expect(fonte).toContain('<AnimatePresence initial={false} mode="wait">');
+    expect(fonte).toContain('<AnimatePresence initial={false} mode="wait" onExitComplete={aoConcluirSaida}>');
     expect(fonte).toContain("key={chave}");
     expect(agenda).toContain('chave={celular && visualizacao === "lista" ? "lista" : "grade"}');
     expect(fonte).not.toContain("layoutId=");
@@ -21,6 +21,17 @@ describe("animações da troca Timeline e Lista", () => {
     expect(fonte).toContain("duration: TEMPO.botaoSai");
     expect(fonte).toContain("duration: TEMPO.conteudoEntra");
     expect(fonte).toContain("ease: CURVA.linearParaLenta");
+  });
+
+  it("não rola a Timeline para meia-noite enquanto os cartões ainda vão entrar", () => {
+    const inicio = agenda.indexOf("function alterarVisualizacao");
+    const fim = agenda.indexOf("function alternarModoDiscreto", inicio);
+    const alterar = agenda.slice(inicio, fim);
+    expect(alterar).toContain('rolarParaListaAposSaida.current = celular && segura === "lista"');
+    expect(alterar).not.toContain("window.scrollTo(");
+    expect(fonte).toContain("onExitComplete={aoConcluirSaida}");
+    expect(agenda).toContain('window.scrollTo({ top: 0, behavior: "auto" })');
+    expect(agenda).toContain("if (!rolarParaListaAposSaida.current) return;");
   });
 
   it("prepara os cartões sem esperar e mostra skeleton se o período ainda não chegou", () => {

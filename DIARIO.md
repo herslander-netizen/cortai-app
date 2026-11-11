@@ -1032,6 +1032,11 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-11-11 — GPT — Vídeo 11:38: sem salto a 00h durante Timeline → Cartões
+- Evidência: gravação mobile de 18,7s (11/11) mostra Timeline em torno de 11h; no toque para Cartões a tela exibe horários 00–08 durante a saída e o painel escurece antes da lista, apesar do CI verde anterior.
+- Causa encontrada em `AgendaOperacional.tsx`: `window.scrollTo({ top: 0 })` é executado antes da saída de `TrocaDeVisualizacao` (`AnimatePresence mode="wait"`), deixando a Timeline antiga visível já na meia-noite. Reposicionamento movido para `onExitComplete`; ref de intenção evita scroll nas outras trocas e toques repetidos. Atualizados teste de regressão e contrato de callback em `TrocaDeVisualizacao.tsx`.
+- Não altera dados, agenda de negócios, gestos, backend, banco ou produção. CI GitHub Actions (`preview-migration.yml`) deve confirmar build, TypeScript, Vitest e smoke do commit; teste manual 360/390px claro/escuro continua necessário.
+
 ### 2026-11-11 — GPT — Correção Timeline → Cards no ramo oficial (GitHub Actions)
 - Pedido: eliminar a tela escura entre Timeline e Lista, mantendo transição simétrica e sem painéis sobrepostos. Ajustada a opacidade da entrada/saída de `TrocaDeVisualizacao.tsx`; criada estrutura temporária de cartões em `ListaPeriodo.tsx`; removida espera de 1,5s da pré-busca em `AgendaOperacional.tsx`. Teste de regressão em `troca-visualizacao-movimento.test.ts`.
 - Escopo: somente animação e carregamento da Agenda, na branch oficial `cloudflare-workers-migration-2026-10-13`; sem alterações em produção, banco, migrações ou infraestrutura. GitHub Actions (`preview-migration.yml`) deve validar TypeScript, testes, build e smoke antes de declarar sucesso. Teste visual em Android 360/390 px e temas claro/escuro continua pendente.
