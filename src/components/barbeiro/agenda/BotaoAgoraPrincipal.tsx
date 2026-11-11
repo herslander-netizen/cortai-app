@@ -125,7 +125,7 @@ export function BotaoAgoraPrincipal({
             onClick={alternarVisualizacao}
             onPointerUp={soltarFocoDoToque}
           >
-            <AnimatePresence initial={false} mode="wait">
+            <AnimatePresence initial={false} mode="sync">
               <motion.span
                 key={proxima}
                 className="inline-flex"
