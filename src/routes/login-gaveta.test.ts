@@ -35,4 +35,22 @@ describe("gaveta de acesso", () => {
     const limpar = (t: string) => t.replace(/[\s().-]/g, "");
     expect(limpar("+55 (79) 99999-9999")).toBe("+5579999999999");
   });
+
+  it("sempre abre primeiro a vitrine, sem pular para o formulário por parâmetros da URL", () => {
+    expect(login).toContain('const [mostrarForm, setMostrarForm] = useState(false);');
+    expect(login).toContain('aba === "criar" ? "criar" : "entrar"');
+    expect(login).toContain("onCreateAccount={() => {");
+    expect(login).toContain("onSignIn={() => {");
+    expect(login).toContain("destinoSolicitadoPermitido(proximo, destinoDoPapel(sessao))");
+    expect(login).not.toContain('y: "100%"');
+  });
+
+  it("a gaveta oferece progresso, movimento curto e uma saída acessível", () => {
+    expect(login).toContain("y: 28");
+    expect(login).toContain('backdrop-blur-[4px]');
+    expect(gaveta).toContain('aria-modal="true"');
+    expect(gaveta).toContain('aria-label="Fechar painel de acesso"');
+    expect(gaveta).toContain('scaleX: modo === "entrar" && faseLogin === "identificar" ? 0.5 : 1');
+    expect(gaveta).toContain('min-h-12 min-w-12');
+  });
 });
