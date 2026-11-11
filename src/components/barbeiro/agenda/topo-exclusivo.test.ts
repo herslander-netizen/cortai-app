@@ -18,8 +18,10 @@ describe("topo exclusivo da Agenda", () => {
   });
 
   it("recolhe a semana e limpa busca/calendário durante edição", () => {
-    expect(agenda).toContain('key="semana-topo"');
-    expect(agenda).toContain('exit={{ height: 0, opacity: 0 }}');
+    // Apenas RecolheNaLista anima a altura; o wrapper antigo duplicava o layout.
+    expect(agenda).toContain('<RecolheNaLista visivel={visualizacao !== "lista"}>');
+    expect(agenda).not.toContain('key="semana-topo"');
+    expect(agenda).toContain('{!edicao.rascunho ? (');
     expect(agenda).toContain('if (edicao.rascunho) setCalAberto(false)');
     expect(cabecalho).toContain('if (emEdicao) {');
     expect(cabecalho).toContain("buscaDaLista.fechar();");

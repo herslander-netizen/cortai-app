@@ -21,11 +21,13 @@ describe("paridade da transição Timeline ↔ Cartões com o Flow oficial v3.7"
     expect(fonte).not.toContain("onExitComplete");
   });
 
-  it("retoma a rolagem igual à versão oficial, sem callback tardio", () => {
+  it("entra em Cartões sem callback tardio e preserva a posição anterior da Timeline", () => {
     const inicio = agenda.indexOf("function alterarVisualizacao");
     const fim = agenda.indexOf("function alternarModoDiscreto", inicio);
     const alterar = agenda.slice(inicio, fim);
-    expect(alterar).toContain('if (celular && segura === "lista" && visualizacao !== "lista") window.scrollTo({ top: 0 });');
+    expect(alterar).toContain('if (celular && segura === "lista" && visualizacao === "timeline") {');
+    expect(alterar).toContain("rolagemAntesDaLista.current = { dia, top: window.scrollY };");
+    expect(alterar).toContain('window.scrollTo({ top: 0, behavior: "auto" });');
     expect(agenda).not.toContain("rolarParaListaAposSaida");
     expect(agenda).not.toContain("aoConcluirSaida");
   });
