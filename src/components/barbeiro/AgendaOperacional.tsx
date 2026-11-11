@@ -102,6 +102,7 @@ import {
   marcarDicaDaAgendaVista,
 } from "@/components/barbeiro/agenda/preferencias";
 import { PreviaDoGesto } from "@/components/barbeiro/agenda/PreviaDiaVizinho";
+import { TransicaoVisualizacaoAgenda } from "@/components/barbeiro/agenda/TransicaoVisualizacaoAgenda";
 import { useGestoDia } from "@/components/barbeiro/agenda/useGestoDia";
 import { useLayoutEquipe } from "@/components/layout/ContextoLayoutEquipe";
 import {
@@ -1378,8 +1379,9 @@ export function AgendaOperacional() {
             </Button>
           </div>
         ) : null}
-        <div id="agenda-painel-visualizacao" aria-label={`Visualização ${visualizacao}`}>
-          {carregandoInicial ? (
+        <div id="agenda-painel-visualizacao" className="grid min-w-0" aria-label={`Visualização ${visualizacao}`}>
+          <TransicaoVisualizacaoAgenda visualizacao={visualizacao}>
+            {carregandoInicial ? (
             <AgendaCarregando formato={visualizacao === "lista" ? "lista" : "timeline"} />
           ) : erroInicial ? (
             <AgendaErro mensagem={mensagemErro} onTentar={() => void agenda.refetch()} />
@@ -1519,7 +1521,8 @@ export function AgendaOperacional() {
                 else setFechando(i.id);
               }}
             />
-          )}
+            )}
+          </TransicaoVisualizacaoAgenda>
         </div>
 
         {visualizacao === "timeline" && agenda.data && mostrarDica ? (
