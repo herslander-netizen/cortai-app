@@ -13,12 +13,22 @@ describe("animações da troca Timeline e Lista", () => {
   });
 
   it("preserva a transição curta de saída e a revelação do conteúdo no padrão Figaroo", () => {
-    expect(fonte).toContain("opacity: 0.65, y: 8");
-    expect(fonte).toContain("opacity: 0,");
+    // A visualização não desaparece antes de entrar o próximo modo.
+    expect(fonte).toContain("initial={reduzirMovimento ? false : { opacity: 1, y: 8 }}");
+    expect(fonte).toContain("opacity: 1,");
+    expect(fonte).not.toContain("opacity: 0.65, y: 8");
     expect(fonte).toContain("y: -8,");
     expect(fonte).toContain("duration: TEMPO.botaoSai");
     expect(fonte).toContain("duration: TEMPO.conteudoEntra");
     expect(fonte).toContain("ease: CURVA.linearParaLenta");
+  });
+
+  it("prepara os cartões sem esperar e mostra skeleton se o período ainda não chegou", () => {
+    const lista = readFileSync("src/components/barbeiro/agenda/ListaPeriodo.tsx", "utf8");
+    expect(lista).toContain("motion-safe:animate-pulse");
+    expect(lista).toContain("Carregando a lista");
+    expect(agenda).toContain("void queryClient.prefetchInfiniteQuery(opcoesAgendaPeriodo(hojeDaLista))");
+    expect(agenda).not.toContain("      1500,");
   });
 
   it("anima a faixa semanal junto com a troca, sem mexer na altura nem no calendário mensal", () => {

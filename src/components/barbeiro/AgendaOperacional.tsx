@@ -989,11 +989,8 @@ export function AgendaOperacional() {
   const hojeDaLista = hojeNoFuso(fuso);
   useEffect(() => {
     if (!celular || carregandoInicial) return;
-    const id = window.setTimeout(
-      () => void queryClient.prefetchInfiniteQuery(opcoesAgendaPeriodo(hojeDaLista)),
-      1500,
-    );
-    return () => window.clearTimeout(id);
+    // A Timeline prepara os cartões assim que carrega, sem aguardar 1,5 s.
+    void queryClient.prefetchInfiniteQuery(opcoesAgendaPeriodo(hojeDaLista));
   }, [celular, carregandoInicial, hojeDaLista, queryClient]);
   const erroInicial = agenda.isError && !agenda.data;
   const mensagemErro = agenda.error instanceof Error ? agenda.error.message : undefined;

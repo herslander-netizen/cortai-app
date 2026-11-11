@@ -148,10 +148,25 @@ export function ListaPeriodo({
   return (
     <div className="agenda-lista-periodo" data-sem-gesto-dia>
       {!periodo.data && !periodo.isError ? (
-        // Os pontinhos são só da linha do tempo (decisão do dono, 23/10): aqui o espaço fica reservado, sem
-        // animação, e o leitor de tela ouve o estado.
+        // Evitar um painel vazio entre Timeline e Cards enquanto os dados chegam.
+        // Esqueleto ilustrativo, sem criar atendimentos fictícios.
         <div className="min-h-64" aria-busy role="status">
           <span className="sr-only">Carregando a lista</span>
+          <div className="space-y-3 pt-2 motion-safe:animate-pulse" aria-hidden="true">
+            {[0, 1, 2].map((indice) => (
+              <div key={indice} className="agenda-lista-linha">
+                <div className="flex flex-col items-end gap-2 pt-4">
+                  <span className="h-3 w-10 rounded-full bg-[var(--mute)] opacity-30" />
+                  <span className="h-2 w-7 rounded-full bg-[var(--mute)] opacity-20" />
+                </div>
+                <div className="agenda-lista-cartao agenda-lista-cartao min-h-[78px] gap-2">
+                  <span className="h-3 w-2/3 rounded-full bg-[var(--mute)] opacity-30" />
+                  <span className="h-2.5 w-1/2 rounded-full bg-[var(--mute)] opacity-20" />
+                  <span className="h-2 w-3/4 rounded-full bg-[var(--mute)] opacity-20" />
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       ) : !periodo.data ? (
         <div className="py-8 text-center text-sm text-mute" role="alert">

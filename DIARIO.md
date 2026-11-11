@@ -1032,6 +1032,11 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-11-11 — GPT — Correção Timeline → Cards no ramo oficial (GitHub Actions)
+- Pedido: eliminar a tela escura entre Timeline e Lista, mantendo transição simétrica e sem painéis sobrepostos. Ajustada a opacidade da entrada/saída de `TrocaDeVisualizacao.tsx`; criada estrutura temporária de cartões em `ListaPeriodo.tsx`; removida espera de 1,5s da pré-busca em `AgendaOperacional.tsx`. Teste de regressão em `troca-visualizacao-movimento.test.ts`.
+- Escopo: somente animação e carregamento da Agenda, na branch oficial `cloudflare-workers-migration-2026-10-13`; sem alterações em produção, banco, migrações ou infraestrutura. GitHub Actions (`preview-migration.yml`) deve validar TypeScript, testes, build e smoke antes de declarar sucesso. Teste visual em Android 360/390 px e temas claro/escuro continua pendente.
+- O usuário reafirmou o processo oficial: GitHub/GitHub Actions, não editar pela Cloudflare.
+
 ### 2026-11-11 — GPT — Primeira cena da entrada visível antes da medição
 - Causa identificada no código: `src/components/entrada/historias/Celular.tsx` renderizava toda a prévia com `opacity: 0` enquanto `escala === null`; a medição podia retornar sem dimensões e manter a primeira história invisível até um redimensionamento.
 - Correção localizada: moldura visível já no primeiro frame com escala inicial segura; `ResizeObserver` continua ajustando a dimensão quando disponível; escala calculada tem piso positivo para evitar tamanhos inválidos em alturas estreitas. Mantida a sequência das histórias, a marca e os tokens.

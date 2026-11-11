@@ -4,8 +4,8 @@ import type { ReactNode } from "react";
 import { CURVA, TEMPO } from "@/lib/movimento-figaro";
 
 /**
- * Timeline ↔ Lista: as duas visualizações nunca se sobrepõem (regressão filmada em 06/11).
- * A anterior recua e esmaece brevemente; só depois a próxima sobe e se revela.
+ * Timeline ↔ Lista: transição exclusiva e sem deixar exposto o fundo escuro.
+ * A anterior recua visível; em seguida a nova sobe já totalmente opaca, nos dois sentidos.
  * A chave depende apenas do modo de visualização — mudar de dia não remonta a Timeline.
  */
 export function TrocaDeVisualizacao({ chave, children }: { chave: string; children: ReactNode }) {
@@ -14,13 +14,13 @@ export function TrocaDeVisualizacao({ chave, children }: { chave: string; childr
     <AnimatePresence initial={false} mode="wait">
       <motion.div
         key={chave}
-        initial={reduzirMovimento ? false : { opacity: 0.65, y: 8 }}
+        initial={reduzirMovimento ? false : { opacity: 1, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         exit={
           reduzirMovimento
             ? { opacity: 1, y: 0, transition: { duration: 0 } }
             : {
-                opacity: 0,
+                opacity: 1,
                 y: -8,
                 transition: { duration: TEMPO.botaoSai, ease: CURVA.rapidaParaLinear },
               }
