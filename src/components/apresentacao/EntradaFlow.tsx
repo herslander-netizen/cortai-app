@@ -68,7 +68,7 @@ const CENAS: Cena[] = [
   },
 ];
 
-export function EntradaFlow({ proximo }: { proximo?: string } = {}) {
+export function EntradaFlow({ proximo }: { proximo?: string | undefined } = {}) {
   const [ativo, setAtivo] = useState(0);
   const [progresso, setProgresso] = useState(0);
   const [loginAberto, setLoginAberto] = useState(false);
@@ -395,7 +395,7 @@ function BottomSheetLogin({
 }: {
   aoFechar: () => void;
   reduzirMovimento: boolean;
-  proximo?: string;
+  proximo?: string | undefined;
 }) {
   const dialogoRef = useRef<HTMLDivElement>(null);
 
