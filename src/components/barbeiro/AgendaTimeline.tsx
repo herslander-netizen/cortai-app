@@ -575,12 +575,10 @@ export function AgendaTimeline({
     const rolagemAtual = celular ? window.scrollY : (area?.scrollTop ?? 0);
     const dy = e.clientY - g.y0 + (rolagemAtual - g.rolagem0);
     if (!g.ativo) {
-      // Depois de confirmado o toque longo, pequenos deslocamentos não convertem
-      // o gesto de armar em arrasto nem bloqueiam a rolagem da página.
-      if (
-        !g.longo &&
-        (Math.abs(e.clientY - g.y0) > 10 || Math.abs(e.clientX - g.x0) > 10)
-      ) {
+      // Armar a edição exige manter o dedo parado até soltar.
+      // Mesmo após os 280 ms, um deslize cancela a edição: rolagem e gesto
+      // horizontal não podem abrir o cabeçalho de edição por acidente.
+      if (Math.abs(e.clientY - g.y0) > 10 || Math.abs(e.clientX - g.x0) > 10) {
         window.clearTimeout(g.timer);
         gesto.current = null;
       }
