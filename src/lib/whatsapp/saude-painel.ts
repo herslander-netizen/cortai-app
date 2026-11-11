@@ -98,6 +98,14 @@ export type SaudeDoNegocio = {
 };
 
 export function saudeParaNegocio(central: CentralDeAutomacao): SaudeDoNegocio {
+  if (central.possuiConexao === false) {
+    return {
+      titulo: "Configure o WhatsApp",
+      descricao: "Ainda não há um número conectado a este estabelecimento.",
+      orientacao: "O responsável pode conectar o número para começar a atender pelo Flow.",
+      tom: "neutro",
+    };
+  }
   if (central.whatsapp === "aguardando_leitura") {
     return {
       titulo: "Seu WhatsApp precisa de confirmação",
