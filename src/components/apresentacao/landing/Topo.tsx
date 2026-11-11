@@ -36,7 +36,13 @@ export function Cabecalho() {
       className="sticky top-0 z-50 bg-[var(--fundo)] text-[var(--texto)] shadow-[0_1px_0_var(--linha),0_10px_24px_-14px_rgba(0,0,0,0.6)]"
     >
       <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4">
-        <MarcaFlow variante="clara" className="h-auto w-24" />
+        <a
+          href="#inicio"
+          aria-label="Flow — início"
+          className="flex min-h-12 items-center rounded-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--figaro-primary)]"
+        >
+          <MarcaFlow variante="clara" className="h-auto w-24" />
+        </a>
         <MenuDeFuncionalidades />
       </div>
     </header>
@@ -53,8 +59,11 @@ function FotosFlutuantes() {
           key={f.src}
           src={f.src}
           alt=""
+          width={160}
+          height={160}
+          decoding="async"
           loading="lazy"
-          className={`absolute hidden size-32 rounded-[28px] object-cover shadow-[0_18px_40px_-18px_rgba(40,40,120,0.45)] ring-4 ring-white lg:block xl:size-40 ${f.x}`}
+          className={`absolute hidden size-32 rounded-[28px] object-cover shadow-[0_18px_40px_-18px_rgba(40,40,120,0.45)] ring-4 ring-[var(--cartao)] lg:block xl:size-40 ${f.x}`}
           animate={reduzir ? { y: 0 } : { y: [0, -14, 0] }}
           transition={{ duration: f.t, repeat: Infinity, ease: "easeInOut", delay: f.d }}
         />
@@ -80,7 +89,10 @@ function MosaicoMobile() {
             key={f.src}
             src={f.src}
             alt=""
-            className={`aspect-[3/4] w-full rounded-[22px] object-cover shadow-[0_18px_36px_-18px_rgba(0,0,0,0.7)] ring-4 ring-white ${f.c}`}
+            width={240}
+            height={320}
+            decoding="async"
+            className={`aspect-[3/4] w-full rounded-[22px] object-cover shadow-[0_18px_36px_-18px_rgba(0,0,0,0.7)] ring-4 ring-[var(--cartao)] ${f.c}`}
             animate={reduzir ? { y: 0 } : { y: [0, -7, 0] }}
             transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: f.d }}
           />
@@ -139,6 +151,8 @@ export function Heroi({ conteudo }: { conteudo: ConteudoApresentacao["hero"] }) 
   const reduzir = useReducedMotion();
   return (
     <section
+      id="inicio"
+      aria-labelledby="flow-apresentacao-titulo"
       style={TEMA_ESCURO}
       className="relative overflow-hidden bg-[var(--fundo)] text-[var(--texto)]"
     >
@@ -159,26 +173,27 @@ export function Heroi({ conteudo }: { conteudo: ConteudoApresentacao["hero"] }) 
       <OndasDaEntrada className="absolute inset-0 z-0 h-full w-full" />
       <LinhasDeOnda />
       <FotosFlutuantes />
-      <div className="relative mx-auto flex max-w-3xl flex-col items-center px-5 pb-14 pt-10 text-center sm:pt-20">
+      <div className="relative mx-auto flex max-w-3xl flex-col items-center px-5 pb-14 pt-10 text-center sm:pb-20 sm:pt-20">
         <motion.span
-          className="inline-flex items-center gap-1.5 rounded-full bg-[#ffd44d] px-3.5 py-1.5 text-[12px] font-extrabold tracking-wide text-[#1d1500] shadow-[0_10px_26px_-10px_rgba(255,212,77,0.7)]"
-          initial={{ opacity: 0, y: 12 }}
+          className="inline-flex items-center gap-1.5 rounded-full bg-[var(--figaro-primary-container)] px-4 py-2 text-[12px] font-semibold tracking-wide text-[var(--figaro-on-primary-container)]"
+          initial={reduzir ? false : { opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={MOLA.padraoEspacial}
         >
           <Sparkles size={13} /> {conteudo.etiqueta}
         </motion.span>
         <motion.h1
-          className="mt-5 whitespace-pre-line font-serif text-[38px] font-bold leading-[1.05] tracking-[-0.02em] sm:text-[58px]"
-          initial={{ opacity: 0, y: 18 }}
+          id="flow-apresentacao-titulo"
+          className="mt-6 max-w-[18ch] whitespace-pre-line text-balance font-serif text-[clamp(2.125rem,9vw,3.625rem)] font-bold leading-[1.1] tracking-[-0.025em]"
+          initial={reduzir ? false : { opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ ...MOLA.padraoEspacial, delay: 0.08 }}
         >
           {conteudo.titulo}
         </motion.h1>
         <motion.p
-          className="mt-5 max-w-xl text-[16px] leading-relaxed text-[var(--texto-suave)] sm:text-[18px]"
-          initial={{ opacity: 0, y: 18 }}
+          className="mt-5 max-w-[42ch] text-pretty text-[16px] leading-relaxed text-[var(--texto-suave)] sm:text-[18px]"
+          initial={reduzir ? false : { opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ ...MOLA.padraoEspacial, delay: 0.16 }}
         >
@@ -186,7 +201,7 @@ export function Heroi({ conteudo }: { conteudo: ConteudoApresentacao["hero"] }) 
         </motion.p>
         <motion.div
           className="mt-8 flex w-full flex-col items-center gap-3 sm:w-auto sm:flex-row"
-          initial={{ opacity: 0, y: 18 }}
+          initial={reduzir ? false : { opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ ...MOLA.padraoEspacial, delay: 0.24 }}
         >
@@ -194,7 +209,7 @@ export function Heroi({ conteudo }: { conteudo: ConteudoApresentacao["hero"] }) 
             asChild
             data-cta-propria
             size="lg"
-            className="w-full shadow-[0_16px_30px_-14px_rgba(49,85,237,0.7)] sm:w-auto"
+            className="min-h-14 w-full px-7 text-base sm:w-auto"
           >
             <a href={linkDeInteresseFlow()} target="_blank" rel="noopener noreferrer">
               Quero conhecer o Flow <ArrowRight className="ml-2 size-4" />

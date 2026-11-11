@@ -1030,6 +1030,14 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+### 2026-11-11 — GPT — Refinamento da home e da entrada Flow
+- Home: título responsivo com largura de leitura controlada, selo usando tokens Flow, CTA mais legível, imagens com dimensões e logo com retorno ao início; mantidos textos comerciais e destinos WhatsApp.
+- Entrada: rolagem vertical em telas baixas, altura mínima da demonstração e recurso selecionado com fundo tonal. Login/cadastro: campos maiores, teclado sem capitalização/correção automática, e-mail longo com quebra e ações com quebra de linha.
+- Arquivos: Topo.tsx, FlowWelcome.tsx, IconesDosCapitulos.tsx, FlowWelcome.test.ts e routes/login.tsx. Sem alterações em autenticação/backend, Agenda, banco ou produção.
+- Validação local da implementação: TypeScript, lint dos arquivos alterados, build e protocolo aprovados; 362 arquivos de teste aprovados, 2.876 testes passaram e 1 ignorado. Primeira execução apresentou falha transitória em CodigoPorTelefone; repetição isolada e suíte final passaram.
+- Conferida a versão anterior em navegador. A prévia local Cloudflare não iniciou por uv_interface_addresses; navegador remoto não acessa localhost. Conferência visual das alterações em 360/390/1280 e CI/deploy ainda precisam ser confirmados; não afirmar paridade completa.
+- Reserva local 5901e06 encerrada; preservadas todas as reservas das demais frentes.
+
 ### 2026-11-10 — GPT — Lista/Timeline: correção do salto de mês observada nos vídeos Figaroo × Flow (PR #46)
 - Vídeo Flow 09/11: alternância entre Timeline em novembro e Lista exibindo 03/10 com título de outubro. O helper `diasDaLista` incluía registros anteriores à semana atual, produzindo mais de 40 dias indevidos. Dois testes de reprodução falharam no CI `42769237347` como esperado.
 - `src/components/barbeiro/agenda/lista-periodo-regras.ts`: restringe os dias da Lista à semana vigente em diante, preserva atendimentos anteriores dentro da mesma semana e impede que buscas mostrem registros fora desse período. Adicionado `diaAoAlternarParaLista` para alinhar mês do cabeçalho à âncora do modo Lista apenas no celular.

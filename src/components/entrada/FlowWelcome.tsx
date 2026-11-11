@@ -59,7 +59,7 @@ export function FlowWelcome({ onCreateAccount, onSignIn, onCustomerBooking }: Fl
   const deslocamento = reduceMotion ? 0 : 28 * direcao;
 
   return (
-    <div className="relative mx-auto flex h-full min-h-0 w-full max-w-[430px] flex-col overflow-hidden bg-ink px-5 pb-[calc(24px+env(safe-area-inset-bottom))] pt-[calc(40px+env(safe-area-inset-top))] text-paper [@media(max-height:720px)]:pb-[calc(12px+env(safe-area-inset-bottom))] [@media(max-height:720px)]:pt-[calc(18px+env(safe-area-inset-top))]">
+    <div className="relative mx-auto flex h-full min-h-0 w-full max-w-[430px] flex-col overflow-x-hidden overflow-y-auto overscroll-contain bg-ink px-5 pb-[calc(24px+env(safe-area-inset-bottom))] pt-[calc(40px+env(safe-area-inset-top))] text-paper [@media(max-height:720px)]:pb-[calc(12px+env(safe-area-inset-bottom))] [@media(max-height:720px)]:pt-[calc(18px+env(safe-area-inset-top))]">
       <OndasDaEntrada />
 
       <motion.header className="relative z-10 flex shrink-0 flex-col items-center" {...chegada(0)}>
@@ -75,11 +75,11 @@ export function FlowWelcome({ onCreateAccount, onSignIn, onCustomerBooking }: Fl
 
       <section
         aria-label="Conheça os recursos do Flow"
-        className="relative z-10 flex min-h-0 flex-1 flex-col pt-7 [@media(max-height:720px)]:pt-3"
+        className="relative z-10 flex min-h-[320px] flex-1 flex-col pt-5 [@media(max-height:720px)]:pt-3"
       >
         {/* Cartão como no vídeo: só a tela e a legenda mudam. Arrastar para os lados troca de capítulo. */}
         <motion.div
-          className="relative min-h-0 flex-1"
+          className="relative min-h-[240px] flex-1"
           {...chegada(1)}
           drag={reduceMotion ? false : "x"}
           dragDirectionLock
@@ -194,7 +194,7 @@ export function FlowWelcome({ onCreateAccount, onSignIn, onCustomerBooking }: Fl
           aria-label="Sou cliente e quero só agendar"
           onClick={onCustomerBooking}
           disabled={!onCustomerBooking}
-          className="mt-1 h-auto min-h-12 text-center text-[12px] font-medium text-mute [@media(max-height:720px)]:mt-0"
+          className="mt-1 h-auto min-h-12 text-center text-[13px] font-medium text-mute [@media(max-height:720px)]:mt-0"
         >
           Sou cliente e quero só agendar
         </Button>

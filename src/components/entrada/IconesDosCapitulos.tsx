@@ -40,8 +40,9 @@ export function IconesDosCapitulos({
               size="icon"
               aria-label={"Mostrar recurso: " + item.rotulo}
               aria-pressed={aceso}
+              title={item.rotulo}
               onClick={() => onEscolher(indice)}
-              className="toque-afunda relative"
+              className={`toque-afunda relative min-h-12 min-w-12 ${aceso ? "bg-[var(--figaro-primary-container)] text-[var(--figaro-on-primary-container)]" : "text-mute"}`}
             >
               {/* Brilho: o mesmo ícone desfocado atrás, que só acende (opacidade). */}
               <motion.span
@@ -56,7 +57,7 @@ export function IconesDosCapitulos({
               <motion.span
                 className={`relative grid place-items-center ${
                   aceso
-                    ? "text-[var(--figaro-tertiary)]"
+                    ? "text-[var(--figaro-on-primary-container)]"
                     : "text-[var(--figaro-on-surface-variant)]"
                 }`}
                 initial={false}

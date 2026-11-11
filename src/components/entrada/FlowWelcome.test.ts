@@ -6,7 +6,7 @@ describe("entrada pública do Flow", () => {
   it("mantém o palco claro por tokens locais, sem depender do tema do sistema", () => {
     const tela = readFileSync("src/components/entrada/FlowWelcome.tsx", "utf8");
     expect(tela).toContain(
-      'className="relative mx-auto flex h-full min-h-0 w-full max-w-[430px] flex-col overflow-hidden bg-ink',
+      'className="relative mx-auto flex h-full min-h-0 w-full max-w-[430px] flex-col overflow-x-hidden overflow-y-auto overscroll-contain bg-ink',
     );
     expect(tela).toContain("<OndasDaEntrada />");
     expect(tela).toContain('variante="escura"');

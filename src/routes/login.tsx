@@ -450,7 +450,7 @@ function LoginPage() {
                     </h1>
                     <p
                       id="flow-login-description"
-                      className={`mt-1 text-sm text-mute ${modo === "entrar" && faseLogin === "credencial" ? "truncate" : ""}`}
+                      className="mt-1 break-words text-sm leading-relaxed text-mute"
                     >
                       {modo === "entrar"
                         ? faseLogin === "identificar"
@@ -537,6 +537,9 @@ function LoginPage() {
                           type={modo === "entrar" ? "text" : "email"}
                           autoComplete={modo === "entrar" ? "username" : "email"}
                           inputMode="email"
+                          autoCapitalize="none"
+                          spellCheck={false}
+                          enterKeyHint={modo === "entrar" ? "next" : "done"}
                           required
                           placeholder="voce@exemplo.com"
                           aria-label={
@@ -544,7 +547,7 @@ function LoginPage() {
                               ? "E-mail ou telefone, por exemplo voce@exemplo.com ou +55 79 99999-9999"
                               : "E-mail"
                           }
-                          className="mt-1.5"
+                          className="mt-1.5 min-h-14 text-base"
                         />
                       </Field>
                     )}
@@ -560,12 +563,12 @@ function LoginPage() {
                           // Na etapa da senha, o teclado já abre nela.
                           autoFocus={modo === "entrar" && faseLogin === "credencial"}
                           placeholder={modo === "criar" ? "Mínimo de 8 caracteres" : "Sua senha"}
-                          className="mt-1.5"
+                          className="mt-1.5 min-h-14 text-base"
                         />
                       </Field>
                     )}
                     {modo === "entrar" && faseLogin === "credencial" ? (
-                      <div className="flex items-center justify-between gap-2">
+                      <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1">
                         <Button
                           type="button"
                           variant="link"
