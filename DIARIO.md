@@ -27,6 +27,7 @@ e o que fez. O diário até 17/10/2026 está guardado, sem alterações, em
 7. **Sem segredos:** nunca escreva chaves, senhas ou tokens aqui. Cite só o nome da variável.
 
 ## Decisões do dono
+- 2026-11-11: **Login sempre começa na primeira cena da vitrine Flow:** visitas públicas a `/login`, inclusive com `aba=criar`, `proximo` ou aviso de perfil, abrem primeiro `FlowWelcome` desde o capítulo inicial; só depois de tocar em cadastro ou login aparece a gaveta. Preservar sessão autenticada, Google, senha, recuperação e destinos solicitados permitidos. Refinamento visual da gaveta deve manter tokens Flow/Figaro e movimento reduzido.
 - 2026-11-08: **FIGAROO → FLOW: PARIDADE FUNCIONAL INTEGRAL, SEM EXCEÇÕES DE ESCOPO.** Cada módulo e subtela comprovados no APK Figaroo build 168 deverá ter equivalente funcional no Flow, inclusive listas, fichas, editores, fluxos de criação, exclusão, permissões, indicadores, regras, estados, transições e navegação. Não limitar a cores ou componentes; onde faltar, implementar. Preservar marca, funções próprias e segurança/multi-tenant do Flow. Nenhuma correspondência pode ser marcada concluída sem teste de interface e funcionalidade; usar o inventário `docs/paridade-figaroo-flow-inventario-2026-11-08.md`. Reproduzir comportamentos e estrutura por implementação independente, sem copiar código/ativos protegidos sem licença; aplicar mudanças de banco/produção só com autorizações específicas.
 - 2026-11-08: **Fidelidade da estrutura de páginas Figaroo:** priorizar a composição observada no APK atual e nas especificações: ordem das seções, cartões, cabeçalhos, navegação, prévia e movimento. Fazer igual ou melhor somente com evidência verificável; não inventar telas, recursos, dados nem remover recursos reais do Flow. Auditoria e correções em lotes pequenos, evitando mudanças em páginas/arquivos reservados e mantendo o branding Flow.
 - 2026-11-08: **Documentos institucionais e consentimento Flow:** atualizar e manter Termos de Uso (`/termos`), Privacidade (`/privacidade`) e Cookies (`/cookies`) de forma coerente com o aplicativo e a LGPD; disponibilizar links públicos; renovar consentimento quando mudar a versão. Não tratar a interface como prova de aceite dos termos ou conformidade legal completa; exigir revisão jurídica e técnica antes de lançamento oficial, sem mexer na `main` arquivada nem produção nesta etapa.
@@ -594,7 +595,6 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - 2026-10-26: **Cabeçalho do menu mobile mais compacto** (dono aprovou a reformulação após captura: logo menor, nome do negócio com hierarquia discreta, papel secundário, ajustes alinhados e menos espaço vazio; manter nome em até duas linhas quando necessário, sem afetar a Agenda).
 
 ## Em andamento
-- GPT | 2026-11-11 03:04 BRT | **Refinar a segunda tela de login e garantir que todo acesso público abra primeiro na vitrine**: ajustar apenas a rota `/login`, preservando os destinos protegidos, autenticação, cadastro, recuperação e Google; adicionar testes estruturais; sem Agenda, banco, main ou produção | `src/routes/login.tsx`, `src/routes/login-gaveta.test.ts`; sem migração
 - GPT | 2026-11-08 11:50 BRT | **Nome e sobrenome nos fluxos:** corrigir identificação ambígua no WhatsApp, Flow Bot e consultas do painel; adicionar regra pura e testes, documentar limitações; somente branch oficial, sem sender/webhook reservado pela Claude, Agenda visual, banco, main ou produção | `src/lib/nomes-pessoas.ts`, `src/lib/flow-bot/agenda-na-conversa/*`, `src/lib/brain/busca-cliente.ts`, testes, documentação; sem migração
 
 
@@ -1031,6 +1031,13 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+
+### 2026-11-11 — GPT — Login abre primeiro a vitrine e refino da gaveta
+- `src/routes/login.tsx`: toda visita pública inicia no `FlowWelcome`, independentemente de parâmetros de cadastro, destino ou erro; o modo pré-selecionado e os destinos autorizados continuam disponíveis quando o visitante abre a gaveta. Nenhuma alteração no fluxo real de autenticação.
+- Gaveta de acesso: entrada/saída curta por `transform` (28px), fundo tonal com desfoque sutil, progresso visual entre identificação e senha, botão Fechar com alvo de 48px e estado de interação no botão Google. Mantidos os tokens oficiais, foco, Esc, área externa e preferência de movimento reduzido.
+- `src/routes/login-gaveta.test.ts`: dois testes de regressão de primeiro acesso e detalhes da gaveta.
+- CI para código visual: [#42970809272](https://github.com/herslander-netizen/cortai-app/actions/runs/42970809272) aprovado (build, TypeScript, testes e publicação da prévia com smoke). CI com testes adicionados: [#42970854537](https://github.com/herslander-netizen/cortai-app/actions/runs/42970854537) com validação build/TypeScript/Vitest aprovada e publicação da prévia ainda em andamento no momento deste registro.
+- Pendência: conferência visual e funcional da prévia em celular Android 360/390px e desktop, incluindo teclado aberto, voltar/fechar e redução de movimento. Sem alteração de Agenda, dados, banco, main ou produção.
 
 ### 2026-11-11 — GPT — Ícones da entrada refinados
 - Pedido do dono: pesquisar efeitos e deixar os ícones da entrada mais bonitos. Referências: Motion (gestures/accessibility) e Material 3 (motion); implementação com bibliotecas existentes.
