@@ -235,16 +235,16 @@ export function FlowWelcome({
           }}
           style={{ touchAction: "pan-y" }}
         >
-          <div className="min-h-0 flex-[68] overflow-hidden bg-[#f4f5fa] p-2.5">
-            <AnimatePresence mode="wait" initial={false}>
+          <div className="relative min-h-0 flex-[68] overflow-hidden bg-[#f4f5fa] p-2.5">
+            <AnimatePresence mode="sync" initial={false}>
               <motion.div
                 key={activeIndex}
-                className="h-full w-full"
-                initial={{ opacity: 0, x: reduceMotion ? 0 : 40 }}
+                className="absolute inset-2.5"
+                initial={{ opacity: 0.94, x: reduceMotion ? 0 : 14 }}
                 animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: reduceMotion ? 0 : -40 }}
+                exit={{ opacity: 0.94, x: reduceMotion ? 0 : -14 }}
                 transition={{
-                  duration: reduceMotion ? 0.12 : 0.32,
+                  duration: reduceMotion ? 0 : 0.24,
                   ease: "easeOut",
                 }}
               >
