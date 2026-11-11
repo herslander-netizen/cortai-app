@@ -135,7 +135,7 @@ export function PainelSaudeWhatsapp({
               variant="ghost"
               aria-pressed={filtro === valor}
               onClick={() => setFiltro(valor)}
-              className={`rounded-full border px-4 ${filtro === valor ? "border-gold/50 bg-ink2 text-paper" : "border-line text-mute"}`}
+              className={`min-h-12 rounded-full border px-4 ${filtro === valor ? "border-gold/50 bg-ink2 text-paper" : "border-line text-mute"}`}
             >
               {rotulo}
             </Button>
