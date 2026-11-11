@@ -156,6 +156,38 @@ describe("alça de duração na Timeline", () => {
     expect(onEditar).toHaveBeenCalledTimes(1);
     expect(onSelecionar).not.toHaveBeenCalled();
   });
+  it("não abre edição ao deslizar verticalmente depois do limiar do toque longo", () => {
+    vi.useFakeTimers();
+    try {
+      const onEditar = vi.fn();
+      const bloco = montar({ onMover: vi.fn(), onEditar }).querySelector<HTMLElement>("[aria-pressed]")!;
+      act(() => {
+        bloco.dispatchEvent(evento("pointerdown", 200, { pointerType: "touch" }));
+        vi.advanceTimersByTime(300);
+        bloco.dispatchEvent(evento("pointermove", 235, { pointerType: "touch" }));
+        bloco.dispatchEvent(evento("pointerup", 235, { pointerType: "touch" }));
+      });
+      expect(onEditar).not.toHaveBeenCalled();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+  it("não abre edição ao deslizar lateralmente depois do limiar do toque longo", () => {
+    vi.useFakeTimers();
+    try {
+      const onEditar = vi.fn();
+      const bloco = montar({ onMover: vi.fn(), onEditar }).querySelector<HTMLElement>("[aria-pressed]")!;
+      act(() => {
+        bloco.dispatchEvent(evento("pointerdown", 200, { pointerType: "touch" }));
+        vi.advanceTimersByTime(300);
+        bloco.dispatchEvent(evento("pointermove", 200, { pointerType: "touch", clientX: 130 }));
+        bloco.dispatchEvent(evento("pointerup", 200, { pointerType: "touch", clientX: 130 }));
+      });
+      expect(onEditar).not.toHaveBeenCalled();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
   it("sem onRedimensionar não há alça (atendimento só leitura)", () => {
     const alvo = montar({ onMover: vi.fn() });
     expect(alvo.querySelector("[role=separator]")).toBeNull();
