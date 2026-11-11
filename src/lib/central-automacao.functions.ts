@@ -31,7 +31,11 @@ export async function carregarCentral(
 ): Promise<Omit<DadosDaCentral, "podeGerenciar">> {
   const db = await admin();
   const agora = new Date();
-  const [{ data: linhas }, { data: config }, { data: tenant }] = await Promise.all([
+  const [
+    { data: linhas, error: erroConexoes },
+    { data: config, error: erroConfig },
+    { data: tenant, error: erroTenant },
+  ] = await Promise.all([
     db
       .from("conexoes_whatsapp")
       .select(
@@ -46,6 +50,11 @@ export async function carregarCentral(
       .maybeSingle(),
     db.from("tenants").select("notificacoes_whatsapp_ativas").eq("id", tenantId).maybeSingle(),
   ]);
+  // Falha de consulta não equivale a ausência de configuração.
+  // Nunca exibir "Configure o WhatsApp" por um erro temporário do banco.
+  if (erroConexoes || erroConfig || erroTenant) {
+    throw new Error("Não foi possível consultar a saúde do WhatsApp.");
+  }
   const { conexaoPrincipal } = await import("@/lib/whatsapp/finalidade-conexao");
   const principal = conexaoPrincipal(
     (linhas ?? []).map((l) => ({
@@ -88,13 +97,14 @@ export async function carregarCentral(
 
   const { ACOES_DO_HISTORICO, ocorrenciaDaAuditoria } =
     await import("@/lib/whatsapp/central-historico");
-  const { data: eventos } = await db
+  const { data: eventos, error: erroHistorico } = await db
     .from("auditoria_da_barbearia")
     .select("id, acao, criado_em, detalhes")
     .eq("tenant_id", tenantId)
     .in("acao", [...ACOES_DO_HISTORICO])
     .order("criado_em", { ascending: false })
     .limit(30);
+  if (erroHistorico) throw new Error("Não foi possível consultar as ocorrências do WhatsApp.");
   const historico = (eventos ?? [])
     .map((e) =>
       ocorrenciaDaAuditoria({
