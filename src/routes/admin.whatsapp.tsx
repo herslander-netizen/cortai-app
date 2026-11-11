@@ -100,6 +100,16 @@ function Detalhe({ negocio: n }: { negocio: WhatsappDoNegocio }) {
           {new Date(n.verificadoEm).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" })}
         </p>
       ) : null}
+      {n.incidenteAberto ? (
+        <p className="mt-2 text-xs font-medium text-brick">
+          Há uma ocorrência aberta para este estabelecimento.
+        </p>
+      ) : null}
+      {n.tentativasReconexao > 0 ? (
+        <p className="mt-2 text-xs text-mute2">
+          Tentativas automáticas de reconexão registradas: {n.tentativasReconexao}
+        </p>
+      ) : null}
       {n.temNumeroAntigoDeAvisos ? (
         <p className="mt-1 text-xs text-mute2">
           Tem um número antigo de avisos que não é mais usado.
