@@ -154,6 +154,7 @@ function LoginPage() {
       <div aria-hidden="true" className="pointer-events-none absolute -bottom-32 -left-32 h-72 w-72 rounded-full bg-gold/10 blur-[80px]" />
       <Link
         to="/entrada"
+        search={proximo ? { proximo } : {}}
         className="relative mb-6 inline-flex min-h-11 w-fit items-center gap-2 rounded-xl pr-3 text-sm font-medium text-mute transition-colors hover:text-paper focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold"
       >
         <ArrowLeft size={18} aria-hidden /> Voltar à apresentação
