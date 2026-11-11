@@ -14,7 +14,7 @@ export function TrocaDeVisualizacao({
   children,
 }: {
   chave: string;
-  aoConcluirSaida?: () => void;
+  aoConcluirSaida: () => void;
   children: ReactNode;
 }) {
   const reduzirMovimento = useReducedMotion();
