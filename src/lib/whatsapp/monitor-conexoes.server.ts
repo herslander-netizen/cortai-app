@@ -102,10 +102,8 @@ async function verificarUma(linha: Linha, agora: Date) {
     logConexao("monitor_sem_resposta", { ...base, classe });
     const { registrarFalhaDoServico } = await import("./incidente-evolution.server");
     await registrarFalhaDoServico(linha, classe, agora);
-    await db
-      .from("conexoes_whatsapp")
-      .update({ verificado_em: agora.toISOString() })
-      .eq("id", linha.id);
+    // A chamada falhou: não registrar como confirmação recente.
+    // Os painéis só consideram verificado_em quando a consulta respondeu.
     return "sem_resposta" as const;
   }
 
