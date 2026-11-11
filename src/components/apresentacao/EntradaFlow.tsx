@@ -68,7 +68,7 @@ const CENAS: Cena[] = [
   },
 ];
 
-export function EntradaFlow() {
+export function EntradaFlow({ proximo }: { proximo?: string } = {}) {
   const [ativo, setAtivo] = useState(0);
   const [progresso, setProgresso] = useState(0);
   const [loginAberto, setLoginAberto] = useState(false);
@@ -225,7 +225,7 @@ export function EntradaFlow() {
           <motion.div whileTap={menosMovimento ? { scale: 1 } : { scale: 0.98 }}>
             <Link
               to="/login"
-              search={{ aba: "criar", proximo: "/comecar" }}
+              search={{ aba: "criar", proximo: proximo ?? "/comecar" }}
               className="flex h-14 w-full items-center justify-center rounded-full bg-[#6B5F8F] text-base font-semibold text-white shadow-lg shadow-[#6B5F8F]/30 transition-colors hover:bg-[#51466F]"
             >
               Começar Agora
@@ -243,7 +243,7 @@ export function EntradaFlow() {
       </div>
 
       <AnimatePresence>
-        {loginAberto && <BottomSheetLogin aoFechar={fecharLogin} reduzirMovimento={menosMovimento} />}
+        {loginAberto && <BottomSheetLogin aoFechar={fecharLogin} reduzirMovimento={menosMovimento} proximo={proximo} />}
       </AnimatePresence>
     </div>
   );
@@ -391,9 +391,11 @@ function MockupCena({ id }: { id: string }) {
 function BottomSheetLogin({
   aoFechar,
   reduzirMovimento,
+  proximo,
 }: {
   aoFechar: () => void;
   reduzirMovimento: boolean;
+  proximo?: string;
 }) {
   const dialogoRef = useRef<HTMLDivElement>(null);
 
@@ -471,14 +473,14 @@ function BottomSheetLogin({
           </button>
         </div>
         <div className="mt-4 flex flex-col gap-3">
-          <Link to="/login" className="flex h-12 w-full items-center justify-between rounded-xl bg-white/10 px-4 text-sm font-semibold text-white transition-colors hover:bg-white/15">
+          <Link to="/login" search={proximo ? { proximo } : {}} className="flex h-12 w-full items-center justify-between rounded-xl bg-white/10 px-4 text-sm font-semibold text-white transition-colors hover:bg-white/15">
             <div className="flex items-center gap-3"><Mail size={18} className="text-[#A8C7FA]" aria-hidden /><span>Continuar para login</span></div>
             <ChevronRight size={18} className="text-white/70" aria-hidden />
           </Link>
           <p className="text-center text-xs text-white/70">Entre com e-mail e senha, Google ou Apple.</p>
         </div>
         <div className="mt-5 text-center">
-          <Link to="/login" search={{ aba: "criar", proximo: "/comecar" }} className="inline-flex min-h-11 items-center text-xs text-[#A8C7FA] hover:underline">
+          <Link to="/login" search={{ aba: "criar", proximo: proximo ?? "/comecar" }} className="inline-flex min-h-11 items-center text-xs text-[#A8C7FA] hover:underline">
             Ainda não tem conta? Criar conta
           </Link>
         </div>
