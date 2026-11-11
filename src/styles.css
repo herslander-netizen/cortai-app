@@ -3018,7 +3018,7 @@ html.agenda-gesto-ativo body {
 }
 @keyframes agenda-troca-proximo {
   from {
-    opacity: 0;
+    opacity: 0.94;
     transform: translateX(20px);
   }
   to {
@@ -3028,7 +3028,7 @@ html.agenda-gesto-ativo body {
 }
 @keyframes agenda-troca-anterior {
   from {
-    opacity: 0;
+    opacity: 0.94;
     transform: translateX(-20px);
   }
   to {
