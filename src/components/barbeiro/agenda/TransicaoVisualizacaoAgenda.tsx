@@ -45,7 +45,11 @@ export function TransicaoVisualizacaoAgenda({
 
   return (
     <AnimatePresence initial={false} mode="sync">
-      <VisaoDaAgenda key={visualizacao} visualizacao={visualizacao} reduzirMovimento={reduzirMovimento}>
+      <VisaoDaAgenda
+        key={visualizacao}
+        visualizacao={visualizacao}
+        reduzirMovimento={reduzirMovimento}
+      >
         {children}
       </VisaoDaAgenda>
     </AnimatePresence>
