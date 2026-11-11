@@ -67,6 +67,11 @@ export function CentralDeAutomacao() {
 
   return (
     <div className="space-y-4">
+      {consulta.isError ? (
+        <p className="border-l-2 border-brick py-2 pl-4 text-sm text-brick" role="alert">
+          Não foi possível atualizar a conexão. O estado exibido é da última leitura disponível e pode estar desatualizado.
+        </p>
+      ) : null}
       <section
         className="surface p-5"
         aria-labelledby="cartao-principal-automacao"
