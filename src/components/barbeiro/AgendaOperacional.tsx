@@ -1379,148 +1379,152 @@ export function AgendaOperacional() {
             </Button>
           </div>
         ) : null}
-        <div id="agenda-painel-visualizacao" className="grid min-w-0" aria-label={`Visualização ${visualizacao}`}>
+        <div
+          id="agenda-painel-visualizacao"
+          className="grid min-w-0"
+          aria-label={`Visualização ${visualizacao}`}
+        >
           <TransicaoVisualizacaoAgenda visualizacao={visualizacao}>
             {carregandoInicial ? (
-            <AgendaCarregando formato={visualizacao === "lista" ? "lista" : "timeline"} />
-          ) : erroInicial ? (
-            <AgendaErro mensagem={mensagemErro} onTentar={() => void agenda.refetch()} />
-          ) : visualizacao === "semana" && !celular ? (
-            <AgendaSemana
-              semana={semana}
-              fuso={fuso}
-              hoje={hojeNoFuso(fuso)}
-              profissional={nomeDoProf(profFiltro)}
-              onAbrirDia={(d) => {
-                mudarDia(d);
-                alterarVisualizacao("timeline");
-              }}
-            />
-          ) : diaSemAgenda && !(celular && visualizacao !== "lista") ? (
-            <AgendaVazia
-              titulo="Agenda livre"
-              texto={`${dataEditorial(dia)} · nenhum atendimento marcado`}
-            >
-              <Button className="min-h-11" onClick={() => setManualAberto(true)}>
-                <Plus /> Novo agendamento
-              </Button>
-              {ehHoje ? (
-                <Button variant="ghost" className="min-h-11" onClick={() => setRapidoAberto(true)}>
-                  Encaixe
-                </Button>
-              ) : null}
-              {ehHoje ? <PrimeirosPassos /> : null}
-            </AgendaVazia>
-          ) : colunas ? (
-            <div
-              className="agenda-colunas"
-              style={{
-                gridTemplateColumns: `repeat(${profissionais.length}, minmax(${celular ? "176px" : "220px"}, 1fr))`,
-              }}
-            >
-              {profissionais.map((p) => (
-                <section key={p.id} className="min-w-0" aria-label={p.nome}>
-                  <Button
-                    variant="ghost"
-                    className="agenda-coluna-titulo"
-                    onClick={() => setProfFiltro(p.id)}
-                  >
-                    {p.nome}
-                  </Button>
-                  <AgendaTimeline
-                    dia={dia}
-                    fuso={fuso}
-                    itens={itens.filter((item) => item.profissionalId === p.id)}
-                    bloqueios={bloqueiosQ.data ?? []}
-                    ocupacoesExtras={(agenda.data?.bloqueios ?? []).filter(
-                      (ocupacao) => !ocupacao.profissional_id || ocupacao.profissional_id === p.id,
-                    )}
-                    profissionalId={p.id}
-                    profissionais={[p]}
-                    itensEscala={itens}
-                    alinhado
-                    horarios={agenda.data?.horarios ?? []}
-                    selecionado={selecionado}
-                    onSelecionar={abrir}
-                    {...(agenda.data?.dia === dia
-                      ? { onEditarIntervalo: () => setIntervaloAberto(true) }
-                      : {})}
-                    onMover={moverPorArrasto}
-                    onRedimensionar={redimensionarPorAlca}
-                    onEditar={(item) => edicao.iniciar(item.id)}
-                    passoMin={passoMin}
-                    edicaoDoCartao={cartaoEmEdicao}
-                    onHorarioVazio={(h) => {
-                      setHoraVazia(h);
-                      setProfVazio(p.id);
-                      setManualAberto(true);
-                    }}
-                    destaques={novos}
-                    mostrarProfissional={false}
-                    discreto={modoDiscreto}
-                    diaCompleto={celular}
-                  />
-                </section>
-              ))}
-            </div>
-          ) : visualizacao !== "lista" ? (
-            <>
-              {celular ? (
-                <MarcaDoLimiteDoDia className="mb-1" carregando={agenda.isFetching} />
-              ) : null}
-              <AgendaTimeline
-                dia={dia}
+              <AgendaCarregando formato={visualizacao === "lista" ? "lista" : "timeline"} />
+            ) : erroInicial ? (
+              <AgendaErro mensagem={mensagemErro} onTentar={() => void agenda.refetch()} />
+            ) : visualizacao === "semana" && !celular ? (
+              <AgendaSemana
+                semana={semana}
                 fuso={fuso}
-                itens={itens}
-                bloqueios={bloqueiosQ.data ?? []}
-                ocupacoesExtras={ocupacoesExtrasVisiveis}
-                profissionalId={profFiltro}
-                profissionais={profissionais}
-                itensEscala={todosItens}
-                horarios={agenda.data?.horarios ?? []}
-                selecionado={selecionado}
-                onSelecionar={abrir}
-                {...(agenda.data?.dia === dia
-                  ? { onEditarIntervalo: () => setIntervaloAberto(true) }
-                  : {})}
-                onMover={moverPorArrasto}
-                onRedimensionar={redimensionarPorAlca}
-                onEditar={(item) => edicao.iniciar(item.id)}
-                passoMin={passoMin}
-                edicaoDoCartao={cartaoEmEdicao}
-                onHorarioVazio={(h) => {
-                  setHoraVazia(h);
-                  setProfVazio(null);
-                  setManualAberto(true);
+                hoje={hojeNoFuso(fuso)}
+                profissional={nomeDoProf(profFiltro)}
+                onAbrirDia={(d) => {
+                  mudarDia(d);
+                  alterarVisualizacao("timeline");
                 }}
-                destaques={novos}
+              />
+            ) : diaSemAgenda && !(celular && visualizacao !== "lista") ? (
+              <AgendaVazia
+                titulo="Agenda livre"
+                texto={`${dataEditorial(dia)} · nenhum atendimento marcado`}
+              >
+                <Button className="min-h-11" onClick={() => setManualAberto(true)}>
+                  <Plus /> Novo agendamento
+                </Button>
+                {ehHoje ? (
+                  <Button variant="ghost" className="min-h-11" onClick={() => setRapidoAberto(true)}>
+                    Encaixe
+                  </Button>
+                ) : null}
+                {ehHoje ? <PrimeirosPassos /> : null}
+              </AgendaVazia>
+            ) : colunas ? (
+              <div
+                className="agenda-colunas"
+                style={{
+                  gridTemplateColumns: `repeat(${profissionais.length}, minmax(${celular ? "176px" : "220px"}, 1fr))`,
+                }}
+              >
+                {profissionais.map((p) => (
+                  <section key={p.id} className="min-w-0" aria-label={p.nome}>
+                    <Button
+                      variant="ghost"
+                      className="agenda-coluna-titulo"
+                      onClick={() => setProfFiltro(p.id)}
+                    >
+                      {p.nome}
+                    </Button>
+                    <AgendaTimeline
+                      dia={dia}
+                      fuso={fuso}
+                      itens={itens.filter((item) => item.profissionalId === p.id)}
+                      bloqueios={bloqueiosQ.data ?? []}
+                      ocupacoesExtras={(agenda.data?.bloqueios ?? []).filter(
+                        (ocupacao) => !ocupacao.profissional_id || ocupacao.profissional_id === p.id,
+                      )}
+                      profissionalId={p.id}
+                      profissionais={[p]}
+                      itensEscala={itens}
+                      alinhado
+                      horarios={agenda.data?.horarios ?? []}
+                      selecionado={selecionado}
+                      onSelecionar={abrir}
+                      {...(agenda.data?.dia === dia
+                        ? { onEditarIntervalo: () => setIntervaloAberto(true) }
+                        : {})}
+                      onMover={moverPorArrasto}
+                      onRedimensionar={redimensionarPorAlca}
+                      onEditar={(item) => edicao.iniciar(item.id)}
+                      passoMin={passoMin}
+                      edicaoDoCartao={cartaoEmEdicao}
+                      onHorarioVazio={(h) => {
+                        setHoraVazia(h);
+                        setProfVazio(p.id);
+                        setManualAberto(true);
+                      }}
+                      destaques={novos}
+                      mostrarProfissional={false}
+                      discreto={modoDiscreto}
+                      diaCompleto={celular}
+                    />
+                  </section>
+                ))}
+              </div>
+            ) : visualizacao !== "lista" ? (
+              <>
+                {celular ? (
+                  <MarcaDoLimiteDoDia className="mb-1" carregando={agenda.isFetching} />
+                ) : null}
+                <AgendaTimeline
+                  dia={dia}
+                  fuso={fuso}
+                  itens={itens}
+                  bloqueios={bloqueiosQ.data ?? []}
+                  ocupacoesExtras={ocupacoesExtrasVisiveis}
+                  profissionalId={profFiltro}
+                  profissionais={profissionais}
+                  itensEscala={todosItens}
+                  horarios={agenda.data?.horarios ?? []}
+                  selecionado={selecionado}
+                  onSelecionar={abrir}
+                  {...(agenda.data?.dia === dia
+                    ? { onEditarIntervalo: () => setIntervaloAberto(true) }
+                    : {})}
+                  onMover={moverPorArrasto}
+                  onRedimensionar={redimensionarPorAlca}
+                  onEditar={(item) => edicao.iniciar(item.id)}
+                  passoMin={passoMin}
+                  edicaoDoCartao={cartaoEmEdicao}
+                  onHorarioVazio={(h) => {
+                    setHoraVazia(h);
+                    setProfVazio(null);
+                    setManualAberto(true);
+                  }}
+                  destaques={novos}
+                  mostrarProfissional={!profFiltro && profissionais.length > 1}
+                  discreto={modoDiscreto}
+                  diaCompleto={celular}
+                />
+                {celular ? (
+                  <MarcaDoLimiteDoDia className="mt-1" carregando={agenda.isFetching} />
+                ) : null}
+              </>
+            ) : (
+              <ListaAgenda
+                itens={itens}
+                fuso={fuso}
+                ehHoje={ehHoje}
+                selecionado={selecionado}
+                novos={novos}
+                online={online}
                 mostrarProfissional={!profFiltro && profissionais.length > 1}
                 discreto={modoDiscreto}
-                diaCompleto={celular}
+                onAbrir={abrir}
+                onFalta={(i) => void transicionar(i, "nao_compareceu")}
+                onAcao={(i, acao) => {
+                  const efeito = efeitoDaAcaoCard(acao);
+                  if (efeito === "marcar_chegada") void transicionar(i, "chegou");
+                  else if (efeito === "comecar") iniciar(i);
+                  else setFechando(i.id);
+                }}
               />
-              {celular ? (
-                <MarcaDoLimiteDoDia className="mt-1" carregando={agenda.isFetching} />
-              ) : null}
-            </>
-          ) : (
-            <ListaAgenda
-              itens={itens}
-              fuso={fuso}
-              ehHoje={ehHoje}
-              selecionado={selecionado}
-              novos={novos}
-              online={online}
-              mostrarProfissional={!profFiltro && profissionais.length > 1}
-              discreto={modoDiscreto}
-              onAbrir={abrir}
-              onFalta={(i) => void transicionar(i, "nao_compareceu")}
-              onAcao={(i, acao) => {
-                const efeito = efeitoDaAcaoCard(acao);
-                if (efeito === "marcar_chegada") void transicionar(i, "chegou");
-                else if (efeito === "comecar") iniciar(i);
-                else setFechando(i.id);
-              }}
-            />
             )}
           </TransicaoVisualizacaoAgenda>
         </div>
