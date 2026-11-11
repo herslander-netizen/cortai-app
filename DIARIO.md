@@ -595,7 +595,6 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - 2026-10-26: **Cabeçalho do menu mobile mais compacto** (dono aprovou a reformulação após captura: logo menor, nome do negócio com hierarquia discreta, papel secundário, ajustes alinhados e menos espaço vazio; manter nome em até duas linhas quando necessário, sem afetar a Agenda).
 
 ## Em andamento
-- GPT | 2026-11-11 03:20 BRT | **Corrigir primeira história invisível sem medida inicial**: garantir que cartão Celular apareça no primeiro frame, mesmo antes do ResizeObserver ou se a medição inicial não tiver dimensões; preservar redimensionamento, histórias, autenticação e movimento reduzido | `src/components/entrada/historias/Celular.tsx`, `src/components/entrada/historias/historias.test.tsx`; sem Agenda, banco, main, produção ou migração
 - GPT | 2026-11-08 11:50 BRT | **Nome e sobrenome nos fluxos:** corrigir identificação ambígua no WhatsApp, Flow Bot e consultas do painel; adicionar regra pura e testes, documentar limitações; somente branch oficial, sem sender/webhook reservado pela Claude, Agenda visual, banco, main ou produção | `src/lib/nomes-pessoas.ts`, `src/lib/flow-bot/agenda-na-conversa/*`, `src/lib/brain/busca-cliente.ts`, testes, documentação; sem migração
 
 
@@ -1032,6 +1031,13 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+
+### 2026-11-11 — GPT — Primeira cena da entrada visível antes da medição
+- Causa identificada no código: `src/components/entrada/historias/Celular.tsx` renderizava toda a prévia com `opacity: 0` enquanto `escala === null`; a medição podia retornar sem dimensões e manter a primeira história invisível até um redimensionamento.
+- Correção localizada: moldura visível já no primeiro frame com escala inicial segura; `ResizeObserver` continua ajustando a dimensão quando disponível; escala calculada tem piso positivo para evitar tamanhos inválidos em alturas estreitas. Mantida a sequência das histórias, a marca e os tokens.
+- Regressão em `src/components/entrada/historias/historias.test.tsx`: renderização estática de `Celular` sem medição deve conter cartão e legenda visíveis, sem `opacity:0`.
+- Código: commits `564a22e` e `9eb8d9d`; [validação automática](https://github.com/herslander-netizen/cortai-app/actions/runs/42972215884) iniciada, sem conclusão confirmada neste registro. Inspeção visual real no Android/desktop continua pendente, sem reivindicar correção comprovada no dispositivo.
+- Sem Agenda, banco, backend, main, publicação principal ou migração.
 
 ### 2026-11-11 — GPT — Login abre primeiro a vitrine e refino da gaveta
 - `src/routes/login.tsx`: toda visita pública inicia no `FlowWelcome`, independentemente de parâmetros de cadastro, destino ou erro; o modo pré-selecionado e os destinos autorizados continuam disponíveis quando o visitante abre a gaveta. Nenhuma alteração no fluxo real de autenticação.
