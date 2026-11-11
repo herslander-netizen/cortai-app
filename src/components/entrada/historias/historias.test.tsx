@@ -50,11 +50,10 @@ const arquivos = readdirSync(PASTA).filter((f) => f.endsWith(".tsx") && !f.endsW
 describe("mini-histórias da entrada (vídeo de referência do dono, 06/11)", () => {
   it("desenha a primeira história antes de existir uma medida do ResizeObserver", () => {
     const html = renderToStaticMarkup(
-      createElement(
-        Celular,
-        { legenda: createElement("span", null, "Seu site") },
-        createElement("span", null, "Primeira cena visível"),
-      ),
+      createElement(Celular, {
+        legenda: createElement("span", null, "Seu site"),
+        children: createElement("span", null, "Primeira cena visível"),
+      }),
     );
     expect(html).toContain("Primeira cena visível");
     expect(html).toContain("Seu site");
