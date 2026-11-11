@@ -51,7 +51,7 @@ describe("TransicaoVisualizacaoAgenda", () => {
     const saida = host.querySelector<HTMLElement>('[data-visualizacao="lista"]');
     if (saida) {
       expect(saida.getAttribute("aria-hidden")).toBe("true");
-      expect(saida.inert).toBe(true);
+      expect(saida.hasAttribute("inert")).toBe(true);
     }
   });
 });
