@@ -84,13 +84,24 @@ export function minutosDoHorario(valor: string) {
   return h * 60 + m;
 }
 
+// Instanciar Intl.DateTimeFormat a cada cartão custa muito mais do que formatar:
+// a Timeline consulta início/fim várias vezes por item durante cada alternância.
+// Um formatador por fuso evita reconstruções síncronas na thread de interface.
+const FORMATADORES_DE_MINUTO = new Map<string, Intl.DateTimeFormat>();
+
 export function minutosNoFuso(valor: string | number, fuso?: string) {
-  const partes = new Intl.DateTimeFormat("pt-BR", {
-    hour: "2-digit",
-    minute: "2-digit",
-    hourCycle: "h23",
-    timeZone: fuso,
-  }).formatToParts(new Date(valor));
+  const chave = fuso ?? "";
+  let formatador = FORMATADORES_DE_MINUTO.get(chave);
+  if (!formatador) {
+    formatador = new Intl.DateTimeFormat("pt-BR", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hourCycle: "h23",
+      timeZone: fuso,
+    });
+    FORMATADORES_DE_MINUTO.set(chave, formatador);
+  }
+  const partes = formatador.formatToParts(new Date(valor));
   return (
     Number(partes.find((p) => p.type === "hour")?.value ?? 0) * 60 +
     Number(partes.find((p) => p.type === "minute")?.value ?? 0)
