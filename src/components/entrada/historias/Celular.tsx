@@ -33,7 +33,7 @@ export function Celular({
       const { width, height } = el.getBoundingClientRect();
       if (!width || !height) return;
       // Como no vídeo: o cartão ocupa até 80 % da largura e a tela inteira fica visível.
-      setEscala(Math.min((width * 0.8) / TELA_LARGURA, (height - LEGENDA - 4) / TELA_ALTURA));
+      setEscala(Math.max(0.35, Math.min((width * 0.8) / TELA_LARGURA, (height - LEGENDA - 4) / TELA_ALTURA)));
     };
     medir();
     const obs = new ResizeObserver(medir);
@@ -41,12 +41,13 @@ export function Celular({
     return () => obs.disconnect();
   }, [LEGENDA]);
 
-  const e = escala ?? 1;
+  // A moldura nasce visível mesmo antes da primeira medição do ResizeObserver.
+  const e = escala ?? 0.55;
   return (
     <div ref={area} className="relative flex h-full w-full items-start justify-center">
       <div
         className="flex flex-col overflow-hidden rounded-[30px] bg-[var(--figaro-inverse-surface)] p-[6px] text-[var(--figaro-inverse-on-surface)] ring-1 ring-white/15 shadow-[0_24px_48px_-20px_color-mix(in_oklab,var(--figaro-inverse-surface)_70%,transparent)]"
-        style={{ width: TELA_LARGURA * e + 12, opacity: escala === null ? 0 : 1 }}
+        style={{ width: TELA_LARGURA * e + 12 }}
       >
         <div
           className="relative overflow-hidden rounded-[24px]"
