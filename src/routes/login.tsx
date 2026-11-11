@@ -1,5 +1,6 @@
 import { createFileRoute, useNavigate, redirect, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { ArrowLeft, Eye, EyeOff } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
@@ -9,7 +10,6 @@ import { lovable } from "@/integrations/lovable";
 import { destinoAposEntrar, destinoDoPapel, destinoSolicitadoPermitido } from "@/lib/guarda";
 import { getSessao } from "@/lib/sessao.functions";
 import { Aviso } from "@/components/ui/aviso";
-import { MarcaCortai } from "@/components/marca/MarcaCortai";
 import { sincronizarCorDoNavegador } from "@/lib/aparencia";
 
 export const Route = createFileRoute("/login")({
@@ -22,13 +22,13 @@ export const Route = createFileRoute("/login")({
   }),
   head: () => ({
     meta: [
-      { title: "Entrar — Cortaí" },
+      { title: "Entrar — Flow" },
       {
         name: "description",
-        content: "Acesse seus horários ou a gestão do seu negócio no Cortaí.",
+        content: "Acesse seus horários e a gestão do seu negócio no Flow.",
       },
-      { property: "og:title", content: "Entrar — Cortaí" },
-      { property: "og:description", content: "Seu acesso ao Cortaí." },
+      { property: "og:title", content: "Entrar — Flow" },
+      { property: "og:description", content: "Seu acesso ao Flow." },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "https://cortai.dev/login" },
       { property: "og:image", content: "https://cortai.dev/capa-social-cortai.jpg" },
@@ -91,15 +91,20 @@ function LoginPage() {
   const [modo, setModo] = useState<"entrar" | "criar">(aba === "criar" ? "criar" : "entrar");
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
+  const [senhaVisivel, setSenhaVisivel] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
   const [aviso, setAviso] = useState<string | null>(null);
   const [enviando, setEnviando] = useState(false);
 
   useEffect(() => {
     const meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
-    if (meta) meta.content = "#ffffff";
+    if (meta) meta.content = "#0A0D14";
     return sincronizarCorDoNavegador;
   }, []);
+
+  useEffect(() => {
+    setModo(aba === "criar" ? "criar" : "entrar");
+  }, [aba]);
 
   async function seguirParaMinhaArea() {
     const sessao = await getSessao();
@@ -141,15 +146,30 @@ function LoginPage() {
     setErro(`Não foi possível continuar com ${provedor === "google" ? "o Google" : "a Apple"}.`);
 
   const botaoSocial =
-    "h-12 w-full justify-center gap-2 rounded-full border-line2 bg-ink2 text-sm font-semibold text-paper";
+    "h-12 w-full justify-center gap-2 rounded-2xl border-line2 bg-ink2 text-sm font-semibold text-paper shadow-sm hover:bg-ink3 focus-visible:ring-gold";
 
   return (
-    <main className="auth-screen auth-screen--claro auth-login-shell mx-auto flex min-h-[100dvh] w-full max-w-[400px] flex-col justify-center px-6 py-[calc(2rem+env(safe-area-inset-bottom))]">
-      <div className="mb-6 flex flex-col items-center text-center">
-        <MarcaCortai variante="escura" className="h-auto w-36" prioridade />
-        <h1 className="mt-4 text-base font-semibold text-mute">
-          {modo === "entrar" ? "Entrar" : "Criar conta"}
+    <main className="auth-screen auth-login-shell relative mx-auto flex min-h-[100dvh] w-full max-w-[430px] flex-col justify-center overflow-hidden px-6 pb-[max(env(safe-area-inset-bottom),24px)] pt-[max(env(safe-area-inset-top),24px)]">
+      <div aria-hidden="true" className="pointer-events-none absolute -top-24 -right-32 h-72 w-72 rounded-full bg-rosa/10 blur-[80px]" />
+      <div aria-hidden="true" className="pointer-events-none absolute -bottom-32 -left-32 h-72 w-72 rounded-full bg-gold/10 blur-[80px]" />
+      <Link
+        to="/entrada"
+        className="relative mb-6 inline-flex min-h-11 w-fit items-center gap-2 rounded-xl pr-3 text-sm font-medium text-mute transition-colors hover:text-paper focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold"
+      >
+        <ArrowLeft size={18} aria-hidden /> Voltar à apresentação
+      </Link>
+      <div className="relative mb-7 flex flex-col items-center text-center">
+        <div aria-label="Flow" className="flex items-baseline gap-0.5">
+          <span className="text-4xl font-extrabold tracking-[-0.06em] text-paper">Flow</span>
+          <span aria-hidden="true" className="text-4xl font-extrabold text-rosa">.</span>
+        </div>
+        <p className="mt-1.5 text-xs font-medium text-mute">Seu negócio no ritmo certo.</p>
+        <h1 className="mt-7 text-2xl font-bold tracking-tight text-paper">
+          {modo === "entrar" ? "Bem-vindo de volta" : "Sua jornada começa aqui"}
         </h1>
+        <p className="mt-2 max-w-[30ch] text-sm leading-relaxed text-mute">
+          {modo === "entrar" ? "Acesse seu espaço e continue de onde parou." : "Crie sua conta e organize seu negócio em um só lugar."}
+        </p>
       </div>
 
       <div className="space-y-2">
@@ -239,18 +259,32 @@ function LoginPage() {
             className="mt-1.5"
           />
         </Field>
-        <Field label="Senha">
-          <Input
-            value={senha}
-            onChange={(e) => setSenha(e.target.value)}
-            type="password"
-            autoComplete={modo === "entrar" ? "current-password" : "new-password"}
-            required
-            minLength={8}
-            placeholder="Sua senha"
-            className="mt-1.5"
-          />
-        </Field>
+        <div>
+          <label htmlFor="senha-flow" className="field-label">Senha</label>
+          <div className="relative mt-1.5">
+            <Input
+              id="senha-flow"
+              value={senha}
+              onChange={(e) => setSenha(e.target.value)}
+              type={senhaVisivel ? "text" : "password"}
+              autoComplete={modo === "entrar" ? "current-password" : "new-password"}
+              required
+              minLength={8}
+              placeholder="Sua senha"
+              className="pr-14"
+            />
+            <Button
+              type="button"
+              variant="ghost"
+              aria-label={senhaVisivel ? "Ocultar senha" : "Mostrar senha"}
+              aria-pressed={senhaVisivel}
+              onClick={() => setSenhaVisivel((valor) => !valor)}
+              className="absolute inset-y-0 right-1 my-auto h-11 w-11 rounded-xl px-0 text-mute hover:text-paper"
+            >
+              {senhaVisivel ? <EyeOff size={19} aria-hidden /> : <Eye size={19} aria-hidden />}
+            </Button>
+          </div>
+        </div>
         {modo === "entrar" ? (
           <Link
             to="/recuperar-senha"
@@ -265,7 +299,7 @@ function LoginPage() {
           </p>
         ) : null}
         {aviso ? <Aviso tom="info">{aviso}</Aviso> : null}
-        <Button className="h-12 w-full rounded-full font-bold" disabled={enviando}>
+        <Button className="h-12 w-full rounded-full bg-[#6B5F8F] font-bold text-white shadow-lg shadow-[#6B5F8F]/20 hover:bg-[#5A4E80]" disabled={enviando}>
           {enviando ? "Aguarde…" : modo === "entrar" ? "Entrar" : "Criar conta"}
         </Button>
       </form>
@@ -278,6 +312,7 @@ function LoginPage() {
           className="h-auto min-h-12 px-1"
           onClick={() => {
             setModo(modo === "entrar" ? "criar" : "entrar");
+            setSenhaVisivel(false);
             setErro(null);
             setAviso(null);
           }}
