@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate, redirect } from "@tanstack/react-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { Eye, EyeOff } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
@@ -108,6 +109,7 @@ function LoginPage() {
   const [modo, setModo] = useState<"entrar" | "criar">(aba === "criar" ? "criar" : "entrar");
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
+  const [senhaVisivel, setSenhaVisivel] = useState(false);
   const [faseLogin, setFaseLogin] = useState<"identificar" | "credencial">("identificar");
   const [erro, setErro] = useState<string | null>(
     erroNaSessao === "perfil"
@@ -117,11 +119,9 @@ function LoginPage() {
   const [aviso, setAviso] = useState<string | null>(null);
   const [enviando, setEnviando] = useState(false);
   const [enviandoGoogle, setEnviandoGoogle] = useState(false);
-  // A vitrine animada abre primeiro; quem chega para criar conta, com destino ou com erro de
-  // sessão vai direto ao formulário.
-  const [mostrarForm, setMostrarForm] = useState(
-    aba === "criar" || Boolean(proximo) || erroNaSessao === "perfil",
-  );
+  // A primeira cena aparece antes do formulário, inclusive em links com aba/criação ou destino.
+  // Erros de perfil continuam visíveis imediatamente, para não ocultar problemas após autenticação.
+  const [mostrarForm, setMostrarForm] = useState(erroNaSessao === "perfil");
   const [mostrarRecuperacao, setMostrarRecuperacao] = useState(false);
   const fecharRecuperacao = useCallback(() => setMostrarRecuperacao(false), []);
 
@@ -156,6 +156,7 @@ function LoginPage() {
     setMostrarForm(false);
     setFaseLogin("identificar");
     setSenha("");
+    setSenhaVisivel(false);
     setErro(null);
     setAviso(null);
   }
@@ -322,13 +323,13 @@ function LoginPage() {
           overflow: "hidden",
         }}
       >
-        <AnimatePresence mode="wait" initial={false}>
+        <AnimatePresence mode="sync" initial={false}>
           {!mostrarForm ? (
             <motion.div
               key="vitrine"
-              initial={{ opacity: 0 }}
+              initial={{ opacity: 1 }}
               animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
+              exit={{ opacity: 1 }}
               transition={transicaoEntrada}
               style={{
                 display: "flex",
@@ -363,6 +364,9 @@ function LoginPage() {
               exit={reduzirMovimento ? { opacity: 0 } : { opacity: 0, y: "100%" }}
               transition={transicaoEntrada}
               style={{
+                position: "absolute",
+                inset: 0,
+                zIndex: 20,
                 display: "flex",
                 flex: 1,
                 flexDirection: "column",
@@ -393,7 +397,7 @@ function LoginPage() {
                   background: "linear-gradient(155deg, #1a1b2d, #10111d)",
                   border: "1px solid rgba(182,177,255,.28)",
                   boxShadow: "0 12px 34px rgba(0,0,0,.45)",
-                  maxHeight: "min(82dvh, 720px)",
+                  maxHeight: "min(88dvh, 720px)",
                   borderTop: "1px solid rgba(182,177,255,.45)",
                   overflowY: "auto",
                   overscrollBehavior: "contain",
@@ -403,6 +407,7 @@ function LoginPage() {
                 <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-line2" />
             <div className="mb-5 flex items-start justify-between gap-3">
               <div className="min-w-0">
+                <p className="mb-2 flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.16em] text-[#BB86FC]"><span className="h-1.5 w-1.5 rounded-full bg-[#F48FB1]" aria-hidden="true" /> Acesso Flow</p>
                 <h1 id="flow-login-title" className="text-left text-xl font-bold text-paper">
                   {modo === "entrar" ? (faseLogin === "identificar" ? "Acessar sua conta" : "Digite sua senha") : "Criar conta"}
                 </h1>
@@ -416,7 +421,7 @@ function LoginPage() {
                 type="button"
                 aria-label="Fechar painel de acesso"
                 onClick={fecharPainelLogin}
-                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-line2 bg-ink3 text-mute transition-colors hover:bg-ink hover:text-paper focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+                className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-line2 bg-ink3 text-mute transition-colors hover:bg-ink hover:text-paper focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
               >
                 <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
                   <path d="m18 6-12 12M6 6l12 12" />
@@ -504,22 +509,36 @@ function LoginPage() {
                 </Field>
               )}
               {(modo === "criar" || faseLogin === "credencial") && (
-                <Field label="Senha">
-                  <Input
-                    value={senha}
-                    onChange={(e) => setSenha(e.target.value)}
-                    type="password"
-                    autoComplete={modo === "entrar" ? "current-password" : "new-password"}
-                    required
-                    minLength={modo === "criar" ? 8 : 1}
-                    placeholder="Sua senha"
-                    className="mt-1.5"
-                  />
-                </Field>
+                <div>
+                  <label className="field-label" htmlFor="flow-senha">Senha</label>
+                  <div className="relative mt-1.5">
+                    <Input
+                      id="flow-senha"
+                      value={senha}
+                      onChange={(e) => setSenha(e.target.value)}
+                      type={senhaVisivel ? "text" : "password"}
+                      autoComplete={modo === "entrar" ? "current-password" : "new-password"}
+                      required
+                      minLength={modo === "criar" ? 8 : 1}
+                      placeholder="Sua senha"
+                      className="pr-14"
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      aria-label={senhaVisivel ? "Ocultar senha" : "Mostrar senha"}
+                      aria-pressed={senhaVisivel}
+                      onClick={() => setSenhaVisivel((valor) => !valor)}
+                      className="absolute inset-y-0 right-1 my-auto h-11 w-11 rounded-xl px-0 text-mute hover:text-paper"
+                    >
+                      {senhaVisivel ? <EyeOff size={19} aria-hidden /> : <Eye size={19} aria-hidden />}
+                    </Button>
+                  </div>
+                </div>
               )}
               {modo === "entrar" && faseLogin === "credencial" ? (
                 <div className="flex items-center justify-between gap-2">
-                  <button type="button" onClick={() => { setFaseLogin("identificar"); setSenha(""); setErro(null); }} className="min-h-11 text-xs font-medium text-primary">
+                  <button type="button" onClick={() => { setFaseLogin("identificar"); setSenha(""); setSenhaVisivel(false); setErro(null); }} className="min-h-11 text-xs font-medium text-primary">
                     Trocar e-mail ou telefone
                   </button>
                   <button type="button" onClick={() => setMostrarRecuperacao(true)} className="flex min-h-11 items-center text-xs font-medium text-mute hover:text-paper">
