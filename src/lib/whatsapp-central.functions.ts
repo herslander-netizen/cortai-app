@@ -67,7 +67,7 @@ export const listarWhatsappDosNegocios = createServerFn({ method: "GET" })
   .handler(async ({ context }): Promise<WhatsappDoNegocio[]> => {
     const db = await exigirAdminDaPlataforma(context);
     const { conexaoPrincipal } = await import("@/lib/whatsapp/finalidade-conexao");
-    const [{ data: tenants }, { data: linhas }, { data: alertas }] = await Promise.all([
+    const [{ data: tenants, error: erroTenants }, { data: linhas, error: erroConexoes }, { data: alertas, error: erroAlertas }] = await Promise.all([
       db.from("tenants").select("id, nome, notificacoes_whatsapp_ativas").order("nome").limit(500),
       db.from("conexoes_whatsapp").select(COLUNAS).eq("escopo", "tenant"),
       db.from("alertas_da_plataforma")
@@ -76,6 +76,7 @@ export const listarWhatsappDosNegocios = createServerFn({ method: "GET" })
         .is("resolvido_em", null)
         .limit(500),
     ]);
+    if (erroTenants || erroConexoes || erroAlertas) throw new Error("Não foi possível consultar a saúde do WhatsApp.");
     const porTenant = new Map<string, Linha[]>();
     for (const l of (linhas ?? []) as Linha[]) {
       if (!l.tenant_id) continue;
