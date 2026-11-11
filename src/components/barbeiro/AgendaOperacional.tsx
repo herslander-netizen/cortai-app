@@ -369,8 +369,6 @@ export function AgendaOperacional() {
   const filtroInicial = useRef(false);
   const [modoFoco, setModoFoco] = useState(preferenciaInicial === "foco" && celularInicial);
   const [modoDiscreto, setModoDiscreto] = useState(modoDiscretoInicial);
-  // A troca para Cartões só reposiciona a página depois que a Timeline saiu da tela.
-  const rolarParaListaAposSaida = useRef(false);
   const [novos, setNovos] = useState<Set<string>>(() => new Set());
   const idsConhecidos = useRef<{ dia: string; ids: Set<string> } | null>(null);
   const ehHoje = dia === hojeNoFuso(fuso);
@@ -405,9 +403,8 @@ export function AgendaOperacional() {
       dia, hojeNoFuso(fuso), visualizacao, segura, celular,
     );
     if (diaDaNovaVisao !== dia) mudarDia(diaDaNovaVisao);
-    // Não rolar aqui: com mode="wait", a Timeline ainda está montada durante a saída.
-    // A rolagem imediata exibia as horas 00–08 e um painel escuro antes dos cartões.
-    rolarParaListaAposSaida.current = celular && segura === "lista" && visualizacao !== "lista";
+    // Mesmo comportamento do Flow oficial: a rolagem e a animação ocorrem na mesma troca.
+    if (celular && segura === "lista" && visualizacao !== "lista") window.scrollTo({ top: 0 });
     // O calendário do mês não fica aberto de uma visualização para outra (vídeo do dono, 06/11: ele "abria
     // sozinho" ao voltar para a linha do tempo).
     if (segura !== visualizacao) setCalAberto(false);
@@ -1562,15 +1559,8 @@ export function AgendaOperacional() {
           aria-label={`Visualização ${visualizacao}`}
           className="relative"
         >
-          {/* Duas visões exclusivas: trocar a rolagem somente após desmontar a anterior. */}
-          <TrocaDeVisualizacao
-            chave={celular && visualizacao === "lista" ? "lista" : "grade"}
-            aoConcluirSaida={() => {
-              if (!rolarParaListaAposSaida.current) return;
-              rolarParaListaAposSaida.current = false;
-              window.scrollTo({ top: 0, behavior: "auto" });
-            }}
-          >
+          {/* Animação simultânea no padrão do Flow oficial (v3.7). */}
+          <TrocaDeVisualizacao chave={celular && visualizacao === "lista" ? "lista" : "grade"}>
             {carregandoInicial ? (
               <AgendaCarregando formato={visualizacao === "lista" ? "lista" : "timeline"} />
             ) : erroInicial ? (

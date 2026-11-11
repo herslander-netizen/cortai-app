@@ -7,17 +7,17 @@ const troca = readFileSync("src/components/barbeiro/agenda/TrocaDeVisualizacao.t
 const operacional = readFileSync("src/components/barbeiro/AgendaOperacional.tsx", "utf8");
 
 describe("troca de visualização da Agenda", () => {
-  it("nunca deixa as duas visualizações na tela ao mesmo tempo", () => {
-    expect(troca).not.toContain('mode="popLayout"');
-    expect(troca).toContain('mode="wait"');
-    // Não precisa sair instantaneamente: mode="wait" continua garantindo exclusividade.
-    expect(troca).toContain("duration: TEMPO.botaoSai");
-    expect(troca).toContain("duration: TEMPO.conteudoEntra");
+  it("mantém as duas animações simultâneas, como no Flow oficial", () => {
+    expect(troca).toContain('mode="popLayout"');
+    expect(troca).not.toContain('mode="wait"');
+    expect(troca).toContain("duration: 0.28, ease: SUAVE");
   });
 
-  it("a faixa da semana abre e fecha só com transform/opacity (sem animar altura)", () => {
+  it("recolhe e expande a altura da semana sem prender a navegação", () => {
     const recolhe = troca.slice(troca.indexOf("export function RecolheNaLista"));
-    expect(recolhe).not.toMatch(/height/);
+    expect(recolhe).toContain('height: 0, opacity: 0, overflow: "hidden"');
+    expect(recolhe).toContain('height: "auto", opacity: 1');
+    expect(recolhe).toContain('transitionEnd: { overflow: "visible" }');
   });
 
   it("o calendário do mês fecha ao trocar de visualização", () => {

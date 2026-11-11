@@ -4,55 +4,50 @@ import { describe, expect, it } from "vitest";
 const fonte = readFileSync("src/components/barbeiro/agenda/TrocaDeVisualizacao.tsx", "utf8");
 const agenda = readFileSync("src/components/barbeiro/AgendaOperacional.tsx", "utf8");
 
-describe("animações da troca Timeline e Lista", () => {
-  it("usa apenas a chave do modo e espera a saída antes de montar outra visualização", () => {
-    expect(fonte).toContain('<AnimatePresence initial={false} mode="wait" onExitComplete={aoConcluirSaida}>');
+describe("paridade da transição Timeline ↔ Cartões com o Flow oficial v3.7", () => {
+  it("monta a nova visão durante a saída da anterior, sem intervalo vazio", () => {
+    expect(fonte).toContain('<AnimatePresence initial={false} mode="popLayout">');
     expect(fonte).toContain("key={chave}");
+    expect(fonte).not.toContain('mode="wait"');
     expect(agenda).toContain('chave={celular && visualizacao === "lista" ? "lista" : "grade"}');
-    expect(fonte).not.toContain("layoutId=");
   });
 
-  it("preserva a transição curta de saída e a revelação do conteúdo no padrão Figaroo", () => {
-    // A visualização não desaparece antes de entrar o próximo modo.
-    expect(fonte).toContain("initial={reduzirMovimento ? false : { opacity: 1, y: 8 }}");
-    expect(fonte).toContain("opacity: 1,");
-    expect(fonte).not.toContain("opacity: 0.65, y: 8");
-    expect(fonte).toContain("y: -8,");
-    expect(fonte).toContain("duration: TEMPO.botaoSai");
-    expect(fonte).toContain("duration: TEMPO.conteudoEntra");
-    expect(fonte).toContain("ease: CURVA.linearParaLenta");
+  it("usa deslocamento, opacidade, curva e duração do Flow oficial", () => {
+    expect(fonte).toContain("const SUAVE = [0.22, 1, 0.36, 1] as const");
+    expect(fonte).toContain("initial={reduzirMovimento ? false : { opacity: 0, y: 28 }}");
+    expect(fonte).toContain("animate={{ opacity: 1, y: 0 }}");
+    expect(fonte).toContain("{ opacity: 0, y: -20 }");
+    expect(fonte).toContain("duration: 0.28, ease: SUAVE");
+    expect(fonte).not.toContain("onExitComplete");
   });
 
-  it("não rola a Timeline para meia-noite enquanto os cartões ainda vão entrar", () => {
+  it("retoma a rolagem igual à versão oficial, sem callback tardio", () => {
     const inicio = agenda.indexOf("function alterarVisualizacao");
     const fim = agenda.indexOf("function alternarModoDiscreto", inicio);
     const alterar = agenda.slice(inicio, fim);
-    expect(alterar).toContain('rolarParaListaAposSaida.current = celular && segura === "lista"');
-    expect(alterar).not.toContain("window.scrollTo(");
-    expect(fonte).toContain("onExitComplete={aoConcluirSaida}");
-    expect(agenda).toContain('window.scrollTo({ top: 0, behavior: "auto" })');
-    expect(agenda).toContain("if (!rolarParaListaAposSaida.current) return;");
+    expect(alterar).toContain('if (celular && segura === "lista" && visualizacao !== "lista") window.scrollTo({ top: 0 });');
+    expect(agenda).not.toContain("rolarParaListaAposSaida");
+    expect(agenda).not.toContain("aoConcluirSaida");
   });
 
-  it("prepara os cartões sem esperar e mostra skeleton se o período ainda não chegou", () => {
+  it("continua preparando dados dos cartões sem pausa artificial", () => {
     const lista = readFileSync("src/components/barbeiro/agenda/ListaPeriodo.tsx", "utf8");
     expect(lista).toContain("motion-safe:animate-pulse");
     expect(lista).toContain("Carregando a lista");
     expect(agenda).toContain("void queryClient.prefetchInfiniteQuery(opcoesAgendaPeriodo(hojeDaLista))");
-    expect(agenda).not.toContain("      1500,");
   });
 
-  it("anima a faixa semanal junto com a troca, sem mexer na altura nem no calendário mensal", () => {
-    expect(fonte).toContain('key="semana"');
-    expect(fonte).toContain("initial={reduzirMovimento ? false : { opacity: 0, y: -8 }}");
-    expect(fonte).not.toContain("height:");
-    expect(fonte).not.toContain("gridTemplateRows");
+  it("anima a altura da semana, sem alterar o calendário do mês", () => {
+    const recolhe = fonte.slice(fonte.indexOf("export function RecolheNaLista"));
+    expect(recolhe).toContain('key="semana"');
+    expect(recolhe).toContain('height: "auto"');
+    expect(recolhe).toContain('height: 0, opacity: 0, overflow: "hidden"');
     expect(agenda).toContain("<SemanaDoTopo");
   });
 
   it("respeita movimento reduzido nas duas superfícies", () => {
     expect(fonte.match(/useReducedMotion\(\)/g)).toHaveLength(2);
-    expect(fonte.match(/reduzirMovimento\s*\?\s*\{ duration: 0 \}/g)).toHaveLength(2);
-    expect(fonte).toContain("reduzirMovimento ? false");
+    expect(fonte).toContain("initial={reduzirMovimento ? false");
+    expect(fonte).toContain("transition={reduzirMovimento ? { duration: 0 }");
   });
 });

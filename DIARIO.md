@@ -1032,6 +1032,12 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 
 ## Diário
 
+### 2026-11-11 — GPT — Comparação Flow oficial v3.7 x prévia: paridade Timeline ↔ Cartões
+- O dono confirmou que a transição da **versão oficial** está correta e a da prévia não; a referência é `https://cortaiapp.pages.dev`, não a apresentação.
+- Comparação dos arquivos do commit de produção `6267ad49` (deploy de 31/10) e prévia `8ab8cc2`: oficial usa `AnimatePresence mode="popLayout"`, entrada `opacity:0,y:28`, saída `opacity:0,y:-20`, 280ms e curva `[0.22,1,0.36,1]`, além da altura animada da faixa semanal; prévia havia trocado para `mode="wait"` e temporização distinta, causando intervalo sem conteúdo.
+- Recuperado o algoritmo oficial em `TrocaDeVisualizacao.tsx`, preservado `useReducedMotion`; restituída a rolagem simultânea no `AgendaOperacional.tsx`, mantendo proteção do calendário e pré-busca de dados; guardas em `TrocaDeVisualizacao.test.ts` e `troca-visualizacao-movimento.test.ts`. Não alterar produção, banco ou outros fluxos.
+- Limitação da inspeção: conexão de navegador autenticado não disponível; comparação direta realizada nos commits exatos publicados, não teste visual da UI. Exigir CI e smoke da prévia; testes manuais Android 360/390 px claro/escuro permanecem.
+
 ### 2026-11-11 — GPT — Vídeo 11:38: sem salto a 00h durante Timeline → Cartões
 - Evidência: gravação mobile de 18,7s (11/11) mostra Timeline em torno de 11h; no toque para Cartões a tela exibe horários 00–08 durante a saída e o painel escurece antes da lista, apesar do CI verde anterior.
 - Causa encontrada em `AgendaOperacional.tsx`: `window.scrollTo({ top: 0 })` é executado antes da saída de `TrocaDeVisualizacao` (`AnimatePresence mode="wait"`), deixando a Timeline antiga visível já na meia-noite. Reposicionamento movido para `onExitComplete`; ref de intenção evita scroll nas outras trocas e toques repetidos. Atualizados teste de regressão e contrato de callback em `TrocaDeVisualizacao.tsx`.
