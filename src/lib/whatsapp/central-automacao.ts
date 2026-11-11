@@ -51,6 +51,8 @@ export type TomDoCartao = "ok" | "alerta" | "erro" | "neutro";
 
 export type CentralDeAutomacao = {
   whatsapp: EstadoDoWhatsapp;
+  /** Distingue um número ainda não configurado de uma sessão que caiu. */
+  possuiConexao?: boolean;
   automacaoLigada: boolean;
   ia: EstadoDaIa;
   iaMotivo: "desligada_pelo_dono" | "pausada" | "sem_servico" | "plano" | null;
@@ -130,6 +132,7 @@ export function derivarCentral(e: EntradaDaCentral): CentralDeAutomacao {
 
   const base = {
     whatsapp,
+    possuiConexao: !!conexao,
     automacaoLigada: e.automacaoLigada,
     ia,
     iaMotivo,
