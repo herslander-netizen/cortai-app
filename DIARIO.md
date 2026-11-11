@@ -594,7 +594,6 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - 2026-10-26: **Cabeçalho do menu mobile mais compacto** (dono aprovou a reformulação após captura: logo menor, nome do negócio com hierarquia discreta, papel secundário, ajustes alinhados e menos espaço vazio; manter nome em até duas linhas quando necessário, sem afetar a Agenda).
 
 ## Em andamento
-- GPT | 2026-11-11 | Refinar ícones da entrada com microinterações e tokens existentes, a pedido do dono; somente `src/components/entrada/IconesDosCapitulos.tsx`, testes e diário; sem Agenda, autenticação, banco ou produção.
 - GPT | 2026-11-08 11:50 BRT | **Nome e sobrenome nos fluxos:** corrigir identificação ambígua no WhatsApp, Flow Bot e consultas do painel; adicionar regra pura e testes, documentar limitações; somente branch oficial, sem sender/webhook reservado pela Claude, Agenda visual, banco, main ou produção | `src/lib/nomes-pessoas.ts`, `src/lib/flow-bot/agenda-na-conversa/*`, `src/lib/brain/busca-cliente.ts`, testes, documentação; sem migração
 
 
@@ -1031,6 +1030,12 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+
+### 2026-11-11 — GPT — Ícones da entrada refinados
+- Pedido do dono: pesquisar efeitos e deixar os ícones da entrada mais bonitos. Referências: Motion (gestures/accessibility) e Material 3 (motion); implementação com bibliotecas existentes.
+- `src/components/entrada/IconesDosCapitulos.tsx`: tamanho real 24px (o primitivo impunha 16px), alvos de 48px, destaque tonal em degradê dos tokens da marca, brilho, leve elevação/escala na seleção e progresso rosa uniforme. Respeita movimento reduzido; preserva nomes acessíveis e seleção por botão.
+- Validação local: 362 arquivos de teste, 2.876 testes aprovados e 1 ignorado; TypeScript, ESLint do arquivo, build e protocolo aprovados. CI/deploy e conferência visual da prévia pendentes no momento deste commit. Nenhuma alteração na Agenda, autenticação, banco ou produção. Defeito da cena inicial vazia reportado no vídeo permanece fora deste ajuste de ícones.
+
 ### 2026-11-11 — GPT — Refinamento da home e da entrada Flow
 - Home: título responsivo com largura de leitura controlada, selo usando tokens Flow, CTA mais legível, imagens com dimensões e logo com retorno ao início; mantidos textos comerciais e destinos WhatsApp.
 - Entrada: rolagem vertical em telas baixas, altura mínima da demonstração e recurso selecionado com fundo tonal. Login/cadastro: campos maiores, teclado sem capitalização/correção automática, e-mail longo com quebra e ações com quebra de linha.

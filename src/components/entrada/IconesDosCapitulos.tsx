@@ -33,7 +33,7 @@ export function IconesDosCapitulos({
         const Icone = item.icone;
         const aceso = indice === ativo;
         return (
-          <div key={item.id} className="flex flex-col items-center gap-1">
+          <div key={item.id} className="flex min-w-0 flex-1 flex-col items-center gap-2">
             <Button
               type="button"
               variant="ghost"
@@ -42,15 +42,23 @@ export function IconesDosCapitulos({
               aria-pressed={aceso}
               title={item.rotulo}
               onClick={() => onEscolher(indice)}
-              className={`toque-afunda relative min-h-12 min-w-12 ${aceso ? "bg-[var(--figaro-primary-container)] text-[var(--figaro-on-primary-container)]" : "text-mute"}`}
+              className="toque-afunda group relative min-h-12 min-w-12 rounded-2xl hover:bg-transparent active:bg-transparent motion-reduce:transform-none [&_svg]:size-6"
+              style={{ WebkitTapHighlightColor: "transparent" }}
             >
+              <motion.span
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-1 rounded-2xl border border-[var(--figaro-primary)]/15 bg-gradient-to-br from-[var(--figaro-primary-container)] to-[var(--figaro-tertiary-container)] shadow-[0_4px_12px_color-mix(in_oklab,var(--figaro-primary)_12%,transparent)]"
+                initial={false}
+                animate={{ opacity: aceso ? 1 : 0, scale: reduzir || aceso ? 1 : 0.85 }}
+                transition={{ duration: reduzir ? 0 : 0.28 }}
+              />
               {/* Brilho: o mesmo ícone desfocado atrás, que só acende (opacidade). */}
               <motion.span
                 aria-hidden="true"
                 className="pointer-events-none absolute inset-0 grid place-items-center text-[var(--figaro-tertiary)] blur-[6px]"
                 initial={false}
                 animate={{ opacity: aceso ? 0.75 : 0 }}
-                transition={{ duration: 0.28 }}
+                transition={{ duration: reduzir ? 0 : 0.28 }}
               >
                 <Icone size={26} strokeWidth={2.4} />
               </motion.span>
@@ -61,15 +69,15 @@ export function IconesDosCapitulos({
                     : "text-[var(--figaro-on-surface-variant)]"
                 }`}
                 initial={false}
-                animate={{ scale: aceso ? 1.12 : 1 }}
-                transition={{ duration: 0.2 }}
+                animate={{ scale: reduzir ? 1 : aceso ? 1.08 : 1, y: reduzir ? 0 : aceso ? -1 : 0 }}
+                transition={{ duration: reduzir ? 0 : 0.2 }}
               >
                 <Icone size={24} strokeWidth={aceso ? 2.1 : 1.7} />
               </motion.span>
             </Button>
             <span
               aria-hidden="true"
-              className="relative h-[3px] w-[18px] overflow-hidden rounded-full bg-[var(--figaro-outline-variant)]/70"
+              className="relative h-[3px] w-6 overflow-hidden rounded-full bg-[var(--figaro-outline-variant)]/50"
             >
               {aceso ? (
                 <span
