@@ -45,6 +45,27 @@ describe("paridade da transição Timeline ↔ Cartões com o Flow oficial v3.7"
     expect(agenda).toContain("<SemanaDoTopo");
   });
 
+  it("a faixa semanal não possui duas animações de altura concorrentes", () => {
+    const inicio = agenda.indexOf('<NaBarraDoTopo alvoId="topo-baixo">');
+    const fim = agenda.indexOf("</NaBarraDoTopo>", inicio);
+    const topo = agenda.slice(inicio, fim);
+    expect(inicio).toBeGreaterThan(-1);
+    expect(topo).toContain('<RecolheNaLista visivel={visualizacao !== "lista"}>');
+    expect(topo).not.toContain("<motion.div");
+    expect(topo).not.toContain('height: "auto"');
+    const recolhe = fonte.slice(fonte.indexOf("export function RecolheNaLista"));
+    expect(recolhe).toContain('height: "auto"');
+  });
+
+  it("restaura a rolagem anterior da Timeline antes do próximo paint", () => {
+    const fonteTimeline = readFileSync("src/components/barbeiro/AgendaTimeline.tsx", "utf8");
+    expect(agenda).toContain("rolagemAntesDaLista.current = { dia, top: window.scrollY };");
+    expect(agenda).toContain("rolagemAoRetornar={");
+    expect(fonteTimeline).toContain("posicionouRef.current = dia;");
+    expect(fonteTimeline).toContain("useLayoutEffect(() => {");
+    expect(fonteTimeline).toContain('window.scrollTo({ top: Math.max(0, rolagemAoRetornar), behavior: "auto" });');
+  });
+
   it("respeita movimento reduzido nas duas superfícies", () => {
     expect(fonte.match(/useReducedMotion\(\)/g)).toHaveLength(2);
     expect(fonte).toContain("initial={reduzirMovimento ? false");

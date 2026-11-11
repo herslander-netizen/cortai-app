@@ -109,6 +109,8 @@ type AgendaTimelineProps = {
   previa?: boolean;
   /** Celular 3.0: sempre de 00:00 a 23:00, rola até o agora (hoje) ou à abertura. */
   diaCompleto?: boolean;
+  /** Ao voltar da Lista, restaurar antes do quadro visível (sem nova rolagem automática no RAF). */
+  rolagemAoRetornar?: number | undefined;
   /**
    * Troca de dia em páginas (celular): os dias vizinhos ficam ao lado, cada um com as próprias
    * horas. A página inteira desliza com o dedo (`useGestoDia`).
@@ -188,6 +190,7 @@ function AgendaTimelineBase({
   discreto = false,
   previa = false,
   diaCompleto = false,
+  rolagemAoRetornar,
   vizinhos,
   emCamada = false,
   bloqueiosDoDia = [],
@@ -209,6 +212,13 @@ function AgendaTimelineBase({
   const gradeRef = useRef<HTMLDivElement>(null);
   const linhaAgoraRef = useRef<HTMLDivElement>(null);
   const posicionouRef = useRef<string | null>(null);
+  useLayoutEffect(() => {
+    if (previa || rolagemAoRetornar === undefined || !window.matchMedia(CELULAR).matches) return;
+    // O componente foi remontado após a Lista. Reposicionar antes de pintar a Timeline
+    // e impedir que o efeito de "primeira abertura" faça outra rolagem no RAF.
+    posicionouRef.current = dia;
+    window.scrollTo({ top: Math.max(0, rolagemAoRetornar), behavior: "auto" });
+  }, [dia, previa, rolagemAoRetornar]);
   const [agoraVisivel, setAgoraVisivel] = useState(true);
   const [arrasto, setArrasto] = useState<{ id: string; dy: number } | null>(null);
   const [redim, setRedim] = useState<{ id: string; dy: number } | null>(null); // Desempenho (Figaro só move o cartão arrastado, sem recompor a lista): o estado só muda quando o PASSO

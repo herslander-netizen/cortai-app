@@ -6,7 +6,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { Clock3, HandCoins, Lock, Plus, UserRoundPlus } from "lucide-react";
 import type React from "react";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { AnimatePresence } from "framer-motion";
 import {
   Suspense,
   useCallback,
@@ -40,7 +40,6 @@ import { ListaAgenda } from "@/components/barbeiro/agenda/ListaAgenda";
 import { MenuAcoesAgenda } from "@/components/barbeiro/agenda/MenuAcoesAgenda";
 import { comandoDeVozSuportado } from "@/components/ia/useGravadorDeVoz";
 import { prefereMenosMovimento } from "@/lib/motion";
-import { CURVA, TEMPO } from "@/lib/movimento-figaro";
 import { segmentoParaApresentacao } from "@/lib/segmentos";
 import { BotaoAgoraPrincipal } from "@/components/barbeiro/agenda/BotaoAgoraPrincipal";
 import {
@@ -357,7 +356,8 @@ export function AgendaOperacional() {
   const [visualizacao, setVisualizacao] = useState<Visualizacao>(() =>
     preferenciaInicial === "foco" ? ultimaVisaoCompleta() : preferenciaInicial,
   );
-  const reduzirMovimentoNoTopo = useReducedMotion();
+  // Scroll da Timeline preservado ao entrar nos Cartões; a grade volta ao mesmo lugar.
+  const rolagemAntesDaLista = useRef<{ dia: string; top: number } | null>(null);
   const celular = useIsMobile();
   const faixaCelular = useMediaQuery("(max-width: 600px)");
   const ehDesktop = useEhDesktop();
@@ -403,8 +403,11 @@ export function AgendaOperacional() {
       dia, hojeNoFuso(fuso), visualizacao, segura, celular,
     );
     if (diaDaNovaVisao !== dia) mudarDia(diaDaNovaVisao);
-    // Mesmo comportamento do Flow oficial: a rolagem e a animação ocorrem na mesma troca.
-    if (celular && segura === "lista" && visualizacao !== "lista") window.scrollTo({ top: 0 });
+    // A entrada nos Cartões pode mudar a rolagem; manter o lugar exato da Timeline.
+    if (celular && segura === "lista" && visualizacao === "timeline") {
+      rolagemAntesDaLista.current = { dia, top: window.scrollY };
+      window.scrollTo({ top: 0, behavior: "auto" });
+    }
     // O calendário do mês não fica aberto de uma visualização para outra (vídeo do dono, 06/11: ele "abria
     // sozinho" ao voltar para a linha do tempo).
     if (segura !== visualizacao) setCalAberto(false);
@@ -1432,32 +1435,22 @@ export function AgendaOperacional() {
       >
         {celular ? (
           <NaBarraDoTopo alvoId="topo-baixo">
-            {/* A semana recolhe com altura/opacity; o centro do topo é controlado
-                exclusivamente por CabecalhoAgenda, sem portais concorrentes. */}
-            <AnimatePresence initial={false}>
-              {!edicao.rascunho ? (
-                <motion.div
-                  key="semana-topo"
-                  className="w-full"
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: "auto", opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  transition={reduzirMovimentoNoTopo ? { duration: 0 } : { duration: TEMPO.etapaDeFluxo, ease: CURVA.rapidaParaLenta }}
-                  style={{ overflow: calAberto ? "visible" : "hidden" }}
-                >
-                  <RecolheNaLista visivel={visualizacao !== "lista"}>
-                    <SemanaDoTopo
-                      dia={dia}
-                      hoje={hojeNoFuso(fuso)}
-                      profissionalId={profFiltro}
-                      onDia={mudarDia}
-                      expandido={calAberto}
-                      onExpandido={setCalAberto}
-                    />
-                  </RecolheNaLista>
-                </motion.div>
-              ) : null}
-            </AnimatePresence>
+            {/* Apenas uma camada anima a altura: a segunda motion.div da prévia
+                media a altura "auto" a cada quadro, concorrendo com RecolheNaLista. */}
+            {!edicao.rascunho ? (
+              <div className="w-full">
+                <RecolheNaLista visivel={visualizacao !== "lista"}>
+                  <SemanaDoTopo
+                    dia={dia}
+                    hoje={hojeNoFuso(fuso)}
+                    profissionalId={profFiltro}
+                    onDia={mudarDia}
+                    expandido={calAberto}
+                    onExpandido={setCalAberto}
+                  />
+                </RecolheNaLista>
+              </div>
+            ) : null}
           </NaBarraDoTopo>
         ) : null}
         <CabecalhoAgenda
@@ -1694,6 +1687,11 @@ export function AgendaOperacional() {
                   mostrarProfissional={!profFiltro && profissionais.length > 1}
                   discreto={modoDiscreto}
                   diaCompleto={celular}
+                  rolagemAoRetornar={
+                    celular && rolagemAntesDaLista.current?.dia === dia
+                      ? rolagemAntesDaLista.current.top
+                      : undefined
+                  }
                   vizinhos={vizinhosMemo}
                 />
                 {celular ? (

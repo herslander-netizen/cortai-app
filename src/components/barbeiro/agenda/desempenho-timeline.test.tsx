@@ -51,6 +51,46 @@ function evento(tipo: string, y: number) {
 }
 
 describe("desempenho da linha do tempo", () => {
+  it("restaura a posição ao voltar de Cartões no layout, não depois de um frame", () => {
+    const rolar = vi.spyOn(window, "scrollTo").mockImplementation(() => {});
+    const matchOriginal = window.matchMedia;
+    window.matchMedia = ((q: string) => ({
+      matches: true,
+      media: q,
+      addEventListener() {},
+      removeEventListener() {},
+      addListener() {},
+      removeListener() {},
+      onchange: null,
+      dispatchEvent: () => false,
+    })) as typeof window.matchMedia;
+    const alvo = document.createElement("div");
+    document.body.appendChild(alvo);
+    const raiz = createRoot(alvo);
+    try {
+      act(() =>
+        raiz.render(
+          createElement(AgendaTimeline, {
+            dia: "2099-10-09",
+            fuso: "America/Sao_Paulo",
+            itens: [],
+            horarios: [],
+            selecionado: null,
+            onSelecionar: () => {},
+            diaCompleto: true,
+            rolagemAoRetornar: 672,
+          }),
+        ),
+      );
+      expect(rolar).toHaveBeenCalledWith({ top: 672, behavior: "auto" });
+    } finally {
+      act(() => raiz.unmount());
+      window.matchMedia = matchOriginal;
+      rolar.mockRestore();
+      alvo.remove();
+    }
+  });
+
   it("arrastar a alça de duração não re-renderiza a cada pixel", () => {
     window.matchMedia ??= ((q: string) => ({
       matches: false,

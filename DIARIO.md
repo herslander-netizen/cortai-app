@@ -595,8 +595,6 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - 2026-10-26: **Cabeçalho do menu mobile mais compacto** (dono aprovou a reformulação após captura: logo menor, nome do negócio com hierarquia discreta, papel secundário, ajustes alinhados e menos espaço vazio; manter nome em até duas linhas quando necessário, sem afetar a Agenda).
 
 ## Em andamento
-- GPT | 2026-11-11 13:18 BRT | **Auditoria da fluidez Timeline ↔ Cartões (Flow prévia):** comparar commit real da produção com prévia, identificar animações concorrentes e rolagens indevidas; otimizar apenas transição e posicionamento da Agenda com teste de regressão e CI. Sem tocar infraestrutura, banco, WhatsApp, temas ou produção | `src/components/barbeiro/AgendaOperacional.tsx`, `src/components/barbeiro/AgendaTimeline.tsx`, `src/components/barbeiro/agenda/TrocaDeVisualizacao.test.ts`, `src/components/barbeiro/agenda/troca-visualizacao-movimento.test.ts`, testes da Timeline e `DIARIO.md`; sem migração
-
 - GPT | 2026-11-08 11:50 BRT | **Nome e sobrenome nos fluxos:** corrigir identificação ambígua no WhatsApp, Flow Bot e consultas do painel; adicionar regra pura e testes, documentar limitações; somente branch oficial, sem sender/webhook reservado pela Claude, Agenda visual, banco, main ou produção | `src/lib/nomes-pessoas.ts`, `src/lib/flow-bot/agenda-na-conversa/*`, `src/lib/brain/busca-cliente.ts`, testes, documentação; sem migração
 
 
@@ -1033,6 +1031,11 @@ registrada. Quem conclui um lote troca ✘ por ✔ no inventário, com data.
 - GPT | 2026-10-28 UTC | Legenda genérica de divulgação neutralizada: a frase final agora usa “em [nome do negócio]”, não “na [nome]”. Acrescentei teste para o modelo genérico; hashtags, CTA, links e mensagens específicas por segmento permanecem iguais. CI da branch é necessário antes de considerar esta alteração validada. | `src/lib/divulgacao.ts`, `src/lib/divulgacao.test.ts`, relatório e diário
 
 ## Diário
+
+### 2026-11-11 — GPT — Auditoria Timeline ↔ Cartões: eliminar duas alturas e scroll duplicado na volta
+- Comparação factual do deploy oficial v3.7 `6267ad49` com prévia `9add31f`: os valores da transição `popLayout` já coincidiam, mas `AgendaOperacional.tsx` da prévia continha `<motion.div animate={{height:"auto"}}>` em volta de `RecolheNaLista`, que também anima de `height:0` a `auto`; esta camada extra não existe no oficial. Cálculo de layout concorrente no topo corrigido, restaurando o único wrapper estático. Mantido portal/edição/calendário e animação oficial.
+- Segunda falha determinística: `AgendaTimeline.tsx` usa `posicionouRef` local, reinicializado ao remontar após a Lista. Efeito `requestAnimationFrame` chama `voltarParaAgora("auto")` como se fosse a primeira abertura, mesmo quando já havia posição. Agora `AgendaOperacional` guarda a última rolagem por dia antes de abrir a Lista; `AgendaTimeline` restaura com `useLayoutEffect` antes de pintar e marca como posicionado, impedindo salto extra no RAF. Novo usuário/primeira abertura continua centralizando Agora.
+- Regressão adicionada aos testes da transição e teste DOM/React de reposicionamento. Sem alteração em backend, regras de agendamento, calendário mensal, WhatsApp, banco, workflow, produção ou cores. CI, TypeScript, testes, build e smoke a confirmar pela execução do GitHub Actions. Sem navegador autenticado nesta sessão, não há métrica real de FPS/long tasks; conferência visual 360/390 px claro/escuro ainda exigida.
 
 ### 2026-11-11 — GPT — Comparação Flow oficial v3.7 x prévia: paridade Timeline ↔ Cartões
 - O dono confirmou que a transição da **versão oficial** está correta e a da prévia não; a referência é `https://cortaiapp.pages.dev`, não a apresentação.
