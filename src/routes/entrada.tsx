@@ -4,6 +4,10 @@ import { EntradaFlow } from "@/components/apresentacao/EntradaFlow";
 
 export const Route = createFileRoute("/entrada")({
   ssr: false,
+  validateSearch: (search: Record<string, unknown>): { proximo?: string } =>
+    typeof search["proximo"] === "string" && search["proximo"]
+      ? { proximo: search["proximo"] }
+      : {},
   head: () => ({
     meta: [
       { title: "Entrada — Flow" },
@@ -15,5 +19,6 @@ export const Route = createFileRoute("/entrada")({
 });
 
 function EntradaFlowPage() {
-  return <EntradaFlow />;
+  const { proximo } = Route.useSearch();
+  return <EntradaFlow proximo={proximo} />;
 }
