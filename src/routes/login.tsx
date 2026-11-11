@@ -121,11 +121,9 @@ function LoginPage() {
   const [aviso, setAviso] = useState<string | null>(null);
   const [enviando, setEnviando] = useState(false);
   const [enviandoGoogle, setEnviandoGoogle] = useState(false);
-  // A vitrine animada abre primeiro; quem chega para criar conta, com destino ou com erro de
-  // sessão vai direto ao formulário.
-  const [mostrarForm, setMostrarForm] = useState(
-    aba === "criar" || Boolean(proximo) || erroNaSessao === "perfil",
-  );
+  // Toda visita pública começa no primeiro capítulo da vitrine. Parâmetros de cadastro,
+  // destino e erro permanecem disponíveis, mas não pulam a apresentação.
+  const [mostrarForm, setMostrarForm] = useState(false);
   const [mostrarRecuperacao, setMostrarRecuperacao] = useState(false);
   const fecharRecuperacao = useCallback(() => setMostrarRecuperacao(false), []);
 
@@ -309,7 +307,7 @@ function LoginPage() {
   };
 
   const botaoSocial =
-    "h-12 w-full justify-center gap-2 rounded-full border-line2 bg-[var(--cartao)] text-sm font-semibold text-paper";
+    "h-12 w-full justify-center gap-2 rounded-full border-line2 bg-[var(--cartao)] text-sm font-semibold text-paper transition-colors hover:bg-[var(--figaro-primary-container)] hover:text-[var(--figaro-on-primary-container)]";
 
   return (
     <main className={CLASSE_TELA_ENTRADA} style={TEMA_FIXO_ENTRADA}>
@@ -366,9 +364,9 @@ function LoginPage() {
           ) : (
             <motion.div
               key="formulario"
-              initial={reduzirMovimento ? { opacity: 0 } : { opacity: 0, y: "100%" }}
+              initial={reduzirMovimento ? { opacity: 0 } : { opacity: 0, y: 28 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={reduzirMovimento ? { opacity: 0 } : { opacity: 0, y: "100%" }}
+              exit={reduzirMovimento ? { opacity: 0 } : { opacity: 0, y: 28 }}
               transition={transicaoEntrada}
               style={{
                 display: "flex",
@@ -397,7 +395,7 @@ function LoginPage() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="fixed inset-0 z-20 bg-[var(--figaro-inverse-surface)]/[0.04]"
+                className="fixed inset-0 z-20 bg-[var(--figaro-inverse-surface)]/[0.20] backdrop-blur-[4px]"
               />
               {/*
                 Gaveta de acesso no modelo de folha do Flow (dono, 06/11/2026: "organize a segunda seção do login"):
@@ -425,6 +423,16 @@ function LoginPage() {
                 }}
               >
                 <div aria-hidden className="mx-auto mb-3 h-1 w-10 rounded-full bg-line2" />
+                <div aria-hidden="true" className="mb-3 h-1 overflow-hidden rounded-full bg-line2">
+                  <motion.div
+                    className="h-full w-full origin-left rounded-full bg-[var(--figaro-primary)]"
+                    initial={false}
+                    animate={{
+                      scaleX: modo === "entrar" && faseLogin === "identificar" ? 0.5 : 1,
+                    }}
+                    transition={transicaoEntrada}
+                  />
+                </div>
 
                 <section className="flex items-start justify-between gap-3 rounded-[20px] bg-[var(--cartao)] p-4">
                   <span
@@ -465,7 +473,7 @@ function LoginPage() {
                     size="icon"
                     aria-label="Fechar painel de acesso"
                     onClick={fecharPainelLogin}
-                    className="toque-afunda -mr-2 -mt-2 shrink-0 text-mute"
+                    className="toque-afunda -mr-2 -mt-2 min-h-12 min-w-12 shrink-0 rounded-full text-mute hover:bg-[var(--figaro-primary-container)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--figaro-primary)]"
                   >
                     <X aria-hidden />
                   </Button>
