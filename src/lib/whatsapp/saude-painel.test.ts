@@ -50,6 +50,12 @@ describe("orientações para o estabelecimento", () => {
     expect(JSON.stringify(resultado)).not.toMatch(/Redis|Postgres|API key|token|webhook/i);
   });
 
+  it("distingue ausência de conexão de uma queda real", () => {
+    const r = saudeParaNegocio(negocio({ possuiConexao: false, whatsapp: "desconectado" }));
+    expect(r.titulo).toBe("Configure o WhatsApp");
+    expect(r.tom).toBe("neutro");
+  });
+
   it("orienta QR sem prometer resolução automática", () => {
     const r = saudeParaNegocio(negocio({ whatsapp: "aguardando_leitura" }));
     expect(r.tom).toBe("alerta");
