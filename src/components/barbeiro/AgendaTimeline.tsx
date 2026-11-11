@@ -21,6 +21,8 @@ import {
   estaAtrasado,
   faixasForaDoExpediente,
   intervaloDoDia,
+  minutosDoHorario,
+  minutosNoFuso,
   nomeDaAgenda,
 } from "@/components/barbeiro/agenda/tempo";
 import { ladoDoAgora, publicarAgora } from "@/components/barbeiro/agenda/pilula-agora";
@@ -100,23 +102,6 @@ const PX_POR_MINUTO = 2.25;
 const MARGEM_AGORA_MIN = 90;
 const ALTURA_MINIMA_BLOCO = 72;
 const ESPACO_ENTRE_BLOCOS = 6;
-
-function minutosDoHorario(valor: string) {
-  const [hora = 0, minuto = 0] = valor.split(":").map(Number);
-  return hora * 60 + minuto;
-}
-
-function minutosNoFuso(valor: string | number, fuso?: string) {
-  const partes = new Intl.DateTimeFormat("pt-BR", {
-    hour: "2-digit",
-    minute: "2-digit",
-    hourCycle: "h23",
-    timeZone: fuso,
-  }).formatToParts(new Date(valor));
-  const hora = Number(partes.find((parte) => parte.type === "hour")?.value ?? 0);
-  const minuto = Number(partes.find((parte) => parte.type === "minute")?.value ?? 0);
-  return hora * 60 + minuto;
-}
 
 function horaMinuto(total: number) {
   const normalizado = Math.max(0, Math.min(24 * 60, total));
