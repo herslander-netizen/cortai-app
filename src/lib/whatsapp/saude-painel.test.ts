@@ -35,6 +35,13 @@ describe("saúde visível no administrador", () => {
       .toBe("critico");
   });
 
+  it("não oculta incidentes abertos em canais sem sessão própria", () => {
+    expect(saudeParaAdmin({ ...baseAdmin, status: "sem_conexao", incidenteAberto: true }, agora).categoria)
+      .toBe("critico");
+    expect(saudeParaAdmin({ ...baseAdmin, compartilhada: true, incidenteAberto: true }, agora).categoria)
+      .toBe("critico");
+  });
+
   it("distingue ação do responsável, desconexão e ausência de configuração", () => {
     expect(saudeParaAdmin({ ...baseAdmin, status: "qr_pronto" }, agora).categoria).toBe("atencao");
     expect(saudeParaAdmin({ ...baseAdmin, status: "desconectado" }, agora).categoria).toBe("atencao");
