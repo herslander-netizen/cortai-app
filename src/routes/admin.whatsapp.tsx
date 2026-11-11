@@ -57,9 +57,11 @@ function AdminWhatsappPage() {
           <EsqueletoLista linhas={5} />
         </>
       ) : null}
-      {negocios.isError && !negocios.data ? (
+      {negocios.isError ? (
         <p className="border-l-2 border-brick py-2 pl-4 text-sm text-brick" role="alert">
-          Não foi possível consultar as conexões dos estabelecimentos.
+          {negocios.data
+            ? "Falha ao atualizar as conexões. Os estados abaixo são da última leitura disponível e podem estar desatualizados."
+            : "Não foi possível consultar as conexões dos estabelecimentos."}
         </p>
       ) : null}
       {negocios.data ? (
