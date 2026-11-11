@@ -118,7 +118,7 @@ export function saudeParaNegocio(central: CentralDeAutomacao): SaudeDoNegocio {
     return {
       titulo: "Instabilidade no serviço de conexão",
       descricao: "O Flow detectou indisponibilidade no serviço que mantém o WhatsApp conectado.",
-      orientacao: "A equipe do Flow foi avisada. Não é necessário repetir o pareamento agora.",
+      orientacao: "Esse problema exige atenção da equipe do Flow. Não repita o pareamento sem orientação.",
       tom: "erro",
     };
   }
