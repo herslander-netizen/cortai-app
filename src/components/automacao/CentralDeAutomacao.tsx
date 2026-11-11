@@ -10,7 +10,8 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { definirAutomacaoWhatsapp, getCentralDeAutomacao } from "@/lib/central-automacao.functions";
 import { sincronizarConexao } from "@/lib/whatsapp.functions";
-import { haQuanto, linhasDaCentral, type TomDaLinha } from "@/lib/whatsapp/central-rotulos";
+import type { TomDaLinha } from "@/lib/whatsapp/central-rotulos";
+import { SaudeDoWhatsapp } from "@/components/automacao/SaudeDoWhatsapp";
 
 const COR_DO_TOM: Record<TomDaLinha, string> = {
   ok: "bg-sage",
@@ -18,13 +19,6 @@ const COR_DO_TOM: Record<TomDaLinha, string> = {
   erro: "bg-brick",
   neutro: "bg-mute2",
 };
-const TEXTO_DO_TOM: Record<TomDaLinha, string> = {
-  ok: "text-sage",
-  alerta: "text-gold",
-  erro: "text-brick",
-  neutro: "text-mute",
-};
-
 const CHAVE = ["central-automacao"] as const;
 
 /** Central de automação: um cartão principal, cinco linhas de estado e o histórico. */
@@ -68,13 +62,16 @@ export function CentralDeAutomacao() {
     );
 
   const { central, historico, podeGerenciar } = consulta.data;
-  const agora = new Date();
-  const linhas = linhasDaCentral(central);
   const ultimaFalha = historico.find((o) => o.resultado === "erro") ?? null;
   const trocando = interruptor.isPending;
 
   return (
     <div className="space-y-4">
+      {consulta.isError ? (
+        <p className="border-l-2 border-brick py-2 pl-4 text-sm text-brick" role="alert">
+          Não foi possível atualizar a conexão. O estado exibido é da última leitura disponível e pode estar desatualizado.
+        </p>
+      ) : null}
       <section
         className="surface p-5"
         aria-labelledby="cartao-principal-automacao"
@@ -144,28 +141,7 @@ export function CentralDeAutomacao() {
         ) : null}
       </section>
 
-      <section aria-label="Estado de cada parte" className="surface divide-y divide-line">
-        {linhas.map((l) => (
-          <div key={l.chave} className="flex min-h-12 items-center justify-between gap-3 px-5 py-3">
-            <span className="text-sm text-paper">{l.rotulo}</span>
-            <span className={`flex items-center gap-2 text-sm font-medium ${TEXTO_DO_TOM[l.tom]}`}>
-              <span aria-hidden className={`size-2 rounded-full ${COR_DO_TOM[l.tom]}`} />
-              {l.estado}
-            </span>
-          </div>
-        ))}
-        <div className="space-y-1 px-5 py-3 text-xs text-mute2">
-          <p>Última verificação: {haQuanto(central.ultimaVerificacaoEm, agora)}</p>
-          {ultimaFalha ? (
-            <p>
-              Última falha: {ultimaFalha.texto}, {haQuanto(ultimaFalha.quando, agora)}
-            </p>
-          ) : null}
-          {central.monitoramento === "ativo" ? (
-            <p>Alertas de queda e recuperação chegam pelo sininho e pelas notificações do app.</p>
-          ) : null}
-        </div>
-      </section>
+      <SaudeDoWhatsapp central={central} podeGerenciar={podeGerenciar} ultimaFalha={ultimaFalha} />
 
       <section aria-label="Ocorrências recentes">
         <Button

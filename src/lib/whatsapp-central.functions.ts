@@ -23,6 +23,8 @@ export type WhatsappDoNegocio = {
   provedor: string | null;
   compartilhada: boolean;
   verificadoEm: string | null;
+  incidenteAberto: boolean;
+  tentativasReconexao: number;
   ultimoErro: string | null;
   qrCode: string | null;
   temNumeroAntigoDeAvisos: boolean;
@@ -52,27 +54,35 @@ type Linha = {
   compartilhada: boolean | null;
   tipo: string | null;
   verificado_em: string | null;
+  reconexao_tentativas: number | null;
   ultimo_erro: string | null;
   qr_code: string | null;
 };
 
 const COLUNAS =
-  "id, tenant_id, sessao_id, status, numero, provedor, compartilhada, tipo, verificado_em, ultimo_erro, qr_code";
+  "id, tenant_id, sessao_id, status, numero, provedor, compartilhada, tipo, verificado_em, reconexao_tentativas, ultimo_erro, qr_code";
 
 export const listarWhatsappDosNegocios = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<WhatsappDoNegocio[]> => {
     const db = await exigirAdminDaPlataforma(context);
     const { conexaoPrincipal } = await import("@/lib/whatsapp/finalidade-conexao");
-    const [{ data: tenants }, { data: linhas }] = await Promise.all([
+    const [{ data: tenants, error: erroTenants }, { data: linhas, error: erroConexoes }, { data: alertas, error: erroAlertas }] = await Promise.all([
       db.from("tenants").select("id, nome, notificacoes_whatsapp_ativas").order("nome").limit(500),
       db.from("conexoes_whatsapp").select(COLUNAS).eq("escopo", "tenant"),
+      db.from("alertas_da_plataforma")
+        .select("tenant_id")
+        .eq("origem", "whatsapp_evolution")
+        .is("resolvido_em", null)
+        .limit(500),
     ]);
+    if (erroTenants || erroConexoes || erroAlertas) throw new Error("Não foi possível consultar a saúde do WhatsApp.");
     const porTenant = new Map<string, Linha[]>();
     for (const l of (linhas ?? []) as Linha[]) {
       if (!l.tenant_id) continue;
       porTenant.set(l.tenant_id, [...(porTenant.get(l.tenant_id) ?? []), l]);
     }
+    const incidentesAbertos = new Set((alertas ?? []).map((a) => a.tenant_id).filter(Boolean));
     return (tenants ?? []).map((t) => {
       const doTenant = porTenant.get(t.id) ?? [];
       const propria = conexaoPrincipal(doTenant);
@@ -87,6 +97,8 @@ export const listarWhatsappDosNegocios = createServerFn({ method: "GET" })
         provedor: l?.provedor ?? null,
         compartilhada: !propria && !!compartilhada,
         verificadoEm: l?.verificado_em ?? null,
+        incidenteAberto: incidentesAbertos.has(t.id),
+        tentativasReconexao: l?.reconexao_tentativas ?? 0,
         ultimoErro: l?.ultimo_erro ?? null,
         qrCode: propria?.status === "qr_pronto" ? (propria.qr_code ?? null) : null,
         temNumeroAntigoDeAvisos: doTenant.some((x) => x.tipo === "notificacoes"),

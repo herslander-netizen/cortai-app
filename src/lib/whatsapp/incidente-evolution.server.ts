@@ -32,7 +32,7 @@ async function admin() {
 
 export async function ultimoEventoDoServico(tenantId: string, sessaoId: string) {
   const db = await admin();
-  const { data } = await db
+  const { data, error } = await db
     .from("auditoria_da_barbearia")
     .select("acao, criado_em")
     .eq("tenant_id", tenantId)
@@ -41,6 +41,7 @@ export async function ultimoEventoDoServico(tenantId: string, sessaoId: string) 
     .order("criado_em", { ascending: false })
     .limit(1)
     .maybeSingle();
+  if (error) throw new Error("Não foi possível verificar o histórico de incidentes da conexão.");
   if (!data) return { evento: null, em: null } as const;
   const evento = (Object.keys(ACOES) as EventoDoServico[]).find((k) => ACOES[k] === data.acao);
   return { evento: evento ?? null, em: data.criado_em as string | null };
