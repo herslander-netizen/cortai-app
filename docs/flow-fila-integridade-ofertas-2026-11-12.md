@@ -91,6 +91,18 @@ sem `agendamento_liberado_id`. A função de notificação interna do motor
 passou a ser independente da progressão da oferta: falha em registrar
 um sininho não impede classificar o envio, com teste de regressão.
 
+### Revalidação de vaga antes da reserva
+
+A proposta `reservar_oferta_da_fila` faz uma segunda conferência de
+colisões de Agenda **sob `pg_advisory_xact_lock` do mesmo profissional**
+utilizado pela RPC oficial `criar_agendamento`. A verificação usa os
+mesmos estados ocupantes observados no motor (agendado, chegou,
+na cadeira e finalizado) e a margem entre atendimentos definida pelo
+negócio. Se a vaga ficou ocupada depois da leitura inicial, a RPC
+retorna `ocupada`, sem cadastrar a oferta nem marcar a pessoa como
+avisada. Essa verificação é apenas uma proteção de código planejada;
+não foi ensaiada com sessões PostgreSQL concorrentes.
+
 ### Proteção de prioridade em falhas transitórias
 
 O motor também passou a distinguir **negativa comprovada de canal** de
