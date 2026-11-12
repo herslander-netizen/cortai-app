@@ -36,6 +36,11 @@ describe("Figaroo → Flow: fluxo real de profissionais por serviço", () => {
     expect(pagina).toContain("profissionais={profissionaisQuery.data ?? []}");
     expect(pagina).toContain("profissionaisQuery.isError");
     expect(pagina).toContain("Tentar novamente");
+    expect(pagina).toContain("const { data, isLoading, isError, refetch } = useQuery({");
+    expect(pagina).toContain("Não foi possível carregar os serviços do negócio.");
+    expect(pagina).toContain("{isError ? (");
+    expect(pagina).toContain("!isLoading && !isError && iniciado");
+    expect(pagina).toContain("onClick={() => void refetch()}");
     expect(editor).toContain("Selecionar todos");
     expect(editor).toContain("disabled={ultimoSelecionado}");
     expect(pagina).toContain("profissionalIds: servico.profissionalIds");
