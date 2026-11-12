@@ -12,6 +12,8 @@ vi.mock("./confirmacao.server", () => ({
 type Estado = {
   automatica: boolean;
   reservaFila: boolean;
+  liberacaoPermitida: boolean;
+  filaFiltros: Record<string, unknown>[];
   fila: Record<string, unknown>[];
   inserts: Record<string, unknown>[];
   ranges: [number, number][];
@@ -60,6 +62,7 @@ function builder(tabela: string) {
   const b: any = {};
   const chain = () => b;
   for (const m of ["select", "in", "gt", "lt", "not", "or", "limit", "is"]) b[m] = chain;
+  b.lte = (col: string, val: unknown) => ((ctx.filtros[`lte:${col}`] = val), b);
   b.eq = (col: string, val: unknown) => ((ctx.filtros[col] = val), b);
   b.order = (col: string) => {
     if (tabela === "fila_de_espera") st.orders.push(col);
@@ -76,8 +79,13 @@ function builder(tabela: string) {
     return b;
   };
   b.maybeSingle = async () => {
-    if (tabela === "fila_de_espera" && ctx.op === "update")
-      return { data: st.reservaFila ? { id: ctx.filtros["id"] ?? "primeiro" } : null, error: null };
+    if (tabela === "fila_de_espera" && ctx.op === "update") {
+      st.filaFiltros.push({ ...ctx.filtros });
+      const permitido = ctx.payload?.["status"] === "aguardando"
+        ? st.liberacaoPermitida
+        : st.reservaFila;
+      return { data: permitido ? { id: ctx.filtros["id"] ?? "primeiro" } : null, error: null };
+    }
     const r = resolver();
     if (tabela === "agendamentos" && Array.isArray(r.data)) return { data: null };
     return r;
@@ -123,6 +131,8 @@ beforeEach(() => {
   st = {
     automatica: true,
     reservaFila: true,
+    liberacaoPermitida: true,
+    filaFiltros: [],
     fila: [linha("primeiro", 1), linha("segundo", 2)],
     inserts: [],
     ranges: [],
@@ -172,7 +182,10 @@ describe("recuperação automática de vagas", () => {
   });
 
   it("recusa passa ao próximo quando ligada", async () => {
-    st.recusada = { fila_id: "primeiro", agendamento_liberado_id: "ag1" };
+    st.recusada = {
+      fila_id: "primeiro", tenant_id: "t1", criado_em: new Date(AGORA).toISOString(),
+      agendamento_liberado_id: "ag1",
+    };
     const { recusarOferta } = await import("./fila-ofertas.server");
     const r = await recusarOferta("abc");
     expect(r.ok).toBe(true);
@@ -181,7 +194,10 @@ describe("recuperação automática de vagas", () => {
 
   it("recusa com automação desligada não avança e não remove ninguém", async () => {
     st.automatica = false;
-    st.recusada = { fila_id: "primeiro", agendamento_liberado_id: "ag1" };
+    st.recusada = {
+      fila_id: "primeiro", tenant_id: "t1", criado_em: new Date(AGORA).toISOString(),
+      agendamento_liberado_id: "ag1",
+    };
     const { recusarOferta } = await import("./fila-ofertas.server");
     const r = await recusarOferta("abc");
     expect(r.ok).toBe(true);
@@ -216,17 +232,43 @@ describe("aceite da oferta", () => {
 
   it("vaga perdida (ocupado) devolve o cliente à fila como aguardando", async () => {
     st.aceite = { ok: false, motivo: "ocupado" };
-    st.ofertaPerdida = { fila_id: "primeiro", agendamento_liberado_id: "ag1" };
+    st.ofertaPerdida = {
+      fila_id: "primeiro", tenant_id: "t1", criado_em: new Date(AGORA).toISOString(),
+      agendamento_liberado_id: "ag1",
+    };
     const { aceitarOferta } = await import("./fila-ofertas.server");
     const r = await aceitarOferta("abc");
     expect(r.ok).toBe(false);
-    expect(st.filaUpdates).toContainEqual({ status: "aguardando" });
+    expect(st.filaUpdates).toContainEqual({ status: "aguardando", avisado_em: null });
+    expect(st.filaFiltros).toContainEqual({ id: "primeiro", tenant_id: "t1", status: "avisado", "lte:avisado_em": new Date(AGORA).toISOString() });
     expect(st.inserts).toHaveLength(0);
+  });
+
+  it("oferta antiga não libera uma nova reserva da mesma pessoa", async () => {
+    st.aceite = { ok: false, motivo: "ocupado" };
+    st.ofertaPerdida = {
+      fila_id: "primeiro", tenant_id: "t1", criado_em: new Date(AGORA).toISOString(),
+      agendamento_liberado_id: "ag1",
+    };
+    // O banco simula que o CAS falhou: a entrada já possui aviso mais recente.
+    st.liberacaoPermitida = false;
+    const { aceitarOferta } = await import("./fila-ofertas.server");
+    const r = await aceitarOferta("abc");
+    expect(r.ok).toBe(false);
+    expect(st.filaFiltros[0]).toMatchObject({
+      id: "primeiro",
+      tenant_id: "t1",
+      status: "avisado",
+      "lte:avisado_em": new Date(AGORA).toISOString(),
+    });
   });
 
   it("oferta expirada reoferta a vaga", async () => {
     st.aceite = { ok: false, motivo: "expirada" };
-    st.ofertaPerdida = { fila_id: "primeiro", agendamento_liberado_id: "ag1" };
+    st.ofertaPerdida = {
+      fila_id: "primeiro", tenant_id: "t1", criado_em: new Date(AGORA).toISOString(),
+      agendamento_liberado_id: "ag1",
+    };
     const { aceitarOferta } = await import("./fila-ofertas.server");
     const r = await aceitarOferta("abc");
     expect(r.ok).toBe(false);
