@@ -1552,8 +1552,11 @@ export function AgendaOperacional() {
           aria-label={`Visualização ${visualizacao}`}
           className="relative"
         >
-          {/* Animação simultânea no padrão do Flow oficial (v3.7). */}
-          <TrocaDeVisualizacao chave={celular && visualizacao === "lista" ? "lista" : "grade"}>
+          {/* Referência Catálogo: apenas os painéis móveis; Agora e + ficam fixos fora deles. */}
+          <TrocaDeVisualizacao
+            chave={celular && visualizacao === "lista" ? "lista" : "grade"}
+            celular={celular}
+          >
             {carregandoInicial ? (
               <AgendaCarregando formato={visualizacao === "lista" ? "lista" : "timeline"} />
             ) : erroInicial ? (

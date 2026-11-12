@@ -3227,6 +3227,14 @@ body:has(.auth-screen--claro) {
 .agenda-operacional {
   touch-action: pan-y pinch-zoom;
 }
+/* A troca Timeline ↔ Cartões desliza somente o painel, como no Catálogo.
+   overflow-x: clip não cria um contêiner de rolagem nem prende a vertical.
+   O botão fixo é irmão desta área, nunca participa da transição. */
+@media (max-width: 767px) {
+  #agenda-painel-visualizacao {
+    overflow-x: clip;
+  }
+}
 /* Celular: a Timeline não é contêiner de rolagem; quem rola é a página.
    Uma sobra de 1px prendia o gesto na caixa (overscroll contain). */
 @media (max-width: 600px) {
@@ -5532,6 +5540,11 @@ button.agenda-timeline-bloqueio-interativo {
   .agenda-botao-agora-principal button:active {
     transform: none;
   }
+}
+/* O controle de visualização não desloca nem reduz ao toque: só o conteúdo da
+   Agenda se move. Mantém-se a animação já aprovada do ícone internamente. */
+.agenda-botao-agora-principal button.agenda-botao-agora-visualizacao:active {
+  transform: none;
 }
 @media (max-width: 600px) {
   .agenda-botao-agora-principal {
