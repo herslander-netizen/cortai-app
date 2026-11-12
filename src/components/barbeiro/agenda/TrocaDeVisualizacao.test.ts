@@ -18,7 +18,7 @@ describe("troca de visualização da Agenda", () => {
     expect(troca).toContain("usePresence()");
     expect(troca).toContain('mode="popLayout"');
     expect(troca).toContain("onAnimationEnd={aoConcluirAnimacao}");
-    expect(troca).toContain("onAnimationCancel={aoConcluirAnimacao}");
+    expect(troca).toContain('evento.animationName === "agenda-visao-sair"');
     expect(troca).toContain("aria-hidden={!presente}");
     expect(troca).toContain("inert={!presente}");
     expect(troca).not.toContain("setEntradaConcluida");
