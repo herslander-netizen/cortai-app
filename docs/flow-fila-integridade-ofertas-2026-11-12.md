@@ -113,3 +113,39 @@ Casos de número inválido, opt-out, telefone não confirmado e conexão ausente
 continuam falhando fechados. O teste `src/lib/fila-ofertas-canal.test.ts`
 cobre a distinção. A posterior reconciliação precisa continuar vinculada
 à oferta específica, não à posição genérica da fila.
+
+## Lote de integridade das ações manuais (12/11/2026)
+
+A auditoria identificou dois caminhos que continuavam fora do ciclo
+transacional: `removerDaFila` atualizava a entrada e depois cancelava
+a oferta, e `converterFilaEmAgendamento` criava o agendamento e alterava
+fila/ofertas em gravações separadas. Ambos foram preparados no PR para
+usar RPCs **no mesmo commit**:
+
+- `retirar_entrada_da_fila`: bloqueia oferta e entrada na ordem do
+  aceite; cancela a oferta da entrada e marca `saiu` atomicamente,
+  com rejeição de corrida. A fila de chegada (janela NULL) continua
+  removível mesmo sem oferta; não foi confundida com espera de horário.
+- `converter_entrada_da_fila`: só converte entrada `aguardando`
+  sem oferta atual; cria o horário com `criar_agendamento` oficial e
+  marca `atendido` na mesma transação. Se já houver oferta, orienta
+  a equipe a aguardá-la ou encerrá-la antes de converter.
+- `editarFila`: só permite mudar preferência enquanto a entrada
+  ainda está `aguardando`, impedindo mudar uma oferta já reservada.
+- `reservar_oferta_da_fila`: valida novamente dia, horário e faixa
+  no fuso do tenant e rejeita `janela_preferida NULL` (fila de
+  chegada) antes de gravar. A interface não é mais fonte única
+  de compatibilidade para os dados que podem ser editados.
+
+O script SQL proposto foi restaurado após detectar definições duplicadas
+na edição: um teste passa a exigir **uma definição por função e um COMMIT**.
+Os testes estáticos em `src/lib/fila-ofertas-transacional.test.ts`
+e `src/lib/fila-ofertas-integracao-manual.test.ts` conferem a arquitetura.
+O roteiro para duas sessões PostgreSQL reais está em
+`tests/sql/fila-ofertas-concorrencia-roteiro.md`.
+
+**Limite obrigatório:** não existe PostgreSQL local neste ambiente e
+o Supabase de prévia não recebeu escrita. A homologação concorrente
+real e os efeitos dos gatilhos do banco **não foram comprovados**.
+Não mesclar o PR nem executar migração até o ensaio em um banco
+descartável, revisão de locks/permissões e implantação coordenada.
