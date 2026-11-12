@@ -3227,14 +3227,6 @@ body:has(.auth-screen--claro) {
 .agenda-operacional {
   touch-action: pan-y pinch-zoom;
 }
-/* A troca Timeline ↔ Cartões desliza somente o painel, como no Catálogo.
-   overflow-x: clip não cria um contêiner de rolagem nem prende a vertical.
-   O botão fixo é irmão desta área, nunca participa da transição. */
-@media (max-width: 767px) {
-  #agenda-painel-visualizacao {
-    overflow-x: clip;
-  }
-}
 /* Celular: a Timeline não é contêiner de rolagem; quem rola é a página.
    Uma sobra de 1px prendia o gesto na caixa (overscroll contain). */
 @media (max-width: 600px) {
@@ -5540,11 +5532,6 @@ button.agenda-timeline-bloqueio-interativo {
   .agenda-botao-agora-principal button:active {
     transform: none;
   }
-}
-/* O controle de visualização não desloca nem reduz ao toque: só o conteúdo da
-   Agenda se move. Mantém-se a animação já aprovada do ícone internamente. */
-.agenda-botao-agora-principal button.agenda-botao-agora-visualizacao:active {
-  transform: none;
 }
 @media (max-width: 600px) {
   .agenda-botao-agora-principal {
@@ -11637,4 +11624,40 @@ html.light {
 body:has([role="dialog"][data-state="open"]) .agenda-acao-fixa {
   opacity: 0;
   pointer-events: none;
+}
+
+/* Botão Cards: microanimação dos elementos do ícone, como o botão Catálogo do
+   vídeo de referência. Não desloca a pílula, o botão ou o painel da agenda. */
+@keyframes agenda-icone-catalogo-acionar {
+  0% { opacity: 1; transform: scaleY(1); }
+  35% { opacity: 0.2; transform: scaleY(0.18); }
+  100% { opacity: 1; transform: scaleY(1); }
+}
+@keyframes agenda-icone-cards-desenhar {
+  0% { opacity: 0.25; }
+  100% { opacity: 1; }
+}
+.agenda-botao-agora-visualizacao [data-animacao] .agenda-icone-catalogo-caixa {
+  transform-box: fill-box;
+  transform-origin: center bottom;
+  animation: agenda-icone-catalogo-acionar 280ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.agenda-botao-agora-visualizacao [data-animacao] .agenda-icone-cards-linha {
+  animation: agenda-icone-cards-desenhar 220ms ease-out both;
+}
+.agenda-botao-agora-visualizacao [data-animacao] .agenda-icone-cards-linha:nth-child(2) {
+  animation-delay: 35ms;
+}
+.agenda-botao-agora-visualizacao [data-animacao] .agenda-icone-cards-linha:nth-child(3) {
+  animation-delay: 70ms;
+}
+/* O aperto não pode encolher nem deslocar o botão inteiro. */
+.agenda-botao-agora-principal button.agenda-botao-agora-visualizacao:active {
+  transform: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .agenda-botao-agora-visualizacao [data-animacao] .agenda-icone-catalogo-caixa,
+  .agenda-botao-agora-visualizacao [data-animacao] .agenda-icone-cards-linha {
+    animation: none;
+  }
 }

@@ -4,40 +4,23 @@ import type { ReactNode } from "react";
 const SUAVE = [0.22, 1, 0.36, 1] as const;
 
 /**
- * Na agenda do celular, a mudança Timeline ↔ Cartões segue a referência do
- * Catálogo: os PAINÉIS deslizam na horizontal, simultaneamente, enquanto os
- * controles fixos permanecem fora desta área. A animação não atua no botão.
- * Desktop mantém a transição vertical existente.
+ * Timeline ↔ Cartões: paridade com a versão oficial v3.7 (commit 6267ad49).
+ * A saída e a entrada ocorrem simultaneamente, sem espera entre os painéis.
+ * Redução de movimento preservada, sem alterar as regras da Agenda.
  */
-export function TrocaDeVisualizacao({
-  chave,
-  celular = false,
-  children,
-}: {
-  chave: string;
-  celular?: boolean;
-  children: ReactNode;
-}) {
+export function TrocaDeVisualizacao({ chave, children }: { chave: string; children: ReactNode }) {
   const reduzirMovimento = useReducedMotion();
-  // Entrar nos Cartões: da direita. Voltar à Timeline: da esquerda.
-  // O painel que sai anda no sentido oposto ao que vai entrar.
-  const deslocamento = chave === "lista" ? "100%" : "-100%";
-  const inicial = celular
-    ? { x: deslocamento }
-    : { opacity: 0, y: 28 };
-  const final = celular
-    ? { x: 0 }
-    : { opacity: 1, y: 0 };
-  const saida = celular
-    ? { x: deslocamento }
-    : { opacity: 0, y: -20 };
   return (
     <AnimatePresence initial={false} mode="popLayout">
       <motion.div
         key={chave}
-        initial={reduzirMovimento ? false : inicial}
-        animate={final}
-        exit={reduzirMovimento ? { ...final, transition: { duration: 0 } } : saida}
+        initial={reduzirMovimento ? false : { opacity: 0, y: 28 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={
+          reduzirMovimento
+            ? { opacity: 1, y: 0, transition: { duration: 0 } }
+            : { opacity: 0, y: -20 }
+        }
         transition={reduzirMovimento ? { duration: 0 } : { duration: 0.28, ease: SUAVE }}
       >
         {children}

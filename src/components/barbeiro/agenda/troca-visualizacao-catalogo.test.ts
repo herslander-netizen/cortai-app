@@ -3,39 +3,33 @@ import { describe, expect, it } from "vitest";
 
 const transicao = readFileSync("src/components/barbeiro/agenda/TrocaDeVisualizacao.tsx", "utf8");
 const operacional = readFileSync("src/components/barbeiro/AgendaOperacional.tsx", "utf8");
+const botao = readFileSync("src/components/barbeiro/agenda/BotaoAgoraPrincipal.tsx", "utf8");
 const estilos = readFileSync("src/styles.css", "utf8");
 
-describe("transição Catálogo aplicada somente aos painéis da Agenda", () => {
-  it("usa deslizamento horizontal entre Cartões e Timeline no celular", () => {
-    expect(transicao).toContain('chave === "lista" ? "100%" : "-100%"');
-    expect(transicao).toContain("initial={reduzirMovimento ? false : inicial}");
-    expect(transicao).toContain('mode="popLayout"');
-    expect(transicao).toContain("const final = celular");
-    expect(operacional).toContain("celular={celular}");
+describe("Catálogo: microanimação SOMENTE no ícone do botão Cards", () => {
+  it("restaura exatamente a animação dos painéis anterior à alteração lateral", () => {
+    expect(transicao).toContain('initial={reduzirMovimento ? false : { opacity: 0, y: 28 }}');
+    expect(transicao).toContain("animate={{ opacity: 1, y: 0 }}");
+    expect(transicao).not.toContain('chave === "lista" ? "100%" : "-100%"');
+    expect(operacional).not.toContain("celular={celular}");
+    expect(estilos).not.toContain("#agenda-painel-visualizacao {\n    overflow-x: clip;");
   });
 
-  it("preserva redução de movimento e a transição anterior no desktop", () => {
-    expect(transicao).toContain("duration: 0");
-    expect(transicao).toContain("{ opacity: 0, y: 28 }");
-    expect(transicao).toContain("{ opacity: 0, y: -20 }");
+  it("anima apenas traços da lista e a caixa do ícone Catálogo, sem mover o botão", () => {
+    expect(botao).toContain("data-animacao={acionouVisualizacao.current || undefined}");
+    expect(botao).toContain('className="agenda-icone-catalogo-caixa"');
+    expect(botao).toContain('className="agenda-icone-cards-linha"');
+    expect(estilos).toContain("@keyframes agenda-icone-catalogo-acionar");
+    expect(estilos).toContain("@keyframes agenda-icone-cards-desenhar");
+    expect(estilos).toMatch(/button\.agenda-botao-agora-visualizacao:active \{\s*transform: none;/);
+    expect(botao).not.toContain("rotate:");
+    expect(botao).toContain("className=\"absolute inset-0 grid place-items-center\"");
   });
 
-  it("mantém o botão Agora e o FAB fora do painel e do palco do gesto", () => {
-    const fimDoPalco = operacional.indexOf('      </div>\n\n      {/* Celular na grade:');
-    const botao = operacional.indexOf("<BotaoAgoraPrincipal", fimDoPalco);
-    const painel = operacional.indexOf('<div\n          id="agenda-painel-visualizacao"');
-    const fimDoPainel = operacional.indexOf("</TrocaDeVisualizacao>");
-    expect(painel).toBeGreaterThan(-1);
-    expect(fimDoPainel).toBeGreaterThan(painel);
-    expect(fimDoPalco).toBeGreaterThan(fimDoPainel);
-    expect(botao).toBeGreaterThan(fimDoPalco);
-    expect(estilos).toMatch(/\.agenda-botao-agora-principal \{\s*position: fixed;/);
-    expect(estilos).toMatch(/\.agenda-acao-fixa \{\s*position: fixed;/);
-    expect(estilos).toMatch(/\.agenda-botao-agora-principal button\.agenda-botao-agora-visualizacao:active \{\s*transform: none;/);
-  });
-
-  it("limita a saída lateral ao painel sem bloquear a rolagem vertical", () => {
-    expect(estilos).toMatch(/#agenda-painel-visualizacao \{\s*overflow-x: clip;/);
-    expect(estilos).not.toMatch(/#agenda-painel-visualizacao \{\s*overflow: hidden;/);
+  it("só dispara o efeito após acionamento e respeita movimento reduzido", () => {
+    expect(botao).toContain("acionouVisualizacao.current = true;");
+    expect(estilos).toContain("@media (prefers-reduced-motion: reduce) {");
+    expect(estilos).toContain(".agenda-icone-catalogo-caixa,");
+    expect(estilos).toContain("animation: none;");
   });
 });
