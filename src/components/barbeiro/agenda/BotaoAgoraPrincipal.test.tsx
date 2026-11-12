@@ -89,6 +89,20 @@ describe("BotaoAgoraPrincipal", () => {
     expect(botao?.querySelector("svg")).not.toBeNull();
   });
 
+  it("responde a dois toques imediatos, sem bloqueio de 300 ms nem estado antigo", async () => {
+    const onVisualizacao = vi.fn();
+    await montar(390, "timeline", onVisualizacao);
+    const botao = host?.querySelector<HTMLButtonElement>('[aria-label="Mostrar Lista"]');
+    act(() => {
+      botao?.click();
+      botao?.click();
+    });
+    expect(onVisualizacao.mock.calls.map(([destino]) => destino)).toEqual([
+      "lista",
+      "timeline",
+    ]);
+  });
+
   it("mantém um único FAB e representa os estados fechado e aberto", async () => {
     const onAlternarMenu = vi.fn();
     await montar(390, "timeline", vi.fn(), true, vi.fn(), false, onAlternarMenu);

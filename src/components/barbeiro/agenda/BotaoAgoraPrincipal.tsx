@@ -88,8 +88,12 @@ export function BotaoAgoraPrincipal({
   const toqueLongo = useToqueLongo(onAgendarPorVoz, { ativo: !menuAberto });
   const menosMovimento = useMenosMovimento();
   const levarAoAgoraQuandoForHoje = useRef(false);
-  // Evita que toques duplicados durante a animação usem o mesmo estado antigo.
-  const ultimaAlternanciaRef = useRef(0);
+  // A próxima intenção é guardada imediatamente: dois toques rápidos não podem
+  // ficar presos num cooldown nem reutilizar a prop antiga antes do próximo render.
+  const visaoSolicitada = useRef(visualizacao);
+  useEffect(() => {
+    visaoSolicitada.current = visualizacao;
+  }, [visualizacao]);
   const proxima = visualizacao === "timeline" ? "lista" : "timeline";
 
   const rolarLista = useCallback(() => {
@@ -136,11 +140,9 @@ export function BotaoAgoraPrincipal({
   }
 
   function alternarVisualizacao() {
-    const agora = Date.now();
-    // Toques duplicados podem chegar antes de React atualizar visualizacao.
-    if (agora - ultimaAlternanciaRef.current < 300) return;
-    ultimaAlternanciaRef.current = agora;
-    onVisualizacao(proxima);
+    const destino = visaoSolicitada.current === "timeline" ? "lista" : "timeline";
+    visaoSolicitada.current = destino;
+    onVisualizacao(destino);
   }
 
   function soltarFocoDoToque(evento: PointerEvent<HTMLButtonElement>) {
@@ -151,6 +153,7 @@ export function BotaoAgoraPrincipal({
     if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(evento.key)) return;
     evento.preventDefault();
     const destino = evento.key === "Home" ? "timeline" : evento.key === "End" ? "lista" : proxima;
+    visaoSolicitada.current = destino;
     onVisualizacao(destino);
   }
 
@@ -187,7 +190,7 @@ export function BotaoAgoraPrincipal({
             onClick={alternarVisualizacao}
             onPointerUp={soltarFocoDoToque}
           >
-            <AnimatePresence initial={false} mode="wait">
+            <AnimatePresence initial={false} mode="sync">
               <motion.span
                 key={proxima}
                 className="inline-flex"

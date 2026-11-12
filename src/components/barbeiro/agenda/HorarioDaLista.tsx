@@ -84,10 +84,13 @@ export function HorarioDaLista({
   onAbrir: (item: AgendaItem) => void;
 }) {
   const primeiro = itens[0]!;
+  // Os itens deste grupo já foram agrupados pelo mesmo horário local.
+  // Não formatar novamente a mesma hora para cada cartão e aria-label.
+  const horario = hora(primeiro.inicio, fuso);
   return (
     <div className="agenda-lista-horario">
       <span className="agenda-lista-hora" aria-hidden>
-        <strong>{hora(primeiro.inicio, fuso)}</strong>
+        <strong>{horario}</strong>
         <span>{legendaDoHorario(itens)}</span>
       </span>
       <ul className="agenda-lista-trilho">
@@ -110,7 +113,7 @@ export function HorarioDaLista({
               <Button
                 type="button"
                 variant="ghost"
-                aria-label={`${tituloCurto} ${hora(item.inicio, fuso)}, ${nome}, ${item.servico}, ${estado}`}
+                aria-label={`${tituloCurto} ${horario}, ${nome}, ${item.servico}, ${estado}`}
                 aria-pressed={selecionado === item.id}
                 className={`agenda-lista-cartao agenda-timeline-${item.status} ${item.confirmadoEm && item.status === "agendado" ? "agenda-timeline-confirmado" : ""} ${item.encaixe && item.status === "agendado" ? "agenda-timeline-encaixe" : ""} ${selecionado === item.id ? "agenda-lista-cartao-selecionado" : ""}`}
                 style={{ ["--cor-categoria" as string]: corDaCategoria(item.categoriaIndice) }}

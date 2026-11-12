@@ -7,6 +7,14 @@ import { brl } from "@/lib/format";
 
 import { diaNoFuso } from "./tempo";
 
+// A lista pode montar dezenas de dias numa só troca de visualização. Criar
+// formatadores em cada título bloqueia a thread principal no Chrome Android.
+const FORMATADOR_MES = new Intl.DateTimeFormat("pt-BR", { month: "long", timeZone: "UTC" });
+const FORMATADOR_SEMANA = new Intl.DateTimeFormat("pt-BR", {
+  weekday: "long",
+  timeZone: "UTC",
+});
+
 /** Até onde a lista vai buscando (um ano a partir de hoje). */
 export const DIAS_NO_MAXIMO = 365;
 
@@ -19,10 +27,8 @@ export function diasEntre(de: string, ate: string) {
 export function tituloDoDia(dia: string) {
   const data = new Date(`${dia}T12:00:00Z`);
   const numero = data.getUTCDate();
-  const mes = new Intl.DateTimeFormat("pt-BR", { month: "long", timeZone: "UTC" }).format(data);
-  const semana = new Intl.DateTimeFormat("pt-BR", { weekday: "long", timeZone: "UTC" }).format(
-    data,
-  );
+  const mes = FORMATADOR_MES.format(data);
+  const semana = FORMATADOR_SEMANA.format(data);
   // Figaro (`AgendaListDayHeader`): "d MMM" — "28 out.".
   const mesCurto = mes.slice(0, 3);
   return {
