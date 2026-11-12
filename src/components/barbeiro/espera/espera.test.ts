@@ -30,6 +30,13 @@ describe("lista de espera da equipe", () => {
     expect(rota).toContain("}, 5000);");
   });
 
+  it("regras avançadas indisponíveis mostram aviso, sem bloquear a lista básica", () => {
+    const regras = readFileSync("src/components/barbeiro/espera/RegrasDaLista.tsx", "utf8");
+    expect(regras).toContain("Atualização necessária");
+    expect(regras).toContain("A lista continua funcionando com as regras padrão");
+    expect(regras).toContain("disabled={!rascunho || !regras.data.disponivel}");
+  });
+
   it("a rota fica abaixo de 300 linhas", () => {
     expect(rota.split("\n").length).toBeLessThanOrEqual(300);
   });
