@@ -183,6 +183,9 @@ export const getConfiguracaoInicial = createServerFn({ method: "GET" })
       db.from("onboarding_do_tenant").select("*").eq("tenant_id", tenantId).maybeSingle(),
     ]);
 
+    // A falha ao ler o catálogo nunca pode virar "nenhum serviço":
+    // isso esconderia dados reais e permitiria editar um rascunho incompleto.
+    if (servicosRes.error) throw new Error("Não foi possível consultar os serviços do negócio.");
     const tenant = tenantRes.data;
     if (!tenant) throw new Error("Negócio não encontrado.");
 
