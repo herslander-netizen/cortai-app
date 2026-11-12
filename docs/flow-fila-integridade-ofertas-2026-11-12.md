@@ -24,3 +24,49 @@
 - Este PR modifica `src/lib/whatsapp/fila-ofertas.server.ts`, que consta entre áreas com reserva histórica de integração WhatsApp. Por isso o PR fica **em rascunho, isolado e sem publicação** até coordenação e revisão das alterações concorrentes.
 
 Não aplicar SQL, nem executar migrações em banco de prévia ou produção automaticamente.
+
+## Etapa adicional — proposta SQL e adaptador tipado (12/11/2026)
+
+O [SQL proposto](sql/fila-ofertas-transacionais-proposta-2026-11-12.sql)
+fica intencionalmente em **docs/sql**, não em `drizzle/migrations`:
+a faixa `0059+` segue reservada por outro trabalho. **Não foi executado**.
+
+O script reúne, para futura revisão/migração aditiva:
+- `fila_de_espera.oferta_atual_id`, chave estrangeira e índice único parcial
+  por `fila_id` das ofertas ativas;
+- `reservar_oferta_da_fila`: bloqueio de entrada com `FOR UPDATE`, conferência
+  do mesmo tenant e vaga cancelada/remarcada, criação de oferta e marcação
+  da entrada na **mesma transação**;
+- `encerrar_oferta_da_fila`: fim da oferta e liberação apenas se a entrada
+  ainda aponta para aquela oferta, também na mesma transação;
+- revisão da RPC `aceitar_oferta_da_fila` para rejeitar token antigo e
+  limpar o vínculo quando aceita, expira ou perde a vaga;
+- função privilegiada somente para `service_role`, com revogação explícita
+  para `PUBLIC`, `anon` e `authenticated`;
+- abortar a migração quando houver ofertas ativas duplicadas ou estados
+  históricos incongruentes, em vez de adivinhar qual vincular.
+
+O módulo `src/lib/fila-ofertas-transacional.ts` já implementa o contrato
+TypeScript das futuras RPCs, com retornos validados e falha fechada; **ainda
+não é chamado pelo motor** (falta a migração e a integração coordenada).
+Os testes de contrato e estrutura em `fila-ofertas-transacional.test.ts`
+são verificações de código, **não equivalem a ensaio SQL com concorrência**.
+
+Leituras agregadas na prévia em 12/11/2026: zero ofertas ativas, zero
+entradas `avisado` e nenhuma duplicidade de oferta ativa por `fila_id`
+naquele instante. Esse retrato não substitui conferência imediatamente
+antes de eventual migração, nem comprova ausência de corridas futuras.
+
+### Critérios antes de publicar
+
+1. Revisar a migração e a RPC de aceite contra o schema/código atual.
+2. Coordenar e obter migração livre, sem sobrepor `0059+`.
+3. Testar com banco descartável **duas vagas/mesma pessoa em paralelo**,
+   duas pessoas/mesma vaga, recusa de token antigo, aceite idempotente,
+   perda de vaga, expiração, WhatsApp não conectado e consentimento revogado.
+4. Substituir no backend o par `UPDATE fila` + `INSERT oferta` pela RPC
+   `reservar_oferta_da_fila`; substituir cada transição por
+   `encerrar_oferta_da_fila`. Nenhuma camada deve manter os dois caminhos.
+5. Confirmar índices, grants, RLS, monitoramento e comportamento mobile.
+6. Somente então aplicar na prévia mediante revisão/autorização específica.
+   Produção permanece sem alteração automática.
