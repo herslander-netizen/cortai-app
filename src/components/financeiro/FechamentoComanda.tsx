@@ -559,23 +559,48 @@ export function FechamentoComanda({
                 <span className="money-value">{brl(subtotal)}</span>
               </div>
               {verDesconto ? (
-                <label className="mt-2 flex items-center justify-between gap-3 text-xs text-mute">
-                  Desconto (R$)
-                  <input
-                    className="field-control h-10 max-w-[140px] text-right"
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    inputMode="decimal"
-                    value={desconto}
-                    onChange={(e) => setDesconto(e.target.value)}
-                    placeholder="0,00"
-                    autoFocus
-                  />
-                </label>
+                <div className="mt-3 grid gap-2">
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="text-xs font-semibold text-mute">Desconto</p>
+                    <div role="group" aria-label="Tipo de desconto" className="flex gap-2">
+                      {(["reais", "percentual"] as const).map((opcao) => (
+                        <Chip
+                          key={opcao}
+                          selecionado={tipoDesconto === opcao}
+                          onClick={() => {
+                            setTipoDesconto(opcao);
+                            setDesconto("");
+                          }}
+                        >
+                          {opcao === "reais" ? "R$" : "%"}
+                        </Chip>
+                      ))}
+                    </div>
+                  </div>
+                  <label className="flex items-center justify-between gap-3 text-xs text-mute">
+                    {tipoDesconto === "reais" ? "Valor em reais" : "Porcentagem"}
+                    <input
+                      className="field-control h-10 max-w-[150px] text-right"
+                      type="text"
+                      inputMode="decimal"
+                      value={desconto}
+                      onChange={(e) => setDesconto(e.target.value)}
+                      placeholder={tipoDesconto === "reais" ? "0,00" : "0"}
+                      aria-invalid={descontoInvalido}
+                      aria-label={tipoDesconto === "reais" ? "Desconto em reais" : "Desconto em porcentagem"}
+                    />
+                  </label>
+                  {descontoInvalido ? (
+                    <p role="alert" className="text-xs text-brick">
+                      {tipoDesconto === "reais"
+                        ? "Informe um valor válido em reais, com até duas casas decimais."
+                        : "Informe uma porcentagem de 0 a 100."}
+                    </p>
+                  ) : null}
+                </div>
               ) : (
                 <div className="mt-1 flex items-baseline justify-between text-xs text-mute">
-                  <span>Desconto sobre o total</span>
+                  <span>Descontos</span>
                   <Button
                     variant="link"
                     size="sm"
@@ -586,6 +611,12 @@ export function FechamentoComanda({
                   </Button>
                 </div>
               )}
+              {descontoCentavos > 0 ? (
+                <div className="mt-2 flex items-center justify-between text-xs text-mute">
+                  <span>Desconto aplicado</span>
+                  <span className="money-value">− {brl(descontoCentavos)}</span>
+                </div>
+              ) : null}
               {erro ? (
                 <p className="mt-3 rounded-md bg-brick px-3 py-2 text-sm text-ink" role="alert">
                   {erro}
@@ -599,7 +630,7 @@ export function FechamentoComanda({
                 <Button
                   size="lg"
                   className="mt-3 h-14 w-full rounded-full"
-                  disabled={Boolean(ocupado) || !itens.length}
+                  disabled={Boolean(ocupado) || !itens.length || descontoInvalido}
                   onClick={() => {
                     setErro(null);
                     setEtapa("forma");
@@ -614,7 +645,7 @@ export function FechamentoComanda({
                     size="lg"
                     className="mt-3 h-14 w-full rounded-full"
                     loading={ocupado === "recepcao"}
-                    disabled={Boolean(ocupado) || !itens.length}
+                    disabled={Boolean(ocupado) || !itens.length || descontoInvalido}
                     onClick={paraRecepcao}
                   >
                     <Send aria-hidden />
@@ -664,7 +695,6 @@ export function FechamentoComanda({
                           {[
                             { rotulo: "Valor exato", centavos: total },
                             ...[10000, 20000]
-                              .filter((c) => c > total)
                               .map((c) => ({ rotulo: `R$ ${c / 100}`, centavos: c })),
                           ].map((op) => (
                             <Chip
@@ -689,9 +719,35 @@ export function FechamentoComanda({
                             placeholder="Valor recebido"
                           />
                         </label>
-                        {troco ? (
-                          <p className="mt-2 text-sm font-semibold text-paper">
-                            Troco: <span className="money-value">{brl(troco)}</span>
+                        <dl className="mt-3 grid gap-1 text-sm">
+                          <div className="flex justify-between gap-2 text-mute">
+                            <dt>Valor exato</dt>
+                            <dd className="money-value">{brl(total)}</dd>
+                          </div>
+                          <div className="flex justify-between gap-2 text-mute">
+                            <dt>Valor recebido</dt>
+                            <dd className="money-value">
+                              {recebidoCentavos === null ? "—" : brl(recebidoCentavos)}
+                            </dd>
+                          </div>
+                          {dinheiro.faltaCentavos > 0 ? (
+                            <div className="flex justify-between gap-2 font-semibold text-paper">
+                              <dt>Falta receber</dt>
+                              <dd className="money-value">{brl(dinheiro.faltaCentavos)}</dd>
+                            </div>
+                          ) : null}
+                          {troco > 0 ? (
+                            <div className="flex justify-between gap-2 font-semibold text-paper">
+                              <dt>Troco</dt>
+                              <dd className="money-value">{brl(troco)}</dd>
+                            </div>
+                          ) : null}
+                        </dl>
+                        {!dinheiro.podeConfirmar ? (
+                          <p className="mt-2 text-xs text-mute" role="status">
+                            {recebidoCentavos === null
+                              ? "Informe o valor recebido para confirmar."
+                              : "O pagamento integral precisa ser recebido antes da confirmação."}
                           </p>
                         ) : null}
                       </div>
@@ -725,7 +781,8 @@ export function FechamentoComanda({
                 size="lg"
                 className="mt-3 h-14 w-full rounded-full"
                 loading={Boolean(ocupado)}
-                disabled={!forma || Boolean(ocupado) || !itens.length}
+                disabled={!forma || Boolean(ocupado) || !itens.length || descontoInvalido ||
+                  (forma === "dinheiro" && !dinheiro.podeConfirmar)}
                 onClick={confirmarForma}
               >
                 <Check aria-hidden />
