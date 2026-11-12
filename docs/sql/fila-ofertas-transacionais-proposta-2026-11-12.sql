@@ -19,6 +19,21 @@ BEGIN
     RAISE EXCEPTION 'Fila tem mais de uma oferta ativa por entrada; reconciliar antes de migrar.';
   END IF;
   IF EXISTS (
+    SELECT 1 FROM public.ofertas_da_fila
+    WHERE status = 'enviada' AND agendamento_liberado_id IS NOT NULL
+    GROUP BY agendamento_liberado_id HAVING COUNT(*) > 1
+  ) THEN
+    RAISE EXCEPTION 'Mais de uma oferta ativa por vaga; reconciliar antes de migrar.';
+  END IF;
+  IF EXISTS (
+    SELECT 1 FROM public.ofertas_da_fila o
+    LEFT JOIN public.fila_de_espera f
+      ON f.id = o.fila_id AND f.tenant_id = o.tenant_id
+    WHERE o.status = 'enviada' AND f.id IS NULL
+  ) THEN
+    RAISE EXCEPTION 'Oferta ativa sem entrada no mesmo tenant.';
+  END IF;
+  IF EXISTS (
     SELECT 1 FROM public.fila_de_espera f
     LEFT JOIN public.ofertas_da_fila o
       ON o.fila_id = f.id AND o.tenant_id = f.tenant_id AND o.status = 'enviada'
@@ -98,6 +113,8 @@ BEGIN
     RETURN jsonb_build_object('ok', false, 'motivo', 'parametros_invalidos');
   END IF;
 
+  -- Ordem de bloqueio: a entrada primeiro. A unicidade parcial fecha a
+  -- segunda corrida, inclusive quando dois workers oferecem a mesma vaga.
   SELECT * INTO v_f FROM public.fila_de_espera
     WHERE id = _fila_id AND tenant_id = _tenant_id FOR UPDATE;
   IF NOT FOUND OR v_f.status <> 'aguardando' OR v_f.oferta_atual_id IS NOT NULL THEN
@@ -111,6 +128,14 @@ BEGIN
     FOR SHARE;
   IF NOT FOUND THEN
     RETURN jsonb_build_object('ok', false, 'motivo', 'vaga_indisponivel');
+  END IF;
+
+  -- O cliente ainda pertence a este tenant. Não confiar apenas no ID da fila.
+  IF NOT EXISTS (
+    SELECT 1 FROM public.clientes
+    WHERE id = v_f.cliente_id AND tenant_id = _tenant_id
+  ) THEN
+    RETURN jsonb_build_object('ok', false, 'motivo', 'cliente_indisponivel');
   END IF;
 
   INSERT INTO public.ofertas_da_fila (
