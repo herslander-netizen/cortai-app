@@ -91,7 +91,7 @@ CREATE UNIQUE INDEX ofertas_da_fila_uma_ativa_por_vaga_test
 -- o claim; isso nunca deve ser feito em banco remoto.
 CREATE OR REPLACE FUNCTION public.chamada_do_servidor()
 RETURNS boolean LANGUAGE sql STABLE
-AS $auth$ SELECT current_setting('request.jwt.claim.role', true) = 'service_role' $auth$;
+AS $auth$ SELECT coalesce(current_setting('request.jwt.claim.role', true) = 'service_role', false) $auth$;
 
 -- Substituto explícito da RPC oficial criar_agendamento, PARA A BANCADA.
 -- Reproduz a trava por profissional, conflito e retorno; NÃO reproduz
