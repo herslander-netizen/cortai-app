@@ -38,6 +38,7 @@ export type PropsDaReserva = {
   servicos: Servico[];
   profissionais: Profissional[];
   horarios: Parameters<typeof horariosComProfissionais>[0]["horarios"];
+  intervalosPorData?: Parameters<typeof horariosComProfissionais>[0]["intervalosPorData"];
   ocupados: Parameters<typeof horariosComProfissionais>[0]["ocupados"];
   regras: { antecedenciaMin: number; intervaloEntreMin: number };
   passoMin: number;
@@ -86,13 +87,14 @@ export function ReservaFigaro(p: PropsDaReserva) {
             servico,
             profissionais: p.profissionais,
             horarios: p.horarios,
+            intervalosPorData: p.intervalosPorData,
             fuso: p.fuso,
             ocupados: p.ocupados,
             regras: p.regras,
             passoMin: p.passoMin,
           })
         : { fechado: false, horarios: [] },
-    [servico, dia, p.profissionais, p.horarios, p.fuso, p.ocupados, p.regras, p.passoMin],
+    [servico, dia, p.profissionais, p.horarios, p.intervalosPorData, p.fuso, p.ocupados, p.regras, p.passoMin],
   );
   const escolhido = lista.horarios.find((h) => h.iso === selecao.inicio) ?? null;
   const profEscolhido =
@@ -133,7 +135,10 @@ export function ReservaFigaro(p: PropsDaReserva) {
                 <button
                   type="button"
                   className="fr-agendar"
-                  onClick={() => selecao.setServicoId(s.id)}
+                  onClick={() => {
+                    p.setProfissionalId(null);
+                    selecao.setServicoId(s.id);
+                  }}
                 >
                   Agendar
                 </button>
@@ -154,7 +159,10 @@ export function ReservaFigaro(p: PropsDaReserva) {
             <ChevronLeft size={24} aria-hidden />
           </button>
           <h1>Seus Dados</h1>
-          <button type="button" aria-label="Fechar" onClick={() => selecao.setServicoId(null)}>
+          <button type="button" aria-label="Fechar" onClick={() => {
+            p.setProfissionalId(null);
+            selecao.setServicoId(null);
+          }}>
             <X size={24} aria-hidden />
           </button>
         </header>
@@ -232,7 +240,10 @@ export function ReservaFigaro(p: PropsDaReserva) {
         <button
           type="button"
           aria-label="Voltar aos serviços"
-          onClick={() => selecao.setServicoId(null)}
+          onClick={() => {
+            p.setProfissionalId(null);
+            selecao.setServicoId(null);
+          }}
         >
           <ChevronLeft size={24} aria-hidden />
         </button>

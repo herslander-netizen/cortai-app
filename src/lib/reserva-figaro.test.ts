@@ -57,4 +57,37 @@ describe("reserva no padrão do Figaro", () => {
     expect(r.horarios[0]!.profissionais.map((p) => p.nome)).toEqual(["Rafael Costa"]);
     expect(r.horarios[1]!.profissionais).toHaveLength(2);
   });
+
+  it("restringe horários ao expediente especial da data", () => {
+    const r = horariosComProfissionais({
+      dia: "2026-08-28",
+      servico: { id: "s", nome: "Atendimento", preco_centavos: 5000, duracao_min: 60 },
+      profissionais: [{ id: "a", nome: "Ana Lima" }],
+      horarios: semana,
+      intervalosPorData: { "2026-08-28": { abre: "10:00", fecha: "11:00" } },
+      fuso: "America/Sao_Paulo",
+      ocupados: [],
+      regras: { antecedenciaMin: 0, intervaloEntreMin: 0 },
+      agora: new Date("2026-08-27T12:00:00Z").getTime(),
+      passoMin: 60,
+    });
+    expect(r.horarios.map((h) => h.label)).toEqual(["10:00"]);
+  });
+
+  it("não oferece horários no intervalo excepcional da data", () => {
+    const r = horariosComProfissionais({
+      dia: "2026-08-28",
+      servico: { id: "s", nome: "Atendimento", preco_centavos: 5000, duracao_min: 60 },
+      profissionais: [{ id: "a", nome: "Ana Lima" }],
+      horarios: semana,
+      intervalosPorData: { "2026-08-28": { intervaloInicio: "10:00", intervaloFim: "11:00" } },
+      fuso: "America/Sao_Paulo",
+      ocupados: [],
+      regras: { antecedenciaMin: 0, intervaloEntreMin: 0 },
+      agora: new Date("2026-08-27T12:00:00Z").getTime(),
+      passoMin: 60,
+    });
+    expect(r.horarios.map((h) => h.label)).toEqual(["09:00", "11:00"]);
+  });
+
 });

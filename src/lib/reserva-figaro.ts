@@ -1,5 +1,5 @@
 import { horariosDisponiveis, profissionaisDoServico, type Ocupado } from "@/lib/disponibilidade";
-import type { HorarioDeFuncionamento } from "@/lib/horarios";
+import type { HorarioDeFuncionamento, IntervalosPorData } from "@/lib/horarios";
 
 /**
  * Lista de horários da reserva no padrão do Figaro (landing_peek_booking): cada horário aparece uma vez,
@@ -23,6 +23,7 @@ export function horariosComProfissionais(p: {
   };
   profissionais: { id: string; nome: string }[];
   horarios: HorarioDeFuncionamento[];
+  intervalosPorData?: IntervalosPorData;
   fuso: string;
   ocupados: Ocupado[];
   regras: { antecedenciaMin: number; intervaloEntreMin: number };
@@ -39,6 +40,7 @@ export function horariosComProfissionais(p: {
       profissionais: p.profissionais,
       escolhido: prof.id,
       horarios: p.horarios,
+      intervalosPorData: p.intervalosPorData,
       fuso: p.fuso,
       ocupados: p.ocupados,
       regras: p.regras,

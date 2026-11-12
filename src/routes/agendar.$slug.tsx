@@ -471,11 +471,14 @@ function AgendamentoPublico() {
   }
 
   const limiteAtingido = data.agendaOnline === "limite_atingido" && !confirmado;
+  // Mesmo com novas reservas fechadas, o cliente com reserva confirmada
+  // deve continuar vendo o comprovante e os controles de cancelamento.
   if (
-    limiteAtingido ||
-    !data.profissionais.length ||
-    !data.servicos.length ||
-    semNenhumDiaAberto(data.horarios)
+    !confirmado &&
+    (limiteAtingido ||
+      !data.profissionais.length ||
+      !data.servicos.length ||
+      semNenhumDiaAberto(data.horarios))
   ) {
     const zap = data.tenant.whatsapp?.replace(/\D/g, "") || null;
     return (
@@ -655,6 +658,7 @@ function AgendamentoPublico() {
           servicos={data.servicos}
           profissionais={data.profissionais}
           horarios={data.horarios}
+          intervalosPorData={data.intervalosPorData}
           ocupados={data.ocupados}
           regras={data.regras}
           passoMin={data.regras.passoMin ?? 30}
