@@ -23,6 +23,7 @@ type Estado = {
   ofertaPerdida: Record<string, unknown> | null;
   ofertaAoEnviar: Record<string, unknown> | null;
   filaUpdates: Record<string, unknown>[];
+  encerramentos: Record<string, unknown>[];
 };
 const AGORA = Date.UTC(2026, 9, 5, 12, 0);
 const INICIO = AGORA + 3 * 3600_000;
@@ -56,7 +57,7 @@ function builder(tabela: string) {
     if (tabela === "ofertas_da_fila" && ctx.op === "update")
       return { data: ctx.payload?.["status"] === "cancelada" ? { id: "of1" } : st.recusada };
     if (tabela === "ofertas_da_fila" && ctx.op === "select")
-      return { data: ctx.filtros["token"] ? st.ofertaPerdida : ctx.filtros["id"] ? st.ofertaAoEnviar : null };
+      return { data: ctx.filtros["token"] ? (st.recusada ?? st.ofertaPerdida) : ctx.filtros["id"] ? st.ofertaAoEnviar : null };
     if (tabela === "fila_de_espera" && ctx.op === "select") return { data: st.fila };
     return { data: null };
   };
@@ -114,6 +115,29 @@ const db = {
     nome === "aceitar_oferta_da_fila" ? { data: st.aceite, error: null } : { data: true },
 };
 
+// A implementação real da camada transacional é validada no teste do contrato.
+// Aqui simulamos as respostas SQL para verificar a orquestração sem tocar no banco.
+vi.mock("@/lib/fila-ofertas-transacional", () => ({
+  reservarOfertaTransacional: async (_rpc: unknown, p: {
+    tenantId: string; filaId: string; agendamentoLiberadoId: string;
+    profissionalId: string; servicoId: string; inicio: string; fim: string; expiraEm: string;
+  }) => {
+    if (!st.reservaFila) return { ok: false, motivo: "entrada_indisponivel" };
+    st.inserts.push({
+      tenant_id: p.tenantId, fila_id: p.filaId, agendamento_liberado_id: p.agendamentoLiberadoId,
+      profissional_id: p.profissionalId, servico_id: p.servicoId, inicio: p.inicio,
+      fim: p.fim, expira_em: p.expiraEm,
+    });
+    return { ok: true, ofertaId: "of1", token: "abc" };
+  },
+  encerrarOfertaTransacional: async (_rpc: unknown, p: {
+    tenantId: string; ofertaId: string; estado: string;
+  }) => {
+    st.encerramentos.push(p);
+    if (!st.liberacaoPermitida) return { ok: false, motivo: "oferta_inativa" };
+    return { ok: true, liberouFila: true, agendamentoLiberadoId: "ag1" };
+  },
+}));
 vi.mock("@/integrations/supabase/client.server", () => ({ supabaseAdmin: db }));
 vi.mock("@/lib/fuso.server", () => ({ fusoDoTenant: async () => "America/Sao_Paulo" }));
 vi.mock("@/lib/agenda-regras.server", () => ({
@@ -149,6 +173,7 @@ beforeEach(() => {
     ofertaPerdida: null,
     ofertaAoEnviar: null,
     filaUpdates: [],
+    encerramentos: [],
   };
   confirmacao.envios = 0;
   confirmacao.enviado = true;
@@ -190,10 +215,9 @@ describe("recuperação automática de vagas", () => {
     expect(r.ofertaId).toBeNull();
     // Primeiro e segundo sem telefone: ambos foram tentados uma vez.
     expect(st.inserts).toHaveLength(2);
-    expect(st.filaUpdates).toContainEqual({ status: "aguardando", avisado_em: null });
-    expect(st.filaFiltros).toContainEqual({
-      id: "primeiro", tenant_id: "t1", status: "avisado",
-      avisado_em: new Date(AGORA).toISOString(),
+    expect(st.encerramentos).toHaveLength(2);
+    expect(st.encerramentos[0]).toMatchObject({
+      tenantId: "t1", ofertaId: "of1", estado: "cancelada",
     });
   });
 
@@ -204,7 +228,7 @@ describe("recuperação automática de vagas", () => {
     const r = await ofertarVaga("ag1");
     expect(r).toEqual({ ofertaId: "of1", motivo: "entrega_indeterminada" });
     expect(st.inserts).toHaveLength(1);
-    expect(st.filaUpdates).not.toContainEqual({ status: "aguardando", avisado_em: null });
+    expect(st.encerramentos).toHaveLength(0);
   });
 
   it("perto do horário: prazo termina 10 min antes", async () => {
@@ -281,8 +305,8 @@ describe("aceite da oferta", () => {
     const { aceitarOferta } = await import("./fila-ofertas.server");
     const r = await aceitarOferta("abc");
     expect(r.ok).toBe(false);
-    expect(st.filaUpdates).toContainEqual({ status: "aguardando", avisado_em: null });
-    expect(st.filaFiltros).toContainEqual({ id: "primeiro", tenant_id: "t1", status: "avisado", "lte:avisado_em": new Date(AGORA).toISOString() });
+    // Apenas a RPC de aceite decide, dentro da transação, se deve liberar.
+    expect(st.encerramentos).toHaveLength(0);
     expect(st.inserts).toHaveLength(0);
   });
 
@@ -297,12 +321,8 @@ describe("aceite da oferta", () => {
     const { aceitarOferta } = await import("./fila-ofertas.server");
     const r = await aceitarOferta("abc");
     expect(r.ok).toBe(false);
-    expect(st.filaFiltros[0]).toMatchObject({
-      id: "primeiro",
-      tenant_id: "t1",
-      status: "avisado",
-      "lte:avisado_em": new Date(AGORA).toISOString(),
-    });
+    expect(st.encerramentos).toHaveLength(0);
+    expect(st.filaUpdates).toHaveLength(0);
   });
 
   it("oferta expirada reoferta a vaga", async () => {
