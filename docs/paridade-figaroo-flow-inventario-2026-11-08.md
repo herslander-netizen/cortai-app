@@ -232,6 +232,7 @@ com o APK, comparar no aparelho e no Flow real a 360/390px e 1280px.
 3. **Contrato preservado:** `profissional_ids=[]` significa *toda a equipe*, não *nenhum profissional*. Portanto o último selecionado não pode ser desmarcado silenciosamente e reativar todos. Para retirar o serviço, usar a desativação já existente.
 4. O servidor rejeita IDs de profissionais alheios ao tenant **antes** da primeira escrita; UUID válido não é prova de vínculo.
 5. Falha ao consultar equipe não bloqueia edição de nome, preço ou duração: a tela explica a indisponibilidade e permite tentar novamente, sem fingir que a equipe foi carregada.
+6. Falha ao carregar o catálogo de serviços, que antes podia virar array vazio pela API, agora sobe como erro recuperável na tela, com botão **Tentar novamente**. A lista antiga não substitui silenciosamente um catálogo não confirmado.
 
 **Regressões:** testes reais de interação React/jsdom na seleção, seleção de todos e proteção da última desmarcação; contrato de tenant e passagem das props; executados no CI geral (ver PR da entrega).
 
