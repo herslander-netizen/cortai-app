@@ -3,6 +3,20 @@
 -- aditiva revisada, verificação de RLS e aprovação explícita.
 -- Dependência: drizzle/migrations/0046_pacotes_e_combos.sql (tabelas e RLS).
 --
+-- Guarda de dependência: não instalar antes da migração 0046.
+DO $pacotes_preflight$
+BEGIN
+  IF pg_catalog.to_regclass('public.pacotes') IS NULL
+    OR pg_catalog.to_regclass('public.pacote_itens') IS NULL
+    OR pg_catalog.to_regclass('public.servicos') IS NULL
+    OR pg_catalog.to_regprocedure('public.tem_alguma_permissao(uuid,text[])') IS NULL
+  THEN
+    RAISE EXCEPTION 'pacotes: migração 0046 ou dependências obrigatórias ausentes'
+      USING ERRCODE = '42P01';
+  END IF;
+END;
+$pacotes_preflight$;
+
 -- Objetivo: substituir UPDATE -> DELETE -> INSERT feitos em três chamadas
 -- HTTP por UMA transação no Postgres. Se qualquer operação falhar, rollback
 -- integral. A chamada deve vir do cliente Supabase AUTENTICADO do servidor.
@@ -167,5 +181,6 @@ GRANT EXECUTE ON FUNCTION public.salvar_pacote_atomico(
   uuid, uuid, text, text, text, integer, integer, boolean, boolean, jsonb
 ) TO authenticated;
 
--- A migração revisada deverá disparar a atualização do cache PostgREST quando
--- for aprovada. A função NÃO é aplicada neste PR aos projetos existentes.
+-- PostgREST identifica o novo endpoint RPC após a migração autorizada.
+-- No banco descartável isso é um NOTIFY sem consumidor e não faz deploy.
+NOTIFY pgrst, 'reload schema';
