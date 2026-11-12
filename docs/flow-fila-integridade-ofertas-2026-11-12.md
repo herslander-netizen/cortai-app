@@ -105,7 +105,7 @@ não foi ensaiada com sessões PostgreSQL concorrentes.
 
 ### Compatibilidade com estados ocupados do PostgreSQL (12/11/2026)
 
-Verificação somente leitura no banco de prévia confirmou que `criar_agendamento` bloqueia sobreposições nos estados `agendado`, `pendente`, `confirmado`, `chegou` e `na_cadeira`. A proposta anterior de `reservar_oferta_da_fila` não consultava `pendente` e `confirmado`, podendo preparar uma oferta para uma vaga que a RPC de agendamento não consideraria disponível. A proposta passa a incluir esses estados na revalidação, preservando também `finalizado`, usado por `STATUS_QUE_OCUPAM` no motor de disponibilidade do Flow. O teste estrutural foi atualizado; **não equivale a ensaio real de concorrência**. Não foi alterado nenhum banco.
+Verificação somente leitura no banco de prévia confirmou que `criar_agendamento` bloqueia sobreposições nos estados `agendado`, `pendente`, `confirmado`, `chegou` e `na_cadeira`. A proposta anterior de `reservar_oferta_da_fila` não consultava `pendente` e `confirmado`. No banco de prévia atual, a constraint `agendamentos_status_check` **não permite** gravar esses dois estados; portanto, não foi reproduzido conflito real com eles. Incluí-los é uma defesa preventiva de compatibilidade caso essa restrição mude futuramente, e alinha a verificação ao conjunto consultado pela RPC existente. A proposta passa a incluir esses estados na revalidação, preservando também `finalizado`, usado por `STATUS_QUE_OCUPAM` no motor de disponibilidade do Flow. O teste estrutural foi atualizado; **não equivale a ensaio real de concorrência**. Não foi alterado nenhum banco.
 
 ### Proteção de prioridade em falhas transitórias
 
