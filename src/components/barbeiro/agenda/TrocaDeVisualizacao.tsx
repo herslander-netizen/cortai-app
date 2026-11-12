@@ -34,7 +34,7 @@ const PainelDaTroca = forwardRef<HTMLDivElement, PainelProps>(function PainelDaT
     ? "repouso"
     : !presente
       ? "saida"
-      : !animarEntrada
+      : animarEntrada
         ? "entrada"
         : "repouso";
 
