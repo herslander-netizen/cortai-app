@@ -151,6 +151,9 @@ describe("proposta SQL — verificações estruturais antes de uma migração", 
     expect(sql).toContain("FOR UPDATE");
     expect(sql).toContain("v_f.oferta_atual_id IS DISTINCT FROM v_o.id");
     expect(sql).toContain("AND oferta_atual_id = v_o.id");
+    expect(sql).toContain("pg_advisory_xact_lock(hashtextextended('agenda:'");
+    expect(sql).toContain("a.status IN ('agendado', 'chegou', 'na_cadeira', 'finalizado')");
+    expect(sql).toContain("RETURN jsonb_build_object('ok', false, 'motivo', 'ocupada')");
   });
 
   it("fecha RPCs privilegiadas para anon e authenticated", () => {
