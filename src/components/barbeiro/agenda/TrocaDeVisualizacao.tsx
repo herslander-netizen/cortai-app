@@ -41,7 +41,9 @@ const PainelDaTroca = forwardRef<HTMLDivElement, PainelProps>(function PainelDaT
   function aoConcluirAnimacao(evento: AnimationEvent<HTMLDivElement>) {
     // Animações de cartões internos não encerram a transição do painel.
     if (evento.target !== evento.currentTarget) return;
-    if (!presente) remover?.();
+    // Apenas o fim da saída libera o painel; um toque rápido pode cancelar
+    // a entrada enquanto a saída começa, e não deve cortá-la prematuramente.
+    if (!presente && evento.animationName === "agenda-visao-sair") remover?.();
   }
 
   return (
@@ -52,7 +54,6 @@ const PainelDaTroca = forwardRef<HTMLDivElement, PainelProps>(function PainelDaT
       aria-hidden={!presente}
       inert={!presente}
       onAnimationEnd={aoConcluirAnimacao}
-      onAnimationCancel={aoConcluirAnimacao}
     >
       {children}
     </div>
