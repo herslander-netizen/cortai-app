@@ -279,16 +279,45 @@ export async function ofertarVaga(
             .eq("avisado_em", avisadoEm);
           return { ofertaId: null, motivo: "concorrente" };
         }
-        await enviarOferta(oferta.id).catch(() => undefined);
-        return { ofertaId: oferta.id };
+        // Falha comprovada antes do envio não pode deixar a vaga "enviada".
+        // Se o provedor pode ter recebido a chamada, preservar a oferta até
+        // esclarecimento/expiração para não prometer a mesma vaga a duas pessoas.
+        const entrega = await enviarOferta(oferta.id).catch(() => "incerta" as const);
+        if (entrega === "sem_canal") {
+          const { data: cancelada, error: erroCancelamento } = await db
+            .from("ofertas_da_fila")
+            .update({ status: "cancelada", respondida_em: new Date().toISOString() })
+            .eq("id", oferta.id)
+            .eq("status", "enviada")
+            .select("id")
+            .maybeSingle();
+          if (erroCancelamento || !cancelada)
+            return { ofertaId: oferta.id, motivo: "cancelamento_pendente" };
+          // CAS por esta reserva: uma execução posterior nunca é desfeita.
+          await db
+            .from("fila_de_espera")
+            .update({ status: "aguardando", avisado_em: null })
+            .eq("id", c.id)
+            .eq("tenant_id", ag.tenant_id)
+            .eq("status", "avisado")
+            .eq("avisado_em", avisadoEm);
+          continue;
+        }
+        return {
+          ofertaId: oferta.id,
+          ...(entrega === "incerta" ? { motivo: "entrega_indeterminada" } : {}),
+        };
       }
       if (!lote || lote.length < LOTE_DA_FILA) break;
     }
   return { ofertaId: null, motivo: "sem_compativel" };
 }
 
+/** Ausência comprovada de canal ≠ falha incerta após uma tentativa ao provedor. */
+type EntregaDaOferta = "enviada" | "sem_canal" | "incerta";
+
 /** Aviso interno + WhatsApp oficial (quando conectado). Falha nunca quebra o fluxo. */
-async function enviarOferta(ofertaId: string) {
+async function enviarOferta(ofertaId: string): Promise<EntregaDaOferta> {
   const db = await admin();
   const { data: o } = await db
     .from("ofertas_da_fila")
@@ -297,7 +326,7 @@ async function enviarOferta(ofertaId: string) {
     )
     .eq("id", ofertaId)
     .maybeSingle();
-  if (!o) return;
+  if (!o) return "incerta";
   const fuso = await fusoDoTenant(o.tenant_id);
   const p = partes(o.inicio, fuso);
   const cli = (
@@ -308,24 +337,24 @@ async function enviarOferta(ofertaId: string) {
   await db.rpc("criar_notificacao", {
     _tenant: o.tenant_id,
     _tipo: "fila",
-    _titulo: "Vaga oferecida à lista de espera",
-    _corpo: `${cli?.nome ?? "Cliente"} recebeu a vaga de ${p.dia} às ${p.hora} (${servico}). Responde até ${partes(o.expira_em, fuso).hora}.`,
+    _titulo: "Vaga em preparação para a lista de espera",
+    _corpo: `Foi preparada uma oferta para ${cli?.nome ?? "Cliente"}: ${p.dia} às ${p.hora} (${servico}). Verifique se o envio foi confirmado.`,
     _link: LINKS_DE_TELA.espera,
   });
 
   const telefone = String(cli?.telefone ?? "").replace(/\D/g, "");
-  if (telefone.length < 10) return;
+  if (telefone.length < 10) return "sem_canal";
   const clienteId = (o.fila_de_espera as { cliente_id?: string | null } | null)?.cliente_id ?? null;
   // Porteiro do telefone + autorização específica para receber ofertas da lista.
   const { decisaoDeEnvio } = await import("./porteiro.server");
-  if (!(await decisaoDeEnvio(clienteId)).pode) return;
+  if (!(await decisaoDeEnvio(clienteId)).pode) return "sem_canal";
   const { verificarConsentimentoWhatsapp } = await import("./consentimento.server");
   const autorizacaoInicial = await verificarConsentimentoWhatsapp({
     tenantId: o.tenant_id,
     telefone,
     finalidade: "lista_espera",
   });
-  if (!autorizacaoInicial.pode) return;
+  if (!autorizacaoInicial.pode) return "sem_canal";
 
   // Toda oferta vira um envio: entra nas entregas, falhas e métricas.
   const { data: envio, error: erroEnvio } = await db
@@ -341,7 +370,7 @@ async function enviarOferta(ofertaId: string) {
     } as never)
     .select("id")
     .single();
-  if (erroEnvio || !envio) return;
+  if (erroEnvio || !envio) return "incerta";
   const envioId = (envio as { id: string }).id;
   const { aplicarFalhaDeEnvio } = await import("./falhas-envio.server");
 
@@ -377,7 +406,7 @@ async function enviarOferta(ofertaId: string) {
   if (!conexao) {
     await db.from("envios_de_whatsapp").update({ conteudo: texto }).eq("id", envioId);
     await aplicarFalhaDeEnvio({ envioId, codigo: null, motivo: SEM_WHATSAPP_DISPONIVEL });
-    return;
+    return "sem_canal";
   }
 
   const { botoesInterativos, parametrosNaOrdem, payloadDoBotao } = await import("./modelos");
@@ -432,7 +461,7 @@ async function enviarOferta(ofertaId: string) {
         proxima_tentativa_em: null,
       })
       .eq("id", envioId);
-    return;
+    return "sem_canal";
   }
 
   try {
@@ -462,6 +491,7 @@ async function enviarOferta(ofertaId: string) {
       } as never)
       .eq("id", envioId);
     await db.from("ofertas_da_fila").update({ enviada_whatsapp: true }).eq("id", o.id);
+    return "enviada";
   } catch (e) {
     const motivo = e instanceof Error ? e.message : "Falha ao enviar pelo WhatsApp.";
     await db.from("envios_de_whatsapp").update({ conteudo: texto }).eq("id", envioId);
@@ -473,6 +503,9 @@ async function enviarOferta(ofertaId: string) {
       httpStatus: lido.httpStatus,
       motivo,
     });
+    // Transportes podem aceitar o envio e falhar ao responder. Não gerar
+    // oferta concorrente automaticamente sem confirmação negativa do canal.
+    return "incerta";
   }
 }
 
