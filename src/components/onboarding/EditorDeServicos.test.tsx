@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { act } from "react";
+import { act, useState } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
@@ -66,6 +66,45 @@ function montar(onChange = vi.fn(), semIA = true, segmento?: Segmento) {
   return onChange;
 }
 
+function montarEquipe(onChange = vi.fn()) {
+  host = document.createElement("div");
+  document.body.appendChild(host);
+  root = createRoot(host);
+  const profissionais = [
+    { id: "profissional-1", nome: "Ana" },
+    { id: "profissional-2", nome: "Bia" },
+    { id: "profissional-3", nome: "Caio" },
+  ];
+  function ComEstado() {
+    const [servicos, setServicos] = useState<ServicoEditavel[]>([
+      { id: "servico-1", nome: "Corte", categoria: "Cabelo", duracaoMin: 30,
+        precoCentavos: 3000, profissionalIds: [] },
+    ]);
+    return (
+      <EditorDeServicos
+        servicos={servicos}
+        onChange={(proximos) => {
+          setServicos(proximos);
+          onChange(proximos);
+        }}
+        profissionais={profissionais}
+        semIA
+        semSugestoes
+        apenasUm
+      />
+    );
+  }
+  act(() => root!.render(<ComEstado />));
+  const botao = (nome: string) => {
+    const alvo = Array.from(host!.querySelectorAll<HTMLButtonElement>("button")).find(
+      (b) => b.textContent?.trim() === nome,
+    );
+    expect(alvo, `Deveria existir botão ${nome}`).toBeTruthy();
+    return alvo!;
+  };
+  return { botao, onChange };
+}
+
 describe("EditorDeServicos", () => {
   it("mantém campos nomeados e alvos de toque de 48 px", () => {
     montar();
@@ -121,4 +160,55 @@ describe("EditorDeServicos", () => {
     expect(sugestoes.className).toContain("overflow-x-auto");
     expect(sugestoes.querySelector("button")?.className).toContain("min-h-12");
   });
+  it("Figaroo: escolher profissionais no serviço sem modificar os outros campos", () => {
+    const { botao, onChange } = montarEquipe();
+    expect(botao("Ana").getAttribute("aria-pressed")).toBe("true");
+    expect(botao("Bia").getAttribute("aria-pressed")).toBe("true");
+    expect(botao("Caio").getAttribute("aria-pressed")).toBe("true");
+
+    act(() => botao("Ana").click());
+    expect(onChange).toHaveBeenLastCalledWith([
+      expect.objectContaining({
+        id: "servico-1",
+        nome: "Corte",
+        duracaoMin: 30,
+        precoCentavos: 3000,
+        profissionalIds: ["profissional-2", "profissional-3"],
+      }),
+    ]);
+    expect(botao("Ana").getAttribute("aria-pressed")).toBe("false");
+    expect(botao("Bia").getAttribute("aria-pressed")).toBe("true");
+  });
+
+  it("Figaroo: selecionar todos retorna ao contrato [] = toda a equipe", () => {
+    const { botao, onChange } = montarEquipe();
+    act(() => botao("Ana").click());
+    expect(botao("Selecionar todos")).toBeTruthy();
+    act(() => botao("Selecionar todos").click());
+    expect(onChange).toHaveBeenLastCalledWith([
+      expect.objectContaining({ profissionalIds: [] }),
+    ]);
+    expect(botao("Ana").getAttribute("aria-pressed")).toBe("true");
+    expect(host?.textContent).not.toContain("Mantenha pelo menos um profissional.");
+  });
+
+  it("não transforma última desmarcação em seleção involuntária de todos", () => {
+    const { botao, onChange } = montarEquipe();
+    act(() => botao("Ana").click());
+    act(() => botao("Bia").click());
+    expect(onChange).toHaveBeenLastCalledWith([
+      expect.objectContaining({ profissionalIds: ["profissional-3"] }),
+    ]);
+    const chamadas = onChange.mock.calls.length;
+    expect(botao("Caio").disabled).toBe(true);
+    expect(host?.textContent).toContain("Mantenha pelo menos um profissional.");
+    act(() => botao("Caio").click());
+    expect(onChange).toHaveBeenCalledTimes(chamadas);
+    act(() => botao("Selecionar todos").click());
+    expect(onChange).toHaveBeenLastCalledWith([
+      expect.objectContaining({ profissionalIds: [] }),
+    ]);
+  });
+
+
 });
