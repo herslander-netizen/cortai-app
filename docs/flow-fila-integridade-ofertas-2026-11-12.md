@@ -103,6 +103,15 @@ retorna `ocupada`, sem cadastrar a oferta nem marcar a pessoa como
 avisada. Essa verificação é apenas uma proteção de código planejada;
 não foi ensaiada com sessões PostgreSQL concorrentes.
 
+### Falha fechada na confirmação de ofertas (12/11/2026)
+
+Revisão do SQL proposto mostrou duas condições ainda sem guarda na `aceitar_oferta_da_fila`:
+
+- A cláusula `EXCEPTION WHEN OTHERS` tratava **qualquer erro** da RPC oficial `criar_agendamento` como colisão de horário. Agora somente a exceção textual `horario ja ocupado`, conferida por leitura da definição da função na prévia, libera a reserva como `ocupado`. Erros inesperados são relançados para desfazer a transação, sem reoferta prematura.
+- O aceite aceitava um retorno sem `agendamento_id` e não comprovava que `UPDATE agendamentos SET origem_fila_id` alterou a linha certa. A proposta agora exige ID e valida tenant, cliente, serviço, profissional, início e status do agendamento; se não houver vínculo exato, aborta tudo. Isso evita oferta marcada como aceita sem agendamento correlacionado.
+
+Foram adicionados testes **estruturais** dessas barreiras, executados no CI. O comportamento real de `EXCEPTION`, travas, gatilhos e duas conexões continua **pendente em PostgreSQL descartável**. Nenhum SQL foi executado em prévia ou produção.
+
 ### Compatibilidade com estados ocupados do PostgreSQL (12/11/2026)
 
 Verificação somente leitura no banco de prévia confirmou que `criar_agendamento` bloqueia sobreposições nos estados `agendado`, `pendente`, `confirmado`, `chegou` e `na_cadeira`. A proposta anterior de `reservar_oferta_da_fila` não consultava `pendente` e `confirmado`. No banco de prévia atual, a constraint `agendamentos_status_check` **não permite** gravar esses dois estados; portanto, não foi reproduzido conflito real com eles. Incluí-los é uma defesa preventiva de compatibilidade caso essa restrição mude futuramente, e alinha a verificação ao conjunto consultado pela RPC existente. A proposta passa a incluir esses estados na revalidação, preservando também `finalizado`, usado por `STATUS_QUE_OCUPAM` no motor de disponibilidade do Flow. O teste estrutural foi atualizado; **não equivale a ensaio real de concorrência**. Não foi alterado nenhum banco.
