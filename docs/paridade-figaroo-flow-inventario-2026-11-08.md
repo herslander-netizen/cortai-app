@@ -219,3 +219,20 @@ Ter rota ou protótipo não é equivalência funcional.
 **Limite de verificação:** auditoria estática do código e docs, não
 captura de telas ou homologação autenticada. Antes de declarar paridade visual
 com o APK, comparar no aparelho e no Flow real a 360/390px e 1280px.
+
+
+### Implementação do editor de serviços e equipe (12/11/2026)
+
+**Lacuna comprovada na branch oficial antes deste lote:** `/barbeiro/servicos` não fornecia `profissionais` ao `EditorDeServicos`, embora o componente já possuísse o seletor e a base salvasse `profissional_ids`. Resultado: não era possível configurar pelo editor quais profissionais executavam cada serviço, apesar da função estar parcialmente construída.
+
+**Adaptação funcional proposta neste PR:**
+
+1. A tela agora carrega só os profissionais ativos do próprio tenant com autenticação e a permissão já exigida na edição de serviços; não depende de IA, WhatsApp, fila nem plano extra.
+2. O seletor existente passa a listar a equipe e a gravar a seleção usando o mesmo `salvarServicos`. Há `Selecionar todos` como no fluxo Figaroo (spec `7-modulos.md` §4–5).
+3. **Contrato preservado:** `profissional_ids=[]` significa *toda a equipe*, não *nenhum profissional*. Portanto o último selecionado não pode ser desmarcado silenciosamente e reativar todos. Para retirar o serviço, usar a desativação já existente.
+4. O servidor rejeita IDs de profissionais alheios ao tenant **antes** da primeira escrita; UUID válido não é prova de vínculo.
+5. Falha ao consultar equipe não bloqueia edição de nome, preço ou duração: a tela explica a indisponibilidade e permite tentar novamente, sem fingir que a equipe foi carregada.
+
+**Regressões:** testes reais de interação React/jsdom na seleção, seleção de todos e proteção da última desmarcação; contrato de tenant e passagem das props; executados no CI geral (ver PR da entrega).
+
+**Não é paridade integral dos módulos de Serviços e Equipe:** ainda faltam painel individual de serviço, variações/tabelas de preços, editor de serviços pela ficha do profissional, combos, regra de desativação quando há dependências e testes autenticados de persistência. Não implantar a branch em produção nem afirmar cobertura total.
