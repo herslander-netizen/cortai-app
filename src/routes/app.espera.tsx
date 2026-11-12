@@ -29,10 +29,10 @@ export const Route = createFileRoute("/app/espera")({
       { title: "Lista de espera — Flow" },
       {
         name: "description",
-        content: "Entre na lista de espera e seja avisado quando abrir um horário.",
+        content: "Entre na lista de espera para receber oportunidades de horários disponíveis.",
       },
       { property: "og:title", content: "Lista de espera — Flow" },
-      { property: "og:description", content: "Horário cheio? Avisamos assim que vagar." },
+      { property: "og:description", content: "Horário cheio? Entre na lista de espera." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex, nofollow" },
@@ -68,8 +68,8 @@ function EsperaPage() {
       title="Lista de espera"
       subtitle={
         dia
-          ? `Para ${dia.split("-").reverse().slice(0, 2).join("/")}${horario ? ` às ${horario}` : ""} — avisamos assim que vagar.`
-          : "Avisamos assim que um horário vagar."
+          ? `Para ${dia.split("-").reverse().slice(0, 2).join("/")}${horario ? ` às ${horario}` : ""} — entre na lista para uma vaga compatível.`
+          : "Peça para participar quando uma vaga ficar disponível."
       }
     >
       {pronto ? (
@@ -82,11 +82,11 @@ function EsperaPage() {
             <b className="text-lg text-paper">{posicao}º</b>
           </div>
           <p className="mt-3 text-sm leading-relaxed text-mute">
-            Se vagar um horário que combina, avisamos no seu WhatsApp. Você terá{" "}
+            Se surgir uma vaga compatível, a oferta poderá chegar pelo WhatsApp se o número estiver confirmado, as mensagens autorizadas e a conexão disponível. Você terá{" "}
             <b className="text-paper">
               {prazoMin >= 60 ? `${prazoMin / 60} hora` : `${prazoMin} minutos`}
             </b>{" "}
-            para confirmar; depois a vaga vai para a próxima pessoa. Nada fica reservado antes.
+            para confirmar uma oferta recebida; depois a vaga segue na lista. Nada fica reservado antes. Se não confirmou seu número, procure o estabelecimento para habilitar os avisos.
           </p>
         </section>
       ) : (
@@ -113,6 +113,11 @@ function EsperaPage() {
               placeholder="(00) 00000-0000"
             />
           </label>
+
+          <p className="mt-2 text-xs leading-5 text-mute">
+            Avisos pelo WhatsApp exigem número confirmado e autorização de mensagens. Você pode
+            entrar na lista antes dessa confirmação; fale com o estabelecimento para habilitar os avisos.
+          </p>
 
           {horario ? null : (
             <fieldset className="mt-6">
