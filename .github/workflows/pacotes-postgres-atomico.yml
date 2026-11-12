@@ -1,0 +1,115 @@
+name: Pacotes - Postgres atomico e regressao geral
+
+# PR empilhado sobre #58, sem deploy e SEM conexao ao Supabase real.
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+    branches: [main, "cloudflare-workers-migration-2026-10-13", "fix/figaroo-pacotes-preco-integridade-20261112"]
+    paths:
+      - ".github/workflows/pacotes-postgres-atomico.yml"
+      - "docs/sql/pacotes-salvar-atomico-proposta-2026-11-12.sql"
+      - "tests/sql/pacotes-atomico-fixture.sql"
+      - "tests/sql/test_pacotes_atomico_postgres.py"
+      - "src/lib/pacotes.functions.ts"
+      - "src/lib/pacotes*.test.ts"
+      - "drizzle/migrations/0046_pacotes_e_combos.sql"
+      - "drizzle/migrations/0062_pacotes_salvar_atomico.sql"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: figaroo-pacotes-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  postgres-atomico:
+    name: PostgreSQL ${{ matrix.postgres }} / RLS / rollback / concorrência
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        postgres: ["16", "17"]
+    timeout-minutes: 12
+    services:
+      postgres:
+        image: postgres:${{ matrix.postgres }}-alpine
+        env:
+          POSTGRES_PASSWORD: pacote_fixture_only
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      PGHOST: 127.0.0.1
+      PGPORT: "5432"
+      PGUSER: postgres
+      PGPASSWORD: pacote_fixture_only
+      PGDATABASE: postgres
+      TEST_DATABASE_URL: postgresql://postgres:pacote_fixture_only@127.0.0.1:5432/postgres
+    steps:
+      - name: Checkout do PR
+        uses: actions/checkout@v4
+      - name: Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Cliente PostgreSQL
+        run: |
+          if ! command -v psql >/dev/null; then
+            sudo apt-get update -qq
+            sudo apt-get install -y -qq postgresql-client
+          fi
+          psql -v ON_ERROR_STOP=1 -c 'SELECT version()'
+      - name: Fixture Auth e entidades externas
+        run: psql -v ON_ERROR_STOP=1 -f tests/sql/pacotes-atomico-fixture.sql
+      - name: Garantir que 0062 reflete a proposta revisada
+        run: cmp -s drizzle/migrations/0062_pacotes_salvar_atomico.sql docs/sql/pacotes-salvar-atomico-proposta-2026-11-12.sql
+      - name: Recusar instalacao de 0062 sem a migracao 0046
+        run: |
+          if psql -v ON_ERROR_STOP=1 -f drizzle/migrations/0062_pacotes_salvar_atomico.sql >/tmp/pacotes-preflight.log 2>&1; then
+            echo "::error::Migracao 0062 aceita sem as tabelas 0046"
+            exit 1
+          fi
+          if psql -tAc "SELECT to_regprocedure('public.salvar_pacote_atomico(uuid,uuid,text,text,text,integer,integer,boolean,boolean,jsonb)') IS NOT NULL" | grep -q t; then
+            echo "::error::A RPC foi criada apesar do preflight reprovado"
+            exit 1
+          fi
+          echo "PASS: dependencias obrigatorias verificadas"
+      - name: Migração REAL 0046 de pacotes com politicas RLS
+        run: psql -v ON_ERROR_STOP=1 -f drizzle/migrations/0046_pacotes_e_combos.sql
+      - name: Aplicar e reaplicar 0062 apenas no Postgres descartavel
+        run: |
+          psql -v ON_ERROR_STOP=1 -f drizzle/migrations/0062_pacotes_salvar_atomico.sql
+          psql -v ON_ERROR_STOP=1 -f drizzle/migrations/0062_pacotes_salvar_atomico.sql
+          psql -v ON_ERROR_STOP=1 -c "CREATE TRIGGER falhar_item_teste BEFORE INSERT ON public.pacote_itens FOR EACH ROW EXECUTE FUNCTION public.falhar_insercao_de_item_teste()"
+      - name: Instalar driver isolado
+        run: python -m pip install "psycopg[binary]==3.2.10"
+      - name: Testar 12 fluxos transacionais em conexoes independentes
+        run: python -u tests/sql/test_pacotes_atomico_postgres.py
+
+  validacao-codigo:
+    name: Build / TS / Vitest integrado
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Preparar Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - name: Dependencias congeladas
+        run: bun install --frozen-lockfile
+      - name: Production build
+        run: bunx vite build --outDir /tmp/cortai-build
+      - name: TypeScript
+        env:
+          NODE_OPTIONS: --max-old-space-size=4096
+        run: bunx tsc --noEmit -p .
+      - name: Testes completos
+        run: bunx vitest run
