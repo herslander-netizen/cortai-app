@@ -291,13 +291,19 @@ async function enviarOferta(ofertaId: string): Promise<EntregaDaOferta> {
   )?.clientes;
   const servico = (o.servicos as { nome?: string } | null)?.nome ?? "atendimento";
   const profissional = (o.profissionais as { nome?: string } | null)?.nome;
-  await db.rpc("criar_notificacao", {
-    _tenant: o.tenant_id,
-    _tipo: "fila",
-    _titulo: "Vaga em preparação para a lista de espera",
-    _corpo: `Foi preparada uma oferta para ${cli?.nome ?? "Cliente"}: ${p.dia} às ${p.hora} (${servico}). Verifique se o envio foi confirmado.`,
-    _link: LINKS_DE_TELA.espera,
-  });
+  // O sininho da equipe é acessório: uma falha nele não pode segurar uma
+  // reserva nem impedir a decisão de envio da fila.
+  try {
+    await db.rpc("criar_notificacao", {
+      _tenant: o.tenant_id,
+      _tipo: "fila",
+      _titulo: "Vaga em preparação para a lista de espera",
+      _corpo: `Foi preparada uma oferta para ${cli?.nome ?? "Cliente"}: ${p.dia} às ${p.hora} (${servico}). Verifique se o envio foi confirmado.`,
+      _link: LINKS_DE_TELA.espera,
+    });
+  } catch {
+    // Falha no aviso interno fica independente do canal de cliente.
+  }
 
   const telefone = String(cli?.telefone ?? "").replace(/\D/g, "");
   if (telefone.length < 10) return "sem_canal";
