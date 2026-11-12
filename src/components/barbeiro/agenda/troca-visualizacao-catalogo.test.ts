@@ -2,14 +2,18 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
 const transicao = readFileSync("src/components/barbeiro/agenda/TrocaDeVisualizacao.tsx", "utf8");
+const movimento = readFileSync("src/components/barbeiro/agenda/TrocaDeVisualizacao.css", "utf8");
 const operacional = readFileSync("src/components/barbeiro/AgendaOperacional.tsx", "utf8");
 const botao = readFileSync("src/components/barbeiro/agenda/BotaoAgoraPrincipal.tsx", "utf8");
 const estilos = readFileSync("src/styles.css", "utf8");
 
 describe("Catálogo: microanimação SOMENTE no ícone do botão Cards", () => {
-  it("restaura exatamente a animação dos painéis anterior à alteração lateral", () => {
-    expect(transicao).toContain('initial={reduzirMovimento ? false : { opacity: 0, y: 28 }}');
-    expect(transicao).toContain("animate={{ opacity: 1, y: 0 }}");
+  it("preserva o movimento dos painéis sem a animação lateral indesejada", () => {
+    expect(transicao).toContain('mode="popLayout"');
+    expect(transicao).toContain('usePresence()');
+    expect(movimento).toContain("translate3d(0, 28px, 0)");
+    expect(movimento).toContain("translate3d(0, -20px, 0)");
+    expect(movimento).toContain("280ms cubic-bezier(0.22, 1, 0.36, 1)");
     expect(transicao).not.toContain('chave === "lista" ? "100%" : "-100%"');
     expect(operacional).toContain('<TrocaDeVisualizacao chave={celular && visualizacao === "lista" ? "lista" : "grade"}>');
     expect(estilos).not.toContain("#agenda-painel-visualizacao {\n    overflow-x: clip;");
