@@ -53,7 +53,7 @@ export function LinhaDeFuncionalidade({
             <span className={`rounded-full px-2 py-0.5 text-[12px] font-medium ${selo.classe}`}>
               {selo.texto}
             </span>
-          )
+          )}
         </div>
         <p className="mt-0.5 text-[13px] leading-snug text-mute">
           {estado === "fora_do_plano"
