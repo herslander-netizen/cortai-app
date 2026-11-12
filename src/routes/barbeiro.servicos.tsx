@@ -86,7 +86,7 @@ function gruposDeServicos(
 function ServicosPage() {
   const salvar = useServerFn(salvarServicos);
   const remover = useServerFn(removerServico);
-  const { data, isLoading, refetch } = useQuery({
+  const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["configuracao-inicial"],
     queryFn: () => getConfiguracaoInicial(),
   });
@@ -283,7 +283,18 @@ function ServicosPage() {
           <EsqueletoFormulario campos={4} onTentarDeNovo={() => void refetch()} />
         ) : null}
 
-        {!modoEditor && !isLoading && iniciado ? (
+        {isError ? (
+          <Card density="default" className="space-y-3">
+            <p className="text-sm text-brick" role="alert">
+              Não foi possível carregar os serviços do negócio.
+            </p>
+            <Button type="button" variant="outline" onClick={() => void refetch()}>
+              Tentar novamente
+            </Button>
+          </Card>
+        ) : null}
+
+        {!modoEditor && !isLoading && !isError && iniciado ? (
           <>
             {servicos.length ? (
               // Como no Figaro (spec 7 §5): lista agrupada por categoria, cada grupo recolhível, "Sem categoria"
