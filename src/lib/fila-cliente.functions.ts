@@ -3,6 +3,7 @@ import { regrasDaEsperaDoTenant } from "@/lib/fila-compatibilidade";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { clienteDoUsuario } from "@/lib/cliente";
+import { alteracoesContatoDaFila } from "@/lib/fila-contato";
 
 export const entrarNaFila = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -27,11 +28,30 @@ export const entrarNaFila = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { db, tenant, cliente } = await clienteDoUsuario(context, { slug: data.slug ?? null });
 
-    if (data.nome.trim() !== cliente.nome || data.telefone.trim()) {
-      await db
+    // Confira o contato real antes de atualizá-lo. Um telefone novo nunca
+    // pode reutilizar a confirmação/opt-in do número anterior.
+    const { data: contatoAtual, error: erroContato } = await db
+      .from("clientes")
+      .select("nome, telefone")
+      .eq("id", cliente.id)
+      .eq("tenant_id", tenant.id)
+      .eq("user_id", context.userId)
+      .maybeSingle();
+    if (erroContato || !contatoAtual)
+      throw new Error("Não foi possível conferir seus dados. Tente novamente.");
+
+    const { alteracoes } = alteracoesContatoDaFila(contatoAtual, {
+      nome: data.nome,
+      telefone: data.telefone,
+    });
+    if (Object.keys(alteracoes).length) {
+      const { error: erroAtualizacao } = await db
         .from("clientes")
-        .update({ nome: data.nome.trim(), telefone: data.telefone.trim() })
-        .eq("id", cliente.id);
+        .update(alteracoes)
+        .eq("id", cliente.id)
+        .eq("tenant_id", tenant.id)
+        .eq("user_id", context.userId);
+      if (erroAtualizacao) throw new Error("Não foi possível atualizar seu contato.");
     }
 
     const { data: ultimo } = await db
