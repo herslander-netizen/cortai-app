@@ -35,7 +35,11 @@ Arquivos: `src/lib/campanhas-regras.ts`, `src/lib/campanhas-regras.test.ts`.
 7. Testes SQL e de integração: dois tenants; mesmo código em tenants diferentes; limite sob concorrência; dois toques na confirmação; reenvio idempotente; cliente sem cadastro; campanha pausada no instante final; desconto maior que subtotal; reembolso; comanda não paga; alteração da campanha após uma compra.
 8. Somente após testes locais isolados, autorização específica para banco de prévia, teste autenticado em 390/360 px e conferência dos valores do caixa, liberar ativação. Produção e cobranças continuam intocadas.
 
-## Fase C — experiência visual e comunicação (não incluída)
+## Fase C — experiência visual e comunicação (parcial: simulador pronto)
+
+**Implementado e isolado no código:** a rota interna `/barbeiro/campanhas` abre o editor em quatro etapas usando `TelaDeFormulario` e os primitivos do Flow. A consulta `getContextoDeCampanhas` exige autenticação, vínculo do negócio e permissão de edição; os serviços são filtrados por tenant. Rascunhos usam moeda BRL estrita e datas convertidas no fuso do estabelecimento; a revisão informa que não há publicação. Ao concluir, o usuário pode copiar somente um resumo textual. Não existe campanha salva, indicação no menu, venda ou resgate: não confundir simulação com funcionalidade ativa.
+
+**Ainda faltam:**
 
 - Lista de campanhas em cartões no padrão Figaroo/Flow, com estados **Programada, Ativa, Pausada, Encerrada, Arquivada**.
 - Criar em etapas: **Detalhes → Benefício/regras → Duração → Revisar**, com uma ação principal, validação na etapa e confirmação antes de publicar.
@@ -46,7 +50,7 @@ Arquivos: `src/lib/campanhas-regras.ts`, `src/lib/campanhas-regras.test.ts`.
 
 ## Limites desta entrega
 
-A Fase A é a **base testável de regras**, não um sistema de campanhas já utilizável.
+A Fase A e o editor de prévia são **base testável de regras e UX**, não um sistema de campanhas já utilizável.
 Não foi alterada nenhuma tela, regra da Agenda, fluxo de comanda, perfil do cliente,
 integração de WhatsApp, migração, banco real ou publicação principal.
 As decisões finais de combinação com descontos já existentes, elegibilidade de pacotes e
