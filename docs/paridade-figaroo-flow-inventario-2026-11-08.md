@@ -235,3 +235,17 @@ com o APK, comparar no aparelho e no Flow real a 360/390px e 1280px.
 **Testes:** casos puros de troca pacote → combo, desconto/valor igual/valor acima, zero e entradas inválidas; regressões estruturais de autenticação, tenant e ordem de validação. Consultar CI do PR específico.
 
 **Risco remanescente (BLOQUEADOR para homologação de persistência):** a função existente `salvarPacote` executa a alteração do pacote, a exclusão dos itens anteriores e a inserção dos novos por **requisições independentes**. Um erro depois da exclusão pode deixar o conjunto parcialmente atualizado. É necessária RPC transacional ou mecanismo equivalente ensaiado no PostgreSQL isolado, seguido de autorização expressa antes de aplicar migração. Este lote **não** elimina esse risco e não se declara conclusão de venda, renovação de pacote ou fluxo de checkout.
+
+
+### Lote seguinte — gravação atômica de Pacotes/Combos (12/11/2026)
+
+**Causa confirmada:** a função de pacotes anterior salva o pai, apaga os itens antigos e adiciona os itens novos em **três chamadas REST separadas**. Erros após o DELETE podiam deixar o pacote parcialmente atualizado.
+
+**Proposta e implementação na branch empilhada sobre o PR #58:**
+- `docs/sql/pacotes-salvar-atomico-proposta-2026-11-12.sql`: RPC PostgreSQL que atualiza pai e itens no mesmo contexto transacional; falha de qualquer INSERT/trigger reverte toda a operação.
+- `SECURITY INVOKER`, `search_path=''`, `auth.uid()`, `tem_alguma_permissao`, RLS real da migração 0046, UUIDs e preços atualizados do mesmo tenant; `anon` e `service_role` sem EXECUTE; não há uso de service_role no endpoint.
+- Trava de transação por tenant e `FOR SHARE` nos serviços para serializar edições e preços; assegura que duas edições não misturem conjuntos de itens.
+- `salvarPacote` no servidor do Flow chama **somente** a RPC para gravar; se a RPC não existe no ambiente, falha de modo explícito, **sem voltar ao fluxo inseguro de três requisições**.
+- GitHub Actions levanta Postgres 16 descartável, executa a migração REAL 0046 com tabelas/RLS e apenas Auth/tenant/serviços de bancada, instala a proposta e testa criação, edição, rollback, permissões, isolamento e disputa entre duas conexões.
+
+**Gates para merge/publicação:** esta SQL é **proposta em docs**, não foi aplicada em preview nem produção. Precisa virar uma migração aditiva aprovada, ser testada em preview controlada e estar instalada **antes** de publicar código que depende da nova RPC. O servidor deliberadamente não usa fallback inseguro. Não declarar homologada a venda, o uso de visitas, renovação, pagamento ou Android físico com esta prova transacional.
