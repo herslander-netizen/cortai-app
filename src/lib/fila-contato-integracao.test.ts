@@ -18,6 +18,12 @@ describe("integração de contato com a lista de espera", () => {
     expect(servidor).not.toContain('data.telefone.trim()) {');
   });
 
+  it("mostra prazo configurado também ao cliente que já estava na fila", () => {
+    expect(servidor).toContain("const prazoMin = regrasDaEsperaDoTenant(regras).prazoMin");
+    expect(servidor).toContain("if (jaNaFila) return { posicao: jaNaFila.posicao, prazoMin };");
+    expect(servidor).toContain("return { posicao, prazoMin };");
+  });
+
   it("esclarece a verificação necessária sem bloquear a inscrição", () => {
     expect(tela).toContain("Avisos pelo WhatsApp exigem número confirmado");
     expect(tela).toContain("Você pode");
