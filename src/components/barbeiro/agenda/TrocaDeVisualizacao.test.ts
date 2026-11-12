@@ -18,6 +18,10 @@ describe("troca de visualização da Agenda", () => {
     expect(troca).toContain("usePresence()");
     expect(troca).toContain('mode="popLayout"');
     expect(troca).toContain("onAnimationEnd={aoConcluirAnimacao}");
+    expect(troca).toContain("onAnimationCancel={aoConcluirAnimacao}");
+    expect(troca).toContain("aria-hidden={!presente}");
+    expect(troca).toContain("inert={!presente}");
+    expect(troca).not.toContain("setEntradaConcluida");
     expect(estilos).toContain("translate3d(0, 28px, 0)");
     expect(estilos).toContain("translate3d(0, -20px, 0)");
     expect(estilos).toContain("280ms cubic-bezier(0.22, 1, 0.36, 1)");
