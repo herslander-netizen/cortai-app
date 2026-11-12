@@ -26,6 +26,7 @@ import {
   minutosNoFuso,
 } from "@/components/barbeiro/agenda/tempo";
 import { ladoDoAgora, publicarAgora } from "@/components/barbeiro/agenda/pilula-agora";
+import { podePosicionarAutomaticamente } from "@/components/barbeiro/agenda/rolagem-inicial";
 import { criarBloqueioDeRolagem } from "@/components/barbeiro/agenda/bloqueio-rolagem";
 import { AlcaDeDuracao } from "@/components/barbeiro/agenda/AlcaDeDuracao";
 import { calcularPreparoVisual } from "@/components/barbeiro/agenda/preparo-visual";
@@ -212,10 +213,29 @@ function AgendaTimelineBase({
   const gradeRef = useRef<HTMLDivElement>(null);
   const linhaAgoraRef = useRef<HTMLDivElement>(null);
   const posicionouRef = useRef<string | null>(null);
+  const diaDaMontagem = useRef(dia);
+  const ultimoDiaRenderizado = useRef(dia);
+  const restaurouLista = useRef(false);
+
+  // O gesto lateral, as setas e o calendário nunca devem levar a linha do Agora
+  // para a tela. Preserva-se a rolagem vertical atual, inclusive ao voltar a hoje.
+  // A abertura inicial ainda pode posicionar a grade uma única vez.
   useLayoutEffect(() => {
-    if (previa || rolagemAoRetornar === undefined || !window.matchMedia(CELULAR).matches) return;
-    // O componente foi remontado após a Lista. Reposicionar antes de pintar a Timeline
-    // e impedir que o efeito de "primeira abertura" faça outra rolagem no RAF.
+    if (ultimoDiaRenderizado.current === dia) return;
+    ultimoDiaRenderizado.current = dia;
+    posicionouRef.current = dia;
+  }, [dia]);
+
+  useLayoutEffect(() => {
+    if (
+      previa ||
+      restaurouLista.current ||
+      rolagemAoRetornar === undefined ||
+      !window.matchMedia(CELULAR).matches
+    ) return;
+    // Restaurar o scroll da Lista apenas uma vez: revisitar esse dia por gesto
+    // não pode puxar novamente a Timeline para a posição antiga.
+    restaurouLista.current = true;
     posicionouRef.current = dia;
     window.scrollTo({ top: Math.max(0, rolagemAoRetornar), behavior: "auto" });
   }, [dia, previa, rolagemAoRetornar]);
@@ -523,16 +543,17 @@ function AgendaTimelineBase({
     });
   }
 
-  // Posicionamento automático só na primeira abertura da Agenda. Depois, trocar de dia mantém a
-  // rolagem onde a pessoa deixou (puxar a página sozinho brigava com o dedo).
+  // Só a PRIMEIRA montagem pode posicionar em "Agora". Após qualquer troca
+  // de dia, nem o retorno a hoje deve fazer scroll sem tocar no botão "Agora".
   useEffect(() => {
-    if (previa || !ehHoje || posicionouRef.current !== null) return;
-    const quadro = window.requestAnimationFrame(() => {
-      voltarParaAgora("auto");
-      posicionouRef.current = dia;
-    });
+    if (
+      previa ||
+      !podePosicionarAutomaticamente(dia, diaDaMontagem.current, posicionouRef.current, ehHoje, diaCompleto)
+    ) return;
+    posicionouRef.current = dia; // Reserva imediatamente, antes do RAF (evita corrida durante o gesto).
+    const quadro = window.requestAnimationFrame(() => voltarParaAgora("auto"));
     return () => window.cancelAnimationFrame(quadro);
-  }, [dia, ehHoje, altura, previa]);
+  }, [dia, ehHoje, altura, previa, diaCompleto]);
 
   // Abriu num dia sem posicionamento automático: conta como posicionado, para uma troca
   // posterior (ex.: para hoje) não puxar a página.
@@ -541,17 +562,24 @@ function AgendaTimelineBase({
     posicionouRef.current = dia;
   }, [dia, ehHoje, diaCompleto, previa]);
 
-  // Dia completo fora de hoje: começa na abertura do expediente, não à meia-noite.
+  // A abertura de um dia que não é hoje começa no expediente somente quando
+  // essa foi a primeira tela montada; trocar datas não muda a rolagem.
   useEffect(() => {
-    if (previa || ehHoje || !diaCompleto || posicionouRef.current !== null) return;
+    if (
+      previa ||
+      !diaCompleto ||
+      ehHoje ||
+      dia !== diaDaMontagem.current ||
+      posicionouRef.current !== null
+    ) return;
     const area = rolagemRef.current;
     const func = horarios.find((h) => h.diaSemana === diaDaSemana(dia) && !h.fechado);
     if (!area) return;
+    posicionouRef.current = dia;
     const quadro = window.requestAnimationFrame(() => {
       const alvo = func ? minutosDoHorario(func.abre) : 8 * 60;
       const topo = area.getBoundingClientRect().top + window.scrollY;
       window.scrollTo({ top: Math.max(0, topo + alvo * PX_POR_MINUTO - 120), behavior: "auto" });
-      posicionouRef.current = dia;
     });
     return () => window.cancelAnimationFrame(quadro);
   }, [dia, ehHoje, diaCompleto, previa, horarios]);

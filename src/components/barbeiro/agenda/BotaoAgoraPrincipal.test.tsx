@@ -89,6 +89,15 @@ describe("BotaoAgoraPrincipal", () => {
     expect(botao?.querySelector("svg")).not.toBeNull();
   });
 
+  it("usa a animação vertical dos Cards sem giro ou espera do ícone", () => {
+    const codigo = readFileSync("src/components/barbeiro/agenda/BotaoAgoraPrincipal.tsx", "utf8");
+    expect(codigo).toContain('mode="sync"');
+    expect(codigo).toContain("opacity: 0, y: 8");
+    expect(codigo).toContain("opacity: 0, y: -8");
+    expect(codigo).not.toContain("rotate:");
+    expect(codigo).toContain("menosMovimento ? 0 : 0.28");
+  });
+
   it("responde a dois toques imediatos, sem bloqueio de 300 ms nem estado antigo", async () => {
     const onVisualizacao = vi.fn();
     await montar(390, "timeline", onVisualizacao);
