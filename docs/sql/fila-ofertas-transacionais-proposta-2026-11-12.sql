@@ -357,6 +357,12 @@ BEGIN
       v_o.servico_id, v_o.inicio, 'balcao', false, true
     );
   EXCEPTION WHEN OTHERS THEN
+    -- Só o conflito de horário confirmado permite soltar a reserva. Falhas
+    -- inesperadas de infraestrutura devem abortar a transação e preservar
+    -- a oferta para reconciliação, nunca reofertar a vaga por engano.
+    IF SQLERRM <> 'horario ja ocupado' THEN
+      RAISE;
+    END IF;
     UPDATE public.ofertas_da_fila SET status = 'cancelada', respondida_em = now()
       WHERE id = v_o.id;
     UPDATE public.fila_de_espera
@@ -365,8 +371,24 @@ BEGIN
     RETURN jsonb_build_object('ok', false, 'motivo', 'ocupado');
   END;
 
+  -- Não concluir uma oferta se a RPC retornar sem ID, retornar um ID alheio
+  -- ou se a gravação do vínculo à fila não atingir o agendamento criado.
+  -- Erro explícito reverte toda a transação, inclusive criar_agendamento.
+  IF jsonb_typeof(v_res) IS DISTINCT FROM 'object'
+     OR nullif(v_res->>'agendamento_id', '') IS NULL THEN
+    RAISE EXCEPTION 'criar_agendamento não retornou agendamento';
+  END IF;
   v_ag := (v_res->>'agendamento_id')::uuid;
-  UPDATE public.agendamentos SET origem_fila_id = v_f.id WHERE id = v_ag;
+  UPDATE public.agendamentos
+     SET origem_fila_id = v_f.id
+   WHERE id = v_ag AND tenant_id = v_o.tenant_id
+     AND cliente_id = v_f.cliente_id
+     AND profissional_id = v_o.profissional_id
+     AND servico_id = v_o.servico_id
+     AND inicio = v_o.inicio AND status = 'agendado';
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'agendamento não corresponde à oferta';
+  END IF;
   UPDATE public.ofertas_da_fila SET
     status = 'aceita', respondida_em = now(), agendamento_criado_id = v_ag
     WHERE id = v_o.id;
