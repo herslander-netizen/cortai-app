@@ -107,6 +107,7 @@ DECLARE
   v_ag public.agendamentos%ROWTYPE;
   v_s public.servicos%ROWTYPE;
   v_o public.ofertas_da_fila%ROWTYPE;
+  v_margem_min integer := 0;
 BEGIN
   IF NOT public.chamada_do_servidor() THEN
     RAISE EXCEPTION 'somente servidor';
@@ -172,6 +173,25 @@ BEGIN
      )
   THEN
     RETURN jsonb_build_object('ok', false, 'motivo', 'incompativel');
+  END IF;
+
+  -- Mesma trava serializada do criar_agendamento oficial: a consulta inicial
+  -- no aplicativo não basta, pois outra sessão pode ocupar o horário depois.
+  PERFORM pg_advisory_xact_lock(hashtextextended('agenda:' || _profissional_id::text, 0));
+  SELECT greatest(coalesce(intervalo_entre_min, 0), 0)
+    INTO v_margem_min
+    FROM public.tenants WHERE id = _tenant_id;
+  IF EXISTS (
+    SELECT 1
+      FROM public.agendamentos a
+     WHERE a.tenant_id = _tenant_id
+       AND a.profissional_id = _profissional_id
+       AND a.id IS DISTINCT FROM _agendamento_liberado_id
+       AND a.status IN ('agendado', 'chegou', 'na_cadeira', 'finalizado')
+       AND a.inicio < _fim + make_interval(mins => v_margem_min)
+       AND a.fim > _inicio - make_interval(mins => v_margem_min)
+  ) THEN
+    RETURN jsonb_build_object('ok', false, 'motivo', 'ocupada');
   END IF;
 
   -- Violação de índice por corrida entre workers: a RPC retorna conflito,
