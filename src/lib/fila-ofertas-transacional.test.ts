@@ -140,6 +140,7 @@ describe("proposta SQL — verificações estruturais antes de uma migração", 
     expect(sql).toContain("EXCEPTION WHEN unique_violation");
     expect(sql).toContain("Mais de uma oferta ativa por vaga");
     expect(sql).toContain("Oferta ativa sem entrada no mesmo tenant");
+    expect(sql).toContain("Oferta ativa sem vaga de origem");
     expect(sql).toContain("id = v_f.cliente_id AND tenant_id = _tenant_id");
   });
 
