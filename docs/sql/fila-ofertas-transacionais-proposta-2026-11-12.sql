@@ -99,6 +99,7 @@ AS $reservar$
 DECLARE
   v_f public.fila_de_espera%ROWTYPE;
   v_ag public.agendamentos%ROWTYPE;
+  v_s public.servicos%ROWTYPE;
   v_o public.ofertas_da_fila%ROWTYPE;
 BEGIN
   IF NOT public.chamada_do_servidor() THEN
@@ -138,6 +139,38 @@ BEGIN
     RETURN jsonb_build_object('ok', false, 'motivo', 'cliente_indisponivel');
   END IF;
 
+  -- Uma consulta anterior do aplicativo nunca substitui validação no banco.
+  IF NOT EXISTS (
+    SELECT 1 FROM public.profissionais
+    WHERE id = _profissional_id AND tenant_id = _tenant_id
+  ) THEN
+    RETURN jsonb_build_object('ok', false, 'motivo', 'profissional_invalido');
+  END IF;
+  SELECT * INTO v_s FROM public.servicos
+    WHERE id = _servico_id AND tenant_id = _tenant_id AND duracao_min > 0;
+  IF NOT FOUND THEN
+    RETURN jsonb_build_object('ok', false, 'motivo', 'servico_invalido');
+  END IF;
+  IF _fim IS DISTINCT FROM _inicio + make_interval(mins => v_s.duracao_min)
+     OR (
+       coalesce(array_length(v_s.profissional_ids, 1), 0) > 0
+       AND NOT (_profissional_id = ANY(v_s.profissional_ids))
+     )
+     OR (v_f.servico_id IS NOT NULL AND v_f.servico_id <> _servico_id)
+     OR (
+       v_f.profissional_id IS NOT NULL AND v_f.profissional_id <> _profissional_id
+       AND NOT coalesce((
+         SELECT espera_qualquer_profissional FROM public.tenants
+         WHERE id = _tenant_id
+       ), false)
+     )
+  THEN
+    RETURN jsonb_build_object('ok', false, 'motivo', 'incompativel');
+  END IF;
+
+  -- Violação de índice por corrida entre workers: a RPC retorna conflito,
+  -- sem deixar uma entrada avisada sem oferta correspondente.
+  BEGIN
   INSERT INTO public.ofertas_da_fila (
     tenant_id, fila_id, agendamento_liberado_id, profissional_id,
     servico_id, inicio, fim, expira_em
@@ -145,6 +178,9 @@ BEGIN
     _tenant_id, _fila_id, _agendamento_liberado_id, _profissional_id,
     _servico_id, _inicio, _fim, _expira_em
   ) RETURNING * INTO v_o;
+  EXCEPTION WHEN unique_violation THEN
+    RETURN jsonb_build_object('ok', false, 'motivo', 'concorrente');
+  END;
 
   UPDATE public.fila_de_espera SET
     status = 'avisado', avisado_em = clock_timestamp(), oferta_atual_id = v_o.id
@@ -192,7 +228,7 @@ BEGIN
     status = _novo_status, respondida_em = clock_timestamp()
   WHERE id = v_o.id;
 
-  IF FOUND AND v_f.oferta_atual_id = v_o.id AND v_f.status = 'avisado' THEN
+  IF v_f.id IS NOT NULL AND v_f.oferta_atual_id = v_o.id AND v_f.status = 'avisado' THEN
     UPDATE public.fila_de_espera SET
       status = 'aguardando', avisado_em = NULL, oferta_atual_id = NULL
     WHERE id = v_f.id AND tenant_id = _tenant_id;
