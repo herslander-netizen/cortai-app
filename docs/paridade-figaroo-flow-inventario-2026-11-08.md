@@ -214,6 +214,7 @@ Ter rota ou protótipo não é equivalência funcional.
   recurso fora do plano; sem alterar o estado automaticamente.
 - Regras avançadas indisponíveis mostram aviso e mantêm os padrões da fila.
 - Testes guardam independência da lista básica em relação a recursos opcionais.
+- O controle **Bloquear agendamento no limite do fiado** agora não liga o fiado indiretamente: se a regra não existe, desligar é operação sem efeito e ligar exige que o fiado já esteja ativo.
 
 **Limite de verificação:** auditoria estática do código e docs, não
 captura de telas ou homologação autenticada. Antes de declarar paridade visual
