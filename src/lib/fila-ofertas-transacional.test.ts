@@ -156,6 +156,32 @@ describe("proposta SQL — verificações estruturais antes de uma migração", 
     expect(sql).toContain("RETURN jsonb_build_object('ok', false, 'motivo', 'ocupada')");
   });
 
+  it("remove uma entrada e oferta no mesmo commit, preservando a fila de chegada", () => {
+    expect(sql).toContain("FUNCTION public.retirar_entrada_da_fila(");
+    expect(sql).toContain("v_f.oferta_atual_id IS DISTINCT FROM v_oferta_lida");
+    expect(sql).toContain("WHERE id = v_oferta_lida AND tenant_id = _tenant_id FOR UPDATE");
+    expect(sql).toContain("status = 'saiu', avisado_em = NULL, oferta_atual_id = NULL");
+    expect(sql).toContain("v_f.status = 'avisado' AND v_f.janela_preferida IS NOT NULL");
+    expect(sql).toContain("'motivo', 'concorrente'");
+  });
+
+  it("impede conversão enquanto existe oferta e grava o atendimento em uma só transação", () => {
+    expect(sql).toContain("FUNCTION public.converter_entrada_da_fila(");
+    expect(sql).toContain("v_f.oferta_atual_id IS NOT NULL");
+    expect(sql).toContain("'motivo', 'oferta_pendente'");
+    expect(sql).toContain("v_f.status <> 'aguardando' OR v_f.janela_preferida IS NULL");
+    expect(sql).toContain("v_resultado := public.criar_agendamento(");
+    expect(sql).toContain("SET origem = 'manual', origem_fila_id = v_f.id");
+    expect(sql).toContain("status = 'atendido', avisado_em = NULL, oferta_atual_id = NULL");
+  });
+
+  it("restringe RPCs manuais de encerramento e conversão a service_role", () => {
+    expect(sql).toContain("REVOKE EXECUTE ON FUNCTION public.retirar_entrada_da_fila(uuid,uuid)");
+    expect(sql).toContain("REVOKE EXECUTE ON FUNCTION public.converter_entrada_da_fila(uuid,uuid,uuid,uuid,timestamptz)");
+    expect(sql).toContain("GRANT EXECUTE ON FUNCTION public.retirar_entrada_da_fila(uuid,uuid)");
+    expect(sql).toContain("GRANT EXECUTE ON FUNCTION public.converter_entrada_da_fila(uuid,uuid,uuid,uuid,timestamptz)");
+  });
+
   it("fecha RPCs privilegiadas para anon e authenticated", () => {
     expect(sql).toContain("SECURITY DEFINER");
     expect(sql).toContain("IF NOT public.chamada_do_servidor()");
