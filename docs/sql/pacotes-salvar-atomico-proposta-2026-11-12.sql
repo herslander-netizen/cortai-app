@@ -152,9 +152,8 @@ BEGIN
   INSERT INTO public.pacote_itens (
     pacote_id, tenant_id, servico_id, quantidade
   )
-  SELECT v_pacote_id, _tenant_id, i.servico_id, i.quantidade
-  FROM pg_catalog.unnest(v_ids, v_quantidades)
-    AS i(servico_id, quantidade);
+  SELECT v_pacote_id, _tenant_id, v_ids[i.pos], v_quantidades[i.pos]
+  FROM pg_catalog.generate_subscripts(v_ids, 1) AS i(pos);
 
   RETURN v_pacote_id;
 END;
