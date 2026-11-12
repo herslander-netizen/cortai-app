@@ -101,7 +101,10 @@ describe("troca de dia sem piscar nem puxar a página", () => {
 
   it("a timeline só se posiciona sozinha na primeira abertura", () => {
     expect(timeline).not.toContain("posicionouRef.current === dia");
-    expect(timeline.match(/posicionouRef\.current !== null/g)?.length).toBe(3);
+    expect(timeline).toContain("diaDaMontagem.current");
+    expect(timeline).toContain("restaurouLista.current = true");
+    // Navegar de volta para hoje não deve reancorar automaticamente a página.
+    expect(timeline).toContain("podePosicionarAutomaticamente(");
   });
 });
 

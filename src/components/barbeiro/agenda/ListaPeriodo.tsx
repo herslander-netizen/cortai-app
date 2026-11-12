@@ -34,6 +34,7 @@ import {
   valorCurto,
 } from "./lista-periodo-regras";
 import { OndaDaLista } from "./HorarioDaLista";
+import { DIAS_INICIAIS, proximaJanelaDaLista, janelaDaLista } from "./janela-da-lista";
 
 /** Dias por leitura: a lista abre com 60 dias e carrega mais ao chegar no fim. */
 const DIAS_POR_BLOCO = 60;
@@ -111,15 +112,61 @@ export function ListaPeriodo({
         .filter((item) => !profissionalId || item.profissionalId === profissionalId),
     [periodo.data, profissionalId],
   );
-  const cancelados = todos.filter((item) => FORA_DA_LISTA.has(item.status)).length;
-  const visiveis = todos.filter(
-    (item) => (comCancelados || !FORA_DA_LISTA.has(item.status)) && correspondeABusca(item, busca),
+  // Não reconstruir filtros, ordenação e até 365 agrupamentos a cada tick do
+  // relógio ou re-render dos controles. Na entrada dos Cards esses cálculos
+  // estavam competindo com a animação na thread principal do Android.
+  const cancelados = useMemo(
+    () => todos.filter((item) => FORA_DA_LISTA.has(item.status)).length,
+    [todos],
   );
-  const grupos = diasDaLista(
-    agruparPorDia(visiveis, periodo.data?.pages[0]?.fuso ?? fuso),
-    hoje,
-    Boolean(busca.trim()),
+  const visiveis = useMemo(
+    () =>
+      todos.filter(
+        (item) => (comCancelados || !FORA_DA_LISTA.has(item.status)) && correspondeABusca(item, busca),
+      ),
+    [todos, comCancelados, busca],
   );
+  const grupos = useMemo(
+    () =>
+      diasDaLista(
+        agruparPorDia(visiveis, periodo.data?.pages[0]?.fuso ?? fuso),
+        hoje,
+        Boolean(busca.trim()),
+      ),
+    [visiveis, periodo.data?.pages, fuso, hoje, busca],
+  );
+
+  // Os dados dos 60 dias continuam em cache. Montar todos os Cards no primeiro
+  // toque, porém, bloqueava o primeiro quadro da animação. Criar só a janela
+  // inicial e acrescentar as seguintes quando a pessoa se aproxima do fim.
+  const [limiteVisivel, setLimiteVisivel] = useState(DIAS_INICIAIS);
+  const diasVisiveis = useMemo(
+    () => janelaDaLista(grupos, limiteVisivel),
+    [grupos, limiteVisivel],
+  );
+  const temDiasAbaixo = limiteVisivel < grupos.length;
+  const gatilhoMaisDias = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const elemento = gatilhoMaisDias.current;
+    if (!elemento || !temDiasAbaixo) return;
+    if (typeof IntersectionObserver === "undefined") {
+      setLimiteVisivel(grupos.length);
+      return;
+    }
+    const observador = new IntersectionObserver(
+      (entradas) => {
+        if (!entradas.some((entrada) => entrada.isIntersecting)) return;
+        setLimiteVisivel((atual) => proximaJanelaDaLista(atual, grupos.length));
+      },
+      { rootMargin: "700px 0px" },
+    );
+    observador.observe(elemento);
+    return () => observador.disconnect();
+  }, [temDiasAbaixo, grupos.length]);
+
+  // Ao mudar a busca ou filtro, recomeçar a janela no topo dos novos resultados.
+  useEffect(() => setLimiteVisivel(DIAS_INICIAIS), [busca, profissionalId, comCancelados]);
 
   // Carrega o próximo bloco de dias quando o fim da lista aparece **por rolagem**. O observador lê o estado por
   // referência (recriá-lo a cada carregamento puxava bloco após bloco). Se a lista cabe na tela não há o que
@@ -182,7 +229,7 @@ export function ListaPeriodo({
             : "Nenhum atendimento marcado de hoje em diante."}
         </p>
       ) : (
-        grupos.map(({ dia, itens }, g) => {
+        diasVisiveis.map(({ dia, itens }, g) => {
           const titulo = tituloDoDia(dia);
           const contam = itens.filter((item) => !FORA_DA_LISTA.has(item.status));
           const total = contam.reduce((soma, item) => soma + (item.valor_centavos ?? 0), 0);
@@ -217,6 +264,10 @@ export function ListaPeriodo({
           );
         })
       )}
+
+      {temDiasAbaixo && periodo.data ? (
+        <div ref={gatilhoMaisDias} className="h-px" aria-hidden="true" />
+      ) : null}
 
       {/* Fim da lista (dono, 31/10 e 06/11): "Ver mais dias" discreto na onda, o filtro de cancelados como chip e a
           dica como legenda. */}
