@@ -36,6 +36,7 @@ import { Chip } from "@/components/ui/chip";
 import { StatusBadge } from "@/components/ui/badge";
 import { FotoDoCorte } from "@/components/cliente-perfil/FotoDoCorte";
 import { brl, hora } from "@/lib/format";
+import { calcularDescontoCheckout, calcularDinheiroCheckout, type TipoDescontoCheckout } from "@/lib/checkout-figaroo";
 import { EsqueletoComanda } from "@/components/layout/Esqueleto";
 import {
   criarRetorno,
@@ -117,6 +118,7 @@ export function FechamentoComanda({
   const [confirmarAberto, setConfirmarAberto] = useState(false);
   const [itens, setItens] = useState<Item[]>([]);
   const [desconto, setDesconto] = useState("");
+  const [tipoDesconto, setTipoDesconto] = useState<TipoDescontoCheckout>("reais");
   const [verDesconto, setVerDesconto] = useState(false);
   const [ocupado, setOcupado] = useState<string | null>(null);
   const [erro, setErro] = useState<string | null>(null);
@@ -144,8 +146,10 @@ export function FechamentoComanda({
     () => itens.reduce((s, i) => s + i.quantidade * i.valor_unitario_centavos, 0),
     [itens],
   );
-  const descontoCentavos = Math.min(subtotal, Math.max(0, Math.round(Number(desconto || 0) * 100)));
-  const total = subtotal - descontoCentavos;
+  const resumo = calcularDescontoCheckout(subtotal, desconto, tipoDesconto);
+  const descontoCentavos = resumo.descontoCentavos;
+  const total = resumo.totalCentavos;
+  const descontoInvalido = !resumo.valido;
   const d = query.data;
   const comandaId = d?.comanda.id;
   const statusComanda = (d?.comanda as { status?: string } | undefined)?.status ?? "";
@@ -230,6 +234,9 @@ export function FechamentoComanda({
   }
   const receber = (forma: Forma) =>
     executar(forma, async () => {
+      if (descontoInvalido) throw new Error("Corrija o valor do desconto antes de cobrar.");
+      if (forma === "dinheiro" && !calcularDinheiroCheckout(total, recebido).podeConfirmar)
+        throw new Error("Informe o valor recebido completo antes de confirmar em dinheiro.");
       await salvar({ data: payload() });
       const pixConfigurado = Boolean(d?.config?.pix_ativo && d.config.pix_chave);
       if (forma === "pix" && pixConfigurado) {
@@ -242,12 +249,14 @@ export function FechamentoComanda({
     });
   const usarPlano = () =>
     executar("plano", async () => {
+      if (descontoInvalido) throw new Error("Corrija o valor do desconto antes de cobrar.");
       await salvar({ data: payload() });
       await pagarPlano({ data: { comandaId: comandaId! } });
       await aposPagar();
     });
   const paraRecepcao = () =>
     executar("recepcao", async () => {
+      if (descontoInvalido) throw new Error("Corrija o valor do desconto antes de enviar a comanda.");
       await enviar({ data: payload() });
       onConcluido();
     });
@@ -301,9 +310,11 @@ export function FechamentoComanda({
     { v: "cartao", rotulo: "Cartão", Icone: CreditCard },
     ...(fiadoDisponivel ? [{ v: "fiado" as const, rotulo: "Fiado", Icone: Wallet }] : []),
   ];
-  const recebidoCentavos = Math.round(Number(recebido.replace(",", ".") || 0) * 100);
-  const troco = forma === "dinheiro" && recebidoCentavos > total ? recebidoCentavos - total : 0;
+  const dinheiro = calcularDinheiroCheckout(total, recebido);
+  const recebidoCentavos = dinheiro.recebidoCentavos;
+  const troco = forma === "dinheiro" ? dinheiro.trocoCentavos : 0;
   const confirmarForma = () => {
+    if (descontoInvalido || (forma === "dinheiro" && !dinheiro.podeConfirmar)) return;
     if (forma === "plano") void usarPlano();
     else if (forma) void receber(forma);
   };
@@ -411,6 +422,7 @@ export function FechamentoComanda({
               </>
             )}
 
+            <p className="mt-4 text-xs leading-5 text-mute">Confirme que o cliente compareceu e revise os serviços antes de receber.</p>
             <p className={rotuloSecao}>Itens</p>
             <ul className="grid gap-[2px]">
               {itens.map((item, index) => (
