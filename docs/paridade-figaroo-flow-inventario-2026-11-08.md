@@ -126,3 +126,95 @@ testes** com evidência de funcionamento e screenshot comparativo.
 Sem evidência de algum item, classificar como **pendente**, nunca "feito".
 Mudanças devem ser testadas/implantadas apenas na branch oficial com CI
 aprovado, sem publicação no site principal sem autorização expressa.
+
+## Execução incremental autorizada — 12/11/2026
+
+**Diretriz do dono:** recuperar todas as funções e telas do Figaroo no Flow,
+sem prejudicar a lista de espera nem tornar as demais funções dependentes de
+recursos opcionais. **Não equivale a declarar paridade concluída.**
+
+### Auditoria de dependências operacionais (leitura de código)
+
+| Jornada | Dependência que realmente existe | Regra de UX |
+|---|---|---|
+| Cliente entra na lista de espera | Recurso de fila disponível para o tenant e dados mínimos da solicitação; servidor autentica/valida | Não exigir caixa, loja, campanhas, fidelidade, lembretes ou assistente IA |
+| Equipe visualiza e organiza a lista | Acesso à lista e permissão própria do servidor para ações de gestão | Não exigir conexão WhatsApp para **ver** quem espera |
+| Oferta automática de vaga | Lista ligada, automação ligada, vaga compatível e motor de agenda | Selo **Requer Lista de espera** quando a base estiver desligada; não apagar a preferência da automação |
+| Entrega de oferta por WhatsApp | Telefone verificado, consentimento, conexão de envio e políticas de janela/modelos | Não presumir conexão só porque o interruptor geral está ativo; sem canal, não prometer que a pessoa foi avisada |
+| Regras avançadas da lista | Migração `0060` presente no ambiente; sem colunas disponíveis, padrões permanecem | Selo **Atualização necessária**, sem bloquear a entrada ou a gestão padrão |
+| Fiado e bloqueio por limite | Fiado precisa estar habilitado antes do bloqueio opcional | Selo **Requer Fiado** apenas no controle dependente; sem interferir em outras jornadas |
+| Loja online | Produtos e estoque habilitados | Selo de pré-requisito, sem criar bloqueio para agendamento |
+| Confirmação, lembrete e recuperação automatizados | Módulo WhatsApp disponível e configuração de envio aplicável | Selo no controle dependente, sem restringir a Agenda nem a lista de espera |
+
+Os estados são calculados a partir de chaves **já existentes** no catálogo
+(`src/lib/funcionalidades.ts`). A interface não reativa uma dependência sozinha,
+não apaga configurações e não cria uma segunda regra de bloqueio no backend.
+O selo explica uma limitação real do controle configurado, com link ao
+pré-requisito ou ao plano quando aplicável.
+
+### Riscos existentes da lista, ainda não resolvidos neste lote
+
+A auditoria de 03/11 permanece relevante, e o código de 12/11 confirma pontos
+que precisam de um lote específico, com testes concorrentes e migração autorizada
+quando necessária:
+
+1. O fluxo marca a oferta como enviada antes de comprovar o envio externo; falta
+   de telefone, consentimento ou conexão pode deixar a pessoa em `avisado`
+   até expirar.
+2. Recusa, cancelamento e expiração ainda podem devolver uma pessoa a
+   `aguardando` verificando só o status da entrada, sem amarrar a oferta
+   que originou a transição. Isso exige desenho transacional por oferta.
+3. Entrada de cliente autenticado atualiza nome/telefone do cadastro, mas a
+   associação com verificação do número merece checagem antes de tratar esse
+   telefone como destino autorizado.
+4. O teste de corrida concorrente e a prova de entrega via WhatsApp precisam
+   de homologação; uma suíte de funções puras não substitui essa prova.
+
+**Não chamar a fila de homologada enquanto estes pontos estiverem abertos.**
+Não aplicar migração nem modificar emissor WhatsApp reservado por outra tarefa.
+Uma falha de configuração deve ser apresentada à equipe com um próximo passo,
+nunca escondida como atendimento enviado.
+
+### Ordem de implementação de **todas** as jornadas Figaroo
+
+Lotes por dependência técnica, não por aparência:
+
+1. **Segurança da jornada existente:** fila e ofertas sem bloqueios cruzados,
+   configurações necessárias visíveis, integridade transacional, cancelamento,
+   desvio e expiração. Testar também com WhatsApp desconectado.
+2. **Atendimento e cobrança:** ficha, alterações do serviço, descontos,
+   adicionais, resumo e pagamento, recibo, venda, reabertura autorizada,
+   renovação de pacote. Meios financeiros novos exigem motor real, não botões.
+3. **Cadastros do negócio:** profissionais, equipe, serviços/variações,
+   categorias, localidades, horários e exceções, pacotes e combos,
+   desativar/reativar, todas as fichas e formulários por etapa.
+4. **Relacionamento e marketing:** clientes, notas, histórico, avaliações,
+   campanhas com ledger de resgate, fidelidade, notificações e preferência
+   por canal, sempre respeitando consentimentos.
+5. **Experiência pública:** página/temas/galeria, agendamento, lista de
+   espera, autenticação e onboarding, confirmações, falhas e retorno.
+6. **Operação e gestão:** vendas, insights, assinatura, configurações
+   de conta/negócio e estados de plano/permissão.
+
+Para **cada módulo**, aceitar somente quando
+lista → ficha → criação → edição → confirmação → desativação/exclusão →
+estados vazios/erro → permissões/tenant → persistência/concorrência →
+360/390px, claro/escuro e movimento reduzido tiverem evidência de teste.
+Os módulos de múltiplas localidades, vale-presente, taxas por meio,
+resgates e renovação paga ainda precisam de backend e plano de migração.
+Ter rota ou protótipo não é equivalência funcional.
+
+### Primeiro lote desta rodada
+
+- Rótulo corrigido **Lista de espera** (antes podia ser confundido com
+  fila de chegada), mantendo a chave interna e a mesma função real.
+- Estado operacional distingue configuração salva de função efetivamente
+  utilizável quando outra função está desligada.
+- Selo de dependência orienta a pessoa até o controle necessário, inclusive
+  recurso fora do plano; sem alterar o estado automaticamente.
+- Regras avançadas indisponíveis mostram aviso e mantêm os padrões da fila.
+- Testes guardam independência da lista básica em relação a recursos opcionais.
+
+**Limite de verificação:** auditoria estática do código e docs, não
+captura de telas ou homologação autenticada. Antes de declarar paridade visual
+com o APK, comparar no aparelho e no Flow real a 360/390px e 1280px.
