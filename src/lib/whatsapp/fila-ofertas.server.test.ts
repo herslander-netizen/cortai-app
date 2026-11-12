@@ -21,6 +21,7 @@ type Estado = {
   recusada: Record<string, unknown> | null;
   aceite: Record<string, unknown>;
   ofertaPerdida: Record<string, unknown> | null;
+  ofertaAoEnviar: Record<string, unknown> | null;
   filaUpdates: Record<string, unknown>[];
 };
 const AGORA = Date.UTC(2026, 9, 5, 12, 0);
@@ -52,9 +53,10 @@ function builder(tabela: string) {
       st.inserts.push(ctx.payload!);
       return { data: { id: "of1", token: "abc" }, error: null };
     }
-    if (tabela === "ofertas_da_fila" && ctx.op === "update") return { data: st.recusada };
+    if (tabela === "ofertas_da_fila" && ctx.op === "update")
+      return { data: ctx.payload?.["status"] === "cancelada" ? { id: "of1" } : st.recusada };
     if (tabela === "ofertas_da_fila" && ctx.op === "select")
-      return { data: ctx.filtros["token"] ? st.ofertaPerdida : null };
+      return { data: ctx.filtros["token"] ? st.ofertaPerdida : ctx.filtros["id"] ? st.ofertaAoEnviar : null };
     if (tabela === "fila_de_espera" && ctx.op === "select") return { data: st.fila };
     return { data: null };
   };
@@ -140,6 +142,7 @@ beforeEach(() => {
     recusada: null,
     aceite: { ok: true, agendamento_id: "ag-novo" },
     ofertaPerdida: null,
+    ofertaAoEnviar: null,
     filaUpdates: [],
   };
   confirmacao.envios = 0;
@@ -163,6 +166,39 @@ describe("recuperação automática de vagas", () => {
     expect(st.inserts[0]?.["expira_em"]).toBe(new Date(AGORA + 30 * 60_000).toISOString());
     expect(st.orders).toEqual(["posicao", "criado_em", "id"]);
     expect(st.ranges[0]).toEqual([0, 199]);
+  });
+
+  it("sem telefone para avisar não deixa oferta ativa nem bloqueia próximo da fila", async () => {
+    st.ofertaAoEnviar = {
+      id: "of1",
+      token: "abc",
+      tenant_id: "t1",
+      inicio: new Date(INICIO).toISOString(),
+      expira_em: new Date(AGORA + 30 * 60_000).toISOString(),
+      servicos: { nome: "Corte" },
+      profissionais: { nome: "Ana" },
+      fila_de_espera: { cliente_id: "c-primeiro", clientes: { nome: "Cliente", telefone: "" } },
+    };
+    const { ofertarVaga } = await import("./fila-ofertas.server");
+    const r = await ofertarVaga("ag1");
+    expect(r.ofertaId).toBeNull();
+    // Primeiro e segundo sem telefone: ambos foram tentados uma vez.
+    expect(st.inserts).toHaveLength(2);
+    expect(st.filaUpdates).toContainEqual({ status: "aguardando", avisado_em: null });
+    expect(st.filaFiltros).toContainEqual({
+      id: "primeiro", tenant_id: "t1", status: "avisado",
+      avisado_em: new Date(AGORA).toISOString(),
+    });
+  });
+
+  it("resultado de transporte indeterminado não libera a vaga para duas pessoas", async () => {
+    // Sem ficha de envio após a reserva: falha de leitura, não ausência comprovada de canal.
+    st.ofertaAoEnviar = null;
+    const { ofertarVaga } = await import("./fila-ofertas.server");
+    const r = await ofertarVaga("ag1");
+    expect(r).toEqual({ ofertaId: "of1", motivo: "entrega_indeterminada" });
+    expect(st.inserts).toHaveLength(1);
+    expect(st.filaUpdates).not.toContainEqual({ status: "aguardando", avisado_em: null });
   });
 
   it("perto do horário: prazo termina 10 min antes", async () => {
