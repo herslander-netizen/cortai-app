@@ -47,6 +47,21 @@ describe("fluxos de atendimento e movimento das páginas para clientes", () => {
     expect(css).toContain("@media (prefers-reduced-motion: reduce)");
   });
 
+
+  it("falha de rede oferece tentar novamente e não finge que o negócio não existe", () => {
+    expect(rota).toContain("isLoading, isError, refetch");
+    expect(rota).toContain("if (isError && !data)");
+    expect(rota).toContain("Não conseguimos carregar a agenda");
+    expect(rota).toContain('onClick={() => void refetch()}');
+  });
+
+  it("datas especiais podem abrir atendimento mesmo quando a grade semanal está fechada", () => {
+    expect(rota).toContain("const abrePorHorarioEspecial = dias.some");
+    expect(rota).toContain("data.intervalosPorData?.[d]");
+    expect(rota).toContain("const semFuncionamento = semNenhumDiaAberto(data.horarios) && !abrePorHorarioEspecial;");
+    expect(rota).toContain("semFuncionamento)");
+  });
+
   it("motor público segue com conflito, verificação do telefone e confirmação", () => {
     expect(rota).toContain("agendarComoConvidado({");
     expect(rota).toContain('if (res.tipo === "conflito")');

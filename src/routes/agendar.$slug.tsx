@@ -133,7 +133,7 @@ type Situacao =
 function AgendamentoPublico() {
   const { slug } = Route.useParams();
   const { servico: servicoDaUrl } = Route.useSearch();
-  const { data, isLoading, refetch } = useQuery({
+  const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["agenda-publica", slug],
     queryFn: () => getAgendaPublica({ data: { slug } }),
     staleTime: 60_000,
@@ -443,6 +443,17 @@ function AgendamentoPublico() {
         <EsqueletoFormulario campos={5} onTentarDeNovo={() => void refetch()} />
       </main>
     );
+  if (isError && !data) {
+    return (
+      <main className="mx-auto flex min-h-screen max-w-[520px] flex-col justify-center px-6 text-center" role="alert">
+        <h1 className="text-xl font-bold text-paper">Não conseguimos carregar a agenda</h1>
+        <p className="mt-2 text-sm text-mute">Confira a conexão e tente novamente.</p>
+        <Button className="mt-5 h-12" onClick={() => void refetch()}>
+          Tentar novamente
+        </Button>
+      </main>
+    );
+  }
   if (!data) {
     return (
       <main className="mx-auto flex min-h-screen max-w-[520px] flex-col justify-center px-6 text-center">
@@ -471,6 +482,13 @@ function AgendamentoPublico() {
   }
 
   const limiteAtingido = data.agendaOnline === "limite_atingido" && !confirmado;
+  // Horário especial pode abrir uma data ainda que a semana inteira esteja fechada.
+  // Respeitar apenas datas dentro da janela de reserva mostrada ao cliente.
+  const abrePorHorarioEspecial = dias.some((d) => {
+    const ajuste = data.intervalosPorData?.[d];
+    return Boolean(ajuste?.abre && ajuste.fecha);
+  });
+  const semFuncionamento = semNenhumDiaAberto(data.horarios) && !abrePorHorarioEspecial;
   // Mesmo com novas reservas fechadas, o cliente com reserva confirmada
   // deve continuar vendo o comprovante e os controles de cancelamento.
   if (
@@ -478,7 +496,7 @@ function AgendamentoPublico() {
     (limiteAtingido ||
       !data.profissionais.length ||
       !data.servicos.length ||
-      semNenhumDiaAberto(data.horarios))
+      semFuncionamento)
   ) {
     const zap = data.tenant.whatsapp?.replace(/\D/g, "") || null;
     return (
