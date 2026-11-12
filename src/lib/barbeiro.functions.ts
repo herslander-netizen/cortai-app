@@ -849,19 +849,21 @@ export const removerDaFila = createServerFn({ method: "POST" })
     const { db, tenant } = await tenantPadrao(context);
     await exigirRecurso(db, tenant.id, "fila_espera");
     await exigirPermissao(context, tenant.id, "agendamento_manual");
-    const { error } = await db
-      .from("fila_de_espera")
-      .update({ status: "saiu" })
-      .eq("id", data.filaId)
-      .eq("tenant_id", tenant.id);
-    if (error) throw new Error(error.message);
+    // A entrada e eventual oferta precisam ser encerradas no mesmo commit.
+    // A RPC é instalada junto com a migração, antes de publicar este PR.
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    await supabaseAdmin
-      .from("ofertas_da_fila")
-      .update({ status: "cancelada", respondida_em: new Date().toISOString() })
-      .eq("fila_id", data.filaId)
-      .eq("tenant_id", tenant.id)
-      .eq("status", "enviada");
+    const { data: resultado, error } = await supabaseAdmin.rpc(
+      "retirar_entrada_da_fila" as never,
+      { _tenant_id: tenant.id, _fila_id: data.filaId } as never,
+    );
+    if (error) throw new Error("Não foi possível remover da fila com segurança.");
+    const r = resultado as { ok?: boolean; motivo?: string } | null;
+    if (r?.ok !== true)
+      throw new Error(
+        r?.motivo === "concorrente"
+          ? "A lista mudou neste instante. Atualize e tente novamente."
+          : "Essa entrada não pode ser removida agora.",
+      );
     return { ok: true };
   });
 
@@ -938,7 +940,7 @@ export const editarFila = createServerFn({ method: "POST" })
       janela["fim"] = data.janelaFim;
     }
     if (data.dia) janela["dia"] = data.dia;
-    const { error } = await db
+    const { data: editada, error } = await db
       .from("fila_de_espera")
       .update({
         servico_id: await confere("servicos", data.servicoId),
@@ -946,8 +948,13 @@ export const editarFila = createServerFn({ method: "POST" })
         janela_preferida: janela,
       })
       .eq("id", data.filaId)
-      .eq("tenant_id", tenant.id);
+      .eq("tenant_id", tenant.id)
+      .eq("status", "aguardando")
+      .select("id")
+      .maybeSingle();
     if (error) throw new Error(error.message);
+    if (!editada)
+      throw new Error("A solicitação está em oferta ou já foi concluída. Atualize a fila.");
     return { ok: true };
   });
 
@@ -983,6 +990,8 @@ export const converterFilaEmAgendamento = createServerFn({ method: "POST" })
     ]);
     if (!item || !["aguardando", "avisado"].includes(item.status))
       throw new Error("Essa solicitação não está mais na lista.");
+    if (item.status === "avisado")
+      throw new Error("Existe uma oferta em andamento. Aguarde, recuse ou cancele a oferta antes de converter.");
     if (!servico) throw new Error("Serviço não encontrado.");
     const inicio = new Date(data.inicioIso);
     const conflito = await validarAgendamento(db, {
@@ -993,37 +1002,31 @@ export const converterFilaEmAgendamento = createServerFn({ method: "POST" })
       clienteId: item.cliente_id,
     });
     if (conflito) throw new Error(`Esse cliente já tem horário às ${conflito.hora}.`);
-    const { data: res, error } = await db.rpc("criar_agendamento", {
-      _tenant_id: tenant.id,
-      _cliente_id: item.cliente_id,
-      _profissional_id: data.profissionalId,
-      _servico_id: servico.id,
-      _inicio: inicio.toISOString(),
-      _forma_pagamento: "balcao",
-      _encaixe: false,
-    });
+    // Criar agendamento, marcar a entrada atendida e vincular origem_fila
+    // são uma única transação. Sem "status atendido" antes da confirmação
+    // do motor oficial e sem oferta órfã após conversão manual.
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: res, error } = await supabaseAdmin.rpc(
+      "converter_entrada_da_fila" as never,
+      {
+        _tenant_id: tenant.id,
+        _fila_id: item.id,
+        _servico_id: servico.id,
+        _profissional_id: data.profissionalId,
+        _inicio: inicio.toISOString(),
+      } as never,
+    );
     if (error) {
       if (error.message.includes("horario ja ocupado"))
         throw new Error("Esse horário acabou de ser reservado, escolha outro.");
-      throw new Error(error.message);
+      throw new Error("Não foi possível converter a fila em agendamento agora.");
     }
-    const criado = res as unknown as { agendamento_id: string };
-    await db
-      .from("agendamentos")
-      .update({ origem: "manual", origem_fila_id: item.id })
-      .eq("id", criado.agendamento_id)
-      .eq("tenant_id", tenant.id);
-    await db
-      .from("fila_de_espera")
-      .update({ status: "atendido" })
-      .eq("id", item.id)
-      .eq("tenant_id", tenant.id);
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    await supabaseAdmin
-      .from("ofertas_da_fila")
-      .update({ status: "cancelada", respondida_em: new Date().toISOString() })
-      .eq("fila_id", item.id)
-      .eq("status", "enviada");
+    const criado = res as { ok?: boolean; motivo?: string; agendamento_id?: string } | null;
+    if (criado?.ok !== true || !criado.agendamento_id) {
+      if (criado?.motivo === "oferta_pendente")
+        throw new Error("Existe uma oferta em andamento. Aguarde, recuse ou cancele antes de converter.");
+      throw new Error("Esta solicitação mudou de estado. Atualize e tente novamente.");
+    }
     try {
       const { enviarConfirmacaoDeAgendamento } = await import("@/lib/whatsapp/confirmacao.server");
       await enviarConfirmacaoDeAgendamento(criado.agendamento_id);
