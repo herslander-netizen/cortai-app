@@ -2,7 +2,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { Package, Percent, Plus } from "lucide-react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 import { EsqueletoFormulario } from "@/components/layout/Esqueleto";
 import { Screen } from "@/components/layout/Screen";
@@ -35,6 +35,7 @@ import {
   type TipoDePacote,
 } from "@/lib/pacotes";
 import { getPacotes, salvarPacote } from "@/lib/pacotes.functions";
+import { salvarPacoteEAtualizarLista } from "@/lib/pacotes-salvamento";
 
 export const Route = createFileRoute("/barbeiro/pacotes")({
   ssr: false,
@@ -94,6 +95,7 @@ function PacotesPage() {
   });
   const [rascunho, setRascunho] = useState<Rascunho | null>(null);
   const [salvando, setSalvando] = useState(false);
+  const salvandoRef = useRef(false);
   const [erro, setErro] = useState<string | null>(null);
 
   const servicos = data?.servicos ?? [];
@@ -132,11 +134,13 @@ function PacotesPage() {
           : null;
 
   const gravar = async () => {
-    if (!rascunho || problema || centavos === null) return;
+    if (salvandoRef.current || !rascunho || problema || centavos === null) return;
+    salvandoRef.current = true;
     setSalvando(true);
     setErro(null);
     try {
-      await salvar({
+      const { atualizacao } = await salvarPacoteEAtualizarLista(
+        () => salvar({
         data: {
           ...(rascunho.id ? { id: rascunho.id } : {}),
           tipo: rascunho.tipo,
@@ -154,15 +158,22 @@ function PacotesPage() {
             quantidade: rascunho.tipo === "combo" ? 1 : (rascunho.itens[s.id] ?? 1),
           })),
         },
-      });
-      await queryClient.invalidateQueries({ queryKey: ["pacotes"] });
+        }),
+        () => queryClient.invalidateQueries({ queryKey: ["pacotes"] }),
+      );
       aviso.ok(
         rascunho.id ? "Alterações salvas." : "Criado. Aparece na página quando estiver ativo.",
       );
       setRascunho(null);
+      void atualizacao.then((atualizada) => {
+        if (!atualizada) {
+          aviso.info("Pacote salvo, mas a lista não atualizou. Recarregue a página.");
+        }
+      });
     } catch (e) {
       setErro(e instanceof Error ? e.message : "Não foi possível salvar.");
     } finally {
+      salvandoRef.current = false;
       setSalvando(false);
     }
   };
