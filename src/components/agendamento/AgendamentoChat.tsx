@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { motion, useReducedMotion } from "framer-motion";
 import { Check, Info, MessageCircle, RotateCcw, Store } from "lucide-react";
 
 import {
@@ -15,6 +16,7 @@ import { aberturaDoChat, diaPorExtenso } from "@/lib/conversa/respostas";
 import { mascaraTelefone } from "@/lib/previa";
 import { agendamentoStyle } from "@/lib/pagina-config";
 import { pausaDaResposta } from "@/lib/pausa-chat";
+import { CURVA, TEMPO } from "@/lib/movimento-figaro";
 import { statusDeFuncionamento } from "@/lib/status-funcionamento";
 import { AberturaDoChat } from "./chat/AberturaDoChat";
 import { BarraDeMensagem } from "./chat/BarraDeMensagem";
@@ -80,6 +82,7 @@ export function AgendamentoChat({
   });
   const { etapa, abertura, memoria, rascunho } = conversa;
   const [etapaPronta, setEtapaPronta] = useState<string | null>(null);
+  const reduzirMovimento = useReducedMotion();
   const [primeiraVisita, setPrimeiraVisita] = useState(true);
   const nomeRef = useRef<HTMLInputElement>(null);
   const campoRef = useRef<HTMLInputElement>(null);
@@ -251,24 +254,34 @@ export function AgendamentoChat({
               <Fala>
                 <TypingIndicator />
               </Fala>
-            ) : abertura ? null : etapa === "servico" ? (
-              <EtapaServico data={data} selecao={s} />
-            ) : etapa === "profissional" ? (
-              <EtapaProfissional selecao={s} conversa={conversa} />
-            ) : etapa === "dia" ? (
-              <EtapaDia selecao={s} conversa={conversa} />
-            ) : etapa === "horario" ? (
-              <EtapaHorario data={data} selecao={s} conversa={conversa} />
-            ) : (
-              <EtapaDados
-                data={data}
-                selecao={s}
-                nome={nome}
-                telefone={telefone}
-                setNome={setNome}
-                setTelefone={setTelefone}
-                nomeRef={nomeRef}
-              />
+            ) : abertura ? null : (
+              <motion.div
+                key={etapa}
+                className="min-w-0"
+                initial={reduzirMovimento ? false : { opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={reduzirMovimento ? { duration: 0 } : { duration: TEMPO.etapaDeCadastro, ease: CURVA.rapidaParaLenta }}
+              >
+                {etapa === "servico" ? (
+                  <EtapaServico data={data} selecao={s} />
+                ) : etapa === "profissional" ? (
+                  <EtapaProfissional selecao={s} conversa={conversa} />
+                ) : etapa === "dia" ? (
+                  <EtapaDia selecao={s} conversa={conversa} />
+                ) : etapa === "horario" ? (
+                  <EtapaHorario data={data} selecao={s} conversa={conversa} />
+                ) : (
+                  <EtapaDados
+                    data={data}
+                    selecao={s}
+                    nome={nome}
+                    telefone={telefone}
+                    setNome={setNome}
+                    setTelefone={setTelefone}
+                    nomeRef={nomeRef}
+                  />
+                )}
+              </motion.div>
             )}
             {erro ? (
               <Fala>

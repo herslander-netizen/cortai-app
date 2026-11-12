@@ -105,13 +105,13 @@ export function ReservaFigaro(p: PropsDaReserva) {
   const moverFaixa = (direcao: -1 | 1) =>
     faixa.current?.scrollBy({
       left: direcao * Math.max(180, faixa.current.clientWidth * 0.8),
-      behavior: "smooth",
+      behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
     });
 
   // ---- 1. Serviços ----
   if (!servico) {
     return (
-      <main className="fr" data-tema={p.classeDoTema}>
+      <main key="figaro-servicos" className="fr" data-etapa="servicos" data-tema={p.classeDoTema}>
         <header className="fr-topo">
           <button type="button" aria-label="Voltar" onClick={p.voltarParaPagina}>
             <ChevronLeft size={26} aria-hidden />
@@ -153,7 +153,7 @@ export function ReservaFigaro(p: PropsDaReserva) {
   // ---- 3. Seus dados ----
   if (passo === "dados" && escolhido && profEscolhido) {
     return (
-      <main className="fr fr-folha" data-tema={p.classeDoTema}>
+      <main key="figaro-dados" className="fr fr-folha" data-etapa="dados" data-tema={p.classeDoTema}>
         <header className="fr-cabecalho">
           <button type="button" aria-label="Voltar" onClick={() => setPasso("horario")}>
             <ChevronLeft size={24} aria-hidden />
@@ -235,7 +235,7 @@ export function ReservaFigaro(p: PropsDaReserva) {
 
   // ---- 2. Dia e horário ----
   return (
-    <main className="fr fr-folha" data-tema={p.classeDoTema}>
+    <main key="figaro-horarios" className="fr fr-folha" data-etapa="horarios" data-tema={p.classeDoTema}>
       <header className="fr-cabecalho">
         <button
           type="button"

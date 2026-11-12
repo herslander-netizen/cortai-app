@@ -54,6 +54,23 @@ function mediaPtBr(media: number | null) {
   });
 }
 
+/** Entrada progressiva e discreta na rolagem; só transform/opacity no conteúdo. */
+function SecaoComMovimento({ id, children }: { id?: string; children: ReactNode }) {
+  const reduzir = useReducedMotion();
+  return (
+    <motion.section
+      id={id}
+      className="fg-secao"
+      initial={reduzir ? false : { opacity: 0, y: 14 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.12 }}
+      transition={reduzir ? { duration: 0 } : { duration: TEMPO.trocaIntra, ease: CURVA.rapidaParaLenta }}
+    >
+      {children}
+    </motion.section>
+  );
+}
+
 /** Grupo do acordeão de serviços: "Mais procurados 🔥" e uma categoria por grupo, como no Figaro. */
 function GrupoDeServicos({
   titulo,
@@ -315,7 +332,7 @@ export function SiteCompleto({
 
       <main className="fg-corpo">
         {temEquipe ? (
-          <section id="fg-equipe" className="fg-secao">
+          <SecaoComMovimento id="fg-equipe">
             <h2>Equipe</h2>
             <ul className="fg-equipe">
               {data.profissionais.map((p) => (
@@ -342,11 +359,11 @@ export function SiteCompleto({
                 </li>
               ))}
             </ul>
-          </section>
+          </SecaoComMovimento>
         ) : null}
 
         {temServicos ? (
-          <section id="fg-servicos" className="fg-secao">
+          <SecaoComMovimento id="fg-servicos">
             <h2>Serviços</h2>
             {estrutura === "arco" || estrutura === "vibrante" ? (
               <div className="fg-cartas">
@@ -384,11 +401,11 @@ export function SiteCompleto({
                 ))}
               </div>
             )}
-          </section>
+          </SecaoComMovimento>
         ) : null}
 
         {temGaleria ? (
-          <section id="fg-galeria" className="fg-secao">
+          <SecaoComMovimento id="fg-galeria">
             <h2>{sec.galeria.titulo || "Galeria de Fotos"}</h2>
             {sec.galeria.subtitulo ? <p className="fg-sub">{sec.galeria.subtitulo}</p> : null}
             <div className="fg-galeria">
@@ -403,11 +420,11 @@ export function SiteCompleto({
                 />
               ))}
             </div>
-          </section>
+          </SecaoComMovimento>
         ) : null}
 
         {temAvaliacoes ? (
-          <section id="fg-avaliacoes" className="fg-secao">
+          <SecaoComMovimento id="fg-avaliacoes">
             <h2>Avaliações</h2>
             {sec.avaliacoes.mostrarResumo ? (
               <p className="fg-nota">
@@ -418,11 +435,11 @@ export function SiteCompleto({
             ) : (
               <p className="fg-sub">{data.avaliacoes.quantidade} avaliações verificadas</p>
             )}
-          </section>
+          </SecaoComMovimento>
         ) : null}
 
         {temLocal ? (
-          <section id="fg-local" className="fg-secao">
+          <SecaoComMovimento id="fg-local">
             <h2>Localização</h2>
             <a
               className="fg-link"
@@ -436,11 +453,11 @@ export function SiteCompleto({
             {sec.localizacao.mostrarDetalhes && sec.localizacao.bio ? (
               <p className="fg-sub">{sec.localizacao.bio}</p>
             ) : null}
-          </section>
+          </SecaoComMovimento>
         ) : null}
 
         {temContato ? (
-          <section id="fg-contato" className="fg-secao">
+          <SecaoComMovimento id="fg-contato">
             <h2>Contato</h2>
             <a
               className="fg-link"
@@ -455,11 +472,11 @@ export function SiteCompleto({
               )}
               {contatoEhWhatsapp ? "Chamar no WhatsApp" : "Ligar"}
             </a>
-          </section>
+          </SecaoComMovimento>
         ) : null}
 
         {temRedes ? (
-          <section className="fg-secao">
+          <SecaoComMovimento>
             <h2>Redes Sociais</h2>
             <div className="fg-redes">
               {instagram ? (
@@ -479,7 +496,7 @@ export function SiteCompleto({
                 </a>
               ))}
             </div>
-          </section>
+          </SecaoComMovimento>
         ) : null}
 
         <section id="fg-fim" className="fg-final" ref={finalRef}>
