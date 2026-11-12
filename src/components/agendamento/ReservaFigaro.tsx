@@ -87,7 +87,7 @@ export function ReservaFigaro(p: PropsDaReserva) {
             servico,
             profissionais: p.profissionais,
             horarios: p.horarios,
-            intervalosPorData: p.intervalosPorData,
+            ...(p.intervalosPorData ? { intervalosPorData: p.intervalosPorData } : {}),
             fuso: p.fuso,
             ocupados: p.ocupados,
             regras: p.regras,
