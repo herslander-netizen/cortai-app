@@ -26,6 +26,12 @@ BEGIN
     RAISE EXCEPTION 'Mais de uma oferta ativa por vaga; reconciliar antes de migrar.';
   END IF;
   IF EXISTS (
+    SELECT 1 FROM public.ofertas_da_fila
+    WHERE status = 'enviada' AND agendamento_liberado_id IS NULL
+  ) THEN
+    RAISE EXCEPTION 'Oferta ativa sem vaga de origem; reconciliar antes de migrar.';
+  END IF;
+  IF EXISTS (
     SELECT 1 FROM public.ofertas_da_fila o
     LEFT JOIN public.fila_de_espera f
       ON f.id = o.fila_id AND f.tenant_id = o.tenant_id
