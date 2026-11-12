@@ -127,6 +127,29 @@ describe("motor da fila — não reintroduzir gravações não atômicas", () =>
 describe("proposta SQL — verificações estruturais antes de uma migração", () => {
   const sql = readFileSync("docs/sql/fila-ofertas-transacionais-proposta-2026-11-12.sql", "utf8");
 
+  it("não contém definições duplicadas na proposta SQL", () => {
+    for (const fn of [
+      "reservar_oferta_da_fila",
+      "encerrar_oferta_da_fila",
+      "aceitar_oferta_da_fila",
+      "retirar_entrada_da_fila",
+      "converter_entrada_da_fila",
+    ]) {
+      expect(sql.split(`CREATE OR REPLACE FUNCTION public.${fn}(`)).toHaveLength(2);
+    }
+    expect(sql.split("COMMIT;")).toHaveLength(2);
+  });
+
+  it("revalida a janela de horário no banco e não mistura fila de chegada", () => {
+    expect(sql).toContain("v_f.janela_preferida IS NULL");
+    expect(sql).toContain("nao_e_lista_de_espera");
+    expect(sql).toContain("v_inicio_local := _inicio AT TIME ZONE v_fuso");
+    expect(sql).toContain("to_char(v_inicio_local, 'YYYY-MM-DD')");
+    expect(sql).toContain("to_char(v_inicio_local, 'HH24:MI')");
+    expect(sql).toContain("extract(hour FROM v_inicio_local)");
+    expect(sql).toContain("janela_incompativel");
+  });
+
   it("relaciona entrada à oferta, com um índice ativo por entrada", () => {
     expect(sql).toContain("oferta_atual_id uuid");
     expect(sql).toContain("ofertas_da_fila_uma_ativa_por_entrada");
