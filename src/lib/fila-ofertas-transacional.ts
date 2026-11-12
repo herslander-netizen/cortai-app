@@ -1,7 +1,7 @@
 /**
  * Contrato TypeScript da fase transacional da lista de espera.
- * Não é utilizado pelo motor atual até a proposta SQL ser homologada.
- * As RPCs devem existir antes de integrar este adaptador ao fluxo.
+ * Já é utilizado pelo motor na branch isolada do PR; não publicar antes da
+ * implantação coordenada das RPCs, que ainda não existem na prévia/produção.
  */
 export type ExecutarRpcDaFila = (
   nome: "reservar_oferta_da_fila" | "encerrar_oferta_da_fila",
