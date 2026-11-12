@@ -122,7 +122,7 @@ function CampanhasPage() {
           <Aviso tom="atencao" titulo="Etapa de planejamento">
             Você pode simular uma campanha, mas ela ainda não é salva nem publicada.
             O resgate e a cobrança precisam ser integrados e validados no caixa.
-          </Avis>
+          </Aviso>
 
           {consulta.isLoading ? <EsqueletoFormulario campos={3} /> : null}
           {consulta.isError ? (
