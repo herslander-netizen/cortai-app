@@ -181,6 +181,7 @@ describe("recuperação automática de vagas", () => {
     };
     const { ofertarVaga } = await import("./fila-ofertas.server");
     const r = await ofertarVaga("ag1");
+    expect(r.motivo).toBe("sem_compativel");
     expect(r.ofertaId).toBeNull();
     // Primeiro e segundo sem telefone: ambos foram tentados uma vez.
     expect(st.inserts).toHaveLength(2);
