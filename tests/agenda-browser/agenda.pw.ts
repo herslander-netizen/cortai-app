@@ -38,8 +38,11 @@ test("alternância repetida, agenda densa e relatório de latência do navegador
   const p95 = ordenado[Math.ceil(ordenado.length * 0.95) - 1] ?? NaN;
   console.log(`LATENCIA ${testInfo.project.name}: mediada=${mediana.toFixed(1)}ms p95=${p95.toFixed(1)}ms n=${ordenado.length}`);
   expect(ordenado.length).toBeGreaterThanOrEqual(6);
-  // Limite largo anti-travamento, NÃO garantia de 60 FPS nem SLO em Android real.
-  expect(p95).toBeLessThan(3000);
+  // Orçamento conservador de responsividade no Chromium do CI. O p95 medido
+  // no baseline com 120 itens ficou em 104-114ms; 1000ms permite variância
+  // do runner, mas impede regressões graves de espera após o clique.
+  // Não é garantia de 60 FPS nem SLO em Android real.
+  expect(p95).toBeLessThan(1000);
   expect(erros).toEqual([]);
 });
 
