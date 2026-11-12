@@ -262,7 +262,7 @@ def test_tenant_isolation():
         wrong_close = close(c, x, valid["oferta_id"], tenant="other_tenant")
         assert wrong_close["motivo"] == "oferta_inativa"
     assert scalar("SELECT oferta_atual_id FROM public.fila_de_espera WHERE id=%s",
-                  x["entry1"]) == valid["oferta_id"]
+                  x["entry1"]) == uuid.UUID(valid["oferta_id"])
 
 
 def test_walk_in_queue_without_offer():
