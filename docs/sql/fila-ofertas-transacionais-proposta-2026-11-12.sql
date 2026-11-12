@@ -390,7 +390,9 @@ BEGIN
     UPDATE public.ofertas_da_fila
        SET status = 'cancelada', respondida_em = clock_timestamp()
      WHERE id = v_o.id AND tenant_id = _tenant_id;
-  ELSIF v_f.status = 'avisado' THEN
+  ELSIF v_f.status = 'avisado' AND v_f.janela_preferida IS NOT NULL THEN
+    -- A fila de chegada (janela NULL) pode ter aviso manual, sem oferta;
+    -- somente a lista de espera exige vínculo com a oferta atual.
     RETURN jsonb_build_object('ok', false, 'motivo', 'vinculo_inconsistente');
   END IF;
   UPDATE public.fila_de_espera
