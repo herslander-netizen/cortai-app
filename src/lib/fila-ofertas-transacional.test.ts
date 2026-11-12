@@ -199,8 +199,8 @@ describe("proposta SQL — verificações estruturais antes de uma migração", 
     expect(aceite).toContain("AND servico_id = v_o.servico_id");
     expect(aceite).toContain("AND inicio = v_o.inicio AND status = 'agendado'");
     expect(aceite).toContain("RAISE EXCEPTION 'agendamento não corresponde à oferta'");
-    expect(aceite.indexOf("IF NOT FOUND THEN")).toBeGreaterThan(aceite.indexOf("SET origem_fila_id = v_f.id"));
-    expect(aceite.indexOf("status = 'aceita'")).toBeGreaterThan(aceite.indexOf("RAISE EXCEPTION 'agendamento não corresponde à oferta'"));
+    expect(aceite.indexOf("IF NOT FOUND THEN", aceite.indexOf("SET origem_fila_id = v_f.id"))).toBeGreaterThan(aceite.indexOf("SET origem_fila_id = v_f.id"));
+    expect(aceite.lastIndexOf("status = 'aceita'")).toBeGreaterThan(aceite.indexOf("RAISE EXCEPTION 'agendamento não corresponde à oferta'"));
   });
 
   it("remove uma entrada e oferta no mesmo commit, preservando a fila de chegada", () => {
