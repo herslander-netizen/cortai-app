@@ -5,6 +5,7 @@
  * Nunca reserva sem o cliente confirmar. Nunca lança para quem cancelou.
  */
 import { fusoDoTenant } from "@/lib/fuso.server";
+import { classificarImpedimentoDeOferta } from "@/lib/fila-ofertas-canal";
 import { LINKS_DE_TELA } from "@/lib/links-de-tela";
 import {
   STATUS_QUE_OCUPAM,
@@ -347,14 +348,17 @@ async function enviarOferta(ofertaId: string): Promise<EntregaDaOferta> {
   const clienteId = (o.fila_de_espera as { cliente_id?: string | null } | null)?.cliente_id ?? null;
   // Porteiro do telefone + autorização específica para receber ofertas da lista.
   const { decisaoDeEnvio } = await import("./porteiro.server");
-  if (!(await decisaoDeEnvio(clienteId)).pode) return "sem_canal";
+  const decisaoTitularidade = await decisaoDeEnvio(clienteId);
+  if (!decisaoTitularidade.pode)
+    return classificarImpedimentoDeOferta(decisaoTitularidade.motivo);
   const { verificarConsentimentoWhatsapp } = await import("./consentimento.server");
   const autorizacaoInicial = await verificarConsentimentoWhatsapp({
     tenantId: o.tenant_id,
     telefone,
     finalidade: "lista_espera",
   });
-  if (!autorizacaoInicial.pode) return "sem_canal";
+  if (!autorizacaoInicial.pode)
+    return classificarImpedimentoDeOferta(autorizacaoInicial.motivo);
 
   // Toda oferta vira um envio: entra nas entregas, falhas e métricas.
   const { data: envio, error: erroEnvio } = await db
@@ -461,7 +465,7 @@ async function enviarOferta(ofertaId: string): Promise<EntregaDaOferta> {
         proxima_tentativa_em: null,
       })
       .eq("id", envioId);
-    return "sem_canal";
+    return classificarImpedimentoDeOferta(autorizacaoFinal.motivo);
   }
 
   try {
