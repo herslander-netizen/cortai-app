@@ -42,10 +42,13 @@ export const getPacotes = createServerFn({ method: "GET" })
     ]);
     if (servicos.error) throw new Error("Não foi possível consultar os serviços do negócio.");
     const servicosAtivos = servicos.data ?? [];
-    if (tabelaAusente(pacotes.error) || tabelaAusente(itens.error)) {
+    if (tabelaAusente(pacotes.error)) {
       return { disponivel: false as const, pacotes: [], servicos: servicosAtivos };
     }
     if (pacotes.error) throw new Error(pacotes.error.message);
+    if (tabelaAusente(itens.error)) {
+      return { disponivel: false as const, pacotes: [], servicos: servicosAtivos };
+    }
     if (itens.error) throw new Error(itens.error.message);
     return {
       disponivel: true as const,
@@ -121,6 +124,16 @@ export const salvarPacote = createServerFn({ method: "POST" })
     };
     let pacoteId = data.id;
     if (pacoteId) {
+      // Nunca tratar uma edição de ID inexistente/de outro tenant como sucesso.
+      // Evita apagar ou anexar itens a uma referência não autorizada.
+      const { data: existente, error: erroExistente } = await db(context)
+        .from("pacotes")
+        .select("id")
+        .eq("id", pacoteId)
+        .eq("tenant_id", tenantId)
+        .maybeSingle();
+      if (erroExistente) throw new Error(erroExistente.message);
+      if (!existente) throw new Error("Pacote não encontrado neste negócio.");
       const { error } = await db(context)
         .from("pacotes")
         .update(campos)
