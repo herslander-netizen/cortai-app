@@ -33,3 +33,11 @@ Os testes de navegador exercitam **componentes reais em bancada isolada**, não 
 - Latências observadas por cenário e dispositivo simulado.
 - Correções apenas para problemas comprovados, com testes de regressão.
 - Lista separada das pendências de homologação integrada/Android.
+
+## Resultado da primeira homologação automatizada — 12/11/2026
+
+- [GitHub Actions — Auditoria da Agenda #43279408864](https://github.com/herslander-netizen/cortai-app/actions/runs/43279408864): cinco grupos Vitest aprovados; **12 testes Chromium aprovados** em 360/390/1280 px.
+- [GitHub Actions — Validate Flow #43279408838](https://github.com/herslander-netizen/cortai-app/actions/runs/43279408838): **372 arquivos de teste, 2.949 testes aprovados, 1 ignorado**; build e TypeScript aprovados.
+- Com **120 eventos fictícios e 8 alternâncias por resolução**, latência de clique ao primeiro quadro: 360 px mediana **81,3ms**, p95 **109,3ms**; 390 px mediana **105,5ms**, p95 **113,5ms**; 1280 px mediana **90,5ms**, p95 **103,5ms**. Limite de regressão proposto na bancada: p95 inferior a 1000ms.
+- **Resultado:** nenhuma falha de interface foi reproduzida **na bancada isolada**. Não houve correções no componente de produção: os problemas encontrados foram na preparação do teste (runner do Playwright, caminho do servidor Vite e isolamento das specs de navegador), todos corrigidos.
+- **Fora de escopo:** painel autenticado com serviços reais, endpoints do backend, RLS, WhatsApp, dispositivos Android físicos, FPS real, latência de rede e captura de gestos multitouch em hardware.
