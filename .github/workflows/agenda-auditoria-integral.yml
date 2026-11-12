@@ -51,7 +51,8 @@ jobs:
 
   chromium-multitela:
     name: Agenda / Chromium 360 390 1280
-    runs-on: ubuntu-latest
+    # Playwright 1.56 suporta 24.04; ubuntu-latest usa 26.04 no Actions atual.
+    runs-on: ubuntu-24.04
     timeout-minutes: 25
     steps:
       - name: Checkout
