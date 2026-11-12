@@ -70,6 +70,36 @@ const botao = (nome: string) =>
   );
 
 describe("cobrança em duas etapas, como no Figaro (vídeo do dono, 31/10)", () => {
+  it("oferece desconto em reais ou porcentagem sem receber ao escolher", async () => {
+    const alvo = document.createElement("div");
+    document.body.appendChild(alvo);
+    const raiz = createRoot(alvo);
+    limpar.push(() => act(() => raiz.unmount()));
+    const qc = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    act(() =>
+      raiz.render(
+        createElement(
+          QueryClientProvider,
+          { client: qc },
+          createElement(FechamentoComanda, {
+            agendamentoId: "a",
+            onFechar: () => {},
+            onConcluido: () => {},
+          }),
+        ),
+      ),
+    );
+    await esperar();
+    act(() => botao("Adicionar desconto")!.click());
+    await esperar();
+    const percentual = botao("%");
+    expect(percentual).toBeDefined();
+    act(() => percentual!.click());
+    await esperar();
+    expect(document.querySelector('input[aria-label="Desconto em porcentagem"]')).not.toBeNull();
+    expect(fn.pagar).not.toHaveBeenCalled();
+  });
+
   it("escolher a forma não registra nada; só 'Confirmar pagamento' paga, com a mesma ação de antes", async () => {
     const alvo = document.createElement("div");
     document.body.appendChild(alvo);
@@ -103,7 +133,12 @@ describe("cobrança em duas etapas, como no Figaro (vídeo do dono, 31/10)", () 
     await esperar();
     expect(fn.pagar).not.toHaveBeenCalled();
     expect(document.body.textContent).toContain("Valor exato");
+    expect(document.body.textContent).toContain("Falta receber");
+    expect((botao("Confirmar pagamento") as HTMLButtonElement).disabled).toBe(true);
 
+    act(() => botao("Valor exato")!.click());
+    await esperar();
+    expect((botao("Confirmar pagamento") as HTMLButtonElement).disabled).toBe(false);
     await act(async () => botao("Confirmar pagamento")!.click());
     await esperar();
     expect(fn.salvar).toHaveBeenCalledTimes(1);
