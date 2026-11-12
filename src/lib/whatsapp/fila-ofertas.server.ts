@@ -256,7 +256,7 @@ export async function ofertarVaga(
             executarTransicaoDaFila(db),
             { tenantId: ag.tenant_id, ofertaId, estado: "cancelada" },
           );
-          if (!encerramento.ok)
+          if (!encerramento.ok || !encerramento.liberouFila)
             return { ofertaId, motivo: "cancelamento_pendente" };
           continue;
         }
