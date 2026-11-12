@@ -4,7 +4,9 @@
  * antecedência mínima e profissional. Grava pelo servidor (permissão conferida no banco).
  */
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ChevronRight, SlidersHorizontal } from "lucide-react";
+import { ChevronRight, CircleAlert, SlidersHorizontal } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Aviso } from "@/components/ui/aviso";
 import { useEffect, useState } from "react";
 
 import {
@@ -61,6 +63,16 @@ export function RegrasDaLista() {
     onError: () => aviso.erro("Você não tem permissão para isso ou a conexão falhou."),
   });
 
+  if (regras.isError) {
+    return (
+      <Aviso tom="atencao">
+        Não foi possível consultar as regras agora. Isso não impede o uso da lista de espera.
+        <Button variant="outline" size="sm" className="mt-2" onClick={() => void regras.refetch()}>
+          Tentar novamente
+        </Button>
+      </Aviso>
+    );
+  }
   if (!regras.data) return null;
   return (
     <>
@@ -80,6 +92,16 @@ export function RegrasDaLista() {
         </span>
         <ChevronRight aria-hidden className="size-4 shrink-0 text-mute" />
       </Button>
+      {!regras.data.disponivel ? (
+        <div className="mt-2 flex flex-wrap items-center gap-2 px-1">
+          <Badge variant="outline" className="gap-1.5 text-paper">
+            <CircleAlert aria-hidden /> Atualização necessária
+          </Badge>
+          <span className="text-[12px] leading-5 text-mute">
+            A lista continua funcionando com as regras padrão; a edição depende de uma atualização do Flow.
+          </span>
+        </div>
+      ) : null}
 
       <FolhaPadrao
         aberto={aberta}
@@ -141,7 +163,7 @@ export function RegrasDaLista() {
             </NotaDaFolha>
             {!regras.data.disponivel ? (
               <NotaDaFolha tom="erro">
-                As regras ainda não podem ser salvas neste ambiente (atualização do banco pendente).
+                A lista continua funcionando. Para editar estas opções, é necessária uma atualização do Flow.
               </NotaDaFolha>
             ) : null}
           </>
