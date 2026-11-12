@@ -11,7 +11,7 @@ describe("Catálogo: microanimação SOMENTE no ícone do botão Cards", () => {
     expect(transicao).toContain('initial={reduzirMovimento ? false : { opacity: 0, y: 28 }}');
     expect(transicao).toContain("animate={{ opacity: 1, y: 0 }}");
     expect(transicao).not.toContain('chave === "lista" ? "100%" : "-100%"');
-    expect(operacional).not.toContain("celular={celular}");
+    expect(operacional).toContain('<TrocaDeVisualizacao chave={celular && visualizacao === "lista" ? "lista" : "grade"}>');
     expect(estilos).not.toContain("#agenda-painel-visualizacao {\n    overflow-x: clip;");
   });
 
