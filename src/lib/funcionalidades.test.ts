@@ -4,6 +4,7 @@ import {
   FUNCIONALIDADES,
   dependentesLigados,
   dependenciaPendente,
+  decisaoBloqueioFiado,
   estadoDe,
   funcionalidade,
   podeAlterar,
@@ -87,6 +88,18 @@ describe("painel de funcionalidades", () => {
       "Produtos e estoque",
     );
     expect(dependenciaPendente(funcionalidade("modo_foco"), leitura)).toBeNull();
+  });
+
+  it("não ativa fiado ao desligar um bloqueio inexistente", () => {
+    expect(decisaoBloqueioFiado(false, null)).toBe("ignorar");
+    expect(decisaoBloqueioFiado(false, { ativo: false })).toBe("salvar");
+    expect(decisaoBloqueioFiado(false, { ativo: true })).toBe("salvar");
+  });
+
+  it("não deixa ativar bloqueio sem fiado já habilitado", () => {
+    expect(() => decisaoBloqueioFiado(true, null)).toThrow('Ative "Fiado"');
+    expect(() => decisaoBloqueioFiado(true, { ativo: false })).toThrow('Ative "Fiado"');
+    expect(decisaoBloqueioFiado(true, { ativo: true })).toBe("salvar");
   });
 
   it("resumo conta só interruptores reais", () => {
