@@ -140,25 +140,26 @@ function PacotesPage() {
     setErro(null);
     try {
       const { atualizacao } = await salvarPacoteEAtualizarLista(
-        () => salvar({
-        data: {
-          ...(rascunho.id ? { id: rascunho.id } : {}),
-          tipo: rascunho.tipo,
-          nome: rascunho.nome.trim(),
-          descricao: rascunho.descricao.trim() || null,
-          precoCentavos: centavos,
-          validadeDias:
-            rascunho.tipo === "pacote" && Number(rascunho.validade) > 0
-              ? Math.min(730, Math.round(Number(rascunho.validade)))
-              : null,
-          destaque: rascunho.destaque,
-          ativo: rascunho.ativo,
-          itens: selecionados.map((s) => ({
-            servicoId: s.id,
-            quantidade: rascunho.tipo === "combo" ? 1 : (rascunho.itens[s.id] ?? 1),
-          })),
-        },
-        }),
+        () =>
+          salvar({
+            data: {
+              ...(rascunho.id ? { id: rascunho.id } : {}),
+              tipo: rascunho.tipo,
+              nome: rascunho.nome.trim(),
+              descricao: rascunho.descricao.trim() || null,
+              precoCentavos: centavos,
+              validadeDias:
+                rascunho.tipo === "pacote" && Number(rascunho.validade) > 0
+                  ? Math.min(730, Math.round(Number(rascunho.validade)))
+                  : null,
+              destaque: rascunho.destaque,
+              ativo: rascunho.ativo,
+              itens: selecionados.map((s) => ({
+                servicoId: s.id,
+                quantidade: rascunho.tipo === "combo" ? 1 : (rascunho.itens[s.id] ?? 1),
+              })),
+            },
+          }),
         () => queryClient.invalidateQueries({ queryKey: ["pacotes"] }),
       );
       aviso.ok(
