@@ -72,9 +72,19 @@ try {
         if (!visible?.includes(dest)) {
           throw new Error("Modo final divergente (" + variant + " " + viewport.name + "): " + visible);
         }
-        const panelCount = await page.locator("#agenda-painel-visualizacao").evaluate((p) => p.children.length);
-        if (panelCount !== 1) {
-          issues.push(variant + " " + viewport.name + " " + volume + " itens: " + panelCount + " painéis após 360ms");
+        // O rAF termina ~360ms após pointerdown, mas o React pode levar 100ms+
+        // para montar 120 eventos ANTES de iniciar a animação de saída de 280ms.
+        // Esperar a animação de saída concluir, em vez de contar painéis cedo.
+        try {
+          await page.waitForFunction(
+            () => document.querySelector("#agenda-painel-visualizacao")?.children.length === 1,
+            undefined,
+            { timeout: 1800 },
+          );
+        } catch {
+          const panelCount = await page.locator("#agenda-painel-visualizacao").evaluate((p) => p.children.length);
+          issues.push(variant + " " + viewport.name + " " + volume +
+            " itens: " + panelCount + " painéis mesmo após finalizar saída");
         }
       }
 
@@ -109,7 +119,11 @@ try {
     await toggle.click();
     await page.waitForTimeout(40);
     await toggle.click();
-    await page.waitForTimeout(450);
+    await page.waitForFunction(
+      () => document.querySelector("#agenda-painel-visualizacao")?.children.length === 1,
+      undefined,
+      { timeout: 1800 },
+    );
     const modeAfter = await page.locator('[data-testid="modo-atual"]').textContent();
     const countAfter = await page.locator("#agenda-painel-visualizacao").evaluate((p) => p.children.length);
     if (!modeAfter?.includes("timeline") || countAfter !== 1) {
