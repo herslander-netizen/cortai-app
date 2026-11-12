@@ -70,3 +70,14 @@ antes de eventual migração, nem comprova ausência de corridas futuras.
 5. Confirmar índices, grants, RLS, monitoramento e comportamento mobile.
 6. Somente então aplicar na prévia mediante revisão/autorização específica.
    Produção permanece sem alteração automática.
+
+### Proteção de prioridade em falhas transitórias
+
+O motor também passou a distinguir **negativa comprovada de canal** de
+**consulta de consentimento/titularidade indisponível**. Erro de consulta não
+é prova de que a pessoa recusou o WhatsApp: fica em `entrega_indeterminada`
+(em vez de descartar sua vez) e a mensagem NÃO é enviada sem autorização.
+Casos de número inválido, opt-out, telefone não confirmado e conexão ausente
+continuam falhando fechados. O teste `src/lib/fila-ofertas-canal.test.ts`
+cobre a distinção. A posterior reconciliação precisa continuar vinculada
+à oferta específica, não à posição genérica da fila.
