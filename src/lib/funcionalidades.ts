@@ -383,6 +383,19 @@ export function dependenciaPendente(
   };
 }
 
+/**
+ * Não criar uma regra de fiado ativa só porque o usuário acionou o controle
+ * de bloqueio de limite. Desligar bloqueio sem regra existente é idempotente.
+ */
+export function decisaoBloqueioFiado(
+  ativarBloqueio: boolean,
+  regraFiado: { ativo: boolean } | null,
+): "ignorar" | "salvar" {
+  if (ativarBloqueio && !regraFiado?.ativo)
+    throw new Error('Ative "Fiado" antes de bloquear agendamentos por limite.');
+  return regraFiado ? "salvar" : "ignorar";
+}
+
 /** Itens ligados que dependem deste (para avisar antes de desligar). */
 export function dependentesLigados(chave: ChaveDeFuncionalidade, l: LeituraDasFuncionalidades) {
   return FUNCIONALIDADES.filter((x) => x.depende === chave && estadoDe(x, l) === "ativo");
