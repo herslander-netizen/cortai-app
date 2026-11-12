@@ -57,9 +57,10 @@ BEGIN
     RAISE EXCEPTION 'dados invalidos do pacote' USING ERRCODE = '22023';
   END IF;
 
-  IF jsonb_typeof(_itens) IS DISTINCT FROM 'array'
-    OR jsonb_array_length(_itens) NOT BETWEEN 1 AND 12
-  THEN
+  IF jsonb_typeof(_itens) IS DISTINCT FROM 'array' THEN
+    RAISE EXCEPTION 'itens devem ser uma lista' USING ERRCODE = '22023';
+  END IF;
+  IF jsonb_array_length(_itens) NOT BETWEEN 1 AND 12 THEN
     RAISE EXCEPTION 'informe de 1 a 12 servicos' USING ERRCODE = '22023';
   END IF;
 
