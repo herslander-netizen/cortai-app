@@ -1,5 +1,4 @@
 import { Crosshair } from "lucide-react";
-import { AnimatePresence, motion } from "framer-motion";
 import {
   useCallback,
   useEffect,
@@ -14,7 +13,6 @@ import { BotaoCircularAdicionar } from "./BotaoCircularAdicionar";
 import { useMediaQuery } from "@/hooks/use-mobile";
 import { useMenosMovimento } from "@/hooks/useMovimento";
 import { useTecladoAberto } from "@/hooks/useTecladoAberto";
-import { SUAVE } from "@/lib/motion";
 
 import type { VisualizacaoAgenda } from "./CabecalhoAgenda";
 import { solicitarAgora } from "./pilula-agora";
@@ -51,7 +49,7 @@ function IconeAgendaFigaroDoPe() {
       style={{ color: "var(--agenda-acao)" }}
     >
       <path d="M6.2 4.3h11.6" />
-      <path d="M4.2 8h15.6" />
+      <path className="agenda-icone-catalogo-tampa" d="M4.2 8h15.6" />
       <rect className="agenda-icone-catalogo-caixa" x="2.6" y="11.2" width="18.8" height="10" rx="3" />
     </svg>
   );
@@ -91,8 +89,8 @@ export function BotaoAgoraPrincipal({
   // A próxima intenção é guardada imediatamente: dois toques rápidos não podem
   // ficar presos num cooldown nem reutilizar a prop antiga antes do próximo render.
   const visaoSolicitada = useRef(visualizacao);
-  // Só dispara o microefeito do ícone após um acionamento deste botão.
-  const acionouVisualizacao = useRef(false);
+  // Somente o clique neste botão inicia a animação; mudanças externas não.
+  const visaoAcionadaPeloBotao = useRef<VisualizacaoAgenda | null>(null);
   useEffect(() => {
     visaoSolicitada.current = visualizacao;
   }, [visualizacao]);
@@ -144,7 +142,7 @@ export function BotaoAgoraPrincipal({
   function alternarVisualizacao() {
     const destino = visaoSolicitada.current === "timeline" ? "lista" : "timeline";
     visaoSolicitada.current = destino;
-    acionouVisualizacao.current = true;
+    visaoAcionadaPeloBotao.current = destino;
     onVisualizacao(destino);
   }
 
@@ -157,7 +155,7 @@ export function BotaoAgoraPrincipal({
     evento.preventDefault();
     const destino = evento.key === "Home" ? "timeline" : evento.key === "End" ? "lista" : proxima;
     visaoSolicitada.current = destino;
-    acionouVisualizacao.current = true;
+    visaoAcionadaPeloBotao.current = destino;
     onVisualizacao(destino);
   }
 
@@ -194,24 +192,18 @@ export function BotaoAgoraPrincipal({
             onClick={alternarVisualizacao}
             onPointerUp={soltarFocoDoToque}
           >
-            {/* Referência Catálogo: o botão permanece imóvel; apenas os traços
-                do ícone fazem um microefeito ao alternar a visualização. */}
+            {/* No Catálogo, apenas os elementos internos do ícone se movem.
+                A pílula e o ícone completo não giram, pulam nem deslizam. */}
             <span
+              key={proxima}
               className="relative inline-grid size-6 place-items-center"
-              data-animacao={acionouVisualizacao.current || undefined}
+              data-animacao={visaoAcionadaPeloBotao.current === visualizacao || undefined}
+              onAnimationEnd={() => {
+                if (visaoAcionadaPeloBotao.current === visualizacao)
+                  visaoAcionadaPeloBotao.current = null;
+              }}
             >
-              <AnimatePresence initial={false} mode="sync">
-                <motion.span
-                  key={proxima}
-                  className="absolute inset-0 grid place-items-center"
-                  initial={menosMovimento ? false : { opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0, transition: { duration: 0.06 } }}
-                  transition={{ duration: menosMovimento ? 0 : 0.1, ease: SUAVE }}
-                >
-                  {proxima === "lista" ? <IconeListaFigaro /> : <IconeAgendaFigaroDoPe />}
-                </motion.span>
-              </AnimatePresence>
+              {proxima === "lista" ? <IconeListaFigaro /> : <IconeAgendaFigaroDoPe />}
             </span>
           </Button>
           {filtro ? (

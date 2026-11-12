@@ -16,20 +16,28 @@ describe("Catálogo: microanimação SOMENTE no ícone do botão Cards", () => {
   });
 
   it("anima apenas traços da lista e a caixa do ícone Catálogo, sem mover o botão", () => {
-    expect(botao).toContain("data-animacao={acionouVisualizacao.current || undefined}");
+    expect(botao).toContain("data-animacao={visaoAcionadaPeloBotao.current === visualizacao || undefined}");
     expect(botao).toContain('className="agenda-icone-catalogo-caixa"');
     expect(botao).toContain('className="agenda-icone-cards-linha"');
     expect(estilos).toContain("@keyframes agenda-icone-catalogo-acionar");
     expect(estilos).toContain("@keyframes agenda-icone-cards-desenhar");
+    expect(estilos).toContain("@keyframes agenda-icone-catalogo-tampa");
+    expect(estilos).toContain("animation: agenda-icone-catalogo-acionar 520ms");
+    expect(estilos).toContain("transform-origin: center top;");
     expect(estilos).toMatch(/button\.agenda-botao-agora-visualizacao:active \{\s*transform: none;/);
     expect(botao).not.toContain("rotate:");
-    expect(botao).toContain("className=\"absolute inset-0 grid place-items-center\"");
+    expect(botao).toContain("key={proxima}");
+    expect(botao).not.toContain("AnimatePresence");
+    expect(botao).not.toContain("<motion.span");
   });
 
   it("só dispara o efeito após acionamento e respeita movimento reduzido", () => {
-    expect(botao).toContain("acionouVisualizacao.current = true;");
+    expect(botao).toContain("visaoAcionadaPeloBotao.current = destino;");
+    expect(botao).toContain("onAnimationEnd");
+    expect(botao).toContain("visaoAcionadaPeloBotao.current = null;");
     expect(estilos).toContain("@media (prefers-reduced-motion: reduce) {");
     expect(estilos).toContain(".agenda-icone-catalogo-caixa,");
+    expect(estilos).toContain(".agenda-icone-catalogo-tampa,");
     expect(estilos).toContain("animation: none;");
   });
 });

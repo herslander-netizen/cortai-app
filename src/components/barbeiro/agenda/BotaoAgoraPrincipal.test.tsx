@@ -103,6 +103,46 @@ describe("BotaoAgoraPrincipal", () => {
     ]);
   });
 
+
+  it("não anima na montagem inicial nem em troca externa: somente no toque", async () => {
+    const onVisualizacao = vi.fn();
+    await montar(390, "timeline", onVisualizacao);
+    const gatilho = host?.querySelector<HTMLButtonElement>('[aria-label="Mostrar Lista"]');
+    expect(gatilho?.querySelector("[data-animacao]")).toBeNull();
+    act(() => gatilho?.click());
+    expect(onVisualizacao).toHaveBeenCalledWith("lista");
+
+    await act(async () =>
+      raiz?.render(
+        <BotaoAgoraPrincipal
+          visualizacao="lista"
+          onVisualizacao={onVisualizacao}
+          ehHoje
+          onHoje={vi.fn()}
+          menuAberto={false}
+          onAlternarMenu={vi.fn()}
+        />,
+      ),
+    );
+    const icone = host?.querySelector<HTMLElement>("[data-animacao]");
+    expect(icone?.querySelector(".agenda-icone-catalogo-caixa")).not.toBeNull();
+    act(() => icone?.dispatchEvent(new Event("animationend", { bubbles: true })));
+
+    await act(async () =>
+      raiz?.render(
+        <BotaoAgoraPrincipal
+          visualizacao="timeline"
+          onVisualizacao={onVisualizacao}
+          ehHoje
+          onHoje={vi.fn()}
+          menuAberto={false}
+          onAlternarMenu={vi.fn()}
+        />,
+      ),
+    );
+    expect(host?.querySelector("[data-animacao]")).toBeNull();
+  });
+
   it("mantém um único FAB e representa os estados fechado e aberto", async () => {
     const onAlternarMenu = vi.fn();
     await montar(390, "timeline", vi.fn(), true, vi.fn(), false, onAlternarMenu);
