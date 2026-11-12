@@ -19,6 +19,17 @@ describe("Figaroo → Flow: fluxo real de profissionais por serviço", () => {
     expect(funcao).toContain("if (error) throw new Error");
   });
 
+  it("não transforma erro de leitura do catálogo em lista vazia", () => {
+    const inicio = servidor.indexOf("export const getConfiguracaoInicial =");
+    const fim = servidor.indexOf("export const salvarDadosDaBarbearia =", inicio);
+    const bloco = servidor.slice(inicio, fim);
+    expect(inicio).toBeGreaterThan(0);
+    expect(bloco).toContain("if (servicosRes.error) throw new Error");
+    expect(bloco.indexOf("if (servicosRes.error)")).toBeLessThan(
+      bloco.indexOf("const servicos: ServicoDaBarbearia[]"),
+    );
+  });
+
   it("rejeita IDs de profissionais de outro tenant ANTES de gravar serviços", () => {
     const inicio = servidor.indexOf("export const salvarServicos =");
     const fim = servidor.indexOf("export const removerServico =", inicio);
