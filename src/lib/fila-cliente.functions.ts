@@ -71,7 +71,15 @@ export const entrarNaFila = createServerFn({ method: "POST" })
       .not("janela_preferida", "is", null)
       .limit(1)
       .maybeSingle();
-    if (jaNaFila) return { posicao: jaNaFila.posicao };
+    // Quem já está na lista vê o prazo real escolhido pelo negócio,
+    // sem usar 30 minutos fixos quando a configuração é diferente.
+    const { data: regras } = await db
+      .from("tenants")
+      .select("espera_prazo_min")
+      .eq("id", tenant.id)
+      .maybeSingle();
+    const prazoMin = regrasDaEsperaDoTenant(regras).prazoMin;
+    if (jaNaFila) return { posicao: jaNaFila.posicao, prazoMin };
 
     const posicao = (ultimo?.posicao ?? 0) + 1;
     const dia = data.dia && /^\d{4}-\d{2}-\d{2}$/.test(data.dia) ? data.dia : null;
@@ -119,11 +127,5 @@ export const entrarNaFila = createServerFn({ method: "POST" })
       console.error("[fila] entrarNaFila falhou:", error.message);
       throw new Error("Não foi possível entrar na lista de espera agora. Tente novamente.");
     }
-    // Prazo do próprio negócio para a tela do cliente (migração 0060); sem a coluna, o padrão de 30 min.
-    const { data: regras } = await db
-      .from("tenants")
-      .select("espera_prazo_min")
-      .eq("id", tenant.id)
-      .maybeSingle();
-    return { posicao, prazoMin: regrasDaEsperaDoTenant(regras).prazoMin };
+    return { posicao, prazoMin };
   });
