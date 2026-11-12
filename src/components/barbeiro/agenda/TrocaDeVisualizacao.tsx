@@ -1,5 +1,5 @@
 import { AnimatePresence, motion, usePresence, useReducedMotion } from "framer-motion";
-import { forwardRef, useEffect, useRef, useState, type AnimationEvent, type ReactNode } from "react";
+import { forwardRef, useEffect, useRef, type AnimationEvent, type ReactNode } from "react";
 import "./TrocaDeVisualizacao.css";
 
 const SUAVE = [0.22, 1, 0.36, 1] as const;
@@ -16,7 +16,8 @@ const PainelDaTroca = forwardRef<HTMLDivElement, PainelProps>(function PainelDaT
   ref,
 ) {
   const [presente, remover] = usePresence();
-  const [entradaConcluida, setEntradaConcluida] = useState(!animarEntrada);
+  // A entrada mantém o último quadro via animation-fill-mode: both.
+  // Evitar setState no fim dos 280 ms impede um render extra no fim do movimento.
 
   // O fim da animação pode não disparar (ex.: CSS substituído). Não prender um painel oculto.
   useEffect(() => {
@@ -33,7 +34,7 @@ const PainelDaTroca = forwardRef<HTMLDivElement, PainelProps>(function PainelDaT
     ? "repouso"
     : !presente
       ? "saida"
-      : !entradaConcluida
+      : !animarEntrada
         ? "entrada"
         : "repouso";
 
@@ -41,7 +42,6 @@ const PainelDaTroca = forwardRef<HTMLDivElement, PainelProps>(function PainelDaT
     // Animações de cartões internos não encerram a transição do painel.
     if (evento.target !== evento.currentTarget) return;
     if (!presente) remover?.();
-    else if (fase === "entrada") setEntradaConcluida(true);
   }
 
   return (
@@ -49,7 +49,10 @@ const PainelDaTroca = forwardRef<HTMLDivElement, PainelProps>(function PainelDaT
       ref={ref}
       className="agenda-troca-visualizacao"
       data-fase={fase}
+      aria-hidden={!presente}
+      inert={!presente}
       onAnimationEnd={aoConcluirAnimacao}
+      onAnimationCancel={aoConcluirAnimacao}
     >
       {children}
     </div>
