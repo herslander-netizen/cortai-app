@@ -109,6 +109,9 @@ describe("proposta SQL — verificações estruturais antes de uma migração", 
     expect(sql).toContain("WHERE status = 'enviada'");
     expect(sql).toContain("FOREIGN KEY (oferta_atual_id)");
     expect(sql).toContain("RAISE EXCEPTION 'Fila tem mais de uma oferta ativa");
+    expect(sql).toContain("Mais de uma oferta ativa por vaga");
+    expect(sql).toContain("Oferta ativa sem entrada no mesmo tenant");
+    expect(sql).toContain("id = v_f.cliente_id AND tenant_id = _tenant_id");
   });
 
   it("cria transições atômicas e mantém o aceite protegido contra tokens antigos", () => {
