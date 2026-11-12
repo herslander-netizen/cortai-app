@@ -44,6 +44,32 @@ async function admin() {
   return supabaseAdmin;
 }
 
+/**
+ * Não retirar da posição "avisado" uma entrada que já foi reservada por
+ * outra oferta. O instante criado_em da oferta é posterior ao avisado_em
+ * desta reserva; uma reserva mais recente não passa no filtro.
+ *
+ * É uma barreira de compare-and-set usando colunas existentes, não substitui
+ * uma RPC transacional com vínculo explícito fila → oferta.
+ */
+async function liberarFilaDaOferta(
+  db: Awaited<ReturnType<typeof admin>>,
+  oferta: { fila_id: string; tenant_id: string; criado_em: string },
+): Promise<boolean> {
+  if (!Number.isFinite(Date.parse(oferta.criado_em))) return false;
+  const { data, error } = await db
+    .from("fila_de_espera")
+    .update({ status: "aguardando", avisado_em: null })
+    .eq("id", oferta.fila_id)
+    .eq("tenant_id", oferta.tenant_id)
+    .eq("status", "avisado")
+    .lte("avisado_em", oferta.criado_em)
+    .select("id")
+    .maybeSingle();
+  if (error) throw new Error("Não foi possível devolver a entrada à fila com segurança.");
+  return Boolean(data);
+}
+
 function partes(iso: string, fuso: string) {
   const d = new Date(iso);
   const f = (o: Intl.DateTimeFormatOptions) =>
@@ -469,15 +495,11 @@ export async function aceitarOferta(token: string) {
     // Vaga perdida para quem aceitou: libera o cliente e segue a fila se ainda houver vaga.
     const { data: o } = await db
       .from("ofertas_da_fila")
-      .select("fila_id, agendamento_liberado_id")
+      .select("fila_id, tenant_id, criado_em, agendamento_liberado_id")
       .eq("token", token)
       .maybeSingle();
     if (o) {
-      await db
-        .from("fila_de_espera")
-        .update({ status: "aguardando" })
-        .eq("id", o.fila_id)
-        .eq("status", "avisado");
+      await liberarFilaDaOferta(db, o);
       if (r.motivo === "expirada" && o.agendamento_liberado_id)
         await ofertarVaga(o.agendamento_liberado_id).catch(() => undefined);
     }
@@ -492,14 +514,10 @@ export async function recusarOferta(token: string) {
     .update({ status: "recusada", respondida_em: new Date().toISOString() })
     .eq("token", token)
     .eq("status", "enviada")
-    .select("fila_id, agendamento_liberado_id")
+    .select("fila_id, tenant_id, criado_em, agendamento_liberado_id")
     .maybeSingle();
   if (!o) return { ok: false };
-  await db
-    .from("fila_de_espera")
-    .update({ status: "aguardando" })
-    .eq("id", o.fila_id)
-    .eq("status", "avisado");
+  await liberarFilaDaOferta(db, o);
   if (o.agendamento_liberado_id)
     await ofertarVaga(o.agendamento_liberado_id).catch(() => undefined);
   return { ok: true };
@@ -513,13 +531,9 @@ export async function cancelarOfertasDaVaga(agendamentoId: string) {
     .update({ status: "cancelada", respondida_em: new Date().toISOString() })
     .eq("agendamento_liberado_id", agendamentoId)
     .eq("status", "enviada")
-    .select("fila_id");
+    .select("fila_id, tenant_id, criado_em");
   for (const o of data ?? []) {
-    await db
-      .from("fila_de_espera")
-      .update({ status: "aguardando" })
-      .eq("id", o.fila_id)
-      .eq("status", "avisado");
+    await liberarFilaDaOferta(db, o);
   }
 }
 
@@ -534,14 +548,10 @@ export async function processarListaDeEspera(agora = new Date()) {
     .update({ status: "expirada" })
     .eq("status", "enviada")
     .lt("expira_em", agora.toISOString())
-    .select("fila_id, agendamento_liberado_id");
+    .select("fila_id, tenant_id, criado_em, agendamento_liberado_id");
   let ofertas = 0;
   for (const v of vencidas ?? []) {
-    await db
-      .from("fila_de_espera")
-      .update({ status: "aguardando" })
-      .eq("id", v.fila_id)
-      .eq("status", "avisado");
+    await liberarFilaDaOferta(db, v);
   }
   const vagas = new Set(
     (vencidas ?? []).map((v) => v.agendamento_liberado_id).filter(Boolean) as string[],
