@@ -85,8 +85,8 @@ export const GRUPOS_DE_FUNCIONALIDADES: GrupoDeFuncionalidades[] = [
       }),
       f({
         chave: "fila_chegada",
-        rotulo: "Fila de chegada",
-        detalhe: "Clientes aguardando vaga, pelo link e pelo WhatsApp",
+        rotulo: "Lista de espera",
+        detalhe: "Clientes aguardam uma vaga; os avisos automáticos são opcionais.",
         fonte: { tipo: "recurso", chave: "fila_espera" },
         plano: "fila_espera",
         configurar: "/barbeiro/fila",
@@ -354,6 +354,35 @@ export function podeAlterar(item: Funcionalidade, permissoes: readonly string[])
   return !item.permissaoExtra || permissoes.includes(item.permissaoExtra);
 }
 
+/**
+ * Dependência estritamente declarada no catálogo, nunca inferida a partir do
+ * simples fato de outra função estar desligada. Não bloqueia a lista de espera
+ * básica por falta de WhatsApp, campanhas, planos ou caixa.
+ *
+ * "Ligado" significa que o interruptor foi salvo; "operacional" exige que
+ * a funcionalidade-base também esteja disponível.
+ */
+export type PendenciaDeFuncionalidade = {
+  chave: ChaveDeFuncionalidade;
+  rotulo: string;
+  motivo: "desativada" | "fora_do_plano";
+};
+
+export function dependenciaPendente(
+  item: Funcionalidade,
+  leitura: LeituraDasFuncionalidades,
+): PendenciaDeFuncionalidade | null {
+  if (!item.depende || estadoDe(item, leitura) === "fora_do_plano") return null;
+  const base = funcionalidade(item.depende);
+  const estadoBase = estadoDe(base, leitura);
+  if (estadoBase !== "desativado" && estadoBase !== "fora_do_plano") return null;
+  return {
+    chave: base.chave,
+    rotulo: base.rotulo,
+    motivo: estadoBase === "fora_do_plano" ? "fora_do_plano" : "desativada",
+  };
+}
+
 /** Itens ligados que dependem deste (para avisar antes de desligar). */
 export function dependentesLigados(chave: ChaveDeFuncionalidade, l: LeituraDasFuncionalidades) {
   return FUNCIONALIDADES.filter((x) => x.depende === chave && estadoDe(x, l) === "ativo");
@@ -361,6 +390,11 @@ export function dependentesLigados(chave: ChaveDeFuncionalidade, l: LeituraDasFu
 
 export function resumo(l: LeituraDasFuncionalidades) {
   const comInterruptor = FUNCIONALIDADES.filter((x) => x.fonte.tipo !== "sem_interruptor");
-  const ativas = comInterruptor.filter((x) => estadoDe(x, l) === "ativo").length;
-  return { ativas, total: comInterruptor.length };
+  const ativas = comInterruptor.filter(
+    (x) => estadoDe(x, l) === "ativo" && !dependenciaPendente(x, l),
+  ).length;
+  const pendentes = comInterruptor.filter(
+    (x) => estadoDe(x, l) === "ativo" && dependenciaPendente(x, l),
+  ).length;
+  return { ativas, pendentes, total: comInterruptor.length };
 }
