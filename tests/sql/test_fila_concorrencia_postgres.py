@@ -210,7 +210,7 @@ def test_old_decline_cannot_release_new_offer():
         old = close(c, x, first["oferta_id"])
     assert second["ok"] and old["motivo"] == "oferta_inativa"
     assert scalar("SELECT oferta_atual_id FROM public.fila_de_espera WHERE id=%s",
-                  x["entry1"]) == second["oferta_id"]
+                  x["entry1"]) == uuid.UUID(second["oferta_id"])
 
 
 def test_remove_vs_reserve():
