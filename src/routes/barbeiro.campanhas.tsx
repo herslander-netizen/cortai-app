@@ -176,7 +176,7 @@ function CampanhasPage() {
           subtitulo="Prévia não publicada — nenhum desconto será aplicado."
           sujo
           onFechar={() => { setRascunho(null); setErros([]); }}
-          onVoltar={passo > 0 ? () => { setPasso((passo - 1) as EtapaCampanha); setErros([]); } : undefined}
+          {...(passo > 0 ? { onVoltar: () => { setPasso((passo - 1) as EtapaCampanha); setErros([]); } } : {})}
           compacto={{ passo: PASSOS_CAMPANHA[passo], indice: passo }}
           acao={{
             rotulo: passo === 3 ? "Concluir prévia" : "Continuar",
