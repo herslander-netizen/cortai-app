@@ -77,6 +77,7 @@ function builder(tabela: string) {
   b.insert = (p: Record<string, unknown>) => ((ctx.op = "insert"), (ctx.payload = p), b);
   b.update = (p: Record<string, unknown>) => {
     ctx.op = "update";
+    ctx.payload = p;
     if (tabela === "fila_de_espera") st.filaUpdates.push(p);
     return b;
   };
