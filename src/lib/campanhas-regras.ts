@@ -73,7 +73,10 @@ function valorInteiro(valor: number, minimo: number, maximo: number): boolean {
 function instanteValido(texto: string): number | null {
   if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,3})?Z$/.test(texto)) return null;
   const ms = Date.parse(texto);
-  return Number.isFinite(ms) ? ms : null;
+  if (!Number.isFinite(ms)) return null;
+  // Date.parse normaliza algumas datas impossíveis (como 31 de fevereiro).
+  if (new Date(ms).toISOString().slice(0, 19) !== texto.slice(0, 19)) return null;
+  return ms;
 }
 
 export function validarConfiguracaoCampanha(c: Campanha): string[] {
@@ -99,7 +102,7 @@ export function validarConfiguracaoCampanha(c: Campanha): string[] {
     erros.push("limite_cliente");
   if (
     c.servicosIds.length > 100 ||
-    c.servicosIds.some((id) => !/^[0-9a-f-]{36}$/i.test(id)) ||
+    c.servicosIds.some((id) => !/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(id)) ||
     new Set(c.servicosIds).size !== c.servicosIds.length
   ) erros.push("servicos");
   return erros;
