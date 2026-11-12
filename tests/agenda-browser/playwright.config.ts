@@ -1,3 +1,4 @@
+import { fileURLToPath } from "node:url";
 import { defineConfig, devices } from "@playwright/test";
 
 export default defineConfig({
@@ -40,6 +41,8 @@ export default defineConfig({
     },
   ],
   webServer: {
+    // O webServer parte da pasta do config Playwright; executar Vite na raiz do repo.
+    cwd: fileURLToPath(new URL("../../", import.meta.url)),
     command: "bunx vite --config tests/agenda-browser/vite.config.ts",
     url: "http://127.0.0.1:4173",
     timeout: 120_000,
