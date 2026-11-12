@@ -91,3 +91,37 @@ persistência, idempotência e testes próprios.
 um novo pacote, pois `_pacote_id=null` não fornece chave de idempotência.
 Não comercializar venda/renovação de pacotes como fluxo concluído sem resolver
 essa questão no ledger de vendas e no motor de cobrança.
+
+
+## Registro de execução — 12/11/2026
+
+**A migração foi efetivamente aplicada APENAS no projeto `cortai-preview`
+(`pfkxvindedkuktogbcsv`), com autorização explícita do proprietário
+("Pode aplicar").** O plano acima descreve a ordem geral; esta seção
+substitui o status antigo de "não aplicada" somente para a prévia.
+
+- Fonte exata do SQL: `drizzle/migrations/0062_pacotes_salvar_atomico.sql`,
+  commit da branch do PR #60, blob `19379289c51b967aa28fcb29859eeb6afb144794`.
+- Execução pelo conector Supabase `apply_migration`; retorno **success=true**.
+- Registro no histórico `supabase_migrations.schema_migrations`:
+  versão **`20261112211015`**, nome **`pacotes_salvar_atomico_0062`**.
+- Registro no controle próprio do Flow
+  `cortai_controle.migracoes_aplicadas`:
+  `drizzle/migrations/0062_pacotes_salvar_atomico.sql`.
+  Ele evita reaplicar a 0062 pelo workflow legado de migrações.
+- Verificação direta: RPC presente; `SECURITY INVOKER`; `search_path=''`;
+  execução permitida a `authenticated`; NEGADA a `anon` e
+  `service_role`; RLS de `pacotes` e `pacote_itens` ativa,
+  com **8 políticas inalteradas**.
+- A instalação não realizou operações de negócio, não modificou
+  agendamentos, vendas, cobranças nem itens de pacotes.
+- **NÃO aplicada ao `cortai-prod`.** Nenhum código novo foi
+  mesclado ou implantado. O PR permanece em rascunho.
+- **Ainda não homologado:** fluxo autenticado na UI de prévia,
+  venda/consumo/renovação de pacotes, idempotência e checkout.
+  Produção só depois de autorização separada.
+
+O nome usado no histórico nativo do Supabase é diferente do
+nome do arquivo no controle do Flow **por desenho**, e ambos
+foram confirmados. Não executar a mesma migração em outro projeto
+sem autorização independente.
