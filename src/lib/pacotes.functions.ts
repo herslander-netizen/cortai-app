@@ -2,7 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { montarPacotes } from "@/lib/pacotes";
+import { erroPrecoDoConjunto, montarPacotes, precoAvulsoDoConjunto } from "@/lib/pacotes";
 import { exigirPermissao, tenantIdDoMembro } from "@/lib/tenant";
 
 const PERMISSAO = "alterar_dados_barbearia";
@@ -14,11 +14,7 @@ const db = (context: { supabase: unknown }) => context.supabase as any;
 /** A tabela chega com a migração 0046; antes disso (ou sem ela aplicada) a tela mostra aviso, não erro. */
 function tabelaAusente(erro: { message?: string; code?: string } | null) {
   if (!erro) return false;
-  return (
-    erro.code === "42P01" ||
-    erro.code === "PGRST205" ||
-    /pacotes|schema cache/i.test(erro.message ?? "")
-  );
+  return erro.code === "42P01" || erro.code === "PGRST205";
 }
 
 export const getPacotes = createServerFn({ method: "GET" })
@@ -44,8 +40,9 @@ export const getPacotes = createServerFn({ method: "GET" })
         .eq("ativo", true)
         .order("ordem"),
     ]);
+    if (servicos.error) throw new Error("Não foi possível consultar os serviços do negócio.");
     const servicosAtivos = servicos.data ?? [];
-    if (tabelaAusente(pacotes.error)) {
+    if (tabelaAusente(pacotes.error) || tabelaAusente(itens.error)) {
       return { disponivel: false as const, pacotes: [], servicos: servicosAtivos };
     }
     if (pacotes.error) throw new Error(pacotes.error.message);
@@ -88,17 +85,30 @@ export const salvarPacote = createServerFn({ method: "POST" })
       throw new Error("Cada serviço entra uma vez só; use a quantidade.");
     const { data: validos, error: erroServicos } = await context.supabase
       .from("servicos")
-      .select("id")
+      .select("id, preco_centavos")
       .eq("tenant_id", tenantId)
+      .eq("ativo", true)
       .in("id", ids);
     if (erroServicos) throw new Error(erroServicos.message);
     if ((validos ?? []).length !== ids.length)
-      throw new Error("Escolha só serviços do seu negócio.");
+      throw new Error("Escolha apenas serviços ativos do seu negócio.");
     // Combo é uma visita só: a quantidade de cada serviço é sempre 1.
     const itens = data.itens.map((i) => ({
       servicoId: i.servicoId,
       quantidade: data.tipo === "combo" ? 1 : i.quantidade,
     }));
+    // Os preços de referência são sempre do banco, nunca do formulário.
+    // Validar antes de INSERT/UPDATE/DELETE impede gravações inviáveis.
+    const porId = new Map((validos ?? []).map((s) => [s.id, s.preco_centavos]));
+    const valorAvulso = precoAvulsoDoConjunto(
+      data.tipo,
+      itens.map((item) => ({
+        precoCentavos: porId.get(item.servicoId) ?? 0,
+        quantidade: item.quantidade,
+      })),
+    );
+    const erroPreco = erroPrecoDoConjunto(data.precoCentavos, valorAvulso);
+    if (erroPreco) throw new Error(erroPreco);
     const campos = {
       tenant_id: tenantId,
       tipo: data.tipo,
