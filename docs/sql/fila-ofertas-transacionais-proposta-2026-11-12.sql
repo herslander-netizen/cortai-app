@@ -338,6 +338,129 @@ BEGIN
 END;
 $aceitar$;
 
+-- A ação da equipe precisa respeitar a oferta em andamento. A função
+-- cancela oferta e marca saída na MESMA transação, sem soltar a pessoa para
+-- que outra execução a capture entre duas atualizações.
+CREATE OR REPLACE FUNCTION public.retirar_entrada_da_fila(
+  _tenant_id uuid,
+  _fila_id uuid
+)
+RETURNS jsonb
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public, pg_temp
+AS $retirar$
+DECLARE
+  v_oferta_lida uuid;
+  v_f public.fila_de_espera%ROWTYPE;
+  v_o public.ofertas_da_fila%ROWTYPE;
+BEGIN
+  IF NOT public.chamada_do_servidor() THEN
+    RAISE EXCEPTION 'somente servidor';
+  END IF;
+  -- A mesma ordem de locks do aceite: oferta primeiro, entrada depois.
+  SELECT oferta_atual_id INTO v_oferta_lida
+    FROM public.fila_de_espera
+    WHERE id = _fila_id AND tenant_id = _tenant_id;
+  IF NOT FOUND THEN
+    RETURN jsonb_build_object('ok', false, 'motivo', 'nao_encontrada');
+  END IF;
+  IF v_oferta_lida IS NOT NULL THEN
+    SELECT * INTO v_o FROM public.ofertas_da_fila
+      WHERE id = v_oferta_lida AND tenant_id = _tenant_id FOR UPDATE;
+    IF NOT FOUND THEN
+      RETURN jsonb_build_object('ok', false, 'motivo', 'vinculo_inconsistente');
+    END IF;
+  END IF;
+  SELECT * INTO v_f FROM public.fila_de_espera
+    WHERE id = _fila_id AND tenant_id = _tenant_id FOR UPDATE;
+  IF NOT FOUND OR v_f.oferta_atual_id IS DISTINCT FROM v_oferta_lida THEN
+    RETURN jsonb_build_object('ok', false, 'motivo', 'concorrente');
+  END IF;
+  IF v_f.status = 'saiu' THEN
+    RETURN jsonb_build_object('ok', true, 'repetida', true);
+  END IF;
+  IF v_f.status NOT IN ('aguardando', 'avisado') THEN
+    RETURN jsonb_build_object('ok', false, 'motivo', 'ja_finalizada');
+  END IF;
+  IF v_oferta_lida IS NOT NULL THEN
+    IF v_o.fila_id <> v_f.id OR v_o.status <> 'enviada' THEN
+      RETURN jsonb_build_object('ok', false, 'motivo', 'vinculo_inconsistente');
+    END IF;
+    UPDATE public.ofertas_da_fila
+       SET status = 'cancelada', respondida_em = clock_timestamp()
+     WHERE id = v_o.id AND tenant_id = _tenant_id;
+  ELSIF v_f.status = 'avisado' THEN
+    RETURN jsonb_build_object('ok', false, 'motivo', 'vinculo_inconsistente');
+  END IF;
+  UPDATE public.fila_de_espera
+     SET status = 'saiu', avisado_em = NULL, oferta_atual_id = NULL
+   WHERE id = v_f.id AND tenant_id = _tenant_id;
+  RETURN jsonb_build_object('ok', true, 'repetida', false);
+END;
+$retirar$;
+
+-- Conversão manual da lista em agendamento: somente se a entrada ainda
+-- não tem oferta ativa. Uma oferta avisada precisa ser recusada/expirada
+-- antes da conversão; não abrir dois caminhos concorrentes de confirmação.
+CREATE OR REPLACE FUNCTION public.converter_entrada_da_fila(
+  _tenant_id uuid,
+  _fila_id uuid,
+  _servico_id uuid,
+  _profissional_id uuid,
+  _inicio timestamptz
+)
+RETURNS jsonb
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public, pg_temp
+AS $converter$
+DECLARE
+  v_f public.fila_de_espera%ROWTYPE;
+  v_resultado jsonb;
+  v_ag uuid;
+BEGIN
+  IF NOT public.chamada_do_servidor() THEN
+    RAISE EXCEPTION 'somente servidor';
+  END IF;
+  IF _inicio IS NULL OR _inicio <= now() THEN
+    RETURN jsonb_build_object('ok', false, 'motivo', 'inicio_invalido');
+  END IF;
+  SELECT * INTO v_f FROM public.fila_de_espera
+    WHERE id = _fila_id AND tenant_id = _tenant_id FOR UPDATE;
+  IF NOT FOUND THEN
+    RETURN jsonb_build_object('ok', false, 'motivo', 'nao_encontrada');
+  END IF;
+  IF v_f.status = 'avisado' OR v_f.oferta_atual_id IS NOT NULL THEN
+    RETURN jsonb_build_object('ok', false, 'motivo', 'oferta_pendente');
+  END IF;
+  IF v_f.status <> 'aguardando' OR v_f.janela_preferida IS NULL THEN
+    RETURN jsonb_build_object('ok', false, 'motivo', 'entrada_indisponivel');
+  END IF;
+  -- O motor oficial aplica regras de horário, escala, serviço, plano,
+  -- conflito e sua própria trava por profissional no mesmo commit.
+  v_resultado := public.criar_agendamento(
+    _tenant_id, v_f.cliente_id, _profissional_id,
+    _servico_id, _inicio, 'balcao', false, true
+  );
+  IF jsonb_typeof(v_resultado) IS DISTINCT FROM 'object'
+     OR v_resultado->>'agendamento_id' IS NULL THEN
+    RAISE EXCEPTION 'criar_agendamento não retornou agendamento';
+  END IF;
+  v_ag := (v_resultado->>'agendamento_id')::uuid;
+  UPDATE public.agendamentos
+     SET origem = 'manual', origem_fila_id = v_f.id
+   WHERE id = v_ag AND tenant_id = _tenant_id;
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Agendamento não encontrado após criação';
+  END IF;
+  UPDATE public.fila_de_espera
+     SET status = 'atendido', avisado_em = NULL, oferta_atual_id = NULL
+   WHERE id = v_f.id AND tenant_id = _tenant_id;
+  RETURN jsonb_build_object('ok', true, 'agendamento_id', v_ag);
+END;
+$converter$;
+
 -- SECURITY DEFINER em schema exposto: negar a execução pública e só liberar
 -- o service_role. O public route continua autenticando a chamada no servidor.
 REVOKE EXECUTE ON FUNCTION public.reservar_oferta_da_fila(
@@ -353,6 +476,15 @@ GRANT EXECUTE ON FUNCTION public.reservar_oferta_da_fila(
 GRANT EXECUTE ON FUNCTION public.encerrar_oferta_da_fila(uuid,uuid,text)
   TO service_role;
 GRANT EXECUTE ON FUNCTION public.aceitar_oferta_da_fila(text)
+  TO service_role;
+
+REVOKE EXECUTE ON FUNCTION public.retirar_entrada_da_fila(uuid,uuid)
+  FROM PUBLIC, anon, authenticated;
+REVOKE EXECUTE ON FUNCTION public.converter_entrada_da_fila(uuid,uuid,uuid,uuid,timestamptz)
+  FROM PUBLIC, anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.retirar_entrada_da_fila(uuid,uuid)
+  TO service_role;
+GRANT EXECUTE ON FUNCTION public.converter_entrada_da_fila(uuid,uuid,uuid,uuid,timestamptz)
   TO service_role;
 
 COMMIT;
