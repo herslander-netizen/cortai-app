@@ -179,6 +179,30 @@ describe("proposta SQL — verificações estruturais antes de uma migração", 
     expect(sql).toContain("RETURN jsonb_build_object('ok', false, 'motivo', 'ocupada')");
   });
 
+  it("aceite não converte erro inesperado em ocupado nem perde a reserva", () => {
+    const aceite = sql.split("CREATE OR REPLACE FUNCTION public.aceitar_oferta_da_fila(_token text)")[1]
+      ?.split("CREATE OR REPLACE FUNCTION public.retirar_entrada_da_fila(")[0] ?? "";
+    expect(aceite).toContain("IF SQLERRM <> 'horario ja ocupado' THEN");
+    expect(aceite).toContain("RAISE;");
+    expect(aceite).toContain("RETURN jsonb_build_object('ok', false, 'motivo', 'ocupado')");
+  });
+
+  it("aceite exige ID válido e vínculo ao agendamento exato antes de concluir", () => {
+    const aceite = sql.split("CREATE OR REPLACE FUNCTION public.aceitar_oferta_da_fila(_token text)")[1]
+      ?.split("CREATE OR REPLACE FUNCTION public.retirar_entrada_da_fila(")[0] ?? "";
+    expect(aceite).toContain("jsonb_typeof(v_res) IS DISTINCT FROM 'object'");
+    expect(aceite).toContain("nullif(v_res->>'agendamento_id', '') IS NULL");
+    expect(aceite).toContain("RAISE EXCEPTION 'criar_agendamento não retornou agendamento'");
+    expect(aceite).toContain("AND tenant_id = v_o.tenant_id");
+    expect(aceite).toContain("AND cliente_id = v_f.cliente_id");
+    expect(aceite).toContain("AND profissional_id = v_o.profissional_id");
+    expect(aceite).toContain("AND servico_id = v_o.servico_id");
+    expect(aceite).toContain("AND inicio = v_o.inicio AND status = 'agendado'");
+    expect(aceite).toContain("RAISE EXCEPTION 'agendamento não corresponde à oferta'");
+    expect(aceite.indexOf("IF NOT FOUND THEN")).toBeGreaterThan(aceite.indexOf("SET origem_fila_id = v_f.id"));
+    expect(aceite.indexOf("status = 'aceita'")).toBeGreaterThan(aceite.indexOf("RAISE EXCEPTION 'agendamento não corresponde à oferta'"));
+  });
+
   it("remove uma entrada e oferta no mesmo commit, preservando a fila de chegada", () => {
     expect(sql).toContain("FUNCTION public.retirar_entrada_da_fila(");
     expect(sql).toContain("v_f.oferta_atual_id IS DISTINCT FROM v_oferta_lida");
