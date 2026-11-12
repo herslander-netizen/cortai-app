@@ -11,6 +11,7 @@ vi.mock("./confirmacao.server", () => ({
 /** Banco simulado: nenhuma chamada sai para o banco real. */
 type Estado = {
   automatica: boolean;
+  notificacaoFalha: boolean;
   reservaFila: boolean;
   liberacaoPermitida: boolean;
   filaFiltros: Record<string, unknown>[];
@@ -111,8 +112,11 @@ function builder(tabela: string) {
 
 const db = {
   from: (t: string) => builder(t),
-  rpc: async (nome: string) =>
-    nome === "aceitar_oferta_da_fila" ? { data: st.aceite, error: null } : { data: true },
+  rpc: async (nome: string) => {
+    if (nome === "criar_notificacao" && st.notificacaoFalha)
+      throw new Error("Falha isolada de notificação");
+    return nome === "aceitar_oferta_da_fila" ? { data: st.aceite, error: null } : { data: true };
+  },
 };
 
 // A implementação real da camada transacional é validada no teste do contrato.
@@ -161,6 +165,7 @@ beforeEach(() => {
   vi.setSystemTime(AGORA);
   st = {
     automatica: true,
+    notificacaoFalha: false,
     reservaFila: true,
     liberacaoPermitida: true,
     filaFiltros: [],
@@ -219,6 +224,25 @@ describe("recuperação automática de vagas", () => {
     expect(st.encerramentos[0]).toMatchObject({
       tenantId: "t1", ofertaId: "of1", estado: "cancelada",
     });
+  });
+
+  it("falha do sininho não bloqueia o ciclo de cancelamento da oferta sem canal", async () => {
+    st.notificacaoFalha = true;
+    st.ofertaAoEnviar = {
+      id: "of1",
+      token: "abc",
+      tenant_id: "t1",
+      inicio: new Date(INICIO).toISOString(),
+      expira_em: new Date(AGORA + 30 * 60_000).toISOString(),
+      servicos: { nome: "Corte" },
+      profissionais: { nome: "Ana" },
+      fila_de_espera: { cliente_id: "c-primeiro", clientes: { nome: "Cliente", telefone: "" } },
+    };
+    const { ofertarVaga } = await import("./fila-ofertas.server");
+    const r = await ofertarVaga("ag1");
+    expect(r).toEqual({ ofertaId: null, motivo: "sem_compativel" });
+    expect(st.inserts).toHaveLength(2);
+    expect(st.encerramentos).toHaveLength(2);
   });
 
   it("resultado de transporte indeterminado não libera a vaga para duas pessoas", async () => {
