@@ -14,6 +14,7 @@ type Estado = {
   notificacaoFalha: boolean;
   reservaFila: boolean;
   liberacaoPermitida: boolean;
+  liberouFila: boolean;
   filaFiltros: Record<string, unknown>[];
   fila: Record<string, unknown>[];
   inserts: Record<string, unknown>[];
@@ -139,7 +140,7 @@ vi.mock("@/lib/fila-ofertas-transacional", () => ({
   }) => {
     st.encerramentos.push(p);
     if (!st.liberacaoPermitida) return { ok: false, motivo: "oferta_inativa" };
-    return { ok: true, liberouFila: true, agendamentoLiberadoId: "ag1" };
+    return { ok: true, liberouFila: st.liberouFila, agendamentoLiberadoId: "ag1" };
   },
 }));
 vi.mock("@/integrations/supabase/client.server", () => ({ supabaseAdmin: db }));
@@ -168,6 +169,7 @@ beforeEach(() => {
     notificacaoFalha: false,
     reservaFila: true,
     liberacaoPermitida: true,
+    liberouFila: true,
     filaFiltros: [],
     fila: [linha("primeiro", 1), linha("segundo", 2)],
     inserts: [],
@@ -243,6 +245,25 @@ describe("recuperação automática de vagas", () => {
     expect(r).toEqual({ ofertaId: null, motivo: "sem_compativel" });
     expect(st.inserts).toHaveLength(2);
     expect(st.encerramentos).toHaveLength(2);
+  });
+
+  it("cancelar oferta sem liberar a entrada não chama o próximo como se tivesse dado certo", async () => {
+    st.liberouFila = false;
+    st.ofertaAoEnviar = {
+      id: "of1",
+      token: "abc",
+      tenant_id: "t1",
+      inicio: new Date(INICIO).toISOString(),
+      expira_em: new Date(AGORA + 30 * 60_000).toISOString(),
+      servicos: { nome: "Corte" },
+      profissionais: { nome: "Ana" },
+      fila_de_espera: { cliente_id: "c-primeiro", clientes: { nome: "Cliente", telefone: "" } },
+    };
+    const { ofertarVaga } = await import("./fila-ofertas.server");
+    const r = await ofertarVaga("ag1");
+    expect(r).toEqual({ ofertaId: "of1", motivo: "cancelamento_pendente" });
+    expect(st.inserts).toHaveLength(1);
+    expect(st.encerramentos).toHaveLength(1);
   });
 
   it("resultado de transporte indeterminado não libera a vaga para duas pessoas", async () => {
