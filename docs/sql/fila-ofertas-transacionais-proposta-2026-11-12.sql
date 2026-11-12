@@ -226,7 +226,7 @@ BEGIN
      WHERE a.tenant_id = _tenant_id
        AND a.profissional_id = _profissional_id
        AND a.id IS DISTINCT FROM _agendamento_liberado_id
-       AND a.status IN ('agendado', 'chegou', 'na_cadeira', 'finalizado')
+       AND a.status IN ('agendado', 'pendente', 'confirmado', 'chegou', 'na_cadeira', 'finalizado')
        AND a.inicio < _fim + make_interval(mins => v_margem_min)
        AND a.fim > _inicio - make_interval(mins => v_margem_min)
   ) THEN
