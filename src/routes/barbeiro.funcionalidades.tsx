@@ -41,6 +41,7 @@ import { aviso } from "@/lib/avisos";
 import {
   GRUPOS_DE_FUNCIONALIDADES,
   dependentesLigados,
+  dependenciaPendente,
   estadoDe,
   podeAlterar,
   resumo,
@@ -118,7 +119,12 @@ function FuncionalidadesPage() {
         <>
           <p className="mb-5 text-[15px] text-mute">
             <span className="font-semibold text-paper">{r.ativas}</span> de {r.total}{" "}
-            funcionalidades ativas
+            funcionalidades funcionando
+            {r.pendentes > 0 ? (
+              <span className="mt-1 block text-[13px]" role="status">
+                {r.pendentes} {r.pendentes === 1 ? "opção precisa" : "opções precisam"} de outra função para operar.
+              </span>
+            ) : null}
           </p>
           <div className="space-y-4">
             {GRUPOS_DE_FUNCIONALIDADES.map((grupo) => (
@@ -133,22 +139,16 @@ function FuncionalidadesPage() {
                 <ul className="space-y-2">
                   {grupo.itens.map((item) => {
                     const estado = estadoDe(item, leitura);
-                    const depende = item.depende
-                      ? estadoDe(
-                          GRUPOS_DE_FUNCIONALIDADES.flatMap((g) => g.itens).find(
-                            (x) => x.chave === item.depende,
-                          )!,
-                          leitura,
-                        ) === "desativado"
-                      : false;
+                    const dependencia = dependenciaPendente(item, leitura);
                     return (
                       <LinhaDeFuncionalidade
                         key={item.chave}
                         item={item}
                         estado={estado}
                         planoMinimo={item.plano ? leitura.planoMinimo[item.plano] : undefined}
+                        dependencia={dependencia}
                         editavel={
-                          podeAlterar(item, leitura.permissoes) && !(depende && estado !== "ativo")
+                          podeAlterar(item, leitura.permissoes) && !(dependencia && estado !== "ativo")
                         }
                         salvando={salvando === item.chave}
                         onAlternar={(ativo) => alternar(item, ativo)}
