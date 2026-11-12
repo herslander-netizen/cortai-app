@@ -14,7 +14,7 @@ import { BotaoCircularAdicionar } from "./BotaoCircularAdicionar";
 import { useMediaQuery } from "@/hooks/use-mobile";
 import { useMenosMovimento } from "@/hooks/useMovimento";
 import { useTecladoAberto } from "@/hooks/useTecladoAberto";
-import { SUAVE } from "@/lib/motion";
+import { DURACAO, SUAVE } from "@/lib/motion";
 
 import type { VisualizacaoAgenda } from "./CabecalhoAgenda";
 import { solicitarAgora } from "./pilula-agora";
@@ -190,29 +190,27 @@ export function BotaoAgoraPrincipal({
             onClick={alternarVisualizacao}
             onPointerUp={soltarFocoDoToque}
           >
-            {/* A troca do ícone acompanha a animação vertical dos Cards, sem girar nem
-                esperar o anterior sair. Ambas as camadas ocupam exatamente o mesmo lugar. */}
-            <span className="relative inline-grid size-6 place-items-center">
-              <AnimatePresence initial={false} mode="sync">
-                <motion.span
-                  key={proxima}
-                  className="absolute inset-0 grid place-items-center"
-                  initial={menosMovimento ? false : { opacity: 0, y: 8 }}
-                  animate={{
-                    opacity: 1,
-                    y: 0,
-                    transition: { duration: menosMovimento ? 0 : 0.28, ease: SUAVE },
-                  }}
-                  exit={
-                    menosMovimento
-                      ? { opacity: 1, y: 0, transition: { duration: 0 } }
-                      : { opacity: 0, y: -8, transition: { duration: 0.2, ease: SUAVE } }
-                  }
-                >
-                  {proxima === "lista" ? <IconeListaFigaro /> : <IconeAgendaFigaroDoPe />}
-                </motion.span>
-              </AnimatePresence>
-            </span>
+            <AnimatePresence initial={false} mode="sync">
+              <motion.span
+                key={proxima}
+                className="inline-flex"
+                initial={menosMovimento ? { opacity: 0 } : { opacity: 0, rotate: 90, scale: 0.8 }}
+                animate={{
+                  opacity: 1,
+                  rotate: 0,
+                  scale: 1,
+                  transition: { duration: menosMovimento ? DURACAO.rapida : 0.11, ease: SUAVE },
+                }}
+                exit={{
+                  opacity: 0,
+                  rotate: menosMovimento ? 0 : -90,
+                  scale: menosMovimento ? 1 : 0.8,
+                  transition: { duration: menosMovimento ? 0 : 0.07, ease: SUAVE },
+                }}
+              >
+                {proxima === "lista" ? <IconeListaFigaro /> : <IconeAgendaFigaroDoPe />}
+              </motion.span>
+            </AnimatePresence>
           </Button>
           {filtro ? (
             <>
