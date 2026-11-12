@@ -8,6 +8,7 @@ import { PLANOS, ROTULO_DO_PLANO } from "@/lib/planos";
 import {
   FUNCIONALIDADES,
   funcionalidade,
+  decisaoBloqueioFiado,
   type ChaveDeFuncionalidade,
   type LeituraDasFuncionalidades,
 } from "@/lib/funcionalidades";
@@ -149,12 +150,17 @@ export const definirFuncionalidade = createServerFn({ method: "POST" })
         fonte.regra === "fiado_bloqueio"
           ? { bloqueia_agendamento_no_limite: data.ativo }
           : { ativo: data.ativo };
-      const { data: existente } = await db
+      const { data: existente, error: erroConsulta } = await db
         .from("regras_de_plano")
-        .select("id")
+        .select("id, ativo")
         .eq("tenant_id", tenantId)
         .eq("tipo", tipo)
         .maybeSingle();
+      if (erroConsulta) throw new Error("Não foi possível verificar a regra atual.");
+      if (
+        fonte.regra === "fiado_bloqueio" &&
+        decisaoBloqueioFiado(data.ativo, existente) === "ignorar"
+      ) return { ok: true as const };
       if (existente) {
         ({ error: erro } = await db.from("regras_de_plano").update(campos).eq("id", existente.id));
       } else {
@@ -162,7 +168,7 @@ export const definirFuncionalidade = createServerFn({ method: "POST" })
         ({ error: erro } = await db.from("regras_de_plano").insert({
           tenant_id: tenantId,
           tipo,
-          ativo: fonte.regra === "fiado_bloqueio" ? true : data.ativo,
+          ativo: data.ativo,
           ...(tipo === "fidelidade" ? { fidelidade_alvo: 10 } : {}),
           ...campos,
         }));
