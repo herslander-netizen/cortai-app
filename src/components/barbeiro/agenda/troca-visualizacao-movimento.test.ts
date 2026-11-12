@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 const fonte = readFileSync("src/components/barbeiro/agenda/TrocaDeVisualizacao.tsx", "utf8");
 const agenda = readFileSync("src/components/barbeiro/AgendaOperacional.tsx", "utf8");
 
-describe("paridade da transição Timeline ↔ Cartões com o Flow oficial v3.7", () => {
+describe("paridade desktop e transição Catálogo mobile Timeline ↔ Cartões", () => {
   it("monta a nova visão durante a saída da anterior, sem intervalo vazio", () => {
     expect(fonte).toContain('<AnimatePresence initial={false} mode="popLayout">');
     expect(fonte).toContain("key={chave}");
@@ -12,11 +12,15 @@ describe("paridade da transição Timeline ↔ Cartões com o Flow oficial v3.7"
     expect(agenda).toContain('chave={celular && visualizacao === "lista" ? "lista" : "grade"}');
   });
 
-  it("usa deslocamento, opacidade, curva e duração do Flow oficial", () => {
+  it("preserva o movimento vertical do desktop e usa Catálogo horizontal no mobile", () => {
     expect(fonte).toContain("const SUAVE = [0.22, 1, 0.36, 1] as const");
-    expect(fonte).toContain("initial={reduzirMovimento ? false : { opacity: 0, y: 28 }}");
-    expect(fonte).toContain("animate={{ opacity: 1, y: 0 }}");
+    expect(fonte).toContain("{ opacity: 0, y: 28 }");
+    expect(fonte).toContain("{ opacity: 1, y: 0 }");
     expect(fonte).toContain("{ opacity: 0, y: -20 }");
+    expect(fonte).toContain('chave === "lista" ? "100%" : "-100%"');
+    expect(fonte).toContain("const inicial = celular");
+    expect(fonte).toContain("const final = celular");
+    expect(fonte).toContain("const saida = celular");
     expect(fonte).toContain("duration: 0.28, ease: SUAVE");
     expect(fonte).not.toContain("onExitComplete");
   });
