@@ -95,6 +95,10 @@ function builder(tabela: string) {
   };
   b.single = async () => resolver();
   b.then = (ok: (v: unknown) => unknown) => {
+    // Em chamadas await update(...).eq(...) sem maybeSingle, os filtros
+    // ainda devem ser capturados para testar o compare-and-set.
+    if (tabela === "fila_de_espera" && ctx.op === "update")
+      st.filaFiltros.push({ ...ctx.filtros });
     const r = resolver();
     if (tabela === "agendamentos") return Promise.resolve({ data: [] }).then(ok);
     if (tabela === "ofertas_da_fila" && ctx.op === "select")
