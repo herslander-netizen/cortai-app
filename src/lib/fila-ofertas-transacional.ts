@@ -46,10 +46,10 @@ function instante(iso: string): number {
   return valor;
 }
 function motivoDeFalha(data: Record<string, unknown>): string {
-  if (data.ok !== false || typeof data.motivo !== "string" || !data.motivo) {
+  if (data["ok"] !== false || typeof data["motivo"] !== "string" || !data["motivo"]) {
     throw new Error("Resposta inválida da operação transacional da fila.");
   }
-  return data.motivo;
+  return data["motivo"];
 }
 
 export async function reservarOfertaTransacional(
@@ -79,15 +79,15 @@ export async function reservarOfertaTransacional(
   });
   if (error) throw new Error("Não foi possível reservar esta vaga com segurança.");
   const r = objeto(data);
-  if (r.ok === false) return { ok: false, motivo: motivoDeFalha(r) };
-  if (r.ok !== true || typeof r.oferta_id !== "string" || typeof r.token !== "string") {
+  if (r["ok"] === false) return { ok: false, motivo: motivoDeFalha(r) };
+  if (r["ok"] !== true || typeof r["oferta_id"] !== "string" || typeof r["token"] !== "string") {
     throw new Error("Resposta inválida da operação transacional da fila.");
   }
-  validarUuid(r.oferta_id);
-  if (!/^[0-9a-f]{24,64}$/i.test(r.token)) {
+  validarUuid(r["oferta_id"]);
+  if (!/^[0-9a-f]{24,64}$/i.test(r["token"])) {
     throw new Error("Token inválido da oferta.");
   }
-  return { ok: true, ofertaId: r.oferta_id, token: r.token };
+  return { ok: true, ofertaId: r["oferta_id"], token: r["token"] };
 }
 
 export async function encerrarOfertaTransacional(
@@ -103,17 +103,17 @@ export async function encerrarOfertaTransacional(
   });
   if (error) throw new Error("Não foi possível encerrar a oferta com segurança.");
   const r = objeto(data);
-  if (r.ok === false) return { ok: false, motivo: motivoDeFalha(r) };
-  if (r.ok !== true || typeof r.liberou_fila !== "boolean" ||
-    !(r.agendamento_liberado_id === null || typeof r.agendamento_liberado_id === "string")) {
+  if (r["ok"] === false) return { ok: false, motivo: motivoDeFalha(r) };
+  if (r["ok"] !== true || typeof r["liberou_fila"] !== "boolean" ||
+    !(r["agendamento_liberado_id"] === null || typeof r["agendamento_liberado_id"] === "string")) {
     throw new Error("Resposta inválida da operação transacional da fila.");
   }
-  if (typeof r.agendamento_liberado_id === "string") {
-    validarUuid(r.agendamento_liberado_id);
+  if (typeof r["agendamento_liberado_id"] === "string") {
+    validarUuid(r["agendamento_liberado_id"]);
   }
   return {
     ok: true,
-    liberouFila: r.liberou_fila,
-    agendamentoLiberadoId: r.agendamento_liberado_id as string | null,
+    liberouFila: r["liberou_fila"],
+    agendamentoLiberadoId: r["agendamento_liberado_id"] as string | null,
   };
 }
