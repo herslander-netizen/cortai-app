@@ -116,6 +116,15 @@ describe("Campanhas promocionais — validação e cálculo seguro", () => {
     })).toContain("servicos");
   });
 
+  it("recusa data de calendário inexistente e ID de serviço malformado", () => {
+    expect(validarConfiguracaoCampanha({
+      ...campanha, inicioEm: "2026-02-31T12:00:00.000Z",
+    })).toContain("periodo");
+    expect(validarConfiguracaoCampanha({
+      ...campanha, servicosIds: ["z".repeat(36)],
+    })).toContain("servicos");
+  });
+
   it("não confunde previsão do cupom com resgate ou confirmação de pagamento", () => {
     const resultado = avaliarCupom(campanha, "FLOW20", contexto);
     expect(resultado).not.toHaveProperty("resgatado");
