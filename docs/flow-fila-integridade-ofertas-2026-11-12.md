@@ -46,9 +46,11 @@ O script reúne, para futura revisão/migração aditiva:
 - abortar a migração quando houver ofertas ativas duplicadas ou estados
   históricos incongruentes, em vez de adivinhar qual vincular.
 
-O módulo `src/lib/fila-ofertas-transacional.ts` já implementa o contrato
-TypeScript das futuras RPCs, com retornos validados e falha fechada; **ainda
-não é chamado pelo motor** (falta a migração e a integração coordenada).
+O módulo `src/lib/fila-ofertas-transacional.ts` implementa o contrato
+TypeScript das RPCs, com retornos validados e falha fechada. **O motor já
+chama o adaptador nesta branch isolada do PR #55**, substituindo as escritas
+separadas de reserva, recusa, cancelamento e expiração. Essa integração
+**não deve ser mesclada/publicada antes da migração**, que ainda falta.
 Os testes de contrato e estrutura em `fila-ofertas-transacional.test.ts`
 são verificações de código, **não equivalem a ensaio SQL com concorrência**.
 
@@ -64,12 +66,30 @@ antes de eventual migração, nem comprova ausência de corridas futuras.
 3. Testar com banco descartável **duas vagas/mesma pessoa em paralelo**,
    duas pessoas/mesma vaga, recusa de token antigo, aceite idempotente,
    perda de vaga, expiração, WhatsApp não conectado e consentimento revogado.
-4. Substituir no backend o par `UPDATE fila` + `INSERT oferta` pela RPC
-   `reservar_oferta_da_fila`; substituir cada transição por
-   `encerrar_oferta_da_fila`. Nenhuma camada deve manter os dois caminhos.
+4. Conferir a integração já preparada no PR #55: o backend chama
+   `reservar_oferta_da_fila` e `encerrar_oferta_da_fila` sem manter
+   `UPDATE fila` + `INSERT oferta` como segundo caminho; rejeitar deploy
+   se a migração estiver ausente.
 5. Confirmar índices, grants, RLS, monitoramento e comportamento mobile.
 6. Somente então aplicar na prévia mediante revisão/autorização específica.
    Produção permanece sem alteração automática.
+
+### Preflight PostgreSQL de leitura (12/11/2026)
+
+Adicionado `tests/sql/fila-ofertas-preflight-leitura.sql`, executado no
+**Supabase de prévia** com somente `SELECT`, sem migração nem alteração
+de dados. O resultado verificado foi: `ofertas_ativas = 0`,
+`entradas_avisadas = 0`, duplicidades por entrada/vaga = 0,
+ofertas sem entrada do tenant = 0, avisados sem oferta = 0, ofertas com
+estado de fila incompatível = 0, ofertas sem vaga de origem = 0.
+`pronto_para_revisao = true` indica apenas que o estado observado não
+contém essas inconsistências. **Não é autorização de migração nem
+evidência de concorrência transacional testada.**
+
+O SQL proposto também bloqueia a migração se houver oferta ativa
+sem `agendamento_liberado_id`. A função de notificação interna do motor
+passou a ser independente da progressão da oferta: falha em registrar
+um sininho não impede classificar o envio, com teste de regressão.
 
 ### Proteção de prioridade em falhas transitórias
 
