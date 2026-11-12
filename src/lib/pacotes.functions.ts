@@ -115,7 +115,7 @@ export const salvarPacote = createServerFn({ method: "POST" })
     // A edição inteira ocorre em UMA única transação na RPC do Postgres.
     // Não retornar ao caminho antigo (UPDATE + DELETE + INSERT separados):
     // sem a migração, falhar com diagnóstico em vez de arriscar dados parciais.
-    const { data: pacoteId, error } = await context.supabase.rpc("salvar_pacote_atomico", {
+    const { data: pacoteId, error } = await db(context).rpc("salvar_pacote_atomico", {
       _tenant_id: tenantId,
       _pacote_id: data.id ?? null,
       _tipo: data.tipo,
