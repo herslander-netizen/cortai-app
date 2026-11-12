@@ -1,0 +1,97 @@
+name: Agenda PR52 - Medicao A/B Chromium
+
+# Mede dois commits sobre a MESMA bancada. Nenhum secret, login, deploy ou DB.
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+    branches: ["fix/agenda-native-transform-mobile-20261112"]
+    paths:
+      - ".github/workflows/agenda-pr52-medicao-ab.yml"
+      - "tests/agenda-browser/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: flow-agenda-pr52-benchmark-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  medir:
+    name: Chromium 360/390/1280 - baseline versus PR52
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - name: Checkout com histórico para acessar base original do PR52
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Preparar Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - name: Dependencias congeladas
+        run: bun install --frozen-lockfile
+      - name: Playwright para instrumentar Chromium
+        run: npm install --no-save --ignore-scripts --package-lock=false @playwright/test@1.56.1
+      - name: Chromium compativel com Ubuntu 24.04
+        run: npx playwright install --with-deps chromium
+      - name: Benchmarks A-B-B-A com codigo real de producao
+        shell: bash
+        run: |
+          set -euo pipefail
+          SRC="src/components/barbeiro/agenda/TrocaDeVisualizacao.tsx"
+          PR_BASE="77c1ab23cb082dc23512fd6801004fafc4a6d109"
+          mkdir -p test-results/pr52
+          cp "$SRC" "$RUNNER_TEMP/PR52-TrocaDeVisualizacao.tsx"
+          git show "$PR_BASE:$SRC" > "$RUNNER_TEMP/BASE-TrocaDeVisualizacao.tsx"
+          SERVER_PID=""
+          stop_server() {
+            if [ -n "$SERVER_PID" ]; then
+              kill "$SERVER_PID" || true
+              wait "$SERVER_PID" || true
+              SERVER_PID=""
+            fi
+          }
+          trap 'stop_server; cp "$RUNNER_TEMP/PR52-TrocaDeVisualizacao.tsx" "$SRC"' EXIT
+          i=0
+          # Ordem simetrica para reduzir viés de aquecimento do mesmo runner.
+          for VARIANTE in baseline pr52 pr52 baseline; do
+            i=$((i+1))
+            if [ "$VARIANTE" = "baseline" ]; then
+              cp "$RUNNER_TEMP/BASE-TrocaDeVisualizacao.tsx" "$SRC"
+            else
+              cp "$RUNNER_TEMP/PR52-TrocaDeVisualizacao.tsx" "$SRC"
+            fi
+            bunx vite --config tests/agenda-browser/vite.config.ts > "$RUNNER_TEMP/vite-pr52.log" 2>&1 &
+            SERVER_PID="$!"
+            SERVIDOR_OK=0
+            for j in $(seq 1 75); do
+              if curl -fsS http://127.0.0.1:4173/ >/dev/null; then
+                SERVIDOR_OK=1
+                break
+              fi
+              if ! kill -0 "$SERVER_PID" 2>/dev/null; then break; fi
+              sleep 1
+            done
+            if [ "$SERVIDOR_OK" -ne 1 ]; then
+              cat "$RUNNER_TEMP/vite-pr52.log"
+              exit 1
+            fi
+            TEST_VARIANT="$VARIANTE" TEST_ROUND="$i" \
+              REPORT_OUT="test-results/pr52/amostra-$i-$VARIANTE.json" \
+              node tests/agenda-browser/benchmark-pr52.mjs
+            stop_server
+            sleep 1
+          done
+          cp "$RUNNER_TEMP/PR52-TrocaDeVisualizacao.tsx" "$SRC"
+          node tests/agenda-browser/resumo-pr52.mjs test-results/pr52
+      - name: Armazenar dados brutos e resumo
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: medicao-pr52-chromium
+          path: test-results/pr52/
+          if-no-files-found: ignore
+          retention-days: 14
