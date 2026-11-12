@@ -100,6 +100,30 @@ describe("contrato de transição transacional das ofertas", () => {
   });
 });
 
+describe("motor da fila — não reintroduzir gravações não atômicas", () => {
+  const fonte = readFileSync("src/lib/whatsapp/fila-ofertas.server.ts", "utf8");
+
+  it("reserva uma entrada e cria sua oferta por uma só RPC", () => {
+    expect(fonte).toContain("await reservarOfertaTransacional(");
+    expect(fonte).not.toMatch(/\.from\("fila_de_espera"\)\s*\.update\(/);
+    expect(fonte).not.toMatch(/\.from\("ofertas_da_fila"\)\s*\.insert\(/);
+  });
+
+  it("recusa, cancelamento e cron usam o mesmo contrato de encerramento", () => {
+    expect(fonte).toContain("export async function recusarOferta(");
+    expect(fonte).toContain("export async function cancelarOfertasDaVaga(");
+    expect(fonte).toContain("export async function processarListaDeEspera(");
+    expect((fonte.match(/await encerrarOfertaTransacional\(/g) ?? []).length).toBeGreaterThanOrEqual(4);
+    expect(fonte).not.toContain("liberarFilaDaOferta");
+  });
+
+  it("não afirma atendimento enviado enquanto entrega não foi verificada", () => {
+    expect(fonte).toContain('entrega === "incerta"');
+    expect(fonte).toContain("classificarImpedimentoDeOferta");
+    expect(fonte).toContain("Vaga em preparação para a lista de espera");
+  });
+});
+
 describe("proposta SQL — verificações estruturais antes de uma migração", () => {
   const sql = readFileSync("docs/sql/fila-ofertas-transacionais-proposta-2026-11-12.sql", "utf8");
 
@@ -109,6 +133,11 @@ describe("proposta SQL — verificações estruturais antes de uma migração", 
     expect(sql).toContain("WHERE status = 'enviada'");
     expect(sql).toContain("FOREIGN KEY (oferta_atual_id)");
     expect(sql).toContain("RAISE EXCEPTION 'Fila tem mais de uma oferta ativa");
+    expect(sql).toContain("cliente_indisponivel");
+    expect(sql).toContain("profissional_invalido");
+    expect(sql).toContain("servico_invalido");
+    expect(sql).toContain("array_length(v_s.profissional_ids, 1)");
+    expect(sql).toContain("EXCEPTION WHEN unique_violation");
     expect(sql).toContain("Mais de uma oferta ativa por vaga");
     expect(sql).toContain("Oferta ativa sem entrada no mesmo tenant");
     expect(sql).toContain("id = v_f.cliente_id AND tenant_id = _tenant_id");
