@@ -262,6 +262,57 @@ describe("webhook da Evolution", () => {
     expect(processar).not.toHaveBeenCalled();
   });
 
+  it("recibos, reações, sincronizações e histórico fromMe não tomam o atendimento humano", async () => {
+    const semRespostaReal = [
+      {},
+      { protocolMessage: { type: 0, key: { id: "leitura" } } },
+      { reactionMessage: { text: "👍" } },
+      { conversation: "   " },
+      { senderKeyDistributionMessage: { groupId: "teste" } },
+    ];
+    for (const [indice, conteudo] of semRespostaReal.entries()) {
+      const r = await chamar(
+        mensagem({
+          key: { remoteJid: "5500000000001@s.whatsapp.net", fromMe: true, id: `r-${indice}` },
+          message: conteudo,
+        }),
+        comSegredo,
+      );
+      expect(r.status).toBe(200);
+      expect(await r.json()).toMatchObject({ ignorada: true, motivo: "nao_e_resposta_humana" });
+    }
+    const historico = await chamar(
+      mensagem({
+        key: { remoteJid: "5500000000001@s.whatsapp.net", fromMe: true, id: "hist" },
+        type: "append",
+        message: { conversation: "Histórico sincronizado" },
+      }),
+      comSegredo,
+    );
+    expect(await historico.json()).toMatchObject({ ignorada: true, motivo: "nao_e_resposta_humana" });
+    expect(respostaDoNegocio).not.toHaveBeenCalled();
+    expect(processar).not.toHaveBeenCalled();
+  });
+
+  it("resposta humana de áudio pelo próprio WhatsApp continua assumindo a conversa", async () => {
+    const r = await chamar(
+      mensagem({
+        key: { remoteJid: "5500000000001@s.whatsapp.net", fromMe: true, id: "voz-humana" },
+        message: { audioMessage: { mimetype: "audio/ogg" } },
+      }),
+      comSegredo,
+    );
+    expect(r.status).toBe(200);
+    expect(respostaDoNegocio).toHaveBeenCalledWith(
+      expect.objectContaining({
+        sessaoId: "flow-bot-teste",
+        telefone: "5500000000001",
+        mensagemExternaId: "voz-humana",
+      }),
+    );
+    expect(processar).not.toHaveBeenCalled();
+  });
+
   it("mensagem do próprio número nunca é respondida: só registra que a equipe falou", async () => {
     const r = await chamar(
       mensagem({
