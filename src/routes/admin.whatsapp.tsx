@@ -10,6 +10,7 @@ import { PainelSaudeWhatsapp } from "@/components/admin/PainelSaudeWhatsapp";
 import { CodigoPorNumeroDoNegocio } from "@/components/admin/CodigoPorNumeroDoNegocio";
 import { QrCodeReal } from "@/components/ia/QrCodeReal";
 import { Button } from "@/components/ui/button";
+import { Aviso } from "@/components/ui/aviso";
 import {
   definirNotificacoesDoNegocio,
   listarWhatsappDosNegocios,
@@ -59,11 +60,11 @@ function AdminWhatsappPage() {
         </>
       ) : null}
       {negocios.isError ? (
-        <p className="border-l-2 border-brick py-2 pl-4 text-sm text-brick" role="alert">
+        <Aviso tom="acao">
           {negocios.data
             ? "Falha ao atualizar as conexões. Os estados abaixo são da última leitura disponível e podem estar desatualizados."
             : "Não foi possível consultar as conexões dos estabelecimentos."}
-        </p>
+        </Aviso>
       ) : null}
       {negocios.data ? (
         <PainelSaudeWhatsapp
