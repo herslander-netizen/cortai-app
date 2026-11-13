@@ -138,3 +138,14 @@ BEGIN
   RETURN jsonb_build_object('agendamento_id', v_id);
 END;
 $criar_teste$;
+
+-- Preflight chegada avisada: o aviso manual não precisa ter oferta de horário.
+-- Esta entrada sintética existe ANTES de executar a proposta SQL no CI.
+WITH t AS (
+  INSERT INTO public.tenants DEFAULT VALUES RETURNING id
+), c AS (
+  INSERT INTO public.clientes(tenant_id)
+  SELECT id FROM t RETURNING id, tenant_id
+)
+INSERT INTO public.fila_de_espera(tenant_id,cliente_id,status,janela_preferida,avisado_em)
+SELECT tenant_id,id,'avisado',NULL,now() FROM c;
