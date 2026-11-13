@@ -1,6 +1,6 @@
 # Flow — Roteiro de homologação concorrente no PostgreSQL isolado
 
-**Status:** roteiro preparado; ensaio transacional **não executado** em 12/11/2026.
+**Status (13/11/2026):** 16 cenários de concorrência/consistência executados e aprovados em PostgreSQL descartável com esquema mínimo e `criar_agendamento` substituta. **Ainda pendente:** ensaio no esquema completo, com os 11 gatilhos reais de `agendamentos` e Auth/RLS/fluxos reais. Não confundir bancada mínima verde com homologação final.
 **Não executar** em `cortai-preview` ou `cortai-prod`: os cenários
 geram ofertas, agendamentos e mudanças reais. Não usar dados pessoais reais.
 
@@ -19,8 +19,14 @@ geram ofertas, agendamentos e mudanças reais. Não usar dados pessoais reais.
    conferir presença e privilégios das 5 RPCs. No PostgreSQL local,
    usar credenciais/role de teste que realmente satisfaçam
    `public.chamada_do_servidor()`. Não fabricar autorização em banco real.
-4. Antes dos ensaios, conferir que `tests/sql/fila-ofertas-preflight-leitura.sql`
-   retorna `pronto_para_revisao=true`. Criar nova fixture para **cada cenário**
+4. Antes dos ensaios, executar **ambos os preflights somente leitura**:
+   `tests/sql/fila-ofertas-esquema-real-preflight.sql` para contratos do
+   schema e `tests/sql/fila-ofertas-preflight-leitura.sql` para integridade
+   dos registros. Esperar, respectivamente,
+   `contrato_minimo_pronto_para_revisao=true` e `pronto_para_revisao=true`.
+   Confirmar também `coluna_oferta_atual_ja_instalada`: se for false, nenhuma
+   parte do backend novo pode ser publicada antes da migração coordenada.
+   Criar nova fixture para **cada cenário**
    para não depender do estado anterior.
 
 ## Sessões concorrentes A e B (duas conexões independentes)
@@ -84,3 +90,27 @@ reversibilidade, idempotência, `service_role`, RLS, multi-tenant, compatibilida
 com `converterFilaEmAgendamento` e `removerDaFila` e controle de cron
 durante a implantação. **Sem evidência dos dois terminais reais, não declarar
 homologação transacional concluída.**
+
+
+## Evidência de leitura do esquema de prévia — 13/11/2026
+
+O preflight `fila-ofertas-esquema-real-preflight.sql` foi executado via
+conector Supabase contra **`cortai-preview`**, em operação exclusivamente
+`SELECT`. Resultado: 25 colunas obrigatórias, **zero ausentes**;
+RLS nas sete tabelas; três CHECKs de estado; índice único parcial da vaga;
+quatro gatilhos essenciais ligados; RPCs existentes; mesma expressão de
+`pg_advisory_xact_lock` da RPC oficial; `aceitar_oferta_da_fila` restrita
+ao servidor. `contrato_minimo_pronto_para_revisao=true`.
+
+A coluna `fila_de_espera.oferta_atual_id` **ainda não está presente**.
+A aplicação das cinco RPCs novas permanece pendente. A leitura não
+executou `criar_agendamento`, gatilhos reais ou cenários concorrentes na
+prévia. O laboratório PostgreSQL mínimo passou **16/16 cenários** no
+[workflow #43369164601](https://github.com/herslander-netizen/cortai-app/actions/runs/43369164601).
+
+**Próximas provas obrigatórias:** montar esquema descartável completo com
+a versão vigente de `criar_agendamento`, gatilhos de comanda, máquina
+de estados, bloqueio de cliente, autenticação/RLS e transações reais;
+validar migrations, integrações da fila com pagamento/WhatsApp, e fazer
+homologação funcional mobile. Nem o contrato read-only nem o laboratório
+mínimo autorizam executar a proposta na prévia ou produção.
