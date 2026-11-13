@@ -1,6 +1,8 @@
 -- Somente leitura: conferência da fila ANTES de qualquer migração aditiva.
 -- Pode rodar no banco de prévia atual, mesmo sem coluna oferta_atual_id.
 -- Não altera dados e não contém identificadores pessoais de clientes.
+-- Aviso manual na fila de chegada (janela_preferida NULL) não exige oferta.
+-- Ofertas ativas para a fila de chegada são inconsistência.
 -- O resultado `pronto_para_revisao` NÃO autoriza uma implantação automática.
 WITH
 ativas AS (
@@ -25,13 +27,13 @@ ofertas_orfas AS (
 avisados_sem_oferta AS (
   SELECT f.id FROM public.fila_de_espera f
     LEFT JOIN ativas a ON a.fila_id = f.id AND a.tenant_id = f.tenant_id
-   WHERE f.status = 'avisado' AND a.id IS NULL
+   WHERE f.status = 'avisado' AND f.janela_preferida IS NOT NULL AND a.id IS NULL
 ),
 ofertas_sem_aviso AS (
   SELECT a.id FROM ativas a
     JOIN public.fila_de_espera f
       ON f.id = a.fila_id AND f.tenant_id = a.tenant_id
-   WHERE f.status <> 'avisado'
+   WHERE f.status <> 'avisado' OR f.janela_preferida IS NULL
 ),
 ofertas_sem_vaga AS (
   SELECT id FROM ativas WHERE agendamento_liberado_id IS NULL
