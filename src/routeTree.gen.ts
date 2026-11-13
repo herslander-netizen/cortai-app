@@ -89,15 +89,12 @@ import { Route as FSlugRouteImport } from './routes/f.$slug'
 import { Route as LojaSlugRouteImport } from './routes/loja.$slug'
 import { Route as VagaTokenRouteImport } from './routes/vaga.$token'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
-import { Route as ApiPublicAlvoIaRouteImport } from './routes/api/public/alvo-ia'
 import { Route as ApiPublicFunilRouteImport } from './routes/api/public/funil'
 import { Route as BarbeiroClientesIndexRouteImport } from './routes/barbeiro.clientes.index'
 import { Route as BarbeiroClientesIdRouteImport } from './routes/barbeiro.clientes.$id'
-import { Route as ApiPublicAiSplatRouteImport } from './routes/api/public/ai/$'
 import { Route as ApiPublicAsaasVarreduraRouteImport } from './routes/api/public/asaas/varredura'
 import { Route as ApiPublicAsaasWebhookRouteImport } from './routes/api/public/asaas/webhook'
 import { Route as ApiPublicCapaSlugRouteImport } from './routes/api/public/capa.$slug'
-import { Route as ApiPublicCortaiAcoesRouteImport } from './routes/api/public/cortai/acoes'
 import { Route as ApiPublicOauthPlataformaRouteImport } from './routes/api/public/oauth/$plataforma'
 import { Route as ApiPublicPushAvisoRouteImport } from './routes/api/public/push/aviso'
 import { Route as ApiPublicPushEventoRouteImport } from './routes/api/public/push/evento'
@@ -508,11 +505,6 @@ const DotlovableOauthConsentRoute = DotlovableOauthConsentRouteImport.update({
   path: '/.lovable/oauth/consent',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiPublicAlvoIaRoute = ApiPublicAlvoIaRouteImport.update({
-  id: '/api/public/alvo-ia',
-  path: '/api/public/alvo-ia',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ApiPublicFunilRoute = ApiPublicFunilRouteImport.update({
   id: '/api/public/funil',
   path: '/api/public/funil',
@@ -528,11 +520,6 @@ const BarbeiroClientesIdRoute = BarbeiroClientesIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => BarbeiroClientesRoute,
 } as any)
-const ApiPublicAiSplatRoute = ApiPublicAiSplatRouteImport.update({
-  id: '/api/public/ai/$',
-  path: '/api/public/ai/$',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ApiPublicAsaasVarreduraRoute = ApiPublicAsaasVarreduraRouteImport.update({
   id: '/api/public/asaas/varredura',
   path: '/api/public/asaas/varredura',
@@ -546,11 +533,6 @@ const ApiPublicAsaasWebhookRoute = ApiPublicAsaasWebhookRouteImport.update({
 const ApiPublicCapaSlugRoute = ApiPublicCapaSlugRouteImport.update({
   id: '/api/public/capa/$slug',
   path: '/api/public/capa/$slug',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiPublicCortaiAcoesRoute = ApiPublicCortaiAcoesRouteImport.update({
-  id: '/api/public/cortai/acoes',
-  path: '/api/public/cortai/acoes',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiPublicOauthPlataformaRoute =
@@ -675,15 +657,12 @@ export interface FileRoutesByFullPath {
   '/app/': typeof AppIndexRoute
   '/barbeiro/': typeof BarbeiroIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
-  '/api/public/alvo-ia': typeof ApiPublicAlvoIaRoute
   '/api/public/funil': typeof ApiPublicFunilRoute
   '/barbeiro/clientes/$id': typeof BarbeiroClientesIdRoute
   '/barbeiro/clientes/': typeof BarbeiroClientesIndexRoute
-  '/api/public/ai/$': typeof ApiPublicAiSplatRoute
   '/api/public/asaas/varredura': typeof ApiPublicAsaasVarreduraRoute
   '/api/public/asaas/webhook': typeof ApiPublicAsaasWebhookRoute
   '/api/public/capa/$slug': typeof ApiPublicCapaSlugRoute
-  '/api/public/cortai/acoes': typeof ApiPublicCortaiAcoesRoute
   '/api/public/oauth/$plataforma': typeof ApiPublicOauthPlataformaRoute
   '/api/public/push/aviso': typeof ApiPublicPushAvisoRoute
   '/api/public/push/evento': typeof ApiPublicPushEventoRoute
@@ -769,15 +748,12 @@ export interface FileRoutesByTo {
   '/app': typeof AppIndexRoute
   '/barbeiro': typeof BarbeiroIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
-  '/api/public/alvo-ia': typeof ApiPublicAlvoIaRoute
   '/api/public/funil': typeof ApiPublicFunilRoute
   '/barbeiro/clientes/$id': typeof BarbeiroClientesIdRoute
   '/barbeiro/clientes': typeof BarbeiroClientesIndexRoute
-  '/api/public/ai/$': typeof ApiPublicAiSplatRoute
   '/api/public/asaas/varredura': typeof ApiPublicAsaasVarreduraRoute
   '/api/public/asaas/webhook': typeof ApiPublicAsaasWebhookRoute
   '/api/public/capa/$slug': typeof ApiPublicCapaSlugRoute
-  '/api/public/cortai/acoes': typeof ApiPublicCortaiAcoesRoute
   '/api/public/oauth/$plataforma': typeof ApiPublicOauthPlataformaRoute
   '/api/public/push/aviso': typeof ApiPublicPushAvisoRoute
   '/api/public/push/evento': typeof ApiPublicPushEventoRoute
@@ -868,15 +844,12 @@ export interface FileRoutesById {
   '/app/': typeof AppIndexRoute
   '/barbeiro/': typeof BarbeiroIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
-  '/api/public/alvo-ia': typeof ApiPublicAlvoIaRoute
   '/api/public/funil': typeof ApiPublicFunilRoute
   '/barbeiro/clientes/$id': typeof BarbeiroClientesIdRoute
   '/barbeiro/clientes/': typeof BarbeiroClientesIndexRoute
-  '/api/public/ai/$': typeof ApiPublicAiSplatRoute
   '/api/public/asaas/varredura': typeof ApiPublicAsaasVarreduraRoute
   '/api/public/asaas/webhook': typeof ApiPublicAsaasWebhookRoute
   '/api/public/capa/$slug': typeof ApiPublicCapaSlugRoute
-  '/api/public/cortai/acoes': typeof ApiPublicCortaiAcoesRoute
   '/api/public/oauth/$plataforma': typeof ApiPublicOauthPlataformaRoute
   '/api/public/push/aviso': typeof ApiPublicPushAvisoRoute
   '/api/public/push/evento': typeof ApiPublicPushEventoRoute
@@ -968,15 +941,12 @@ export interface FileRouteTypes {
     | '/app/'
     | '/barbeiro/'
     | '/.lovable/oauth/consent'
-    | '/api/public/alvo-ia'
     | '/api/public/funil'
     | '/barbeiro/clientes/$id'
     | '/barbeiro/clientes/'
-    | '/api/public/ai/$'
     | '/api/public/asaas/varredura'
     | '/api/public/asaas/webhook'
     | '/api/public/capa/$slug'
-    | '/api/public/cortai/acoes'
     | '/api/public/oauth/$plataforma'
     | '/api/public/push/aviso'
     | '/api/public/push/evento'
@@ -1062,15 +1032,12 @@ export interface FileRouteTypes {
     | '/app'
     | '/barbeiro'
     | '/.lovable/oauth/consent'
-    | '/api/public/alvo-ia'
     | '/api/public/funil'
     | '/barbeiro/clientes/$id'
     | '/barbeiro/clientes'
-    | '/api/public/ai/$'
     | '/api/public/asaas/varredura'
     | '/api/public/asaas/webhook'
     | '/api/public/capa/$slug'
-    | '/api/public/cortai/acoes'
     | '/api/public/oauth/$plataforma'
     | '/api/public/push/aviso'
     | '/api/public/push/evento'
@@ -1160,15 +1127,12 @@ export interface FileRouteTypes {
     | '/app/'
     | '/barbeiro/'
     | '/.lovable/oauth/consent'
-    | '/api/public/alvo-ia'
     | '/api/public/funil'
     | '/barbeiro/clientes/$id'
     | '/barbeiro/clientes/'
-    | '/api/public/ai/$'
     | '/api/public/asaas/varredura'
     | '/api/public/asaas/webhook'
     | '/api/public/capa/$slug'
-    | '/api/public/cortai/acoes'
     | '/api/public/oauth/$plataforma'
     | '/api/public/push/aviso'
     | '/api/public/push/evento'
@@ -1207,13 +1171,10 @@ export interface RootRouteChildren {
   LojaSlugRoute: typeof LojaSlugRoute
   VagaTokenRoute: typeof VagaTokenRoute
   DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
-  ApiPublicAlvoIaRoute: typeof ApiPublicAlvoIaRoute
   ApiPublicFunilRoute: typeof ApiPublicFunilRoute
-  ApiPublicAiSplatRoute: typeof ApiPublicAiSplatRoute
   ApiPublicAsaasVarreduraRoute: typeof ApiPublicAsaasVarreduraRoute
   ApiPublicAsaasWebhookRoute: typeof ApiPublicAsaasWebhookRoute
   ApiPublicCapaSlugRoute: typeof ApiPublicCapaSlugRoute
-  ApiPublicCortaiAcoesRoute: typeof ApiPublicCortaiAcoesRoute
   ApiPublicOauthPlataformaRoute: typeof ApiPublicOauthPlataformaRoute
   ApiPublicPushAvisoRoute: typeof ApiPublicPushAvisoRoute
   ApiPublicPushEventoRoute: typeof ApiPublicPushEventoRoute
@@ -1785,13 +1746,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DotlovableOauthConsentRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/public/alvo-ia': {
-      id: '/api/public/alvo-ia'
-      path: '/api/public/alvo-ia'
-      fullPath: '/api/public/alvo-ia'
-      preLoaderRoute: typeof ApiPublicAlvoIaRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/api/public/funil': {
       id: '/api/public/funil'
       path: '/api/public/funil'
@@ -1813,13 +1767,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BarbeiroClientesIdRouteImport
       parentRoute: typeof BarbeiroClientesRoute
     }
-    '/api/public/ai/$': {
-      id: '/api/public/ai/$'
-      path: '/api/public/ai/$'
-      fullPath: '/api/public/ai/$'
-      preLoaderRoute: typeof ApiPublicAiSplatRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/api/public/asaas/varredura': {
       id: '/api/public/asaas/varredura'
       path: '/api/public/asaas/varredura'
@@ -1839,13 +1786,6 @@ declare module '@tanstack/react-router' {
       path: '/api/public/capa/$slug'
       fullPath: '/api/public/capa/$slug'
       preLoaderRoute: typeof ApiPublicCapaSlugRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/cortai/acoes': {
-      id: '/api/public/cortai/acoes'
-      path: '/api/public/cortai/acoes'
-      fullPath: '/api/public/cortai/acoes'
-      preLoaderRoute: typeof ApiPublicCortaiAcoesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/oauth/$plataforma': {
@@ -2073,13 +2013,10 @@ const rootRouteChildren: RootRouteChildren = {
   LojaSlugRoute: LojaSlugRoute,
   VagaTokenRoute: VagaTokenRoute,
   DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
-  ApiPublicAlvoIaRoute: ApiPublicAlvoIaRoute,
   ApiPublicFunilRoute: ApiPublicFunilRoute,
-  ApiPublicAiSplatRoute: ApiPublicAiSplatRoute,
   ApiPublicAsaasVarreduraRoute: ApiPublicAsaasVarreduraRoute,
   ApiPublicAsaasWebhookRoute: ApiPublicAsaasWebhookRoute,
   ApiPublicCapaSlugRoute: ApiPublicCapaSlugRoute,
-  ApiPublicCortaiAcoesRoute: ApiPublicCortaiAcoesRoute,
   ApiPublicOauthPlataformaRoute: ApiPublicOauthPlataformaRoute,
   ApiPublicPushAvisoRoute: ApiPublicPushAvisoRoute,
   ApiPublicPushEventoRoute: ApiPublicPushEventoRoute,

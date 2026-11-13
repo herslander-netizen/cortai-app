@@ -104,7 +104,7 @@ A guarda de rota é feita por `exigirPapel()` em `src/lib/guarda.ts`, no `before
 - **Atual:** `brain/agente.server.ts` (`pensarCortai`), `brain/acoes.server.ts` (catálogo e `acaoPermitida`), `brain/guardas.ts`, `brain/uso.server.ts` (cotas e pausa), `brain/secretaria-publica.functions.ts` (site).
 - **Ações de domínio:** `ia/acoes.server.ts`, que grava com a chave de serviço e filtra por `tenant_id`.
 - **Painel:** `assistente.functions.ts`. Usa `ia/assistente.server.ts` (legado) só para cadastrar serviços e horários em lote.
-- **Legado (ALVO IA):** `ia/alvo-ia.server.ts`, `ia/ponte.server.ts`, `ia/eventos.server.ts`, `ia/contrato.ts`, e as rotas `api/public/ai/$`, `api/public/cortai/acoes` e `api/public/alvo-ia`.
+- **Legado (ALVO IA):** removido em 13/11/2026 com autorização do dono (5 arquivos de `lib/ia` e as rotas `api/public/ai/$`, `api/public/cortai/acoes` e `api/public/alvo-ia`). As tabelas continuam no banco.
 - Telas: `components/ia/*` (`AssistenteCortai`, `FolhaCortai`, `IconeDaIA`, `BotaoAssistente`).
 
 ### WhatsApp (`src/lib/whatsapp`)
