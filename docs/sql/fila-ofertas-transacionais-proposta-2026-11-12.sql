@@ -330,6 +330,19 @@ BEGIN
     RETURN jsonb_build_object('ok', false, 'motivo', 'nao_encontrada');
   END IF;
   IF v_o.status = 'aceita' THEN
+    -- Idempotência não significa declarar sucesso sem agendamento existente.
+    -- Confirmar o vínculo na mesma transação antes de responder a um retry.
+    IF v_o.agendamento_criado_id IS NULL OR NOT EXISTS (
+      SELECT 1 FROM public.agendamentos a
+      WHERE a.id = v_o.agendamento_criado_id
+        AND a.tenant_id = v_o.tenant_id
+        AND a.origem_fila_id = v_o.fila_id
+        AND a.profissional_id = v_o.profissional_id
+        AND a.servico_id = v_o.servico_id
+        AND a.inicio = v_o.inicio
+    ) THEN
+      RETURN jsonb_build_object('ok', false, 'motivo', 'aceite_inconsistente');
+    END IF;
     RETURN jsonb_build_object(
       'ok', true, 'agendamento_id', v_o.agendamento_criado_id, 'repetida', true
     );
