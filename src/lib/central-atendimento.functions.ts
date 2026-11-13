@@ -82,7 +82,7 @@ export const listarConversasDaCentral = createServerFn({ method: "GET" })
             iaAtiva: c.ia_ativa,
             modoHumano: c.modo_humano,
             modoHumanoAte: c.modo_humano_ate,
-            ultimaDirecao: m?.direcao ?? null,
+            ultimaDirecao: m?.direcao === "entrada" ? "entrada" : m?.direcao === "saida" ? "saida" : null,
             possuiSaidaRegistrada: (c.saidas?.length ?? 0) > 0,
             naoLidas: c.nao_lidas ?? 0,
           }, agora),
