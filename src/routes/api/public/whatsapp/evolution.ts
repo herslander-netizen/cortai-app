@@ -151,8 +151,15 @@ export const Route = createFileRoute("/api/public/whatsapp/evolution")({
           const { remetenteDaEvolution } = await import("@/lib/whatsapp/remetente-evolution");
           const remetente = remetenteDaEvolution(dados);
           if (chave["fromMe"] === true) {
-            // Mensagem do próprio número do negócio. Se não foi o Flow que enviou, alguém da equipe respondeu pelo
-            // celular: o bot e a Flow IA ficam em silêncio naquela conversa por um tempo (nunca falam por cima).
+            // Uma mensagem de saída real é diferente de recibo, histórico, reação e sync.
+            // Esses eventos jamais podem suspender o Flow Bot/IA como se a equipe tivesse respondido.
+            const { eventoComMensagemDeSaidaReal } = await import("@/lib/flow-bot/intervencao-humana");
+            if (!eventoComMensagemDeSaidaReal(dados)) {
+              return Response.json({ ok: true, ignorada: true, motivo: "nao_e_resposta_humana" });
+            }
+            // O número de destino precisa vir do remoteJid desta instância;
+            // autorizarInstancia já restringiu o evento à sessão autenticada.
+            // registrarRespostaDoNegocio diferencia eco do Flow de envio humano pelo ID.
             if (remetente.tipo === "contato") {
               const { texto } = textoDaMensagem(
                 dados["message"] as Record<string, unknown> | undefined,
