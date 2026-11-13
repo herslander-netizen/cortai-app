@@ -14,6 +14,7 @@ import json
 import os
 import time
 import uuid
+from datetime import datetime, timedelta, timezone
 from urllib.error import HTTPError
 from urllib.request import Request, urlopen
 
@@ -76,9 +77,7 @@ def reserve_args(x: dict, *, entry: str = "entry1", slot: str = "slot1",
         "_profissional_id": str(x["prof"]),
         "_servico_id": str(x["service"]),
         "_inicio": START.isoformat(), "_fim": END.isoformat(),
-        "_expira_em": __import__("datetime").datetime.fromtimestamp(
-            time.time() + 300, __import__("datetime").timezone.utc
-        ).isoformat(),
+        "_expira_em": (datetime.now(timezone.utc) + timedelta(minutes=5)).isoformat(),
     }
 
 
