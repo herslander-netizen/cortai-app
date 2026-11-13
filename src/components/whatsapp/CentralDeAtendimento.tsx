@@ -269,6 +269,15 @@ export function CentralDeAtendimento() {
             </div>
           ) : (
             <div className="flex min-h-[360px] flex-col items-center justify-center gap-3 px-5 text-center">
+              {selecao ? (
+                <button
+                  type="button"
+                  onClick={() => setSelecao(null)}
+                  className="inline-flex min-h-11 items-center gap-2 rounded-full px-4 text-sm text-paper focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring md:hidden"
+                >
+                  <ArrowLeft className="size-4" aria-hidden /> Voltar às conversas
+                </button>
+              ) : null}
               <MessageCircle className="size-8 text-mute2" aria-hidden />
               <p className="text-sm text-paper">Escolha uma conversa</p>
               <p className="max-w-[270px] text-xs leading-relaxed text-mute">
