@@ -205,7 +205,7 @@ export function CentralDeAtendimento() {
                 </div>
                 {lista.data?.podeGerenciar ? (
                   <div className="mt-3 flex flex-wrap gap-2">
-                    {escolhida.estado !== "atendimento_humano" && escolhida.estado !== "resolvida" ? (
+                    {escolhida.estado !== "atendimento_humano" ? (
                       <Button size="sm" variant="secondary" disabled={alterar.isPending} onClick={() => void executar("assumir")}>
                         <Hand className="mr-1.5 size-4" aria-hidden /> Assumir
                       </Button>
