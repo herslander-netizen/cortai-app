@@ -973,7 +973,7 @@ export async function processarMensagemRecebida(input: {
   try {
     const { data: posseAtual, error: erroPosse } = await db
       .from("conversas_whatsapp")
-      .select("modo_humano, modo_humano_ate")
+      .select("status, modo_humano, modo_humano_ate")
       .eq("id", conversa.id)
       .eq("tenant_id", tenantId)
       .maybeSingle();
