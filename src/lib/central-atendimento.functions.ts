@@ -11,6 +11,7 @@ import { exigirPermissao, tenantIdDoMembro } from "@/lib/tenant";
 import { exigirRecurso } from "@/lib/planos";
 import { estadoDaConversa, type EstadoDaConversa } from "@/lib/whatsapp/estado-da-conversa";
 import { origemDaMensagem, type OrigemDaMensagem } from "@/lib/whatsapp/origem-mensagem";
+import { podeComandarConversa } from "@/lib/whatsapp/permissoes-central";
 
 async function admin() {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -196,22 +197,21 @@ export const comandarConversaDaCentral = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => comandoSchema.parse(input))
   .handler(async ({ context, data }): Promise<ResultadoDoComando> => {
     const tenantId = await tenantIdDoMembro(context);
-    // Direitos de atendimento independem de configurar a conexão WhatsApp.
-    if (data.acao === "resolver") {
-      await exigirPermissao(context, tenantId, "gerenciar_conversas");
-    } else {
-      const [assumir, gerenciar] = await Promise.all([
-        context.supabase.rpc("has_tenant_permission", {
-          _tenant_id: tenantId, _permission: "assumir_conversa",
-        }),
-        context.supabase.rpc("has_tenant_permission", {
-          _tenant_id: tenantId, _permission: "gerenciar_conversas",
-        }),
-      ]);
-      if (!(!assumir.error && assumir.data === true) &&
-          !(!gerenciar.error && gerenciar.data === true)) {
-        throw new Error("Você não tem permissão para assumir ou liberar conversas.");
-      }
+    // Autorizar a ação pedida, não a conexão da empresa. Cada leitura
+    // de permissão é feita com JWT do usuário, sem service_role.
+    const [assumir, gerenciar] = await Promise.all([
+      context.supabase.rpc("has_tenant_permission", {
+        _tenant_id: tenantId, _permission: "assumir_conversa",
+      }),
+      context.supabase.rpc("has_tenant_permission", {
+        _tenant_id: tenantId, _permission: "gerenciar_conversas",
+      }),
+    ]);
+    if (!podeComandarConversa({
+      podeAssumir: !assumir.error && assumir.data === true,
+      podeGerenciar: !gerenciar.error && gerenciar.data === true,
+    }, data.acao)) {
+      throw new Error("Você não tem permissão para essa ação de atendimento.");
     }
     await exigirRecurso(context.supabase, tenantId, "secretaria_whatsapp");
     const db = await admin();
