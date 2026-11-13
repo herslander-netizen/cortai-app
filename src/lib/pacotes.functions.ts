@@ -112,60 +112,32 @@ export const salvarPacote = createServerFn({ method: "POST" })
     );
     const erroPreco = erroPrecoDoConjunto(data.precoCentavos, valorAvulso);
     if (erroPreco) throw new Error(erroPreco);
-    const campos = {
-      tenant_id: tenantId,
-      tipo: data.tipo,
-      nome: data.nome,
-      descricao: data.descricao?.trim() ? data.descricao : null,
-      preco_centavos: data.precoCentavos,
-      validade_dias: data.tipo === "pacote" ? data.validadeDias : null,
-      destaque: data.destaque,
-      ativo: data.ativo,
-    };
-    let pacoteId = data.id;
-    if (pacoteId) {
-      // Nunca tratar uma edição de ID inexistente/de outro tenant como sucesso.
-      // Evita apagar ou anexar itens a uma referência não autorizada.
-      const { data: existente, error: erroExistente } = await db(context)
-        .from("pacotes")
-        .select("id")
-        .eq("id", pacoteId)
-        .eq("tenant_id", tenantId)
-        .maybeSingle();
-      if (erroExistente) throw new Error(erroExistente.message);
-      if (!existente) throw new Error("Pacote não encontrado neste negócio.");
-      const { error } = await db(context)
-        .from("pacotes")
-        .update(campos)
-        .eq("id", pacoteId)
-        .eq("tenant_id", tenantId);
-      if (error) throw new Error(error.message);
-      // Os itens do pacote são trocados de uma vez: é o que o editor mostra na tela.
-      const { error: limpar } = await db(context)
-        .from("pacote_itens")
-        .delete()
-        .eq("pacote_id", pacoteId)
-        .eq("tenant_id", tenantId);
-      if (limpar) throw new Error(limpar.message);
-    } else {
-      const { data: novo, error } = await db(context)
-        .from("pacotes")
-        .insert(campos)
-        .select("id")
-        .single();
-      if (error) throw new Error(error.message);
-      pacoteId = novo.id as string;
+    // A edição inteira ocorre em UMA única transação na RPC do Postgres.
+    // Não retornar ao caminho antigo (UPDATE + DELETE + INSERT separados):
+    // sem a migração, falhar com diagnóstico em vez de arriscar dados parciais.
+    const { data: pacoteId, error } = await db(context).rpc("salvar_pacote_atomico", {
+      _tenant_id: tenantId,
+      _pacote_id: data.id ?? null,
+      _tipo: data.tipo,
+      _nome: data.nome,
+      _descricao: data.descricao?.trim() || null,
+      _preco_centavos: data.precoCentavos,
+      _validade_dias: data.tipo === "pacote" ? data.validadeDias : null,
+      _destaque: data.destaque,
+      _ativo: data.ativo,
+      _itens: itens,
+    });
+    if (error) {
+      if (error.code === "PGRST202" || error.code === "42883") {
+        throw new Error(
+          "A atualização de segurança dos pacotes ainda não está disponível neste ambiente.",
+        );
+      }
+      // A RPC faz a última verificação tenant/RLS/preços e o rollback completo.
+      throw new Error(error.message);
     }
-    const { error: erroItens } = await db(context)
-      .from("pacote_itens")
-      .insert(
-        itens.map((i) => ({
-          pacote_id: pacoteId,
-          tenant_id: tenantId,
-          servico_id: i.servicoId,
-          quantidade: i.quantidade,
-        })),
-      );
-    if (erroItens) throw new Error(erroItens.message);
+    if (!z.string().uuid().safeParse(pacoteId).success) {
+      throw new Error("O banco não confirmou o salvamento do pacote.");
+    }
     return { ok: true, id: pacoteId };
   });
