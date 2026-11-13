@@ -113,8 +113,7 @@ export function ListaAgenda({
           return (
             <li
               key={item.id}
-              className={`agenda-item agenda-item-${item.status} ${item.confirmadoEm && item.status === "agendado" ? "agenda-item-confirmado" : ""} ${item.encaixe && item.status === "agendado" ? "agenda-item-encaixe" : ""} ${indice < 6 ? "mov-item-cascata" : ""} ${selecionado === item.id ? "agenda-item-selecionado" : ""} ${novos.has(item.id) ? "agenda-novo" : ""}`}
-              style={indice < 6 ? { animationDelay: `${indice * 30}ms` } : undefined}
+              className={`agenda-item agenda-item-${item.status} ${item.confirmadoEm && item.status === "agendado" ? "agenda-item-confirmado" : ""} ${item.encaixe && item.status === "agendado" ? "agenda-item-encaixe" : ""} ${selecionado === item.id ? "agenda-item-selecionado" : ""} ${novos.has(item.id) ? "agenda-novo" : ""}`}
             >
               <Button
                 type="button"

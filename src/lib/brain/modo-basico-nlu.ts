@@ -31,6 +31,10 @@ export type Intencao =
   | "funcionamento"
   | "buscar_cliente"
   | "disponibilidade"
+  | "agenda"
+  | "fila"
+  | "atraso"
+  | "conversa"
   | "ajuda"
   | "como_fazer";
 
@@ -43,9 +47,19 @@ export function ehPedidoDeAgendar(texto: string): boolean {
 
 export function intencaoDe(texto: string): Intencao {
   const t = normalizar(texto);
+  // Conversas sociais e dúvidas de capacidade são tratadas sem consultar o banco.
+  if (/^(oi|ola|opa|e ai|bom dia|boa tarde|boa noite|tudo bem|tudo certo|fala|salve|obrigad\\w*|valeu|show|perfeito|beleza|entendi|certo|blz|ok)(\\s+.*)?$/.test(t) || /\\b(quem e voce|o que voce faz|pra que voce serve|como voce pode ajudar|o que consegue fazer|quais comandos|o que posso pedir|nao entendi|estou perdido|por onde comeco)\\b/.test(t))
+    return "conversa";
   // "Como coloco um cliente na fila?" é pedido de instrução, não busca nem comando.
   if (ehPerguntaDeAjuda(texto)) return "como_fazer";
+  // Consultas vêm antes de "agendar": "agenda" compartilha o mesmo radical.
+  if (/\b(atras\w*|demor\w*)\b.*\b(avis\w*|comunicar|cliente)\b|\bavis\w*\b.*\b(atras\w*|demor\w*)\b/.test(t))
+    return "atraso";
+  if (/\b(minha agenda|meus atendimentos|meus horarios|proximos? clientes?|quem e o proximo|qual o proximo|como esta a agenda|agenda de hoje|agenda amanha)\b/.test(t))
+    return "agenda";
   if (VERBO_DE_AGENDAR.test(t)) return "agendar";
+  if (/\b(fila|lista de espera|espera agora|quem esta esperando|aguardando)\b/.test(t))
+    return "fila";
   if (
     /\b(quanto entrou|faturamento|faturei|movimento|indicadores?|caixa de hoje|quanto (?:ja )?(?:ganhei|fiz))\b/.test(
       t,
@@ -72,6 +86,7 @@ export function intencaoDe(texto: string): Intencao {
     return "funcionamento";
   if (/\b(servicos?|precos?|quanto custa|tabela de precos?|valores?)\b/.test(t)) return "servicos";
   if (/\b(profissionais|equipe|barbeiros?|quem atende)\b/.test(t)) return "profissionais";
+  if (/\\b(como esta o dia|como ta o dia|tem movimento hoje|o que tenho hoje|qual a situacao de hoje|resumo do dia)\\b/.test(t)) return "agenda";
   return "ajuda";
 }
 
