@@ -43,8 +43,8 @@ BEGIN
     SELECT 1 FROM public.fila_de_espera f
     LEFT JOIN public.ofertas_da_fila o
       ON o.fila_id = f.id AND o.tenant_id = f.tenant_id AND o.status = 'enviada'
-    WHERE (f.status = 'avisado' AND o.id IS NULL)
-       OR (o.id IS NOT NULL AND f.status <> 'avisado')
+    WHERE (f.status = 'avisado' AND f.janela_preferida IS NOT NULL AND o.id IS NULL)
+       OR (o.id IS NOT NULL AND (f.status <> 'avisado' OR f.janela_preferida IS NULL))
   ) THEN
     RAISE EXCEPTION 'Fila e ofertas ativas inconsistentes; reconciliar antes de migrar.';
   END IF;
