@@ -163,8 +163,62 @@
   min-width: 0;
 }
 
-.agendamento-confirmacao .confirmacao-extras .rounded-\[var\(--raio-bloco\)\] {
+
+.agendamento-confirmacao .confirmacao-extras [aria-labelledby="preferencias-titulo"] {
+  background: var(--confirmacao-superficie);
+  border: 1px solid var(--confirmacao-borda);
   border-radius: 20px;
+}
+
+.agendamento-confirmacao .confirmacao-extras #preferencias-titulo {
+  font-size: 16px;
+  line-height: 23px;
+  font-weight: 700;
+}
+
+.agendamento-confirmacao .confirmacao-comanda {
+  margin-top: 0;
+  min-width: 0;
+  border: 1px solid var(--confirmacao-borda);
+  border-radius: 20px;
+  background: var(--confirmacao-superficie);
+  padding: 12px;
+}
+
+.agendamento-confirmacao .confirmacao-comanda > button:first-child {
+  min-height: 52px;
+  border-color: transparent;
+  border-radius: 12px;
+  background: transparent;
+  padding-inline: 8px;
+  white-space: normal;
+}
+
+.agendamento-confirmacao .confirmacao-ingresso dl {
+  gap: 14px;
+}
+
+.agendamento-confirmacao .confirmacao-ingresso dl > div:last-child {
+  grid-column: 1 / -1;
+  padding-top: 2px;
+}
+
+.agendamento-confirmacao .confirmacao-ingresso dt {
+  font-size: 12px;
+  line-height: 18px;
+  font-weight: 500;
+}
+
+.agendamento-confirmacao .confirmacao-ingresso dd {
+  margin-top: 3px;
+  font-size: 17px;
+  line-height: 1.38;
+  font-weight: 700;
+}
+
+.agendamento-confirmacao .confirmacao-ingresso dl > div:last-child dd {
+  font-size: 22px;
+  letter-spacing: -0.015em;
 }
 
 .agendamento-confirmacao .confirmacao-secundarias {
