@@ -80,7 +80,7 @@ export function CentralDeAtendimento() {
     onSuccess: (r) => {
       setAviso(r.ok ? null : "A conversa mudou em outro dispositivo. Atualizamos os dados; confira antes de tentar de novo.");
     },
-    onError: () => setAviso("Não foi possível confirmar a alteração. A conversa permanece como estava."),
+    onError: () => setAviso("Não foi possível confirmar a alteração. Confira o estado atualizado antes de tentar novamente."),
     onSettled: () => {
       void queryClient.invalidateQueries({ queryKey: ["central-atendimento"] });
     },
