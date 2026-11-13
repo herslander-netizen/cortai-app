@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { normalizarPagina, TEMAS_DO_CATALOGO } from "./pagina-config";
+import { aplicarTema, normalizarPagina, TEMAS_DO_CATALOGO } from "./pagina-config";
 import { estiloDaAgendaDireta } from "./tema-da-agenda-direta";
 import { estiloDaConfirmacao, varianteDaConfirmacao } from "./tema-da-confirmacao";
 
@@ -10,7 +10,7 @@ const styles = (config: ReturnType<typeof normalizarPagina>, visual: Parameters<
 describe("confirmação segue a mesma identidade da página pública", () => {
   it("todos os temas do catálogo preservam a paleta de Agendamento direto", () => {
     for (const tema of TEMAS_DO_CATALOGO) {
-      const pagina = normalizarPagina({ layout: "figaro-agendamento", experiencia: "direta", tema });
+      const pagina = aplicarTema(normalizarPagina({ layout: "figaro-agendamento", experiencia: "direta", tema }), tema);
       const temaDaReserva = estiloDaAgendaDireta(pagina) as Record<string, string>;
       const confirmacao = styles(pagina, varianteDaConfirmacao(pagina, "passo_a_passo"));
       expect(confirmacao["--chat-page"], tema).toBe(temaDaReserva["--chat-page"]);
@@ -21,7 +21,7 @@ describe("confirmação segue a mesma identidade da página pública", () => {
 
   it("o site respeita as cores publicadas e não força a superfície do chat", () => {
     for (const tema of TEMAS_DO_CATALOGO) {
-      const pagina = normalizarPagina({ layout: "figaro-site-completo", experiencia: "vitrine", tema });
+      const pagina = aplicarTema(normalizarPagina({ layout: "figaro-site-completo", experiencia: "vitrine", tema }), tema);
       const confirmacao = styles(pagina, varianteDaConfirmacao(pagina, "passo_a_passo"));
       expect(confirmacao["--chat-page"], tema).toBe(pagina.cores.fundo);
       expect(confirmacao["--chat-page-text"], tema).toBe(pagina.cores.texto);
