@@ -30,6 +30,14 @@ test("lista e filtros exibem os cinco estados sem corte horizontal", async ({ pa
     await expect(lista.locator("li")).toHaveCount(1);
   }
   await filtro.getByRole("button", { name: "Todas" }).click();
+  if (testInfo.project.name === "desktop-1280") {
+    // No desktop, os seis filtros ficam acessíveis sem item cortado.
+    const largura = await filtro.evaluate(el => ({
+      conteudo: el.scrollWidth,
+      visivel: el.clientWidth,
+    }));
+    expect(largura.conteudo).toBeLessThanOrEqual(largura.visivel + 1);
+  }
   await page.getByRole("textbox", { name: "Buscar conversa por nome ou final do telefone" }).fill("0055");
   await expect(lista.locator("li")).toHaveCount(1);
   await expect(lista.getByText("Beatriz Andrade")).toBeVisible();
@@ -52,6 +60,12 @@ test("detalhe mostra histórico, origem e agenda; voltar funciona em Android", a
   await expect(page.getByText("Corte e hidratação")).toBeVisible();
   await expect(page.getByRole("log", { name: "Mensagens da conversa" }).getByText("Automação do Flow")).toBeVisible();
   await expect(page.getByRole("log", { name: "Mensagens da conversa" }).getByText("Cliente").first()).toBeVisible();
+  const cores = await page.getByRole("log", { name: "Mensagens da conversa" })
+    .locator(":scope > div > div")
+    .evaluateAll(el => el.slice(0, 2).map(node => getComputedStyle(node).backgroundColor));
+  // Cliente e automação nunca devem parecer a mesma bolha.
+  expect(cores).toHaveLength(2);
+  expect(cores[0]).not.toBe(cores[1]);
   await page.screenshot({ path: `${RAIZ}/${testInfo.project.name}-detalhe.png`, fullPage: true });
 
   if (testInfo.project.name.startsWith("android-")) {
