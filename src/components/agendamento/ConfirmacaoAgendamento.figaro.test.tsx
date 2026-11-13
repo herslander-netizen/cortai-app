@@ -81,7 +81,7 @@ describe("Confirmação pública — estrutura Figaroo com identidade do Flow", 
     expect(host?.textContent).toContain("Marina Costa");
     expect(host?.textContent).toContain("sábado, 14 de novembro");
     expect(host?.textContent).toContain("14:00");
-    expect(host?.textContent).toContain("R$ 95,00");
+    expect(host?.textContent?.replace(/\u00a0/g, " ")).toContain("R$ 95,00");
     expect(host?.textContent).toContain("Rua das Acácias, 120");
     expect(host?.querySelector(".confirmacao-hero")).toBeTruthy();
     expect(host?.querySelector(".confirmacao-ingresso")).toBeTruthy();
