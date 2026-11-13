@@ -384,6 +384,68 @@ export function planejarModoBasico(e: EntradaDoModoBasico): Item[] {
     const pedirUma = (nome: string, args: Record<string, unknown> = {}): Item[] | null =>
       saidas.has(nome) ? null : [chamada(nome, args)];
 
+    if (i === "agenda") {
+      if (!oferecida("minha_agenda"))
+        return texto("Você não tem acesso à agenda operacional por aqui.");
+      const dia = lerDia(ultima, hoje) ?? hoje;
+      const pedir = pedirUma("minha_agenda", { dia });
+      if (pedir) return pedir;
+      const r = saidas.get("minha_agenda")!.saida["resultado"] as {
+        dia?: string;
+        total?: number;
+        aviso?: string;
+        itens?: {
+          inicio: string;
+          status?: string;
+          cliente?: string | null;
+          servico?: string | null;
+          jaPassou?: boolean;
+        }[];
+      };
+      if (r.aviso) return texto(String(r.aviso));
+      const itens = r.itens ?? [];
+      if (!itens.length) return texto("Você não tem atendimentos nesse dia.");
+      const futuros = itens.filter((x) => !x.jaPassou);
+      const proximo = futuros[0];
+      const linha = (x: (typeof itens)[number]) =>
+        `${horaLocal(x.inicio, fuso)} · ${x.cliente ?? "Cliente sem nome"}${x.servico ? ` · ${x.servico}` : ""}${x.status && x.status !== "agendado" ? ` · ${x.status}` : ""}`;
+      if (/\b(proxim|quem e o proximo|qual o proximo)\b/.test(normalizar(ultima))) {
+        return texto(proximo ? `Seu próximo atendimento é ${linha(proximo)}.` : "Você não tem mais atendimentos hoje.");
+      }
+      return texto(`Sua agenda tem ${r.total ?? itens.length} atendimento(s): ${itens.slice(0, 8).map(linha).join("; ")}${itens.length > 8 ? " …" : ""}.`);
+    }
+
+    if (i === "fila") {
+      if (!oferecida("consultar_fila"))
+        return texto("Você não tem acesso à lista de espera por aqui.");
+      const pedir = pedirUma("consultar_fila");
+      if (pedir) return pedir;
+      const r = (saidas.get("consultar_fila")!.saida["resultado"] ?? []) as {
+        posicao?: number;
+        cliente?: string | null;
+        servico?: string | null;
+        desde?: string;
+      }[];
+      return texto(
+        r.length
+          ? `Há ${r.length} pessoa(s) na espera: ${r.slice(0, 8).map((x) => `${x.posicao ?? ""}º ${x.cliente ?? "sem nome"}${x.servico ? ` · ${x.servico}` : ""}`).join("; ")}.`
+          : "Não há pessoas na lista de espera agora.",
+      );
+    }
+
+    if (i === "atraso") {
+      if (!oferecida("avisar_atraso"))
+        return texto("Você não tem permissão para avisar atraso por aqui.");
+      const minutos = /\b(\d{1,3})\s*(?:min|minuto|minutos)\b/.exec(normalizar(ultima))?.[1];
+      if (!minutos) return texto("Quantos minutos você vai atrasar? Exemplo: avisar o próximo cliente que vou atrasar 15 minutos.");
+      const pedir = pedirUma("avisar_atraso", { minutos: Number(minutos) });
+      if (pedir) return pedir;
+      const r = saidas.get("avisar_atraso")!.saida;
+      if (r["status"] === "aguardando_confirmacao") return texto(`${String(r["resumo"] ?? "")} Posso confirmar?`);
+      if (r["ok"] === false) return texto(`Não consegui preparar o aviso: ${String(r["erro"] ?? "erro")}.`);
+      return texto("Pedido recebido.");
+    }
+
     if (i === "movimento") {
       if (!oferecida("consultar_movimento"))
         return texto("Você não tem acesso aos indicadores do negócio.");
