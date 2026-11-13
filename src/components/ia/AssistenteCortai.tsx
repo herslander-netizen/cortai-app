@@ -742,10 +742,12 @@ export function AssistenteCortai({
                     : "Falar um comando"
               }
               aria-pressed={voz.estado === "gravando"}
-              className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full border transition-colors disabled:opacity-40 ${
+              className={`relative flex h-11 w-11 shrink-0 touch-manipulation items-center justify-center rounded-full border transition-[transform,color,border-color,background-color] duration-200 active:scale-95 disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/60 motion-reduce:transition-none ${
                 voz.estado === "gravando"
-                  ? "border-brick bg-brick/15 text-brick"
-                  : "border-line2 bg-ink text-mute hover:border-gold/40 hover:text-paper"
+                  ? "border-brick bg-brick/15 text-brick shadow-[0_0_0_4px_rgba(239,68,68,0.10)]"
+                  : voz.estado === "processando"
+                    ? "border-gold/50 bg-gold/10 text-gold"
+                    : "border-line2 bg-ink text-mute hover:border-gold/40 hover:text-paper"
               }`}
             >
               {voz.estado === "processando" ? (
