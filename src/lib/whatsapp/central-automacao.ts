@@ -50,6 +50,8 @@ export type EntradaDaCentral = {
 export type TomDoCartao = "ok" | "alerta" | "erro" | "neutro";
 
 export type CentralDeAutomacao = {
+  /** Diferencia número ainda não configurado de sessão configurada que caiu. */
+  possuiConexao?: boolean;
   whatsapp: EstadoDoWhatsapp;
   automacaoLigada: boolean;
   ia: EstadoDaIa;
@@ -129,6 +131,7 @@ export function derivarCentral(e: EntradaDaCentral): CentralDeAutomacao {
       : "nao_confirmado";
 
   const base = {
+    possuiConexao: conexao !== null,
     whatsapp,
     automacaoLigada: e.automacaoLigada,
     ia,
