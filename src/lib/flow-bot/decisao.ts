@@ -36,10 +36,13 @@ export function configDoBot(linha: Record<string, unknown> | null | undefined): 
 
 /** Alguém da equipe está com a conversa: pediu atendente (`modo_humano`) ou respondeu há pouco pelo celular. */
 export function humanoNoControle(
-  conversa: { modo_humano?: unknown; modo_humano_ate?: unknown } | null | undefined,
+  conversa: { status?: unknown; modo_humano?: unknown; modo_humano_ate?: unknown } | null | undefined,
   agora: number,
 ): boolean {
   if (!conversa) return false;
+  // O status persistido também é autoridade: uma conversa encerrada ou
+  // assumida manualmente não pode receber resposta automática por engano.
+  if (conversa.status === "encerrada" || conversa.status === "humano") return true;
   if (conversa.modo_humano === true) return true;
   const ate =
     typeof conversa.modo_humano_ate === "string" ? Date.parse(conversa.modo_humano_ate) : NaN;
