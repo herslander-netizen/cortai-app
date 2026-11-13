@@ -281,7 +281,7 @@ export async function responderComFlowBot(input: EntradaDoBot): Promise<boolean>
     try {
       const { data: posseAtual, error: erroPosse } = await db
         .from("conversas_whatsapp")
-        .select("modo_humano, modo_humano_ate")
+        .select("status, modo_humano, modo_humano_ate")
         .eq("id", input.conversaId)
         .eq("tenant_id", input.tenantId)
         .maybeSingle();
