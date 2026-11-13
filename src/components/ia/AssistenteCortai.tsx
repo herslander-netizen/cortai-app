@@ -671,37 +671,40 @@ export function AssistenteCortai({
           </div>
         ) : null}
         {voz.estado !== "ocioso" || voz.erro ? (
-          <div className="mb-2 flex items-center gap-2 text-xs" role="status" aria-live="polite">
+          <div
+            className="mb-2 rounded-2xl border border-line bg-ink/80 px-3 py-2.5 text-xs shadow-sm"
+            role="status"
+            aria-live="polite"
+          >
             {voz.estado === "gravando" ? (
-              <>
-                <span className="h-2 w-2 animate-pulse rounded-full bg-brick" aria-hidden />
-                <span className="text-paper">Ouvindo… {tempo(voz.segundos)}</span>
+              <div className="flex min-w-0 items-center gap-2">
+                <span className="relative flex h-2.5 w-2.5 shrink-0 items-center justify-center" aria-hidden>
+                  <span className="absolute h-2.5 w-2.5 animate-ping rounded-full bg-brick/50 motion-reduce:animate-none" />
+                  <span className="relative h-1.5 w-1.5 rounded-full bg-brick" />
+                </span>
+                <span className="shrink-0 font-medium text-paper">Ouvindo · {tempo(voz.segundos)}</span>
                 {voz.parcial ? (
-                  <span className="min-w-0 flex-1 truncate italic text-mute">“{voz.parcial}”</span>
+                  <span className="min-w-0 flex-1 truncate italic text-mute" title={voz.parcial}>“{voz.parcial}”</span>
                 ) : (
-                  <span className="text-mute2">toque no quadrado para enviar</span>
+                  <span className="min-w-0 flex-1 truncate text-mute2">Fale seu comando</span>
                 )}
-                <button
-                  type="button"
-                  onClick={voz.cancelar}
-                  className="ml-auto rounded-full border border-line2 px-2.5 py-1 text-mute"
-                >
+                <button type="button" onClick={voz.cancelar} className="shrink-0 rounded-full border border-line2 px-2.5 py-1.5 font-medium text-mute transition-colors hover:border-brick/50 hover:text-paper focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/60">
                   Cancelar
                 </button>
-              </>
+              </div>
             ) : voz.estado === "processando" ? (
-              <span className="text-mute">Entendendo o que você falou…</span>
+              <div className="flex items-center gap-2 text-mute">
+                <Loader2 size={14} className="shrink-0 animate-spin motion-reduce:animate-none" aria-hidden />
+                <span>Entendendo o que você falou…</span>
+              </div>
             ) : (
-              <>
-                <span className="text-brick">{voz.erro}</span>
-                <button
-                  type="button"
-                  onClick={voz.limparErro}
-                  className="ml-auto rounded-full border border-line2 px-2.5 py-1 text-mute"
-                >
+              <div className="flex min-w-0 items-center gap-2">
+                <TriangleAlert size={14} className="shrink-0 text-brick" aria-hidden />
+                <span className="min-w-0 flex-1 text-brick">{voz.erro}</span>
+                <button type="button" onClick={voz.limparErro} className="shrink-0 rounded-full border border-line2 px-2.5 py-1.5 text-mute transition-colors hover:text-paper focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/60">
                   Ok
                 </button>
-              </>
+              </div>
             )}
           </div>
         ) : null}
