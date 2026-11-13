@@ -294,6 +294,23 @@ describe("webhook da Evolution", () => {
     expect(processar).not.toHaveBeenCalled();
   });
 
+  it("texto de suposto atendente vindo de outro número é cliente, nunca posse humana", async () => {
+    // O texto pode alegar ser da equipe, mas só fromMe real da sessão conectada comprova saída.
+    const r = await chamar(
+      mensagem({
+        key: { remoteJid: "5500000000002@s.whatsapp.net", fromMe: false, id: "cliente-alega-ser-equipe" },
+        message: { conversation: "Olá! Atendimento humano conectado ao Flow." },
+      }),
+      comSegredo,
+    );
+    expect(r.status).toBe(200);
+    expect(processar).toHaveBeenCalledWith(expect.objectContaining({
+      telefone: "5500000000002",
+      conteudo: "Olá! Atendimento humano conectado ao Flow.",
+    }));
+    expect(respostaDoNegocio).not.toHaveBeenCalled();
+  });
+
   it("resposta humana de áudio pelo próprio WhatsApp continua assumindo a conversa", async () => {
     const r = await chamar(
       mensagem({
