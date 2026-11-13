@@ -63,7 +63,7 @@ export function TicketDaConfirmacao({
   const textoComprovante = `Olá! Segue o comprovante do Pix da comanda #${ticket.codigo}, ${brl(ticket.totalCentavos)}.`;
 
   return (
-    <section className="mt-4 rounded-[var(--raio-bloco)] border border-line p-3 sm:mt-6 sm:p-4">
+    <section className="confirmacao-comanda mt-4 rounded-[20px] border border-line p-3 sm:p-4">
       <Button variant="outline" className="min-h-12 w-full justify-between gap-2 whitespace-normal text-left" aria-expanded={aberto} onClick={() => setAberto((v) => !v)}>
         <span className="flex min-w-0 flex-1 flex-wrap items-center gap-x-2 gap-y-1 text-left">
           <ReceiptText size={18} className="shrink-0 text-gold" aria-hidden />

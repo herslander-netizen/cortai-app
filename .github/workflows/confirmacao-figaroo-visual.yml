@@ -1,0 +1,45 @@
+name: Confirmacao Figaroo - QA mobile
+
+on:
+  pull_request:
+    branches: [main, "cloudflare-workers-migration-2026-10-13"]
+    paths:
+      - ".github/workflows/confirmacao-figaroo-visual.yml"
+      - "tests/confirmacao-browser/**"
+      - "src/components/agendamento/ConfirmacaoAgendamento.tsx"
+      - "src/components/agendamento/ConfirmacaoAgendamento.css"
+      - "src/components/agendamento/PreferenciasAposAgendamento.tsx"
+      - "src/components/comanda/TicketDaConfirmacao.tsx"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  visual:
+    name: Chromium - 360 / 390 / 1280 - claro / escuro
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Preparar Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - name: Dependencias congeladas
+        run: bun install --frozen-lockfile
+      - name: Playwright isolado
+        run: npm install --no-save --ignore-scripts --package-lock=false @playwright/test@1.56.1
+      - name: Chromium Ubuntu 24.04
+        run: npx playwright install --with-deps chromium
+      - name: Renderizar e testar tela de confirmacao com dados ficticios
+        run: npx playwright test --config=tests/confirmacao-browser/playwright.config.ts
+      - name: Publicar capturas e traces
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: confirmacao-figaroo-mobile
+          path: test-results/confirmacao/
+          if-no-files-found: ignore
+          retention-days: 7

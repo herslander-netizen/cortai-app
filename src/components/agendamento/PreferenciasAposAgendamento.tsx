@@ -145,36 +145,36 @@ export function PreferenciasAposAgendamento({
             <Sparkles size={19} />
           </span>
           <div className="min-w-0 flex-1">
-            <h2 id="preferencias-titulo" className="text-base font-bold">
+            <h2 id="preferencias-titulo" className="text-base font-bold leading-snug">
               Deixe seu atendimento do seu jeito
             </h2>
             <p className="mt-1 text-sm leading-relaxed text-mute">
               Seu horário já está confirmado. As preferências são opcionais e ajudam a preparar seu atendimento.
             </p>
-            <div className="mt-3 flex flex-col gap-2 sm:flex-row">
-              <Button
-                type="button"
-                variant="outline"
-                className="min-h-12 w-full rounded-full sm:w-auto"
-                aria-expanded={false}
-                onClick={() => setExpandido(true)}
-              >
-                Personalizar atendimento
-                <ChevronDown size={16} aria-hidden />
-              </Button>
-              <Button
-                type="button"
-                variant="ghost"
-                className="min-h-12 w-full rounded-full sm:w-auto"
-                onClick={() => {
-                  lembrarPreferencias(slug);
-                  setVisivel(false);
-                }}
-              >
-                Agora não
-              </Button>
-            </div>
           </div>
+        </div>
+        <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-center">
+          <Button
+            type="button"
+            variant="outline"
+            className="min-h-12 w-full justify-center rounded-full sm:flex-1"
+            aria-expanded={false}
+            onClick={() => setExpandido(true)}
+          >
+            Personalizar atendimento
+            <ChevronDown size={16} aria-hidden />
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            className="min-h-12 w-full rounded-full sm:w-auto"
+            onClick={() => {
+              lembrarPreferencias(slug);
+              setVisivel(false);
+            }}
+          >
+            Agora não
+          </Button>
         </div>
       </Card>
     );
