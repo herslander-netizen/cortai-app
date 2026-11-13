@@ -682,7 +682,7 @@ export function AssistenteCortai({
                   <span className="absolute h-2.5 w-2.5 animate-ping rounded-full bg-brick/50 motion-reduce:animate-none" />
                   <span className="relative h-1.5 w-1.5 rounded-full bg-brick" />
                 </span>
-                <span className="shrink-0 font-medium text-paper">Ouvindo · {tempo(voz.segundos)}</span>
+                <span className="shrink-0 font-medium text-paper">Ouvindo… · {tempo(voz.segundos)}</span>
                 {voz.parcial ? (
                   <span className="min-w-0 flex-1 truncate italic text-mute" title={voz.parcial}>“{voz.parcial}”</span>
                 ) : (
