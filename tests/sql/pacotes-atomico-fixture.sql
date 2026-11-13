@@ -17,7 +17,14 @@ GRANT USAGE ON SCHEMA auth, public TO authenticated;
 CREATE OR REPLACE FUNCTION auth.uid()
 RETURNS uuid LANGUAGE sql STABLE SET search_path=''
 AS $uid$
-  SELECT NULLIF(pg_catalog.current_setting('request.jwt.claim.sub',true),'')::uuid
+  -- A suite PostgreSQL pura injeta o claim legado; PostgREST usa o JSON.
+  SELECT COALESCE(
+    NULLIF(pg_catalog.current_setting('request.jwt.claim.sub', true), ''),
+    NULLIF(
+      NULLIF(pg_catalog.current_setting('request.jwt.claims', true), '')::jsonb ->> 'sub',
+      ''
+    )
+  )::uuid
 $uid$;
 GRANT EXECUTE ON FUNCTION auth.uid() TO authenticated;
 
