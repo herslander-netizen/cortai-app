@@ -25,15 +25,17 @@ describe("Figaroo → Flow: contratos da gestão de pacotes e combos", () => {
     expect(gravacao).toContain("precoAvulsoDoConjunto(");
     expect(gravacao).toContain("erroPrecoDoConjunto(");
     const validar = gravacao.indexOf("if (erroPreco) throw new Error(erroPreco)");
-    const primeiraEscrita = gravacao.indexOf('.update(campos)');
+    const chamadaAtomica = gravacao.indexOf('.rpc("salvar_pacote_atomico"');
     expect(validar).toBeGreaterThan(0);
-    expect(primeiraEscrita).toBeGreaterThan(validar);
+    expect(chamadaAtomica).toBeGreaterThan(validar);
+    expect(gravacao).not.toContain('.from("pacote_itens")');
   });
 
-  it("a edição de pacote verifica ID e tenant antes de alterar seus itens", () => {
-    expect(gravacao).toContain('.eq("id", pacoteId)');
-    expect(gravacao).toContain('.eq("tenant_id", tenantId)');
-    expect(gravacao).toContain('if (!existente) throw new Error("Pacote não encontrado neste negócio.")');
+  it("a edição passa ID e tenant à RPC que aplica RLS e transação", () => {
+    expect(gravacao).toContain("_pacote_id: data.id ?? null");
+    expect(gravacao).toContain("_tenant_id: tenantId");
+    expect(gravacao).toContain("A atualização de segurança dos pacotes");
+    expect(gravacao).toContain("z.string().uuid().safeParse(pacoteId)");
   });
 
   it("tela mostra preço avulso com quantidades corretas para o tipo e impede preço maior", () => {
