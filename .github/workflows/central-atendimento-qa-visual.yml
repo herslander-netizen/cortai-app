@@ -1,0 +1,47 @@
+name: Central de Atendimento - QA visual isolado
+
+# Renderiza o COMPONENTE REAL do Flow com backend fictício, sem contas,
+# sem Evolution, sem Supabase, sem segredos e sem deploy.
+on:
+  pull_request:
+    branches: [cloudflare-workers-migration-2026-10-13]
+    paths:
+      - ".github/workflows/central-atendimento-qa-visual.yml"
+      - "tests/central-browser/**"
+      - "src/components/whatsapp/CentralDeAtendimento.tsx"
+      - "src/components/ui/button.tsx"
+      - "src/components/ui/useConfirmar.tsx"
+      - "src/styles.css"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ui:
+    name: Chromium / 360, 390 e 1280px
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Checkout do PR
+        uses: actions/checkout@v4
+      - name: Instalar Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - name: Dependencias travadas
+        run: bun install --frozen-lockfile
+      - name: Playwright isolado
+        run: npm install --no-save --ignore-scripts --package-lock=false @playwright/test@1.56.1
+      - name: Chromium no Ubuntu
+        run: npx playwright install --with-deps chromium
+      - name: Rodar UI real com dados ficticios
+        run: npx playwright test --config=tests/central-browser/playwright.config.ts
+      - name: Guardar capturas e traces de QA
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: central-atendimento-qa-visual
+          path: test-results/central/
+          if-no-files-found: ignore
+          retention-days: 7
