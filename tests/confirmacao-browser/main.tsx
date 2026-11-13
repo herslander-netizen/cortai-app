@@ -3,7 +3,7 @@ import { createRoot } from "react-dom/client";
 
 import { ConfirmacaoAgendamento, type SituacaoPublica } from "../../src/components/agendamento/ConfirmacaoAgendamento";
 import type { ConfirmacaoPublica } from "../../src/lib/agendamento-publico.functions";
-import { normalizarPagina } from "../../src/lib/pagina-config";
+import { aplicarTema, normalizarPagina } from "../../src/lib/pagina-config";
 import { estiloDaConfirmacao, varianteDaConfirmacao } from "../../src/lib/tema-da-confirmacao";
 import { atributosDaAgendaDireta } from "../../src/lib/tema-da-agenda-direta";
 import "../../src/styles.css";
@@ -49,10 +49,10 @@ function App() {
   const [gestao, setGestao] = useState<string>("");
   const [cenario, setCenario] = useState<Cenario>("figaro-rock");
   const dados = CENARIOS[cenario];
-  const config = normalizarPagina({
+  const config = aplicarTema(normalizarPagina({
     ...dados,
     ...(cenario === "chat-flow" ? { chat: { superficie: "escura", corDestaque: "ciano" } } : {}),
-  });
+  }), dados.tema);
   const fluxo = dados.experiencia === "conversa" ? "conversa" : "passo_a_passo";
   const visual = varianteDaConfirmacao(config, fluxo);
 
