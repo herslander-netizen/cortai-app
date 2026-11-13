@@ -165,3 +165,17 @@ describe("intenção", () => {
     expect(normalizar("  João, às 15h!  ")).toBe("joao as 15h");
   });
 });
+
+
+describe("linguagem operacional do profissional", () => {
+  it("reconhece perguntas sobre agenda e próximo cliente", () => {
+    expect(intencaoDe("Qual é meu próximo cliente?")).toBe("agenda");
+    expect(intencaoDe("Como está minha agenda hoje?")).toBe("agenda");
+    expect(intencaoDe("Meus atendimentos de amanhã")).toBe("agenda");
+  });
+
+  it("reconhece fila e aviso de atraso", () => {
+    expect(intencaoDe("Tem alguém na fila de espera?")).toBe("fila");
+    expect(intencaoDe("Avise o próximo cliente que vou atrasar 15 minutos")).toBe("atraso");
+  });
+});
