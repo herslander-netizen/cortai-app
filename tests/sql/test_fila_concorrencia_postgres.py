@@ -417,6 +417,28 @@ def test_accepted_offer_does_not_claim_success_without_appointment():
     ) == 0
 
 
+def test_idempotent_accept_after_legitimate_reschedule():
+    """A reserva original aceita continua idempotente após alteração de horário."""
+    x = fixture()
+    with db() as c:
+        offer = reserve(c, x)
+        first = accept(c, offer["token"])
+        assert first["ok"] is True
+        c.execute(
+            """UPDATE public.agendamentos
+               SET inicio=%s, fim=%s WHERE id=%s""",
+            (START + timedelta(hours=1), END + timedelta(hours=1),
+             first["agendamento_id"]),
+        )
+        again = accept(c, offer["token"])
+        assert again["ok"] is True and again["repetida"] is True
+        assert again["agendamento_id"] == first["agendamento_id"]
+    assert scalar(
+        "SELECT count(*) FROM public.agendamentos WHERE origem_fila_id=%s",
+        x["entry1"],
+    ) == 1
+
+
 CASES = [
     test_two_slots_one_entry,
     test_one_slot_two_entries,
@@ -432,6 +454,7 @@ CASES = [
     test_walk_in_queue_without_offer,
     test_preflight_manual_walkin_vs_corrupt_waitlist,
     test_idempotent_accept,
+    test_idempotent_accept_after_legitimate_reschedule,
     test_accepted_offer_does_not_claim_success_without_appointment,
     test_no_server_claim,
 ]
