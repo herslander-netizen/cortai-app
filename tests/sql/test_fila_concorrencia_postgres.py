@@ -398,6 +398,25 @@ def test_no_offer_for_inactive_professional_or_service():
     ) == "aguardando"
 
 
+def test_accepted_offer_does_not_claim_success_without_appointment():
+    """Um token aceito com referência corrompida não pode simular confirmação."""
+    x = fixture()
+    with db() as c:
+        o = reserve(c, x)
+        assert o["ok"] is True
+        c.execute(
+            "UPDATE public.ofertas_da_fila SET status='aceita', agendamento_criado_id=NULL WHERE id=%s",
+            (o["oferta_id"],),
+        )
+        resposta = accept(c, o["token"])
+        assert resposta == {"ok": False, "motivo": "aceite_inconsistente"}, resposta
+        c.rollback()  # Não deixar esta corrupção artificial na bancada.
+    assert scalar(
+        "SELECT count(*) FROM public.agendamentos WHERE origem_fila_id=%s",
+        x["entry1"],
+    ) == 0
+
+
 CASES = [
     test_two_slots_one_entry,
     test_one_slot_two_entries,
@@ -413,6 +432,7 @@ CASES = [
     test_walk_in_queue_without_offer,
     test_preflight_manual_walkin_vs_corrupt_waitlist,
     test_idempotent_accept,
+    test_accepted_offer_does_not_claim_success_without_appointment,
     test_no_server_claim,
 ]
 
