@@ -5,6 +5,7 @@ import { useState } from "react";
 
 import { useConfirmar } from "@/components/ui/useConfirmar";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   comandarConversaDaCentral,
   detalharConversaDaCentral,
@@ -20,7 +21,7 @@ const TOM: Record<EstadoDaConversa, string> = {
   nova: "border-gold/40 text-gold",
   ia_atendendo: "border-sage/40 text-sage",
   aguardando_cliente: "border-line2 text-mute",
-  atendimento_humano: "border-[var(--figaro-primary,var(--primary))]/40 text-[var(--figaro-primary,var(--primary))]",
+  atendimento_humano: "border-gold/40 text-gold",
   resolvida: "border-line2 text-mute2",
 };
 const ORIGEM: Record<NonNullable<ResumoDaConversa["ultimaOrigem"]>, string> = {
@@ -118,49 +119,49 @@ export function CentralDeAtendimento() {
             Conversas reais do WhatsApp. A equipe assume cada atendimento sem desligar a IA do negócio.
           </p>
         </div>
-        <span className="rounded-full bg-[var(--figaro-surface-container-high,var(--ink3))] px-3 py-1.5 text-xs text-mute">
+        <span className="rounded-full bg-ink3 px-3 py-1.5 text-xs text-mute">
           {conversas.length} {conversas.length === 1 ? "conversa" : "conversas"}
         </span>
       </div>
       {lista.isError ? (
-        <p role="alert" className="rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))] px-4 py-3 text-sm text-brick">
+        <p role="alert" className="rounded-[12px] bg-ink2 px-4 py-3 text-sm text-brick">
           Não conseguimos carregar as conversas. Verifique sua conexão e tente novamente.
         </p>
       ) : null}
-      {aviso ? <p role="alert" className="rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))] px-4 py-3 text-sm text-gold">{aviso}</p> : null}
+      {aviso ? <p role="alert" className="rounded-[12px] bg-ink2 px-4 py-3 text-sm text-gold">{aviso}</p> : null}
       <div className="grid min-h-[360px] gap-3 md:grid-cols-[minmax(270px,0.9fr)_minmax(0,1.1fr)]">
         <div className={`min-w-0 space-y-3 ${selecao ? "hidden md:block" : ""}`}>
           <div className="relative">
             <Search className="pointer-events-none absolute left-3 top-3.5 size-4 text-mute" aria-hidden />
-            <input
+            <Input
               aria-label="Buscar conversa por nome ou final do telefone"
               value={busca}
               onChange={e => setBusca(e.target.value)}
               placeholder="Buscar conversa"
-              className="min-h-11 w-full rounded-[12px] border border-line2 bg-[var(--figaro-surface-container,var(--ink2))] pl-10 pr-3 text-sm text-paper placeholder:text-mute2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="min-h-12 w-full rounded-[12px] border border-line2 bg-ink2 pl-10 pr-3 text-sm text-paper placeholder:text-mute2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             />
           </div>
           <div className="flex gap-2 overflow-x-auto pb-1" role="group" aria-label="Filtrar conversas por situação">
             {FILTROS.map(valor => (
-              <button
+              <Button variant="ghost"
                 key={valor}
                 type="button"
                 aria-pressed={filtro === valor}
                 onClick={() => setFiltro(valor)}
-                className={`min-h-10 shrink-0 rounded-full border px-3 text-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring motion-reduce:transition-none ${filtro === valor ? "border-[var(--figaro-primary,var(--primary))] bg-[var(--figaro-primary-container,var(--ink3))] text-paper" : "border-line2 text-mute"}`}
+                className={`min-h-12 shrink-0 rounded-full border px-3 text-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring motion-reduce:transition-none ${filtro === valor ? "border-gold bg-ink3 text-paper" : "border-line2 text-mute"}`}
               >
                 {valor === "todas" ? "Todas" : ROTULOS_DA_CONVERSA[valor]}
-              </button>
+              </Button>
             ))}
           </div>
           <ul className="max-h-[600px] space-y-2 overflow-y-auto" aria-label="Conversas encontradas">
             {filtradas.map(conversa => (
               <li key={conversa.id}>
-                <button
+                <Button variant="ghost"
                   type="button"
                   aria-pressed={selecao === conversa.id}
                   onClick={() => { setSelecao(conversa.id); setAviso(null); }}
-                  className={`w-full rounded-[16px] border p-3 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring motion-reduce:transition-none ${selecao === conversa.id ? "border-[var(--figaro-primary,var(--primary))] bg-[var(--figaro-surface-container-high,var(--ink3))]" : "border-transparent bg-[var(--figaro-surface-container,var(--ink2))]"}`}
+                  className={`w-full rounded-[16px] border p-3 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring motion-reduce:transition-none ${selecao === conversa.id ? "border-gold bg-ink3" : "border-transparent bg-ink2"}`}
                 >
                   <div className="flex items-start justify-between gap-2">
                     <span className="truncate text-sm font-semibold text-paper">{conversa.nome}</span>
@@ -169,7 +170,7 @@ export function CentralDeAtendimento() {
                   <div className="mt-1.5 flex items-center gap-2">
                     <Etiqueta estado={conversa.estado} />
                     {conversa.naoLidas > 0 ? (
-                      <span className="rounded-full bg-[var(--figaro-primary-container,var(--ink3))] px-2 py-0.5 text-[11px] font-semibold text-paper">
+                      <span className="rounded-full bg-ink3 px-2 py-0.5 text-[11px] font-semibold text-paper">
                         {conversa.naoLidas} nova{conversa.naoLidas > 1 ? "s" : ""}
                       </span>
                     ) : null}
@@ -177,12 +178,12 @@ export function CentralDeAtendimento() {
                   <p className="mt-2 line-clamp-2 text-xs leading-relaxed text-mute">
                     {conversa.ultimaOrigem ? `${ORIGEM[conversa.ultimaOrigem]} · ` : ""}{conversa.previa}
                   </p>
-                </button>
+                </Button>
               </li>
             ))}
             {lista.isLoading && !lista.data ? <li className="p-4 text-sm text-mute">Carregando conversas…</li> : null}
             {!lista.isLoading && !filtradas.length ? (
-              <li className="rounded-[16px] bg-[var(--figaro-surface-container,var(--ink2))] p-5 text-center text-sm text-mute">
+              <li className="rounded-[16px] bg-ink2 p-5 text-center text-sm text-mute">
                 Nenhuma conversa neste filtro.
               </li>
             ) : null}
@@ -190,13 +191,13 @@ export function CentralDeAtendimento() {
           <p className="px-1 text-[11px] text-mute2">Exibindo até 40 conversas recentes deste estabelecimento.</p>
         </div>
 
-        <div className={`min-w-0 rounded-[20px] bg-[var(--figaro-surface-container,var(--ink2))] ${selecao ? "" : "hidden md:block"}`}>
+        <div className={`min-w-0 rounded-[20px] bg-ink2 ${selecao ? "" : "hidden md:block"}`}>
           {escolhida ? (
             <div className="flex h-full min-h-[360px] flex-col">
               <header className="border-b border-line2 p-4">
-                <button type="button" onClick={() => setSelecao(null)} className="mb-3 flex min-h-10 items-center gap-2 text-sm text-mute md:hidden">
+                <Button variant="ghost" type="button" onClick={() => setSelecao(null)} className="mb-3 flex min-h-12 items-center gap-2 text-sm text-mute md:hidden">
                   <ArrowLeft className="size-4" aria-hidden /> Voltar às conversas
-                </button>
+                </Button>
                 <div className="flex flex-wrap items-start justify-between gap-2">
                   <div className="min-w-0">
                     <p className="truncate text-base font-semibold text-paper">{escolhida.nome}</p>
@@ -231,7 +232,7 @@ export function CentralDeAtendimento() {
                 {detalhe.isError ? <p role="alert" className="text-sm text-brick">Não foi possível consultar o histórico.</p> : null}
                 {(detalhe.data?.mensagens ?? []).map(m => (
                   <div key={m.id} className={`flex ${m.direcao === "saida" ? "justify-end" : "justify-start"}`}>
-                    <div className={`max-w-[90%] rounded-[16px] px-3 py-2 ${m.direcao === "saida" ? "bg-[var(--figaro-primary-container,var(--ink3))]" : "bg-[var(--figaro-surface-container-high,var(--ink3))]"}`}>
+                    <div className={`max-w-[90%] rounded-[16px] px-3 py-2 ${m.direcao === "saida" ? "bg-ink3" : "bg-ink3"}`}>
                       <div className="flex items-center gap-1.5 text-[11px] text-mute">
                         {m.origem === "cliente" || m.origem === "equipe" ? <UserRound className="size-3" aria-hidden /> : <Bot className="size-3" aria-hidden />}
                         {ORIGEM_MENSAGEM[m.origem]}
@@ -271,13 +272,13 @@ export function CentralDeAtendimento() {
           ) : (
             <div className="flex min-h-[360px] flex-col items-center justify-center gap-3 px-5 text-center">
               {selecao ? (
-                <button
+                <Button variant="ghost"
                   type="button"
                   onClick={() => setSelecao(null)}
-                  className="inline-flex min-h-11 items-center gap-2 rounded-full px-4 text-sm text-paper focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring md:hidden"
+                  className="inline-flex min-h-12 items-center gap-2 rounded-full px-4 text-sm text-paper focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring md:hidden"
                 >
                   <ArrowLeft className="size-4" aria-hidden /> Voltar às conversas
-                </button>
+                </Button>
               ) : null}
               <MessageCircle className="size-8 text-mute2" aria-hidden />
               <p className="text-sm text-paper">Escolha uma conversa</p>
