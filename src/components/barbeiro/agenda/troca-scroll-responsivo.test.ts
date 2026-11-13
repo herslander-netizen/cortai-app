@@ -10,7 +10,9 @@ describe("Agenda mobile: toque não aguarda rolagem", () => {
     expect(handler.indexOf("window.requestAnimationFrame(")).toBeGreaterThan(handler.indexOf("setVisualizacao(segura)"));
     expect(handler.indexOf("window.scrollTo(")).toBeGreaterThan(handler.indexOf("window.requestAnimationFrame("));
     expect(handler).toContain("salvarPreferenciaAgenda(segura)");
-    expect(handler).toContain('segura === "lista"');
+    expect(handler).toContain('if (celular && segura === "lista" && visualizacao !== "lista")');
+    expect(handler).toContain('window.scrollTo({ top: 0, behavior: "auto" })');
+    expect(handler).not.toContain('if (celular && segura === "lista" && visualizacao !== "lista") window.scrollTo');
   });
 
   it("cancela rolagem antiga em toques rápidos e ao desmontar", () => {
