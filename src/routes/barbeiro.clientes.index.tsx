@@ -7,7 +7,7 @@ import { useState } from "react";
 import { EmptyState, Screen } from "@/components/layout/Screen";
 import { brl, dataCurta } from "@/lib/format";
 import { getClientesCRM, type ClienteCRM } from "@/lib/crescimento.functions";
-import { EsqueletoLista, EsqueletoMetricas } from "@/components/layout/Esqueleto";
+import { EsqueletoLista } from "@/components/layout/Esqueleto";
 import { useDebounce } from "@/hooks/useMovimento";
 import { ItemCascata } from "@/components/layout/ItemCascata";
 

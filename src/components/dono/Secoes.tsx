@@ -34,8 +34,8 @@ const FORMAS: Record<string, string> = {
 
 export function SecaoOperacao() {
   const fn = useServerFn(getSecaoOperacao);
-  const q = useQuery({ queryKey: ["dono-operacao"], queryFn: () => fn(), retry: false });
-  if (q.isLoading) return <EsqueletoLista linhas={3} onTentarDeNovo={() => void q.refetch()} />;
+  const q = useQuery({ queryKey: ["dono-operacao"], queryFn: () => fn(), retry: false, staleTime: 55_000 });
+  if (q.isLoading) return <EsqueletoLista linhas={2} onTentarDeNovo={() => void q.refetch()} />;
   if (!q.data) return <Erro />;
   const d = q.data;
   return (
@@ -61,8 +61,8 @@ export function SecaoOperacao() {
 
 export function SecaoFinanceiro() {
   const fn = useServerFn(getSecaoFinanceiro);
-  const q = useQuery({ queryKey: ["dono-financeiro"], queryFn: () => fn(), retry: false });
-  if (q.isLoading) return <EsqueletoLista linhas={3} onTentarDeNovo={() => void q.refetch()} />;
+  const q = useQuery({ queryKey: ["dono-financeiro"], queryFn: () => fn(), retry: false, staleTime: 55_000 });
+  if (q.isLoading) return <EsqueletoLista linhas={2} onTentarDeNovo={() => void q.refetch()} />;
   if (!q.data) return <Erro />;
   const d = q.data;
   return (
@@ -91,8 +91,8 @@ export function SecaoFinanceiro() {
 
 export function SecaoClientes() {
   const fn = useServerFn(getSecaoClientes);
-  const q = useQuery({ queryKey: ["dono-clientes"], queryFn: () => fn(), retry: false });
-  if (q.isLoading) return <EsqueletoLista linhas={3} onTentarDeNovo={() => void q.refetch()} />;
+  const q = useQuery({ queryKey: ["dono-clientes"], queryFn: () => fn(), retry: false, staleTime: 55_000 });
+  if (q.isLoading) return <EsqueletoLista linhas={2} onTentarDeNovo={() => void q.refetch()} />;
   if (!q.data) return <Erro />;
   const d = q.data;
   return (
