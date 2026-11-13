@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
 const fonte = readFileSync("src/components/barbeiro/agenda/TrocaDeVisualizacao.tsx", "utf8");
+const movimento = readFileSync("src/components/barbeiro/agenda/TrocaDeVisualizacao.css", "utf8");
 const agenda = readFileSync("src/components/barbeiro/AgendaOperacional.tsx", "utf8");
 
 describe("paridade da transição Timeline ↔ Cartões com o Flow oficial v3.7", () => {
@@ -14,9 +15,12 @@ describe("paridade da transição Timeline ↔ Cartões com o Flow oficial v3.7"
 
   it("usa deslocamento, opacidade, curva e duração do Flow oficial", () => {
     expect(fonte).toContain("const SUAVE = [0.22, 1, 0.36, 1] as const");
-    expect(fonte).toContain("initial={reduzirMovimento ? false : { opacity: 0, y: 28 }}");
-    expect(fonte).toContain("animate={{ opacity: 1, y: 0 }}");
-    expect(fonte).toContain("{ opacity: 0, y: -20 }");
+    expect(fonte).toContain('mode="popLayout"');
+    expect(movimento).toContain("translate3d(0, 28px, 0)");
+    expect(movimento).toContain("translate3d(0, -20px, 0)");
+    expect(movimento).toContain("opacity: 0;");
+    expect(movimento).toContain("opacity: 1;");
+    expect(movimento).toContain("280ms cubic-bezier(0.22, 1, 0.36, 1)");
     expect(fonte).toContain("duration: 0.28, ease: SUAVE");
     expect(fonte).not.toContain("onExitComplete");
   });
@@ -68,9 +72,14 @@ describe("paridade da transição Timeline ↔ Cartões com o Flow oficial v3.7"
     expect(fonteTimeline).toContain('window.scrollTo({ top: Math.max(0, rolagemAoRetornar), behavior: "auto" });');
   });
 
-  it("respeita movimento reduzido nas duas superfícies", () => {
+  it("respeita movimento reduzido nas duas superfícies e isola o painel de saída", () => {
     expect(fonte.match(/useReducedMotion\(\)/g)).toHaveLength(2);
-    expect(fonte).toContain("initial={reduzirMovimento ? false");
-    expect(fonte).toContain("transition={reduzirMovimento ? { duration: 0 }");
+    expect(movimento).toContain("prefers-reduced-motion: reduce");
+    expect(movimento).toContain("animation: none !important;");
+    expect(fonte).toContain("aria-hidden={!presente}");
+    expect(fonte).toContain("inert={!presente}");
+    const recolhe = fonte.slice(fonte.indexOf("export function RecolheNaLista"));
+    expect(recolhe).toContain("initial={reduzirMovimento ? false");
+    expect(recolhe).toContain("transition={reduzirMovimento ? { duration: 0 }");
   });
 });
