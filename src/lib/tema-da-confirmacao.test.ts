@@ -34,7 +34,7 @@ describe("confirmação segue a mesma identidade da página pública", () => {
       experiencia: "conversa",
       layout: "cortai-chat",
       tema: "feminino-lavanda",
-      chat: { superficie: "escura", corDestaque: "lilas" },
+      chat: { superficie: "escura", corDestaque: "rosa" },
     });
     const confirmacao = styles(pagina, varianteDaConfirmacao(pagina, "conversa"));
     expect(confirmacao["--chat-page"]).toBe("#0F1218");
@@ -43,7 +43,7 @@ describe("confirmação segue a mesma identidade da página pública", () => {
   });
 
   it("a variante corresponde ao fluxo efetivo sem confundir o layout com a experiência", () => {
-    const figaro = normalizarPagina({ layout: "figaro-retro", experiencia: "direta" });
+    const figaro = normalizarPagina({ layout: "figaro-raizes", experiencia: "direta" });
     const site = normalizarPagina({ layout: "minimalista", experiencia: "vitrine" });
     const direta = normalizarPagina({ layout: "minimalista", experiencia: "direta" });
     expect(varianteDaConfirmacao(figaro, "passo_a_passo")).toBe("figaro");
