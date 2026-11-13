@@ -53,7 +53,7 @@ export function intencaoDe(texto: string): Intencao {
   // "Como coloco um cliente na fila?" é pedido de instrução, não busca nem comando.
   if (ehPerguntaDeAjuda(texto)) return "como_fazer";
   // Consultas vêm antes de "agendar": "agenda" compartilha o mesmo radical.
-  if (/\b(atras\w*|demor\w*)\b.*\b(avisar|avisa|comunicar|cliente)\b|\bavisar\b.*\b(atras\w*|demor\w*)\b/.test(t))
+  if (/\b(atras\w*|demor\w*)\b.*\b(avis\w*|comunicar|cliente)\b|\bavis\w*\b.*\b(atras\w*|demor\w*)\b/.test(t))
     return "atraso";
   if (/\b(minha agenda|meus atendimentos|meus horarios|proximos? clientes?|quem e o proximo|qual o proximo|como esta a agenda|agenda de hoje|agenda amanha)\b/.test(t))
     return "agenda";
