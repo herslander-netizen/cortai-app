@@ -5,6 +5,12 @@
  * Nunca reserva sem o cliente confirmar. Nunca lança para quem cancelou.
  */
 import { fusoDoTenant } from "@/lib/fuso.server";
+import { classificarImpedimentoDeOferta } from "@/lib/fila-ofertas-canal";
+import {
+  reservarOfertaTransacional,
+  encerrarOfertaTransacional,
+  type ExecutarRpcDaFila,
+} from "@/lib/fila-ofertas-transacional";
 import { LINKS_DE_TELA } from "@/lib/links-de-tela";
 import {
   STATUS_QUE_OCUPAM,
@@ -42,6 +48,17 @@ export async function automacaoDaListaAtiva(
 async function admin() {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   return supabaseAdmin;
+}
+
+/**
+ * As RPCs transacionais são pré-requisito deste PR. Não criar fallback não atômico:
+ * a migração precisa ser aplicada e testada ANTES de qualquer merge/deploy.
+ */
+function executarTransicaoDaFila(
+  db: Awaited<ReturnType<typeof admin>>,
+): ExecutarRpcDaFila {
+  const rpc = (db as unknown as { rpc: ExecutarRpcDaFila }).rpc;
+  return (nome, parametros) => rpc.call(db, nome, parametros);
 }
 
 function partes(iso: string, fuso: string) {
@@ -214,55 +231,50 @@ export async function ofertarVaga(
         if (!ofertaViavel(agoraOferta, inicioMs, regrasEspera))
           return { ofertaId: null, motivo: "muito_perto" };
 
-        // Reserva compare-and-set: duas vagas concorrentes não podem oferecer ao mesmo cliente.
-        // Só a execução que ainda encontra a entrada como "aguardando" pode prosseguir.
-        const avisadoEm = new Date().toISOString();
-        const { data: reservado, error: erroReserva } = await db
-          .from("fila_de_espera")
-          .update({ status: "avisado", avisado_em: avisadoEm })
-          .eq("id", c.id)
-          .eq("tenant_id", ag.tenant_id)
-          .eq("status", "aguardando")
-          .select("id")
-          .maybeSingle();
-        if (erroReserva || !reservado) continue;
-
-        const { data: oferta, error } = await db
-          .from("ofertas_da_fila")
-          .insert({
-            tenant_id: ag.tenant_id,
-            fila_id: c.id,
-            agendamento_liberado_id: ag.id,
-            profissional_id: profissionalId,
-            servico_id: servico.id,
-            inicio: ag.inicio,
-            fim: new Date(inicioMs + servico.duracao_min * 60_000).toISOString(),
-            expira_em: new Date(prazoDaOferta(agoraOferta, inicioMs, regrasEspera)).toISOString(),
-          })
-          .select("id, token")
-          .maybeSingle();
-        // Índice único: outra execução já ofertou esta vaga. Libera apenas a reserva
-        // que esta execução fez; nunca desfaz uma reserva posterior de outro processo.
-        if (error || !oferta) {
-          await db
-            .from("fila_de_espera")
-            .update({ status: "aguardando", avisado_em: null })
-            .eq("id", c.id)
-            .eq("tenant_id", ag.tenant_id)
-            .eq("status", "avisado")
-            .eq("avisado_em", avisadoEm);
-          return { ofertaId: null, motivo: "concorrente" };
+        const reserva = await reservarOfertaTransacional(executarTransicaoDaFila(db), {
+          tenantId: ag.tenant_id,
+          filaId: c.id,
+          agendamentoLiberadoId: ag.id,
+          profissionalId,
+          servicoId: servico.id,
+          inicio: ag.inicio,
+          fim: new Date(inicioMs + servico.duracao_min * 60_000).toISOString(),
+          expiraEm: new Date(prazoDaOferta(agoraOferta, inicioMs, regrasEspera)).toISOString(),
+        });
+        if (!reserva.ok) {
+          if (["entrada_indisponivel", "incompativel", "servico_invalido", "profissional_invalido", "cliente_indisponivel"].includes(reserva.motivo))
+            continue;
+          return { ofertaId: null, motivo: reserva.motivo };
         }
-        await enviarOferta(oferta.id).catch(() => undefined);
-        return { ofertaId: oferta.id };
+        const ofertaId = reserva.ofertaId;
+        // Falha comprovada antes do envio não pode deixar a vaga "enviada".
+        // Se o provedor pode ter recebido a chamada, preservar a oferta até
+        // esclarecimento/expiração para não prometer a mesma vaga a duas pessoas.
+        const entrega = await enviarOferta(ofertaId).catch(() => "incerta" as const);
+        if (entrega === "sem_canal") {
+          const encerramento = await encerrarOfertaTransacional(
+            executarTransicaoDaFila(db),
+            { tenantId: ag.tenant_id, ofertaId, estado: "cancelada" },
+          );
+          if (!encerramento.ok || !encerramento.liberouFila)
+            return { ofertaId, motivo: "cancelamento_pendente" };
+          continue;
+        }
+        return {
+          ofertaId,
+          ...(entrega === "incerta" ? { motivo: "entrega_indeterminada" } : {}),
+        };
       }
       if (!lote || lote.length < LOTE_DA_FILA) break;
     }
   return { ofertaId: null, motivo: "sem_compativel" };
 }
 
+/** Ausência comprovada de canal ≠ falha incerta após uma tentativa ao provedor. */
+type EntregaDaOferta = "enviada" | "sem_canal" | "incerta";
+
 /** Aviso interno + WhatsApp oficial (quando conectado). Falha nunca quebra o fluxo. */
-async function enviarOferta(ofertaId: string) {
+async function enviarOferta(ofertaId: string): Promise<EntregaDaOferta> {
   const db = await admin();
   const { data: o } = await db
     .from("ofertas_da_fila")
@@ -271,7 +283,7 @@ async function enviarOferta(ofertaId: string) {
     )
     .eq("id", ofertaId)
     .maybeSingle();
-  if (!o) return;
+  if (!o) return "incerta";
   const fuso = await fusoDoTenant(o.tenant_id);
   const p = partes(o.inicio, fuso);
   const cli = (
@@ -279,27 +291,36 @@ async function enviarOferta(ofertaId: string) {
   )?.clientes;
   const servico = (o.servicos as { nome?: string } | null)?.nome ?? "atendimento";
   const profissional = (o.profissionais as { nome?: string } | null)?.nome;
-  await db.rpc("criar_notificacao", {
-    _tenant: o.tenant_id,
-    _tipo: "fila",
-    _titulo: "Vaga oferecida à lista de espera",
-    _corpo: `${cli?.nome ?? "Cliente"} recebeu a vaga de ${p.dia} às ${p.hora} (${servico}). Responde até ${partes(o.expira_em, fuso).hora}.`,
-    _link: LINKS_DE_TELA.espera,
-  });
+  // O sininho da equipe é acessório: uma falha nele não pode segurar uma
+  // reserva nem impedir a decisão de envio da fila.
+  try {
+    await db.rpc("criar_notificacao", {
+      _tenant: o.tenant_id,
+      _tipo: "fila",
+      _titulo: "Vaga em preparação para a lista de espera",
+      _corpo: `Foi preparada uma oferta para ${cli?.nome ?? "Cliente"}: ${p.dia} às ${p.hora} (${servico}). Verifique se o envio foi confirmado.`,
+      _link: LINKS_DE_TELA.espera,
+    });
+  } catch {
+    // Falha no aviso interno fica independente do canal de cliente.
+  }
 
   const telefone = String(cli?.telefone ?? "").replace(/\D/g, "");
-  if (telefone.length < 10) return;
+  if (telefone.length < 10) return "sem_canal";
   const clienteId = (o.fila_de_espera as { cliente_id?: string | null } | null)?.cliente_id ?? null;
   // Porteiro do telefone + autorização específica para receber ofertas da lista.
   const { decisaoDeEnvio } = await import("./porteiro.server");
-  if (!(await decisaoDeEnvio(clienteId)).pode) return;
+  const decisaoTitularidade = await decisaoDeEnvio(clienteId);
+  if (!decisaoTitularidade.pode)
+    return classificarImpedimentoDeOferta(decisaoTitularidade.motivo);
   const { verificarConsentimentoWhatsapp } = await import("./consentimento.server");
   const autorizacaoInicial = await verificarConsentimentoWhatsapp({
     tenantId: o.tenant_id,
     telefone,
     finalidade: "lista_espera",
   });
-  if (!autorizacaoInicial.pode) return;
+  if (!autorizacaoInicial.pode)
+    return classificarImpedimentoDeOferta(autorizacaoInicial.motivo);
 
   // Toda oferta vira um envio: entra nas entregas, falhas e métricas.
   const { data: envio, error: erroEnvio } = await db
@@ -315,7 +336,7 @@ async function enviarOferta(ofertaId: string) {
     } as never)
     .select("id")
     .single();
-  if (erroEnvio || !envio) return;
+  if (erroEnvio || !envio) return "incerta";
   const envioId = (envio as { id: string }).id;
   const { aplicarFalhaDeEnvio } = await import("./falhas-envio.server");
 
@@ -351,7 +372,7 @@ async function enviarOferta(ofertaId: string) {
   if (!conexao) {
     await db.from("envios_de_whatsapp").update({ conteudo: texto }).eq("id", envioId);
     await aplicarFalhaDeEnvio({ envioId, codigo: null, motivo: SEM_WHATSAPP_DISPONIVEL });
-    return;
+    return "sem_canal";
   }
 
   const { botoesInterativos, parametrosNaOrdem, payloadDoBotao } = await import("./modelos");
@@ -406,7 +427,7 @@ async function enviarOferta(ofertaId: string) {
         proxima_tentativa_em: null,
       })
       .eq("id", envioId);
-    return;
+    return classificarImpedimentoDeOferta(autorizacaoFinal.motivo);
   }
 
   try {
@@ -436,6 +457,7 @@ async function enviarOferta(ofertaId: string) {
       } as never)
       .eq("id", envioId);
     await db.from("ofertas_da_fila").update({ enviada_whatsapp: true }).eq("id", o.id);
+    return "enviada";
   } catch (e) {
     const motivo = e instanceof Error ? e.message : "Falha ao enviar pelo WhatsApp.";
     await db.from("envios_de_whatsapp").update({ conteudo: texto }).eq("id", envioId);
@@ -447,6 +469,9 @@ async function enviarOferta(ofertaId: string) {
       httpStatus: lido.httpStatus,
       motivo,
     });
+    // Transportes podem aceitar o envio e falhar ao responder. Não gerar
+    // oferta concorrente automaticamente sem confirmação negativa do canal.
+    return "incerta";
   }
 }
 
@@ -465,61 +490,50 @@ export async function aceitarOferta(token: string) {
       /* agendamento salvo; falha fica registrada no envio */
     }
   }
-  if (!r.ok) {
-    // Vaga perdida para quem aceitou: libera o cliente e segue a fila se ainda houver vaga.
-    const { data: o } = await db
+  if (!r.ok && r.motivo === "expirada") {
+    // A RPC já libera somente a reserva da oferta atual; nunca liberar de novo.
+    const { data: antiga } = await db
       .from("ofertas_da_fila")
-      .select("fila_id, agendamento_liberado_id")
+      .select("agendamento_liberado_id")
       .eq("token", token)
       .maybeSingle();
-    if (o) {
-      await db
-        .from("fila_de_espera")
-        .update({ status: "aguardando" })
-        .eq("id", o.fila_id)
-        .eq("status", "avisado");
-      if (r.motivo === "expirada" && o.agendamento_liberado_id)
-        await ofertarVaga(o.agendamento_liberado_id).catch(() => undefined);
-    }
+    if (antiga?.agendamento_liberado_id)
+      await ofertarVaga(antiga.agendamento_liberado_id).catch(() => undefined);
   }
   return { ...r, confirmacaoEnviada };
 }
 
 export async function recusarOferta(token: string) {
   const db = await admin();
-  const { data: o } = await db
+  const { data: o, error } = await db
     .from("ofertas_da_fila")
-    .update({ status: "recusada", respondida_em: new Date().toISOString() })
+    .select("id, tenant_id")
     .eq("token", token)
     .eq("status", "enviada")
-    .select("fila_id, agendamento_liberado_id")
     .maybeSingle();
-  if (!o) return { ok: false };
-  await db
-    .from("fila_de_espera")
-    .update({ status: "aguardando" })
-    .eq("id", o.fila_id)
-    .eq("status", "avisado");
-  if (o.agendamento_liberado_id)
-    await ofertarVaga(o.agendamento_liberado_id).catch(() => undefined);
+  if (error || !o) return { ok: false };
+  const fim = await encerrarOfertaTransacional(executarTransicaoDaFila(db), {
+    tenantId: o.tenant_id, ofertaId: o.id, estado: "recusada",
+  });
+  if (!fim.ok) return { ok: false };
+  if (fim.agendamentoLiberadoId)
+    await ofertarVaga(fim.agendamentoLiberadoId).catch(() => undefined);
   return { ok: true };
 }
 
 /** Oferta cancelada porque a vaga foi ocupada (ex.: cancelamento desfeito). */
 export async function cancelarOfertasDaVaga(agendamentoId: string) {
   const db = await admin();
-  const { data } = await db
+  const { data: ativas, error } = await db
     .from("ofertas_da_fila")
-    .update({ status: "cancelada", respondida_em: new Date().toISOString() })
+    .select("id, tenant_id")
     .eq("agendamento_liberado_id", agendamentoId)
-    .eq("status", "enviada")
-    .select("fila_id");
-  for (const o of data ?? []) {
-    await db
-      .from("fila_de_espera")
-      .update({ status: "aguardando" })
-      .eq("id", o.fila_id)
-      .eq("status", "avisado");
+    .eq("status", "enviada");
+  if (error) throw new Error("Não foi possível consultar as ofertas da vaga.");
+  for (const o of ativas ?? []) {
+    await encerrarOfertaTransacional(executarTransicaoDaFila(db), {
+      tenantId: o.tenant_id, ofertaId: o.id, estado: "cancelada",
+    });
   }
 }
 
@@ -529,23 +543,24 @@ export async function cancelarOfertasDaVaga(agendamentoId: string) {
  */
 export async function processarListaDeEspera(agora = new Date()) {
   const db = await admin();
-  const { data: vencidas } = await db
+  const { data: vencidas, error: erroBusca } = await db
     .from("ofertas_da_fila")
-    .update({ status: "expirada" })
+    .select("id, tenant_id")
     .eq("status", "enviada")
     .lt("expira_em", agora.toISOString())
-    .select("fila_id, agendamento_liberado_id");
+    .limit(100);
+  if (erroBusca) throw new Error("Não foi possível consultar ofertas expiradas.");
+  let expiradas = 0;
   let ofertas = 0;
-  for (const v of vencidas ?? []) {
-    await db
-      .from("fila_de_espera")
-      .update({ status: "aguardando" })
-      .eq("id", v.fila_id)
-      .eq("status", "avisado");
+  const vagas = new Set<string>();
+  for (const o of vencidas ?? []) {
+    const fim = await encerrarOfertaTransacional(executarTransicaoDaFila(db), {
+      tenantId: o.tenant_id, ofertaId: o.id, estado: "expirada",
+    });
+    if (!fim.ok) continue;
+    expiradas += 1;
+    if (fim.agendamentoLiberadoId) vagas.add(fim.agendamentoLiberadoId);
   }
-  const vagas = new Set(
-    (vencidas ?? []).map((v) => v.agendamento_liberado_id).filter(Boolean) as string[],
-  );
   const { data: cancelados } = await db
     .from("agendamentos")
     .select("id")
@@ -558,5 +573,5 @@ export async function processarListaDeEspera(agora = new Date()) {
     const r = await ofertarVaga(id).catch(() => ({ ofertaId: null }));
     if (r.ofertaId) ofertas += 1;
   }
-  return { expiradas: vencidas?.length ?? 0, ofertas };
+  return { expiradas, ofertas };
 }

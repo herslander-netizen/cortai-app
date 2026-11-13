@@ -11,7 +11,11 @@ vi.mock("./confirmacao.server", () => ({
 /** Banco simulado: nenhuma chamada sai para o banco real. */
 type Estado = {
   automatica: boolean;
+  notificacaoFalha: boolean;
   reservaFila: boolean;
+  liberacaoPermitida: boolean;
+  liberouFila: boolean;
+  filaFiltros: Record<string, unknown>[];
   fila: Record<string, unknown>[];
   inserts: Record<string, unknown>[];
   ranges: [number, number][];
@@ -19,7 +23,9 @@ type Estado = {
   recusada: Record<string, unknown> | null;
   aceite: Record<string, unknown>;
   ofertaPerdida: Record<string, unknown> | null;
+  ofertaAoEnviar: Record<string, unknown> | null;
   filaUpdates: Record<string, unknown>[];
+  encerramentos: Record<string, unknown>[];
 };
 const AGORA = Date.UTC(2026, 9, 5, 12, 0);
 const INICIO = AGORA + 3 * 3600_000;
@@ -50,9 +56,10 @@ function builder(tabela: string) {
       st.inserts.push(ctx.payload!);
       return { data: { id: "of1", token: "abc" }, error: null };
     }
-    if (tabela === "ofertas_da_fila" && ctx.op === "update") return { data: st.recusada };
+    if (tabela === "ofertas_da_fila" && ctx.op === "update")
+      return { data: ctx.payload?.["status"] === "cancelada" ? { id: "of1" } : st.recusada };
     if (tabela === "ofertas_da_fila" && ctx.op === "select")
-      return { data: ctx.filtros["token"] ? st.ofertaPerdida : null };
+      return { data: ctx.filtros["token"] ? (st.recusada ?? st.ofertaPerdida) : ctx.filtros["id"] ? st.ofertaAoEnviar : null };
     if (tabela === "fila_de_espera" && ctx.op === "select") return { data: st.fila };
     return { data: null };
   };
@@ -60,6 +67,7 @@ function builder(tabela: string) {
   const b: any = {};
   const chain = () => b;
   for (const m of ["select", "in", "gt", "lt", "not", "or", "limit", "is"]) b[m] = chain;
+  b.lte = (col: string, val: unknown) => ((ctx.filtros[`lte:${col}`] = val), b);
   b.eq = (col: string, val: unknown) => ((ctx.filtros[col] = val), b);
   b.order = (col: string) => {
     if (tabela === "fila_de_espera") st.orders.push(col);
@@ -72,18 +80,28 @@ function builder(tabela: string) {
   b.insert = (p: Record<string, unknown>) => ((ctx.op = "insert"), (ctx.payload = p), b);
   b.update = (p: Record<string, unknown>) => {
     ctx.op = "update";
+    ctx.payload = p;
     if (tabela === "fila_de_espera") st.filaUpdates.push(p);
     return b;
   };
   b.maybeSingle = async () => {
-    if (tabela === "fila_de_espera" && ctx.op === "update")
-      return { data: st.reservaFila ? { id: ctx.filtros["id"] ?? "primeiro" } : null, error: null };
+    if (tabela === "fila_de_espera" && ctx.op === "update") {
+      st.filaFiltros.push({ ...ctx.filtros });
+      const permitido = ctx.payload?.["status"] === "aguardando"
+        ? st.liberacaoPermitida
+        : st.reservaFila;
+      return { data: permitido ? { id: ctx.filtros["id"] ?? "primeiro" } : null, error: null };
+    }
     const r = resolver();
     if (tabela === "agendamentos" && Array.isArray(r.data)) return { data: null };
     return r;
   };
   b.single = async () => resolver();
   b.then = (ok: (v: unknown) => unknown) => {
+    // Em chamadas await update(...).eq(...) sem maybeSingle, os filtros
+    // ainda devem ser capturados para testar o compare-and-set.
+    if (tabela === "fila_de_espera" && ctx.op === "update")
+      st.filaFiltros.push({ ...ctx.filtros });
     const r = resolver();
     if (tabela === "agendamentos") return Promise.resolve({ data: [] }).then(ok);
     if (tabela === "ofertas_da_fila" && ctx.op === "select")
@@ -95,10 +113,36 @@ function builder(tabela: string) {
 
 const db = {
   from: (t: string) => builder(t),
-  rpc: async (nome: string) =>
-    nome === "aceitar_oferta_da_fila" ? { data: st.aceite, error: null } : { data: true },
+  rpc: async (nome: string) => {
+    if (nome === "criar_notificacao" && st.notificacaoFalha)
+      throw new Error("Falha isolada de notificação");
+    return nome === "aceitar_oferta_da_fila" ? { data: st.aceite, error: null } : { data: true };
+  },
 };
 
+// A implementação real da camada transacional é validada no teste do contrato.
+// Aqui simulamos as respostas SQL para verificar a orquestração sem tocar no banco.
+vi.mock("@/lib/fila-ofertas-transacional", () => ({
+  reservarOfertaTransacional: async (_rpc: unknown, p: {
+    tenantId: string; filaId: string; agendamentoLiberadoId: string;
+    profissionalId: string; servicoId: string; inicio: string; fim: string; expiraEm: string;
+  }) => {
+    if (!st.reservaFila) return { ok: false, motivo: "entrada_indisponivel" };
+    st.inserts.push({
+      tenant_id: p.tenantId, fila_id: p.filaId, agendamento_liberado_id: p.agendamentoLiberadoId,
+      profissional_id: p.profissionalId, servico_id: p.servicoId, inicio: p.inicio,
+      fim: p.fim, expira_em: p.expiraEm,
+    });
+    return { ok: true, ofertaId: "of1", token: "abc" };
+  },
+  encerrarOfertaTransacional: async (_rpc: unknown, p: {
+    tenantId: string; ofertaId: string; estado: string;
+  }) => {
+    st.encerramentos.push(p);
+    if (!st.liberacaoPermitida) return { ok: false, motivo: "oferta_inativa" };
+    return { ok: true, liberouFila: st.liberouFila, agendamentoLiberadoId: "ag1" };
+  },
+}));
 vi.mock("@/integrations/supabase/client.server", () => ({ supabaseAdmin: db }));
 vi.mock("@/lib/fuso.server", () => ({ fusoDoTenant: async () => "America/Sao_Paulo" }));
 vi.mock("@/lib/agenda-regras.server", () => ({
@@ -122,7 +166,11 @@ beforeEach(() => {
   vi.setSystemTime(AGORA);
   st = {
     automatica: true,
+    notificacaoFalha: false,
     reservaFila: true,
+    liberacaoPermitida: true,
+    liberouFila: true,
+    filaFiltros: [],
     fila: [linha("primeiro", 1), linha("segundo", 2)],
     inserts: [],
     ranges: [],
@@ -130,7 +178,9 @@ beforeEach(() => {
     recusada: null,
     aceite: { ok: true, agendamento_id: "ag-novo" },
     ofertaPerdida: null,
+    ofertaAoEnviar: null,
     filaUpdates: [],
+    encerramentos: [],
   };
   confirmacao.envios = 0;
   confirmacao.enviado = true;
@@ -155,6 +205,77 @@ describe("recuperação automática de vagas", () => {
     expect(st.ranges[0]).toEqual([0, 199]);
   });
 
+  it("sem telefone para avisar não deixa oferta ativa nem bloqueia próximo da fila", async () => {
+    st.ofertaAoEnviar = {
+      id: "of1",
+      token: "abc",
+      tenant_id: "t1",
+      inicio: new Date(INICIO).toISOString(),
+      expira_em: new Date(AGORA + 30 * 60_000).toISOString(),
+      servicos: { nome: "Corte" },
+      profissionais: { nome: "Ana" },
+      fila_de_espera: { cliente_id: "c-primeiro", clientes: { nome: "Cliente", telefone: "" } },
+    };
+    const { ofertarVaga } = await import("./fila-ofertas.server");
+    const r = await ofertarVaga("ag1");
+    expect(r.motivo).toBe("sem_compativel");
+    expect(r.ofertaId).toBeNull();
+    // Primeiro e segundo sem telefone: ambos foram tentados uma vez.
+    expect(st.inserts).toHaveLength(2);
+    expect(st.encerramentos).toHaveLength(2);
+    expect(st.encerramentos[0]).toMatchObject({
+      tenantId: "t1", ofertaId: "of1", estado: "cancelada",
+    });
+  });
+
+  it("falha do sininho não bloqueia o ciclo de cancelamento da oferta sem canal", async () => {
+    st.notificacaoFalha = true;
+    st.ofertaAoEnviar = {
+      id: "of1",
+      token: "abc",
+      tenant_id: "t1",
+      inicio: new Date(INICIO).toISOString(),
+      expira_em: new Date(AGORA + 30 * 60_000).toISOString(),
+      servicos: { nome: "Corte" },
+      profissionais: { nome: "Ana" },
+      fila_de_espera: { cliente_id: "c-primeiro", clientes: { nome: "Cliente", telefone: "" } },
+    };
+    const { ofertarVaga } = await import("./fila-ofertas.server");
+    const r = await ofertarVaga("ag1");
+    expect(r).toEqual({ ofertaId: null, motivo: "sem_compativel" });
+    expect(st.inserts).toHaveLength(2);
+    expect(st.encerramentos).toHaveLength(2);
+  });
+
+  it("cancelar oferta sem liberar a entrada não chama o próximo como se tivesse dado certo", async () => {
+    st.liberouFila = false;
+    st.ofertaAoEnviar = {
+      id: "of1",
+      token: "abc",
+      tenant_id: "t1",
+      inicio: new Date(INICIO).toISOString(),
+      expira_em: new Date(AGORA + 30 * 60_000).toISOString(),
+      servicos: { nome: "Corte" },
+      profissionais: { nome: "Ana" },
+      fila_de_espera: { cliente_id: "c-primeiro", clientes: { nome: "Cliente", telefone: "" } },
+    };
+    const { ofertarVaga } = await import("./fila-ofertas.server");
+    const r = await ofertarVaga("ag1");
+    expect(r).toEqual({ ofertaId: "of1", motivo: "cancelamento_pendente" });
+    expect(st.inserts).toHaveLength(1);
+    expect(st.encerramentos).toHaveLength(1);
+  });
+
+  it("resultado de transporte indeterminado não libera a vaga para duas pessoas", async () => {
+    // Sem ficha de envio após a reserva: falha de leitura, não ausência comprovada de canal.
+    st.ofertaAoEnviar = null;
+    const { ofertarVaga } = await import("./fila-ofertas.server");
+    const r = await ofertarVaga("ag1");
+    expect(r).toEqual({ ofertaId: "of1", motivo: "entrega_indeterminada" });
+    expect(st.inserts).toHaveLength(1);
+    expect(st.encerramentos).toHaveLength(0);
+  });
+
   it("perto do horário: prazo termina 10 min antes", async () => {
     vi.setSystemTime(INICIO - 20 * 60_000);
     const { ofertarVaga } = await import("./fila-ofertas.server");
@@ -172,7 +293,10 @@ describe("recuperação automática de vagas", () => {
   });
 
   it("recusa passa ao próximo quando ligada", async () => {
-    st.recusada = { fila_id: "primeiro", agendamento_liberado_id: "ag1" };
+    st.recusada = {
+      fila_id: "primeiro", tenant_id: "t1", criado_em: new Date(AGORA).toISOString(),
+      agendamento_liberado_id: "ag1",
+    };
     const { recusarOferta } = await import("./fila-ofertas.server");
     const r = await recusarOferta("abc");
     expect(r.ok).toBe(true);
@@ -181,7 +305,10 @@ describe("recuperação automática de vagas", () => {
 
   it("recusa com automação desligada não avança e não remove ninguém", async () => {
     st.automatica = false;
-    st.recusada = { fila_id: "primeiro", agendamento_liberado_id: "ag1" };
+    st.recusada = {
+      fila_id: "primeiro", tenant_id: "t1", criado_em: new Date(AGORA).toISOString(),
+      agendamento_liberado_id: "ag1",
+    };
     const { recusarOferta } = await import("./fila-ofertas.server");
     const r = await recusarOferta("abc");
     expect(r.ok).toBe(true);
@@ -216,17 +343,39 @@ describe("aceite da oferta", () => {
 
   it("vaga perdida (ocupado) devolve o cliente à fila como aguardando", async () => {
     st.aceite = { ok: false, motivo: "ocupado" };
-    st.ofertaPerdida = { fila_id: "primeiro", agendamento_liberado_id: "ag1" };
+    st.ofertaPerdida = {
+      fila_id: "primeiro", tenant_id: "t1", criado_em: new Date(AGORA).toISOString(),
+      agendamento_liberado_id: "ag1",
+    };
     const { aceitarOferta } = await import("./fila-ofertas.server");
     const r = await aceitarOferta("abc");
     expect(r.ok).toBe(false);
-    expect(st.filaUpdates).toContainEqual({ status: "aguardando" });
+    // Apenas a RPC de aceite decide, dentro da transação, se deve liberar.
+    expect(st.encerramentos).toHaveLength(0);
     expect(st.inserts).toHaveLength(0);
+  });
+
+  it("oferta antiga não libera uma nova reserva da mesma pessoa", async () => {
+    st.aceite = { ok: false, motivo: "ocupado" };
+    st.ofertaPerdida = {
+      fila_id: "primeiro", tenant_id: "t1", criado_em: new Date(AGORA).toISOString(),
+      agendamento_liberado_id: "ag1",
+    };
+    // O banco simula que o CAS falhou: a entrada já possui aviso mais recente.
+    st.liberacaoPermitida = false;
+    const { aceitarOferta } = await import("./fila-ofertas.server");
+    const r = await aceitarOferta("abc");
+    expect(r.ok).toBe(false);
+    expect(st.encerramentos).toHaveLength(0);
+    expect(st.filaUpdates).toHaveLength(0);
   });
 
   it("oferta expirada reoferta a vaga", async () => {
     st.aceite = { ok: false, motivo: "expirada" };
-    st.ofertaPerdida = { fila_id: "primeiro", agendamento_liberado_id: "ag1" };
+    st.ofertaPerdida = {
+      fila_id: "primeiro", tenant_id: "t1", criado_em: new Date(AGORA).toISOString(),
+      agendamento_liberado_id: "ag1",
+    };
     const { aceitarOferta } = await import("./fila-ofertas.server");
     const r = await aceitarOferta("abc");
     expect(r.ok).toBe(false);
