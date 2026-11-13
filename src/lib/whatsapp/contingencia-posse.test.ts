@@ -52,7 +52,7 @@ describe("WhatsApp — contingência não fala durante atendimento humano", () =
     const posicaoContingencia = fluxo.indexOf('const fallback = textoDeContingencia', posicaoBarreira);
     expect(posicaoBarreira).toBeGreaterThan(0);
     expect(fluxo.slice(posicaoBarreira, posicaoContingencia))
-      .toContain(".select(\"modo_humano, modo_humano_ate\")");
+      .toContain(".select(\"status, modo_humano, modo_humano_ate\")");
     expect(fluxo.slice(posicaoBarreira, posicaoContingencia))
       .toContain('motivo: "contingencia_suspensa_por_posse"');
     expect(fluxo.slice(posicaoBarreira, posicaoContingencia))
