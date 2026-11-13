@@ -211,32 +211,14 @@ export const comandarConversaDaCentral = createServerFn({ method: "POST" })
     await exigirPermissao(context, tenantId, "gerenciar_whatsapp");
     await exigirRecurso(context.supabase, tenantId, "secretaria_whatsapp");
     const db = await admin();
-    const { data: atual, error: erroLeitura } = await db
-      .from("conversas_whatsapp")
-      .select("id, atualizado_em")
-      .eq("tenant_id", tenantId)
-      .eq("id", data.conversaId)
-      .maybeSingle();
-    if (erroLeitura || !atual) throw new Error("Conversa não encontrada neste estabelecimento.");
-    if (atual.atualizado_em !== data.atualizadoEm) return { ok: false, motivo: "conflito" };
-
-    // 'encerrada' é o único status de conclusão aceito pelo CHECK real.
-    // O bloqueio humano permanente impede fallback/IA após resolver.
-    const campos = data.acao === "assumir"
-      ? { status: "humano", modo_humano: true, modo_humano_ate: null }
-      : data.acao === "resolver"
-        ? { status: "encerrada", modo_humano: true, modo_humano_ate: null, ia_ativa: false }
-        : { status: "ativa", modo_humano: false, modo_humano_ate: null, ia_ativa: true };
-    const { data: confirmado, error } = await db
-      .from("conversas_whatsapp")
-      .update(campos)
-      .eq("id", data.conversaId)
-      .eq("tenant_id", tenantId)
-      .eq("atualizado_em", data.atualizadoEm)
-      .select("id")
-      .maybeSingle();
-    if (error) throw new Error("Não foi possível atualizar o controle humano.");
-    if (!confirmado) return { ok: false, motivo: "conflito" };
+    const { aplicarComandoDaCentral } = await import("@/lib/whatsapp/comandos-central");
+    const resultado = await aplicarComandoDaCentral(db as never, {
+      tenantId,
+      conversaId: data.conversaId,
+      atualizadoEm: data.atualizadoEm,
+      acao: data.acao,
+    });
+    if (!resultado.ok) return resultado;
 
     // Auditoria sem texto e sem telefone. Falha de auditoria é visível no servidor,
     // mas não repete uma transição já confirmada.
