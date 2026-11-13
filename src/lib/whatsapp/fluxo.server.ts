@@ -966,6 +966,28 @@ export async function processarMensagemRecebida(input: {
     });
     if (respondida) return { tratada: true, motivo: "secretaria_cortai" };
   }
+  // Última barreira antes da contingência: o Flow Bot ou a IA podem falhar
+  // após a equipe ter assumido a conversa. Não usar o estado lido no início
+  // da requisição; confirmar a posse novamente para impedir resposta tardia.
+  const { bloquearContingenciaPorPosse } = await import("./contingencia-posse");
+  try {
+    const { data: posseAtual, error: erroPosse } = await db
+      .from("conversas_whatsapp")
+      .select("modo_humano, modo_humano_ate")
+      .eq("id", conversa.id)
+      .eq("tenant_id", tenantId)
+      .maybeSingle();
+    if (bloquearContingenciaPorPosse({
+      conversa: posseAtual,
+      erro: erroPosse,
+      agora: Date.now(),
+    })) {
+      return { tratada: true, motivo: "contingencia_suspensa_por_posse" };
+    }
+  } catch {
+    // Falha na verificação de posse nunca autoriza mensagem automática.
+    return { tratada: true, motivo: "contingencia_posse_indeterminada" };
+  }
   // Aprendizado: com o atendimento automático ligado, ninguém (Bot nem Flow IA) conseguiu responder.
   if (input.tipo === "text" && textoDoTurno.trim()) {
     const config = await configuracaoDoTenant(tenantId).catch(() => null);
