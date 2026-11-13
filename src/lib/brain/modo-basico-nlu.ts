@@ -34,6 +34,7 @@ export type Intencao =
   | "agenda"
   | "fila"
   | "atraso"
+  | "conversa"
   | "ajuda"
   | "como_fazer";
 
@@ -46,6 +47,9 @@ export function ehPedidoDeAgendar(texto: string): boolean {
 
 export function intencaoDe(texto: string): Intencao {
   const t = normalizar(texto);
+  // Conversas sociais e dúvidas de capacidade são tratadas sem consultar o banco.
+  if (/^(oi|ola|opa|e ai|bom dia|boa tarde|boa noite|tudo bem|tudo certo|fala|salve|obrigad\\w*|valeu|show|perfeito|beleza|entendi|certo|blz|ok)(\\s+.*)?$/.test(t) || /\\b(quem e voce|o que voce faz|pra que voce serve|como voce pode ajudar|o que consegue fazer|quais comandos|o que posso pedir|nao entendi|estou perdido|por onde comeco)\\b/.test(t))
+    return "conversa";
   // "Como coloco um cliente na fila?" é pedido de instrução, não busca nem comando.
   if (ehPerguntaDeAjuda(texto)) return "como_fazer";
   if (VERBO_DE_AGENDAR.test(t)) return "agendar";
@@ -81,6 +85,7 @@ export function intencaoDe(texto: string): Intencao {
     return "funcionamento";
   if (/\b(servicos?|precos?|quanto custa|tabela de precos?|valores?)\b/.test(t)) return "servicos";
   if (/\b(profissionais|equipe|barbeiros?|quem atende)\b/.test(t)) return "profissionais";
+  if (/\\b(como esta o dia|como ta o dia|tem movimento hoje|o que tenho hoje|qual a situacao de hoje|resumo do dia)\\b/.test(t)) return "agenda";
   return "ajuda";
 }
 
