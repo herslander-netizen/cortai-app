@@ -99,7 +99,8 @@ AS $auth$
   -- a versão de produção não é alterada por este fixture.
   SELECT coalesce(
     NULLIF(current_setting('request.jwt.claim.role', true), ''),
-    NULLIF(current_setting('request.jwt.claims', true), '')::jsonb->>'role'
+    NULLIF(current_setting('request.jwt.claims', true), '')::jsonb->>'role',
+    'anon'
   ) = 'service_role';
 $auth$;
 
