@@ -150,11 +150,14 @@ describe("Central de Atendimento — comandos do banco com controle de concorrê
   it("servidor real exige vínculo, permissão e recurso antes de chamar o executor", () => {
     const code = readFileSync("src/lib/central-atendimento.functions.ts", "utf8");
     const fn = code.slice(code.indexOf("export const comandarConversaDaCentral"));
-    const posPermissao = fn.indexOf('exigirPermissao(context, tenantId, "gerenciar_whatsapp")');
+    const posPermissao = fn.indexOf("if (!podeComandarConversa(");
     const posRecurso = fn.indexOf('exigirRecurso(context.supabase, tenantId, "secretaria_whatsapp")');
     const posComando = fn.indexOf("aplicarComandoDaCentral(db as never");
     expect(fn).toContain(".middleware([requireSupabaseAuth])");
     expect(fn).toContain("const tenantId = await tenantIdDoMembro(context)");
+    expect(fn).toContain('_permission: "assumir_conversa"');
+    expect(fn).toContain('_permission: "gerenciar_conversas"');
+    expect(fn).not.toContain('gerenciar_whatsapp');
     expect(posPermissao).toBeGreaterThan(0);
     expect(posRecurso).toBeGreaterThan(posPermissao);
     expect(posComando).toBeGreaterThan(posRecurso);
