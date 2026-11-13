@@ -19,6 +19,7 @@ import { Route as BarbeiroRouteImport } from './routes/barbeiro'
 import { Route as ComecarRouteImport } from './routes/comecar'
 import { Route as ConfigurarMinhaBarbeariaRouteImport } from './routes/configurar-minha-barbearia'
 import { Route as ConviteRouteImport } from './routes/convite'
+import { Route as CookiesRouteImport } from './routes/cookies'
 import { Route as EscolherRouteImport } from './routes/escolher'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as McpRouteImport } from './routes/mcp'
@@ -26,6 +27,7 @@ import { Route as PrivacidadeRouteImport } from './routes/privacidade'
 import { Route as RecuperarSenhaRouteImport } from './routes/recuperar-senha'
 import { Route as RedefinirSenhaRouteImport } from './routes/redefinir-senha'
 import { Route as SwDotjsRouteImport } from './routes/sw[.]js'
+import { Route as TermosRouteImport } from './routes/termos'
 import { Route as VisitanteRouteImport } from './routes/visitante'
 import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
@@ -60,6 +62,7 @@ import { Route as BarbeiroAutomacaoRouteImport } from './routes/barbeiro.automac
 import { Route as BarbeiroAvaliacoesRouteImport } from './routes/barbeiro.avaliacoes'
 import { Route as BarbeiroBarbeariasRouteImport } from './routes/barbeiro.barbearias'
 import { Route as BarbeiroCaixaRouteImport } from './routes/barbeiro.caixa'
+import { Route as BarbeiroCampanhasRouteImport } from './routes/barbeiro.campanhas'
 import { Route as BarbeiroCasaRouteImport } from './routes/barbeiro.casa'
 import { Route as BarbeiroCategoriasRouteImport } from './routes/barbeiro.categorias'
 import { Route as BarbeiroClientesRouteImport } from './routes/barbeiro.clientes'
@@ -69,6 +72,7 @@ import { Route as BarbeiroContaRouteImport } from './routes/barbeiro.conta'
 import { Route as BarbeiroCortaiRouteImport } from './routes/barbeiro.cortai'
 import { Route as BarbeiroCortaiAtividadeRouteImport } from './routes/barbeiro.cortai-atividade'
 import { Route as BarbeiroCrescimentoRouteImport } from './routes/barbeiro.crescimento'
+import { Route as BarbeiroCrmRouteImport } from './routes/barbeiro.crm'
 import { Route as BarbeiroDivulgarRouteImport } from './routes/barbeiro.divulgar'
 import { Route as BarbeiroEquipeRouteImport } from './routes/barbeiro.equipe'
 import { Route as BarbeiroFidelidadeRouteImport } from './routes/barbeiro.fidelidade'
@@ -103,6 +107,9 @@ import { Route as ApiPublicAlvoIaRouteImport } from './routes/api/public/alvo-ia
 import { Route as ApiPublicFunilRouteImport } from './routes/api/public/funil'
 import { Route as BarbeiroClientesIndexRouteImport } from './routes/barbeiro.clientes.index'
 import { Route as BarbeiroClientesIdRouteImport } from './routes/barbeiro.clientes.$id'
+import { Route as BarbeiroEquipeDadosUserIdRouteImport } from './routes/barbeiro.equipe-dados.$userId'
+import { Route as BarbeiroEquipeDataUserIdRouteImport } from './routes/barbeiro.equipe-data.$userId'
+import { Route as BarbeiroEquipeUserIdRouteImport } from './routes/barbeiro.equipe_.$userId'
 import { Route as BarbeiroMarcaIndexRouteImport } from './routes/barbeiro.marca.index'
 import { Route as BarbeiroMarcaChatRouteImport } from './routes/barbeiro.marca.chat'
 import { Route as BarbeiroMarcaLayoutTemaRouteImport } from './routes/barbeiro.marca.layout-tema'
@@ -172,6 +179,11 @@ const ConviteRoute = ConviteRouteImport.update({
   path: '/convite',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CookiesRoute = CookiesRouteImport.update({
+  id: '/cookies',
+  path: '/cookies',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const EscolherRoute = EscolherRouteImport.update({
   id: '/escolher',
   path: '/escolher',
@@ -205,6 +217,11 @@ const RedefinirSenhaRoute = RedefinirSenhaRouteImport.update({
 const SwDotjsRoute = SwDotjsRouteImport.update({
   id: '/sw.js',
   path: '/sw.js',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TermosRoute = TermosRouteImport.update({
+  id: '/termos',
+  path: '/termos',
   getParentRoute: () => rootRouteImport,
 } as any)
 const VisitanteRoute = VisitanteRouteImport.update({
@@ -378,6 +395,11 @@ const BarbeiroCaixaRoute = BarbeiroCaixaRouteImport.update({
   path: '/caixa',
   getParentRoute: () => BarbeiroRoute,
 } as any)
+const BarbeiroCampanhasRoute = BarbeiroCampanhasRouteImport.update({
+  id: '/campanhas',
+  path: '/campanhas',
+  getParentRoute: () => BarbeiroRoute,
+} as any)
 const BarbeiroCasaRoute = BarbeiroCasaRouteImport.update({
   id: '/casa',
   path: '/casa',
@@ -421,6 +443,11 @@ const BarbeiroCortaiAtividadeRoute = BarbeiroCortaiAtividadeRouteImport.update({
 const BarbeiroCrescimentoRoute = BarbeiroCrescimentoRouteImport.update({
   id: '/crescimento',
   path: '/crescimento',
+  getParentRoute: () => BarbeiroRoute,
+} as any)
+const BarbeiroCrmRoute = BarbeiroCrmRouteImport.update({
+  id: '/crm',
+  path: '/crm',
   getParentRoute: () => BarbeiroRoute,
 } as any)
 const BarbeiroDivulgarRoute = BarbeiroDivulgarRouteImport.update({
@@ -593,6 +620,23 @@ const BarbeiroClientesIdRoute = BarbeiroClientesIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => BarbeiroClientesRoute,
 } as any)
+const BarbeiroEquipeDadosUserIdRoute =
+  BarbeiroEquipeDadosUserIdRouteImport.update({
+    id: '/equipe-dados/$userId',
+    path: '/equipe-dados/$userId',
+    getParentRoute: () => BarbeiroRoute,
+  } as any)
+const BarbeiroEquipeDataUserIdRoute =
+  BarbeiroEquipeDataUserIdRouteImport.update({
+    id: '/equipe-data/$userId',
+    path: '/equipe-data/$userId',
+    getParentRoute: () => BarbeiroRoute,
+  } as any)
+const BarbeiroEquipeUserIdRoute = BarbeiroEquipeUserIdRouteImport.update({
+  id: '/equipe_/$userId',
+  path: '/equipe/$userId',
+  getParentRoute: () => BarbeiroRoute,
+} as any)
 const BarbeiroMarcaIndexRoute = BarbeiroMarcaIndexRouteImport.update({
   id: '/marca/',
   path: '/marca/',
@@ -696,6 +740,7 @@ export interface FileRoutesByFullPath {
   '/comecar': typeof ComecarRoute
   '/configurar-minha-barbearia': typeof ConfigurarMinhaBarbeariaRoute
   '/convite': typeof ConviteRoute
+  '/cookies': typeof CookiesRoute
   '/escolher': typeof EscolherRoute
   '/login': typeof LoginRoute
   '/mcp': typeof McpRoute
@@ -703,6 +748,7 @@ export interface FileRoutesByFullPath {
   '/recuperar-senha': typeof RecuperarSenhaRoute
   '/redefinir-senha': typeof RedefinirSenhaRoute
   '/sw.js': typeof SwDotjsRoute
+  '/termos': typeof TermosRoute
   '/visitante': typeof VisitanteRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/admin/ajustes': typeof AdminAjustesRoute
@@ -734,6 +780,7 @@ export interface FileRoutesByFullPath {
   '/barbeiro/avaliacoes': typeof BarbeiroAvaliacoesRoute
   '/barbeiro/barbearias': typeof BarbeiroBarbeariasRoute
   '/barbeiro/caixa': typeof BarbeiroCaixaRoute
+  '/barbeiro/campanhas': typeof BarbeiroCampanhasRoute
   '/barbeiro/casa': typeof BarbeiroCasaRoute
   '/barbeiro/categorias': typeof BarbeiroCategoriasRoute
   '/barbeiro/clientes': typeof BarbeiroClientesRouteWithChildren
@@ -743,6 +790,7 @@ export interface FileRoutesByFullPath {
   '/barbeiro/cortai': typeof BarbeiroCortaiRoute
   '/barbeiro/cortai-atividade': typeof BarbeiroCortaiAtividadeRoute
   '/barbeiro/crescimento': typeof BarbeiroCrescimentoRoute
+  '/barbeiro/crm': typeof BarbeiroCrmRoute
   '/barbeiro/divulgar': typeof BarbeiroDivulgarRoute
   '/barbeiro/equipe': typeof BarbeiroEquipeRoute
   '/barbeiro/fidelidade': typeof BarbeiroFidelidadeRoute
@@ -779,6 +827,9 @@ export interface FileRoutesByFullPath {
   '/api/public/alvo-ia': typeof ApiPublicAlvoIaRoute
   '/api/public/funil': typeof ApiPublicFunilRoute
   '/barbeiro/clientes/$id': typeof BarbeiroClientesIdRoute
+  '/barbeiro/equipe-dados/$userId': typeof BarbeiroEquipeDadosUserIdRoute
+  '/barbeiro/equipe-data/$userId': typeof BarbeiroEquipeDataUserIdRoute
+  '/barbeiro/equipe/$userId': typeof BarbeiroEquipeUserIdRoute
   '/barbeiro/marca/chat': typeof BarbeiroMarcaChatRoute
   '/barbeiro/marca/layout-tema': typeof BarbeiroMarcaLayoutTemaRoute
   '/barbeiro/clientes/': typeof BarbeiroClientesIndexRoute
@@ -806,6 +857,7 @@ export interface FileRoutesByTo {
   '/comecar': typeof ComecarRoute
   '/configurar-minha-barbearia': typeof ConfigurarMinhaBarbeariaRoute
   '/convite': typeof ConviteRoute
+  '/cookies': typeof CookiesRoute
   '/escolher': typeof EscolherRoute
   '/login': typeof LoginRoute
   '/mcp': typeof McpRoute
@@ -813,6 +865,7 @@ export interface FileRoutesByTo {
   '/recuperar-senha': typeof RecuperarSenhaRoute
   '/redefinir-senha': typeof RedefinirSenhaRoute
   '/sw.js': typeof SwDotjsRoute
+  '/termos': typeof TermosRoute
   '/visitante': typeof VisitanteRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/admin/ajustes': typeof AdminAjustesRoute
@@ -844,6 +897,7 @@ export interface FileRoutesByTo {
   '/barbeiro/avaliacoes': typeof BarbeiroAvaliacoesRoute
   '/barbeiro/barbearias': typeof BarbeiroBarbeariasRoute
   '/barbeiro/caixa': typeof BarbeiroCaixaRoute
+  '/barbeiro/campanhas': typeof BarbeiroCampanhasRoute
   '/barbeiro/casa': typeof BarbeiroCasaRoute
   '/barbeiro/categorias': typeof BarbeiroCategoriasRoute
   '/barbeiro/comissoes': typeof BarbeiroComissoesRoute
@@ -852,6 +906,7 @@ export interface FileRoutesByTo {
   '/barbeiro/cortai': typeof BarbeiroCortaiRoute
   '/barbeiro/cortai-atividade': typeof BarbeiroCortaiAtividadeRoute
   '/barbeiro/crescimento': typeof BarbeiroCrescimentoRoute
+  '/barbeiro/crm': typeof BarbeiroCrmRoute
   '/barbeiro/divulgar': typeof BarbeiroDivulgarRoute
   '/barbeiro/equipe': typeof BarbeiroEquipeRoute
   '/barbeiro/fidelidade': typeof BarbeiroFidelidadeRoute
@@ -888,6 +943,9 @@ export interface FileRoutesByTo {
   '/api/public/alvo-ia': typeof ApiPublicAlvoIaRoute
   '/api/public/funil': typeof ApiPublicFunilRoute
   '/barbeiro/clientes/$id': typeof BarbeiroClientesIdRoute
+  '/barbeiro/equipe-dados/$userId': typeof BarbeiroEquipeDadosUserIdRoute
+  '/barbeiro/equipe-data/$userId': typeof BarbeiroEquipeDataUserIdRoute
+  '/barbeiro/equipe/$userId': typeof BarbeiroEquipeUserIdRoute
   '/barbeiro/marca/chat': typeof BarbeiroMarcaChatRoute
   '/barbeiro/marca/layout-tema': typeof BarbeiroMarcaLayoutTemaRoute
   '/barbeiro/clientes': typeof BarbeiroClientesIndexRoute
@@ -919,6 +977,7 @@ export interface FileRoutesById {
   '/comecar': typeof ComecarRoute
   '/configurar-minha-barbearia': typeof ConfigurarMinhaBarbeariaRoute
   '/convite': typeof ConviteRoute
+  '/cookies': typeof CookiesRoute
   '/escolher': typeof EscolherRoute
   '/login': typeof LoginRoute
   '/mcp': typeof McpRoute
@@ -926,6 +985,7 @@ export interface FileRoutesById {
   '/recuperar-senha': typeof RecuperarSenhaRoute
   '/redefinir-senha': typeof RedefinirSenhaRoute
   '/sw.js': typeof SwDotjsRoute
+  '/termos': typeof TermosRoute
   '/visitante': typeof VisitanteRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/admin/ajustes': typeof AdminAjustesRoute
@@ -957,6 +1017,7 @@ export interface FileRoutesById {
   '/barbeiro/avaliacoes': typeof BarbeiroAvaliacoesRoute
   '/barbeiro/barbearias': typeof BarbeiroBarbeariasRoute
   '/barbeiro/caixa': typeof BarbeiroCaixaRoute
+  '/barbeiro/campanhas': typeof BarbeiroCampanhasRoute
   '/barbeiro/casa': typeof BarbeiroCasaRoute
   '/barbeiro/categorias': typeof BarbeiroCategoriasRoute
   '/barbeiro/clientes': typeof BarbeiroClientesRouteWithChildren
@@ -966,6 +1027,7 @@ export interface FileRoutesById {
   '/barbeiro/cortai': typeof BarbeiroCortaiRoute
   '/barbeiro/cortai-atividade': typeof BarbeiroCortaiAtividadeRoute
   '/barbeiro/crescimento': typeof BarbeiroCrescimentoRoute
+  '/barbeiro/crm': typeof BarbeiroCrmRoute
   '/barbeiro/divulgar': typeof BarbeiroDivulgarRoute
   '/barbeiro/equipe': typeof BarbeiroEquipeRoute
   '/barbeiro/fidelidade': typeof BarbeiroFidelidadeRoute
@@ -1002,6 +1064,9 @@ export interface FileRoutesById {
   '/api/public/alvo-ia': typeof ApiPublicAlvoIaRoute
   '/api/public/funil': typeof ApiPublicFunilRoute
   '/barbeiro/clientes/$id': typeof BarbeiroClientesIdRoute
+  '/barbeiro/equipe-dados/$userId': typeof BarbeiroEquipeDadosUserIdRoute
+  '/barbeiro/equipe-data/$userId': typeof BarbeiroEquipeDataUserIdRoute
+  '/barbeiro/equipe_/$userId': typeof BarbeiroEquipeUserIdRoute
   '/barbeiro/marca/chat': typeof BarbeiroMarcaChatRoute
   '/barbeiro/marca/layout-tema': typeof BarbeiroMarcaLayoutTemaRoute
   '/barbeiro/clientes/': typeof BarbeiroClientesIndexRoute
@@ -1034,6 +1099,7 @@ export interface FileRouteTypes {
     | '/comecar'
     | '/configurar-minha-barbearia'
     | '/convite'
+    | '/cookies'
     | '/escolher'
     | '/login'
     | '/mcp'
@@ -1041,6 +1107,7 @@ export interface FileRouteTypes {
     | '/recuperar-senha'
     | '/redefinir-senha'
     | '/sw.js'
+    | '/termos'
     | '/visitante'
     | '/.well-known/oauth-protected-resource'
     | '/admin/ajustes'
@@ -1072,6 +1139,7 @@ export interface FileRouteTypes {
     | '/barbeiro/avaliacoes'
     | '/barbeiro/barbearias'
     | '/barbeiro/caixa'
+    | '/barbeiro/campanhas'
     | '/barbeiro/casa'
     | '/barbeiro/categorias'
     | '/barbeiro/clientes'
@@ -1081,6 +1149,7 @@ export interface FileRouteTypes {
     | '/barbeiro/cortai'
     | '/barbeiro/cortai-atividade'
     | '/barbeiro/crescimento'
+    | '/barbeiro/crm'
     | '/barbeiro/divulgar'
     | '/barbeiro/equipe'
     | '/barbeiro/fidelidade'
@@ -1117,6 +1186,9 @@ export interface FileRouteTypes {
     | '/api/public/alvo-ia'
     | '/api/public/funil'
     | '/barbeiro/clientes/$id'
+    | '/barbeiro/equipe-dados/$userId'
+    | '/barbeiro/equipe-data/$userId'
+    | '/barbeiro/equipe/$userId'
     | '/barbeiro/marca/chat'
     | '/barbeiro/marca/layout-tema'
     | '/barbeiro/clientes/'
@@ -1144,6 +1216,7 @@ export interface FileRouteTypes {
     | '/comecar'
     | '/configurar-minha-barbearia'
     | '/convite'
+    | '/cookies'
     | '/escolher'
     | '/login'
     | '/mcp'
@@ -1151,6 +1224,7 @@ export interface FileRouteTypes {
     | '/recuperar-senha'
     | '/redefinir-senha'
     | '/sw.js'
+    | '/termos'
     | '/visitante'
     | '/.well-known/oauth-protected-resource'
     | '/admin/ajustes'
@@ -1182,6 +1256,7 @@ export interface FileRouteTypes {
     | '/barbeiro/avaliacoes'
     | '/barbeiro/barbearias'
     | '/barbeiro/caixa'
+    | '/barbeiro/campanhas'
     | '/barbeiro/casa'
     | '/barbeiro/categorias'
     | '/barbeiro/comissoes'
@@ -1190,6 +1265,7 @@ export interface FileRouteTypes {
     | '/barbeiro/cortai'
     | '/barbeiro/cortai-atividade'
     | '/barbeiro/crescimento'
+    | '/barbeiro/crm'
     | '/barbeiro/divulgar'
     | '/barbeiro/equipe'
     | '/barbeiro/fidelidade'
@@ -1226,6 +1302,9 @@ export interface FileRouteTypes {
     | '/api/public/alvo-ia'
     | '/api/public/funil'
     | '/barbeiro/clientes/$id'
+    | '/barbeiro/equipe-dados/$userId'
+    | '/barbeiro/equipe-data/$userId'
+    | '/barbeiro/equipe/$userId'
     | '/barbeiro/marca/chat'
     | '/barbeiro/marca/layout-tema'
     | '/barbeiro/clientes'
@@ -1256,6 +1335,7 @@ export interface FileRouteTypes {
     | '/comecar'
     | '/configurar-minha-barbearia'
     | '/convite'
+    | '/cookies'
     | '/escolher'
     | '/login'
     | '/mcp'
@@ -1263,6 +1343,7 @@ export interface FileRouteTypes {
     | '/recuperar-senha'
     | '/redefinir-senha'
     | '/sw.js'
+    | '/termos'
     | '/visitante'
     | '/.well-known/oauth-protected-resource'
     | '/admin/ajustes'
@@ -1294,6 +1375,7 @@ export interface FileRouteTypes {
     | '/barbeiro/avaliacoes'
     | '/barbeiro/barbearias'
     | '/barbeiro/caixa'
+    | '/barbeiro/campanhas'
     | '/barbeiro/casa'
     | '/barbeiro/categorias'
     | '/barbeiro/clientes'
@@ -1303,6 +1385,7 @@ export interface FileRouteTypes {
     | '/barbeiro/cortai'
     | '/barbeiro/cortai-atividade'
     | '/barbeiro/crescimento'
+    | '/barbeiro/crm'
     | '/barbeiro/divulgar'
     | '/barbeiro/equipe'
     | '/barbeiro/fidelidade'
@@ -1339,6 +1422,9 @@ export interface FileRouteTypes {
     | '/api/public/alvo-ia'
     | '/api/public/funil'
     | '/barbeiro/clientes/$id'
+    | '/barbeiro/equipe-dados/$userId'
+    | '/barbeiro/equipe-data/$userId'
+    | '/barbeiro/equipe_/$userId'
     | '/barbeiro/marca/chat'
     | '/barbeiro/marca/layout-tema'
     | '/barbeiro/clientes/'
@@ -1370,6 +1456,7 @@ export interface RootRouteChildren {
   ComecarRoute: typeof ComecarRoute
   ConfigurarMinhaBarbeariaRoute: typeof ConfigurarMinhaBarbeariaRoute
   ConviteRoute: typeof ConviteRoute
+  CookiesRoute: typeof CookiesRoute
   EscolherRoute: typeof EscolherRoute
   LoginRoute: typeof LoginRoute
   McpRoute: typeof McpRoute
@@ -1377,6 +1464,7 @@ export interface RootRouteChildren {
   RecuperarSenhaRoute: typeof RecuperarSenhaRoute
   RedefinirSenhaRoute: typeof RedefinirSenhaRoute
   SwDotjsRoute: typeof SwDotjsRoute
+  TermosRoute: typeof TermosRoute
   VisitanteRoute: typeof VisitanteRoute
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   AgendarSlugRoute: typeof AgendarSlugRoute
@@ -1478,6 +1566,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ConviteRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/cookies': {
+      id: '/cookies'
+      path: '/cookies'
+      fullPath: '/cookies'
+      preLoaderRoute: typeof CookiesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/escolher': {
       id: '/escolher'
       path: '/escolher'
@@ -1525,6 +1620,13 @@ declare module '@tanstack/react-router' {
       path: '/sw.js'
       fullPath: '/sw.js'
       preLoaderRoute: typeof SwDotjsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/termos': {
+      id: '/termos'
+      path: '/termos'
+      fullPath: '/termos'
+      preLoaderRoute: typeof TermosRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/visitante': {
@@ -1765,6 +1867,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BarbeiroCaixaRouteImport
       parentRoute: typeof BarbeiroRoute
     }
+    '/barbeiro/campanhas': {
+      id: '/barbeiro/campanhas'
+      path: '/campanhas'
+      fullPath: '/barbeiro/campanhas'
+      preLoaderRoute: typeof BarbeiroCampanhasRouteImport
+      parentRoute: typeof BarbeiroRoute
+    }
     '/barbeiro/casa': {
       id: '/barbeiro/casa'
       path: '/casa'
@@ -1826,6 +1935,13 @@ declare module '@tanstack/react-router' {
       path: '/crescimento'
       fullPath: '/barbeiro/crescimento'
       preLoaderRoute: typeof BarbeiroCrescimentoRouteImport
+      parentRoute: typeof BarbeiroRoute
+    }
+    '/barbeiro/crm': {
+      id: '/barbeiro/crm'
+      path: '/crm'
+      fullPath: '/barbeiro/crm'
+      preLoaderRoute: typeof BarbeiroCrmRouteImport
       parentRoute: typeof BarbeiroRoute
     }
     '/barbeiro/divulgar': {
@@ -2066,6 +2182,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BarbeiroClientesIdRouteImport
       parentRoute: typeof BarbeiroClientesRoute
     }
+    '/barbeiro/equipe-dados/$userId': {
+      id: '/barbeiro/equipe-dados/$userId'
+      path: '/equipe-dados/$userId'
+      fullPath: '/barbeiro/equipe-dados/$userId'
+      preLoaderRoute: typeof BarbeiroEquipeDadosUserIdRouteImport
+      parentRoute: typeof BarbeiroRoute
+    }
+    '/barbeiro/equipe-data/$userId': {
+      id: '/barbeiro/equipe-data/$userId'
+      path: '/equipe-data/$userId'
+      fullPath: '/barbeiro/equipe-data/$userId'
+      preLoaderRoute: typeof BarbeiroEquipeDataUserIdRouteImport
+      parentRoute: typeof BarbeiroRoute
+    }
+    '/barbeiro/equipe_/$userId': {
+      id: '/barbeiro/equipe_/$userId'
+      path: '/equipe/$userId'
+      fullPath: '/barbeiro/equipe/$userId'
+      preLoaderRoute: typeof BarbeiroEquipeUserIdRouteImport
+      parentRoute: typeof BarbeiroRoute
+    }
     '/barbeiro/marca/': {
       id: '/barbeiro/marca/'
       path: '/marca'
@@ -2265,6 +2402,7 @@ interface BarbeiroRouteChildren {
   BarbeiroAvaliacoesRoute: typeof BarbeiroAvaliacoesRoute
   BarbeiroBarbeariasRoute: typeof BarbeiroBarbeariasRoute
   BarbeiroCaixaRoute: typeof BarbeiroCaixaRoute
+  BarbeiroCampanhasRoute: typeof BarbeiroCampanhasRoute
   BarbeiroCasaRoute: typeof BarbeiroCasaRoute
   BarbeiroCategoriasRoute: typeof BarbeiroCategoriasRoute
   BarbeiroClientesRoute: typeof BarbeiroClientesRouteWithChildren
@@ -2274,6 +2412,7 @@ interface BarbeiroRouteChildren {
   BarbeiroCortaiRoute: typeof BarbeiroCortaiRoute
   BarbeiroCortaiAtividadeRoute: typeof BarbeiroCortaiAtividadeRoute
   BarbeiroCrescimentoRoute: typeof BarbeiroCrescimentoRoute
+  BarbeiroCrmRoute: typeof BarbeiroCrmRoute
   BarbeiroDivulgarRoute: typeof BarbeiroDivulgarRoute
   BarbeiroEquipeRoute: typeof BarbeiroEquipeRoute
   BarbeiroFidelidadeRoute: typeof BarbeiroFidelidadeRoute
@@ -2298,6 +2437,9 @@ interface BarbeiroRouteChildren {
   BarbeiroTemasRoute: typeof BarbeiroTemasRoute
   BarbeiroWhatsappAvisosRoute: typeof BarbeiroWhatsappAvisosRoute
   BarbeiroIndexRoute: typeof BarbeiroIndexRoute
+  BarbeiroEquipeDadosUserIdRoute: typeof BarbeiroEquipeDadosUserIdRoute
+  BarbeiroEquipeDataUserIdRoute: typeof BarbeiroEquipeDataUserIdRoute
+  BarbeiroEquipeUserIdRoute: typeof BarbeiroEquipeUserIdRoute
   BarbeiroMarcaChatRoute: typeof BarbeiroMarcaChatRoute
   BarbeiroMarcaLayoutTemaRoute: typeof BarbeiroMarcaLayoutTemaRoute
   BarbeiroMarcaIndexRoute: typeof BarbeiroMarcaIndexRoute
@@ -2313,6 +2455,7 @@ const BarbeiroRouteChildren: BarbeiroRouteChildren = {
   BarbeiroAvaliacoesRoute: BarbeiroAvaliacoesRoute,
   BarbeiroBarbeariasRoute: BarbeiroBarbeariasRoute,
   BarbeiroCaixaRoute: BarbeiroCaixaRoute,
+  BarbeiroCampanhasRoute: BarbeiroCampanhasRoute,
   BarbeiroCasaRoute: BarbeiroCasaRoute,
   BarbeiroCategoriasRoute: BarbeiroCategoriasRoute,
   BarbeiroClientesRoute: BarbeiroClientesRouteWithChildren,
@@ -2322,6 +2465,7 @@ const BarbeiroRouteChildren: BarbeiroRouteChildren = {
   BarbeiroCortaiRoute: BarbeiroCortaiRoute,
   BarbeiroCortaiAtividadeRoute: BarbeiroCortaiAtividadeRoute,
   BarbeiroCrescimentoRoute: BarbeiroCrescimentoRoute,
+  BarbeiroCrmRoute: BarbeiroCrmRoute,
   BarbeiroDivulgarRoute: BarbeiroDivulgarRoute,
   BarbeiroEquipeRoute: BarbeiroEquipeRoute,
   BarbeiroFidelidadeRoute: BarbeiroFidelidadeRoute,
@@ -2346,6 +2490,9 @@ const BarbeiroRouteChildren: BarbeiroRouteChildren = {
   BarbeiroTemasRoute: BarbeiroTemasRoute,
   BarbeiroWhatsappAvisosRoute: BarbeiroWhatsappAvisosRoute,
   BarbeiroIndexRoute: BarbeiroIndexRoute,
+  BarbeiroEquipeDadosUserIdRoute: BarbeiroEquipeDadosUserIdRoute,
+  BarbeiroEquipeDataUserIdRoute: BarbeiroEquipeDataUserIdRoute,
+  BarbeiroEquipeUserIdRoute: BarbeiroEquipeUserIdRoute,
   BarbeiroMarcaChatRoute: BarbeiroMarcaChatRoute,
   BarbeiroMarcaLayoutTemaRoute: BarbeiroMarcaLayoutTemaRoute,
   BarbeiroMarcaIndexRoute: BarbeiroMarcaIndexRoute,
@@ -2368,6 +2515,7 @@ const rootRouteChildren: RootRouteChildren = {
   ComecarRoute: ComecarRoute,
   ConfigurarMinhaBarbeariaRoute: ConfigurarMinhaBarbeariaRoute,
   ConviteRoute: ConviteRoute,
+  CookiesRoute: CookiesRoute,
   EscolherRoute: EscolherRoute,
   LoginRoute: LoginRoute,
   McpRoute: McpRoute,
@@ -2375,6 +2523,7 @@ const rootRouteChildren: RootRouteChildren = {
   RecuperarSenhaRoute: RecuperarSenhaRoute,
   RedefinirSenhaRoute: RedefinirSenhaRoute,
   SwDotjsRoute: SwDotjsRoute,
+  TermosRoute: TermosRoute,
   VisitanteRoute: VisitanteRoute,
   Char91DotwellKnownChar93OauthProtectedResourceRoute:
     Char91DotwellKnownChar93OauthProtectedResourceRoute,

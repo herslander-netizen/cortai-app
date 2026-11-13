@@ -22,6 +22,12 @@ export function TrocaDeVisualizacao({ chave, children }: { chave: string; childr
             : { opacity: 0, y: -20 }
         }
         transition={reduzirMovimento ? { duration: 0 } : { duration: 0.28, ease: SUAVE }}
+        // A Lista e a Timeline saem/entram ao mesmo tempo (paridade v3.7) e a Timeline pinta
+        // listras repetidas (fora de expediente) e dezenas de cartões: sem promover a própria
+        // camada, o navegador repinta esse conteúdo a cada quadro da transição em vez de só
+        // compor um bitmap já pronto — é isso que trava a troca em aparelhos mais fracos
+        // enquanto o resto da Agenda (que não reempilha duas visões grandes) flui normal.
+        style={reduzirMovimento ? {} : { willChange: "transform, opacity" }}
       >
         {children}
       </motion.div>
