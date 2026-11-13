@@ -112,6 +112,13 @@ BEGIN
   IF NOT public.chamada_do_servidor() THEN
     RAISE EXCEPTION 'somente servidor';
   END IF;
+  -- Injeção SOMENTE na bancada para simular uma RPC que retorna ID alheio.
+  -- A RPC oficial NÃO possui este caminho de teste.
+  IF nullif(current_setting('test.fila_id_agendamento_inesperado', true), '') IS NOT NULL THEN
+    RETURN jsonb_build_object(
+      'agendamento_id', current_setting('test.fila_id_agendamento_inesperado', true)
+    );
+  END IF;
   SELECT duracao_min INTO v_duracao FROM public.servicos
     WHERE id = _servico_id AND tenant_id = _tenant_id;
   IF NOT FOUND THEN
