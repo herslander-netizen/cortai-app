@@ -188,12 +188,13 @@ BEGIN
   -- Uma consulta anterior do aplicativo nunca substitui validação no banco.
   IF NOT EXISTS (
     SELECT 1 FROM public.profissionais
-    WHERE id = _profissional_id AND tenant_id = _tenant_id
+    WHERE id = _profissional_id AND tenant_id = _tenant_id AND ativo = true
   ) THEN
     RETURN jsonb_build_object('ok', false, 'motivo', 'profissional_invalido');
   END IF;
   SELECT * INTO v_s FROM public.servicos
-    WHERE id = _servico_id AND tenant_id = _tenant_id AND duracao_min > 0;
+    WHERE id = _servico_id AND tenant_id = _tenant_id
+      AND duracao_min > 0 AND ativo = true;
   IF NOT FOUND THEN
     RETURN jsonb_build_object('ok', false, 'motivo', 'servico_invalido');
   END IF;
