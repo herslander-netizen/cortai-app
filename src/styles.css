@@ -1877,6 +1877,8 @@ body:has(.auth-screen) {
   --primary: #087cf0;
   --primary-foreground: #ffffff;
   --ring: #00b7f4;
+  /* Campos usam --cartao como fundo; sem isto herdam o cartão escuro do modo padrão. */
+  --cartao: #eaf2fb;
 }
 
 .auth-screen--claro .brand-logo-on-dark {

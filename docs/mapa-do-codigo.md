@@ -168,14 +168,16 @@ A guarda de rota é feita por `exigirPapel()` em `src/lib/guarda.ts`, no `before
 - **Casts sem efeito:** há 63 `as never` em chamadas ao banco, mas os tipos (`types.ts`) já incluem essas tabelas e RPCs. Os casts são sobras que só escondem erros de tipo.
 - **Auditoria de segurança:** `docs/auditoria-2026-10-09.md`.
 
-## Estado da verificação (09/10/2026, commit `7ed1c6a`)
+## Estado da verificação (13/11/2026, commit `f64a270`)
 
 | Verificação | Resultado |
 |---|---|
 | `tsc --noEmit` | passa, sem erros |
 | `vite build` | passa (gera o worker Cloudflare em `.output/`) |
-| `vitest run` | 888 passam, 8 falham, 1 pulado |
-| `eslint .` | 5.042 problemas: 4.825 de formatação Prettier (corrigíveis com `--fix`), 184 `no-explicit-any`, 29 avisos |
+| `vitest run` | 1.425 passam, 0 falham, 1 pulado (152 arquivos) |
+| `eslint .` | 5.184 problemas: 4.966 corrigíveis com `--fix` (formatação Prettier), 29 avisos |
 
-- **As 8 falhas** são todas de `src/lib/whatsapp/lembretes-numeros.test.ts`. O teste usa horários fixos (`2026-10-09T13:00Z` e `2026-10-10T17:00Z`) e passou a falhar quando esse horário ficou no passado. Com as mesmas datas deslocadas uma semana para frente, os 10 casos passam. **O código está correto; o teste vence com o tempo.** A correção é gerar as datas a partir de `Date.now()`, como o próprio teste já faz em `futuro`.
-- **O lint** nunca foi aplicado ao repositório inteiro. Rodar `prettier --write .` resolveria os 4.825 de formatação de uma vez, mas é uma mudança grande em quase todos os arquivos. Isso só deve ser feito com autorização, porque gera um commit enorme no Lovable.
+- **As 8 falhas antigas** de `src/lib/whatsapp/lembretes-numeros.test.ts` foram resolvidas: o teste passou a usar relógio fixo.
+- **O build reescreve dois arquivos** (`src/routes/mcp.ts` e `src/routes/[.well-known]/oauth-protected-resource.ts`, troca do import por import dinâmico). Depois de rodar `vite build` ou `vite dev` localmente, restaure-os com `git checkout --` antes de commitar.
+- **O lint** nunca foi aplicado ao repositório inteiro. Rodar `prettier --write .` resolveria a formatação de uma vez, mas é uma mudança grande em quase todos os arquivos. Isso só deve ser feito com autorização, porque gera um commit enorme no Lovable.
+- **Conferência visual das telas públicas (390px e 1280px):** `/apresentacao`, `/login`, `/recuperar-senha`, `/configurar-minha-barbearia`, `/barbearias`, `/visitante` e `/privacidade` sem estouro horizontal. As telas logadas (`/barbeiro`, `/app`, `/admin`) não foram conferidas: dependem de uma conta de teste.
