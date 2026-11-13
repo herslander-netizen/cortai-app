@@ -222,13 +222,21 @@ export const comandarConversaDaCentral = createServerFn({ method: "POST" })
 
     // Auditoria sem texto e sem telefone. Falha de auditoria é visível no servidor,
     // mas não repete uma transição já confirmada.
-    const { error: erroAuditoria } = await db.from("auditoria_da_barbearia").insert({
-      tenant_id: tenantId,
-      ator_user_id: context.userId,
-      acao: `whatsapp.conversa_${data.acao}`,
-      alvo: data.conversaId,
-      detalhes: { origem: "central_atendimento" },
-    });
-    if (erroAuditoria) console.error("[central-atendimento] falha ao registrar auditoria", erroAuditoria.code);
+    try {
+      const { error: erroAuditoria } = await db.from("auditoria_da_barbearia").insert({
+        tenant_id: tenantId,
+        ator_user_id: context.userId,
+        acao: `whatsapp.conversa_${data.acao}`,
+        alvo: data.conversaId,
+        detalhes: { origem: "central_atendimento" },
+      });
+      if (erroAuditoria) {
+        console.error("[central-atendimento] falha ao registrar auditoria", erroAuditoria.code);
+      }
+    } catch {
+      // O comando já foi gravado. Nunca informar "nada foi mudado" por erro
+      // posterior da auditoria (tampouco repetir a transição automaticamente).
+      console.error("[central-atendimento] auditoria indisponível após comando confirmado");
+    }
     return { ok: true };
   });
