@@ -117,7 +117,7 @@ A guarda de rota é feita por `exigirPapel()` em `src/lib/guarda.ts`, no `before
 - **Saída:** `notificacoes.server.ts` (motor único de avisos ao cliente), `conexao-envio.server.ts` (escolhe o remetente), `modelos.ts` (formato dentro e fora da janela de 24h), `gateway.server.ts` (Meta ou Evolution), `erros-meta.ts` e `falhas-envio.server.ts`.
 - **Varredura a cada 15 min** (`api/public/whatsapp/automacoes`, via pg_cron): lembretes, teste grátis, postagens nas redes e saúde das conexões (`monitor-conexoes.server.ts`).
 - **Equipe:** `identidade.server.ts` (telefone verificado), `aviso-equipe*.server.ts`, `aviso-atraso.server.ts`.
-- **Motor determinístico antigo:** `motor/motor.server.ts` (1334 linhas) e `motor/agrupador.server.ts` **não são importados por nenhum arquivo**. Só `vocabulario`, `intencoes`, `estado` e `entendimento-whatsapp` continuam em uso.
+- **Motor determinístico antigo:** `motor/motor.server.ts`, `motor/agrupador.server.ts` e `motor/financeiro-cliente.server.ts` foram removidos em 13/11/2026 (ninguém importava). Seguem em uso `vocabulario`, `intencoes`, `estado` e `entendimento-whatsapp`.
 
 ### Avisos, sininho e push
 - `avisos/catalogo.ts` e `avisos/emitir.server.ts`: catálogo de eventos que decide quem recebe e por qual canal.
@@ -156,11 +156,10 @@ A guarda de rota é feita por `exigirPapel()` em `src/lib/guarda.ts`, no `before
 
 ## Código que ninguém importa (candidatos a revisão, nunca apagar sem autorização)
 
-- **WhatsApp:** `lib/whatsapp/motor/motor.server.ts` (1334 linhas) e `motor/agrupador.server.ts`.
-- **Painel:** `lib/painel.functions.ts` (534 linhas).
-- **Telas:** `components/home/SecoesHome.tsx` (863 linhas), `components/barbeiro/HubModulos.tsx`, `PainelComercial.tsx`, `agenda/AgoraProximos.tsx`, `layout/FaixaPendencias.tsx`, `painel/Blocos.tsx`, `planos/RecursoBloqueado.tsx`.
 - **IA:** `components/ia/FabCortai.tsx`. O plano da CortAI quer reaproveitá-lo no cabeçalho.
-- **Bibliotecas de base:** `components/ai-elements/prompt-input.tsx` e `suggestion.tsx`, e vários componentes shadcn sem uso em `components/ui/` (sidebar, carousel, chart, form, table e outros).
+- **Bibliotecas de base:** 29 componentes shadcn sem uso em `components/ui/` (sidebar, carousel, chart, form, table e outros). São o kit de base do Lovable e não entram no pacote final.
+- **Avaliação:** os arquivos de `promptfoo/` são usados pela configuração do Promptfoo, não pelo app.
+- **Removidos em 13/11/2026, com autorização do dono (15 arquivos, 5.104 linhas):** o motor antigo do WhatsApp, `lib/painel.functions.ts` e `lib/painel/oportunidades.server.ts`, `components/home/SecoesHome.tsx`, `barbeiro/HubModulos.tsx`, `barbeiro/PainelComercial.tsx`, `agenda/AgoraProximos.tsx`, `layout/FaixaPendencias.tsx`, `painel/Blocos.tsx`, `planos/RecursoBloqueado.tsx`, `ia/BigodeCortai.tsx`, `ai-elements/prompt-input.tsx` e `suggestion.tsx`. Para recuperar algum, use o histórico do git.
 
 ## Divergências conhecidas
 
