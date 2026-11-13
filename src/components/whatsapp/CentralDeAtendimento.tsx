@@ -143,7 +143,7 @@ export function CentralDeAtendimento() {
           </div>
           <div className="flex gap-2 overflow-x-auto pb-1" role="group" aria-label="Filtrar conversas por situação">
             {FILTROS.map(valor => (
-              <Button variant="ghost"
+              <button
                 key={valor}
                 type="button"
                 aria-pressed={filtro === valor}
@@ -151,17 +151,17 @@ export function CentralDeAtendimento() {
                 className={`min-h-12 shrink-0 rounded-full border px-3 text-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring motion-reduce:transition-none ${filtro === valor ? "border-gold bg-ink3 text-paper" : "border-line2 text-mute"}`}
               >
                 {valor === "todas" ? "Todas" : ROTULOS_DA_CONVERSA[valor]}
-              </Button>
+              </button>
             ))}
           </div>
           <ul className="max-h-[600px] space-y-2 overflow-y-auto" aria-label="Conversas encontradas">
             {filtradas.map(conversa => (
               <li key={conversa.id}>
-                <Button variant="ghost"
+                <button
                   type="button"
                   aria-pressed={selecao === conversa.id}
                   onClick={() => { setSelecao(conversa.id); setAviso(null); }}
-                  className={`w-full rounded-[16px] border p-3 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring motion-reduce:transition-none ${selecao === conversa.id ? "border-gold bg-ink3" : "border-transparent bg-ink2"}`}
+                  className={`block min-h-12 w-full whitespace-normal rounded-[16px] border p-3 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring motion-reduce:transition-none ${selecao === conversa.id ? "border-gold bg-ink3" : "border-transparent bg-ink2"}`}
                 >
                   <div className="flex items-start justify-between gap-2">
                     <span className="truncate text-sm font-semibold text-paper">{conversa.nome}</span>
@@ -175,10 +175,10 @@ export function CentralDeAtendimento() {
                       </span>
                     ) : null}
                   </div>
-                  <p className="mt-2 line-clamp-2 text-xs leading-relaxed text-mute">
+                  <p className="mt-2 line-clamp-2 whitespace-normal break-words text-xs leading-relaxed text-mute">
                     {conversa.ultimaOrigem ? `${ORIGEM[conversa.ultimaOrigem]} · ` : ""}{conversa.previa}
                   </p>
-                </Button>
+                </button>
               </li>
             ))}
             {lista.isLoading && !lista.data ? <li className="p-4 text-sm text-mute">Carregando conversas…</li> : null}
