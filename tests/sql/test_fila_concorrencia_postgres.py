@@ -370,6 +370,34 @@ def test_manual_conversion_rejects_unrelated_appointment():
     ) == "aguardando"
 
 
+def test_no_offer_for_inactive_professional_or_service():
+    """Desativar equipe/catálogo não pode disparar uma oferta da fila."""
+    x = fixture()
+    with db() as c:
+        c.execute(
+            "UPDATE public.profissionais SET ativo=false WHERE id=%s",
+            (x["prof"],),
+        )
+        no_prof = reserve(c, x)
+        assert no_prof["ok"] is False and no_prof["motivo"] == "profissional_invalido"
+        c.execute(
+            "UPDATE public.profissionais SET ativo=true WHERE id=%s",
+            (x["prof"],),
+        )
+        c.execute(
+            "UPDATE public.servicos SET ativo=false WHERE id=%s",
+            (x["service"],),
+        )
+        no_service = reserve(c, x)
+        assert no_service["ok"] is False and no_service["motivo"] == "servico_invalido"
+    assert scalar(
+        "SELECT count(*) FROM public.ofertas_da_fila WHERE fila_id=%s", x["entry1"]
+    ) == 0
+    assert scalar(
+        "SELECT status FROM public.fila_de_espera WHERE id=%s", x["entry1"]
+    ) == "aguardando"
+
+
 CASES = [
     test_two_slots_one_entry,
     test_one_slot_two_entries,
@@ -379,6 +407,7 @@ CASES = [
     test_convert_vs_reserve,
     test_two_manual_conversions,
     test_manual_conversion_rejects_unrelated_appointment,
+    test_no_offer_for_inactive_professional_or_service,
     test_expire_vs_accept,
     test_tenant_isolation,
     test_walk_in_queue_without_offer,
