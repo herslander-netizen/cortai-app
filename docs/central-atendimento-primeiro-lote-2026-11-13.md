@@ -11,7 +11,7 @@ Data: 13/11/2026. Branch-base oficial da prévia: `cloudflare-workers-migration-
   - **Assumir:** `status='humano'`, `modo_humano=true`, `modo_humano_ate=NULL`. IA/bot silenciosos nessa conversa; sem mexer no interruptor global.
   - **Liberar IA:** `status='ativa'`, `modo_humano=false`, `modo_humano_ate=NULL`, `ia_ativa=true`. A habilitação global/plano ainda controla se haverá resposta.
   - **Resolver:** `status='encerrada'`, `modo_humano=true`, `modo_humano_ate=NULL`, `ia_ativa=false`. Só comando explícito reabre.
-- Backend usa `requireSupabaseAuth` + vínculo ativo `tenantIdDoMembro` + `ver_cortai` para leitura e `gerenciar_whatsapp` + recurso `secretaria_whatsapp` para escrita. TODAS as consultas com admin têm `tenant_id` explícito. Atualização com `atualizado_em` da tela evita sobrescrever a intervenção de outro aparelho; em conflito, pede releitura.
+- Backend usa `requireSupabaseAuth` + vínculo ativo `tenantIdDoMembro` + `ver_cortai` e recurso `secretaria_whatsapp` para leitura. Para escrita exige `assumir_conversa` ou `gerenciar_conversas` em **Assumir/Liberar IA**, e `gerenciar_conversas` em **Resolver**; exige também `secretaria_whatsapp`. Não exige `gerenciar_whatsapp`, reservado para gerir a conexão. TODAS as consultas com admin têm `tenant_id` explícito. Atualização com `atualizado_em` da tela evita sobrescrever a intervenção de outro aparelho; em conflito, pede releitura.
 - O helper `humanoNoControle` e a proteção final de contingência passam a respeitar, além da flag e do prazo, os valores reais `status='humano'` e `status='encerrada'`. São controles de SILÊNCIO por conversa, não decisão sobre quem mandou o evento Evolution.
 - Deep-link antigo `/barbeiro/cortai?aba=conversas` agora direciona à aba principal de Conversas da tela Atividade.
 
@@ -21,7 +21,7 @@ Data: 13/11/2026. Branch-base oficial da prévia: `cloudflare-workers-migration-
 
 ## Limites
 
-- A classificação visual **Nova** é baseada na amostra recente de mensagens, não na prova de inexistência de todo o histórico. A listagem consulta no máximo 300 mensagens recentes entre até 40 conversas; uma conversa muito ativa pode reduzir a amostragem das demais. Tratar isso como triagem, não como informação de auditoria definitiva.
+- A listagem usa até 40 conversas e consulta a última mensagem de **cada** conversa com `referencedTable` e limite por relação (em vez da amostra global de 300). A classificação visual `Nova` ainda é um estado operacional derivado, não prova de ausência de conversas em outro canal.
 - A tela **não envia mensagens nem faz ações de agenda diretamente**; preserva os fluxos oficiais do Flow Bot, Flow IA e agenda. Histórico detalhado de regras acionadas, rastro de decisões, construtor AutoResponder e composição de respostas ficam para próximos lotes.
 - Alterações via comando precisam ser validadas no aplicativo autenticado e em dispositivos simultâneos. CI/testes puros não substituem a prova de bloqueio no webhook Evolution.
 - Nenhuma credencial, número completo, texto privado de conversa ou segredo vai para logs de aplicação/auditoria.
@@ -29,7 +29,7 @@ Data: 13/11/2026. Branch-base oficial da prévia: `cloudflare-workers-migration-
 
 ## Plano de homologação em dois números, sem terceiros
 
-1. Abrir a Central autenticada no estabelecimento de testes e confirmar que ela apresenta somente conversas desse tenant, inclusive com nomes longos e viewport estreito (360/390px), e que funcionário sem `gerenciar_whatsapp` só vê, não altera.
+1. Abrir a Central autenticada no estabelecimento de testes e confirmar que ela apresenta somente conversas desse tenant, inclusive com nomes longos e viewport estreito (360/390px). Com `ver_cortai`, o profissional pode visualizar; com `assumir_conversa`, pode assumir/liberar; apenas com `gerenciar_conversas` pode resolver. `gerenciar_whatsapp` não deve ser necessário.
 2. Cliente envia do WhatsApp secundário uma solicitação; acompanhar o Flow Bot na conversa.
 3. No painel, escolher **Assumir** e confirmar persistência de `status=humano` e `modo_humano=true`. Cliente manda nova mensagem: garantir que NÃO haja resposta automática adicional. A central permanece aberta após recarregar.
 4. Responder pelo **WhatsApp efetivamente conectado**; conferir `fromMe=true` e `gerada_por_humano=true` no registro, sem confundir mensagem pessoal com mensagem da empresa.
@@ -40,7 +40,7 @@ Data: 13/11/2026. Branch-base oficial da prévia: `cloudflare-workers-migration-
 
 ## Próximos lotes
 
-1. Tornar a leitura da última mensagem por conversa exata e paginada (e não amostrada) em backend de leitura, com índice existente ou RPC revisada.
+1. Evoluir a listagem já corrigida para paginação de conversas e histórico além das 40/50 mais recentes, sem carregar todo o histórico no celular.
 2. Criar rastreabilidade por evento: regra acionada, rastro Flow Bot/IA, entrega confirmada pelo provedor e ações gravadas no calendário.
 3. Criar editor guiado das regras com versão, simulação, aprovação e fallback, sem enviar diretamente ou burlar o consentimento de WhatsApp.
 4. Refinar UX mobile/desktop após inspeção visual autenticada da prévia.
@@ -54,3 +54,11 @@ A posse é **por conversa**, inclusive para telefone pessoal que eventualmente s
 O comando da Central foi isolado em `src/lib/whatsapp/comandos-central.ts` para permitir testes determinísticos. `comandos-central.test.ts` cobre os três estados, tenant errado, timestamps obsoletos, corrida no UPDATE condicional, erro de banco e ordem da autenticação/autorização/recurso no servidor. Há também um teste de arquitetura que confirma a barreira no caminho de recebimento **antes** das respostas a lembretes/áudio.
 
 Limitações persistentes: não houve teste visual autenticado, conexão via navegador ou envio real de WhatsApp; CI e mocks não representam um webhook de produção nem fazem prova de entrega humana. Antes de integrar à prévia, homologar o roteiro acima. O código acrescenta uma proteção de processamento, mas não representa trava transacional em cada ponto possível de saída: concorrências entre a leitura de posse e o envio efetivo devem continuar sob avaliação.
+
+## Revisão de papéis e layout — 13/11/2026
+
+Consulta ao banco de prévia e ao catálogo de permissões `src/lib/permissoes.ts` confirmou que `gerenciar_whatsapp` **não** deve autorizar respostas humanas: é um privilégio de conexão/configuração. O fluxo existente distingue `assumir_conversa` e `gerenciar_conversas`. A Central passou a usar esses direitos no servidor **e** nos botões, com testes de acesso e falha fechada quando nenhum direito corresponde. Quem pode assumir também pode devolver à automação; encerrar exige gestão. Equipe não altera a conexão para assumir atendimento.
+
+Os cartões de conversa não usam mais o `Button` global (inline-flex, horizontal, nowrap e altura fixa), que comprimira várias linhas de conteúdo na tela mobile; a estrutura nativa preserva empilhamento, quebras de texto, área mínima de toque e foco visível. Teste estrutural acompanha a regressão, mas **não substitui** captura Android real.
+
+Risco comercial separado (issue #73): a matriz de plano ausente pode ser interpretada como liberada por `recursoLiberado`; a governança completa de planos permanece fora deste PR e precisa de revisão específica antes de comercialização.
