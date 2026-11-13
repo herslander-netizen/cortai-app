@@ -177,7 +177,7 @@ export function ConfirmacaoAgendamento({
                 {confirmacao.mensagemDoNegocio}
               </p>
             ) : null}
-            {textoFinal?.trim() && textoFinal.trim() !== "Obrigado!" ? (
+            {textoFinal?.trim() && !["Obrigado!", "Tudo certo. Seu horário está reservado!"].includes(textoFinal.trim()) ? (
               <p className="confirmacao-mensagem whitespace-pre-line">{textoFinal}</p>
             ) : null}
 
