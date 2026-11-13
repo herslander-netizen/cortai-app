@@ -5,11 +5,12 @@ import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 
 import { AdminScreen } from "@/components/layout/AdminScreen";
-import { Carregando } from "@/components/layout/Carregando";
+import { EsqueletoLista, EsqueletoMetricas } from "@/components/layout/Esqueleto";
+import { PainelSaudeWhatsapp } from "@/components/admin/PainelSaudeWhatsapp";
 import { CodigoPorNumeroDoNegocio } from "@/components/admin/CodigoPorNumeroDoNegocio";
 import { QrCodeReal } from "@/components/ia/QrCodeReal";
-import { Aviso } from "@/components/ui/aviso";
 import { Button } from "@/components/ui/button";
+import { Aviso } from "@/components/ui/aviso";
 import {
   definirNotificacoesDoNegocio,
   listarWhatsappDosNegocios,
@@ -36,16 +37,6 @@ export const Route = createFileRoute("/admin/whatsapp")({
   component: AdminWhatsappPage,
 });
 
-const ROTULO: Record<string, string> = {
-  conectado: "Conectado",
-  qr_pronto: "Aguardando leitura do QR Code",
-  pendente: "Conectando",
-  conectando: "Conectando",
-  erro: "Com erro",
-  desconectado: "Desconectado",
-  sem_conexao: "Sem WhatsApp",
-};
-
 type Acao = "conectar" | "qr" | "reconectar" | "desconectar" | "sincronizar";
 
 function AdminWhatsappPage() {
@@ -62,38 +53,27 @@ function AdminWhatsappPage() {
       title="WhatsApp"
       subtitle="Uma conexão por estabelecimento. Notificações saem pelo número da própria empresa."
     >
-      {negocios.isLoading ? <Carregando /> : null}
+      {negocios.isLoading && !negocios.data ? (
+        <>
+          <EsqueletoMetricas colunas={4} />
+          <EsqueletoLista linhas={5} />
+        </>
+      ) : null}
       {negocios.isError ? (
         <Aviso tom="acao">
-          Acesso negado ou indisponível.
+          {negocios.data
+            ? "Falha ao atualizar as conexões. Os estados abaixo são da última leitura disponível e podem estar desatualizados."
+            : "Não foi possível consultar as conexões dos estabelecimentos."}
         </Aviso>
       ) : null}
-      <ul className="space-y-2">
-        {(negocios.data ?? []).map((n) => (
-          <li key={n.tenantId} className="rounded-[12px] bg-[var(--figaro-surface-container,var(--ink2))] p-2">
-            <Button
-              type="button"
-              variant="ghost"
-              className="min-h-12 w-full justify-between gap-3 rounded-[12px] px-3 text-left"
-              onClick={() => setAberto(aberto === n.tenantId ? null : n.tenantId)}
-              aria-expanded={aberto === n.tenantId}
-            >
-              <span className="min-w-0">
-                <span className="block truncate text-sm font-semibold text-paper">{n.nome}</span>
-                <span className="block text-xs text-mute2">
-                  {ROTULO[n.status] ?? n.status}
-                  {n.compartilhada ? " · número compartilhado do Flow" : ""}
-                  {n.numero ? ` · ${n.numero}` : ""}
-                </span>
-              </span>
-              <span className="shrink-0 text-xs text-mute">
-                Avisos {n.notificacoesAtivas ? "ligados" : "desligados"}
-              </span>
-            </Button>
-            {aberto === n.tenantId ? <Detalhe negocio={n} /> : null}
-          </li>
-        ))}
-      </ul>
+      {negocios.data ? (
+        <PainelSaudeWhatsapp
+          negocios={negocios.data}
+          aberto={aberto}
+          aoAlternar={(id) => setAberto(aberto === id ? null : id)}
+          detalhe={(n) => <Detalhe negocio={n} />}
+        />
+      ) : null}
     </AdminScreen>
   );
 }
@@ -115,13 +95,27 @@ function Detalhe({ negocio: n }: { negocio: WhatsappDoNegocio }) {
   const temPropria = n.status !== "sem_conexao" && !n.compartilhada;
 
   return (
-    <div className="mt-3 rounded-[12px] bg-[var(--figaro-surface-container-high,var(--ink3))] p-4">
+    <div className="pt-4">
       {dialogo}
-      {n.ultimoErro ? <p className="text-xs text-mute2">Último erro: {n.ultimoErro}</p> : null}
+      {n.ultimoErro ? (
+        <p className="break-words text-xs text-mute2">
+          Último erro registrado: {n.ultimoErro.slice(0, 250)}
+        </p>
+      ) : null}
       {n.verificadoEm ? (
         <p className="text-xs text-mute2">
           Verificado em{" "}
           {new Date(n.verificadoEm).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" })}
+        </p>
+      ) : null}
+      {n.incidenteAberto ? (
+        <p className="mt-2 text-xs font-medium text-brick">
+          Há uma ocorrência aberta para este estabelecimento.
+        </p>
+      ) : null}
+      {n.tentativasReconexao > 0 ? (
+        <p className="mt-2 text-xs text-mute2">
+          Tentativas automáticas de reconexão registradas: {n.tentativasReconexao}
         </p>
       ) : null}
       {n.temNumeroAntigoDeAvisos ? (
