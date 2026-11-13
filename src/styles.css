@@ -5370,6 +5370,9 @@ button.agenda-nome:hover {
   min-height: 64px;
   border-left: 4px solid transparent;
   padding: 12px 8px;
+  /* Adia o layout e a pintura dos cartões fora da tela na troca de visualização. */
+  content-visibility: auto;
+  contain-intrinsic-size: auto 96px;
   transition:
     background-color 150ms ease,
     border-color 150ms ease;
