@@ -186,6 +186,8 @@ function snapshot(row: Database["public"]["Tables"]["tenants"]["Row"]): MarcaFor
 
 async function signedLogo(supabase: any, path: string | null) {
   if (!path) return null;
+  // Capas, avatares e logos podem ser URLs externas. Storage assina apenas objetos do bucket.
+  if (/^https?:\/\//i.test(path)) return path;
   const { data } = await supabase.storage.from("tenant-logos").createSignedUrl(path, 60 * 60);
   return data?.signedUrl ?? null;
 }
