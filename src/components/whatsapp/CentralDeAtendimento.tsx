@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { ArrowLeft, Bot, CheckCheck, Clock3, Hand, MessageCircle, Search, UserRound } from "lucide-react";
+import { ArrowLeft, Bot, CheckCheck, CircleHelp, Clock3, Hand, MessageCircle, Search, UserRound } from "lucide-react";
 import { useState } from "react";
 
 import { useConfirmar } from "@/components/ui/useConfirmar";
@@ -141,7 +141,7 @@ export function CentralDeAtendimento() {
               className="min-h-12 w-full rounded-[12px] border border-line2 bg-ink2 pl-10 pr-3 text-sm text-paper placeholder:text-mute2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             />
           </div>
-          <div className="flex gap-2 overflow-x-auto pb-1" role="group" aria-label="Filtrar conversas por situação">
+          <div className="flex gap-2 overflow-x-auto pb-1 md:flex-wrap md:overflow-x-visible" role="group" aria-label="Filtrar conversas por situação">
             {FILTROS.map(valor => (
               <button
                 key={valor}
@@ -232,9 +232,9 @@ export function CentralDeAtendimento() {
                 {detalhe.isError ? <p role="alert" className="text-sm text-brick">Não foi possível consultar o histórico.</p> : null}
                 {(detalhe.data?.mensagens ?? []).map(m => (
                   <div key={m.id} className={`flex ${m.direcao === "saida" ? "justify-end" : "justify-start"}`}>
-                    <div className={`max-w-[90%] rounded-[16px] px-3 py-2 ${m.direcao === "saida" ? "bg-ink3" : "bg-ink3"}`}>
+                    <div className={`max-w-[90%] rounded-[16px] border px-3 py-2 ${m.direcao === "saida" ? "border-gold/30 bg-ink3" : "border-line2 bg-ink2"}`}>
                       <div className="flex items-center gap-1.5 text-[11px] text-mute">
-                        {m.origem === "cliente" || m.origem === "equipe" ? <UserRound className="size-3" aria-hidden /> : <Bot className="size-3" aria-hidden />}
+                        {m.origem === "nao_confirmada" ? <CircleHelp className="size-3" aria-hidden /> : m.origem === "cliente" || m.origem === "equipe" ? <UserRound className="size-3" aria-hidden /> : <Bot className="size-3" aria-hidden />}
                         {ORIGEM_MENSAGEM[m.origem]}
                       </div>
                       <p className="mt-1 whitespace-pre-wrap break-words text-sm leading-relaxed text-paper">
