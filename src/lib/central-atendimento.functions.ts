@@ -10,6 +10,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { exigirPermissao, tenantIdDoMembro } from "@/lib/tenant";
 import { exigirRecurso } from "@/lib/planos";
 import { estadoDaConversa, type EstadoDaConversa } from "@/lib/whatsapp/estado-da-conversa";
+import { origemDaMensagem, type OrigemDaMensagem } from "@/lib/whatsapp/origem-mensagem";
 
 async function admin() {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -25,7 +26,7 @@ export type ResumoDaConversa = {
   ultimaMensagemEm: string | null;
   previa: string;
   /** Fonte confirmada pelo registro da mensagem, nunca inferida do conteúdo. */
-  ultimaOrigem: "cliente" | "equipe" | "flow_ia" | "automacao" | null;
+  ultimaOrigem: OrigemDaMensagem | null;
   iaAtiva: boolean;
   atualizadoEm: string;
 };
@@ -48,7 +49,7 @@ export const listarConversasDaCentral = createServerFn({ method: "GET" })
         id, telefone, nome_contato, status, ia_ativa, modo_humano, modo_humano_ate,
         nao_lidas, ultima_mensagem_em, atualizado_em,
         ultima:mensagens_whatsapp!mensagens_whatsapp_conversa_id_fkey(
-          direcao, tipo, conteudo, gerada_por_ia, gerada_por_humano, criado_em
+          direcao, tipo, conteudo, gerada_por_ia, gerada_por_humano, autor_user_id, criado_em
         ),
         saidas:mensagens_whatsapp!mensagens_whatsapp_conversa_id_fkey(id)
       `)
@@ -89,8 +90,7 @@ export const listarConversasDaCentral = createServerFn({ method: "GET" })
           naoLidas: c.nao_lidas ?? 0,
           ultimaMensagemEm: c.ultima_mensagem_em,
           previa: m?.conteudo?.trim().slice(0, 110) || (m ? `[${m.tipo}]` : "Sem mensagens recentes"),
-          ultimaOrigem: !m ? null : m.direcao === "entrada" ? "cliente" :
-            m.gerada_por_humano ? "equipe" : m.gerada_por_ia ? "flow_ia" : "automacao",
+          ultimaOrigem: !m ? null : origemDaMensagem(m),
           iaAtiva: c.ia_ativa,
           atualizadoEm: c.atualizado_em,
         };
@@ -104,7 +104,7 @@ export type MensagemDaCentral = {
   direcao: "entrada" | "saida";
   tipo: string;
   conteudo: string;
-  origem: "cliente" | "equipe" | "flow_ia" | "automacao";
+  origem: OrigemDaMensagem;
   status: string;
   criadoEm: string;
 };
@@ -136,7 +136,7 @@ export const detalharConversaDaCentral = createServerFn({ method: "GET" })
 
     const [linhas, horarios] = await Promise.all([
       db.from("mensagens_whatsapp")
-        .select("id, direcao, tipo, conteudo, status, gerada_por_ia, gerada_por_humano, criado_em")
+        .select("id, direcao, tipo, conteudo, status, gerada_por_ia, gerada_por_humano, autor_user_id, criado_em")
         .eq("tenant_id", tenantId)
         .eq("conversa_id", conversa.id)
         .order("criado_em", { ascending: false }).limit(50),
@@ -163,9 +163,7 @@ export const detalharConversaDaCentral = createServerFn({ method: "GET" })
         direcao: m.direcao === "saida" ? "saida" as const : "entrada" as const,
         tipo: m.tipo,
         conteudo: m.conteudo,
-        origem: m.direcao === "entrada" ? "cliente" as const :
-          m.gerada_por_humano ? "equipe" as const :
-          m.gerada_por_ia ? "flow_ia" as const : "automacao" as const,
+        origem: origemDaMensagem(m),
         status: m.status,
         criadoEm: m.criado_em,
       })),
