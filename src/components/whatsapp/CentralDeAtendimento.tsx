@@ -28,6 +28,7 @@ const ORIGEM: Record<NonNullable<ResumoDaConversa["ultimaOrigem"]>, string> = {
   equipe: "Equipe",
   flow_ia: "Flow IA",
   automacao: "Automação do Flow",
+  nao_confirmada: "Autoria não confirmada",
 };
 const ORIGEM_MENSAGEM: Record<MensagemDaCentral["origem"], string> = ORIGEM;
 
