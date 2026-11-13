@@ -44,3 +44,13 @@ Data: 13/11/2026. Branch-base oficial da prévia: `cloudflare-workers-migration-
 2. Criar rastreabilidade por evento: regra acionada, rastro Flow Bot/IA, entrega confirmada pelo provedor e ações gravadas no calendário.
 3. Criar editor guiado das regras com versão, simulação, aprovação e fallback, sem enviar diretamente ou burlar o consentimento de WhatsApp.
 4. Refinar UX mobile/desktop após inspeção visual autenticada da prévia.
+
+## Continuação de segurança — 13/11/2026 (PR #75)
+
+A revisão dos pontos de envio descobriu que `processarMensagemRecebida` consultava a posse humana apenas ao chegar no Bot/IA/contingência, mas **respostas contextuais a lembretes e áudios ocorrem antes**. A nova barreira é executada depois de persistir a mensagem de entrada e atualizar a conversa, porém antes das respostas automáticas contextuais. Ela consulta novamente `status, modo_humano, modo_humano_ate` por tenant + conversa, e falha fechada se não houver leitura confiável.
+
+A posse é **por conversa**, inclusive para telefone pessoal que eventualmente seja verificado como membro da equipe. O bot e a Flow IA também deixam de ignorar `humanoNoControle` quando o remetente for equipe, pois uma conversa assumida/resolvida não pode receber respostas automáticas por classificação do remetente. Identidade verificada continua determinando o acesso aos fluxos internos da equipe em conversas **ativas**, não a permissão para burlar uma pausa explícita.
+
+O comando da Central foi isolado em `src/lib/whatsapp/comandos-central.ts` para permitir testes determinísticos. `comandos-central.test.ts` cobre os três estados, tenant errado, timestamps obsoletos, corrida no UPDATE condicional, erro de banco e ordem da autenticação/autorização/recurso no servidor. Há também um teste de arquitetura que confirma a barreira no caminho de recebimento **antes** das respostas a lembretes/áudio.
+
+Limitações persistentes: não houve teste visual autenticado, conexão via navegador ou envio real de WhatsApp; CI e mocks não representam um webhook de produção nem fazem prova de entrega humana. Antes de integrar à prévia, homologar o roteiro acima. O código acrescenta uma proteção de processamento, mas não representa trava transacional em cada ponto possível de saída: concorrências entre a leitura de posse e o envio efetivo devem continuar sob avaliação.
