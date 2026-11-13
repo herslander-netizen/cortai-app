@@ -193,13 +193,13 @@ async function verificarUma(linha: Linha, agora: Date) {
 }
 
 export async function monitorarConexoesWhatsapp(agora = new Date()) {
-  const resumo = { verificadas: 0, quedas: 0, reconectadas: 0, qr: 0, semResposta: 0 };
+  const resumo = { verificadas: 0, quedas: 0, reconectadas: 0, qr: 0, semResposta: 0, falhasInternas: 0 };
   const { gatewayConfigurado } = await import("./gateway.server");
   if (!gatewayConfigurado("evolution")) return resumo;
   const { supabaseAdmin: db } = await import("@/integrations/supabase/client.server");
   // Só conexões próprias da Evolution que deveriam estar ativas, ou em recuperação.
   // "desconectado" sem tentativas = desligado pelo dono: não mexe.
-  const { data } = await db
+  const { data, error: erroConsulta } = await db
     .from("conexoes_whatsapp")
     .select(
       "id, tenant_id, sessao_id, provedor, status, conectado_em, reconexao_tentativas, reconexao_tentada_em, tipo",
@@ -213,13 +213,21 @@ export async function monitorarConexoesWhatsapp(agora = new Date()) {
     )
     .order("verificado_em", { ascending: true, nullsFirst: true })
     .limit(LIMITE_POR_EXECUCAO);
+  if (erroConsulta) {
+    // Uma falha do banco não é a mesma coisa que zero conexões para monitorar.
+    logConexao("monitor_consulta_falhou", { totalMaximo: LIMITE_POR_EXECUCAO });
+    throw new Error("Não foi possível carregar as conexões do monitor de WhatsApp.");
+  }
   const linhas = (data ?? []) as Linha[];
   for (let i = 0; i < linhas.length; i += TAMANHO_DO_LOTE) {
     const lote = linhas.slice(i, i + TAMANHO_DO_LOTE);
     const r = await Promise.allSettled(lote.map((l) => verificarUma(l, agora)));
     for (const x of r) {
       resumo.verificadas++;
-      if (x.status !== "fulfilled") continue;
+      if (x.status !== "fulfilled") {
+        resumo.falhasInternas++;
+        continue;
+      }
       if (x.value === "queda") resumo.quedas++;
       if (x.value === "reconectado") resumo.reconectadas++;
       if (x.value === "qr") resumo.qr++;
@@ -227,5 +235,10 @@ export async function monitorarConexoesWhatsapp(agora = new Date()) {
     }
   }
   logConexao("monitor_resumo", resumo);
+  // O cron trata este erro como monitor indisponível (conexoes: null), em vez de
+  // divulgar um relatório de sucesso quando alguma sessão não foi processada.
+  if (resumo.falhasInternas > 0) {
+    throw new Error("Algumas conexões não puderam ser verificadas pelo monitor.");
+  }
   return resumo;
 }
