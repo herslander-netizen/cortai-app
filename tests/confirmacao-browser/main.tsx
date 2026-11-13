@@ -33,7 +33,7 @@ const CENARIOS = {
     tema: "feminino-lavanda", layout: "figaro-agendamento", experiencia: "direta",
   },
   "vitrine-rose": {
-    tema: "rose", layout: "figaro-site-completo", experiencia: "vitrine",
+    tema: "rose", layout: "minimalista", experiencia: "vitrine",
   },
   "vitrine-clean": {
     tema: "clean", layout: "figaro-site-completo", experiencia: "vitrine",
