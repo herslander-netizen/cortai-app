@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { act } from "react";
 import { createRoot, type Root } from "react-dom/client";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { ConfirmacaoAgendamento } from "./ConfirmacaoAgendamento";
 import type { ConfirmacaoPublica } from "@/lib/agendamento-publico.functions";
@@ -21,6 +21,19 @@ const exemplo: ConfirmacaoPublica = {
   whatsapp: null,
   valor_centavos: 9500,
 };
+
+beforeEach(() => {
+  vi.stubGlobal("matchMedia", (query: string) => ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addListener: vi.fn(),
+    removeListener: vi.fn(),
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+    dispatchEvent: vi.fn(),
+  }));
+});
 
 let root: Root | null = null;
 let host: HTMLDivElement | null = null;
