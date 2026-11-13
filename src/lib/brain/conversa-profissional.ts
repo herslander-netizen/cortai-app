@@ -35,7 +35,7 @@ export function respostaDeConversaProfissional(
     return "Por nada! Quando precisar, me diga o que você quer consultar ou fazer.";
   }
 
-  if (/\b(quem e voce|o que voce faz|pra que voce serve|como voce pode ajudar|o que consegue fazer|quais comandos|o que posso pedir)\b/.test(t)) {
+  if (/\b(quem e voce|o que voce faz|pra que voce serve|como voce pode ajudar|o que (?:voce )?(?:consegue fazer|pode fazer)|quais comandos|o que posso pedir)\b/.test(t)) {
     return papel === "profissional"
       ? "Sou o Flow Core, seu apoio operacional. Posso mostrar seus próximos atendimentos, consultar horários livres, localizar clientes, ver a fila, listar serviços e preparar avisos ou alterações com segurança."
       : "Sou o Flow Core. Posso consultar a agenda, clientes, serviços, horários, fila e indicadores permitidos para o seu perfil.";
