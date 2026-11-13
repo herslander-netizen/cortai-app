@@ -275,28 +275,43 @@ export function EditorDeServicos({
             </label>
             {profissionais && profissionais.length > 1 ? (
               <div className="mt-3">
-                <p className="text-xs text-mute">Quem faz</p>
+                <div className="flex items-center justify-between gap-2">
+                  <p className="text-xs text-mute">Quem faz</p>
+                  {(s.profissionalIds?.length ?? 0) > 0 ? (
+                    <Button
+                      type="button"
+                      variant="text"
+                      size="sm"
+                      className="min-h-11 px-2 text-xs"
+                      onClick={() => atualizar(i, { profissionalIds: [] })}
+                    >
+                      Selecionar todos
+                    </Button>
+                  ) : null}
+                </div>
                 <div className="mt-1 flex flex-wrap gap-2">
                   {profissionais.map((p) => {
                     const marcados = s.profissionalIds ?? [];
+                    // No banco, [] significa TODOS, nunca 'nenhum'.
                     const todos = marcados.length === 0;
                     const ativo = todos || marcados.includes(p.id);
+                    const ultimoSelecionado = ativo && !todos && marcados.length === 1;
                     return (
                       <Button
                         key={p.id}
                         type="button"
                         variant={ativo ? "secondary" : "outline"}
                         aria-pressed={ativo}
+                        disabled={ultimoSelecionado}
                         onClick={() => {
                           const base = todos ? profissionais.map((x) => x.id) : marcados;
                           const proximo = ativo
                             ? base.filter((id) => id !== p.id)
                             : [...base, p.id];
+                          if (proximo.length === 0) return;
                           atualizar(i, {
                             profissionalIds:
-                              proximo.length === profissionais.length || proximo.length === 0
-                                ? []
-                                : proximo,
+                              proximo.length === profissionais.length ? [] : proximo,
                           });
                         }}
                         className="min-h-12 rounded-full px-3 text-xs"
@@ -306,6 +321,11 @@ export function EditorDeServicos({
                     );
                   })}
                 </div>
+                {s.profissionalIds?.length === 1 ? (
+                  <p className="mt-2 text-xs text-mute">
+                    Mantenha pelo menos um profissional. Para ocultar o serviço, desative-o no catálogo.
+                  </p>
+                ) : null}
               </div>
             ) : null}
           </ItemCascata>

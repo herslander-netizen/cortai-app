@@ -183,6 +183,9 @@ export const getConfiguracaoInicial = createServerFn({ method: "GET" })
       db.from("onboarding_do_tenant").select("*").eq("tenant_id", tenantId).maybeSingle(),
     ]);
 
+    // A falha ao ler o catálogo nunca pode virar "nenhum serviço":
+    // isso esconderia dados reais e permitiria editar um rascunho incompleto.
+    if (servicosRes.error) throw new Error("Não foi possível consultar os serviços do negócio.");
     const tenant = tenantRes.data;
     if (!tenant) throw new Error("Negócio não encontrado.");
 
@@ -309,6 +312,25 @@ export const salvarHorarios = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+/**
+ * Profissionais ativos do negócio para atribuição de serviços (paridade Figaroo).
+ * Leitura pontual: não depende do onboarding, da conexão WhatsApp ou da fila.
+ */
+export const listarProfissionaisParaServicos = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const tenantId = await tenantIdDoMembro(context);
+    await exigirPermissao(context, tenantId, "alterar_dados_barbearia");
+    const { data, error } = await context.supabase
+      .from("profissionais")
+      .select("id, nome")
+      .eq("tenant_id", tenantId)
+      .eq("ativo", true)
+      .order("nome");
+    if (error) throw new Error("Não foi possível carregar os profissionais deste negócio.");
+    return (data ?? []).map((p) => ({ id: p.id, nome: p.nome }));
+  });
+
 export const salvarServicos = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((input: unknown) =>
@@ -318,6 +340,25 @@ export const salvarServicos = createServerFn({ method: "POST" })
     const tenantId = await tenantIdDoMembro(context);
     await exigirPermissao(context, tenantId, "alterar_dados_barbearia");
     const db = context.supabase;
+
+    // Um UUID válido não comprova que o profissional é deste negócio.
+    // Rejeitar IDs cruzados ANTES da primeira escrita para não deixar o
+    // catálogo parcialmente atualizado quando algum serviço for inválido.
+    const idsProfissionais = [
+      ...new Set(data.servicos.flatMap((servico) => servico.profissionalIds ?? [])),
+    ];
+    if (idsProfissionais.length > 0) {
+      const { data: vinculados, error: erroVinculos } = await db
+        .from("profissionais")
+        .select("id")
+        .eq("tenant_id", tenantId)
+        .in("id", idsProfissionais);
+      if (erroVinculos) throw new Error("Não foi possível validar os profissionais.");
+      const validos = new Set((vinculados ?? []).map((p) => p.id));
+      if (idsProfissionais.some((id) => !validos.has(id))) {
+        throw new Error("Um dos profissionais não pertence a este negócio.");
+      }
+    }
 
     const novos = data.servicos.filter((s) => !s.id);
     const existentes = data.servicos.filter((s) => s.id);
