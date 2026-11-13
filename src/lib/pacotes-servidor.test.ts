@@ -55,19 +55,12 @@ function banco(
     { id: SERVICO_A, preco_centavos: 7_000 },
     { id: SERVICO_B, preco_centavos: 3_000 },
   ],
-  existePacote = true,
+  rpcResult: { data: string | null; error: { code: string; message: string } | null } = {
+    data: PACOTE,
+    error: null,
+  },
 ) {
-  const inserirPacote = vi.fn(() => ({
-    select: () => ({ single: async () => ({ data: { id: PACOTE }, error: null }) }),
-  }));
-  const atualizarPacote = vi.fn(() => ({
-    eq: () => ({ eq: async () => ({ error: null }) }),
-  }));
-  const inserirItens = vi.fn(async (_itens: unknown) => ({ error: null }));
-  const excluirItens = vi.fn(() => ({
-    eq: () => ({ eq: async () => ({ error: null }) }),
-  }));
-
+  const rpc = vi.fn(async (_name: string, _params: unknown) => rpcResult);
   const from = vi.fn((tabela: string) => {
     if (tabela === "servicos") {
       return {
@@ -80,93 +73,100 @@ function banco(
         }),
       };
     }
-    if (tabela === "pacotes") {
-      return {
-        select: () => ({
-          eq: () => ({
-            eq: () => ({
-              maybeSingle: async () => ({
-                data: existePacote ? { id: PACOTE } : null,
-                error: null,
-              }),
-            }),
-          }),
-        }),
-        insert: inserirPacote,
-        update: atualizarPacote,
-      };
-    }
-    if (tabela === "pacote_itens") {
-      return { insert: inserirItens, delete: excluirItens };
-    }
-    throw new Error("Tabela inesperada: " + tabela);
+    throw new Error("Gravação REST fora da RPC: " + tabela);
   });
-
-  return { from, inserirPacote, atualizarPacote, inserirItens, excluirItens };
+  return { from, rpc };
 }
 
 async function executar(db: ReturnType<typeof banco>, data: Dados) {
   const handler = salvarPacote as unknown as (entrada: {
     data: Dados;
-    context: { userId: string; supabase: { from: typeof db.from } };
+    context: { userId: string; supabase: { from: typeof db.from; rpc: typeof db.rpc } };
   }) => Promise<{ ok: boolean; id: string }>;
   return handler({
     data,
-    context: { userId: "usuario-ficticio", supabase: { from: db.from } },
+    context: { userId: "usuario-ficticio", supabase: { from: db.from, rpc: db.rpc } },
   });
 }
 
 afterEach(() => vi.clearAllMocks());
 
-describe("salvarPacote — comportamento do servidor com catálogo isolado", () => {
-  it("salva combo com 1 unidade por serviço e preço conferido no catálogo", async () => {
+describe("salvarPacote — integração HTTP com a RPC atômica (Supabase simulado)", () => {
+  it("envia combo como uma visita por serviço, em uma única chamada RPC", async () => {
     const db = banco();
     const resultado = await executar(db, dados());
     expect(resultado).toEqual({ ok: true, id: PACOTE });
-    expect(db.inserirPacote).toHaveBeenCalledOnce();
-    expect(db.inserirItens).toHaveBeenCalledWith([
-      { pacote_id: PACOTE, tenant_id: TENANT, servico_id: SERVICO_A, quantidade: 1 },
-      { pacote_id: PACOTE, tenant_id: TENANT, servico_id: SERVICO_B, quantidade: 1 },
-    ]);
+    expect(db.rpc).toHaveBeenCalledExactlyOnceWith("salvar_pacote_atomico", {
+      _tenant_id: TENANT,
+      _pacote_id: null,
+      _tipo: "combo",
+      _nome: "Combo de serviços",
+      _descricao: null,
+      _preco_centavos: 9_000,
+      _validade_dias: null,
+      _destaque: false,
+      _ativo: true,
+      _itens: [
+        { servicoId: SERVICO_A, quantidade: 1 },
+        { servicoId: SERVICO_B, quantidade: 1 },
+      ],
+    });
+    expect(db.from).toHaveBeenCalledTimes(1); // SELECT, nunca UPDATE + DELETE.
   });
 
-  it("não grava um conjunto acima da soma dos serviços, mesmo com preço válido no formulário", async () => {
+  it("não chama a RPC com preço acima do avulso", async () => {
     const db = banco();
     await expect(executar(db, dados({ precoCentavos: 10_001 }))).rejects.toThrow(
       /não pode ultrapassar/,
     );
-    expect(db.inserirPacote).not.toHaveBeenCalled();
-    expect(db.atualizarPacote).not.toHaveBeenCalled();
-    expect(db.excluirItens).not.toHaveBeenCalled();
+    expect(db.rpc).not.toHaveBeenCalled();
   });
 
-  it("rejeita serviço alheio/inativo antes de criar ou alterar pacote", async () => {
+  it("rejeita serviço de outro tenant/inativo antes da RPC", async () => {
     const db = banco([{ id: SERVICO_A, preco_centavos: 7_000 }]);
     await expect(executar(db, dados())).rejects.toThrow(
       "Escolha apenas serviços ativos do seu negócio.",
     );
-    expect(db.inserirPacote).not.toHaveBeenCalled();
-    expect(db.atualizarPacote).not.toHaveBeenCalled();
-    expect(db.excluirItens).not.toHaveBeenCalled();
+    expect(db.rpc).not.toHaveBeenCalled();
   });
 
-  it("rejeita edição com ID ausente do tenant sem excluir itens", async () => {
-    const db = banco(undefined, false);
+  it("passa ID de edição; erro de tenant da RPC não é convertido em sucesso", async () => {
+    const db = banco(undefined, {
+      data: null, error: { code: "22023", message: "pacote nao encontrado neste negocio" },
+    });
     await expect(executar(db, dados({ id: PACOTE }))).rejects.toThrow(
-      "Pacote não encontrado neste negócio.",
+      "pacote nao encontrado neste negocio",
     );
-    expect(db.atualizarPacote).not.toHaveBeenCalled();
-    expect(db.excluirItens).not.toHaveBeenCalled();
+    expect(db.rpc).toHaveBeenCalledWith("salvar_pacote_atomico",
+      expect.objectContaining({ _pacote_id: PACOTE }));
   });
 
-  it("permite pacote multivisita com preço dentro do valor avulso real", async () => {
+  it("sem RPC instalada, recusa gravar e não retorna ao DELETE + INSERT inseguro", async () => {
+    const db = banco(undefined, {
+      data: null, error: { code: "PGRST202", message: "Function not found" },
+    });
+    await expect(executar(db, dados())).rejects.toThrow(/atualização de segurança/);
+    expect(db.from).toHaveBeenCalledTimes(1);
+    expect(db.rpc).toHaveBeenCalledTimes(1);
+  });
+
+  it("permite pacote multivisita com as quantidades corretas", async () => {
     const db = banco();
     const entrada = dados({ tipo: "pacote", precoCentavos: 20_000, validadeDias: 30 });
     const resultado = await executar(db, entrada);
     expect(resultado.ok).toBe(true);
-    expect(db.inserirItens).toHaveBeenCalledWith([
-      { pacote_id: PACOTE, tenant_id: TENANT, servico_id: SERVICO_A, quantidade: 5 },
-      { pacote_id: PACOTE, tenant_id: TENANT, servico_id: SERVICO_B, quantidade: 4 },
-    ]);
+    expect(db.rpc).toHaveBeenCalledWith("salvar_pacote_atomico",
+      expect.objectContaining({
+        _tipo: "pacote", _validade_dias: 30,
+        _itens: [
+          { servicoId: SERVICO_A, quantidade: 5 },
+          { servicoId: SERVICO_B, quantidade: 4 },
+        ],
+      }));
+  });
+
+  it("resposta inválida da RPC nunca é tratada como pacote salvo", async () => {
+    const db = banco(undefined, { data: null, error: null });
+    await expect(executar(db, dados())).rejects.toThrow(/banco não confirmou/);
   });
 });
