@@ -25,7 +25,7 @@ export type ResumoDaConversa = {
   ultimaMensagemEm: string | null;
   previa: string;
   /** Fonte confirmada pelo registro da mensagem, nunca inferida do conteúdo. */
-  ultimaOrigem: "cliente" | "equipe" | "flow_ia" | "flow_bot" | null;
+  ultimaOrigem: "cliente" | "equipe" | "flow_ia" | "automacao" | null;
   iaAtiva: boolean;
   atualizadoEm: string;
 };
@@ -109,7 +109,7 @@ export const listarConversasDaCentral = createServerFn({ method: "GET" })
           ultimaMensagemEm: c.ultima_mensagem_em,
           previa: m?.conteudo?.trim().slice(0, 110) || (m ? `[${m.tipo}]` : "Sem mensagens recentes"),
           ultimaOrigem: !m ? null : m.direcao === "entrada" ? "cliente" :
-            m.gerada_por_humano ? "equipe" : m.gerada_por_ia ? "flow_ia" : "flow_bot",
+            m.gerada_por_humano ? "equipe" : m.gerada_por_ia ? "flow_ia" : "automacao",
           iaAtiva: c.ia_ativa,
           atualizadoEm: c.atualizado_em,
         };
@@ -123,7 +123,7 @@ export type MensagemDaCentral = {
   direcao: "entrada" | "saida";
   tipo: string;
   conteudo: string;
-  origem: "cliente" | "equipe" | "flow_ia" | "flow_bot";
+  origem: "cliente" | "equipe" | "flow_ia" | "automacao";
   status: string;
   criadoEm: string;
 };
@@ -184,7 +184,7 @@ export const detalharConversaDaCentral = createServerFn({ method: "GET" })
         conteudo: m.conteudo,
         origem: m.direcao === "entrada" ? "cliente" as const :
           m.gerada_por_humano ? "equipe" as const :
-          m.gerada_por_ia ? "flow_ia" as const : "flow_bot" as const,
+          m.gerada_por_ia ? "flow_ia" as const : "automacao" as const,
         status: m.status,
         criadoEm: m.criado_em,
       })),
