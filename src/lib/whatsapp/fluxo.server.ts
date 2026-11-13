@@ -742,6 +742,30 @@ export async function processarMensagemRecebida(input: {
     })
     .eq("id", conversa.id);
 
+  // Silêncio por conversa ANTES de qualquer resposta automática (inclusive
+  // lembretes contextuais, canal de avisos e falhas de áudio). Flow Bot, IA e
+  // contingência têm guardas próprias, mas essas rotas acontecem antes deles.
+  // A mensagem recebida acima permanece gravada para a equipe acompanhar.
+  const { data: posseParaResponder, error: erroPosseParaResponder } = await db
+    .from("conversas_whatsapp")
+    .select("status, modo_humano, modo_humano_ate")
+    .eq("id", conversa.id)
+    .eq("tenant_id", tenantId)
+    .maybeSingle();
+  if (erroPosseParaResponder || !posseParaResponder) {
+    return { tratada: true, motivo: "posse_humana_indeterminada" };
+  }
+  const { humanoNoControle } = await import("@/lib/flow-bot/decisao");
+  if (humanoNoControle(posseParaResponder, Date.now())) {
+    // O WhatsApp pessoal de um membro VERIFICADO pode continuar emitindo
+    // comandos da própria equipe. Um cliente comum nunca ganha essa exceção.
+    const { identificarEquipe } = await import("./identidade.server");
+    const equipeVerificada = await identificarEquipe(tenantId, telefone).catch(() => null);
+    if (!equipeVerificada) {
+      return { tratada: true, motivo: "conversa_sob_controle_humano" };
+    }
+  }
+
   // Resposta a lembrete (botão, número ou palavra exata): regra + banco, sem motor.
   if (input.tipo === "text") {
     const { tratarRespostaDeLembrete } = await import("./lembretes.server");
