@@ -81,7 +81,7 @@ export async function responderComFlowBot(input: EntradaDoBot): Promise<boolean>
     console.error("[flow-bot] não confirmou posse da conversa", erroConversa?.message ?? "sem conversa");
     return true; // Estado incerto: nunca enviar resposta automática em paralelo a um possível humano.
   }
-  if (!equipe && humanoNoControle(conversa, agora)) return true;
+  if (humanoNoControle(conversa, agora)) return true;
 
   const { data: linhaConfig, error: erroConfig } = await db
     .from("flow_bot_config")
@@ -285,7 +285,7 @@ export async function responderComFlowBot(input: EntradaDoBot): Promise<boolean>
         .eq("id", input.conversaId)
         .eq("tenant_id", input.tenantId)
         .maybeSingle();
-      if (erroPosse || !posseAtual || (!equipe && humanoNoControle(posseAtual, Date.now()))) {
+      if (erroPosse || !posseAtual || humanoNoControle(posseAtual, Date.now())) {
         console.info("[flow-bot] envio suspenso por posse humana ou leitura indisponível");
         break;
       }
