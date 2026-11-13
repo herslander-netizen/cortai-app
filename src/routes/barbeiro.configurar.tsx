@@ -4,6 +4,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useMemo, useRef, useState, type ChangeEvent } from "react";
 import {
+  ArrowLeft,
   Camera,
   Check,
   Copy,
@@ -321,22 +322,24 @@ function ConfigurarPage() {
     desabilitado = false,
     pular?: () => void,
   ) => (
-    <div className="sticky bottom-0 z-10 -mx-5 mt-8 border-t border-line bg-ink px-5 pb-[max(12px,env(safe-area-inset-bottom))] pt-3">
-      <div className="flex items-center gap-3">
+    <div className="sticky bottom-0 z-10 -mx-5 mt-8 border-t border-line/80 bg-ink/95 px-5 pb-[max(12px,env(safe-area-inset-bottom))] pt-3 shadow-[0_-14px_28px_rgba(0,0,0,0.10)] backdrop-blur-xl">
+      <div className="flex items-center gap-2.5">
         {indice > 0 ? (
           <Button
-            variant="outline"
+            variant="ghost"
             type="button"
-            className="min-h-12 px-3 text-sm"
+            aria-label="Voltar para a etapa anterior"
+            className="min-h-12 shrink-0 rounded-2xl border border-line2 px-3.5 text-sm"
             onClick={anterior}
           >
+            <ArrowLeft size={15} className="mr-1.5" aria-hidden />
             Voltar
           </Button>
         ) : null}
         <Button
           variant="primary"
           type="button"
-          className="min-h-14 flex-1 text-sm"
+          className="min-h-12 flex-1 rounded-2xl text-sm font-semibold shadow-[0_6px_16px_rgba(0,0,0,0.12)] transition-transform active:scale-[0.99] motion-reduce:transition-none"
           disabled={desabilitado || salvando}
           onClick={aoContinuar}
         >
@@ -347,7 +350,7 @@ function ConfigurarPage() {
         <Button
           variant="ghost"
           type="button"
-          className="mt-2 min-h-12 w-full text-center text-xs text-mute"
+          className="mt-1 min-h-10 w-full text-center text-xs text-mute"
           onClick={pular}
         >
           Pular por agora
@@ -379,17 +382,25 @@ function ConfigurarPage() {
             <MarcaCortai variante="automatica" className="h-7 w-auto" />
           </div>
           {etapa !== "pronto" ? (
-            <div className="mb-6">
-              <div className="flex gap-1.5" aria-hidden>
+            <div className="mb-6 rounded-2xl border border-line bg-ink2/70 px-4 py-3 shadow-sm">
+              <div className="flex items-center justify-between gap-3">
+                <p className="text-xs font-medium text-mute">
+                  Passo {indice + 1} de {ETAPAS_DO_ONBOARDING.length - 1}
+                </p>
+                <span className="rounded-full bg-gold/10 px-2.5 py-1 text-[11px] font-semibold text-gold">
+                  {ROTULOS[etapa]}
+                </span>
+              </div>
+              <div className="mt-3 flex gap-1.5" aria-label={`Progresso: ${ROTULOS[etapa]}`} role="progressbar" aria-valuemin={1} aria-valuemax={ETAPAS_DO_ONBOARDING.length - 1} aria-valuenow={indice + 1}>
                 {ETAPAS_DO_ONBOARDING.slice(0, -1).map((e, i) => (
                   <span
                     key={e}
-                    className={`h-1.5 flex-1 rounded-full ${i <= indice ? "bg-gold" : "bg-ink3"}`}
+                    className={`h-1.5 flex-1 rounded-full transition-colors duration-300 motion-reduce:transition-none ${i <= indice ? "bg-gold" : "bg-ink3"}`}
                   />
                 ))}
               </div>
-              <p className="mt-2 text-xs text-mute">
-                Passo {indice + 1} de {ETAPAS_DO_ONBOARDING.length - 1} · {ROTULOS[etapa]}
+              <p className="mt-2 text-[11px] leading-relaxed text-mute2">
+                Você pode sair agora; suas informações ficam salvas a cada etapa.
               </p>
             </div>
           ) : null}
