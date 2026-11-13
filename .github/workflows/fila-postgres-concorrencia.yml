@@ -59,7 +59,13 @@ jobs:
       - name: Esquema minimo e preflight antes da proposta
         run: |
           psql -v ON_ERROR_STOP=1 -f tests/sql/fila-ofertas-postgres-fixture.sql
-          psql -v ON_ERROR_STOP=1 -f tests/sql/fila-ofertas-preflight-leitura.sql
+          # A bancada já contém chegada avisada sem oferta: preflight precisa aprovar.
+          preflight="$(psql -v ON_ERROR_STOP=1 -At -f tests/sql/fila-ofertas-preflight-leitura.sql)"
+          printf '%s\\n' "$preflight"
+          if [[ "${preflight##*|}" != "t" ]]; then
+            echo "Preflight rejeitou um aviso manual válido na fila de chegada" >&2
+            exit 1
+          fi
       - name: Aplicar SQL proposto SOMENTE no PostgreSQL efemero
         run: |
           psql -v ON_ERROR_STOP=1 -f docs/sql/fila-ofertas-transacionais-proposta-2026-11-12.sql
