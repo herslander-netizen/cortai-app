@@ -205,26 +205,26 @@ export function CentralDeAtendimento() {
                   </div>
                   <Etiqueta estado={escolhida.estado} />
                 </div>
-                {lista.data?.podeGerenciar ? (
+                {(lista.data?.podeAssumir || lista.data?.podeGerenciar) ? (
                   <div className="mt-3 flex flex-wrap gap-2">
-                    {escolhida.estado !== "atendimento_humano" ? (
+                    {(lista.data?.podeAssumir || lista.data?.podeGerenciar) && escolhida.estado !== "atendimento_humano" ? (
                       <Button size="sm" variant="secondary" disabled={alterar.isPending} onClick={() => void executar("assumir")}>
                         <Hand className="mr-1.5 size-4" aria-hidden /> Assumir
                       </Button>
                     ) : null}
-                    {escolhida.estado === "atendimento_humano" || escolhida.estado === "resolvida" ? (
+                    {(lista.data?.podeAssumir || lista.data?.podeGerenciar) && (escolhida.estado === "atendimento_humano" || escolhida.estado === "resolvida") ? (
                       <Button size="sm" variant="secondary" disabled={alterar.isPending} onClick={() => void executar("retomar")}>
                         <Bot className="mr-1.5 size-4" aria-hidden /> Liberar IA
                       </Button>
                     ) : null}
-                    {escolhida.estado !== "resolvida" ? (
+                    {lista.data?.podeGerenciar && escolhida.estado !== "resolvida" ? (
                       <Button size="sm" variant="ghost" disabled={alterar.isPending} onClick={() => void executar("resolver")}>
                         <CheckCheck className="mr-1.5 size-4" aria-hidden /> Resolver
                       </Button>
                     ) : null}
                   </div>
                 ) : (
-                  <p className="mt-2 text-xs text-mute2">Seu acesso é somente para consulta. A gestão da conversa exige permissão.</p>
+                  <p className="mt-2 text-xs text-mute2">Seu acesso é somente para consulta. Para assumir ou resolver conversas, peça autorização ao responsável.</p>
                 )}
               </header>
               <div className="max-h-[370px] flex-1 space-y-2 overflow-y-auto px-3 py-4" role="log" aria-label="Mensagens da conversa">
