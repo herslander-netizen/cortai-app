@@ -33,6 +33,7 @@ export type ResumoDaConversa = {
 
 export type ListaDaCentral = {
   conversas: ResumoDaConversa[];
+  podeAssumir: boolean;
   podeGerenciar: boolean;
   geradoEm: string;
 };
@@ -42,6 +43,7 @@ export const listarConversasDaCentral = createServerFn({ method: "GET" })
   .handler(async ({ context }): Promise<ListaDaCentral> => {
     const tenantId = await tenantIdDoMembro(context);
     await exigirPermissao(context, tenantId, "ver_cortai");
+    await exigirRecurso(context.supabase, tenantId, "secretaria_whatsapp");
     const db = await admin();
     const { data: conversas, error } = await db
       .from("conversas_whatsapp")
@@ -64,13 +66,19 @@ export const listarConversasDaCentral = createServerFn({ method: "GET" })
       .limit(40);
     if (error) throw new Error("Não foi possível consultar as conversas deste negócio.");
 
-    const { data: pode, error: erroPermissao } = await context.supabase.rpc("has_tenant_permission", {
-      _tenant_id: tenantId, _permission: "gerenciar_whatsapp",
-    });
+    const [assumir, gerenciar] = await Promise.all([
+      context.supabase.rpc("has_tenant_permission", {
+        _tenant_id: tenantId, _permission: "assumir_conversa",
+      }),
+      context.supabase.rpc("has_tenant_permission", {
+        _tenant_id: tenantId, _permission: "gerenciar_conversas",
+      }),
+    ]);
     const agora = Date.now();
     return {
       geradoEm: new Date(agora).toISOString(),
-      podeGerenciar: !erroPermissao && pode === true,
+      podeAssumir: !assumir.error && assumir.data === true,
+      podeGerenciar: !gerenciar.error && gerenciar.data === true,
       conversas: (conversas ?? []).map((c) => {
         const m = c.ultima?.[0];
         const nome = c.nome_contato?.trim() || `Contato · final ${c.telefone.slice(-4)}`;
@@ -125,6 +133,7 @@ export const detalharConversaDaCentral = createServerFn({ method: "GET" })
   .handler(async ({ context, data }): Promise<DetalheDaConversa> => {
     const tenantId = await tenantIdDoMembro(context);
     await exigirPermissao(context, tenantId, "ver_cortai");
+    await exigirRecurso(context.supabase, tenantId, "secretaria_whatsapp");
     const db = await admin();
     const { data: conversa, error: erroConversa } = await db
       .from("conversas_whatsapp")
@@ -187,7 +196,23 @@ export const comandarConversaDaCentral = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => comandoSchema.parse(input))
   .handler(async ({ context, data }): Promise<ResultadoDoComando> => {
     const tenantId = await tenantIdDoMembro(context);
-    await exigirPermissao(context, tenantId, "gerenciar_whatsapp");
+    // Direitos de atendimento independem de configurar a conexão WhatsApp.
+    if (data.acao === "resolver") {
+      await exigirPermissao(context, tenantId, "gerenciar_conversas");
+    } else {
+      const [assumir, gerenciar] = await Promise.all([
+        context.supabase.rpc("has_tenant_permission", {
+          _tenant_id: tenantId, _permission: "assumir_conversa",
+        }),
+        context.supabase.rpc("has_tenant_permission", {
+          _tenant_id: tenantId, _permission: "gerenciar_conversas",
+        }),
+      ]);
+      if (!(!assumir.error && assumir.data === true) &&
+          !(!gerenciar.error && gerenciar.data === true)) {
+        throw new Error("Você não tem permissão para assumir ou liberar conversas.");
+      }
+    }
     await exigirRecurso(context.supabase, tenantId, "secretaria_whatsapp");
     const db = await admin();
     const { aplicarComandoDaCentral } = await import("@/lib/whatsapp/comandos-central");
