@@ -85,6 +85,11 @@ describe("humanoNoControle", () => {
       humanoNoControle({ modo_humano: false, modo_humano_ate: "2026-11-02T16:00:00Z" }, agora),
     ).toBe(true);
   });
+  it("status persistido humano ou encerrada também bloqueia o bot, mesmo sem flag/prazo", () => {
+    expect(humanoNoControle({ status: "humano", modo_humano: false, modo_humano_ate: null }, agora)).toBe(true);
+    expect(humanoNoControle({ status: "encerrada", modo_humano: false, modo_humano_ate: null }, agora)).toBe(true);
+    expect(humanoNoControle({ status: "ativa", modo_humano: false, modo_humano_ate: null }, agora)).toBe(false);
+  });
   it("prazo vencido, sem prazo ou conversa desconhecida: o bot pode falar", () => {
     expect(
       humanoNoControle({ modo_humano: false, modo_humano_ate: "2026-11-02T14:59:00Z" }, agora),
