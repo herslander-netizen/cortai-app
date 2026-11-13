@@ -1,145 +1,171 @@
 /*
- * Confirmação pública — linguagem mobile do Figaroo (hierarquia,
- * tipografia, ritmo 4/8/16/24 e superfícies tonais).
- * As cores SEMPRE seguem os tokens do negócio aplicados por
- * .agendamento-marca; esta folha não substitui a marca do estabelecimento.
+ * Confirmação enxuta — composição inspirada no fluxo real do Figaroo.
+ * Todos os papéis de cor e fontes vêm de .agendamento-marca e do tema
+ * publicado pelo negócio. Não usar valores de cor fixos nesta tela.
  */
 .agendamento-confirmacao {
   --confirmacao-superficie: var(--chat-superficie-1, var(--ink2));
-  --confirmacao-borda: color-mix(in oklab, var(--paper) 16%, transparent);
+  --confirmacao-borda: color-mix(in oklab, var(--paper) 12%, transparent);
+  --confirmacao-sucesso: var(--sage, var(--gold));
   background: var(--ink);
   color: var(--paper);
+  min-height: 100dvh;
   overflow-x: clip;
-}
-
-.agendamento-confirmacao .confirmacao-topo {
-  position: relative;
-  isolation: isolate;
-  padding: max(20px, env(safe-area-inset-top)) 20px 16px;
-}
-
-.agendamento-confirmacao .confirmacao-capa {
-  position: absolute;
-  z-index: -2;
-  inset: 0;
-  height: 100%;
-  width: 100%;
-  object-fit: cover;
-  opacity: 0.12;
-}
-
-.agendamento-confirmacao .confirmacao-topo::after {
-  content: "";
-  pointer-events: none;
-  position: absolute;
-  z-index: -1;
-  inset: 0;
-  background: linear-gradient(to bottom, transparent, var(--ink));
-}
-
-.agendamento-confirmacao .confirmacao-topo-conteudo {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  min-width: 0;
-  width: 100%;
-  max-width: 520px;
-  margin-inline: auto;
-}
-
-.agendamento-confirmacao .confirmacao-negocio {
-  min-width: 0;
-  flex: 1;
-}
-
-.agendamento-confirmacao .confirmacao-negocio-rotulo {
-  margin: 0;
-  color: var(--mute);
-  font-size: 13px;
-  font-weight: 500;
-  line-height: 18px;
-}
-
-.agendamento-confirmacao .confirmacao-negocio-nome {
-  margin-top: 3px;
-  font-size: clamp(17px, 4.7vw, 20px);
-  font-weight: 750;
-  line-height: 1.25;
-  overflow-wrap: anywhere;
 }
 
 .agendamento-confirmacao .confirmacao-conteudo {
   width: 100%;
   max-width: 520px;
   margin-inline: auto;
-  padding: 0 20px calc(32px + env(safe-area-inset-bottom));
+  padding: max(16px, env(safe-area-inset-top)) 20px calc(32px + env(safe-area-inset-bottom));
+}
+
+.agendamento-confirmacao .confirmacao-topo {
+  display: flex;
+  min-height: 48px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.agendamento-confirmacao .confirmacao-cabecalho {
+  font-size: 18px;
+  line-height: 1.35;
+  font-weight: 750;
+  color: var(--paper);
+}
+
+.agendamento-confirmacao .confirmacao-fechar {
+  min-width: 48px;
+  min-height: 48px;
+  border-radius: 999px;
+  color: var(--paper);
 }
 
 .agendamento-confirmacao .confirmacao-hero {
-  padding-top: 28px;
-  padding-bottom: 6px;
+  padding: 26px 4px 22px;
+  text-align: center;
 }
 
 .agendamento-confirmacao .confirmacao-visto {
   display: inline-flex;
-  width: 64px;
-  height: 64px;
+  width: 76px;
+  height: 76px;
   align-items: center;
   justify-content: center;
   border-radius: 999px;
 }
 
+.agendamento-confirmacao .confirmacao-visto-ok {
+  background: color-mix(in oklab, var(--confirmacao-sucesso) 12%, var(--ink));
+  color: var(--confirmacao-sucesso);
+}
+
+.agendamento-confirmacao .confirmacao-visto-inativo {
+  background: color-mix(in oklab, var(--brick) 12%, var(--ink));
+  color: var(--brick);
+}
+
 .agendamento-confirmacao .confirmacao-titulo {
-  margin-top: 14px;
+  margin-top: 16px;
   color: var(--paper);
   font-family: var(--chat-heading, var(--brand-heading, inherit));
-  font-size: clamp(28px, 7.5vw, 34px);
-  font-weight: 700;
-  line-height: 1.16;
+  font-size: clamp(28px, 7.8vw, 36px);
+  line-height: 1.15;
   letter-spacing: -0.025em;
+  font-weight: 750;
   text-wrap: balance;
 }
 
-.agendamento-confirmacao .confirmacao-endereco {
-  display: flex;
-  align-items: flex-start;
-  gap: 9px;
-  margin-top: 12px;
+.agendamento-confirmacao .confirmacao-subtitulo {
+  margin-top: 8px;
   color: var(--mute);
   font-size: 14px;
+  line-height: 1.55;
+}
+
+.agendamento-confirmacao .confirmacao-resumo {
+  border: 1px solid var(--confirmacao-borda);
+  border-radius: 20px;
+  padding: 6px 16px;
+  background: var(--confirmacao-superficie);
+}
+
+.agendamento-confirmacao .confirmacao-linha {
+  display: grid;
+  grid-template-columns: 82px minmax(0, 1fr);
+  gap: 10px;
+  align-items: start;
+  padding-block: 16px;
+}
+
+.agendamento-confirmacao .confirmacao-linha + .confirmacao-linha {
+  border-top: 1px solid var(--confirmacao-borda);
+}
+
+.agendamento-confirmacao .confirmacao-linha dt {
+  padding-top: 3px;
+  color: var(--mute);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.agendamento-confirmacao .confirmacao-linha dd {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+  margin: 0;
+  color: var(--mute);
+  font-size: 13px;
   line-height: 1.55;
   overflow-wrap: anywhere;
 }
 
-.agendamento-confirmacao .confirmacao-mensagem {
-  margin-top: 14px;
-  padding: 13px 16px;
-  background: var(--confirmacao-superficie);
-  border-radius: 16px;
+.agendamento-confirmacao .confirmacao-linha dd strong {
+  color: var(--paper);
   font-size: 14px;
-  line-height: 1.6;
+  font-weight: 700;
+  line-height: 1.45;
 }
 
-.agendamento-confirmacao .confirmacao-ingresso {
-  margin-top: 24px;
-}
-
-.agendamento-confirmacao .confirmacao-ingresso .chat-ingresso {
-  margin: 0;
+.agendamento-confirmacao .confirmacao-negocio {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   min-width: 0;
-  overflow: hidden;
-  border: 1px solid var(--confirmacao-borda);
-  border-radius: 24px;
-  background: var(--confirmacao-superficie);
+  color: var(--paper);
 }
 
-.agendamento-confirmacao .confirmacao-ingresso dd,
-.agendamento-confirmacao .confirmacao-ingresso p {
+.agendamento-confirmacao .confirmacao-negocio strong {
+  min-width: 0;
   overflow-wrap: anywhere;
 }
 
+.agendamento-confirmacao .confirmacao-mensagem {
+  margin-top: 12px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: var(--confirmacao-superficie);
+  color: var(--mute);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.agendamento-confirmacao .confirmacao-avisos {
+  margin-top: 16px;
+}
+
+.agendamento-confirmacao .confirmacao-erro {
+  margin-top: 12px;
+  color: var(--brick);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
 .agendamento-confirmacao .confirmacao-acao-principal {
-  margin-top: 24px;
+  margin-top: 22px;
 }
 
 .agendamento-confirmacao .confirmacao-cta {
@@ -149,100 +175,28 @@
   border-radius: 999px;
   font-size: 15px;
   font-weight: 700;
-  line-height: 20px;
 }
 
-.agendamento-confirmacao .confirmacao-extras {
-  display: grid;
-  gap: 14px;
-  margin-top: 16px;
+.agendamento-confirmacao .confirmacao-novo {
+  margin-top: 24px;
 }
 
-.agendamento-confirmacao .confirmacao-extras > * {
-  margin-top: 0;
-  min-width: 0;
-}
-
-
-.agendamento-confirmacao .confirmacao-extras [aria-labelledby="preferencias-titulo"] {
-  background: var(--confirmacao-superficie);
-  border: 1px solid var(--confirmacao-borda);
-  border-radius: 20px;
-}
-
-.agendamento-confirmacao .confirmacao-extras #preferencias-titulo {
-  font-size: 16px;
-  line-height: 23px;
-  font-weight: 700;
-}
-
-.agendamento-confirmacao .confirmacao-comanda {
-  margin-top: 0;
-  min-width: 0;
-  border: 1px solid var(--confirmacao-borda);
-  border-radius: 20px;
-  background: var(--confirmacao-superficie);
-  padding: 12px;
-}
-
-.agendamento-confirmacao .confirmacao-comanda > button:first-child {
-  min-height: 52px;
-  border-color: transparent;
-  border-radius: 12px;
-  background: transparent;
-  padding-inline: 8px;
-  white-space: normal;
-}
-
-.agendamento-confirmacao .confirmacao-ingresso dl {
-  gap: 14px;
-}
-
-.agendamento-confirmacao .confirmacao-ingresso dl > div:last-child {
-  grid-column: 1 / -1;
-  padding-top: 2px;
-}
-
-.agendamento-confirmacao .confirmacao-ingresso dt {
-  font-size: 12px;
-  line-height: 18px;
-  font-weight: 500;
-}
-
-.agendamento-confirmacao .confirmacao-ingresso dd {
-  margin-top: 3px;
-  font-size: 17px;
-  line-height: 1.38;
-  font-weight: 700;
-}
-
-.agendamento-confirmacao .confirmacao-ingresso dl > div:last-child dd {
-  font-size: 22px;
-  letter-spacing: -0.015em;
-}
-
-.agendamento-confirmacao .confirmacao-secundarias {
-  display: grid;
-  gap: 10px;
-  margin-top: 22px;
+.agendamento-confirmacao .confirmacao-secundarias,
+.agendamento-confirmacao .confirmacao-detalhes {
+  margin-top: 6px;
 }
 
 .agendamento-confirmacao .confirmacao-expandir {
   display: flex;
-  min-height: 52px;
   width: 100%;
+  min-height: 48px;
   align-items: center;
-  justify-content: space-between;
-  gap: 14px;
-  padding-inline: 16px;
-  border: 1px solid var(--confirmacao-borda);
-  border-radius: 16px;
-  background: var(--confirmacao-superficie);
-  color: var(--paper);
-  font-size: 14px;
-  line-height: 20px;
+  justify-content: center;
+  gap: 8px;
+  color: var(--mute);
+  font-size: 13px;
   font-weight: 600;
-  text-align: left;
+  text-align: center;
   white-space: normal;
 }
 
@@ -255,10 +209,13 @@
   transition: transform 180ms ease-out;
 }
 
-.agendamento-confirmacao .confirmacao-opcoes {
+.agendamento-confirmacao .confirmacao-opcoes,
+.agendamento-confirmacao .confirmacao-extras {
   display: grid;
-  gap: 8px;
-  padding: 10px 2px 4px;
+  gap: 10px;
+  min-width: 0;
+  margin-top: 10px;
+  padding-bottom: 6px;
 }
 
 .agendamento-confirmacao .confirmacao-opcoes button,
@@ -268,6 +225,23 @@
   text-align: center;
 }
 
+.agendamento-confirmacao .confirmacao-extras > * {
+  min-width: 0;
+  margin-top: 0;
+}
+
+.agendamento-confirmacao .confirmacao-extras [aria-labelledby="preferencias-titulo"],
+.agendamento-confirmacao .confirmacao-comanda {
+  border: 1px solid var(--confirmacao-borda);
+  border-radius: 16px;
+  background: var(--confirmacao-superficie);
+}
+
+.agendamento-confirmacao .confirmacao-comanda {
+  min-width: 0;
+  padding: 12px;
+}
+
 .agendamento-confirmacao .confirmacao-assinatura {
   display: flex;
   width: fit-content;
@@ -275,7 +249,7 @@
   align-items: center;
   justify-content: center;
   gap: 4px;
-  margin: 28px auto 0;
+  margin: 18px auto 0;
   padding-inline: 12px;
   color: var(--mute);
   font-size: 12px;
@@ -289,16 +263,46 @@
 }
 
 .agendamento-confirmacao .confirmacao-assinatura:focus-visible,
-.agendamento-confirmacao .confirmacao-expandir:focus-visible {
+.agendamento-confirmacao .confirmacao-expandir:focus-visible,
+.agendamento-confirmacao .confirmacao-fechar:focus-visible {
   outline: 2px solid var(--gold);
   outline-offset: 3px;
 }
 
+/* Layout do Figaroo filmado: geometria sóbria, cartão em linhas e CTA reto. */
+.agendamento-confirmacao[data-visual="figaro"] .confirmacao-resumo {
+  border-radius: 0;
+}
+.agendamento-confirmacao[data-visual="figaro"] .confirmacao-cta {
+  border-radius: 2px;
+}
+
+/* Clássica/Site: tipografia e superfície do tema publicado, sem forçar o chat. */
+.agendamento-confirmacao[data-visual="site"] .confirmacao-resumo {
+  border-radius: 24px;
+}
+
+/* Chat: mantém as superfícies e curvas escolhidas para a conversa. */
+.agendamento-confirmacao[data-visual="conversa"] .confirmacao-resumo {
+  border-radius: 22px;
+}
+
+/* Layout Agendamento com os seis estilos de tema já definidos na página pública. */
+.agendamento-marca[data-estrutura="classica"] .confirmacao-resumo,
+.agendamento-marca[data-estrutura="retro"] .confirmacao-resumo {
+  border-radius: 8px;
+}
+.agendamento-marca[data-estrutura="palco"] .confirmacao-cta {
+  border-radius: 8px;
+}
+.agendamento-marca[data-estrutura="arco"] .confirmacao-resumo,
+.agendamento-marca[data-estrutura="cartao"] .confirmacao-resumo {
+  border-radius: 28px;
+}
+
 @media (min-width: 640px) {
-  .agendamento-confirmacao .confirmacao-topo {
-    padding-top: 32px;
-  }
   .agendamento-confirmacao .confirmacao-conteudo {
+    padding-top: 24px;
     padding-inline: 24px;
   }
   .agendamento-confirmacao .confirmacao-hero {
@@ -308,9 +312,18 @@
 
 @media (prefers-reduced-motion: reduce) {
   .agendamento-confirmacao .mov-confirmacao {
-    animation: none !important;
+    animation: none;
   }
   .agendamento-confirmacao .confirmacao-chevron {
     transition: none;
   }
+}
+
+/* A confirmação transitória dos layouts Figaroo não ignora a marca escolhida. */
+.agendamento-marca .fr-ok {
+  background: var(--ink);
+  color: var(--paper);
+}
+.agendamento-marca .fr-ok svg {
+  color: var(--gold);
 }

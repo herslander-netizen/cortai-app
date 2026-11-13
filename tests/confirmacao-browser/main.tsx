@@ -3,6 +3,9 @@ import { createRoot } from "react-dom/client";
 
 import { ConfirmacaoAgendamento, type SituacaoPublica } from "../../src/components/agendamento/ConfirmacaoAgendamento";
 import type { ConfirmacaoPublica } from "../../src/lib/agendamento-publico.functions";
+import { aplicarTema, normalizarPagina } from "../../src/lib/pagina-config";
+import { estiloDaConfirmacao, varianteDaConfirmacao } from "../../src/lib/tema-da-confirmacao";
+import { atributosDaAgendaDireta } from "../../src/lib/tema-da-agenda-direta";
 import "../../src/styles.css";
 
 const confirmacao: ConfirmacaoPublica = {
@@ -19,27 +22,58 @@ const confirmacao: ConfirmacaoPublica = {
   valor_centavos: 9500,
 };
 
+const CENARIOS = {
+  "figaro-rock": {
+    tema: "figaro-rock-n-roll", layout: "figaro-agendamento", experiencia: "direta",
+  },
+  "figaro-classico": {
+    tema: "figaro-classico", layout: "figaro-agendamento", experiencia: "direta",
+  },
+  "feminino-lavanda": {
+    tema: "feminino-lavanda", layout: "figaro-agendamento", experiencia: "direta",
+  },
+  "vitrine-rose": {
+    tema: "rose", layout: "minimalista", experiencia: "vitrine",
+  },
+  "vitrine-clean": {
+    tema: "clean", layout: "figaro-site-completo", experiencia: "vitrine",
+  },
+  "chat-flow": {
+    tema: "cortai", layout: "cortai-chat", experiencia: "conversa",
+  },
+} as const;
+type Cenario = keyof typeof CENARIOS;
+
 function App() {
   const [situacao, setSituacao] = useState<SituacaoPublica>("confirmado");
   const [gestao, setGestao] = useState<string>("");
-  const [escuro, setEscuro] = useState(true);
+  const [cenario, setCenario] = useState<Cenario>("figaro-rock");
+  const dados = CENARIOS[cenario];
+  const config = aplicarTema(normalizarPagina({
+    ...dados,
+    ...(cenario === "chat-flow" ? { chat: { superficie: "escura", corDestaque: "ciano" } } : {}),
+  }), dados.tema);
+  const fluxo = dados.experiencia === "conversa" ? "conversa" : "passo_a_passo";
+  const visual = varianteDaConfirmacao(config, fluxo);
+
   return (
     <div
       className="agendamento-marca"
       data-testid="demo"
-      style={{
-        "--chat-page": escuro ? "#292929" : "#F1F5F1",
-        "--chat-page-text": escuro ? "#ECECE6" : "#262B28",
-        "--chat-superficie-1": escuro ? "#303631" : "#E3EBE6",
-        "--chat-primary": escuro ? "#CDB993" : "#2467BB",
-        "--chat-primary-foreground": escuro ? "#172030" : "#FFFFFF",
-        "--chat-texto-auxiliar": escuro ? "#ADAFA9" : "#626962",
-      } as React.CSSProperties}
+      data-cenario={cenario}
+      style={estiloDaConfirmacao(config, visual)}
+      {...atributosDaAgendaDireta(config)}
     >
-      <nav className="mx-auto flex max-w-[520px] gap-2 px-5 pt-2" aria-label="Controles da bancada">
-        <button data-testid="tema" type="button" onClick={() => setEscuro((x) => !x)}>
-          {escuro ? "Tema claro" : "Tema escuro"}
-        </button>
+      <nav className="mx-auto flex max-w-[520px] flex-wrap gap-2 px-5 pt-2" aria-label="Controles da bancada">
+        <label className="sr-only" htmlFor="tema-demo">Tema de teste</label>
+        <select
+          id="tema-demo"
+          data-testid="tema"
+          value={cenario}
+          onChange={(e) => setCenario(e.target.value as Cenario)}
+        >
+          {Object.keys(CENARIOS).map((key) => <option key={key} value={key}>{key}</option>)}
+        </select>
         <button data-testid="cancelar-fake" type="button" onClick={() => setSituacao("cancelado")}>
           Estado cancelado
         </button>
@@ -52,9 +86,12 @@ function App() {
         situacao={situacao}
         fuso="America/Sao_Paulo"
         assinaturaVisivel
+        visual={visual}
         onAlterar={() => setGestao("alterar")}
         onCancelar={() => setSituacao("cancelado")}
         onNovo={() => setGestao("novo")}
+        onFechar={() => setGestao("fechar")}
+        avisos={null}
         extras={
           <>
             <section aria-labelledby="demo-preferencias" className="rounded-[20px] border border-line bg-ink2 p-4">
