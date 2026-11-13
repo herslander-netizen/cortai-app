@@ -8,6 +8,7 @@ import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { exigirPermissao, tenantIdDoMembro } from "@/lib/tenant";
+import { exigirRecurso } from "@/lib/planos";
 import { estadoDaConversa, type EstadoDaConversa } from "@/lib/whatsapp/estado-da-conversa";
 
 async function admin() {
@@ -208,6 +209,7 @@ export const comandarConversaDaCentral = createServerFn({ method: "POST" })
   .handler(async ({ context, data }): Promise<ResultadoDoComando> => {
     const tenantId = await tenantIdDoMembro(context);
     await exigirPermissao(context, tenantId, "gerenciar_whatsapp");
+    await exigirRecurso(context.supabase, tenantId, "secretaria_whatsapp");
     const db = await admin();
     const { data: atual, error: erroLeitura } = await db
       .from("conversas_whatsapp")
