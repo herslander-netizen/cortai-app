@@ -36,7 +36,7 @@ export const Route = createFileRoute("/barbeiro/cortai")({
   ): { aba?: Aba | undefined; conversa?: string | undefined; cliente?: string | undefined } => ({
     aba:
       search["aba"] === "conversas"
-        ? "envios"
+        ? "conversas"
         : search["aba"] === "envios" ||
             search["aba"] === "ajustes" ||
             search["aba"] === "experiencia" ||
@@ -67,12 +67,13 @@ export const Route = createFileRoute("/barbeiro/cortai")({
   component: CortaiPage,
 });
 
-type Aba = "whatsapp" | "ajustes" | "experiencia" | "envios";
+type Aba = "whatsapp" | "ajustes" | "experiencia" | "envios" | "conversas";
 
 /** Endereços antigos com `?aba=` (avisos, links e favoritos) levam à aba nova de mesmo assunto. */
 const DESTINO_DA_ABA_ANTIGA = {
   ajustes: "/barbeiro/whatsapp-avisos",
   envios: "/barbeiro/cortai-atividade",
+  conversas: "/barbeiro/cortai-atividade",
   experiencia: "/barbeiro/avaliacoes",
 } as const;
 
