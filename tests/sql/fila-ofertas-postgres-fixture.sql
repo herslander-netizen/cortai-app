@@ -32,12 +32,14 @@ CREATE TABLE public.clientes (
 );
 CREATE TABLE public.profissionais (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  tenant_id uuid NOT NULL REFERENCES public.tenants(id)
+  tenant_id uuid NOT NULL REFERENCES public.tenants(id),
+  ativo boolean NOT NULL DEFAULT true
 );
 CREATE TABLE public.servicos (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   tenant_id uuid NOT NULL REFERENCES public.tenants(id),
   duracao_min integer NOT NULL DEFAULT 30,
+  ativo boolean NOT NULL DEFAULT true,
   profissional_ids uuid[] NOT NULL DEFAULT '{}'
 );
 CREATE TABLE public.fila_de_espera (
