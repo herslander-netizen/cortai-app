@@ -6,7 +6,7 @@ import { humanoNoControle } from "@/lib/flow-bot/decisao";
  * isso NÃO autoriza a mensagem de fallback a falar por cima do profissional.
  */
 export function bloquearContingenciaPorPosse(input: {
-  conversa: { modo_humano?: unknown; modo_humano_ate?: unknown } | null;
+  conversa: { status?: unknown; modo_humano?: unknown; modo_humano_ate?: unknown } | null;
   erro: unknown;
   agora: number;
 }): boolean {
