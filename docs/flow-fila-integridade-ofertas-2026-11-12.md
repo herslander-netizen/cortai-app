@@ -162,3 +162,14 @@ o Supabase de prévia não recebeu escrita. A homologação concorrente
 real e os efeitos dos gatilhos do banco **não foram comprovados**.
 Não mesclar o PR nem executar migração até o ensaio em um banco
 descartável, revisão de locks/permissões e implantação coordenada.
+
+
+## Evidências mais recentes — 13/11/2026 (substitui pendências antigas de CI acima)
+
+- [PostgreSQL descartável #43381287382](https://github.com/herslander-netizen/cortai-app/actions/runs/43381287382): 17 cenários SQL com duas sessões independentes aprovados, incluindo corrida por vaga, aceite, recusa, expiração, cliente de outro tenant e idempotência após remarcação. **Continua usando esquema mínimo e `criar_agendamento` substituta**.
+- [PostgREST HTTP/JWT #43381287281](https://github.com/herslander-netizen/cortai-app/actions/runs/43381287281): **10 negações de acesso** (cada uma das cinco RPCs para `anon` e `authenticated`) e **7 jornadas de operações** como `service_role`, com JWTs totalmente fictícios. Aplica o SQL proposto no PostgreSQL descartável, não chama o Supabase. É teste de exposição HTTP e privilégio; **não é validação de políticas RLS reais, login oficial ou WhatsApp**.
+- O primeiro run HTTP falhou porque o fixture de autorização procurava apenas a configuração de claim legado; PostgREST v12 usa `request.jwt.claims` em JSON. O fixture foi corrigido para ler os dois formatos e, sem role, **negar**. Não houve alteração de Auth de produção.
+- [Preflight só leitura de esquema real](../tests/sql/fila-ofertas-esquema-real-preflight.sql), executado no `cortai-preview`: 25 colunas esperadas presentes, RLS nas sete tabelas, gatilhos, RPCs, índice de vaga ativa, trava da agenda e execução do aceite restrita ao servidor. **`fila_de_espera.oferta_atual_id` ainda ausente**. Contrato mínimo verificado não substitui schema integral e gatilhos exercitados.
+- Proteção adicional do canal: a classificação `sem_canal` passa a ser **lista explícita** de negativas comprovadas que realmente retornam de `porteiro.ts` e `consentimento.ts`. Toda mensagem nova/desconhecida é `incerta`, sem presumir opt-out ou passar a vaga adiante. Cobertura de regressão em `fila-ofertas-canal.test.ts`.
+
+**Gate de implantação inalterado:** PR em rascunho, sem migração em bancos remotos. Falta testar a integração com o esquema COMPLETO, a RPC real `criar_agendamento`, os gatilhos financeiros, Auth/RLS oficial, WhatsApp e fluxos autenticados. O novo backend não pode ser publicado antes da migração compatível e revisada.
