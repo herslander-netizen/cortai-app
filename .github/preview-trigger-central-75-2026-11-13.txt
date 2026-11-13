@@ -1,0 +1,3 @@
+PR #75 — Central de Atendimento
+Commit validado: 3d01dc8a268571748d027334a503cfda90f700fc
+Objetivo: acionar a implantação isolada da prévia em 13/11/2026.
