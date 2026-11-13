@@ -318,3 +318,12 @@
     transition: none;
   }
 }
+
+/* A confirmação transitória dos layouts Figaroo não ignora a marca escolhida. */
+.agendamento-marca .fr-ok {
+  background: var(--ink);
+  color: var(--paper);
+}
+.agendamento-marca .fr-ok svg {
+  color: var(--gold);
+}
