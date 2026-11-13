@@ -52,7 +52,7 @@ import { useSelecaoAgendamento } from "@/components/agendamento/useSelecaoAgenda
 import { HorariosOcupados } from "@/components/agendamento/HorariosOcupados";
 import { useHistoricoAgendamento } from "@/hooks/useHistoricoAgendamento";
 import { headDaBarbearia, mascaraTelefone } from "@/lib/previa";
-import { agendamentoStyle } from "@/lib/pagina-config";
+import { estiloDaConfirmacao, varianteDaConfirmacao } from "@/lib/tema-da-confirmacao";
 import { ReservaConfirmada, ReservaFigaro } from "@/components/agendamento/ReservaFigaro";
 import { horaFinal } from "@/lib/reserva-figaro";
 import { ESPERA_MS } from "@/lib/movimento-figaro";
@@ -526,6 +526,8 @@ function AgendamentoPublico() {
   const modoConversa = fluxo === "conversa";
   const linkSobre = `/b/${slug}?ver=pagina`;
   const modeloFigaro = data.pagina.layout.startsWith("figaro-") && !modoConversa;
+  const visualConfirmacao = varianteDaConfirmacao(data.pagina, fluxo ?? "passo_a_passo");
+  const estiloConfirmacao = estiloDaConfirmacao(data.pagina, visualConfirmacao);
   if (confirmado && modeloFigaro && telaVerde && situacao === "confirmado") {
     const inicio = new Date(confirmado.inicio);
     const hora = inicio.toLocaleTimeString("pt-BR", {
@@ -540,6 +542,7 @@ function AgendamentoPublico() {
       timeZone: fuso,
     });
     return (
+      <div className="agendamento-marca" style={estiloConfirmacao} {...atributosDaAgendaDireta(data.pagina)}>
       <ReservaConfirmada
         data={diaTexto}
         hora={hora}
@@ -549,18 +552,19 @@ function AgendamentoPublico() {
         )}
         profissional={confirmado.profissional}
       />
+      </div>
     );
   }
   if (confirmado && !(modoConversa && futuroNoChat && situacao === "confirmado")) {
     return (
-      <div className="agendamento-marca" style={agendamentoStyle(data.pagina)}>
+      <div className="agendamento-marca" style={estiloConfirmacao} {...atributosDaAgendaDireta(data.pagina)}>
         <FontesDaMarca config={data.pagina} />
         <ConfirmacaoAgendamento
           confirmacao={confirmado}
           situacao={situacao}
           fuso={fuso}
           logoUrl={data.tenant.logoUrl}
-          capaUrl={data.tenant.capaUrl}
+          visual={visualConfirmacao}
           assinaturaVisivel={data.tenant.assinaturaVisivel !== false}
           {...(modoConversa ? { textoFinal: data.pagina.chat.textoFinal } : {})}
           cancelando={cancelar.isPending}
@@ -572,14 +576,13 @@ function AgendamentoPublico() {
           }}
           onCancelar={() => cancelar.mutate()}
           onNovo={novoAgendamento}
+          onFechar={() => window.location.assign(linkSobre)}
+          avisos={situacao === "confirmado" && confirmado.avisosWhatsapp === "confirmar" ? (
+            <AvisosNoWhatsapp slug={slug} telefone={digitosTel} estado={confirmado.avisosWhatsapp} />
+          ) : null}
           extras={
             situacao === "confirmado" ? (
               <>
-                <AvisosNoWhatsapp
-                  slug={slug}
-                  telefone={digitosTel}
-                  estado={confirmado.avisosWhatsapp}
-                />
                 {confirmado.preferenciasToken ? (
                   modoConversa ? (
                     <PreferenciasEmConversa
