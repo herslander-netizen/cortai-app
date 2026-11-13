@@ -9,6 +9,7 @@ import { PainelDeLembretes } from "@/components/notificacoes/PainelDeLembretes";
 import { OcorrenciasDaAutomacao } from "@/components/automacao/CentralDeAutomacao";
 import { OpcoesConectadas } from "@/components/ui/opcoes-conectadas";
 import { HistoricoDeEnvios } from "@/components/whatsapp/HistoricoDeEnvios";
+import { CentralDeAtendimento } from "@/components/whatsapp/CentralDeAtendimento";
 import {
   getAtividadeDoCortai,
   getMetricasDoCortai,
@@ -99,7 +100,7 @@ function Cartao({ rotulo, valor, alerta }: { rotulo: string; valor: number; aler
   );
 }
 
-type Assunto = "envios" | "ia" | "conexao";
+type Assunto = "conversas" | "envios" | "ia" | "conexao";
 
 /**
  * WhatsApp → Atividade (reorganização do dono, 05/11/2026): tudo o que já aconteceu, num lugar só — os envios
@@ -107,12 +108,12 @@ type Assunto = "envios" | "ia" | "conexao";
  * Automação do WhatsApp).
  */
 function AtividadePage() {
-  const [assunto, setAssunto] = useState<Assunto>("envios");
+  const [assunto, setAssunto] = useState<Assunto>("conversas");
   return (
     <Screen
       voltarPara="/barbeiro/mais"
       title="WhatsApp"
-      subtitle="O que foi enviado, o que a Flow IA fez e como está a conexão."
+      subtitle="Conversas, atendimentos e histórico do WhatsApp em um só lugar."
     >
       <OpcoesConectadas
         rotulo="O que ver"
@@ -120,11 +121,13 @@ function AtividadePage() {
         onChange={setAssunto}
         className="mb-4"
         opcoes={[
+          { valor: "conversas", texto: "Conversas" },
           { valor: "envios", texto: "Envios" },
           { valor: "ia", texto: "Flow IA" },
           { valor: "conexao", texto: "Conexão" },
         ]}
       />
+      {assunto === "conversas" ? <CentralDeAtendimento /> : null}
       {assunto === "envios" ? (
         <div className="space-y-4">
           <HistoricoDeEnvios />
