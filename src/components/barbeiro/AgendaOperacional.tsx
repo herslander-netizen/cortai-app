@@ -353,6 +353,11 @@ export function AgendaOperacional() {
   const [visualizacao, setVisualizacao] = useState<Visualizacao>(() =>
     preferenciaInicial === "foco" ? ultimaVisaoCompleta() : preferenciaInicial,
   );
+  // Não executar rolagem síncrona no mesmo evento que monta outra visão pesada.
+  const rolagemDaTroca = useRef<number | null>(null);
+  useEffect(() => () => {
+    if (rolagemDaTroca.current !== null) window.cancelAnimationFrame(rolagemDaTroca.current);
+  }, []);
   const celular = useIsMobile();
   const faixaCelular = useMediaQuery("(max-width: 600px)");
   const ehDesktop = useEhDesktop();
@@ -392,10 +397,20 @@ export function AgendaOperacional() {
 
   function alterarVisualizacao(proxima: Visualizacao) {
     const segura = celular && proxima === "semana" ? "lista" : proxima;
-    // Celular: a lista começa em hoje, no topo (como no vídeo do dono).
-    if (celular && segura === "lista" && visualizacao !== "lista") window.scrollTo({ top: 0 });
+    // Um segundo toque deve cancelar a rolagem pendente da troca anterior.
+    if (rolagemDaTroca.current !== null) {
+      window.cancelAnimationFrame(rolagemDaTroca.current);
+      rolagemDaTroca.current = null;
+    }
+    // Primeiro agenda a troca do React, sem forçar layout/scroll dentro do clique.
     setVisualizacao(segura);
     salvarPreferenciaAgenda(segura);
+    if (celular && segura === "lista" && visualizacao !== "lista") {
+      rolagemDaTroca.current = window.requestAnimationFrame(() => {
+        rolagemDaTroca.current = null;
+        window.scrollTo({ top: 0, behavior: "auto" });
+      });
+    }
   }
 
   function alternarModoDiscreto() {
