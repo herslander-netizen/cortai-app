@@ -19,6 +19,7 @@ import { IngressoAgendamento } from "./IngressoAgendamento";
 import { baixarArquivoIcs, linkGoogleAgenda } from "@/lib/calendario-agendamento";
 import { linkDoWhatsApp } from "@/lib/whatsapp/link-whatsapp";
 import type { ConfirmacaoPublica } from "@/lib/agendamento-publico.functions";
+import "./ConfirmacaoAgendamento.css";
 
 function dataLocal(iso: string, fuso: string) {
   return new Intl.DateTimeFormat("pt-BR", {
@@ -85,45 +86,47 @@ export function ConfirmacaoAgendamento({
     [confirmacao, fuso],
   );
   return (
-    <main className="agendamento-confirmacao min-h-dvh pb-[calc(1.5rem+env(safe-area-inset-bottom))]">
-      <header className="relative overflow-hidden px-5 pb-4 pt-[max(16px,env(safe-area-inset-top))]">
+    <main className="agendamento-confirmacao min-h-dvh" data-estado={situacao}>
+      <header className="confirmacao-topo">
         {capaUrl ? (
           <img
             src={capaUrl}
             alt=""
-            className="absolute inset-0 size-full object-cover opacity-25"
+            className="confirmacao-capa"
             decoding="async"
           />
         ) : null}
-        <div className="relative mx-auto flex w-full max-w-[520px] items-center gap-3">
-          <LogoBarbearia nome={confirmacao.barbearia} url={logoUrl ?? null} size={56} />
-          <div>
-            <p className="text-sm font-semibold text-mute">Seu horário em</p>
-            <p className="text-lg font-extrabold text-paper">{confirmacao.barbearia}</p>
+        <div className="confirmacao-topo-conteudo">
+          <LogoBarbearia nome={confirmacao.barbearia} url={logoUrl ?? null} size={52} />
+          <div className="confirmacao-negocio">
+            <p className="confirmacao-negocio-rotulo">Seu horário em</p>
+            <p className="confirmacao-negocio-nome">{confirmacao.barbearia}</p>
           </div>
         </div>
       </header>
-      <section className="mx-auto w-full max-w-[520px] px-4 pt-4 sm:px-5 sm:pt-5">
+      <section className="confirmacao-conteudo">
+        <div className="confirmacao-hero">
         <span
-          className={`mov-confirmacao flex size-14 items-center justify-center rounded-full ${ativo ? "bg-gold/15 text-gold" : "bg-brick/15 text-brick"}`}
+          className={`mov-confirmacao confirmacao-visto ${ativo ? "bg-gold/15 text-gold" : "bg-brick/15 text-brick"}`}
         >
           {ativo ? <VistoAnimado tamanho={56} /> : <CalendarX size={28} aria-hidden />}
         </span>
-        <h1 className="mt-3 text-2xl font-bold leading-tight text-paper sm:text-3xl">{titulo}</h1>
+        <h1 className="confirmacao-titulo">{titulo}</h1>
         {ativo && textoFinal ? <p className="mt-2 text-sm text-mute">{textoFinal}</p> : null}
         {ativo && confirmacao.endereco ? (
-          <p className="mt-2 flex items-start gap-2 text-sm leading-relaxed text-mute">
+          <p className="confirmacao-endereco">
             <MapPin size={16} className="mt-0.5 shrink-0" aria-hidden />
             {confirmacao.endereco}
           </p>
         ) : null}
         {ativo && confirmacao.mensagemDoNegocio ? (
-          <p className="mt-3 whitespace-pre-line rounded-[20px] bg-[var(--figaro-surface-container,var(--ink2))] px-4 py-3 text-left text-sm leading-relaxed text-paper">
+          <p className="confirmacao-mensagem whitespace-pre-line">
             {confirmacao.mensagemDoNegocio}
           </p>
         ) : null}
+        </div>
         {ativo ? (
-          <div className="mt-4">
+          <div className="confirmacao-ingresso">
             <IngressoAgendamento
               negocio={confirmacao.barbearia}
               servico={confirmacao.servico}
@@ -142,27 +145,28 @@ export function ConfirmacaoAgendamento({
           </p>
         ) : null}
         {ativo ? (
-          <div className="mt-4 grid gap-2 sm:gap-3">
+          <div className="confirmacao-acao-principal">
             <Button
               asChild
               size="lg"
               variant="primary"
-              className="min-h-12 rounded-full sm:min-h-14"
+              className="confirmacao-cta"
             >
               <a href={linkGoogleAgenda(confirmacao)} target="_blank" rel="noopener noreferrer">
                 <CalendarPlus />
                 Adicionar à agenda
               </a>
             </Button>
-            {extras}
+            {extras ? <div className="confirmacao-extras">{extras}</div> : null}
+            <div className="confirmacao-secundarias">
             <Collapsible>
               <CollapsibleTrigger asChild>
-                <Button variant="ghost" className="min-h-12 w-full justify-between">
+                <Button variant="outline" className="confirmacao-expandir">
                   Mais formas de guardar e enviar
-                  <ChevronDown aria-hidden />
+                  <ChevronDown className="confirmacao-chevron" aria-hidden />
                 </Button>
               </CollapsibleTrigger>
-              <CollapsibleContent className="mt-2 grid gap-2">
+              <CollapsibleContent className="confirmacao-opcoes">
                 <Button variant="outline" onClick={() => baixarArquivoIcs(confirmacao)}>
                   <CalendarPlus />
                   Baixar arquivo .ics
@@ -197,12 +201,12 @@ export function ConfirmacaoAgendamento({
             </Collapsible>
             <Collapsible>
               <CollapsibleTrigger asChild>
-                <Button variant="outline" className="min-h-12 w-full justify-between">
+                <Button variant="outline" className="confirmacao-expandir">
                   Gerenciar agendamento
-                  <ChevronDown aria-hidden />
+                  <ChevronDown className="confirmacao-chevron" aria-hidden />
                 </Button>
               </CollapsibleTrigger>
-              <CollapsibleContent className="mt-2 grid gap-2">
+              <CollapsibleContent className="confirmacao-opcoes">
                 <Button variant="outline" disabled={cancelando} onClick={onAlterar}>
                   Alterar agendamento
                 </Button>
@@ -235,6 +239,7 @@ export function ConfirmacaoAgendamento({
                 </Button>
               </CollapsibleContent>
             </Collapsible>
+            </div>
           </div>
         ) : (
           <Button className="mt-6 w-full" onClick={onNovo}>
@@ -246,9 +251,9 @@ export function ConfirmacaoAgendamento({
             href="/apresentacao"
             target="_blank"
             rel="noopener"
-            className="mx-auto mt-6 flex min-h-12 w-fit items-center px-3 text-xs font-semibold text-mute sm:mt-10"
+            className="confirmacao-assinatura"
           >
-            Agendado com Flow
+            Agendado com <strong>Flow</strong>
           </a>
         ) : null}
       </section>
