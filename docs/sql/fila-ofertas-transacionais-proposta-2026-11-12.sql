@@ -511,11 +511,18 @@ BEGIN
     RAISE EXCEPTION 'criar_agendamento não retornou agendamento';
   END IF;
   v_ag := (v_resultado->>'agendamento_id')::uuid;
+  -- A resposta da RPC não basta: vincular SOMENTE o agendamento criado
+  -- para este cliente, profissional, serviço e início, no mesmo tenant.
+  -- Uma resposta inesperada não pode marcar outra reserva como origem da fila.
   UPDATE public.agendamentos
      SET origem = 'manual', origem_fila_id = v_f.id
-   WHERE id = v_ag AND tenant_id = _tenant_id;
+   WHERE id = v_ag AND tenant_id = _tenant_id
+     AND cliente_id = v_f.cliente_id
+     AND profissional_id = _profissional_id
+     AND servico_id = _servico_id
+     AND inicio = _inicio AND status = 'agendado';
   IF NOT FOUND THEN
-    RAISE EXCEPTION 'Agendamento não encontrado após criação';
+    RAISE EXCEPTION 'agendamento não corresponde à conversão da fila';
   END IF;
   UPDATE public.fila_de_espera
      SET status = 'atendido', avisado_em = NULL, oferta_atual_id = NULL
