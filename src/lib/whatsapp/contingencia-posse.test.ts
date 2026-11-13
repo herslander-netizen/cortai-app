@@ -24,6 +24,16 @@ describe("WhatsApp — contingência não fala durante atendimento humano", () =
     })).toBe(true);
   });
 
+  it("status encerrada ou humano permanece silencioso mesmo se flags estiverem antigas", () => {
+    for (const status of ["humano", "encerrada"]) {
+      expect(bloquearContingenciaPorPosse({
+        conversa: { status, modo_humano: false, modo_humano_ate: null },
+        erro: null,
+        agora: AGORA,
+      })).toBe(true);
+    }
+  });
+
   it("só permite fallback quando há leitura válida e nenhuma posse humana", () => {
     for (const conversa of [
       { modo_humano: false, modo_humano_ate: null },
