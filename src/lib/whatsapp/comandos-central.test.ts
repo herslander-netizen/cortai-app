@@ -178,6 +178,12 @@ describe("Webhook — guarda antes de automações contextuais", () => {
     expect(regra).toContain('.select("status, modo_humano, modo_humano_ate")');
     expect(regra).toContain('motivo: "posse_humana_indeterminada"');
     expect(regra).toContain('motivo: "conversa_sob_controle_humano"');
-    expect(regra).toContain("identificarEquipe(tenantId, telefone)");
+    // A conversa sob controle humano permanece silenciosa mesmo se o contato
+    // também estiver cadastrado como membro da equipe.
+    expect(regra).not.toContain("identificarEquipe(tenantId, telefone)");
+    const bot = readFileSync("src/lib/flow-bot/bot.server.ts", "utf8");
+    expect(bot).toContain("if (humanoNoControle(conversa, agora)) return true;");
+    expect(bot).not.toContain("!equipe && humanoNoControle");
+    expect(code).toContain("if (humanoNoControle(conversa, Date.now())) return false;");
   });
 });
