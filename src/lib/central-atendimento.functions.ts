@@ -44,43 +44,24 @@ export const listarConversasDaCentral = createServerFn({ method: "GET" })
     const db = await admin();
     const { data: conversas, error } = await db
       .from("conversas_whatsapp")
-      .select("id, telefone, nome_contato, status, ia_ativa, modo_humano, modo_humano_ate, nao_lidas, ultima_mensagem_em, atualizado_em")
+      .select(`
+        id, telefone, nome_contato, status, ia_ativa, modo_humano, modo_humano_ate,
+        nao_lidas, ultima_mensagem_em, atualizado_em,
+        ultima:mensagens_whatsapp!mensagens_whatsapp_conversa_id_fkey(
+          direcao, tipo, conteudo, gerada_por_ia, gerada_por_humano, criado_em
+        ),
+        saidas:mensagens_whatsapp!mensagens_whatsapp_conversa_id_fkey(id)
+      `)
       .eq("tenant_id", tenantId)
+      // A última mensagem e a presença de uma resposta pertencem a CADA
+      // conversa. Um cliente com 300 mensagens não oculta os demais.
+      .eq("saidas.direcao", "saida")
+      .order("criado_em", { referencedTable: "ultima", ascending: false })
+      .limit(1, { referencedTable: "ultima" })
+      .limit(1, { referencedTable: "saidas" })
       .order("ultima_mensagem_em", { ascending: false, nullsFirst: false })
       .limit(40);
     if (error) throw new Error("Não foi possível consultar as conversas deste negócio.");
-
-    const ids = (conversas ?? []).map((c) => c.id);
-    const mensagens = ids.length
-      ? await db.from("mensagens_whatsapp")
-          .select("conversa_id, direcao, tipo, conteudo, gerada_por_ia, gerada_por_humano, criado_em")
-          .eq("tenant_id", tenantId)
-          .in("conversa_id", ids)
-          .order("criado_em", { ascending: false })
-          .limit(300)
-      : { data: [], error: null };
-    if (mensagens.error) throw new Error("Não foi possível consultar as últimas mensagens.");
-
-    const recentes = new Map<string, {
-      direcao: "entrada" | "saida";
-      conteudo: string;
-      tipo: string;
-      gerada_por_ia: boolean;
-      gerada_por_humano: boolean;
-    }>();
-    const comSaida = new Set<string>();
-    for (const m of mensagens.data ?? []) {
-      if (m.direcao === "saida") comSaida.add(m.conversa_id);
-      if (!recentes.has(m.conversa_id) && (m.direcao === "entrada" || m.direcao === "saida")) {
-        recentes.set(m.conversa_id, {
-          direcao: m.direcao,
-          conteudo: m.conteudo,
-          tipo: m.tipo,
-          gerada_por_ia: m.gerada_por_ia,
-          gerada_por_humano: m.gerada_por_humano,
-        });
-      }
-    }
 
     const { data: pode, error: erroPermissao } = await context.supabase.rpc("has_tenant_permission", {
       _tenant_id: tenantId, _permission: "gerenciar_whatsapp",
@@ -90,7 +71,7 @@ export const listarConversasDaCentral = createServerFn({ method: "GET" })
       geradoEm: new Date(agora).toISOString(),
       podeGerenciar: !erroPermissao && pode === true,
       conversas: (conversas ?? []).map((c) => {
-        const m = recentes.get(c.id);
+        const m = c.ultima?.[0];
         const nome = c.nome_contato?.trim() || `Contato · final ${c.telefone.slice(-4)}`;
         return {
           id: c.id,
@@ -102,7 +83,7 @@ export const listarConversasDaCentral = createServerFn({ method: "GET" })
             modoHumano: c.modo_humano,
             modoHumanoAte: c.modo_humano_ate,
             ultimaDirecao: m?.direcao ?? null,
-            possuiSaidaRegistrada: comSaida.has(c.id),
+            possuiSaidaRegistrada: (c.saidas?.length ?? 0) > 0,
             naoLidas: c.nao_lidas ?? 0,
           }, agora),
           naoLidas: c.nao_lidas ?? 0,
