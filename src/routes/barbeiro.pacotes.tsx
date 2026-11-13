@@ -29,6 +29,8 @@ import { brl } from "@/lib/format";
 import {
   centavosParaReais,
   economiaDoPacote,
+  erroPrecoDoConjunto,
+  precoAvulsoDoConjunto,
   reaisParaCentavos,
   validadeEmTexto,
   type PacoteDoNegocio,
@@ -119,9 +121,12 @@ function PacotesPage() {
 
   const selecionados = rascunho ? servicos.filter((s) => (rascunho.itens[s.id] ?? 0) > 0) : [];
   const centavos = rascunho ? reaisParaCentavos(rascunho.preco) : null;
-  const separado = selecionados.reduce(
-    (total, s) => total + s.preco_centavos * (rascunho?.itens[s.id] ?? 0),
-    0,
+  const separado = precoAvulsoDoConjunto(
+    rascunho?.tipo ?? "pacote",
+    selecionados.map((s) => ({
+      quantidade: rascunho?.itens[s.id] ?? 0,
+      precoCentavos: s.preco_centavos,
+    })),
   );
   const problema = !rascunho
     ? null
@@ -131,7 +136,7 @@ function PacotesPage() {
         ? "Escolha pelo menos um serviço."
         : centavos === null
           ? "Informe o preço."
-          : null;
+          : erroPrecoDoConjunto(centavos, separado);
 
   const gravar = async () => {
     if (salvandoRef.current || !rascunho || problema || centavos === null) return;
@@ -356,7 +361,7 @@ function PacotesPage() {
                     {economiaDoPacote({
                       precoCentavos: centavos,
                       itens: selecionados.map((s) => ({
-                        quantidade: rascunho.itens[s.id] ?? 1,
+                        quantidade: rascunho.tipo === "combo" ? 1 : (rascunho.itens[s.id] ?? 1),
                         precoCentavos: s.preco_centavos,
                       })),
                     }).centavos > 0

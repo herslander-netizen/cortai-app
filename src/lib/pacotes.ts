@@ -26,6 +26,44 @@ export function precoSeparado(itens: Pick<ItemDoPacote, "quantidade" | "precoCen
   return itens.reduce((total, i) => total + i.quantidade * i.precoCentavos, 0);
 }
 
+/**
+ * O combo ocorre em UMA visita: cada serviço incluído conta uma única vez,
+ * mesmo se o rascunho veio de um pacote de visitas múltiplas.
+ * Usado na tela e repetido no servidor com preços de catálogo atualizados.
+ */
+export function precoAvulsoDoConjunto(
+  tipo: TipoDePacote,
+  itens: readonly Pick<ItemDoPacote, "quantidade" | "precoCentavos">[],
+): number {
+  return precoSeparado(
+    itens.map((item) => ({
+      precoCentavos: item.precoCentavos,
+      quantidade: tipo === "combo" ? 1 : item.quantidade,
+    })),
+  );
+}
+
+/**
+ * A economia nunca pode ser uma "economia negativa".
+ * Validação compartilhada; o servidor deve calcular avulso a partir do
+ * catálogo do tenant, nunca aceitar o total enviado pelo navegador.
+ */
+export function erroPrecoDoConjunto(
+  precoCentavos: number,
+  precoAvulsoCentavos: number,
+): string | null {
+  if (!Number.isSafeInteger(precoCentavos) || precoCentavos < 0) {
+    return "Informe um preço válido.";
+  }
+  if (!Number.isSafeInteger(precoAvulsoCentavos) || precoAvulsoCentavos < 0) {
+    return "Não foi possível calcular o valor dos serviços.";
+  }
+  if (precoCentavos > precoAvulsoCentavos) {
+    return "O preço do conjunto não pode ultrapassar o valor dos serviços avulsos.";
+  }
+  return null;
+}
+
 /** Economia do pacote em relação aos serviços avulsos; nunca negativa. */
 export function economiaDoPacote(pacote: {
   precoCentavos: number;

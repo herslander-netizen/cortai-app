@@ -219,3 +219,19 @@ Ter rota ou protótipo não é equivalência funcional.
 **Limite de verificação:** auditoria estática do código e docs, não
 captura de telas ou homologação autenticada. Antes de declarar paridade visual
 com o APK, comparar no aparelho e no Flow real a 360/390px e 1280px.
+
+
+### Lote incremental — integridade de preço em Pacotes e Combos (12/11/2026)
+
+**Lacuna comprovada:** o editor permite trocar um pacote multivisita por combo, mas mantinha as quantidades originais ao calcular o valor avulso e a economia. O servidor já convertia toda quantidade de combo para 1; assim, o resumo podia divergir do que seria salvo. O servidor também não impedia um preço superior à soma dos serviços separados, diferentemente da regra documentada no Figaroo.
+
+**Adaptação:**
+- Função pura compartilhada calcula o valor avulso respeitando o tipo: pacote com quantidade real; combo com uma visita por serviço.
+- Formulário e servidor usam a mesma validação de teto de preço. A validação do servidor calcula com **preços atuais do catálogo**, nunca com valores enviados pelo cliente.
+- Ao salvar, apenas serviços ativos do próprio tenant são aceitos. IDs de serviço fora do negócio ou inativos são rejeitados antes de qualquer escrita.
+- Uma falha de leitura dos serviços não vira lista vazia; apenas códigos conhecidos de tabela ausente indicam recurso indisponível. Erros diferentes são propagados.
+- Edição exige comprovar que o pacote pertence ao tenant antes de executar UPDATE/DELETE.
+
+**Testes:** casos puros de troca pacote → combo, desconto/valor igual/valor acima, zero e entradas inválidas; regressões estruturais de autenticação, tenant e ordem de validação. Consultar CI do PR específico.
+
+**Risco remanescente (BLOQUEADOR para homologação de persistência):** a função existente `salvarPacote` executa a alteração do pacote, a exclusão dos itens anteriores e a inserção dos novos por **requisições independentes**. Um erro depois da exclusão pode deixar o conjunto parcialmente atualizado. É necessária RPC transacional ou mecanismo equivalente ensaiado no PostgreSQL isolado, seguido de autorização expressa antes de aplicar migração. Este lote **não** elimina esse risco e não se declara conclusão de venda, renovação de pacote ou fluxo de checkout.
