@@ -96,7 +96,8 @@ describe("BotaoAgoraPrincipal", () => {
     expect(host?.querySelectorAll("[data-acoes-agenda]")).toHaveLength(1);
     expect(fab?.getAttribute("aria-expanded")).toBe("false");
     expect(fab?.style.boxShadow).toBe("");
-    expect(fab?.style.filter).toBe("none");
+    // O filtro visual do Framer Motion só é aplicado no hover; em repouso não há filtro inline.
+    expect(fab?.style.filter).toBe("");
     expect(fab?.querySelector(".agenda-fab-icone-aberto")).toBeNull();
     act(() => fab?.click());
     expect(onAlternarMenu).toHaveBeenCalledOnce();
