@@ -102,10 +102,8 @@ async function verificarUma(linha: Linha, agora: Date) {
     logConexao("monitor_sem_resposta", { ...base, classe });
     const { registrarFalhaDoServico } = await import("./incidente-evolution.server");
     await registrarFalhaDoServico(linha, classe, agora);
-    await db
-      .from("conexoes_whatsapp")
-      .update({ verificado_em: agora.toISOString() })
-      .eq("id", linha.id);
+    // A consulta falhou: não renovar a confirmação de conectividade.
+    // O painel continuará exigindo uma verificação real e recente.
     return "sem_resposta" as const;
   }
 
