@@ -8,7 +8,6 @@ describe("WhatsApp — contingência não fala durante atendimento humano", () =
   it("não responde se a pausa temporária está em vigor, mesmo com flags padrão", () => {
     expect(bloquearContingenciaPorPosse({
       conversa: {
-        ia_ativa: true,
         modo_humano: false,
         modo_humano_ate: new Date(AGORA + 2 * 60 * 60_000).toISOString(),
       },
