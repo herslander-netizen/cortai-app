@@ -334,6 +334,42 @@ def test_preflight_manual_walkin_vs_corrupt_waitlist():
         c.rollback()  # Nunca deixar a entrada propositalmente inconsistente.
 
 
+def test_manual_conversion_rejects_unrelated_appointment():
+    """Não vincular agendamento alheio do mesmo tenant ao converter a fila."""
+    x = fixture()
+    unrelated_id = uuid.uuid4()
+    with db() as c:
+        c.execute(
+            """INSERT INTO public.agendamentos(
+                 id,tenant_id,cliente_id,profissional_id,servico_id,
+                 inicio,fim,status
+               ) VALUES (%s,%s,%s,%s,%s,%s,%s,'agendado')""",
+            (
+                unrelated_id, x["tenant"], x["client2"], x["prof"],
+                x["service"], START + timedelta(days=1), END + timedelta(days=1),
+            ),
+        )
+        c.commit()
+        c.execute(
+            "SELECT set_config('test.fila_id_agendamento_inesperado', %s, true)",
+            (str(unrelated_id),),
+        )
+        try:
+            convert(c, x)
+        except psycopg.errors.RaiseException as exc:
+            assert "agendamento não corresponde à conversão da fila" in str(exc)
+            c.rollback()
+        else:
+            raise AssertionError("Conversão vinculou agendamento de outro cliente")
+    assert scalar(
+        "SELECT origem_fila_id IS NULL FROM public.agendamentos WHERE id=%s",
+        unrelated_id,
+    ) is True
+    assert scalar(
+        "SELECT status FROM public.fila_de_espera WHERE id=%s", x["entry1"]
+    ) == "aguardando"
+
+
 CASES = [
     test_two_slots_one_entry,
     test_one_slot_two_entries,
@@ -342,6 +378,7 @@ CASES = [
     test_remove_vs_reserve,
     test_convert_vs_reserve,
     test_two_manual_conversions,
+    test_manual_conversion_rejects_unrelated_appointment,
     test_expire_vs_accept,
     test_tenant_isolation,
     test_walk_in_queue_without_offer,
