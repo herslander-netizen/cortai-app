@@ -33,7 +33,7 @@ test("todos os estilos usam sua paleta, sem cortes ou rolagem horizontal", async
     ["figaro-rock", "figaro"],
     ["figaro-classico", "figaro"],
     ["feminino-lavanda", "figaro"],
-    ["vitrine-rose", "figaro"],
+    ["vitrine-rose", "site"],
     ["vitrine-clean", "figaro"],
     ["chat-flow", "conversa"],
   ] as const;
