@@ -9,6 +9,7 @@ from __future__ import annotations
 import os
 import time
 import uuid
+from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timedelta, timezone
 from zoneinfo import ZoneInfo
@@ -304,6 +305,35 @@ def test_no_server_claim():
             raise AssertionError("Chamada sem claim de servidor não foi rejeitada")
 
 
+def test_preflight_manual_walkin_vs_corrupt_waitlist():
+    """Aviso manual da chegada é válido; aviso de espera sem oferta não é."""
+    x = fixture()
+    sql = Path("tests/sql/fila-ofertas-preflight-leitura.sql").read_text(encoding="utf-8")
+    walkin = uuid.uuid4()
+    with db() as c:
+        c.execute(
+            """INSERT INTO public.fila_de_espera
+               (id,tenant_id,cliente_id,status,janela_preferida,avisado_em)
+               VALUES (%s,%s,%s,'avisado',NULL,now())""",
+            (walkin, x["tenant"], x["client1"]),
+        )
+        valid_cur = c.execute(sql)
+        columns = [col.name for col in valid_cur.description]
+        valid = dict(zip(columns, valid_cur.fetchone()))
+        assert valid["pronto_para_revisao"] is True, valid
+        assert valid["avisados_sem_oferta"] == 0, valid
+
+        c.execute(
+            "UPDATE public.fila_de_espera SET status='avisado' WHERE id=%s",
+            (x["entry1"],),
+        )
+        invalid_cur = c.execute(sql)
+        invalid = dict(zip(columns, invalid_cur.fetchone()))
+        assert invalid["pronto_para_revisao"] is False, invalid
+        assert invalid["avisados_sem_oferta"] == 1, invalid
+        c.rollback()  # Nunca deixar a entrada propositalmente inconsistente.
+
+
 CASES = [
     test_two_slots_one_entry,
     test_one_slot_two_entries,
@@ -315,6 +345,7 @@ CASES = [
     test_expire_vs_accept,
     test_tenant_isolation,
     test_walk_in_queue_without_offer,
+    test_preflight_manual_walkin_vs_corrupt_waitlist,
     test_idempotent_accept,
     test_no_server_claim,
 ]
