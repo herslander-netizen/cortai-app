@@ -17,6 +17,7 @@ import { CORES_CATEGORIA } from "@/lib/categorias-servicos";
 import { TelaDeFormulario } from "@/components/ui/formulario/TelaDeFormulario";
 import {
   getConfiguracaoInicial,
+  listarProfissionaisParaServicos,
   removerServico,
   salvarServicos,
   type ConfiguracaoInicial,
@@ -85,7 +86,7 @@ function gruposDeServicos(
 function ServicosPage() {
   const salvar = useServerFn(salvarServicos);
   const remover = useServerFn(removerServico);
-  const { data, isLoading, refetch } = useQuery({
+  const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["configuracao-inicial"],
     queryFn: () => getConfiguracaoInicial(),
   });
@@ -104,6 +105,12 @@ function ServicosPage() {
   const [rascunho, setRascunho] = useState<ServicoEditavel[]>([]);
   const [rascunhoOriginal, setRascunhoOriginal] = useState("");
   const [recolhidos, setRecolhidos] = useState<Set<string>>(() => new Set());
+  const profissionaisQuery = useQuery({
+    queryKey: ["profissionais-para-servicos"],
+    queryFn: () => listarProfissionaisParaServicos(),
+    enabled: modoEditor !== null,
+    staleTime: 30_000,
+  });
 
   useEffect(() => {
     if (!data || iniciado) return;
@@ -276,7 +283,18 @@ function ServicosPage() {
           <EsqueletoFormulario campos={4} onTentarDeNovo={() => void refetch()} />
         ) : null}
 
-        {!modoEditor && !isLoading && iniciado ? (
+        {isError ? (
+          <Card density="default" className="space-y-3">
+            <p className="text-sm text-brick" role="alert">
+              Não foi possível carregar os serviços do negócio.
+            </p>
+            <Button type="button" variant="outline" onClick={() => void refetch()}>
+              Tentar novamente
+            </Button>
+          </Card>
+        ) : null}
+
+        {!modoEditor && !isLoading && !isError && iniciado ? (
           <>
             {servicos.length ? (
               // Como no Figaro (spec 7 §5): lista agrupada por categoria, cada grupo recolhível, "Sem categoria"
@@ -408,12 +426,26 @@ function ServicosPage() {
           <EditorDeServicos
             servicos={rascunho}
             onChange={alterarRascunho}
+            profissionais={profissionaisQuery.data ?? []}
             segmento={data?.tenant.segmento ?? "outro"}
             apenasUm
             categoriasAdicionais={categoriasAdicionais}
             semSugestoes
             semIA={modoEditor === "existente" && rascunho.length === 0}
           />
+          {profissionaisQuery.isPending ? (
+            <p className="mt-3 text-sm text-mute" role="status">Carregando equipe para os serviços…</p>
+          ) : null}
+          {profissionaisQuery.isError ? (
+            <div className="mt-3 space-y-2" role="alert">
+              <p className="text-sm text-brick">
+                Não foi possível consultar a equipe. Você ainda pode editar os outros dados do serviço.
+              </p>
+              <Button type="button" variant="outline" onClick={() => void profissionaisQuery.refetch()}>
+                Tentar novamente
+              </Button>
+            </div>
+          ) : null}
           {erro ? (
             <p className="mt-3 text-sm text-brick" role="alert">
               {erro}
