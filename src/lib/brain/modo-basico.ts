@@ -11,6 +11,7 @@
  * funcionamento; horários livres; resumo do dia. Conversa livre exige a IA.
  */
 import { respostaDeAjuda } from "./ajuda-do-painel";
+import { respostaDeConversaProfissional } from "./conversa-profissional";
 import {
   ehPedidoDeAgendar,
   formatarHora,
@@ -246,6 +247,11 @@ export function planejarModoBasico(e: EntradaDoModoBasico): Item[] {
 
   const pedido = reunirCampos(mensagens, hoje, palavrasDeServico);
   const intencao: Intencao = pedido ? "agendar" : intencaoDe(ultima);
+
+  if (intencao === "conversa") {
+    const resposta = respostaDeConversaProfissional(ultima, e.papel as "profissional" | "dono" | "cliente" | null | undefined);
+    if (resposta) return texto(resposta);
+  }
 
   if (intencao === "agendar") return planejarAgendamento();
   return planejarConsulta(intencao);
