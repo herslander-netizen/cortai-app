@@ -31,6 +31,9 @@ export type Intencao =
   | "funcionamento"
   | "buscar_cliente"
   | "disponibilidade"
+  | "agenda"
+  | "fila"
+  | "atraso"
   | "ajuda"
   | "como_fazer";
 
@@ -46,6 +49,12 @@ export function intencaoDe(texto: string): Intencao {
   // "Como coloco um cliente na fila?" é pedido de instrução, não busca nem comando.
   if (ehPerguntaDeAjuda(texto)) return "como_fazer";
   if (VERBO_DE_AGENDAR.test(t)) return "agendar";
+  if (/\b(atras\w*|demor\w*)\b.*\b(avisar|avisa|comunicar|cliente)\b|\bavisar\b.*\b(atras\w*|demor\w*)\b/.test(t))
+    return "atraso";
+  if (/\b(minha agenda|meus atendimentos|meus horarios|proximos? clientes?|quem e o proximo|qual o proximo|como esta a agenda|agenda de hoje|agenda amanha)\b/.test(t))
+    return "agenda";
+  if (/\b(fila|lista de espera|espera agora|quem esta esperando|aguardando)\b/.test(t))
+    return "fila";
   if (
     /\b(quanto entrou|faturamento|faturei|movimento|indicadores?|caixa de hoje|quanto (?:ja )?(?:ganhei|fiz))\b/.test(
       t,
