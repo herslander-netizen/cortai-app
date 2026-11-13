@@ -93,7 +93,15 @@ CREATE UNIQUE INDEX ofertas_da_fila_uma_ativa_por_vaga_test
 -- o claim; isso nunca deve ser feito em banco remoto.
 CREATE OR REPLACE FUNCTION public.chamada_do_servidor()
 RETURNS boolean LANGUAGE sql STABLE
-AS $auth$ SELECT coalesce(current_setting('request.jwt.claim.role', true) = 'service_role', false) $auth$;
+AS $auth$
+  -- No psql da bancada usa-se o claim legado. PostgREST v12 expõe o
+  -- conjunto de claims em request.jwt.claims JSON. Ambos são sintéticos;
+  -- a versão de produção não é alterada por este fixture.
+  SELECT coalesce(
+    NULLIF(current_setting('request.jwt.claim.role', true), ''),
+    NULLIF(current_setting('request.jwt.claims', true), '')::jsonb->>'role'
+  ) = 'service_role';
+$auth$;
 
 -- Substituto explícito da RPC oficial criar_agendamento, PARA A BANCADA.
 -- Reproduz a trava por profissional, conflito e retorno; NÃO reproduz
