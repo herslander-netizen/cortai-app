@@ -756,14 +756,10 @@ export async function processarMensagemRecebida(input: {
     return { tratada: true, motivo: "posse_humana_indeterminada" };
   }
   const { humanoNoControle } = await import("@/lib/flow-bot/decisao");
+  // A posse é DA CONVERSA e prevalece até para telefones verificados
+  // como equipe: uma conversa resolvida ou assumida não reativa robôs por identidade.
   if (humanoNoControle(posseParaResponder, Date.now())) {
-    // O WhatsApp pessoal de um membro VERIFICADO pode continuar emitindo
-    // comandos da própria equipe. Um cliente comum nunca ganha essa exceção.
-    const { identificarEquipe } = await import("./identidade.server");
-    const equipeVerificada = await identificarEquipe(tenantId, telefone).catch(() => null);
-    if (!equipeVerificada) {
-      return { tratada: true, motivo: "conversa_sob_controle_humano" };
-    }
+    return { tratada: true, motivo: "conversa_sob_controle_humano" };
   }
 
   // Resposta a lembrete (botão, número ou palavra exata): regra + banco, sem motor.
@@ -1217,7 +1213,7 @@ async function responderComCerebro(input: {
   if (!conversa || conversa.ia_ativa === false) return false;
   // Alguém da equipe com a conversa (pediu atendente ou respondeu pelo celular há pouco): a IA não fala por cima.
   const { humanoNoControle } = await import("@/lib/flow-bot/decisao");
-  if (!equipe && humanoNoControle(conversa, Date.now())) return false;
+  if (humanoNoControle(conversa, Date.now())) return false;
   const config = await configuracaoDoTenant(input.tenantId);
   if (!equipe && !config.responderWhatsapp) return false;
   if (!(await whatsappLiberadoNoPlano(input.tenantId))) return false;
