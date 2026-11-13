@@ -224,9 +224,12 @@ export const getSessao = createServerFn({ method: "GET" })
         segmento: string;
         modo: string;
       } | null;
+      // URL pública já é utilizável; não tentar assinar https:// como caminho de arquivo.
       const tenantLogoUrl = t?.logo_url
-        ? ((await db.storage.from("tenant-logos").createSignedUrl(t.logo_url, 60 * 60)).data
-            ?.signedUrl ?? null)
+        ? /^https?:\/\//i.test(t.logo_url)
+          ? t.logo_url
+          : ((await db.storage.from("tenant-logos").createSignedUrl(t.logo_url, 60 * 60)).data
+              ?.signedUrl ?? null)
         : null;
       const { data: paginaPublica } = await db
         .from("tenant_page_configs")
