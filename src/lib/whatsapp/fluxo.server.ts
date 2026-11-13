@@ -1,5 +1,6 @@
 import { normalizarTelefone, variantesDoTelefone } from "@/lib/telefone";
 import { avisoDePedidoDeAtendimento } from "@/lib/whatsapp/pedido-de-atendimento";
+import { classificarAutoriaDaSaida, recursoWhatsappConfirmado } from "./autoria-e-permissao";
 import {
   INTERVALO_DA_CONTINGENCIA_MS,
   textoDeAudioIndisponivel,
@@ -29,15 +30,19 @@ function somenteDigitos(telefone: string) {
   return normalizarTelefone(telefone);
 }
 
-/** WhatsApp automático só a partir do Pro. Na dúvida, não bloqueia. */
+/** Uma falha na consulta do plano não autoriza atendimento automático. */
 export async function whatsappLiberadoNoPlano(tenantId: string): Promise<boolean> {
-  const db = await admin();
-  const { data, error } = await db.rpc("recurso_do_tenant_ativo", {
-    _tenant_id: tenantId,
-    _chave: "cortai_whatsapp",
-  });
-  if (error) return true;
-  return data !== false;
+  try {
+    const db = await admin();
+    const { data, error } = await db.rpc("recurso_do_tenant_ativo", {
+      _tenant_id: tenantId,
+      _chave: "cortai_whatsapp",
+    });
+    return recursoWhatsappConfirmado(data, error);
+  } catch {
+    // Falha fechada: sem confirmação da RPC, não assumir que o recurso é liberado.
+    return false;
+  }
 }
 
 /**
@@ -390,6 +395,7 @@ export async function enviarPelaBarbearia(input: {
     });
   }
 
+  const autoria = classificarAutoriaDaSaida(input);
   await db.from("mensagens_whatsapp").insert({
     tenant_id: input.tenantId,
     conversa_id: input.conversaId,
@@ -399,8 +405,8 @@ export async function enviarPelaBarbearia(input: {
     telefone_destinatario: input.telefone,
     tipo: "text",
     conteudo: input.texto,
-    gerada_por_ia: input.porIa,
-    gerada_por_humano: !input.porIa,
+    gerada_por_ia: autoria.gerada_por_ia,
+    gerada_por_humano: autoria.gerada_por_humano,
     autor_user_id: input.autorUserId ?? null,
     status: erro ? "falhou" : "enviada",
     erro,
