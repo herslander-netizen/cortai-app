@@ -33,3 +33,11 @@ Não muda banco, credenciais, Railway, Evolution nem conteúdo de mensagens.
 6. Somente após essa validação, marcar o handoff real como homologado.
 
 Nenhuma ação remota de reconexão, envio, alteração de status ou desbloqueio de contato foi efetuada nesta investigação.
+
+## Barreira adicional contra fallback sobre o humano
+
+Auditoria do fluxo `processarMensagemRecebida` revelou uma segunda brecha: o Flow Bot e a Flow IA fazem checagens de posse, porém, se ambos retornam `false` (por erro ou indisponibilidade), o código seguia até a mensagem automática de contingência **sem uma nova leitura do estado humano**.
+
+O patch introduz `bloquearContingenciaPorPosse` e uma leitura nova, limitada ao tenant e à conversa, **imediatamente antes** do ramo de aprendizado/contingência. Se o profissional assumiu por `modo_humano`, existe `modo_humano_ate` em vigor, o registro sumiu ou a leitura falhou, o fallback não é enviado. O comportamento antigo de responder é preservado se o banco confirma que não há posse humana. Cenários cobertos por `contingencia-posse.test.ts`.
+
+A observação do episódio real não comprova que o fallback foi enviado após uma pausa já efetivamente persistida: o texto observado corresponde exatamente ao **Flow Bot**, e a data de pausa pode ter sido calculada antes de sua gravação. Essa correção é defesa verificada no código contra uma corrida **potencial**, não reprodução daquele evento exato.
