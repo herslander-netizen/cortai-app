@@ -36,7 +36,7 @@ export const Route = createFileRoute("/app/perfil")({
 function PerfilPage() {
   const { b } = Route.useSearch();
   const slug = useContextoCliente(b);
-  const sessao = useQuery({ queryKey: ["sessao"], queryFn: () => getSessao() });
+  const sessao = useQuery({ queryKey: ["sessao"], queryFn: () => getSessao(), staleTime: 300_000 });
   const { data } = sessao;
 
   return (

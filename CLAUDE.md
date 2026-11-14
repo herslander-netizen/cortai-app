@@ -77,7 +77,7 @@ TanStack Start (React 19), Tailwind 4, shadcn/Radix, Supabase, Drizzle (migraç�
 - Desligar a IA não desliga agenda, comandas nem notificações essenciais.
 - Cérebro único em `src/lib/brain/` (`pensarCortai`, `acoes.server.ts`, `guardas.ts`, `uso.server.ts`). Usa só os serviços oficiais. Exige isolamento por tenant, confirmação para mutações sensíveis, auditoria e idempotência.
 - Provedor/modelo, observabilidade (Langfuse) e avaliação (Promptfoo): `docs/ia-gpt-oss-langfuse-promptfoo.md`. Para usar sem créditos do Lovable (provedor gratuito + voz do navegador): `docs/cortai-de-graca.md`. Migração para GPT-OSS-20B é por canal e reversível; nada troca em produção sem as variáveis `CORTAI_AI_*`.
-- A ALVO IA (`ia/alvo-ia.server.ts`, `ponte.server.ts`, `/api/public/alvo-ia`) é legado deprecado. O cérebro nunca a chama e o fluxo novo não depende de `ALVO_IA_*`.
+- A ALVO IA (integração externa legada) foi removida do código em 13/11/2026: saíram `ia/alvo-ia.server.ts`, `ponte.server.ts`, `eventos.server.ts`, `contrato.ts`, `limite.server.ts` e as rotas `/api/public/alvo-ia`, `/api/public/ai/*` e `/api/public/cortai/acoes`. As tabelas (`integracoes_de_ia`, `eventos_de_ia`, `eventos_recebidos_de_ia`) ficaram no banco, sem DROP. As variáveis `ALVO_IA_*` não são mais lidas.
 
 ## WhatsApp
 
@@ -133,4 +133,4 @@ Auditoria da CortAI concluída, sem nada alterado. As fases propostas aguardam a
 2. Ícone do chat no cabeçalho, reaproveitando `FabCortai`/`AssistenteCortai`.
 3. Interruptor geral `config_atendimento_ia.cortai_ativa`, verificado dentro do cérebro.
 4. Selos de pausada/desligada/limite e ligação com o ADM.
-5. Limpeza do nome "Secretária" e do legado ALVO IA, sem DROP.
+5. Limpeza do nome "Secretária". (O legado ALVO IA já foi removido do código em 13/11/2026, sem DROP.)

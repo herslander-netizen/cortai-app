@@ -65,6 +65,7 @@ function FichaPage() {
   const { data, isLoading, refetch } = useQuery({
     queryKey: ["ficha-cliente", id],
     queryFn: () => getFichaCliente({ data: { clienteId: id } }),
+    staleTime: 60_000,
   });
 
   const aberto = data?.emAbertoCentavos ?? 0;

@@ -30,6 +30,7 @@ function FinanceiroPage() {
     queryKey: ["financeiro"],
     queryFn: () => getFinanceiro(),
     retry: false,
+    staleTime: 60_000,
   });
   return (
     <Screen title="Financeiro" subtitle="Receitas do mês, sem complicação.">

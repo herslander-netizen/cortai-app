@@ -35,6 +35,7 @@ function HorariosPage() {
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["configuracao-inicial"],
     queryFn: () => getConfiguracaoInicial(),
+    staleTime: 300_000,
   });
   const [horarios, setHorarios] = useState<HorarioSugerido[]>(horariosPadrao());
   const [fuso, setFuso] = useState<string>(FUSO_BARBEARIA);

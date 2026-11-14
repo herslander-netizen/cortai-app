@@ -51,7 +51,7 @@ export const Route = createFileRoute("/barbeiro/equipe")({
 
 function EquipePage() {
   const queryClient = useQueryClient();
-  const equipe = useQuery({ queryKey: ["equipe"], queryFn: () => listarEquipe() });
+  const equipe = useQuery({ queryKey: ["equipe"], queryFn: () => listarEquipe(), staleTime: 60_000 });
   const [email, setEmail] = useState("");
   const [papelConvite, setPapelConvite] = useState<PapelDeEquipe>("barbeiro");
   const [mensagem, setMensagem] = useState<{ tom: "sucesso" | "acao"; texto: string } | null>(null);

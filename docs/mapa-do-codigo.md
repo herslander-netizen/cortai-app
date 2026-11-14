@@ -104,7 +104,7 @@ A guarda de rota é feita por `exigirPapel()` em `src/lib/guarda.ts`, no `before
 - **Atual:** `brain/agente.server.ts` (`pensarCortai`), `brain/acoes.server.ts` (catálogo e `acaoPermitida`), `brain/guardas.ts`, `brain/uso.server.ts` (cotas e pausa), `brain/secretaria-publica.functions.ts` (site).
 - **Ações de domínio:** `ia/acoes.server.ts`, que grava com a chave de serviço e filtra por `tenant_id`.
 - **Painel:** `assistente.functions.ts`. Usa `ia/assistente.server.ts` (legado) só para cadastrar serviços e horários em lote.
-- **Legado (ALVO IA):** `ia/alvo-ia.server.ts`, `ia/ponte.server.ts`, `ia/eventos.server.ts`, `ia/contrato.ts`, e as rotas `api/public/ai/$`, `api/public/cortai/acoes` e `api/public/alvo-ia`.
+- **Legado (ALVO IA):** removido em 13/11/2026 com autorização do dono (5 arquivos de `lib/ia` e as rotas `api/public/ai/$`, `api/public/cortai/acoes` e `api/public/alvo-ia`). As tabelas continuam no banco.
 - Telas: `components/ia/*` (`AssistenteCortai`, `FolhaCortai`, `IconeDaIA`, `BotaoAssistente`).
 
 ### WhatsApp (`src/lib/whatsapp`)
@@ -117,7 +117,7 @@ A guarda de rota é feita por `exigirPapel()` em `src/lib/guarda.ts`, no `before
 - **Saída:** `notificacoes.server.ts` (motor único de avisos ao cliente), `conexao-envio.server.ts` (escolhe o remetente), `modelos.ts` (formato dentro e fora da janela de 24h), `gateway.server.ts` (Meta ou Evolution), `erros-meta.ts` e `falhas-envio.server.ts`.
 - **Varredura a cada 15 min** (`api/public/whatsapp/automacoes`, via pg_cron): lembretes, teste grátis, postagens nas redes e saúde das conexões (`monitor-conexoes.server.ts`).
 - **Equipe:** `identidade.server.ts` (telefone verificado), `aviso-equipe*.server.ts`, `aviso-atraso.server.ts`.
-- **Motor determinístico antigo:** `motor/motor.server.ts` (1334 linhas) e `motor/agrupador.server.ts` **não são importados por nenhum arquivo**. Só `vocabulario`, `intencoes`, `estado` e `entendimento-whatsapp` continuam em uso.
+- **Motor determinístico antigo:** `motor/motor.server.ts`, `motor/agrupador.server.ts` e `motor/financeiro-cliente.server.ts` foram removidos em 13/11/2026 (ninguém importava). Seguem em uso `vocabulario`, `intencoes`, `estado` e `entendimento-whatsapp`.
 
 ### Avisos, sininho e push
 - `avisos/catalogo.ts` e `avisos/emitir.server.ts`: catálogo de eventos que decide quem recebe e por qual canal.
@@ -156,11 +156,10 @@ A guarda de rota é feita por `exigirPapel()` em `src/lib/guarda.ts`, no `before
 
 ## Código que ninguém importa (candidatos a revisão, nunca apagar sem autorização)
 
-- **WhatsApp:** `lib/whatsapp/motor/motor.server.ts` (1334 linhas) e `motor/agrupador.server.ts`.
-- **Painel:** `lib/painel.functions.ts` (534 linhas).
-- **Telas:** `components/home/SecoesHome.tsx` (863 linhas), `components/barbeiro/HubModulos.tsx`, `PainelComercial.tsx`, `agenda/AgoraProximos.tsx`, `layout/FaixaPendencias.tsx`, `painel/Blocos.tsx`, `planos/RecursoBloqueado.tsx`.
 - **IA:** `components/ia/FabCortai.tsx`. O plano da CortAI quer reaproveitá-lo no cabeçalho.
-- **Bibliotecas de base:** `components/ai-elements/prompt-input.tsx` e `suggestion.tsx`, e vários componentes shadcn sem uso em `components/ui/` (sidebar, carousel, chart, form, table e outros).
+- **Bibliotecas de base:** 29 componentes shadcn sem uso em `components/ui/` (sidebar, carousel, chart, form, table e outros). São o kit de base do Lovable e não entram no pacote final.
+- **Avaliação:** os arquivos de `promptfoo/` são usados pela configuração do Promptfoo, não pelo app.
+- **Removidos em 13/11/2026, com autorização do dono (15 arquivos, 5.104 linhas):** o motor antigo do WhatsApp, `lib/painel.functions.ts` e `lib/painel/oportunidades.server.ts`, `components/home/SecoesHome.tsx`, `barbeiro/HubModulos.tsx`, `barbeiro/PainelComercial.tsx`, `agenda/AgoraProximos.tsx`, `layout/FaixaPendencias.tsx`, `painel/Blocos.tsx`, `planos/RecursoBloqueado.tsx`, `ia/BigodeCortai.tsx`, `ai-elements/prompt-input.tsx` e `suggestion.tsx`. Para recuperar algum, use o histórico do git.
 
 ## Divergências conhecidas
 
@@ -168,14 +167,16 @@ A guarda de rota é feita por `exigirPapel()` em `src/lib/guarda.ts`, no `before
 - **Casts sem efeito:** há 63 `as never` em chamadas ao banco, mas os tipos (`types.ts`) já incluem essas tabelas e RPCs. Os casts são sobras que só escondem erros de tipo.
 - **Auditoria de segurança:** `docs/auditoria-2026-10-09.md`.
 
-## Estado da verificação (09/10/2026, commit `7ed1c6a`)
+## Estado da verificação (13/11/2026, commit `f64a270`)
 
 | Verificação | Resultado |
 |---|---|
 | `tsc --noEmit` | passa, sem erros |
 | `vite build` | passa (gera o worker Cloudflare em `.output/`) |
-| `vitest run` | 888 passam, 8 falham, 1 pulado |
-| `eslint .` | 5.042 problemas: 4.825 de formatação Prettier (corrigíveis com `--fix`), 184 `no-explicit-any`, 29 avisos |
+| `vitest run` | 1.425 passam, 0 falham, 1 pulado (152 arquivos) |
+| `eslint .` | 5.184 problemas: 4.966 corrigíveis com `--fix` (formatação Prettier), 29 avisos |
 
-- **As 8 falhas** são todas de `src/lib/whatsapp/lembretes-numeros.test.ts`. O teste usa horários fixos (`2026-10-09T13:00Z` e `2026-10-10T17:00Z`) e passou a falhar quando esse horário ficou no passado. Com as mesmas datas deslocadas uma semana para frente, os 10 casos passam. **O código está correto; o teste vence com o tempo.** A correção é gerar as datas a partir de `Date.now()`, como o próprio teste já faz em `futuro`.
-- **O lint** nunca foi aplicado ao repositório inteiro. Rodar `prettier --write .` resolveria os 4.825 de formatação de uma vez, mas é uma mudança grande em quase todos os arquivos. Isso só deve ser feito com autorização, porque gera um commit enorme no Lovable.
+- **As 8 falhas antigas** de `src/lib/whatsapp/lembretes-numeros.test.ts` foram resolvidas: o teste passou a usar relógio fixo.
+- **O build reescreve dois arquivos** (`src/routes/mcp.ts` e `src/routes/[.well-known]/oauth-protected-resource.ts`, troca do import por import dinâmico). Depois de rodar `vite build` ou `vite dev` localmente, restaure-os com `git checkout --` antes de commitar.
+- **O lint** nunca foi aplicado ao repositório inteiro. Rodar `prettier --write .` resolveria a formatação de uma vez, mas é uma mudança grande em quase todos os arquivos. Isso só deve ser feito com autorização, porque gera um commit enorme no Lovable.
+- **Conferência visual das telas públicas (390px e 1280px):** `/apresentacao`, `/login`, `/recuperar-senha`, `/configurar-minha-barbearia`, `/barbearias`, `/visitante` e `/privacidade` sem estouro horizontal. As telas logadas (`/barbeiro`, `/app`, `/admin`) não foram conferidas: dependem de uma conta de teste.

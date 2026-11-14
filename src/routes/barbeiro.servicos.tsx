@@ -30,6 +30,7 @@ function ServicosPage() {
   const { data, isLoading, refetch } = useQuery({
     queryKey: ["configuracao-inicial"],
     queryFn: () => getConfiguracaoInicial(),
+    staleTime: 300_000,
   });
   const [servicos, setServicos] = useState<ServicoEditavel[]>([]);
   const [iniciado, setIniciado] = useState(false);

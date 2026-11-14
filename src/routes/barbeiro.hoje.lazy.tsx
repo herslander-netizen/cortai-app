@@ -1,6 +1,6 @@
 import { useTermosDoPainel } from "@/lib/segmento-contexto";
 import { createLazyFileRoute, Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import {
   ArrowDownRight,
@@ -10,14 +10,20 @@ import {
   Minus,
   Armchair,
 } from "lucide-react";
-import { lazy, Suspense, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 
 import { Screen } from "@/components/layout/Screen";
 import { EsqueletoLista, EsqueletoMetricas } from "@/components/layout/Esqueleto";
 import { BotaoAjuda } from "@/components/guia/BotaoAjuda";
 import { Button } from "@/components/ui/button";
 import { brl } from "@/lib/format";
-import { getHojeDoDono, type Metricas } from "@/lib/dono.functions";
+import {
+  getHojeDoDono,
+  getSecaoOperacao,
+  getSecaoFinanceiro,
+  getSecaoClientes,
+  type Metricas,
+} from "@/lib/dono.functions";
 
 const SecaoOperacao = lazy(() =>
   import("@/components/dono/Secoes").then((m) => ({ default: m.SecaoOperacao })),
@@ -112,6 +118,10 @@ function Numero({
 function HojePage() {
   const tp = useTermosDoPainel();
   const buscar = useServerFn(getHojeDoDono);
+  const buscarOp = useServerFn(getSecaoOperacao);
+  const buscarFin = useServerFn(getSecaoFinanceiro);
+  const buscarCli = useServerFn(getSecaoClientes);
+  const qc = useQueryClient();
   const q = useQuery({
     queryKey: ["dono-hoje"],
     queryFn: () => buscar(),
@@ -119,6 +129,20 @@ function HojePage() {
     refetchInterval: 60_000,
   });
   const [aberta, setAberta] = useState<string | null>(null);
+
+  // Pré-busca dados e pré-carrega o módulo das seções assim que os dados principais chegam,
+  // eliminando os esqueletos ao abrir cada seção do acordeão.
+  useEffect(() => {
+    if (!q.data) return;
+    // Pré-carrega o módulo lazy (elimina o flash da Suspense na primeira abertura).
+    void import("@/components/dono/Secoes");
+    void qc.prefetchQuery({ queryKey: ["dono-operacao"], queryFn: buscarOp, staleTime: 55_000 });
+    void qc.prefetchQuery({ queryKey: ["dono-clientes"], queryFn: buscarCli, staleTime: 55_000 });
+    if (q.data.financeiro !== false) {
+      void qc.prefetchQuery({ queryKey: ["dono-financeiro"], queryFn: buscarFin, staleTime: 55_000 });
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [Boolean(q.data)]);
 
   if (q.isError)
     return (

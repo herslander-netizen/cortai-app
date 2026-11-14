@@ -32,6 +32,7 @@ function ProfissionaisPage() {
   const { data, isLoading, refetch } = useQuery({
     queryKey: ["profissionais-perfil"],
     queryFn: () => getProfissionaisPerfil(),
+    staleTime: 300_000,
   });
 
   const [form, setForm] = useState<Record<string, { descricao: string; fotos: string }>>({});

@@ -40,6 +40,7 @@ function AdminOverview() {
     queryKey: ["admin-overview"],
     queryFn: () => getAdminOverview(),
     retry: false,
+    staleTime: 60_000,
   });
   return (
     <AdminScreen title="Visão" subtitle="O que sustenta o crescimento da plataforma.">

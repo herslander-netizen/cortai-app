@@ -69,7 +69,7 @@ function FuncionalidadesPage() {
   const ler = useServerFn(getFuncionalidades);
   const definir = useServerFn(definirFuncionalidade);
   const qc = useQueryClient();
-  const q = useQuery({ queryKey: ["funcionalidades"], queryFn: () => ler() });
+  const q = useQuery({ queryKey: ["funcionalidades"], queryFn: () => ler(), staleTime: 300_000 });
   const [salvando, setSalvando] = useState<string | null>(null);
   const [pendente, setPendente] = useState<Pendente | null>(null);
 

@@ -48,6 +48,7 @@ function HistoricoPage() {
   const lista = useQuery({
     queryKey: ["historico", slug],
     queryFn: () => listarAgendamentosCliente({ data: slug ? { slug } : {} }),
+    staleTime: 60_000,
   });
 
   const agora = Date.now();

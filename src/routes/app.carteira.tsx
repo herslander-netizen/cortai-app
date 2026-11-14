@@ -117,6 +117,7 @@ function CarteiraPage() {
   const { data, isLoading, refetch } = useQuery({
     queryKey: ["carteira", slug],
     queryFn: () => getCarteira({ data: slug ? { slug } : {} }),
+    staleTime: 60_000,
   });
 
   const saldo = data?.carteira.saldo_centavos ?? 0;
