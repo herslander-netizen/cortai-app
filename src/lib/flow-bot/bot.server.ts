@@ -244,25 +244,45 @@ export async function responderComFlowBot(input: EntradaDoBot): Promise<boolean>
   const textos = semRegra ? [] : textosDasAcoes(r.acoes);
   const handoff = !semRegra && r.acoes.some((a: Acao) => a.type === "handoff");
 
-  const { data: rastro, error: erroRastro } = await db
+  const decisao = {
+    modo: config.modo,
+    fluxo_ref: fluxoRef,
+    motivo: semRegra ? "sem_regra" : r.motivo,
+    passos,
+    respostas: textos,
+    realidade_ausente: r.realidadeAusente,
+    enviado: false,
+  };
+  const { data: inserido, error: erroRastro } = await db
     .from("flow_bot_rastro")
     .insert({
       tenant_id: input.tenantId,
       conversa_id: input.conversaId,
       mensagem_externa_id: input.mensagemExternaId,
-      modo: config.modo,
-      fluxo_ref: fluxoRef,
-      motivo: semRegra ? "sem_regra" : r.motivo,
-      passos,
-      respostas: textos,
-      realidade_ausente: r.realidadeAusente,
-      enviado: false,
+      ...decisao,
     })
     .select("id")
     .single();
-  // Mesma mensagem entregue de novo: já foi decidida (e, ligado, respondida).
-  if (erroRastro?.code === "23505") return config.modo === "ligado";
-  if (erroRastro) console.error("[flow-bot] rastro", erroRastro.message);
+  let rastro: { id: string } | null = inserido ? { id: inserido.id as string } : null;
+  if (erroRastro?.code === "23505") {
+    // A agenda na conversa reservou esta mensagem, não gravou nada e devolveu o turno: o bot assume a
+    // mesma linha. A condição no próprio UPDATE deixa só uma entrega assumir; qualquer outro caso é a
+    // mesma mensagem entregue de novo, já decidida (e, ligado, respondida).
+    const { MOTIVO_DEVOLVIDA } = await import("./agenda-na-conversa/trava");
+    const { data: assumidos } = input.mensagemExternaId
+      ? await db
+          .from("flow_bot_rastro")
+          .update(decisao as never)
+          .eq("tenant_id", input.tenantId)
+          .eq("conversa_id", input.conversaId)
+          .eq("mensagem_externa_id", input.mensagemExternaId)
+          .eq("motivo", MOTIVO_DEVOLVIDA)
+          .select("id")
+      : { data: null };
+    const assumido = assumidos?.[0];
+    if (!assumido) return config.modo === "ligado";
+    rastro = { id: assumido.id as string };
+  } else if (erroRastro) console.error("[flow-bot] rastro", erroRastro.message);
 
   await db.from("flow_bot_sessoes").upsert({
     conversa_id: input.conversaId,

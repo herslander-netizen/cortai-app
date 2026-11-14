@@ -83,11 +83,20 @@ export function pedeParaVoltar(texto: string): boolean {
   return ["voltar", "cortai voltar"].includes(SEM_ACENTO(texto));
 }
 
+/**
+ * "Não marquei" / "não agendei" só é aviso de engano quando a mensagem é só isso
+ * ("eu não marquei nada", "não agendei horário nenhum"). Seguida de um pedido
+ * ("não agendei ainda, quero marcar um corte") é cliente querendo atendimento, e
+ * suprimir o número dele seria silenciar um cliente legítimo (defeito P2 de 07/11).
+ */
+const NEGA_O_AGENDAMENTO =
+  /^(?:(?:oi|ola|opa|desculpa|desculpe|mas|eu) )*nao (?:marquei|agendei)(?: (?:nada|isso|nao|ai|disso|nenhum|horario|com voces))*$/;
+
 /** Quem recebeu por engano: "número errado", "não sou eu", "engano"... */
 export function avisaNumeroErrado(texto: string): boolean {
   const t = SEM_ACENTO(texto);
   if (t.length > 60) return false;
-  return /\b(numero errado|nao sou (eu|essa pessoa|esse cliente)|engano|nao conheco|nao marquei|nao agendei)\b/.test(
-    t,
-  );
+  if (/\b(numero errado|nao sou (eu|essa pessoa|esse cliente)|engano|nao conheco)\b/.test(t))
+    return true;
+  return NEGA_O_AGENDAMENTO.test(t);
 }

@@ -83,6 +83,18 @@ describe("respostas que param ou voltam", () => {
     for (const t of ["me enganei no horário, pode ser 15h?", "confirmo", "obrigado"])
       expect(avisaNumeroErrado(t)).toBe(false);
   });
+
+  it("quem nega o agendamento mas pede atendimento é cliente, não número errado", () => {
+    for (const t of [
+      "Nao agendei ainda, quero marcar um corte",
+      "Eu nao marquei nada, queria agendar amanha",
+      "Nao agendei para sexta, queria perguntar os horarios",
+      "não marquei ainda, tem horário hoje?",
+    ])
+      expect(avisaNumeroErrado(t)).toBe(false);
+    for (const t of ["não marquei nada", "Eu não agendei nada não", "não agendei horário nenhum"])
+      expect(avisaNumeroErrado(t)).toBe(true);
+  });
 });
 
 describe("Evolution e ritmo", () => {

@@ -8,8 +8,8 @@ import { avisaNumeroErrado } from "../whatsapp/porteiro";
  * O teste so observa o motor atual e imprime os numeros no CI.
  *
  * Nao duplica os pisos de regressao de whatsapp/motor/corpus/avaliar.test.ts.
- * P2 (numero errado em negacao de agendamento) permanece como defeito conhecido
- * e deve ser corrigido no porteiro por quem tem a reserva do WhatsApp.
+ * P2 (numero errado em negacao de agendamento) foi corrigido no porteiro em 14/11
+ * e fica travado aqui em zero.
  */
 describe("linha de base do entendimento gratuito do WhatsApp", () => {
   it("mede corpus e falsos positivos sem alterar o atendimento", () => {
@@ -47,6 +47,7 @@ describe("linha de base do entendimento gratuito do WhatsApp", () => {
 
     // Mensagem visivel no log do Vitest / GitHub Actions para orientar a Fase 0.
     console.info("[flow-corpus-linha-base]", JSON.stringify(resumo));
+    expect(bloqueiosIndevidos).toEqual([]);
     expect(avaliacao.geral.total).toBeGreaterThanOrEqual(390);
     expect(avaliacao.suportadas.total).toBeGreaterThan(0);
     expect(avaliacao.entidades.total).toBeGreaterThan(0);

@@ -14,6 +14,8 @@ type Estado = {
   conversa: Linha | null;
   sessao: Linha | null;
   rastroDuplicado: boolean;
+  /** A agenda na conversa reservou a mensagem e devolveu o turno: a linha pode ser assumida. */
+  rastroDevolvido: boolean;
   inseridos: { tabela: string; linha: Linha }[];
   atualizados: { tabela: string; linha: Linha }[];
   upserts: { tabela: string; linha: Linha }[];
@@ -25,6 +27,7 @@ const estado: Estado = {
   conversa: null,
   sessao: null,
   rastroDuplicado: false,
+  rastroDevolvido: false,
   inseridos: [],
   atualizados: [],
   upserts: [],
@@ -55,7 +58,25 @@ function consulta(tabela: string) {
     },
     update: (linha: Linha) => {
       estado.atualizados.push({ tabela, linha });
-      return { eq: async () => ({ error: null }) };
+      // Encadeável e aguardável: `.eq()...` termina em `await` ou em `.select("id")`.
+      const filtros: unknown[] = [];
+      const u = {
+        eq: (_coluna: string, valor: unknown) => {
+          filtros.push(valor);
+          return u;
+        },
+        select: async () => ({
+          data:
+            tabela === "flow_bot_rastro" &&
+            estado.rastroDevolvido &&
+            filtros.includes("agenda:devolvida")
+              ? [{ id: "rastro-devolvido" }]
+              : [],
+          error: null,
+        }),
+        then: (ok: (v: { error: null }) => unknown) => Promise.resolve({ error: null }).then(ok),
+      };
+      return u;
     },
     upsert: async (linha: Linha) => {
       estado.upserts.push({ tabela, linha });
@@ -113,6 +134,7 @@ beforeEach(() => {
   estado.conversa = { id: "c1", modo_humano: false, modo_humano_ate: null };
   estado.sessao = null;
   estado.rastroDuplicado = false;
+  estado.rastroDevolvido = false;
   estado.inseridos = [];
   estado.atualizados = [];
   estado.upserts = [];
@@ -221,6 +243,21 @@ describe("Flow Bot — convivência com a Flow IA e com a equipe", () => {
     estado.config = { modo: "sombra", horario: "sempre", pausa_humano_min: 120 };
     expect(await responderComFlowBot(entrada("Quanto custa a escova?"))).toBe(false);
     expect(enviar).not.toHaveBeenCalled();
+  });
+
+  it("mensagem reservada e devolvida pela agenda: o bot assume a mesma linha e responde uma vez", async () => {
+    estado.config = { modo: "ligado", horario: "sempre", pausa_humano_min: 120 };
+    estado.rastroDuplicado = true;
+    estado.rastroDevolvido = true;
+    expect(await responderComFlowBot(entrada("Quanto custa a escova?"))).toBe(true);
+    expect(enviar).toHaveBeenCalled();
+    const assumida = estado.atualizados.find(
+      (a) => a.tabela === "flow_bot_rastro" && "respostas" in a.linha,
+    );
+    expect(assumida?.linha["motivo"]).not.toBe("agenda:devolvida");
+    expect(
+      estado.atualizados.some((a) => a.tabela === "flow_bot_rastro" && a.linha["enviado"] === true),
+    ).toBe(true);
   });
 
   it("ligado: o agendamento na conversa responde primeiro e o bot não fala por cima", async () => {
