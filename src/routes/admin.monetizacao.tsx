@@ -119,6 +119,7 @@ function AbaPlanos() {
     queryKey: ["admin-planos"],
     queryFn: () => listarPlanos(),
     retry: false,
+    staleTime: 300_000,
   });
   const salvar = useServerFn(salvarPlano);
   const [editando, setEditando] = useState<Plano | null>(null);
@@ -393,11 +394,13 @@ function AbaBarbearia() {
     queryKey: ["admin-tenants"],
     queryFn: () => getAdminTenants(),
     retry: false,
+    staleTime: 60_000,
   });
   const planos = useQuery({
     queryKey: ["admin-planos"],
     queryFn: () => listarPlanos(),
     retry: false,
+    staleTime: 300_000,
   });
   const [tenantId, setTenantId] = useState("");
   const visao = useQuery({
@@ -405,6 +408,7 @@ function AbaBarbearia() {
     queryFn: () => getVisaoComercialDoTenant({ data: { tenantId } }),
     enabled: Boolean(tenantId),
     retry: false,
+    staleTime: 60_000,
   });
   const salvar = useServerFn(salvarCondicao);
   const encerrar = useServerFn(encerrarCondicao);
@@ -787,11 +791,13 @@ function AbaCupons() {
     queryKey: ["admin-cupons"],
     queryFn: () => listarCupons(),
     retry: false,
+    staleTime: 300_000,
   });
   const planos = useQuery({
     queryKey: ["admin-planos"],
     queryFn: () => listarPlanos(),
     retry: false,
+    staleTime: 300_000,
   });
   const salvar = useServerFn(salvarCupom);
   const [status, setStatus] = useState("");
@@ -1008,16 +1014,19 @@ function AbaBanners() {
     queryKey: ["admin-banners"],
     queryFn: () => listarBanners(),
     retry: false,
+    staleTime: 300_000,
   });
   const tenants = useQuery({
     queryKey: ["admin-tenants"],
     queryFn: () => getAdminTenants(),
     retry: false,
+    staleTime: 60_000,
   });
   const planos = useQuery({
     queryKey: ["admin-planos"],
     queryFn: () => listarPlanos(),
     retry: false,
+    staleTime: 300_000,
   });
   const salvar = useServerFn(salvarBanner);
   const remover = useServerFn(removerBanner);

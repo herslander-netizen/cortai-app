@@ -53,6 +53,7 @@ function ClientesPage() {
   const consulta = useQuery({
     queryKey: ["clientes-crm"],
     queryFn: () => getClientesCRM(),
+    staleTime: 60_000,
   });
   const { data, isLoading } = consulta;
   const [busca, setBusca] = useState("");

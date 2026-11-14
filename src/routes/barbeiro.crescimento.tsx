@@ -43,6 +43,7 @@ function CrescimentoPage() {
   const { data, isLoading, refetch } = useQuery({
     queryKey: ["crescimento"],
     queryFn: () => getCrescimento(),
+    staleTime: 300_000,
   });
   const [qr, setQr] = useState<string | null>(null);
   const [copiado, setCopiado] = useState(false);

@@ -57,11 +57,13 @@ function FidelidadePage() {
   const { data, isLoading, refetch } = useQuery({
     queryKey: ["fidelidade"],
     queryFn: () => getConfigFidelidade(),
+    staleTime: 300_000,
   });
 
   const elegiveis = useQuery({
     queryKey: ["fidelidade-clientes"],
     queryFn: () => getClientesFidelidade(),
+    staleTime: 60_000,
   });
 
   const [alvo, setAlvo] = useState(10);

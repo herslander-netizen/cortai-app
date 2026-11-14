@@ -70,7 +70,7 @@ function RedesPage() {
   const qc = useQueryClient();
   const navigate = useNavigate();
   const busca = useSearch({ from: "/barbeiro/redes" });
-  const q = useQuery({ queryKey: ["conexoes-sociais"], queryFn: () => ler() });
+  const q = useQuery({ queryKey: ["conexoes-sociais"], queryFn: () => ler(), staleTime: 300_000 });
   const [ocupado, setOcupado] = useState<PlataformaSocial | null>(null);
   const [desconectando, setDesconectando] = useState<PlataformaSocial | null>(null);
 

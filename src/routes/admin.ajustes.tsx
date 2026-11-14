@@ -33,6 +33,7 @@ function DesignSystemPage() {
     queryKey: ["platform-config"],
     queryFn: () => getPlatformConfig(),
     retry: false,
+    staleTime: 300_000,
   });
   const save = useServerFn(savePlatformConfig);
   const [form, setForm] = useState<Awaited<ReturnType<typeof getPlatformConfig>> | null>(null);

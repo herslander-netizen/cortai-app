@@ -51,8 +51,8 @@ function Linha({ rotulo, valor, cor }: { rotulo: string; valor: string; cor?: st
 }
 
 function CaixaPage() {
-  const caixa = useQuery({ queryKey: ["caixa"], queryFn: () => getCaixa(), retry: false });
-  const fiados = useQuery({ queryKey: ["fiados"], queryFn: () => getFiados(), retry: false });
+  const caixa = useQuery({ queryKey: ["caixa"], queryFn: () => getCaixa(), retry: false, staleTime: 60_000 });
+  const fiados = useQuery({ queryKey: ["fiados"], queryFn: () => getFiados(), retry: false, staleTime: 60_000 });
   const abrirFechar = useServerFn(abrirOuFecharCaixa);
   const registrar = useServerFn(registrarMovimentoDeCaixa);
   const quitar = useServerFn(quitarFiado);

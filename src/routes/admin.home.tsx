@@ -76,6 +76,7 @@ function EditorDaHome() {
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ["admin", "home"],
     queryFn: () => getFn(),
+    staleTime: 300_000,
   });
   const [conteudo, setConteudo] = useState<ConteudoApresentacao>(APRESENTACAO_PADRAO);
   const [seo, setSeo] = useState<Seo>(SEO_APRESENTACAO_PADRAO);

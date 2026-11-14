@@ -34,7 +34,7 @@ export const Route = createFileRoute("/barbeiro/marca")({
 });
 
 function MarcaPage() {
-  const query = useQuery({ queryKey: ["marca"], queryFn: () => getMarca(), retry: false });
+  const query = useQuery({ queryKey: ["marca"], queryFn: () => getMarca(), retry: false, staleTime: 300_000 });
   if (query.isLoading)
     return (
       <Screen voltarPara="/barbeiro/mais" title="Personalizar página">
