@@ -378,6 +378,19 @@ export async function enviarPelaBarbearia(input: {
         } else throw e;
       }
     }
+    // Revalida posse humana imediatamente antes de "digitando…" + envio (corrida entre verificação
+    // do caller e o envio real). Só para resposta automática por IA sem autor humano.
+    if (input.porIa && !input.autorUserId && !input.iniciadaPelaBarbearia) {
+      const { data: posseAtual } = await db
+        .from("conversas_whatsapp")
+        .select("modo_humano, modo_humano_ate")
+        .eq("id", input.conversaId)
+        .maybeSingle();
+      const { humanoNoControle } = await import("@/lib/flow-bot/decisao");
+      if (humanoNoControle(posseAtual ?? { modo_humano: false }, Date.now())) {
+        return { externoId: null, suprimido: true };
+      }
+    }
     if (!r && (input.digitar ?? (!input.iniciadaPelaBarbearia && !input.autorUserId))) {
       await prepararResposta(gatewayDeWhatsapp, input);
     }

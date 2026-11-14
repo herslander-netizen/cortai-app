@@ -353,3 +353,38 @@ describe("barreira contra sucesso falso", () => {
     expect(afirmaConclusao(texto)).toBe(false);
   });
 });
+
+describe("revalidação de posse humana dentro do sender", () => {
+  it("enviarPelaBarbearia contém revalidação de humanoNoControle antes de digitando", async () => {
+    const { readFileSync } = await import("node:fs");
+    const fonte = readFileSync("src/lib/whatsapp/fluxo.server.ts", "utf8");
+    // A guarda nova deve aparecer ANTES de prepararResposta no mesmo bloco de envio.
+    const idxGuarda = fonte.indexOf("humanoNoControle(posseAtual");
+    const idxPreparar = fonte.indexOf("await prepararResposta(gatewayDeWhatsapp");
+    expect(idxGuarda).toBeGreaterThan(-1);
+    expect(idxGuarda).toBeLessThan(idxPreparar);
+  });
+
+  it("humanoNoControle cobre os cenários de corrida que o sender deve bloquear", async () => {
+    const { humanoNoControle } = await import("@/lib/flow-bot/decisao");
+    const agora = Date.now();
+    // modo_humano permanente → bloqueia
+    expect(humanoNoControle({ modo_humano: true }, agora)).toBe(true);
+    // modo_humano_ate no futuro → bloqueia (corrida: humano assumiu enquanto IA processava)
+    expect(
+      humanoNoControle(
+        { modo_humano: false, modo_humano_ate: new Date(agora + 3600_000).toISOString() },
+        agora,
+      ),
+    ).toBe(true);
+    // sem posse → IA pode responder
+    expect(humanoNoControle({ modo_humano: false }, agora)).toBe(false);
+    // modo_humano_ate expirado → IA pode responder
+    expect(
+      humanoNoControle(
+        { modo_humano: false, modo_humano_ate: new Date(agora - 1).toISOString() },
+        agora,
+      ),
+    ).toBe(false);
+  });
+});
