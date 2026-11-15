@@ -11,11 +11,12 @@ import { usePushNoApp } from "@/lib/push/use-push-no-app";
 import { ConviteDeInstalacao } from "@/components/pwa/ConviteDeInstalacao";
 import { AbasDaSecao } from "@/components/layout/AbasDaSecao";
 import { EsqueletoCascoEquipe } from "@/components/layout/Esqueleto";
+import { TransicaoDePagina } from "@/components/layout/TransicaoDePagina";
 import { ProvedorLayoutEquipe } from "@/components/layout/ContextoLayoutEquipe";
 
 export const Route = createFileRoute("/barbeiro")({
   ssr: false,
-  beforeLoad: () => exigirPapel("barbeiro"),
+  beforeLoad: ({ context }) => exigirPapel("barbeiro", context.queryClient),
   pendingComponent: EsqueletoCascoEquipe,
   component: BarberLayout,
 });
@@ -42,7 +43,9 @@ function BarberLayout() {
           <NavegacaoEquipe />
           <div className="equipe-conteudo">
             <AbasDaSecao />
-            <Outlet />
+            <TransicaoDePagina>
+              <Outlet />
+            </TransicaoDePagina>
           </div>
           {/* No topo: embaixo ficam o "+" da agenda e o rodapé do cockpit. */}
           <ConviteDeInstalacao posicao="topo" />

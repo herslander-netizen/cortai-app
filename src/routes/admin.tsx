@@ -25,7 +25,7 @@ const desktopGroups = [
 
 export const Route = createFileRoute("/admin")({
   ssr: false,
-  beforeLoad: () => exigirPapel("admin"),
+  beforeLoad: ({ context }) => exigirPapel("admin", context.queryClient),
   pendingComponent: EsqueletoCascoAdmin,
   component: AdminLayout,
 });
