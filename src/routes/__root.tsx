@@ -130,7 +130,7 @@ function RootComponent() {
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
       <GlobalDesign>
         <GuiaProvider>
-          <TransicaoDePagina>
+          <TransicaoDePagina nivel={1}>
             <Outlet />
           </TransicaoDePagina>
           <AvisosDoApp />

@@ -1,3 +1,4 @@
+import type { QueryClient } from "@tanstack/react-query";
 import { redirect } from "@tanstack/react-router";
 
 import { supabase } from "@/integrations/supabase/client";
@@ -82,7 +83,10 @@ async function usuarioAtual(): Promise<{ id: string } | null> {
 }
 
 /** Bloqueia a rota quando não há sessão real ou quando o papel não é o esperado. */
-export async function exigirPapel(papel: Exclude<Papel, "pendente">): Promise<Sessao> {
+export async function exigirPapel(
+  papel: Exclude<Papel, "pendente">,
+  queryClient?: QueryClient,
+): Promise<Sessao> {
   const usuario = await usuarioAtual();
   if (!usuario) {
     throw redirect({
@@ -107,6 +111,8 @@ export async function exigirPapel(papel: Exclude<Papel, "pendente">): Promise<Se
   if (sessao.papel !== papel || (papel === "barbeiro" && !sessao.tenantId)) {
     throw redirect({ to: destino });
   }
+  // A tela já nasce com a sessão: evita repetir a mesma consulta logo após a guarda.
+  queryClient?.setQueryData(["sessao"], sessao);
   return sessao;
 }
 

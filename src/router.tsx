@@ -4,7 +4,12 @@ import { routeTree } from "./routeTree.gen";
 import { EsqueletoGenerico } from "./components/layout/Esqueleto";
 
 export const getRouter = () => {
-  const queryClient = new QueryClient();
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      // Dados recém-buscados valem por 30 s: voltar a uma tela não refaz a consulta à toa.
+      queries: { staleTime: 30_000, gcTime: 10 * 60_000, retry: 1 },
+    },
+  });
 
   const router = createRouter({
     routeTree,
@@ -16,7 +21,7 @@ export const getRouter = () => {
     defaultPreloadStaleTime: 0,
     defaultPendingComponent: EsqueletoGenerico,
     defaultPendingMs: 150,
-    defaultPendingMinMs: 300,
+    defaultPendingMinMs: 100,
   });
 
   return router;
