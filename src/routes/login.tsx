@@ -120,15 +120,21 @@ function LoginPage() {
       const retorno = new URL("/entrar/retorno", window.location.origin);
       if (proximo && proximo.startsWith("/") && !proximo.startsWith("//"))
         retorno.searchParams.set("proximo", proximo);
-      const resultado = await lovable.auth.signInWithOAuth(provedor, {
-        redirect_uri: retorno.toString(),
-      });
+      const resultado = provedor === "google"
+        ? await supabase.auth.signInWithOAuth({
+            provider: "google",
+            options: { redirectTo: retorno.toString() },
+          })
+        : await lovable.auth.signInWithOAuth(provedor, {
+            redirect_uri: retorno.toString(),
+          });
       if (resultado.error) {
         setEnviando(false);
         falha(provedor);
         return;
       }
-      if (resultado.redirected) return;
+      if (provedor === "google") return;
+      if (provedor === "apple" && "redirected" in resultado && resultado.redirected) return;
       await seguirParaMinhaArea();
       setEnviando(false);
     } catch {
