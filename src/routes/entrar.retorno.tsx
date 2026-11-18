@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
 import { TelaDeCarregamento } from "@/components/layout/Carregando";
 import { supabase } from "@/integrations/supabase/client";
@@ -35,14 +35,14 @@ function RetornoPage() {
   const navigate = useNavigate();
   const { proximo } = Route.useSearch();
   const [erro, setErro] = useState<string | null>(null);
-  const finalizando = useRef(false);
 
   useEffect(() => {
     let ativo = true;
+    let finalizando = false;
 
     async function finalizar() {
-      if (finalizando.current) return;
-      finalizando.current = true;
+      if (!ativo || finalizando) return;
+      finalizando = true;
       try {
         const sessao = await getSessao();
         if (!ativo) return;
@@ -55,7 +55,7 @@ function RetornoPage() {
         await navigate({ to: destino, replace: true });
       } catch {
         if (!ativo) return;
-        finalizando.current = false;
+        finalizando = false;
         setErro("Não foi possível concluir o acesso. Tente entrar novamente.");
       }
     }
@@ -71,7 +71,7 @@ function RetornoPage() {
 
     // Sem sessão em tempo razoável: volta ao login em vez de ficar preso.
     const limite = window.setTimeout(async () => {
-      if (finalizando.current || !ativo) return;
+      if (finalizando || !ativo) return;
       const { data: atual } = await supabase.auth.getSession();
       if (!atual.session && ativo) await navigate({ to: "/login", search: {}, replace: true });
     }, 8000);
