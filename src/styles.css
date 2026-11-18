@@ -6091,8 +6091,9 @@ button.agenda-nome:hover {
   position: absolute;
   inset: 0;
   border: 0;
-  background: color-mix(in oklab, var(--fundo, var(--ink)) 62%, black 10%);
-  opacity: 0.85;
+  /* O menu aberto prioriza as ações e reduz o ruído visual da Agenda. */
+  background: rgb(0 0 0 / 78%);
+  opacity: 1;
 }
 .agenda-dial-lista {
   position: absolute;
@@ -6134,7 +6135,9 @@ button.agenda-nome:hover {
 .agenda-dial-pilula[data-destaque] {
   min-height: 60px;
   border-color: transparent;
-  background: color-mix(in oklab, var(--primary) 22%, var(--painel, var(--ink3)));
+  /* Mesmo azul do anel do FAB, levemente fechado para manter leitura do texto. */
+  background: color-mix(in oklab, var(--primary) 85%, black);
+  color: var(--primary-foreground);
   font-weight: 600;
 }
 .agenda-dial-pilula:disabled {
