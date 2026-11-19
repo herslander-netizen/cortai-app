@@ -3,7 +3,7 @@
 
 ## 1. Identificação e limites
 - **Único repositório autorizado neste programa:** `herslander-netizen/cortai-app`. Nome oficial: **Flow**; Cortaí permanece como legado técnico onde necessário. Não alterar outros projetos, repositórios, dados nem credenciais.
-- **Alvo de PR explicitamente solicitado para esta etapa:** `main`. Há outra branch `previa`; **não presumir** que a branch padrão corresponde à branch publicada. Verificar workflows, destinos Cloudflare e política de publicação antes de qualquer deploy. Não alterar a produção sem aprovação específica.
+- **Alvo de PR explicitamente solicitado para esta etapa:** `main`. **Cloudflare Pages verificado em 19/11/2026:** projeto `cortaiapp` com `production_branch` = `producao`; último deploy de prévia inspecionado veio da branch `previa` (14/11/2026). A branch padrão `main` **não é a branch de produção deste projeto Pages**. Conferir novamente os workflows, destinos e a política de publicação antes de qualquer deploy. Não alterar a produção sem aprovação específica.
 - **Supabase produção:** `ibsberidejlbczxrweqg`. **Supabase prévia:** `pfkxvindedkuktogbcsv`. Nunca trocar URL/chaves/dados entre ambientes nem rodar SQL de escrita por engano.
 - Stack documentada: TanStack Start, React 19, Supabase, Tailwind e Cloudflare. Confrontar os documentos antigos com o código e a infraestrutura atual antes de presumir provedores/URLs. **Lovable não é infraestrutura autorizada**. Referências Lovable remanescentes são históricas e não justificam integração ou deploy nele.
 - Não expor segredos, chaves privadas, tokens, dados de clientes ou conversas nos logs, Issues, PRs e resultados de teste. Verificar permissões de negócio/RLS; nunca confiar somente no `tenant_id` enviado pelo cliente.
