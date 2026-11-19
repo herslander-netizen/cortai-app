@@ -1,27 +1,26 @@
-# FLOW — Contexto do projeto
+# FLOW — contexto operacional vigente
 
-Este repositório é sincronizado nos dois sentidos com o projeto FLOW no Lovable (o projeto anteriormente identificado como Cortaí):
-- Editor: https://lovable.dev/projects/a3550de1-ec98-4622-8484-7dadb8b04ed0
-- Prévia: https://id-preview--a3550de1-ec98-4622-8484-7dadb8b04ed0.lovable.app
-- Site publicado: https://cortai.dev
+**Instruções permanentes:** `AGENTS.md` e `docs/padrao-engenharia-agentes.md`; mapa histórico: `docs/mapa-do-codigo.md`; contrato de interface: `docs/contrato-de-design.md`. Em cada área, ler o `AGENTS.md` específico. Consulte o código real antes de seguir qualquer URL ou configuração antiga.
 
-**Tudo o que for enviado para `main` aparece no Lovable.** Mantenha `main` sempre funcionando e nunca reescreva histórico já enviado. Não altere código sem pedido explícito do dono; documentação (`CLAUDE.md`, `docs/`) pode ser atualizada.
+**Projeto autorizado:** `herslander-netizen/cortai-app`. Para esta tarefa de padronização, abrir PR direcionado a `main`; a existência da branch `previa` não prova seu deploy. Verificar configuração real do GitHub e Cloudflare antes de qualquer publicação.
 
-A memória oficial do projeto é o **Knowledge** do Lovable e os `AGENTS.md` (raiz, `src/lib`, `src/lib/brain`, `src/lib/whatsapp`, `src/components/barbeiro/agenda`, `src/components/comanda`). Este arquivo é um resumo deles (atualizado em 2026-10-09). Se houver conflito, valem eles.
+**Infraestrutura:** Flow não utiliza mais Lovable como plataforma autorizada. Referências a Lovable neste repositório (inclusive integrações legadas em código, URLs, segredos e Knowledge) são registros históricos a serem auditados, **não instruções para conectar, instalar ou publicar por Lovable**. Nunca remover dependências legadas sem diagnóstico, Issue e testes.
 
-**Onde cada coisa mora:** `docs/mapa-do-codigo.md`. Ele traz as rotas, os domínios em `src/lib`, as tabelas, o código sem uso e as divergências conhecidas.
+**Supabase:** produção `ibsberidejlbczxrweqg`; prévia `pfkxvindedkuktogbcsv`. Não cruzar dados/chaves/ambientes e não modificar o banco sem escopo e aprovação explícitos.
 
-**Comandos do projeto (`.claude/commands/`, em português):** `/verificar`, `/migracao`, `/auditar`, `/revisar-regras`, `/pedido-lovable`. Por padrão só leem e relatam; nada vai para a `main` nem para o banco sem autorização, e nenhum publica o site.
+**Desenvolvimento:** buscar Issue antes de cada tarefa, branch dedicada, PR com rastreabilidade, testes e estados de conclusão, sem merge/deploy automáticos por decisão do agente. Preservar multi-tenancy, LGPD, custos gratuitos, regras de negócio e versão atual da identidade visual. Não reescrever histórico publicado.
 
-**Comandos de terminal:**
+**Comandos documentados (validar os scripts atuais antes de executá-los):**
 
 ```sh
-npm install --no-package-lock   # o bun.lock aponta para um cache privado do Lovable
+npm install --no-package-lock
 npx tsc --noEmit
 npx vitest run
 npx eslint .
 npx vite build
 ```
+
+Comandos auxiliares em `.claude/commands/` são históricos; verificar compatibilidade antes de usar. As instruções antigas sobre `main` vinculada ao Lovable estão revogadas.
 
 ## Nome do projeto e transição de marca
 
@@ -32,7 +31,7 @@ npx vite build
 ## Produto
 
 - Plataforma de gestão para negócios de beleza. Barbearia é só um segmento. Assinatura: "Simplifica. Conecta. Cresce."
-- **Cortaí** = plataforma e experiência. **CortAI** = camada de IA. **Cortaí Chat** = agendamento conversacional determinístico.
+- **Flow** = marca atual da plataforma; Cortaí permanece como termo legado em integrações/código. **CortAI** = camada de IA. **Cortaí Chat** = agendamento conversacional determinístico.
 - O motor oficial de agenda, disponibilidade, mutações e RPCs é a única fonte de verdade.
 - Papéis neutros: NEGÓCIO (tenant), DONO, PROFISSIONAL, CLIENTE. Termos de segmento só aparecem na UI, via `termos(segmento)` (`src/lib/segmentos.ts`). Código, rotas, tabelas, tipos, modelos de WhatsApp e textos fixos ficam neutros.
 - Área do negócio: o Knowledge fala em `/painel/...`, mas no código as rotas são `/barbeiro/...` e `/painel` não existe (veja as divergências em `docs/mapa-do-codigo.md`).
@@ -41,7 +40,7 @@ npx vite build
 
 ## Stack
 
-TanStack Start (React 19), Tailwind 4, shadcn/Radix, Supabase, Drizzle (migrações em `drizzle/migrations`), Vitest, Bun. A IA passa pelo Lovable AI Gateway (`LOVABLE_API_KEY` só no servidor). Pagamentos via Asaas: a chave fica só em funções protegidas de `admin.functions.ts`.
+TanStack Start (React 19), Tailwind 4, shadcn/Radix, Supabase, Drizzle (migrações em `drizzle/migrations`), Vitest, Bun. Documentos antigos descreviam a IA pelo Lovable AI Gateway; verificar `src/lib/brain/gateway.server.ts` e a configuração atual antes de escolher ou substituir qualquer provedor. Pagamentos via Asaas: a chave fica só em funções protegidas de `admin.functions.ts`.
 
 ## Identidade visual
 
@@ -106,7 +105,7 @@ Preservar service worker, cache, recuperação de chunk e sessão. O manifest é
 - **Sem DROP, sem alteração destrutiva, sem apagar dados.** Migrações só de acréscimo, mínimas e justificadas.
 - Idempotência, dedupe, retries limitados e auditoria em eventos e jobs.
 - **Não publicar sem autorização explícita.**
-- Não reescrever o histórico git publicado: o projeto é sincronizado com o Lovable.
+- Não reescrever o histórico Git publicado; isso prejudica revisão, rastreabilidade e rollback.
 
 ## Como o dono trabalha
 
