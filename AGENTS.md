@@ -3,7 +3,7 @@
 **Leia antes de escrever:** `CLAUDE.md`, `docs/mapa-do-codigo.md`, `docs/contrato-de-design.md` e, quando aplicável, o `AGENTS.md` local. Padrão operacional permanente: **`docs/padrao-engenharia-agentes.md`**.
 
 - Identidade: Flow (antigo Cortaí); repositório autorizado `herslander-netizen/cortai-app`. Não mexer em outros projetos; manter a separação entre Supabase produção `ibsberidejlbczxrweqg` e prévia `pfkxvindedkuktogbcsv`.
-- Começar pela Issue já existente ou criar uma nova; trabalhar em branch dedicada, abrir PR com evidências e não fazer merge/deploy sem autorização. Para este programa de padronização, alvo indicado: `main`; confirmar separadamente qual branch publica prévia e produção.
+- Começar pela Issue já existente ou criar uma nova; trabalhar em branch dedicada, abrir PR com evidências e não fazer merge/deploy sem autorização. Para este programa de padronização, alvo de PR: `main`. Cloudflare Pages `cortaiapp` foi consultado em 19/11/2026: produção usa `producao` e o último deploy de prévia registrado veio de `previa`. Nunca tratar merge em `main` como publicação, nem publicar sem aprovação.
 - Reutilizar design, motion, skeleton, UX e testes existentes. Referência externa: `kylezantos/design-motion-principles`. Priorizar latência real, acessibilidade e `prefers-reduced-motion`, sem instalar dependências por impulso.
 - Preservar segurança multi-tenant, regras de negócio, identidade visual, custos gratuitos, logs sem informações pessoais e migrações aditivas.
 - Reportar claramente **implementado**, **validado**, **proposto** e **não executado**.
