@@ -2,7 +2,7 @@
 
 **Instruções permanentes:** `AGENTS.md` e `docs/padrao-engenharia-agentes.md`; mapa histórico: `docs/mapa-do-codigo.md`; contrato de interface: `docs/contrato-de-design.md`. Em cada área, ler o `AGENTS.md` específico. Consulte o código real antes de seguir qualquer URL ou configuração antiga.
 
-**Projeto autorizado:** `herslander-netizen/cortai-app`. Para esta tarefa de padronização, abrir PR direcionado a `main`; a existência da branch `previa` não prova seu deploy. Verificar configuração real do GitHub e Cloudflare antes de qualquer publicação.
+**Projeto autorizado:** `herslander-netizen/cortai-app`. Para esta tarefa de padronização, abrir PR direcionado a `main`. Cloudflare Pages `cortaiapp` confirmou em 19/11/2026 a branch de produção `producao`; o último deploy de prévia consultado veio de `previa`. Não confundir `main` com branch de deploy. Verificar novamente a configuração GitHub/Cloudflare antes de publicar.
 
 **Infraestrutura:** Flow não utiliza mais Lovable como plataforma autorizada. Referências a Lovable neste repositório (inclusive integrações legadas em código, URLs, segredos e Knowledge) são registros históricos a serem auditados, **não instruções para conectar, instalar ou publicar por Lovable**. Nunca remover dependências legadas sem diagnóstico, Issue e testes.
 
