@@ -1,4 +1,7 @@
-# Mapa do código do Cortaí
+# Mapa do código do Cortaí (registro histórico)
+
+> **Atenção — snapshot de 09/10/2026:** este documento contém referências de infraestrutura, env vars e URLs antigas (inclusive Lovable). A infraestrutura autorizada atualmente para o Flow não inclui Lovable. Para instruções operacionais atuais consulte `AGENTS.md`, `CLAUDE.md` e `docs/padrao-engenharia-agentes.md`; confirme rotas, ferramentas, segredos e branches no código/serviços antes de executar.
+
 
 Guia para quem chega ao código (pessoa ou IA). Gerado em 09/10/2026 a partir do commit `7ed1c6a`. As regras obrigatórias ficam nos `AGENTS.md`; este arquivo diz **onde cada coisa mora**.
 
