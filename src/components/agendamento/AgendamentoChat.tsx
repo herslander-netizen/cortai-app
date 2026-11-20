@@ -48,6 +48,8 @@ export function AgendamentoChat({
   telefone,
   setNome,
   setTelefone,
+  receberAvisosWhatsapp,
+  setReceberAvisosWhatsapp,
   confirmar,
   conflito,
   alterarConflito,
@@ -62,6 +64,8 @@ export function AgendamentoChat({
   telefone: string;
   setNome: (value: string) => void;
   setTelefone: (value: string) => void;
+  receberAvisosWhatsapp: boolean;
+  setReceberAvisosWhatsapp: (value: boolean) => void;
   confirmar: () => void;
   conflito: { agendamentoId: string; hora: string } | null;
   alterarConflito: () => void;
@@ -259,6 +263,8 @@ export function AgendamentoChat({
                 telefone={telefone}
                 setNome={setNome}
                 setTelefone={setTelefone}
+                receberAvisosWhatsapp={receberAvisosWhatsapp}
+                setReceberAvisosWhatsapp={setReceberAvisosWhatsapp}
                 nomeRef={nomeRef}
               />
             )}
