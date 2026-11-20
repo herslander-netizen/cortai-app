@@ -5,9 +5,10 @@
  * A conexão e o consentimento do cliente são condições independentes:
  * ligar a automação nunca concede opt-in a um cliente.
  */
+// A coluna cortai_ativa utiliza o DEFAULT true do banco; o tipo gerado
+// impede atribuí-la no INSERT. Não substituir por cast que esconda o problema.
 export const CONFIG_INICIAL_WHATSAPP = {
   atendimento_automatico: true,
-  cortai_ativa: true,
   responder_whatsapp: true,
   saudacao_ativa: true,
   confirmacao_automatica: true,
