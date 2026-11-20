@@ -67,7 +67,7 @@ describe("identidade do cadastro nas páginas públicas", () => {
         destaque: "#D8B68E",
       },
     });
-    const estilos = agendamentoStyle(pagina) as Record<string, string>;
+    const estilos = agendamentoStyle(pagina) as unknown as Record<string, string>;
     expect(estilos["--chat-primary"]).toBe("#76401B");
     expect(estilos["--chat-accent"]).toBe("#D8B68E");
   });
