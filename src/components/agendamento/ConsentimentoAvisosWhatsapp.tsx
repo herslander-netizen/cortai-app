@@ -23,8 +23,9 @@ export function ConsentimentoAvisosWhatsapp({
           Quero receber avisos pelo WhatsApp
         </span>
         <span className="mt-1 block text-xs leading-relaxed text-mute">
-          Confirmação, lembretes, alterações e avisos após meu atendimento. É opcional:
-          posso agendar sem receber mensagens e cancelar os avisos enviando SAIR.
+          Confirmações, lembretes e avisos após meu atendimento. É opcional:
+          o agendamento funciona sem essa autorização. Se já autorizei antes,
+          posso cancelar os avisos enviando SAIR.
         </span>
       </span>
     </label>
