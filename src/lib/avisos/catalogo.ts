@@ -142,7 +142,7 @@ export type Contexto = {
   /** Telefone verificado (equipe) ou válido e com WhatsApp (cliente). */
   temWhatsapp?: boolean;
   planoComWhatsapp?: boolean;
-  /** Cliente: consentimento para relacionamento. */
+  /** Cliente: autorização explícita para qualquer aviso automático por WhatsApp. */
   consentimento?: boolean;
   emSilencio?: boolean;
 };
@@ -178,7 +178,7 @@ export function decidirCanais(
     if (!ctx.temWhatsapp) return { canal, enviar: false, motivo: "sem_whatsapp" };
     if (destinatario !== "cliente" && p.no_whatsapp !== true)
       return { canal, enviar: false, motivo: "whatsapp_nao_ligado" };
-    if (def.prioridade === "relacionamento" && !ctx.consentimento)
+    if (destinatario === "cliente" && ctx.consentimento !== true)
       return { canal, enviar: false, motivo: "sem_consentimento" };
     if (ctx.emSilencio && !urgente) return { canal, enviar: false, motivo: "silencio" };
     // Janela de 24h / modelo aprovado é decidida depois por `decidirFormato`.
