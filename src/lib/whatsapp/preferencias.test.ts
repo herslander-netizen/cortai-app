@@ -17,7 +17,7 @@ describe("preferências de aviso do cliente", () => {
     expect(
       motivoDeBloqueio({ ...base, whatsapp_ativo: false }, "lembrete_2h", as("10:00"), fuso),
     ).not.toBeNull());
-  it("SAIR não bloqueia uma confirmação operacional indispensável", () =>
+  it("desativar avisos bloqueia até confirmações automáticas", () =>
     expect(
       motivoDeBloqueio(
         { ...base, whatsapp_ativo: false },
@@ -25,7 +25,7 @@ describe("preferências de aviso do cliente", () => {
         as("10:00"),
         fuso,
       ),
-    ).toBeNull());
+    ).not.toBeNull());
   it("mínima pula a véspera e mantém 2h", () => {
     const p = { ...base, frequencia: "minima" };
     expect(motivoDeBloqueio(p, "lembrete_24h", as("10:00"), fuso)).not.toBeNull();

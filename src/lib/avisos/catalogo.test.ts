@@ -57,9 +57,9 @@ describe("decidirCanais", () => {
   });
 
   it("silêncio segura o normal, mas não o crítico", () => {
-    expect(pega(decidirCanais("lembrete", "cliente", { temWhatsapp: true, emSilencio: true }), "whatsapp")?.enviar).toBe(false);
+    expect(pega(decidirCanais("lembrete", "cliente", { temWhatsapp: true, consentimento: true, emSilencio: true }), "whatsapp")?.enviar).toBe(false);
     expect(
-      pega(decidirCanais("atraso_avisado", "cliente", { temWhatsapp: true, emSilencio: true }), "whatsapp")?.enviar,
+      pega(decidirCanais("atraso_avisado", "cliente", { temWhatsapp: true, consentimento: true, emSilencio: true }), "whatsapp")?.enviar,
     ).toBe(true);
   });
 
@@ -118,12 +118,15 @@ describe("avisos ao cliente", () => {
       expect(EVENTOS[evento].destinos).toHaveProperty("cliente");
     }
   });
-  it("confirmação e cancelamento saem sem consentimento; pós-atendimento não", () => {
-    const ctx = { temWhatsapp: true, planoComWhatsapp: true, consentimento: false };
-    for (const tipo of ["confirmacao_agendamento", "cancelamento", "lembrete_24h"]) {
-      expect(decidirCanais(EVENTO_DO_CLIENTE[tipo]!, "cliente", ctx)[0]?.enviar).toBe(true);
+  it("todos os avisos automáticos do cliente exigem autorização", () => {
+    const base = { temWhatsapp: true, planoComWhatsapp: true };
+    for (const tipo of ["confirmacao_agendamento", "cancelamento", "lembrete_24h", "pos_atendimento"]) {
+      const evento = EVENTO_DO_CLIENTE[tipo]!;
+      expect(decidirCanais(evento, "cliente", { ...base, consentimento: false })[0])
+        .toMatchObject({ enviar: false, motivo: "sem_consentimento" });
+      expect(decidirCanais(evento, "cliente", { ...base, consentimento: true })[0]?.enviar)
+        .toBe(true);
     }
-    expect(decidirCanais(EVENTO_DO_CLIENTE["pos_atendimento"]!, "cliente", ctx)[0]?.enviar).toBe(false);
   });
 });
 

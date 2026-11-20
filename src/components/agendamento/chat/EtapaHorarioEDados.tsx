@@ -3,6 +3,7 @@ import type { RefObject } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import type { AgendaPublica } from "@/lib/agendamento-publico.functions";
+import { ConsentimentoAvisosWhatsapp } from "@/components/agendamento/ConsentimentoAvisosWhatsapp";
 import { diaPorExtenso, TEXTOS_CONVERSA, textoOferta } from "@/lib/conversa/respostas";
 import { brl } from "@/lib/format";
 import { mascaraTelefone } from "@/lib/previa";
@@ -97,6 +98,8 @@ export function EtapaDados({
   telefone,
   setNome,
   setTelefone,
+  receberAvisosWhatsapp,
+  setReceberAvisosWhatsapp,
   nomeRef,
 }: {
   data: AgendaPublica;
@@ -105,6 +108,8 @@ export function EtapaDados({
   telefone: string;
   setNome: (v: string) => void;
   setTelefone: (v: string) => void;
+  receberAvisosWhatsapp: boolean;
+  setReceberAvisosWhatsapp: (v: boolean) => void;
   nomeRef: RefObject<HTMLInputElement | null>;
 }) {
   const { servico, escolhido, dia } = selecao;
@@ -139,6 +144,10 @@ export function EtapaDados({
           placeholder="WhatsApp com DDD"
           aria-label="WhatsApp com DDD"
           className="h-12 text-base"
+        />
+        <ConsentimentoAvisosWhatsapp
+          aceito={receberAvisosWhatsapp}
+          aoAlterar={setReceberAvisosWhatsapp}
         />
       </div>
     </Fala>

@@ -395,9 +395,19 @@ export const conectarWhatsapp = createServerFn({ method: "POST" })
             ultimo_erro: null,
           })
           .eq("id", sessao.id);
+        let aviso: string | null = null;
+        if (estado.status === "conectado") {
+          const { garantirAtendimentoAoConectar } = await import("@/lib/whatsapp/ativacao-padrao.server");
+          try {
+            await garantirAtendimentoAoConectar(tenantId);
+          } catch (erro) {
+            console.error("[whatsapp] atendimento inicial", erro);
+            aviso = "WhatsApp conectado, mas não foi possível preparar o atendimento automático.";
+          }
+        }
         return {
           status: estado.status === "desconectado" ? "pendente" : estado.status,
-          aviso: null,
+          aviso,
         };
       } catch (erro) {
         const mensagem = erro instanceof Error ? erro.message : "Falha ao conectar.";
@@ -649,6 +659,10 @@ export const sincronizarConexao = createServerFn({ method: "POST" })
           .eq("id", atual.id)
           .select("*")
           .single();
+        if (conectou) {
+          const { garantirAtendimentoAoConectar } = await import("@/lib/whatsapp/ativacao-padrao.server");
+          await garantirAtendimentoAoConectar(tenantId);
+        }
         return { conexao: conexaoDaLinha(data), aviso: null };
       } catch (erro) {
         return {

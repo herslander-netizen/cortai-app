@@ -822,6 +822,13 @@ export async function atualizarEstadoDaConexao(
     .eq("id", conexao.id)
     .or(`ultimo_evento_em.is.null,ultimo_evento_em.lte.${eventoEm}`);
 
+  if (status === "conectado" && conexao.tenant_id && conexao.escopo !== "central") {
+    const { garantirAtendimentoAoConectar } = await import("./ativacao-padrao.server");
+    await garantirAtendimentoAoConectar(conexao.tenant_id).catch((erro) => {
+      console.error("[whatsapp] não foi possível preparar a automação inicial", erro);
+    });
+  }
+
   if (novo.mudou) {
     logConexao("estado_mudou", {
       sessaoId,

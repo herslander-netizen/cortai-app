@@ -373,8 +373,8 @@ export function motivoDeBloqueio(
   agora: Date,
   fuso: string,
 ): string | null {
+  if (!p.whatsapp_ativo) return "Cliente desligou avisos pelo WhatsApp.";
   if (TIPOS_ESSENCIAIS.has(tipo as TipoDeNotificacao)) return null;
-  if (!p.whatsapp_ativo) return "Cliente desligou avisos de relacionamento por WhatsApp.";
   if (p.frequencia === "minima" && tipo === "lembrete_24h")
     return "Cliente prefere só o aviso mais próximo.";
   if (p.silencio_inicio && p.silencio_fim) {
@@ -523,22 +523,17 @@ async function executar(agendamentoId: string, tipo: TipoDeNotificacao): Promise
       return { enviado: false, motivo: "Lembrete perdeu o momento." };
     }
   }
-  // Retorno é lembrete de relacionamento: só com consentimento e respeitando o SAIR.
-  if (
-    ["retorno", "pos_atendimento", "convite_avaliacao"].includes(tipo) &&
-    cliente?.opt_in_whatsapp !== true
-  ) {
-    return { enviado: false, motivo: "Cliente sem consentimento para lembretes." };
+  // Nenhuma mensagem automática ao cliente sem opt-in, inclusive confirmação,
+  // remarcação e pós-atendimento. Responder a mensagem recebida é outro fluxo.
+  if (cliente?.opt_in_whatsapp !== true) {
+    return { enviado: false, motivo: "Cliente não autorizou avisos pelo WhatsApp." };
   }
-
-  if (["lembrete_24h", "lembrete_2h", "pos_atendimento", "convite_avaliacao"].includes(tipo)) {
-    const bloqueio = await preferenciaBloqueia(
-      ag.cliente_id,
-      tipo,
-      await fusoDoTenant(ag.tenant_id),
-    );
-    if (bloqueio) return { enviado: false, motivo: bloqueio };
-  }
+  const bloqueio = await preferenciaBloqueia(
+    ag.cliente_id,
+    tipo,
+    await fusoDoTenant(ag.tenant_id),
+  );
+  if (bloqueio) return { enviado: false, motivo: bloqueio };
 
   const config = await configuracaoDoTenant(ag.tenant_id);
   const padrao =

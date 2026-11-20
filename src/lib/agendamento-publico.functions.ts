@@ -333,6 +333,7 @@ export const agendarComoConvidado = createServerFn({ method: "POST" })
         inicio: z.string().min(10),
         nome: z.string().trim().min(2).max(80),
         telefone: telefoneSchema,
+        receberAvisosWhatsapp: z.boolean().default(false),
         substituiId: z.string().uuid().optional(),
       })
       .parse(input),
@@ -504,6 +505,25 @@ export const agendarComoConvidado = createServerFn({ method: "POST" })
     if (erroToken) {
       await db.rpc("cancelar_agendamento", { _agendamento_id: criado.agendamento_id });
       throw new Error("Não foi possível concluir o agendamento agora.");
+    }
+
+    // Opt-in expresso, opcional e desmarcado por padrão. Não altera a opção
+    // existente quando o cliente não marca a caixa nesta reserva.
+    if (data.receberAvisosWhatsapp) {
+      const { error: erroConsentimento } = await db.from("clientes")
+        .update({ opt_in_whatsapp: true, opt_in_em: new Date().toISOString() })
+        .eq("id", clienteId)
+        .eq("tenant_id", tenant.id);
+      if (erroConsentimento) {
+        console.error("[agendamento-publico] falha ao registrar opt-in", erroConsentimento.message);
+      } else {
+        // A pessoa que escolheu receber novamente pode ter desligado o canal antes.
+        const { error: erroPreferencia } = await db.from("preferencias_do_cliente_avisos")
+          .update({ whatsapp_ativo: true })
+          .eq("cliente_id", clienteId)
+          .eq("tenant_id", tenant.id);
+        if (erroPreferencia) console.error("[agendamento-publico] preferência de avisos", erroPreferencia.message);
+      }
     }
 
     // Alteração: o horário antigo só é liberado depois que o novo está garantido.
