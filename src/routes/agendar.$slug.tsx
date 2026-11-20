@@ -15,6 +15,7 @@ import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { AgendamentoChat } from "@/components/agendamento/AgendamentoChat";
+import { ConsentimentoAvisosWhatsapp } from "@/components/agendamento/ConsentimentoAvisosWhatsapp";
 import { ConfirmacaoAgendamento } from "@/components/agendamento/ConfirmacaoAgendamento";
 import { TicketDaConfirmacao } from "@/components/comanda/TicketDaConfirmacao";
 import { ConviteDeConta } from "@/components/agendamento/ConviteDeConta";
@@ -146,6 +147,7 @@ function AgendamentoPublico() {
   } = selecao;
   const [nome, setNome] = useState("");
   const [telefone, setTelefone] = useState("");
+  const [receberAvisosWhatsapp, setReceberAvisosWhatsapp] = useState(false);
   const [tocouTelefone, setTocouTelefone] = useState(false);
   const [tocouNome, setTocouNome] = useState(false);
   const [saudacao, setSaudacao] = useState<string | null>(null);
@@ -273,6 +275,7 @@ function AgendamentoPublico() {
           inicio: escolhido!.iso,
           nome: nome.trim(),
           telefone: digitosTel,
+          receberAvisosWhatsapp,
           ...((troca ?? substituiId) ? { substituiId: (troca ?? substituiId)! } : {}),
         },
       }),
@@ -348,6 +351,7 @@ function AgendamentoPublico() {
     setSituacao("confirmado");
     setHorario(null);
     setSubstituiId(null);
+    setReceberAvisosWhatsapp(false);
     setErro(null);
   }
 
@@ -487,6 +491,8 @@ function AgendamentoPublico() {
         telefone={telefone}
         setNome={setNome}
         setTelefone={setTelefone}
+        receberAvisosWhatsapp={receberAvisosWhatsapp}
+        setReceberAvisosWhatsapp={setReceberAvisosWhatsapp}
         confirmar={() => {
           if (!servico || !escolhido || nome.trim().length < 2 || digitosTel.length < 10) return;
           setErro(null);
@@ -742,6 +748,10 @@ function AgendamentoPublico() {
               autoComplete="name"
               enterKeyHint="done"
               erro={tocouNome ? erroNome : null}
+            />
+            <ConsentimentoAvisosWhatsapp
+              aceito={receberAvisosWhatsapp}
+              aoAlterar={setReceberAvisosWhatsapp}
             />
           </div>
         </Bloco>
