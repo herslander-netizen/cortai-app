@@ -369,7 +369,13 @@ export function paginaStyle(config: PaginaConfig): CSSProperties {
 
 /** Tokens da identidade publicada usados pelo agendamento, sem duplicar a configuração da marca. */
 export function agendamentoStyle(config: PaginaConfig): CSSProperties {
-  const corPrincipal = CORES_AGENDAMENTO.destaques[config.chat.corDestaque] ?? config.cores.botao;
+  // Paletas personalizadas têm prioridade sobre o azul/ciano/rosa padrão do chat.
+  // Temas sem personalização mantêm o seletor de destaque já existente.
+  const botaoDoTema = TEMAS[config.tema].cores.botao;
+  const usaMarca = config.cores.botao.toUpperCase() !== botaoDoTema.toUpperCase();
+  const corPrincipal = usaMarca
+    ? config.cores.botao
+    : (CORES_AGENDAMENTO.destaques[config.chat.corDestaque] ?? config.cores.botao);
   const tokens = tokensDoAgendamento(config.cores.secundaria);
   return {
     "--chat-superficie-1": tokens.superficie1,
