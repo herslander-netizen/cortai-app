@@ -164,6 +164,11 @@ function ConfigurarPage() {
   const [whatsapp, setWhatsapp] = useState<string | null>(null);
   const [endereco, setEndereco] = useState<string | null>(null);
   const [logo, setLogo] = useState<{ caminho: string; previa: string } | null>(null);
+  const [coresMarca, setCoresMarca] = useState<{
+    principal: string;
+    secundaria: string;
+    destaque: string;
+  } | null>(null);
   const [enviandoLogo, setEnviandoLogo] = useState(false);
   const [horarios, setHorarios] = useState<HorarioSugerido[] | null>(null);
   const [servicos, setServicos] = useState<ServicoEditavel[] | null>(null);
@@ -181,6 +186,11 @@ function ConfigurarPage() {
   const definicao = SEGMENTOS_CONFIG[segmento];
   const vocabulario = termos(segmento);
   const valorWhatsapp = whatsapp ?? data?.tenant.whatsapp ?? "";
+  const valorCoresMarca = coresMarca ?? {
+    principal: data?.tenant.corPrimaria ?? "#1653A1",
+    secundaria: data?.tenant.corSecundaria ?? "#F5F4F0",
+    destaque: data?.tenant.corAccent ?? "#C41F61",
+  };
   const valorEndereco = endereco ?? data?.tenant.endereco ?? "";
   const valorHorarios = horarios ?? data?.horarios ?? horariosPadrao();
   const valorRegras = regras ?? data?.regras ?? REGRAS_RECOMENDADAS;
@@ -210,6 +220,8 @@ function ConfigurarPage() {
     void queryClient.invalidateQueries({ queryKey: ["implantacao"] });
     void queryClient.invalidateQueries({ queryKey: ["configuracao-inicial"] });
     void queryClient.invalidateQueries({ queryKey: ["sessao"] });
+    void queryClient.invalidateQueries({ queryKey: ["pagina-publica"] });
+    void queryClient.invalidateQueries({ queryKey: ["agenda-publica"] });
   }
 
   /** Grava primeiro e só então avança; se falhar, a pessoa continua na mesma etapa. */
@@ -428,6 +440,35 @@ function ConfigurarPage() {
                   onChange={enviarLogo}
                 />
               </div>
+              <fieldset className="surface p-4">
+                <legend className="px-1 text-sm font-semibold text-paper">Cores do negócio</legend>
+                <p className="mb-3 text-xs text-mute">
+                  Aplicadas automaticamente à página pública e ao agendamento.
+                </p>
+                <div className="grid grid-cols-3 gap-3">
+                  {([
+                    { campo: "principal", rotulo: "Principal" },
+                    { campo: "secundaria", rotulo: "Fundo" },
+                    { campo: "destaque", rotulo: "Destaque" },
+                  ] as const).map(({ campo, rotulo }) => (
+                    <label key={campo} className="min-w-0 text-xs text-mute">
+                      <span>{rotulo}</span>
+                      <input
+                        type="color"
+                        value={valorCoresMarca[campo]}
+                        onChange={(evento) =>
+                          setCoresMarca({ ...valorCoresMarca, [campo]: evento.target.value })
+                        }
+                        className="mt-2 h-12 w-full cursor-pointer rounded-lg border border-line2 bg-ink2 p-1"
+                        aria-label={"Cor " + rotulo.toLowerCase()}
+                      />
+                      <span className="mt-1 block font-mono text-[11px] text-paper">
+                        {valorCoresMarca[campo].toUpperCase()}
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              </fieldset>
               <label className="block text-xs font-medium text-mute">
                 Nome {vocabulario.de}
                 <input
@@ -464,6 +505,7 @@ function ConfigurarPage() {
                         nome: valorNome.trim(),
                         whatsapp: valorWhatsapp,
                         endereco: valorEndereco,
+                        ...(coresMarca || !data.concluidoEm ? { cores: valorCoresMarca } : {}),
                         ...(logo ? { logoUrl: logo.caminho } : {}),
                       },
                     }),
