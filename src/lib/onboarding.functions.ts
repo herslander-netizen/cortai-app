@@ -16,6 +16,8 @@ import {
   type Segmento,
 } from "@/lib/segmentos";
 import { normalizarPagina } from "@/lib/pagina-config";
+import { aplicarIdentidadeDoCadastro, type PaletaDoCadastro } from "@/lib/identidade-cadastro";
+import { haAlteracoesPendentes } from "@/lib/pagina-pendencias";
 import type { Json } from "@/integrations/supabase/types";
 
 /** Primeiros passos depois do onboarding. Cada item é detectado de verdade no banco. */
@@ -236,6 +238,11 @@ export const salvarDadosDaBarbearia = createServerFn({ method: "POST" })
         telefone: z.string().trim().max(30).optional(),
         endereco: z.string().trim().max(160).optional(),
         logoUrl: z.string().trim().max(300).nullable().optional(),
+        cores: z.object({
+          principal: z.string().regex(/^#[0-9A-Fa-f]{6}$/),
+          secundaria: z.string().regex(/^#[0-9A-Fa-f]{6}$/),
+          destaque: z.string().regex(/^#[0-9A-Fa-f]{6}$/),
+        }).optional(),
         fuso: z.enum(FUSOS_DA_BARBEARIA.map((f) => f.valor) as [string, ...string[]]).optional(),
       })
       .parse(input),
@@ -252,15 +259,78 @@ export const salvarDadosDaBarbearia = createServerFn({ method: "POST" })
         : {}),
       ...(data.endereco !== undefined ? { endereco: data.endereco || null } : {}),
       ...(data.fuso ? { fuso: data.fuso } : {}),
+      ...(data.cores ? {
+        cor_primaria: data.cores.principal,
+        cor_secundaria: data.cores.secundaria,
+        cor_accent: data.cores.destaque,
+      } : {}),
       // Só aceita arquivo dentro da pasta da própria barbearia.
       ...(data.logoUrl !== undefined &&
       (data.logoUrl === null || data.logoUrl.startsWith(`${tenantId}/`))
         ? { logo_url: data.logoUrl }
         : {}),
     };
-    const { error } = await context.supabase.from("tenants").update(campos).eq("id", tenantId);
+    const { data: tenant, error } = await context.supabase
+      .from("tenants")
+      .update(campos)
+      .eq("id", tenantId)
+      .select("nome, endereco, telefone, instagram, whatsapp, facebook, tema, cor_primaria, cor_secundaria, cor_accent, rotulo_carteira, texto_boas_vindas, descricao, capa_url, fotos, assinatura_visivel, logo_url")
+      .single();
 
-    if (error) throw new Error(error.message);
+    if (error || !tenant) throw new Error(error?.message ?? "Não foi possível salvar a identidade.");
+
+    // A identidade do cadastro é aplicada também à página publicada.
+    // Um rascunho visual diferente do publicado jamais é sobrescrito silenciosamente.
+    if (data.cores || data.logoUrl !== undefined) {
+      const { data: paginaSalva, error: erroLeitura } = await context.supabase
+        .from("tenant_page_configs")
+        .select("draft_config, published_config, updated_at, published_at")
+        .eq("tenant_id", tenantId)
+        .maybeSingle();
+      if (erroLeitura) throw new Error(erroLeitura.message);
+      const marca = {
+        nome: tenant.nome,
+        endereco: tenant.endereco,
+        telefone: tenant.telefone,
+        instagram: tenant.instagram,
+        whatsapp: tenant.whatsapp,
+        facebook: tenant.facebook,
+        tema: tenant.tema === "classico" ? "classica" : tenant.tema,
+        cor_primaria: tenant.cor_primaria,
+        cor_secundaria: tenant.cor_secundaria,
+        cor_accent: tenant.cor_accent,
+        rotulo_carteira: tenant.rotulo_carteira,
+        texto_boas_vindas: tenant.texto_boas_vindas,
+        descricao: tenant.descricao,
+        capa_url: tenant.capa_url,
+        fotos: Array.isArray(tenant.fotos) ? tenant.fotos : [],
+        assinatura_visivel: tenant.assinatura_visivel,
+        logo_url: tenant.logo_url,
+      } satisfies Record<string, unknown>;
+      const paleta: PaletaDoCadastro | null = data.cores ?? null;
+      const publicado = aplicarIdentidadeDoCadastro(paginaSalva?.published_config, paleta, marca);
+      const pendente = haAlteracoesPendentes(paginaSalva);
+      const rascunho = pendente
+        ? paginaSalva?.draft_config
+        : aplicarIdentidadeDoCadastro(
+            paginaSalva?.draft_config ?? paginaSalva?.published_config,
+            paleta,
+            marca,
+          );
+      const { error: erroPagina } = await context.supabase
+        .from("tenant_page_configs")
+        .upsert(
+          {
+            tenant_id: tenantId,
+            draft_config: rascunho as Json,
+            published_config: publicado as Json,
+            published_by: context.userId,
+            published_at: new Date().toISOString(),
+          },
+          { onConflict: "tenant_id" },
+        );
+      if (erroPagina) throw new Error("Dados do negócio salvos, mas não foi possível atualizar a página pública: " + erroPagina.message);
+    }
     if (data.fuso) {
       const { esquecerFusoDoTenant } = await import("@/lib/fuso.server");
       esquecerFusoDoTenant(tenantId);
@@ -456,6 +526,9 @@ export type Implantacao = ConfiguracaoInicial & {
     telefone: string | null;
     endereco: string | null;
     logoAssinada: string | null;
+    corPrimaria: string;
+    corSecundaria: string;
+    corAccent: string;
   };
   regras: RegrasDeAgendamento;
   trabalhaSozinho: boolean;
@@ -487,7 +560,7 @@ export const getImplantacao = createServerFn({ method: "GET" })
       db
         .from("tenants")
         .select(
-          "id, nome, slug, whatsapp, logo_url, fuso, telefone, endereco, segmento, antecedencia_min_minutos, cancelamento_min_horas, intervalo_entre_min, aceita_encaixe, janela_agendamento_dias, passo_horarios_min",
+          "id, nome, slug, whatsapp, logo_url, fuso, telefone, endereco, segmento, cor_primaria, cor_secundaria, cor_accent, antecedencia_min_minutos, cancelamento_min_horas, intervalo_entre_min, aceita_encaixe, janela_agendamento_dias, passo_horarios_min",
         )
         .eq("id", tenantId)
         .maybeSingle(),
@@ -557,6 +630,9 @@ export const getImplantacao = createServerFn({ method: "GET" })
         telefone: (tenant.telefone as string) ?? null,
         endereco: (tenant.endereco as string) ?? null,
         logoAssinada,
+        corPrimaria: (tenant.cor_primaria as string) ?? "#1653A1",
+        corSecundaria: (tenant.cor_secundaria as string) ?? "#F5F4F0",
+        corAccent: (tenant.cor_accent as string) ?? "#C41F61",
         segmento,
       },
       regras: {
