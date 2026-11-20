@@ -505,7 +505,7 @@ function ConfigurarPage() {
                         nome: valorNome.trim(),
                         whatsapp: valorWhatsapp,
                         endereco: valorEndereco,
-                        cores: valorCoresMarca,
+                        ...(coresMarca || !data.concluidoEm ? { cores: valorCoresMarca } : {}),
                         ...(logo ? { logoUrl: logo.caminho } : {}),
                       },
                     }),
