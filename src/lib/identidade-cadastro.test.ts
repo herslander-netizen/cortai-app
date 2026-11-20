@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { aplicarIdentidadeDoCadastro } from "@/lib/identidade-cadastro";
+import { agendamentoStyle, configPadrao } from "@/lib/pagina-config";
 
 const paleta = {
   principal: "#76401B",
@@ -52,6 +53,23 @@ describe("identidade do cadastro nas páginas públicas", () => {
       pagina: { cores: { principal: "#76401B", fundo: "#FCF4EF" } },
       marca: { logo_url: "novo/logo.webp" },
     });
+  });
+
+  it("usa o marrom da marca no destaque do agendamento quando a paleta é personalizada", () => {
+    const pagina = configPadrao({
+      tema: "classico",
+      cores: {
+        principal: "#76401B",
+        secundaria: "#FCF4EF",
+        botao: "#76401B",
+        fundo: "#FCF4EF",
+        texto: "#10100F",
+        destaque: "#D8B68E",
+      },
+    });
+    const estilos = agendamentoStyle(pagina) as Record<string, string>;
+    expect(estilos["--chat-primary"]).toBe("#76401B");
+    expect(estilos["--chat-accent"]).toBe("#D8B68E");
   });
 
   it("atualiza só a marca ao receber uma nova logo sem alterar cores", () => {
