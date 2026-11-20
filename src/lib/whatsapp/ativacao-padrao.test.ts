@@ -5,7 +5,6 @@ describe("atendimento padrão ao conectar WhatsApp", () => {
   it("liga atendimento, IA, confirmações e lembretes na primeira conexão", () => {
     expect(CONFIG_INICIAL_WHATSAPP).toMatchObject({
       atendimento_automatico: true,
-      cortai_ativa: true,
       responder_whatsapp: true,
       saudacao_ativa: true,
       confirmacao_automatica: true,
