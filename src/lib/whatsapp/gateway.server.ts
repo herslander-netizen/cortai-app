@@ -20,6 +20,7 @@
  * As credenciais são lidas dentro dos métodos e nunca saem do servidor.
  */
 import { GatewayNaoConfiguradoError, type StatusDaConexao } from "./contrato";
+import { destacarValoresEmReaisNoWhatsapp } from "./valores-em-negrito";
 
 type Provedor = "evolution" | "generico" | "meta";
 type Config = { baseUrl: string; apiKey: string; provedor: Provedor };
@@ -519,12 +520,17 @@ export function gatewayDoProvedor(preferido?: string | null) {
     obterCodigoDePareamento: (sessaoId: string, numero: string) =>
       impl().obterCodigoDePareamento(sessaoId, numero),
     enviarMensagem: (sessaoId: string, telefone: string, texto: string) =>
-      impl().enviarMensagem(sessaoId, telefone, texto),
+      impl().enviarMensagem(sessaoId, telefone, destacarValoresEmReaisNoWhatsapp(texto)),
     /** Só a API oficial garante botões; nos demais provedores devolve null. */
     enviarTemplate: (telefone: string, t: ModeloComBotoes) =>
       oficial() ? criarMeta(config()).enviarTemplate(telefone, t) : Promise.resolve(null),
     enviarInterativo: (telefone: string, i: MensagemInterativa) =>
-      oficial() ? criarMeta(config()).enviarInterativo(telefone, i) : Promise.resolve(null),
+      oficial()
+        ? criarMeta(config()).enviarInterativo(telefone, {
+            ...i,
+            texto: destacarValoresEmReaisNoWhatsapp(i.texto),
+          })
+        : Promise.resolve(null),
     /**
      * O que o canal suporta. Oficial: botões via template e janela de 24h
      * para mensagens iniciadas pelo negócio. Demais: opções numeradas, sem janela.
