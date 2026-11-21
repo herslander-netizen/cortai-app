@@ -19,6 +19,7 @@ import {
   type UsoDeTokens,
 } from "./gateway-compativel.server";
 import type { FerramentaDoModelo, ItemDeEntrada } from "./gateway.server";
+import { falhaPermiteFallback, modeloWorkersAiRetirado } from "./politica-fallback";
 
 type Definicao = CandidatoHibrido & {
   baseUrl: string;
@@ -81,6 +82,8 @@ export function lerProvedoresHibridos(
         url.hostname === "ollama.com" || url.hostname.endsWith(".ollama.com")) return [];
     }
     if (p.id === "openrouter" && !p.modelo.endsWith(":free")) return [];
+    // Não reservar cota nem tentar inferência de modelos removidos em 20/11/2026.
+    if (p.id === "workers_ai" && modeloWorkersAiRetirado(p.id, p.modelo)) continue;
     const chave = env[`CORTAI_AI_HIBRIDO_${p.id.toUpperCase()}_API_KEY`]?.trim();
     if (!chave) return [];
     const candidato: CandidatoHibrido = {
@@ -179,7 +182,7 @@ export async function chamarRoteadorHibrido(
         provedor: cfg.candidato.id, modelo: cfg.candidato.modelo,
         ok: false, latenciaMs: Date.now() - inicio, status,
       });
-      if (status !== 429 && status < 500) throw new FalhaHibrida(status, cfg.candidato.id);
+      if (!falhaPermiteFallback(status)) throw new FalhaHibrida(status, cfg.candidato.id);
       disponiveis = disponiveis.filter((c) => c.id !== cfg.candidato.id);
       if (!disponiveis.length) throw new FalhaHibrida(status, cfg.candidato.id);
     }
