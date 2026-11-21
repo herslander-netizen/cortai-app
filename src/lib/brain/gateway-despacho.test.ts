@@ -191,6 +191,79 @@ describe("gateway central — escolha do provedor", () => {
     ]);
   });
 
+  it("410 de um modelo ativo troca para o secundário já configurado, sem alterar credenciais", async () => {
+    vi.stubEnv("CORTAI_MODO_BASICO", "false");
+    vi.stubEnv("CORTAI_AI_PROVIDER", "openai_compatible");
+    vi.stubEnv("CORTAI_AI_BASE_URL", "https://api.cloudflare.com/ai/v1");
+    vi.stubEnv("CORTAI_AI_MODEL", "@cf/qwen/qwen3.8-27b");
+    vi.stubEnv("CORTAI_AI_API_KEY", "chave-primaria");
+    vi.stubEnv("CORTAI_AI_FALLBACK_BASE_URL", "https://localai.exemplo.test/v1");
+    vi.stubEnv("CORTAI_AI_FALLBACK_MODEL", "modelo-reserva");
+    vi.stubEnv("CORTAI_AI_FALLBACK_API_KEY", "chave-reserva");
+    vi.spyOn(console, "warn").mockImplementation(() => undefined);
+    const buscar = vi.fn()
+      .mockResolvedValueOnce(new Response("recurso removido", { status: 410 }))
+      .mockResolvedValueOnce(new Response(
+        JSON.stringify({ choices: [{ message: { content: "Resposta segura" } }] }),
+        { status: 200 },
+      ));
+    vi.stubGlobal("fetch", buscar);
+    const g = await import("./gateway.server");
+    const eventos: any[] = [];
+    const itens = await g.criarSessaoDoGateway({
+      canal: "painel", aoChamar: (e) => eventos.push(e),
+    }).responder({ instrucoes: "i", entrada: [], ferramentas: [] });
+    expect(g.textoDaSaida(itens)).toBe("Resposta segura");
+    expect(buscar.mock.calls.map((call) => String(call[0]))).toEqual([
+      "https://api.cloudflare.com/ai/v1/chat/completions",
+      "https://localai.exemplo.test/v1/chat/completions",
+    ]);
+    expect(eventos).toMatchObject([
+      { ok: false, httpStatus: 410, categoriaErro: "modelo_descontinuado" },
+      { ok: true, provedor: "localai.exemplo.test" },
+    ]);
+  });
+
+  it("modelo oficialmente retirado é bloqueado antes da chamada e usa a reserva explícita", async () => {
+    vi.stubEnv("CORTAI_MODO_BASICO", "false");
+    vi.stubEnv("CORTAI_AI_PROVIDER", "openai_compatible");
+    vi.stubEnv("CORTAI_AI_BASE_URL", "https://api.cloudflare.com/ai/v1");
+    vi.stubEnv("CORTAI_AI_MODEL", "@cf/qwen/qwq-32b");
+    vi.stubEnv("CORTAI_AI_API_KEY", "chave-primaria");
+    vi.stubEnv("CORTAI_AI_FALLBACK_BASE_URL", "https://localai.exemplo.test/v1");
+    vi.stubEnv("CORTAI_AI_FALLBACK_MODEL", "modelo-reserva");
+    vi.stubEnv("CORTAI_AI_FALLBACK_API_KEY", "chave-reserva");
+    const buscar = vi.fn(async () => new Response(
+      JSON.stringify({ choices: [{ message: { content: "Resposta pelo fallback" } }] }),
+      { status: 200 },
+    ));
+    vi.stubGlobal("fetch", buscar);
+    const g = await import("./gateway.server");
+    const itens = await g.criarSessaoDoGateway({ canal: "painel" })
+      .responder({ instrucoes: "i", entrada: [], ferramentas: [] });
+    expect(g.textoDaSaida(itens)).toBe("Resposta pelo fallback");
+    expect(buscar).toHaveBeenCalledTimes(1);
+    expect(String(buscar.mock.calls[0]![0])).toBe(
+      "https://localai.exemplo.test/v1/chat/completions",
+    );
+  });
+
+  it("sem secundário configurado o erro 410 não aciona outro fornecedor", async () => {
+    vi.stubEnv("CORTAI_MODO_BASICO", "false");
+    vi.stubEnv("CORTAI_AI_PROVIDER", "openai_compatible");
+    vi.stubEnv("CORTAI_AI_BASE_URL", "https://api.exemplo.test/v1");
+    vi.stubEnv("CORTAI_AI_MODEL", "modelo-teste");
+    vi.stubEnv("CORTAI_AI_API_KEY", "chave");
+    vi.spyOn(console, "warn").mockImplementation(() => undefined);
+    const buscar = vi.fn(async () => new Response("gone", { status: 410 }));
+    vi.stubGlobal("fetch", buscar);
+    const g = await import("./gateway.server");
+    await expect(g.criarSessaoDoGateway({ canal: "painel" })
+      .responder({ instrucoes: "i", entrada: [], ferramentas: [] }))
+      .rejects.toMatchObject({ status: 410 });
+    expect(buscar).toHaveBeenCalledTimes(1);
+  });
+
   it("não usa o fallback para erros de crédito ou credenciais", async () => {
     vi.stubEnv("CORTAI_MODO_BASICO", "false");
     vi.stubEnv("CORTAI_AI_PROVIDER", "openai_compatible");
