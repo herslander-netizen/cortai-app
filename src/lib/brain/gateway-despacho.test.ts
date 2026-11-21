@@ -264,6 +264,21 @@ describe("gateway central — escolha do provedor", () => {
     expect(buscar).toHaveBeenCalledTimes(1);
   });
 
+  it("OpenRouter sem sufixo :free não recebe nenhuma chamada faturável", async () => {
+    vi.stubEnv("CORTAI_MODO_BASICO", "false");
+    vi.stubEnv("CORTAI_AI_PROVIDER", "openai_compatible");
+    vi.stubEnv("CORTAI_AI_BASE_URL", "https://openrouter.ai/api/v1");
+    vi.stubEnv("CORTAI_AI_MODEL", "provider/modelo-pago");
+    vi.stubEnv("CORTAI_AI_API_KEY", "chave-teste");
+    const buscar = vi.fn();
+    vi.stubGlobal("fetch", buscar);
+    const g = await import("./gateway.server");
+    await expect(g.criarSessaoDoGateway({ canal: "painel" })
+      .responder({ instrucoes: "i", entrada: [], ferramentas: [] }))
+      .rejects.toMatchObject({ status: 403, provedor: "openrouter.ai" });
+    expect(buscar).not.toHaveBeenCalled();
+  });
+
   it("não usa o fallback para erros de crédito ou credenciais", async () => {
     vi.stubEnv("CORTAI_MODO_BASICO", "false");
     vi.stubEnv("CORTAI_AI_PROVIDER", "openai_compatible");
