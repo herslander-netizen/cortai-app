@@ -1,6 +1,7 @@
 import { normalizarTelefone, variantesDoTelefone } from "@/lib/telefone";
 import { avisoDePedidoDeAtendimento } from "@/lib/whatsapp/pedido-de-atendimento";
 import { classificarAutoriaDaSaida, recursoWhatsappConfirmado } from "./autoria-e-permissao";
+import { bloquearContingenciaPorPosse as bloquearEnvioPorPosse } from "./contingencia-posse";
 import {
   INTERVALO_DA_CONTINGENCIA_MS,
   textoDeAudioIndisponivel,
@@ -358,13 +359,33 @@ export async function enviarPelaBarbearia(input: {
     throw new Error("Fora da janela de 24h: sem modelo aprovado para este aviso.");
   }
 
+  const respostaDaIa = input.porIa && !input.autorUserId && !input.iniciadaPelaBarbearia;
+  const envioSuprimido = { externoId: null, suprimido: true };
+  // A resposta automática só sai com leitura válida da conversa deste tenant.
+  async function possePermiteEnviar() {
+    if (!respostaDaIa) return true;
+    try {
+      const { data: posse, error } = await db
+        .from("conversas_whatsapp")
+        .select("status, modo_humano, modo_humano_ate")
+        .eq("id", input.conversaId)
+        .eq("tenant_id", input.tenantId)
+        .maybeSingle();
+      return !bloquearEnvioPorPosse({ conversa: posse, erro: error, agora: Date.now() });
+    } catch {
+      return false;
+    }
+  }
+
   let externoId: string | null = null;
   let erro: string | null = null;
   try {
     let r: { id: string | null } | null = null;
     if (formato === "modelo" && input.modelo) {
+      if (!(await possePermiteEnviar())) return envioSuprimido;
       r = await gatewayDeWhatsapp.enviarTemplate(input.telefone, input.modelo);
     } else if (formato === "interativo" && input.interativo?.length) {
+      if (!(await possePermiteEnviar())) return envioSuprimido;
       try {
         r = await gatewayDeWhatsapp.enviarInterativo(input.telefone, {
           texto: input.texto,
@@ -374,27 +395,22 @@ export async function enviarPelaBarbearia(input: {
         // 131047: a janela fechou entre a leitura e o envio → uma vez como modelo aprovado.
         const msg = e instanceof Error ? e.message : "";
         if (/131047/.test(msg) && input.modelo) {
+          if (!(await possePermiteEnviar())) return envioSuprimido;
           r = await gatewayDeWhatsapp.enviarTemplate(input.telefone, input.modelo);
         } else throw e;
       }
     }
-    // Revalida posse humana imediatamente antes de "digitando…" + envio (corrida entre verificação
-    // do caller e o envio real). Só para resposta automática por IA sem autor humano.
-    if (input.porIa && !input.autorUserId && !input.iniciadaPelaBarbearia) {
-      const { data: posseAtual } = await db
-        .from("conversas_whatsapp")
-        .select("modo_humano, modo_humano_ate")
-        .eq("id", input.conversaId)
-        .maybeSingle();
-      const { humanoNoControle } = await import("@/lib/flow-bot/decisao");
-      if (humanoNoControle(posseAtual ?? { modo_humano: false }, Date.now())) {
-        return { externoId: null, suprimido: true };
+    if (!r) {
+      if (!(await possePermiteEnviar())) return envioSuprimido;
+      const deveDigitar =
+        input.digitar ?? (!input.iniciadaPelaBarbearia && !input.autorUserId);
+      if (deveDigitar && gatewayDeWhatsapp.provedor() === "evolution") {
+        await prepararResposta(gatewayDeWhatsapp, input);
+        // A equipe pode assumir a conversa durante o efeito de digitação.
+        if (!(await possePermiteEnviar())) return envioSuprimido;
       }
+      r = await gatewayDeWhatsapp.enviarMensagem(input.sessaoId, input.telefone, input.texto);
     }
-    if (!r && (input.digitar ?? (!input.iniciadaPelaBarbearia && !input.autorUserId))) {
-      await prepararResposta(gatewayDeWhatsapp, input);
-    }
-    r ??= await gatewayDeWhatsapp.enviarMensagem(input.sessaoId, input.telefone, input.texto);
     externoId = r.id;
   } catch (e) {
     erro = e instanceof Error ? e.message : "Falha ao enviar.";

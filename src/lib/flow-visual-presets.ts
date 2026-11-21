@@ -1,3 +1,4 @@
+import coverBarbearia from "@/assets/cortai-barbershop-cover.jpg.asset.json";
 import { aplicarTema, configPadrao, normalizarPagina, temasDoLayout, type PaginaConfig, type TemaId } from "@/lib/pagina-config";
 import { type Segmento, SEGMENTOS } from "@/lib/segmentos";
 import { visualRecomendado } from "@/lib/flow-visual-library";
@@ -44,7 +45,10 @@ export function permitirPresetNovo(jaPersonalizado: boolean, temRascunho: boolea
 
 /** Arquivo do negócio sempre prevalece; biblioteca só é sugestão para a capa ausente. */
 export function capaPublicaRecomendada(segmento: Segmento, capaDoNegocio: string | null): string | null {
-  return capaDoNegocio || visualRecomendado(segmento, "hero")?.src || null;
+  if (capaDoNegocio) return capaDoNegocio;
+  // Miniaturas dos temas não representam necessariamente o segmento na capa da vitrine.
+  if (segmento === "barbearia") return coverBarbearia.url;
+  return visualRecomendado(segmento, "hero")?.src || null;
 }
 
 export function segmentosCobertosPorPreset(): Segmento[] { return SEGMENTOS.filter(s => Boolean(presets[s])); }

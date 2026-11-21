@@ -47,6 +47,14 @@ import {
 } from "@/lib/conversa/memoria-cliente";
 import { EsqueletoFormulario } from "@/components/layout/Esqueleto";
 import { brl } from "@/lib/format";
+import {
+  atalhoDaReserva,
+  avisoDaDisponibilidade,
+  destinoDoAvanco,
+  recolherListaDeHorarios,
+  type AvancoDaReserva,
+  type DestinoDaReserva,
+} from "@/lib/guia-da-reserva-publica";
 import { hojeNoFuso, normalizarFuso, semNenhumDiaAberto } from "@/lib/horarios";
 import { useSelecaoAgendamento } from "@/components/agendamento/useSelecaoAgendamento";
 import { HorariosOcupados } from "@/components/agendamento/HorariosOcupados";
@@ -94,11 +102,22 @@ export const Route = createFileRoute("/agendar/$slug")({
 });
 
 const DIAS = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
+const formatoDaData = new Intl.DateTimeFormat("pt-BR", {
+  weekday: "long",
+  day: "numeric",
+  month: "long",
+  year: "numeric",
+  timeZone: "UTC",
+});
 
 function rotuloDoDia(iso: string) {
   const [a, m, d] = iso.split("-").map(Number);
   const x = new Date(Date.UTC(a ?? 2026, (m ?? 1) - 1, d ?? 1));
-  return { rotulo: DIAS[x.getUTCDay()] ?? "", numero: x.getUTCDate() };
+  return {
+    rotulo: DIAS[x.getUTCDay()] ?? "",
+    numero: x.getUTCDate(),
+    porExtenso: formatoDaData.format(x),
+  };
 }
 
 function horaLocal(iso: string, fuso: string) {
@@ -117,10 +136,24 @@ function dataLocal(iso: string, fuso: string) {
   });
 }
 
-function Bloco({ titulo, children }: { titulo: string; children: React.ReactNode }) {
+function Bloco({
+  titulo,
+  destino,
+  children,
+}: {
+  titulo: string;
+  destino?: DestinoDaReserva;
+  children: React.ReactNode;
+}) {
   return (
     <section className="mt-7">
-      <p className="text-xs font-semibold uppercase tracking-wide text-mute">{titulo}</p>
+      <h2
+        id={destino ? `agendamento-passo-${destino}` : undefined}
+        tabIndex={destino ? -1 : undefined}
+        className="scroll-mt-6 text-xs font-semibold uppercase tracking-wide text-mute"
+      >
+        {titulo}
+      </h2>
       <div className="mt-3">{children}</div>
     </section>
   );
@@ -133,7 +166,7 @@ type Situacao =
 function AgendamentoPublico() {
   const { slug } = Route.useParams();
   const { servico: servicoDaUrl } = Route.useSearch();
-  const { data, isLoading, isError, refetch } = useQuery({
+  const { data, isLoading, isError, isFetching, refetch } = useQuery({
     queryKey: ["agenda-publica", slug],
     queryFn: () => getAgendaPublica({ data: { slug } }),
     staleTime: 60_000,
@@ -170,6 +203,28 @@ function AgendamentoPublico() {
     setInicio: setHorario,
     escolhido,
   } = selecao;
+  const [avanco, setAvanco] = useState<AvancoDaReserva | null>(null);
+  const [editandoHorario, setEditandoHorario] = useState(false);
+  useEffect(() => {
+    if (!avanco) return;
+    const id = window.requestAnimationFrame(() => {
+      // O bloco de profissional só existe para serviços com profissionais aptos.
+      const passo = destinoDoAvanco(avanco, aptos.length > 0);
+      const titulo = document.getElementById(`agendamento-passo-${passo}`);
+      if (titulo) {
+        titulo.focus({ preventScroll: true });
+        titulo.scrollIntoView({
+          block: "start",
+          behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
+            ? "instant"
+            : "smooth",
+        });
+      }
+      setAvanco(null);
+    });
+    return () => window.cancelAnimationFrame(id);
+  }, [avanco, aptos.length]);
+
   const [nome, setNome] = useState("");
   const [telefone, setTelefone] = useState("");
   // Modelos do Figaro: profissional escolhido na linha do horário e a tela verde depois de confirmar.
@@ -314,8 +369,14 @@ function AgendamentoPublico() {
       : (erroTelefone ?? erroNome);
 
   const criar = useMutation({
-    mutationFn: (troca?: string) =>
-      agendarComoConvidado({
+    mutationFn: async (troca?: string) => {
+      const aviso = avisoDaDisponibilidade(isError, isFetching);
+      if (aviso) {
+        if (isError && !isFetching) void refetch();
+        throw new Error(aviso);
+      }
+      marcarEtapa("dados_enviados");
+      return agendarComoConvidado({
         data: {
           slug,
           servicoId: servicoId!,
@@ -326,8 +387,8 @@ function AgendamentoPublico() {
           ...((troca ?? substituiId) ? { substituiId: (troca ?? substituiId)! } : {}),
           ...(verificacaoRef.current ? { verificacaoId: verificacaoRef.current } : {}),
         },
-      }),
-    onMutate: () => marcarEtapa("dados_enviados"),
+      });
+    },
     onSuccess: (res, troca) => {
       if (res.tipo === "conflito") {
         setConflito({ agendamentoId: res.agendamentoId, hora: res.hora });
@@ -718,6 +779,8 @@ function AgendamentoPublico() {
   }
 
   const comTema = agendaDiretaComTema(data.pagina);
+  const atalhoDaAgenda = atalhoDaReserva(Boolean(servico), Boolean(agenda), Boolean(escolhido));
+  const recolherHorarios = recolherListaDeHorarios(Boolean(escolhido), editandoHorario);
 
   return (
     <main
@@ -778,6 +841,7 @@ function AgendamentoPublico() {
               onClick={() => {
                 setServicoId(s.id);
                 setHorario(null);
+                setAvanco("servico");
               }}
               className={`ag-servico grid h-auto w-full grid-cols-[auto_minmax(0,1fr)_auto] justify-start gap-3 whitespace-normal rounded-xl border px-4 py-3 text-left ${
                 servicoId === s.id ? "is-ativo border-gold bg-ink2" : "border-line bg-ink2/60"
@@ -798,7 +862,7 @@ function AgendamentoPublico() {
       </Bloco>
 
       {servicoId && aptos.length ? (
-        <Bloco titulo="Profissional">
+        <Bloco titulo="Profissional" destino="profissional">
           <div className="flex flex-wrap gap-2">
             {[{ id: "qualquer", nome: "Qualquer profissional" }, ...aptos].map((p) => (
               <Button
@@ -809,6 +873,7 @@ function AgendamentoPublico() {
                 onClick={() => {
                   setProfId(p.id);
                   setHorario(null);
+                  setAvanco("data");
                 }}
                 className={`ag-chip h-auto min-h-12 whitespace-normal rounded-full border px-4 py-2 text-sm ${
                   profId === p.id ? "is-ativo border-gold text-paper" : "border-line text-mute"
@@ -823,7 +888,7 @@ function AgendamentoPublico() {
       ) : null}
 
       {servicoId ? (
-        <Bloco titulo="Data">
+        <Bloco titulo="Data" destino="data">
           <div className="mb-2 flex items-center justify-between gap-3">
             <p className="text-sm font-bold capitalize text-paper">{rotuloMes}</p>
             <div className="flex gap-1">
@@ -847,12 +912,17 @@ function AgendamentoPublico() {
               </Button>
             </div>
           </div>
-          <div className="-mx-5 flex gap-2 overflow-x-auto px-5 pb-1">
+          <div
+            ref={faixaDiasRef}
+            className="-mx-5 flex gap-2 overflow-x-auto px-5 pb-1"
+            role="group"
+            aria-label="Datas da agenda"
+          >
             {dias.map((d) => {
               const info = porDia.get(d);
               const fechado = Boolean(info?.fechado);
               const lotado = !fechado && (info?.opcoes.length ?? 0) === 0;
-              const { rotulo, numero } = rotuloDoDia(d);
+              const { rotulo, numero, porExtenso } = rotuloDoDia(d);
               return (
                 <Button
                   key={d}
@@ -862,14 +932,15 @@ function AgendamentoPublico() {
                   aria-pressed={dia === d}
                   aria-label={
                     fechado
-                      ? `${rotulo} ${numero}, fechado`
+                      ? `${porExtenso}, fechado`
                       : lotado
-                        ? `${rotulo} ${numero}, lotado`
-                        : `${rotulo} ${numero}`
+                        ? `${porExtenso}, lotado`
+                        : porExtenso
                   }
                   onClick={() => {
                     setDia(d);
                     setHorario(null);
+                    setAvanco("horario");
                   }}
                   className={`ag-dia h-16 w-14 shrink-0 flex-col rounded-xl border px-0 ${
                     fechado
@@ -891,8 +962,23 @@ function AgendamentoPublico() {
       ) : null}
 
       {servicoId && agenda ? (
-        <Bloco titulo="Horário">
-          {agenda.fechado ? (
+        <Bloco titulo="Horário" destino="horario">
+          {recolherHorarios && escolhido ? (
+            <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-line px-4 py-2">
+              <p className="text-sm font-medium text-paper">Horário escolhido: {escolhido.label}</p>
+              <Button
+                type="button"
+                variant="ghost"
+                className="min-h-11"
+                onClick={() => {
+                  setEditandoHorario(true);
+                  setAvanco("horario");
+                }}
+              >
+                Alterar horário
+              </Button>
+            </div>
+          ) : agenda.fechado ? (
             <p className="rounded-xl border border-dashed border-line px-4 py-5 text-sm text-mute2">
               O negócio está fechado neste dia. Escolha outra data.
             </p>
@@ -912,6 +998,8 @@ function AgendamentoPublico() {
                     onClick={() => {
                       setHorario(o.iso);
                       setConflito(null);
+                      setEditandoHorario(false);
+                      setAvanco("dados");
                     }}
                     className={`ag-hora h-auto min-h-14 w-full justify-between rounded-xl border px-4 py-3 text-left ${
                       ativo
@@ -929,7 +1017,7 @@ function AgendamentoPublico() {
               })}
             </div>
           ) : null}
-          {servicoId && dia && !agenda.fechado ? (
+          {!recolherHorarios && servicoId && dia && !agenda.fechado ? (
             <HorariosOcupados
               ocupados={ocupadosDoDia}
               dia={dia}
@@ -951,7 +1039,16 @@ function AgendamentoPublico() {
                   .map((d) => {
                     const { rotulo, numero } = rotuloDoDia(d);
                     return (
-                      <Button key={d} variant="outline" className="h-12" onClick={() => setDia(d)}>
+                      <Button
+                        key={d}
+                        variant="outline"
+                        className="h-12"
+                        onClick={() => {
+                          setDia(d);
+                          setHorario(null);
+                          setAvanco("horario");
+                        }}
+                      >
                         {rotulo} {numero}
                       </Button>
                     );
@@ -972,7 +1069,7 @@ function AgendamentoPublico() {
       ) : null}
 
       {escolhido ? (
-        <Bloco titulo="Seus dados">
+        <Bloco titulo="Seus dados" destino="dados">
           <div className="grid gap-3">
             <CampoDeFormulario
               rotulo="WhatsApp (com DDD)"
@@ -1051,8 +1148,12 @@ function AgendamentoPublico() {
           ) : null}
           <Button
             className="h-12 w-full font-bold"
-            disabled={Boolean(falta) || criar.isPending}
+            disabled={(!atalhoDaAgenda && Boolean(falta)) || criar.isPending}
             onClick={() => {
+              if (atalhoDaAgenda) {
+                setAvanco(atalhoDaAgenda);
+                return;
+              }
               setErro(null);
               setConflito(null);
               criar.mutate(undefined);
@@ -1060,11 +1161,15 @@ function AgendamentoPublico() {
           >
             {criar.isPending
               ? "Confirmando…"
-              : substituiId
-                ? "Confirmar novo horário"
-                : "Agendar horário"}
+              : atalhoDaAgenda
+                ? atalhoDaAgenda === "horario"
+                  ? "Ver horários"
+                  : "Escolher data"
+                : substituiId
+                  ? "Confirmar novo horário"
+                  : "Agendar horário"}
           </Button>
-          {falta && !criar.isPending ? (
+          {falta && !atalhoDaAgenda && !criar.isPending ? (
             <p className="mt-2 text-center text-xs text-mute">{falta}</p>
           ) : null}
         </div>

@@ -355,16 +355,6 @@ describe("barreira contra sucesso falso", () => {
 });
 
 describe("revalidação de posse humana dentro do sender", () => {
-  it("enviarPelaBarbearia contém revalidação de humanoNoControle antes de digitando", async () => {
-    const { readFileSync } = await import("node:fs");
-    const fonte = readFileSync("src/lib/whatsapp/fluxo.server.ts", "utf8");
-    // A guarda nova deve aparecer ANTES de prepararResposta no mesmo bloco de envio.
-    const idxGuarda = fonte.indexOf("humanoNoControle(posseAtual");
-    const idxPreparar = fonte.indexOf("await prepararResposta(gatewayDeWhatsapp");
-    expect(idxGuarda).toBeGreaterThan(-1);
-    expect(idxGuarda).toBeLessThan(idxPreparar);
-  });
-
   it("humanoNoControle cobre os cenários de corrida que o sender deve bloquear", async () => {
     const { humanoNoControle } = await import("@/lib/flow-bot/decisao");
     const agora = Date.now();

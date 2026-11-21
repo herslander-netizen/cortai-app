@@ -4,11 +4,11 @@ import { createRoot } from "react-dom/client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-const gerar = vi.fn();
-vi.mock("@tanstack/react-start", () => ({ useServerFn: () => gerar }));
+const { gerar, acompanhar } = vi.hoisted(() => ({ gerar: vi.fn(), acompanhar: vi.fn() }));
+vi.mock("@tanstack/react-start", () => ({ useServerFn: (fn: unknown) => fn }));
 vi.mock("@/lib/whatsapp.functions", () => ({
-  gerarCodigoPorTelefone: () => undefined,
-  codigoAtualPorTelefone: () => undefined,
+  gerarCodigoPorTelefone: gerar,
+  codigoAtualPorTelefone: acompanhar,
 }));
 
 import { CodigoPorTelefone } from "./CodigoPorTelefone";
@@ -20,14 +20,20 @@ const limpar: Array<() => void> = [];
 afterEach(() => {
   while (limpar.length) limpar.pop()?.();
   gerar.mockReset();
+  acompanhar.mockReset();
+  vi.useRealTimers();
 });
 
 async function montar(aoGerar = () => {}) {
   const alvo = document.createElement("div");
   document.body.appendChild(alvo);
   const raiz = createRoot(alvo);
-  limpar.push(() => act(() => raiz.unmount()));
+  limpar.push(() => {
+    act(() => raiz.unmount());
+    alvo.remove();
+  });
   const qc = new QueryClient({ defaultOptions: { mutations: { retry: false } } });
+  acompanhar.mockResolvedValue({ estado: "aguardando", codigo: null });
   await act(async () => {
     raiz.render(
       createElement(
@@ -72,26 +78,29 @@ describe("CodigoPorTelefone", () => {
   });
 
   it("troca o código na tela quando o WhatsApp gera outro", async () => {
-    vi.useFakeTimers({ shouldAdvanceTime: true });
-    gerar.mockImplementation(async (arg: { data: { tipo?: string } }) =>
-      "tipo" in arg.data && gerar.mock.calls.length > 1
-        ? { estado: "aguardando", codigo: "FWN8JEMC" }
-        : {
-            codigo: "L7ZJFCBV",
-            expiraEm: new Date(Date.now() + 45_000).toISOString(),
-            aviso: null,
-          },
-    );
+    vi.useFakeTimers();
+    gerar.mockResolvedValue({
+      codigo: "L7ZJFCBV",
+      expiraEm: new Date(Date.now() + 45_000).toISOString(),
+      aviso: null,
+    });
     const alvo = await montar();
-    await digitar(alvo.querySelector<HTMLInputElement>("input[type=tel]")!, "79998181983");
+    acompanhar
+      .mockResolvedValueOnce({ estado: "aguardando", codigo: "L7ZJFCBV" })
+      .mockResolvedValue({ estado: "aguardando", codigo: "FWN8JEMC" });
+    await digitar(alvo.querySelector<HTMLInputElement>("input[type=tel]")!, "11999998888");
     await act(async () => alvo.querySelector<HTMLButtonElement>("button[type=submit]")!.click());
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(20);
+    });
     expect(alvo.textContent).toContain("L7ZJ-FCBV");
+    expect(acompanhar).toHaveBeenCalledTimes(1);
     await act(async () => {
       await vi.advanceTimersByTimeAsync(4500);
     });
+    expect(acompanhar).toHaveBeenCalledTimes(2);
     expect(alvo.textContent).toContain("FWN8-JEMC");
     expect(alvo.textContent).toContain("O WhatsApp trocou o código");
-    vi.useRealTimers();
   });
 
   it("mostra o aviso do servidor quando não há código", async () => {

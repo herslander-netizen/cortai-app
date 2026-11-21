@@ -227,6 +227,13 @@ export const getAgendaPublica = createServerFn({ method: "GET" })
         .maybeSingle(),
     ]);
 
+    // Falha ao consultar a agenda não significa ausência de horários ocupados.
+    // Sem esses quatro conjuntos, o cálculo da tela não tem informação suficiente.
+    const essenciais = [servicosRes, profRes, horariosRes, ocupadosRes];
+    if (essenciais.some(({ data, error }) => error || !Array.isArray(data))) {
+      throw new Error("Não foi possível carregar a agenda agora. Tente novamente.");
+    }
+
     const assinar = async (path: string | null | undefined) => {
       if (!path) return null;
       if (/^https?:/.test(path)) return path;
@@ -288,6 +295,7 @@ export const getAgendaPublica = createServerFn({ method: "GET" })
         ).ocupacoesExtras(db, {
           tenantId: tenant.id,
           fuso: fusoDoNegocio,
+          profissionalIds: profissionais.map(({ id }) => id),
           desde,
           ate,
         })),

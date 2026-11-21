@@ -49,10 +49,14 @@ describe("fluxos de atendimento e movimento das páginas para clientes", () => {
 
 
   it("falha de rede oferece tentar novamente e não finge que o negócio não existe", () => {
-    expect(rota).toContain("isLoading, isError, refetch");
-    expect(rota).toContain("if (isError && !data)");
-    expect(rota).toContain("Não conseguimos carregar a agenda");
-    expect(rota).toContain('onClick={() => void refetch()}');
+    const inicioDaFalha = rota.search(/if\s*\(\s*isError\s*&&\s*!data\s*\)/);
+    expect(inicioDaFalha).toBeGreaterThan(-1);
+    const aposFalha = rota.slice(inicioDaFalha);
+    const inicioDeNaoEncontrado = aposFalha.search(/if\s*\(\s*!data\s*\)/);
+    expect(inicioDeNaoEncontrado).toBeGreaterThan(0);
+    const fallback = aposFalha.slice(0, inicioDeNaoEncontrado);
+    expect(fallback).toContain("Não conseguimos carregar a agenda");
+    expect(fallback).toMatch(/onClick=\{\s*\(\)\s*=>\s*void\s+refetch\(\)\s*\}/);
   });
 
   it("datas especiais podem abrir atendimento mesmo quando a grade semanal está fechada", () => {
