@@ -1,6 +1,7 @@
 /** Gateway interno de IA do Flow. Só usa provedor compatível configurado no servidor. */
 
 import type { Canal } from "./acoes.server";
+import { falhaPermiteFallback } from "./politica-fallback";
 import { chamarRoteadorHibrido, FalhaHibrida, roteadorHibridoLigado } from "./gateway-hibrido.server";
 import { obterLimitadorCloudflare } from "./cotas-cloudflare.server";
 import type { ClasseDeDados, LimitadorHibridoDistribuido, TarefaFlow } from "./roteador-hibrido";
@@ -88,7 +89,7 @@ export type EventoDeChamada = {
   latenciaMs: number;
   ok: boolean;
   httpStatus?: number;
-  categoriaErro?: "autenticacao" | "credito" | "permissao" | "limite" | "temporario" | "rede";
+  categoriaErro?: "autenticacao" | "credito" | "permissao" | "modelo_descontinuado" | "limite" | "temporario" | "rede";
   uso?: UsoDeTokens;
   /** Nomes das ferramentas pedidas pelo modelo nesta rodada. */
   ferramentas: string[];
@@ -98,6 +99,7 @@ export type EventoDeChamada = {
 function mensagemSegura(status: number): string {
   if (status === 402) return "Os créditos de IA do Flow acabaram.";
   if (status === 403) return "A IA do Flow está bloqueada para este negócio agora.";
+  if (status === 410) return "O modelo de IA não está mais disponível. Tente novamente em instantes.";
   if (status === 429) return "A IA do Flow está sobrecarregada. Tente de novo em instantes.";
   if (status === 401) return "A autenticação da IA do Flow foi recusada neste ambiente.";
   return "A IA do Flow não conseguiu responder agora.";
@@ -107,6 +109,7 @@ function categoriaDoStatus(status: number): EventoDeChamada["categoriaErro"] {
   if (status === 401) return "autenticacao";
   if (status === 402) return "credito";
   if (status === 403) return "permissao";
+  if (status === 410) return "modelo_descontinuado";
   if (status === 429) return "limite";
   if (status === 502 || status === 504) return "rede";
   if (status >= 500) return "temporario";
@@ -289,11 +292,10 @@ export function criarSessaoDoGateway(opcoes?: {
           ...(categoriaPrimaria ? { categoriaErro: categoriaPrimaria } : {}),
         });
 
-        // Só falhas transitórias acionam o secundário. Erros de credencial, bloqueio
-        // ou crédito (401/402/403) não são mascarados por outro provedor.
+        // 410 (modelo retirado), 429 ou 5xx permitem usar somente o secundário configurado.
+        // Erros de credencial, bloqueio e crédito (401/402/403) nunca são mascarados.
         const fallback = leitura.config.fallback;
-        const transitoria = statusPrimario === 429 || statusPrimario >= 500;
-        if (!fallback || !transitoria) {
+        if (!fallback || !falhaPermiteFallback(statusPrimario)) {
           throw new ErroDoGateway(statusPrimario, mensagemSegura(statusPrimario), identidade.provedor);
         }
 
