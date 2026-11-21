@@ -139,6 +139,69 @@ describe("Flow Core — integração opcional do gateway", () => {
     vi.stubEnv("CORTAI_AI_HIBRIDO_OLLAMA_ORIGIN", "https://privado.exemplo.test");
     expect(lerProvedoresHibridos()).toHaveLength(1);
   });
+  it("descarta modelo Cloudflare retirado, mantendo outra opção gratuita", () => {
+    vi.stubEnv("CORTAI_AI_HIBRIDO", "true");
+    vi.stubEnv("CORTAI_AI_HIBRIDO_CONFIG", JSON.stringify([
+      { ...cfg[0], id: "workers_ai", modelo: "@cf/qwen/qwq-32b",
+        baseUrl: "https://api.cloudflare.com/client/v4/accounts/test/ai/v1" },
+      cfg[0],
+    ]));
+    vi.stubEnv("CORTAI_AI_HIBRIDO_GROQ_API_KEY", "teste");
+    const selecionados = lerProvedoresHibridos();
+    expect(selecionados).toHaveLength(1);
+    expect(selecionados[0]!.candidato.id).toBe("groq");
+  });
+
+  it("410 no híbrido reserva cota e tenta o próximo provedor autorizado", async () => {
+    vi.stubEnv("CORTAI_AI_HIBRIDO", "true");
+    vi.stubEnv("CORTAI_AI_HIBRIDO_CONFIG", JSON.stringify([
+      cfg[0],
+      { ...cfg[0], id: "gemini", modelo: "gemini-gratuito-de-teste",
+        baseUrl: "https://generativelanguage.googleapis.com/v1beta/openai" },
+    ]));
+    vi.stubEnv("CORTAI_AI_HIBRIDO_GROQ_API_KEY", "teste");
+    vi.stubEnv("CORTAI_AI_HIBRIDO_GEMINI_API_KEY", "teste");
+    vi.spyOn(console, "warn").mockImplementation(() => undefined);
+    const buscar = vi.fn()
+      .mockResolvedValueOnce(new Response("modelo retirado", { status: 410 }))
+      .mockResolvedValueOnce(new Response(
+        JSON.stringify({ choices: [{ message: { content: "OK" } }] }),
+        { status: 200 },
+      ));
+    vi.stubGlobal("fetch", buscar);
+    const reservar = vi.fn(async () => true);
+    const r = await chamarRoteadorHibrido(entrada, {
+      canal: "painel", tarefa: "conversa", dados: "publico",
+      anonimizadoDeFormaVerificada: false, idempotencia: "t410",
+      limitador: { reservar },
+    });
+    expect(r.itens[0]).toMatchObject({ type: "message" });
+    expect(buscar.mock.calls.map((call) => String(call[0]))).toEqual([
+      "https://api.groq.com/openai/v1/chat/completions",
+      "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions",
+    ]);
+    expect(reservar).toHaveBeenCalledTimes(2);
+  });
+
+  it("401 não salta para outro provedor no híbrido", async () => {
+    vi.stubEnv("CORTAI_AI_HIBRIDO", "true");
+    vi.stubEnv("CORTAI_AI_HIBRIDO_CONFIG", JSON.stringify([
+      cfg[0],
+      { ...cfg[0], id: "gemini", baseUrl: "https://generativelanguage.googleapis.com/v1beta/openai" },
+    ]));
+    vi.stubEnv("CORTAI_AI_HIBRIDO_GROQ_API_KEY", "teste");
+    vi.stubEnv("CORTAI_AI_HIBRIDO_GEMINI_API_KEY", "teste");
+    vi.spyOn(console, "warn").mockImplementation(() => undefined);
+    const buscar = vi.fn(async () => new Response("sem autorização", { status: 401 }));
+    vi.stubGlobal("fetch", buscar);
+    await expect(chamarRoteadorHibrido(entrada, {
+      canal: "painel", tarefa: "conversa", dados: "publico",
+      anonimizadoDeFormaVerificada: false, idempotencia: "t401",
+      limitador: { reservar: async () => true },
+    })).rejects.toMatchObject({ status: 401, provedor: "groq" });
+    expect(buscar).toHaveBeenCalledTimes(1);
+  });
+
   it("sem reserva global não faz chamada, mesmo com credenciais", async () => {
     vi.stubEnv("CORTAI_AI_HIBRIDO", "true");
     vi.stubEnv("CORTAI_AI_HIBRIDO_CONFIG", JSON.stringify(cfg));
