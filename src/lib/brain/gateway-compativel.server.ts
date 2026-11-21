@@ -13,6 +13,7 @@
  */
 import type { Canal } from "./acoes.server";
 import type { FerramentaDoModelo, ItemDeEntrada } from "./gateway.server";
+import { modeloWorkersAiRetirado } from "./politica-fallback";
 
 export type ConfigSecundaria = {
   /** Host do provedor secundário (para rastreio); não é segredo. */
@@ -323,6 +324,14 @@ export async function chamarCompativel(
   const controle = new AbortController();
   const relogio = setTimeout(() => controle.abort(), config.tempoLimiteMs);
   try {
+    // OpenRouter: o roteador de custo zero só aceita variantes explicitamente gratuitas.
+    if (config.nome === "openrouter.ai" && !config.modelo.endsWith(":free")) {
+      throw new ErroDoProvedor(403, "modelo OpenRouter não gratuito bloqueado");
+    }
+    // A Cloudflare retorna 410/5028 para estes IDs; impedir a chamada antecipadamente.
+    if (modeloWorkersAiRetirado(config.nome, config.modelo)) {
+      throw new ErroDoProvedor(410, "modelo Workers AI retirado");
+    }
     const ferramentas = ferramentasParaChat(input.ferramentas);
     const resposta = await buscar(`${config.baseUrl}/chat/completions`, {
       method: "POST",
